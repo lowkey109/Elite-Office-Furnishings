@@ -13,6 +13,7 @@ import SendQuote from "@/pages/SendQuote";
 import WorkplaceStrategy from "@/pages/WorkplaceStrategy";
 import { ThankYouLayoutPlan, ThankYouQuote, ThankYouStrategy } from "@/pages/ThankYou";
 import Contact from "@/pages/Contact";
+import Marketing from "@/pages/Marketing";
 
 function Router() {
   return (
@@ -28,6 +29,7 @@ function Router() {
       <Route path="/thank-you-quote" component={ThankYouQuote} />
       <Route path="/thank-you-strategy" component={ThankYouStrategy} />
       <Route path="/contact" component={Contact} />
+      <Route path="/admin/marketing" component={Marketing} />
       <Route component={NotFound} />
     </Switch>
   );

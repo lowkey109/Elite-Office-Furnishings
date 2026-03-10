@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { insertLeadSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import OpenAI from "openai";
+import { registerMarketingRoutes } from "./marketing";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -191,6 +192,8 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
 
+  registerMarketingRoutes(app);
+
   app.post("/api/leads", async (req, res) => {
     try {
       const data = insertLeadSchema.parse(req.body);
@@ -243,8 +246,7 @@ export async function registerRoutes(
             ...formattedMessages,
           ],
           stream: true,
-          max_completion_tokens: 500,
-          temperature: 0.7,
+          
         } as any);
 
         for await (const chunk of stream) {
@@ -263,8 +265,7 @@ export async function registerRoutes(
             { role: "system", content: CORPORATE_DESK_SYSTEM_PROMPT },
             ...formattedMessages,
           ],
-          max_completion_tokens: 500,
-          temperature: 0.7,
+          
         } as any);
 
         const content = completion.choices[0]?.message?.content || "";
