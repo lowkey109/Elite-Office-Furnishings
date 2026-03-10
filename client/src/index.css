@@ -154,15 +154,35 @@
 @layer base {
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
   }
 
   h1, h2, h3, h4 {
     font-family: 'Playfair Display', serif;
     letter-spacing: -0.02em;
+  }
+
+  button, a, [role="button"] {
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+
+  input, textarea, select {
+    touch-action: manipulation;
+    font-size: 16px;
   }
 }
 
@@ -200,6 +220,33 @@
   width: 60px;
   height: 2px;
   background: linear-gradient(90deg, hsl(43, 78%, 52%), transparent);
+}
+
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.touch-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.min-touch {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+@media (hover: none) {
+  .group-card-content {
+    opacity: 1 !important;
+    max-height: none !important;
+  }
+
+  .hover-show {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
 }
 
 /**

@@ -50,8 +50,8 @@ export default function Contact() {
 
   return (
     <Layout>
-      <section className="relative pt-40 pb-16 bg-gradient-to-b from-[hsl(220,20%,5%)] to-background">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <section className="relative pt-36 sm:pt-40 pb-12 sm:pb-16 bg-gradient-to-b from-[hsl(220,20%,5%)] to-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Badge className="mb-5 bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)]">
             Get In Touch
           </Badge>
@@ -67,7 +67,7 @@ export default function Contact() {
       </section>
 
       <section className="py-16 bg-background">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-5 gap-12">
             <div className="lg:col-span-2 space-y-6">
               <div>

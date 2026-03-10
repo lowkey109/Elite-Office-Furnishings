@@ -38,14 +38,14 @@ const milestones = [
 export default function About() {
   return (
     <Layout>
-      <section className="relative pt-40 pb-28 overflow-hidden">
+      <section className="relative pt-36 sm:pt-40 pb-20 sm:pb-28 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(220,20%,6%)] via-[hsl(220,20%,7%)] to-[hsl(220,15%,5%)]" />
         <div className="absolute top-0 right-0 w-1/2 h-full opacity-5"
           style={{
             backgroundImage: "radial-gradient(circle at 70% 50%, hsl(43,78%,52%), transparent 60%)"
           }} />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
             <Badge className="mb-6 bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)]">
               About The Corporate Desk
@@ -62,8 +62,8 @@ export default function About() {
         </div>
       </section>
 
-      <section className="py-28 bg-[hsl(220,20%,5%)]">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <section className="py-20 sm:py-28 bg-[hsl(220,20%,5%)]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="relative">
               <div className="absolute -inset-4 bg-[rgba(201,168,76,0.05)] rounded-md blur-2xl" />
@@ -108,8 +108,8 @@ export default function About() {
         </div>
       </section>
 
-      <section className="py-28 bg-background">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <section className="py-20 sm:py-28 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)]">
               Our Principles
@@ -132,8 +132,8 @@ export default function About() {
         </div>
       </section>
 
-      <section className="py-28 bg-[hsl(220,20%,5%)]">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <section className="py-20 sm:py-28 bg-[hsl(220,20%,5%)]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)]">
               Our Journey

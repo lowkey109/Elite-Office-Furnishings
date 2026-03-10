@@ -127,8 +127,8 @@ export default function Products() {
 
   return (
     <Layout>
-      <section className="relative pt-40 pb-20 bg-gradient-to-b from-[hsl(220,20%,5%)] to-background">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <section className="relative pt-28 sm:pt-40 pb-16 sm:pb-20 bg-gradient-to-b from-[hsl(220,20%,5%)] to-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Badge className="mb-5 bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)]">
             Product Collection
           </Badge>
@@ -143,18 +143,19 @@ export default function Products() {
         </div>
       </section>
 
-      <section className="sticky top-20 z-30 bg-[hsl(220,20%,7%)]/95 backdrop-blur-md border-b border-[rgba(201,168,76,0.1)] py-4">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1 flex-nowrap">
+      <section className="sticky top-16 sm:top-20 z-30 bg-[hsl(220,20%,7%)]/97 backdrop-blur-md border-b border-[rgba(201,168,76,0.1)] py-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex gap-2 overflow-x-auto touch-scroll pb-1 flex-nowrap">
             {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
                 data-testid={`filter-${cat.toLowerCase().replace(/\s+/g, "-")}`}
-                className={`flex-shrink-0 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
+                className={`flex-shrink-0 px-4 min-h-[44px] rounded-md text-sm font-medium transition-all ${
                   activeCategory === cat
                     ? "bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)]"
-                    : "bg-[rgba(255,255,255,0.04)] text-white/60 hover:text-white hover:bg-[rgba(255,255,255,0.07)] border border-[rgba(201,168,76,0.15)]"
+                    : "bg-[rgba(255,255,255,0.04)] text-white/60 active:text-white active:bg-[rgba(255,255,255,0.1)] border border-[rgba(201,168,76,0.15)]"
                 }`}
               >
                 {cat}
@@ -165,7 +166,7 @@ export default function Products() {
       </section>
 
       <section className="py-16 bg-background">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8 flex items-center justify-between">
             <p className="text-white/40 text-sm">
               Showing <span className="text-white">{filtered.length}</span> products

@@ -60,7 +60,7 @@ export default function WorkplaceSolutions() {
         <div className="absolute inset-0 bg-[hsl(220,20%,6%)]/85" />
         <div className="absolute inset-0 bg-gradient-to-r from-[hsl(220,20%,6%)]/95 to-transparent" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pt-20">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20">
           <div className="max-w-3xl">
             <Badge className="mb-6 bg-[rgba(201,168,76,0.15)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.3)]">
               Workplace Solutions
@@ -88,8 +88,8 @@ export default function WorkplaceSolutions() {
         </div>
       </section>
 
-      <section className="py-28 bg-background">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <section className="py-20 sm:py-28 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)]">
               Choose Your Path
@@ -129,7 +129,7 @@ export default function WorkplaceSolutions() {
                     </li>
                   ))}
                 </ul>
-                <Button asChild className={`w-full font-semibold ${i === 1 ? "bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] border-none" : "border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] bg-transparent"}`} data-testid={solution.ctaTestId}>
+                <Button asChild className={`w-full font-semibold min-h-[52px] text-base ${i === 1 ? "bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] border-none" : "border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] bg-transparent"}`} data-testid={solution.ctaTestId}>
                   <Link href={solution.href}>
                     {solution.cta} <ArrowRight className="ml-2 w-4 h-4" />
                   </Link>
@@ -141,7 +141,7 @@ export default function WorkplaceSolutions() {
       </section>
 
       <section className="py-28 bg-[hsl(220,20%,5%)]">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)]">
               Our Process

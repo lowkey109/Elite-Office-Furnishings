@@ -99,27 +99,28 @@ export default function Home() {
         <div className="hero-overlay absolute inset-0" />
         <div className="absolute inset-0 bg-gradient-to-r from-[hsl(220,20%,6%)]/80 via-transparent to-transparent" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pt-20">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-20">
           <div className="max-w-3xl">
-            <Badge className="mb-6 bg-[rgba(201,168,76,0.15)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.3)] font-medium tracking-wide">
+            <Badge className="mb-5 sm:mb-6 bg-[rgba(201,168,76,0.15)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.3)] font-medium tracking-wide">
               Premium Commercial Office Furniture
             </Badge>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-white leading-[1.05] mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-white leading-[1.05] mb-5 sm:mb-6">
               Where Ambition<br />
               <span className="gold-text">Meets Design</span>
             </h1>
-            <p className="text-lg md:text-xl text-white/70 leading-relaxed mb-4 max-w-2xl">
+            <p className="text-base sm:text-lg md:text-xl text-white/70 leading-relaxed mb-4 max-w-2xl">
               Australia's most exclusive commercial office furniture supplier. We deliver complete workplace transformations for companies that refuse to compromise.
             </p>
-            <p className="text-base text-[hsl(43,78%,65%)] font-medium mb-10">
-              Serving Brisbane, Sydney & Melbourne — Nationally Available
+            <p className="text-sm sm:text-base text-[hsl(43,78%,65%)] font-medium mb-8 sm:mb-10">
+              Serving Brisbane, Sydney &amp; Melbourne — Nationally Available
             </p>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
               <Button
                 asChild
                 size="lg"
-                className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold tracking-wide px-8 border-none text-base"
+                className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold tracking-wide px-8 border-none text-base min-h-[52px] w-full sm:w-auto"
                 data-testid="button-hero-layout-plan"
+                style={{ touchAction: "manipulation" }}
               >
                 <Link href="/free-office-layout-plan">
                   Free Office Layout Plan
@@ -130,20 +131,33 @@ export default function Home() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="border-white/30 text-white bg-white/5 backdrop-blur-sm font-semibold tracking-wide px-8 text-base"
+                className="border-white/30 text-white bg-white/5 backdrop-blur-sm font-semibold tracking-wide px-8 text-base min-h-[52px] w-full sm:w-auto"
                 data-testid="button-hero-quote"
+                style={{ touchAction: "manipulation" }}
               >
                 <Link href="/send-us-your-quote">
                   Request a Quote
                 </Link>
               </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-[rgba(201,168,76,0.35)] text-[hsl(43,78%,65%)] bg-transparent font-semibold tracking-wide px-8 text-base min-h-[52px] w-full sm:w-auto"
+                data-testid="button-hero-strategy"
+                style={{ touchAction: "manipulation" }}
+              >
+                <Link href="/workplace-strategy">
+                  Book a Strategy Call
+                </Link>
+              </Button>
             </div>
 
-            <div className="mt-16 flex flex-wrap gap-6">
+            <div className="mt-10 sm:mt-14 flex flex-wrap gap-4 sm:gap-6">
               {["ISO 9001 Certified", "6-Year Warranty", "Australian Owned", "Free Delivery Quote"].map(badge => (
                 <div key={badge} className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-[hsl(43,78%,52%)]" />
-                  <span className="text-sm text-white/60 font-medium">{badge}</span>
+                  <span className="text-xs sm:text-sm text-white/60 font-medium">{badge}</span>
                 </div>
               ))}
             </div>
@@ -168,7 +182,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-28 bg-background">
+      <section className="py-20 sm:py-28 bg-background">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)]">
@@ -195,16 +209,17 @@ export default function Home() {
                     src={cat.image}
                     alt={cat.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,20%,6%)]/90 via-[hsl(220,20%,6%)]/30 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,20%,6%)]/92 via-[hsl(220,20%,6%)]/40 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <div className="w-8 h-px bg-[hsl(43,78%,52%)] mb-3 transition-all duration-300 group-hover:w-14" />
+                    <div className="w-10 h-px bg-[hsl(43,78%,52%)] mb-3" />
                     <h3 className="text-xl font-serif font-bold text-white mb-2">{cat.title}</h3>
-                    <p className="text-sm text-white/60 leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-300 max-h-0 group-hover:max-h-20 overflow-hidden">
+                    <p className="text-sm text-white/65 leading-relaxed mb-3 group-card-content">
                       {cat.description}
                     </p>
-                    <div className="flex items-center gap-1 mt-3 text-[hsl(43,78%,65%)] text-sm font-medium">
-                      Explore <ArrowRight className="w-3.5 h-3.5 ml-1 transition-transform group-hover:translate-x-1" />
+                    <div className="flex items-center gap-1 text-[hsl(43,78%,65%)] text-sm font-medium">
+                      Explore <ArrowRight className="w-3.5 h-3.5 ml-1" />
                     </div>
                   </div>
                 </div>
@@ -224,14 +239,15 @@ export default function Home() {
                     src={cat.image}
                     alt={cat.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,20%,6%)]/90 via-[hsl(220,20%,6%)]/30 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,20%,6%)]/92 via-[hsl(220,20%,6%)]/40 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                    <div className="w-8 h-px bg-[hsl(43,78%,52%)] mb-3 transition-all duration-300 group-hover:w-14" />
+                    <div className="w-10 h-px bg-[hsl(43,78%,52%)] mb-3" />
                     <h3 className="text-xl md:text-2xl font-serif font-bold text-white mb-2">{cat.title}</h3>
-                    <p className="text-sm text-white/60 leading-relaxed">{cat.description}</p>
+                    <p className="text-sm text-white/65 leading-relaxed">{cat.description}</p>
                     <div className="flex items-center gap-1 mt-4 text-[hsl(43,78%,65%)] text-sm font-medium">
-                      Explore <ArrowRight className="w-3.5 h-3.5 ml-1 transition-transform group-hover:translate-x-1" />
+                      Explore <ArrowRight className="w-3.5 h-3.5 ml-1" />
                     </div>
                   </div>
                 </div>
@@ -247,7 +263,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-28 bg-[hsl(220,20%,5%)]">
+      <section className="py-20 sm:py-28 bg-[hsl(220,20%,5%)]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
@@ -280,7 +296,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-28 bg-background">
+      <section className="py-20 sm:py-28 bg-background">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)]">
