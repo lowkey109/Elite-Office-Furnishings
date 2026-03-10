@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -50,6 +51,14 @@ const processSteps = [
 ];
 
 export default function WorkplaceSolutions() {
+  useEffect(() => {
+    document.title = "Workplace Solutions — Office Fitout & Strategy Services | The Corporate Desk";
+    const meta = document.querySelector('meta[name="description"]') || document.createElement("meta");
+    meta.setAttribute("name", "description");
+    meta.setAttribute("content", "Free office layout plans, custom quotes, workplace strategy consultations, and complete fitout management. Premium commercial office solutions across Australia.");
+    if (!meta.parentNode) document.head.appendChild(meta);
+  }, []);
+
   return (
     <Layout>
       <section className="relative min-h-[70vh] flex items-center overflow-hidden">

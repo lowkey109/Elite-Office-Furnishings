@@ -1,15 +1,27 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Phone, Mail, X } from "lucide-react";
 import { ChatBot } from "@/components/ChatBot";
 
 const navLinks = [
   { label: "Home", href: "/" },
-  { label: "About", href: "/about" },
   { label: "Products", href: "/products" },
   { label: "Workplace Solutions", href: "/workplace-solutions" },
+  { label: "Case Studies", href: "/case-studies" },
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
+];
+
+const mobileNavLinks = [
+  { label: "Home", href: "/" },
+  { label: "Products", href: "/products" },
+  { label: "Workplace Solutions", href: "/workplace-solutions" },
+  { label: "Case Studies", href: "/case-studies" },
+  { label: "Quote Builder", href: "/quote-builder" },
+  { label: "Finance Your Workspace", href: "/finance-your-workspace" },
+  { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -108,6 +120,7 @@ function Header() {
               side="right"
               className="bg-[hsl(220,18%,10%)] border-[rgba(201,168,76,0.15)] w-full sm:w-80 p-0"
             >
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between px-6 py-5 border-b border-[rgba(201,168,76,0.1)]">
                   <div className="flex flex-col">
@@ -117,7 +130,7 @@ function Header() {
                 </div>
 
                 <nav className="flex-1 px-4 py-6 overflow-y-auto">
-                  {navLinks.map((link) => (
+                  {mobileNavLinks.map((link) => (
                     <Link key={link.href} href={link.href}>
                       <div
                         data-testid={`link-mobile-nav-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
@@ -239,8 +252,11 @@ function Footer() {
               {[
                 { label: "Workplace Solutions", href: "/workplace-solutions" },
                 { label: "Free Layout Plan", href: "/free-office-layout-plan" },
+                { label: "Quote Builder", href: "/quote-builder" },
                 { label: "Request a Quote", href: "/send-us-your-quote" },
+                { label: "Finance Your Workspace", href: "/finance-your-workspace" },
                 { label: "Strategy Call", href: "/workplace-strategy" },
+                { label: "Case Studies", href: "/case-studies" },
                 { label: "About Us", href: "/about" },
                 { label: "Contact", href: "/contact" },
               ].map(item => (

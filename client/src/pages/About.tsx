@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +37,14 @@ const milestones = [
 ];
 
 export default function About() {
+  useEffect(() => {
+    document.title = "About Us — Australian-Owned Commercial Furniture | The Corporate Desk";
+    const meta = document.querySelector('meta[name="description"]') || document.createElement("meta");
+    meta.setAttribute("name", "description");
+    meta.setAttribute("content", "The Corporate Desk is an Australian-owned commercial office furniture supplier. ISO 9001 & ISO 14001 certified, 6-year warranty, serving Brisbane, Sydney, Melbourne and nationally.");
+    if (!meta.parentNode) document.head.appendChild(meta);
+  }, []);
+
   return (
     <Layout>
       <section className="relative pt-36 sm:pt-40 pb-20 sm:pb-28 overflow-hidden">

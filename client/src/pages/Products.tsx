@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -120,6 +120,14 @@ const products = [
 
 export default function Products() {
   const [activeCategory, setActiveCategory] = useState("All");
+
+  useEffect(() => {
+    document.title = "Office Furniture Products — Desks, Chairs, Boardrooms | The Corporate Desk";
+    const meta = document.querySelector('meta[name="description"]') || document.createElement("meta");
+    meta.setAttribute("name", "description");
+    meta.setAttribute("content", "Browse premium commercial office furniture: executive desks, boardroom tables, ergonomic seating, workstations, reception areas, storage and office pods. Aimu and Breeze series.");
+    if (!meta.parentNode) document.head.appendChild(meta);
+  }, []);
 
   const filtered = activeCategory === "All"
     ? products

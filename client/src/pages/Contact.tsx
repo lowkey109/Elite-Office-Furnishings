@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -47,6 +48,14 @@ const contactInfo = [
 
 export default function Contact() {
   const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    document.title = "Contact Us — Get in Touch | The Corporate Desk";
+    const meta = document.querySelector('meta[name="description"]') || document.createElement("meta");
+    meta.setAttribute("name", "description");
+    meta.setAttribute("content", "Contact The Corporate Desk for commercial office furniture enquiries. Call 1300 977 607 or email service@thecorporatedesk.com.au. Brisbane, Sydney, Melbourne and national.");
+    if (!meta.parentNode) document.head.appendChild(meta);
+  }, []);
 
   return (
     <Layout>

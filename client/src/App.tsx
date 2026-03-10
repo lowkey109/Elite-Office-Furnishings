@@ -14,6 +14,11 @@ import WorkplaceStrategy from "@/pages/WorkplaceStrategy";
 import { ThankYouLayoutPlan, ThankYouQuote, ThankYouStrategy } from "@/pages/ThankYou";
 import Contact from "@/pages/Contact";
 import Marketing from "@/pages/Marketing";
+import QuoteBuilder from "@/pages/QuoteBuilder";
+import FinanceWorkspace from "@/pages/FinanceWorkspace";
+import CaseStudies from "@/pages/CaseStudies";
+import AdminDashboard from "@/pages/AdminDashboard";
+import AdminLeads from "@/pages/AdminLeads";
 
 function Router() {
   return (
@@ -25,11 +30,16 @@ function Router() {
       <Route path="/free-office-layout-plan" component={FreeLayoutPlan} />
       <Route path="/send-us-your-quote" component={SendQuote} />
       <Route path="/workplace-strategy" component={WorkplaceStrategy} />
+      <Route path="/quote-builder" component={QuoteBuilder} />
+      <Route path="/finance-your-workspace" component={FinanceWorkspace} />
+      <Route path="/case-studies" component={CaseStudies} />
       <Route path="/thank-you-layout-plan" component={ThankYouLayoutPlan} />
       <Route path="/thank-you-quote" component={ThankYouQuote} />
       <Route path="/thank-you-strategy" component={ThankYouStrategy} />
       <Route path="/contact" component={Contact} />
       <Route path="/admin/marketing" component={Marketing} />
+      <Route path="/admin/dashboard" component={AdminDashboard} />
+      <Route path="/admin/leads" component={AdminLeads} />
       <Route component={NotFound} />
     </Switch>
   );

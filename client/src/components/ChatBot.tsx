@@ -17,14 +17,17 @@ interface QuickReply {
 }
 
 const PAGE_CONTEXT_GREETINGS: Record<string, string> = {
-  "/": "Welcome to The Corporate Desk. I'm your AI consultant — here to help you find the right furniture solutions for your workspace. What are you working on?",
-  "/products": "Browsing our product range? I can help narrow down exactly what suits your space and team. What type of furniture are you looking for?",
-  "/workplace-solutions": "Looking at workplace fitout options? I can walk you through our process and help scope your project. What does your space look like?",
-  "/free-office-layout-plan": "Our free layout plan is one of the most popular ways to start a fitout project — no obligation, just a professional CAD layout. Have any questions before you submit the form?",
-  "/send-us-your-quote": "Ready to get a quote? I can help make sure you include the right details to get an accurate response. What products or scope are you quoting for?",
-  "/workplace-strategy": "A strategy call is perfect for complex projects. I can answer questions about what to expect before you book. What's the nature of your project?",
-  "/about": "Glad you're getting to know us. I can share more about our products, certifications, or project process. What would be most helpful?",
-  "/contact": "Happy to help before you reach out. Sometimes I can answer your question faster than a callback. What's on your mind?",
+  "/": "Welcome to The Corporate Desk. I'm your AI business consultant — here to help with products, pricing, fitout scoping, quoting, and more. What are you working on?",
+  "/products": "Browsing our product range? I can narrow down exactly what suits your space, team size, and aesthetic. What type of furniture are you looking for?",
+  "/workplace-solutions": "Looking at fitout options? I can walk you through our process, help scope your project, or give you an indicative budget range. Where are you at with planning?",
+  "/free-office-layout-plan": "Our free layout plan is the most popular starting point for fitout projects — no obligation, just a professional CAD layout. Any questions before you submit?",
+  "/send-us-your-quote": "Ready to get a quote? I can help you include the right specifications for an accurate response. What products or scope are you quoting for?",
+  "/quote-builder": "You're using our interactive Quote Builder — I'm your AI Quoting Advisor. Select your options and I'll guide you through building an accurate budget estimate. What type of project is this for?",
+  "/finance-your-workspace": "Finance can be a smart move for preserving cash flow. I can explain the options, give indicative repayment estimates, or help you think through whether finance suits your situation. What would be helpful?",
+  "/case-studies": "Seeing real results from real projects is one of the best ways to build confidence. Happy to answer questions about any of these fitouts, or help you think about how we'd approach your project.",
+  "/workplace-strategy": "A strategy call is ideal for complex or large-scale projects. I can answer questions about what to expect and help you prepare. What's the nature of your project?",
+  "/about": "Getting to know the business? I can share more about our certifications, process, product range, or what makes us different. What's most relevant to you?",
+  "/contact": "Happy to help before you reach out. Often I can answer your question faster than waiting for a callback. What's on your mind?",
 };
 
 const DEFAULT_GREETING =
