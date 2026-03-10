@@ -1,0 +1,356 @@
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Layout } from "@/components/Layout";
+import { ArrowRight, CheckCircle2, Star, Phone, Award, Shield, Truck, Users } from "lucide-react";
+
+const productCategories = [
+  {
+    title: "Executive Desks",
+    description: "Command authority with furniture that reflects your status. Our executive desks blend power with precision craftsmanship.",
+    image: "/images/category-desks.png",
+    href: "/products",
+  },
+  {
+    title: "Boardroom Tables",
+    description: "Where decisions are made. Premium conference and boardroom tables engineered for corporate gravitas.",
+    image: "/images/category-boardroom.png",
+    href: "/products",
+  },
+  {
+    title: "Reception Areas",
+    description: "First impressions are everything. Transform your reception into a statement of excellence.",
+    image: "/images/category-reception.png",
+    href: "/products",
+  },
+  {
+    title: "Office Seating",
+    description: "Ergonomic excellence meets luxury design. Seating solutions that support performance and impress visitors.",
+    image: "/images/category-seating.png",
+    href: "/products",
+  },
+  {
+    title: "Complete Fitouts",
+    description: "Turnkey workplace transformations. Coordinated furniture packages for cohesive, stunning office environments.",
+    image: "/images/category-fitout.png",
+    href: "/workplace-solutions",
+  },
+];
+
+const stats = [
+  { value: "500+", label: "Projects Delivered" },
+  { value: "6yr", label: "Manufacturer Warranty" },
+  { value: "100%", label: "Australian Owned" },
+  { value: "3", label: "Major Cities Served" },
+];
+
+const features = [
+  {
+    icon: Award,
+    title: "ISO 9001 & 14001 Certified",
+    description: "Our manufacturer adheres to the world's most rigorous quality and environmental management standards.",
+  },
+  {
+    icon: Shield,
+    title: "6-Year Manufacturer's Warranty",
+    description: "Every piece backed by an industry-leading warranty. We stand behind the quality of every product we deliver.",
+  },
+  {
+    icon: Truck,
+    title: "Australia-Wide Delivery",
+    description: "Seamless delivery to Brisbane, Sydney, Melbourne, and beyond. Full installation service available.",
+  },
+  {
+    icon: Users,
+    title: "End-to-End Project Management",
+    description: "From concept to completion, our team manages every detail of your office fitout project.",
+  },
+];
+
+const testimonials = [
+  {
+    quote: "The Corporate Desk transformed our entire floor. The quality is exceptional and the coordinated look has completely elevated how clients perceive our brand.",
+    author: "David R.",
+    role: "Managing Director",
+    company: "Brisbane Financial Group",
+  },
+  {
+    quote: "We fitted out three floors of our Sydney office with TCD. The project management was seamless and the furniture quality is genuinely impressive.",
+    author: "Sarah K.",
+    role: "Head of Facilities",
+    company: "Sydney Technology Partners",
+  },
+  {
+    quote: "Finally a furniture supplier that understands premium corporate. Our Melbourne headquarters has never looked better. Our staff love coming to work.",
+    author: "Michael T.",
+    role: "CEO",
+    company: "Melbourne Capital Advisors",
+  },
+];
+
+export default function Home() {
+  return (
+    <Layout>
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url('/images/hero-office.png')" }}
+        />
+        <div className="hero-overlay absolute inset-0" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[hsl(220,20%,6%)]/80 via-transparent to-transparent" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pt-20">
+          <div className="max-w-3xl">
+            <Badge className="mb-6 bg-[rgba(201,168,76,0.15)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.3)] font-medium tracking-wide">
+              Premium Commercial Office Furniture
+            </Badge>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-white leading-[1.05] mb-6">
+              Where Ambition<br />
+              <span className="gold-text">Meets Design</span>
+            </h1>
+            <p className="text-lg md:text-xl text-white/70 leading-relaxed mb-4 max-w-2xl">
+              Australia's most exclusive commercial office furniture supplier. We deliver complete workplace transformations for companies that refuse to compromise.
+            </p>
+            <p className="text-base text-[hsl(43,78%,65%)] font-medium mb-10">
+              Serving Brisbane, Sydney & Melbourne — Nationally Available
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <Button
+                asChild
+                size="lg"
+                className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold tracking-wide px-8 border-none text-base"
+                data-testid="button-hero-layout-plan"
+              >
+                <Link href="/free-office-layout-plan">
+                  Free Office Layout Plan
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-white/30 text-white bg-white/5 backdrop-blur-sm font-semibold tracking-wide px-8 text-base"
+                data-testid="button-hero-quote"
+              >
+                <Link href="/send-us-your-quote">
+                  Request a Quote
+                </Link>
+              </Button>
+            </div>
+
+            <div className="mt-16 flex flex-wrap gap-6">
+              {["ISO 9001 Certified", "6-Year Warranty", "Australian Owned", "Free Delivery Quote"].map(badge => (
+                <div key={badge} className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                  <span className="text-sm text-white/60 font-medium">{badge}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="absolute bottom-10 left-0 right-0 flex justify-center">
+          <div className="w-px h-16 bg-gradient-to-b from-[rgba(201,168,76,0.5)] to-transparent" />
+        </div>
+      </section>
+
+      <section className="py-16 bg-[hsl(220,20%,5%)] border-y border-[rgba(201,168,76,0.1)]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat) => (
+              <div key={stat.label} className="text-center">
+                <div className="text-4xl md:text-5xl font-serif font-bold gold-text mb-2">{stat.value}</div>
+                <div className="text-sm text-white/50 font-medium tracking-wide uppercase">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-28 bg-background">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)]">
+              Our Collections
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
+              Furniture That Commands Respect
+            </h2>
+            <div className="section-divider mx-auto mb-5" />
+            <p className="text-white/50 max-w-xl mx-auto leading-relaxed">
+              Every piece in our collection is curated for corporate environments where excellence is the standard.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {productCategories.slice(0, 3).map((cat) => (
+              <Link key={cat.title} href={cat.href}>
+                <div
+                  className="group relative overflow-hidden rounded-md cursor-pointer hover-elevate"
+                  data-testid={`card-category-${cat.title.toLowerCase().replace(/\s+/g, "-")}`}
+                  style={{ aspectRatio: "4/3" }}
+                >
+                  <img
+                    src={cat.image}
+                    alt={cat.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,20%,6%)]/90 via-[hsl(220,20%,6%)]/30 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="w-8 h-px bg-[hsl(43,78%,52%)] mb-3 transition-all duration-300 group-hover:w-14" />
+                    <h3 className="text-xl font-serif font-bold text-white mb-2">{cat.title}</h3>
+                    <p className="text-sm text-white/60 leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-300 max-h-0 group-hover:max-h-20 overflow-hidden">
+                      {cat.description}
+                    </p>
+                    <div className="flex items-center gap-1 mt-3 text-[hsl(43,78%,65%)] text-sm font-medium">
+                      Explore <ArrowRight className="w-3.5 h-3.5 ml-1 transition-transform group-hover:translate-x-1" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            {productCategories.slice(3).map((cat) => (
+              <Link key={cat.title} href={cat.href}>
+                <div
+                  className="group relative overflow-hidden rounded-md cursor-pointer hover-elevate"
+                  data-testid={`card-category-${cat.title.toLowerCase().replace(/\s+/g, "-")}`}
+                  style={{ aspectRatio: "16/7" }}
+                >
+                  <img
+                    src={cat.image}
+                    alt={cat.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,20%,6%)]/90 via-[hsl(220,20%,6%)]/30 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                    <div className="w-8 h-px bg-[hsl(43,78%,52%)] mb-3 transition-all duration-300 group-hover:w-14" />
+                    <h3 className="text-xl md:text-2xl font-serif font-bold text-white mb-2">{cat.title}</h3>
+                    <p className="text-sm text-white/60 leading-relaxed">{cat.description}</p>
+                    <div className="flex items-center gap-1 mt-4 text-[hsl(43,78%,65%)] text-sm font-medium">
+                      Explore <ArrowRight className="w-3.5 h-3.5 ml-1 transition-transform group-hover:translate-x-1" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Button asChild variant="outline" size="lg" className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] font-semibold px-10" data-testid="button-view-all-products">
+              <Link href="/products">View All Products</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-28 bg-[hsl(220,20%,5%)]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <Badge className="mb-4 bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)]">
+                Why The Corporate Desk
+              </Badge>
+              <h2 className="text-4xl md:text-5xl font-serif font-bold text-white mb-6">
+                The Standard Others<br />
+                <span className="gold-text">Aspire To</span>
+              </h2>
+              <div className="section-divider mb-8" />
+              <p className="text-white/60 leading-relaxed mb-10">
+                As an Australian-owned and operated company, we've revolutionized office furniture by making fully coordinated, premium collections accessible to Australian businesses. For the first time, companies can achieve a truly cohesive office environment where every piece — desks, storage, seating — is colour-matched and design-coordinated.
+              </p>
+              <Button asChild size="lg" className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold border-none" data-testid="button-about-learn-more">
+                <Link href="/about">Learn Our Story <ArrowRight className="ml-2 w-4 h-4" /></Link>
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {features.map((feature) => (
+                <div key={feature.title} className="luxury-card p-6 rounded-md hover-elevate" data-testid={`card-feature-${feature.title.toLowerCase().replace(/[\s&]+/g, "-")}`}>
+                  <feature.icon className="w-8 h-8 text-[hsl(43,78%,52%)] mb-4" />
+                  <h3 className="text-base font-serif font-bold text-white mb-2">{feature.title}</h3>
+                  <p className="text-sm text-white/50 leading-relaxed">{feature.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-28 bg-background">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)]">
+              Client Stories
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
+              Trusted by Australia's<br />Leading Businesses
+            </h2>
+            <div className="section-divider mx-auto" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {testimonials.map((t, i) => (
+              <div key={i} className="luxury-card p-8 rounded-md flex flex-col" data-testid={`card-testimonial-${i}`}>
+                <div className="flex gap-1 mb-5">
+                  {[...Array(5)].map((_, j) => (
+                    <Star key={j} className="w-4 h-4 text-[hsl(43,78%,52%)] fill-[hsl(43,78%,52%)]" />
+                  ))}
+                </div>
+                <blockquote className="text-white/70 leading-relaxed mb-6 flex-1 italic text-sm">
+                  "{t.quote}"
+                </blockquote>
+                <div className="border-t border-[rgba(201,168,76,0.1)] pt-5">
+                  <div className="font-semibold text-white text-sm">{t.author}</div>
+                  <div className="text-xs text-white/40 mt-1">{t.role}, {t.company}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-28 relative overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url('/images/category-fitout.png')" }}
+        />
+        <div className="absolute inset-0 bg-[hsl(220,20%,6%)]/88" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[hsl(220,20%,6%)]/90 to-transparent" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="max-w-2xl">
+            <Badge className="mb-5 bg-[rgba(201,168,76,0.15)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.3)]">
+              Start Your Project
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-serif font-bold text-white mb-5">
+              Ready to Transform<br />
+              <span className="gold-text">Your Workplace?</span>
+            </h2>
+            <p className="text-white/60 leading-relaxed mb-10 text-lg">
+              From concept to installation — we manage every aspect of your office fitout. Projects from $30,000 to $300,000+.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <Button asChild size="lg" className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold border-none px-8" data-testid="button-cta-layout-plan">
+                <Link href="/free-office-layout-plan">Free Layout Plan <ArrowRight className="ml-2 w-4 h-4" /></Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="border-white/30 text-white bg-white/5 px-8" data-testid="button-cta-strategy-call">
+                <Link href="/workplace-strategy">Book a Strategy Call</Link>
+              </Button>
+            </div>
+            <div className="mt-8 flex items-center gap-3">
+              <Phone className="w-5 h-5 text-[hsl(43,78%,52%)]" />
+              <span className="text-white/60">Or call us now: </span>
+              <a href="tel:1300977607" className="text-[hsl(43,78%,65%)] font-semibold hover:text-[hsl(43,78%,75%)] transition-colors">
+                1300 977 607
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </Layout>
+  );
+}
