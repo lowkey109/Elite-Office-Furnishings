@@ -1,0 +1,254 @@
+You are upgrading the live The Corporate Desk platform.
+
+You are in ZERO-FAILURE SAFE EXECUTION MODE.
+
+NON-NEGOTIABLE RULE:
+This must be implemented without breaking the live system.
+
+Do NOT make messy changes.
+Do NOT rebuild working systems.
+Do NOT replace core components unless absolutely necessary.
+Do NOT leave half-finished code.
+Do NOT ship placeholders, fake widgets, fake numbers, or broken flows.
+
+==================================================
+SYSTEMS THAT MUST NOT BREAK
+==================================================
+
+Protect these at all times:
+
+• AI office planner
+• visual layout generator
+• product catalog
+• product pages
+• finance calculator
+• 3D viewer
+• chatbot
+• payment/unlock flow
+• admin dashboard
+• planning requests
+• lead capture
+• website routing
+• mobile responsiveness
+• desktop responsiveness
+
+==================================================
+MANDATORY SAFE EXECUTION PROCESS
+==================================================
+
+Before changing anything, you must follow this exact process:
+
+STEP 1 — AUDIT
+- inspect the current implementation
+- identify all related files, components, routes, and data dependencies
+- identify what is already working
+- identify what could break
+
+STEP 2 — PROTECT
+- preserve current working behavior
+- make the smallest safe changes possible
+- if a change is risky, create a new module/component instead of overwriting a working one
+- do not remove existing working functionality unless replacement is proven working
+
+STEP 3 — IMPLEMENT IN STAGES
+- build in small safe increments
+- verify after each increment
+- do not stack multiple risky changes at once
+
+STEP 4 — TEST THOROUGHLY
+Before reporting completion, test:
+1. planner submission works
+2. admin pages load
+3. product pages load
+4. finance calculator works
+5. payment flow works if present
+6. 3D viewer still works
+7. mobile rendering still works
+8. desktop rendering still works
+9. no route returns errors
+10. no existing live feature is broken
+
+STEP 5 — REPORT HONESTLY
+Return:
+- what was changed
+- what was tested
+- what is fully working
+- what is approximate
+- any risks that remain
+
+Do not claim something works unless it was actually tested.
+
+==================================================
+PRIMARY OBJECTIVE
+==================================================
+
+Build a real working AI-powered Command Centre for The Corporate Desk that helps run the business using real data from the existing system.
+
+Create:
+
+/admin/command-centre
+
+This must be a real working admin dashboard, not a cosmetic mockup.
+
+==================================================
+COMMAND CENTRE REQUIREMENTS
+==================================================
+
+The dashboard must use real existing data from the platform and display, where available:
+
+• total planner submissions
+• total high-value leads
+• estimated pipeline value
+• paid unlock count
+• quote request count
+• strategy call count
+• recent planner submissions
+• lead priority summary
+
+If some data does not yet exist, use the nearest real available source and clearly explain limitations in the final report.
+
+==================================================
+REAL PIPELINE VALUE ENGINE
+==================================================
+
+Create a real pipeline value calculation based on actual planner/admin data.
+
+Use available inputs such as:
+• office size
+• staff count
+• project type
+• budget range
+• layout/package recommendation
+• product/category mapping
+
+Store estimated project value against the planning request record if possible.
+
+Aggregate totals for:
+• total pipeline value
+• average project value
+• high-value project count
+
+Do NOT use fake placeholder values.
+If exact pricing is unavailable, create a real estimate formula and document it clearly.
+
+==================================================
+REAL LEAD SCORING
+==================================================
+
+Create a real lead scoring model using actual submission data.
+
+Score based on:
+• office size
+• staff count
+• relocation / expansion signal
+• budget level
+• workspace type
+• premium fit
+• project scale
+
+Classify:
+• High Value
+• Medium
+• Low Priority
+
+Display the score in:
+• /admin/planning-requests
+• /admin/command-centre
+
+==================================================
+REAL OPPORTUNITY DETECTION
+==================================================
+
+Use current data to identify stronger opportunities such as:
+• larger office requests
+• relocation-style requests
+• HQ / premium style requests
+• bigger staff counts
+• higher budget projects
+
+Flag these inside the command centre.
+
+==================================================
+ADMIN RECOMMENDATIONS
+==================================================
+
+For each strong lead, generate structured internal guidance such as:
+
+Opportunity Summary
+Estimated Project Value
+Lead Priority
+Commercial Notes
+Operational Notes
+CEO Recommendation
+Next Best Action
+
+These recommendations must use real planner and lead data.
+
+==================================================
+VISUAL PIPELINE
+==================================================
+
+If current data structure allows, create a simple pipeline view such as:
+
+New Leads
+→ Qualified
+→ Strategy Call
+→ Quote Ready
+→ Won / Active
+
+Only implement stages that can be supported safely by current or minimally extended data structures.
+
+==================================================
+HARD SAFETY RULES
+==================================================
+
+• Do not overwrite working planner logic
+• Do not corrupt planning request records
+• Do not break payment logic
+• Do not break current product/catalog pages
+• Do not remove fields from the database
+• Do not invent fake admin interactions
+• Do not publish broken states
+
+If a feature cannot be fully completed safely in one pass:
+- build the strongest safe version
+- leave the live system stable
+- clearly report the limitation
+
+==================================================
+TESTING REQUIREMENTS
+==================================================
+
+You must test before completion:
+
+1. existing planner flow
+2. existing admin planning requests page
+3. new command centre page
+4. lead scoring display
+5. pipeline value calculations
+6. no console/server errors from the new changes
+7. desktop and mobile layout stability
+
+==================================================
+FINAL REPORT
+==================================================
+
+Return:
+
+1. files created
+2. files modified
+3. routes added/updated
+4. what real data sources were used
+5. how pipeline value is calculated
+6. how lead scoring is calculated
+7. what was fully tested
+8. confirmation that existing systems still work
+9. any remaining limitations
+
+IMPORTANT
+
+Do not stay in planning mode.
+Audit first.
+Then implement the smallest safe working version.
+Then test everything.
+No fuck-ups. No fake outputs. No broken live features.

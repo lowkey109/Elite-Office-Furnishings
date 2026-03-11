@@ -239,6 +239,7 @@ export async function registerRoutes(
       status: "ok",
       timestamp: new Date().toISOString(),
       email: isEmailConfigured(),
+      stripe: !!process.env.STRIPE_SECRET_KEY,
     });
   });
 

@@ -7,6 +7,7 @@ import {
   Users, TrendingUp, FileText, BarChart3, MessageSquare,
   ChevronRight, Calendar, MapPin, Phone, Mail, Clock,
   Megaphone, ShieldCheck, Eye, ExternalLink, Target, Package, Upload, Star,
+  AlertTriangle, CheckCircle2, XCircle,
 } from "lucide-react";
 import { validateAdminLogin } from "@/lib/adminAuth";
 
@@ -75,6 +76,12 @@ export default function AdminDashboard() {
   const { data: leads = [], isLoading } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
     enabled: authed,
+  });
+
+  const { data: health } = useQuery<{ email: boolean; stripe: boolean; status: string }>({
+    queryKey: ["/api/health"],
+    enabled: authed,
+    refetchInterval: 60000,
   });
 
   function handleLogin() {
@@ -201,10 +208,51 @@ export default function AdminDashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="text-2xl font-serif font-bold text-white mb-1">Business Overview</h1>
           <p className="text-white/40 text-sm">Lead tracking and business metrics for The Corporate Desk</p>
         </div>
+
+        {health && (!health.email || !health.stripe) && (
+          <div className="mb-6 bg-[rgba(251,146,60,0.06)] border border-[rgba(251,146,60,0.2)] rounded-2xl overflow-hidden" data-testid="panel-system-health">
+            <div className="px-5 py-3 border-b border-[rgba(251,146,60,0.12)] flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-orange-400" />
+              <span className="text-orange-400 text-sm font-semibold">System Configuration Alerts</span>
+              <span className="ml-auto text-orange-400/50 text-xs">These are causing live conversion failures</span>
+            </div>
+            <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {!health.stripe && (
+                <div className="flex items-start gap-3 bg-[rgba(255,255,255,0.03)] rounded-xl p-4 border border-[rgba(251,146,60,0.15)]">
+                  <XCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-white font-semibold text-sm">Stripe not configured</p>
+                    <p className="text-white/50 text-xs mt-0.5 leading-relaxed">The $399 unlock button is broken. Users who click it see an error. Add <code className="bg-[rgba(255,255,255,0.08)] px-1 rounded text-orange-300">STRIPE_SECRET_KEY</code> in Secrets to fix.</p>
+                  </div>
+                </div>
+              )}
+              {!health.email && (
+                <div className="flex items-start gap-3 bg-[rgba(255,255,255,0.03)] rounded-xl p-4 border border-[rgba(251,146,60,0.15)]">
+                  <XCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-white font-semibold text-sm">SMTP email not configured</p>
+                    <p className="text-white/50 text-xs mt-0.5 leading-relaxed">All lead and planner notifications are silently failing. Add <code className="bg-[rgba(255,255,255,0.08)] px-1 rounded text-orange-300">SMTP_HOST</code>, <code className="bg-[rgba(255,255,255,0.08)] px-1 rounded text-orange-300">SMTP_USER</code>, <code className="bg-[rgba(255,255,255,0.08)] px-1 rounded text-orange-300">SMTP_PASS</code> in Secrets.</p>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="px-5 pb-3">
+              <p className="text-orange-400/50 text-xs">Fix these in the Replit Secrets panel (the padlock icon in the sidebar). These are revenue-critical.</p>
+            </div>
+          </div>
+        )}
+
+        {health && health.email && health.stripe && (
+          <div className="mb-6 flex items-center gap-2 bg-[rgba(34,197,94,0.06)] border border-[rgba(34,197,94,0.15)] rounded-xl px-4 py-3" data-testid="panel-system-healthy">
+            <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0" />
+            <span className="text-green-400 text-sm font-medium">All systems operational</span>
+            <span className="text-white/30 text-xs ml-auto">Email · Stripe · AI</span>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[

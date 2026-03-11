@@ -3,6 +3,12 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Layout } from "@/components/Layout";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import SpacePlanningEngine from "@/components/SpacePlanningEngine";
 import WorkspaceLayout2D from "@/components/WorkspaceLayout2D";
 import {
@@ -125,6 +131,9 @@ export default function UploadFloorPlan() {
   const [planningRequestId, setPlanningRequestId] = useState<string | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<"locked" | "verifying" | "paid">("locked");
   const [unlocking, setUnlocking] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [contactSubmitting, setContactSubmitting] = useState(false);
+  const [contactSubmitted, setContactSubmitted] = useState(false);
 
   // Step 1: Contact
   const [name, setName] = useState("");
@@ -332,20 +341,35 @@ export default function UploadFloorPlan() {
       } else if (data.checkoutUrl) {
         window.location.href = data.checkoutUrl;
       } else {
-        toast({
-          title: "Payment unavailable",
-          description: data.error || "Please call 1300 977 607 or email service@thecorporatedesk.com.au",
-          variant: "destructive",
-        });
+        setShowContactModal(true);
       }
     } catch {
-      toast({
-        title: "Payment unavailable",
-        description: "Please call 1300 977 607 or email service@thecorporatedesk.com.au",
-        variant: "destructive",
-      });
+      setShowContactModal(true);
     } finally {
       setUnlocking(false);
+    }
+  }
+
+  async function handleContactUnlockRequest() {
+    setContactSubmitting(true);
+    try {
+      await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          company,
+          email,
+          phone,
+          message: `Unlock request for planning report (ID: ${planningRequestId}). Estimated value: ${aiRec?.estimatedProjectValue || "not specified"}. Project type: ${projectType}. Size: ${squareMetres}sqm, ${staffCount} staff.`,
+          type: "unlock-request",
+        }),
+      });
+      setContactSubmitted(true);
+    } catch {
+      setContactSubmitted(true);
+    } finally {
+      setContactSubmitting(false);
     }
   }
 
@@ -442,24 +466,59 @@ export default function UploadFloorPlan() {
                       />
                     )}
 
+                    {(aiRec.estimatedProjectValue || aiRec.implementationTimeline) && (
+                      <div className="rounded-2xl overflow-hidden border border-[rgba(201,168,76,0.35)] bg-gradient-to-br from-[hsl(220,18%,11%)] to-[hsl(220,20%,8%)]">
+                        <div className="px-5 py-3 border-b border-[rgba(201,168,76,0.15)] flex items-center gap-2">
+                          <Sparkles className="w-3.5 h-3.5 text-[hsl(43,78%,52%)]" />
+                          <span className="text-[hsl(43,78%,65%)] text-xs font-semibold uppercase tracking-wider">Project Intelligence</span>
+                        </div>
+                        <div className="p-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          {aiRec.estimatedProjectValue && (
+                            <div className="sm:col-span-2">
+                              <p className="text-white/40 text-xs uppercase tracking-wider mb-1">Estimated Project Value</p>
+                              <p className="text-[hsl(43,78%,52%)] text-2xl sm:text-3xl font-bold font-serif leading-tight">{aiRec.estimatedProjectValue}</p>
+                              <p className="text-white/35 text-xs mt-1.5">Based on {squareMetres}sqm · {staffCount} staff · {aiRec.officeType || projectType}</p>
+                            </div>
+                          )}
+                          <div className="space-y-2.5">
+                            {aiRec.implementationTimeline && (
+                              <div className="bg-[rgba(255,255,255,0.04)] rounded-xl p-3 border border-[rgba(255,255,255,0.06)]">
+                                <p className="text-white/35 text-xs mb-0.5">Timeline</p>
+                                <p className="text-white/80 text-sm font-semibold">{aiRec.implementationTimeline}</p>
+                              </div>
+                            )}
+                            {aiRec.workspaceZones && (
+                              <div className="bg-[rgba(255,255,255,0.04)] rounded-xl p-3 border border-[rgba(255,255,255,0.06)]">
+                                <p className="text-white/35 text-xs mb-0.5">Zones Planned</p>
+                                <p className="text-white/80 text-sm font-semibold">{aiRec.workspaceZones.length} workspace zones</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="px-5 pb-4">
+                          <p className="text-white/30 text-xs italic">Your full specification — including SKU-level furniture schedule, cost breakdown, and 2D layout — is ready to unlock.</p>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.3)] rounded-2xl p-6 sm:p-8">
                       <div className="flex flex-col items-center text-center mb-6">
                         <div className="w-14 h-14 rounded-full bg-[rgba(201,168,76,0.15)] border border-[rgba(201,168,76,0.3)] flex items-center justify-center mb-4">
                           <Lock className="w-6 h-6 text-[hsl(43,78%,52%)]" />
                         </div>
                         <p className="text-[hsl(43,78%,65%)] text-xs font-medium tracking-wider uppercase mb-2">AI WORKSPACE CONCEPT READY</p>
-                        <h3 className="text-white text-xl sm:text-2xl font-serif font-bold mb-2">Your AI workspace concept is ready.</h3>
-                        <p className="text-white/60 text-sm max-w-sm leading-relaxed">Unlock the full layout and furniture plan.</p>
+                        <h3 className="text-white text-xl sm:text-2xl font-serif font-bold mb-2">Your full workspace specification is ready.</h3>
+                        <p className="text-white/60 text-sm max-w-sm leading-relaxed">Unlock your personalised layout, furniture schedule, and cost estimate.</p>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-7">
                         {[
-                          { icon: LayoutDashboard, label: "Interactive visual floor plan" },
-                          { icon: Package, label: "Zone-by-zone furniture SKUs" },
-                          { icon: DollarSign, label: "Full cost estimate (inc. GST)" },
-                          { icon: FileText, label: "PNG + PDF layout export" },
-                          { icon: Monitor, label: "3D walkthrough consultation" },
-                          { icon: Star, label: "Style direction & key insights" },
+                          { icon: LayoutDashboard, label: "Interactive 2D floor plan (PNG export)" },
+                          { icon: Package, label: "Zone-by-zone furniture schedule" },
+                          { icon: DollarSign, label: "Full cost estimate with GST breakdown" },
+                          { icon: FileText, label: "Proposal-ready PDF report" },
+                          { icon: Monitor, label: "3D walkthrough consultation access" },
+                          { icon: Star, label: "Style direction & fit-out insights" },
                         ].map(({ icon: Icon, label }, i) => (
                           <div key={i} className="flex items-center gap-2.5 bg-[rgba(255,255,255,0.03)] rounded-xl px-3.5 py-2.5 border border-[rgba(255,255,255,0.06)]">
                             <Icon className="w-3.5 h-3.5 text-[hsl(43,78%,52%)] flex-shrink-0" />
@@ -469,6 +528,13 @@ export default function UploadFloorPlan() {
                       </div>
 
                       <div className="text-center mb-5">
+                        {aiRec.estimatedProjectValue && (
+                          <p className="text-white/40 text-xs mb-3">
+                            For a project estimated at{" "}
+                            <span className="text-[hsl(43,78%,65%)] font-semibold">{aiRec.estimatedProjectValue}</span>
+                            , this is less than 1% of your total investment.
+                          </p>
+                        )}
                         <div className="mb-1">
                           <span className="text-[hsl(43,78%,52%)] text-4xl font-bold">$399</span>
                           <span className="text-white/40 text-sm ml-1.5">AUD · one-time</span>
@@ -486,10 +552,19 @@ export default function UploadFloorPlan() {
                           ? <><Loader2 className="animate-spin w-4 h-4 mr-2" />Processing…</>
                           : <><Sparkles className="w-4 h-4 mr-2" />Unlock Full Report — $399</>}
                       </Button>
-                      <p className="text-center text-white/30 text-xs">
-                        Secure checkout via Stripe · Questions?{" "}
-                        <a href="tel:1300977607" className="text-[hsl(43,78%,52%)] underline">1300 977 607</a>
-                      </p>
+                      <div className="flex flex-col items-center gap-1.5">
+                        <p className="text-center text-white/30 text-xs">
+                          Secure checkout · Questions?{" "}
+                          <a href="tel:1300977607" className="text-[hsl(43,78%,52%)] underline">1300 977 607</a>
+                        </p>
+                        <button
+                          onClick={() => setShowContactModal(true)}
+                          className="text-white/25 text-xs hover:text-white/50 transition-colors underline"
+                          data-testid="button-request-callback"
+                        >
+                          Prefer to speak with our team?
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -687,6 +762,71 @@ export default function UploadFloorPlan() {
             </div>
           </div>
         </div>
+
+        <Dialog open={showContactModal} onOpenChange={(open) => { setShowContactModal(open); if (!open) setContactSubmitted(false); }}>
+          <DialogContent className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.25)] text-white max-w-md">
+            <DialogHeader>
+              <div className="w-12 h-12 rounded-full bg-[rgba(201,168,76,0.12)] border border-[rgba(201,168,76,0.25)] flex items-center justify-center mb-3">
+                <Phone className="w-5 h-5 text-[hsl(43,78%,52%)]" />
+              </div>
+              <DialogTitle className="text-white font-serif text-xl">Speak with Our Team</DialogTitle>
+              <p className="text-white/50 text-sm leading-relaxed mt-1">
+                Our consultants will personally walk you through your workspace concept and send you the full layout report — no card required.
+              </p>
+            </DialogHeader>
+
+            {contactSubmitted ? (
+              <div className="py-6 text-center">
+                <CheckCircle2 className="w-10 h-10 text-[hsl(43,78%,52%)] mx-auto mb-3" />
+                <p className="text-white font-semibold mb-1">Request received</p>
+                <p className="text-white/50 text-sm">A consultant will contact you within 1 business day to discuss your workspace concept.</p>
+              </div>
+            ) : (
+              <div className="space-y-4 pt-1">
+                {aiRec?.estimatedProjectValue && (
+                  <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.15)] rounded-xl p-3.5 flex items-center gap-3">
+                    <DollarSign className="w-4 h-4 text-[hsl(43,78%,52%)] flex-shrink-0" />
+                    <div>
+                      <p className="text-white/40 text-xs">Your estimated project value</p>
+                      <p className="text-[hsl(43,78%,65%)] font-bold text-sm">{aiRec.estimatedProjectValue}</p>
+                    </div>
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-3">
+                  <a href="tel:1300977607" className="flex items-center gap-2.5 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-xl p-3.5 hover:bg-[rgba(255,255,255,0.07)] transition-colors">
+                    <Phone className="w-4 h-4 text-[hsl(43,78%,52%)] flex-shrink-0" />
+                    <div>
+                      <p className="text-white/40 text-xs">Call us now</p>
+                      <p className="text-white font-semibold text-sm">1300 977 607</p>
+                    </div>
+                  </a>
+                  <a href="mailto:service@thecorporatedesk.com.au" className="flex items-center gap-2.5 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-xl p-3.5 hover:bg-[rgba(255,255,255,0.07)] transition-colors">
+                    <Mail className="w-4 h-4 text-[hsl(43,78%,52%)] flex-shrink-0" />
+                    <div>
+                      <p className="text-white/40 text-xs">Email us</p>
+                      <p className="text-white font-semibold text-sm truncate">service@...</p>
+                    </div>
+                  </a>
+                </div>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[rgba(255,255,255,0.08)]" /></div>
+                  <div className="relative flex justify-center"><span className="bg-[hsl(220,18%,10%)] px-3 text-white/30 text-xs">or request a callback</span></div>
+                </div>
+                <Button
+                  onClick={handleContactUnlockRequest}
+                  disabled={contactSubmitting}
+                  className="w-full bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[48px]"
+                  data-testid="button-submit-callback"
+                >
+                  {contactSubmitting
+                    ? <><Loader2 className="animate-spin w-4 h-4 mr-2" />Sending…</>
+                    : <>Request Callback for {name || "My Project"}</>}
+                </Button>
+                <p className="text-white/25 text-xs text-center">We'll use your brief details to prepare before we call.</p>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </Layout>
     );
   }
