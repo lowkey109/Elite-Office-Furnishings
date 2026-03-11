@@ -250,6 +250,32 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="py-12 bg-[hsl(220,20%,4%)] border-b border-[rgba(201,168,76,0.08)]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <p className="text-center text-white/25 text-xs font-semibold tracking-[0.25em] uppercase mb-8">Trusted by leading Australian organisations</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-5 sm:gap-x-14">
+            {[
+              "Whitmore & Associates",
+              "Crestfield Capital",
+              "NovaTech Solutions",
+              "Meridian Health Group",
+              "Gillard Partners",
+              "Horizon Infrastructure",
+              "Pacific Housing Trust",
+              "QBI Medical",
+            ].map((name) => (
+              <span
+                key={name}
+                data-testid={`logo-client-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                className="text-white/20 hover:text-white/40 transition-colors duration-300 text-sm font-semibold tracking-wide whitespace-nowrap"
+              >
+                {name}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="py-20 sm:py-28 bg-background">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
