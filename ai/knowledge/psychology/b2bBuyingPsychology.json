@@ -1,0 +1,56 @@
+{
+  "corePrinciples": {
+    "reputationProtection": "B2B buyers are not spending their own money but ARE protecting their professional reputation. The fear of making a wrong, visible, expensive mistake is a primary motivator. Always reduce perceived risk.",
+    "rationalVsEmotional": "B2B buying decisions feel rational (ROI, specifications, warranties) but are primarily emotional (prestige, security, confidence in the supplier). Speak to both levels.",
+    "socialProofHierarchy": [
+      "Before/after project photography with a named Australian client",
+      "Industry-specific testimonials (law firm praising TCD for a law firm audience)",
+      "ISO/certification badges — quality signals that require no explanation",
+      "Volume signals: '500+ projects delivered nationally'",
+      "Warranty length — 6-year signals serious quality commitment"
+    ]
+  },
+  "decisionMakerPsychology": {
+    "CEO_MD": {
+      "primaryMotivation": "Vision realisation — the office as a statement of success and culture",
+      "fearOf": "Making the company look unsuccessful or behind competitors",
+      "whatResonates": "Show how the office positions the brand. Use aspirational language. Reference comparable companies.",
+      "howToInfluence": "Speak to vision and brand identity. Present the Executive tier first. Name-drop comparable company types."
+    },
+    "CFO": {
+      "primaryMotivation": "Certainty of value and risk elimination",
+      "fearOf": "Overpaying, hidden costs, budget overruns",
+      "whatResonates": "Total cost of ownership, warranty savings vs replacing cheap furniture at year 2–3, milestone payment structure",
+      "howToInfluence": "Provide itemised quote. Explain 6-year warranty vs industry-standard 1-year. Offer 30/30/40 milestone payments on large projects."
+    },
+    "OfficeManager_EA": {
+      "primaryMotivation": "Executing successfully and avoiding blame for poor decisions",
+      "fearOf": "Choosing a supplier who fails to deliver on time, causing disruption",
+      "whatResonates": "Project certainty, responsiveness, clear timeline milestones, easy communication",
+      "howToInfluence": "This is your internal champion — equip them with everything to sell internally. Comparison summary, presentation deck, FAQ document, timeline.",
+      "importance": "Most critical influence target — they research, recommend, and coordinate. If they champion TCD internally, the deal closes."
+    },
+    "ITManager": {
+      "primaryMotivation": "Ensuring power/data/AV integration works seamlessly",
+      "fearOf": "Furniture installed in wrong positions, AV incompatibility, power routing issues",
+      "whatResonates": "Confirm cable management specifications, coordinated delivery after IT cabling",
+      "howToInfluence": "Offer to coordinate directly with IT on AV and cable management spec before order placement"
+    }
+  },
+  "psychologicalTriggers": {
+    "anchoring": "The first price presented becomes the reference point. Always anchor high. A client who moves down from Executive to Professional is psychologically committed; one who moves up from Foundation is not.",
+    "lossAversion": "Loss framing outperforms gain framing in B2B. 'You'll lose your installation slot in 3 weeks' > 'Book now and save time.' Frame around what they stand to lose by delaying.",
+    "reciprocity": "Free layout plan, showroom visit, sample kit dispatch — all create psychological obligation. Make every free offering genuinely excellent.",
+    "socialValidation": "Mention comparable clients without naming them: 'We just completed a similar project for a 60-person law firm in Sydney.' Validates the decision.",
+    "authority": "ISO certifications, 6-year warranty, 1300 number, physical showroom — all authority signals. Lead with these before price.",
+    "scarcity": "Installation slots genuinely fill up. Communicate this as accurate commercial intelligence, never as manufactured pressure."
+  },
+  "trustBuildingSequence": [
+    "First impression: website quality, response speed (within 4 hours), professional communication",
+    "Early credibility: certifications, warranty, Australian-owned",
+    "Demonstration: showroom visit or detailed product knowledge in conversation",
+    "Social proof: reference projects, testimonials, before/after photography",
+    "Risk elimination: clear timeline, milestone payments, warranty registration",
+    "Reciprocity: free layout plan, sample kit, project walk-through"
+  ]
+}

@@ -1,0 +1,135 @@
+You are extending the AI knowledge system for The Corporate Desk.
+
+You are in SAFE KNOWLEDGE EXPANSION MODE.
+
+IMPORTANT
+
+Do NOT rebuild existing systems.
+Do NOT break:
+
+• AI office planner
+• product catalog
+• admin dashboard
+• finance tools
+• lead systems
+• 3D planner
+• website pages
+
+Only add Australian Work Health & Safety knowledge to the AI knowledge base.
+
+------------------------------------------------
+
+OBJECTIVE
+
+Add an Australian Work Health & Safety (WHS) knowledge module so the AI understands safety and compliance considerations when generating office layouts, recommending furniture, and advising on fit-outs.
+
+The AI must reason using Australian workplace safety principles relevant to commercial office environments and furniture installation.
+
+------------------------------------------------
+
+STEP 1 — CREATE AUSTRALIAN WHS KNOWLEDGE FILE
+
+Create:
+
+/ai/knowledge/industry/australianWHS.json
+
+------------------------------------------------
+
+STEP 2 — INCLUDE KNOWLEDGE ABOUT
+
+Australian WHS Framework
+
+• Work Health and Safety Act (WHS Act)
+• Safe Work Australia principles
+• employer duty of care
+• risk assessment responsibilities
+
+Office Workplace Safety
+
+• safe workstation ergonomics
+• desk and monitor positioning
+• seating posture guidance
+• circulation space between workstations
+• clear walkways
+
+Furniture Safety
+
+• cabinet stability
+• anti-tip considerations
+• safe storage design
+• furniture edge safety
+• glass panel safety
+
+Office Layout Safety
+
+• evacuation path access
+• emergency exit clearance
+• workstation spacing
+• avoiding obstruction of exits
+• safe traffic flow
+
+Installation Safety
+
+• safe furniture assembly
+• lifting safety
+• delivery access planning
+• staging furniture installation
+
+Construction Coordination
+
+• coordination with builders
+• safe sequencing of installations
+• avoiding hazards during fit-outs
+• maintaining safe work zones
+
+Accessibility Considerations
+
+• accessible circulation paths
+• inclusive workstation spacing
+• avoiding layout barriers
+
+------------------------------------------------
+
+STEP 3 — CONNECT TO AI REASONING
+
+Update the admin AI reasoning layer so WHS considerations are automatically evaluated when generating:
+
+• workspace layouts
+• office planning recommendations
+• furniture placement
+• fit-out strategies
+
+The AI must avoid recommending layouts that could create:
+
+• blocked emergency exits
+• unsafe workstation spacing
+• circulation hazards
+• installation risks
+
+------------------------------------------------
+
+STEP 4 — TEST
+
+Before completion verify:
+
+1 planner still functions
+2 admin AI still works
+3 product catalog still works
+4 no routes break
+
+------------------------------------------------
+
+FINAL REPORT
+
+Return:
+
+• file created
+• safety topics added
+• how the AI now references Australian WHS knowledge
+• confirmation systems were not broken
+
+IMPORTANT
+
+Do not stay in planning mode.
+
+Create the Australian WHS knowledge module and connect it to the AI reasoning layer safely.

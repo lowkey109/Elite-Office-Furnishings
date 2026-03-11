@@ -1,0 +1,23 @@
+{
+  "fitoutDecisionPressures": {
+    "timePressure": "Lease start date creates a hard deadline. Furniture not arriving creates real business disruption — staff can't work. This legitimate urgency should be acknowledged and managed proactively.",
+    "budgetPressure": "Fit-out budget is often set before proper product research. It is frequently under-estimated. TCD's job is to show what the budget will and won't achieve — not to pretend constraints don't exist.",
+    "qualityPressure": "The client's own clients, partners, and staff will see and work in this space for 5–10 years. Getting it wrong has lasting reputational and productivity consequences.",
+    "approvalPressure": "Most corporate furniture purchases require committee approval. The internal champion is under pressure to present a compelling case. Give them the tools to succeed."
+  },
+  "builderRelationshipImpact": {
+    "builderDelays": "The most common cause of furniture project delay. Always build a 1-week buffer into timelines for builder delays. Communicate this as professional planning, not pessimism.",
+    "builderMeetings": "On large projects, offer to attend a builder coordination meeting — this signals TCD is a professional trade partner, not just a furniture supplier.",
+    "pcDateUncertainty": "Never lock in a firm installation date more than 3 weeks before PC — builders always run late. Confirm delivery within 5 business days of confirmed PC."
+  },
+  "relocatingClientPsychology": {
+    "excitement": "New office = new chapter. Clients are emotionally invested in getting it right. Aspirational purchases are justified by the fresh start narrative.",
+    "anxiety": "New office = many moving parts. Anything that adds to their to-do list will feel threatening. Position TCD as reducing complexity, not adding to it.",
+    "keyMessage": "We manage the furniture side so you can focus on your business. One contact, clear timeline, single delivery, professional installation — done."
+  },
+  "decisionTimingPsychology": {
+    "earlyDeciders": "Clients who decide on furniture early (6+ months before move) have more time, more options, and higher budgets. Target them with aspirational product positioning.",
+    "lateDeciders": "Clients who decide late (under 8 weeks before move) are under pressure and may accept higher prices for certainty of delivery. Lead with availability and fast-track capability.",
+    "delayingClients": "Clients who keep delaying often have an internal approval problem, not a supplier preference. Ask who else needs to sign off and offer to help with internal presentation."
+  }
+}

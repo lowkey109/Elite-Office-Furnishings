@@ -1,0 +1,71 @@
+{
+  "idealClientProfiles": [
+    {
+      "id": "law_firm",
+      "label": "Law Firm / Legal Services",
+      "staffRange": "10–200",
+      "typicalProjectValue": "$80,000–$350,000",
+      "priority": "Tier 1",
+      "buyingTriggers": ["New lease", "Partner expansion", "Office relocation", "Brand refresh"],
+      "decisionMakers": ["Managing Partner", "Office Manager", "COO"],
+      "psychologyNotes": "Prestige-driven. Partners expect to be impressed. Quality and craftsmanship signals matter enormously — they equate furniture quality with professional credibility. Never present budget options first.",
+      "recommendedProducts": ["GOJO Vol 2 executive suites", "Large format boardroom tables", "Premium leather seating", "Reception with lounge seating"],
+      "avoidMistakes": "Never show volume pricing or compare to consumer brands. Always lead with GOJO Vol 2 or Fessenz Executive."
+    },
+    {
+      "id": "financial_services",
+      "label": "Financial Services / Accounting",
+      "staffRange": "15–500",
+      "typicalProjectValue": "$60,000–$400,000",
+      "priority": "Tier 1",
+      "buyingTriggers": ["New office lease", "Merger or acquisition", "Headcount expansion", "Compliance fit-out"],
+      "decisionMakers": ["CEO", "CFO", "Office Manager"],
+      "psychologyNotes": "ROI and certainty focused. CFO will scrutinise pricing — provide TCO justification (6-year warranty vs replacing at 2–3 years). CEO wants the office to project success. Emphasise ISO certifications and Australian standards.",
+      "recommendedProducts": ["Fessenz executive desks", "HSG sit-stand for open plan", "GAOJIN task seating", "Boardroom table with AV capability"],
+      "avoidMistakes": "Don't quote without a full scope — financial services firms hate surprises. Always include contingency and clarify GST upfront."
+    },
+    {
+      "id": "tech_startup_scaleup",
+      "label": "Tech Company / Startup / Scale-Up",
+      "staffRange": "20–200",
+      "typicalProjectValue": "$40,000–$200,000",
+      "priority": "Tier 1",
+      "buyingTriggers": ["Funding round", "Headcount milestone (20, 50, 100+ staff)", "Leaving coworking", "New city expansion"],
+      "decisionMakers": ["CEO", "COO", "Head of People", "Office Manager"],
+      "psychologyNotes": "Brand-culture conscious. The office is a talent attraction tool — they want it to feel premium and innovative. Speed matters — they move fast and hate delays. Flexible and collaborative layouts preferred.",
+      "recommendedProducts": ["HSG sit-stand workstations", "Modular breakout seating", "GAOJIN training/collaboration chairs", "Reception with contemporary lounge"],
+      "avoidMistakes": "Don't position as 'conservative corporate' — lead with ergonomic sit-stand, flexible layouts, and collaboration space design."
+    },
+    {
+      "id": "government_education",
+      "label": "Government / Education",
+      "staffRange": "50–1000",
+      "typicalProjectValue": "$50,000–$500,000",
+      "priority": "Tier 2",
+      "buyingTriggers": ["Budget cycle (EOFY)", "New building fit-out", "Furniture replacement programme", "Ergonomic compliance"],
+      "decisionMakers": ["Facilities Manager", "Procurement Officer", "Department Head"],
+      "psychologyNotes": "Process and compliance focused. Three-quote requirement is standard — being first sets reference price. ISO certifications are essential trust signals. Timeline certainty matters more than premium aesthetics.",
+      "recommendedProducts": ["FSZ workstations", "GAOJIN commercial seating", "Steel filing systems"],
+      "avoidMistakes": "Always provide a detailed scope and timeline. Government procurement requires documentation — have spec sheets, certifications, and warranty documents ready."
+    },
+    {
+      "id": "engineering_architecture",
+      "label": "Engineering / Architecture / Design",
+      "staffRange": "10–100",
+      "typicalProjectValue": "$40,000–$180,000",
+      "priority": "Tier 2",
+      "buyingTriggers": ["New office", "Studio expansion", "Project win requiring new space"],
+      "decisionMakers": ["Principal / Director", "Office Manager"],
+      "psychologyNotes": "Aesthetically discerning — they will notice and critique design quality. Product design matters as much as function. Show catalogue imagery and material samples early. They appreciate GOJO Vol 2 craftsmanship.",
+      "recommendedProducts": ["GOJO Vol 2 for director offices", "Fessenz for open plan", "GAOJIN designer lounge chairs", "Premium breakout area"],
+      "avoidMistakes": "Never present generic product descriptions — use the heritage narrative for GOJO and design language for Fessenz. They buy story as much as product."
+    }
+  ],
+  "deprioritiseProfiles": [
+    "Home office / residential enquiries",
+    "Single-item purchases under $2,000",
+    "No verifiable business name or ABN",
+    "Overseas companies with no Australian operations",
+    "Budget under $15,000 with vague timeline"
+  ]
+}

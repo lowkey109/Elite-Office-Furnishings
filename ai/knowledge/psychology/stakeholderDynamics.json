@@ -1,0 +1,28 @@
+{
+  "stakeholderMapping": {
+    "approach": "Map every project's stakeholders within the first discovery call. Identify who decides, who influences, who implements, and who can block.",
+    "roles": {
+      "decider": "Has final budget authority. Often CEO/MD or CFO. Must be engaged before final proposal is presented.",
+      "influencer": "Shapes the brief and evaluates options but doesn't hold budget authority. Often Office Manager, EA, or designer.",
+      "implementer": "Coordinates day-to-day: installation access, IT scheduling, building management liaison. Office Manager or Facilities Manager.",
+      "blocker": "Person who can kill the deal — often CFO if not engaged early, or IT Manager if AV/power requirements aren't addressed."
+    }
+  },
+  "sellingToMultipleStakeholders": {
+    "CEO": "Lead with vision and brand. Show an aspirational environment. Reference comparable companies. Use GOJO Vol 2 and premium product imagery.",
+    "CFO": "Lead with certainty and value. TCO argument. 6-year warranty savings. Itemised quote. Milestone payment option. ISO certifications as quality assurance.",
+    "OfficeManager": "Lead with service and certainty. Clear timeline. Responsive communication. Equip them to present internally. Make them look good.",
+    "ITManager": "Lead with technical compatibility. Confirm cable management, AV integration requirements, power routing. Coordinate delivery after IT cabling.",
+    "Architect_Designer": "Lead with design language, product aesthetics, material quality. Position GOJO Vol 2 heritage narrative. Provide full spec sheets and catalogue imagery."
+  },
+  "powerDynamics": {
+    "identifyingThePowerBroker": "The person who controls next steps is not always the most senior. An EA who books meetings and coordinates the evaluation has structural power — invest in this relationship.",
+    "navigationRule": "Never go around an influencer to reach a decider without flagging it. It will be noticed and will damage the relationship with the influencer who could block the deal.",
+    "multiThreading": "In deals above $100k, aim to have direct contact with at least 2 stakeholders. If your champion leaves or goes on leave, you still have a relationship in the account."
+  },
+  "groupDecisionDynamics": {
+    "committeePresentation": "When presenting to a group, address the decider but acknowledge the room. 'For your CFO, the warranty structure means...' / 'For your team, the design means...'",
+    "dissenterHandling": "Identify any dissenter in the room early. Their objection is the one that can kill the deal. Address it directly and specifically.",
+    "consensusBuilding": "In B2B committee decisions, unanimous enthusiasm is rare. Aim for: decider enthusiastic + influencer satisfied + blockers neutralised."
+  }
+}

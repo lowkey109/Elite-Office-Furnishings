@@ -1,0 +1,49 @@
+{
+  "publicBrandingPolicy": "Supplier and manufacturer names must NEVER appear on public-facing pages. All products are branded as The Corporate Desk collections.",
+  "collectionNames": {
+    "Foshan Feisenzhuo Furniture Co., Ltd.": "Fessenz Design Collection",
+    "Huasheng Furniture Group — GOJO Division": "GOJO Executive Collection",
+    "Huasheng Furniture Group — Lounge & Seating Division": "GOJO Lounge & Seating Collection",
+    "Huasheng Furniture Group — Gaozhuo Division": "Milan Premium Workspace Collection",
+    "Foshan Bohua Furniture Co., Ltd. (GAOJIN)": "Bohua Seating & Storage Collection"
+  },
+  "supplierPositioning": {
+    "FSZ": {
+      "tier": "Premium",
+      "strengths": "Broadest range — 124 SKUs. Covers executive desks, boardroom, workstations, storage. Strong series identity (Weiyi, Ruige, Evidenza, Fessenz/Four Color).",
+      "leadTimes": "4–8 weeks standard",
+      "bestFor": "Medium-to-large open plan fitouts, manager suites, boardroom tables"
+    },
+    "GOJO": {
+      "tier": "Ultra-Premium",
+      "strengths": "Zingana African zebrawood, pure copper hardware, mortise-and-tenon joinery. Vol 2 collections (JN, YOM, HXM) are heritage-meets-contemporary — strongest luxury positioning in the range.",
+      "leadTimes": "6–10 weeks for Vol 2 collections",
+      "bestFor": "C-suite offices, law firm partners' offices, executive boardrooms, luxury reception areas",
+      "pricingNote": "GOJO Vol 2 desks from $2,500+ — position as investment pieces, not commodity furniture"
+    },
+    "HSG": {
+      "tier": "Premium-Ergonomic",
+      "strengths": "Height-adjustable sit-stand desks — electric, dual-motor, memory presets. Certified: SGS, BIFMA, FCC, CE. 21 SKUs across Milan, Karen, Owen, Baggio, Cape, Better series.",
+      "leadTimes": "4–6 weeks",
+      "bestFor": "Health-conscious workplaces, tech companies, ergonomic compliance upgrades"
+    },
+    "GOJO_LOUNGE": {
+      "tier": "Premium-Lounge",
+      "strengths": "Leather sofas, sintered stone coffee tables, swivel lounge chairs. Complements GOJO executive suites perfectly.",
+      "bestFor": "Reception areas, boardroom waiting areas, executive breakout spaces"
+    },
+    "GAOJIN": {
+      "tier": "Commercial-Grade",
+      "strengths": "53 individual product images. G01–G07 seating series, 833/842 training seating, K01–K03 lounge systems, stackable chairs. Best value commercial seating in the range.",
+      "bestFor": "Training rooms, conference seating, open plan visitor chairs, breakout lounge seating"
+    }
+  },
+  "crossSupplierBundling": [
+    "Executive Suite: GOJO executive desk + GOJO lounge seating + FSZ boardroom table + HSG sit-stand for support staff",
+    "Manager Suite: FSZ manager desk + GAOJIN task chairs + FSZ storage",
+    "Training Room: FSZ boardroom/conference table + GAOJIN 842 training chairs",
+    "Reception: FSZ reception station + GOJO Lounge sofas + GAOJIN occasional tables"
+  ],
+  "supplierLeverageNotes": "Never reveal supplier identities to clients. Position all products as The Corporate Desk's own curated range. Multiple suppliers = flexibility; single client sees one coherent brand.",
+  "stockAvailabilityApproach": "Confirm stock availability before committing to fast-track timelines. Never promise delivery without confirming with supplier first."
+}

@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { ADVISOR_SYSTEM_MESSAGE } from "../systemPrompt";
+import { buildLeadIntelligenceContext } from "../systemPrompt";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -127,7 +127,7 @@ export async function analyseSignals(input: SignalInput): Promise<LeadAnalysisRe
   const completion = await openai.chat.completions.create({
     model: "gpt-5-mini",
     messages: [
-      { role: "system", content: ADVISOR_SYSTEM_MESSAGE },
+      { role: "system", content: buildLeadIntelligenceContext() },
       { role: "user", content: buildAnalysisPrompt(input) },
     ],
   } as any);

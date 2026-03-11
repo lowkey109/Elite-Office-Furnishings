@@ -1,0 +1,86 @@
+{
+  "fitoutStages": [
+    {
+      "stage": 1,
+      "name": "Brief and Space Analysis",
+      "description": "Capture client requirements: headcount, zones needed, budget, timeline, move date, aesthetic preference",
+      "TCDRole": "AI Office Planner + Workplace Strategy Consultant",
+      "duration": "1–2 weeks",
+      "output": "Project brief document + preliminary space plan"
+    },
+    {
+      "stage": 2,
+      "name": "Design and Space Planning",
+      "description": "CAD layout production, furniture overlay on floor plan, zone identification and circulation confirmation",
+      "TCDRole": "Internal design/planning team or design partner",
+      "duration": "1–2 weeks",
+      "output": "CAD layout + furniture schedule"
+    },
+    {
+      "stage": 3,
+      "name": "Product Specification and Quoting",
+      "description": "Specific product selection by SKU, finish and fabric choices, pricing by tier, quote production",
+      "TCDRole": "Sales consultant + quoting team",
+      "duration": "1 week",
+      "output": "Itemised project quote (3 tiers where appropriate)"
+    },
+    {
+      "stage": 4,
+      "name": "Finish and Fabric Confirmation",
+      "description": "Sample delivery to client, client selection of colours/finishes/fabrics",
+      "TCDRole": "Account manager — proactively dispatch samples before client asks",
+      "duration": "1–2 weeks (where most projects stall — manage actively)",
+      "output": "Signed finish schedule"
+    },
+    {
+      "stage": 5,
+      "name": "Order Placement and Manufacture",
+      "description": "Deposit received, order placed with suppliers, manufacture begins",
+      "TCDRole": "Procurement coordinator",
+      "duration": "4–14 weeks depending on product",
+      "output": "Order confirmation with delivery ETA"
+    },
+    {
+      "stage": 6,
+      "name": "Delivery Coordination",
+      "description": "Building access confirmed, lift dimensions verified, delivery window booked with building management",
+      "TCDRole": "Project manager",
+      "duration": "1 week pre-delivery",
+      "output": "Delivery brief distributed to installation team"
+    },
+    {
+      "stage": 7,
+      "name": "Installation",
+      "description": "Furniture delivered and assembled in sequence. Storage → workstation frames → desktops → chairs → accessories",
+      "TCDRole": "Installation team + PM on site for projects >$80k",
+      "duration": "1–5 days depending on project size",
+      "output": "Installed office"
+    },
+    {
+      "stage": 8,
+      "name": "Handover and Warranty",
+      "description": "Walk-through with client, defect list closed within 72 hours, warranty registered, handover documentation issued",
+      "TCDRole": "Project manager + account manager",
+      "duration": "1 week",
+      "output": "Signed handover, registered warranty, referral conversation"
+    }
+  ],
+  "criticalPathItems": [
+    "Finish/fabric confirmation is where 80% of projects stall — proactively send samples before client asks",
+    "Practical Completion date from builder is the anchor — everything works backwards from this date",
+    "Installation slot must be booked 4–6 weeks in advance — cannot be assumed available",
+    "Power/data installation by electrician must be complete before workstation install can finalise"
+  ],
+  "totalProjectTimelines": {
+    "10_person_office": "6–10 weeks from brief to handover",
+    "25_person_office": "8–12 weeks",
+    "50_person_office": "10–16 weeks",
+    "100plus_person_office": "14–20 weeks (phased delivery likely)"
+  },
+  "fastTrackRules": {
+    "definition": "Under 6 weeks from order to delivery",
+    "viableIf": "All products confirmed in-stock at time of order",
+    "premium": "Logistics and urgency premium should be applied — 15–25% on freight/installation",
+    "neverPromise": "Never commit to fast-track without confirming stock availability with supplier first"
+  }
+}

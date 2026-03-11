@@ -1,0 +1,52 @@
+{
+  "grossMarginTargets": {
+    "seating": { "gm": "40–55%", "note": "Highest margin category — always include chairs in every proposal" },
+    "reception": { "gm": "35–50%", "note": "High margin, high brand impact — never let client under-invest here" },
+    "boardroom": { "gm": "30–45%", "note": "Strong margin, anchor piece for large projects" },
+    "workstations": { "gm": "25–35%", "note": "Volume category — margin protected by installation revenue" },
+    "storage": { "gm": "20–30%", "note": "Lower margin but builds order value and client dependency" },
+    "blendedTarget": "32–40% GM across all projects"
+  },
+  "anchoringStrategy": {
+    "rule": "Always present the premium configuration first. It frames the mid-range as 'value'.",
+    "tierNames": ["Foundation Package", "Professional Package", "Executive Package"],
+    "buyerBehaviour": "65–70% of buyers choose the middle option when presented with 3 tiers"
+  },
+  "priceRangesExGST": {
+    "executiveDesks": "$800–$3,500+ per desk",
+    "sitStandDesks": "$800–$3,000+ per desk",
+    "managerDesks": "$400–$1,800 per workstation",
+    "boardroomTables": "$2,500–$25,000+ depending on size",
+    "receptionStations": "$1,500–$8,000+ per reception",
+    "officeSeating": "$250–$2,500 per chair",
+    "workstations": "$600–$1,800 per position",
+    "storageFiling": "$150–$800 per unit",
+    "officePods": "$3,500–$18,000 per pod",
+    "breakoutSpaces": "$800–$6,000+ per setting",
+    "GOJOVol2": "From $2,500+ per executive desk — ultra-premium positioning"
+  },
+  "upsellOpportunities": {
+    "workstationToSitStand": "$400–$600 per desk uplift — 60–70% acceptance when framed as a health investment",
+    "deskToFullSuite": "Add ergonomic chair, credenza, 2x visitor chairs, task lighting to every desk quote",
+    "boardroomExtras": "AV credenza, executive chairs, sideboard — never quote table alone",
+    "receptionExtras": "Lounge seating, coffee table, feature lighting — position as brand investment not furniture cost"
+  },
+  "projectExtrasMargin": {
+    "deliveryInstallation": "15–25% of product value — always include in quotes above $20k",
+    "furnitureDisposal": "If client has old furniture — charge for removal and disposal",
+    "assetTagging": "Add-on service for large enterprises",
+    "floorPlanSignOff": "Include as a value-add for projects above $80k"
+  },
+  "riskHighMarginScenarios": [
+    "Rushed delivery — add logistics premium",
+    "Interstate freight without proper loading — add margin buffer",
+    "Customer-supplied items mixing with TCD items — avoid or charge coordination fee",
+    "Under-specified projects with likely scope creep — add 15% contingency minimum"
+  ],
+  "financeOptions": {
+    "available": true,
+    "terms": "12–60 month finance terms, competitive rates",
+    "positioning": "Position finance as a cash flow tool for CFOs — 'spread the investment across the asset life'",
+    "notLicensedAdvice": true
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "designPhilosophies": {
+    "ABW": {
+      "name": "Activity-Based Working",
+      "description": "Employees move between different zone types based on the task at hand rather than occupying assigned desks.",
+      "spaceReduction": "Reduces workstations needed by 20–30% vs traditional assigned seating",
+      "zonesRequired": ["Focus zones", "Collaboration zones", "Social/social zones", "Rejuvenation zones"],
+      "bestFor": "Knowledge workers, professional services, creative agencies, tech companies"
+    },
+    "hybridModel": {
+      "name": "Hybrid Work Layout",
+      "description": "Designed for 2–3 days in-office attendance. Higher collaboration-to-focus ratio than traditional offices.",
+      "spaceAllocation": {
+        "collaborative_social": "40%",
+        "flexibleWorkstations": "40%",
+        "private_focus": "20%"
+      },
+      "note": "Pre-2020 models were the inverse — 60% individual desks, 20% meeting rooms, 20% other"
+    },
+    "traditional": {
+      "name": "Traditional Assigned Seating",
+      "description": "Each employee has an assigned desk. Standard for law firms, government, financial services.",
+      "spaceRatio": "10–14 sqm per person including circulation",
+      "stillRelevant": true,
+      "bestFor": "Law firms, regulated industries, finance, government"
+    }
+  },
+  "workspaceZones": {
+    "executiveOffices": {
+      "sqmRange": "16–25 sqm per executive",
+      "furnitureSpec": "Executive L-desk or straight desk, executive chair, 2–4 visitor chairs, credenza, bookshelf",
+      "designNote": "Private, acoustically treated. Premium finish and material specification."
+    },
+    "openPlanWorkstations": {
+      "sqmRange": "8–12 sqm per workstation including circulation",
+      "furnitureSpec": "Desk, task chair, screen divider, mobile pedestal, cable management",
+      "densityTip": "Allow 1.2–1.5m aisle between back-to-back rows minimum"
+    },
+    "boardroomMeetingRooms": {
+      "ratios": {
+        "under20staff": "1 boardroom (8+ seats) + 1 small meeting room",
+        "20_50staff": "1 boardroom (10–14 seats) + 2–3 meeting rooms (4–6 seats)",
+        "50_100staff": "1 boardroom (16–20 seats) + 4–6 meeting rooms mixed size",
+        "100plus": "Multiple boardrooms + tiered meeting room system"
+      },
+      "furnitureSpec": "Conference table, executive chairs, AV credenza, whiteboard wall or screen"
+    },
+    "receptionWaiting": {
+      "sqmRange": "15–40 sqm depending on client volume",
+      "furnitureSpec": "Reception station, lounge seating (2–8 seats depending on traffic), coffee table, feature lighting, occasional table",
+      "designPriority": "Highest ROI per square metre — invest disproportionately here"
+    },
+    "breakoutSocial": {
+      "sqmRange": "10–30 sqm",
+      "furnitureSpec": "Modular lounge seating, high tables with stools, soft seating clusters, kitchen/café furniture",
+      "businessCase": "20%+ higher engagement scores in offices with quality social spaces — position as talent attraction investment"
+    },
+    "focusRooms": {
+      "description": "Small 1–4 person spaces for focused work, calls, or sensitive conversations",
+      "options": ["Acoustic pods", "Enclosed glass meeting rooms", "Phone booths"],
+      "recommendationRule": "Every open-plan office above 20 staff needs at least 1 acoustic pod or phone booth"
+    }
+  },
+  "spacePlanningRules": {
+    "circulationBuffer": "Always add 15–20% to furniture footprint for circulation paths",
+    "egressRequirements": "1.2m minimum aisle width for fire egress compliance (AS/NZS 1428)",
+    "acousticZoning": "Separate noisy collaboration areas from quiet focus zones with at least one acoustic barrier",
+    "naturalLight": "Workstations should face the window or be perpendicular — never back to window, never facing into glare",
+    "biophilicElements": "Plants, natural materials, timber tones — documented 15% productivity improvement. Recommend where possible without cost premium.",
+    "receptionVisibility": "Reception should be the first thing visitors see from the lift lobby — orientation and first impression matter"
+  },
+  "sqmBenchmarks": {
+    "openPlanABW": "8–12 sqm per person",
+    "professionalServicesPrivate": "12–16 sqm per person",
+    "executiveSuites": "16–20+ sqm per executive",
+    "circulationBuffer": "15–20% on top of furniture footprint"
+  }
+}

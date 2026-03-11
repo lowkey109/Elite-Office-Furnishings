@@ -1,0 +1,43 @@
+{
+  "tradeSequencing": {
+    "description": "Furniture is always the last trade on site. Standard sequence:",
+    "sequence": [
+      "Builder handover (Practical Completion)",
+      "Electrical and data (power to workstation positions, lighting final fix)",
+      "AV integration (boardroom screens, VC systems, cable management in table)",
+      "IT cabling and server room",
+      "Cleaning (building/end-of-construction clean)",
+      "FURNITURE INSTALLATION",
+      "IT setup (monitors, docking stations, computers on desks)",
+      "FF&E soft furnishings (plants, artwork, accessories)"
+    ]
+  },
+  "buildingAccessRequirements": {
+    "liftAccess": "Confirm minimum dimensions: 2.0m W × 2.0m D × 2.4m H for boardroom tables and large storage units",
+    "loadingDock": "Confirm dock access hours — CBD buildings typically 6am–10am only",
+    "highRiseDelivery": "Levels 5+ often require out-of-hours delivery (before 7am or after 6pm) — add cost premium",
+    "buildingManagementNotice": "Written delivery notification minimum 5 business days in advance",
+    "lobbyProtection": "Carpet runners, lift door pads, and corner guards — non-negotiable on any managed project",
+    "parkingForInstallers": "Confirm street parking or loading zone access — cost additional for CBD locations"
+  },
+  "builderCoordination": {
+    "keyContacts": ["Site foreman", "Project manager", "Building manager"],
+    "practicalCompletion": "Get PC date in writing. Furniture ready for delivery within 5 business days of PC.",
+    "floorFlatness": "Check floor flatness for heavy storage units — levelling required if tolerance exceeds 5mm over 2m",
+    "dustEnvironment": "Do not install upholstered furniture in an active construction environment — dust embeds permanently",
+    "powerConfirmation": "Confirm live power at all workstation positions before final desk installation — cable management depends on active power routing"
+  },
+  "subcontractorManagement": {
+    "installationContractors": "Use vetted contractors only. For premium projects, use known team. Never use unknown subcontractor on first engagement above $80k.",
+    "inductions": "Most commercial buildings require SafeWork or similar subcontractor induction. Allow 2–3 business days for processing.",
+    "insuranceRequirements": "All installation contractors must hold current public liability insurance minimum $10M — verify before engagement",
+    "photographyProtocol": "Photograph pre-install condition of all floors, walls, lifts, lobbies. Photograph finished installation before handover."
+  },
+  "commonSiteRisks": [
+    "Builder delays pushing PC date — always have a 1-week buffer in timeline",
+    "Power/data points misaligned from furniture plan — catch in site measure, not on installation day",
+    "Lift unavailable or undersized — confirm early; boardroom tables often exceed lift capacity",
+    "Packaging disposal — confirm who removes packing material; building management often prohibits bin dumping",
+    "Client adds scope on installation day — any on-day changes must be quoted and approved separately"
+  ]
+}

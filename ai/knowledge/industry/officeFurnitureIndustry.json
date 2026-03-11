@@ -1,0 +1,92 @@
+{
+  "productCategories": {
+    "executiveDesks": {
+      "description": "C-suite and senior management workstations. Premium materials, statement aesthetic.",
+      "configurations": ["L-shape", "straight", "corner", "return"],
+      "materials": ["Timber veneer", "Laminate", "Glass", "Powder-coated steel", "Solid timber", "Zingana ebony hardwood"],
+      "sizingGuidance": "Executive desk minimum 1800W — 2400W+ for partners and directors. L-shape preferred for dual-screen workflows.",
+      "priceRange": "$800–$3,500+ ex-GST",
+      "marginCategory": "Medium-High"
+    },
+    "sitStandDesks": {
+      "description": "Height-adjustable electric desks for ergonomic compliance and productivity.",
+      "keySpecs": ["Dual-motor or single-motor electric", "Height range 620–1250mm", "Memory presets", "Anti-collision sensor", "Noise level 46–52dB"],
+      "certifications": ["SGS", "BIFMA", "FCC", "CE", "EMC"],
+      "sizingGuidance": "Min 1400W for single-person workstation. 1600W standard. 1800W+ for senior staff.",
+      "priceRange": "$800–$3,000+ ex-GST",
+      "upgradeValue": "Add $400–$600 per desk from standard to sit-stand — 60–70% acceptance rate when framed as health investment"
+    },
+    "workstations": {
+      "description": "Open-plan systems for 4–20+ staff. Back-to-back, spine, cluster configurations.",
+      "standardComponents": ["Desktop", "Frame/legs", "Modesty panel", "Cable trough", "Screen/privacy divider", "Mobile pedestal"],
+      "densityPlanning": "8–12 sqm per workstation including circulation",
+      "priceRange": "$600–$1,800 per position ex-GST",
+      "bundleOpportunity": "Every workstation should include a task chair recommendation"
+    },
+    "boardroomTables": {
+      "description": "High-impact decision-making spaces. The most visible furniture in any office.",
+      "configurations": ["Rectangular", "Boat-shaped", "Modular segmented", "Round"],
+      "sizingGuide": {
+        "6-8 people": "2400–2800mm length",
+        "10-12 people": "3000–3600mm length",
+        "14-18 people": "4000–5000mm length",
+        "20+ people": "6000mm+ or modular"
+      },
+      "features": ["Integrated power spine", "Data/USB ports", "AV connectivity", "Credenza matching"],
+      "priceRange": "$2,500–$25,000+ ex-GST",
+      "crossSell": "Always quote boardroom chairs and AV credenza alongside table"
+    },
+    "receptionAreas": {
+      "description": "First impression zone. Highest ROI per dollar spent on brand perception.",
+      "components": ["Reception station/desk", "Feature panelling", "Lounge chairs", "Sofas/modular seating", "Coffee tables", "Feature lighting"],
+      "designPrinciple": "Reception represents 5–10% of project budget but creates 80% of the first impression",
+      "priceRange": "$1,500–$8,000+ reception station ex-GST",
+      "bundleValue": "Full reception zone (station + lounge + tables): $8,000–$25,000+"
+    },
+    "seating": {
+      "description": "Task, meeting, lounge, and visitor seating across all price tiers.",
+      "subcategories": {
+        "taskChairs": "Full ergonomic for 8hr daily use. Look for lumbar adjustment, armrest configuration, seat depth. Certifications: AFRDI/BIFMA.",
+        "meetingChairs": "Stackable or on-castors for flexible use. Lower back height acceptable.",
+        "loungeChairs": "Reception and breakout areas. Comfort and aesthetic priority over ergonomics.",
+        "stackableChairs": "Training and event use. Commercial-grade PP plastic preferred."
+      },
+      "priceRange": "$250–$2,500 per chair ex-GST",
+      "marginNote": "Highest margin category — always include seating in every project proposal"
+    },
+    "storageFiling": {
+      "description": "Pedestals, filing cabinets, lockers, credenzas, overhead storage.",
+      "materials": ["Cold-rolled steel powder-coat", "Melamine board", "Mixed steel/laminate"],
+      "keyConsiderations": ["Lock type", "Drawer depth", "Weight rating", "Colour coordination with desks"],
+      "priceRange": "$150–$800 per unit ex-GST"
+    },
+    "officePodsBooaths": {
+      "description": "Acoustic privacy pods for phone calls, focus work, and small collaboration.",
+      "types": ["Phone booth: 1-person", "Focus pod: 1-2 person", "Collaboration pod: 2–4 person"],
+      "leadTimes": "6–10 weeks — longer than standard furniture",
+      "priceRange": "$3,500–$18,000 per pod ex-GST",
+      "whenToRecommend": "Any open-plan office above 20 staff — acoustic pods reduce noise complaints and improve focus productivity"
+    }
+  },
+  "industryTerminology": {
+    "ABW": "Activity-Based Working — staff move between zone types rather than owning fixed desks",
+    "hotDesking": "Unassigned desks shared on first-come basis",
+    "PracticalCompletion": "PC — point when builder officially hands tenancy to the client",
+    "BIFMA": "Business and Institutional Furniture Manufacturers Association — US-origin quality certification",
+    "AFRDI": "Australian Furnishing Research and Development Institute — Australian seating standard",
+    "specIn": "Getting specified by an architect/designer early — bypasses competitive tender",
+    "mobilePedestal": "Rolling under-desk storage unit with drawers and lock",
+    "modestypanel": "Privacy screen fixed to front of desk — hides cable tray and legs"
+  },
+  "marketDynamics": {
+    "competitorTypes": [
+      "Volume retailers (Officeworks, IKEA Business) — price-focused, low service, short warranty",
+      "Grey importers — no warranty support, unknown quality, no installation",
+      "Spec furniture brands (Herman Miller, Steelcase, Knoll) — premium brand, 5–10x price premium",
+      "Local commercial suppliers — strongest competition, differentiate on service and range depth"
+    ],
+    "differentiationStrategy": "Compete on project certainty, service quality, 6-year warranty, and local presence — never on price against volume players",
+    "australianMarketSize": "Commercial office furniture: AUD $2.4B annually. Growing with hybrid work driving fitout refresh cycles.",
+    "hybridWorkImpact": "Post-2022: offices need fewer desks but more collaboration zones. Refresh cycles shortened to 3–5 years from 7–10 years."
+  }
+}

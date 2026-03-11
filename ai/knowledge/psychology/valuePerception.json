@@ -1,0 +1,36 @@
+{
+  "premiumPositioningPrinciples": {
+    "brandBeforePrice": "The brand must be felt as premium before the price is revealed. A discount at the wrong moment permanently destroys premium positioning.",
+    "qualitySignals": [
+      "6-year manufacturer warranty (vs industry standard 1–2 years)",
+      "ISO 9001 and 14001 certifications",
+      "Australian-owned — trust and accountability",
+      "Physical showroom — tangible proof of quality",
+      "Named project portfolio — social proof"
+    ],
+    "premiumVsLuxury": "TCD is premium-commercial, not luxury-consumer. Language should reflect quality, certainty, and professionalism — not opulence for its own sake.",
+    "aspirationalIdentity": "A premium office is a statement about a company's success, culture, and values. Buyers want a supplier who understands this — not one selling commodity furniture."
+  },
+  "totalCostOfOwnership": {
+    "argument": "The most powerful response to price objections in the commercial furniture market.",
+    "calculation": {
+      "cheapFurniture": "Purchase price $X + replacement at year 2–3 ($X again) + downtime during replacement + brand impression cost = true cost over 6 years",
+      "TCDFurniture": "Purchase price (higher) + 6-year warranty (zero replacement) + no downtime + consistent brand impression = true cost over 6 years",
+      "typicalSaving": "6-year warranty premium-grade furniture often has lower 6-year TCO than cheap furniture replaced twice"
+    },
+    "implementation": "Produce a simple TCO comparison in a PDF or email when price objection arises. Gives the champion ammunition for internal sign-off."
+  },
+  "perceivedValueDrivers": {
+    "responsiveness": "Responding within 4 hours signals operational excellence — this is rare in commercial furniture. It builds confidence before a product is seen.",
+    "proposalQuality": "A polished, itemised, 3-tier proposal with CAD layout and timeline signals that TCD can actually manage a project. Competitors sending a basic Excel quote lose here.",
+    "sampleKitDispatch": "Sending fabric and finish samples before the client asks signals attentiveness and capability. Most competitors wait to be asked.",
+    "showroomVisit": "Clients who visit the showroom close at dramatically higher rates. Physical interaction with quality materials eliminates price as the primary decision driver.",
+    "projectManagement": "Providing a milestone timeline and dedicated contact for projects above $80k signals professional delivery capability — worth 20–30% price premium in the buyer's mind."
+  },
+  "valueAnchoringExamples": [
+    "Before showing product pricing: 'This is the furniture that 200+ corporate clients across Australia have chosen for their headquarters.'",
+    "On warranty: 'Our 6-year warranty is 3–6x the industry standard — it's our commitment that this investment lasts.'",
+    "On project management: 'We have a dedicated project manager for your project from order to handover — you deal with one person, and they deal with everything.'",
+    "On lead times: 'We'll have your installation slot secured. Most of our clients tell us that certainty of delivery was their primary reason for choosing us.'"
+  ]
+}

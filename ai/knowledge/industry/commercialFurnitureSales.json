@@ -1,0 +1,72 @@
+{
+  "salesProcess": {
+    "stages": [
+      {
+        "stage": "Lead Capture",
+        "description": "Lead enters via web form, phone, quote builder, AI planner, or referral",
+        "responseTarget": "Within 4 business hours for all priority 1 and 2 leads",
+        "tools": ["AI Office Planner", "Quote Builder", "Contact form", "Phone 1300 977 607"]
+      },
+      {
+        "stage": "Qualification",
+        "description": "Confirm project scope, budget indicator, timeline, and decision-makers",
+        "keyQuestions": ["Staff count?", "Move date?", "Budget range?", "Who makes the decision?"],
+        "output": "Lead score + priority tier assignment"
+      },
+      {
+        "stage": "Discovery",
+        "description": "Deeper understanding of workplace needs, aesthetic preferences, constraints",
+        "best": "Face-to-face at Brisbane showroom or video call with screen share of product range",
+        "output": "Project brief + preliminary product recommendations"
+      },
+      {
+        "stage": "Proposal",
+        "description": "3-tier proposal with Foundation/Professional/Executive options",
+        "presentationNote": "Always present top tier first. Walk client down if needed — never walk up.",
+        "includes": ["Product schedule", "CAD layout", "Pricing by tier", "Timeline", "Project milestones"]
+      },
+      {
+        "stage": "Follow-up and Negotiation",
+        "description": "Address objections, progress to order confirmation",
+        "objectionHandling": {
+          "tooExpensive": "Reframe around TCO — 6-year warranty vs replacing at 2–3 years. Calculate the cost difference.",
+          "needMoreTime": "Ask who else needs to be involved. Offer to present to CFO or decision-maker directly.",
+          "lookingAtOthers": "Send a comparison framework. Emphasise warranty, service, installation, and project certainty."
+        }
+      },
+      {
+        "stage": "Order Confirmation",
+        "description": "Signed proposal + 30% deposit = order confirmed",
+        "milestone": "Project begins from order confirmation date"
+      },
+      {
+        "stage": "Delivery and Handover",
+        "description": "Project delivered, installed, handed over with warranty documentation",
+        "followUp": "6-month post-installation check-in. 3-year refresh conversation."
+      }
+    ]
+  },
+  "highValueSalesBehaviours": [
+    "Bring clients to the showroom for projects above $50,000 — highest conversion activity",
+    "Present 3 tiers — always start from the top",
+    "Equip the internal champion (Office Manager/EA) with everything they need to sell internally",
+    "Be first with a quote — sets the reference price for the whole evaluation",
+    "Send sample kits proactively — fabric/finish stalls 80% of projects",
+    "Use silence after presenting final pricing — never fill the pause"
+  ],
+  "commonSalesMistakes": [
+    "Starting price conversation before establishing value",
+    "Presenting one option instead of 3 tiers",
+    "Discounting immediately when price is questioned",
+    "Quoting individual items without bundling complementary products",
+    "Not identifying the internal champion early",
+    "Missing the decision-maker — talking only to the researcher",
+    "Failing to create legitimate urgency around lead times and installation slots"
+  ],
+  "budgetCycles": {
+    "primaryWindow": "Q4 October–December (post-EOFY budget approval)",
+    "secondaryWindow": "February–March (new financial year planning)",
+    "campaignAdvice": "Pitch hard into Q4 and Q1. Run targeted campaigns August–September to capture companies with fresh budgets.",
+    "governmentBudget": "Government EOFY June — pitch April–May for budget inclusion"
+  }
+}

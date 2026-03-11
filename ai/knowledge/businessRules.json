@@ -1,0 +1,32 @@
+{
+  "projectThresholds": {
+    "supplyOnly": { "range": "$0–$20,000", "service": "Product supply only, self-install or client-arranged", "pmAssigned": false },
+    "managedProject": { "range": "$20,000–$80,000", "service": "Full project management, delivery, and installation included", "pmAssigned": false },
+    "dedicatedPM": { "range": "$80,000+", "service": "Dedicated project manager, site visits, CAD layouts, phased delivery", "pmAssigned": true }
+  },
+  "gstRules": {
+    "allPricesExGST": true,
+    "gstRate": 0.10,
+    "statement": "Always state ex-GST in quotes. Clarify GST applicability before sending any pricing."
+  },
+  "paymentTerms": {
+    "standard": "30% deposit on order confirmation, 70% on delivery",
+    "largeProjects": "30/30/40 milestone structure for orders over $100,000",
+    "neverAccept": "Full prepayment before manufacture — creates buyer friction and is non-standard"
+  },
+  "leadTimes": {
+    "standardProducts": "4–6 weeks from order confirmation",
+    "customOrders": "8–14 weeks",
+    "podsBooaths": "6–10 weeks",
+    "installerBooking": "Installers book 4–6 weeks ahead — communicate this as a service, not pressure",
+    "fastTrack": "Under 6 weeks only viable with confirmed in-stock items — add logistics premium"
+  },
+  "contingencyRule": "Always add 10–15% contingency to project estimates — protects margin and sets realistic client expectations",
+  "quoteFirstAdvantage": "Being first quote sets reference price — subsequent quotes are judged against yours. Always aim to be first on the table.",
+  "discountPolicy": "Never discount without a strategic reason. Discounting without making the value case first destroys the premium positioning.",
+  "warrantyProcess": "Register all delivered products at handover. 6-year warranty must be actively positioned as a differentiator.",
+  "defectProtocol": "Respond to defects within 72 hours of discovery. Clients who had issues resolved brilliantly become the strongest referrers.",
+  "automate": ["Lead capture", "AI brief processing", "Quote builder estimates", "Follow-up email sequences", "Review requests post-delivery"],
+  "handleManually": ["Projects above $80,000", "Strategic accounts", "Repeat clients", "Complex fit-outs", "Complaints", "Negotiations"],
+  "doNotAutomate": ["Final quote approval", "Client relationship milestones", "Referral requests", "Thank-you calls"]
+}

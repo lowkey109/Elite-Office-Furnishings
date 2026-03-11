@@ -1,0 +1,60 @@
+{
+  "qualificationCriteria": {
+    "immediate_action": {
+      "label": "Priority 1 — Act within 4 hours",
+      "criteria": [
+        "Signed lease + identified budget + 50+ staff + professional services",
+        "Active tender or RFQ with a deadline",
+        "Referral from an existing TCD client",
+        "Project value >$150,000 with confirmed decision-maker contact"
+      ]
+    },
+    "high_priority": {
+      "label": "Priority 2 — Act within 24 hours",
+      "criteria": [
+        "Clear expansion signal but no confirmed budget yet",
+        "Headcount growth signal + relocation indication",
+        "Warm enquiry with timeline under 3 months",
+        "Project value estimated $50,000–$150,000"
+      ]
+    },
+    "nurture": {
+      "label": "Priority 3 — Weekly touchpoint",
+      "criteria": [
+        "Research phase, no confirmed timeline",
+        "Budget estimated under $30,000",
+        "Multiple competitors mentioned",
+        "Timeline beyond 6 months"
+      ]
+    },
+    "deprioritise": {
+      "label": "Deprioritise or pass",
+      "criteria": [
+        "No verifiable company name or business registration",
+        "Residential or home office enquiry",
+        "Project value estimated under $5,000",
+        "Overseas entity with no Australian operations",
+        "Enquiry with no contact details or vague message"
+      ]
+    }
+  },
+  "leadScoringWeights": {
+    "companySize": { "weight": 20, "description": "Staff count — 50+ = 20 pts, 20–49 = 12 pts, 10–19 = 6 pts, under 10 = 2 pts" },
+    "projectValue": { "weight": 25, "description": "Estimated project value — >$200k = 25 pts, $100–200k = 18 pts, $50–100k = 12 pts, <$50k = 6 pts" },
+    "expansionSignals": { "weight": 20, "description": "Strength of buying signals — signed lease = 20 pts, hiring surge = 15 pts, headcount mention = 10 pts, vague = 3 pts" },
+    "budgetClarity": { "weight": 15, "description": "Budget mentioned and realistic = 15 pts, budget mentioned vague = 8 pts, no budget mentioned = 0 pts" },
+    "industryFit": { "weight": 20, "description": "Law/finance = 20 pts, tech/professional services = 16 pts, engineering/healthcare = 12 pts, retail/other = 6 pts, residential = 0 pts" }
+  },
+  "scoreInterpretation": {
+    "8–10": "High Priority — pursue immediately",
+    "5–7": "Medium Priority — nurture with regular touchpoints",
+    "1–4": "Low Priority — add to email sequence only"
+  },
+  "qualificationQuestions": [
+    "How many staff are relocating or will be accommodated in the new space?",
+    "Do you have a confirmed move-in date or a target date for completion?",
+    "What is the approximate budget you have allocated for furniture?",
+    "Are you working with an interior designer or architect on this project?",
+    "Who else is involved in making this decision?"
+  ]
+}

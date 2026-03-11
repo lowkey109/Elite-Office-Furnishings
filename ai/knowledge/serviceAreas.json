@@ -1,0 +1,43 @@
+{
+  "primaryMarkets": [
+    {
+      "city": "Brisbane",
+      "state": "QLD",
+      "priority": "Home market",
+      "advantages": ["Showroom on-site", "Same-day site visits possible", "Local installation team", "Fastest delivery"],
+      "keySuburbs": ["CBD", "Fortitude Valley", "South Brisbane", "Bowen Hills", "Milton", "Spring Hill", "Newstead"]
+    },
+    {
+      "city": "Sydney",
+      "state": "NSW",
+      "priority": "Primary interstate",
+      "advantages": ["Large corporate market", "High project values", "Strong professional services sector"],
+      "logisticsNote": "QLD to Sydney freight: add 3–5 business days. Confirm loading dock access for CBD buildings."
+    },
+    {
+      "city": "Melbourne",
+      "state": "VIC",
+      "priority": "Primary interstate",
+      "advantages": ["Finance and tech hub", "Government projects", "Large corporate HQ market"],
+      "logisticsNote": "QLD to Melbourne freight: add 4–6 business days. CBD buildings often require after-hours delivery."
+    },
+    {
+      "city": "Gold Coast",
+      "state": "QLD",
+      "priority": "Secondary market",
+      "advantages": ["Growing corporate precinct", "Short drive from Brisbane HQ"]
+    }
+  ],
+  "nationalDelivery": {
+    "available": true,
+    "coverage": "All major Australian cities and regional centres",
+    "freightNote": "Interstate freight pricing included in project quotes for managed projects. Supply-only projects: freight quoted separately.",
+    "remoteAreasNote": "Remote areas — additional freight time and cost. Confirm before committing to timeline."
+  },
+  "showroom": {
+    "location": "10 Primrose Street, Bowen Hills, QLD 4006",
+    "bookingRequired": true,
+    "purpose": "Physical trust signal — showing clients the quality in person converts at a significantly higher rate than online or phone consultation",
+    "conversionAdvantage": "Showroom visit is the highest-converting sales activity — prioritise bringing clients here whenever project value > $50,000"
+  }
+}

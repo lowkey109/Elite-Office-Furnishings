@@ -1,0 +1,70 @@
+{
+  "leadMagnets": [
+    {
+      "name": "Free Office Layout Plan",
+      "description": "Submit a brief → receive a professional CAD layout + product recommendations",
+      "conversionValue": "High — demonstrates expertise before commitment",
+      "followUpWindow": "Within 4 business hours with a personalised response — not an auto-reply",
+      "targetProject": "$30,000+"
+    },
+    {
+      "name": "AI Office Planner",
+      "description": "Upload floor plan → AI analyses space, recommends products, estimates project cost",
+      "conversionValue": "High — intent signal, prospect is in planning mode",
+      "followUpWindow": "Within 24 hours",
+      "targetProject": "$40,000+"
+    },
+    {
+      "name": "Workplace Strategy Call",
+      "description": "Free 30-minute consultation for projects $50,000+",
+      "conversionValue": "Very High — verbal commitment to quality conversation",
+      "targetProject": "$50,000+"
+    },
+    {
+      "name": "Quote Builder",
+      "description": "Online tool to estimate project cost",
+      "conversionValue": "Medium — intent signal but lower engagement than layout plan",
+      "targetProject": "$20,000+"
+    }
+  ],
+  "packageTiers": {
+    "naming": "Always use identity-based names, never Option A/B/C",
+    "tiers": [
+      {
+        "tier": "Foundation",
+        "description": "Essential commercial furniture for functional, professional workplaces",
+        "typicalGM": "28–32%",
+        "products": "FSZ manager desks, GAOJIN task chairs, FSZ storage"
+      },
+      {
+        "tier": "Professional",
+        "description": "Premium specification with ergonomic and design upgrades — the most popular choice",
+        "typicalGM": "32–38%",
+        "products": "FSZ executive/Fessenz desks, HSG sit-stand option, GAOJIN ergonomic chairs, FSZ boardroom table"
+      },
+      {
+        "tier": "Executive",
+        "description": "The premium suite — statement furniture that positions the company as a leader",
+        "typicalGM": "38–45%",
+        "products": "GOJO Vol 2 executive suite, GOJO Lounge reception, large format boardroom, premium ergonomic seating"
+      }
+    ],
+    "buyerBehaviour": "65–70% choose the middle tier. Top tier anchors perception and makes middle feel safe. Bottom tier prevents sticker shock and qualifies budget-constrained buyers."
+  },
+  "financeOption": {
+    "available": true,
+    "terms": "12–60 months",
+    "positioning": "Position as a tool for CFOs to preserve cash flow — 'align the investment with the asset depreciation schedule'",
+    "triggerPoint": "Offer finance when a client signals budget concern — before they walk away, not after",
+    "notLicensedAdvice": true
+  },
+  "urgencyTriggers": {
+    "legitimate": [
+      "Lead times: standard 4–6 weeks, custom 8–14 weeks — every week of delay adds to project timeline",
+      "Installation slots: installers book 4–6 weeks ahead — communicate booking window",
+      "Price validity: quote valid for 30 days — materials costs can fluctuate",
+      "Building access windows: if delivery must happen before lease expiry, there is a hard deadline"
+    ],
+    "neverManufacture": "Never create artificial urgency — it destroys trust and positions TCD as a pressure seller"
+  }
+}

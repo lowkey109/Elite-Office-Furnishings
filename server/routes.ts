@@ -12,7 +12,7 @@ import fs from "fs";
 import { registerMarketingRoutes } from "./marketing";
 import { sendLeadNotification, sendSupplierQuoteNotification, sendPlanningRequestNotification, isEmailConfigured } from "./email";
 import { analyseSignals, extractDomain, type SignalInput, type SourceType } from "./services/leadIntelligence";
-import { CORPORATE_DESK_SYSTEM_PROMPT, ADVISOR_SYSTEM_MESSAGE } from "./systemPrompt";
+import { CORPORATE_DESK_SYSTEM_PROMPT, ADVISOR_SYSTEM_MESSAGE, buildChatSystemPrompt, buildAdvisorSystemPrompt } from "./systemPrompt";
 import { getAdaptersMeta } from "./adapters/manualAdapter";
 
 const openai = new OpenAI({
@@ -438,7 +438,7 @@ export async function registerRoutes(
         const stream = await openai.chat.completions.create({
           model: "gpt-5-mini",
           messages: [
-            { role: "system", content: CORPORATE_DESK_SYSTEM_PROMPT },
+            { role: "system", content: buildChatSystemPrompt() },
             ...formattedMessages,
           ],
           stream: true,
@@ -457,7 +457,7 @@ export async function registerRoutes(
         const completion = await openai.chat.completions.create({
           model: "gpt-5-mini",
           messages: [
-            { role: "system", content: CORPORATE_DESK_SYSTEM_PROMPT },
+            { role: "system", content: buildChatSystemPrompt() },
             ...formattedMessages,
           ],
         } as any);
@@ -749,7 +749,7 @@ export async function registerRoutes(
         const completion = await openai.chat.completions.create({
           model: "gpt-5-mini",
           messages: [
-            { role: "system", content: ADVISOR_SYSTEM_MESSAGE },
+            { role: "system", content: buildAdvisorSystemPrompt() },
             { role: "user", content: prompt },
           ],
         } as any);
@@ -899,7 +899,7 @@ export async function registerRoutes(
       const completion = await openai.chat.completions.create({
         model: "gpt-5-mini",
         messages: [
-          { role: "system", content: ADVISOR_SYSTEM_MESSAGE },
+          { role: "system", content: buildAdvisorSystemPrompt() },
           { role: "user", content: prompt },
         ],
       } as any);

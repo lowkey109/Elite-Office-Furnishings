@@ -1,0 +1,47 @@
+{
+  "openingPositionRules": {
+    "anchoring": "Always present the Executive/premium tier first in proposals. This sets the psychological reference point. Clients moving down feel they are saving; clients moving up feel they are spending extra.",
+    "premiumFirst": "A client who reviews the $180k Executive package and agrees to the $120k Professional feels they made a smart decision. A client shown the $80k Foundation first and asked to upgrade to $120k feels they are being upsold.",
+    "threeOptionsFramework": {
+      "structure": ["Foundation (lowest)", "Professional (middle — target)", "Executive (anchor)"],
+      "buyerBehaviour": "65–70% choose the middle option when 3 tiers are clearly presented",
+      "naming": "Never use Option A/B/C. Always use identity-based names that create aspiration."
+    }
+  },
+  "closingTechniques": {
+    "silenceClose": "After presenting final pricing, do not fill the silence. The first person to speak is in the weaker position. Wait for the client to respond.",
+    "uncertaintyClose": "'What would need to be true for you to feel confident moving forward?' — surfaces unstated objections without pressure.",
+    "certaintyClose": "Once client approves design, reinforce the cost of inaction: lead times, installation slot availability. This is not manipulation — it is accurate commercial intelligence.",
+    "reciprocityClose": "Reference all value already provided: free layout plan, showroom visit, sample kit, detailed proposal. This creates psychological obligation without pressure."
+  },
+  "discountingRules": {
+    "neverDiscountFirst": "Never reduce price before the full value case is made. Discounting without making the case signals the price was inflated, which destroys trust.",
+    "ifDiscountRequired": "Trade concessions for commitments: 'If I can get approval for a 5% reduction, can we confirm the order by end of week?'",
+    "discountAlternatives": [
+      "Add value instead of reducing price: include an extra chair, extended warranty registration, complementary furniture disposal",
+      "Offer milestone payment structure to reduce cash flow impact",
+      "Position finance option to reduce the immediate price objection"
+    ]
+  },
+  "urgencyCreation": {
+    "legitimate": [
+      "Lead times: 'Standard lead time is 4–6 weeks. With your move date, we have a 2-week window to confirm before it affects your timeline.'",
+      "Installation slots: 'Our Brisbane team is booking 4–6 weeks ahead. I want to hold a slot for you, but I need a confirmed order to do that.'",
+      "Price validity: 'This quote is valid for 30 days. Material costs can shift — I can't hold this pricing beyond that.'"
+    ],
+    "neverManufacture": "Never create artificial urgency. B2B buyers are sophisticated and will detect it. Real urgency is powerful enough.",
+    "framingRule": "Frame urgency around the client's risk ('you may lose your move date slot') not TCD's benefit ('we need the order this week')"
+  },
+  "internalChampionStrategy": {
+    "who": "Usually the Office Manager, EA, or Facilities Manager — the person coordinating the project day-to-day",
+    "why": "They advocate internally, book meetings, and influence the final decision. Their success in getting internal approval = your success.",
+    "equip": [
+      "Proposal summary (1 page) they can forward to CEO/CFO",
+      "Comparison summary positioning TCD vs alternatives",
+      "Timeline and milestone document",
+      "ROI framing document (TCO argument for CFO)",
+      "Reference client contacts if requested"
+    ],
+    "relationship": "Check in weekly during the decision period. Be their most helpful external contact. They will feel accountable to the relationship."
+  }
+}

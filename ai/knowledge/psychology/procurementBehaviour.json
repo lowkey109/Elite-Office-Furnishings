@@ -1,0 +1,54 @@
+{
+  "buyingCommitteeStructure": {
+    "typical": "3–5 people involved in commercial furniture decisions above $30,000",
+    "roles": {
+      "visionary": "CEO/MD — sets vision, approves final spend",
+      "gatekeeper": "CFO — controls budget, demands value justification",
+      "champion": "Office Manager/EA — day-to-day champion, does the research, advocates internally",
+      "influencer": "IT Manager, Facilities Manager — input on technical and logistics requirements",
+      "advisor": "External interior designer or architect — may specify products; get specified by them"
+    },
+    "strategyImplication": "Identify the champion early and invest in them. They will close the deal internally if equipped correctly."
+  },
+  "threeQuoteRule": {
+    "description": "Most Australian corporates require 3 quotes for purchases above $30,000",
+    "TCDStrategy": "Be first on the table. The first quote sets the reference price. All subsequent quotes are evaluated against yours.",
+    "priceAnchoringAdvantage": "Being first gives structural pricing leverage. Being last means you're competing against an established benchmark.",
+    "winningFirstQuote": "Offer the layout plan first. This creates engagement, demonstrates expertise, and gets TCD into the process before competitors are contacted."
+  },
+  "procurementTriggers": {
+    "ranked": [
+      { "trigger": "New office lease signed", "conversionProbability": "Very High", "action": "Call within 48 hours. They are 6–8 weeks from furniture decisions." },
+      { "trigger": "Headcount milestone (20, 50, 100+ staff)", "conversionProbability": "High", "action": "Reach out with free layout plan offer referencing their team size." },
+      { "trigger": "Brand refresh or rebranding", "conversionProbability": "High", "action": "Position office refresh as essential to brand consistency." },
+      { "trigger": "Office relocation", "conversionProbability": "High", "action": "Coordinate delivery with building access windows." },
+      { "trigger": "Funding announcement", "conversionProbability": "Medium-High", "action": "Reach out within 1 week. New funding often triggers office expansion." },
+      { "trigger": "Ergonomic compliance requirement", "conversionProbability": "Medium", "action": "Lead with sit-stand desk upgrade programme and ergonomic seating." }
+    ]
+  },
+  "budgetCyclePatterns": {
+    "corporate_EOFY": "June 30 — major approval period. Pitch April–May for EOFY budget inclusion.",
+    "corporate_Q4": "October–December — post-EOFY budget approval. Highest volume commercial furniture buying period.",
+    "corporate_Q1": "February–March — new financial year planning. Second highest buying period.",
+    "government": "June EOFY — tender for budget inclusion April–May.",
+    "implication": "Run campaigns and prospecting August–October and January–February to catch budget-holding decision-makers."
+  },
+  "commonObjectionsAndRealMeanings": {
+    "needMoreTime": {
+      "realMeaning": "The internal champion hasn't gotten sign-off from the CFO or CEO yet.",
+      "response": "Ask who else needs to be involved and offer to present directly to them. Provide an internal presentation deck for the champion."
+    },
+    "tooExpensive": {
+      "realMeaning": "The buyer hasn't justified the value internally and needs language to do so.",
+      "response": "Give them the TCO argument: 6-year warranty vs replacing cheap furniture at year 2–3. Calculate the cost difference in writing."
+    },
+    "lookingAtOptions": {
+      "realMeaning": "They want reassurance they're not missing a better option.",
+      "response": "Send a comparison framework positioning TCD's quality, warranty, and service. Never disparage competitors by name."
+    },
+    "budgetTight": {
+      "realMeaning": "Either genuine budget constraint or they haven't internalised the value case.",
+      "response": "Present finance option first. Then offer the Foundation tier. Only discount if you've made the full value case first."
+    }
+  }
+}

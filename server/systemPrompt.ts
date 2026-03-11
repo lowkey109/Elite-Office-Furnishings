@@ -8,7 +8,20 @@
 //
 // To influence AI reasoning, update constants in this file only.
 // Do not duplicate prompt logic across call sites.
+//
+// KNOWLEDGE SYSTEM: Structured JSON knowledge base at /ai/knowledge/ is loaded at
+// request time via server/ai/knowledgeLoader.ts and injected into prompts using
+// buildChatSystemPrompt() and buildAdvisorSystemPrompt() — use these functions
+// instead of the raw CORPORATE_DESK_SYSTEM_PROMPT and ADVISOR_SYSTEM_MESSAGE
+// constants for knowledge-enhanced AI calls.
 // ─────────────────────────────────────────────────────────────────────────────
+
+import {
+  getCompiledKnowledge,
+  getSalesFramework,
+  getWorkplaceDesignKnowledge,
+  getLeadQualificationRules,
+} from "./ai/knowledgeLoader";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SECTION 1 — STRATEGIC INTELLIGENCE LAYER
@@ -489,3 +502,46 @@ Its function is exclusively: analysis, recommendations, structured workspace ins
 ${STRATEGIC_INTELLIGENCE_LAYER}
 ${CEO_OPERATOR_LAYER}
 ${FITOUT_CONSTRUCTION_LAYER}`;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SECTION 5 — KNOWLEDGE-ENHANCED PROMPT BUILDERS
+// Call these functions at request time to get knowledge-injected system prompts.
+// These inject structured JSON knowledge (business rules, industry data,
+// psychology insights) from /ai/knowledge/ at the time of the AI call.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export function buildChatSystemPrompt(): string {
+  const workplaceKnowledge = getWorkplaceDesignKnowledge();
+  const salesKnowledge = getSalesFramework();
+  return `${CORPORATE_DESK_SYSTEM_PROMPT}
+
+## STRUCTURED KNOWLEDGE BASE — LOADED AT RUNTIME
+The following structured knowledge has been loaded from the TCD knowledge system.
+Use this to inform every recommendation, layout, and product suggestion.
+
+${workplaceKnowledge}
+
+${salesKnowledge}`;
+}
+
+export function buildAdvisorSystemPrompt(): string {
+  const fullKnowledge = getCompiledKnowledge();
+  return `${ADVISOR_SYSTEM_MESSAGE}
+
+## COMPREHENSIVE KNOWLEDGE BASE — LOADED AT RUNTIME
+The following structured knowledge covers all aspects of TCD operations, industry
+context, client psychology, and commercial strategy. Apply this intelligence to
+all analysis and recommendations.
+
+${fullKnowledge}`;
+}
+
+export function buildLeadIntelligenceContext(): string {
+  const qualificationRules = getLeadQualificationRules();
+  const fullKnowledge = getCompiledKnowledge();
+  return `## LEAD QUALIFICATION KNOWLEDGE BASE
+${qualificationRules}
+
+## FULL BUSINESS KNOWLEDGE CONTEXT
+${fullKnowledge}`;
+}

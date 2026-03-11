@@ -1,0 +1,42 @@
+{
+  "company": "The Corporate Desk",
+  "tagline": "Australia's most exclusive commercial office furniture supplier",
+  "website": "thecorporatedesk.com.au",
+  "abn": "Australian-owned and operated",
+  "hq": {
+    "address": "10 Primrose Street, Bowen Hills, QLD 4006",
+    "phone": "1300 977 607",
+    "email": "service@thecorporatedesk.com.au",
+    "hours": "Monday–Friday, 9am–5pm AEST",
+    "showroom": "By appointment — Brisbane HQ"
+  },
+  "serviceCoverage": ["Brisbane", "Sydney", "Melbourne", "Gold Coast", "Perth", "Adelaide", "National delivery"],
+  "primaryMarkets": ["Commercial office fitouts", "Executive suites", "Professional services workplaces", "Corporate headquarters"],
+  "certifications": [
+    "ISO 9001:2015 — Quality Management System",
+    "ISO 14001:2015 — Environmental Management System",
+    "6-Year Manufacturer Warranty on all furniture",
+    "AS/NZS Australian engineering standards",
+    "AFRDI/BIFMA seating certifications available"
+  ],
+  "missionStatement": "Build the most powerful premium office furniture company in Australia by delivering certainty, quality, and service excellence on every project.",
+  "competitiveAdvantages": [
+    "6-year manufacturer warranty — industry-leading",
+    "Local Brisbane showroom — physical trust signal",
+    "Australian-owned — procurement preference advantage",
+    "Dedicated project management on $80k+ projects",
+    "AI-powered space planning tools — innovation signal",
+    "In-house installation coordination",
+    "5 supplier divisions — 330 SKUs — full solution capability"
+  ],
+  "revenueModel": "Project-based fit-out sales with refresh cycle repeat revenue every 3–7 years per account",
+  "targetProjectRange": "$30,000 – $500,000+",
+  "sweetSpotProjects": "$80,000 – $300,000",
+  "supplierDivisions": {
+    "FSZ": { "name": "Foshan Feisenzhuo", "skus": 124, "focus": "Executive desks, boardroom tables, workstations, storage" },
+    "GOJO": { "name": "Huasheng GOJO Division", "skus": 119, "focus": "Ultra-premium executive suites, steel filing systems" },
+    "HSG": { "name": "Huasheng Gaozhuo Division", "skus": 21, "focus": "Sit-stand height-adjustable desks, ergonomic workstations" },
+    "GOJO_LOUNGE": { "name": "GOJO Lounge & Seating Division", "skus": 13, "focus": "Premium lounge seating, occasional tables" },
+    "GAOJIN": { "name": "Foshan Bohua (GAOJIN)", "skus": 53, "focus": "Commercial seating, training chairs, stackable chairs, storage" }
+  }
+}
