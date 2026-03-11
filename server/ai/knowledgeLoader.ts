@@ -24,130 +24,220 @@ let _compiled: string | null = null;
 let _compiledAt: number | null = null;
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
+const BUSINESS_FILES: Array<[string, string]> = [
+  ["companyProfile.json", "Company Profile"],
+  ["businessRules.json", "Business Rules and Operations"],
+  ["pricingStrategy.json", "Pricing Strategy"],
+  ["supplierStrategy.json", "Supplier Strategy"],
+  ["clientProfiles.json", "Ideal Client Profiles"],
+  ["offerStructure.json", "Offer Structure"],
+  ["projectQualificationRules.json", "Lead Qualification and Scoring"],
+  ["brandVoice.json", "Brand Voice and Communication"],
+  ["serviceAreas.json", "Service Areas"],
+];
+
+const INDUSTRY_FILES: Array<[string, string]> = [
+  ["officeFurnitureIndustry.json", "Office Furniture Industry Knowledge"],
+  ["workplaceDesign.json", "Workplace Design Principles"],
+  ["officeFitoutProcess.json", "Office Fitout Process"],
+  ["constructionWorkflow.json", "Construction Workflow"],
+  ["commercialFurnitureSales.json", "Commercial Furniture Sales"],
+  ["logisticsAndSupplyChain.json", "Logistics and Supply Chain"],
+  ["projectManagement.json", "Project Management"],
+  ["australianWHS.json", "Australian WHS Safety"],
+  ["australianBuildingCompliance.json", "Australian Building Compliance"],
+  ["accessibilityAndInclusiveDesign.json", "Accessibility and Inclusive Design"],
+  ["commercialRealEstateSignals.json", "Commercial Real Estate Signals"],
+];
+
+const PSYCHOLOGY_FILES: Array<[string, string]> = [
+  ["b2bBuyingPsychology.json", "B2B Buying Psychology"],
+  ["procurementBehaviour.json", "Procurement Behaviour"],
+  ["negotiationPsychology.json", "Negotiation Psychology"],
+  ["stakeholderDynamics.json", "Stakeholder Dynamics"],
+  ["valuePerception.json", "Value Perception and Premium Positioning"],
+  ["constructionDecisionPsychology.json", "Construction Decision Psychology"],
+];
+
+const FINANCE_FILES: Array<[string, string]> = [
+  ["commercialPricing.json", "Commercial Pricing"],
+  ["marginStrategy.json", "Margin Strategy"],
+  ["projectValueAssessment.json", "Project Value Assessment"],
+  ["cashflowSensitivity.json", "Cashflow Sensitivity"],
+  ["financePositioning.json", "Finance Positioning"],
+];
+
+const GROWTH_FILES: Array<[string, string]> = [
+  ["b2bMarketingStrategy.json", "B2B Marketing Strategy"],
+  ["leadGenerationStrategy.json", "Lead Generation Strategy"],
+  ["partnershipStrategy.json", "Partnership Strategy"],
+  ["contentStrategy.json", "Content Strategy"],
+  ["marketPositioning.json", "Market Positioning"],
+];
+
+const MARKET_FILES: Array<[string, string]> = [
+  ["highValueLeadSignals.json", "High Value Lead Signals"],
+  ["industryTargeting.json", "Industry Targeting"],
+  ["companyGrowthSignals.json", "Company Growth Signals"],
+  ["officeMoveIndicators.json", "Office Move Indicators"],
+];
+
+function buildSection(
+  files: Array<[string, string]>,
+  subdir: string | null
+): string {
+  const basePath = subdir
+    ? path.join(KNOWLEDGE_BASE_PATH, subdir)
+    : KNOWLEDGE_BASE_PATH;
+  return files
+    .map(([file, label]) => {
+      const data = safeReadJson(path.join(basePath, file));
+      return data ? sectionHeader(label) + compactJson(data) : "";
+    })
+    .filter(Boolean)
+    .join("\n");
+}
+
 export function getCompiledKnowledge(): string {
   const now = Date.now();
   if (_compiled && _compiledAt && now - _compiledAt < CACHE_TTL_MS) {
     return _compiled;
   }
 
-  const sections: string[] = [];
+  _compiled = [
+    buildSection(BUSINESS_FILES, null),
+    buildSection(INDUSTRY_FILES, "industry"),
+    buildSection(PSYCHOLOGY_FILES, "psychology"),
+    buildSection(FINANCE_FILES, "finance"),
+    buildSection(GROWTH_FILES, "growth"),
+    buildSection(MARKET_FILES, "market"),
+  ]
+    .filter(Boolean)
+    .join("\n");
 
-  const businessFiles: Array<[string, string]> = [
-    ["companyProfile.json", "Company Profile"],
-    ["businessRules.json", "Business Rules & Operations"],
-    ["pricingStrategy.json", "Pricing Strategy"],
-    ["supplierStrategy.json", "Supplier Strategy"],
-    ["clientProfiles.json", "Ideal Client Profiles"],
-    ["offerStructure.json", "Offer Structure"],
-    ["projectQualificationRules.json", "Lead Qualification & Scoring"],
-    ["brandVoice.json", "Brand Voice & Communication"],
-    ["serviceAreas.json", "Service Areas"],
-  ];
-
-  for (const [file, label] of businessFiles) {
-    const data = safeReadJson(path.join(KNOWLEDGE_BASE_PATH, file));
-    if (data) {
-      sections.push(sectionHeader(label) + compactJson(data));
-    }
-  }
-
-  const industryFiles: Array<[string, string]> = [
-    ["officeFurnitureIndustry.json", "Office Furniture Industry Knowledge"],
-    ["workplaceDesign.json", "Workplace Design Principles"],
-    ["officeFitoutProcess.json", "Office Fit-out Process"],
-    ["constructionWorkflow.json", "Construction Workflow"],
-    ["commercialFurnitureSales.json", "Commercial Furniture Sales"],
-  ];
-
-  for (const [file, label] of industryFiles) {
-    const data = safeReadJson(path.join(KNOWLEDGE_BASE_PATH, "industry", file));
-    if (data) {
-      sections.push(sectionHeader(label) + compactJson(data));
-    }
-  }
-
-  const psychologyFiles: Array<[string, string]> = [
-    ["b2bBuyingPsychology.json", "B2B Buying Psychology"],
-    ["procurementBehaviour.json", "Procurement Behaviour"],
-    ["negotiationPsychology.json", "Negotiation Psychology"],
-    ["stakeholderDynamics.json", "Stakeholder Dynamics"],
-    ["valuePerception.json", "Value Perception & Premium Positioning"],
-    ["constructionDecisionPsychology.json", "Construction Decision Psychology"],
-  ];
-
-  for (const [file, label] of psychologyFiles) {
-    const data = safeReadJson(path.join(KNOWLEDGE_BASE_PATH, "psychology", file));
-    if (data) {
-      sections.push(sectionHeader(label) + compactJson(data));
-    }
-  }
-
-  _compiled = sections.join("\n");
   _compiledAt = now;
-
   return _compiled;
 }
 
-export function getKnowledgeSection(
-  section: "business" | "industry" | "psychology"
-): string {
-  const all = getCompiledKnowledge();
-  const markers = {
-    business: ["COMPANY PROFILE", "SERVICE AREAS"],
-    industry: ["OFFICE FURNITURE INDUSTRY KNOWLEDGE", "COMMERCIAL FURNITURE SALES"],
-    psychology: ["B2B BUYING PSYCHOLOGY", "CONSTRUCTION DECISION PSYCHOLOGY"],
-  };
-
-  const [start, end] = markers[section];
-  const startIdx = all.indexOf(`### ${start}`);
-  const endIdx = all.indexOf(`### ${end}`);
-
-  if (startIdx === -1) return all;
-  if (endIdx === -1) return all.slice(startIdx);
-
-  const endBlock = all.indexOf("\n### ", endIdx + 1);
-  return all.slice(startIdx, endBlock === -1 ? undefined : endBlock);
-}
-
-export function getClientProfileByType(profileId: string): string {
-  const data = safeReadJson(path.join(KNOWLEDGE_BASE_PATH, "clientProfiles.json"));
-  if (!data) return "";
-  const profiles = (data as any).idealClientProfiles as any[];
-  const profile = profiles?.find((p: any) => p.id === profileId);
-  return profile ? compactJson(profile) : "";
-}
-
-export function getLeadQualificationRules(): string {
-  const data = safeReadJson(path.join(KNOWLEDGE_BASE_PATH, "projectQualificationRules.json"));
-  return data ? compactJson(data) : "";
+export function getWorkplaceDesignKnowledge(): string {
+  return [
+    buildSection(
+      [
+        ["officeFurnitureIndustry.json", "Product Knowledge"],
+        ["workplaceDesign.json", "Workplace Design"],
+        ["officeFitoutProcess.json", "Fitout Process"],
+        ["australianWHS.json", "Australian WHS Safety"],
+        ["accessibilityAndInclusiveDesign.json", "Accessibility"],
+        ["australianBuildingCompliance.json", "Building Compliance"],
+      ],
+      "industry"
+    ),
+  ].join("\n");
 }
 
 export function getSalesFramework(): string {
-  const pricing = safeReadJson(path.join(KNOWLEDGE_BASE_PATH, "pricingStrategy.json"));
-  const offers = safeReadJson(path.join(KNOWLEDGE_BASE_PATH, "offerStructure.json"));
-  const sales = safeReadJson(path.join(KNOWLEDGE_BASE_PATH, "industry", "commercialFurnitureSales.json"));
-  const negotiation = safeReadJson(path.join(KNOWLEDGE_BASE_PATH, "psychology", "negotiationPsychology.json"));
-
   return [
-    pricing ? sectionHeader("Pricing Strategy") + compactJson(pricing) : "",
-    offers ? sectionHeader("Offer Structure") + compactJson(offers) : "",
-    sales ? sectionHeader("Sales Process") + compactJson(sales) : "",
-    negotiation ? sectionHeader("Negotiation Psychology") + compactJson(negotiation) : "",
-  ]
-    .filter(Boolean)
-    .join("\n");
+    buildSection(
+      [
+        ["pricingStrategy.json", "Pricing Strategy"],
+        ["offerStructure.json", "Offer Structure"],
+        ["clientProfiles.json", "Client Profiles"],
+      ],
+      null
+    ),
+    buildSection(
+      [["commercialFurnitureSales.json", "Sales Process"]],
+      "industry"
+    ),
+    buildSection(
+      [
+        ["negotiationPsychology.json", "Negotiation Psychology"],
+        ["valuePerception.json", "Value Perception"],
+        ["b2bBuyingPsychology.json", "Buyer Psychology"],
+        ["procurementBehaviour.json", "Procurement Behaviour"],
+        ["stakeholderDynamics.json", "Stakeholder Dynamics"],
+      ],
+      "psychology"
+    ),
+    buildSection(
+      [
+        ["commercialPricing.json", "Commercial Pricing"],
+        ["financePositioning.json", "Finance Positioning"],
+      ],
+      "finance"
+    ),
+  ].join("\n");
 }
 
-export function getWorkplaceDesignKnowledge(): string {
-  const design = safeReadJson(path.join(KNOWLEDGE_BASE_PATH, "industry", "workplaceDesign.json"));
-  const fitout = safeReadJson(path.join(KNOWLEDGE_BASE_PATH, "industry", "officeFitoutProcess.json"));
-  const industry = safeReadJson(path.join(KNOWLEDGE_BASE_PATH, "industry", "officeFurnitureIndustry.json"));
-
+export function getLeadQualificationRules(): string {
   return [
-    industry ? sectionHeader("Product Knowledge") + compactJson(industry) : "",
-    design ? sectionHeader("Workplace Design") + compactJson(design) : "",
-    fitout ? sectionHeader("Fit-out Process") + compactJson(fitout) : "",
-  ]
-    .filter(Boolean)
-    .join("\n");
+    buildSection(
+      [["projectQualificationRules.json", "Lead Qualification"]],
+      null
+    ),
+    buildSection(
+      [
+        ["highValueLeadSignals.json", "High Value Lead Signals"],
+        ["industryTargeting.json", "Industry Targeting"],
+        ["companyGrowthSignals.json", "Company Growth Signals"],
+        ["officeMoveIndicators.json", "Office Move Indicators"],
+      ],
+      "market"
+    ),
+    buildSection(
+      [
+        ["projectValueAssessment.json", "Project Value Assessment"],
+        ["marginStrategy.json", "Margin Strategy"],
+      ],
+      "finance"
+    ),
+  ].join("\n");
+}
+
+export function getFinanceKnowledge(): string {
+  return buildSection(FINANCE_FILES, "finance");
+}
+
+export function getGrowthKnowledge(): string {
+  return buildSection(GROWTH_FILES, "growth");
+}
+
+export function getMarketIntelligence(): string {
+  return buildSection(MARKET_FILES, "market");
+}
+
+export function getSupplierKnowledge(): string {
+  return buildSection(
+    [
+      ["supplierStrategy.json", "Supplier Strategy"],
+      ["businessRules.json", "Business Rules"],
+    ],
+    null
+  );
+}
+
+export function getKnowledgeStats(): {
+  totalFiles: number;
+  totalChars: number;
+  directories: string[];
+} {
+  const full = getCompiledKnowledge();
+  return {
+    totalFiles:
+      BUSINESS_FILES.length +
+      INDUSTRY_FILES.length +
+      PSYCHOLOGY_FILES.length +
+      FINANCE_FILES.length +
+      GROWTH_FILES.length +
+      MARKET_FILES.length,
+    totalChars: full.length,
+    directories: [
+      "business",
+      "industry",
+      "psychology",
+      "finance",
+      "growth",
+      "market",
+    ],
+  };
 }

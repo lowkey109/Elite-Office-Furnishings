@@ -1,0 +1,40 @@
+{
+  "paymentStructure": {
+    "standard": {
+      "deposit": "30% on order confirmation",
+      "balance": "70% on delivery or installation completion",
+      "purpose": "Deposit covers manufacturing commitment and reduces TCD exposure to client default"
+    },
+    "largeProjects": {
+      "threshold": "$100,000+",
+      "structure": "30% deposit / 30% on production completion / 40% on delivery",
+      "purpose": "Milestone payments align client payments with TCD's own payment obligations to supplier"
+    },
+    "never": "100% prepayment before manufacture — creates buyer friction and is non-standard in the industry"
+  },
+  "cashflowTimeline": {
+    "typical50kProject": {
+      "day0": "Deposit received: $15,000",
+      "day5": "Supplier payment due: 30% of supplier cost ≈ $8,000–$10,000",
+      "week6": "Goods arrive / balance invoice raised",
+      "week7": "Balance received: $35,000",
+      "week8": "Final supplier payment and freight invoice settled"
+    },
+    "exposurePeriod": "TCD typically carries 4–8 weeks of cash exposure between deposit payment to supplier and receiving balance from client — manage timing carefully on multiple concurrent projects"
+  },
+  "clientCashflowSensitivity": {
+    "commonObjection": "Many clients are not objecting to the price — they are objecting to the cash flow impact of a large upfront payment",
+    "solutions": [
+      "Finance option (12–60 month terms) — converts large upfront to monthly outflow",
+      "Milestone payment structure — aligns furniture payments with client's own cash cycle",
+      "EOFY timing — position purchase before June 30 for immediate tax deduction"
+    ],
+    "EOFYPositioning": "Commercial furniture is a depreciable asset. Purchasing before June 30 allows a full-year depreciation claim — a real financial benefit. Use this from April onward.",
+    "financePositioning": "Finance converts a $120,000 capital decision into a $2,800/month operating expense — dramatically changes the CFO's approval threshold"
+  },
+  "creditorManagement": {
+    "supplierTerms": "Most Foshan suppliers require 30% deposit at order, 70% against Bill of Lading",
+    "freightBroker": "Freight broker typically requires prepayment or credit facility — establish credit early",
+    "installationContractors": "Pay installation contractors within 7 days of completion — good contractors are in demand and cash flow is their primary concern"
+  }
+}

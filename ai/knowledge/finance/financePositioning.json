@@ -1,0 +1,38 @@
+{
+  "financeAvailability": {
+    "available": true,
+    "terms": "12–60 months",
+    "provider": "Third-party finance — TCD does not provide finance directly and does not provide licensed financial advice",
+    "disclaimer": "Always include: 'Finance is subject to lender approval and terms. Speak with your accountant or financial adviser.'"
+  },
+  "whenToIntroduceFinance": {
+    "primaryTrigger": "When a client signals budget concern BEFORE they disengage — not after they've walked away",
+    "secondaryTriggers": [
+      "When the deal is above $100,000 and client mentions 'that's a significant investment'",
+      "When client says 'we need to check with finance' — proactively offer to provide finance option documentation",
+      "When client timeline is urgent but budget sign-off is delayed"
+    ]
+  },
+  "howToPositionFinance": {
+    "framing": "Position as a cash flow management tool, not as a sign that the client can't afford it",
+    "CFOLanguage": "Spread the investment across the asset's working life. $120,000 as a capital expenditure vs $2,800/month operating cost is a very different conversation in a board meeting.",
+    "CEOLanguage": "You get the office your team deserves now, and the investment works with your cash flow over time.",
+    "HRLanguage": "Your team doesn't have to wait 6 months for a better workspace — finance lets us deliver immediately.",
+    "never": "Never say 'if you can't afford it outright' — implies the client is financially weak"
+  },
+  "financeCalculations": {
+    "indicativeRates": "Indicative monthly payments at 7.5% p.a. finance rate:",
+    "examples": {
+      "$50,000_24mo": "$2,250/month",
+      "$80,000_36mo": "$2,470/month",
+      "$120,000_48mo": "$2,890/month",
+      "$200,000_60mo": "$3,980/month"
+    },
+    "note": "Actual rates vary by lender, credit profile, and term. These are indicative only for conversation purposes."
+  },
+  "accountingBenefit": {
+    "depreciation": "Commercial furniture depreciates at 25–40% diminishing value or 100% instant asset write-off (subject to ATO rules and turnover thresholds — confirm with client's accountant)",
+    "EOFYTiming": "A purchase confirmed before June 30 secures the full-year depreciation claim — powerful urgency trigger from April through June",
+    "operatingLease": "Some finance structures allow furniture to be treated as an operating expense rather than capital — further improving CFO approval speed"
+  }
+}

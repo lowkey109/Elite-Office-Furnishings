@@ -1,0 +1,56 @@
+{
+  "directMoveSignals": [
+    {
+      "signal": "New office address in job ads",
+      "reliability": "Very High — company is advertising the location before officially announcing",
+      "action": "Verify address, research building, reach out to office manager or CEO"
+    },
+    {
+      "signal": "LinkedIn 'We're moving' or 'New office' post",
+      "reliability": "Very High — confirmed move in progress",
+      "action": "Comment congratulations + personalised DM with free layout plan offer within 24 hours"
+    },
+    {
+      "signal": "Commercial property press release naming tenant",
+      "reliability": "Very High — landlord/agent has confirmed the lease",
+      "action": "Direct outreach to tenant contact within 48 hours"
+    },
+    {
+      "signal": "Google Maps address updated",
+      "reliability": "High — office has moved or is about to move",
+      "action": "Reach out via new address — they may still need additional furniture for the new space"
+    }
+  ],
+  "indirectMoveSignals": [
+    {
+      "signal": "Company approaching a lease renewal window (3, 5, or 7 years in current location)",
+      "reliability": "Medium — they may renew and refresh, or relocate",
+      "approach": "Offer workspace refresh assessment — either outcome creates a furniture opportunity"
+    },
+    {
+      "signal": "Multiple job postings with 'hybrid work' or 'flexible workspace' language",
+      "reliability": "Medium — suggests they are reconsidering office design",
+      "approach": "Content-led outreach: 'How companies are redesigning for hybrid work' — not a hard pitch"
+    },
+    {
+      "signal": "Negative Glassdoor/Indeed office reviews mentioning 'cramped space' or 'poor furniture'",
+      "reliability": "Low-Medium — they are aware of the problem",
+      "approach": "Sensitive approach required — 'we noticed your team values workspace quality'"
+    }
+  ],
+  "geographicOpportunities": {
+    "brisbane": {
+      "precinct": "Inner city CBDs: Brisbane CBD, Fortitude Valley, South Brisbane, Newstead, Milton",
+      "majorDevelopments": ["Queen's Wharf Brisbane (2024-2026 occupation)", "Waterfront Brisbane", "Cross River Rail adjacent commercial precincts"],
+      "note": "New major commercial precincts create waves of new tenants — monitor development completions 12 months ahead"
+    },
+    "sydney": {
+      "precinct": "CBD, North Sydney, Pyrmont, Parramatta, South Eveleigh",
+      "opportunity": "Post-2024 return-to-office push driving significant fitout investment in Sydney CBD"
+    },
+    "melbourne": {
+      "precinct": "CBD, Docklands, Southbank, Richmond, Cremorne (tech precinct)",
+      "opportunity": "Cremorne tech precinct has consistent high-growth company turnover — strong target zone"
+    }
+  }
+}

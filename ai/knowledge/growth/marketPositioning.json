@@ -1,0 +1,47 @@
+{
+  "positioningStatement": "The Corporate Desk is Australia's premium commercial workspace solutions partner — combining the quality of high-end commercial furniture brands with the service certainty, local presence, and project management of a premium fitout firm.",
+  "differentiationFramework": {
+    "vs_VolumeRetailers": {
+      "competitors": ["Officeworks Business", "IKEA for Business", "OfficeMax"],
+      "difference": "TCD offers commercial-grade quality, 6-year warranty, professional installation, project management, and a relationship — not a transaction",
+      "keyMessage": "You're not buying furniture. You're investing in a workspace that works for the next 6+ years."
+    },
+    "vs_GreyImporters": {
+      "competitors": ["Unknown online sellers", "Direct Alibaba/DHgate importers"],
+      "difference": "TCD has Australian warranty, Australian compliance, local support, and installation certainty",
+      "keyMessage": "When something goes wrong (and it does), TCD is in Brisbane. They are not."
+    },
+    "vs_PremiumInternationalBrands": {
+      "competitors": ["Herman Miller", "Steelcase", "Knoll", "Haworth"],
+      "difference": "TCD offers comparable commercial quality at 40–60% lower investment, with faster lead times and local project management",
+      "keyMessage": "Commercial-grade quality without the premium brand premium."
+    },
+    "vs_LocalCommercialSuppliers": {
+      "competitors": ["Other Australian commercial furniture companies"],
+      "difference": "TCD's AI-powered planning tools, deeper range (330 SKUs across 5 supplier divisions), and 6-year warranty are structural advantages",
+      "keyMessage": "We combine the range of a major supplier with the personal service of a boutique firm."
+    }
+  },
+  "brandPerception": {
+    "current": "Premium commercial office furniture supplier — known for quality, local presence, and project delivery",
+    "target": "Australia's most trusted partner for corporate workspace transformation",
+    "bridgeActivities": ["Project case studies demonstrating scale and quality", "AI tools demonstrating innovation", "6-year warranty demonstrating confidence", "Partner relationships demonstrating trust"]
+  },
+  "premiumSignals": {
+    "must_maintain": [
+      "High-quality website and catalogue imagery",
+      "Professional proposal templates",
+      "Physical showroom — tangible quality signal",
+      "4-hour response time to all qualified enquiries",
+      "Handwritten thank-you note or gift on large project handovers",
+      "ISO certifications prominently displayed"
+    ],
+    "must_avoid": [
+      "Discount language ('sale', 'clearance', 'cheap')",
+      "Consumer-grade product imagery",
+      "Slow response times",
+      "Generic email auto-replies without a person's name",
+      "Products visible on Alibaba or direct-to-consumer platforms"
+    ]
+  }
+}

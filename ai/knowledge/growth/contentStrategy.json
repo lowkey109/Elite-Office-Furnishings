@@ -1,0 +1,42 @@
+{
+  "contentPillars": [
+    {
+      "pillar": "Workspace Expertise",
+      "description": "Position TCD as the authoritative voice on commercial workspace design and fitouts",
+      "contentTypes": ["Office design guides", "Space planning tips", "Zone-type explainers", "Ergonomic guides", "WHS compliance information"]
+    },
+    {
+      "pillar": "Product Showcase",
+      "description": "Demonstrate the quality, design intelligence, and commercial suitability of TCD products",
+      "contentTypes": ["Collection feature posts", "Before/after project reveals", "Material and finish guides", "Video walkthroughs", "Product comparison content"]
+    },
+    {
+      "pillar": "Business Intelligence",
+      "description": "Share commercially useful insights that attract decision-makers, not just buyers",
+      "contentTypes": ["Office fitout cost guides", "CFO ROI calculations", "TCO analysis", "EOFY investment guides", "Finance option explainers"]
+    },
+    {
+      "pillar": "Social Proof",
+      "description": "Demonstrate track record through project stories and client outcomes",
+      "contentTypes": ["Project case studies", "Client testimonials", "Installation photography", "Before/after series"]
+    }
+  ],
+  "contentCalendar": {
+    "weekly": "1x LinkedIn post (product or project), 1x email to warm leads list",
+    "monthly": "1x blog post (1,500+ words targeting SEO keyword), 1x project case study",
+    "quarterly": "1x EOFY or seasonal buying guide, 1x product collection launch"
+  },
+  "SEOblogPriority": [
+    { "title": "How much does an office fitout cost in Australia in 2025?", "intent": "Research — high volume, strong lead intent" },
+    { "title": "Office relocation checklist — furniture planning guide", "intent": "Research — captures companies mid-move" },
+    { "title": "Sit-stand desk vs fixed desk: which is right for your office?", "intent": "Comparison — upsell to ergonomic products" },
+    { "title": "How to choose the right boardroom table size", "intent": "Decision — captures buyers actively specifying" },
+    { "title": "Commercial office chairs: what to look for and what to avoid", "intent": "Research + decision" },
+    { "title": "The real cost of cheap office furniture (TCO calculation)", "intent": "Decision — addresses price objections" }
+  ],
+  "brandVoiceForContent": {
+    "tone": "Authoritative, clear, and commercially intelligent. Not corporate-speak. Not consumer-casual.",
+    "avoid": ["Buzzwords without substance", "Superlatives without evidence", "Generic advice available anywhere"],
+    "include": ["Specific numbers and benchmarks", "Australian context", "Actionable recommendations", "Real product knowledge"]
+  }
+}

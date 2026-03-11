@@ -1,0 +1,50 @@
+{
+  "shippingOrigins": {
+    "primarySupplierRegion": "Foshan, Guangdong Province, China",
+    "shippingMethods": ["Sea freight (FCL/LCL)", "Air freight for urgent/small items"],
+    "transitTimes": {
+      "seaFreight_FoshanToAustralia": "18–28 days port-to-port",
+      "customsClearance": "3–7 business days",
+      "totalOriginToWarehouse": "25–40 business days typical"
+    },
+    "incoterms": "FOB Foshan or CIF Australian port — confirm per order"
+  },
+  "australianPortsAndLogistics": {
+    "primaryPorts": ["Port of Brisbane", "Port of Sydney (Botany)", "Port of Melbourne"],
+    "customsBroker": "Always use a licensed customs broker for commercial furniture imports",
+    "importDuty": "5% import duty on most furniture categories + 10% GST on CIF value",
+    "quarantineRisk": "Timber and natural material items may require AQIS inspection — add 3–5 business days buffer"
+  },
+  "warehouseOperations": {
+    "receivingProcess": "Count all cartons against packing list at receiving — photograph any damaged cartons before signing",
+    "storageRequirements": "Furniture stored flat or standing — never on end for panel goods; seating stored upright",
+    "insurancePrinciple": "All goods must be insured from point of loading to point of delivery to client site",
+    "stockingRisk": "Do not pre-stock large volumes without confirmed orders — furniture models update frequently from suppliers"
+  },
+  "deliveryToClientSite": {
+    "vehicleTypes": {
+      "smallProjects": "1–2 tonne van or small rigid truck",
+      "mediumProjects": "4–6 tonne rigid truck with tail lift",
+      "largeProjects": "Semi-trailer or B-double — confirm loading dock access first"
+    },
+    "deliveryRequirements": [
+      "Confirm loading dock availability or street parking zone",
+      "Check lift dimensions before delivery — minimum 2.0m W × 2.0m D × 2.4m H",
+      "Confirm delivery time window with building manager minimum 5 business days prior",
+      "CBD buildings typically restrict delivery to before 10am",
+      "Protect lobby and lift with blankets and carpet runners before moving furniture"
+    ],
+    "installationCrewSizing": {
+      "under50k": "2–3 person crew",
+      "50k_to_150k": "3–5 person crew",
+      "above150k": "5–8 person crew with site supervisor"
+    }
+  },
+  "supplyChainRisks": [
+    "Chinese New Year factory closures (January–February) — add 4–6 weeks to orders placed in December–January",
+    "Golden Week closure (October) — add 1–2 weeks",
+    "Port congestion at Nansha/Shekou — build 1-week buffer into all sea freight estimates",
+    "Currency fluctuation — AUD/CNY moves can affect landed cost by 5–10% over a 3-month period",
+    "Supplier capacity — confirm production slot before promising client delivery date"
+  ]
+}

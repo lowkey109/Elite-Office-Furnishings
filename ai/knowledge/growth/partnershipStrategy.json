@@ -1,0 +1,39 @@
+{
+  "partnerCategories": {
+    "commercialRealEstateAgents": {
+      "value": "Access to new lease signings before they are public — the highest-value lead timing",
+      "targetAgencies": ["CBRE", "JLL", "Cushman & Wakefield", "Colliers International", "Knight Frank", "Ray White Commercial", "McGees Property"],
+      "approach": "Brief presentation of TCD services, sample project portfolio, referral arrangement. Position TCD as adding value to the agent's client relationship — making their job easier.",
+      "arrangement": "2–3% referral on confirmed projects >$30,000",
+      "keyMessage": "We make you look good to your tenants by solving their fitout challenge — you refer, we deliver, your client is happy."
+    },
+    "interiorDesignersWorkplaceConsultants": {
+      "value": "Designers are specified into projects early — they often select furniture before the client goes to market",
+      "approach": "Trade account setup with spec pricing, sample kit dispatch, responsive product spec support",
+      "keyMessage": "We support the design vision with commercial quality, Australian warranty, and installation certainty — we make your project deliver.",
+      "arrangement": "Trade discount 15–20% or per-project fee arrangement",
+      "priority": "Very High — one loyal designer can generate $300,000–$800,000/year in referral revenue"
+    },
+    "ITCompanies": {
+      "value": "IT companies are always involved in office moves (infrastructure relocation, data cabling) and are trusted by operations teams",
+      "approach": "Simple referral arrangement — 'we do the furniture, you do the IT'",
+      "arrangement": "1–2% referral on confirmed projects or reciprocal referrals"
+    },
+    "projectManagementFirms": {
+      "value": "PM firms manage fit-outs end-to-end and select furniture subcontractors",
+      "approach": "Trade pricing, certified capability demonstration, project management coordination experience",
+      "arrangement": "Subcontractor terms with PM firm. Maintain margin by building PM firm's margin into pricing structure."
+    },
+    "accountingAndFinancialAdvisers": {
+      "value": "Access to business clients evaluating EOFY investments and depreciable asset purchases",
+      "approach": "EOFY marketing campaign targeted at accountants — 'help your clients maximise their tax position with a planned workspace investment'",
+      "arrangement": "No formal fee — goodwill and occasional cross-referral"
+    }
+  },
+  "partnerActivationPlan": {
+    "month1_3": "Identify 5 target real estate agents and 5 target interior designers in Brisbane. Make personal introductions. Provide sample kit and project portfolio.",
+    "month3_6": "Formalise referral arrangements with 2–3 active referrers. Brief them on TCD's lead qualification and response process.",
+    "ongoing": "Monthly check-in with each active partner. Share project completions. Send EOFY and Q4 reminders with marketing material.",
+    "metrics": "Track: referrals received per partner / referral-to-project conversion rate / revenue per partner relationship"
+  }
+}

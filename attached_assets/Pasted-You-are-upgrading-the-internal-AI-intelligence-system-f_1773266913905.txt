@@ -1,0 +1,555 @@
+You are upgrading the internal AI intelligence system for The Corporate Desk.
+
+You are in SAFE INTELLIGENCE EXPANSION MODE.
+
+CRITICAL RULES
+
+Do NOT rebuild the existing system.
+Do NOT break:
+- the AI office planner
+- product catalog
+- finance calculator
+- 3D viewer
+- admin dashboard
+- chatbot
+- lead capture
+- pricing system
+- website pages
+
+Only extend the AI intelligence layer and knowledge system safely.
+
+------------------------------------------------
+PRIMARY OBJECTIVE
+------------------------------------------------
+
+Transform the internal/admin AI into a CEO-level business operator for The Corporate Desk.
+
+The AI must behave like a senior executive advisor that understands:
+
+• commercial office furniture
+• workplace design
+• office fit-outs
+• construction workflows
+• Australian WHS
+• Australian building/accessibility considerations
+• B2B business psychology
+• procurement behaviour
+• sales strategy
+• supplier strategy
+• logistics and installation
+• marketing strategy
+• growth strategy
+• market intelligence
+• financial intelligence
+• project management
+
+The AI should help run The Corporate Desk like a serious premium commercial office furniture and fit-out business.
+
+------------------------------------------------
+STEP 1 — CREATE BUSINESS KNOWLEDGE SYSTEM
+------------------------------------------------
+
+Create a folder:
+
+/ai/knowledge
+
+Inside it create structured business knowledge files:
+
+/ai/knowledge/companyProfile.json
+/ai/knowledge/businessRules.json
+/ai/knowledge/pricingStrategy.json
+/ai/knowledge/supplierStrategy.json
+/ai/knowledge/clientProfiles.json
+/ai/knowledge/serviceAreas.json
+/ai/knowledge/offerStructure.json
+/ai/knowledge/projectQualificationRules.json
+/ai/knowledge/brandVoice.json
+
+Populate these files with the following starter data.
+
+companyProfile.json
+{
+  "company_name": "The Corporate Desk",
+  "country": "Australia",
+  "business_model": "Commercial office furniture supply and office fit-out solutions",
+  "core_services": [
+    "Office furniture supply",
+    "Workspace planning",
+    "Office fit-out packages",
+    "Furniture sourcing",
+    "3D workspace visualisation",
+    "Corporate office upgrades"
+  ],
+  "positioning": "Premium commercial workspace design and furniture solutions for growing companies",
+  "target_markets": [
+    "Technology companies",
+    "Finance firms",
+    "Professional services",
+    "Engineering firms",
+    "Healthcare companies",
+    "Corporate headquarters"
+  ]
+}
+
+businessRules.json
+{
+  "minimum_project_value": 10000,
+  "ideal_project_value_range": [50000, 300000],
+  "high_value_project_range": [300000, 1000000],
+  "target_margin_percentage": 35,
+  "priority_leads": [
+    "office relocation",
+    "office expansion",
+    "new headquarters",
+    "rapid team growth"
+  ],
+  "low_priority_leads": [
+    "single desk purchases",
+    "small home offices",
+    "low budget requests"
+  ]
+}
+
+pricingStrategy.json
+{
+  "product_markup_range": [15, 40],
+  "package_markup_target": 35,
+  "premium_projects_margin_target": 40,
+  "finance_available": true,
+  "finance_positioning": "Monthly payment solutions to make office upgrades easier for growing companies",
+  "pricing_philosophy": "Premium positioning with strong value perception and design-driven recommendations"
+}
+
+supplierStrategy.json
+{
+  "primary_suppliers": [
+    "Boke Seating",
+    "Feisenzhuo",
+    "Gojo Office Furniture"
+  ],
+  "supplier_region": "Foshan China",
+  "supplier_strategy": "Source high quality commercial furniture manufacturers and rebrand products under The Corporate Desk collections",
+  "supplier_selection_criteria": [
+    "commercial durability",
+    "modern design",
+    "competitive manufacturing pricing",
+    "reliable production capacity"
+  ]
+}
+
+clientProfiles.json
+{
+  "ideal_client_types": [
+    "fast growing startups",
+    "mid sized technology companies",
+    "professional service firms",
+    "corporate headquarters",
+    "companies relocating offices"
+  ],
+  "target_employee_size": [
+    "20 employees",
+    "50 employees",
+    "100 employees",
+    "200 employees"
+  ],
+  "buyer_personas": [
+    "CEO",
+    "Operations Manager",
+    "Office Manager",
+    "Facilities Manager",
+    "Procurement Manager"
+  ]
+}
+
+serviceAreas.json
+{
+  "primary_cities": [
+    "Brisbane",
+    "Sydney",
+    "Melbourne"
+  ],
+  "secondary_cities": [
+    "Perth",
+    "Adelaide",
+    "Canberra"
+  ],
+  "country": "Australia"
+}
+
+offerStructure.json
+{
+  "free_offers": [
+    "Free office layout plan",
+    "Workspace planning consultation"
+  ],
+  "paid_offers": [
+    "3D office walkthrough",
+    "Premium workspace strategy consultation"
+  ],
+  "conversion_goal": "Move qualified leads into workspace planning and furniture packages"
+}
+
+projectQualificationRules.json
+{
+  "high_value_indicators": [
+    "office relocation",
+    "company expansion",
+    "team growth above 20 staff",
+    "new office lease"
+  ],
+  "budget_indicators": [
+    "50k office fitout",
+    "100k office fitout",
+    "corporate office upgrade"
+  ],
+  "disqualifiers": [
+    "home office",
+    "very low budgets",
+    "single chair purchases"
+  ]
+}
+
+brandVoice.json
+{
+  "tone": "Premium, confident, professional",
+  "brand_personality": [
+    "strategic",
+    "credible",
+    "design driven",
+    "commercially intelligent"
+  ],
+  "avoid_language": [
+    "cheap",
+    "budget",
+    "discount furniture"
+  ],
+  "preferred_language": [
+    "workspace strategy",
+    "premium office design",
+    "commercial workspace solutions"
+  ]
+}
+
+------------------------------------------------
+STEP 2 — CREATE INDUSTRY KNOWLEDGE SYSTEM
+------------------------------------------------
+
+Create:
+
+/ai/knowledge/industry
+
+Add files:
+
+/ai/knowledge/industry/officeFurnitureIndustry.json
+/ai/knowledge/industry/workplaceDesign.json
+/ai/knowledge/industry/officeFitoutProcess.json
+/ai/knowledge/industry/constructionWorkflow.json
+/ai/knowledge/industry/commercialFurnitureSales.json
+/ai/knowledge/industry/logisticsAndSupplyChain.json
+/ai/knowledge/industry/projectManagement.json
+/ai/knowledge/industry/australianWHS.json
+/ai/knowledge/industry/australianBuildingCompliance.json
+/ai/knowledge/industry/accessibilityAndInclusiveDesign.json
+/ai/knowledge/industry/commercialRealEstateSignals.json
+
+These files should contain structured explanations about:
+
+• office furniture categories
+• workplace design strategies
+• fit-out project stages
+• installation logistics
+• shipping and warehouse considerations
+• builder/electrician coordination
+• commercial sales practices
+• Australian WHS principles
+• safe workstation ergonomics
+• circulation space and emergency access
+• workstation spacing
+• accessible layout principles
+• likely office move/expansion signals
+
+------------------------------------------------
+STEP 3 — CREATE BUSINESS PSYCHOLOGY SYSTEM
+------------------------------------------------
+
+Create:
+
+/ai/knowledge/psychology
+
+Add files:
+
+/ai/knowledge/psychology/b2bBuyingPsychology.json
+/ai/knowledge/psychology/constructionDecisionPsychology.json
+/ai/knowledge/psychology/procurementBehaviour.json
+/ai/knowledge/psychology/stakeholderDynamics.json
+/ai/knowledge/psychology/negotiationPsychology.json
+/ai/knowledge/psychology/valuePerception.json
+
+These files must explain how companies actually make decisions.
+
+Include knowledge about:
+
+• buyer trust signals
+• risk avoidance
+• authority perception
+• why buyers ask for multiple quotes
+• why projects stall
+• stakeholder influence
+• finance team concerns
+• CEO priorities
+• HR/workplace priorities
+• operations/facilities priorities
+• negotiation patterns
+• premium value framing
+• urgency without sounding pushy
+
+------------------------------------------------
+STEP 4 — CREATE FINANCIAL / COMMERCIAL INTELLIGENCE
+------------------------------------------------
+
+Create:
+
+/ai/knowledge/finance
+
+Add files:
+
+/ai/knowledge/finance/commercialPricing.json
+/ai/knowledge/finance/marginStrategy.json
+/ai/knowledge/finance/projectValueAssessment.json
+/ai/knowledge/finance/cashflowSensitivity.json
+/ai/knowledge/finance/financePositioning.json
+
+These files should help the AI reason about:
+
+• pricing strategy
+• margin protection
+• cost vs value
+• project profitability
+• quote ranges
+• when a lead is worth chasing
+• staged purchasing
+• finance/leasing positioning
+
+------------------------------------------------
+STEP 5 — CREATE MARKETING / GROWTH INTELLIGENCE
+------------------------------------------------
+
+Create:
+
+/ai/knowledge/growth
+
+Add files:
+
+/ai/knowledge/growth/b2bMarketingStrategy.json
+/ai/knowledge/growth/leadGenerationStrategy.json
+/ai/knowledge/growth/partnershipStrategy.json
+/ai/knowledge/growth/contentStrategy.json
+/ai/knowledge/growth/marketPositioning.json
+
+These files should help the AI reason about:
+
+• SEO
+• Google Ads intent
+• LinkedIn outreach
+• referral strategy
+• partner channels
+• authority positioning
+• differentiation
+• premium brand growth
+• how to attract better-fit commercial leads
+
+------------------------------------------------
+STEP 6 — CREATE LEAD / MARKET INTELLIGENCE
+------------------------------------------------
+
+Create:
+
+/ai/knowledge/market
+
+Add files:
+
+/ai/knowledge/market/highValueLeadSignals.json
+/ai/knowledge/market/industryTargeting.json
+/ai/knowledge/market/companyGrowthSignals.json
+/ai/knowledge/market/officeMoveIndicators.json
+
+The AI must understand signals such as:
+
+• companies hiring rapidly
+• office relocations
+• new leases
+• company expansions
+• funding announcements
+• headquarters moves
+• new office openings
+• tenancy upgrades
+
+This knowledge should improve lead scoring and prioritisation.
+
+------------------------------------------------
+STEP 7 — CEO / BUSINESS OPERATOR MODE
+------------------------------------------------
+
+Extend the admin AI reasoning layer so it evaluates decisions like a strong CEO/operator.
+
+The AI must think about:
+
+• revenue growth
+• margin protection
+• project size
+• lead quality
+• pipeline value
+• supplier leverage
+• operational capacity
+• installation complexity
+• delivery risk
+• brand positioning
+• partner opportunities
+• automation opportunities
+• low-value distractions
+• high-value next actions
+
+When evaluating any opportunity, recommendation, or lead, the AI should ask itself:
+
+• Does this improve revenue?
+• Does this protect margin?
+• Does this strengthen positioning?
+• Does this generate better leads?
+• Does this help close larger projects?
+• Does this reduce friction or waste?
+• Is this worth our time and resources?
+• Is this aligned with a premium commercial brand?
+• Is this safe, realistic, and operationally achievable?
+
+If something is low-value, messy, risky, or distracting, the AI should say so clearly.
+
+------------------------------------------------
+STEP 8 — WORKPLACE DESIGN / SAFETY REASONING
+------------------------------------------------
+
+Update the AI so when generating workspace layouts, planner outputs, package recommendations, and fit-out strategies, it automatically considers:
+
+• workstation ergonomics
+• circulation paths
+• spacing
+• breakout requirements
+• boardroom/reception impact
+• emergency access
+• safe installation sequencing
+• accessibility/inclusive design
+• practical fit-out staging
+
+The AI must avoid recommending:
+• blocked access
+• unsafe spacing
+• unrealistic layouts
+• impractical installation sequences
+• layouts that feel visually premium but operationally poor
+
+------------------------------------------------
+STEP 9 — CONNECT KNOWLEDGE SYSTEM
+------------------------------------------------
+
+Update the admin/system AI instruction layer so it can read and use:
+
+/ai/knowledge
+/ai/knowledge/industry
+/ai/knowledge/psychology
+/ai/knowledge/finance
+/ai/knowledge/growth
+/ai/knowledge/market
+
+The AI must combine:
+business logic + industry knowledge + psychology + finance + growth + safety/compliance awareness
+
+when producing internal/admin recommendations.
+
+------------------------------------------------
+STEP 10 — OUTPUT BEHAVIOUR
+------------------------------------------------
+
+When the AI generates internal analysis it should structure outputs using sections like:
+
+Opportunity Summary
+Recommended Products
+Workspace Strategy
+Estimated Project Value
+Buyer Psychology Notes
+Commercial Risks
+Operational Risks
+WHS / Accessibility Notes
+CEO Recommendation
+Recommended Next Step
+
+The tone must be:
+• commercially intelligent
+• premium
+• practical
+• concise but useful
+• action-oriented
+
+Avoid:
+• generic fluff
+• cheesy marketing language
+• vague advice
+• consumer-style recommendations
+• fake certainty where data is missing
+
+------------------------------------------------
+STEP 11 — USE CASES THIS SHOULD IMPROVE
+------------------------------------------------
+
+This upgraded intelligence should improve:
+
+• AI planner result quality
+• package recommendations
+• lead scoring
+• supplier/product strategy
+• quote framing
+• outreach suggestions
+• internal admin recommendations
+• project prioritisation
+• premium brand decision-making
+• commercial safety/compliance reasoning
+• identifying high-value office move opportunities
+
+------------------------------------------------
+STEP 12 — TEST SYSTEM
+------------------------------------------------
+
+Before finishing verify:
+
+1. AI planner still works
+2. admin dashboard still works
+3. product catalog still works
+4. finance calculator still works
+5. chatbot still works
+6. lead capture still works
+7. no routes break
+8. AI outputs show stronger CEO/business judgment
+9. AI outputs include better commercial + psychological + operational reasoning
+
+------------------------------------------------
+FINAL REPORT
+------------------------------------------------
+
+Return:
+
+• files created
+• knowledge systems added
+• which reasoning layers were upgraded
+• examples of improved AI output behaviour
+• confirmation that existing systems remain functional
+• what still needs manual business-specific data later
+
+IMPORTANT
+
+Do not remain in planning mode.
+
+Create the knowledge structure first, prefill the business knowledge files with the starter data above, then extend the AI reasoning layer carefully.
+
+Do not invent false business facts beyond the starter data above.
+If additional real business data is missing, scaffold files with clearly labeled placeholders for future manual population.
+
+Make the smallest safe changes necessary.
+Keep everything production-safe, commercially credible, and premium.

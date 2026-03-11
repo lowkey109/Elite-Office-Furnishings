@@ -1,0 +1,42 @@
+{
+  "pricingPhilosophy": "Price on value delivered, not cost-plus. The office furniture decision is not a commodity purchase — it is a brand and culture investment for the client. Premium pricing is justified when the service experience, certainty, and quality are visibly superior.",
+  "priceRangesExGST": {
+    "executiveDesks": { "entry": 800, "mid": 1800, "premium": 3500, "ultraPremium": 6500, "note": "GOJO Vol 2 from $2,500 — position as investment-grade" },
+    "sitStandDesks": { "entry": 800, "mid": 1600, "premium": 3000, "note": "Dual-motor > single-motor — always present the premium spec first" },
+    "workstations": { "perPosition_entry": 600, "perPosition_mid": 1100, "perPosition_premium": 1800 },
+    "boardroomTables": { "small": 2500, "medium": 6000, "large": 12000, "custom": 25000 },
+    "receptionStations": { "entry": 1500, "mid": 3500, "premium": 8000 },
+    "taskChairs": { "entry": 250, "mid": 600, "premium": 1200, "ultraPremium": 2500 },
+    "loungeSeating": { "chair": 800, "sofa": 2500, "modularSystem": 6000 },
+    "storageFiling": { "perUnit_entry": 150, "perUnit_premium": 800 },
+    "officePods": { "phoneBooth": 3500, "focusPod": 6000, "collaborationPod": 12000, "large": 18000 }
+  },
+  "projectSizeEstimates": {
+    "10_person_office": { "min": 25000, "typical": 50000, "premium": 90000 },
+    "25_person_office": { "min": 55000, "typical": 110000, "premium": 200000 },
+    "50_person_office": { "min": 100000, "typical": 200000, "premium": 380000 },
+    "100_person_office": { "min": 180000, "typical": 380000, "premium": 700000 }
+  },
+  "additionalRevenueItems": {
+    "deliveryAndInstallation": "12–25% of product value — always include on managed projects",
+    "furnitureDisposal": "$500–$3,000 depending on volume and building access difficulty",
+    "assetTagging": "$500–$2,000 per project for enterprise clients",
+    "floorPlanServices": "$500–$2,500 for CAD layout production",
+    "stagingAndPhasing": "Add 15% to logistics cost for phased multi-stage delivery",
+    "rushDelivery": "15–25% premium for confirmed sub-6-week delivery from in-stock items"
+  },
+  "gstRule": {
+    "allPricesExGST": true,
+    "statement": "Always quote ex-GST. Clearly state GST will be added in invoice. Never quote inc-GST unless requested.",
+    "gstRate": 0.10
+  },
+  "importCostComponents": {
+    "productCost": "FOB price from supplier",
+    "freightAndInsurance": "15–22% on top of product cost for sea freight + insurance",
+    "importDuty": "5% on CIF value for most furniture",
+    "customsClearance": "$350–$700 per shipment",
+    "portCharges": "$300–$600 per container",
+    "wharf_cartage": "$600–$1,500 depending on destination city",
+    "totalLandedCostMultiplier": "Add 25–35% to supplier FOB price to estimate landed warehouse cost"
+  }
+}

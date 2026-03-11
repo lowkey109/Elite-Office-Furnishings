@@ -1,0 +1,70 @@
+{
+  "projectPrioritisationFramework": {
+    "description": "Before committing resources to any project, assess its value against the following criteria",
+    "criteria": [
+      {
+        "factor": "Project Revenue Potential",
+        "weight": 30,
+        "scoring": {
+          ">$200,000": 30,
+          "$100,000–$200,000": 22,
+          "$50,000–$100,000": 14,
+          "$20,000–$50,000": 8,
+          "<$20,000": 3
+        }
+      },
+      {
+        "factor": "Margin Quality",
+        "weight": 20,
+        "scoring": {
+          "GM >40%": 20,
+          "GM 32–40%": 15,
+          "GM 25–32%": 9,
+          "GM <25%": 3
+        }
+      },
+      {
+        "factor": "Client Quality (Future Value)",
+        "weight": 20,
+        "scoring": {
+          "HQ/flagship office of growing company": 20,
+          "Branch of established company": 14,
+          "One-off fit-out with clear repeat potential": 10,
+          "One-off fit-out with low repeat potential": 4
+        }
+      },
+      {
+        "factor": "Operational Complexity",
+        "weight": 15,
+        "scoring": {
+          "Standard project, manageable scope": 15,
+          "Some complexity but within capability": 10,
+          "High complexity — interstate + tight timeline": 6,
+          "Very high risk — fast-track + custom + interstate": 2
+        }
+      },
+      {
+        "factor": "Close Probability",
+        "weight": 15,
+        "scoring": {
+          "Signed intent / deposit ready": 15,
+          "Strong verbal + budget confirmed": 12,
+          "Qualified lead, competitive process": 7,
+          "Early stage / still researching": 3
+        }
+      }
+    ]
+  },
+  "projectDecisionThresholds": {
+    "pursue": "Score 70–100 — commit full sales resources",
+    "qualify": "Score 50–69 — pursue but set a 2-week decision deadline",
+    "monitor": "Score 30–49 — add to nurture sequence only",
+    "pass": "Score <30 — politely decline or refer"
+  },
+  "minimumProjectCriteria": {
+    "absoluteMinimum": "$10,000 project value",
+    "preferredMinimum": "$30,000 project value",
+    "sweetSpot": "$80,000–$300,000",
+    "rationaleForMinimum": "Sub-$10k projects rarely cover the cost of quoting, project management, delivery, and installation while maintaining margin"
+  }
+}

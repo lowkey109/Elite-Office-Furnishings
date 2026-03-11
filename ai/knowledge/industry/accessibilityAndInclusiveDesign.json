@@ -1,0 +1,34 @@
+{
+  "principles": {
+    "definition": "Inclusive design creates workspaces that are accessible and functional for people of all abilities, ages, body types, and working styles without requiring special adaptation",
+    "businessCase": "Inclusive workspaces reduce employer liability, improve retention of staff with disabilities, and create more ergonomic outcomes for all staff",
+    "legalObligation": "Disability Discrimination Act 1992 — reasonable adjustments required in workplaces. AS 1428 compliance expected in new fitouts."
+  },
+  "workstationInclusion": {
+    "heightAdjustable": "Sit-stand desks are the single most inclusive furniture investment — they accommodate wheelchair users, short and tall staff, pregnant staff, and people with back conditions",
+    "minimumDesk": "700–720mm fixed desk height for wheelchair access; sit-stand preferred (620–1280mm range)",
+    "clearanceUnderDesk": "Knee clearance minimum 680mm H × 800mm W × 500mm D for wheelchair approach",
+    "mobilePedestals": "Under-desk pedestals must be removable for wheelchair users — do not specify fixed pedestal solutions for accessible workstations",
+    "roundedCorners": "Recommend rounded desk corners where possible — reduces injury risk and is more inclusive for vision-impaired staff"
+  },
+  "circulationInclusion": {
+    "wheelchairPathways": "Minimum 900mm clear width for wheelchair circulation; 1,200mm preferred for two-way accessible circulation",
+    "turningCircle": "1,540mm clear turning circle for powered wheelchairs at corridor junctions and beside key furniture elements",
+    "furnitureFreeZones": "Reception, meeting room entrances, and bathroom approaches must maintain full accessible clearance — no furniture should encroach on these zones"
+  },
+  "sensoryInclusion": {
+    "acousticConsiderations": "Open plan offices can be overwhelming for neurodiverse staff — recommend acoustic pods or focus booths in any open-plan layout over 15 people",
+    "lightingFlexibility": "Where possible, position workstations to allow individuals to adjust their lighting environment — avoid locking all task lighting to building standards",
+    "colourContrast": "Furniture selection should provide visual contrast between workstations, pathways, and walls for staff with low vision"
+  },
+  "receptionAccessibility": {
+    "requirement": "Reception counter must include at least one section at accessible height (750–900mm max, 700mm knee clearance)",
+    "sightlines": "Reception staff must be able to see and communicate with visitors at wheelchair height — avoid counters so high they create a visual barrier",
+    "loweredSection": "Most FSZ and GOJO reception stations can be configured with a lowered section — always specify this for new fit-outs"
+  },
+  "breakoutAndSocialSpaces": {
+    "tableClearance": "Minimum 700mm knee clearance under all breakout tables",
+    "chairVariety": "Breakout areas should include chairs with armrests and without — different mobility needs are met by different chair types",
+    "floorLevel": "Avoid raised platform areas in breakout spaces — step-free access throughout"
+  }
+}

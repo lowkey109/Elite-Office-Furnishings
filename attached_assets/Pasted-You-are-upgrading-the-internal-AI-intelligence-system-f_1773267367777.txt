@@ -1,0 +1,387 @@
+You are upgrading the internal AI intelligence system for The Corporate Desk.
+
+You are in SAFE INTELLIGENCE EXPANSION MODE.
+
+CRITICAL RULES
+
+Do NOT rebuild the system.
+Do NOT break:
+
+• AI office planner
+• product catalog
+• admin dashboard
+• finance calculator
+• chatbot
+• lead systems
+• 3D viewer
+• website pages
+
+Only extend the AI knowledge system and reasoning layer safely.
+
+------------------------------------------------
+
+PRIMARY OBJECTIVE
+
+Transform the internal/admin AI into a CEO-level business operator for The Corporate Desk.
+
+The AI must understand and reason about:
+
+• commercial office furniture
+• workplace design
+• office fit-outs
+• construction workflows
+• Australian WHS
+• Australian building/accessibility considerations
+• B2B business psychology
+• procurement behaviour
+• marketing and growth
+• supplier strategy
+• logistics and installation
+• financial intelligence
+• accounting
+• risk management
+• lead intelligence
+
+The AI should behave like a senior executive advisor helping operate and grow The Corporate Desk.
+
+------------------------------------------------
+
+STEP 1 — CREATE BUSINESS KNOWLEDGE SYSTEM
+
+Create folder:
+
+/ai/knowledge
+
+Create files:
+
+/ai/knowledge/companyProfile.json
+/ai/knowledge/businessRules.json
+/ai/knowledge/pricingStrategy.json
+/ai/knowledge/supplierStrategy.json
+/ai/knowledge/clientProfiles.json
+/ai/knowledge/serviceAreas.json
+/ai/knowledge/offerStructure.json
+/ai/knowledge/projectQualificationRules.json
+/ai/knowledge/brandVoice.json
+
+These files contain structured knowledge about how The Corporate Desk operates.
+
+------------------------------------------------
+
+STEP 2 — CREATE INDUSTRY KNOWLEDGE SYSTEM
+
+Create folder:
+
+/ai/knowledge/industry
+
+Add files:
+
+/ai/knowledge/industry/officeFurnitureIndustry.json
+/ai/knowledge/industry/workplaceDesign.json
+/ai/knowledge/industry/officeFitoutProcess.json
+/ai/knowledge/industry/constructionWorkflow.json
+/ai/knowledge/industry/logisticsAndSupplyChain.json
+/ai/knowledge/industry/projectManagement.json
+/ai/knowledge/industry/commercialFurnitureSales.json
+/ai/knowledge/industry/australianWHS.json
+/ai/knowledge/industry/australianBuildingCompliance.json
+/ai/knowledge/industry/accessibilityAndInclusiveDesign.json
+/ai/knowledge/industry/commercialRealEstateSignals.json
+
+These files should contain structured knowledge about:
+
+• furniture categories
+• workspace design principles
+• fit-out project stages
+• installation logistics
+• shipping and warehouse operations
+• builder/electrician coordination
+• commercial furniture sales practices
+• Australian workplace safety
+• accessible workspace design
+• office move indicators
+
+------------------------------------------------
+
+STEP 3 — CREATE BUSINESS PSYCHOLOGY SYSTEM
+
+Create folder:
+
+/ai/knowledge/psychology
+
+Add files:
+
+/ai/knowledge/psychology/b2bBuyingPsychology.json
+/ai/knowledge/psychology/constructionDecisionPsychology.json
+/ai/knowledge/psychology/procurementBehaviour.json
+/ai/knowledge/psychology/stakeholderDynamics.json
+/ai/knowledge/psychology/negotiationPsychology.json
+/ai/knowledge/psychology/valuePerception.json
+
+These files must contain structured explanations about how companies make purchasing decisions.
+
+Include knowledge about:
+
+• buyer trust signals
+• risk avoidance
+• authority perception
+• why buyers ask for multiple quotes
+• why projects stall
+• procurement behaviour
+• stakeholder influence
+• negotiation psychology
+• premium value framing
+• corporate decision dynamics
+
+------------------------------------------------
+
+STEP 4 — CREATE FINANCIAL INTELLIGENCE SYSTEM
+
+Create folder:
+
+/ai/knowledge/accounting
+
+Add files:
+
+/ai/knowledge/accounting/financialManagement.json
+/ai/knowledge/accounting/cashflowManagement.json
+/ai/knowledge/accounting/projectProfitability.json
+/ai/knowledge/accounting/pricingAndMargins.json
+/ai/knowledge/accounting/accountsPayableReceivable.json
+/ai/knowledge/accounting/businessForecasting.json
+/ai/knowledge/accounting/costControl.json
+
+These files must contain knowledge about:
+
+• revenue calculation
+• gross margin
+• net margin
+• cost of goods sold
+• operating expenses
+• supplier payments
+• invoice cycles
+• project profitability
+• pricing models
+• budgeting
+• financial forecasting
+• cashflow management
+
+------------------------------------------------
+
+STEP 5 — CREATE RISK MANAGEMENT SYSTEM
+
+Create folder:
+
+/ai/knowledge/risk
+
+Add files:
+
+/ai/knowledge/risk/businessRiskManagement.json
+/ai/knowledge/risk/projectDeliveryRisk.json
+/ai/knowledge/risk/supplierRisk.json
+/ai/knowledge/risk/legalAndContractRisk.json
+/ai/knowledge/risk/insuranceConsiderations.json
+/ai/knowledge/risk/operationalRisk.json
+
+These files must contain structured knowledge about:
+
+• supplier delays
+• shipping disruptions
+• installation failures
+• project overruns
+• contract misunderstandings
+• payment disputes
+• operational overload
+• liability considerations
+• insurance awareness
+
+------------------------------------------------
+
+STEP 6 — CREATE MARKETING & GROWTH INTELLIGENCE
+
+Create folder:
+
+/ai/knowledge/growth
+
+Add files:
+
+/ai/knowledge/growth/b2bMarketingStrategy.json
+/ai/knowledge/growth/leadGenerationStrategy.json
+/ai/knowledge/growth/partnershipStrategy.json
+/ai/knowledge/growth/contentStrategy.json
+/ai/knowledge/growth/marketPositioning.json
+
+These files should contain knowledge about:
+
+• SEO strategy
+• Google Ads intent
+• LinkedIn outreach
+• referral systems
+• strategic partnerships
+• authority positioning
+• premium brand perception
+
+------------------------------------------------
+
+STEP 7 — CREATE LEAD INTELLIGENCE ENGINE
+
+Create folder:
+
+/ai/knowledge/market
+
+Add files:
+
+/ai/knowledge/market/highValueLeadSignals.json
+/ai/knowledge/market/companyGrowthSignals.json
+/ai/knowledge/market/officeMoveIndicators.json
+/ai/knowledge/market/industryTargeting.json
+
+The AI must understand signals indicating potential office fit-out opportunities such as:
+
+• companies hiring rapidly
+• office relocations
+• new leases
+• company expansions
+• funding announcements
+• headquarters moves
+• office renovations
+• tenancy upgrades
+
+This knowledge should help the AI identify high-value leads earlier.
+
+------------------------------------------------
+
+STEP 8 — CEO / BUSINESS OPERATOR MODE
+
+Extend the admin AI reasoning layer so it evaluates decisions like a CEO.
+
+The AI must consider:
+
+• revenue potential
+• margin protection
+• project size
+• lead quality
+• pipeline value
+• supplier reliability
+• operational capacity
+• delivery risk
+• brand positioning
+• growth opportunities
+
+The AI should ask:
+
+• Does this increase revenue?
+• Does this protect margin?
+• Is this project profitable?
+• Is this risk acceptable?
+• Does this strengthen the brand?
+• Is this worth our time and resources?
+
+The AI should prioritise:
+
+• high-value projects
+• profitable opportunities
+• scalable growth activities
+
+------------------------------------------------
+
+STEP 9 — WORKPLACE DESIGN & SAFETY REASONING
+
+When generating layouts or recommendations the AI must evaluate:
+
+• workstation ergonomics
+• circulation paths
+• spacing
+• breakout areas
+• meeting room balance
+• emergency exit access
+• accessibility requirements
+• installation sequencing
+• WHS considerations
+
+The AI must avoid recommending:
+
+• blocked exits
+• unsafe spacing
+• unrealistic layouts
+• impractical installation sequences
+
+------------------------------------------------
+
+STEP 10 — CONNECT KNOWLEDGE SYSTEM
+
+Update the admin AI instruction layer so it can read and combine knowledge from:
+
+/ai/knowledge
+/ai/knowledge/industry
+/ai/knowledge/psychology
+/ai/knowledge/accounting
+/ai/knowledge/risk
+/ai/knowledge/growth
+/ai/knowledge/market
+
+The AI must combine:
+
+business intelligence + psychology + industry knowledge + finance + safety + growth strategy
+
+when producing recommendations.
+
+------------------------------------------------
+
+STEP 11 — OUTPUT STRUCTURE
+
+When the AI generates internal analysis it should produce structured outputs:
+
+Opportunity Summary
+Workspace Strategy
+Recommended Products
+Estimated Project Value
+Buyer Psychology Notes
+Financial Assessment
+Operational Risks
+WHS / Compliance Notes
+CEO Recommendation
+Next Best Action
+
+The tone must be:
+
+• premium
+• commercially intelligent
+• concise
+• practical
+
+Avoid vague or generic advice.
+
+------------------------------------------------
+
+STEP 12 — TEST SYSTEM
+
+Verify:
+
+1 planner works
+2 admin dashboard works
+3 product catalog works
+4 finance calculator works
+5 chatbot works
+6 lead capture works
+7 no routes break
+
+------------------------------------------------
+
+FINAL REPORT
+
+Return:
+
+• files created
+• knowledge layers added
+• reasoning upgrades
+• examples of improved AI output
+• confirmation system remains stable
+
+IMPORTANT
+
+Do not remain in planning mode.
+
+Create the knowledge structure first, then extend the AI reasoning layer carefully.
+
+Make the smallest safe changes necessary.

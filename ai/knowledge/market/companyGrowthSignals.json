@@ -1,0 +1,42 @@
+{
+  "hiringSignals": {
+    "description": "Job ad volume is the most accessible leading indicator of a company's office space pressure",
+    "threshold": "5+ new role postings within a 4-week window = likely space planning event within 3–9 months",
+    "sources": ["SEEK", "LinkedIn Jobs", "Indeed Australia", "Company careers page"],
+    "roleTypes_HighestSignal": [
+      "Any role listing a new or not-yet-established office address",
+      "Operations Manager, Office Manager (indicates operational formalisation)",
+      "Multiple technical/professional roles in same function (rapid team growth)"
+    ],
+    "monitoringApproach": "Set up SEEK/LinkedIn job alerts by company name for top 50 target companies quarterly"
+  },
+  "fundingSignals": {
+    "description": "Investment announcements are a reliable predictor of office expansion and fitout investment",
+    "signals": [
+      { "type": "Series A ($5M–$20M)", "probability": "High — office upgrade common within 6 months", "action": "Contact CEO/COO within 7 days of announcement" },
+      { "type": "Series B+ ($20M+)", "probability": "Very High — scaling to new office/HQ common", "action": "Contact within 48 hours — they move fast at this stage" },
+      { "type": "Seed (<$5M)", "probability": "Medium — may still be coworking, but watch for follow-on", "action": "LinkedIn connect + nurture" }
+    ],
+    "sources": ["Startup Daily AU", "AFR", "Crunchbase Australia", "LinkedIn company news"]
+  },
+  "leadershipChanges": {
+    "description": "New senior leadership often triggers office transformation as a way of setting cultural tone",
+    "highValueChanges": [
+      "New CEO — frequently triggers culture/brand refresh of physical space",
+      "New Head of People/HR — tends to prioritise employee environment upgrades",
+      "New COO — likely to review operational efficiency including workspace"
+    ],
+    "source": ["LinkedIn announcement posts", "Company press releases"],
+    "approachTiming": "Contact 4–8 weeks after appointment — allow time for them to settle, then approach with workspace assessment offer"
+  },
+  "expansionSignals": {
+    "description": "Physical expansion signals direct furniture needs",
+    "signals": [
+      "New floor or building in existing location",
+      "New city or interstate office opening",
+      "Acquisition of another company (integration often triggers workspace consolidation)",
+      "Subletting part of current office (indicates both current and future space change)"
+    ],
+    "sources": ["AFR commercial property section", "Domain Commercial", "Colliers/CBRE property reports", "LinkedIn announcements"]
+  }
+}

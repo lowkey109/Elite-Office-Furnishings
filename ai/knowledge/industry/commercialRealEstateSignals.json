@@ -1,0 +1,54 @@
+{
+  "officeLeaseSignals": {
+    "description": "Companies that have recently signed or announced new commercial office leases are the highest-value furniture buying prospect",
+    "signalSources": [
+      "Commercial real estate announcement platforms (CBRE, JLL, Cushman & Wakefield press releases)",
+      "LinkedIn company announcements",
+      "Local business media (Business Acumen, AFR, Herald, Courier Mail)",
+      "Company website 'New Office' or 'We're Moving' announcements",
+      "Job advertisements listing a new office address different to current address"
+    ],
+    "timeToDecision": "Companies with a new lease typically make furniture decisions 8–16 weeks after signing. They are most receptive to contact in weeks 2–8 after announcement.",
+    "urgencyProfile": "High — there is a move-in deadline. Every week of delay compresses their planning window."
+  },
+  "expansionSignals": {
+    "hiringSignals": {
+      "description": "Rapid hiring is a strong indicator of space pressure and upcoming furniture needs",
+      "threshold": "Companies posting 5+ new roles in a 4-week window are likely to face a space planning event within 3–6 months",
+      "sources": ["SEEK/LinkedIn job volume", "Company careers page job count", "LinkedIn follower/headcount growth"]
+    },
+    "fundingSignals": {
+      "description": "Recent investment rounds typically trigger office upgrades and team expansion",
+      "highValueRounds": "Series A ($5M+) and above — strong signal for significant furniture investment",
+      "sources": ["Crunchbase Australia", "AFR/Startup Daily funding announcements", "LinkedIn company news"],
+      "timeline": "Furniture purchasing typically follows funding by 2–6 months as new hires are onboarded"
+    },
+    "mergersAndAcquisitions": {
+      "description": "M&A activity often triggers office consolidation or new headquarters setup",
+      "signal": "Post-M&A integration commonly involves furniture replacement at the combined office",
+      "timeline": "6–18 months post-acquisition"
+    }
+  },
+  "leaseExpirySignals": {
+    "description": "Companies 12–18 months from lease expiry are evaluating renew vs relocate. Either path likely triggers furniture investment.",
+    "howToIdentify": "Commercial lease terms are typically 3, 5, or 7 years. Research when a known client or prospect moved into their current office.",
+    "opportunity": "Approach with a 'workplace refresh assessment' — framing the conversation around the current office rather than a sales pitch"
+  },
+  "newMarketEntrants": {
+    "description": "Interstate or international companies opening Australian offices are very high-value prospects — they have budget, urgency, and no existing local supplier relationships",
+    "sources": ["AUSTRADE foreign investment announcements", "Business Acumen interstate expansion stories", "LinkedIn 'New office announcement' company posts"],
+    "approach": "Lead with local market knowledge (Sydney, Brisbane, Melbourne fit-out regulations, preferred building management contacts) — this is highly valued by companies new to the Australian market"
+  },
+  "partnerChannels": {
+    "commercialRealEstateAgents": {
+      "description": "Commercial real estate agents know which companies are signing leases before it becomes public",
+      "strategy": "Build relationships with lease agents at CBRE, JLL, Colliers, Knight Frank in Brisbane, Sydney, Melbourne — offer referral arrangements",
+      "value": "One active commercial agent referring tenants can generate 5–15 qualified project leads per year"
+    },
+    "interiorDesigners": {
+      "description": "Interior designers and workplace consultants are specified into projects before furniture decisions — getting specified means bypassing competitive tender",
+      "strategy": "Provide designers with product catalogues, sample kits, spec sheets, and a trade pricing arrangement",
+      "value": "A single loyal designer/consultant relationship can generate $300,000–$1,000,000+ in annual referral revenue"
+    }
+  }
+}

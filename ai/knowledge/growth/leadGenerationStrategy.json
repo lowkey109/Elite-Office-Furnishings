@@ -1,0 +1,57 @@
+{
+  "leadMagnets": {
+    "primary": {
+      "name": "Free Office Layout Plan",
+      "description": "Submit brief → receive professional CAD layout + product recommendations within 48 hours",
+      "conversionValue": "Very High — demonstrates expertise, creates obligation, captures detailed brief",
+      "qualificationGate": "Require: staff count, move date, budget range — this qualifies the lead before they access the offer",
+      "followUpSequence": "48hr delivery → 24hr later call or email → weekly touchpoint for 4 weeks"
+    },
+    "secondary": [
+      {
+        "name": "AI Office Planner",
+        "type": "Digital Tool",
+        "value": "Interactive space planning — upload floor plan, get AI-powered zone recommendations",
+        "conversionSignal": "High — prospect is in active planning mode"
+      },
+      {
+        "name": "Office Fitout Cost Calculator",
+        "type": "Digital Tool",
+        "value": "Enter staff count, zone types, quality tier → receive instant project estimate",
+        "conversionSignal": "Medium-High — reveals budget and project scope"
+      },
+      {
+        "name": "Free Workplace Strategy Call",
+        "type": "Consultation",
+        "value": "30-minute video call with a workspace consultant for projects $50k+",
+        "conversionSignal": "Very High — only quality leads book a call",
+        "qualificationNote": "Add a brief intake form before booking — filters out low-value enquiries"
+      }
+    ]
+  },
+  "inboundLeadChannels": [
+    "Website contact form",
+    "Google Ads landing pages",
+    "AI Office Planner completion",
+    "Quote Builder completion",
+    "Blog content (SEO organic)",
+    "LinkedIn lead forms",
+    "Direct phone 1300 977 607"
+  ],
+  "outboundLeadGeneration": {
+    "strategy": "Identify companies in the active planning window (signed lease, hiring surge, funding announcement) and make personalised first contact",
+    "outreachChannels": [
+      "LinkedIn connection + personalised message",
+      "Direct email to Office Manager / EA",
+      "Phone to reception, ask for facilities or office manager"
+    ],
+    "outreachScript": "We noticed [company] has been growing rapidly / recently signed a new lease at [address]. We help companies like yours plan and furnish new workspaces — we've just completed projects for [comparable company type]. I'd love to offer a free layout plan for your new space. Is [name] the right person to speak with?",
+    "avoid": "Generic mass emails, LinkedIn spam, phone cold calls without a specific reason"
+  },
+  "referralStrategy": {
+    "targetReferrers": ["Past project clients", "Commercial real estate agents", "Interior designers", "Project managers", "IT companies (who are involved in office moves)"],
+    "referralMechanism": "No formal commission required — quality service and proactive relationship management generates referrals organically",
+    "formalPartnership": "For high-volume referrers (agents, designers), offer 2–5% referral arrangement on confirmed orders. Put in writing with simple 1-page agreement.",
+    "postProjectReferralTiming": "Best time to ask for a referral: 4–8 weeks after handover when client has settled in and is proud of the result"
+  }
+}

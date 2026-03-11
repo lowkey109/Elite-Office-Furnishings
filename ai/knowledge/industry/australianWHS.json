@@ -1,0 +1,41 @@
+{
+  "legislativeFramework": {
+    "primaryAct": "Work Health and Safety Act 2011 (Cth) — harmonised across most states/territories",
+    "duty": "A PCBU (Person Conducting a Business or Undertaking) must eliminate or minimise health and safety risks so far as reasonably practicable",
+    "relevantToTCD": "TCD has WHS obligations during installation (as the PCBU directing installation work) and a duty to ensure furniture supplied is safe to use"
+  },
+  "workstationErgonomics": {
+    "standardsReference": "AS 3590 — Screen Based Workstations; ISO 9241 series",
+    "keyRequirements": {
+      "chairHeight": "Seat height adjustable to allow feet flat on floor or footrest",
+      "monitorDistance": "50–70cm from eyes to screen",
+      "monitorHeight": "Top of screen at or slightly below eye level",
+      "keyboardPosition": "Elbows at 90° when typing, wrists neutral",
+      "deskClearance": "Minimum 650mm desk height for fixed desks; sit-stand desks 620–1280mm range",
+      "lighting": "300–500 lux at workstation surface; no direct glare on screens"
+    },
+    "sitStandAdvantage": "Height-adjustable desks directly address WHS obligations for prolonged static postures — a significant value-add for compliance-conscious clients"
+  },
+  "circulationAndEgress": {
+    "minimumAisleWidth": "1,000mm general circulation; 1,200mm for egress paths to exit",
+    "legislativeReference": "AS 1428 (Design for Access and Mobility); BCA/NCC egress requirements",
+    "emergencyEgressRule": "Furniture must never obstruct or reduce an egress path below minimum width — raise this during space planning on all fit-outs",
+    "doorClearances": "800mm minimum clear opening width for standard doors; 850mm+ for accessible doors"
+  },
+  "installationSafety": {
+    "siteInduction": "All installation personnel must complete building site induction before entering",
+    "PPE": "Safety boots (AS 2210), gloves for heavy lifting, high-vis if working near active construction",
+    "manualHandling": {
+      "maximumSingleLiftRecommendation": "16kg for sustained lifting; heavier items require team lift or mechanical aid",
+      "teamLiftThreshold": "Above 25kg — always two-person lift minimum",
+      "mechanicalAidThreshold": "Above 50kg — trolley, hand truck or pallet jack required"
+    },
+    "furnitureAssembly": "Always follow manufacturer assembly sequence. Do not improvise structural joinery. Escalate if any component appears defective.",
+    "electricalSafety": "Do not connect powered furniture (sit-stand desk motors, integrated charging) until electrical contractor has confirmed circuit capacity. No DIY electrical connection."
+  },
+  "clientWHSConsiderations": {
+    "furnitureAsAHazard": "Unstable or improperly assembled furniture is a client WHS liability — quality installation is a risk management service as much as an aesthetic one",
+    "ergonomicCompliance": "Many mid-to-large employers have ergonomic compliance policies — position sit-stand desks and ergonomic seating as WHS compliance tools, not just comfort features",
+    "hazardDisclosure": "If TCD observes a WHS hazard at a client site during installation, note it in the handover report — this protects TCD and demonstrates professionalism"
+  }
+}

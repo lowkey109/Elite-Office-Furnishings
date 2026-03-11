@@ -1,0 +1,99 @@
+{
+  "projectLifecycle": {
+    "phases": [
+      {
+        "phase": "Initiation",
+        "activities": ["Project brief capture", "Budget confirmation", "Key contact identification", "Timeline mapping"],
+        "riskIfSkipped": "Misaligned expectations, scope creep, margin erosion"
+      },
+      {
+        "phase": "Design",
+        "activities": ["Space plan production", "Product selection", "Finish/fabric presentation", "Client sign-off"],
+        "riskIfSkipped": "Wrong products ordered, costly changes post-manufacture"
+      },
+      {
+        "phase": "Procurement",
+        "activities": ["Supplier order placement", "Production monitoring", "QC at point of origin", "Shipping coordination"],
+        "riskIfSkipped": "Quality defects not caught before arrival, late delivery"
+      },
+      {
+        "phase": "Delivery",
+        "activities": ["Building access confirmation", "Delivery scheduling", "Receiving and inspection"],
+        "riskIfSkipped": "Delivery failure, damaged goods, building access denied"
+      },
+      {
+        "phase": "Installation",
+        "activities": ["Crew briefing", "Sequenced installation", "Assembly and quality check", "Debris removal"],
+        "riskIfSkipped": "Unsafe install, poor finish quality, missed defects"
+      },
+      {
+        "phase": "Handover",
+        "activities": ["Client walk-through", "Defect list close-out", "Warranty registration", "Referral conversation"],
+        "riskIfSkipped": "Client dissatisfaction, no referral, warranty disputes"
+      }
+    ]
+  },
+  "projectDocumentation": {
+    "required": [
+      "Signed project brief",
+      "Signed finish/fabric schedule",
+      "Signed proposal/quote",
+      "Order confirmation to supplier",
+      "Delivery plan",
+      "Installation checklist",
+      "Handover sign-off sheet"
+    ],
+    "rationale": "Documentation protects TCD from scope creep claims and provides a clear record if warranty disputes arise"
+  },
+  "riskManagement": {
+    "topRisks": [
+      {
+        "risk": "Builder PC date slips",
+        "probability": "High",
+        "mitigation": "Always build 1-week buffer. Never lock installation date until PC is confirmed in writing."
+      },
+      {
+        "risk": "Client changes finish selection post-manufacture",
+        "probability": "Medium",
+        "mitigation": "Get signed finish schedule before ordering. Clearly state that changes post-manufacture incur cost."
+      },
+      {
+        "risk": "Supplier production delay",
+        "probability": "Medium",
+        "mitigation": "Place orders with 20% buffer before needed delivery date. Follow up with supplier at weeks 2, 4, and 1 week before ship date."
+      },
+      {
+        "risk": "Freight damage",
+        "probability": "Low-Medium",
+        "mitigation": "All goods insured. Photograph at receiving. Report damage to supplier within 48 hours with photos."
+      },
+      {
+        "risk": "Scope creep from client",
+        "probability": "Medium",
+        "mitigation": "Any addition to scope after sign-off is priced and quoted separately. Never absorb extras silently."
+      }
+    ]
+  },
+  "milestoneCommunication": {
+    "principle": "Proactively communicate project status — never make clients chase for updates",
+    "touchpoints": [
+      "Order confirmation (day 1 after deposit)",
+      "Production commenced (week 1–2)",
+      "Production complete / QC passed (week 4–6)",
+      "In transit / ETA confirmed (week 6–8)",
+      "Arrived at warehouse (day after receiving)",
+      "Delivery booking confirmation (5 days before delivery)",
+      "Installation complete / handover (day of)"
+    ]
+  },
+  "largeProjectManagement": {
+    "threshold": "$80,000+",
+    "additions": [
+      "Dedicated project manager assigned",
+      "Site visit before installation planning",
+      "Phase plan if multi-zone or multi-floor",
+      "Builder/PM coordination meeting",
+      "Weekly status update to client"
+    ]
+  }
+}

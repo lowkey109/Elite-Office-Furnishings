@@ -1,0 +1,34 @@
+{
+  "targetMargins": {
+    "blendedProjectTarget": "32–40% gross margin",
+    "byCategory": {
+      "seating": { "gm": "40–55%", "note": "Highest margin — chair is always the most negotiable item for client but shouldn't be for TCD" },
+      "receptionStations": { "gm": "35–50%", "note": "High brand impact, high margin, client rarely challenges reception pricing" },
+      "boardroomTables": { "gm": "30–45%", "note": "Statement piece — clients invest here more willingly than workstations" },
+      "executiveDesks": { "gm": "35–50%", "note": "GOJO Vol 2 commands premium margin — never discount without value case" },
+      "sitStandDesks": { "gm": "30–42%", "note": "Higher margin than fixed desks — premium ergonomic positioning protects price" },
+      "workstations": { "gm": "22–32%", "note": "Volume category — margin protected by installation revenue alongside" },
+      "storage": { "gm": "18–28%", "note": "Lowest margin but builds order value and lock-in" },
+      "installation": { "gm": "35–55%", "note": "High-margin service line — never discount installation" }
+    }
+  },
+  "marginProtectionRules": [
+    "Never discount before the full value case is presented — discounting early signals inflated pricing",
+    "If discounting, always trade for a commitment: 'If I get approval for that reduction, can we confirm by Friday?'",
+    "Add value before reducing price: extra chair, extended warranty registration, disposal of old furniture",
+    "Installation and delivery margin is non-negotiable — it covers labour risk and site management",
+    "Packaging and logistics costs are real — never absorb these to win a deal"
+  ],
+  "marginErosionWarnings": [
+    "Scope creep without re-quoting — absorbing client additions silently destroys margin",
+    "Last-minute finish changes — manufacturer re-runs cost real money",
+    "Rushed delivery without a logistics premium — expedited freight doubles cost",
+    "Unsupported discounting — the CEO must approve any discount above 5%",
+    "Underestimating installation time — complex builds take longer than simple estimates"
+  ],
+  "marginCalculationPrinciple": {
+    "formula": "GM% = (Selling Price - COGS) / Selling Price × 100",
+    "COGS": "Product landed cost + delivery cost + installation labour + any third-party costs",
+    "targetCheck": "Before confirming any project, calculate blended GM across all line items. If below 28%, escalate for approval."
+  }
+}

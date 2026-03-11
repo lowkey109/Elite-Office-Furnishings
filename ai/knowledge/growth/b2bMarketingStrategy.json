@@ -1,0 +1,64 @@
+{
+  "coreMarketingPrinciples": [
+    "Marketing must generate qualified leads — not just awareness. Every channel is measured by leads produced, not impressions.",
+    "Premium brand positioning must be consistent across every touchpoint: website, proposal, email, social, packaging.",
+    "Content should answer the questions buyers are already asking — not broadcast TCD's features.",
+    "Every marketing activity should be assigned to a buyer stage: Awareness / Consideration / Decision."
+  ],
+  "channelStrategy": {
+    "SEO": {
+      "priority": "High — compound returns over time",
+      "targetKeywords": [
+        "commercial office furniture Brisbane",
+        "office fitout furniture Australia",
+        "executive office desks Australia",
+        "office relocation furniture package",
+        "sit stand desk Australia commercial",
+        "office fitout package Brisbane Sydney Melbourne",
+        "boardroom table Australia",
+        "ergonomic office chairs commercial"
+      ],
+      "contentApproach": "Long-form buying guides, comparison articles, fit-out planning checklists — content that ranks for research-phase queries",
+      "technicalSEO": "Page speed, Core Web Vitals, schema markup for products and local business — these compound SEO returns"
+    },
+    "googleAds": {
+      "priority": "High — captures in-market buyers with immediate intent",
+      "bestCampaignTypes": [
+        "Search: office furniture Brisbane/Sydney/Melbourne + intent modifiers (fitout, commercial, buy, quote)",
+        "Search: competitor brand terms (capture alternative-seekers)",
+        "Remarketing: website visitors who viewed product pages or pricing — high purchase intent"
+      ],
+      "budgetGuidance": "AUD $3,000–$8,000/month for Brisbane + Sydney + Melbourne coverage",
+      "bidStrategy": "Target CPA or Maximise Conversions once 30+ conversions/month achieved"
+    },
+    "linkedIn": {
+      "priority": "Medium-High — B2B decision-maker targeting",
+      "targetAudience": "Job titles: CEO, CFO, COO, Office Manager, Facilities Manager, HR Director — companies 20–500 staff in target industries",
+      "contentApproach": "Before/after project imagery, short-form workplace strategy insights, industry trend commentary",
+      "paidStrategy": "Sponsored content targeting by company size + job function. Lead gen forms for 'Free layout plan' offer."
+    },
+    "emailMarketing": {
+      "priority": "High — highest ROI channel once list is built",
+      "segmentation": ["Hot leads (active quote pipeline)", "Warm leads (engaged but not quoting)", "Past clients (repeat/referral)", "Partner contacts (agents, designers)"],
+      "frequency": "Hot leads: 2x/week. Warm leads: 2x/month. Past clients: Monthly.",
+      "contentTypes": ["New collection launches", "Project showcases", "Buying guides", "EOFY reminders", "Finance positioning"]
+    }
+  },
+  "contentMarketing": {
+    "blogTopics": [
+      "How to plan your office fitout in 8 steps",
+      "Sit-stand desk vs fixed desk: which is right for your team?",
+      "How much does an office fitout cost in Australia?",
+      "Executive office design trends 2025",
+      "How to choose the right boardroom table for your meeting room size",
+      "Office relocation checklist for Australian businesses",
+      "The real cost of cheap office furniture over 5 years",
+      "How to create an ergonomically compliant office under the Australian WHS Act"
+    ],
+    "videoContent": [
+      "Project walkthroughs (before/after)",
+      "Product feature videos for GOJO Vol 2 and Fessenz ranges",
+      "Space planning explainer for different office types"
+    ]
+  }
+}

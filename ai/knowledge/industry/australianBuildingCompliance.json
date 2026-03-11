@@ -1,0 +1,31 @@
+{
+  "nationalConstructionCode": {
+    "reference": "National Construction Code (NCC) / Building Code of Australia (BCA)",
+    "relevanceToFurniture": "Furniture does not require building approval, but layout choices must not compromise the compliant design of the tenancy — particularly egress, accessibility, fire zones, and wet area boundaries"
+  },
+  "tenancyFitoutCompliance": {
+    "buildingApproval": "Major fit-out works (partitions, electrical, plumbing, fire systems) require Development Approval or Building Permit — furniture-only fit-outs typically do not",
+    "landlordApproval": "Always confirm tenant fit-out obligations in the lease — many leases require landlord written consent for any physical change, including furniture layout if it affects services",
+    "ceilingAndServicesClearance": "Furniture must not obstruct sprinkler heads, smoke detectors, HVAC diffusers, or emergency lighting — check ceiling layout before finalising furniture positions"
+  },
+  "fireCodeCompliance": {
+    "egress": "Egress paths must remain clear at all times — furniture positioning must maintain compliant egress widths (min 1,000mm general; 1,200mm egress routes)",
+    "furnitureMaterials": "Commercial-grade furniture should use fire-retardant or fire-resistant materials where specified by tenancy fitout rules — check building-specific requirements",
+    "storageFurniture": "High storage units (above 1.8m) positioned near sprinkler heads may affect sprinkler spray patterns — confirm positioning with base building manager if units exceed 1.8m height near sprinkler heads"
+  },
+  "accessibilityCompliance": {
+    "relevantStandard": "AS 1428 — Design for Access and Mobility",
+    "typicalRequirements": {
+      "wheelchairClearance": "800mm clear floor space beside desks for wheelchair approach",
+      "aisleClearance": "900–1200mm for accessible paths",
+      "deskHeight": "700–720mm fixed desk for accessible workstations; sit-stand preferred",
+      "receptionCounter": "One section of reception counter at accessible height (750–900mm) per DDA requirements"
+    },
+    "DDA": "Disability Discrimination Act 1992 requires reasonable adjustments in workplace design — applicable to new office fit-outs for employers with 5+ staff"
+  },
+  "stateSpecificNotes": {
+    "Queensland": "Brisbane City Council planning codes apply — check if project falls within Heritage Overlay or specific precinct rules for tenancy fit-outs",
+    "NewSouthWales": "Sydney CBD buildings may have specific heritage or high-rise fit-out requirements — confirm with building management",
+    "Victoria": "Melbourne City Council and Heritage Victoria overlays may apply in CBD heritage buildings"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "primaryTargetIndustries": [
+    {
+      "industry": "Legal Services (Law Firms)",
+      "priority": "Tier 1",
+      "whyHighValue": "Prestige-driven, premium budget, typically 10–200 staff, high GM projects. Partners view the office as a direct representation of firm credibility.",
+      "averageProjectValue": "$80,000–$350,000",
+      "keyBuyingSignal": "New partner joining, new lease, rebrand, floor expansion",
+      "decisionMaker": "Managing Partner, Office Manager",
+      "messageAngle": "The office that clients walk into defines their first impression of your firm's capability."
+    },
+    {
+      "industry": "Financial Services (Accounting, Wealth, Insurance)",
+      "priority": "Tier 1",
+      "whyHighValue": "ROI-conscious but premium-oriented. CFO approval culture — strong value case lands deals. EOFY purchasing incentive.",
+      "averageProjectValue": "$60,000–$400,000",
+      "keyBuyingSignal": "AFS licence upgrade, new financial year, new branch office",
+      "decisionMaker": "CEO, CFO, Office Manager",
+      "messageAngle": "A workspace that demonstrates stability and professionalism — your clients notice."
+    },
+    {
+      "industry": "Technology (Software, SaaS, IT Services)",
+      "priority": "Tier 1",
+      "whyHighValue": "Fast growth, funding-driven cycles, culture-forward. Office is a talent attraction and retention tool — they invest willingly.",
+      "averageProjectValue": "$40,000–$200,000",
+      "keyBuyingSignal": "Funding announcement, headcount milestone, leaving coworking, new city expansion",
+      "decisionMaker": "CEO, Head of People, COO",
+      "messageAngle": "The best candidates are choosing companies partly by their workspace — we help you win that decision."
+    },
+    {
+      "industry": "Engineering and Architecture",
+      "priority": "Tier 2",
+      "whyHighValue": "Aesthetically discerning, appreciates design quality, referral network is valuable. Studio/office crossover creates interesting product specifications.",
+      "averageProjectValue": "$40,000–$180,000",
+      "keyBuyingSignal": "Major project win requiring new office, studio growth, relocation",
+      "decisionMaker": "Principal/Director, Studio Manager",
+      "messageAngle": "Furniture that reflects the same design intelligence you apply to your clients' projects."
+    },
+    {
+      "industry": "Healthcare Administration",
+      "priority": "Tier 2",
+      "whyHighValue": "Compliance-driven — WHS and accessibility standards add value. Often larger staff counts in administration roles.",
+      "averageProjectValue": "$50,000–$200,000",
+      "keyBuyingSignal": "New clinic or administration building, government health contract win",
+      "decisionMaker": "CEO/COO, Facilities Manager",
+      "messageAngle": "Compliant, ergonomic workspaces that meet Australian WHS standards — protecting your team and your liability."
+    }
+  ],
+  "secondaryTargetIndustries": [
+    "Government agencies (EOFY budget cycle — high volume, process-heavy)",
+    "Education administration (universities, TAFE — large footprint, multiple locations)",
+    "Construction company HQs (understand commercial quality, strong procurement processes)",
+    "Real estate firms (high-traffic reception areas, regular fitout cycles)"
+  ],
+  "avoidIndustries": [
+    "Retail (usually cost-focused, non-standard furniture requirements)",
+    "Hospitality (different product category entirely)",
+    "Residential property developers (residential furniture, not commercial)",
+    "Sole trader home offices (below minimum project threshold)"
+  ]
+}

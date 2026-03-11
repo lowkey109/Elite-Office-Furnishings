@@ -1,0 +1,64 @@
+{
+  "tier1Signals": {
+    "description": "Act within 4 hours — these companies are in active buying mode",
+    "signals": [
+      {
+        "signal": "Signed commercial lease announcement",
+        "details": "New office address confirmed. They have a move-in date and a fitout deadline.",
+        "typicalTimeline": "Furniture decisions needed within 8–14 weeks of lease signing",
+        "action": "Call or personalised email within 48 hours. Lead with free layout plan offer."
+      },
+      {
+        "signal": "Active tender/RFQ for office furniture",
+        "details": "Company is formally seeking quotes. They have budget approval and a decision deadline.",
+        "typicalTimeline": "Decision within 2–4 weeks of RFQ close",
+        "action": "Submit highest-quality response. Be first to submit. Include 3-tier pricing."
+      },
+      {
+        "signal": "Referral from existing TCD client or partner",
+        "details": "Trust already transferred. Close rate is 2–3x higher than cold enquiry.",
+        "action": "Personal call within 2 hours. Acknowledge the referrer. Fast-track to strategy call."
+      },
+      {
+        "signal": "Inbound enquiry with budget confirmed >$50,000 and move date",
+        "details": "Self-identified, budget-confirmed, timeline-ready — the ideal lead",
+        "action": "Personal call within 1 hour. Treat as Priority 1."
+      }
+    ]
+  },
+  "tier2Signals": {
+    "description": "Act within 24 hours — these companies are likely planning office changes",
+    "signals": [
+      {
+        "signal": "Series A or larger funding announcement",
+        "details": "Fresh capital typically funds team growth and office upgrade within 3–6 months",
+        "action": "LinkedIn outreach to CEO/Operations with workspace planning framing"
+      },
+      {
+        "signal": "Significant hiring surge (5+ roles/month for 3+ months)",
+        "details": "Growing headcount will exceed current office capacity — space event likely",
+        "action": "Outreach framed around 'growing companies we work with' — not a cold pitch"
+      },
+      {
+        "signal": "Company announced move to new city or interstate expansion",
+        "details": "New market entry requires a local office setup",
+        "action": "Outreach within 72 hours — they have no local supplier relationship yet"
+      },
+      {
+        "signal": "Job posting for 'Office Manager' or 'Facilities Manager' (new role, not replacement)",
+        "details": "Indicates company is formalising operations — likely at a growth inflection",
+        "action": "Contact company HR or operations team — mention timing of role creation"
+      }
+    ]
+  },
+  "tier3Signals": {
+    "description": "Nurture — potential buyers but no immediate decision",
+    "signals": [
+      "Seed funding announcement (<$3M)",
+      "Minor leadership changes (not CEO/COO level)",
+      "General company growth articles without specific office mention",
+      "Joining a coworking space (precursor to own office)"
+    ],
+    "action": "Add to LinkedIn connection + email nurture sequence. Set 3-month reminder to re-evaluate."
+  }
+}
