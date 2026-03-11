@@ -1,0 +1,188 @@
+You are upgrading the existing AI Office Planner for The Corporate Desk.
+
+IMPORTANT:
+Do NOT break any existing functionality.
+The current system already:
+• collects office details
+• uploads floor plans
+• generates AI recommendations
+• suggests furniture SKUs
+• saves leads to /admin/planning-requests
+
+Your task is to ADD a visual layout generation layer on top of the existing system.
+
+------------------------------------------------
+
+PRIMARY OBJECTIVE
+
+When a user uploads a floor plan or image, the AI should generate a visual workspace layout showing:
+
+• desk placements
+• meeting rooms
+• breakout zones
+• executive offices
+• circulation paths
+• product placement using The Corporate Desk furniture
+
+The output must include a **visual floor plan diagram**, not just text.
+
+------------------------------------------------
+
+FEATURE: AI SPACE PLANNING ENGINE
+
+Add a new module called:
+
+SpacePlanningEngine
+
+This engine should:
+
+1. Analyze the uploaded floor plan
+2. Detect room boundaries or estimate layout zones
+3. Calculate workspace capacity
+4. Generate a workspace plan including:
+
+- workstations
+- executive offices
+- manager offices
+- meeting rooms
+- boardroom
+- breakout areas
+- storage
+- circulation space
+
+------------------------------------------------
+
+VISUAL OUTPUT
+
+Generate a visual layout diagram.
+
+Use either:
+
+• SVG floor plan rendering
+or
+• Canvas rendering
+
+The diagram should display:
+
+• workspace zones
+• desk clusters
+• meeting rooms
+• breakout areas
+• furniture icons
+• labeled areas
+
+Each desk cluster should correspond to a product category from the TCD catalogue.
+
+Example:
+
+Workstations → Open plan desk clusters  
+Executive desks → executive offices  
+Meeting tables → meeting rooms
+
+------------------------------------------------
+
+PRODUCT PLACEMENT
+
+Connect the visual layout to the existing furniture recommendation system.
+
+Each zone should reference:
+
+• product category
+• SKU family
+• estimated quantity
+
+Example:
+
+Zone: Open Workspace
+Product: Breeze Series Workstations
+Qty: 40
+
+------------------------------------------------
+
+LAYOUT REPORT
+
+Below the visual layout, display:
+
+1. Workspace Summary
+   - total staff capacity
+   - workstation count
+   - meeting room count
+
+2. Furniture Package
+   - product categories
+   - quantities
+   - estimated project cost
+
+3. Estimated Layout Efficiency
+   - sqm per workstation
+   - circulation ratio
+
+------------------------------------------------
+
+UI SECTION
+
+On the results page add a section titled:
+
+AI Workspace Layout
+
+Display:
+
+• visual layout diagram
+• zone labels
+• furniture placement
+• capacity summary
+
+------------------------------------------------
+
+EXPORT FEATURES
+
+Allow the user to:
+
+• download layout as PNG
+• download layout as PDF
+• request full quote
+
+------------------------------------------------
+
+ADMIN PANEL
+
+Store the generated layout data in the planning_requests record.
+
+Include:
+
+• workspace zones
+• desk count
+• meeting rooms
+• layout JSON
+• recommended products
+
+Make this visible in:
+
+/admin/planning-requests
+
+------------------------------------------------
+
+SAFETY RULES
+
+Do NOT modify or remove:
+
+• finance calculator
+• chatbot
+• product catalogue
+• admin CRM
+• lead intelligence system
+• existing AI prompts
+
+This is an extension, not a rebuild.
+
+------------------------------------------------
+
+FINAL OUTPUT
+
+Confirm:
+
+1. Visual layout generation working
+2. Layout diagram rendering
+3. Product placement linked to SKUs
+4. Layout export working
+5. Leads still saving correctly

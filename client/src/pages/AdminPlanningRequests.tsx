@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import PlanningReport from "@/components/PlanningReport";
+import SpacePlanningEngine from "@/components/SpacePlanningEngine";
 import { CATALOGUE } from "@/lib/furnitureCatalogue";
 import {
   ShieldCheck, LayoutDashboard, Target, Megaphone, Upload,
@@ -809,7 +810,20 @@ export default function AdminPlanningRequests() {
                           )}
 
                           {activeTab === "zones" && (
-                            <ZoneVisualization zones={zones} />
+                            <div className="space-y-6">
+                              {zones.length > 0 && zones.some(z => z.percentage > 0) && (
+                                <SpacePlanningEngine
+                                  zones={zones}
+                                  recs={recs}
+                                  sqm={req.squareMetres}
+                                  staffCount={req.staffCount}
+                                  costBreakdown={cost ?? undefined}
+                                  estimatedValue={req.estimatedValue}
+                                  implementationTimeline={timeline}
+                                />
+                              )}
+                              <ZoneVisualization zones={zones} />
+                            </div>
                           )}
 
                           {activeTab === "furniture" && (

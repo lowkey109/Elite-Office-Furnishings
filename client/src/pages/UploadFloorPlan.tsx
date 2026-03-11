@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Layout } from "@/components/Layout";
+import SpacePlanningEngine from "@/components/SpacePlanningEngine";
 import {
   Upload, CheckCircle2, Loader2, ArrowRight, ArrowLeft,
   Building2, Users, LayoutDashboard, Palette, FileText,
@@ -37,12 +38,46 @@ interface FileItem {
   file: File | null;
 }
 
+interface AiWorkspaceZone {
+  zone: string;
+  color: string;
+  percentage: number;
+  description: string;
+  priority: string;
+  staffCapacity?: number;
+  keyFurniture?: string[];
+}
+
+interface AiProductRec {
+  zone: string;
+  sku: string;
+  category: string;
+  productName: string;
+  seriesRecommendation?: string;
+  quantity: number;
+  unitCost: number;
+  totalCost: number;
+  rationale?: string;
+  estimatedCost?: string;
+}
+
+interface AiCostBreakdown {
+  furniture: number;
+  installation: number;
+  delivery: number;
+  total: number;
+  perStaff?: number;
+}
+
 interface AiRecommendation {
   clientBrief?: string;
   officeType?: string;
   estimatedProjectValue?: string;
-  workspaceZones?: { zone: string; description: string; priority: string }[];
-  productRecommendations?: { category: string; seriesRecommendation: string; quantity: string; rationale: string; estimatedCost: string }[];
+  leadScore?: number;
+  implementationTimeline?: string;
+  workspaceZones?: AiWorkspaceZone[];
+  productRecommendations?: AiProductRec[];
+  costBreakdown?: AiCostBreakdown;
   styleDirection?: string;
   keyConsiderations?: string[];
   recommendedNextStep?: string;
@@ -270,6 +305,24 @@ export default function UploadFloorPlan() {
                         )}
                       </div>
                     )}
+                  </div>
+                )}
+
+                {aiRec.workspaceZones && aiRec.workspaceZones.length > 0 && aiRec.workspaceZones.some(z => z.percentage > 0) && (
+                  <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.18)] rounded-2xl p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <LayoutDashboard className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                      <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">AI Workspace Layout</h3>
+                    </div>
+                    <SpacePlanningEngine
+                      zones={aiRec.workspaceZones}
+                      recs={aiRec.productRecommendations}
+                      sqm={squareMetres}
+                      staffCount={staffCount}
+                      costBreakdown={aiRec.costBreakdown}
+                      estimatedValue={aiRec.estimatedProjectValue}
+                      implementationTimeline={aiRec.implementationTimeline}
+                    />
                   </div>
                 )}
 
