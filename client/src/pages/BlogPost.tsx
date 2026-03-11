@@ -1,0 +1,248 @@
+import { useEffect } from "react";
+import { Link, useParams } from "wouter";
+import { Badge } from "@/components/ui/badge";
+import { Layout } from "@/components/Layout";
+import { Clock, ArrowLeft, ArrowRight, ChevronRight, Tag } from "lucide-react";
+import { getPostBySlug, getRelatedPosts } from "@/data/blog/index";
+import type { BlogPost as BlogPostType } from "@/data/blog/types";
+
+function RelatedCard({ post }: { post: BlogPostType }) {
+  return (
+    <Link href={`/blog/${post.slug}`}>
+      <div
+        data-testid={`card-related-${post.id}`}
+        className="group p-5 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] hover:border-[rgba(201,168,76,0.25)] rounded-xl transition-all cursor-pointer"
+      >
+        <Badge className="mb-3 bg-[rgba(201,168,76,0.08)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.15)] text-xs">
+          {post.category}
+        </Badge>
+        <h3 className="text-white text-sm font-semibold leading-snug mb-2 group-hover:text-[hsl(43,78%,65%)] transition-colors line-clamp-2">
+          {post.title}
+        </h3>
+        <div className="flex items-center gap-1.5 text-white/30 text-xs">
+          <Clock className="w-3 h-3" />
+          <span>{post.readTime}</span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+export default function BlogPost() {
+  const params = useParams<{ slug: string }>();
+  const post = getPostBySlug(params.slug);
+
+  useEffect(() => {
+    if (post) {
+      document.title = `${post.title} | The Corporate Desk Blog`;
+      window.scrollTo(0, 0);
+    }
+  }, [post]);
+
+  if (!post) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-3xl font-serif font-bold text-white mb-4">Article Not Found</h1>
+            <p className="text-white/50 mb-6">This article doesn't exist or has been moved.</p>
+            <Link href="/blog">
+              <button className="px-5 py-2.5 bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-semibold rounded-lg text-sm">
+                Back to Blog
+              </button>
+            </Link>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  const related = getRelatedPosts(post, 3);
+
+  return (
+    <Layout>
+      <div className="min-h-screen bg-background">
+        {/* Article header */}
+        <section className="pt-28 pb-12 bg-[hsl(220,20%,5%)] border-b border-[rgba(201,168,76,0.1)]">
+          <div className="max-w-4xl mx-auto px-6 lg:px-8">
+            {/* Breadcrumb */}
+            <div className="flex items-center gap-2 text-white/30 text-sm mb-8 flex-wrap">
+              <Link href="/"><span className="hover:text-white/60 transition-colors cursor-pointer">Home</span></Link>
+              <ChevronRight className="w-3.5 h-3.5 flex-shrink-0" />
+              <Link href="/blog"><span className="hover:text-white/60 transition-colors cursor-pointer">Blog</span></Link>
+              <ChevronRight className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="text-white/50">{post.category}</span>
+            </div>
+
+            <Badge className="mb-5 bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)]">
+              {post.category}
+            </Badge>
+
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white leading-tight mb-6">
+              {post.title}
+            </h1>
+
+            <p className="text-white/55 text-lg leading-relaxed mb-6 max-w-3xl">
+              {post.excerpt}
+            </p>
+
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/40">
+              <div className="flex items-center gap-1.5">
+                <Clock className="w-4 h-4" />
+                <span>{post.readTime}</span>
+              </div>
+              <span>·</span>
+              <span>Published {new Date(post.publishDate).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}</span>
+              <span>·</span>
+              <span>The Corporate Desk Editorial Team</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Main content */}
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12">
+            {/* Article body */}
+            <article>
+              <div
+                data-testid="article-content"
+                className="prose-blog"
+                dangerouslySetInnerHTML={{ __html: post.content }}
+              />
+
+              {/* Tags */}
+              <div className="mt-10 pt-8 border-t border-[rgba(255,255,255,0.06)]">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Tag className="w-4 h-4 text-white/30" />
+                  {post.tags.map(tag => (
+                    <Link key={tag} href={`/blog?search=${encodeURIComponent(tag)}`}>
+                      <span
+                        data-testid={`tag-${tag}`}
+                        className="px-3 py-1 rounded-full bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] text-white/40 text-xs hover:text-white/70 hover:border-[rgba(201,168,76,0.2)] transition-all cursor-pointer"
+                      >
+                        {tag}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Internal links */}
+              {post.internalLinks.length > 0 && (
+                <div className="mt-8 p-5 bg-[rgba(201,168,76,0.05)] border border-[rgba(201,168,76,0.12)] rounded-xl">
+                  <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm mb-3">Related Resources</h3>
+                  <div className="space-y-2">
+                    {post.internalLinks.map(link => (
+                      <Link key={link.href} href={link.href}>
+                        <div className="flex items-center gap-2 text-white/60 hover:text-white transition-colors cursor-pointer text-sm">
+                          <ArrowRight className="w-3.5 h-3.5 text-[hsl(43,78%,52%)] flex-shrink-0" />
+                          {link.anchor}
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* CTA */}
+              <div className="mt-10 p-8 bg-gradient-to-br from-[rgba(201,168,76,0.08)] to-[rgba(201,168,76,0.03)] border border-[rgba(201,168,76,0.15)] rounded-2xl text-center">
+                <h3 className="text-white font-serif font-bold text-xl mb-2">Ready to furnish your workspace?</h3>
+                <p className="text-white/50 text-sm mb-5">Speak with our commercial furniture specialists. Free layout planning, competitive quotes, expert guidance.</p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Link href="/free-office-layout-plan">
+                    <button data-testid="button-article-cta-layout" className="px-5 py-2.5 bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[hsl(220,20%,6%)] font-semibold rounded-lg transition-colors text-sm">
+                      Free Layout Plan
+                    </button>
+                  </Link>
+                  <Link href="/send-us-your-quote">
+                    <button data-testid="button-article-cta-quote" className="px-5 py-2.5 border border-[rgba(201,168,76,0.35)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.08)] font-semibold rounded-lg transition-colors text-sm">
+                      Get a Quote
+                    </button>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Back link */}
+              <div className="mt-8">
+                <Link href="/blog">
+                  <button data-testid="button-back-to-blog" className="flex items-center gap-2 text-white/40 hover:text-white transition-colors text-sm">
+                    <ArrowLeft className="w-4 h-4" />
+                    Back to all articles
+                  </button>
+                </Link>
+              </div>
+            </article>
+
+            {/* Sidebar */}
+            <aside className="space-y-8">
+              {/* About this article */}
+              <div className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-xl p-5">
+                <h3 className="text-white font-semibold text-sm mb-4">About This Article</h3>
+                <dl className="space-y-3 text-sm">
+                  <div>
+                    <dt className="text-white/35 text-xs uppercase tracking-wide mb-1">Topic</dt>
+                    <dd className="text-white/70">{post.category}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-white/35 text-xs uppercase tracking-wide mb-1">Read Time</dt>
+                    <dd className="text-white/70">{post.readTime}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-white/35 text-xs uppercase tracking-wide mb-1">Published</dt>
+                    <dd className="text-white/70">
+                      {new Date(post.publishDate).toLocaleDateString("en-AU", { month: "long", year: "numeric" })}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-white/35 text-xs uppercase tracking-wide mb-1">Primary Topic</dt>
+                    <dd className="text-white/70 text-xs">{post.primaryKeyword}</dd>
+                  </div>
+                </dl>
+              </div>
+
+              {/* Quick actions */}
+              <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.12)] rounded-xl p-5">
+                <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm mb-3">Get Expert Help</h3>
+                <p className="text-white/45 text-xs mb-4 leading-relaxed">Our team can help you apply these insights to your specific project.</p>
+                <div className="space-y-2.5">
+                  <Link href="/free-office-layout-plan">
+                    <div className="w-full text-left px-3.5 py-2.5 bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[hsl(220,20%,6%)] font-semibold rounded-lg transition-colors text-xs cursor-pointer">
+                      Free Layout Plan
+                    </div>
+                  </Link>
+                  <Link href="/workplace-strategy">
+                    <div className="w-full text-left px-3.5 py-2.5 border border-[rgba(201,168,76,0.25)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.08)] font-semibold rounded-lg transition-colors text-xs cursor-pointer">
+                      Book a Strategy Call
+                    </div>
+                  </Link>
+                  <Link href="/quote-builder">
+                    <div className="w-full text-left px-3.5 py-2.5 border border-[rgba(255,255,255,0.08)] text-white/50 hover:text-white hover:border-[rgba(255,255,255,0.15)] font-semibold rounded-lg transition-colors text-xs cursor-pointer">
+                      Quote Builder
+                    </div>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Related articles */}
+              {related.length > 0 && (
+                <div>
+                  <h3 className="text-white font-semibold text-sm mb-4">Related Articles</h3>
+                  <div className="space-y-3">
+                    {related.map(r => (
+                      <RelatedCard key={r.id} post={r} />
+                    ))}
+                  </div>
+                  <Link href={`/blog?category=${encodeURIComponent(post.category)}`}>
+                    <div className="mt-4 flex items-center gap-1.5 text-[hsl(43,78%,65%)] text-xs hover:underline cursor-pointer">
+                      More {post.category} articles <ArrowRight className="w-3.5 h-3.5" />
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </aside>
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+}

@@ -21,6 +21,8 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import AdminLeads from "@/pages/AdminLeads";
 import AdminSupplierQuotes from "@/pages/AdminSupplierQuotes";
 import Testimonials from "@/pages/Testimonials";
+import Blog from "@/pages/Blog";
+import BlogPost from "@/pages/BlogPost";
 
 function Router() {
   return (
@@ -40,6 +42,8 @@ function Router() {
       <Route path="/thank-you-strategy" component={ThankYouStrategy} />
       <Route path="/contact" component={Contact} />
       <Route path="/testimonials" component={Testimonials} />
+      <Route path="/blog/:slug" component={BlogPost} />
+      <Route path="/blog" component={Blog} />
       <Route path="/admin/marketing" component={Marketing} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/leads" component={AdminLeads} />

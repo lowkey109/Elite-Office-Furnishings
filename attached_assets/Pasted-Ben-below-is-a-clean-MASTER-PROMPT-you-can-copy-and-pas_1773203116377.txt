@@ -1,0 +1,396 @@
+Ben — below is a clean MASTER PROMPT you can copy and paste directly into your Replit agent.
+It combines everything you showed in the screenshots + everything still missing so the bot finishes the system properly without breaking anything.
+
+This is written so the agent doesn’t hallucinate, doesn’t rebuild working parts, and only completes missing systems.
+
+⸻
+
+MASTER COMPLETION PROMPT
+
+The Corporate Desk — Full System Completion
+
+You are working on the existing application for The Corporate Desk.
+
+This system is a commercial office furniture and office fit-out lead generation and sales platform.
+
+The system already contains:
+
+• public website pages
+• product catalogue
+• lead capture funnels
+• quote builder
+• supplier quote system
+• admin dashboard
+• AI assistant
+• marketing hub
+• SEO blog content
+• lead intelligence engine
+
+Your job is to complete the remaining missing systems and stabilise the platform.
+
+⸻
+
+CRITICAL RULES
+
+Before doing anything:
+	1.	Inspect the entire existing codebase.
+	2.	Confirm what features already exist.
+	3.	Do not rebuild working systems.
+	4.	Only complete missing functionality.
+
+You must not break anything that already works.
+
+⸻
+
+DO NOT BREAK
+
+Do NOT delete or overwrite:
+
+• existing pages
+• existing funnels
+• existing admin dashboard
+• existing quote builder
+• existing lead system
+• existing supplier quote system
+• existing marketing hub
+• existing SEO content
+• existing design system
+
+All work must be additive and safe.
+
+⸻
+
+PART 1 — PRODUCT IMAGE FIX
+
+Currently many products are displaying the same image.
+
+Fix the product image mapping.
+
+Each product must display its correct image based on SKU.
+
+Requirements:
+
+• map product_sku → image_url
+• remove fallback image duplication
+• ensure catalogue grid shows correct images
+• ensure product detail pages show correct images
+
+⸻
+
+PART 2 — EMAIL DELIVERY SYSTEM
+
+Implement reliable email delivery.
+
+All leads, quotes, and submissions must send email notifications.
+
+Use:
+
+SMTP or SendGrid.
+
+Emails must automatically send copies to:
+
+service@thecorporatedesk.com.au
+thecorporatedeskservice@gmail.com
+
+Emails must trigger when:
+
+• layout plan form submitted
+• quote upload submitted
+• workplace strategy form submitted
+• quote builder completed
+• supplier quote saved
+
+⸻
+
+PART 3 — SUPPLIER QUOTE MANAGEMENT SYSTEM
+
+Ensure the supplier quote system is fully operational inside the admin panel.
+
+The system must allow:
+
+• logging supplier quotes
+• tracking quote status
+• storing pricing
+• storing freight costs
+• storing lead times
+• storing supplier contact details
+• linking quotes to projects
+
+⸻
+
+QUOTE STATUS STAGES
+
+Each supplier quote must track:
+
+Requested
+Received
+Approved
+Ordered
+Shipped
+Delivered
+
+Admins must be able to update status easily.
+
+⸻
+
+QUOTE RECORD FIELDS
+
+Each quote must include:
+
+Supplier Name
+Product Name
+SKU
+Quantity
+Colour / Finish
+Unit Price
+Freight Cost
+Lead Time
+Quote Date
+Project / Client Reference
+Status
+
+Optional fields:
+
+Supplier Phone
+Supplier Email
+Notes
+Quote File Attachment
+
+⸻
+
+EMAIL BACKUP
+
+When a quote is saved the system must email:
+
+service@thecorporatedesk.com.au
+thecorporatedeskservice@gmail.com
+
+Email must include:
+
+Supplier
+Product
+SKU
+Quantity
+Price
+Freight
+Lead Time
+Project
+Status
+
+⸻
+
+PART 4 — WHATSAPP SUPPLIER BOT
+
+Build infrastructure for a supplier communication bot using:
+
+WhatsApp Business API (Twilio or Meta).
+
+The bot must allow the system to:
+
+• send quote requests to suppliers
+• receive supplier replies
+• store responses in supplier quote system
+• update quote status automatically
+
+The bot must communicate in friendly human-like language.
+
+⸻
+
+PART 5 — LEAD GENERATION SYSTEM
+
+Ensure the lead generation funnels work correctly.
+
+Lead capture flows must exist for:
+
+Free Office Layout Plan
+Send Us Your Quote
+Workplace Strategy Consultation
+
+Each lead record must capture:
+
+Name
+Company
+Email
+Phone
+Office Location
+Staff Count
+Project Type
+Estimated Budget
+Move Date
+Message
+
+⸻
+
+LEAD STATUS TRACKING
+
+Each lead must track status:
+
+New Lead
+Contacted
+Quote Sent
+Negotiation
+Won
+Lost
+
+⸻
+
+PART 6 — LEAD INTELLIGENCE ENGINE
+
+Ensure the Lead Intelligence Engine works properly.
+
+The engine must:
+
+• score leads from 1–10
+• identify decision makers
+• generate outreach messages
+• track lead status
+
+⸻
+
+PART 7 — COMPANY EXPANSION LEAD DETECTOR
+
+Build a system that detects companies likely to need office furniture.
+
+Signals include:
+
+• companies hiring rapidly
+• companies expanding teams
+• companies opening new offices
+• companies relocating offices
+• companies raising funding
+• commercial lease announcements
+
+Sources may include:
+
+• LinkedIn hiring activity
+• job postings
+• commercial real estate news
+• startup funding announcements
+• business news
+
+⸻
+
+EXPANSION LEAD DATABASE
+
+Create records including:
+
+Company Name
+Industry
+City
+Estimated Team Size
+Expansion Signal
+Source Link
+Estimated Move Date
+Lead Confidence Score
+
+These leads must appear in the lead dashboard.
+
+⸻
+
+PART 8 — BLOG SYSTEM
+
+The SEO blog system must be completed.
+
+Currently completed:
+
+Articles 1–160.
+
+Finish:
+
+Blog Trends posts 161–180
+Blog Sustainability posts 181–200
+
+Then build:
+
+/blog listing page
+
+and
+
+/blog/:slug article template.
+
+Ensure:
+
+• SEO meta tags exist
+• internal linking exists
+• navigation links added
+
+⸻
+
+PART 9 — MARKETING HUB
+
+Ensure the Marketing Hub works.
+
+It must allow AI to generate content for:
+
+Email
+Facebook
+Instagram
+X / Twitter
+Telegram
+WhatsApp
+
+If API keys exist the system may publish automatically.
+
+⸻
+
+PART 10 — WORDPRESS DEPLOYMENT PACKAGE
+
+Prepare a WordPress deployment version.
+
+Export a stable build that can run inside WordPress.
+
+Requirements:
+
+• compatible with WordPress themes
+• no routing conflicts
+• SEO metadata preserved
+• mobile responsive
+• fast loading
+
+⸻
+
+PAYMENT SAFETY RULE
+
+Do NOT build a new payment system.
+
+If the main WordPress website uses WooCommerce checkout:
+
+connect product catalogue links to WooCommerce checkout pages.
+
+Do not replace WooCommerce.
+
+⸻
+
+FINAL SYSTEM TEST
+
+Before finishing verify:
+
+• all forms work
+• emails send correctly
+• product images display properly
+• admin dashboard works
+• supplier quote system works
+• lead system works
+• WhatsApp supplier integration ready
+• blog pages function correctly
+• mobile layout works
+• system loads quickly
+
+Fix any issues before stopping.
+
+⸻
+
+FINAL GOAL
+
+Create a stable business platform that allows The Corporate Desk to:
+
+• capture office furniture leads
+• detect companies moving offices
+• manage supplier quotes
+• manage client projects
+• automate marketing
+• convert leads into $30k–$300k commercial projects
+
+The system must operate as a complete commercial sales and lead generation platform.
+
+⸻

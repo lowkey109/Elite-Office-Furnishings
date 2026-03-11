@@ -135,8 +135,16 @@ The chatbot operates as a coordinated executive team:
 - `strategy-call` — Workplace Strategy Call
 - `contact` — General Contact
 
+## SEO Blog (/blog, /blog/:slug)
+- 200 articles across 10 topic clusters, all client-side (no API)
+- Data files: `client/src/data/blog/` — one file per cluster + `index.ts` aggregator
+- Clusters: Buying Guides (1–25), Fitout Planning (26–50), Layout Design (51–70), Productivity (71–90), Relocation (91–110), Ergonomics (111–130), Reception (131–145), Boardroom (146–160), Office Design Trends (161–180), Sustainable Offices (181–200)
+- Blog listing page: search + 10-category filter + 12-per-page pagination
+- Blog post page: article prose (`.prose-blog` CSS), sidebar (related posts, quick actions, meta), internal linking, CTA blocks
+- Blog link: nav header + mobile nav + footer Services column
+
 ## Components
-- `Layout.tsx` — Header (fixed, scroll-responsive, 6 nav links + 8 mobile links) + Footer + ChatBot
+- `Layout.tsx` — Header (fixed, scroll-responsive, 7 nav links + 10 mobile links) + Footer + ChatBot
 - `LeadForm.tsx` — Reusable form component for all lead capture forms
 - `ChatBot.tsx` — Floating AI business OS assistant
 
