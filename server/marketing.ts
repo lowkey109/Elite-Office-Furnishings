@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import OpenAI from "openai";
 import nodemailer from "nodemailer";
+import { ADVISOR_SYSTEM_MESSAGE } from "./systemPrompt";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -90,7 +91,10 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no extra text.`;
 
       const completion = await openai.chat.completions.create({
         model: "gpt-5-mini",
-        messages: [{ role: "user", content: prompt }],
+        messages: [
+          { role: "system", content: ADVISOR_SYSTEM_MESSAGE },
+          { role: "user", content: prompt },
+        ],
         
       } as any);
 
