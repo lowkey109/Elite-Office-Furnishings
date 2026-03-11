@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { useLocation, Link } from "wouter";
+import { Link } from "wouter";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { useQuery } from "@tanstack/react-query";
@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Lock, RotateCcw, ZoomIn, Move, Box, Users, Layers,
   ArrowRight, Building2, Package, ChevronRight, X,
-  Eye, Sparkles, Phone, Mail, MousePointer2,
+  Eye, Sparkles, Phone, Mail, MousePointer2, Upload,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -747,9 +747,7 @@ const DEMO_ZONES: WorkspaceZone[] = [
 // ─── Main Page Component ──────────────────────────────────────────────────────
 
 export default function OfficeWalkthrough() {
-  const [location] = useLocation();
-  const searchParams = new URLSearchParams(location.split("?")[1] || "");
-  const planId = searchParams.get("id");
+  const planId = new URLSearchParams(window.location.search).get("id");
 
   const canvasRef = useRef<HTMLDivElement>(null);
   const [selectedProduct, setSelectedProduct] = useState<SelectedProduct | null>(null);
@@ -834,41 +832,77 @@ export default function OfficeWalkthrough() {
         {/* Hero */}
         <section className="bg-[hsl(220,18%,8%)] border-b border-[rgba(201,168,76,0.12)] pt-16 pb-10 px-4">
           <div className="max-w-6xl mx-auto">
-            <div className="flex items-center gap-2 mb-4">
-              <Badge className="bg-[rgba(201,168,76,0.12)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)] text-xs tracking-wider">
-                PREMIUM FEATURE
-              </Badge>
-              {layoutData?.isPaid && (
-                <Badge className="bg-green-500/10 text-green-400 border-green-500/20 text-xs">
-                  UNLOCKED
-                </Badge>
-              )}
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-serif font-bold text-white mb-3">
-              Walk Through Your Future Workspace
-            </h1>
-            <p className="text-white/55 text-base max-w-2xl">
-              {layoutData
-                ? `Interactive 3D layout for ${layoutData.company || layoutData.name} — ${sqm}sqm · ${staff} staff`
-                : !planId
-                ? "Explore a demonstration office layout. Generate your personalised AI workspace plan to see your actual design."
-                : "Loading your workspace layout..."}
-            </p>
 
-            {layoutData && (
-              <div className="flex flex-wrap gap-4 mt-5">
-                {[
-                  { label: "Floor Area", value: `${sqm} sqm` },
-                  { label: "Staff", value: `${staff} people` },
-                  { label: "Zones", value: `${zones.length} zones` },
-                  totalBudget ? { label: "Furniture Investment", value: `$${totalBudget.toLocaleString()}` } : null,
-                ].filter(Boolean).map((s: any) => (
-                  <div key={s.label} className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.15)] rounded-xl px-4 py-2.5">
-                    <div className="text-[hsl(43,78%,65%)] text-xs font-medium tracking-wider uppercase">{s.label}</div>
-                    <div className="text-white font-semibold text-sm mt-0.5">{s.value}</div>
+            {/* DEMO MODE hero */}
+            {!planId && (
+              <>
+                <div className="flex items-center gap-2 mb-5">
+                  <Badge className="bg-[rgba(201,168,76,0.12)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)] text-xs tracking-wider">
+                    SAMPLE WORKSPACE LAYOUT
+                  </Badge>
+                  <Badge className="bg-[rgba(255,255,255,0.06)] text-white/50 border-[rgba(255,255,255,0.12)] text-xs">
+                    INTERACTIVE DEMO
+                  </Badge>
+                </div>
+                <h1 className="text-3xl sm:text-5xl font-serif font-bold text-white mb-4 leading-tight">
+                  See what your future office<br className="hidden sm:block" /> could look like
+                </h1>
+                <p className="text-white/60 text-base sm:text-lg max-w-2xl mb-6 leading-relaxed">
+                  This is a sample demonstration workspace. Upload your floor plan to generate your own AI workspace concept — personalised to your team size, style, and budget.
+                </p>
+                <div className="flex flex-wrap gap-3" data-testid="hero-demo-ctas">
+                  <Link href="/upload-your-floor-plan">
+                    <Button className="bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[hsl(220,20%,6%)] font-bold px-6 py-3 text-sm" data-testid="button-start-planner-hero">
+                      <Sparkles className="w-4 h-4 mr-2" /> Get My Workspace Concept
+                    </Button>
+                  </Link>
+                  <Link href="/upload-your-floor-plan">
+                    <Button variant="outline" className="border-[rgba(201,168,76,0.35)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.08)] px-6 py-3 text-sm font-semibold" data-testid="button-upload-plan-hero">
+                      <Upload className="w-4 h-4 mr-2" /> Upload Your Floor Plan
+                    </Button>
+                  </Link>
+                </div>
+                <p className="text-white/30 text-xs mt-4">No account required · AI concept generated instantly · Free</p>
+              </>
+            )}
+
+            {/* PERSONALIZED mode hero */}
+            {planId && (
+              <>
+                <div className="flex items-center gap-2 mb-4">
+                  <Badge className="bg-[rgba(201,168,76,0.12)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)] text-xs tracking-wider">
+                    AI OFFICE PLANNER
+                  </Badge>
+                  {layoutData?.isPaid && (
+                    <Badge className="bg-green-500/10 text-green-400 border-green-500/20 text-xs">
+                      UNLOCKED
+                    </Badge>
+                  )}
+                </div>
+                <h1 className="text-3xl sm:text-4xl font-serif font-bold text-white mb-3">
+                  Walk Through Your Future Workspace
+                </h1>
+                <p className="text-white/55 text-base max-w-2xl">
+                  {layoutData
+                    ? `Interactive 3D layout for ${layoutData.company || layoutData.name} — ${sqm}sqm · ${staff} staff`
+                    : "Loading your workspace layout..."}
+                </p>
+                {layoutData && (
+                  <div className="flex flex-wrap gap-4 mt-5">
+                    {[
+                      { label: "Floor Area", value: `${sqm} sqm` },
+                      { label: "Staff", value: `${staff} people` },
+                      { label: "Zones", value: `${zones.length} zones` },
+                      totalBudget ? { label: "Furniture Investment", value: `$${totalBudget.toLocaleString()}` } : null,
+                    ].filter(Boolean).map((s: any) => (
+                      <div key={s.label} className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.15)] rounded-xl px-4 py-2.5">
+                        <div className="text-[hsl(43,78%,65%)] text-xs font-medium tracking-wider uppercase">{s.label}</div>
+                        <div className="text-white font-semibold text-sm mt-0.5">{s.value}</div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )}
           </div>
         </section>
@@ -885,16 +919,16 @@ export default function OfficeWalkthrough() {
 
         {/* Locked state */}
         {planId && !isLoading && layoutData && !isPaid && (
-          <div className="max-w-3xl mx-auto px-4 py-16">
+          <div className="max-w-3xl mx-auto px-4 py-16" data-testid="section-locked-state">
             <div className="text-center mb-8">
               <div className="w-16 h-16 rounded-2xl bg-[rgba(201,168,76,0.1)] border border-[rgba(201,168,76,0.2)] flex items-center justify-center mx-auto mb-5">
                 <Lock className="w-7 h-7 text-[hsl(43,78%,60%)]" />
               </div>
-              <p className="text-[hsl(43,78%,65%)] text-sm font-medium tracking-wider uppercase mb-3">WORKSPACE CONCEPT READY</p>
-              <h2 className="text-2xl font-serif font-bold text-white mb-3">
+              <p className="text-[hsl(43,78%,65%)] text-sm font-medium tracking-wider uppercase mb-3" data-testid="text-workspace-concept-ready">WORKSPACE CONCEPT READY</p>
+              <h2 className="text-2xl font-serif font-bold text-white mb-3" data-testid="heading-concept-ready">
                 Your AI workspace concept is ready.
               </h2>
-              <p className="text-white/50 text-base">
+              <p className="text-white/50 text-base" data-testid="text-unlock-message">
                 Unlock the full layout and furniture plan to access the interactive 3D walkthrough.
               </p>
             </div>
@@ -1111,29 +1145,136 @@ export default function OfficeWalkthrough() {
           </div>
         )}
 
+        {/* Demo mode mid-page CTA — start your own plan */}
+        {!planId && (
+          <section className="max-w-5xl mx-auto px-4 py-12" data-testid="section-demo-promo">
+            <div className="bg-gradient-to-br from-[hsl(220,18%,10%)] to-[hsl(220,18%,8%)] border border-[rgba(201,168,76,0.2)] rounded-2xl overflow-hidden">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-0">
+                {/* Left: Benefits */}
+                <div className="p-8">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-[rgba(201,168,76,0.1)] rounded-full border border-[rgba(201,168,76,0.2)] mb-5">
+                    <Sparkles className="w-3 h-3 text-[hsl(43,78%,52%)]" />
+                    <span className="text-[hsl(43,78%,65%)] text-xs font-medium tracking-wider uppercase">Free AI Office Planner</span>
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-serif font-bold text-white mb-3 leading-snug">
+                    Generate your own<br />personalised 3D workspace
+                  </h2>
+                  <p className="text-white/50 text-sm mb-6 leading-relaxed">
+                    Answer a few questions about your office — size, team, style — and our AI will build a personalised workspace concept including zone layout, furniture plan, and cost estimate.
+                  </p>
+                  <ul className="space-y-2.5 mb-7">
+                    {[
+                      "Your own AI workspace zone layout",
+                      "Personalised 3D walkthrough",
+                      "Furniture SKUs matched to your brief",
+                      "Cost estimate for your project",
+                    ].map((item, i) => (
+                      <li key={i} className="flex items-center gap-2.5 text-sm text-white/65">
+                        <div className="w-4 h-4 rounded-full bg-[rgba(201,168,76,0.2)] flex items-center justify-center flex-shrink-0">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[hsl(43,78%,52%)]" />
+                        </div>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="flex flex-wrap gap-3">
+                    <Link href="/upload-your-floor-plan">
+                      <Button className="bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[hsl(220,20%,6%)] font-bold px-7 py-3 text-sm" data-testid="button-start-ai-planner">
+                        <Sparkles className="w-4 h-4 mr-2" /> Start Free AI Office Planner
+                      </Button>
+                    </Link>
+                    <Link href="/upload-your-floor-plan">
+                      <Button variant="outline" className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.08)] px-6 py-3 text-sm font-semibold" data-testid="button-upload-floor-plan-mid">
+                        <Upload className="w-4 h-4 mr-2" /> Upload Your Floor Plan
+                      </Button>
+                    </Link>
+                  </div>
+                  <p className="text-white/25 text-xs mt-3">Free concept · No account required · Full plan unlocks for $399</p>
+                </div>
+                {/* Right: Funnel steps */}
+                <div className="border-t sm:border-t-0 sm:border-l border-[rgba(201,168,76,0.1)] p-8">
+                  <p className="text-white/35 text-xs font-medium tracking-wider uppercase mb-5">How it works</p>
+                  <div className="space-y-4">
+                    {[
+                      { step: "1", title: "Submit your brief", desc: "Tell us your office size, team, style preference and budget — takes 3 minutes." },
+                      { step: "2", title: "Get your free AI concept", desc: "Our AI analyses your brief and generates a personalised workspace zone breakdown instantly." },
+                      { step: "3", title: "Unlock the full plan", desc: "Pay $399 to unlock the full visual layout, 3D walkthrough, furniture SKUs and cost estimate." },
+                      { step: "4", title: "Request a quote", desc: "Share your plan with our team and receive a full fit-out proposal tailored to your space." },
+                    ].map(({ step, title, desc }) => (
+                      <div key={step} className="flex items-start gap-3">
+                        <div className="w-7 h-7 rounded-full bg-[rgba(201,168,76,0.15)] border border-[rgba(201,168,76,0.25)] flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-[hsl(43,78%,65%)] text-xs font-bold">{step}</span>
+                        </div>
+                        <div>
+                          <p className="text-white/85 text-sm font-semibold">{title}</p>
+                          <p className="text-white/40 text-xs leading-relaxed mt-0.5">{desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* CTA Section */}
         <section className="bg-[hsl(220,18%,8%)] border-t border-[rgba(201,168,76,0.1)] py-14 px-4 mt-8">
           <div className="max-w-5xl mx-auto">
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-4 h-4 text-[hsl(43,78%,52%)]" />
-              <span className="text-[hsl(43,78%,65%)] text-xs font-medium tracking-wider uppercase">Ready to Proceed?</span>
-            </div>
-            <h2 className="text-2xl font-serif font-bold text-white mb-2">Turn this layout into reality.</h2>
-            <p className="text-white/45 text-sm mb-8 max-w-xl">
-              Our commercial fitout specialists will refine this plan, source every product, and manage your project end-to-end.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl">
-              <Link href="/send-us-your-quote">
-                <Button className="w-full bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[hsl(220,20%,6%)] font-bold py-4 text-base" data-testid="button-request-quote-3d">
-                  <Package className="w-4 h-4 mr-2" /> Request Full Quote
-                </Button>
-              </Link>
-              <Link href="/contact">
-                <Button variant="outline" className="w-full border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.08)] py-4 text-base font-semibold" data-testid="button-book-strategy-3d">
-                  <Phone className="w-4 h-4 mr-2" /> Book Strategy Call
-                </Button>
-              </Link>
-            </div>
+            {!planId ? (
+              /* Demo mode bottom CTA */
+              <>
+                <div className="flex items-center gap-2 mb-4">
+                  <Sparkles className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                  <span className="text-[hsl(43,78%,65%)] text-xs font-medium tracking-wider uppercase">Start Your AI Office Plan</span>
+                </div>
+                <h2 className="text-2xl font-serif font-bold text-white mb-2">Ready to design your workspace?</h2>
+                <p className="text-white/45 text-sm mb-8 max-w-xl">
+                  Upload your floor plan or submit your brief to receive a personalised AI workspace concept — zones, furniture, 3D walkthrough and cost estimate.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl">
+                  <Link href="/upload-your-floor-plan">
+                    <Button className="w-full bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[hsl(220,20%,6%)] font-bold py-4 text-sm" data-testid="button-request-quote-3d">
+                      <Sparkles className="w-4 h-4 mr-2" /> Get My Workspace Concept
+                    </Button>
+                  </Link>
+                  <Link href="/upload-your-floor-plan">
+                    <Button variant="outline" className="w-full border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.08)] py-4 text-sm font-semibold" data-testid="button-book-strategy-3d">
+                      <Upload className="w-4 h-4 mr-2" /> Upload Your Floor Plan
+                    </Button>
+                  </Link>
+                  <Link href="/contact">
+                    <Button variant="ghost" className="w-full text-white/50 hover:text-white py-4 text-sm">
+                      <Phone className="w-4 h-4 mr-2" /> Speak to a Specialist
+                    </Button>
+                  </Link>
+                </div>
+              </>
+            ) : (
+              /* Personalized mode bottom CTA */
+              <>
+                <div className="flex items-center gap-2 mb-4">
+                  <Sparkles className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                  <span className="text-[hsl(43,78%,65%)] text-xs font-medium tracking-wider uppercase">Ready to Proceed?</span>
+                </div>
+                <h2 className="text-2xl font-serif font-bold text-white mb-2">Turn this layout into reality.</h2>
+                <p className="text-white/45 text-sm mb-8 max-w-xl">
+                  Our commercial fitout specialists will refine this plan, source every product, and manage your project end-to-end.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl">
+                  <Link href="/send-us-your-quote">
+                    <Button className="w-full bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[hsl(220,20%,6%)] font-bold py-4 text-base" data-testid="button-request-quote-3d">
+                      <Package className="w-4 h-4 mr-2" /> Request Full Quote
+                    </Button>
+                  </Link>
+                  <Link href="/contact">
+                    <Button variant="outline" className="w-full border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.08)] py-4 text-base font-semibold" data-testid="button-book-strategy-3d">
+                      <Phone className="w-4 h-4 mr-2" /> Book Strategy Call
+                    </Button>
+                  </Link>
+                </div>
+              </>
+            )}
             <div className="mt-6 flex flex-wrap gap-5 text-sm text-white/35">
               <span className="flex items-center gap-2"><Phone className="w-4 h-4" /> 1300 977 607</span>
               <span className="flex items-center gap-2"><Mail className="w-4 h-4" /> service@thecorporatedesk.com.au</span>

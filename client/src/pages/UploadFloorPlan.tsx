@@ -454,8 +454,9 @@ export default function UploadFloorPlan() {
                         <div className="w-14 h-14 rounded-full bg-[rgba(201,168,76,0.15)] border border-[rgba(201,168,76,0.3)] flex items-center justify-center mb-4">
                           <Lock className="w-6 h-6 text-[hsl(43,78%,52%)]" />
                         </div>
-                        <h3 className="text-white text-xl font-serif font-bold mb-2">Unlock Your Full AI Workspace Report</h3>
-                        <p className="text-white/50 text-sm max-w-sm leading-relaxed">Your complete floor plan, furniture package, cost breakdown, and 3D walkthrough access are ready.</p>
+                        <p className="text-[hsl(43,78%,65%)] text-xs font-medium tracking-wider uppercase mb-2">AI WORKSPACE CONCEPT READY</p>
+                        <h3 className="text-white text-xl sm:text-2xl font-serif font-bold mb-2">Your AI workspace concept is ready.</h3>
+                        <p className="text-white/60 text-sm max-w-sm leading-relaxed">Unlock the full layout and furniture plan.</p>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-7">

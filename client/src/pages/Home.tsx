@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/Layout";
-import { ArrowRight, CheckCircle2, Star, Phone, Award, Shield, Truck, Users } from "lucide-react";
+import { ArrowRight, CheckCircle2, Star, Phone, Award, Shield, Truck, Users, Monitor, Sparkles, Box } from "lucide-react";
 
 function useSEO(title: string, description: string, schema?: object) {
   useEffect(() => {
@@ -419,6 +419,92 @@ export default function Home() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 3D Walkthrough showcase */}
+      <section className="py-20 sm:py-28 bg-[hsl(220,20%,5%)] border-y border-[rgba(201,168,76,0.08)]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Left: text */}
+            <div>
+              <Badge className="mb-5 bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)]">
+                AI Office Planner
+              </Badge>
+              <h2 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4 leading-tight">
+                See your future office<br />
+                <span className="gold-text">before you commit</span>
+              </h2>
+              <div className="section-divider mb-6" />
+              <p className="text-white/60 leading-relaxed mb-6 text-lg">
+                Upload your floor plan and our AI generates a personalised workspace concept — complete with zone layout, furniture plan, cost estimate, and an interactive 3D walkthrough.
+              </p>
+              <ul className="space-y-3 mb-9">
+                {[
+                  "Free AI workspace concept in minutes",
+                  "Personalised 3D office walkthrough",
+                  "Zone-by-zone furniture SKUs & cost estimate",
+                  "Full plan unlocks for $399 — one-time",
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-white/65 text-sm">
+                    <CheckCircle2 className="w-4 h-4 text-[hsl(43,78%,52%)] flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <div className="flex flex-wrap gap-3">
+                <Button asChild size="lg" className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold border-none" data-testid="button-home-ai-planner">
+                  <Link href="/upload-your-floor-plan"><Sparkles className="w-4 h-4 mr-2" /> Start Free AI Office Planner</Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.08)]" data-testid="button-home-view-demo">
+                  <Link href="/3d-office-walkthrough"><Monitor className="w-4 h-4 mr-2" /> View 3D Demo</Link>
+                </Button>
+              </div>
+              <p className="text-white/30 text-xs mt-3">No account required · Free concept · Personalised 3D unlocks after payment</p>
+            </div>
+            {/* Right: visual preview card */}
+            <div className="relative">
+              <div className="bg-[hsl(220,18%,8%)] border border-[rgba(201,168,76,0.18)] rounded-2xl overflow-hidden shadow-2xl" data-testid="card-3d-preview">
+                {/* Mock 3D grid */}
+                <div className="relative h-64 bg-[hsl(220,20%,7%)] flex items-center justify-center overflow-hidden">
+                  <div className="grid gap-1.5" style={{ gridTemplateColumns: "repeat(4, 1fr)", gridTemplateRows: "repeat(3, 1fr)", width: "88%", height: "82%" }}>
+                    {[
+                      { label: "Open Plan", color: "#5a8fd4", span: "col-span-2 row-span-2" },
+                      { label: "Boardroom", color: "#c9a84c", span: "col-span-1 row-span-1" },
+                      { label: "Executive", color: "#b87333", span: "col-span-1 row-span-1" },
+                      { label: "Breakout", color: "#4abf7a", span: "col-span-1 row-span-1" },
+                      { label: "Reception", color: "#bf7a4a", span: "col-span-1 row-span-1" },
+                      { label: "Meeting", color: "#8a6abf", span: "col-span-2 row-span-1" },
+                    ].map(({ label, color, span }, i) => (
+                      <div key={i} className={`${span} rounded-lg flex items-center justify-center opacity-80`} style={{ background: color + "25", border: `1px solid ${color}40` }}>
+                        <span className="text-white/50 text-xs font-medium">{label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="absolute top-3 left-3 bg-[rgba(201,168,76,0.15)] border border-[rgba(201,168,76,0.3)] rounded-lg px-2.5 py-1.5 backdrop-blur-sm">
+                    <span className="text-[hsl(43,78%,65%)] text-xs font-medium tracking-wider">SAMPLE LAYOUT</span>
+                  </div>
+                  <div className="absolute bottom-3 right-3">
+                    <Box className="w-6 h-6 text-[hsl(43,78%,52%)] opacity-60" />
+                  </div>
+                </div>
+                <div className="p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="text-white font-semibold text-sm">AI Workspace Concept</p>
+                      <p className="text-white/40 text-xs mt-0.5">280 sqm · 20 staff · 6 zones</p>
+                    </div>
+                    <Badge className="bg-[rgba(201,168,76,0.12)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.2)] text-xs">DEMO</Badge>
+                  </div>
+                  <Button asChild className="w-full bg-[rgba(201,168,76,0.12)] hover:bg-[rgba(201,168,76,0.2)] text-[hsl(43,78%,65%)] border border-[rgba(201,168,76,0.25)] text-sm font-semibold" data-testid="button-preview-3d-card">
+                    <Link href="/3d-office-walkthrough"><Monitor className="w-4 h-4 mr-2" /> View Interactive 3D Demo</Link>
+                  </Button>
+                </div>
+              </div>
+              {/* Decorative glow */}
+              <div className="absolute -inset-8 bg-[hsl(43,78%,52%)]/4 rounded-3xl blur-3xl -z-10 pointer-events-none" />
+            </div>
           </div>
         </div>
       </section>

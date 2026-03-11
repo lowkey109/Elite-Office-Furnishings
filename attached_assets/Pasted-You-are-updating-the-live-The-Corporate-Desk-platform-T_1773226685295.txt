@@ -1,0 +1,127 @@
+You are updating the live The Corporate Desk platform.
+
+The current 3D Office Walkthrough should remain available as a public demo because it helps show visitors what the system can do.
+
+Your task is to turn the 3D walkthrough into a two-stage experience:
+
+1. Public demo experience
+2. Paid personalized experience
+
+IMPORTANT RULES
+
+1. Keep the existing 3D viewer working.
+2. Do NOT remove the current demo model.
+3. Do NOT break:
+   - /upload-your-floor-plan
+   - visual layout generator
+   - payment unlock flow
+   - /admin/planning-requests
+   - finance calculator
+   - chatbot
+   - products
+   - lead intelligence
+4. Extend the current system only.
+
+OBJECTIVE
+
+Use the demo 3D walkthrough as a public showcase page, then connect it to the planner so paid users unlock their own personalized 3D office walkthrough.
+
+PUBLIC DEMO PAGE
+
+Keep /3d-office-walkthrough as a public page.
+
+This page should:
+- show the demo 3D office walkthrough
+- clearly explain that this is a sample/demo workspace
+- position the feature as part of The Corporate Desk AI Office Planner
+- include strong CTAs to start the planner
+
+Add messaging like:
+- “See what your future office could look like”
+- “Upload your floor plan to generate your own AI workspace concept”
+
+Add CTA buttons:
+- Start Free AI Office Planner
+- Upload Your Floor Plan
+- Get My Workspace Concept
+
+FREE PLANNER FLOW
+
+When a user completes /upload-your-floor-plan, they should receive:
+- AI workspace summary
+- high-level recommendations
+- concept preview
+
+PAID PERSONALIZED UNLOCK
+
+After the planner generates results, offer a paid unlock.
+
+Display this exact message above the payment section:
+
+"Your AI workspace concept is ready. Unlock the full layout and furniture plan."
+
+Paid unlock price:
+$399
+
+After payment, the user unlocks:
+- their own visual workspace layout
+- their own personalized 3D office walkthrough
+- furniture placement plan
+- product/SKU list if available
+- cost estimate
+- downloadable report
+
+PERSONALIZED 3D WALKTHROUGH
+
+The 3D viewer should support two modes:
+
+1. Demo mode
+   - shown publicly at /3d-office-walkthrough
+   - clearly labeled as a demo/sample
+
+2. Personalized mode
+   - loads the user’s planner-generated layout
+   - available only after payment unlock
+
+When planner data exists and payment is complete:
+- render the personalized office layout in the 3D viewer
+- use planner-driven zones and furniture placement
+- keep current viewer controls intact
+
+If no personalized planner data exists:
+- show the demo scene
+- label it clearly as demo mode
+
+RESULTS FLOW
+
+Final funnel should be:
+
+Homepage
+→ Demo 3D Walkthrough
+→ Upload Floor Plan
+→ Free AI Concept
+→ “Your AI workspace concept is ready. Unlock the full layout and furniture plan.”
+→ $399 payment
+→ Personalized 3D walkthrough + full plan
+→ Request Quote / Book Strategy Call
+
+TESTING
+
+Before reporting completion, verify:
+1. Demo 3D page still works
+2. Demo is clearly labeled
+3. Planner still works
+4. Payment unlock still works
+5. Personalized 3D walkthrough loads after payment
+6. Existing site features are not broken
+7. Desktop and mobile both behave correctly
+
+FINAL REPORT
+
+Provide:
+- what was kept as demo
+- how demo mode works
+- how personalized mode works
+- where the CTAs were added
+- confirmation that the $399 unlock gates the personalized 3D walkthrough
+- confirmation nothing else broke
