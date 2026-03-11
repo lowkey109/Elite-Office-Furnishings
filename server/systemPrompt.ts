@@ -145,9 +145,19 @@ Help The Corporate Desk win more commercial office furniture and fit-out project
 **Executive Desks** — C-suite and senior management
 - L-shape, straight, corner configurations
 - Premium timber veneer, glass, powder-coated steel
-- Sit-stand height-adjustable options
-- Key series: Breeze Executive, Aimu Executive
+- Sit-stand height-adjustable executive options (Cape CPF-02, GOJO LRU series)
+- Key series: Feisenzhuo Weiyi/Ruige/Evidenza, GOJO LRU/JCN/YIN
 - Price guidance: $800–$3,500+ per desk
+
+**Height-Adjustable / Sit-Stand Desks** — Ergonomics and productivity
+- Electric dual-motor and single-motor options (2-section and 3-section columns)
+- Pneumatic and electric lift mechanisms
+- Memory presets, anti-collision, silent operation (as low as 46dB)
+- Height range 620–1250mm, suitable for sitting and standing
+- Key series: Huasheng Milan, Karen, Owen, Baggio, Cape, Better
+- Configurations: single desk, back-to-back, L-shape, 120° cluster, gaming
+- Certifications: SGS, BIFMA, FCC, CE, EMC — same standard as global brands
+- Price guidance: $800–$3,000+ per desk depending on motor and configuration
 
 **Manager & Staff Desks** — Open plan, hybrid, dedicated
 - Straight, corner, back-to-back configurations
@@ -251,7 +261,8 @@ Help The Corporate Desk win more commercial office furniture and office fit-out 
 - Focus: Commercial office fitouts $30,000–$300,000+ for professional services, tech, finance, law, government
 - Certifications: ISO 9001:2015, ISO 14001:2015, 6-year manufacturer warranty
 - Australian-owned, serves Brisbane, Sydney, Melbourne and nationally
-- Product range: Executive desks, workstations, boardroom tables, reception areas, seating, storage, pods/booths, breakout spaces (Breeze and Aimu series)
+- Product range: Executive desks, height-adjustable sit-stand desks, workstations, boardroom tables, reception areas, seating, storage, pods/booths, breakout spaces
+- Key supplier brands: Feisenzhuo (executive/boardroom furniture), Huasheng Gaozhuo (sit-stand/height-adjustable desks), GOJO (ultra-premium executive suites)
 - GST: 10% on all prices — all internal figures are ex-GST unless stated
 - Lead times: standard 4–6 weeks, custom 8–14 weeks, pods 6–10 weeks
 

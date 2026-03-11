@@ -1,14 +1,34 @@
 {
   "metadata": {
     "generated": "2026-03-11",
+    "last_updated": "2026-03-11",
     "sources": [
       "/catalogs/feisenzhuo/design_style.pdf",
-      "/catalogs/feisenzhuo/four_color_series_products.pdf"
+      "/catalogs/feisenzhuo/four_color_series_products.pdf",
+      "/catalogs/huasheng-gaozhuo/huasheng-catalog-3.pdf",
+      "/catalogs/huasheng-gaozhuo/huasheng-catalog-1.pdf"
     ],
     "suppliers": [
-      "Foshan Feisenzhuo Furniture Co., Ltd."
+      "Foshan Feisenzhuo Furniture Co., Ltd.",
+      "Huasheng Furniture Group — Gaozhuo Division",
+      "Huasheng Furniture Group — GOJO Division"
     ],
-    "total_products": 145
+    "total_products": 189,
+    "by_supplier": {
+      "Foshan Feisenzhuo Furniture Co., Ltd.": 143,
+      "Huasheng Furniture Group — Gaozhuo Division": 21,
+      "Huasheng Furniture Group — GOJO Division": 25,
+      "needs_manual_review_within_gojo": 14
+    },
+    "categories": {
+      "Executive Desks": "Large CEO/director desks",
+      "Manager Desks": "Mid-level manager desks",
+      "Boardroom Tables": "Conference and boardroom tables",
+      "Workstations": "Open-plan and height-adjustable workstations",
+      "Storage": "Cabinets, pedestals, shelving, pods",
+      "Reception Desks": "Reception counters and podiums",
+      "Office Seating": "Chairs and seating"
+    }
   },
   "products": [
 
@@ -1604,6 +1624,100 @@
       "colors": ["Guga Walnut", "African Walnut", "Oyun Light Oak", "White"],
       "image": "/uploads/catalog-images/feisenzhuo/four-6.jpg"
     }
+
+  ,
+
+    { "product_name": "Milan Electric Sit-Stand Desk (Single Motor 2-Section)", "sku": "HSG-MLN-MLF01-SM", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Milan", "dimensions": "Frame width 1200-1800mm, height range 740-1200mm, travel 460mm", "materials": "Seamless square tube steel column, laminate desktop", "colors": ["White", "Black", "Silver grey"], "finishes": ["Powder-coated frame"], "specs": { "max_load_kg": 80, "speed_mm_s": 25, "noise_dB": "<50", "duty_cycle": "10%", "sections": 2, "motors": 1 }, "features": ["3-level memory presets", "Anti-collision obstacle detection", "Silent operation", "Adjustable tabletop"], "certifications": ["SGS", "BIFMA", "FCC", "CE", "EMC"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-desk.jpg" },
+
+    { "product_name": "Milan Electric Sit-Stand Desk (Dual Motor 2-Section)", "sku": "HSG-MLN-MLF02-DM", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Milan", "dimensions": "Frame width 1400-1800mm, height range 720-1200mm, travel 460mm", "materials": "Seamless square tube steel column, laminate desktop", "colors": ["White", "Black", "Silver grey"], "finishes": ["Powder-coated frame"], "specs": { "max_load_kg": 100, "speed_mm_s": 30, "noise_dB": "<50", "duty_cycle": "10%", "sections": 2, "motors": 2 }, "features": ["3-level memory presets", "Anti-collision obstacle detection", "Dual motor stability", "Back-to-back compatible"], "certifications": ["SGS", "BIFMA", "FCC", "CE", "EMC"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-desk.jpg" },
+
+    { "product_name": "Milan Electric Sit-Stand Desk (Dual Motor 2-Section Heavy)", "sku": "HSG-MLN-MLF02-HD", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Milan", "dimensions": "Frame width 1400-1800mm, height range 720-1200mm, travel 460mm", "materials": "Seamless square tube steel column, laminate desktop", "colors": ["White", "Black", "Silver grey"], "finishes": ["Powder-coated frame"], "specs": { "max_load_kg": 120, "speed_mm_s": 30, "noise_dB": "<50", "duty_cycle": "10%", "sections": 2, "motors": 2 }, "features": ["Heavy-duty 120kg capacity", "3-level memory", "Anti-collision detection"], "certifications": ["SGS", "BIFMA", "FCC", "CE", "EMC"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-desk.jpg" },
+
+    { "product_name": "Milan Electric Sit-Stand Desk (3-Section Dual Motor)", "sku": "HSG-MLN-MLF03-3S", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Milan", "dimensions": "Frame width 1400-1800mm, height range 620-1250mm, travel 530mm", "materials": "Seamless square tube steel column, laminate desktop", "colors": ["White", "Black", "Silver grey"], "finishes": ["Powder-coated frame"], "specs": { "max_load_kg": 100, "speed_mm_s": 30, "noise_dB": "<65", "duty_cycle": "10%", "sections": 3, "motors": 2 }, "features": ["Extended 530mm travel range", "Lower sit height (620mm)", "3-level memory", "Ideal for ergonomic compliance"], "certifications": ["SGS", "BIFMA", "FCC", "CE", "EMC"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-desk.jpg" },
+
+    { "product_name": "Milan Gaming Sit-Stand Desk", "sku": "HSG-MLN-MLF03-GAME", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Milan", "dimensions": "Custom width, height range 620-1200mm", "materials": "Steel column, carbon fibre-effect desktop with LED strip", "colors": ["All black"], "finishes": ["Matte black powder coat"], "specs": { "max_load_kg": 80, "speed_mm_s": 80, "sections": 3, "motors": 2 }, "features": ["Fast 80mm/s lift speed", "Gaming/creative workstation design", "Cable management"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-gaming.jpg" },
+
+    { "product_name": "Milan Back-to-Back Sit-Stand Workstation", "sku": "HSG-MLN-BBW-2P", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Milan", "dimensions": "2-person: 1200-1800mm wide per station, height range 720-1200mm", "materials": "Steel column, laminate desktop, acoustic screen dividers", "colors": ["White", "Grey", "Natural oak"], "features": ["Back-to-back configuration", "Shared motorised base", "Acoustic screen dividers", "Independent height per side"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-back-to-back.jpg" },
+
+    { "product_name": "Karen Electric Sit-Stand Desk", "sku": "HSG-KRN-KNF01", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Manager Desks", "series": "Karen", "dimensions": "Frame width 1200-1800mm, height range 720-1200mm", "materials": "Steel column, laminate desktop", "colors": ["White", "Black", "Walnut"], "specs": { "sections": 2, "motors": 1, "noise_dB": "<50" }, "features": ["Memory presets", "Anti-collision", "Corporate aesthetic"], "certifications": ["SGS", "BIFMA", "CE", "EMC"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-desk.jpg" },
+
+    { "product_name": "Owen Single-Column Sit-Stand Desk", "sku": "HSG-OWN-ONF01", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Owen", "dimensions": "Small footprint side table, height 2/3 section adjustable", "materials": "Steel column with curved foot, laminate desktop", "colors": ["White", "Silver grey"], "features": ["Single column design", "Compact footprint", "Suitable as laptop/side desk", "Soft curve ergonomic aesthetic"], "image": "/uploads/catalog-images/huasheng-gaozhuo/owen-desk.jpg" },
+
+    { "product_name": "Owen Back-to-Back Sit-Stand Workstation", "sku": "HSG-OWN-ONF02-BB", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Owen", "dimensions": "2–4 person, adjustable 620-1200mm height, 120° triangular option", "materials": "Steel column, laminate desktop, soft-curve edges", "colors": ["White", "Grey", "Natural oak", "Teal blue"], "features": ["Soft curve rounded edges", "Hidden inline column (clean look)", "3-colour frame options", "120° corner + L-shape + straight configurations"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-back-to-back.jpg" },
+
+    { "product_name": "Miller Modular Workspace Pod (Single Unit)", "sku": "HSG-MLR-POD01", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Storage", "series": "Miller", "dimensions": "Single unit module, standard depth", "materials": "Powder-coated steel, acoustic panels", "colors": ["Black", "Green", "Grey"], "features": ["Stackable modular design", "Utilises unused floor space", "Can include integrated lighting", "Privacy + storage function"], "image": "/uploads/catalog-images/huasheng-gaozhuo/miller-pod.jpg" },
+
+    { "product_name": "Miller Modular Workspace Pod (3-Unit Cluster)", "sku": "HSG-MLR-POD03", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Storage", "series": "Miller", "dimensions": "3-unit cluster configuration", "materials": "Powder-coated steel, acoustic panels", "colors": ["Black", "Green", "Grey"], "features": ["3-unit linked configuration", "Central connection bracket", "Optional integrated lighting"], "image": "/uploads/catalog-images/huasheng-gaozhuo/miller-pod.jpg" },
+
+    { "product_name": "Miller Modular Workspace Pod (4-Unit Cluster)", "sku": "HSG-MLR-POD04", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Storage", "series": "Miller", "dimensions": "4-unit cluster configuration", "materials": "Powder-coated steel, acoustic panels", "colors": ["Black", "Green", "Grey"], "features": ["4-unit linked configuration", "Cross-connect bracket", "Maximises unused office corners"], "image": "/uploads/catalog-images/huasheng-gaozhuo/miller-pod.jpg" },
+
+    { "product_name": "Mige Multi-Person Sit-Stand Workstation Cluster", "sku": "HSG-MGE-WST01", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Mige", "dimensions": "120° triangular / L-shape / straight, 2–6 persons, height 620-1200mm", "materials": "Steel column, laminate desktop, hidden inline column", "colors": ["White", "Grey", "Blue"], "features": ["120° special-shape table for team collaboration", "Hidden inline column for cable management", "L-shaped table and single table options", "3-colour foot options"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-back-to-back.jpg" },
+
+    { "product_name": "Better Electric Sit-Stand Desk (Back-to-Back)", "sku": "HSG-BTR-BTF01", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Better", "dimensions": "Wave-front design, 2–4 person back-to-back, height adjustable", "materials": "Steel column, wave-profile laminate desktop", "colors": ["White"], "features": ["Leading cable management — 16 cable grooves with snake tubes", "Wave-front ergonomic profile", "Patent: 20233041194339", "Integrated cable spine under desk"], "image": "/uploads/catalog-images/huasheng-gaozhuo/better-desk.jpg" },
+
+    { "product_name": "Better Motorised Podium / Rostrum", "sku": "HSG-BTR-RST01", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Reception Desks", "series": "Better", "dimensions": "Compact mobile podium, height adjustable, on castors", "materials": "Steel frame, laminate top, lockable castors", "colors": ["White"], "features": ["Height-adjustable motorised rostrum", "Mobile on castors", "Integrated storage shelf", "Suits training rooms and presentation spaces"], "image": "/uploads/catalog-images/huasheng-gaozhuo/better-rostrum.jpg" },
+
+    { "product_name": "Baggio Electric Sit-Stand Desk", "sku": "HSG-BGO-BGF01", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Baggio", "dimensions": "Frame width 1200-1800mm, height adjustable", "materials": "Steel column with thick base, laminate desktop", "colors": ["White", "Black", "Natural oak"], "specs": { "noise_dB": "46", "memory_presets": 3 }, "features": ["Industry-leading 46dB ultra-quiet lift", "3-level memory height presets", "Auto-retreat obstacle detection (ascend + descend)", "High-capacity cable trunking + flexible snake tube management"], "certifications": ["SGS", "BIFMA", "FCC", "CE", "EMC"], "image": "/uploads/catalog-images/huasheng-gaozhuo/baggio-desk.jpg" },
+
+    { "product_name": "Bonnie Electric Height-Adjustable Desk", "sku": "HSG-BNN-BNF01", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Manager Desks", "series": "Bonnie", "dimensions": "Standard frame widths, height 720-1200mm", "materials": "Steel column, laminate desktop", "colors": ["White", "Black"], "features": ["Electric height adjustment", "Memory presets", "Remote control compatible", "Smooth quiet lift"], "certifications": ["SGS", "BIFMA", "FCC", "CE", "EMC"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-desk.jpg" },
+
+    { "product_name": "Mike Electric Lift Training Table (MK-01A)", "sku": "HSG-MKE-MK01A", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Boardroom Tables", "series": "Mike", "dimensions": "1400-1600mm W × 600-700mm D, height 725-1355mm, travel 630mm", "materials": "Steel column, melamine top, foldable", "colors": ["White"], "specs": { "height_min_mm": 725, "height_max_mm": 1355, "travel_mm": 630, "motors": 3 }, "features": ["Tiltable foldable desktop", "3-motor electric lift", "Lockable castors", "Nesting/stackable for storage"], "certifications": ["SGS", "BIFMA", "CE"], "image": "/uploads/catalog-images/huasheng-gaozhuo/hsg3-contents.jpg" },
+
+    { "product_name": "Mike Electric Lift Training Table (MK-02)", "sku": "HSG-MKE-MK02", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Boardroom Tables", "series": "Mike", "dimensions": "1400-3600mm W × 600-1000mm D, height 725-1355mm", "materials": "Steel column, melamine top", "colors": ["White"], "specs": { "height_min_mm": 725, "height_max_mm": 1355, "motors": 3 }, "features": ["Wide table format (up to 3600mm)", "3-motor electric lift", "Digital control panel", "Castors for repositioning"], "certifications": ["SGS", "BIFMA", "CE"], "image": "/uploads/catalog-images/huasheng-gaozhuo/hsg3-contents.jpg" },
+
+    { "product_name": "Cape Electric Sit-Stand Desk (Standard)", "sku": "HSG-CPE-CPF01", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Cape", "dimensions": "Standard frame widths 1200-1800mm, height 670-1150mm, travel 480mm", "materials": "Seamless tube column (no exposed screws), laminate desktop", "colors": ["Spray-coat white/black", "Stainless steel"], "specs": { "height_min_mm": 670, "height_max_mm": 1150, "travel_mm": 480, "speed_mm_s": 20, "max_load_N": 1000, "noise_dB": "<50", "memory_presets": 3 }, "features": ["No exposed screw craftsmanship", "3-level memory presets", "Dual foot style options (225mm narrow / 180mm wide)", "Spray coat or stainless steel finish"], "certifications": ["SGS", "BIFMA", "FCC", "CE", "EMC"], "image": "/uploads/catalog-images/huasheng-gaozhuo/cape-executive.jpg" },
+
+    { "product_name": "Cape Executive Electric Sit-Stand Desk", "sku": "HSG-CPE-CPF02", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Executive Desks", "series": "Cape", "dimensions": "Executive format: 1800-2400mm W, height 670-1150mm, travel 480mm", "materials": "Premium column finish, luxury laminate or veneer desktop", "colors": ["Walnut", "Dark Oak", "Stainless steel base"], "specs": { "height_min_mm": 670, "height_max_mm": 1150, "travel_mm": 480, "speed_mm_s": 20, "max_load_N": 1000, "noise_dB": "<50", "memory_presets": 3 }, "features": ["Executive aesthetic with sit-stand functionality", "No exposed screw design language", "Integrated cable management", "Dual foot profile options"], "certifications": ["SGS", "BIFMA", "FCC", "CE", "EMC"], "image": "/uploads/catalog-images/huasheng-gaozhuo/cape-executive.jpg" },
+
+    { "product_name": "GOJO LRU Executive Desk Type A — 3600", "sku": "GJO-LRU-OEA3624", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "LRU", "dimensions": "3600W × 2400D × 750H mm", "materials": "Dark oak veneer, dark grey metallic paint frame, solid surface accents", "colors": ["Dark oak + dark grey metallic"], "features": ["Segmented adjustable tabletop (sit-stand hybrid)", "Exquisite integrated power box with ports", "Italian semi-transparent paint", "Modern architectural aesthetic", "CEO/Director suite appropriate"], "image": "/uploads/catalog-images/gojo/lru-executive-desk.jpg" },
+
+    { "product_name": "GOJO LRU Executive Desk Type A — 3300", "sku": "GJO-LRU-OEA3224", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "LRU", "dimensions": "3300W × 2400D × 750H mm", "materials": "Dark oak veneer, dark grey metallic paint frame", "colors": ["Dark oak + dark grey metallic"], "features": ["Segmented sit-stand tabletop", "Integrated power box", "Drawer and cabinet classification system"], "image": "/uploads/catalog-images/gojo/lru-executive-desk.jpg" },
+
+    { "product_name": "GOJO LRU Executive Desk Type B — 2800", "sku": "GJO-LRU-OKA3022", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "LRU", "dimensions": "2800W × 2200D × 750H mm", "materials": "Dark oak veneer, dark grey metallic paint frame", "colors": ["Dark oak + dark grey metallic"], "features": ["Executive L-desk format", "Drawer + file cabinet integration", "Power module built-in"], "image": "/uploads/catalog-images/gojo/lru-executive-desk.jpg" },
+
+    { "product_name": "GOJO LRU File Cabinet — 3 Column", "sku": "GJO-LRU-CAK3620", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Storage", "series": "LRU", "dimensions": "3600W × 600D × 2000H mm", "materials": "Dark oak veneer, metallic frame", "colors": ["Dark oak + dark grey metallic"], "features": ["3-column tall unit", "Matches LRU executive desk suite", "Open shelf + closed drawer combination"], "image": "/uploads/catalog-images/gojo/lru-dimensions.jpg" },
+
+    { "product_name": "GOJO LRU File Cabinet — 4 Column Wide", "sku": "GJO-LRU-OKA4028", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Storage", "series": "LRU", "dimensions": "3200W × 900D × 2000H mm", "materials": "Dark oak veneer, metallic frame", "colors": ["Dark oak + dark grey metallic"], "features": ["Wide deep storage unit", "Full height glazed + solid options", "Matching LRU suite"], "image": "/uploads/catalog-images/gojo/lru-dimensions.jpg" },
+
+    { "product_name": "GOJO LRU File Cabinet — Compact", "sku": "GJO-LRU-CAE1820", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Storage", "series": "LRU", "dimensions": "1800W × 600D × 2000H mm", "materials": "Dark oak veneer, metallic frame", "colors": ["Dark oak + dark grey metallic"], "features": ["Compact tall cabinet", "2-column design"], "image": "/uploads/catalog-images/gojo/lru-dimensions.jpg" },
+
+    { "product_name": "GOJO LRU Conference Table — 6000mm", "sku": "GJO-LRU-CON6016", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Boardroom Tables", "series": "LRU", "dimensions": "6000W × 1600D × 750H mm", "materials": "Dark oak veneer top, metallic steel base structure", "colors": ["Dark oak + dark grey metallic"], "features": ["Seats 16-20 persons", "Matching LRU executive suite aesthetic", "Strong visual tension design", "Geometric interlocking structure"], "image": "/uploads/catalog-images/gojo/lru-conference-table.jpg" },
+
+    { "product_name": "GOJO LRU Conference Table — 5400mm", "sku": "GJO-LRU-CON5416", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Boardroom Tables", "series": "LRU", "dimensions": "5400W × 1600D × 750H mm", "materials": "Dark oak veneer top, metallic steel base", "colors": ["Dark oak + dark grey metallic"], "features": ["Seats 14-16 persons", "Architectural geometric base", "Veneer top finish"], "image": "/uploads/catalog-images/gojo/lru-conference-table.jpg" },
+
+    { "product_name": "GOJO LRU Conference Table — 4800mm", "sku": "GJO-LRU-CON4816", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Boardroom Tables", "series": "LRU", "dimensions": "4800W × 1600D × 750H mm", "materials": "Dark oak veneer top, metallic steel base", "colors": ["Dark oak + dark grey metallic"], "features": ["Seats 12-14 persons", "Matching LRU boardroom suite"], "image": "/uploads/catalog-images/gojo/lru-conference-table.jpg" },
+
+    { "product_name": "GOJO LRU Conference Table — 4200mm", "sku": "GJO-LRU-CON4214", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Boardroom Tables", "series": "LRU", "dimensions": "4200W × 1400D × 750H mm", "materials": "Dark oak veneer top, metallic steel base", "colors": ["Dark oak + dark grey metallic"], "features": ["Seats 10-12 persons", "Compact boardroom format"], "image": "/uploads/catalog-images/gojo/lru-conference-table.jpg" },
+
+    { "product_name": "GOJO LRU Conference Table — 3600mm", "sku": "GJO-LRU-CON3614", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Boardroom Tables", "series": "LRU", "dimensions": "3600W × 1400D × 750H mm", "materials": "Dark oak veneer top, metallic steel base", "colors": ["Dark oak + dark grey metallic"], "features": ["Seats 8-10 persons", "Meeting room format"], "image": "/uploads/catalog-images/gojo/lru-conference-table.jpg" },
+
+    { "product_name": "GOJO JCN Series Executive Suite", "sku": "GJO-JCN-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "JCN", "dimensions": "needs_manual_review", "materials": "Premium materials — digital age aesthetic, technology-integrated", "colors": ["needs_manual_review"], "features": ["Cutting-edge aesthetics for digital age", "Technology + art integration", "Lifestyle symbolism for elite executive group"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
+
+    { "product_name": "GOJO YIN Series Executive Suite", "sku": "GJO-YIN-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "YIN", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
+
+    { "product_name": "GOJO VEP Series Executive Suite", "sku": "GJO-VEP-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "VEP", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
+
+    { "product_name": "GOJO VEIYE Series Executive Suite", "sku": "GJO-VEI-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "VEIYE", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
+
+    { "product_name": "GOJO YUP Series Executive Suite", "sku": "GJO-YUP-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "YUP", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
+
+    { "product_name": "GOJO GUANHE Series Manager Suite", "sku": "GJO-GNH-MGR-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Manager Desks", "series": "GUANHE", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
+
+    { "product_name": "GOJO YUZ Series Executive Suite", "sku": "GJO-YUZ-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "YUZ", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
+
+    { "product_name": "GOJO BSA Series Manager Suite", "sku": "GJO-BSA-MGR-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Manager Desks", "series": "BSA", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
+
+    { "product_name": "GOJO WINA Series Office Suite", "sku": "GJO-WIN-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Manager Desks", "series": "WINA", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
+
+    { "product_name": "GOJO WPN Series Office Suite", "sku": "GJO-WPN-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Workstations", "series": "WPN", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
+
+    { "product_name": "GOJO MZE Series Executive Suite", "sku": "GJO-MZE-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "MZE", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
+
+    { "product_name": "GOJO JN Series Executive Suite", "sku": "GJO-JN-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "JN", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
+
+    { "product_name": "GOJO YA Series Executive Suite", "sku": "GJO-YA-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "YA", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
+
+    { "product_name": "GOJO HXT Series Executive Suite", "sku": "GJO-HXT-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "HXT", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" }
 
   ]
 }

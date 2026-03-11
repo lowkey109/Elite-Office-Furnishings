@@ -272,6 +272,54 @@ export async function registerRoutes(
     res.json(results);
   });
 
+  // Supplier database routes
+  app.get("/api/suppliers", (_req, res) => {
+    try {
+      const suppliersPath = path.join(process.cwd(), "server/data/supplierDatabase.json");
+      const data = JSON.parse(fs.readFileSync(suppliersPath, "utf-8"));
+      res.json(data.suppliers);
+    } catch (err) {
+      res.status(500).json({ error: "Supplier database unavailable" });
+    }
+  });
+
+  app.get("/api/products/by-supplier/:supplierId", (req, res) => {
+    const catalog = loadProductCatalog();
+    const { supplierId } = req.params;
+    const supplierMap: Record<string, string> = {
+      FSZ: "Foshan Feisenzhuo Furniture Co., Ltd.",
+      HSG: "Huasheng Furniture Group — Gaozhuo Division",
+      GJO: "Huasheng Furniture Group — GOJO Division",
+    };
+    const supplierName = supplierMap[supplierId.toUpperCase()];
+    if (!supplierName) return res.status(404).json({ error: "Supplier not found" });
+    const products = catalog.products.filter((p: any) => p.supplier === supplierName);
+    res.json({ supplier: supplierName, count: products.length, products });
+  });
+
+  app.get("/api/products/sku/:sku", (req, res) => {
+    const catalog = loadProductCatalog();
+    const product = catalog.products.find((p: any) =>
+      p.sku.toLowerCase() === req.params.sku.toLowerCase()
+    );
+    if (!product) return res.status(404).json({ error: "Product not found" });
+    res.json(product);
+  });
+
+  app.get("/api/products/series/:series", (req, res) => {
+    const catalog = loadProductCatalog();
+    const series = req.params.series.toLowerCase();
+    const products = catalog.products.filter((p: any) =>
+      (p.series || "").toLowerCase() === series
+    );
+    res.json({ series: req.params.series, count: products.length, products });
+  });
+
+  app.get("/api/catalog/metadata", (_req, res) => {
+    const catalog = loadProductCatalog();
+    res.json(catalog.metadata);
+  });
+
   app.post("/api/leads", async (req, res) => {
     try {
       const data = insertLeadSchema.parse(req.body);
