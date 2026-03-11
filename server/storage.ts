@@ -1,8 +1,9 @@
 import { eq, desc, or, ilike, and, sql as drizzleSql } from "drizzle-orm";
 import { db } from "./db";
 import {
-  users, leads, prospectedLeads, supplierQuotes, referrals, planningRequests,
+  users, leads, prospectedLeads, supplierQuotes, referrals, planningRequests, productReviews,
   type User, type InsertUser, type Lead, type InsertLead, type PlanningRequest,
+  type ProductReview, type InsertProductReview,
 } from "@shared/schema";
 
 export interface ProspectedLead {
@@ -458,6 +459,33 @@ export class DrizzleStorage implements IStorage {
       .where(eq(planningRequests.id, id))
       .returning();
     return row;
+  }
+
+  async createProductReview(data: InsertProductReview): Promise<ProductReview> {
+    const [row] = await db.insert(productReviews).values({ ...data, status: "pending" }).returning();
+    return row;
+  }
+
+  async getApprovedReviewsBySku(sku: string): Promise<ProductReview[]> {
+    return db.select().from(productReviews)
+      .where(and(eq(productReviews.productSku, sku), eq(productReviews.status, "approved")))
+      .orderBy(desc(productReviews.createdAt));
+  }
+
+  async getAllProductReviews(): Promise<ProductReview[]> {
+    return db.select().from(productReviews).orderBy(desc(productReviews.createdAt));
+  }
+
+  async updateProductReviewStatus(id: string, status: string, adminNote?: string): Promise<ProductReview | undefined> {
+    const [row] = await db.update(productReviews)
+      .set({ status, adminNote: adminNote ?? null })
+      .where(eq(productReviews.id, id))
+      .returning();
+    return row;
+  }
+
+  async deleteProductReview(id: string): Promise<void> {
+    await db.delete(productReviews).where(eq(productReviews.id, id));
   }
 }
 

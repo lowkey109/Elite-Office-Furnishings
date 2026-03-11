@@ -26,12 +26,15 @@ import OfficeWalkthrough from "@/pages/OfficeWalkthrough";
 import Testimonials from "@/pages/Testimonials";
 import Blog from "@/pages/Blog";
 import BlogPost from "@/pages/BlogPost";
+import ProductDetail from "@/pages/ProductDetail";
+import AdminProductReviews from "@/pages/AdminProductReviews";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/about" component={About} />
+      <Route path="/products/:sku" component={ProductDetail} />
       <Route path="/products" component={Products} />
       <Route path="/workplace-solutions" component={WorkplaceSolutions} />
       <Route path="/free-office-layout-plan" component={FreeLayoutPlan} />
@@ -59,6 +62,7 @@ function Router() {
       <Route path="/admin/lead-intelligence" component={AdminLeads} />
       <Route path="/admin/supplier-quotes" component={AdminSupplierQuotes} />
       <Route path="/admin/planning-requests" component={AdminPlanningRequests} />
+      <Route path="/admin/product-reviews" component={AdminProductReviews} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -135,3 +135,27 @@ export const planningRequests = pgTable("planning_requests", {
 });
 
 export type PlanningRequest = typeof planningRequests.$inferSelect;
+
+export const productReviews = pgTable("product_reviews", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  productSku: text("product_sku").notNull(),
+  reviewerName: text("reviewer_name").notNull(),
+  reviewerCompany: text("reviewer_company"),
+  reviewerRole: text("reviewer_role"),
+  rating: integer("rating").notNull(),
+  title: text("title"),
+  body: text("body").notNull(),
+  status: text("status").notNull().default("pending"),
+  adminNote: text("admin_note"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertProductReviewSchema = createInsertSchema(productReviews).omit({
+  id: true,
+  status: true,
+  adminNote: true,
+  createdAt: true,
+});
+
+export type InsertProductReview = z.infer<typeof insertProductReviewSchema>;
+export type ProductReview = typeof productReviews.$inferSelect;

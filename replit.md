@@ -51,7 +51,7 @@ All admin pages are protected with email + password login (stored in sessionStor
 - **Primary credentials**: `admin@thecorporatedesk.com.au` / `Jaymin12!/`
 - **Legacy password** (any email): `tcd2024admin`
 - Auth logic: `client/src/lib/adminAuth.ts` → `validateAdminLogin(email, password)`
-- Admin pages: `/admin/dashboard`, `/admin/planning-requests`, `/admin/leads`, `/admin/supplier-quotes`, `/admin/marketing`
+- Admin pages: `/admin/dashboard`, `/admin/planning-requests`, `/admin/leads`, `/admin/supplier-quotes`, `/admin/marketing`, `/admin/product-reviews`
 
 ## Product Catalogue (354 SKUs — as of 2026-03-11)
 Live catalogue at `server/data/productCatalog.json`. Supplier DB at `server/data/supplierDatabase.json`.
@@ -71,7 +71,9 @@ Live catalogue at `server/data/productCatalog.json`. Supplier DB at `server/data
   - Section 2: 833-1C (classic stackable), 842 (linked training seating), 848/850 (dining chairs), ZC 牛角椅 (bull-horn plastic), LZ9002/LZ9003 (lounge chairs), K01/K02/K03 (premium lounge seating systems)
   - Supplier: 佛山市博华家具有限公司 | Factory: Nanhai Shazhou Industrial Zone, Foshan | Phone: 0757-2388 2788
 - Catalogue is built at server startup via `buildCatalogueForAI()` in `server/routes.ts`
-- Products page (`/products`) fetches from `/api/products` with live search + category filters
+- Products page (`/products`) fetches from `/api/products` with live search + category filters; product cards link to detail pages
+- Product detail page (`/products/:sku`) shows full product info — image, specs, description, recommended uses, package compatibility, related products, and review system
+- Product reviews: `productReviews` table in DB; public GET/POST routes at `/api/products/:sku/reviews`; admin CRUD at `/api/admin/product-reviews`; pending/approved/rejected workflow
 - API: `/api/products`, `/api/products/search`, `/api/products/series/:series`, `/api/products/sku/:sku`
 
 ## 3D Office Walkthrough (`/3d-office-walkthrough`)

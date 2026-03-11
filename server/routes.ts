@@ -3,7 +3,7 @@ import express from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { storage } from "./storage";
-import { insertLeadSchema } from "@shared/schema";
+import { insertLeadSchema, insertProductReviewSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import OpenAI from "openai";
 import multer from "multer";
@@ -318,6 +318,59 @@ export async function registerRoutes(
   app.get("/api/catalog/metadata", (_req, res) => {
     const catalog = loadProductCatalog();
     res.json(catalog.metadata);
+  });
+
+  // Product reviews — public
+  app.get("/api/products/:sku/reviews", async (req, res) => {
+    try {
+      const reviews = await storage.getApprovedReviewsBySku(req.params.sku);
+      const avg = reviews.length
+        ? Math.round((reviews.reduce((s, r) => s + r.rating, 0) / reviews.length) * 10) / 10
+        : null;
+      res.json({ reviews, count: reviews.length, averageRating: avg });
+    } catch (e) { res.status(500).json({ error: "Failed to fetch reviews" }); }
+  });
+
+  app.post("/api/products/:sku/reviews", async (req, res) => {
+    try {
+      const catalog = loadProductCatalog();
+      const exists = catalog.products.find((p: any) => p.sku.toLowerCase() === req.params.sku.toLowerCase());
+      if (!exists) return res.status(404).json({ error: "Product not found" });
+      const data = insertProductReviewSchema.parse({ ...req.body, productSku: req.params.sku });
+      if (data.rating < 1 || data.rating > 5) return res.status(400).json({ error: "Rating must be 1–5" });
+      const review = await storage.createProductReview(data);
+      res.status(201).json({ message: "Review submitted for moderation", id: review.id });
+    } catch (e: any) {
+      if (e.name === "ZodError") return res.status(400).json({ error: "Invalid review data", details: e.errors });
+      res.status(500).json({ error: "Failed to submit review" });
+    }
+  });
+
+  // Product reviews — admin
+  app.get("/api/admin/product-reviews", async (_req, res) => {
+    try {
+      const reviews = await storage.getAllProductReviews();
+      res.json(reviews);
+    } catch (e) { res.status(500).json({ error: "Failed to fetch reviews" }); }
+  });
+
+  app.patch("/api/admin/product-reviews/:id", async (req, res) => {
+    try {
+      const { status, adminNote } = req.body;
+      if (!["approved", "rejected", "pending"].includes(status)) {
+        return res.status(400).json({ error: "Invalid status" });
+      }
+      const review = await storage.updateProductReviewStatus(req.params.id, status, adminNote);
+      if (!review) return res.status(404).json({ error: "Review not found" });
+      res.json(review);
+    } catch (e) { res.status(500).json({ error: "Failed to update review" }); }
+  });
+
+  app.delete("/api/admin/product-reviews/:id", async (req, res) => {
+    try {
+      await storage.deleteProductReview(req.params.id);
+      res.json({ message: "Review deleted" });
+    } catch (e) { res.status(500).json({ error: "Failed to delete review" }); }
   });
 
   app.post("/api/leads", async (req, res) => {

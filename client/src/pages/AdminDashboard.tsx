@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Users, TrendingUp, FileText, BarChart3, MessageSquare,
   ChevronRight, Calendar, MapPin, Phone, Mail, Clock,
-  Megaphone, ShieldCheck, Eye, ExternalLink, Target, Package, Upload,
+  Megaphone, ShieldCheck, Eye, ExternalLink, Target, Package, Upload, Star,
 } from "lucide-react";
 import { validateAdminLogin } from "@/lib/adminAuth";
 
@@ -353,6 +353,7 @@ export default function AdminDashboard() {
                   { label: "Planning Requests", href: "/admin/planning-requests", icon: Upload, desc: "Floor plan & space planning" },
                   { label: "Lead Intelligence", href: "/admin/leads", icon: Target, desc: "AI prospecting engine" },
                   { label: "Supplier Quotes", href: "/admin/supplier-quotes", icon: Package, desc: "Quotes & referral tracking" },
+                  { label: "Product Reviews", href: "/admin/product-reviews", icon: Star, desc: "Moderate client reviews" },
                   { label: "Marketing Hub", href: "/admin/marketing", icon: Megaphone, desc: "Generate & post content" },
                   { label: "View Full Site", href: "/", icon: Eye, desc: "See your website" },
                   { label: "Quote Builder", href: "/quote-builder", icon: FileText, desc: "Interactive quote tool" },
