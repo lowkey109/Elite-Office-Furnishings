@@ -9,6 +9,7 @@ const navLinks = [
   { label: "Home", href: "/" },
   { label: "Products", href: "/products" },
   { label: "Workplace Solutions", href: "/workplace-solutions" },
+  { label: "AI Office Planner", href: "/upload-your-floor-plan" },
   { label: "Case Studies", href: "/case-studies" },
   { label: "Blog", href: "/blog" },
   { label: "About", href: "/about" },
@@ -19,6 +20,7 @@ const mobileNavLinks = [
   { label: "Home", href: "/" },
   { label: "Products", href: "/products" },
   { label: "Workplace Solutions", href: "/workplace-solutions" },
+  { label: "AI Office Planner", href: "/upload-your-floor-plan" },
   { label: "Case Studies", href: "/case-studies" },
   { label: "Testimonials", href: "/testimonials" },
   { label: "Blog", href: "/blog" },
@@ -68,7 +70,7 @@ function Header() {
             </div>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-6">
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href}>
                 <span
@@ -254,6 +256,7 @@ function Footer() {
             <ul className="space-y-1">
               {[
                 { label: "Workplace Solutions", href: "/workplace-solutions" },
+                { label: "AI Office Planner", href: "/upload-your-floor-plan" },
                 { label: "Free Layout Plan", href: "/free-office-layout-plan" },
                 { label: "Quote Builder", href: "/quote-builder" },
                 { label: "Request a Quote", href: "/send-us-your-quote" },

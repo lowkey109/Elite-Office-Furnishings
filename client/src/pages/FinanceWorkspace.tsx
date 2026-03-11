@@ -267,6 +267,21 @@ export default function FinanceWorkspace() {
         </div>
       </section>
 
+      <section className="py-10 px-4">
+        <div className="max-w-5xl mx-auto">
+          <div className="rounded-2xl border border-[rgba(201,168,76,0.25)] bg-[hsl(220,18%,10%)] p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6">
+            <div className="flex-1 text-center sm:text-left">
+              <p className="text-[hsl(43,78%,65%)] text-xs font-medium uppercase tracking-widest mb-2">Before You Finance — Know Your Numbers</p>
+              <h3 className="text-xl font-serif font-bold text-white mb-2">Get an AI-Generated Project Estimate First</h3>
+              <p className="text-white/50 text-sm leading-relaxed">Upload your floor plan and let our AI generate a full furniture recommendation and estimated project cost — so you know exactly what to finance.</p>
+            </div>
+            <Button asChild className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[52px] px-8 flex-shrink-0 whitespace-nowrap" data-testid="button-finance-ai-planner">
+              <Link href="/upload-your-floor-plan">AI Office Planner <ArrowRight className="w-4 h-4 ml-2" /></Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
       <section className="py-16 px-4">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-10">

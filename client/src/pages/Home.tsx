@@ -190,8 +190,8 @@ export default function Home() {
                 data-testid="button-hero-layout-plan"
                 style={{ touchAction: "manipulation" }}
               >
-                <Link href="/free-office-layout-plan">
-                  Free Office Layout Plan
+                <Link href="/upload-your-floor-plan">
+                  AI Office Planner
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
               </Button>
@@ -445,7 +445,7 @@ export default function Home() {
             </p>
             <div className="flex flex-wrap gap-4">
               <Button asChild size="lg" className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold border-none px-8" data-testid="button-cta-layout-plan">
-                <Link href="/free-office-layout-plan">Free Layout Plan <ArrowRight className="ml-2 w-4 h-4" /></Link>
+                <Link href="/upload-your-floor-plan">AI Office Planner <ArrowRight className="ml-2 w-4 h-4" /></Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-white/30 text-white bg-white/5 px-8" data-testid="button-cta-strategy-call">
                 <Link href="/workplace-strategy">Book a Strategy Call</Link>

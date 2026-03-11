@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/Layout";
-import { ArrowRight, CheckCircle2, FileText, Calculator, Phone } from "lucide-react";
+import { ArrowRight, CheckCircle2, FileText, Calculator, Phone, Zap } from "lucide-react";
 
 const solutions = [
   {
@@ -99,6 +99,26 @@ export default function WorkplaceSolutions() {
 
       <section className="py-20 sm:py-28 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-12 rounded-2xl border border-[rgba(201,168,76,0.35)] bg-gradient-to-br from-[hsl(220,18%,10%)] to-[hsl(220,20%,7%)] p-8 sm:p-10 flex flex-col md:flex-row items-center gap-8">
+            <div className="flex-1 text-center md:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[rgba(201,168,76,0.1)] border border-[rgba(201,168,76,0.2)] rounded-full mb-4">
+                <Zap className="w-3 h-3 text-[hsl(43,78%,52%)]" />
+                <span className="text-[hsl(43,78%,65%)] text-xs font-medium tracking-wider uppercase">New — AI-Powered</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white mb-3">
+                AI Office Planner — Get Instant Workspace Recommendations
+              </h2>
+              <p className="text-white/60 leading-relaxed">
+                Upload your floor plan and brief. Our AI analyses your space and returns a full workspace zone plan, SKU-matched furniture package, project cost estimate, and implementation timeline — in minutes, before speaking to anyone.
+              </p>
+            </div>
+            <div className="flex-shrink-0 w-full md:w-auto">
+              <Button asChild size="lg" className="w-full md:w-auto bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold border-none px-10 min-h-[56px] text-base whitespace-nowrap" data-testid="button-solutions-ai-planner">
+                <Link href="/upload-your-floor-plan">Start AI Office Planner <ArrowRight className="ml-2 w-4 h-4" /></Link>
+              </Button>
+            </div>
+          </div>
+
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)]">
               Choose Your Path

@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/Layout";
-import { ArrowRight, Tag } from "lucide-react";
+import { ArrowRight, Tag, Zap } from "lucide-react";
 
 const categories = ["All", "Executive Desks", "Manager Desks", "Boardroom Tables", "Reception Desks", "Office Seating", "Workstations", "Storage", "Office Pods"];
 
@@ -263,7 +263,34 @@ export default function Products() {
         </div>
       </section>
 
-      <section className="py-20 bg-[hsl(220,20%,5%)] border-t border-[rgba(201,168,76,0.1)]">
+      <section className="py-16 bg-[hsl(220,20%,5%)] border-t border-[rgba(201,168,76,0.1)]">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="rounded-2xl border border-[rgba(201,168,76,0.3)] bg-gradient-to-br from-[hsl(220,18%,10%)] to-[hsl(220,20%,7%)] p-8 sm:p-10 flex flex-col md:flex-row items-center gap-8">
+            <div className="flex-1 text-center md:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[rgba(201,168,76,0.1)] border border-[rgba(201,168,76,0.2)] rounded-full mb-4">
+                <Zap className="w-3 h-3 text-[hsl(43,78%,52%)]" />
+                <span className="text-[hsl(43,78%,65%)] text-xs font-medium tracking-wider uppercase">AI-Powered</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white mb-3">
+                Not Sure Which Products Suit Your Space?
+              </h2>
+              <p className="text-white/55 leading-relaxed mb-0 md:mb-0">
+                Upload your floor plan and let our AI analyse your space, recommend the right products from our full catalogue, and generate an estimated project cost — before you speak to anyone.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 flex-shrink-0 w-full md:w-auto">
+              <Button asChild size="lg" className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold border-none px-8 min-h-[52px] whitespace-nowrap" data-testid="button-products-ai-planner">
+                <Link href="/upload-your-floor-plan">AI Office Planner <ArrowRight className="ml-2 w-4 h-4" /></Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] px-8 min-h-[52px] whitespace-nowrap" data-testid="button-products-cta-quote">
+                <Link href="/send-us-your-quote">Send Us Your Quote</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 bg-[hsl(220,20%,5%)]">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <h2 className="text-3xl md:text-4xl font-serif font-bold text-white mb-4">
             Can't Find What You're Looking For?
@@ -272,10 +299,7 @@ export default function Products() {
             Our catalogue contains hundreds of products. Contact us with your specifications and we'll find the perfect solution for your office.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Button asChild size="lg" className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold border-none px-8" data-testid="button-products-cta-quote">
-              <Link href="/send-us-your-quote">Send Us Your Quote <ArrowRight className="ml-2 w-4 h-4" /></Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] px-8" data-testid="button-products-cta-contact">
+            <Button asChild size="lg" className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold border-none px-8" data-testid="button-products-cta-contact">
               <Link href="/contact">Speak to a Specialist</Link>
             </Button>
           </div>

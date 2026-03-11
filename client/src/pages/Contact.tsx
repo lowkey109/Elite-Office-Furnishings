@@ -105,7 +105,12 @@ export default function Contact() {
               <div className="pt-4">
                 <h3 className="text-base font-serif font-bold text-white mb-4">Prefer a Direct Path?</h3>
                 <div className="space-y-3">
-                  <Button asChild size="sm" className="w-full bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-semibold border-none" data-testid="button-contact-layout-plan">
+                  <Button asChild size="sm" className="w-full bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-semibold border-none" data-testid="button-contact-ai-planner">
+                    <Link href="/upload-your-floor-plan">
+                      AI Office Planner <ArrowRight className="ml-2 w-3.5 h-3.5" />
+                    </Link>
+                  </Button>
+                  <Button asChild size="sm" variant="outline" className="w-full border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)]" data-testid="button-contact-layout-plan">
                     <Link href="/free-office-layout-plan">
                       Free Office Layout Plan <ArrowRight className="ml-2 w-3.5 h-3.5" />
                     </Link>
