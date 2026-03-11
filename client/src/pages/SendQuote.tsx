@@ -15,6 +15,7 @@ const fields = [
   { name: "timeline", label: "Project Timeline", type: "select" as const, placeholder: "Select timeline", options: [
     "ASAP (within 4 weeks)", "1–3 months", "3–6 months", "6–12 months", "Planning stage",
   ]},
+  { name: "quoteFile", label: "Upload Existing Quote (Optional)", type: "file" as const, placeholder: "Attach your quote for us to match or beat (PDF, JPG, PNG)", required: false, half: false, accept: ".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.docx,.doc", hint: "Accepted formats: PDF, Excel, Word, JPG — max 20MB. You may also email to service@thecorporatedesk.com.au" },
   { name: "message", label: "Project Details / Existing Quote", type: "textarea" as const, placeholder: "Describe your project requirements. If you have an existing quote from another supplier, please outline the key items and quantities.", required: false, half: false },
 ];
 

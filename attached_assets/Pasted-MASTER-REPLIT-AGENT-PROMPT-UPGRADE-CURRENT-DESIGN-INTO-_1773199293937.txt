@@ -1,0 +1,341 @@
+MASTER REPLIT AGENT PROMPT – UPGRADE CURRENT DESIGN INTO FINAL SUPER FUNNEL
+
+You are working on a Replit app for The Corporate Desk.
+
+Your task is to keep the good parts of the current Replit design, improve weak parts, and upgrade the app into the final high-converting commercial super funnel.
+
+Do NOT unnecessarily rebuild the app from scratch if strong sections already exist.
+
+Your goal is to finish and upgrade, not destroy and restart.
+
+⸻
+
+PRIMARY OBJECTIVE
+
+Turn the current Replit app into a premium commercial lead-generation funnel for The Corporate Desk that captures:
+
+• office furniture leads
+• office fit-out leads
+• workplace strategy leads
+
+Target project value:
+
+$30,000 – $300,000+
+
+The final app must feel like it belongs to a billion-dollar company.
+
+⸻
+
+FIRST RULE — AUDIT BEFORE BUILDING
+
+Before making changes, inspect the current app and determine:
+
+• what sections already exist
+• what pages already exist
+• what CTA buttons already exist
+• what forms already exist
+• what trust sections already exist
+• what design elements are already strong
+• what needs improvement
+• what is missing completely
+
+Do NOT recreate finished work.
+
+If something already exists and is good, keep it.
+
+If something exists but is weak, improve it.
+
+If something is missing, create it.
+
+⸻
+
+KEEP THE GOOD PARTS
+
+Preserve and build on:
+
+• strong layouts
+• premium sections
+• good copy
+• good imagery
+• working buttons
+• working forms
+• well-designed sections
+
+Do NOT throw away strong work just because it is not perfect.
+
+Upgrade it intelligently.
+
+⸻
+
+SUPER FUNNEL REQUIREMENTS
+
+The app is only complete if it includes all of the following:
+	1.	PREMIUM HERO SECTION
+
+Must include:
+
+• strong headline
+• strong subheadline
+• premium visual styling
+• CTA buttons above the fold
+
+Suggested direction:
+
+Headline:
+Premium Office Furniture & Complete Workplace Fit-Outs
+
+Subheadline:
+Serving Brisbane, Sydney & Melbourne
+
+Primary CTA buttons:
+• Free Office Layout Plan
+• Send Us Your Quote
+• Workplace Strategy Call
+
+⸻
+
+	2.	THREE CLEAR FUNNEL PATHS
+
+The app must clearly route visitors into these 3 lead paths:
+
+• Free Office Layout Plan
+• Send Us Your Quote
+• Workplace Strategy Call
+
+These must be obvious and prominent.
+
+⸻
+
+	3.	DEDICATED LEAD PAGES OR CLEARLY STRUCTURED SECTIONS
+
+There must be proper page routes or clearly defined funnel sections for:
+
+• /free-office-layout-plan
+• /send-us-your-quote
+• /workplace-strategy
+
+If these routes do not exist, create them.
+
+If they exist but are incomplete, finish them.
+
+⸻
+
+	4.	FULLY WORKING FORMS
+
+All forms must be functional and polished.
+
+FREE OFFICE LAYOUT PLAN FORM
+
+Fields:
+• Name
+• Company
+• Email
+• Phone
+• Office Size
+• Number of Staff
+• Upload Floor Plan
+• Message
+
+SEND US YOUR QUOTE FORM
+
+Fields:
+• Name
+• Company
+• Email
+• Phone
+• Upload Quote
+• Project Budget
+• Project Timeline
+• Message
+
+WORKPLACE STRATEGY FORM
+
+Fields:
+• Name
+• Company
+• Email
+• Phone
+• Staff Count
+• Office Location
+• Move Date
+• Budget Range
+• Message
+
+Forms must:
+
+• work correctly
+• handle uploads correctly
+• submit correctly
+• route properly
+• have polished UI
+
+⸻
+
+	5.	THANK-YOU STATES OR THANK-YOU PAGES
+
+Must include:
+
+• /thank-you-layout-plan
+• /thank-you-quote
+• /thank-you-strategy
+
+These can be dedicated pages or equivalent success states if appropriate.
+
+⸻
+
+	6.	TRUST-BUILDING SECTIONS
+
+The funnel must include strong trust elements such as:
+
+• commercial project imagery
+• testimonials
+• client logos
+• trust badges
+• service credibility
+• delivery / national coverage reassurance
+• commercial fit-out positioning
+
+This must help enterprise and mid-market buyers feel safe engaging.
+
+⸻
+
+	7.	REPEATED CALLS TO ACTION
+
+Do not rely on one CTA only.
+
+There must be repeated CTA sections throughout the funnel so users can convert from multiple places.
+
+⸻
+
+	8.	PREMIUM VISUAL STANDARD
+
+The final design must look like it belongs to a billion-dollar business.
+
+Style benchmark:
+
+• Apple
+• Herman Miller
+• Steelcase
+• premium architecture / interior firms
+
+The design must be:
+
+• minimal
+• modern
+• clean
+• spacious
+• high-end
+• corporate
+• conversion-focused
+
+Do NOT produce anything that looks:
+
+• cheap
+• cluttered
+• overcrowded
+• template-like
+• amateur
+
+Use:
+
+• strong typography
+• clear visual hierarchy
+• premium spacing
+• large clean sections
+• elegant CTA presentation
+
+⸻
+
+	9.	MOBILE EXPERIENCE
+
+The app must work properly on mobile.
+
+Check:
+
+• spacing
+• stacking
+• buttons
+• forms
+• typography
+• image scaling
+• navigation
+
+⸻
+
+	10.	CONVERSION SUPPORT
+
+The final funnel should include where appropriate:
+
+• strong CTA placement
+• clear navigation into offers
+• polished lead capture flow
+• quote upload flow
+• premium trust signals
+• smooth thank-you flow
+
+⸻
+
+RULES
+
+• Do not duplicate what already exists
+• Do not recreate finished sections
+• Only complete what is missing
+• If a section exists but is weak, improve it
+• If a page does not exist, create it
+• If a form is incomplete, finish it
+• Keep the best parts of the current design
+• Upgrade weak parts into premium enterprise quality
+
+⸻
+
+PROBLEM SOLVING
+
+If a problem occurs:
+
+• diagnose the issue
+• determine the cause
+• solve it logically
+• test the fix
+
+If you cannot solve it immediately:
+
+• research the correct solution
+• apply the best-practice fix
+• retest
+
+Do not stop because of errors.
+
+Continue until the funnel is complete.
+
+⸻
+
+FINAL GOAL
+
+The app must become a complete, premium commercial lead-generation funnel for The Corporate Desk capable of converting furniture and fit-out projects worth:
+
+$30,000 – $300,000+
+
+Before finishing, verify:
+
+• all required pages or sections exist
+• all CTAs work
+• all forms work
+• uploads work
+• thank-you flows work
+• design looks premium
+• mobile layout works
+• no broken elements exist
+
+Only stop when the funnel is complete.
+
+⸻
+
+FINAL OUTPUT
+
+When the work is complete, provide a summary of:
+
+• what existing sections were kept
+• what sections were improved
+• what new sections or pages were added
+• what forms were completed
+• what still needs anything manual, if applicable

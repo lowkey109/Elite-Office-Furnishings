@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,16 +16,18 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2, Paperclip, CheckCircle2 } from "lucide-react";
 
 type FormField = {
   name: string;
   label: string;
-  type: "text" | "email" | "tel" | "textarea" | "select";
+  type: "text" | "email" | "tel" | "textarea" | "select" | "file";
   placeholder?: string;
   options?: string[];
   required?: boolean;
   half?: boolean;
+  accept?: string;
+  hint?: string;
 };
 
 interface LeadFormProps {
@@ -36,6 +39,7 @@ interface LeadFormProps {
 
 export function LeadForm({ formType, fields, onSuccess, submitLabel = "Submit" }: LeadFormProps) {
   const { toast } = useToast();
+  const [uploadedFiles, setUploadedFiles] = useState<Record<string, string>>({});
 
   const schema = z.object(
     fields.reduce((acc, field) => {
@@ -61,8 +65,17 @@ export function LeadForm({ formType, fields, onSuccess, submitLabel = "Submit" }
   });
 
   const mutation = useMutation({
-    mutationFn: (data: FormData) =>
-      apiRequest("POST", "/api/leads", { ...data, type: formType }),
+    mutationFn: (data: FormData) => {
+      const filesNote = Object.entries(uploadedFiles)
+        .map(([, name]) => `[Attachment: ${name}]`)
+        .join(" ");
+      const message = (data as any).message || "";
+      return apiRequest("POST", "/api/leads", {
+        ...data,
+        type: formType,
+        message: filesNote ? `${message}\n${filesNote}`.trim() : message,
+      });
+    },
     onSuccess: () => {
       onSuccess();
     },
@@ -77,6 +90,13 @@ export function LeadForm({ formType, fields, onSuccess, submitLabel = "Submit" }
 
   const onSubmit = (data: FormData) => {
     mutation.mutate(data);
+  };
+
+  const handleFileChange = (fieldName: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadedFiles(prev => ({ ...prev, [fieldName]: file.name }));
+    }
   };
 
   const inputClass = "bg-[rgba(255,255,255,0.05)] border-[rgba(201,168,76,0.2)] text-white placeholder:text-white/30 focus:border-[rgba(201,168,76,0.5)] focus:ring-0 h-12 text-base rounded-md";
@@ -135,6 +155,40 @@ export function LeadForm({ formType, fields, onSuccess, submitLabel = "Submit" }
                   ))}
                 </SelectContent>
               </Select>
+            ) : field.type === "file" ? (
+              <div>
+                <label
+                  htmlFor={field.name}
+                  data-testid={`input-${field.name}`}
+                  className={`flex items-center gap-3 cursor-pointer border rounded-md h-12 px-4 transition-colors ${
+                    uploadedFiles[field.name]
+                      ? "border-[rgba(201,168,76,0.5)] bg-[rgba(201,168,76,0.06)]"
+                      : "border-[rgba(201,168,76,0.2)] bg-[rgba(255,255,255,0.05)] hover:border-[rgba(201,168,76,0.4)]"
+                  }`}
+                >
+                  {uploadedFiles[field.name] ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 text-[hsl(43,78%,52%)] flex-shrink-0" />
+                      <span className="text-sm text-[hsl(43,78%,65%)] truncate">{uploadedFiles[field.name]}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Paperclip className="w-4 h-4 text-white/40 flex-shrink-0" />
+                      <span className="text-sm text-white/40">{field.placeholder || "Click to attach file"}</span>
+                    </>
+                  )}
+                  <input
+                    id={field.name}
+                    type="file"
+                    accept={field.accept}
+                    className="sr-only"
+                    onChange={(e) => handleFileChange(field.name, e)}
+                  />
+                </label>
+                {field.hint && (
+                  <p className="text-white/35 text-xs mt-1.5">{field.hint}</p>
+                )}
+              </div>
             ) : (
               <Input
                 id={field.name}

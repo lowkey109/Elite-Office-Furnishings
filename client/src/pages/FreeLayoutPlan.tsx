@@ -16,6 +16,7 @@ const fields = [
   { name: "staffCount", label: "Number of Staff", type: "select" as const, placeholder: "Select staff count", options: [
     "1–10", "11–25", "26–50", "51–100", "100–250", "250+",
   ]},
+  { name: "floorPlan", label: "Upload Floor Plan (Optional)", type: "file" as const, placeholder: "Attach your floor plan (PDF, DWG, JPG, PNG)", required: false, half: false, accept: ".pdf,.dwg,.jpg,.jpeg,.png", hint: "Accepted formats: PDF, DWG, JPG, PNG — max 20MB. You may also email plans to service@thecorporatedesk.com.au" },
   { name: "message", label: "Tell Us About Your Project", type: "textarea" as const, placeholder: "Describe your current office challenges, furniture requirements, preferred style, special requirements...", required: false, half: false },
 ];
 
