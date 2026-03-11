@@ -1,0 +1,163 @@
+You are upgrading the existing AI Office Planner for The Corporate Desk.
+
+IMPORTANT:
+Do NOT break any existing functionality.
+
+The current system already:
+• collects office details
+• uploads floor plans
+• generates AI recommendations
+• suggests furniture SKUs
+• saves leads to /admin/planning-requests
+• may include a payment unlock layer
+
+Your task is to ADD a visual workspace layout generator on top of the existing planner results.
+
+CRITICAL RULES
+
+1. Do NOT rebuild the planner from scratch.
+2. Do NOT remove or replace the current text-based AI recommendations.
+3. Do NOT break:
+   - /upload-your-floor-plan
+   - /admin/planning-requests
+   - payment unlock flow if present
+   - finance calculator
+   - chatbot
+   - products pages
+   - lead intelligence engine
+4. Extend the existing planner results only.
+5. Keep all current lead capture and database saving working.
+6. Make the smallest safe changes necessary.
+7. Test desktop and mobile after implementation.
+
+PRIMARY OBJECTIVE
+
+When a user uploads a floor plan and completes the planner, the system should generate a visual workspace layout diagram showing:
+
+• workstation areas
+• executive offices
+• manager zones
+• meeting rooms
+• boardroom
+• breakout areas
+• storage
+• circulation paths
+• product placement zones
+
+This visual layout must appear in the planner results page as part of the AI output.
+
+VISUAL LAYOUT REQUIREMENTS
+
+Use a clean 2D layout rendering approach such as:
+• SVG
+or
+• Canvas
+
+The output should show:
+• labeled workspace zones
+• desk clusters
+• room blocks
+• breakout areas
+• circulation paths
+• simple product placement markers
+
+Do NOT attempt full CAD precision.
+This is a premium conceptual workspace layout, not architectural certification.
+
+PRODUCT PLACEMENT
+
+Connect the layout to the existing AI furniture recommendation logic.
+
+Each layout zone should include:
+• zone name
+• product category
+• SKU family if available
+• estimated quantity
+
+Example:
+Zone: Open Workspace
+Product Family: Breeze Workstations
+Qty: 24
+
+RESULTS PAGE UX
+
+On the planner results page, add a new section titled:
+
+AI Workspace Layout
+
+This section should show:
+1. the visual layout diagram
+2. zone labels
+3. capacity summary
+4. product placement summary
+
+If a payment gate exists, this visual layout should:
+• appear as blurred/partial preview before unlock
+• become fully visible after unlock
+
+LAYOUT SUMMARY
+
+Below the visual layout, show:
+• estimated staff capacity
+• workstation count
+• meeting room count
+• boardroom count
+• breakout zones
+• estimated layout efficiency
+• linked furniture package summary
+
+EXPORTS
+
+If export features already exist or can be safely extended, allow:
+• download layout as PNG
+• include layout in PDF report
+
+ADMIN STORAGE
+
+Store the generated layout data safely with the planning request.
+
+Include fields or structured JSON for:
+• workspace_zones
+• layout_json
+• capacity_summary
+• product_zone_mapping
+
+Make this visible in /admin/planning-requests without breaking current records.
+
+DESIGN REQUIREMENTS
+
+The layout section must feel:
+• premium
+• clean
+• high-trust
+• consistent with The Corporate Desk branding
+• responsive on desktop and mobile
+
+Do not create something messy, childish, or overly technical-looking.
+
+SAFETY RULES
+
+Do NOT break:
+• existing planner workflow
+• AI recommendation text output
+• payment flow
+• admin systems
+• existing routes
+• live production site
+
+FINAL REPORT
+
+When complete, provide:
+1. files changed
+2. routes changed (if any)
+3. DB/storage changes
+4. how the layout is generated
+5. whether the layout appears before or after unlock
+6. whether PNG/PDF export works
+7. confirmation desktop and mobile both work
+8. anything still approximate vs fully implemented
+
+IMPORTANT
+
+This must be an extension of the current planner, not a rebuild.
+Keep the system stable and clean.

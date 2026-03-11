@@ -142,6 +142,7 @@ export interface IStorage {
   updatePlanningRequestStatus(id: string, status: string): Promise<PlanningRequest | undefined>;
   updatePlanningRequest(id: string, data: Partial<InsertPlanningRequest & { status?: string; adminNotes?: string }>): Promise<PlanningRequest | undefined>;
   deletePlanningRequest(id: string): Promise<void>;
+  markPlanningRequestPaid(id: string, sessionId: string): Promise<PlanningRequest | undefined>;
 }
 
 function rowToProspectedLead(row: typeof prospectedLeads.$inferSelect): ProspectedLead {
@@ -448,6 +449,15 @@ export class DrizzleStorage implements IStorage {
 
   async deletePlanningRequest(id: string): Promise<void> {
     await db.delete(planningRequests).where(eq(planningRequests.id, id));
+  }
+
+  async markPlanningRequestPaid(id: string, sessionId: string): Promise<PlanningRequest | undefined> {
+    const [row] = await db
+      .update(planningRequests)
+      .set({ isPaid: true, stripeSessionId: sessionId })
+      .where(eq(planningRequests.id, id))
+      .returning();
+    return row;
   }
 }
 

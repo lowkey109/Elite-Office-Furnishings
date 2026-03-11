@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
+import Stripe from "stripe";
 import { storage } from "./storage";
 import { insertLeadSchema } from "@shared/schema";
 import { ZodError } from "zod";
@@ -18,6 +19,12 @@ const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
 });
+
+function getStripeClient(): Stripe | null {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) return null;
+  return new Stripe(key, { apiVersion: "2024-06-20" } as any);
+}
 
 // ─── Multer file upload setup ─────────────────────────────────────────────────
 const uploadDir = path.join(process.cwd(), "uploads", "planning-requests");
@@ -779,6 +786,113 @@ export async function registerRoutes(
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
+  // ─── Stripe Payment: AI Workspace Report Unlock ────────────────────────────
+
+  app.post("/api/planning-requests/:id/checkout", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const request = await storage.getPlanningRequest(id);
+      if (!request) return res.status(404).json({ error: "Planning request not found." });
+
+      if (request.isPaid) {
+        return res.json({ alreadyPaid: true });
+      }
+
+      const stripe = getStripeClient();
+      if (!stripe) {
+        return res.status(503).json({
+          error: "Online payment is not yet configured. Please call 1300 977 607 or email service@thecorporatedesk.com.au to receive your full report.",
+        });
+      }
+
+      const domain = process.env.REPLIT_DEV_DOMAIN
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+        : "https://app.thecorporatedesk.com.au";
+
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [{
+          price_data: {
+            currency: "aud",
+            product_data: {
+              name: "AI Workspace Planning Report",
+              description: `Full visual floor plan, furniture package & cost estimate for ${request.company || request.name}`,
+            },
+            unit_amount: 14900,
+          },
+          quantity: 1,
+        }],
+        mode: "payment",
+        metadata: { planningRequestId: id },
+        customer_email: request.email,
+        success_url: `${domain}/upload-your-floor-plan?id=${id}&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${domain}/upload-your-floor-plan?id=${id}&cancelled=true`,
+      });
+
+      res.json({ checkoutUrl: session.url });
+    } catch (error: any) {
+      console.error("[Stripe] Checkout session error:", error);
+      res.status(500).json({ error: "Failed to create payment session. Please call 1300 977 607." });
+    }
+  });
+
+  app.get("/api/planning-requests/:id/verify-payment", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { session_id: sessionId } = req.query as { session_id?: string };
+
+      const request = await storage.getPlanningRequest(id);
+      if (!request) return res.status(404).json({ error: "Not found" });
+
+      const parseRec = (raw: string | null | undefined) => {
+        if (!raw) return null;
+        try { return JSON.parse(raw); } catch { return null; }
+      };
+
+      if (request.isPaid) {
+        return res.json({
+          paid: true,
+          planningRequest: {
+            id: request.id,
+            name: request.name,
+            company: request.company,
+            email: request.email,
+            squareMetres: request.squareMetres,
+            staffCount: request.staffCount,
+            aiRecommendations: parseRec(request.aiRecommendations),
+          },
+        });
+      }
+
+      if (!sessionId) return res.json({ paid: false });
+
+      const stripe = getStripeClient();
+      if (!stripe) return res.status(503).json({ error: "Payment system not configured." });
+
+      const session = await stripe.checkout.sessions.retrieve(sessionId);
+      if (session.payment_status === "paid" && session.metadata?.planningRequestId === id) {
+        await storage.markPlanningRequestPaid(id, sessionId);
+        return res.json({
+          paid: true,
+          planningRequest: {
+            id: request.id,
+            name: request.name,
+            company: request.company,
+            email: request.email,
+            squareMetres: request.squareMetres,
+            staffCount: request.staffCount,
+            aiRecommendations: parseRec(request.aiRecommendations),
+          },
+        });
+      }
+
+      res.json({ paid: false });
+    } catch (error: any) {
+      console.error("[Stripe] Verify payment error:", error);
+      res.status(500).json({ error: "Payment verification failed." });
     }
   });
 

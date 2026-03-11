@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -8,7 +8,7 @@ import {
   Upload, CheckCircle2, Loader2, ArrowRight, ArrowLeft,
   Building2, Users, LayoutDashboard, Palette, FileText,
   MapPin, Phone, Mail, Star, Layers, Package, ChevronRight,
-  Paperclip, X, DollarSign, Calendar, Zap,
+  Paperclip, X, DollarSign, Calendar, Zap, Lock, Sparkles,
 } from "lucide-react";
 
 const STEPS = ["Contact", "Office Details", "Style & Budget", "Files & Submit"];
@@ -121,6 +121,9 @@ export default function UploadFloorPlan() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [aiRec, setAiRec] = useState<AiRecommendation | null>(null);
+  const [planningRequestId, setPlanningRequestId] = useState<string | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<"locked" | "verifying" | "paid">("locked");
+  const [unlocking, setUnlocking] = useState(false);
 
   // Step 1: Contact
   const [name, setName] = useState("");
@@ -240,6 +243,8 @@ export default function UploadFloorPlan() {
       if (data.aiRecommendations) {
         setAiRec(data.aiRecommendations);
       }
+      if (data.id) setPlanningRequestId(data.id);
+      setPaymentStatus("locked");
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err: any) {
@@ -268,6 +273,92 @@ export default function UploadFloorPlan() {
         {value ? <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> : <div className="w-4 h-4 rounded-full border border-current flex-shrink-0" />}
         {label}
       </button>
+    );
+  }
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    const sessionId = params.get("session_id");
+    const cancelled = params.get("cancelled");
+
+    if (id && sessionId) {
+      setPaymentStatus("verifying");
+      fetch(`/api/planning-requests/${id}/verify-payment?session_id=${encodeURIComponent(sessionId)}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.paid && data.planningRequest) {
+            const pr = data.planningRequest;
+            if (pr.aiRecommendations) setAiRec(pr.aiRecommendations);
+            if (pr.squareMetres) setSquareMetres(pr.squareMetres);
+            if (pr.staffCount) setStaffCount(pr.staffCount);
+            setPlanningRequestId(id);
+            setPaymentStatus("paid");
+            setSubmitted(true);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            window.history.replaceState({}, "", "/upload-your-floor-plan");
+          } else {
+            setPaymentStatus("locked");
+            toast({ title: "Payment could not be verified.", description: "Please call 1300 977 607 if you believe this is an error.", variant: "destructive" });
+          }
+        })
+        .catch(() => {
+          setPaymentStatus("locked");
+          toast({ title: "Connection error.", description: "Please try again.", variant: "destructive" });
+        });
+    } else if (id && cancelled === "true") {
+      toast({ title: "Payment cancelled.", description: "No charge was made. Your brief has been saved — unlock anytime.", variant: "default" });
+      window.history.replaceState({}, "", "/upload-your-floor-plan");
+    }
+  }, []);
+
+  async function handleUnlock() {
+    if (!planningRequestId) return;
+    setUnlocking(true);
+    try {
+      const res = await fetch(`/api/planning-requests/${planningRequestId}/checkout`, { method: "POST" });
+      const data = await res.json();
+      if (data.alreadyPaid) {
+        const vRes = await fetch(`/api/planning-requests/${planningRequestId}/verify-payment`);
+        const vData = await vRes.json();
+        if (vData.paid && vData.planningRequest) {
+          const pr = vData.planningRequest;
+          if (pr.aiRecommendations) setAiRec(pr.aiRecommendations);
+          if (pr.squareMetres) setSquareMetres(pr.squareMetres);
+          if (pr.staffCount) setStaffCount(pr.staffCount);
+          setPaymentStatus("paid");
+        }
+      } else if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        toast({
+          title: "Payment unavailable",
+          description: data.error || "Please call 1300 977 607 or email service@thecorporatedesk.com.au",
+          variant: "destructive",
+        });
+      }
+    } catch {
+      toast({
+        title: "Payment unavailable",
+        description: "Please call 1300 977 607 or email service@thecorporatedesk.com.au",
+        variant: "destructive",
+      });
+    } finally {
+      setUnlocking(false);
+    }
+  }
+
+  if (paymentStatus === "verifying") {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-[hsl(220,20%,6%)] flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="animate-spin w-10 h-10 text-[hsl(43,78%,52%)] mx-auto mb-4" />
+            <p className="text-white font-semibold text-lg">Verifying your payment…</p>
+            <p className="text-white/40 text-sm mt-2">This only takes a moment.</p>
+          </div>
+        </div>
+      </Layout>
     );
   }
 
@@ -308,113 +399,198 @@ export default function UploadFloorPlan() {
                   </div>
                 )}
 
-                {aiRec.workspaceZones && aiRec.workspaceZones.length > 0 && aiRec.workspaceZones.some(z => z.percentage > 0) && (
-                  <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.18)] rounded-2xl p-6">
-                    <div className="flex items-center gap-2 mb-4">
-                      <LayoutDashboard className="w-4 h-4 text-[hsl(43,78%,52%)]" />
-                      <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">AI Workspace Layout</h3>
-                    </div>
-                    <SpacePlanningEngine
-                      zones={aiRec.workspaceZones}
-                      recs={aiRec.productRecommendations}
-                      sqm={squareMetres}
-                      staffCount={staffCount}
-                      costBreakdown={aiRec.costBreakdown}
-                      estimatedValue={aiRec.estimatedProjectValue}
-                      implementationTimeline={aiRec.implementationTimeline}
-                    />
-                  </div>
-                )}
-
                 {aiRec.workspaceZones && aiRec.workspaceZones.length > 0 && (
-                  <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Layers className="w-4 h-4 text-[hsl(43,78%,52%)]" />
-                      <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Recommended Workspace Zones</h3>
+                  <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Layers className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                        <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Zone Breakdown</h3>
+                      </div>
+                      <span className="text-white/40 text-xs">{aiRec.workspaceZones.length} zones identified</span>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {aiRec.workspaceZones.map((z, i) => (
-                        <div key={i} className="bg-[rgba(255,255,255,0.03)] rounded-xl p-4 border border-[rgba(255,255,255,0.05)]">
-                          <div className="flex items-center justify-between mb-1.5">
-                            <p className="text-white font-semibold text-sm">{z.zone}</p>
-                            <span className={`text-xs px-2 py-0.5 rounded-full border ${
-                              z.priority === "Essential" ? "bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.2)]" :
-                              z.priority === "Recommended" ? "bg-blue-500/10 text-blue-400 border-blue-500/20" :
-                              "bg-white/5 text-white/40 border-white/10"
-                            }`}>{z.priority}</span>
-                          </div>
-                          <p className="text-white/50 text-xs leading-relaxed">{z.description}</p>
-                        </div>
+                    <div className="flex h-5 rounded-lg overflow-hidden gap-0.5 mb-3">
+                      {aiRec.workspaceZones.filter(z => z.percentage > 0).map((z, i) => (
+                        <div key={i} style={{ width: `${z.percentage}%`, backgroundColor: z.color || "#B8960C" }} title={z.zone} />
                       ))}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {aiRec.workspaceZones.slice(0, 4).map((z, i) => (
+                        <span key={i} className="flex items-center gap-1.5 text-xs text-white/50">
+                          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: z.color || "#B8960C" }} />
+                          {z.zone}
+                        </span>
+                      ))}
+                      {aiRec.workspaceZones.length > 4 && (
+                        <span className="text-xs text-white/30">+{aiRec.workspaceZones.length - 4} more in full report</span>
+                      )}
                     </div>
                   </div>
                 )}
 
-                {aiRec.productRecommendations && aiRec.productRecommendations.length > 0 && (
-                  <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Package className="w-4 h-4 text-[hsl(43,78%,52%)]" />
-                      <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Suggested Product Package</h3>
-                    </div>
-                    <div className="space-y-3">
-                      {aiRec.productRecommendations.map((p, i) => (
-                        <div key={i} className="flex items-start gap-4 p-4 bg-[rgba(255,255,255,0.03)] rounded-xl border border-[rgba(255,255,255,0.05)]">
-                          <div className="w-2 h-2 rounded-full bg-[hsl(43,78%,52%)] mt-2 flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2">
-                              <div>
-                                <p className="text-white font-semibold text-sm">{p.category}</p>
-                                <p className="text-white/40 text-xs">{p.seriesRecommendation} · Qty: {p.quantity}</p>
+                {paymentStatus !== "paid" ? (
+                  <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.25)] rounded-2xl overflow-hidden">
+                    <div className="relative">
+                      <div className="pointer-events-none select-none blur-sm opacity-30 p-6 space-y-3">
+                        <div className="grid grid-cols-2 gap-3">
+                          {[1,2,3,4].map(i => (
+                            <div key={i} className="bg-white/5 rounded-xl h-20 border border-white/10" />
+                          ))}
+                        </div>
+                        <div className="bg-white/5 rounded-xl h-40 border border-white/10" />
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,18%,10%)] via-[hsl(220,18%,10%)]/95 to-[hsl(220,18%,10%)]/50 flex items-center justify-center">
+                        <div className="text-center px-6 py-8 max-w-sm w-full">
+                          <div className="w-14 h-14 rounded-full bg-[rgba(201,168,76,0.15)] border border-[rgba(201,168,76,0.3)] flex items-center justify-center mx-auto mb-4">
+                            <Lock className="w-6 h-6 text-[hsl(43,78%,52%)]" />
+                          </div>
+                          <h3 className="text-white text-xl font-serif font-bold mb-2">Unlock Your Full AI Workspace Report</h3>
+                          <p className="text-white/55 text-sm mb-5 leading-relaxed">Your visual floor plan, zone details, furniture package, and cost estimate are ready.</p>
+                          <div className="grid grid-cols-2 gap-x-3 gap-y-2 mb-5 text-left">
+                            {[
+                              "Interactive visual floor plan",
+                              "Zone-by-zone furniture SKUs",
+                              "Full cost estimate (inc. GST)",
+                              "PNG + PDF layout export",
+                            ].map((item, i) => (
+                              <div key={i} className="flex items-start gap-1.5 text-xs text-white/65">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-[hsl(43,78%,52%)] flex-shrink-0 mt-0.5" />
+                                {item}
                               </div>
-                              <span className="text-[hsl(43,78%,65%)] text-xs font-bold whitespace-nowrap">{p.estimatedCost}</span>
-                            </div>
-                            <p className="text-white/55 text-xs mt-1.5 leading-relaxed">{p.rationale}</p>
+                            ))}
                           </div>
+                          <div className="mb-4">
+                            <span className="text-[hsl(43,78%,52%)] text-3xl font-bold">$149</span>
+                            <span className="text-white/40 text-sm ml-1">AUD · one-time</span>
+                          </div>
+                          <Button
+                            onClick={handleUnlock}
+                            disabled={unlocking}
+                            className="w-full bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[52px] text-base mb-3"
+                            data-testid="button-unlock-report"
+                          >
+                            {unlocking
+                              ? <><Loader2 className="animate-spin w-4 h-4 mr-2" />Processing…</>
+                              : <><Sparkles className="w-4 h-4 mr-2" />Unlock Full Report — $149</>}
+                          </Button>
+                          <p className="text-white/30 text-xs">
+                            Secure payment via Stripe · Questions?{" "}
+                            <a href="tel:1300977607" className="text-[hsl(43,78%,65%)] underline">1300 977 607</a>
+                          </p>
                         </div>
-                      ))}
+                      </div>
                     </div>
                   </div>
-                )}
-
-                {aiRec.styleDirection && (
-                  <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Palette className="w-4 h-4 text-[hsl(43,78%,52%)]" />
-                      <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Style Direction</h3>
-                    </div>
-                    <p className="text-white/70 text-sm leading-relaxed">{aiRec.styleDirection}</p>
-                  </div>
-                )}
-
-                {aiRec.keyConsiderations && aiRec.keyConsiderations.length > 0 && (
-                  <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Star className="w-4 h-4 text-[hsl(43,78%,52%)]" />
-                      <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Key Considerations</h3>
-                    </div>
-                    <ul className="space-y-2">
-                      {aiRec.keyConsiderations.map((c, i) => (
-                        <li key={i} className="flex items-start gap-2.5 text-sm text-white/65">
-                          <ChevronRight className="w-3.5 h-3.5 text-[hsl(43,78%,52%)] mt-0.5 flex-shrink-0" />
-                          {c}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {(aiRec.recommendedNextStep || aiRec.urgencyNote) && (
-                  <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.2)] rounded-2xl p-6">
-                    {aiRec.recommendedNextStep && (
-                      <>
-                        <p className="text-[hsl(43,78%,65%)] font-semibold text-sm mb-2">Recommended Next Step</p>
-                        <p className="text-white/70 text-sm leading-relaxed">{aiRec.recommendedNextStep}</p>
-                      </>
+                ) : (
+                  <>
+                    {aiRec.workspaceZones && aiRec.workspaceZones.length > 0 && aiRec.workspaceZones.some(z => z.percentage > 0) && (
+                      <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.18)] rounded-2xl p-6">
+                        <div className="flex items-center gap-2 mb-4">
+                          <LayoutDashboard className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                          <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">AI Workspace Layout</h3>
+                        </div>
+                        <SpacePlanningEngine
+                          zones={aiRec.workspaceZones}
+                          recs={aiRec.productRecommendations}
+                          sqm={squareMetres}
+                          staffCount={staffCount}
+                          costBreakdown={aiRec.costBreakdown}
+                          estimatedValue={aiRec.estimatedProjectValue}
+                          implementationTimeline={aiRec.implementationTimeline}
+                        />
+                      </div>
                     )}
-                    {aiRec.urgencyNote && (
-                      <p className="text-white/50 text-xs mt-3 italic">{aiRec.urgencyNote}</p>
+
+                    {aiRec.workspaceZones && aiRec.workspaceZones.length > 0 && (
+                      <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Layers className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                          <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Recommended Workspace Zones</h3>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {aiRec.workspaceZones.map((z, i) => (
+                            <div key={i} className="bg-[rgba(255,255,255,0.03)] rounded-xl p-4 border border-[rgba(255,255,255,0.05)]">
+                              <div className="flex items-center justify-between mb-1.5">
+                                <p className="text-white font-semibold text-sm">{z.zone}</p>
+                                <span className={`text-xs px-2 py-0.5 rounded-full border ${
+                                  z.priority === "Essential" ? "bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.2)]" :
+                                  z.priority === "Recommended" ? "bg-blue-500/10 text-blue-400 border-blue-500/20" :
+                                  "bg-white/5 text-white/40 border-white/10"
+                                }`}>{z.priority}</span>
+                              </div>
+                              <p className="text-white/50 text-xs leading-relaxed">{z.description}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     )}
-                  </div>
+
+                    {aiRec.productRecommendations && aiRec.productRecommendations.length > 0 && (
+                      <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Package className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                          <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Suggested Product Package</h3>
+                        </div>
+                        <div className="space-y-3">
+                          {aiRec.productRecommendations.map((p, i) => (
+                            <div key={i} className="flex items-start gap-4 p-4 bg-[rgba(255,255,255,0.03)] rounded-xl border border-[rgba(255,255,255,0.05)]">
+                              <div className="w-2 h-2 rounded-full bg-[hsl(43,78%,52%)] mt-2 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div>
+                                    <p className="text-white font-semibold text-sm">{p.category}</p>
+                                    <p className="text-white/40 text-xs">{p.seriesRecommendation} · Qty: {p.quantity}</p>
+                                  </div>
+                                  <span className="text-[hsl(43,78%,65%)] text-xs font-bold whitespace-nowrap">{p.estimatedCost}</span>
+                                </div>
+                                <p className="text-white/55 text-xs mt-1.5 leading-relaxed">{p.rationale}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {aiRec.styleDirection && (
+                      <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Palette className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                          <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Style Direction</h3>
+                        </div>
+                        <p className="text-white/70 text-sm leading-relaxed">{aiRec.styleDirection}</p>
+                      </div>
+                    )}
+
+                    {aiRec.keyConsiderations && aiRec.keyConsiderations.length > 0 && (
+                      <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Star className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                          <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Key Considerations</h3>
+                        </div>
+                        <ul className="space-y-2">
+                          {aiRec.keyConsiderations.map((c, i) => (
+                            <li key={i} className="flex items-start gap-2.5 text-sm text-white/65">
+                              <ChevronRight className="w-3.5 h-3.5 text-[hsl(43,78%,52%)] mt-0.5 flex-shrink-0" />
+                              {c}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {(aiRec.recommendedNextStep || aiRec.urgencyNote) && (
+                      <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.2)] rounded-2xl p-6">
+                        {aiRec.recommendedNextStep && (
+                          <>
+                            <p className="text-[hsl(43,78%,65%)] font-semibold text-sm mb-2">Recommended Next Step</p>
+                            <p className="text-white/70 text-sm leading-relaxed">{aiRec.recommendedNextStep}</p>
+                          </>
+                        )}
+                        {aiRec.urgencyNote && (
+                          <p className="text-white/50 text-xs mt-3 italic">{aiRec.urgencyNote}</p>
+                        )}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             ) : (

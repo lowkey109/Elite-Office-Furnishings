@@ -21,11 +21,21 @@ The application follows a client-server architecture.
     - **Admin Dashboard**: Provides KPIs, recent lead overviews, lead type breakdown charts, and access to other admin functionalities.
     - **SEO Blog**: Client-side blog with 200 articles across 10 topic clusters, featuring search, category filters, and pagination.
 
+## Stripe Paywall
+The AI Workspace Planning Report is gated behind a $149 AUD one-time payment:
+- **Free tier**: Client brief summary + zone breakdown color teaser
+- **Paid tier**: Full SpacePlanningEngine SVG floor plan, zone cards, product SKUs, cost breakdown, style direction, key considerations
+- **Backend routes**: `POST /api/planning-requests/:id/checkout` (creates Stripe session), `GET /api/planning-requests/:id/verify-payment?session_id=xxx` (verifies and marks paid)
+- **DB columns**: `isPaid` (boolean), `stripeSessionId` (text) on `planning_requests` table
+- **To activate**: Add `STRIPE_SECRET_KEY` as a Replit secret (Stripe secret key from your dashboard). Test mode key works for testing.
+- **Admin panel**: Always shows full content regardless of payment status
+
 ## External Dependencies
 - **Database**: PostgreSQL (Replit built-in)
 - **ORM**: Drizzle ORM
 - **Email**: Nodemailer (for SMTP email notifications)
 - **AI**: OpenAI (via Replit AI Integrations)
+- **Payments**: Stripe (npm package installed; requires `STRIPE_SECRET_KEY` secret)
 - **Marketing Channels (API Integrations)**:
     - Telegram
     - Facebook

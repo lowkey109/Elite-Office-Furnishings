@@ -127,6 +127,8 @@ export const planningRequests = pgTable("planning_requests", {
   status: text("status").notNull().default("New"),
   source: text("source").default("upload-floor-plan"),
   adminNotes: text("admin_notes"),
+  isPaid: boolean("is_paid").default(false),
+  stripeSessionId: text("stripe_session_id"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
