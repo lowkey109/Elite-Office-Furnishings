@@ -1,0 +1,112 @@
+==================================================
+STEP 11 — PAID UNLOCK SYSTEM
+==================================================
+
+The AI visual workspace layout and full design output must be a paid unlock feature.
+
+Free users can:
+
+• upload floor plan
+• receive basic workspace summary
+• see a blurred or limited preview of the visual layout
+
+To unlock the full workspace design, users must pay.
+
+Price:
+
+$399 AUD
+
+This unlock includes:
+
+• full visual workspace layout
+• full furniture placement plan
+• recommended product packages
+• estimated project value
+• downloadable layout (PNG/PDF)
+• access to the 3D walkthrough
+
+------------------------------------------------
+
+PAYMENT INTEGRATION
+
+Use the existing payment infrastructure if present.
+
+Otherwise safely implement payment using:
+
+Stripe payment link or Stripe checkout.
+
+Allow payment options:
+
+• credit/debit card
+• Apple Pay
+• Google Pay
+
+------------------------------------------------
+
+PAYMENT FLOW
+
+After planner results are generated:
+
+Show message above the preview:
+
+"Your AI workspace concept is ready.
+Unlock the full layout and furniture plan."
+
+Below this message display:
+
+• blurred preview of the generated layout
+• lock icon overlay
+
+Then show button:
+
+"Unlock Full Workspace Plan — $399"
+
+After successful payment:
+
+• reveal full layout
+• unlock 3D walkthrough
+• enable PDF/PNG download
+• mark planner submission as unlocked in admin
+
+------------------------------------------------
+
+ADMIN STORAGE
+
+Store payment status in the planning request record.
+
+Example fields:
+
+payment_status
+payment_amount
+layout_unlocked
+
+Admin should see:
+
+• which users paid
+• project estimated value
+• contact information
+• layout preview
+
+------------------------------------------------
+
+TESTING
+
+Before finishing verify:
+
+1 planner submission still works
+2 preview layout appears before payment
+3 payment page loads correctly
+4 successful payment unlocks full layout
+5 admin shows payment status
+6 no existing systems break
+
+------------------------------------------------
+
+FINAL REPORT ADDITION
+
+Include in the completion report:
+
+• how payment is triggered
+• how unlock works
+• what files were changed
+• how payment status is stored

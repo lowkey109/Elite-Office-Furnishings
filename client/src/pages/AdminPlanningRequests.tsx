@@ -20,7 +20,7 @@ import {
 
 
 type PlanningStatus = "New" | "In Review" | "Quoted" | "Converted" | "Archived";
-type ActiveTab = "overview" | "zones" | "furniture" | "cost" | "report";
+type ActiveTab = "overview" | "zones" | "furniture" | "cost" | "report" | "package";
 
 const STATUS_CONFIG: Record<PlanningStatus, { color: string }> = {
   New: { color: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
@@ -118,6 +118,9 @@ interface PlanningRequest {
   implementationTimeline?: string;
   status: string;
   adminNotes?: string;
+  packageJson?: string;
+  quoteJson?: string;
+  quoteStatus?: string;
   createdAt?: string;
 }
 
@@ -394,6 +397,264 @@ function CostTimeline({ cost, timeline, aiRec, leadScore, request }: { cost?: Co
   );
 }
 
+interface PackageItem {
+  sku: string;
+  productName: string;
+  category: string;
+  series: string;
+  zone: string;
+  quantity: number;
+  unitCost: number;
+  totalCost: number;
+  rationale: string;
+}
+
+interface FurniturePackage {
+  packageName: string;
+  packageTier: string;
+  workspaceType: string;
+  totalItems: number;
+  furnitureSubtotal: number;
+  installationEstimate: number;
+  deliveryEstimate: number;
+  projectTotal: number;
+  projectTotalRange: string;
+  perStaffCost?: number;
+  monthlyFinanceEstimate: string;
+  financeNote: string;
+  items: PackageItem[];
+  upsellOpportunities: string[];
+  whyThisPackage: string;
+  generatedAt: string;
+}
+
+interface QuoteSummary {
+  quoteReference: string;
+  status: string;
+  clientBrief: string;
+  workspaceType: string;
+  packageTier: string;
+  packageName: string;
+  productSchedule: PackageItem[];
+  costSummary: {
+    furnitureSubtotal: number;
+    installation: number;
+    delivery: number;
+    projectTotal: number;
+    projectTotalRange: string;
+    gst: number;
+    totalIncGst: number;
+  };
+  financeOption: {
+    monthlyEstimate: string;
+    term: string;
+    note: string;
+  };
+  addOnOpportunities: string[];
+  recommendedNextStep: string;
+  urgencyNote?: string;
+  implementationTimeline?: string;
+  styleDirection?: string;
+  preparedFor: string;
+  generatedAt: string;
+}
+
+const TIER_COLORS: Record<string, string> = {
+  Foundation: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+  Professional: "bg-[rgba(201,168,76,0.12)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.2)]",
+  Executive: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+};
+
+function PackageQuotePanel({ request, onRegenerateClick, revisingId }: {
+  request: PlanningRequest;
+  onRegenerateClick: () => void;
+  revisingId: string | null;
+}) {
+  const pkg: FurniturePackage | null = (() => { try { return request.packageJson ? JSON.parse(request.packageJson) : null; } catch { return null; } })();
+  const quote: QuoteSummary | null = (() => { try { return request.quoteJson ? JSON.parse(request.quoteJson) : null; } catch { return null; } })();
+
+  if (!pkg || !quote) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center gap-4">
+        <Briefcase className="w-10 h-10 text-white/20" />
+        <div>
+          <p className="text-white/50 text-sm font-medium mb-1">No package generated yet</p>
+          <p className="text-white/25 text-xs max-w-xs">Use the Regenerate AI Plan button below to generate a furniture package and quote summary for this submission.</p>
+        </div>
+        <Button
+          size="sm"
+          onClick={onRegenerateClick}
+          disabled={revisingId === request.id}
+          variant="outline"
+          className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.1)] min-h-[36px]"
+          data-testid={`button-gen-package-${request.id}`}
+        >
+          {revisingId === request.id ? <><Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> Generating...</> : <><RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Generate Package & Quote</>}
+        </Button>
+      </div>
+    );
+  }
+
+  const tierColor = TIER_COLORS[pkg.packageTier] || TIER_COLORS.Professional;
+  const cs = quote.costSummary;
+
+  return (
+    <div className="space-y-6" data-testid={`panel-package-${request.id}`}>
+
+      {/* Package Header */}
+      <div className="bg-[rgba(201,168,76,0.05)] border border-[rgba(201,168,76,0.15)] rounded-xl p-5">
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div>
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <span className={`text-xs font-bold border rounded-full px-2.5 py-0.5 ${tierColor}`}>{pkg.packageTier} Tier</span>
+              <span className="text-white/30 text-xs">·</span>
+              <span className="text-white/50 text-xs">{quote.quoteReference}</span>
+              <span className={`text-xs border rounded-full px-2 py-0.5 ${quote.status === "issued" ? "bg-green-500/10 text-green-400 border-green-500/20" : quote.status === "ready" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" : "bg-white/5 text-white/30 border-white/10"}`}>
+                {quote.status === "issued" ? "Issued" : quote.status === "ready" ? "Ready to Issue" : "Draft"}
+              </span>
+            </div>
+            <h3 className="text-white font-serif font-bold text-lg leading-tight">{pkg.packageName}</h3>
+            <p className="text-white/40 text-sm mt-1">{pkg.workspaceType} · {pkg.totalItems} items total</p>
+          </div>
+          <div className="text-right">
+            <p className="text-white/40 text-xs mb-0.5">Estimated Project Range</p>
+            <p className="text-[hsl(43,78%,65%)] font-serif font-bold text-xl">{pkg.projectTotalRange}</p>
+            {pkg.perStaffCost && <p className="text-white/30 text-xs mt-0.5">{fmt(pkg.perStaffCost)} per staff</p>}
+          </div>
+        </div>
+        {pkg.whyThisPackage && (
+          <p className="text-white/50 text-sm mt-4 leading-relaxed border-t border-[rgba(255,255,255,0.05)] pt-4">{pkg.whyThisPackage}</p>
+        )}
+      </div>
+
+      {/* Product Schedule */}
+      <div>
+        <p className="text-[hsl(43,78%,65%)] text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <Table2 className="w-3.5 h-3.5" /> Product Schedule
+        </p>
+        <div className="bg-[rgba(255,255,255,0.02)] rounded-xl border border-[rgba(255,255,255,0.06)] overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-[rgba(255,255,255,0.06)]">
+                  <th className="text-left text-white/30 font-medium text-xs px-4 py-3">Zone</th>
+                  <th className="text-left text-white/30 font-medium text-xs px-4 py-3">Product</th>
+                  <th className="text-left text-white/30 font-medium text-xs px-4 py-3">SKU</th>
+                  <th className="text-center text-white/30 font-medium text-xs px-4 py-3">Qty</th>
+                  <th className="text-right text-white/30 font-medium text-xs px-4 py-3">Unit</th>
+                  <th className="text-right text-white/30 font-medium text-xs px-4 py-3">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pkg.items.map((item, i) => (
+                  <tr key={i} className="border-b border-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.02)] transition-colors" data-testid={`pkg-item-${i}`}>
+                    <td className="px-4 py-3 text-white/40 text-xs whitespace-nowrap">{item.zone}</td>
+                    <td className="px-4 py-3">
+                      <p className="text-white/80 font-medium text-xs leading-tight">{item.productName}</p>
+                      {item.series && <p className="text-white/30 text-xs mt-0.5">{item.series}</p>}
+                    </td>
+                    <td className="px-4 py-3 text-[hsl(43,78%,52%)] text-xs font-mono whitespace-nowrap">{item.sku}</td>
+                    <td className="px-4 py-3 text-center text-white/70 text-xs font-bold">{item.quantity}</td>
+                    <td className="px-4 py-3 text-right text-white/50 text-xs">{fmt(item.unitCost)}</td>
+                    <td className="px-4 py-3 text-right text-white font-bold text-xs">{fmt(item.totalCost)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* Cost Summary */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <p className="text-[hsl(43,78%,65%)] text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <DollarSign className="w-3.5 h-3.5" /> Cost Summary (ex. GST)
+          </p>
+          <div className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-xl p-4 space-y-2">
+            {[
+              { label: "Furniture Subtotal", value: cs.furnitureSubtotal },
+              { label: "Installation", value: cs.installation },
+              { label: "Delivery & Logistics", value: cs.delivery },
+            ].map(row => (
+              <div key={row.label} className="flex justify-between text-sm">
+                <span className="text-white/40">{row.label}</span>
+                <span className="text-white/70">{fmt(row.value)}</span>
+              </div>
+            ))}
+            <div className="border-t border-[rgba(255,255,255,0.08)] pt-2 flex justify-between text-sm">
+              <span className="text-white/60 font-medium">Project Total</span>
+              <span className="text-white font-bold">{fmt(cs.projectTotal)}</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-white/30">GST (10%)</span>
+              <span className="text-white/40">{fmt(cs.gst)}</span>
+            </div>
+            <div className="bg-[rgba(201,168,76,0.08)] rounded-lg p-2.5 flex justify-between">
+              <span className="text-[hsl(43,78%,65%)] text-sm font-bold">Total inc. GST</span>
+              <span className="text-[hsl(43,78%,65%)] text-sm font-bold">{fmt(cs.totalIncGst)}</span>
+            </div>
+            <p className="text-white/25 text-xs pt-1">Range: {cs.projectTotalRange}</p>
+          </div>
+        </div>
+
+        <div>
+          <p className="text-[hsl(43,78%,65%)] text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5" /> Finance Option
+          </p>
+          <div className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-xl p-4">
+            <div className="text-center py-3">
+              <p className="text-[hsl(43,78%,65%)] font-serif font-bold text-2xl">{pkg.monthlyFinanceEstimate}</p>
+              <p className="text-white/40 text-xs mt-1">{quote.financeOption.term} commercial finance estimate</p>
+            </div>
+            <p className="text-white/25 text-xs leading-relaxed border-t border-[rgba(255,255,255,0.06)] pt-3 mt-3">{pkg.financeNote}</p>
+          </div>
+
+          {quote.implementationTimeline && (
+            <div className="mt-3 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-xl p-4">
+              <p className="text-white/40 text-xs mb-1 flex items-center gap-1.5"><Clock className="w-3 h-3" /> Implementation Timeline</p>
+              <p className="text-white font-bold text-sm">{quote.implementationTimeline}</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Upsell Opportunities */}
+      {pkg.upsellOpportunities.length > 0 && (
+        <div>
+          <p className="text-[hsl(43,78%,65%)] text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <TrendingUp className="w-3.5 h-3.5" /> Upsell / Add-on Opportunities
+          </p>
+          <div className="space-y-2">
+            {pkg.upsellOpportunities.map((u, i) => (
+              <div key={i} className="flex items-start gap-2.5 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-lg px-4 py-3">
+                <Zap className="w-3.5 h-3.5 text-[hsl(43,78%,52%)] flex-shrink-0 mt-0.5" />
+                <span className="text-white/60 text-sm">{u}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Next Step */}
+      {quote.recommendedNextStep && (
+        <div className="bg-green-500/5 border border-green-500/15 rounded-xl p-4">
+          <p className="text-green-400 text-xs font-semibold uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5" /> Recommended Next Step
+          </p>
+          <p className="text-white/70 text-sm">{quote.recommendedNextStep}</p>
+          {quote.urgencyNote && <p className="text-amber-400/70 text-xs mt-2 italic">{quote.urgencyNote}</p>}
+        </div>
+      )}
+
+      {/* Prepared For */}
+      <p className="text-white/20 text-xs text-right">
+        Prepared for: {quote.preparedFor} · Generated {new Date(pkg.generatedAt).toLocaleDateString("en-AU")}
+      </p>
+    </div>
+  );
+}
+
 export default function AdminPlanningRequests() {
   const [authed, setAuthed] = useState(false);
   const [email, setEmail] = useState("");
@@ -551,6 +812,7 @@ export default function AdminPlanningRequests() {
     { key: "zones", label: "Workspace Zones", icon: <Layers className="w-3.5 h-3.5" /> },
     { key: "furniture", label: "Furniture Recs", icon: <Package className="w-3.5 h-3.5" /> },
     { key: "cost", label: "Cost & Timeline", icon: <BarChart3 className="w-3.5 h-3.5" /> },
+    { key: "package", label: "Package & Quote", icon: <Briefcase className="w-3.5 h-3.5" /> },
     { key: "report", label: "Report", icon: <FileText className="w-3.5 h-3.5" /> },
   ];
 
@@ -844,6 +1106,14 @@ export default function AdminPlanningRequests() {
 
                           {activeTab === "cost" && (
                             <CostTimeline cost={cost} timeline={timeline} aiRec={aiRec} leadScore={leadScore} request={req} />
+                          )}
+
+                          {activeTab === "package" && (
+                            <PackageQuotePanel
+                              request={req}
+                              onRegenerateClick={() => revisePlan(req.id)}
+                              revisingId={revisingId}
+                            />
                           )}
 
                           {activeTab === "report" && (

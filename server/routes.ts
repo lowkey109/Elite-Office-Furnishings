@@ -14,6 +14,7 @@ import { sendLeadNotification, sendSupplierQuoteNotification, sendPlanningReques
 import { analyseSignals, extractDomain, type SignalInput, type SourceType } from "./services/leadIntelligence";
 import { CORPORATE_DESK_SYSTEM_PROMPT, ADVISOR_SYSTEM_MESSAGE, buildChatSystemPrompt, buildAdvisorSystemPrompt } from "./systemPrompt";
 import { getAdaptersMeta } from "./adapters/manualAdapter";
+import { generatePackageAndQuote } from "./ai/packageGenerator";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -763,6 +764,18 @@ export async function registerRoutes(
           aiLeadScore = typeof parsed.leadScore === "number" ? parsed.leadScore : null;
           aiEstimatedValue = parsed.estimatedProjectValue || null;
           aiTimeline = parsed.implementationTimeline || null;
+          try {
+            const { package: pkg, quote } = generatePackageAndQuote(
+              parsed,
+              body.name,
+              body.company || "",
+              body.staffCount
+            );
+            (body as any)._packageJson = JSON.stringify(pkg);
+            (body as any)._quoteJson = JSON.stringify(quote);
+          } catch (pkgErr) {
+            console.error("[PackageGen] Package generation failed:", pkgErr);
+          }
         }
       } catch (aiErr) {
         console.error("[AI] Space planning generation failed:", aiErr);
@@ -791,6 +804,8 @@ export async function registerRoutes(
         leadScore: aiLeadScore ?? undefined,
         estimatedValue: aiEstimatedValue ?? undefined,
         implementationTimeline: aiTimeline ?? undefined,
+        packageJson: (body as any)._packageJson || undefined,
+        quoteJson: (body as any)._quoteJson || undefined,
         source: "upload-floor-plan",
       });
 
@@ -911,6 +926,9 @@ export async function registerRoutes(
       let aiEstimatedValue: string | null = existing.estimatedValue ?? null;
       let aiTimeline: string | null = existing.implementationTimeline ?? null;
 
+      let revisedPackageJson: string | undefined;
+      let revisedQuoteJson: string | undefined;
+
       const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
@@ -919,6 +937,18 @@ export async function registerRoutes(
         if (typeof parsed.leadScore === "number") aiLeadScore = parsed.leadScore;
         if (parsed.estimatedProjectValue) aiEstimatedValue = parsed.estimatedProjectValue;
         if (parsed.implementationTimeline) aiTimeline = parsed.implementationTimeline;
+        try {
+          const { package: pkg, quote } = generatePackageAndQuote(
+            parsed,
+            existing.name,
+            existing.company || "",
+            existing.staffCount || undefined
+          );
+          revisedPackageJson = JSON.stringify(pkg);
+          revisedQuoteJson = JSON.stringify(quote);
+        } catch (pkgErr) {
+          console.error("[PackageGen] Package revision failed:", pkgErr);
+        }
       }
 
       const updated = await storage.updatePlanningRequest(id, {
@@ -928,6 +958,8 @@ export async function registerRoutes(
         estimatedValue: aiEstimatedValue ?? undefined,
         implementationTimeline: aiTimeline ?? undefined,
         adminNotes: adminNotes || existing.adminNotes || undefined,
+        packageJson: revisedPackageJson,
+        quoteJson: revisedQuoteJson,
       });
 
       res.json({

@@ -131,6 +131,9 @@ export const planningRequests = pgTable("planning_requests", {
   stripeSessionId: text("stripe_session_id"),
   paymentStatus: text("payment_status").default("unpaid"),
   paymentTier: text("payment_tier"),
+  packageJson: text("package_json"),
+  quoteJson: text("quote_json"),
+  quoteStatus: text("quote_status").default("draft"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

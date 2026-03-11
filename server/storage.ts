@@ -115,6 +115,9 @@ export interface InsertPlanningRequest {
   estimatedValue?: string;
   implementationTimeline?: string;
   source?: string;
+  packageJson?: string;
+  quoteJson?: string;
+  quoteStatus?: string;
 }
 
 export interface IStorage {
@@ -415,6 +418,11 @@ export class DrizzleStorage implements IStorage {
       uploadedFilesJson: data.uploadedFilesJson ?? "[]",
       aiSummary: data.aiSummary,
       aiRecommendations: data.aiRecommendations,
+      leadScore: data.leadScore,
+      estimatedValue: data.estimatedValue,
+      implementationTimeline: data.implementationTimeline,
+      packageJson: data.packageJson,
+      quoteJson: data.quoteJson,
       status: "New",
       source: data.source ?? "upload-floor-plan",
     }).returning();

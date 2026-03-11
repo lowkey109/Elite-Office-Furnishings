@@ -1,0 +1,259 @@
+You are upgrading the live The Corporate Desk platform in Replit.
+
+You are in SAFE AI VISUAL LAYOUT GENERATOR MODE.
+
+IMPORTANT RULES
+
+Do NOT rebuild the site.
+Do NOT break:
+- AI office planner
+- product catalog
+- finance calculator
+- 3D viewer
+- admin dashboard
+- chatbot
+- lead capture
+- pricing system
+- website pages
+
+Only extend the current planner and layout system safely.
+
+PRIMARY OBJECTIVE
+
+Build a real AI visual workspace generator that turns a submitted floor plan into a visual office layout.
+
+The system must go beyond text recommendations and generate a visual 2D workspace plan showing:
+- workstation zones
+- executive offices
+- meeting rooms
+- boardroom
+- breakout areas
+- reception
+- circulation paths
+- product placement zones
+
+This must integrate with the current planner flow.
+
+==================================================
+STEP 1 — INPUT / FLOOR PLAN UNDERSTANDING
+==================================================
+
+Use the existing floor plan upload flow.
+
+Support these inputs:
+- PDF floor plans
+- PNG/JPG floor plan images
+- planner form inputs already collected:
+  - office size
+  - staff count
+  - meeting room count
+  - reception yes/no
+  - breakout yes/no
+  - executive office yes/no
+  - budget
+  - style preference
+
+Create a safe first-version floor plan understanding layer that:
+- reads the uploaded plan where possible
+- extracts or approximates usable layout zones
+- uses planner metadata when visual extraction is incomplete
+
+If exact plan parsing is difficult, create a hybrid approach:
+- use uploaded plan as reference
+- use AI/planner inputs to generate a clean conceptual layout
+
+Do NOT block implementation just because perfect floor-plan parsing is hard.
+
+==================================================
+STEP 2 — LAYOUT ENGINE
+==================================================
+
+Create a layout generation engine that converts planner inputs into structured workspace data.
+
+Create a module/service such as:
+- ai/planner/spaceLayoutEngine.ts
+or similar
+
+The engine should generate:
+- total usable workspace zones
+- desk cluster counts
+- meeting room allocation
+- executive office allocation
+- breakout allocation
+- reception placement
+- traffic/circulation paths
+
+Output structured layout data like:
+- workspace_zones
+- desk_clusters
+- meeting_rooms
+- breakout_areas
+- circulation_paths
+- layout_json
+
+The engine must reason using:
+- Australian workplace/WHS spacing logic
+- realistic workstation density
+- practical office flow
+- premium office planning logic
+
+==================================================
+STEP 3 — PRODUCT MAPPING
+==================================================
+
+Map layout zones to actual product categories and products from the current product/catalog system where possible.
+
+Examples:
+- workstation zone → workstation systems
+- executive office → executive desk + executive chair
+- meeting room → meeting table + meeting chairs
+- reception → reception desk + waiting chairs
+- breakout → lounge seating
+
+If exact SKU mapping is incomplete, use:
+- product categories first
+- SKU mappings where available
+
+Do NOT invent fake supplier branding on the frontend.
+Keep public output branded as The Corporate Desk.
+
+==================================================
+STEP 4 — VISUAL 2D RENDERING
+==================================================
+
+Build the first real visual layout output.
+
+Create a visual layout renderer using either:
+- SVG
+or
+- Canvas
+
+Preferred: SVG for clean labeling and export
+
+The visual layout must render:
+- walls / room boundary approximation
+- labeled zones
+- desk clusters
+- meeting rooms
+- breakout areas
+- reception
+- executive offices
+- circulation arrows/paths
+- furniture placement blocks/icons
+
+The output should feel:
+- premium
+- architectural
+- clean
+- believable
+- high-trust
+
+Do NOT make it look like a toy app or low-quality sketch.
+
+==================================================
+STEP 5 — RESULTS PAGE INTEGRATION
+==================================================
+
+Add the visual layout to the planner results page.
+
+After a user completes the planner, the results page should show:
+
+1. AI Workspace Summary
+2. Visual Workspace Layout
+3. Recommended Products / Collections / Packages
+4. Estimated Project Cost Range
+5. CTA buttons:
+   - Request Full Quote
+   - Book Strategy Call
+   - Unlock Full Layout (if payment gate exists)
+
+If there is already a payment gate:
+- show a limited/blurry preview before unlock
+- show full layout after unlock
+
+==================================================
+STEP 6 — ADMIN STORAGE
+==================================================
+
+Store generated layout data with the planning request.
+
+Ensure /admin/planning-requests can show:
+- layout_json
+- workspace_zones
+- package recommendation
+- estimated project value
+- visual layout preview reference if needed
+
+Do not break existing planning request records.
+
+==================================================
+STEP 7 — EXPORT
+==================================================
+
+Allow export of the visual layout in at least one of these formats:
+- PNG
+- PDF
+
+If both are feasible, do both.
+
+This export should be suitable for:
+- client proposal use
+- internal quote workflow
+
+==================================================
+STEP 8 — COMMERCIAL OUTPUT
+==================================================
+
+The AI must also generate:
+- a package recommendation
+- estimated project value range
+- why the layout suits the workspace
+- upsell/add-on suggestions
+
+Use structured sections like:
+- Workspace Summary
+- Layout Strategy
+- Recommended Products
+- Estimated Project Value
+- Next Best Step
+
+==================================================
+STEP 9 — TESTING
+==================================================
+
+Before finishing, test:
+
+1. planner submission still works
+2. uploaded floor plan still saves
+3. layout engine generates structured layout data
+4. visual layout renders on results page
+5. admin planning requests still work
+6. product mapping still works
+7. estimate logic still works
+8. PNG/PDF export works if implemented
+9. desktop/mobile both function
+10. no existing systems break
+
+==================================================
+STEP 10 — FINAL REPORT
+==================================================
+
+Return:
+1. files created
+2. files modified
+3. route/components updated
+4. how the layout engine works
+5. how visual rendering works
+6. how product mapping works
+7. what export formats work
+8. what is fully working now
+9. what is approximate or first-version only
+10. confirmation that current systems still work
+
+IMPORTANT
+
+Do not stay in planning mode.
+Inspect the current planner, results page, admin planning requests, and any existing layout/3D logic first.
+Then build the first real AI visual workspace generator safely on top of the existing system.
+Make the smallest safe changes necessary.
+Keep everything premium, commercially credible, and production-safe.
