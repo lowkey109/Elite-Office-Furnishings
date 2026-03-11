@@ -1,0 +1,153 @@
+You are working on the live The Corporate Desk Replit project.
+
+I need a complete audit and completion report of EVERYTHING currently built in this app.
+
+Do not make changes yet.
+Do not write new code.
+Do not refactor anything.
+Only inspect, verify, and report.
+
+Your task is to scan the full codebase, routes, database, pages, admin areas, AI systems, prompts, uploads, calculators, and integrations, then give me a structured report.
+
+Include all of the following:
+
+1. FULL SITE MAP
+List every public page and route currently built, including:
+- homepage
+- products
+- product categories
+- workplace solutions
+- quote builder
+- finance page
+- upload floor plan page
+- case studies
+- blog
+- about
+- contact
+- thank you pages
+- any other public routes
+
+For each page include:
+- route
+- page name
+- whether it is live
+- whether it is linked in navigation
+- short description of what it does
+
+2. ADMIN / CRM SYSTEMS
+List every admin page and internal route currently built, including:
+- admin dashboard
+- planning requests
+- lead intelligence
+- supplier quotes
+- referrals
+- marketing hub
+- any other admin tools
+
+For each one include:
+- route
+- purpose
+- whether it is working
+- what data it reads/writes
+
+3. AI FEATURES
+List every AI-powered feature currently implemented.
+For each one explain:
+- where it is used
+- what prompt/system prompt it uses
+- what inputs it takes
+- what outputs it generates
+- whether it is live and tested
+
+This must include:
+- office planner AI
+- floor plan upload analysis
+- lead intelligence AI
+- outreach message generation
+- business intelligence prompt
+- any other AI reasoning or OpenAI usage
+
+4. DATABASE AUDIT
+List all database tables currently in production.
+For each table include:
+- table name
+- what it stores
+- important columns
+- whether it is being actively used
+- what page or route uses it
+
+5. API / SERVER ROUTES
+List every backend/API route currently built.
+For each one include:
+- method
+- route
+- purpose
+- whether it is live
+- what it returns or saves
+
+6. PRODUCT SYSTEM
+Explain how the products page currently works.
+Include:
+- whether products are static or database-driven
+- whether pricing is hardcoded or dynamic
+- whether filters work
+- whether size variations work
+- whether quote requests work
+
+7. FINANCE / LEASING
+Specifically confirm:
+- whether the finance page exists
+- route
+- whether the calculator works
+- whether it is linked from anywhere
+- whether finance/leasing messaging is complete
+
+8. FLOOR PLAN UPLOAD SYSTEM
+Specifically confirm:
+- route
+- how uploads work
+- where files are stored
+- what happens after submission
+- what AI output is generated
+- where the submission appears in admin
+
+9. LEAD INTELLIGENCE ENGINE
+Specifically confirm:
+- route
+- what inputs it accepts
+- what signals it can analyse
+- whether it stores results
+- whether dedupe works
+- whether scoring works
+- whether outreach generation works
+
+10. DOMAIN / DEPLOYMENT STATUS
+Confirm:
+- current live domain(s)
+- whether thecorporatedesk.com.au points to this Replit app
+- whether the replit.app URL is also live
+- whether SSL is active
+- whether production DB is connected
+
+11. WHAT IS COMPLETE VS INCOMPLETE
+Give me two final sections:
+
+A. COMPLETED
+Everything that is fully built and working.
+
+B. INCOMPLETE / NEEDS FIXING
+Anything that is missing, broken, unlinked, half-built, visually messy, or not production-ready.
+
+12. FINAL SUMMARY
+End with a very clear summary:
+- what this app currently is
+- what it can already do
+- what still needs to be done before it is a polished final production site
+
+IMPORTANT:
+- Do not make assumptions
+- Inspect the actual codebase and actual routes
+- If something is not confirmed, say “not confirmed”
+- If something exists but is not linked or not polished, say so clearly
+- Give me the report in a clean structured format
+- This is an audit only, not a build task
