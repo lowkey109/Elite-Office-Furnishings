@@ -13,13 +13,44 @@
       "country": "China",
       "city": "Foshan, Guangdong",
       "specialization": "Premium executive and managerial office furniture",
-      "product_categories": ["Executive Desks", "Manager Desks", "Boardroom Tables", "Storage", "Workstations", "Reception Desks", "Office Seating"],
-      "catalog_files": ["design_style.pdf", "four_color_series_products.pdf"],
-      "certifications": ["ISO 9001", "E0 formaldehyde standard"],
+      "product_categories": [
+        "Executive Desks",
+        "Manager Desks",
+        "Boardroom Tables",
+        "Storage",
+        "Workstations",
+        "Reception Desks",
+        "Office Seating"
+      ],
+      "catalog_files": [
+        "design_style.pdf",
+        "four_color_series_products.pdf"
+      ],
+      "certifications": [
+        "ISO 9001",
+        "E0 formaldehyde standard"
+      ],
       "sku_prefix": "FSZ",
       "total_products": 145,
-      "series": ["Weiyi", "Blister", "Red Cliff", "Ruige", "Vic", "Zhuoya", "Dynamic", "Dell", "Evidenza", "Teak", "Pari", "New Berlin", "Shanhe", "Bit", "Four Color"],
-      "contact_note": "Do not contact directly — request via TCD procurement"
+      "series": [
+        "Weiyi",
+        "Blister",
+        "Red Cliff",
+        "Ruige",
+        "Vic",
+        "Zhuoya",
+        "Dynamic",
+        "Dell",
+        "Evidenza",
+        "Teak",
+        "Pari",
+        "New Berlin",
+        "Shanhe",
+        "Bit",
+        "Four Color"
+      ],
+      "contact_note": "Do not contact directly — request via TCD procurement",
+      "product_count": 143
     },
     {
       "id": "HSG",
@@ -28,13 +59,46 @@
       "brand_chinese": "华晟高桌",
       "country": "China",
       "specialization": "Height-adjustable / sit-stand office desks",
-      "product_categories": ["Sit-Stand Desks", "Workstations", "Manager Desks", "Executive Desks", "Storage", "Presentation"],
-      "catalog_files": ["huasheng-catalog-3.pdf"],
-      "certifications": ["SGS", "ISO 9001", "ISO 14001", "ISO 45001", "FCC Class B", "CE", "EMC", "BIFMA", "LVD", "MD", "EN 527"],
+      "product_categories": [
+        "Sit-Stand Desks",
+        "Workstations",
+        "Manager Desks",
+        "Executive Desks",
+        "Storage",
+        "Presentation"
+      ],
+      "catalog_files": [
+        "huasheng-catalog-3.pdf"
+      ],
+      "certifications": [
+        "SGS",
+        "ISO 9001",
+        "ISO 14001",
+        "ISO 45001",
+        "FCC Class B",
+        "CE",
+        "EMC",
+        "BIFMA",
+        "LVD",
+        "MD",
+        "EN 527"
+      ],
       "sku_prefix": "HSG",
       "total_products": 19,
-      "series": ["Milan", "Karen", "Owen", "Miller", "Mige", "Better", "Baggio", "Bonnie", "Mike", "Cape"],
-      "contact_note": "Do not contact directly — request via TCD procurement"
+      "series": [
+        "Milan",
+        "Karen",
+        "Owen",
+        "Miller",
+        "Mige",
+        "Better",
+        "Baggio",
+        "Bonnie",
+        "Mike",
+        "Cape"
+      ],
+      "contact_note": "Do not contact directly — request via TCD procurement",
+      "product_count": 21
     },
     {
       "id": "GJO",
@@ -43,13 +107,69 @@
       "brand_chinese": "高卓",
       "country": "China",
       "specialization": "Modern high-end executive and business office furniture",
-      "product_categories": ["Executive Desks", "Boardroom Tables", "Storage", "Workstations"],
-      "catalog_files": ["huasheng-catalog-1.pdf"],
-      "certifications": ["SGS", "ISO 9001", "ISO 14001", "ISO 45001"],
+      "product_categories": [
+        "Executive Desks",
+        "Boardroom Tables",
+        "Storage",
+        "Workstations"
+      ],
+      "catalog_files": [
+        "catalogs/huasheng-gaozhuo/gojo-executive-furniture-vol1.pdf",
+        "catalogs/huasheng-gaozhuo/gojo-executive-furniture-vol2.pdf",
+        "catalogs/huasheng-gaozhuo/gojo-steel-office-systems.pdf"
+      ],
+      "certifications": [
+        "SGS",
+        "ISO 9001",
+        "ISO 14001",
+        "ISO 45001"
+      ],
       "sku_prefix": "GJO",
       "total_products": 25,
-      "series": ["LRU", "JCN", "YIN", "VEP", "VEIYE", "YUP", "GUANHE", "YUZ", "BSA", "WINA", "WPN", "MZE", "JN", "YA", "HXT"],
-      "contact_note": "Do not contact directly — request via TCD procurement"
+      "series": [
+        "LRU",
+        "JCN",
+        "YIN",
+        "VEP",
+        "VEIYE",
+        "YUP",
+        "GUANHE",
+        "YUZ",
+        "BSA",
+        "WINA",
+        "WPN",
+        "MZE",
+        "JN",
+        "YA",
+        "HXT"
+      ],
+      "contact_note": "Do not contact directly — request via TCD procurement",
+      "product_count": 55,
+      "categories": [
+        "Storage & Filing"
+      ],
+      "notes": " Also manufactures GOJO Steel Office Systems (Yashang + Yafeng series) — filing cabinets, pedestals, lockers, mail cabinets. GOJO Executive Vol 2 covers JN series (忆江南)."
+    },
+    {
+      "id": "LSG",
+      "name": "Huasheng Furniture Group — Lounge & Seating Division",
+      "brand": "GOJO Lounge",
+      "country": "China",
+      "city": "Shanghai",
+      "address": "Huangpu District, Huaxu Park 888, Building B, Floor 1, Shanghai",
+      "phone": "400-998-2722",
+      "email": "huashenggaozhuo@126.com",
+      "website": null,
+      "sku_prefix": "GJO-LS",
+      "product_count": 13,
+      "categories": [
+        "Lounge Seating",
+        "Occasional Tables"
+      ],
+      "catalog_files": [
+        "catalogs/huasheng-gaozhuo/office-lounge-seating-catalog.pdf"
+      ],
+      "notes": "Lounge and seating division of Huasheng Gaozhuo. Product catalog: 'Inspiration Comes from Nature'. Sofas, accent chairs, side tables, coffee tables."
     }
   ]
 }

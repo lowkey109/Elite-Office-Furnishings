@@ -1,24 +1,28 @@
 {
   "metadata": {
     "generated": "2026-03-11",
-    "last_updated": "2026-03-11",
+    "last_updated": "2026-03-11T13:37:58.896Z",
     "sources": [
-      "/catalogs/feisenzhuo/design_style.pdf",
-      "/catalogs/feisenzhuo/four_color_series_products.pdf",
-      "/catalogs/huasheng-gaozhuo/huasheng-catalog-3.pdf",
-      "/catalogs/huasheng-gaozhuo/huasheng-catalog-1.pdf"
+      "catalogs/feisenzhuo/design_style.pdf",
+      "catalogs/feisenzhuo/four_color_series_products.pdf",
+      "catalogs/huasheng-gaozhuo/huasheng-sitstand-desks.pdf",
+      "catalogs/huasheng-gaozhuo/gojo-executive-furniture-vol1.pdf",
+      "catalogs/huasheng-gaozhuo/gojo-executive-furniture-vol2.pdf",
+      "catalogs/huasheng-gaozhuo/gojo-steel-office-systems.pdf",
+      "catalogs/huasheng-gaozhuo/office-lounge-seating-catalog.pdf"
     ],
     "suppliers": [
       "Foshan Feisenzhuo Furniture Co., Ltd.",
       "Huasheng Furniture Group — Gaozhuo Division",
-      "Huasheng Furniture Group — GOJO Division"
+      "Huasheng Furniture Group — GOJO Division",
+      "Huasheng Furniture Group — Lounge & Seating Division"
     ],
-    "total_products": 189,
+    "total_products": 232,
     "by_supplier": {
       "Foshan Feisenzhuo Furniture Co., Ltd.": 143,
       "Huasheng Furniture Group — Gaozhuo Division": 21,
-      "Huasheng Furniture Group — GOJO Division": 25,
-      "needs_manual_review_within_gojo": 14
+      "Huasheng Furniture Group — GOJO Division": 55,
+      "Huasheng Furniture Group — Lounge & Seating Division": 13
     },
     "categories": {
       "Executive Desks": "Large CEO/director desks",
@@ -27,11 +31,13 @@
       "Workstations": "Open-plan and height-adjustable workstations",
       "Storage": "Cabinets, pedestals, shelving, pods",
       "Reception Desks": "Reception counters and podiums",
-      "Office Seating": "Chairs and seating"
+      "Office Seating": "Chairs and seating",
+      "Storage & Filing": "Steel filing cabinets, pedestals, lateral files, lockers",
+      "Lounge Seating": "Leather sofas, lounge chairs, accent chairs",
+      "Occasional Tables": "Side tables, coffee tables, sintered stone tops"
     }
   },
   "products": [
-
     {
       "product_name": "Weiyi Executive L-Desk 2400",
       "sku": "FSZ-VE-D0124",
@@ -40,7 +46,10 @@
       "series": "Weiyi",
       "dimensions": "2400x2000x760mm / 2600x2000x760mm",
       "materials": "Melamine board, E0 grade, steel frame",
-      "colors": ["Charcoal grey", "Walnut"],
+      "colors": [
+        "Charcoal grey",
+        "Walnut"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
     },
     {
@@ -51,7 +60,10 @@
       "series": "Weiyi",
       "dimensions": "2800x2200x760mm / 3200x2200x760mm",
       "materials": "Melamine board, E0 grade, steel frame",
-      "colors": ["Charcoal grey", "Walnut"],
+      "colors": [
+        "Charcoal grey",
+        "Walnut"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
     },
     {
@@ -62,7 +74,9 @@
       "series": "Weiyi",
       "dimensions": "2400x1600x760mm",
       "materials": "Melamine board, E0 grade, steel frame",
-      "colors": ["Charcoal grey"],
+      "colors": [
+        "Charcoal grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
     },
     {
@@ -73,7 +87,9 @@
       "series": "Weiyi",
       "dimensions": "3200x1100x760mm",
       "materials": "Melamine board, E0 grade, steel frame",
-      "colors": ["Charcoal grey"],
+      "colors": [
+        "Charcoal grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
     },
     {
@@ -84,7 +100,10 @@
       "series": "Weiyi",
       "dimensions": "1800x1400x760mm / 2000x1600x760mm / 2400x1800x760mm",
       "materials": "Melamine board, E0 grade, steel frame",
-      "colors": ["Charcoal grey", "Walnut"],
+      "colors": [
+        "Charcoal grey",
+        "Walnut"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
     },
     {
@@ -95,7 +114,9 @@
       "series": "Weiyi",
       "dimensions": "1600x840x760mm / 1800x840x760mm / 2000x840x760mm",
       "materials": "Melamine board, E0 grade, steel frame",
-      "colors": ["Charcoal grey"],
+      "colors": [
+        "Charcoal grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
     },
     {
@@ -106,7 +127,9 @@
       "series": "Weiyi",
       "dimensions": "1600x1600x760mm / 2000x1600x760mm",
       "materials": "Melamine board, E0 grade, steel frame",
-      "colors": ["Charcoal grey"],
+      "colors": [
+        "Charcoal grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
     },
     {
@@ -117,7 +140,9 @@
       "series": "Weiyi",
       "dimensions": "2400x1200x760mm",
       "materials": "Melamine board, E0 grade, steel base",
-      "colors": ["Charcoal grey"],
+      "colors": [
+        "Charcoal grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
     },
     {
@@ -128,7 +153,9 @@
       "series": "Weiyi",
       "dimensions": "3200x1400x760mm",
       "materials": "Melamine board, E0 grade, steel base",
-      "colors": ["Charcoal grey"],
+      "colors": [
+        "Charcoal grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
     },
     {
@@ -139,7 +166,9 @@
       "series": "Weiyi",
       "dimensions": "4500x1500x760mm",
       "materials": "Melamine board, E0 grade, steel base",
-      "colors": ["Charcoal grey"],
+      "colors": [
+        "Charcoal grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
     },
     {
@@ -150,7 +179,9 @@
       "series": "Weiyi",
       "dimensions": "2200x400x2000mm",
       "materials": "Melamine board, E0 grade, steel frame",
-      "colors": ["Charcoal grey"],
+      "colors": [
+        "Charcoal grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
     },
     {
@@ -161,7 +192,9 @@
       "series": "Weiyi",
       "dimensions": "2400x400x2000mm",
       "materials": "Melamine board, E0 grade, steel frame",
-      "colors": ["Charcoal grey"],
+      "colors": [
+        "Charcoal grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
     },
     {
@@ -172,7 +205,9 @@
       "series": "Weiyi",
       "dimensions": "2600x400x2000mm",
       "materials": "Melamine board, E0 grade, steel frame",
-      "colors": ["Charcoal grey"],
+      "colors": [
+        "Charcoal grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
     },
     {
@@ -183,7 +218,9 @@
       "series": "Weiyi",
       "dimensions": "2800x400x2000mm",
       "materials": "Melamine board, E0 grade, steel frame",
-      "colors": ["Charcoal grey"],
+      "colors": [
+        "Charcoal grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
     },
     {
@@ -194,7 +231,9 @@
       "series": "Weiyi",
       "dimensions": "3200x400x2000mm",
       "materials": "Melamine board, E0 grade, steel frame",
-      "colors": ["Charcoal grey"],
+      "colors": [
+        "Charcoal grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
     },
     {
@@ -205,10 +244,12 @@
       "series": "Weiyi",
       "dimensions": "1060x880x820mm (single) / 2060x880x820mm (double)",
       "materials": "PU leather, foam cushion, steel frame",
-      "colors": ["Charcoal grey", "Beige"],
+      "colors": [
+        "Charcoal grey",
+        "Beige"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
     },
-
     {
       "product_name": "Blister Executive L-Desk",
       "sku": "FSZ-BC-T-2433",
@@ -217,7 +258,9 @@
       "series": "Blister",
       "dimensions": "1800x1600x750mm / 2000x1600x750mm / 2200x1600x750mm / 2400x1600x750mm",
       "materials": "Blister panel, walnut veneer, powder-coated steel base",
-      "colors": ["Cream white / Walnut"],
+      "colors": [
+        "Cream white / Walnut"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-05.jpg"
     },
     {
@@ -228,7 +271,9 @@
       "series": "Blister",
       "dimensions": "2200x2000x750mm / 2400x2000x750mm / 2600x2000x750mm",
       "materials": "Blister panel, walnut veneer, powder-coated steel base",
-      "colors": ["Cream white / Walnut"],
+      "colors": [
+        "Cream white / Walnut"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-05.jpg"
     },
     {
@@ -239,7 +284,9 @@
       "series": "Blister",
       "dimensions": "2400x400x2000mm",
       "materials": "Blister panel, walnut veneer, steel frame",
-      "colors": ["Cream white / Walnut"],
+      "colors": [
+        "Cream white / Walnut"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-05.jpg"
     },
     {
@@ -250,7 +297,9 @@
       "series": "Blister",
       "dimensions": "2400x400x2000mm",
       "materials": "Blister panel, walnut veneer, steel frame",
-      "colors": ["Cream white / Walnut / Caramel"],
+      "colors": [
+        "Cream white / Walnut / Caramel"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-05.jpg"
     },
     {
@@ -261,10 +310,11 @@
       "series": "Blister",
       "dimensions": "3000x400x2000mm",
       "materials": "Blister panel, walnut veneer, steel frame",
-      "colors": ["Cream white / Walnut"],
+      "colors": [
+        "Cream white / Walnut"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-05.jpg"
     },
-
     {
       "product_name": "Red Cliff CEO Executive Desk 2800",
       "sku": "FSZ-FL-CB-01",
@@ -273,7 +323,9 @@
       "series": "Red Cliff",
       "dimensions": "2800x2400x750mm / 3200x2400x750mm",
       "materials": "Melamine board, stone-effect panel, brushed steel base",
-      "colors": ["Dark walnut / Stone grey"],
+      "colors": [
+        "Dark walnut / Stone grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-06.jpg"
     },
     {
@@ -284,7 +336,9 @@
       "series": "Red Cliff",
       "dimensions": "2000x2900x750mm / 2200x2900x750mm / 2400x2200x750mm / 2600x2200x750mm",
       "materials": "Melamine board, stone-effect panel, brushed steel base",
-      "colors": ["Dark walnut / Stone grey"],
+      "colors": [
+        "Dark walnut / Stone grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-06.jpg"
     },
     {
@@ -295,7 +349,9 @@
       "series": "Red Cliff",
       "dimensions": "2400x400x2000mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Dark walnut / Stone grey"],
+      "colors": [
+        "Dark walnut / Stone grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-06.jpg"
     },
     {
@@ -306,7 +362,9 @@
       "series": "Red Cliff",
       "dimensions": "3000x400x2080mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Dark walnut / Stone grey"],
+      "colors": [
+        "Dark walnut / Stone grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-06.jpg"
     },
     {
@@ -317,10 +375,11 @@
       "series": "Red Cliff",
       "dimensions": "3800x400x2080mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Dark walnut / Stone grey"],
+      "colors": [
+        "Dark walnut / Stone grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-06.jpg"
     },
-
     {
       "product_name": "New Art Manager Desk 1400",
       "sku": "FSZ-DO-AXY-D0114",
@@ -329,7 +388,9 @@
       "series": "New Art",
       "dimensions": "1400x700x750mm / 1600x800x750mm",
       "materials": "Melamine board, E0 grade, brushed steel legs",
-      "colors": ["Dark wood / Gold accent"],
+      "colors": [
+        "Dark wood / Gold accent"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-07.jpg"
     },
     {
@@ -340,7 +401,9 @@
       "series": "New Art",
       "dimensions": "1800x1650x750mm / 2000x1650x750mm",
       "materials": "Melamine board, E0 grade, brushed steel legs",
-      "colors": ["Dark wood / Gold accent"],
+      "colors": [
+        "Dark wood / Gold accent"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-07.jpg"
     },
     {
@@ -351,7 +414,9 @@
       "series": "New Art",
       "dimensions": "2400x1700x750mm / 2800x2080x750mm / 3200x2070x750mm",
       "materials": "Melamine board, E0 grade, brushed steel legs",
-      "colors": ["Dark wood / Gold accent"],
+      "colors": [
+        "Dark wood / Gold accent"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-07.jpg"
     },
     {
@@ -362,7 +427,9 @@
       "series": "New Art",
       "dimensions": "2400x900x750mm / 2800x960x750mm / 3200x1060x750mm",
       "materials": "Melamine board, E0 grade, brushed steel legs",
-      "colors": ["Dark wood / Gold accent"],
+      "colors": [
+        "Dark wood / Gold accent"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-07.jpg"
     },
     {
@@ -373,7 +440,9 @@
       "series": "New Art",
       "dimensions": "2400x1100x750mm / 3200x1200x750mm / 4500x1500x750mm / 6000x1500x750mm",
       "materials": "Melamine board, E0 grade, brushed steel base",
-      "colors": ["Dark wood / Gold accent"],
+      "colors": [
+        "Dark wood / Gold accent"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-07.jpg"
     },
     {
@@ -384,10 +453,11 @@
       "series": "New Art",
       "dimensions": "3400x430x2000mm",
       "materials": "Melamine board, E0 grade, steel frame",
-      "colors": ["Dark wood / Gold accent"],
+      "colors": [
+        "Dark wood / Gold accent"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-07.jpg"
     },
-
     {
       "product_name": "Ruige CEO Executive L-Desk 2800",
       "sku": "FSZ-RG-T01",
@@ -396,7 +466,9 @@
       "series": "Ruige",
       "dimensions": "2800x2400x760mm / 3200x2400x760mm",
       "materials": "Melamine board, PU leather pedestal, brushed metal trim",
-      "colors": ["Beige / Stone grey"],
+      "colors": [
+        "Beige / Stone grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-08.jpg"
     },
     {
@@ -407,7 +479,9 @@
       "series": "Ruige",
       "dimensions": "2400x2000x760mm / 2600x2000x760mm",
       "materials": "Melamine board, PU leather pedestal, brushed metal trim",
-      "colors": ["Beige / Stone grey"],
+      "colors": [
+        "Beige / Stone grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-08.jpg"
     },
     {
@@ -418,7 +492,9 @@
       "series": "Ruige",
       "dimensions": "2200x1980x760mm / 2400x2000x760mm / 2600x2000x760mm",
       "materials": "Melamine board, PU leather pedestal, brushed metal trim",
-      "colors": ["Beige / Stone grey"],
+      "colors": [
+        "Beige / Stone grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-08.jpg"
     },
     {
@@ -429,7 +505,9 @@
       "series": "Ruige",
       "dimensions": "2200x1980x760mm / 2400x2000x760mm / 2600x2000x760mm",
       "materials": "Melamine board, PU leather pedestal, brushed metal trim",
-      "colors": ["Beige / Stone grey"],
+      "colors": [
+        "Beige / Stone grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-08.jpg"
     },
     {
@@ -440,7 +518,9 @@
       "series": "Ruige",
       "dimensions": "3200x2400x760mm / 3500x2400x760mm",
       "materials": "Melamine board, PU leather pedestal, brushed metal trim",
-      "colors": ["Beige / Stone grey"],
+      "colors": [
+        "Beige / Stone grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-08.jpg"
     },
     {
@@ -451,7 +531,9 @@
       "series": "Ruige",
       "dimensions": "3600x1400x760mm",
       "materials": "Melamine board, brushed metal base",
-      "colors": ["Beige / Stone grey"],
+      "colors": [
+        "Beige / Stone grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-08.jpg"
     },
     {
@@ -462,7 +544,9 @@
       "series": "Ruige",
       "dimensions": "4800x1500x760mm",
       "materials": "Melamine board, brushed metal base",
-      "colors": ["Beige / Stone grey"],
+      "colors": [
+        "Beige / Stone grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-08.jpg"
     },
     {
@@ -473,7 +557,9 @@
       "series": "Ruige",
       "dimensions": "2800x400x2000mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Beige / Stone grey"],
+      "colors": [
+        "Beige / Stone grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-08.jpg"
     },
     {
@@ -484,7 +570,9 @@
       "series": "Ruige",
       "dimensions": "3000x400x2000mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Beige / Stone grey"],
+      "colors": [
+        "Beige / Stone grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-08.jpg"
     },
     {
@@ -495,10 +583,11 @@
       "series": "Ruige",
       "dimensions": "3600x400x2000mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Beige / Stone grey"],
+      "colors": [
+        "Beige / Stone grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-08.jpg"
     },
-
     {
       "product_name": "Vic Executive L-Desk 2400",
       "sku": "FSZ-VIC-D0124",
@@ -507,7 +596,9 @@
       "series": "Vic",
       "dimensions": "2400x2000x760mm / 2600x2000x760mm",
       "materials": "Melamine board, E0 grade, steel frame, copper trim",
-      "colors": ["Tan / Dark wood"],
+      "colors": [
+        "Tan / Dark wood"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-09.jpg"
     },
     {
@@ -518,7 +609,9 @@
       "series": "Vic",
       "dimensions": "2800x2200x760mm / 3200x2200x760mm",
       "materials": "Melamine board, E0 grade, steel frame, copper trim",
-      "colors": ["Tan / Dark wood"],
+      "colors": [
+        "Tan / Dark wood"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-09.jpg"
     },
     {
@@ -529,7 +622,9 @@
       "series": "Vic",
       "dimensions": "1800x1800x760mm / 2000x1800x760mm",
       "materials": "Melamine board, E0 grade, steel frame, copper trim",
-      "colors": ["Tan / Dark wood"],
+      "colors": [
+        "Tan / Dark wood"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-09.jpg"
     },
     {
@@ -540,7 +635,9 @@
       "series": "Vic",
       "dimensions": "2200x2000x760mm / 2400x2000x760mm",
       "materials": "Melamine board, E0 grade, steel frame, copper trim",
-      "colors": ["Tan / Dark wood"],
+      "colors": [
+        "Tan / Dark wood"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-09.jpg"
     },
     {
@@ -551,7 +648,9 @@
       "series": "Vic",
       "dimensions": "2200x400x2000mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Tan / Dark wood"],
+      "colors": [
+        "Tan / Dark wood"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-09.jpg"
     },
     {
@@ -562,7 +661,9 @@
       "series": "Vic",
       "dimensions": "2400x400x2000mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Tan / Dark wood"],
+      "colors": [
+        "Tan / Dark wood"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-09.jpg"
     },
     {
@@ -573,7 +674,9 @@
       "series": "Vic",
       "dimensions": "2600x400x2000mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Tan / Dark wood"],
+      "colors": [
+        "Tan / Dark wood"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-09.jpg"
     },
     {
@@ -584,10 +687,11 @@
       "series": "Vic",
       "dimensions": "3600x400x2000mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Tan / Dark wood"],
+      "colors": [
+        "Tan / Dark wood"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-09.jpg"
     },
-
     {
       "product_name": "Zhuoya Executive L-Desk 2200",
       "sku": "FSZ-ZYA-KBBT24",
@@ -596,7 +700,9 @@
       "series": "Zhuoya",
       "dimensions": "2200x1900x760mm / 2400x1900x760mm",
       "materials": "Melamine board, E0 grade, chrome steel base",
-      "colors": ["Champagne / Beige"],
+      "colors": [
+        "Champagne / Beige"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-10.jpg"
     },
     {
@@ -607,7 +713,9 @@
       "series": "Zhuoya",
       "dimensions": "2800x2300x760mm / 3200x2300x760mm",
       "materials": "Melamine board, E0 grade, chrome steel base",
-      "colors": ["Champagne / Beige"],
+      "colors": [
+        "Champagne / Beige"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-10.jpg"
     },
     {
@@ -618,7 +726,9 @@
       "series": "Zhuoya",
       "dimensions": "2400x1200x760mm",
       "materials": "Melamine board, chrome steel base",
-      "colors": ["Champagne / Beige"],
+      "colors": [
+        "Champagne / Beige"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-10.jpg"
     },
     {
@@ -629,7 +739,9 @@
       "series": "Zhuoya",
       "dimensions": "3200x1500x760mm",
       "materials": "Melamine board, chrome steel base",
-      "colors": ["Champagne / Beige"],
+      "colors": [
+        "Champagne / Beige"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-10.jpg"
     },
     {
@@ -640,7 +752,9 @@
       "series": "Zhuoya",
       "dimensions": "4800x1500x760mm",
       "materials": "Melamine board, chrome steel base",
-      "colors": ["Champagne / Beige"],
+      "colors": [
+        "Champagne / Beige"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-10.jpg"
     },
     {
@@ -651,7 +765,9 @@
       "series": "Zhuoya",
       "dimensions": "2800x400x2000mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Champagne / Beige"],
+      "colors": [
+        "Champagne / Beige"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-10.jpg"
     },
     {
@@ -662,7 +778,9 @@
       "series": "Zhuoya",
       "dimensions": "3600x400x2000mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Champagne / Beige"],
+      "colors": [
+        "Champagne / Beige"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-10.jpg"
     },
     {
@@ -673,10 +791,11 @@
       "series": "Zhuoya",
       "dimensions": "730x730x1160mm",
       "materials": "High-back PU leather, adjustable lumbar, aluminium base",
-      "colors": ["Champagne / Beige leather"],
+      "colors": [
+        "Champagne / Beige leather"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-10.jpg"
     },
-
     {
       "product_name": "Dynamic Executive L-Desk 2400",
       "sku": "FSZ-DDG-01D24",
@@ -685,7 +804,9 @@
       "series": "Dynamic",
       "dimensions": "2400x1800x760mm",
       "materials": "Blister panel, stone surface top, steel base",
-      "colors": ["Champagne / Grey stone"],
+      "colors": [
+        "Champagne / Grey stone"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-11.jpg"
     },
     {
@@ -696,7 +817,9 @@
       "series": "Dynamic",
       "dimensions": "2800x2100x760mm",
       "materials": "Blister panel, stone surface top, steel base",
-      "colors": ["Champagne / Grey stone"],
+      "colors": [
+        "Champagne / Grey stone"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-11.jpg"
     },
     {
@@ -707,7 +830,9 @@
       "series": "Dynamic",
       "dimensions": "3200x2200x760mm",
       "materials": "Blister panel, stone surface top, steel base",
-      "colors": ["Champagne / Grey stone"],
+      "colors": [
+        "Champagne / Grey stone"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-11.jpg"
     },
     {
@@ -718,7 +843,9 @@
       "series": "Dynamic",
       "dimensions": "3000x450x2100mm",
       "materials": "Blister panel, steel frame",
-      "colors": ["Champagne / Grey stone"],
+      "colors": [
+        "Champagne / Grey stone"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-11.jpg"
     },
     {
@@ -729,10 +856,11 @@
       "series": "Dynamic",
       "dimensions": "3600x450x2100mm",
       "materials": "Blister panel, steel frame",
-      "colors": ["Champagne / Grey stone"],
+      "colors": [
+        "Champagne / Grey stone"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-11.jpg"
     },
-
     {
       "product_name": "Dell Manager Desk 2000",
       "sku": "FSZ-DDE-D0120",
@@ -741,7 +869,9 @@
       "series": "Dell",
       "dimensions": "2000x1766x760mm",
       "materials": "Blister panel, cream white, wooden frame",
-      "colors": ["Cream white / Timber"],
+      "colors": [
+        "Cream white / Timber"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-12.jpg"
     },
     {
@@ -752,7 +882,9 @@
       "series": "Dell",
       "dimensions": "2400x1966x760mm",
       "materials": "Blister panel, cream white, wooden frame",
-      "colors": ["Cream white / Timber"],
+      "colors": [
+        "Cream white / Timber"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-12.jpg"
     },
     {
@@ -763,7 +895,9 @@
       "series": "Dell",
       "dimensions": "2800x2166x760mm",
       "materials": "Blister panel, cream white, wooden frame",
-      "colors": ["Cream white / Timber"],
+      "colors": [
+        "Cream white / Timber"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-12.jpg"
     },
     {
@@ -774,7 +908,9 @@
       "series": "Dell",
       "dimensions": "3218x400x2105mm",
       "materials": "Blister panel, steel frame",
-      "colors": ["Cream white / Timber"],
+      "colors": [
+        "Cream white / Timber"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-12.jpg"
     },
     {
@@ -785,7 +921,9 @@
       "series": "Dell",
       "dimensions": "3200x1350x750mm",
       "materials": "Blister panel, steel base",
-      "colors": ["Cream white / Timber"],
+      "colors": [
+        "Cream white / Timber"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-12.jpg"
     },
     {
@@ -796,10 +934,11 @@
       "series": "Dell",
       "dimensions": "4500x1500x750mm",
       "materials": "Blister panel, steel base",
-      "colors": ["Cream white / Timber"],
+      "colors": [
+        "Cream white / Timber"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-12.jpg"
     },
-
     {
       "product_name": "Evidenza Executive Desk 2400",
       "sku": "FSZ-DDC-D0124",
@@ -808,7 +947,9 @@
       "series": "Evidenza",
       "dimensions": "2400x2000x760mm",
       "materials": "Walnut veneer, blister panel pedestal, steel legs",
-      "colors": ["Natural walnut / Cream"],
+      "colors": [
+        "Natural walnut / Cream"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-13.jpg"
     },
     {
@@ -819,7 +960,9 @@
       "series": "Evidenza",
       "dimensions": "2800x2200x760mm",
       "materials": "Walnut veneer, blister panel pedestal, steel legs",
-      "colors": ["Natural walnut / Cream"],
+      "colors": [
+        "Natural walnut / Cream"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-13.jpg"
     },
     {
@@ -830,7 +973,9 @@
       "series": "Evidenza",
       "dimensions": "3200x2400x760mm",
       "materials": "Walnut veneer, blister panel pedestal, steel legs",
-      "colors": ["Natural walnut / Cream"],
+      "colors": [
+        "Natural walnut / Cream"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-13.jpg"
     },
     {
@@ -841,7 +986,9 @@
       "series": "Evidenza",
       "dimensions": "3600x1350x750mm",
       "materials": "Walnut veneer, steel base",
-      "colors": ["Natural walnut / Cream"],
+      "colors": [
+        "Natural walnut / Cream"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-13.jpg"
     },
     {
@@ -852,7 +999,9 @@
       "series": "Evidenza",
       "dimensions": "4800x1500x750mm",
       "materials": "Walnut veneer, steel base",
-      "colors": ["Natural walnut / Cream"],
+      "colors": [
+        "Natural walnut / Cream"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-13.jpg"
     },
     {
@@ -863,10 +1012,11 @@
       "series": "Evidenza",
       "dimensions": "3600x400x2000mm",
       "materials": "Walnut veneer, steel frame",
-      "colors": ["Natural walnut / Cream"],
+      "colors": [
+        "Natural walnut / Cream"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-13.jpg"
     },
-
     {
       "product_name": "Teak Executive L-Desk 2600",
       "sku": "FSZ-57MHS001",
@@ -875,7 +1025,9 @@
       "series": "Teak",
       "dimensions": "2600x2050x750mm",
       "materials": "Walnut teak veneer, brushed copper trim, steel frame",
-      "colors": ["Walnut teak / Grey"],
+      "colors": [
+        "Walnut teak / Grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-14.jpg"
     },
     {
@@ -886,7 +1038,9 @@
       "series": "Teak",
       "dimensions": "2400x2050x750mm",
       "materials": "Walnut teak veneer, brushed copper trim, steel frame",
-      "colors": ["Walnut teak / Grey"],
+      "colors": [
+        "Walnut teak / Grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-14.jpg"
     },
     {
@@ -897,7 +1051,9 @@
       "series": "Teak",
       "dimensions": "2000x1700x750mm",
       "materials": "Walnut teak veneer, brushed copper trim, steel frame",
-      "colors": ["Walnut teak / Grey"],
+      "colors": [
+        "Walnut teak / Grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-14.jpg"
     },
     {
@@ -908,7 +1064,9 @@
       "series": "Teak",
       "dimensions": "1800x1700x750mm",
       "materials": "Walnut teak veneer, brushed copper trim, steel frame",
-      "colors": ["Walnut teak / Grey"],
+      "colors": [
+        "Walnut teak / Grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-14.jpg"
     },
     {
@@ -919,7 +1077,9 @@
       "series": "Teak",
       "dimensions": "2400x400x2000mm",
       "materials": "Walnut teak veneer, steel frame",
-      "colors": ["Walnut teak / Grey"],
+      "colors": [
+        "Walnut teak / Grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-14.jpg"
     },
     {
@@ -930,10 +1090,11 @@
       "series": "Teak",
       "dimensions": "2800x400x2000mm",
       "materials": "Walnut teak veneer, steel frame",
-      "colors": ["Walnut teak / Grey"],
+      "colors": [
+        "Walnut teak / Grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-14.jpg"
     },
-
     {
       "product_name": "Pari Premium Executive L-Desk 2000",
       "sku": "FSZ-56MPL001",
@@ -942,7 +1103,9 @@
       "series": "Pari",
       "dimensions": "2000x2320x763mm / 3200x2000x763mm",
       "materials": "Classic walnut veneer, powder-coated steel frame",
-      "colors": ["Classic walnut"],
+      "colors": [
+        "Classic walnut"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-15.jpg"
     },
     {
@@ -953,7 +1116,9 @@
       "series": "Pari",
       "dimensions": "3000x2320x760mm / 3200x2320x760mm",
       "materials": "Classic walnut veneer, powder-coated steel frame",
-      "colors": ["Classic walnut"],
+      "colors": [
+        "Classic walnut"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-15.jpg"
     },
     {
@@ -964,7 +1129,9 @@
       "series": "Pari",
       "dimensions": "2400x2000x760mm / 2600x2000x760mm",
       "materials": "Classic walnut veneer, powder-coated steel frame",
-      "colors": ["Classic walnut"],
+      "colors": [
+        "Classic walnut"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-15.jpg"
     },
     {
@@ -975,7 +1142,9 @@
       "series": "Pari",
       "dimensions": "1800x1600x760mm / 2000x1600x760mm",
       "materials": "Classic walnut veneer, powder-coated steel frame",
-      "colors": ["Classic walnut"],
+      "colors": [
+        "Classic walnut"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-15.jpg"
     },
     {
@@ -986,7 +1155,9 @@
       "series": "Pari",
       "dimensions": "2400x1100x767mm",
       "materials": "Classic walnut veneer, steel base",
-      "colors": ["Classic walnut"],
+      "colors": [
+        "Classic walnut"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-15.jpg"
     },
     {
@@ -997,7 +1168,9 @@
       "series": "Pari",
       "dimensions": "3600x400x2000mm",
       "materials": "Classic walnut veneer, steel frame",
-      "colors": ["Classic walnut"],
+      "colors": [
+        "Classic walnut"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-15.jpg"
     },
     {
@@ -1008,10 +1181,11 @@
       "series": "Pari",
       "dimensions": "3200x400x2000mm",
       "materials": "Classic walnut veneer, steel frame",
-      "colors": ["Classic walnut"],
+      "colors": [
+        "Classic walnut"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-15.jpg"
     },
-
     {
       "product_name": "New Berlin Manager Desk 1800",
       "sku": "FSZ-XBL-D0218",
@@ -1020,7 +1194,9 @@
       "series": "New Berlin",
       "dimensions": "1800x1600x750mm",
       "materials": "Melamine board, steel frame, terracotta accent legs",
-      "colors": ["White / Terracotta orange"],
+      "colors": [
+        "White / Terracotta orange"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-16.jpg"
     },
     {
@@ -1031,7 +1207,9 @@
       "series": "New Berlin",
       "dimensions": "2000x1600x750mm",
       "materials": "Melamine board, steel frame, terracotta accent legs",
-      "colors": ["White / Terracotta orange"],
+      "colors": [
+        "White / Terracotta orange"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-16.jpg"
     },
     {
@@ -1042,7 +1220,9 @@
       "series": "New Berlin",
       "dimensions": "2200x1600x750mm",
       "materials": "Melamine board, steel frame, terracotta accent legs",
-      "colors": ["White / Terracotta orange"],
+      "colors": [
+        "White / Terracotta orange"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-16.jpg"
     },
     {
@@ -1053,7 +1233,9 @@
       "series": "New Berlin",
       "dimensions": "1200x1200x750mm / 1400x1200x750mm",
       "materials": "Melamine board, steel frame, terracotta accent legs",
-      "colors": ["White / Terracotta orange"],
+      "colors": [
+        "White / Terracotta orange"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-16.jpg"
     },
     {
@@ -1064,7 +1246,9 @@
       "series": "New Berlin",
       "dimensions": "2400x1200x750mm / 2800x1200x750mm",
       "materials": "Melamine board, steel frame, terracotta accent legs",
-      "colors": ["White / Terracotta orange"],
+      "colors": [
+        "White / Terracotta orange"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-16.jpg"
     },
     {
@@ -1075,7 +1259,9 @@
       "series": "New Berlin",
       "dimensions": "3600x1200x750mm / 4200x1200x750mm",
       "materials": "Melamine board, steel frame, terracotta accent legs",
-      "colors": ["White / Terracotta orange"],
+      "colors": [
+        "White / Terracotta orange"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-16.jpg"
     },
     {
@@ -1086,7 +1272,9 @@
       "series": "New Berlin",
       "dimensions": "2400x1200x750mm",
       "materials": "Melamine board, steel base",
-      "colors": ["White / Terracotta orange"],
+      "colors": [
+        "White / Terracotta orange"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-16.jpg"
     },
     {
@@ -1097,10 +1285,11 @@
       "series": "New Berlin",
       "dimensions": "2400x400x2000mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["White / Terracotta orange"],
+      "colors": [
+        "White / Terracotta orange"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-16.jpg"
     },
-
     {
       "product_name": "Top Grid Manager Desk 1600",
       "sku": "FSZ-DDG-01D20",
@@ -1109,7 +1298,9 @@
       "series": "Top Grid",
       "dimensions": "1600x1600x750mm / 1800x1600x750mm / 2000x1600x750mm",
       "materials": "Melamine board, cross metal frame",
-      "colors": ["Cream / Sand"],
+      "colors": [
+        "Cream / Sand"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-17.jpg"
     },
     {
@@ -1120,7 +1311,9 @@
       "series": "Top Grid",
       "dimensions": "1550x1200x1010mm",
       "materials": "Melamine board, cross metal frame, privacy screen",
-      "colors": ["Cream / Sand"],
+      "colors": [
+        "Cream / Sand"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-17.jpg"
     },
     {
@@ -1131,7 +1324,9 @@
       "series": "Top Grid",
       "dimensions": "1500x2200x1030mm / 1700x2200x1030mm",
       "materials": "Melamine board, cross metal frame, privacy screen",
-      "colors": ["Cream / Sand"],
+      "colors": [
+        "Cream / Sand"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-17.jpg"
     },
     {
@@ -1142,7 +1337,9 @@
       "series": "Top Grid",
       "dimensions": "2400x1200x750mm",
       "materials": "Melamine board, cross metal base",
-      "colors": ["Cream / Sand"],
+      "colors": [
+        "Cream / Sand"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-17.jpg"
     },
     {
@@ -1153,10 +1350,11 @@
       "series": "Top Grid",
       "dimensions": "2400x400x2000mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Cream / Sand"],
+      "colors": [
+        "Cream / Sand"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-17.jpg"
     },
-
     {
       "product_name": "Guangsheng Traditional Executive Desk",
       "sku": "FSZ-GS-B20",
@@ -1165,7 +1363,9 @@
       "series": "Guangsheng",
       "dimensions": "1600x800x760mm / 1800x900x760mm / 2000x1000x760mm",
       "materials": "Solid beech wood, traditional carved frame, lacquer finish",
-      "colors": ["Mahogany"],
+      "colors": [
+        "Mahogany"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-18.jpg"
     },
     {
@@ -1176,7 +1376,9 @@
       "series": "Guangsheng",
       "dimensions": "1800x900x760mm / 2000x1000x760mm",
       "materials": "Solid beech wood, traditional carved frame, lacquer finish",
-      "colors": ["Mahogany"],
+      "colors": [
+        "Mahogany"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-18.jpg"
     },
     {
@@ -1187,10 +1389,11 @@
       "series": "Guangsheng",
       "dimensions": "1600x800x760mm / 1800x900x760mm / 2000x1000x760mm",
       "materials": "Solid beech wood, traditional carved frame, lacquer finish",
-      "colors": ["Mahogany"],
+      "colors": [
+        "Mahogany"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-18.jpg"
     },
-
     {
       "product_name": "Nais Executive L-Desk 2000",
       "sku": "FSZ-NS-KBBT24",
@@ -1199,7 +1402,9 @@
       "series": "Nais",
       "dimensions": "2000x1700x760mm / 2400x1900x760mm",
       "materials": "Melamine board, stone-effect panel, brushed metal base",
-      "colors": ["Dark pewter / Stone"],
+      "colors": [
+        "Dark pewter / Stone"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-19.jpg"
     },
     {
@@ -1210,7 +1415,9 @@
       "series": "Nais",
       "dimensions": "2800x1900x760mm / 3200x1900x760mm",
       "materials": "Melamine board, stone-effect panel, brushed metal base",
-      "colors": ["Dark pewter / Stone"],
+      "colors": [
+        "Dark pewter / Stone"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-19.jpg"
     },
     {
@@ -1221,7 +1428,9 @@
       "series": "Nais",
       "dimensions": "2400x1200x760mm",
       "materials": "Melamine board, brushed metal base",
-      "colors": ["Dark pewter / Stone"],
+      "colors": [
+        "Dark pewter / Stone"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-19.jpg"
     },
     {
@@ -1232,7 +1441,9 @@
       "series": "Nais",
       "dimensions": "3600x1500x760mm",
       "materials": "Melamine board, brushed metal base",
-      "colors": ["Dark pewter / Stone"],
+      "colors": [
+        "Dark pewter / Stone"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-19.jpg"
     },
     {
@@ -1243,7 +1454,9 @@
       "series": "Nais",
       "dimensions": "2800x400x2000mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Dark pewter / Stone"],
+      "colors": [
+        "Dark pewter / Stone"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-19.jpg"
     },
     {
@@ -1254,10 +1467,11 @@
       "series": "Nais",
       "dimensions": "1600x400x1150mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Dark pewter / Stone"],
+      "colors": [
+        "Dark pewter / Stone"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-19.jpg"
     },
-
     {
       "product_name": "Milan Manager Desk 1600",
       "sku": "FSZ-MILAN-D01",
@@ -1266,7 +1480,9 @@
       "series": "Milan",
       "dimensions": "1600x1200x750mm / 1800x1200x750mm / 2000x1200x750mm",
       "materials": "Oak veneer, teal accent panels, solid wood legs",
-      "colors": ["Oak / Teal"],
+      "colors": [
+        "Oak / Teal"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-20.jpg"
     },
     {
@@ -1277,7 +1493,9 @@
       "series": "Milan",
       "dimensions": "1550x1230x1045mm",
       "materials": "Oak veneer, teal accent, solid wood legs, privacy screen",
-      "colors": ["Oak / Teal"],
+      "colors": [
+        "Oak / Teal"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-20.jpg"
     },
     {
@@ -1288,7 +1506,9 @@
       "series": "Milan",
       "dimensions": "1600x1022x1070mm",
       "materials": "Oak veneer, teal accent, solid wood legs",
-      "colors": ["Oak / Teal"],
+      "colors": [
+        "Oak / Teal"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-20.jpg"
     },
     {
@@ -1299,7 +1519,9 @@
       "series": "Milan",
       "dimensions": "2400x1200x1045mm",
       "materials": "Oak veneer, teal accent, solid wood legs, privacy screen",
-      "colors": ["Oak / Teal"],
+      "colors": [
+        "Oak / Teal"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-20.jpg"
     },
     {
@@ -1310,7 +1532,9 @@
       "series": "Milan",
       "dimensions": "2000x1000x750mm / 2400x1000x750mm",
       "materials": "Oak veneer, solid wood legs",
-      "colors": ["Oak / Teal"],
+      "colors": [
+        "Oak / Teal"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-20.jpg"
     },
     {
@@ -1321,10 +1545,11 @@
       "series": "Milan",
       "dimensions": "2400x400x1850mm",
       "materials": "Oak veneer, solid wood legs",
-      "colors": ["Oak / Teal"],
+      "colors": [
+        "Oak / Teal"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-20.jpg"
     },
-
     {
       "product_name": "Shanhe Executive L-Desk 2400",
       "sku": "FSZ-SH-B32L",
@@ -1333,7 +1558,9 @@
       "series": "Shanhe",
       "dimensions": "2400x1900x780mm / 2800x2000x780mm / 3200x2000x780mm",
       "materials": "Melamine board, dark stone top, gold trim, steel base",
-      "colors": ["Dark wood / Gold accent"],
+      "colors": [
+        "Dark wood / Gold accent"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-21.jpg"
     },
     {
@@ -1344,7 +1571,9 @@
       "series": "Shanhe",
       "dimensions": "1800x1600x750mm / 2000x1600x750mm",
       "materials": "Melamine board, dark stone top, gold trim, steel base",
-      "colors": ["Dark wood / Gold accent"],
+      "colors": [
+        "Dark wood / Gold accent"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-21.jpg"
     },
     {
@@ -1355,7 +1584,9 @@
       "series": "Shanhe",
       "dimensions": "2200x1800x750mm / 2400x2000x750mm / 2600x2000x750mm",
       "materials": "Melamine board, dark stone top, gold trim, steel base",
-      "colors": ["Dark wood / Gold accent"],
+      "colors": [
+        "Dark wood / Gold accent"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-21.jpg"
     },
     {
@@ -1366,7 +1597,9 @@
       "series": "Shanhe",
       "dimensions": "1750x1600x750mm / 1950x1600x750mm",
       "materials": "Melamine board, dark stone top, gold trim, steel base",
-      "colors": ["Dark wood / Gold accent"],
+      "colors": [
+        "Dark wood / Gold accent"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-21.jpg"
     },
     {
@@ -1377,7 +1610,9 @@
       "series": "Shanhe",
       "dimensions": "1400x1000x1020mm",
       "materials": "Melamine board, steel frame, privacy screen",
-      "colors": ["Dark wood / Gold accent"],
+      "colors": [
+        "Dark wood / Gold accent"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-21.jpg"
     },
     {
@@ -1388,7 +1623,9 @@
       "series": "Shanhe",
       "dimensions": "2400x1000x1020mm / 2800x1000x1020mm",
       "materials": "Melamine board, steel frame, privacy screen",
-      "colors": ["Dark wood / Gold accent"],
+      "colors": [
+        "Dark wood / Gold accent"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-21.jpg"
     },
     {
@@ -1399,7 +1636,9 @@
       "series": "Shanhe",
       "dimensions": "4500x1500x760mm",
       "materials": "Melamine board, steel base",
-      "colors": ["Dark wood / Gold accent"],
+      "colors": [
+        "Dark wood / Gold accent"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-21.jpg"
     },
     {
@@ -1410,7 +1649,9 @@
       "series": "Shanhe",
       "dimensions": "1900x400x2000mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Dark wood / Gold accent"],
+      "colors": [
+        "Dark wood / Gold accent"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-21.jpg"
     },
     {
@@ -1421,10 +1662,11 @@
       "series": "Shanhe",
       "dimensions": "3690x400x2025mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Dark wood / Gold accent"],
+      "colors": [
+        "Dark wood / Gold accent"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-21.jpg"
     },
-
     {
       "product_name": "Bit Executive Desk 1800",
       "sku": "FSZ-BT-KBBT20",
@@ -1433,7 +1675,9 @@
       "series": "Bit",
       "dimensions": "1800x1600x750mm / 2000x1600x750mm",
       "materials": "Melamine board, aluminium alloy frame",
-      "colors": ["Cream / Sand / Grey"],
+      "colors": [
+        "Cream / Sand / Grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-22.jpg"
     },
     {
@@ -1444,7 +1688,9 @@
       "series": "Bit",
       "dimensions": "1200x1200x750mm / 1400x1200x750mm",
       "materials": "Melamine board, aluminium alloy frame, glass screen",
-      "colors": ["Cream / Sand / Grey"],
+      "colors": [
+        "Cream / Sand / Grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-22.jpg"
     },
     {
@@ -1455,7 +1701,9 @@
       "series": "Bit",
       "dimensions": "2400x1200x750mm / 2800x1200x750mm",
       "materials": "Melamine board, aluminium alloy frame, glass screen",
-      "colors": ["Cream / Sand / Grey"],
+      "colors": [
+        "Cream / Sand / Grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-22.jpg"
     },
     {
@@ -1466,7 +1714,9 @@
       "series": "Bit",
       "dimensions": "2800x1200x750mm",
       "materials": "Melamine board, aluminium alloy frame, glass screen",
-      "colors": ["Cream / Sand / Grey"],
+      "colors": [
+        "Cream / Sand / Grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-22.jpg"
     },
     {
@@ -1477,7 +1727,9 @@
       "series": "Bit",
       "dimensions": "2400x1200x750mm",
       "materials": "Melamine board, aluminium base",
-      "colors": ["Cream / Sand / Grey"],
+      "colors": [
+        "Cream / Sand / Grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-22.jpg"
     },
     {
@@ -1488,10 +1740,11 @@
       "series": "Bit",
       "dimensions": "2400x400x1800mm",
       "materials": "Melamine board, aluminium frame",
-      "colors": ["Cream / Sand / Grey"],
+      "colors": [
+        "Cream / Sand / Grey"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/design-22.jpg"
     },
-
     {
       "product_name": "Fessenz Single Workstation",
       "sku": "FSZ-CC-AC-01",
@@ -1500,7 +1753,12 @@
       "series": "Four Color",
       "dimensions": "1200x600x750mm / 1400x700x750mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Guga Walnut", "African Walnut", "Oyun Light Oak", "White"],
+      "colors": [
+        "Guga Walnut",
+        "African Walnut",
+        "Oyun Light Oak",
+        "White"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/four-5.jpg"
     },
     {
@@ -1511,7 +1769,12 @@
       "series": "Four Color",
       "dimensions": "1200x1200x750mm / 1400x1200x750mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Guga Walnut", "African Walnut", "Oyun Light Oak", "White"],
+      "colors": [
+        "Guga Walnut",
+        "African Walnut",
+        "Oyun Light Oak",
+        "White"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/four-5.jpg"
     },
     {
@@ -1522,7 +1785,12 @@
       "series": "Four Color",
       "dimensions": "1200x1200x750mm / 1400x1400x750mm",
       "materials": "Melamine board, steel frame, privacy screen",
-      "colors": ["Guga Walnut", "African Walnut", "Oyun Light Oak", "White"],
+      "colors": [
+        "Guga Walnut",
+        "African Walnut",
+        "Oyun Light Oak",
+        "White"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/four-5.jpg"
     },
     {
@@ -1533,7 +1801,12 @@
       "series": "Four Color",
       "dimensions": "2400x1200x1045mm",
       "materials": "Melamine board, steel frame, privacy screen",
-      "colors": ["Guga Walnut", "African Walnut", "Oyun Light Oak", "White"],
+      "colors": [
+        "Guga Walnut",
+        "African Walnut",
+        "Oyun Light Oak",
+        "White"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/four-5.jpg"
     },
     {
@@ -1544,7 +1817,12 @@
       "series": "Four Color",
       "dimensions": "1800x600x750mm / 2400x600x750mm",
       "materials": "Melamine board, steel frame, privacy screen",
-      "colors": ["Guga Walnut", "African Walnut", "Oyun Light Oak", "White"],
+      "colors": [
+        "Guga Walnut",
+        "African Walnut",
+        "Oyun Light Oak",
+        "White"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/four-6.jpg"
     },
     {
@@ -1555,7 +1833,12 @@
       "series": "Four Color",
       "dimensions": "1200x600x750mm / 1800x600x750mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Guga Walnut", "African Walnut", "Oyun Light Oak", "White"],
+      "colors": [
+        "Guga Walnut",
+        "African Walnut",
+        "Oyun Light Oak",
+        "White"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/four-5.jpg"
     },
     {
@@ -1566,7 +1849,12 @@
       "series": "Four Color",
       "dimensions": "400x500x600mm",
       "materials": "Melamine board, steel frame, lockable",
-      "colors": ["Guga Walnut", "African Walnut", "Oyun Light Oak", "White"],
+      "colors": [
+        "Guga Walnut",
+        "African Walnut",
+        "Oyun Light Oak",
+        "White"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/four-5.jpg"
     },
     {
@@ -1577,7 +1865,12 @@
       "series": "Four Color",
       "dimensions": "400x500x1160mm",
       "materials": "Melamine board, steel frame, lockable",
-      "colors": ["Guga Walnut", "African Walnut", "Oyun Light Oak", "White"],
+      "colors": [
+        "Guga Walnut",
+        "African Walnut",
+        "Oyun Light Oak",
+        "White"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/four-5.jpg"
     },
     {
@@ -1588,7 +1881,12 @@
       "series": "Four Color",
       "dimensions": "800x400x1160mm",
       "materials": "Melamine board, steel frame",
-      "colors": ["Guga Walnut", "African Walnut", "Oyun Light Oak", "White"],
+      "colors": [
+        "Guga Walnut",
+        "African Walnut",
+        "Oyun Light Oak",
+        "White"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/four-6.jpg"
     },
     {
@@ -1599,7 +1897,12 @@
       "series": "Four Color",
       "dimensions": "800x400x1980mm",
       "materials": "Melamine board, glass doors, steel frame",
-      "colors": ["Guga Walnut", "African Walnut", "Oyun Light Oak", "White"],
+      "colors": [
+        "Guga Walnut",
+        "African Walnut",
+        "Oyun Light Oak",
+        "White"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/four-5.jpg"
     },
     {
@@ -1610,7 +1913,12 @@
       "series": "Four Color",
       "dimensions": "1600x800x1100mm / 1800x800x1100mm",
       "materials": "Melamine board, steel frame, solid surface counter",
-      "colors": ["Guga Walnut", "African Walnut", "Oyun Light Oak", "White"],
+      "colors": [
+        "Guga Walnut",
+        "African Walnut",
+        "Oyun Light Oak",
+        "White"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/four-5.jpg"
     },
     {
@@ -1621,103 +1929,1605 @@
       "series": "Four Color",
       "dimensions": "2000x800x1100mm / 2400x800x1100mm",
       "materials": "Melamine board, steel frame, solid surface counter",
-      "colors": ["Guga Walnut", "African Walnut", "Oyun Light Oak", "White"],
+      "colors": [
+        "Guga Walnut",
+        "African Walnut",
+        "Oyun Light Oak",
+        "White"
+      ],
       "image": "/uploads/catalog-images/feisenzhuo/four-6.jpg"
+    },
+    {
+      "product_name": "Milan Electric Sit-Stand Desk (Single Motor 2-Section)",
+      "sku": "HSG-MLN-MLF01-SM",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Workstations",
+      "series": "Milan",
+      "dimensions": "Frame width 1200-1800mm, height range 740-1200mm, travel 460mm",
+      "materials": "Seamless square tube steel column, laminate desktop",
+      "colors": [
+        "White",
+        "Black",
+        "Silver grey"
+      ],
+      "finishes": [
+        "Powder-coated frame"
+      ],
+      "specs": {
+        "max_load_kg": 80,
+        "speed_mm_s": 25,
+        "noise_dB": "<50",
+        "duty_cycle": "10%",
+        "sections": 2,
+        "motors": 1
+      },
+      "features": [
+        "3-level memory presets",
+        "Anti-collision obstacle detection",
+        "Silent operation",
+        "Adjustable tabletop"
+      ],
+      "certifications": [
+        "SGS",
+        "BIFMA",
+        "FCC",
+        "CE",
+        "EMC"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-desk.jpg"
+    },
+    {
+      "product_name": "Milan Electric Sit-Stand Desk (Dual Motor 2-Section)",
+      "sku": "HSG-MLN-MLF02-DM",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Workstations",
+      "series": "Milan",
+      "dimensions": "Frame width 1400-1800mm, height range 720-1200mm, travel 460mm",
+      "materials": "Seamless square tube steel column, laminate desktop",
+      "colors": [
+        "White",
+        "Black",
+        "Silver grey"
+      ],
+      "finishes": [
+        "Powder-coated frame"
+      ],
+      "specs": {
+        "max_load_kg": 100,
+        "speed_mm_s": 30,
+        "noise_dB": "<50",
+        "duty_cycle": "10%",
+        "sections": 2,
+        "motors": 2
+      },
+      "features": [
+        "3-level memory presets",
+        "Anti-collision obstacle detection",
+        "Dual motor stability",
+        "Back-to-back compatible"
+      ],
+      "certifications": [
+        "SGS",
+        "BIFMA",
+        "FCC",
+        "CE",
+        "EMC"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-desk.jpg"
+    },
+    {
+      "product_name": "Milan Electric Sit-Stand Desk (Dual Motor 2-Section Heavy)",
+      "sku": "HSG-MLN-MLF02-HD",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Workstations",
+      "series": "Milan",
+      "dimensions": "Frame width 1400-1800mm, height range 720-1200mm, travel 460mm",
+      "materials": "Seamless square tube steel column, laminate desktop",
+      "colors": [
+        "White",
+        "Black",
+        "Silver grey"
+      ],
+      "finishes": [
+        "Powder-coated frame"
+      ],
+      "specs": {
+        "max_load_kg": 120,
+        "speed_mm_s": 30,
+        "noise_dB": "<50",
+        "duty_cycle": "10%",
+        "sections": 2,
+        "motors": 2
+      },
+      "features": [
+        "Heavy-duty 120kg capacity",
+        "3-level memory",
+        "Anti-collision detection"
+      ],
+      "certifications": [
+        "SGS",
+        "BIFMA",
+        "FCC",
+        "CE",
+        "EMC"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-desk.jpg"
+    },
+    {
+      "product_name": "Milan Electric Sit-Stand Desk (3-Section Dual Motor)",
+      "sku": "HSG-MLN-MLF03-3S",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Workstations",
+      "series": "Milan",
+      "dimensions": "Frame width 1400-1800mm, height range 620-1250mm, travel 530mm",
+      "materials": "Seamless square tube steel column, laminate desktop",
+      "colors": [
+        "White",
+        "Black",
+        "Silver grey"
+      ],
+      "finishes": [
+        "Powder-coated frame"
+      ],
+      "specs": {
+        "max_load_kg": 100,
+        "speed_mm_s": 30,
+        "noise_dB": "<65",
+        "duty_cycle": "10%",
+        "sections": 3,
+        "motors": 2
+      },
+      "features": [
+        "Extended 530mm travel range",
+        "Lower sit height (620mm)",
+        "3-level memory",
+        "Ideal for ergonomic compliance"
+      ],
+      "certifications": [
+        "SGS",
+        "BIFMA",
+        "FCC",
+        "CE",
+        "EMC"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-desk.jpg"
+    },
+    {
+      "product_name": "Milan Gaming Sit-Stand Desk",
+      "sku": "HSG-MLN-MLF03-GAME",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Workstations",
+      "series": "Milan",
+      "dimensions": "Custom width, height range 620-1200mm",
+      "materials": "Steel column, carbon fibre-effect desktop with LED strip",
+      "colors": [
+        "All black"
+      ],
+      "finishes": [
+        "Matte black powder coat"
+      ],
+      "specs": {
+        "max_load_kg": 80,
+        "speed_mm_s": 80,
+        "sections": 3,
+        "motors": 2
+      },
+      "features": [
+        "Fast 80mm/s lift speed",
+        "Gaming/creative workstation design",
+        "Cable management"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-gaming.jpg"
+    },
+    {
+      "product_name": "Milan Back-to-Back Sit-Stand Workstation",
+      "sku": "HSG-MLN-BBW-2P",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Workstations",
+      "series": "Milan",
+      "dimensions": "2-person: 1200-1800mm wide per station, height range 720-1200mm",
+      "materials": "Steel column, laminate desktop, acoustic screen dividers",
+      "colors": [
+        "White",
+        "Grey",
+        "Natural oak"
+      ],
+      "features": [
+        "Back-to-back configuration",
+        "Shared motorised base",
+        "Acoustic screen dividers",
+        "Independent height per side"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-back-to-back.jpg"
+    },
+    {
+      "product_name": "Karen Electric Sit-Stand Desk",
+      "sku": "HSG-KRN-KNF01",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Manager Desks",
+      "series": "Karen",
+      "dimensions": "Frame width 1200-1800mm, height range 720-1200mm",
+      "materials": "Steel column, laminate desktop",
+      "colors": [
+        "White",
+        "Black",
+        "Walnut"
+      ],
+      "specs": {
+        "sections": 2,
+        "motors": 1,
+        "noise_dB": "<50"
+      },
+      "features": [
+        "Memory presets",
+        "Anti-collision",
+        "Corporate aesthetic"
+      ],
+      "certifications": [
+        "SGS",
+        "BIFMA",
+        "CE",
+        "EMC"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-desk.jpg"
+    },
+    {
+      "product_name": "Owen Single-Column Sit-Stand Desk",
+      "sku": "HSG-OWN-ONF01",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Workstations",
+      "series": "Owen",
+      "dimensions": "Small footprint side table, height 2/3 section adjustable",
+      "materials": "Steel column with curved foot, laminate desktop",
+      "colors": [
+        "White",
+        "Silver grey"
+      ],
+      "features": [
+        "Single column design",
+        "Compact footprint",
+        "Suitable as laptop/side desk",
+        "Soft curve ergonomic aesthetic"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/owen-desk.jpg"
+    },
+    {
+      "product_name": "Owen Back-to-Back Sit-Stand Workstation",
+      "sku": "HSG-OWN-ONF02-BB",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Workstations",
+      "series": "Owen",
+      "dimensions": "2–4 person, adjustable 620-1200mm height, 120° triangular option",
+      "materials": "Steel column, laminate desktop, soft-curve edges",
+      "colors": [
+        "White",
+        "Grey",
+        "Natural oak",
+        "Teal blue"
+      ],
+      "features": [
+        "Soft curve rounded edges",
+        "Hidden inline column (clean look)",
+        "3-colour frame options",
+        "120° corner + L-shape + straight configurations"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-back-to-back.jpg"
+    },
+    {
+      "product_name": "Miller Modular Workspace Pod (Single Unit)",
+      "sku": "HSG-MLR-POD01",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Storage",
+      "series": "Miller",
+      "dimensions": "Single unit module, standard depth",
+      "materials": "Powder-coated steel, acoustic panels",
+      "colors": [
+        "Black",
+        "Green",
+        "Grey"
+      ],
+      "features": [
+        "Stackable modular design",
+        "Utilises unused floor space",
+        "Can include integrated lighting",
+        "Privacy + storage function"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/miller-pod.jpg"
+    },
+    {
+      "product_name": "Miller Modular Workspace Pod (3-Unit Cluster)",
+      "sku": "HSG-MLR-POD03",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Storage",
+      "series": "Miller",
+      "dimensions": "3-unit cluster configuration",
+      "materials": "Powder-coated steel, acoustic panels",
+      "colors": [
+        "Black",
+        "Green",
+        "Grey"
+      ],
+      "features": [
+        "3-unit linked configuration",
+        "Central connection bracket",
+        "Optional integrated lighting"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/miller-pod.jpg"
+    },
+    {
+      "product_name": "Miller Modular Workspace Pod (4-Unit Cluster)",
+      "sku": "HSG-MLR-POD04",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Storage",
+      "series": "Miller",
+      "dimensions": "4-unit cluster configuration",
+      "materials": "Powder-coated steel, acoustic panels",
+      "colors": [
+        "Black",
+        "Green",
+        "Grey"
+      ],
+      "features": [
+        "4-unit linked configuration",
+        "Cross-connect bracket",
+        "Maximises unused office corners"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/miller-pod.jpg"
+    },
+    {
+      "product_name": "Mige Multi-Person Sit-Stand Workstation Cluster",
+      "sku": "HSG-MGE-WST01",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Workstations",
+      "series": "Mige",
+      "dimensions": "120° triangular / L-shape / straight, 2–6 persons, height 620-1200mm",
+      "materials": "Steel column, laminate desktop, hidden inline column",
+      "colors": [
+        "White",
+        "Grey",
+        "Blue"
+      ],
+      "features": [
+        "120° special-shape table for team collaboration",
+        "Hidden inline column for cable management",
+        "L-shaped table and single table options",
+        "3-colour foot options"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-back-to-back.jpg"
+    },
+    {
+      "product_name": "Better Electric Sit-Stand Desk (Back-to-Back)",
+      "sku": "HSG-BTR-BTF01",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Workstations",
+      "series": "Better",
+      "dimensions": "Wave-front design, 2–4 person back-to-back, height adjustable",
+      "materials": "Steel column, wave-profile laminate desktop",
+      "colors": [
+        "White"
+      ],
+      "features": [
+        "Leading cable management — 16 cable grooves with snake tubes",
+        "Wave-front ergonomic profile",
+        "Patent: 20233041194339",
+        "Integrated cable spine under desk"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/better-desk.jpg"
+    },
+    {
+      "product_name": "Better Motorised Podium / Rostrum",
+      "sku": "HSG-BTR-RST01",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Reception Desks",
+      "series": "Better",
+      "dimensions": "Compact mobile podium, height adjustable, on castors",
+      "materials": "Steel frame, laminate top, lockable castors",
+      "colors": [
+        "White"
+      ],
+      "features": [
+        "Height-adjustable motorised rostrum",
+        "Mobile on castors",
+        "Integrated storage shelf",
+        "Suits training rooms and presentation spaces"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/better-rostrum.jpg"
+    },
+    {
+      "product_name": "Baggio Electric Sit-Stand Desk",
+      "sku": "HSG-BGO-BGF01",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Workstations",
+      "series": "Baggio",
+      "dimensions": "Frame width 1200-1800mm, height adjustable",
+      "materials": "Steel column with thick base, laminate desktop",
+      "colors": [
+        "White",
+        "Black",
+        "Natural oak"
+      ],
+      "specs": {
+        "noise_dB": "46",
+        "memory_presets": 3
+      },
+      "features": [
+        "Industry-leading 46dB ultra-quiet lift",
+        "3-level memory height presets",
+        "Auto-retreat obstacle detection (ascend + descend)",
+        "High-capacity cable trunking + flexible snake tube management"
+      ],
+      "certifications": [
+        "SGS",
+        "BIFMA",
+        "FCC",
+        "CE",
+        "EMC"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/baggio-desk.jpg"
+    },
+    {
+      "product_name": "Bonnie Electric Height-Adjustable Desk",
+      "sku": "HSG-BNN-BNF01",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Manager Desks",
+      "series": "Bonnie",
+      "dimensions": "Standard frame widths, height 720-1200mm",
+      "materials": "Steel column, laminate desktop",
+      "colors": [
+        "White",
+        "Black"
+      ],
+      "features": [
+        "Electric height adjustment",
+        "Memory presets",
+        "Remote control compatible",
+        "Smooth quiet lift"
+      ],
+      "certifications": [
+        "SGS",
+        "BIFMA",
+        "FCC",
+        "CE",
+        "EMC"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-desk.jpg"
+    },
+    {
+      "product_name": "Mike Electric Lift Training Table (MK-01A)",
+      "sku": "HSG-MKE-MK01A",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Boardroom Tables",
+      "series": "Mike",
+      "dimensions": "1400-1600mm W × 600-700mm D, height 725-1355mm, travel 630mm",
+      "materials": "Steel column, melamine top, foldable",
+      "colors": [
+        "White"
+      ],
+      "specs": {
+        "height_min_mm": 725,
+        "height_max_mm": 1355,
+        "travel_mm": 630,
+        "motors": 3
+      },
+      "features": [
+        "Tiltable foldable desktop",
+        "3-motor electric lift",
+        "Lockable castors",
+        "Nesting/stackable for storage"
+      ],
+      "certifications": [
+        "SGS",
+        "BIFMA",
+        "CE"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/hsg3-contents.jpg"
+    },
+    {
+      "product_name": "Mike Electric Lift Training Table (MK-02)",
+      "sku": "HSG-MKE-MK02",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Boardroom Tables",
+      "series": "Mike",
+      "dimensions": "1400-3600mm W × 600-1000mm D, height 725-1355mm",
+      "materials": "Steel column, melamine top",
+      "colors": [
+        "White"
+      ],
+      "specs": {
+        "height_min_mm": 725,
+        "height_max_mm": 1355,
+        "motors": 3
+      },
+      "features": [
+        "Wide table format (up to 3600mm)",
+        "3-motor electric lift",
+        "Digital control panel",
+        "Castors for repositioning"
+      ],
+      "certifications": [
+        "SGS",
+        "BIFMA",
+        "CE"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/hsg3-contents.jpg"
+    },
+    {
+      "product_name": "Cape Electric Sit-Stand Desk (Standard)",
+      "sku": "HSG-CPE-CPF01",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Workstations",
+      "series": "Cape",
+      "dimensions": "Standard frame widths 1200-1800mm, height 670-1150mm, travel 480mm",
+      "materials": "Seamless tube column (no exposed screws), laminate desktop",
+      "colors": [
+        "Spray-coat white/black",
+        "Stainless steel"
+      ],
+      "specs": {
+        "height_min_mm": 670,
+        "height_max_mm": 1150,
+        "travel_mm": 480,
+        "speed_mm_s": 20,
+        "max_load_N": 1000,
+        "noise_dB": "<50",
+        "memory_presets": 3
+      },
+      "features": [
+        "No exposed screw craftsmanship",
+        "3-level memory presets",
+        "Dual foot style options (225mm narrow / 180mm wide)",
+        "Spray coat or stainless steel finish"
+      ],
+      "certifications": [
+        "SGS",
+        "BIFMA",
+        "FCC",
+        "CE",
+        "EMC"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/cape-executive.jpg"
+    },
+    {
+      "product_name": "Cape Executive Electric Sit-Stand Desk",
+      "sku": "HSG-CPE-CPF02",
+      "supplier": "Huasheng Furniture Group — Gaozhuo Division",
+      "category": "Executive Desks",
+      "series": "Cape",
+      "dimensions": "Executive format: 1800-2400mm W, height 670-1150mm, travel 480mm",
+      "materials": "Premium column finish, luxury laminate or veneer desktop",
+      "colors": [
+        "Walnut",
+        "Dark Oak",
+        "Stainless steel base"
+      ],
+      "specs": {
+        "height_min_mm": 670,
+        "height_max_mm": 1150,
+        "travel_mm": 480,
+        "speed_mm_s": 20,
+        "max_load_N": 1000,
+        "noise_dB": "<50",
+        "memory_presets": 3
+      },
+      "features": [
+        "Executive aesthetic with sit-stand functionality",
+        "No exposed screw design language",
+        "Integrated cable management",
+        "Dual foot profile options"
+      ],
+      "certifications": [
+        "SGS",
+        "BIFMA",
+        "FCC",
+        "CE",
+        "EMC"
+      ],
+      "image": "/uploads/catalog-images/huasheng-gaozhuo/cape-executive.jpg"
+    },
+    {
+      "product_name": "GOJO LRU Executive Desk Type A — 3600",
+      "sku": "GJO-LRU-OEA3624",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Executive Desks",
+      "series": "LRU",
+      "dimensions": "3600W × 2400D × 750H mm",
+      "materials": "Dark oak veneer, dark grey metallic paint frame, solid surface accents",
+      "colors": [
+        "Dark oak + dark grey metallic"
+      ],
+      "features": [
+        "Segmented adjustable tabletop (sit-stand hybrid)",
+        "Exquisite integrated power box with ports",
+        "Italian semi-transparent paint",
+        "Modern architectural aesthetic",
+        "CEO/Director suite appropriate"
+      ],
+      "image": "/uploads/catalog-images/gojo/lru-executive-desk.jpg"
+    },
+    {
+      "product_name": "GOJO LRU Executive Desk Type A — 3300",
+      "sku": "GJO-LRU-OEA3224",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Executive Desks",
+      "series": "LRU",
+      "dimensions": "3300W × 2400D × 750H mm",
+      "materials": "Dark oak veneer, dark grey metallic paint frame",
+      "colors": [
+        "Dark oak + dark grey metallic"
+      ],
+      "features": [
+        "Segmented sit-stand tabletop",
+        "Integrated power box",
+        "Drawer and cabinet classification system"
+      ],
+      "image": "/uploads/catalog-images/gojo/lru-executive-desk.jpg"
+    },
+    {
+      "product_name": "GOJO LRU Executive Desk Type B — 2800",
+      "sku": "GJO-LRU-OKA3022",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Executive Desks",
+      "series": "LRU",
+      "dimensions": "2800W × 2200D × 750H mm",
+      "materials": "Dark oak veneer, dark grey metallic paint frame",
+      "colors": [
+        "Dark oak + dark grey metallic"
+      ],
+      "features": [
+        "Executive L-desk format",
+        "Drawer + file cabinet integration",
+        "Power module built-in"
+      ],
+      "image": "/uploads/catalog-images/gojo/lru-executive-desk.jpg"
+    },
+    {
+      "product_name": "GOJO LRU File Cabinet — 3 Column",
+      "sku": "GJO-LRU-CAK3620",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage",
+      "series": "LRU",
+      "dimensions": "3600W × 600D × 2000H mm",
+      "materials": "Dark oak veneer, metallic frame",
+      "colors": [
+        "Dark oak + dark grey metallic"
+      ],
+      "features": [
+        "3-column tall unit",
+        "Matches LRU executive desk suite",
+        "Open shelf + closed drawer combination"
+      ],
+      "image": "/uploads/catalog-images/gojo/lru-dimensions.jpg"
+    },
+    {
+      "product_name": "GOJO LRU File Cabinet — 4 Column Wide",
+      "sku": "GJO-LRU-OKA4028",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage",
+      "series": "LRU",
+      "dimensions": "3200W × 900D × 2000H mm",
+      "materials": "Dark oak veneer, metallic frame",
+      "colors": [
+        "Dark oak + dark grey metallic"
+      ],
+      "features": [
+        "Wide deep storage unit",
+        "Full height glazed + solid options",
+        "Matching LRU suite"
+      ],
+      "image": "/uploads/catalog-images/gojo/lru-dimensions.jpg"
+    },
+    {
+      "product_name": "GOJO LRU File Cabinet — Compact",
+      "sku": "GJO-LRU-CAE1820",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage",
+      "series": "LRU",
+      "dimensions": "1800W × 600D × 2000H mm",
+      "materials": "Dark oak veneer, metallic frame",
+      "colors": [
+        "Dark oak + dark grey metallic"
+      ],
+      "features": [
+        "Compact tall cabinet",
+        "2-column design"
+      ],
+      "image": "/uploads/catalog-images/gojo/lru-dimensions.jpg"
+    },
+    {
+      "product_name": "GOJO LRU Conference Table — 6000mm",
+      "sku": "GJO-LRU-CON6016",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Boardroom Tables",
+      "series": "LRU",
+      "dimensions": "6000W × 1600D × 750H mm",
+      "materials": "Dark oak veneer top, metallic steel base structure",
+      "colors": [
+        "Dark oak + dark grey metallic"
+      ],
+      "features": [
+        "Seats 16-20 persons",
+        "Matching LRU executive suite aesthetic",
+        "Strong visual tension design",
+        "Geometric interlocking structure"
+      ],
+      "image": "/uploads/catalog-images/gojo/lru-conference-table.jpg"
+    },
+    {
+      "product_name": "GOJO LRU Conference Table — 5400mm",
+      "sku": "GJO-LRU-CON5416",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Boardroom Tables",
+      "series": "LRU",
+      "dimensions": "5400W × 1600D × 750H mm",
+      "materials": "Dark oak veneer top, metallic steel base",
+      "colors": [
+        "Dark oak + dark grey metallic"
+      ],
+      "features": [
+        "Seats 14-16 persons",
+        "Architectural geometric base",
+        "Veneer top finish"
+      ],
+      "image": "/uploads/catalog-images/gojo/lru-conference-table.jpg"
+    },
+    {
+      "product_name": "GOJO LRU Conference Table — 4800mm",
+      "sku": "GJO-LRU-CON4816",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Boardroom Tables",
+      "series": "LRU",
+      "dimensions": "4800W × 1600D × 750H mm",
+      "materials": "Dark oak veneer top, metallic steel base",
+      "colors": [
+        "Dark oak + dark grey metallic"
+      ],
+      "features": [
+        "Seats 12-14 persons",
+        "Matching LRU boardroom suite"
+      ],
+      "image": "/uploads/catalog-images/gojo/lru-conference-table.jpg"
+    },
+    {
+      "product_name": "GOJO LRU Conference Table — 4200mm",
+      "sku": "GJO-LRU-CON4214",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Boardroom Tables",
+      "series": "LRU",
+      "dimensions": "4200W × 1400D × 750H mm",
+      "materials": "Dark oak veneer top, metallic steel base",
+      "colors": [
+        "Dark oak + dark grey metallic"
+      ],
+      "features": [
+        "Seats 10-12 persons",
+        "Compact boardroom format"
+      ],
+      "image": "/uploads/catalog-images/gojo/lru-conference-table.jpg"
+    },
+    {
+      "product_name": "GOJO LRU Conference Table — 3600mm",
+      "sku": "GJO-LRU-CON3614",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Boardroom Tables",
+      "series": "LRU",
+      "dimensions": "3600W × 1400D × 750H mm",
+      "materials": "Dark oak veneer top, metallic steel base",
+      "colors": [
+        "Dark oak + dark grey metallic"
+      ],
+      "features": [
+        "Seats 8-10 persons",
+        "Meeting room format"
+      ],
+      "image": "/uploads/catalog-images/gojo/lru-conference-table.jpg"
+    },
+    {
+      "product_name": "GOJO JCN Series Executive Suite",
+      "sku": "GJO-JCN-EXEC-01",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Executive Desks",
+      "series": "JCN",
+      "dimensions": "needs_manual_review",
+      "materials": "Premium materials — digital age aesthetic, technology-integrated",
+      "colors": [
+        "needs_manual_review"
+      ],
+      "features": [
+        "Cutting-edge aesthetics for digital age",
+        "Technology + art integration",
+        "Lifestyle symbolism for elite executive group"
+      ],
+      "needs_manual_review": true,
+      "image": "/uploads/catalog-images/gojo/gojo-cover.jpg"
+    },
+    {
+      "product_name": "GOJO YIN Series Executive Suite",
+      "sku": "GJO-YIN-EXEC-01",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Executive Desks",
+      "series": "YIN",
+      "dimensions": "needs_manual_review",
+      "materials": "needs_manual_review",
+      "colors": [
+        "needs_manual_review"
+      ],
+      "needs_manual_review": true,
+      "image": "/uploads/catalog-images/gojo/gojo-cover.jpg"
+    },
+    {
+      "product_name": "GOJO VEP Series Executive Suite",
+      "sku": "GJO-VEP-EXEC-01",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Executive Desks",
+      "series": "VEP",
+      "dimensions": "needs_manual_review",
+      "materials": "needs_manual_review",
+      "colors": [
+        "needs_manual_review"
+      ],
+      "needs_manual_review": true,
+      "image": "/uploads/catalog-images/gojo/gojo-cover.jpg"
+    },
+    {
+      "product_name": "GOJO VEIYE Series Executive Suite",
+      "sku": "GJO-VEI-EXEC-01",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Executive Desks",
+      "series": "VEIYE",
+      "dimensions": "needs_manual_review",
+      "materials": "needs_manual_review",
+      "colors": [
+        "needs_manual_review"
+      ],
+      "needs_manual_review": true,
+      "image": "/uploads/catalog-images/gojo/gojo-cover.jpg"
+    },
+    {
+      "product_name": "GOJO YUP Series Executive Suite",
+      "sku": "GJO-YUP-EXEC-01",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Executive Desks",
+      "series": "YUP",
+      "dimensions": "needs_manual_review",
+      "materials": "needs_manual_review",
+      "colors": [
+        "needs_manual_review"
+      ],
+      "needs_manual_review": true,
+      "image": "/uploads/catalog-images/gojo/gojo-cover.jpg"
+    },
+    {
+      "product_name": "GOJO GUANHE Series Manager Suite",
+      "sku": "GJO-GNH-MGR-01",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Manager Desks",
+      "series": "GUANHE",
+      "dimensions": "needs_manual_review",
+      "materials": "needs_manual_review",
+      "colors": [
+        "needs_manual_review"
+      ],
+      "needs_manual_review": true,
+      "image": "/uploads/catalog-images/gojo/gojo-cover.jpg"
+    },
+    {
+      "product_name": "GOJO YUZ Series Executive Suite",
+      "sku": "GJO-YUZ-EXEC-01",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Executive Desks",
+      "series": "YUZ",
+      "dimensions": "needs_manual_review",
+      "materials": "needs_manual_review",
+      "colors": [
+        "needs_manual_review"
+      ],
+      "needs_manual_review": true,
+      "image": "/uploads/catalog-images/gojo/gojo-cover.jpg"
+    },
+    {
+      "product_name": "GOJO BSA Series Manager Suite",
+      "sku": "GJO-BSA-MGR-01",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Manager Desks",
+      "series": "BSA",
+      "dimensions": "needs_manual_review",
+      "materials": "needs_manual_review",
+      "colors": [
+        "needs_manual_review"
+      ],
+      "needs_manual_review": true,
+      "image": "/uploads/catalog-images/gojo/gojo-cover.jpg"
+    },
+    {
+      "product_name": "GOJO WINA Series Office Suite",
+      "sku": "GJO-WIN-EXEC-01",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Manager Desks",
+      "series": "WINA",
+      "dimensions": "needs_manual_review",
+      "materials": "needs_manual_review",
+      "colors": [
+        "needs_manual_review"
+      ],
+      "needs_manual_review": true,
+      "image": "/uploads/catalog-images/gojo/gojo-cover.jpg"
+    },
+    {
+      "product_name": "GOJO WPN Series Office Suite",
+      "sku": "GJO-WPN-EXEC-01",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Workstations",
+      "series": "WPN",
+      "dimensions": "needs_manual_review",
+      "materials": "needs_manual_review",
+      "colors": [
+        "needs_manual_review"
+      ],
+      "needs_manual_review": true,
+      "image": "/uploads/catalog-images/gojo/gojo-cover.jpg"
+    },
+    {
+      "product_name": "GOJO MZE Series Executive Suite",
+      "sku": "GJO-MZE-EXEC-01",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Executive Desks",
+      "series": "MZE",
+      "dimensions": "needs_manual_review",
+      "materials": "needs_manual_review",
+      "colors": [
+        "needs_manual_review"
+      ],
+      "needs_manual_review": true,
+      "image": "/uploads/catalog-images/gojo/gojo-cover.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Executive Suite",
+      "sku": "GJO-JN-EXEC-01",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Executive Desks",
+      "series": "JN",
+      "dimensions": "needs_manual_review",
+      "materials": "needs_manual_review",
+      "colors": [
+        "needs_manual_review"
+      ],
+      "needs_manual_review": true,
+      "image": "/uploads/catalog-images/gojo/gojo-cover.jpg"
+    },
+    {
+      "product_name": "GOJO YA Series Executive Suite",
+      "sku": "GJO-YA-EXEC-01",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Executive Desks",
+      "series": "YA",
+      "dimensions": "needs_manual_review",
+      "materials": "needs_manual_review",
+      "colors": [
+        "needs_manual_review"
+      ],
+      "needs_manual_review": true,
+      "image": "/uploads/catalog-images/gojo/gojo-cover.jpg"
+    },
+    {
+      "product_name": "GOJO HXT Series Executive Suite",
+      "sku": "GJO-HXT-EXEC-01",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Executive Desks",
+      "series": "HXT",
+      "dimensions": "needs_manual_review",
+      "materials": "needs_manual_review",
+      "colors": [
+        "needs_manual_review"
+      ],
+      "needs_manual_review": true,
+      "image": "/uploads/catalog-images/gojo/gojo-cover.jpg"
+    },
+    {
+      "product_name": "Yashang 3-Drawer Movable Pedestal (White/Orange)",
+      "sku": "GJO-YS-MPD-BBF",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yashang Steel",
+      "dimensions": "W380×D500×H670mm",
+      "materials": "Cold-rolled steel, powder-coated finish",
+      "colors": [
+        "White body, orange handle"
+      ],
+      "weight_kg": 20,
+      "catalog_no": "20150360"
+    },
+    {
+      "product_name": "Yashang 2-Drawer Movable Pedestal (White/Orange)",
+      "sku": "GJO-YS-MPD-BF",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yashang Steel",
+      "dimensions": "W380×D500×H440mm",
+      "materials": "Cold-rolled steel, powder-coated finish",
+      "colors": [
+        "White body, orange handle"
+      ],
+      "weight_kg": 17,
+      "catalog_no": "20150659"
+    },
+    {
+      "product_name": "Yashang 3-Drawer Fixed Pedestal",
+      "sku": "GJO-YS-PED-BBF-K",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yashang Steel",
+      "dimensions": "W380×D600×H725mm",
+      "materials": "Cold-rolled steel, powder-coated finish",
+      "colors": [
+        "White body, orange handle"
+      ],
+      "weight_kg": 23.3,
+      "catalog_no": "20150070"
+    },
+    {
+      "product_name": "Yashang Left Roller Shutter Combined Cabinet",
+      "sku": "GJO-YS-RT-L",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yashang Steel",
+      "dimensions": "W900×D500×H600mm",
+      "materials": "Cold-rolled steel, powder-coated finish",
+      "colors": [
+        "White body, orange handle"
+      ],
+      "weight_kg": 38,
+      "catalog_no": "20150580"
+    },
+    {
+      "product_name": "Yashang Right Roller Shutter Combined Cabinet",
+      "sku": "GJO-YS-RT-R",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yashang Steel",
+      "dimensions": "W900×D500×H600mm",
+      "materials": "Cold-rolled steel, powder-coated finish",
+      "colors": [
+        "White body, orange handle"
+      ],
+      "weight_kg": 38,
+      "catalog_no": "20150689"
+    },
+    {
+      "product_name": "Yashang 2-Drawer Lateral File Cabinet (Low)",
+      "sku": "GJO-YS-LF-2",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yashang Steel",
+      "dimensions": "W900×D450×H756mm",
+      "materials": "Cold-rolled steel, knock-down assembly",
+      "colors": [
+        "White body, orange handle"
+      ],
+      "weight_kg": 48,
+      "catalog_no": "20159751"
+    },
+    {
+      "product_name": "Yashang 3-Drawer Lateral File Cabinet (Medium)",
+      "sku": "GJO-YS-LF-3",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yashang Steel",
+      "dimensions": "W900×D450×H1126mm",
+      "materials": "Cold-rolled steel, knock-down assembly",
+      "colors": [
+        "White body, orange handle"
+      ],
+      "weight_kg": 64,
+      "catalog_no": "20158002"
+    },
+    {
+      "product_name": "Yashang 4-Drawer Lateral File Cabinet (Tall)",
+      "sku": "GJO-YS-LF-4",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yashang Steel",
+      "dimensions": "W900×D450×H1435mm",
+      "materials": "Cold-rolled steel, knock-down assembly",
+      "colors": [
+        "White body, orange handle"
+      ],
+      "weight_kg": 83,
+      "catalog_no": "20159772"
+    },
+    {
+      "product_name": "Yashang 2-Door Cabinet (Low)",
+      "sku": "GJO-YS-HD-2U",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yashang Steel",
+      "dimensions": "W900×D450×H756mm",
+      "materials": "Cold-rolled steel, knock-down assembly",
+      "colors": [
+        "White body, orange handle"
+      ],
+      "weight_kg": 39,
+      "catalog_no": "20158095"
+    },
+    {
+      "product_name": "Yashang 3-Door Cabinet (Medium)",
+      "sku": "GJO-YS-HD-3D",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yashang Steel",
+      "dimensions": "W900×D450×H985mm",
+      "materials": "Cold-rolled steel, knock-down assembly",
+      "colors": [
+        "White body, orange handle"
+      ],
+      "weight_kg": 39,
+      "catalog_no": "20158521"
+    },
+    {
+      "product_name": "Yashang 5-Door Cabinet (Full Height)",
+      "sku": "GJO-YS-HD-5D",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yashang Steel",
+      "dimensions": "W900×D450×H1860mm",
+      "materials": "Cold-rolled steel, knock-down assembly",
+      "colors": [
+        "White body, orange handle"
+      ],
+      "weight_kg": 60,
+      "catalog_no": "20158191"
+    },
+    {
+      "product_name": "Yashang Left Locker Cabinet",
+      "sku": "GJO-YS-CW-L",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yashang Steel",
+      "dimensions": "W900×D500×H1200mm",
+      "materials": "Cold-rolled steel, powder-coated finish",
+      "colors": [
+        "White body, orange handle"
+      ],
+      "weight_kg": 21,
+      "catalog_no": "20158970"
+    },
+    {
+      "product_name": "Yashang Right Locker Cabinet",
+      "sku": "GJO-YS-CW-R",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yashang Steel",
+      "dimensions": "W900×D500×H1200mm",
+      "materials": "Cold-rolled steel, powder-coated finish",
+      "colors": [
+        "White body, orange handle"
+      ],
+      "weight_kg": 21,
+      "catalog_no": "20158710"
+    },
+    {
+      "product_name": "Yashang 2-Section Sliding Door Cabinet (Low)",
+      "sku": "GJO-YS-SD-2U",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yashang Steel",
+      "dimensions": "W900×D450×H756mm",
+      "materials": "Cold-rolled steel, knock-down assembly",
+      "colors": [
+        "White body, orange handle"
+      ],
+      "weight_kg": 29,
+      "catalog_no": "00189000"
+    },
+    {
+      "product_name": "Yashang 3-Section Sliding Door Cabinet (Medium)",
+      "sku": "GJO-YS-SD-3D",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yashang Steel",
+      "dimensions": "W901×D450×H1066mm",
+      "materials": "Cold-rolled steel, knock-down assembly",
+      "colors": [
+        "White body, orange handle"
+      ],
+      "weight_kg": 36,
+      "catalog_no": "20158521"
+    },
+    {
+      "product_name": "Yashang Tambour Door Cabinet (Low)",
+      "sku": "GJO-YS-TD-2U",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yashang Steel",
+      "dimensions": "W900×D450×H756mm",
+      "materials": "Cold-rolled steel, knock-down assembly",
+      "colors": [
+        "White"
+      ],
+      "weight_kg": 33,
+      "catalog_no": "20154851"
+    },
+    {
+      "product_name": "Yashang Tambour Door Cabinet (Medium)",
+      "sku": "GJO-YS-TD-3D",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yashang Steel",
+      "dimensions": "W900×D450×H1085mm",
+      "materials": "Cold-rolled steel, knock-down assembly",
+      "colors": [
+        "White"
+      ],
+      "weight_kg": 43,
+      "catalog_no": "20158122"
+    },
+    {
+      "product_name": "Yashang Tambour Door Cabinet (Full Height)",
+      "sku": "GJO-YS-TD-5D",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yashang Steel",
+      "dimensions": "W900×D450×H1860mm",
+      "materials": "Cold-rolled steel, knock-down assembly",
+      "colors": [
+        "White"
+      ],
+      "weight_kg": 64,
+      "catalog_no": "20158392"
+    },
+    {
+      "product_name": "Yafeng 4-Door Mail Cabinet",
+      "sku": "GJO-YF-X-4M",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yafeng Steel Tank",
+      "dimensions": "W800×D400×H760mm",
+      "materials": "Cold-rolled steel, knock-down assembly",
+      "colors": [
+        "Matte White"
+      ],
+      "weight_kg": 23,
+      "catalog_no": "20195383"
+    },
+    {
+      "product_name": "Yafeng 6-Door Mail Cabinet",
+      "sku": "GJO-YF-X-6M",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yafeng Steel Tank",
+      "dimensions": "W800×D400×H1090mm",
+      "materials": "Cold-rolled steel, knock-down assembly",
+      "colors": [
+        "Matte White"
+      ],
+      "weight_kg": 31,
+      "catalog_no": "20194211"
+    },
+    {
+      "product_name": "Yafeng 7-Unit Combination Cabinet",
+      "sku": "GJO-YF-K-7M",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yafeng Steel Tank",
+      "dimensions": "W800×D400×H760mm",
+      "materials": "Cold-rolled steel with 4-digit combination lock",
+      "colors": [
+        "Matte White"
+      ],
+      "weight_kg": 19.5,
+      "catalog_no": "20193549"
+    },
+    {
+      "product_name": "Yafeng 10-Unit Combination Cabinet",
+      "sku": "GJO-YF-K-10M",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yafeng Steel Tank",
+      "dimensions": "W800×D400×H1090mm",
+      "materials": "Cold-rolled steel with 4-digit combination lock",
+      "colors": [
+        "Matte White"
+      ],
+      "weight_kg": 27,
+      "catalog_no": "20198875"
+    },
+    {
+      "product_name": "Yafeng 10-Unit Combination Cabinet (Keyed)",
+      "sku": "GJO-YF-K-10MK",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yafeng Steel Tank",
+      "dimensions": "W800×D400×H1090mm",
+      "materials": "Cold-rolled steel with key lock",
+      "colors": [
+        "Matte White"
+      ],
+      "weight_kg": 27,
+      "catalog_no": "20198976"
+    },
+    {
+      "product_name": "Yafeng 1200 Desk-Side Open Door Cabinet",
+      "sku": "GJO-YF-K-120M",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yafeng Steel Tank",
+      "dimensions": "W1200×D400×H1090mm",
+      "materials": "Cold-rolled steel, knock-down assembly",
+      "colors": [
+        "Matte White"
+      ],
+      "weight_kg": 39,
+      "catalog_no": "20190511"
+    },
+    {
+      "product_name": "Yafeng 1400 Desk-Side Open Door Cabinet",
+      "sku": "GJO-YF-K-140M",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yafeng Steel Tank",
+      "dimensions": "W1400×D400×H1090mm",
+      "materials": "Cold-rolled steel, knock-down assembly",
+      "colors": [
+        "Matte White"
+      ],
+      "weight_kg": 39,
+      "catalog_no": "20190512"
+    },
+    {
+      "product_name": "Yafeng 1200 Desk-Side Sliding Door Cabinet",
+      "sku": "GJO-YF-Y-120M",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yafeng Steel Tank",
+      "dimensions": "W1200×D400×H1090mm",
+      "materials": "Cold-rolled steel with sliding door",
+      "colors": [
+        "Matte White",
+        "Dark"
+      ],
+      "weight_kg": 40,
+      "catalog_no": "20195890"
+    },
+    {
+      "product_name": "Yafeng 1400 Desk-Side Sliding Door Cabinet",
+      "sku": "GJO-YF-Y-140M",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yafeng Steel Tank",
+      "dimensions": "W1400×D400×H1090mm",
+      "materials": "Cold-rolled steel with sliding door",
+      "colors": [
+        "Matte White",
+        "Dark"
+      ],
+      "weight_kg": 40,
+      "catalog_no": "20195891"
+    },
+    {
+      "product_name": "Yafeng Open Cabinet (Low 4-Unit)",
+      "sku": "GJO-YF-K-4",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yafeng Steel Tank",
+      "dimensions": "W800×D400×H370mm",
+      "materials": "Cold-rolled steel, knock-down assembly",
+      "colors": [
+        "Matte White"
+      ],
+      "weight_kg": 13,
+      "catalog_no": "20195430"
+    },
+    {
+      "product_name": "Yafeng Open Cabinet (Medium 7-Unit)",
+      "sku": "GJO-YF-K-7",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yafeng Steel Tank",
+      "dimensions": "W800×D400×H760mm",
+      "materials": "Cold-rolled steel, knock-down assembly",
+      "colors": [
+        "Matte White"
+      ],
+      "weight_kg": 19,
+      "catalog_no": "20190550"
+    },
+    {
+      "product_name": "Yafeng Open Cabinet (Tall 10-Unit)",
+      "sku": "GJO-YF-K-10",
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "category": "Storage & Filing",
+      "series": "Yafeng Steel Tank",
+      "dimensions": "W800×D400×H1090mm",
+      "materials": "Cold-rolled steel, knock-down assembly",
+      "colors": [
+        "Matte White"
+      ],
+      "weight_kg": 26,
+      "catalog_no": "20198070"
+    },
+    {
+      "product_name": "FU8061 L-Shape Sectional Sofa (4-piece)",
+      "sku": "GJO-LS-FU8061A-4Z",
+      "supplier": "Huasheng Furniture Group — Lounge & Seating Division",
+      "category": "Lounge Seating",
+      "series": "FU8061 Sofa Collection",
+      "dimensions": "L4280×W2850×D1090×H780/970mm (seat/back)",
+      "materials": "Full-grain leather, solid wood frame, foam cushioning",
+      "colors": [
+        "Cream",
+        "Tan",
+        "Charcoal"
+      ],
+      "catalog_no": "FU8061A-4ZHLIR"
+    },
+    {
+      "product_name": "FU8061 1-Seater Sofa",
+      "sku": "GJO-LS-FU8061-1",
+      "supplier": "Huasheng Furniture Group — Lounge & Seating Division",
+      "category": "Lounge Seating",
+      "series": "FU8061 Sofa Collection",
+      "dimensions": "L1280×D1090×H780/970mm (seat/back)",
+      "materials": "Full-grain leather, solid wood frame, foam cushioning",
+      "colors": [
+        "Green",
+        "Cream",
+        "Black"
+      ],
+      "catalog_no": "FU8061-1"
+    },
+    {
+      "product_name": "FU8061 3-Seater Sofa",
+      "sku": "GJO-LS-FU8061-3",
+      "supplier": "Huasheng Furniture Group — Lounge & Seating Division",
+      "category": "Lounge Seating",
+      "series": "FU8061 Sofa Collection",
+      "dimensions": "L2240×D1090×H780/970mm (seat/back)",
+      "materials": "Full-grain leather, solid wood frame, foam cushioning",
+      "colors": [
+        "Green",
+        "Cream",
+        "Black"
+      ],
+      "catalog_no": "FU8061-3"
+    },
+    {
+      "product_name": "FU8061A 3-Seater L-Sofa",
+      "sku": "GJO-LS-FU8061A-3",
+      "supplier": "Huasheng Furniture Group — Lounge & Seating Division",
+      "category": "Lounge Seating",
+      "series": "FU8061 Sofa Collection",
+      "dimensions": "L2590×D1090×H780/970mm (seat/back)",
+      "materials": "Full-grain leather, solid wood frame, foam cushioning",
+      "colors": [
+        "Green",
+        "Cream",
+        "Black"
+      ],
+      "catalog_no": "FU8061A-3"
+    },
+    {
+      "product_name": "A2089 High-Back Lounge Chair",
+      "sku": "GJO-LS-A2089",
+      "supplier": "Huasheng Furniture Group — Lounge & Seating Division",
+      "category": "Lounge Seating",
+      "series": "Accent Chair Collection",
+      "dimensions": "L890×W800×H950mm",
+      "materials": "Premium leather, swivel base, foam cushioning",
+      "colors": [
+        "Cream/Beige",
+        "Black"
+      ],
+      "catalog_no": "A2089"
+    },
+    {
+      "product_name": "B2089 Low-Back Lounge Chair",
+      "sku": "GJO-LS-B2089",
+      "supplier": "Huasheng Furniture Group — Lounge & Seating Division",
+      "category": "Lounge Seating",
+      "series": "Accent Chair Collection",
+      "dimensions": "L890×W800×H800mm",
+      "materials": "Premium leather, swivel base, foam cushioning",
+      "colors": [
+        "Black",
+        "Cream/Beige"
+      ],
+      "catalog_no": "B2089"
+    },
+    {
+      "product_name": "B2090 Accent Chair",
+      "sku": "GJO-LS-B2090",
+      "supplier": "Huasheng Furniture Group — Lounge & Seating Division",
+      "category": "Lounge Seating",
+      "series": "Accent Chair Collection",
+      "dimensions": "L890×W810×H770mm",
+      "materials": "Premium fabric/leather, solid wood frame",
+      "colors": [
+        "Natural",
+        "Charcoal"
+      ],
+      "catalog_no": "B2090"
+    },
+    {
+      "product_name": "BJ013A Tall Side Table",
+      "sku": "GJO-LS-BJ013A",
+      "supplier": "Huasheng Furniture Group — Lounge & Seating Division",
+      "category": "Occasional Tables",
+      "series": "BJ Side Table Collection",
+      "dimensions": "Ø310×H520mm",
+      "materials": "Sintered stone top, metal base",
+      "colors": [
+        "Marble effect",
+        "Walnut"
+      ],
+      "catalog_no": "BJ013A"
+    },
+    {
+      "product_name": "BJ013B Short Side Table",
+      "sku": "GJO-LS-BJ013B",
+      "supplier": "Huasheng Furniture Group — Lounge & Seating Division",
+      "category": "Occasional Tables",
+      "series": "BJ Side Table Collection",
+      "dimensions": "Ø310×H450mm",
+      "materials": "Sintered stone top, metal base",
+      "colors": [
+        "Marble effect",
+        "Walnut"
+      ],
+      "catalog_no": "BJ013B"
+    },
+    {
+      "product_name": "BJ020 Round Side Table",
+      "sku": "GJO-LS-BJ020",
+      "supplier": "Huasheng Furniture Group — Lounge & Seating Division",
+      "category": "Occasional Tables",
+      "series": "BJ Side Table Collection",
+      "dimensions": "Ø500×H500mm",
+      "materials": "Sintered stone top, metal base",
+      "colors": [
+        "Marble effect"
+      ],
+      "catalog_no": "BJ020"
+    },
+    {
+      "product_name": "CJ046B Rectangular Coffee Table",
+      "sku": "GJO-LS-CJ046B",
+      "supplier": "Huasheng Furniture Group — Lounge & Seating Division",
+      "category": "Occasional Tables",
+      "series": "CJ Coffee Table Collection",
+      "dimensions": "L1400×W775×H330mm",
+      "materials": "Sintered stone top, metal frame",
+      "colors": [
+        "White marble",
+        "Grey marble"
+      ],
+      "catalog_no": "CJ046B"
+    },
+    {
+      "product_name": "CJ1816A Square Coffee Table",
+      "sku": "GJO-LS-CJ1816A",
+      "supplier": "Huasheng Furniture Group — Lounge & Seating Division",
+      "category": "Occasional Tables",
+      "series": "CJ Coffee Table Collection",
+      "dimensions": "L876×W876×H380mm",
+      "materials": "Sintered stone top, metal frame",
+      "colors": [
+        "White marble",
+        "Smoke"
+      ],
+      "catalog_no": "CJ1816A"
+    },
+    {
+      "product_name": "CJ1816B Large Square Coffee Table",
+      "sku": "GJO-LS-CJ1816B",
+      "supplier": "Huasheng Furniture Group — Lounge & Seating Division",
+      "category": "Occasional Tables",
+      "series": "CJ Coffee Table Collection",
+      "dimensions": "L1275×W876×H380mm",
+      "materials": "Sintered stone top, metal frame",
+      "colors": [
+        "White marble",
+        "Smoke"
+      ],
+      "catalog_no": "CJ1816B"
     }
-
-  ,
-
-    { "product_name": "Milan Electric Sit-Stand Desk (Single Motor 2-Section)", "sku": "HSG-MLN-MLF01-SM", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Milan", "dimensions": "Frame width 1200-1800mm, height range 740-1200mm, travel 460mm", "materials": "Seamless square tube steel column, laminate desktop", "colors": ["White", "Black", "Silver grey"], "finishes": ["Powder-coated frame"], "specs": { "max_load_kg": 80, "speed_mm_s": 25, "noise_dB": "<50", "duty_cycle": "10%", "sections": 2, "motors": 1 }, "features": ["3-level memory presets", "Anti-collision obstacle detection", "Silent operation", "Adjustable tabletop"], "certifications": ["SGS", "BIFMA", "FCC", "CE", "EMC"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-desk.jpg" },
-
-    { "product_name": "Milan Electric Sit-Stand Desk (Dual Motor 2-Section)", "sku": "HSG-MLN-MLF02-DM", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Milan", "dimensions": "Frame width 1400-1800mm, height range 720-1200mm, travel 460mm", "materials": "Seamless square tube steel column, laminate desktop", "colors": ["White", "Black", "Silver grey"], "finishes": ["Powder-coated frame"], "specs": { "max_load_kg": 100, "speed_mm_s": 30, "noise_dB": "<50", "duty_cycle": "10%", "sections": 2, "motors": 2 }, "features": ["3-level memory presets", "Anti-collision obstacle detection", "Dual motor stability", "Back-to-back compatible"], "certifications": ["SGS", "BIFMA", "FCC", "CE", "EMC"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-desk.jpg" },
-
-    { "product_name": "Milan Electric Sit-Stand Desk (Dual Motor 2-Section Heavy)", "sku": "HSG-MLN-MLF02-HD", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Milan", "dimensions": "Frame width 1400-1800mm, height range 720-1200mm, travel 460mm", "materials": "Seamless square tube steel column, laminate desktop", "colors": ["White", "Black", "Silver grey"], "finishes": ["Powder-coated frame"], "specs": { "max_load_kg": 120, "speed_mm_s": 30, "noise_dB": "<50", "duty_cycle": "10%", "sections": 2, "motors": 2 }, "features": ["Heavy-duty 120kg capacity", "3-level memory", "Anti-collision detection"], "certifications": ["SGS", "BIFMA", "FCC", "CE", "EMC"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-desk.jpg" },
-
-    { "product_name": "Milan Electric Sit-Stand Desk (3-Section Dual Motor)", "sku": "HSG-MLN-MLF03-3S", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Milan", "dimensions": "Frame width 1400-1800mm, height range 620-1250mm, travel 530mm", "materials": "Seamless square tube steel column, laminate desktop", "colors": ["White", "Black", "Silver grey"], "finishes": ["Powder-coated frame"], "specs": { "max_load_kg": 100, "speed_mm_s": 30, "noise_dB": "<65", "duty_cycle": "10%", "sections": 3, "motors": 2 }, "features": ["Extended 530mm travel range", "Lower sit height (620mm)", "3-level memory", "Ideal for ergonomic compliance"], "certifications": ["SGS", "BIFMA", "FCC", "CE", "EMC"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-desk.jpg" },
-
-    { "product_name": "Milan Gaming Sit-Stand Desk", "sku": "HSG-MLN-MLF03-GAME", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Milan", "dimensions": "Custom width, height range 620-1200mm", "materials": "Steel column, carbon fibre-effect desktop with LED strip", "colors": ["All black"], "finishes": ["Matte black powder coat"], "specs": { "max_load_kg": 80, "speed_mm_s": 80, "sections": 3, "motors": 2 }, "features": ["Fast 80mm/s lift speed", "Gaming/creative workstation design", "Cable management"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-gaming.jpg" },
-
-    { "product_name": "Milan Back-to-Back Sit-Stand Workstation", "sku": "HSG-MLN-BBW-2P", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Milan", "dimensions": "2-person: 1200-1800mm wide per station, height range 720-1200mm", "materials": "Steel column, laminate desktop, acoustic screen dividers", "colors": ["White", "Grey", "Natural oak"], "features": ["Back-to-back configuration", "Shared motorised base", "Acoustic screen dividers", "Independent height per side"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-back-to-back.jpg" },
-
-    { "product_name": "Karen Electric Sit-Stand Desk", "sku": "HSG-KRN-KNF01", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Manager Desks", "series": "Karen", "dimensions": "Frame width 1200-1800mm, height range 720-1200mm", "materials": "Steel column, laminate desktop", "colors": ["White", "Black", "Walnut"], "specs": { "sections": 2, "motors": 1, "noise_dB": "<50" }, "features": ["Memory presets", "Anti-collision", "Corporate aesthetic"], "certifications": ["SGS", "BIFMA", "CE", "EMC"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-desk.jpg" },
-
-    { "product_name": "Owen Single-Column Sit-Stand Desk", "sku": "HSG-OWN-ONF01", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Owen", "dimensions": "Small footprint side table, height 2/3 section adjustable", "materials": "Steel column with curved foot, laminate desktop", "colors": ["White", "Silver grey"], "features": ["Single column design", "Compact footprint", "Suitable as laptop/side desk", "Soft curve ergonomic aesthetic"], "image": "/uploads/catalog-images/huasheng-gaozhuo/owen-desk.jpg" },
-
-    { "product_name": "Owen Back-to-Back Sit-Stand Workstation", "sku": "HSG-OWN-ONF02-BB", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Owen", "dimensions": "2–4 person, adjustable 620-1200mm height, 120° triangular option", "materials": "Steel column, laminate desktop, soft-curve edges", "colors": ["White", "Grey", "Natural oak", "Teal blue"], "features": ["Soft curve rounded edges", "Hidden inline column (clean look)", "3-colour frame options", "120° corner + L-shape + straight configurations"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-back-to-back.jpg" },
-
-    { "product_name": "Miller Modular Workspace Pod (Single Unit)", "sku": "HSG-MLR-POD01", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Storage", "series": "Miller", "dimensions": "Single unit module, standard depth", "materials": "Powder-coated steel, acoustic panels", "colors": ["Black", "Green", "Grey"], "features": ["Stackable modular design", "Utilises unused floor space", "Can include integrated lighting", "Privacy + storage function"], "image": "/uploads/catalog-images/huasheng-gaozhuo/miller-pod.jpg" },
-
-    { "product_name": "Miller Modular Workspace Pod (3-Unit Cluster)", "sku": "HSG-MLR-POD03", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Storage", "series": "Miller", "dimensions": "3-unit cluster configuration", "materials": "Powder-coated steel, acoustic panels", "colors": ["Black", "Green", "Grey"], "features": ["3-unit linked configuration", "Central connection bracket", "Optional integrated lighting"], "image": "/uploads/catalog-images/huasheng-gaozhuo/miller-pod.jpg" },
-
-    { "product_name": "Miller Modular Workspace Pod (4-Unit Cluster)", "sku": "HSG-MLR-POD04", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Storage", "series": "Miller", "dimensions": "4-unit cluster configuration", "materials": "Powder-coated steel, acoustic panels", "colors": ["Black", "Green", "Grey"], "features": ["4-unit linked configuration", "Cross-connect bracket", "Maximises unused office corners"], "image": "/uploads/catalog-images/huasheng-gaozhuo/miller-pod.jpg" },
-
-    { "product_name": "Mige Multi-Person Sit-Stand Workstation Cluster", "sku": "HSG-MGE-WST01", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Mige", "dimensions": "120° triangular / L-shape / straight, 2–6 persons, height 620-1200mm", "materials": "Steel column, laminate desktop, hidden inline column", "colors": ["White", "Grey", "Blue"], "features": ["120° special-shape table for team collaboration", "Hidden inline column for cable management", "L-shaped table and single table options", "3-colour foot options"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-back-to-back.jpg" },
-
-    { "product_name": "Better Electric Sit-Stand Desk (Back-to-Back)", "sku": "HSG-BTR-BTF01", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Better", "dimensions": "Wave-front design, 2–4 person back-to-back, height adjustable", "materials": "Steel column, wave-profile laminate desktop", "colors": ["White"], "features": ["Leading cable management — 16 cable grooves with snake tubes", "Wave-front ergonomic profile", "Patent: 20233041194339", "Integrated cable spine under desk"], "image": "/uploads/catalog-images/huasheng-gaozhuo/better-desk.jpg" },
-
-    { "product_name": "Better Motorised Podium / Rostrum", "sku": "HSG-BTR-RST01", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Reception Desks", "series": "Better", "dimensions": "Compact mobile podium, height adjustable, on castors", "materials": "Steel frame, laminate top, lockable castors", "colors": ["White"], "features": ["Height-adjustable motorised rostrum", "Mobile on castors", "Integrated storage shelf", "Suits training rooms and presentation spaces"], "image": "/uploads/catalog-images/huasheng-gaozhuo/better-rostrum.jpg" },
-
-    { "product_name": "Baggio Electric Sit-Stand Desk", "sku": "HSG-BGO-BGF01", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Baggio", "dimensions": "Frame width 1200-1800mm, height adjustable", "materials": "Steel column with thick base, laminate desktop", "colors": ["White", "Black", "Natural oak"], "specs": { "noise_dB": "46", "memory_presets": 3 }, "features": ["Industry-leading 46dB ultra-quiet lift", "3-level memory height presets", "Auto-retreat obstacle detection (ascend + descend)", "High-capacity cable trunking + flexible snake tube management"], "certifications": ["SGS", "BIFMA", "FCC", "CE", "EMC"], "image": "/uploads/catalog-images/huasheng-gaozhuo/baggio-desk.jpg" },
-
-    { "product_name": "Bonnie Electric Height-Adjustable Desk", "sku": "HSG-BNN-BNF01", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Manager Desks", "series": "Bonnie", "dimensions": "Standard frame widths, height 720-1200mm", "materials": "Steel column, laminate desktop", "colors": ["White", "Black"], "features": ["Electric height adjustment", "Memory presets", "Remote control compatible", "Smooth quiet lift"], "certifications": ["SGS", "BIFMA", "FCC", "CE", "EMC"], "image": "/uploads/catalog-images/huasheng-gaozhuo/milan-desk.jpg" },
-
-    { "product_name": "Mike Electric Lift Training Table (MK-01A)", "sku": "HSG-MKE-MK01A", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Boardroom Tables", "series": "Mike", "dimensions": "1400-1600mm W × 600-700mm D, height 725-1355mm, travel 630mm", "materials": "Steel column, melamine top, foldable", "colors": ["White"], "specs": { "height_min_mm": 725, "height_max_mm": 1355, "travel_mm": 630, "motors": 3 }, "features": ["Tiltable foldable desktop", "3-motor electric lift", "Lockable castors", "Nesting/stackable for storage"], "certifications": ["SGS", "BIFMA", "CE"], "image": "/uploads/catalog-images/huasheng-gaozhuo/hsg3-contents.jpg" },
-
-    { "product_name": "Mike Electric Lift Training Table (MK-02)", "sku": "HSG-MKE-MK02", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Boardroom Tables", "series": "Mike", "dimensions": "1400-3600mm W × 600-1000mm D, height 725-1355mm", "materials": "Steel column, melamine top", "colors": ["White"], "specs": { "height_min_mm": 725, "height_max_mm": 1355, "motors": 3 }, "features": ["Wide table format (up to 3600mm)", "3-motor electric lift", "Digital control panel", "Castors for repositioning"], "certifications": ["SGS", "BIFMA", "CE"], "image": "/uploads/catalog-images/huasheng-gaozhuo/hsg3-contents.jpg" },
-
-    { "product_name": "Cape Electric Sit-Stand Desk (Standard)", "sku": "HSG-CPE-CPF01", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Workstations", "series": "Cape", "dimensions": "Standard frame widths 1200-1800mm, height 670-1150mm, travel 480mm", "materials": "Seamless tube column (no exposed screws), laminate desktop", "colors": ["Spray-coat white/black", "Stainless steel"], "specs": { "height_min_mm": 670, "height_max_mm": 1150, "travel_mm": 480, "speed_mm_s": 20, "max_load_N": 1000, "noise_dB": "<50", "memory_presets": 3 }, "features": ["No exposed screw craftsmanship", "3-level memory presets", "Dual foot style options (225mm narrow / 180mm wide)", "Spray coat or stainless steel finish"], "certifications": ["SGS", "BIFMA", "FCC", "CE", "EMC"], "image": "/uploads/catalog-images/huasheng-gaozhuo/cape-executive.jpg" },
-
-    { "product_name": "Cape Executive Electric Sit-Stand Desk", "sku": "HSG-CPE-CPF02", "supplier": "Huasheng Furniture Group — Gaozhuo Division", "category": "Executive Desks", "series": "Cape", "dimensions": "Executive format: 1800-2400mm W, height 670-1150mm, travel 480mm", "materials": "Premium column finish, luxury laminate or veneer desktop", "colors": ["Walnut", "Dark Oak", "Stainless steel base"], "specs": { "height_min_mm": 670, "height_max_mm": 1150, "travel_mm": 480, "speed_mm_s": 20, "max_load_N": 1000, "noise_dB": "<50", "memory_presets": 3 }, "features": ["Executive aesthetic with sit-stand functionality", "No exposed screw design language", "Integrated cable management", "Dual foot profile options"], "certifications": ["SGS", "BIFMA", "FCC", "CE", "EMC"], "image": "/uploads/catalog-images/huasheng-gaozhuo/cape-executive.jpg" },
-
-    { "product_name": "GOJO LRU Executive Desk Type A — 3600", "sku": "GJO-LRU-OEA3624", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "LRU", "dimensions": "3600W × 2400D × 750H mm", "materials": "Dark oak veneer, dark grey metallic paint frame, solid surface accents", "colors": ["Dark oak + dark grey metallic"], "features": ["Segmented adjustable tabletop (sit-stand hybrid)", "Exquisite integrated power box with ports", "Italian semi-transparent paint", "Modern architectural aesthetic", "CEO/Director suite appropriate"], "image": "/uploads/catalog-images/gojo/lru-executive-desk.jpg" },
-
-    { "product_name": "GOJO LRU Executive Desk Type A — 3300", "sku": "GJO-LRU-OEA3224", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "LRU", "dimensions": "3300W × 2400D × 750H mm", "materials": "Dark oak veneer, dark grey metallic paint frame", "colors": ["Dark oak + dark grey metallic"], "features": ["Segmented sit-stand tabletop", "Integrated power box", "Drawer and cabinet classification system"], "image": "/uploads/catalog-images/gojo/lru-executive-desk.jpg" },
-
-    { "product_name": "GOJO LRU Executive Desk Type B — 2800", "sku": "GJO-LRU-OKA3022", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "LRU", "dimensions": "2800W × 2200D × 750H mm", "materials": "Dark oak veneer, dark grey metallic paint frame", "colors": ["Dark oak + dark grey metallic"], "features": ["Executive L-desk format", "Drawer + file cabinet integration", "Power module built-in"], "image": "/uploads/catalog-images/gojo/lru-executive-desk.jpg" },
-
-    { "product_name": "GOJO LRU File Cabinet — 3 Column", "sku": "GJO-LRU-CAK3620", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Storage", "series": "LRU", "dimensions": "3600W × 600D × 2000H mm", "materials": "Dark oak veneer, metallic frame", "colors": ["Dark oak + dark grey metallic"], "features": ["3-column tall unit", "Matches LRU executive desk suite", "Open shelf + closed drawer combination"], "image": "/uploads/catalog-images/gojo/lru-dimensions.jpg" },
-
-    { "product_name": "GOJO LRU File Cabinet — 4 Column Wide", "sku": "GJO-LRU-OKA4028", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Storage", "series": "LRU", "dimensions": "3200W × 900D × 2000H mm", "materials": "Dark oak veneer, metallic frame", "colors": ["Dark oak + dark grey metallic"], "features": ["Wide deep storage unit", "Full height glazed + solid options", "Matching LRU suite"], "image": "/uploads/catalog-images/gojo/lru-dimensions.jpg" },
-
-    { "product_name": "GOJO LRU File Cabinet — Compact", "sku": "GJO-LRU-CAE1820", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Storage", "series": "LRU", "dimensions": "1800W × 600D × 2000H mm", "materials": "Dark oak veneer, metallic frame", "colors": ["Dark oak + dark grey metallic"], "features": ["Compact tall cabinet", "2-column design"], "image": "/uploads/catalog-images/gojo/lru-dimensions.jpg" },
-
-    { "product_name": "GOJO LRU Conference Table — 6000mm", "sku": "GJO-LRU-CON6016", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Boardroom Tables", "series": "LRU", "dimensions": "6000W × 1600D × 750H mm", "materials": "Dark oak veneer top, metallic steel base structure", "colors": ["Dark oak + dark grey metallic"], "features": ["Seats 16-20 persons", "Matching LRU executive suite aesthetic", "Strong visual tension design", "Geometric interlocking structure"], "image": "/uploads/catalog-images/gojo/lru-conference-table.jpg" },
-
-    { "product_name": "GOJO LRU Conference Table — 5400mm", "sku": "GJO-LRU-CON5416", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Boardroom Tables", "series": "LRU", "dimensions": "5400W × 1600D × 750H mm", "materials": "Dark oak veneer top, metallic steel base", "colors": ["Dark oak + dark grey metallic"], "features": ["Seats 14-16 persons", "Architectural geometric base", "Veneer top finish"], "image": "/uploads/catalog-images/gojo/lru-conference-table.jpg" },
-
-    { "product_name": "GOJO LRU Conference Table — 4800mm", "sku": "GJO-LRU-CON4816", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Boardroom Tables", "series": "LRU", "dimensions": "4800W × 1600D × 750H mm", "materials": "Dark oak veneer top, metallic steel base", "colors": ["Dark oak + dark grey metallic"], "features": ["Seats 12-14 persons", "Matching LRU boardroom suite"], "image": "/uploads/catalog-images/gojo/lru-conference-table.jpg" },
-
-    { "product_name": "GOJO LRU Conference Table — 4200mm", "sku": "GJO-LRU-CON4214", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Boardroom Tables", "series": "LRU", "dimensions": "4200W × 1400D × 750H mm", "materials": "Dark oak veneer top, metallic steel base", "colors": ["Dark oak + dark grey metallic"], "features": ["Seats 10-12 persons", "Compact boardroom format"], "image": "/uploads/catalog-images/gojo/lru-conference-table.jpg" },
-
-    { "product_name": "GOJO LRU Conference Table — 3600mm", "sku": "GJO-LRU-CON3614", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Boardroom Tables", "series": "LRU", "dimensions": "3600W × 1400D × 750H mm", "materials": "Dark oak veneer top, metallic steel base", "colors": ["Dark oak + dark grey metallic"], "features": ["Seats 8-10 persons", "Meeting room format"], "image": "/uploads/catalog-images/gojo/lru-conference-table.jpg" },
-
-    { "product_name": "GOJO JCN Series Executive Suite", "sku": "GJO-JCN-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "JCN", "dimensions": "needs_manual_review", "materials": "Premium materials — digital age aesthetic, technology-integrated", "colors": ["needs_manual_review"], "features": ["Cutting-edge aesthetics for digital age", "Technology + art integration", "Lifestyle symbolism for elite executive group"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
-
-    { "product_name": "GOJO YIN Series Executive Suite", "sku": "GJO-YIN-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "YIN", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
-
-    { "product_name": "GOJO VEP Series Executive Suite", "sku": "GJO-VEP-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "VEP", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
-
-    { "product_name": "GOJO VEIYE Series Executive Suite", "sku": "GJO-VEI-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "VEIYE", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
-
-    { "product_name": "GOJO YUP Series Executive Suite", "sku": "GJO-YUP-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "YUP", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
-
-    { "product_name": "GOJO GUANHE Series Manager Suite", "sku": "GJO-GNH-MGR-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Manager Desks", "series": "GUANHE", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
-
-    { "product_name": "GOJO YUZ Series Executive Suite", "sku": "GJO-YUZ-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "YUZ", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
-
-    { "product_name": "GOJO BSA Series Manager Suite", "sku": "GJO-BSA-MGR-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Manager Desks", "series": "BSA", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
-
-    { "product_name": "GOJO WINA Series Office Suite", "sku": "GJO-WIN-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Manager Desks", "series": "WINA", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
-
-    { "product_name": "GOJO WPN Series Office Suite", "sku": "GJO-WPN-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Workstations", "series": "WPN", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
-
-    { "product_name": "GOJO MZE Series Executive Suite", "sku": "GJO-MZE-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "MZE", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
-
-    { "product_name": "GOJO JN Series Executive Suite", "sku": "GJO-JN-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "JN", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
-
-    { "product_name": "GOJO YA Series Executive Suite", "sku": "GJO-YA-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "YA", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" },
-
-    { "product_name": "GOJO HXT Series Executive Suite", "sku": "GJO-HXT-EXEC-01", "supplier": "Huasheng Furniture Group — GOJO Division", "category": "Executive Desks", "series": "HXT", "dimensions": "needs_manual_review", "materials": "needs_manual_review", "colors": ["needs_manual_review"], "needs_manual_review": true, "image": "/uploads/catalog-images/gojo/gojo-cover.jpg" }
-
   ]
 }

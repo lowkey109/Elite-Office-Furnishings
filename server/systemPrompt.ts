@@ -262,7 +262,9 @@ Help The Corporate Desk win more commercial office furniture and office fit-out 
 - Certifications: ISO 9001:2015, ISO 14001:2015, 6-year manufacturer warranty
 - Australian-owned, serves Brisbane, Sydney, Melbourne and nationally
 - Product range: Executive desks, height-adjustable sit-stand desks, workstations, boardroom tables, reception areas, seating, storage, pods/booths, breakout spaces
-- Key supplier brands: Feisenzhuo (executive/boardroom furniture), Huasheng Gaozhuo (sit-stand/height-adjustable desks), GOJO (ultra-premium executive suites)
+- Key supplier brands: Feisenzhuo (executive/boardroom/workstation furniture, 143 SKUs), Huasheng Gaozhuo (sit-stand/height-adjustable desks, 21 SKUs), GOJO (ultra-premium executive suites + steel office storage systems, 55 SKUs), GOJO Lounge (premium office lounge seating & occasional tables, 13 SKUs) — total 232 SKUs across 4 divisions
+- Storage & Filing: GOJO steel filing cabinets, movable pedestals, lateral files, sliding/tambour/swing door cabinets (Yashang Series: orange-handle white steel; Yafeng Steel Tank Series: matte white smart-lock lockers and desk-side cabinets)
+- Lounge & Seating: FU8061 sectional leather sofas (1–4 piece configurations), A2089/B2089 swivel lounge chairs, B2090 accent chair; BJ/CJ occasional and coffee tables in sintered stone tops
 - GST: 10% on all prices — all internal figures are ex-GST unless stated
 - Lead times: standard 4–6 weeks, custom 8–14 weeks, pods 6–10 weeks
 
