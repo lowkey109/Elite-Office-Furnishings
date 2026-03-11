@@ -1,0 +1,35 @@
+{
+  "costControlPrinciples": [
+    "Cost control is not about cutting everything — it is about eliminating waste while investing in growth",
+    "Every dollar of operating cost reduction at the same revenue level drops directly to net profit",
+    "Fixed costs are the most dangerous — they persist regardless of revenue. Keep fixed costs low; scale through variable costs.",
+    "Review all recurring subscriptions quarterly — subscription creep is real and compounds over time"
+  ],
+  "operatingExpenseBenchmarks": {
+    "salaries_and_wages": "30–40% of net revenue at TCD's stage — scale carefully",
+    "marketing": "8–12% of net revenue for active growth phase; 5–8% for maintenance phase",
+    "software_subscriptions": "Target under 2% of net revenue — audit quarterly",
+    "professional_services": "2–3% of net revenue (accounting, legal, HR consulting)",
+    "rent_utilities": "Under 5% of net revenue — avoid long-term leases that constrain flexibility",
+    "insurance": "1–1.5% of net revenue — do not underinsure to save cost"
+  },
+  "costsToInvestIn": [
+    "Sales capability — highest ROI investment for a project sales business",
+    "Marketing (Google Ads + SEO) — compound return over time",
+    "Project management systems — prevent expensive errors and rework",
+    "Key person insurance — protects the business if a critical person is unavailable",
+    "Accounting software — Xero or equivalent; pays for itself in time savings and accuracy"
+  ],
+  "costsToControlStrictly": [
+    "Installation subcontractors — get 3 quotes for each new installer relationship",
+    "Freight — renegotiate annually as volume grows; shipping rates are negotiable",
+    "Bank fees — use a business banking account with low transaction fees",
+    "Office supplies and incidentals — small but can drift significantly without a budget"
+  ],
+  "wasteIdentification": {
+    "quotesThatDontConvert": "If quote-to-order rate drops below 25%, the issue is either lead quality or quote presentation — fix the process before spending more on lead generation",
+    "unacknowledgedScopeCreep": "Untracked project additions that erode margin — implement a formal change order process",
+    "excessiveRevision": "More than 2 rounds of quote revision for a single project signals either unclear briefing or unclear scope — fix the intake process",
+    "overdueReceivables": "Overdue invoices are a hidden cost — late payment means TCD is funding the client's business"
+  }
+}

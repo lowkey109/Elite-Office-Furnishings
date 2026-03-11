@@ -1,0 +1,225 @@
+You are upgrading the live The Corporate Desk AI platform.
+
+You are in SAFE PACKAGE + QUOTE AUTOMATION MODE.
+
+IMPORTANT:
+Do NOT break any existing systems.
+Do NOT rebuild the current planner, 3D viewer, product catalog, finance calculator, chatbot, admin dashboard, or lead capture system.
+Only extend the current platform safely.
+
+PRIMARY OBJECTIVE
+
+Create an automated package and quote generation system so the AI can turn a completed office planner submission into:
+
+1. a recommended furniture package
+2. an estimated project cost
+3. a quote-ready summary
+4. a premium proposal structure for internal/admin use
+
+The system must help The Corporate Desk move from:
+floor plan upload → AI layout → package recommendation → quote generation
+
+------------------------------------------------
+STEP 1 — PACKAGE GENERATION ENGINE
+------------------------------------------------
+
+Create a package generation layer that uses:
+
+- planner submission data
+- workspace layout data
+- product catalog data
+- collection/package logic
+- pricing rules
+- supplier/product mappings
+
+The AI must generate recommended furniture packages based on the office type.
+
+Examples:
+
+Executive office
+→ executive desk
+→ executive chair
+→ storage cabinet
+→ visitor chairs
+
+Open-plan office
+→ workstation clusters
+→ ergonomic chairs
+→ storage
+→ meeting tables
+
+Boardroom
+→ boardroom table
+→ premium meeting chairs
+→ credenza/storage if appropriate
+
+Reception
+→ reception desk
+→ lounge seating
+→ waiting chairs
+→ coffee table
+
+------------------------------------------------
+STEP 2 — PACKAGE OUTPUT FORMAT
+------------------------------------------------
+
+For each planner submission, generate:
+
+- package name
+- workspace type
+- recommended products
+- quantities
+- SKU references where available
+- related collection
+- estimated package subtotal
+- estimated project total range
+
+Output should be structured and commercially useful.
+
+Use sections like:
+
+Package Summary
+Recommended Products
+Quantities
+Estimated Cost Range
+Why This Package Fits
+Upsell / Add-on Opportunities
+
+------------------------------------------------
+STEP 3 — ESTIMATED COST ENGINE
+------------------------------------------------
+
+Build an estimate layer using:
+
+- product pricing
+- package pricing
+- quantity logic
+- pricing rules
+- markup/margin rules
+
+The system should estimate:
+
+• product subtotal
+• package subtotal
+• estimated total project value range
+
+It should also allow for:
+- contingency range if data is uncertain
+- premium vs standard package positioning
+
+If exact pricing data is incomplete, use safe structured estimate ranges and label them as estimates.
+
+------------------------------------------------
+STEP 4 — QUOTE GENERATION
+------------------------------------------------
+
+Create a quote-ready output for admin/internal use.
+
+This should not necessarily issue a final binding quote automatically unless safe to do so.
+
+Instead generate:
+
+- client/company details
+- workspace type
+- recommended package
+- estimated pricing summary
+- product schedule
+- optional add-ons
+- next step recommendation
+
+Create a clean internal quote/proposal structure that can be used by staff to turn the recommendation into a final client quote.
+
+------------------------------------------------
+STEP 5 — ADMIN INTEGRATION
+------------------------------------------------
+
+Save generated package/quote data into the planner/admin system.
+
+Ensure /admin/planning-requests can show:
+
+- package recommendation
+- estimated value
+- quote summary
+- quote status
+- add-on opportunities
+
+If needed, extend the planning request data safely.
+
+------------------------------------------------
+STEP 6 — FINANCE INTEGRATION
+------------------------------------------------
+
+Where appropriate, allow the system to also generate:
+
+- estimated monthly payment option
+- finance-ready package summary
+
+This should work with the existing finance calculator logic without breaking it.
+
+------------------------------------------------
+STEP 7 — AI REASONING RULES
+------------------------------------------------
+
+The AI must think commercially when generating packages and quotes.
+
+It should consider:
+
+- suitability for the workspace
+- premium positioning
+- margin protection
+- package coherence
+- upsell opportunities
+- practical delivery/install logic
+
+It must not recommend unrealistic or low-quality combinations.
+
+------------------------------------------------
+STEP 8 — OUTPUT QUALITY
+------------------------------------------------
+
+The generated package/quote output should feel like a premium fit-out recommendation, not a cheap shopping cart.
+
+Tone should be:
+
+- professional
+- premium
+- commercially intelligent
+- clear
+- concise
+
+------------------------------------------------
+STEP 9 — TESTING
+------------------------------------------------
+
+Before reporting completion, verify:
+
+1. planner submission still works
+2. package generation works
+3. estimate generation works
+4. quote summary saves into admin
+5. finance integration still works
+6. no existing systems are broken
+7. desktop/mobile remain stable
+
+------------------------------------------------
+FINAL REPORT
+------------------------------------------------
+
+Return:
+
+1. files changed
+2. package engine added
+3. estimate engine added
+4. quote logic added
+5. admin fields/pages updated
+6. how package totals are calculated
+7. whether monthly finance estimates are included
+8. confirmation that current systems still work
+
+IMPORTANT
+
+Do not stay in planning mode.
+Inspect the current planner, product, pricing, and admin systems first.
+Then extend them carefully with package + quote generation.
+Make the smallest safe changes necessary.
+Keep everything premium, commercially credible, and production-safe.

@@ -1,0 +1,57 @@
+{
+  "contractRisks": {
+    "noWrittenAgreement": {
+      "description": "Verbal-only agreements for large projects create disputes about scope, pricing, and responsibility",
+      "probability": "Medium if not managed",
+      "mitigation": [
+        "All projects above $5,000 must have a signed quote/proposal before work commences",
+        "Email acceptance of a quote is acceptable as written confirmation — print and file",
+        "Scope of work must be itemised — 'office furniture' is not a scope; specific product list with quantities is"
+      ]
+    },
+    "scopeDisputeAtHandover": {
+      "description": "Client claims the delivered furniture is not what was agreed",
+      "mitigation": [
+        "Signed finish schedule on file",
+        "Signed quote with specific SKUs and descriptions",
+        "Delivery confirmation signed by client representative at handover"
+      ]
+    },
+    "consumerLaw": {
+      "reference": "Australian Consumer Law (ACL) — Schedule 2 of the Competition and Consumer Act 2010",
+      "implication": "TCD must not mislead on product quality, warranty terms, or delivery timelines. Misleading or deceptive conduct creates liability.",
+      "warranty": "ACL provides automatic guarantees on goods supplied to consumers — for commercial clients (B2B), TCD's 6-year manufacturer warranty supplements ACL protections"
+    },
+    "contractorLiability": {
+      "description": "Installation contractor causes damage to client property or injures a person",
+      "mitigation": [
+        "All contractors must hold current Public Liability Insurance — minimum $10M",
+        "Sight insurance certificate before contractor commences work",
+        "Include contractor responsibility clause in engagement letter"
+      ]
+    }
+  },
+  "australianConsumerLawKeyPoints": {
+    "prohibitedConduct": [
+      "Misleading or deceptive conduct (s18 ACL) — covers verbal and written representations",
+      "False representations about product quality, certification, or origin",
+      "Unconscionable conduct — particularly relevant in dealings with small businesses"
+    ],
+    "consumerGuarantees": "For business-to-business supply, ACL consumer guarantees apply differently — check with solicitor for products supplied to businesses vs individuals",
+    "disputeResolution": "QCAT (Queensland Civil and Administrative Tribunal) for disputes up to $150,000 in Queensland — simpler and faster than courts",
+    "note": "This is general information only — seek legal advice for specific situations"
+  },
+  "contractDocumentation": {
+    "minimum": [
+      "Signed quote/proposal (product list, quantities, pricing, delivery timeline)",
+      "Payment terms (deposit %, balance due date)",
+      "Warranty terms",
+      "Cancellation and change policy"
+    ],
+    "recommended_above_50k": [
+      "Formal Project Agreement with scope, timeline, milestones, and change order process",
+      "Signed finish schedule",
+      "Delivery and installation confirmation template"
+    ]
+  }
+}

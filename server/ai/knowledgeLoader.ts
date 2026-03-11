@@ -82,6 +82,25 @@ const MARKET_FILES: Array<[string, string]> = [
   ["officeMoveIndicators.json", "Office Move Indicators"],
 ];
 
+const ACCOUNTING_FILES: Array<[string, string]> = [
+  ["financialManagement.json", "Financial Management"],
+  ["cashflowManagement.json", "Cashflow Management"],
+  ["projectProfitability.json", "Project Profitability"],
+  ["pricingAndMargins.json", "Pricing and Margins"],
+  ["accountsPayableReceivable.json", "Accounts Payable and Receivable"],
+  ["businessForecasting.json", "Business Forecasting"],
+  ["costControl.json", "Cost Control"],
+];
+
+const RISK_FILES: Array<[string, string]> = [
+  ["businessRiskManagement.json", "Business Risk Management"],
+  ["projectDeliveryRisk.json", "Project Delivery Risk"],
+  ["supplierRisk.json", "Supplier Risk"],
+  ["legalAndContractRisk.json", "Legal and Contract Risk"],
+  ["insuranceConsiderations.json", "Insurance Considerations"],
+  ["operationalRisk.json", "Operational Risk"],
+];
+
 function buildSection(
   files: Array<[string, string]>,
   subdir: string | null
@@ -108,6 +127,8 @@ export function getCompiledKnowledge(): string {
     buildSection(BUSINESS_FILES, null),
     buildSection(INDUSTRY_FILES, "industry"),
     buildSection(PSYCHOLOGY_FILES, "psychology"),
+    buildSection(ACCOUNTING_FILES, "accounting"),
+    buildSection(RISK_FILES, "risk"),
     buildSection(FINANCE_FILES, "finance"),
     buildSection(GROWTH_FILES, "growth"),
     buildSection(MARKET_FILES, "market"),

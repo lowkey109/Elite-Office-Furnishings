@@ -1,0 +1,45 @@
+{
+  "requiredInsurancePolicies": {
+    "publicLiability": {
+      "description": "Covers TCD's liability if a third party suffers injury or property damage due to TCD's activities",
+      "minimumCover": "$10,000,000",
+      "applies": "All installation activities, showroom visitors, on-site project coordination",
+      "renewal": "Annual — review with broker each renewal"
+    },
+    "productLiability": {
+      "description": "Covers TCD if a product supplied causes injury or property damage",
+      "minimumCover": "$10,000,000 (often bundled with public liability)",
+      "importance": "Critical — as a supplier of commercial furniture, product liability exposure is ongoing"
+    },
+    "marineCargoInsurance": {
+      "description": "Covers goods in transit from supplier warehouse to Australian client site",
+      "coverage": "Institute Cargo Clauses (A) — all risks, not just named perils",
+      "perShipment": "Ensure cover matches shipment value — update sum insured as order volumes grow",
+      "applies": "Activates at point of loading, remains active until delivery accepted by client"
+    },
+    "businessInterruptionInsurance": {
+      "description": "Covers revenue loss if TCD cannot operate due to an insured event (fire, flood, etc.)",
+      "indemnityPeriod": "Minimum 12 months — covers revenue plus ongoing fixed costs during recovery",
+      "recommendation": "Essential once annual revenue exceeds $500,000"
+    },
+    "managementLiabilityInsurance": {
+      "description": "Covers directors and officers against claims arising from management decisions",
+      "recommendation": "Consider when company has 5+ employees or external investors"
+    }
+  },
+  "insuranceForContractors": {
+    "requirement": "Every installation subcontractor must provide certificate of current Public Liability Insurance ($10M minimum) before commencing work",
+    "verification": "Sight the actual certificate — do not accept verbal confirmation",
+    "expiry": "Check expiry date — many contractors let policies lapse; verify at each engagement"
+  },
+  "claimsProcedure": {
+    "transitDamage": "Photograph damage immediately. Notify freight insurer within 48 hours. Do not dispose of damaged goods until insurer has assessed.",
+    "publicLiabilityClaim": "Record the incident in writing immediately. Notify insurer within 24 hours. Do not admit liability.",
+    "productDefect": "Record defect details with photos. Notify product liability insurer. Contact supplier for warranty claim. Do not discard the product."
+  },
+  "insuranceCostBenchmarks": {
+    "publicAndProductLiability": "$2,500–$5,000/year for $10M cover at TCD's revenue level",
+    "marineCargoAnnual": "0.1–0.3% of annual shipment value",
+    "businessInterruption": "$3,000–$7,000/year depending on coverage period and revenue"
+  }
+}

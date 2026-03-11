@@ -1,0 +1,63 @@
+{
+  "riskManagementFramework": {
+    "definition": "Risk management is the process of identifying, assessing, and mitigating threats to The Corporate Desk's revenue, reputation, cash flow, and operational capability",
+    "approach": "Proactive — risks are identified before projects begin, not managed reactively when they materialise",
+    "riskRegister": "Maintain a live risk register with each risk rated: Likelihood (1–5) × Impact (1–5) = Risk Score. Review monthly."
+  },
+  "topBusinessRisks": [
+    {
+      "risk": "Key person dependency",
+      "description": "TCD's performance depends heavily on one or two key individuals — if they leave or are unavailable, operations suffer",
+      "likelihood": 3,
+      "impact": 5,
+      "score": 15,
+      "mitigation": [
+        "Document all processes — quoting, ordering, installation coordination — so anyone can follow them",
+        "Cross-train at least one person on every critical function",
+        "Key person insurance for founder/director",
+        "Involve multiple team members in client relationships where possible"
+      ]
+    },
+    {
+      "risk": "Single supplier dependency",
+      "description": "If TCD relies too heavily on one supplier for a product category, a supplier failure creates immediate product gap",
+      "likelihood": 3,
+      "impact": 4,
+      "score": 12,
+      "mitigation": [
+        "Maintain at least 2 qualified suppliers per major product category",
+        "Never commit >70% of annual volume to a single supplier",
+        "Maintain approved backup suppliers with current pricing on file"
+      ]
+    },
+    {
+      "risk": "Revenue concentration",
+      "description": "If >40% of annual revenue comes from one client, losing that client would be business-threatening",
+      "likelihood": 2,
+      "impact": 5,
+      "score": 10,
+      "mitigation": [
+        "Monitor client revenue concentration quarterly",
+        "Actively diversify pipeline — cap any single client at 35% of annual revenue",
+        "Build recurring relationship touchpoints with all major accounts"
+      ]
+    },
+    {
+      "risk": "Economic downturn reducing corporate fit-out budgets",
+      "likelihood": 2,
+      "impact": 4,
+      "score": 8,
+      "mitigation": [
+        "Diversify across industries — professional services, government, tech (different economic sensitivities)",
+        "Build a maintenance/refresh service offering for existing clients — smaller projects survive downturns better",
+        "Maintain strong cash reserve (8-week operating expense minimum)"
+      ]
+    }
+  ],
+  "riskResponseStrategies": {
+    "avoid": "Change the plan to eliminate the risk entirely",
+    "reduce": "Take action to decrease the likelihood or impact",
+    "transfer": "Transfer the risk to another party (insurance, contracts)",
+    "accept": "Acknowledge the risk and manage it if it occurs — appropriate for low-score risks"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "supplierRiskCategories": {
+    "productionDelay": {
+      "description": "Supplier misses production deadline — goods arrive late",
+      "probability": "Medium",
+      "mitigation": [
+        "Confirm production slot in writing when deposit is paid",
+        "Follow up at weeks 2, 4, and 1 week before ship date",
+        "Build 1-week production buffer into all quoted lead times",
+        "For custom or complex orders: negotiate penalty clause for late production"
+      ]
+    },
+    "qualityFailure": {
+      "description": "Goods arrive in Australia not conforming to specification or damaged during manufacture",
+      "probability": "Low-Medium",
+      "mitigation": [
+        "Conduct or commission pre-shipment quality inspection for orders above $30,000 COGS",
+        "Require supplier quality photos before goods are sealed in cartons",
+        "Maintain clear specification document signed by supplier with each order",
+        "Warranty clause: supplier replaces or refunds within 60 days of defect notification"
+      ]
+    },
+    "priceChangeRisk": {
+      "description": "Supplier increases prices between quote and order placement",
+      "probability": "Medium — AUD/CNY fluctuation is the primary driver",
+      "mitigation": [
+        "Request supplier price lock for 30 days when issuing quotes to clients",
+        "Quote validity stated as 30 days — beyond this, re-confirm supplier pricing",
+        "Build 5% buffer into all landed cost estimates to absorb minor currency moves"
+      ]
+    },
+    "supplierInsolvency": {
+      "description": "A primary supplier ceases trading — product range no longer available",
+      "probability": "Low",
+      "mitigation": [
+        "Maintain approved backup suppliers for all major product categories",
+        "Never advance-pay more than 30% before production commencement",
+        "Reduce exposure by spreading orders across multiple suppliers where possible"
+      ]
+    },
+    "IPAndBrandingRisk": {
+      "description": "Supplier uses TCD's branding or collection names for other markets, or TCD designs are copied",
+      "probability": "Low",
+      "mitigation": [
+        "Include brand exclusivity clause in supplier agreements for Australian market",
+        "Do not provide custom branding or collection naming to suppliers without IP protection"
+      ]
+    }
+  },
+  "supplierDueDiligence": {
+    "newSupplier": [
+      "Factory audit (virtual or in-person) before first large order",
+      "Sample order minimum 1–3 units before committing to volume",
+      "Trade reference from other buyers",
+      "Confirm certifications (ISO, BIFMA, SGS, CE) match product claims"
+    ],
+    "ongoingMonitoring": [
+      "Review supplier performance quarterly: on-time delivery rate, quality defect rate, responsiveness",
+      "Benchmark pricing annually against alternative suppliers",
+      "Visit key suppliers annually if volume justifies (>$200k/year COGS)"
+    ]
+  }
+}

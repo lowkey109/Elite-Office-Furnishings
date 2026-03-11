@@ -1,0 +1,51 @@
+{
+  "projectProfitabilityCalculation": {
+    "formula": "Project GP = Net Revenue - Product COGS - Freight COGS - Installation COGS - Direct Project Costs",
+    "netRevenue": "Client invoice amount excluding GST",
+    "productCOGS": "Supplier FOB price + import freight + insurance + import duty (5%) + customs clearance",
+    "freightCOGS": "Australian domestic freight from warehouse to site",
+    "installationCOGS": "Installation crew labour (hours × rate) + travel + incidentals",
+    "directProjectCosts": "Project-specific design/CAD fees, sample costs, site visit costs",
+    "targetGP": "32–40% of net revenue for a standard project"
+  },
+  "profitabilityByProjectType": {
+    "supplyOnly": {
+      "description": "Product supply, client arranges installation",
+      "typicalGM": "25–35%",
+      "note": "Lower service burden — but no installation margin and lower client lock-in"
+    },
+    "managedProject": {
+      "description": "Supply, delivery coordination, and installation included",
+      "typicalGM": "32–42%",
+      "note": "Installation adds 8–15% additional margin; project management time adds 2–4% cost"
+    },
+    "premiumProject": {
+      "description": "$100k+ with dedicated PM, site visits, phased delivery",
+      "typicalGM": "35–45%",
+      "note": "Scale benefits margin — supplier volume discounts kick in above $50k COGS"
+    }
+  },
+  "profitabilityWarningThresholds": {
+    "review": "GM below 28% — requires CEO review before proceeding",
+    "decline": "GM below 22% — do not proceed unless there is strategic client relationship value",
+    "investigate": "GM dropped post-project — investigate cause to prevent recurrence"
+  },
+  "postProjectReconciliation": {
+    "when": "Within 2 weeks of project completion and final invoice payment",
+    "process": [
+      "Compare actual supplier cost to quoted cost — identify variances",
+      "Compare actual freight cost to estimated freight — identify variances",
+      "Compare actual installation hours to estimated hours",
+      "Calculate final GM% and compare to quoted GM%",
+      "Record variance reason for future quote accuracy improvement"
+    ],
+    "improvement": "Track 5 consecutive project post-mortems — patterns emerge that allow systematic quote accuracy improvement of 3–5% GM"
+  },
+  "supplierVolumeThresholds": {
+    "standard": "Standard catalogue pricing",
+    "mid": "Above $30,000 COGS/order — negotiate 5–8% discount",
+    "high": "Above $80,000 COGS/order — negotiate 10–15% discount",
+    "strategic": "Above $200,000 COGS/year — renegotiate annual pricing framework",
+    "note": "Volume leverage with suppliers is a significant margin improvement mechanism as TCD scales"
+  }
+}

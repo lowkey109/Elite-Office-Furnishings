@@ -1,0 +1,37 @@
+{
+  "revenueRecognition": {
+    "principle": "Revenue is recognised when goods are delivered and installation is complete — not at order confirmation or deposit receipt",
+    "practicalApplication": "For milestone payment projects, recognise revenue proportionally as milestones are achieved and confirmed in writing",
+    "deferredRevenue": "Deposits received before delivery are deferred revenue on the balance sheet — they are a liability until the goods are delivered"
+  },
+  "keyMetrics": {
+    "grossRevenue": "Total invoice value including GST and delivery/installation charges",
+    "netRevenue": "Gross revenue excluding GST",
+    "grossProfit": "Net revenue minus Cost of Goods Sold (product cost, freight, customs, installation labour)",
+    "grossMargin": "Gross Profit / Net Revenue × 100 — target 32–40% blended",
+    "netProfit": "Gross Profit minus Operating Expenses (admin, sales, rent, marketing, depreciation)",
+    "EBITDA": "Earnings before interest, tax, depreciation, amortisation — useful for benchmarking operational performance"
+  },
+  "criticalFinancialRatios": {
+    "currentRatio": "Current Assets / Current Liabilities — target >1.5 for healthy liquidity",
+    "quickRatio": "Liquid Assets / Current Liabilities — target >1.0; indicates ability to meet short-term obligations without selling inventory",
+    "debtorsDays": "Accounts Receivable / (Net Revenue / 365) — target <45 days; watch carefully during project ramp-up",
+    "creditorsDays": "Accounts Payable / (COGS / 365) — align with supplier payment terms; don't pay early unless there is a discount"
+  },
+  "monthlyManagementAccounts": {
+    "minimum": [
+      "Profit & Loss Statement (month + year-to-date)",
+      "Balance Sheet",
+      "Cash Position (bank balance + receivables due within 30 days - payables due within 30 days)",
+      "Pipeline summary by stage and value"
+    ],
+    "frequency": "Monthly by the 15th of the following month",
+    "reviewer": "CEO and external accountant quarterly minimum",
+    "warning": "A business without monthly management accounts cannot make confident pricing, hiring, or investment decisions — this is non-negotiable at TCD's revenue level"
+  },
+  "chartOfAccounts_KeyCategories": {
+    "revenue": ["Furniture sales revenue", "Installation revenue", "Logistics revenue", "Consultation revenue"],
+    "COGS": ["Product cost", "Import freight and insurance", "Import duty and customs", "Installation labour", "Third-party logistics"],
+    "operatingExpenses": ["Salaries and wages", "Marketing and advertising", "Software subscriptions", "Rent and utilities", "Professional services (accounting, legal)", "Insurance", "Depreciation"]
+  }
+}

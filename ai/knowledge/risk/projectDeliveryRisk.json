@@ -1,0 +1,70 @@
+{
+  "criticalProjectRisks": [
+    {
+      "risk": "Builder PC date slippage",
+      "description": "Builder delays Practical Completion — furniture is ready but installation cannot proceed",
+      "probability": "High — industry standard to expect 1–3 week builder delays",
+      "impact": "Goods must be stored; storage cost incurred; installation slot lost; client frustration",
+      "mitigation": [
+        "Always build 1-week buffer between quoted delivery date and actual PC date in timeline",
+        "Confirm PC date in writing — do not accept verbal confirmation",
+        "Arrange warehouse storage extension in advance if builder is running late",
+        "Install only when builder signs off their section — not before"
+      ]
+    },
+    {
+      "risk": "Client changes finish selection after manufacture",
+      "description": "Client decides to change colour/fabric after goods are in production",
+      "probability": "Medium",
+      "impact": "Re-manufacture cost, lead time extension, potential margin wipe-out",
+      "mitigation": [
+        "Get signed finish schedule before placing any order — email confirmation is not sufficient alone; follow up with a signed document",
+        "Clearly state in writing: changes after order placement incur re-manufacture cost + lead time extension",
+        "Dispatch physical samples before the sign-off meeting — reduces last-minute changes by 70%"
+      ]
+    },
+    {
+      "risk": "Goods damaged in transit",
+      "description": "Furniture arrives damaged — client expects replacement",
+      "probability": "Low-Medium (3–8% of shipments have some damage)",
+      "impact": "Replacement cost, client satisfaction risk, project delay",
+      "mitigation": [
+        "All goods insured from loading to site delivery — minimum AUD $50k cover per shipment",
+        "Photograph all cartons at warehouse receiving — especially any with visible damage",
+        "Report damage to supplier within 48 hours with photographic evidence",
+        "Supplier absorbs replacement cost for transit damage if reported within agreed window"
+      ]
+    },
+    {
+      "risk": "Lift or building access failure on delivery day",
+      "description": "Goods arrive on site but lift is unavailable, undersized, or access is denied",
+      "probability": "Medium",
+      "impact": "Aborted delivery, re-delivery cost, installation delay, crew cost",
+      "mitigation": [
+        "Confirm lift dimensions with building manager minimum 5 days before delivery",
+        "Obtain written building access confirmation for delivery date and time",
+        "For CBD deliveries: confirm loading dock access window (typically pre-10am)",
+        "Check oversized items (boardroom tables, large storage units) fit lift before delivery — not on delivery day"
+      ]
+    },
+    {
+      "risk": "Scope creep without re-quoting",
+      "description": "Client adds items during installation — crew absorbs without charge",
+      "probability": "High — very common on large projects",
+      "impact": "Direct cost absorption, margin erosion, precedent set for future additions",
+      "mitigation": [
+        "Brief installation crew: zero scope additions without written approval from TCD project manager",
+        "Any addition requested on site is quoted on the spot and approved via email before crew proceeds",
+        "Maintain a change order form on all projects above $50,000"
+      ]
+    }
+  ],
+  "installationRiskChecklist": [
+    "Floor plan confirmed vs site reality — measure on site before install, not just from plan",
+    "Power to all workstation positions confirmed live before desktop install",
+    "IT cabling in position before workstation cable management finalised",
+    "AV integration confirmed before AV credenza installation completed",
+    "All access paths measured — narrow corridors, tight lifts identified pre-delivery",
+    "Debris removal plan confirmed — who removes packaging on day of install"
+  ]
+}

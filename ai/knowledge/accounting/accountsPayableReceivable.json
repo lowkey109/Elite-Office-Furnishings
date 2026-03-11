@@ -1,0 +1,41 @@
+{
+  "accountsReceivable": {
+    "invoicingPolicy": {
+      "deposit": "Invoice deposit immediately on order confirmation — same day",
+      "balance": "Invoice balance on day of delivery completion or installation sign-off",
+      "paymentTerms": "14 days net on all balance invoices for managed projects",
+      "neverDelay": "Delayed invoicing is the single most common cause of cash flow problems in project businesses — invoice immediately"
+    },
+    "overdueProcedure": {
+      "day1": "Invoice sent on completion day — attach signed delivery/installation confirmation",
+      "day10": "Courteous reminder email with invoice attached",
+      "day14": "Phone call to accounts payable or office manager",
+      "day21": "Formal overdue notice — reference payment terms and late fee clause",
+      "day30": "Escalate to director/CEO contact. Consider pausing any new orders for this client.",
+      "day45plus": "Legal letter of demand if unresponsive. Engage debt collection only after exhausting direct contact."
+    },
+    "lateFeeClause": "Include in all proposals and invoices: 'Invoices unpaid after 14 days attract a 1.5% per month late payment fee on the outstanding balance'",
+    "creditChecks": "For projects above $80,000 with an unknown client, request a credit reference from their bank or use a commercial credit check service before order placement"
+  },
+  "accountsPayable": {
+    "supplierPaymentTerms": {
+      "standard": "30% deposit on order placement, 70% against Bill of Lading (before release of goods)",
+      "target": "Negotiate Net 30 or Net 45 payment terms on balance with trusted suppliers",
+      "neverPay": "Never pay 100% upfront to a new supplier before goods are confirmed at port"
+    },
+    "paymentSchedule": "Process all supplier payments on Tuesdays — consistent schedule reduces administrative overhead and aids cashflow forecasting",
+    "supplierRelationships": {
+      "earlyPaymentDiscount": "Some suppliers offer 1–2% discount for payment within 7 days of BoL — take this offer if cashflow permits; it compounds significantly over annual volume",
+      "latePaymentImpact": "Late payment to key suppliers risks production delays on next order — protect relationships by paying on time even when cash is tight"
+    },
+    "freightAndCustoms": {
+      "customsBroker": "Receive customs duty invoice within 3–5 days of goods arriving at port. Pay within 5 business days to avoid goods release delays.",
+      "freightForwarder": "Confirm payment terms at relationship establishment — many require prepayment or credit facility for first 3–6 months"
+    }
+  },
+  "bankReconciliation": {
+    "frequency": "Weekly minimum — daily during high-volume periods",
+    "purpose": "Catch errors, confirm deposits received, confirm supplier payments cleared",
+    "tool": "Xero, MYOB, or QuickBooks — all integrate with major Australian banks for automatic reconciliation"
+  }
+}

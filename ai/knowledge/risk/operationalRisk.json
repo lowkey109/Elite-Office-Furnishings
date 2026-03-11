@@ -1,0 +1,74 @@
+{
+  "operationalRiskCategories": {
+    "systemAndTechnologyRisk": {
+      "risks": [
+        "CRM or quoting system failure during peak quote period",
+        "Website downtime during a major marketing campaign",
+        "Data loss — client project history, supplier contacts, financial records"
+      ],
+      "mitigation": [
+        "Cloud-based systems only — avoid local-server dependencies",
+        "Daily automated backups for all critical data",
+        "Documented disaster recovery process — who to call, what to restore first",
+        "Website uptime monitoring with immediate alert to management"
+      ]
+    },
+    "staffingAndCapacity": {
+      "risks": [
+        "Sudden staff departure during peak project period",
+        "Rapid growth outstripping team capacity — quality suffers",
+        "Key person illness during complex project"
+      ],
+      "mitigation": [
+        "Document all client-facing processes so any trained person can manage",
+        "Maintain a pool of 2–3 trusted casual or contract installation crews",
+        "Cross-train sales and project management functions",
+        "Build hiring trigger: begin recruiting before capacity is exceeded, not after"
+      ]
+    },
+    "reputationRisk": {
+      "risks": [
+        "A failed project delivery receives a public negative review",
+        "Social media complaint goes viral",
+        "Competitor misrepresents TCD's capability"
+      ],
+      "mitigation": [
+        "Respond to all negative reviews publicly within 24 hours — acknowledge, apologise, resolve",
+        "Proactively collect positive reviews after every successful project",
+        "Maintain TCD's Google Business Profile with accurate, up-to-date information"
+      ],
+      "responseProtocol": "Acknowledge the experience. Apologise for the impact. Offer to resolve. Take conversation offline. Never argue publicly."
+    },
+    "processRisk": {
+      "risks": [
+        "Quote error — wrong pricing accepted by client creates loss-making project",
+        "Wrong product ordered — incorrect SKU placed with supplier",
+        "Delivery to wrong address or building",
+        "Invoice sent to wrong client or incorrect amount"
+      ],
+      "mitigation": [
+        "All quotes reviewed by a second person before sending for projects above $30,000",
+        "Supplier purchase orders cross-referenced against signed client quote before placement",
+        "Delivery address confirmed against lease/tenancy documentation before dispatch",
+        "Invoice reconciliation: every invoice matched to a signed quote before sending"
+      ]
+    },
+    "overloadRisk": {
+      "description": "TCD takes on too many concurrent projects — quality suffers across all of them",
+      "warningSign": "Project manager handling more than 4 concurrent active projects simultaneously",
+      "mitigation": [
+        "Define maximum concurrent project capacity and enforce it",
+        "Use project pipeline visibility to plan resource allocation 6–8 weeks ahead",
+        "Better to turn down a project than to damage the TCD reputation delivering it poorly"
+      ]
+    }
+  },
+  "operationalExcellenceStandards": {
+    "quoteResponseTime": "Priority 1 leads: within 4 business hours. Standard enquiries: within 24 hours.",
+    "orderConfirmation": "Supplier PO within 48 hours of client deposit received",
+    "deliveryNotification": "Client notified of delivery booking minimum 3 business days prior",
+    "defectResponse": "Acknowledged within 24 hours. Resolution plan provided within 72 hours.",
+    "invoiceIssuance": "Within 24 hours of delivery/installation completion",
+    "warrantyRegistration": "Within 5 business days of handover"
+  }
+}

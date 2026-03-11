@@ -1,0 +1,43 @@
+{
+  "pricingMethodology": {
+    "primary": "Value-based pricing — price is set based on client value delivered, not cost-plus",
+    "secondary": "Market reference — understand competitor pricing to ensure TCD's premium is justified but not excessive",
+    "costFloor": "All quotes must achieve minimum 28% GM — below this the project does not cover operating overhead contribution",
+    "valueJustification": "6-year warranty, professional installation, project management, Australian-owned — these justify 20–40% premium over grey import alternatives"
+  },
+  "markupGuidelines": {
+    "productMarkup": {
+      "seating": "100–150% on landed cost (40–60% GM)",
+      "executiveDesks": "65–110% on landed cost (39–52% GM)",
+      "workstations": "40–65% on landed cost (28–39% GM)",
+      "storage": "35–55% on landed cost (26–35% GM)",
+      "boardroomTables": "60–100% on landed cost (37–50% GM)",
+      "receptionStations": "80–120% on landed cost (44–55% GM)"
+    },
+    "serviceMarkup": {
+      "installation": "60–120% on labour cost — high-value service, client rarely negotiates this",
+      "delivery": "30–60% on freight cost",
+      "floorplanCAD": "Pure margin service — minimal direct cost"
+    }
+  },
+  "discountingPolicy": {
+    "maxDiscountWithoutApproval": "5% off quoted price",
+    "discountApproval": "Above 5%: Project Manager approval. Above 10%: CEO approval.",
+    "conditionedDiscount": "Any discount must be conditional: 'If we confirm the order this week, I can get approval for that reduction'",
+    "neverDiscount": [
+      "Installation and delivery charges — this is a cost-based service",
+      "On the first quote — never discount before client has pushed back",
+      "Without understanding the real objection — price objection often masks a trust or value gap"
+    ]
+  },
+  "priceEscalation": {
+    "quoteValidity": "30 days from date of issue",
+    "escalationTriggers": ["AUD/CNY movement >5%", "Freight cost increase >10%", "Supplier catalogue price change"],
+    "clientCommunication": "Always notify client proactively if a quote is about to expire due to external pricing pressure — this is a genuine urgency signal"
+  },
+  "taxPositioning": {
+    "GST": "All quotes must state 'All prices exclusive of GST. GST will be applied to final invoice.'",
+    "instantAssetWriteOff": "Commercial furniture qualifies as a depreciable business asset. Clients purchasing before June 30 may access EOFY depreciation benefits. Always mention this March–June. Not licensed tax advice.",
+    "inputTaxCredit": "GST-registered client can claim the GST input tax credit on their BAS — reducing their effective cost by 9.09%"
+  }
+}

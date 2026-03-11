@@ -1,0 +1,52 @@
+{
+  "forecastingPrinciples": {
+    "why": "A business without a forecast is flying blind. Forecasting allows TCD to make confident hiring, inventory, marketing, and investment decisions.",
+    "frequency": "Update rolling 12-month revenue forecast monthly. Update 13-week cashflow forecast weekly.",
+    "accuracy": "A forecast doesn't need to be perfect — it needs to be directionally correct and updated regularly. ±15% is acceptable; ±30%+ signals a process problem."
+  },
+  "revenueForecasting": {
+    "pipelineMethod": {
+      "description": "Weight pipeline opportunities by probability of close and expected timeline",
+      "stages": {
+        "Enquiry": "5% probability",
+        "Qualified": "20% probability",
+        "Proposal Sent": "40% probability",
+        "Verbal Agreement": "70% probability",
+        "Deposit Received": "95% probability"
+      },
+      "formula": "Forecast Revenue = Sum of (Deal Value × Close Probability) for all open opportunities",
+      "example": "$200k proposal × 40% = $80k weighted. $80k deposit received × 95% = $76k weighted."
+    },
+    "historicalMethod": {
+      "description": "Use trailing 12-month average monthly revenue + known seasonality adjustments",
+      "seasonalFactors": {
+        "Q1_JanMar": "0.85 — typically slower start, January particularly quiet",
+        "Q2_AprJun": "1.15 — EOFY push, budget spend surge",
+        "Q3_JulSep": "0.90 — new financial year ramp",
+        "Q4_OctDec": "1.10 — budget cycle post-EOFY approval"
+      }
+    }
+  },
+  "expenseForecasting": {
+    "fixedCosts": ["Salaries", "Rent", "Software subscriptions", "Insurance", "Accounting fees"],
+    "variableCosts": ["Marketing spend (% of revenue)", "Commission on sales", "Installation subcontractors (% of project revenue)", "Freight (% of COGS)"],
+    "forecastingRule": "Fixed costs are knowable to ±5%. Variable costs should be modelled as % of revenue. Contingency: add 8% to all expense forecasts for unplanned costs."
+  },
+  "scenarioPlanning": {
+    "base": "Most likely outcome — pipeline weighted by stage probability",
+    "upside": "Base × 1.25 — if 2–3 large pipeline deals close faster than expected",
+    "downside": "Base × 0.70 — if 2–3 deals stall or are pushed to next quarter",
+    "action": "Model all 3 scenarios. In downside: what costs can be reduced? In upside: what resource constraints emerge?",
+    "breakEven": "Know your monthly break-even revenue — the revenue needed to cover all operating costs. This is the single most important number for a small business CEO."
+  },
+  "KPIs_toForecast": [
+    "Monthly new enquiries",
+    "Enquiry-to-quote conversion rate",
+    "Quote-to-order conversion rate",
+    "Average project value",
+    "Average gross margin %",
+    "Monthly revenue",
+    "Monthly gross profit",
+    "Cash position end of month"
+  ]
+}

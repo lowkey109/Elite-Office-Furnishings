@@ -1,0 +1,43 @@
+{
+  "cashflowPrinciples": {
+    "rule1": "Cash is king — a profitable business can still fail if it runs out of cash. Revenue on a P&L is not cash in the bank.",
+    "rule2": "Furniture businesses are cash-intensive: you pay suppliers before clients pay you. This gap must be managed actively.",
+    "rule3": "Always maintain a minimum 8-week operating expense reserve in liquid accounts.",
+    "rule4": "Never commit to a supplier order without a signed client deposit in hand — deposit funds the manufacturing commitment."
+  },
+  "cashflowTimeline": {
+    "dayZero": "Client deposit received (30% of project value)",
+    "day1to5": "Supplier deposit paid (30% of supplier cost) — gap: TCD covers the difference between supplier cost and client deposit",
+    "week6to8": "Goods arrive in Australian warehouse — balance invoice raised to client",
+    "week7to9": "Client balance received (70% of project value) — project cash positive at this point",
+    "week8to10": "Supplier balance and freight invoice settled",
+    "netCashPosition": "TCD typically cash-neutral or cash-positive by 10 weeks from order — positive position accelerates with shorter lead times"
+  },
+  "cashflowRisks": {
+    "multipleProjectsConcurrent": "3+ concurrent large projects can create cash strain — deposits out before balances in. Monitor weekly.",
+    "slowPayingClients": "Late balance payment squeezes supplier payment window. Include 14-day payment terms on all balance invoices. Add 1.5%/month late payment clause.",
+    "supplierAdvancePayment": "Some suppliers require higher deposits (50%+) — negotiate to standard 30/70 wherever possible",
+    "unforeseenCosts": "Customs delays, damaged goods, re-delivery — always hold a 5% project contingency reserve in cash"
+  },
+  "cashflowImprovement": {
+    "accelerateDebtors": [
+      "Invoice immediately on delivery completion — not end of month",
+      "Send reminder 3 days before due date (not on due date)",
+      "Offer 1% early payment discount for payment within 7 days on large invoices",
+      "Enable EFT, credit card (via Stripe), and BPAY payment methods — reduce friction"
+    ],
+    "manageCreditorsStrategically": [
+      "Pay suppliers on the last day of their agreed terms — not before",
+      "Negotiate 60-day terms with key suppliers as volume grows",
+      "Use supplier credit facilities where available to extend payment window"
+    ],
+    "forecastWeekly": "Maintain a 13-week rolling cashflow forecast — update every Monday. Identify cash shortfalls 6–8 weeks before they occur."
+  },
+  "weeklyKPIs": {
+    "cashOnHand": "Bank balance at close of business Friday",
+    "debtorsOutstanding": "Total receivables by age bucket (current / 30 / 60 / 90+ days)",
+    "creditorsOwing": "Total payables due within 14 days",
+    "netCashPosition": "Cash on hand + receivables due <30 days - payables due <14 days",
+    "projectsOpenDeposit": "Projects with deposit received but balance not yet invoiced — indicates upcoming inflow"
+  }
+}
