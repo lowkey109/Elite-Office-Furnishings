@@ -813,24 +813,25 @@ export async function registerRoutes(
         : "https://app.thecorporatedesk.com.au";
 
       const session = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
+        payment_method_types: ["card", "link"],
         line_items: [{
           price_data: {
             currency: "aud",
             product_data: {
-              name: "AI Workspace Planning Report",
-              description: `Full visual floor plan, furniture package & cost estimate for ${request.company || request.name}`,
+              name: "AI Workspace Planning Report — Full Access",
+              description: `Visual floor plan, furniture SKUs, cost estimate, PDF download & 3D walkthrough access for ${request.company || request.name}`,
             },
-            unit_amount: 14900,
+            unit_amount: 39900,
           },
           quantity: 1,
         }],
         mode: "payment",
         metadata: { planningRequestId: id },
         customer_email: request.email,
+        billing_address_collection: "auto",
         success_url: `${domain}/upload-your-floor-plan?id=${id}&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${domain}/upload-your-floor-plan?id=${id}&cancelled=true`,
-      });
+      } as any);
 
       res.json({ checkoutUrl: session.url });
     } catch (error: any) {

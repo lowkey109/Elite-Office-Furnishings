@@ -22,13 +22,16 @@ The application follows a client-server architecture.
     - **SEO Blog**: Client-side blog with 200 articles across 10 topic clusters, featuring search, category filters, and pagination.
 
 ## Stripe Paywall
-The AI Workspace Planning Report is gated behind a $149 AUD one-time payment:
-- **Free tier**: Client brief summary + zone breakdown color teaser
-- **Paid tier**: Full SpacePlanningEngine SVG floor plan, zone cards, product SKUs, cost breakdown, style direction, key considerations
-- **Backend routes**: `POST /api/planning-requests/:id/checkout` (creates Stripe session), `GET /api/planning-requests/:id/verify-payment?session_id=xxx` (verifies and marks paid)
-- **DB columns**: `isPaid` (boolean), `stripeSessionId` (text) on `planning_requests` table
+The AI Workspace Planning Report is gated behind a $399 AUD one-time payment:
+- **Free tier**: Client brief summary + zone color bar teaser + blurred/watermarked SVG preview
+- **Paid tier**: Full SpacePlanningEngine SVG floor plan (no blur/watermark), zone cards, product SKUs, cost breakdown, style direction, key considerations, 3D walkthrough section
+- **Payment methods**: Card (incl. Apple Pay + Google Pay on compatible devices), Stripe Link — via `payment_method_types: ["card", "link"]`
+- **Watermark system**: When `isPreview=true`, SpacePlanningEngine overlays tiled diagonal "THE CORPORATE DESK / PREVIEW ONLY — NOT FOR PROCUREMENT" text with company name + generated date
+- **Backend routes**: `POST /api/planning-requests/:id/checkout` (creates Stripe session at $399), `GET /api/planning-requests/:id/verify-payment?session_id=xxx` (verifies and marks paid)
+- **DB columns**: `isPaid` (boolean), `stripeSessionId` (text), `paymentStatus` (text), `paymentTier` (text) on `planning_requests` table
 - **To activate**: Add `STRIPE_SECRET_KEY` as a Replit secret (Stripe secret key from your dashboard). Test mode key works for testing.
 - **Admin panel**: Always shows full content regardless of payment status
+- **3D Walkthrough**: Unlocked section after payment with consultation booking CTA linking to /contact
 
 ## External Dependencies
 - **Database**: PostgreSQL (Replit built-in)

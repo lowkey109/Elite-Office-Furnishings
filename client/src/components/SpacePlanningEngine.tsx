@@ -33,6 +33,9 @@ interface SpacePlanningEngineProps {
   costBreakdown?: { furniture: number; installation: number; delivery: number; total: number; perStaff?: number };
   estimatedValue?: string;
   implementationTimeline?: string;
+  isPreview?: boolean;
+  companyName?: string;
+  generatedDate?: string;
 }
 
 const SVG_W = 720;
@@ -257,6 +260,9 @@ export default function SpacePlanningEngine({
   costBreakdown,
   estimatedValue,
   implementationTimeline,
+  isPreview = false,
+  companyName,
+  generatedDate,
 }: SpacePlanningEngineProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -463,6 +469,48 @@ export default function SpacePlanningEngine({
                     fontFamily="Inter,sans-serif" fill="rgba(255,255,255,0.45)" letterSpacing="0.5">
                     CIRCULATION
                   </text>
+                </g>
+              );
+            })()}
+
+            {/* Watermark overlay for unpaid previews */}
+            {isPreview && (() => {
+              const wRows = 5;
+              const wCols = 3;
+              const tileW = SVG_W / wCols;
+              const tileH = SVG_H / wRows;
+              return (
+                <g style={{ pointerEvents: "none", userSelect: "none" } as any}>
+                  {Array.from({ length: wRows }).map((_, row) =>
+                    Array.from({ length: wCols }).map((_, col) => {
+                      const cx = tileW * col + tileW * 0.5;
+                      const cy = tileH * row + tileH * 0.5;
+                      return (
+                        <g key={`wm-${row}-${col}`} transform={`rotate(-34, ${cx}, ${cy})`}>
+                          <text x={cx} y={cy - 6} textAnchor="middle" fontSize="11" fontWeight="700"
+                            fontFamily="Inter,sans-serif" fill="rgba(255,255,255,0.13)" letterSpacing="0.5">
+                            THE CORPORATE DESK
+                          </text>
+                          <text x={cx} y={cy + 9} textAnchor="middle" fontSize="9" fontWeight="600"
+                            fontFamily="Inter,sans-serif" fill="rgba(255,255,255,0.09)" letterSpacing="0.8">
+                            PREVIEW ONLY — NOT FOR PROCUREMENT
+                          </text>
+                          {companyName && (
+                            <text x={cx} y={cy + 21} textAnchor="middle" fontSize="8"
+                              fontFamily="Inter,sans-serif" fill="rgba(201,168,76,0.14)" letterSpacing="0.3">
+                              {companyName.toUpperCase()}
+                            </text>
+                          )}
+                        </g>
+                      );
+                    })
+                  )}
+                  {generatedDate && (
+                    <text x={SVG_W - MARGIN - 4} y={SVG_H - MARGIN - 18} textAnchor="end"
+                      fontSize="8" fontFamily="Inter,sans-serif" fill="rgba(255,255,255,0.2)">
+                      Generated {generatedDate} · thecorporatedesk.com.au
+                    </text>
+                  )}
                 </g>
               );
             })()}

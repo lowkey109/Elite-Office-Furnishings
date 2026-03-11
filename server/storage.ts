@@ -454,7 +454,7 @@ export class DrizzleStorage implements IStorage {
   async markPlanningRequestPaid(id: string, sessionId: string): Promise<PlanningRequest | undefined> {
     const [row] = await db
       .update(planningRequests)
-      .set({ isPaid: true, stripeSessionId: sessionId })
+      .set({ isPaid: true, stripeSessionId: sessionId, paymentStatus: "paid", paymentTier: "full_report" })
       .where(eq(planningRequests.id, id))
       .returning();
     return row;

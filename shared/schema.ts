@@ -129,6 +129,8 @@ export const planningRequests = pgTable("planning_requests", {
   adminNotes: text("admin_notes"),
   isPaid: boolean("is_paid").default(false),
   stripeSessionId: text("stripe_session_id"),
+  paymentStatus: text("payment_status").default("unpaid"),
+  paymentTier: text("payment_tier"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

@@ -8,7 +8,7 @@ import {
   Upload, CheckCircle2, Loader2, ArrowRight, ArrowLeft,
   Building2, Users, LayoutDashboard, Palette, FileText,
   MapPin, Phone, Mail, Star, Layers, Package, ChevronRight,
-  Paperclip, X, DollarSign, Calendar, Zap, Lock, Sparkles,
+  Paperclip, X, DollarSign, Calendar, Zap, Lock, Sparkles, Monitor,
 } from "lucide-react";
 
 const STEPS = ["Contact", "Office Details", "Style & Budget", "Files & Submit"];
@@ -428,56 +428,74 @@ export default function UploadFloorPlan() {
                 )}
 
                 {paymentStatus !== "paid" ? (
-                  <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.25)] rounded-2xl overflow-hidden">
-                    <div className="relative">
-                      <div className="pointer-events-none select-none blur-sm opacity-30 p-6 space-y-3">
-                        <div className="grid grid-cols-2 gap-3">
-                          {[1,2,3,4].map(i => (
-                            <div key={i} className="bg-white/5 rounded-xl h-20 border border-white/10" />
-                          ))}
+                  <div className="space-y-4">
+                    {aiRec.workspaceZones && aiRec.workspaceZones.length > 0 && aiRec.workspaceZones.some(z => z.percentage > 0) && (
+                      <div className="relative rounded-2xl overflow-hidden border border-[rgba(201,168,76,0.15)]">
+                        <div className="pointer-events-none select-none" style={{ filter: "blur(2.5px)", opacity: 0.55 }}>
+                          <SpacePlanningEngine
+                            zones={aiRec.workspaceZones}
+                            recs={[]}
+                            sqm={squareMetres}
+                            staffCount={staffCount}
+                            isPreview={true}
+                            companyName={company || name}
+                            generatedDate={new Date().toLocaleDateString("en-AU", { day: "2-digit", month: "short", year: "numeric" })}
+                          />
                         </div>
-                        <div className="bg-white/5 rounded-xl h-40 border border-white/10" />
-                      </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,18%,10%)] via-[hsl(220,18%,10%)]/95 to-[hsl(220,18%,10%)]/50 flex items-center justify-center">
-                        <div className="text-center px-6 py-8 max-w-sm w-full">
-                          <div className="w-14 h-14 rounded-full bg-[rgba(201,168,76,0.15)] border border-[rgba(201,168,76,0.3)] flex items-center justify-center mx-auto mb-4">
-                            <Lock className="w-6 h-6 text-[hsl(43,78%,52%)]" />
-                          </div>
-                          <h3 className="text-white text-xl font-serif font-bold mb-2">Unlock Your Full AI Workspace Report</h3>
-                          <p className="text-white/55 text-sm mb-5 leading-relaxed">Your visual floor plan, zone details, furniture package, and cost estimate are ready.</p>
-                          <div className="grid grid-cols-2 gap-x-3 gap-y-2 mb-5 text-left">
-                            {[
-                              "Interactive visual floor plan",
-                              "Zone-by-zone furniture SKUs",
-                              "Full cost estimate (inc. GST)",
-                              "PNG + PDF layout export",
-                            ].map((item, i) => (
-                              <div key={i} className="flex items-start gap-1.5 text-xs text-white/65">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-[hsl(43,78%,52%)] flex-shrink-0 mt-0.5" />
-                                {item}
-                              </div>
-                            ))}
-                          </div>
-                          <div className="mb-4">
-                            <span className="text-[hsl(43,78%,52%)] text-3xl font-bold">$149</span>
-                            <span className="text-white/40 text-sm ml-1">AUD · one-time</span>
-                          </div>
-                          <Button
-                            onClick={handleUnlock}
-                            disabled={unlocking}
-                            className="w-full bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[52px] text-base mb-3"
-                            data-testid="button-unlock-report"
-                          >
-                            {unlocking
-                              ? <><Loader2 className="animate-spin w-4 h-4 mr-2" />Processing…</>
-                              : <><Sparkles className="w-4 h-4 mr-2" />Unlock Full Report — $149</>}
-                          </Button>
-                          <p className="text-white/30 text-xs">
-                            Secure payment via Stripe · Questions?{" "}
-                            <a href="tel:1300977607" className="text-[hsl(43,78%,65%)] underline">1300 977 607</a>
-                          </p>
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[hsl(220,20%,6%)]/40 to-[hsl(220,20%,6%)]/85 pointer-events-none" />
+                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                          <span className="text-[10px] font-semibold text-white/35 tracking-widest uppercase">Preview Only · Unlock to Access Full Layout</span>
                         </div>
                       </div>
+                    )}
+
+                    <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.3)] rounded-2xl p-6 sm:p-8">
+                      <div className="flex flex-col items-center text-center mb-6">
+                        <div className="w-14 h-14 rounded-full bg-[rgba(201,168,76,0.15)] border border-[rgba(201,168,76,0.3)] flex items-center justify-center mb-4">
+                          <Lock className="w-6 h-6 text-[hsl(43,78%,52%)]" />
+                        </div>
+                        <h3 className="text-white text-xl font-serif font-bold mb-2">Unlock Your Full AI Workspace Report</h3>
+                        <p className="text-white/50 text-sm max-w-sm leading-relaxed">Your complete floor plan, furniture package, cost breakdown, and 3D walkthrough access are ready.</p>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-7">
+                        {[
+                          { icon: LayoutDashboard, label: "Interactive visual floor plan" },
+                          { icon: Package, label: "Zone-by-zone furniture SKUs" },
+                          { icon: DollarSign, label: "Full cost estimate (inc. GST)" },
+                          { icon: FileText, label: "PNG + PDF layout export" },
+                          { icon: Monitor, label: "3D walkthrough consultation" },
+                          { icon: Star, label: "Style direction & key insights" },
+                        ].map(({ icon: Icon, label }, i) => (
+                          <div key={i} className="flex items-center gap-2.5 bg-[rgba(255,255,255,0.03)] rounded-xl px-3.5 py-2.5 border border-[rgba(255,255,255,0.06)]">
+                            <Icon className="w-3.5 h-3.5 text-[hsl(43,78%,52%)] flex-shrink-0" />
+                            <span className="text-xs text-white/70">{label}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="text-center mb-5">
+                        <div className="mb-1">
+                          <span className="text-[hsl(43,78%,52%)] text-4xl font-bold">$399</span>
+                          <span className="text-white/40 text-sm ml-1.5">AUD · one-time</span>
+                        </div>
+                        <p className="text-white/30 text-xs">Apple Pay · Google Pay · Card · Stripe Link · All major cards accepted</p>
+                      </div>
+
+                      <Button
+                        onClick={handleUnlock}
+                        disabled={unlocking}
+                        className="w-full bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[56px] text-base mb-3"
+                        data-testid="button-unlock-report"
+                      >
+                        {unlocking
+                          ? <><Loader2 className="animate-spin w-4 h-4 mr-2" />Processing…</>
+                          : <><Sparkles className="w-4 h-4 mr-2" />Unlock Full Report — $399</>}
+                      </Button>
+                      <p className="text-center text-white/30 text-xs">
+                        Secure checkout via Stripe · Questions?{" "}
+                        <a href="tel:1300977607" className="text-[hsl(43,78%,52%)] underline">1300 977 607</a>
+                      </p>
                     </div>
                   </div>
                 ) : (
@@ -590,6 +608,36 @@ export default function UploadFloorPlan() {
                         )}
                       </div>
                     )}
+
+                    <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.2)] rounded-2xl overflow-hidden" data-testid="section-3d-walkthrough">
+                      <div className="p-6">
+                        <div className="flex items-center gap-2.5 mb-4">
+                          <Monitor className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                          <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">3D Walkthrough Access</h3>
+                          <span className="text-xs bg-[rgba(201,168,76,0.15)] text-[hsl(43,78%,65%)] px-2 py-0.5 rounded-full border border-[rgba(201,168,76,0.25)]">Unlocked</span>
+                        </div>
+                        <p className="text-white/65 text-sm leading-relaxed mb-5">
+                          Your report includes access to a live 3D walkthrough consultation session. Our design team will walk you through your AI-generated layout in a screen-share session — navigating each zone, reviewing furniture placement, and refining the concept before you commit to any procurement.
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5 text-xs">
+                          {[
+                            { label: "45-min live consultation", sub: "via Zoom or Teams" },
+                            { label: "Zone-by-zone walkthrough", sub: "with your brief overlaid" },
+                            { label: "Revision notes included", sub: "sent post-session" },
+                          ].map((item, i) => (
+                            <div key={i} className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3 border border-[rgba(255,255,255,0.06)]">
+                              <p className="text-white/80 font-semibold mb-0.5">{item.label}</p>
+                              <p className="text-white/35">{item.sub}</p>
+                            </div>
+                          ))}
+                        </div>
+                        <Link href="/contact">
+                          <Button className="w-full sm:w-auto bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[48px]" data-testid="button-book-3d-walkthrough">
+                            Book Your 3D Walkthrough <ArrowRight className="w-4 h-4 ml-2" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
                   </>
                 )}
               </div>
