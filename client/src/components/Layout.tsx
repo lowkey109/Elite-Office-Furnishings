@@ -10,6 +10,7 @@ const navLinks = [
   { label: "Products", href: "/products" },
   { label: "Workplace Solutions", href: "/workplace-solutions" },
   { label: "AI Office Planner", href: "/upload-your-floor-plan" },
+  { label: "3D Office Walkthrough", href: "/3d-office-walkthrough" },
   { label: "Case Studies", href: "/case-studies" },
   { label: "Blog", href: "/blog" },
   { label: "About", href: "/about" },
@@ -21,6 +22,7 @@ const mobileNavLinks = [
   { label: "Products", href: "/products" },
   { label: "Workplace Solutions", href: "/workplace-solutions" },
   { label: "AI Office Planner", href: "/upload-your-floor-plan" },
+  { label: "3D Office Walkthrough", href: "/3d-office-walkthrough" },
   { label: "Case Studies", href: "/case-studies" },
   { label: "Testimonials", href: "/testimonials" },
   { label: "Blog", href: "/blog" },
@@ -257,6 +259,7 @@ function Footer() {
               {[
                 { label: "Workplace Solutions", href: "/workplace-solutions" },
                 { label: "AI Office Planner", href: "/upload-your-floor-plan" },
+                { label: "3D Office Walkthrough", href: "/3d-office-walkthrough" },
                 { label: "Free Layout Plan", href: "/free-office-layout-plan" },
                 { label: "Quote Builder", href: "/quote-builder" },
                 { label: "Request a Quote", href: "/send-us-your-quote" },

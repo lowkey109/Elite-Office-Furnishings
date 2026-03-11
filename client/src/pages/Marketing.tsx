@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { SiFacebook, SiInstagram, SiTelegram, SiX, SiWhatsapp } from "react-icons/si";
 
-const ADMIN_PASSWORD = "tcd2024admin";
+import { validateAdminLogin } from "@/lib/adminAuth";
 
 type Platform = "email" | "facebook" | "instagram" | "telegram" | "twitter" | "whatsapp";
 
@@ -54,17 +54,19 @@ const CAMPAIGN_TOPICS = [
 ];
 
 function LoginScreen({ onLogin }: { onLogin: () => void }) {
+  const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [error, setError] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (pw === ADMIN_PASSWORD) {
+    if (validateAdminLogin(email, pw)) {
       sessionStorage.setItem("mkt_auth", "1");
+      sessionStorage.setItem("tcd_admin_auth", "true");
       onLogin();
     } else {
       setError(true);
-      setTimeout(() => setError(false), 2000);
+      setTimeout(() => setError(false), 3000);
     }
   };
 
@@ -79,17 +81,33 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
           <p className="text-white/40 text-sm mt-1">The Corporate Desk — Admin Access</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-3">
-          <input
-            type="password"
-            value={pw}
-            onChange={(e) => setPw(e.target.value)}
-            placeholder="Admin password"
-            className={`w-full h-12 px-4 rounded-xl bg-[hsl(220,18%,11%)] border ${error ? "border-red-500/50 text-red-400" : "border-[rgba(201,168,76,0.2)]"} text-white text-base outline-none focus:border-[rgba(201,168,76,0.5)] transition-colors`}
-            style={{ fontSize: "16px" }}
-            autoFocus
-          />
-          {error && <p className="text-red-400 text-sm text-center">Incorrect password</p>}
-          <Button type="submit" className="w-full h-12 bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold border-none text-base">
+          <div>
+            <label className="block text-sm text-white/60 mb-1">Admin Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin@thecorporatedesk.com.au"
+              className="w-full h-12 px-4 rounded-xl bg-[hsl(220,18%,11%)] border border-[rgba(201,168,76,0.2)] text-white text-base outline-none focus:border-[rgba(201,168,76,0.5)] transition-colors"
+              style={{ fontSize: "16px" }}
+              autoFocus
+              data-testid="input-marketing-email"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-white/60 mb-1">Password</label>
+            <input
+              type="password"
+              value={pw}
+              onChange={(e) => setPw(e.target.value)}
+              placeholder="Enter password"
+              className={`w-full h-12 px-4 rounded-xl bg-[hsl(220,18%,11%)] border ${error ? "border-red-500/50 text-red-400" : "border-[rgba(201,168,76,0.2)]"} text-white text-base outline-none focus:border-[rgba(201,168,76,0.5)] transition-colors`}
+              style={{ fontSize: "16px" }}
+              data-testid="input-marketing-password"
+            />
+          </div>
+          {error && <p className="text-red-400 text-sm text-center">Incorrect credentials. Please try again.</p>}
+          <Button type="submit" className="w-full h-12 bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold border-none text-base" data-testid="button-marketing-login">
             Enter Hub
           </Button>
         </form>

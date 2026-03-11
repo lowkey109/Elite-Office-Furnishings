@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
+import { validateAdminLogin } from "@/lib/adminAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -17,7 +18,6 @@ import {
   Zap, Clock, Table2,
 } from "lucide-react";
 
-const ADMIN_PASSWORD = "tcd2024admin";
 
 type PlanningStatus = "New" | "In Review" | "Quoted" | "Converted" | "Archived";
 type ActiveTab = "overview" | "zones" | "furniture" | "cost" | "report";
@@ -396,6 +396,7 @@ function CostTimeline({ cost, timeline, aiRec, leadScore, request }: { cost?: Co
 
 export default function AdminPlanningRequests() {
   const [authed, setAuthed] = useState(false);
+  const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [pwError, setPwError] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -470,7 +471,7 @@ export default function AdminPlanningRequests() {
   }
 
   function handleLogin() {
-    if (pw === ADMIN_PASSWORD) {
+    if (validateAdminLogin(email, pw)) {
       sessionStorage.setItem("tcd_admin_auth", "true");
       setAuthed(true);
       setPwError(false);
@@ -513,18 +514,29 @@ export default function AdminPlanningRequests() {
             <p className="text-white/40 text-sm mt-1">Authorised access only</p>
           </div>
           <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.15)] rounded-2xl p-6">
+            <label className="block text-sm text-white/60 mb-2">Admin Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleLogin()}
+              placeholder="admin@thecorporatedesk.com.au"
+              data-testid="input-planning-email"
+              className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(201,168,76,0.2)] focus:border-[rgba(201,168,76,0.5)] rounded-md px-4 py-3 text-white placeholder:text-white/30 focus:outline-none text-base mb-4"
+              style={{ minHeight: "48px" }}
+            />
             <label className="block text-sm text-white/60 mb-2">Password</label>
             <input
               type="password"
               value={pw}
               onChange={e => setPw(e.target.value)}
               onKeyDown={e => e.key === "Enter" && handleLogin()}
-              placeholder="Enter admin password"
+              placeholder="Enter password"
               data-testid="input-planning-password"
               className={`w-full bg-[rgba(255,255,255,0.04)] border rounded-md px-4 py-3 text-white placeholder:text-white/30 focus:outline-none text-base mb-1 ${pwError ? "border-red-500/50" : "border-[rgba(201,168,76,0.2)] focus:border-[rgba(201,168,76,0.5)]"}`}
               style={{ minHeight: "48px" }}
             />
-            {pwError && <p className="text-red-400 text-xs mb-3">Incorrect password</p>}
+            {pwError && <p className="text-red-400 text-xs mb-3">Incorrect credentials. Please try again.</p>}
             <Button onClick={handleLogin} className="w-full bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[48px] mt-3" data-testid="button-planning-login">
               <ShieldCheck className="w-4 h-4 mr-2" /> Access Planning Requests
             </Button>

@@ -45,3 +45,22 @@ The AI Workspace Planning Report is gated behind a $399 AUD one-time payment:
     - Instagram
     - X/Twitter
     - WhatsApp Business
+
+## Admin Authentication
+All admin pages are protected with email + password login (stored in sessionStorage as `tcd_admin_auth = "true"`):
+- **Primary credentials**: `admin@thecorporatedesk.com.au` / `Jaymin12!/`
+- **Legacy password** (any email): `tcd2024admin`
+- Auth logic: `client/src/lib/adminAuth.ts` → `validateAdminLogin(email, password)`
+- Admin pages: `/admin/dashboard`, `/admin/planning-requests`, `/admin/leads`, `/admin/supplier-quotes`, `/admin/marketing`
+
+## 3D Office Walkthrough (`/3d-office-walkthrough`)
+Interactive Three.js 3D floor plan viewer (file: `client/src/pages/OfficeWalkthrough.tsx`):
+- **Demo mode** (no `?id` param): Shows "DEMONSTRATION LAYOUT" badge with generated office zones
+- **Locked mode** (`?id=xxx` and `isPaid=false`): Shows consultation CTA to unlock via Stripe
+- **Full mode** (`?id=xxx` and `isPaid=true`): Renders real zones from AI recommendations
+- Zone layout uses binary treemap algorithm based on planning request size
+- Furniture geometry built with Three.js (workstations, executive desks, boardroom tables, lounge, reception)
+- Raycasting for clickable furniture → product info sidebar with SKU + link to quote
+- OrbitControls for pan/zoom/rotate
+- Graceful WebGL fallback when hardware acceleration not available
+- Backend route: `GET /api/planning-requests/:id/layout` — returns layout data for the walkthrough

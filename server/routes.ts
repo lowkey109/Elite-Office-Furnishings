@@ -1029,5 +1029,32 @@ export async function registerRoutes(
     }
   });
 
+  // ─── 3D Walkthrough Layout Data ──────────────────────────────────────────────
+  app.get("/api/planning-requests/:id/layout", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const request = await storage.getPlanningRequest(id);
+      if (!request) return res.status(404).json({ error: "Not found" });
+      const parseRec = (raw: string | null | undefined) => {
+        if (!raw) return null;
+        try { return JSON.parse(raw); } catch { return null; }
+      };
+      res.json({
+        id: request.id,
+        name: request.name,
+        company: request.company,
+        email: request.email,
+        squareMetres: request.squareMetres,
+        staffCount: request.staffCount,
+        projectBrief: request.projectBrief,
+        isPaid: request.isPaid,
+        paymentStatus: request.paymentStatus,
+        aiRecommendations: request.isPaid ? parseRec(request.aiRecommendations) : null,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch layout data" });
+    }
+  });
+
   return httpServer;
 }

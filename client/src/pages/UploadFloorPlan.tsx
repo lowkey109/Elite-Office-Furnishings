@@ -631,11 +631,18 @@ export default function UploadFloorPlan() {
                             </div>
                           ))}
                         </div>
-                        <Link href="/contact">
-                          <Button className="w-full sm:w-auto bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[48px]" data-testid="button-book-3d-walkthrough">
-                            Book Your 3D Walkthrough <ArrowRight className="w-4 h-4 ml-2" />
-                          </Button>
-                        </Link>
+                        <div className="flex flex-wrap gap-3">
+                          <Link href={`/3d-office-walkthrough?id=${planningRequestId}`}>
+                            <Button className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[48px] px-6" data-testid="button-view-3d-walkthrough">
+                              View 3D Walkthrough <ArrowRight className="w-4 h-4 ml-2" />
+                            </Button>
+                          </Link>
+                          <Link href="/contact">
+                            <Button variant="outline" className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.08)] min-h-[48px] px-6" data-testid="button-book-3d-walkthrough">
+                              Book Consultation <ArrowRight className="w-4 h-4 ml-2" />
+                            </Button>
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   </>

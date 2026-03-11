@@ -13,7 +13,7 @@ import {
   ArrowRight, Pencil, Trash2, User,
 } from "lucide-react";
 
-const ADMIN_PASSWORD = "tcd2024admin";
+import { validateAdminLogin } from "@/lib/adminAuth";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -297,6 +297,7 @@ function Field({
 
 export default function AdminSupplierQuotes() {
   const [authed, setAuthed] = useState(false);
+  const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [pwError, setPwError] = useState(false);
   const [tab, setTab] = useState<"quotes" | "referrals">("quotes");
@@ -352,7 +353,7 @@ export default function AdminSupplierQuotes() {
   });
 
   function handleLogin() {
-    if (pw === ADMIN_PASSWORD) {
+    if (validateAdminLogin(email, pw)) {
       sessionStorage.setItem("tcd_admin_auth", "true");
       setAuthed(true);
       setPwError(false);
@@ -390,16 +391,27 @@ export default function AdminSupplierQuotes() {
           </div>
           <div className="bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-2xl p-6">
             <h2 className="text-white font-semibold mb-4 text-center">Admin Access</h2>
+            <label className="block text-sm text-white/60 mb-2">Admin Email</label>
+            <Input
+              type="email"
+              placeholder="admin@thecorporatedesk.com.au"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleLogin()}
+              data-testid="input-supplier-email"
+              className="bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.1)] text-white placeholder:text-white/30 mb-3"
+            />
+            <label className="block text-sm text-white/60 mb-2">Password</label>
             <Input
               type="password"
-              placeholder="Enter admin password"
+              placeholder="Enter password"
               value={pw}
               onChange={e => setPw(e.target.value)}
               onKeyDown={e => e.key === "Enter" && handleLogin()}
               data-testid="input-admin-password"
               className="bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.1)] text-white placeholder:text-white/30 mb-3"
             />
-            {pwError && <p className="text-red-400 text-sm mb-3">Incorrect password.</p>}
+            {pwError && <p className="text-red-400 text-sm mb-3">Incorrect credentials. Please try again.</p>}
             <Button
               onClick={handleLogin}
               data-testid="button-admin-login"

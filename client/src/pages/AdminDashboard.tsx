@@ -8,8 +8,7 @@ import {
   ChevronRight, Calendar, MapPin, Phone, Mail, Clock,
   Megaphone, ShieldCheck, Eye, ExternalLink, Target, Package, Upload,
 } from "lucide-react";
-
-const ADMIN_PASSWORD = "tcd2024admin";
+import { validateAdminLogin } from "@/lib/adminAuth";
 
 interface Lead {
   id: number;
@@ -63,6 +62,7 @@ function formatDate(dateStr?: string) {
 export default function AdminDashboard() {
   const [, navigate] = useLocation();
   const [authed, setAuthed] = useState(false);
+  const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [pwError, setPwError] = useState(false);
   const [expandedLead, setExpandedLead] = useState<number | null>(null);
@@ -78,7 +78,7 @@ export default function AdminDashboard() {
   });
 
   function handleLogin() {
-    if (pw === ADMIN_PASSWORD) {
+    if (validateAdminLogin(email, pw)) {
       sessionStorage.setItem("tcd_admin_auth", "true");
       setAuthed(true);
       setPwError(false);
@@ -114,20 +114,31 @@ export default function AdminDashboard() {
             <p className="text-white/40 text-sm mt-1">Authorised access only</p>
           </div>
           <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.15)] rounded-2xl p-6">
+            <label className="block text-sm text-white/60 mb-2">Admin Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleLogin()}
+              placeholder="admin@thecorporatedesk.com.au"
+              data-testid="input-admin-email"
+              className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(201,168,76,0.2)] focus:border-[rgba(201,168,76,0.5)] rounded-md px-4 py-3 text-white placeholder:text-white/30 focus:outline-none text-base mb-4"
+              style={{ minHeight: "48px" }}
+            />
             <label className="block text-sm text-white/60 mb-2">Password</label>
             <input
               type="password"
               value={pw}
               onChange={e => setPw(e.target.value)}
               onKeyDown={e => e.key === "Enter" && handleLogin()}
-              placeholder="Enter admin password"
+              placeholder="Enter password"
               data-testid="input-admin-password"
               className={`w-full bg-[rgba(255,255,255,0.04)] border rounded-md px-4 py-3 text-white placeholder:text-white/30 focus:outline-none text-base mb-1 ${
                 pwError ? "border-red-500/50" : "border-[rgba(201,168,76,0.2)] focus:border-[rgba(201,168,76,0.5)]"
               }`}
               style={{ minHeight: "48px" }}
             />
-            {pwError && <p className="text-red-400 text-xs mb-3">Incorrect password</p>}
+            {pwError && <p className="text-red-400 text-xs mb-3">Incorrect credentials. Please try again.</p>}
             <Button
               onClick={handleLogin}
               className="w-full bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[48px] mt-3"
