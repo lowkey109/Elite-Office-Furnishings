@@ -53,9 +53,9 @@ All admin pages are protected with email + password login (stored in sessionStor
 - Auth logic: `client/src/lib/adminAuth.ts` → `validateAdminLogin(email, password)`
 - Admin pages: `/admin/dashboard`, `/admin/planning-requests`, `/admin/leads`, `/admin/supplier-quotes`, `/admin/marketing`, `/admin/product-reviews`
 
-## Product Catalogue (354 SKUs — as of 2026-03-11)
+## Product Catalogue (330 SKUs — normalized 2026-03-11, was 354)
 Live catalogue at `server/data/productCatalog.json`. Supplier DB at `server/data/supplierDatabase.json`.
-- **FSZ (Feisenzhuo)** — 143 SKUs: Weiyi, Blister, Red Cliff, Ruige, Vic, Zhuoya, Dynamic, Dell, Evidenza, Teak, Pari, New Berlin, Shanhe, Bit, Four Color series
+- **FSZ (Feisenzhuo)** — ~120 SKUs: Weiyi, Blister, Red Cliff, Ruige, Vic, Zhuoya, Dynamic, Dell, Evidenza, Teak, Pari, New Berlin, Shanhe, Bit, Fessenz (open-plan/workstation system)
 - **HSG (Huasheng Gaozhuo)** — 21 SKUs: Milan, Karen, Owen, Miller, Mige, Better, Baggio, Bonnie, Mike, Cape sit-stand desk series
 - **GJO (GOJO)** — 124 SKUs:
   - Vol 1: LRU (premium dark oak executive suites + boardroom tables)

@@ -1,0 +1,179 @@
+You are fixing the live The Corporate Desk product catalog system in Replit.
+
+You are in SAFE PRODUCT NORMALIZATION MODE.
+
+IMPORTANT:
+Do NOT rebuild the whole site.
+Do NOT break existing working systems.
+Only fix and normalize the product catalog structure safely.
+
+CURRENT PROBLEM
+
+The current product importer/product page generator is incorrectly treating catalog sheet images as if each image block is a separate standalone product.
+
+This is causing several issues:
+
+1. A desk page may include cabinets or credenzas in the same catalog image, but those are being treated incorrectly.
+2. Products from the same series are being given different product names even though they should remain under the same product family/series.
+3. The structure does not match the older The Corporate Desk website logic.
+4. Product naming is inconsistent and confusing.
+5. The current catalog rendering feels like a PDF scrape, not a clean premium product catalog.
+
+PRIMARY OBJECTIVE
+
+Normalize the product catalog so it matches the structure and logic of the old The Corporate Desk website as closely as possible.
+
+GOALS
+
+1. Use the old The Corporate Desk website product structure as the reference model.
+2. Keep related products in the same family/series grouped correctly.
+3. Do NOT create fake extra products from catalog layout images.
+4. Separate actual products correctly:
+   - main desk
+   - side return
+   - credenza
+   - storage cabinet
+   - meeting table
+   - chair
+only when they are truly separate items/products.
+5. Preserve product families and model series correctly.
+
+PRODUCT FAMILY RULES
+
+If multiple catalog images belong to the same product series or family, they should be grouped as one product family with variants/options where appropriate.
+
+Examples:
+- same desk model with multiple sizes = one product with size variants
+- same series with left/right return = one product with configuration options
+- same family with desk + matching cabinet = desk remains main product, matching cabinet should be either:
+  a) related product
+  b) included accessory
+  c) part of the collection
+depending on how the old website handled it
+
+Do NOT randomly rename same-series items as separate unrelated products.
+
+OLD WEBSITE MATCHING
+
+Audit the old The Corporate Desk website product section and use it as the canonical structure for:
+- product naming style
+- category placement
+- variant handling
+- gallery logic
+- related products logic
+
+The new site should follow the same logic and naming pattern as the old product section, while keeping the new premium design.
+
+IMAGE RULES
+
+1. Do NOT use the full catalog sheet as the main product image if cleaner product imagery is available.
+2. If a catalog sheet includes multiple items:
+   - identify the actual main product
+   - extract or prioritize the correct hero image
+3. If the image contains cabinets/credenzas together with the desk:
+   - do not assume they are separate products unless supported by product structure
+4. Build a cleaner product gallery from the available images.
+
+NAMING RULES
+
+1. Product names must stay consistent by series.
+2. Use one core product family name per series.
+3. Variants should be handled via:
+   - size
+   - orientation
+   - return type
+   - finish
+not by creating random new names.
+
+Examples:
+Bad:
+- Weiyi Manager L-Desk
+- Weiyi Executive Corner Desk
+- Weiyi Luxury Side Desk
+if all are really the same family with different configs
+
+Better:
+- Weiyi Desk System
+Variants:
+  - 1800x1400
+  - 2000x1600
+  - 2400x1800
+  - left return
+  - right return
+
+PRODUCT PAGE REQUIREMENTS
+
+Each product page should include:
+1. proper hero image
+2. gallery images
+3. product family name
+4. SKU or series code
+5. category
+6. dimensions/variants
+7. materials
+8. description
+9. related matching items
+10. collection/package compatibility
+
+RELATED PRODUCTS LOGIC
+
+If a desk has matching:
+- cabinet
+- credenza
+- meeting table
+- chair
+show them as:
+Related Products
+or
+Pairs Well With
+or
+Part of This Collection
+
+Do NOT merge everything into one fake product.
+Do NOT split everything into random separate products either.
+
+CHAIR LOGIC
+
+If chairs are present in the source catalogs and old site structure supports them, add them properly as their own products in the correct seating categories.
+
+Do not leave workstation/product pages without seating support if matching chairs exist.
+
+REQUIRED TASKS
+
+1. Audit the current product importer/output logic.
+2. Audit the old The Corporate Desk website product structure.
+3. Normalize product families and naming to match old site logic.
+4. Clean up product pages where one catalog sheet is being misinterpreted.
+5. Convert same-series products into one product family with variants where appropriate.
+6. Put matching cabinets/credenzas/chairs into related products instead of incorrectly naming them as separate main products.
+7. Keep the new site premium and clean.
+
+TESTING
+
+Before completion verify:
+1. product names are normalized
+2. same-series items are grouped correctly
+3. categories match the old site logic
+4. product pages load correctly
+5. related products work correctly
+6. product galleries are improved
+7. no working planner, finance, chatbot, admin, or lead systems are broken
+
+FINAL REPORT
+
+Return:
+1. files changed
+2. product families normalized
+3. naming logic used
+4. how old site structure was matched
+5. which items were converted to variants
+6. which items were moved to related products
+7. whether chairs were added properly
+8. confirmation that the product structure now matches the old website more closely
+
+IMPORTANT
+
+Do not stay in planning mode.
+Inspect the old product section first, then fix the live product system carefully.
+Make the smallest safe changes necessary.
+Keep the site premium, structured, and commercially credible.

@@ -17,7 +17,7 @@
       "Huasheng Furniture Group — GOJO Division",
       "Huasheng Furniture Group — Lounge & Seating Division"
     ],
-    "total_products": 354,
+    "total_products": 330,
     "by_supplier": {
       "Foshan Feisenzhuo Furniture Co., Ltd.": 143,
       "Huasheng Furniture Group — Gaozhuo Division": 21,
@@ -35,7 +35,8 @@
       "Storage & Filing": "Steel filing cabinets, pedestals, lateral files, lockers",
       "Lounge Seating": "Leather sofas, lounge chairs, accent chairs",
       "Occasional Tables": "Side tables, coffee tables, sintered stone tops"
-    }
+    },
+    "last_normalized": "2026-03-11"
   },
   "products": [
     {
@@ -67,25 +68,12 @@
       "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
     },
     {
-      "product_name": "Weiyi Executive Desk 2400",
+      "product_name": "Weiyi Executive Desk",
       "sku": "FSZ-VE-D0324",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Executive Desks",
       "series": "Weiyi",
-      "dimensions": "2400x1600x760mm",
-      "materials": "Melamine board, E0 grade, steel frame",
-      "colors": [
-        "Charcoal grey"
-      ],
-      "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
-    },
-    {
-      "product_name": "Weiyi Executive Desk 3200",
-      "sku": "FSZ-VE-D0332",
-      "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
-      "category": "Executive Desks",
-      "series": "Weiyi",
-      "dimensions": "3200x1100x760mm",
+      "dimensions": "2400W × 1600D × 760H mm / 3200W × 1100D × 760H mm",
       "materials": "Melamine board, E0 grade, steel frame",
       "colors": [
         "Charcoal grey"
@@ -172,64 +160,12 @@
       "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
     },
     {
-      "product_name": "Weiyi Bookcase 2200H",
+      "product_name": "Weiyi Bookcase System",
       "sku": "FSZ-VE-S0222",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Storage",
       "series": "Weiyi",
-      "dimensions": "2200x400x2000mm",
-      "materials": "Melamine board, E0 grade, steel frame",
-      "colors": [
-        "Charcoal grey"
-      ],
-      "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
-    },
-    {
-      "product_name": "Weiyi Bookcase 2400W",
-      "sku": "FSZ-VE-S0224",
-      "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
-      "category": "Storage",
-      "series": "Weiyi",
-      "dimensions": "2400x400x2000mm",
-      "materials": "Melamine board, E0 grade, steel frame",
-      "colors": [
-        "Charcoal grey"
-      ],
-      "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
-    },
-    {
-      "product_name": "Weiyi Bookcase 2600W",
-      "sku": "FSZ-VE-S0226",
-      "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
-      "category": "Storage",
-      "series": "Weiyi",
-      "dimensions": "2600x400x2000mm",
-      "materials": "Melamine board, E0 grade, steel frame",
-      "colors": [
-        "Charcoal grey"
-      ],
-      "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
-    },
-    {
-      "product_name": "Weiyi Bookcase 2800W",
-      "sku": "FSZ-VE-S0228",
-      "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
-      "category": "Storage",
-      "series": "Weiyi",
-      "dimensions": "2800x400x2000mm",
-      "materials": "Melamine board, E0 grade, steel frame",
-      "colors": [
-        "Charcoal grey"
-      ],
-      "image": "/uploads/catalog-images/feisenzhuo/design-04.jpg"
-    },
-    {
-      "product_name": "Weiyi Bookcase 3200W",
-      "sku": "FSZ-VE-S0232",
-      "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
-      "category": "Storage",
-      "series": "Weiyi",
-      "dimensions": "3200x400x2000mm",
+      "dimensions": "2200W / 2400W / 2600W / 2800W / 3200W × 400D × 2000H mm",
       "materials": "Melamine board, E0 grade, steel frame",
       "colors": [
         "Charcoal grey"
@@ -277,38 +213,12 @@
       "image": "/uploads/catalog-images/feisenzhuo/design-05.jpg"
     },
     {
-      "product_name": "Blister Bookcase 2400W",
+      "product_name": "Blister Bookcase & Storage System",
       "sku": "FSZ-BC-C-2433",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Storage",
       "series": "Blister",
-      "dimensions": "2400x400x2000mm",
-      "materials": "Blister panel, walnut veneer, steel frame",
-      "colors": [
-        "Cream white / Walnut"
-      ],
-      "image": "/uploads/catalog-images/feisenzhuo/design-05.jpg"
-    },
-    {
-      "product_name": "Blister Bookcase with Display",
-      "sku": "FSZ-BC-C-2431A-C",
-      "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
-      "category": "Storage",
-      "series": "Blister",
-      "dimensions": "2400x400x2000mm",
-      "materials": "Blister panel, walnut veneer, steel frame",
-      "colors": [
-        "Cream white / Walnut / Caramel"
-      ],
-      "image": "/uploads/catalog-images/feisenzhuo/design-05.jpg"
-    },
-    {
-      "product_name": "Blister Wide Bookcase",
-      "sku": "FSZ-BC-C-2431A-B",
-      "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
-      "category": "Storage",
-      "series": "Blister",
-      "dimensions": "3000x400x2000mm",
+      "dimensions": "2400W × 400D × 2000H mm (standard) / 2400W with glass display / 3000W wide format",
       "materials": "Blister panel, walnut veneer, steel frame",
       "colors": [
         "Cream white / Walnut"
@@ -342,38 +252,12 @@
       "image": "/uploads/catalog-images/feisenzhuo/design-06.jpg"
     },
     {
-      "product_name": "Red Cliff Bookcase 2400W",
+      "product_name": "Red Cliff Bookcase System",
       "sku": "FSZ-FL-CB-07",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Storage",
       "series": "Red Cliff",
-      "dimensions": "2400x400x2000mm",
-      "materials": "Melamine board, steel frame",
-      "colors": [
-        "Dark walnut / Stone grey"
-      ],
-      "image": "/uploads/catalog-images/feisenzhuo/design-06.jpg"
-    },
-    {
-      "product_name": "Red Cliff Bookcase 3000W",
-      "sku": "FSZ-FL-CB-06",
-      "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
-      "category": "Storage",
-      "series": "Red Cliff",
-      "dimensions": "3000x400x2080mm",
-      "materials": "Melamine board, steel frame",
-      "colors": [
-        "Dark walnut / Stone grey"
-      ],
-      "image": "/uploads/catalog-images/feisenzhuo/design-06.jpg"
-    },
-    {
-      "product_name": "Red Cliff Wide Bookcase",
-      "sku": "FSZ-FL-CB-05",
-      "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
-      "category": "Storage",
-      "series": "Red Cliff",
-      "dimensions": "3800x400x2080mm",
+      "dimensions": "2400W / 3000W / 3800W × 400D × 2000–2080H mm",
       "materials": "Melamine board, steel frame",
       "colors": [
         "Dark walnut / Stone grey"
@@ -550,38 +434,12 @@
       "image": "/uploads/catalog-images/feisenzhuo/design-08.jpg"
     },
     {
-      "product_name": "Ruige Bookcase 2800W",
+      "product_name": "Ruige Bookcase System",
       "sku": "FSZ-RG-C03",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Storage",
       "series": "Ruige",
-      "dimensions": "2800x400x2000mm",
-      "materials": "Melamine board, steel frame",
-      "colors": [
-        "Beige / Stone grey"
-      ],
-      "image": "/uploads/catalog-images/feisenzhuo/design-08.jpg"
-    },
-    {
-      "product_name": "Ruige Bookcase 3000W",
-      "sku": "FSZ-RG-C02",
-      "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
-      "category": "Storage",
-      "series": "Ruige",
-      "dimensions": "3000x400x2000mm",
-      "materials": "Melamine board, steel frame",
-      "colors": [
-        "Beige / Stone grey"
-      ],
-      "image": "/uploads/catalog-images/feisenzhuo/design-08.jpg"
-    },
-    {
-      "product_name": "Ruige Bookcase 3600W",
-      "sku": "FSZ-RG-C01",
-      "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
-      "category": "Storage",
-      "series": "Ruige",
-      "dimensions": "3600x400x2000mm",
+      "dimensions": "2800W / 3000W / 3600W × 400D × 2000H mm",
       "materials": "Melamine board, steel frame",
       "colors": [
         "Beige / Stone grey"
@@ -641,51 +499,12 @@
       "image": "/uploads/catalog-images/feisenzhuo/design-09.jpg"
     },
     {
-      "product_name": "Vic Bookcase 2200W",
+      "product_name": "Vic Bookcase System",
       "sku": "FSZ-VIC-S0222",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Storage",
       "series": "Vic",
-      "dimensions": "2200x400x2000mm",
-      "materials": "Melamine board, steel frame",
-      "colors": [
-        "Tan / Dark wood"
-      ],
-      "image": "/uploads/catalog-images/feisenzhuo/design-09.jpg"
-    },
-    {
-      "product_name": "Vic Bookcase 2400W",
-      "sku": "FSZ-VIC-S0224",
-      "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
-      "category": "Storage",
-      "series": "Vic",
-      "dimensions": "2400x400x2000mm",
-      "materials": "Melamine board, steel frame",
-      "colors": [
-        "Tan / Dark wood"
-      ],
-      "image": "/uploads/catalog-images/feisenzhuo/design-09.jpg"
-    },
-    {
-      "product_name": "Vic Bookcase 2600W",
-      "sku": "FSZ-VIC-S0226",
-      "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
-      "category": "Storage",
-      "series": "Vic",
-      "dimensions": "2600x400x2000mm",
-      "materials": "Melamine board, steel frame",
-      "colors": [
-        "Tan / Dark wood"
-      ],
-      "image": "/uploads/catalog-images/feisenzhuo/design-09.jpg"
-    },
-    {
-      "product_name": "Vic Wide Bookcase 3600W",
-      "sku": "FSZ-VIC-S0236",
-      "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
-      "category": "Storage",
-      "series": "Vic",
-      "dimensions": "3600x400x2000mm",
+      "dimensions": "2200W / 2400W / 2600W / 3600W × 400D × 2000H mm",
       "materials": "Melamine board, steel frame",
       "colors": [
         "Tan / Dark wood"
@@ -758,25 +577,12 @@
       "image": "/uploads/catalog-images/feisenzhuo/design-10.jpg"
     },
     {
-      "product_name": "Zhuoya Bookcase 2800W",
+      "product_name": "Zhuoya Bookcase System",
       "sku": "FSZ-ZYA-KBWJ28",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Storage",
       "series": "Zhuoya",
-      "dimensions": "2800x400x2000mm",
-      "materials": "Melamine board, steel frame",
-      "colors": [
-        "Champagne / Beige"
-      ],
-      "image": "/uploads/catalog-images/feisenzhuo/design-10.jpg"
-    },
-    {
-      "product_name": "Zhuoya Bookcase 3600W",
-      "sku": "FSZ-ZYA-KBWJ36",
-      "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
-      "category": "Storage",
-      "series": "Zhuoya",
-      "dimensions": "3600x400x2000mm",
+      "dimensions": "2800W / 3600W × 400D × 2000H mm",
       "materials": "Melamine board, steel frame",
       "colors": [
         "Champagne / Beige"
@@ -836,25 +642,12 @@
       "image": "/uploads/catalog-images/feisenzhuo/design-11.jpg"
     },
     {
-      "product_name": "Dynamic Storage Cabinet 3000W",
+      "product_name": "Dynamic Storage Cabinet System",
       "sku": "FSZ-DDG-01S30",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Storage",
       "series": "Dynamic",
-      "dimensions": "3000x450x2100mm",
-      "materials": "Blister panel, steel frame",
-      "colors": [
-        "Champagne / Grey stone"
-      ],
-      "image": "/uploads/catalog-images/feisenzhuo/design-11.jpg"
-    },
-    {
-      "product_name": "Dynamic Storage Cabinet 3600W",
-      "sku": "FSZ-DDG-01S36",
-      "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
-      "category": "Storage",
-      "series": "Dynamic",
-      "dimensions": "3600x450x2100mm",
+      "dimensions": "3000W / 3600W × 450D × 2100H mm",
       "materials": "Blister panel, steel frame",
       "colors": [
         "Champagne / Grey stone"
@@ -1070,25 +863,12 @@
       "image": "/uploads/catalog-images/feisenzhuo/design-14.jpg"
     },
     {
-      "product_name": "Teak Bookcase 2400W",
+      "product_name": "Teak Bookcase System",
       "sku": "FSZ-57BHS001",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Storage",
       "series": "Teak",
-      "dimensions": "2400x400x2000mm",
-      "materials": "Walnut teak veneer, steel frame",
-      "colors": [
-        "Walnut teak / Grey"
-      ],
-      "image": "/uploads/catalog-images/feisenzhuo/design-14.jpg"
-    },
-    {
-      "product_name": "Teak Bookcase 2800W",
-      "sku": "FSZ-57BHS002",
-      "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
-      "category": "Storage",
-      "series": "Teak",
-      "dimensions": "2800x400x2000mm",
+      "dimensions": "2400W / 2800W × 400D × 2000H mm",
       "materials": "Walnut teak veneer, steel frame",
       "colors": [
         "Walnut teak / Grey"
@@ -1161,25 +941,12 @@
       "image": "/uploads/catalog-images/feisenzhuo/design-15.jpg"
     },
     {
-      "product_name": "Pari Bookcase 3600W",
-      "sku": "FSZ-56BPL001",
-      "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
-      "category": "Storage",
-      "series": "Pari",
-      "dimensions": "3600x400x2000mm",
-      "materials": "Classic walnut veneer, steel frame",
-      "colors": [
-        "Classic walnut"
-      ],
-      "image": "/uploads/catalog-images/feisenzhuo/design-15.jpg"
-    },
-    {
-      "product_name": "Pari Bookcase 3200W",
+      "product_name": "Pari Bookcase System",
       "sku": "FSZ-56BPL002",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Storage",
       "series": "Pari",
-      "dimensions": "3200x400x2000mm",
+      "dimensions": "3200W / 3600W × 400D × 2000H mm",
       "materials": "Classic walnut veneer, steel frame",
       "colors": [
         "Classic walnut"
@@ -1642,25 +1409,12 @@
       "image": "/uploads/catalog-images/feisenzhuo/design-21.jpg"
     },
     {
-      "product_name": "Shanhe Bookcase 1900W",
+      "product_name": "Shanhe Bookcase System",
       "sku": "FSZ-SH-W19",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Storage",
       "series": "Shanhe",
-      "dimensions": "1900x400x2000mm",
-      "materials": "Melamine board, steel frame",
-      "colors": [
-        "Dark wood / Gold accent"
-      ],
-      "image": "/uploads/catalog-images/feisenzhuo/design-21.jpg"
-    },
-    {
-      "product_name": "Shanhe Wide Bookcase",
-      "sku": "FSZ-SH-W-A",
-      "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
-      "category": "Storage",
-      "series": "Shanhe",
-      "dimensions": "3690x400x2025mm",
+      "dimensions": "1900W / 3690W × 400D × 2000–2025H mm",
       "materials": "Melamine board, steel frame",
       "colors": [
         "Dark wood / Gold accent"
@@ -1750,7 +1504,7 @@
       "sku": "FSZ-CC-AC-01",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Workstations",
-      "series": "Four Color",
+      "series": "Fessenz",
       "dimensions": "1200x600x750mm / 1400x700x750mm",
       "materials": "Melamine board, steel frame",
       "colors": [
@@ -1766,7 +1520,7 @@
       "sku": "FSZ-CC-AE-01",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Workstations",
-      "series": "Four Color",
+      "series": "Fessenz",
       "dimensions": "1200x1200x750mm / 1400x1200x750mm",
       "materials": "Melamine board, steel frame",
       "colors": [
@@ -1782,7 +1536,7 @@
       "sku": "FSZ-CC-CC-01I",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Workstations",
-      "series": "Four Color",
+      "series": "Fessenz",
       "dimensions": "1200x1200x750mm / 1400x1400x750mm",
       "materials": "Melamine board, steel frame, privacy screen",
       "colors": [
@@ -1798,7 +1552,7 @@
       "sku": "FSZ-CC-AE-06",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Workstations",
-      "series": "Four Color",
+      "series": "Fessenz",
       "dimensions": "2400x1200x1045mm",
       "materials": "Melamine board, steel frame, privacy screen",
       "colors": [
@@ -1814,7 +1568,7 @@
       "sku": "FSZ-CC-AA-168",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Workstations",
-      "series": "Four Color",
+      "series": "Fessenz",
       "dimensions": "1800x600x750mm / 2400x600x750mm",
       "materials": "Melamine board, steel frame, privacy screen",
       "colors": [
@@ -1830,7 +1584,7 @@
       "sku": "FSZ-CC-DB-11",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Boardroom Tables",
-      "series": "Four Color",
+      "series": "Fessenz",
       "dimensions": "1200x600x750mm / 1800x600x750mm",
       "materials": "Melamine board, steel frame",
       "colors": [
@@ -1846,7 +1600,7 @@
       "sku": "FSZ-CC-GA-01",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Storage",
-      "series": "Four Color",
+      "series": "Fessenz",
       "dimensions": "400x500x600mm",
       "materials": "Melamine board, steel frame, lockable",
       "colors": [
@@ -1862,7 +1616,7 @@
       "sku": "FSZ-CC-GA-05",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Storage",
-      "series": "Four Color",
+      "series": "Fessenz",
       "dimensions": "400x500x1160mm",
       "materials": "Melamine board, steel frame, lockable",
       "colors": [
@@ -1878,7 +1632,7 @@
       "sku": "FSZ-CC-GA-11",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Storage",
-      "series": "Four Color",
+      "series": "Fessenz",
       "dimensions": "800x400x1160mm",
       "materials": "Melamine board, steel frame",
       "colors": [
@@ -1894,7 +1648,7 @@
       "sku": "FSZ-CC-GG-01",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Storage",
-      "series": "Four Color",
+      "series": "Fessenz",
       "dimensions": "800x400x1980mm",
       "materials": "Melamine board, glass doors, steel frame",
       "colors": [
@@ -1910,7 +1664,7 @@
       "sku": "FSZ-CC-CCK-07",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Reception Desks",
-      "series": "Four Color",
+      "series": "Fessenz",
       "dimensions": "1600x800x1100mm / 1800x800x1100mm",
       "materials": "Melamine board, steel frame, solid surface counter",
       "colors": [
@@ -1926,7 +1680,7 @@
       "sku": "FSZ-CC-CCZ-06",
       "supplier": "Foshan Feisenzhuo Furniture Co., Ltd.",
       "category": "Reception Desks",
-      "series": "Four Color",
+      "series": "Fessenz",
       "dimensions": "2000x800x1100mm / 2400x800x1100mm",
       "materials": "Melamine board, steel frame, solid surface counter",
       "colors": [
@@ -2525,32 +2279,12 @@
       "image": "/uploads/catalog-images/huasheng-gaozhuo/cape-executive.jpg"
     },
     {
-      "product_name": "GOJO LRU Executive Desk Type A — 3600",
-      "sku": "GJO-LRU-OEA3624",
-      "supplier": "Huasheng Furniture Group — GOJO Division",
-      "category": "Executive Desks",
-      "series": "LRU",
-      "dimensions": "3600W × 2400D × 750H mm",
-      "materials": "Dark oak veneer, dark grey metallic paint frame, solid surface accents",
-      "colors": [
-        "Dark oak + dark grey metallic"
-      ],
-      "features": [
-        "Segmented adjustable tabletop (sit-stand hybrid)",
-        "Exquisite integrated power box with ports",
-        "Italian semi-transparent paint",
-        "Modern architectural aesthetic",
-        "CEO/Director suite appropriate"
-      ],
-      "image": "/uploads/catalog-images/gojo/lru-executive-desk.jpg"
-    },
-    {
-      "product_name": "GOJO LRU Executive Desk Type A — 3300",
+      "product_name": "GOJO LRU Executive Desk — Type A",
       "sku": "GJO-LRU-OEA3224",
       "supplier": "Huasheng Furniture Group — GOJO Division",
       "category": "Executive Desks",
       "series": "LRU",
-      "dimensions": "3300W × 2400D × 750H mm",
+      "dimensions": "3300W × 2400D × 750H mm / 3600W × 2400D × 750H mm",
       "materials": "Dark oak veneer, dark grey metallic paint frame",
       "colors": [
         "Dark oak + dark grey metallic"
@@ -2634,83 +2368,12 @@
       "image": "/uploads/catalog-images/gojo/lru-dimensions.jpg"
     },
     {
-      "product_name": "GOJO LRU Conference Table — 6000mm",
-      "sku": "GJO-LRU-CON6016",
-      "supplier": "Huasheng Furniture Group — GOJO Division",
-      "category": "Boardroom Tables",
-      "series": "LRU",
-      "dimensions": "6000W × 1600D × 750H mm",
-      "materials": "Dark oak veneer top, metallic steel base structure",
-      "colors": [
-        "Dark oak + dark grey metallic"
-      ],
-      "features": [
-        "Seats 16-20 persons",
-        "Matching LRU executive suite aesthetic",
-        "Strong visual tension design",
-        "Geometric interlocking structure"
-      ],
-      "image": "/uploads/catalog-images/gojo/lru-conference-table.jpg"
-    },
-    {
-      "product_name": "GOJO LRU Conference Table — 5400mm",
-      "sku": "GJO-LRU-CON5416",
-      "supplier": "Huasheng Furniture Group — GOJO Division",
-      "category": "Boardroom Tables",
-      "series": "LRU",
-      "dimensions": "5400W × 1600D × 750H mm",
-      "materials": "Dark oak veneer top, metallic steel base",
-      "colors": [
-        "Dark oak + dark grey metallic"
-      ],
-      "features": [
-        "Seats 14-16 persons",
-        "Architectural geometric base",
-        "Veneer top finish"
-      ],
-      "image": "/uploads/catalog-images/gojo/lru-conference-table.jpg"
-    },
-    {
-      "product_name": "GOJO LRU Conference Table — 4800mm",
-      "sku": "GJO-LRU-CON4816",
-      "supplier": "Huasheng Furniture Group — GOJO Division",
-      "category": "Boardroom Tables",
-      "series": "LRU",
-      "dimensions": "4800W × 1600D × 750H mm",
-      "materials": "Dark oak veneer top, metallic steel base",
-      "colors": [
-        "Dark oak + dark grey metallic"
-      ],
-      "features": [
-        "Seats 12-14 persons",
-        "Matching LRU boardroom suite"
-      ],
-      "image": "/uploads/catalog-images/gojo/lru-conference-table.jpg"
-    },
-    {
-      "product_name": "GOJO LRU Conference Table — 4200mm",
-      "sku": "GJO-LRU-CON4214",
-      "supplier": "Huasheng Furniture Group — GOJO Division",
-      "category": "Boardroom Tables",
-      "series": "LRU",
-      "dimensions": "4200W × 1400D × 750H mm",
-      "materials": "Dark oak veneer top, metallic steel base",
-      "colors": [
-        "Dark oak + dark grey metallic"
-      ],
-      "features": [
-        "Seats 10-12 persons",
-        "Compact boardroom format"
-      ],
-      "image": "/uploads/catalog-images/gojo/lru-conference-table.jpg"
-    },
-    {
-      "product_name": "GOJO LRU Conference Table — 3600mm",
+      "product_name": "GOJO LRU Conference Table System",
       "sku": "GJO-LRU-CON3614",
       "supplier": "Huasheng Furniture Group — GOJO Division",
       "category": "Boardroom Tables",
       "series": "LRU",
-      "dimensions": "3600W × 1400D × 750H mm",
+      "dimensions": "3600 / 4200 / 4800 / 5400 / 6000W × 1400–1600D × 750H mm",
       "materials": "Dark oak veneer top, metallic steel base",
       "colors": [
         "Dark oak + dark grey metallic"
