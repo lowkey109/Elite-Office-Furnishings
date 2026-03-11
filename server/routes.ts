@@ -1,17 +1,47 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertLeadSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import OpenAI from "openai";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 import { registerMarketingRoutes } from "./marketing";
-import { sendLeadNotification, sendSupplierQuoteNotification, isEmailConfigured } from "./email";
+import { sendLeadNotification, sendSupplierQuoteNotification, sendPlanningRequestNotification, isEmailConfigured } from "./email";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
 });
 
+// ─── Multer file upload setup ─────────────────────────────────────────────────
+const uploadDir = path.join(process.cwd(), "uploads", "planning-requests");
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+const fileStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, uploadDir),
+  filename: (_req, file, cb) => {
+    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, unique + path.extname(file.originalname).toLowerCase());
+  },
+});
+
+const upload = multer({
+  storage: fileStorage,
+  limits: { fileSize: 20 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const allowed = /\.(pdf|png|jpg|jpeg|webp)$/i;
+    if (allowed.test(path.extname(file.originalname))) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only PDF, PNG, JPG, JPEG, and WEBP files are allowed"));
+    }
+  },
+});
+
+// ─── AI system prompt ─────────────────────────────────────────────────────────
 const CORPORATE_DESK_SYSTEM_PROMPT = `You are the Master AI Business Operating System for The Corporate Desk (thecorporatedesk.com.au) — Australia's most exclusive commercial office furniture supplier.
 
 You are not a single assistant. You are a coordinated team of elite AI professionals operating simultaneously as:
@@ -131,102 +161,76 @@ You are not a single assistant. You are a coordinated team of elite AI professio
 - All pricing includes GST, metro delivery, basic installation
 - Full project management: design → supply → install → sign-off
 
-### Services
-1. **Free Office Layout Plan** — CAD floor plan + furniture recommendations, no charge (/free-office-layout-plan)
-2. **Request a Quote** — Itemised quote for specific products or full project (/send-us-your-quote)
-3. **Workplace Strategy Call** — 30-min consultation with Senior Workplace Consultant (/workplace-strategy)
-4. **Finance Your Workspace** — Flexible payment options for qualified businesses (/finance-your-workspace)
-5. **Quote Builder** — Interactive AI-assisted quote tool (/quote-builder)
-6. **Complete Fitout Management** — Turnkey from concept to installation
-
-### Delivery & Lead Times
-- National delivery across Australia
-- Metro (Brisbane, Sydney, Melbourne): included in project pricing
-- Regional delivery: quoted on request
-- Standard orders: 4–8 weeks
-- Custom/large projects: 8–14 weeks
-- Full installation team available
-
-### Finance Options (for AI Finance Assistant role)
-- Business equipment finance available through third-party providers
-- Typical finance terms: 12–60 months
-- Repayment estimate formula: (Project cost ÷ months) × 1.015 to 1.025 (rough indicative rate)
-- GST on furniture is 10% in Australia — all TCD pricing is GST-inclusive
-- Finance preserves working capital and can be tax-deductible (refer to accountant)
-- IMPORTANT: Do not provide licensed financial advice — guide to formal application
-
-### GST & Finance Calculations (AI Finance Assistant)
-- GST = Total Price ÷ 11 (to extract GST component from inclusive price)
-- Ex-GST price = Total Price ÷ 1.1
-- Margin = (Sale Price - Cost Price) ÷ Sale Price × 100
-- Monthly repayment estimate (indicative only): Loan amount × monthly rate factor (e.g. 0.022 for 36-month term)
-- Always flag: "This is indicative only — confirm with your accountant or finance provider"
-
-### Quoting Process (AI Quoting Specialist)
-When helping with a quote, gather:
-1. Project type (full fitout / specific products / replace existing)
-2. Space: square meterage or number of rooms
-3. Staff headcount and desk types needed
-4. Key spaces: executive offices, boardroom, reception, breakout, meeting rooms, storage
-5. Preferred style: contemporary (Breeze) or executive (Aimu)
-6. Timeline: start date and completion target
-7. Location: delivery city/suburb
-8. Budget: ballpark awareness
-
-Draft quote structure:
-- Line items: product name, configuration, quantity, unit price (indicative), line total
-- Subtotal (ex-GST) + GST + Total (inc-GST)
-- Delivery note + lead time
-- Validity: 30 days
-- Flag: "Subject to formal confirmation from The Corporate Desk team"
-
-### Procurement Support (AI Procurement Coordinator)
-When assisting with orders, always verify:
-- Product name and series
-- Configuration / finish / color
-- Quantity
-- Delivery address and access requirements
-- Special instructions (assembly, installation, staging)
-- Supplier lead time confirmation
-- Purchase order reference
-
-### Customer Service Standards (AI Customer Service Manager)
-- Acknowledge the issue immediately, without defensiveness
-- Confirm understanding of the problem before proposing solution
-- Escalate delivery issues, damaged goods, or major complaints to the team
-- Warranty claims: direct to service@thecorporatedesk.com.au with photos and order reference
-- Response tone: premium, calm, competent, reassuring
-
-### Ideal Client Profiles
-Law firms, financial services, accounting, insurance, government, healthcare, property development, architecture, technology, media, corporate head offices, professional associations
-
-## LEAD QUALIFICATION PROTOCOL
-Gather for every serious enquiry:
-1. Project type and scope
-2. Staff headcount
-3. Timeline (urgent / 3 months / 6+ months)
-4. Location / delivery city
-5. Budget awareness
-
-Route to next step:
-- Budget + timeline clear → /send-us-your-quote or /quote-builder
-- Still planning → /free-office-layout-plan
-- C-suite / complex project → /workplace-strategy
-- Finance questions → /finance-your-workspace
-- General → /contact
-
 ## ABSOLUTE RULES
 - Never fabricate specific SKUs, exact individual product prices, or confirmed stock levels
 - Always end responses with a clear, relevant call-to-action
 - Stay professional about competitors — focus on TCD's strengths
-- For anything outside your knowledge: "I'd recommend speaking with our team directly — 1300 977 607 or service@thecorporatedesk.com.au"
-- Never commit to prices, availability, or delivery dates without flagging these need formal confirmation
-- For finance/tax questions: always add "This is indicative — please confirm with your accountant"
-- For legal/compliance questions: always direct to qualified professionals`;
+- For anything outside your knowledge: "I'd recommend speaking with our team directly — 1300 977 607 or service@thecorporatedesk.com.au"`;
 
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
+}
+
+// ─── AI space planning prompt builder ────────────────────────────────────────
+function buildSpacePlanningPrompt(data: {
+  name: string;
+  company: string;
+  city?: string;
+  projectType?: string;
+  squareMetres?: string;
+  staffCount?: string;
+  meetingRooms?: string;
+  receptionRequired?: boolean;
+  breakoutRequired?: boolean;
+  executiveOfficeRequired?: boolean;
+  budgetRange?: string;
+  stylePreference?: string;
+  specialRequirements?: string;
+  adminNotes?: string;
+}): string {
+  const rooms = [];
+  if (data.receptionRequired) rooms.push("Reception");
+  if (data.breakoutRequired) rooms.push("Breakout Area");
+  if (data.executiveOfficeRequired) rooms.push("Executive Office");
+  if (data.meetingRooms && data.meetingRooms !== "0") rooms.push(`${data.meetingRooms} Meeting Room(s)`);
+
+  return `You are a senior workplace strategy consultant and furniture specification expert for The Corporate Desk, Australia's premium commercial office furniture company.
+
+A client has submitted an office planning brief. Generate a structured preliminary workspace recommendation using The Corporate Desk product range.
+
+CLIENT BRIEF:
+- Name: ${data.name}
+- Company: ${data.company || "Not specified"}
+- Location: ${data.city || "Not specified"}
+- Project Type: ${data.projectType || "Not specified"}
+- Office Size: ${data.squareMetres ? data.squareMetres + " sqm" : "Not specified"}
+- Staff Count: ${data.staffCount || "Not specified"}
+- Rooms Required: ${rooms.length > 0 ? rooms.join(", ") : "Standard open plan"}
+- Budget Range: ${data.budgetRange || "Not specified"}
+- Style Preference: ${data.stylePreference || "Not specified"}
+- Special Requirements: ${data.specialRequirements || "None specified"}
+${data.adminNotes ? "- Admin Notes: " + data.adminNotes : ""}
+
+Respond with ONLY valid JSON in exactly this format (no markdown, no explanation):
+
+{
+  "clientBrief": "2-3 sentence summary of the client's office fit-out requirements",
+  "officeType": "Classification of office type (e.g. Professional Services HQ, Tech Scale-up, Corporate Expansion)",
+  "estimatedProjectValue": "Estimated total project value range (e.g. $80,000 – $150,000)",
+  "workspaceZones": [
+    { "zone": "Zone name", "description": "What goes here and why", "priority": "Essential/Recommended/Optional" }
+  ],
+  "productRecommendations": [
+    { "category": "TCD product category", "seriesRecommendation": "Which series (Breeze/Aimu/General)", "quantity": "Estimated quantity", "rationale": "Why this product fits their needs", "estimatedCost": "Indicative cost range" }
+  ],
+  "styleDirection": "Paragraph describing the recommended aesthetic and material palette based on their style preference",
+  "keyConsiderations": ["consideration 1", "consideration 2", "consideration 3"],
+  "recommendedNextStep": "Specific recommended action for this client to move forward with The Corporate Desk",
+  "urgencyNote": "Any timeline or budget observations worth flagging"
+}
+
+Ensure product recommendations use ONLY The Corporate Desk categories: Executive Desks, Manager & Staff Desks, Boardroom Tables, Reception Areas, Office Seating, Workstations, Storage & Filing, Office Pods & Booths, Breakout Spaces.`;
 }
 
 export async function registerRoutes(
@@ -235,6 +239,12 @@ export async function registerRoutes(
 ): Promise<Server> {
 
   registerMarketingRoutes(app);
+
+  // Serve uploaded files as static
+  app.use("/uploads", (_req, res, next) => {
+    res.setHeader("Cache-Control", "private, max-age=86400");
+    next();
+  }, express.static(path.join(process.cwd(), "uploads")));
 
   // Health check — required for autoscale deployment
   app.get("/api/health", (_req, res) => {
@@ -250,7 +260,6 @@ export async function registerRoutes(
       const data = insertLeadSchema.parse(req.body);
       const lead = await storage.createLead(data);
 
-      // Send email notification (non-blocking — don't fail the request if email fails)
       sendLeadNotification({
         name: lead.name,
         company: lead.company ?? "",
@@ -315,7 +324,6 @@ export async function registerRoutes(
             ...formattedMessages,
           ],
           stream: true,
-          
         } as any);
 
         for await (const chunk of stream) {
@@ -334,7 +342,6 @@ export async function registerRoutes(
             { role: "system", content: CORPORATE_DESK_SYSTEM_PROMPT },
             ...formattedMessages,
           ],
-          
         } as any);
 
         const content = completion.choices[0]?.message?.content || "";
@@ -351,6 +358,8 @@ export async function registerRoutes(
     }
   });
 
+  // ─── Lead Intelligence (Prospecting) ────────────────────────────────────────
+
   app.get("/api/admin/prospects", async (req, res) => {
     try {
       const leads = await storage.getProspectedLeads();
@@ -362,7 +371,11 @@ export async function registerRoutes(
 
   app.post("/api/admin/prospect", async (req, res) => {
     try {
-      const { signals } = req.body as { signals: string };
+      const { signals, sourceType, sourceUrl } = req.body as {
+        signals: string;
+        sourceType?: string;
+        sourceUrl?: string;
+      };
 
       if (!signals || typeof signals !== "string" || signals.trim().length < 10) {
         return res.status(400).json({ error: "Provide at least one company signal to analyse." });
@@ -402,9 +415,7 @@ ${signals}`;
 
       const completion = await openai.chat.completions.create({
         model: "gpt-5-mini",
-        messages: [
-          { role: "user", content: prospectingPrompt },
-        ],
+        messages: [{ role: "user", content: prospectingPrompt }],
       } as any);
 
       const rawContent = completion.choices[0]?.message?.content || "";
@@ -439,6 +450,8 @@ ${signals}`;
         outreachMessage: String(parsed.outreachMessage),
         reasoning: String(parsed.reasoning),
         rawInput: signals,
+        sourceType: sourceType || "manual",
+        sourceUrl: sourceUrl || null,
       });
 
       res.json({ success: true, lead });
@@ -474,6 +487,254 @@ ${signals}`;
     }
   });
 
+  // ─── Planning Requests ────────────────────────────────────────────────────────
+
+  const planningUpload = upload.fields([
+    { name: "floorPlan", maxCount: 1 },
+    { name: "floorPlanImage", maxCount: 1 },
+    { name: "inspirationImages", maxCount: 5 },
+    { name: "existingOfficePhotos", maxCount: 5 },
+  ]);
+
+  app.post("/api/planning-requests", (req, res, next) => {
+    planningUpload(req, res, (err) => {
+      if (err instanceof multer.MulterError) {
+        return res.status(400).json({ error: "File upload error: " + err.message });
+      } else if (err) {
+        return res.status(400).json({ error: err.message });
+      }
+      next();
+    });
+  }, async (req, res) => {
+    try {
+      const body = req.body;
+      if (!body.name || !body.email || !body.phone) {
+        return res.status(400).json({ error: "Name, email, and phone are required." });
+      }
+
+      // Collect uploaded files metadata
+      const files = req.files as Record<string, Express.Multer.File[]> | undefined;
+      const uploadedFiles: { field: string; originalName: string; filename: string; url: string; size: number }[] = [];
+
+      if (files) {
+        for (const [field, fileArr] of Object.entries(files)) {
+          for (const file of fileArr) {
+            uploadedFiles.push({
+              field,
+              originalName: file.originalname,
+              filename: file.filename,
+              url: `/uploads/planning-requests/${file.filename}`,
+              size: file.size,
+            });
+          }
+        }
+      }
+
+      // Generate AI space planning recommendation
+      let aiSummary = "";
+      let aiRecommendations = "";
+
+      try {
+        const prompt = buildSpacePlanningPrompt({
+          name: body.name,
+          company: body.company || "",
+          city: body.city,
+          projectType: body.projectType,
+          squareMetres: body.squareMetres,
+          staffCount: body.staffCount,
+          meetingRooms: body.meetingRooms,
+          receptionRequired: body.receptionRequired === "true" || body.receptionRequired === true,
+          breakoutRequired: body.breakoutRequired === "true" || body.breakoutRequired === true,
+          executiveOfficeRequired: body.executiveOfficeRequired === "true" || body.executiveOfficeRequired === true,
+          budgetRange: body.budgetRange,
+          stylePreference: body.stylePreference,
+          specialRequirements: body.specialRequirements,
+        });
+
+        const completion = await openai.chat.completions.create({
+          model: "gpt-5-mini",
+          messages: [{ role: "user", content: prompt }],
+        } as any);
+
+        const rawContent = completion.choices[0]?.message?.content || "";
+        const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          aiSummary = parsed.clientBrief || "";
+          aiRecommendations = JSON.stringify(parsed, null, 2);
+        }
+      } catch (aiErr) {
+        console.error("[AI] Space planning generation failed:", aiErr);
+        aiSummary = "AI recommendation could not be generated — please review manually.";
+      }
+
+      const planningRequest = await storage.createPlanningRequest({
+        name: body.name,
+        company: body.company || "",
+        email: body.email,
+        phone: body.phone,
+        city: body.city,
+        projectType: body.projectType,
+        squareMetres: body.squareMetres,
+        staffCount: body.staffCount,
+        meetingRooms: body.meetingRooms,
+        receptionRequired: body.receptionRequired === "true" || body.receptionRequired === true,
+        breakoutRequired: body.breakoutRequired === "true" || body.breakoutRequired === true,
+        executiveOfficeRequired: body.executiveOfficeRequired === "true" || body.executiveOfficeRequired === true,
+        budgetRange: body.budgetRange,
+        stylePreference: body.stylePreference,
+        specialRequirements: body.specialRequirements,
+        uploadedFilesJson: JSON.stringify(uploadedFiles),
+        aiSummary,
+        aiRecommendations,
+        source: "upload-floor-plan",
+      });
+
+      // Non-blocking email notification
+      sendPlanningRequestNotification({
+        name: body.name,
+        company: body.company || "",
+        email: body.email,
+        phone: body.phone,
+        city: body.city,
+        projectType: body.projectType,
+        squareMetres: body.squareMetres,
+        staffCount: body.staffCount,
+        budgetRange: body.budgetRange,
+        stylePreference: body.stylePreference,
+        specialRequirements: body.specialRequirements,
+        fileCount: uploadedFiles.length,
+      }).catch((err) => console.error("[email] Planning request notification failed:", err));
+
+      res.json({
+        success: true,
+        id: planningRequest.id,
+        aiSummary,
+        aiRecommendations: planningRequest.aiRecommendations
+          ? (() => { try { return JSON.parse(planningRequest.aiRecommendations!); } catch { return null; } })()
+          : null,
+      });
+    } catch (error) {
+      console.error("Planning request error:", error);
+      res.status(500).json({ error: "Failed to process planning request. Please try again." });
+    }
+  });
+
+  app.get("/api/admin/planning-requests", async (req, res) => {
+    try {
+      const requests = await storage.getPlanningRequests();
+      res.json(requests);
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
+  app.get("/api/admin/planning-requests/:id", async (req, res) => {
+    try {
+      const request = await storage.getPlanningRequest(req.params.id);
+      if (!request) return res.status(404).json({ error: "Not found" });
+      res.json(request);
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
+  app.patch("/api/admin/planning-requests/:id/status", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const validStatuses = ["New", "In Review", "Quoted", "Converted", "Archived"];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ error: "Invalid status" });
+      }
+      const updated = await storage.updatePlanningRequestStatus(id, status);
+      if (!updated) return res.status(404).json({ error: "Not found" });
+      res.json({ success: true, request: updated });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
+  app.patch("/api/admin/planning-requests/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { adminNotes, status } = req.body;
+      const updated = await storage.updatePlanningRequest(id, { adminNotes, status });
+      if (!updated) return res.status(404).json({ error: "Not found" });
+      res.json({ success: true, request: updated });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
+  app.post("/api/admin/planning-requests/:id/revise", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const existing = await storage.getPlanningRequest(id);
+      if (!existing) return res.status(404).json({ error: "Not found" });
+
+      const { adminNotes } = req.body;
+
+      const prompt = buildSpacePlanningPrompt({
+        name: existing.name,
+        company: existing.company || "",
+        city: existing.city || undefined,
+        projectType: existing.projectType || undefined,
+        squareMetres: existing.squareMetres || undefined,
+        staffCount: existing.staffCount || undefined,
+        meetingRooms: existing.meetingRooms || undefined,
+        receptionRequired: existing.receptionRequired || false,
+        breakoutRequired: existing.breakoutRequired || false,
+        executiveOfficeRequired: existing.executiveOfficeRequired || false,
+        budgetRange: existing.budgetRange || undefined,
+        stylePreference: existing.stylePreference || undefined,
+        specialRequirements: existing.specialRequirements || undefined,
+        adminNotes: adminNotes || existing.adminNotes || undefined,
+      });
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-5-mini",
+        messages: [{ role: "user", content: prompt }],
+      } as any);
+
+      const rawContent = completion.choices[0]?.message?.content || "";
+      let aiSummary = existing.aiSummary || "";
+      let aiRecommendations = existing.aiRecommendations || "";
+
+      const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        aiSummary = parsed.clientBrief || aiSummary;
+        aiRecommendations = JSON.stringify(parsed, null, 2);
+      }
+
+      const updated = await storage.updatePlanningRequest(id, {
+        aiSummary,
+        aiRecommendations,
+        adminNotes: adminNotes || existing.adminNotes || undefined,
+      });
+
+      res.json({
+        success: true,
+        request: updated,
+        aiRecommendations: (() => { try { return JSON.parse(aiRecommendations); } catch { return null; } })(),
+      });
+    } catch (error) {
+      console.error("Revise planning request error:", error);
+      res.status(500).json({ error: "Failed to generate revised plan. Please try again." });
+    }
+  });
+
+  app.delete("/api/admin/planning-requests/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deletePlanningRequest(id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
   // ─── Supplier Quotes ───────────────────────────────────────────────────────
 
   app.get("/api/admin/supplier-quotes", async (req, res) => {
@@ -501,7 +762,6 @@ ${signals}`;
         leadTime, quoteDate, projectReference, status, notes,
       });
 
-      // Send email notification (non-blocking)
       sendSupplierQuoteNotification({
         supplierName, supplierPhone, supplierEmail, productName, sku,
         quantity: Number(quantity) || 1, colourFinish, unitPrice, freightCost,

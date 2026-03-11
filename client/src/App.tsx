@@ -20,6 +20,8 @@ import CaseStudies from "@/pages/CaseStudies";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminLeads from "@/pages/AdminLeads";
 import AdminSupplierQuotes from "@/pages/AdminSupplierQuotes";
+import AdminPlanningRequests from "@/pages/AdminPlanningRequests";
+import UploadFloorPlan from "@/pages/UploadFloorPlan";
 import Testimonials from "@/pages/Testimonials";
 import Blog from "@/pages/Blog";
 import BlogPost from "@/pages/BlogPost";
@@ -37,6 +39,7 @@ function Router() {
       <Route path="/quote-builder" component={QuoteBuilder} />
       <Route path="/finance-your-workspace" component={FinanceWorkspace} />
       <Route path="/case-studies" component={CaseStudies} />
+      <Route path="/upload-your-floor-plan" component={UploadFloorPlan} />
       <Route path="/thank-you-layout-plan" component={ThankYouLayoutPlan} />
       <Route path="/thank-you-quote" component={ThankYouQuote} />
       <Route path="/thank-you-strategy" component={ThankYouStrategy} />
@@ -51,7 +54,9 @@ function Router() {
       <Route path="/admin/marketing" component={Marketing} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/leads" component={AdminLeads} />
+      <Route path="/admin/lead-intelligence" component={AdminLeads} />
       <Route path="/admin/supplier-quotes" component={AdminSupplierQuotes} />
+      <Route path="/admin/planning-requests" component={AdminPlanningRequests} />
       <Route component={NotFound} />
     </Switch>
   );

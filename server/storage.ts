@@ -1,8 +1,8 @@
 import { eq, desc } from "drizzle-orm";
 import { db } from "./db";
 import {
-  users, leads, prospectedLeads, supplierQuotes, referrals,
-  type User, type InsertUser, type Lead, type InsertLead,
+  users, leads, prospectedLeads, supplierQuotes, referrals, planningRequests,
+  type User, type InsertUser, type Lead, type InsertLead, type PlanningRequest,
 } from "@shared/schema";
 
 export interface ProspectedLead {
@@ -21,6 +21,8 @@ export interface ProspectedLead {
   reasoning: string;
   rawInput: string;
   status: "New" | "Contacted" | "Responded" | "Qualified" | "Closed";
+  sourceType: string | null;
+  sourceUrl: string | null;
   createdAt: Date;
 }
 
@@ -87,6 +89,28 @@ export interface InsertReferral {
   notes?: string;
 }
 
+export interface InsertPlanningRequest {
+  name: string;
+  company: string;
+  email: string;
+  phone: string;
+  city?: string;
+  projectType?: string;
+  squareMetres?: string;
+  staffCount?: string;
+  meetingRooms?: string;
+  receptionRequired?: boolean;
+  breakoutRequired?: boolean;
+  executiveOfficeRequired?: boolean;
+  budgetRange?: string;
+  stylePreference?: string;
+  specialRequirements?: string;
+  uploadedFilesJson?: string;
+  aiSummary?: string;
+  aiRecommendations?: string;
+  source?: string;
+}
+
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
@@ -106,6 +130,12 @@ export interface IStorage {
   getReferrals(): Promise<Referral[]>;
   updateReferralStatus(id: string, status: Referral["status"]): Promise<Referral | undefined>;
   deleteReferral(id: string): Promise<void>;
+  createPlanningRequest(data: InsertPlanningRequest): Promise<PlanningRequest>;
+  getPlanningRequests(): Promise<PlanningRequest[]>;
+  getPlanningRequest(id: string): Promise<PlanningRequest | undefined>;
+  updatePlanningRequestStatus(id: string, status: string): Promise<PlanningRequest | undefined>;
+  updatePlanningRequest(id: string, data: Partial<InsertPlanningRequest & { status?: string; adminNotes?: string }>): Promise<PlanningRequest | undefined>;
+  deletePlanningRequest(id: string): Promise<void>;
 }
 
 function rowToProspectedLead(row: typeof prospectedLeads.$inferSelect): ProspectedLead {
@@ -125,6 +155,8 @@ function rowToProspectedLead(row: typeof prospectedLeads.$inferSelect): Prospect
     reasoning: row.reasoning,
     rawInput: row.rawInput,
     status: row.status as ProspectedLead["status"],
+    sourceType: row.sourceType ?? null,
+    sourceUrl: row.sourceUrl ?? null,
     createdAt: row.createdAt ?? new Date(),
   };
 }
@@ -212,6 +244,8 @@ export class DrizzleStorage implements IStorage {
       reasoning: data.reasoning,
       rawInput: data.rawInput,
       status: "New",
+      sourceType: data.sourceType ?? "manual",
+      sourceUrl: data.sourceUrl ?? null,
     }).returning();
     return rowToProspectedLead(row);
   }
@@ -317,6 +351,63 @@ export class DrizzleStorage implements IStorage {
 
   async deleteReferral(id: string): Promise<void> {
     await db.delete(referrals).where(eq(referrals.id, id));
+  }
+
+  async createPlanningRequest(data: InsertPlanningRequest): Promise<PlanningRequest> {
+    const [row] = await db.insert(planningRequests).values({
+      name: data.name,
+      company: data.company ?? "",
+      email: data.email,
+      phone: data.phone,
+      city: data.city,
+      projectType: data.projectType,
+      squareMetres: data.squareMetres,
+      staffCount: data.staffCount,
+      meetingRooms: data.meetingRooms,
+      receptionRequired: data.receptionRequired ?? false,
+      breakoutRequired: data.breakoutRequired ?? false,
+      executiveOfficeRequired: data.executiveOfficeRequired ?? false,
+      budgetRange: data.budgetRange,
+      stylePreference: data.stylePreference,
+      specialRequirements: data.specialRequirements,
+      uploadedFilesJson: data.uploadedFilesJson ?? "[]",
+      aiSummary: data.aiSummary,
+      aiRecommendations: data.aiRecommendations,
+      status: "New",
+      source: data.source ?? "upload-floor-plan",
+    }).returning();
+    return row;
+  }
+
+  async getPlanningRequests(): Promise<PlanningRequest[]> {
+    return db.select().from(planningRequests).orderBy(desc(planningRequests.createdAt));
+  }
+
+  async getPlanningRequest(id: string): Promise<PlanningRequest | undefined> {
+    const [row] = await db.select().from(planningRequests).where(eq(planningRequests.id, id));
+    return row;
+  }
+
+  async updatePlanningRequestStatus(id: string, status: string): Promise<PlanningRequest | undefined> {
+    const [row] = await db
+      .update(planningRequests)
+      .set({ status })
+      .where(eq(planningRequests.id, id))
+      .returning();
+    return row;
+  }
+
+  async updatePlanningRequest(id: string, data: Partial<InsertPlanningRequest & { status?: string; adminNotes?: string }>): Promise<PlanningRequest | undefined> {
+    const [row] = await db
+      .update(planningRequests)
+      .set(data as any)
+      .where(eq(planningRequests.id, id))
+      .returning();
+    return row;
+  }
+
+  async deletePlanningRequest(id: string): Promise<void> {
+    await db.delete(planningRequests).where(eq(planningRequests.id, id));
   }
 }
 

@@ -1,0 +1,384 @@
+You are a senior full-stack engineer, AI product architect, and conversion-focused B2B SaaS builder working inside this existing Replit project for The Corporate Desk.
+
+You are upgrading the live platform to add two major systems:
+
+1. AI OFFICE FIT-OUT UPLOAD + SPACE PLANNING ADVISOR
+2. AI LEAD INTELLIGENCE ENGINE FOR AUSTRALIAN OFFICE FIT-OUT LEADS
+
+You must implement these features into the existing React + Express + PostgreSQL app without breaking current functionality.
+
+CURRENT APP CONTEXT
+The app already has:
+- public website pages
+- chatbot
+- quote builder
+- finance calculator
+- CRM/admin dashboard
+- PostgreSQL persistence
+- leads, prospected_leads, referrals, supplier_quotes tables
+- marketing generator
+- admin dashboard and lead management
+
+PRIMARY GOAL
+Turn this platform into a real office fit-out operating system that:
+- lets prospects upload office plans, layouts, dimensions, photos, and inspiration
+- lets AI suggest office fit-out concepts using The Corporate Desk products
+- stores submissions and planning requests in CRM
+- automatically finds likely office fit-out leads in Australia and adds them into the lead intelligence dashboard
+
+==================================================
+PART 1 — AI OFFICE FIT-OUT UPLOAD + SPACE PLANNING
+==================================================
+
+BUILD A NEW PUBLIC PAGE:
+- /upload-your-floor-plan
+
+PURPOSE:
+Allow users to upload office planning inputs and receive either:
+1. an AI-generated suggested layout concept
+2. AI-selected product recommendations from The Corporate Desk catalogue
+3. a CTA to speak with a specialist / request quote / request full layout plan
+
+USER INPUTS REQUIRED:
+Build a polished multi-step form that allows:
+- name
+- company
+- email
+- phone
+- city / location
+- project type:
+  - new office
+  - expansion
+  - relocation
+  - refurbishment
+  - furniture refresh
+- office size:
+  - square metres
+  - staff count
+  - number of meeting rooms needed
+  - reception needed? yes/no
+  - breakout area needed? yes/no
+  - executive office needed? yes/no
+- budget range
+- style preference:
+  - luxury executive
+  - modern open plan
+  - minimal
+  - corporate prestige
+  - warm timber / premium
+  - mixed
+- upload fields:
+  - floor plan PDF
+  - floor plan image
+  - inspiration images
+  - existing office photos
+  - notes / requirements
+- free text special requirements:
+  - storage
+  - acoustics
+  - visitor seating
+  - boardroom requirements
+  - brand colours
+  - timeline
+
+FILE UPLOAD REQUIREMENTS:
+Support uploads for:
+- PDF
+- PNG
+- JPG
+- JPEG
+- WEBP
+
+Store file metadata and uploaded file paths / URLs safely.
+Do not break deployment.
+Use the existing backend and persistence patterns.
+
+AI BEHAVIOUR:
+After submission, AI should generate a structured “preliminary office fit-out recommendation” using the input data.
+
+The AI output should include:
+- summary of client brief
+- likely office type
+- recommended workspace zones
+- suggested furniture package
+- suggested room allocation
+- recommended style direction
+- recommended next step
+
+AI SHOULD RECOMMEND TCD PRODUCTS
+Use The Corporate Desk’s product categories already in the site:
+- executive desks
+- manager desks
+- boardroom tables
+- reception desks
+- office seating
+- workstations
+- storage
+- office pods
+- breakout seating
+- complete fitout package
+
+If exact product mapping already exists in the code, use it.
+If not, create a lightweight internal product recommendation mapping layer based on:
+- style preference
+- project type
+- room needs
+- budget range
+
+OUTPUT FORMAT:
+On successful submission:
+- save the request in database
+- show a results page
+- email the submission to the business
+- store the AI recommendation in database
+- create an admin-visible planning request entry
+
+CREATE A NEW DATABASE TABLE:
+- planning_requests
+
+Suggested columns:
+- id
+- created_at
+- name
+- company
+- email
+- phone
+- city
+- project_type
+- square_metres
+- staff_count
+- meeting_rooms
+- reception_required
+- breakout_required
+- executive_office_required
+- budget_range
+- style_preference
+- special_requirements
+- uploaded_files_json
+- ai_summary
+- ai_recommendations
+- status
+- source
+
+ADMIN SIDE:
+Create a new admin page:
+- /admin/planning-requests
+
+This page should show:
+- all uploaded planning requests
+- company/contact
+- project type
+- style
+- budget
+- uploaded files
+- AI recommendation summary
+- status selector
+- notes field
+- delete / archive if existing admin conventions support it
+
+Also add a dashboard shortcut to this page.
+
+OPTIONAL BUT HIGH VALUE:
+Add a “Generate Revised Plan” button in admin that reruns AI using admin notes.
+
+==================================================
+PART 2 — AI LEAD INTELLIGENCE ENGINE
+==================================================
+
+BUILD / COMPLETE THE MISSING LEAD-FINDING SYSTEM.
+
+GOAL:
+Automatically identify Australian businesses likely to need office furniture / office fit-outs and save them into prospected_leads.
+
+TARGET SIGNALS:
+Create a lead ingestion system that can capture and normalise signals from:
+- company hiring / office manager / workplace / fitout related job posts
+- company expansion announcements
+- funding announcements
+- office relocation mentions
+- new office opening announcements
+- business growth signals
+- coworking / tenancy / workspace growth news
+- commercial leasing / office expansion related public signals
+
+IMPORTANT:
+If live scraping or external APIs are too complex to complete fully in one pass, implement the system in stages:
+Stage 1:
+- create the full ingestion architecture
+- create admin UI
+- create parsers / ingestion adapters
+- create manual import / pasted-signal analysis workflow
+- create a scheduler-safe foundation
+Stage 2:
+- connect public sources / feeds that are feasible in Replit
+- process and save leads automatically
+
+MINIMUM REQUIRED IMPLEMENTATION:
+Even if full autonomous scraping is not possible right now, you MUST implement:
+1. a working lead intelligence admin page
+2. a pasted-source / URL / text ingestion workflow
+3. AI analysis of that source
+4. saving structured prospects into prospected_leads
+5. scoring and priority assignment
+6. outreach generation
+
+BUILD / ADMIN PAGE:
+- /admin/lead-intelligence
+
+FEATURES REQUIRED:
+A left-side ingestion panel where admin can input:
+- company URL
+- job ad URL
+- announcement URL
+- pasted article text
+- pasted LinkedIn post text
+- pasted hiring page text
+- company name + notes
+
+Then add button:
+- “Analyse Opportunity”
+
+AI should extract:
+- company name
+- industry
+- location
+- likely office need
+- estimated team size if inferable
+- likely fit-out value range
+- opportunity score 1–10
+- priority: low / medium / high
+- detected signals
+- suggested outreach angle
+- personalised cold email / LinkedIn outreach message
+- recommended next action
+
+SAVE RESULTS INTO:
+- prospected_leads table
+
+If the existing table is not sufficient, extend it with fields like:
+- source_type
+- source_url
+- source_text
+- detected_signals_json
+- opportunity_score
+- estimated_project_value
+- outreach_message
+- ai_reasoning
+- status
+- assigned_to
+- created_at
+- updated_at
+
+AUTOMATION FOUNDATION:
+In server code, create a clean service structure for future automation:
+- lead intelligence service
+- source adapters
+- analysis pipeline
+- dedupe logic
+- scoring logic
+
+DUPLICATE PREVENTION:
+Do not create duplicate prospects for same company/source combination.
+Use dedupe by:
+- company name
+- source URL
+- normalized domain
+
+SCHEDULER:
+If feasible, add a lightweight scheduled polling structure for supported sources.
+If not feasible in current environment, create:
+- a manual “Run signal scan” endpoint
+- clean TODO structure
+- service architecture ready for later cron activation
+
+==================================================
+PART 3 — UI / UX / CONVERSION
+==================================================
+
+Keep the design premium and consistent with current site styling:
+- dark luxury background
+- gold accents
+- premium typography
+- mobile-friendly
+- no cheap SaaS look
+
+For the floor plan upload page:
+- make it high-trust
+- use clear messaging
+- explain that AI gives a preliminary concept and product direction
+- explain a specialist can refine it into a full fit-out proposal
+
+Suggested messaging:
+“Upload Your Floor Plan or Office Brief”
+“Get an AI-Assisted Preliminary Workspace Recommendation Using The Corporate Desk Product Range”
+
+For results page:
+- show a polished recommendation summary
+- clear CTA:
+  - Request Full Quote
+  - Book Strategy Call
+  - Speak to a Specialist
+
+==================================================
+PART 4 — FILES / BACKEND / DATABASE
+==================================================
+
+You must:
+- inspect current code before modifying
+- use existing patterns wherever possible
+- not break current routes
+- not break current admin auth
+- not break current chatbot
+- not break quote builder
+- not break production deployment
+
+Implement properly across:
+- server/routes.ts
+- server/storage.ts
+- server/db.ts
+- shared/schema.ts
+- relevant client pages
+- relevant admin pages
+- upload handling
+- AI analysis service
+- lead intelligence service
+
+If database schema changes are needed:
+- add them cleanly
+- keep migrations coherent
+- update Drizzle schema properly
+
+==================================================
+PART 5 — DELIVERABLES
+==================================================
+
+When complete, provide a completion report with:
+1. files changed
+2. new routes added
+3. new database tables / columns
+4. how file uploads are handled
+5. how AI planning recommendations work
+6. how lead intelligence ingestion works
+7. what is fully working now
+8. what is staged for future enhancement
+9. exact URLs for:
+   - /upload-your-floor-plan
+   - /admin/planning-requests
+   - /admin/lead-intelligence
+
+IMPORTANT RULES
+- do not stop at planning mode
+- do not only describe what to do
+- actually implement code
+- preserve current live site behaviour
+- complete as much of the functionality as possible in this pass
+- if a source integration cannot be fully automated, still build the architecture and working manual AI-assisted ingestion workflow
+
+SUCCESS CRITERIA
+At the end of this task:
+- visitors can upload floor plans / office briefs
+- AI recommends fit-out direction and TCD products
+- submissions are saved in CRM and visible in admin
+- admin can analyse pasted lead signals into structured prospects
+- prospected_leads is actively usable as a lead intelligence engine
+- system remains production-safe

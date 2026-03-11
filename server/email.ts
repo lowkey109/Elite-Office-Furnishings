@@ -148,6 +148,50 @@ export async function sendSupplierQuoteNotification(quote: {
   });
 }
 
+export async function sendPlanningRequestNotification(req: {
+  name: string;
+  company: string;
+  email: string;
+  phone: string;
+  city?: string | null;
+  projectType?: string | null;
+  squareMetres?: string | null;
+  staffCount?: string | null;
+  budgetRange?: string | null;
+  stylePreference?: string | null;
+  specialRequirements?: string | null;
+  fileCount: number;
+}): Promise<void> {
+  const transporter = createTransporter();
+  if (!transporter) {
+    console.log("[email] SMTP not configured — skipping planning request notification");
+    return;
+  }
+
+  const body =
+    row("Name", req.name) +
+    row("Company", req.company) +
+    row("Email", req.email) +
+    row("Phone", req.phone) +
+    row("City", req.city) +
+    row("Project Type", req.projectType) +
+    row("Office Size (sqm)", req.squareMetres) +
+    row("Staff Count", req.staffCount) +
+    row("Budget Range", req.budgetRange) +
+    row("Style Preference", req.stylePreference) +
+    row("Special Requirements", req.specialRequirements) +
+    row("Files Uploaded", req.fileCount > 0 ? `${req.fileCount} file(s)` : "None") +
+    row("Admin Link", "thecorporatedesk.com.au/admin/planning-requests") +
+    row("Received", new Date().toLocaleString("en-AU", { timeZone: "Australia/Brisbane" }) + " AEST");
+
+  await transporter.sendMail({
+    from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
+    to: TCD_RECIPIENTS,
+    subject: `Floor Plan Request: ${req.name} — ${req.company || req.city || "New Enquiry"}`,
+    html: baseTemplate("New Floor Plan / Space Planning Request", body),
+  });
+}
+
 export function isEmailConfigured(): boolean {
   return !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
 }
