@@ -19,6 +19,7 @@ import FinanceWorkspace from "@/pages/FinanceWorkspace";
 import CaseStudies from "@/pages/CaseStudies";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminLeads from "@/pages/AdminLeads";
+import Testimonials from "@/pages/Testimonials";
 
 function Router() {
   return (
@@ -37,6 +38,7 @@ function Router() {
       <Route path="/thank-you-quote" component={ThankYouQuote} />
       <Route path="/thank-you-strategy" component={ThankYouStrategy} />
       <Route path="/contact" component={Contact} />
+      <Route path="/testimonials" component={Testimonials} />
       <Route path="/admin/marketing" component={Marketing} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/leads" component={AdminLeads} />

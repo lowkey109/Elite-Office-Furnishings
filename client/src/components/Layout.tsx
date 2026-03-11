@@ -10,6 +10,7 @@ const navLinks = [
   { label: "Products", href: "/products" },
   { label: "Workplace Solutions", href: "/workplace-solutions" },
   { label: "Case Studies", href: "/case-studies" },
+  { label: "Testimonials", href: "/testimonials" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
@@ -19,6 +20,7 @@ const mobileNavLinks = [
   { label: "Products", href: "/products" },
   { label: "Workplace Solutions", href: "/workplace-solutions" },
   { label: "Case Studies", href: "/case-studies" },
+  { label: "Testimonials", href: "/testimonials" },
   { label: "Quote Builder", href: "/quote-builder" },
   { label: "Finance Your Workspace", href: "/finance-your-workspace" },
   { label: "About", href: "/about" },
@@ -257,6 +259,7 @@ function Footer() {
                 { label: "Finance Your Workspace", href: "/finance-your-workspace" },
                 { label: "Strategy Call", href: "/workplace-strategy" },
                 { label: "Case Studies", href: "/case-studies" },
+                { label: "Testimonials", href: "/testimonials" },
                 { label: "About Us", href: "/about" },
                 { label: "Contact", href: "/contact" },
               ].map(item => (
