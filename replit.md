@@ -3,6 +3,33 @@
 ## Overview
 A luxury, billionaire-aesthetic office furniture website for The Corporate Desk (thecorporatedesk.com.au). Full commercial lead generation funnel, AI chatbot (14-role business OS), interactive quote builder, finance calculator, case studies, marketing hub, admin dashboard, and AI-powered lead intelligence prospecting engine.
 
+## Deployment
+- **Target**: `app.thecorporatedesk.com.au` (Replit autoscale deployment)
+- **Build**: `npm run build` → `dist/index.cjs`
+- **Run**: `node ./dist/index.cjs`
+- **Trust proxy**: enabled (`app.set("trust proxy", 1)`)
+- **Health check**: `GET /api/health` returns `{status:"ok", timestamp, email:bool}`
+- **Security headers**: X-Content-Type-Options, X-Frame-Options, Referrer-Policy (all responses)
+- **Static assets**: `/assets/*` cached immutably (1yr); `index.html` never cached
+
+## Environment Variables (set in Replit Secrets for deployment)
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `SMTP_HOST` | SMTP mail server host | Optional (email disabled if absent) |
+| `SMTP_PORT` | SMTP port (default 587) | Optional |
+| `SMTP_USER` | SMTP username/email address | Optional |
+| `SMTP_PASS` | SMTP password | Optional |
+| `EMAIL_FROM` | From address (default: SMTP_USER) | Optional |
+| `AI_INTEGRATIONS_OPENAI_API_KEY` | Set by Replit AI Integration | Auto-configured |
+| `AI_INTEGRATIONS_OPENAI_BASE_URL` | Set by Replit AI Integration | Auto-configured |
+| `SESSION_SECRET` | Server session secret | Set |
+
+## Email Notifications
+- Module: `server/email.ts` using nodemailer
+- Recipients: `service@thecorporatedesk.com.au` + `thecorporatedeskservice@gmail.com`
+- Triggers: new lead form submission (all 5 form types), new supplier quote entry
+- Gracefully skips (no errors) if SMTP vars not configured
+
 ## Design System
 - **Theme**: Dark luxury gold — near-black backgrounds, rich gold accents (#C9A84C), cream white text
 - **Typography**: Playfair Display (headings/serif), Inter (body/sans)

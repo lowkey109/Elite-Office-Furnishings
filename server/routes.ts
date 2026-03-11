@@ -5,6 +5,7 @@ import { insertLeadSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import OpenAI from "openai";
 import { registerMarketingRoutes } from "./marketing";
+import { sendLeadNotification, sendSupplierQuoteNotification, isEmailConfigured } from "./email";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -235,10 +236,36 @@ export async function registerRoutes(
 
   registerMarketingRoutes(app);
 
+  // Health check — required for autoscale deployment
+  app.get("/api/health", (_req, res) => {
+    res.json({
+      status: "ok",
+      timestamp: new Date().toISOString(),
+      email: isEmailConfigured(),
+    });
+  });
+
   app.post("/api/leads", async (req, res) => {
     try {
       const data = insertLeadSchema.parse(req.body);
       const lead = await storage.createLead(data);
+
+      // Send email notification (non-blocking — don't fail the request if email fails)
+      sendLeadNotification({
+        name: lead.name,
+        company: lead.company ?? "",
+        email: lead.email,
+        phone: lead.phone,
+        officeLocation: lead.officeLocation,
+        officeSize: lead.officeSize,
+        staffCount: lead.staffCount,
+        budget: lead.budget,
+        timeline: lead.timeline,
+        moveDate: lead.moveDate,
+        message: lead.message,
+        type: lead.type,
+      }).catch((err) => console.error("[email] Lead notification failed:", err));
+
       res.json({ success: true, id: lead.id });
     } catch (error) {
       if (error instanceof ZodError) {
@@ -276,8 +303,9 @@ export async function registerRoutes(
 
       if (useStream) {
         res.setHeader("Content-Type", "text/event-stream");
-        res.setHeader("Cache-Control", "no-cache");
+        res.setHeader("Cache-Control", "no-cache, no-transform");
         res.setHeader("Connection", "keep-alive");
+        res.setHeader("X-Accel-Buffering", "no");
         res.setHeader("Access-Control-Allow-Origin", "*");
 
         const stream = await openai.chat.completions.create({
@@ -472,6 +500,14 @@ ${signals}`;
         quantity: Number(quantity) || 1, colourFinish, unitPrice, freightCost,
         leadTime, quoteDate, projectReference, status, notes,
       });
+
+      // Send email notification (non-blocking)
+      sendSupplierQuoteNotification({
+        supplierName, supplierPhone, supplierEmail, productName, sku,
+        quantity: Number(quantity) || 1, colourFinish, unitPrice, freightCost,
+        leadTime, projectReference, status: status || "Requested", notes,
+      }).catch((err) => console.error("[email] Supplier quote notification failed:", err));
+
       res.json({ success: true, quote });
     } catch (error) {
       res.status(500).json({ success: false, message: "Internal server error" });

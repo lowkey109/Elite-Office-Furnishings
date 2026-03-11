@@ -6,11 +6,23 @@ import { createServer } from "http";
 const app = express();
 const httpServer = createServer(app);
 
+// Trust Replit's reverse proxy — required for HTTPS detection, correct IP, and secure cookies
+app.set("trust proxy", 1);
+
 declare module "http" {
   interface IncomingMessage {
     rawBody: unknown;
   }
 }
+
+// Security headers for all responses
+app.use((_req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.removeHeader("X-Powered-By");
+  next();
+});
 
 app.use(
   express.json({
