@@ -1,0 +1,268 @@
+You are upgrading the internal AI intelligence system for The Corporate Desk.
+
+You are in SAFE INTELLIGENCE EXPANSION MODE.
+
+CRITICAL RULES
+
+Do NOT rebuild the existing system.
+Do NOT break:
+- the AI office planner
+- product catalog
+- finance calculator
+- 3D viewer
+- admin dashboard
+- chatbot
+- lead capture
+- pricing system
+- website pages
+
+Only extend the AI intelligence layer and knowledge system safely.
+
+------------------------------------------------
+
+PRIMARY OBJECTIVE
+
+Transform the internal AI into a CEO-level business operator that understands:
+
+• commercial office furniture
+• workplace design
+• office fit-outs
+• construction workflows
+• B2B business psychology
+• procurement behaviour
+• sales strategy
+• supplier strategy
+• marketing strategy
+• growth strategy
+
+The AI should behave like a senior executive advisor helping run The Corporate Desk.
+
+------------------------------------------------
+
+STEP 1 — CREATE BUSINESS KNOWLEDGE SYSTEM
+
+Create a folder:
+
+/ai/knowledge
+
+Inside it create structured business knowledge files:
+
+/ai/knowledge/companyProfile.json
+/ai/knowledge/businessRules.json
+/ai/knowledge/pricingStrategy.json
+/ai/knowledge/supplierStrategy.json
+/ai/knowledge/clientProfiles.json
+/ai/knowledge/serviceAreas.json
+/ai/knowledge/offerStructure.json
+/ai/knowledge/projectQualificationRules.json
+/ai/knowledge/brandVoice.json
+
+These files will hold structured information about how the business operates.
+
+------------------------------------------------
+
+STEP 2 — CREATE INDUSTRY KNOWLEDGE SYSTEM
+
+Create:
+
+/ai/knowledge/industry
+
+Add files:
+
+/ai/knowledge/industry/officeFurnitureIndustry.json
+/ai/knowledge/industry/workplaceDesign.json
+/ai/knowledge/industry/officeFitoutProcess.json
+/ai/knowledge/industry/constructionWorkflow.json
+/ai/knowledge/industry/commercialFurnitureSales.json
+
+These should contain structured explanations about:
+
+• office furniture categories
+• workplace design strategies
+• fit-out project stages
+• installation logistics
+• construction coordination
+• furniture procurement
+• commercial sales practices
+
+------------------------------------------------
+
+STEP 3 — CREATE BUSINESS PSYCHOLOGY SYSTEM
+
+Create:
+
+/ai/knowledge/psychology
+
+Add files:
+
+/ai/knowledge/psychology/b2bBuyingPsychology.json
+/ai/knowledge/psychology/constructionDecisionPsychology.json
+/ai/knowledge/psychology/procurementBehaviour.json
+/ai/knowledge/psychology/stakeholderDynamics.json
+/ai/knowledge/psychology/negotiationPsychology.json
+/ai/knowledge/psychology/valuePerception.json
+
+These files must explain how companies actually make decisions.
+
+Include knowledge about:
+
+• buyer trust signals
+• risk avoidance
+• procurement behaviour
+• corporate approval chains
+• stakeholder influence
+• negotiation patterns
+• price anchoring
+• value framing
+• authority perception
+
+------------------------------------------------
+
+STEP 4 — CEO STRATEGIC THINKING MODEL
+
+Extend the admin AI reasoning layer so it evaluates decisions like a CEO.
+
+The AI must think about:
+
+• revenue growth
+• margin protection
+• lead quality
+• pipeline value
+• supplier leverage
+• project size
+• operational capacity
+• market positioning
+• brand credibility
+• partnership opportunities
+
+When evaluating any opportunity the AI should consider:
+
+1 revenue potential  
+2 margin potential  
+3 brand impact  
+4 operational effort  
+5 strategic value  
+
+The AI should avoid low-value work and prioritise high-value opportunities.
+
+------------------------------------------------
+
+STEP 5 — LEAD INTELLIGENCE ENGINE
+
+Add a lead intelligence module that helps identify companies likely to require office furniture or fit-outs.
+
+The system should understand signals such as:
+
+• companies hiring rapidly
+• companies moving offices
+• companies expanding teams
+• companies signing new leases
+• startups raising funding
+• companies opening new offices
+• businesses relocating headquarters
+
+These signals indicate high-value opportunities.
+
+------------------------------------------------
+
+STEP 6 — SALES STRATEGY INTELLIGENCE
+
+Teach the AI to reason about:
+
+• deal qualification
+• upselling opportunities
+• package recommendations
+• finance positioning
+• quote framing
+• urgency creation
+• decision-maker targeting
+
+The AI should help move leads toward:
+
+• strategy calls
+• workspace planning
+• quotes
+• package purchases
+
+------------------------------------------------
+
+STEP 7 — WORKPLACE DESIGN INTELLIGENCE
+
+The AI should understand workspace planning concepts including:
+
+• executive office layouts
+• workstation clusters
+• breakout areas
+• collaboration spaces
+• boardrooms
+• reception design
+• traffic flow
+• acoustic zones
+• productivity optimisation
+
+This knowledge must improve the AI planner results.
+
+------------------------------------------------
+
+STEP 8 — CONNECT KNOWLEDGE SYSTEM
+
+Update the admin AI instruction layer so it can read and use:
+
+/ai/knowledge
+/ai/knowledge/industry
+/ai/knowledge/psychology
+
+The AI must combine:
+
+business logic + industry knowledge + psychology insights
+
+when producing recommendations.
+
+------------------------------------------------
+
+STEP 9 — OUTPUT BEHAVIOUR
+
+When the AI generates internal analysis it should structure outputs like:
+
+Opportunity Summary  
+Recommended Products  
+Workspace Strategy  
+Estimated Project Value  
+Buyer Psychology Notes  
+Commercial Risks  
+CEO Recommendation  
+Next Best Action
+
+------------------------------------------------
+
+STEP 10 — TEST SYSTEM
+
+Before finishing verify:
+
+1 AI planner still works  
+2 admin dashboard still works  
+3 product catalog still works  
+4 finance calculator still works  
+5 chatbot still works  
+6 lead capture still works  
+7 no routes break
+
+------------------------------------------------
+
+FINAL REPORT
+
+Return:
+
+• files created
+• knowledge systems added
+• AI reasoning upgrades
+• examples of improved analysis
+• confirmation that all systems remain functional
+
+IMPORTANT
+
+Do not remain in planning mode.
+
+Create the knowledge structure first, then extend the AI reasoning layer carefully.
+
+Make the smallest safe changes necessary.

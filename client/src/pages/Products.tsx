@@ -341,7 +341,7 @@ export default function Products() {
   const paginated = useMemo(() => filtered.slice(0, page * PAGE_SIZE), [filtered, page]);
   const hasMore = paginated.length < filtered.length;
 
-  const seriesInView = useMemo(() => [...new Set(filtered.map(p => p.series).filter(Boolean))].sort(), [filtered]);
+  const seriesInView = useMemo(() => Array.from(new Set(filtered.map(p => p.series).filter(Boolean))).sort(), [filtered]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
