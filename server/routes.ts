@@ -58,20 +58,50 @@ interface ChatMessage {
 }
 
 // ─── AI space planning prompt builder ────────────────────────────────────────
-const TCD_CATALOGUE_FOR_AI = `SKU | Category | Product Name | Price
-LY-QF-01A | Manager Desks | Luxury Modern Office Manager's Desk – Breeze Series | From $2,890
-LY-MD-8019 | Manager Desks | Modern Manager's Office Desk – Minimalist Design | From $1,990
-LY-ED-B09 | Executive Desks | Modern Office Desk For Executives – Minimalist Design | From $3,490
-LY-AM-01 | Executive Desks | Luxury Executive Office Desk – Aimu Series | From $4,999
-A-522-1 | Executive Desks | Executive Office Desk – Premium (Aimu Series) | $4,999
-LY-MG-06 | Boardroom Tables | Spacious Professional Office Conference Table | From $5,490
-LY-BT-H-05 | Boardroom Tables | Modern Elegant Office Boardroom Table | From $3,990
-LY-RC-01 | Reception Desks | Premium Reception Counter with Feature Wall | POA
-LY-CH-E01 | Office Seating | Ergonomic Executive Task Chair | From $890
-LY-WS-04 | Workstations | Hot Desk Workstation – Open Plan | From $590 pp
-LY-ST-P01 | Storage | Premium Mobile Storage Pedestal | From $490
-LY-OP-S1 | Office Pods | Acoustic Office Pod – Single | From $4,200
-LY-QF-PKG | Executive Desks | Coordinated Total Office Package – Breeze Series | POA`;
+// Load product catalog from JSON and build AI catalogue string
+const CATALOG_PATH = path.join(process.cwd(), "server/data/productCatalog.json");
+
+function loadProductCatalog() {
+  try {
+    return JSON.parse(fs.readFileSync(CATALOG_PATH, "utf8"));
+  } catch (e) {
+    console.error("[Catalog] Failed to load productCatalog.json:", e);
+    return { products: [] };
+  }
+}
+
+function buildCatalogueForAI(): string {
+  try {
+    const catalog = loadProductCatalog();
+    const lines: string[] = [
+      "SKU | Category | Product Name | Dimensions | Supplier",
+      // Legacy products
+      "LY-QF-01A | Manager Desks | Luxury Modern Office Manager's Desk – Breeze Series | Custom | The Corporate Desk",
+      "LY-MD-8019 | Manager Desks | Modern Manager's Office Desk – Minimalist Design | Custom | The Corporate Desk",
+      "LY-ED-B09 | Executive Desks | Modern Office Desk For Executives – Minimalist Design | Custom | The Corporate Desk",
+      "LY-AM-01 | Executive Desks | Luxury Executive Office Desk – Aimu Series | Custom | The Corporate Desk",
+      "LY-MG-06 | Boardroom Tables | Spacious Professional Office Conference Table | Custom | The Corporate Desk",
+      "LY-BT-H-05 | Boardroom Tables | Modern Elegant Office Boardroom Table | Custom | The Corporate Desk",
+      "LY-RC-01 | Reception Desks | Premium Reception Counter with Feature Wall | Custom | The Corporate Desk",
+      "LY-CH-E01 | Office Seating | Ergonomic Executive Task Chair | Custom | The Corporate Desk",
+      "LY-WS-04 | Workstations | Hot Desk Workstation – Open Plan | Custom | The Corporate Desk",
+      "LY-ST-P01 | Storage | Premium Mobile Storage Pedestal | Custom | The Corporate Desk",
+      "LY-OP-S1 | Office Pods | Acoustic Office Pod – Single | Custom | The Corporate Desk",
+    ];
+    // Add Feisenzhuo products
+    for (const p of catalog.products) {
+      lines.push(`${p.sku} | ${p.category} | ${p.product_name} (${p.series} Series) | ${p.dimensions} | ${p.supplier}`);
+    }
+    return lines.join("\n");
+  } catch {
+    return `SKU | Category | Product Name | Dimensions | Supplier
+LY-AM-01 | Executive Desks | Luxury Executive Office Desk – Aimu Series | Custom | The Corporate Desk
+LY-MG-06 | Boardroom Tables | Spacious Professional Office Conference Table | Custom | The Corporate Desk
+LY-WS-04 | Workstations | Hot Desk Workstation – Open Plan | Custom | The Corporate Desk`;
+  }
+}
+
+const TCD_CATALOGUE_FOR_AI = buildCatalogueForAI();
 
 function buildSpacePlanningPrompt(data: {
   name: string;
@@ -209,6 +239,37 @@ export async function registerRoutes(
       timestamp: new Date().toISOString(),
       email: isEmailConfigured(),
     });
+  });
+
+  // Product catalog — supplier products database
+  app.get("/api/products", (_req, res) => {
+    const catalog = loadProductCatalog();
+    res.json(catalog.products);
+  });
+
+  app.get("/api/products/categories", (_req, res) => {
+    const catalog = loadProductCatalog();
+    const categories = [...new Set(catalog.products.map((p: any) => p.category))];
+    const byCategory = categories.reduce((acc: any, cat: any) => {
+      acc[cat] = catalog.products.filter((p: any) => p.category === cat);
+      return acc;
+    }, {});
+    res.json({ categories, byCategory });
+  });
+
+  app.get("/api/products/search", (req, res) => {
+    const catalog = loadProductCatalog();
+    const q = (req.query.q as string || "").toLowerCase();
+    const category = req.query.category as string;
+    let results = catalog.products;
+    if (category) results = results.filter((p: any) => p.category === category);
+    if (q) results = results.filter((p: any) =>
+      p.product_name.toLowerCase().includes(q) ||
+      p.sku.toLowerCase().includes(q) ||
+      (p.series || "").toLowerCase().includes(q) ||
+      (p.materials || "").toLowerCase().includes(q)
+    );
+    res.json(results);
   });
 
   app.post("/api/leads", async (req, res) => {
