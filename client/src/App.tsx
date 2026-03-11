@@ -28,6 +28,7 @@ import Blog from "@/pages/Blog";
 import BlogPost from "@/pages/BlogPost";
 import ProductDetail from "@/pages/ProductDetail";
 import AdminProductReviews from "@/pages/AdminProductReviews";
+import AdminCommandCentre from "@/pages/AdminCommandCentre";
 
 function Router() {
   return (
@@ -63,6 +64,7 @@ function Router() {
       <Route path="/admin/supplier-quotes" component={AdminSupplierQuotes} />
       <Route path="/admin/planning-requests" component={AdminPlanningRequests} />
       <Route path="/admin/product-reviews" component={AdminProductReviews} />
+      <Route path="/admin/command-centre" component={AdminCommandCentre} />
       <Route component={NotFound} />
     </Switch>
   );

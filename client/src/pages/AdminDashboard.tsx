@@ -7,7 +7,7 @@ import {
   Users, TrendingUp, FileText, BarChart3, MessageSquare,
   ChevronRight, Calendar, MapPin, Phone, Mail, Clock,
   Megaphone, ShieldCheck, Eye, ExternalLink, Target, Package, Upload, Star,
-  AlertTriangle, CheckCircle2, XCircle,
+  AlertTriangle, CheckCircle2, XCircle, Zap,
 } from "lucide-react";
 import { validateAdminLogin } from "@/lib/adminAuth";
 
@@ -174,6 +174,14 @@ export default function AdminDashboard() {
             <span className="text-white/50 text-sm font-medium">Admin Dashboard</span>
           </div>
           <div className="flex items-center gap-3">
+            <Button
+              asChild
+              size="sm"
+              className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[40px]"
+              data-testid="button-command-centre"
+            >
+              <Link href="/admin/command-centre"><Zap className="w-4 h-4 mr-1.5" /> Command Centre</Link>
+            </Button>
             <Button
               asChild
               size="sm"
