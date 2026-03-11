@@ -10,6 +10,8 @@ import path from "path";
 import fs from "fs";
 import { registerMarketingRoutes } from "./marketing";
 import { sendLeadNotification, sendSupplierQuoteNotification, sendPlanningRequestNotification, isEmailConfigured } from "./email";
+import { analyseSignals, extractDomain, type SignalInput, type SourceType } from "./services/leadIntelligence";
+import { getAdaptersMeta } from "./adapters/manualAdapter";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -360,104 +362,178 @@ export async function registerRoutes(
 
   // ─── Lead Intelligence (Prospecting) ────────────────────────────────────────
 
-  app.get("/api/admin/prospects", async (req, res) => {
+  app.get("/api/admin/prospects", async (_req, res) => {
     try {
       const leads = await storage.getProspectedLeads();
       res.json(leads);
-    } catch (error) {
+    } catch {
       res.status(500).json({ success: false, message: "Internal server error" });
     }
   });
 
+  app.get("/api/admin/prospects/adapters", (_req, res) => {
+    res.json(getAdaptersMeta());
+  });
+
   app.post("/api/admin/prospect", async (req, res) => {
     try {
-      const { signals, sourceType, sourceUrl } = req.body as {
-        signals: string;
+      const {
+        signals,
+        sourceType,
+        sourceUrl,
+        sourceText,
+        companyHint,
+        skipDedupe,
+      } = req.body as {
+        signals?: string;
         sourceType?: string;
         sourceUrl?: string;
+        sourceText?: string;
+        companyHint?: string;
+        skipDedupe?: boolean;
       };
 
-      if (!signals || typeof signals !== "string" || signals.trim().length < 10) {
-        return res.status(400).json({ error: "Provide at least one company signal to analyse." });
+      const inputText = sourceText || signals || "";
+      if (!inputText || inputText.trim().length < 10) {
+        return res.status(400).json({ error: "Provide at least 10 characters of company signals to analyse." });
       }
 
-      const prospectingPrompt = `You are the AI Lead Intelligence Analyst for The Corporate Desk, Australia's premium commercial office furniture company.
+      const validSourceTypes: SourceType[] = ["manual", "job_ad", "linkedin", "hiring_page", "announcement", "article", "website"];
+      const resolvedSourceType: SourceType = (validSourceTypes.includes(sourceType as SourceType) ? sourceType : "manual") as SourceType;
 
-Analyse the following company signals and determine whether this company is a strong prospect for a commercial office furniture or fitout project.
+      const signalInput: SignalInput = {
+        sourceType: resolvedSourceType,
+        sourceUrl: sourceUrl || null,
+        sourceText: inputText,
+        companyHint: companyHint || null,
+      };
 
-TARGET CRITERIA:
-- Companies with 10–500+ employees
-- Companies in: tech, finance, law, consulting, engineering, architecture, healthcare admin, corporate HQ
-- Projects typically range from $30,000 – $300,000+
-- Key signals: funding rounds, hiring growth, office relocation, new HQ, moving from coworking, expansion into new cities
+      const analysis = await analyseSignals(signalInput);
 
-You MUST respond with ONLY valid JSON in exactly this format (no markdown, no explanation, just the JSON object):
+      const domain = analysis.domain || (sourceUrl ? extractDomain(sourceUrl) : null) || (analysis.website ? extractDomain(analysis.website) : null);
 
-{
-  "company": "Company Name",
-  "website": "company.com.au or null",
-  "location": "City, State",
-  "industry": "Industry",
-  "estimatedTeamSize": "e.g. 50-100",
-  "signalsDetected": ["signal 1", "signal 2", "signal 3"],
-  "estimatedProjectValue": "e.g. $80,000 – $150,000",
-  "score": 8,
-  "priority": "High",
-  "decisionMakers": "e.g. CEO, Office Manager, COO",
-  "outreachMessage": "Full personalised outreach email draft referencing their specific signals. Introduce The Corporate Desk, offer a free office layout plan. Professional, helpful tone. 3-4 paragraphs.",
-  "reasoning": "Brief explanation of why this is or isn't a good prospect."
-}
-
-Score 1-10 (10 = highest value prospect). Priority: High (8-10), Medium (5-7), Low (1-4).
-
-COMPANY SIGNALS TO ANALYSE:
-${signals}`;
-
-      const completion = await openai.chat.completions.create({
-        model: "gpt-5-mini",
-        messages: [{ role: "user", content: prospectingPrompt }],
-      } as any);
-
-      const rawContent = completion.choices[0]?.message?.content || "";
-
-      let parsed: any;
-      try {
-        const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) throw new Error("No JSON found in response");
-        parsed = JSON.parse(jsonMatch[0]);
-      } catch {
-        return res.status(500).json({ error: "AI returned an unexpected format. Please try again.", raw: rawContent });
-      }
-
-      const required = ["company", "location", "industry", "estimatedTeamSize", "signalsDetected", "estimatedProjectValue", "score", "priority", "decisionMakers", "outreachMessage", "reasoning"];
-      for (const field of required) {
-        if (!(field in parsed)) {
-          return res.status(500).json({ error: `Missing field in AI response: ${field}` });
+      if (!skipDedupe) {
+        const duplicate = await storage.findProspectDuplicate(analysis.company, domain, sourceUrl || null);
+        if (duplicate) {
+          return res.status(409).json({
+            duplicate: true,
+            existingLead: duplicate,
+            message: `A prospect for "${duplicate.company}" already exists in your pipeline (added ${new Date(duplicate.createdAt).toLocaleDateString("en-AU")}). Use skipDedupe=true to add anyway.`,
+          });
         }
       }
 
       const lead = await storage.createProspectedLead({
-        company: String(parsed.company),
-        website: parsed.website && parsed.website !== "null" ? String(parsed.website) : null,
-        location: String(parsed.location),
-        industry: String(parsed.industry),
-        estimatedTeamSize: String(parsed.estimatedTeamSize),
-        signalsDetected: Array.isArray(parsed.signalsDetected) ? parsed.signalsDetected.map(String) : [],
-        estimatedProjectValue: String(parsed.estimatedProjectValue),
-        score: Math.min(10, Math.max(1, Number(parsed.score) || 5)),
-        priority: ["High", "Medium", "Low"].includes(parsed.priority) ? parsed.priority : "Medium",
-        decisionMakers: String(parsed.decisionMakers),
-        outreachMessage: String(parsed.outreachMessage),
-        reasoning: String(parsed.reasoning),
-        rawInput: signals,
-        sourceType: sourceType || "manual",
+        company: analysis.company,
+        domain,
+        website: analysis.website,
+        location: analysis.location,
+        industry: analysis.industry,
+        estimatedTeamSize: analysis.estimatedTeamSize,
+        likelyOfficeNeed: analysis.likelyOfficeNeed,
+        signalsDetected: analysis.signalsDetected,
+        estimatedProjectValue: analysis.estimatedProjectValue,
+        score: analysis.score,
+        priority: analysis.priority,
+        decisionMakers: analysis.decisionMakers,
+        outreachMessage: analysis.outreachMessage,
+        reasoning: analysis.reasoning,
+        rawInput: inputText,
+        sourceType: resolvedSourceType,
         sourceUrl: sourceUrl || null,
       });
 
       res.json({ success: true, lead });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Prospecting error:", error);
-      res.status(500).json({ error: "Failed to analyse signals. Please try again." });
+      res.status(500).json({ error: error?.message || "Failed to analyse signals. Please try again." });
+    }
+  });
+
+  app.post("/api/admin/prospects/batch-scan", async (req, res) => {
+    try {
+      const { items, skipDedupe } = req.body as {
+        items: Array<{ sourceType: string; sourceUrl?: string; sourceText: string; companyHint?: string }>;
+        skipDedupe?: boolean;
+      };
+
+      if (!Array.isArray(items) || items.length === 0) {
+        return res.status(400).json({ error: "Provide at least one item to scan." });
+      }
+      if (items.length > 20) {
+        return res.status(400).json({ error: "Maximum 20 items per batch scan." });
+      }
+
+      const results: Array<{
+        index: number;
+        status: "saved" | "duplicate" | "error";
+        lead?: any;
+        existingLead?: any;
+        error?: string;
+      }> = [];
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        try {
+          if (!item.sourceText || item.sourceText.trim().length < 10) {
+            results.push({ index: i, status: "error", error: "Input text too short" });
+            continue;
+          }
+
+          const validSourceTypes: SourceType[] = ["manual", "job_ad", "linkedin", "hiring_page", "announcement", "article", "website"];
+          const resolvedSourceType: SourceType = (validSourceTypes.includes(item.sourceType as SourceType) ? item.sourceType : "manual") as SourceType;
+
+          const analysis = await analyseSignals({
+            sourceType: resolvedSourceType,
+            sourceUrl: item.sourceUrl || null,
+            sourceText: item.sourceText,
+            companyHint: item.companyHint || null,
+          });
+
+          const domain = analysis.domain || (item.sourceUrl ? extractDomain(item.sourceUrl) : null) || (analysis.website ? extractDomain(analysis.website) : null);
+
+          if (!skipDedupe) {
+            const duplicate = await storage.findProspectDuplicate(analysis.company, domain, item.sourceUrl || null);
+            if (duplicate) {
+              results.push({ index: i, status: "duplicate", existingLead: duplicate });
+              continue;
+            }
+          }
+
+          const lead = await storage.createProspectedLead({
+            company: analysis.company,
+            domain,
+            website: analysis.website,
+            location: analysis.location,
+            industry: analysis.industry,
+            estimatedTeamSize: analysis.estimatedTeamSize,
+            likelyOfficeNeed: analysis.likelyOfficeNeed,
+            signalsDetected: analysis.signalsDetected,
+            estimatedProjectValue: analysis.estimatedProjectValue,
+            score: analysis.score,
+            priority: analysis.priority,
+            decisionMakers: analysis.decisionMakers,
+            outreachMessage: analysis.outreachMessage,
+            reasoning: analysis.reasoning,
+            rawInput: item.sourceText,
+            sourceType: resolvedSourceType,
+            sourceUrl: item.sourceUrl || null,
+          });
+
+          results.push({ index: i, status: "saved", lead });
+        } catch (err: any) {
+          results.push({ index: i, status: "error", error: err?.message || "Analysis failed" });
+        }
+      }
+
+      const saved = results.filter(r => r.status === "saved").length;
+      const duplicates = results.filter(r => r.status === "duplicate").length;
+      const errors = results.filter(r => r.status === "error").length;
+
+      res.json({ success: true, results, summary: { saved, duplicates, errors, total: items.length } });
+    } catch (error: any) {
+      console.error("Batch scan error:", error);
+      res.status(500).json({ error: "Batch scan failed. Please try again." });
     }
   });
 
@@ -472,7 +548,7 @@ ${signals}`;
       const updated = await storage.updateProspectedLeadStatus(id, status);
       if (!updated) return res.status(404).json({ error: "Lead not found" });
       res.json({ success: true, lead: updated });
-    } catch (error) {
+    } catch {
       res.status(500).json({ success: false, message: "Internal server error" });
     }
   });
@@ -482,7 +558,7 @@ ${signals}`;
       const { id } = req.params;
       await storage.deleteProspectedLead(id);
       res.json({ success: true });
-    } catch (error) {
+    } catch {
       res.status(500).json({ success: false, message: "Internal server error" });
     }
   });

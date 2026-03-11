@@ -1,4 +1,4 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, or, ilike, and, sql as drizzleSql } from "drizzle-orm";
 import { db } from "./db";
 import {
   users, leads, prospectedLeads, supplierQuotes, referrals, planningRequests,
@@ -8,10 +8,12 @@ import {
 export interface ProspectedLead {
   id: string;
   company: string;
+  domain: string | null;
   website: string | null;
   location: string;
   industry: string;
   estimatedTeamSize: string;
+  likelyOfficeNeed: string | null;
   signalsDetected: string[];
   estimatedProjectValue: string;
   score: number;
@@ -119,6 +121,7 @@ export interface IStorage {
   getLeads(): Promise<Lead[]>;
   createProspectedLead(data: Omit<ProspectedLead, "id" | "createdAt" | "status">): Promise<ProspectedLead>;
   getProspectedLeads(): Promise<ProspectedLead[]>;
+  findProspectDuplicate(company: string, domain: string | null, sourceUrl: string | null): Promise<ProspectedLead | null>;
   updateProspectedLeadStatus(id: string, status: ProspectedLead["status"]): Promise<ProspectedLead | undefined>;
   deleteProspectedLead(id: string): Promise<void>;
   createSupplierQuote(data: InsertSupplierQuote): Promise<SupplierQuote>;
@@ -142,10 +145,12 @@ function rowToProspectedLead(row: typeof prospectedLeads.$inferSelect): Prospect
   return {
     id: row.id,
     company: row.company,
+    domain: row.domain ?? null,
     website: row.website ?? null,
     location: row.location,
     industry: row.industry,
     estimatedTeamSize: row.estimatedTeamSize,
+    likelyOfficeNeed: row.likelyOfficeNeed ?? null,
     signalsDetected: row.signalsDetected ?? [],
     estimatedProjectValue: row.estimatedProjectValue,
     score: row.score,
@@ -231,10 +236,12 @@ export class DrizzleStorage implements IStorage {
   async createProspectedLead(data: Omit<ProspectedLead, "id" | "createdAt" | "status">): Promise<ProspectedLead> {
     const [row] = await db.insert(prospectedLeads).values({
       company: data.company,
+      domain: data.domain ?? null,
       website: data.website,
       location: data.location,
       industry: data.industry,
       estimatedTeamSize: data.estimatedTeamSize,
+      likelyOfficeNeed: data.likelyOfficeNeed ?? null,
       signalsDetected: data.signalsDetected,
       estimatedProjectValue: data.estimatedProjectValue,
       score: data.score,
@@ -253,6 +260,36 @@ export class DrizzleStorage implements IStorage {
   async getProspectedLeads(): Promise<ProspectedLead[]> {
     const rows = await db.select().from(prospectedLeads).orderBy(desc(prospectedLeads.createdAt));
     return rows.map(rowToProspectedLead);
+  }
+
+  async findProspectDuplicate(
+    company: string,
+    domain: string | null,
+    sourceUrl: string | null,
+  ): Promise<ProspectedLead | null> {
+    const normalisedCompany = company.toLowerCase()
+      .replace(/\b(pty|ltd|limited|inc|llc|corp)\b/gi, "")
+      .replace(/[^a-z0-9\s]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    const conditions = [
+      ilike(prospectedLeads.company, `%${normalisedCompany}%`),
+    ];
+    if (domain) {
+      conditions.push(eq(prospectedLeads.domain, domain));
+    }
+    if (sourceUrl) {
+      conditions.push(eq(prospectedLeads.sourceUrl, sourceUrl));
+    }
+
+    const rows = await db
+      .select()
+      .from(prospectedLeads)
+      .where(or(...conditions))
+      .limit(1);
+
+    return rows.length > 0 ? rowToProspectedLead(rows[0]) : null;
   }
 
   async updateProspectedLeadStatus(id: string, status: ProspectedLead["status"]): Promise<ProspectedLead | undefined> {

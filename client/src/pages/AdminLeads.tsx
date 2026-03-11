@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,22 +7,27 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
   Search, Zap, Target, TrendingUp, Copy, Trash2, ChevronDown,
-  ChevronRight, ArrowLeft, Building2, MapPin, Users, DollarSign,
-  Mail, Globe, BarChart3, CheckCircle2, Loader2, Plus, ShieldCheck,
+  ArrowLeft, Building2, MapPin, Users, DollarSign,
+  Mail, Globe, BarChart3, CheckCircle2, Loader2, ShieldCheck,
   Megaphone, LayoutDashboard, RefreshCw, Star, AlertCircle, Clock,
+  Link2, Briefcase, Linkedin, FileText, Newspaper, Layers,
+  Play, SkipForward, X, Plus, AlertTriangle, ChevronRight,
 } from "lucide-react";
 
 const ADMIN_PASSWORD = "tcd2024admin";
 
 type LeadStatus = "New" | "Contacted" | "Responded" | "Qualified" | "Closed";
+type SourceType = "manual" | "job_ad" | "linkedin" | "hiring_page" | "announcement" | "article" | "website";
 
 interface ProspectedLead {
   id: string;
   company: string;
+  domain: string | null;
   website: string | null;
   location: string;
   industry: string;
   estimatedTeamSize: string;
+  likelyOfficeNeed: string | null;
   signalsDetected: string[];
   estimatedProjectValue: string;
   score: number;
@@ -32,6 +37,8 @@ interface ProspectedLead {
   reasoning: string;
   rawInput: string;
   status: LeadStatus;
+  sourceType: string | null;
+  sourceUrl: string | null;
   createdAt: string;
 }
 
@@ -55,14 +62,66 @@ const SCORE_COLOR = (score: number) => {
   return "text-white/50";
 };
 
-const EXAMPLE_SIGNALS = `Example signals to paste here:
+const SOURCE_TYPE_CONFIG: Record<SourceType, { label: string; icon: any; color: string; urlLabel: string | null; placeholder: string; status: "live" | "manual_only" }> = {
+  manual: {
+    label: "General Signals",
+    icon: Layers,
+    color: "text-[hsl(43,78%,65%)] bg-[rgba(201,168,76,0.1)]",
+    urlLabel: null,
+    placeholder: `Paste any mix of company intelligence here:\n\nCompany: NovaPay Financial\n- Announced $25M Series B funding (TechCrunch, March 2026)\n- Hiring 40+ staff in Brisbane including Office Manager and EA\n- LinkedIn shows team grew from 35 to 80 in 6 months\n- Moving from River City Labs coworking to private offices in Fortitude Valley\n- CEO mentioned "building a world-class Brisbane HQ" in press interview`,
+    status: "live",
+  },
+  job_ad: {
+    label: "Job Advertisement",
+    icon: Briefcase,
+    color: "text-purple-400 bg-purple-500/10",
+    urlLabel: "Job Ad URL (optional)",
+    placeholder: "Paste the full job advertisement text here...\n\nExample:\nOffice Manager — Brisbane CBD\nWe are a fast-growing fintech scaling to 80 staff. You'll manage our new 500sqm Fortitude Valley office as we transition from co-working. The role includes procurement of office furniture, liaising with fitout contractors...",
+    status: "live",
+  },
+  linkedin: {
+    label: "LinkedIn Post",
+    icon: Linkedin,
+    color: "text-blue-400 bg-blue-500/10",
+    urlLabel: "LinkedIn URL (optional)",
+    placeholder: "Paste LinkedIn post or company update here...\n\nExample:\nExcited to announce we've just signed our new Brisbane HQ — 1,200sqm right in the heart of the CBD. Our team of 85 is ready to make the move in Q2. We're designing the space from scratch and can't wait to share the journey!",
+    status: "live",
+  },
+  hiring_page: {
+    label: "Hiring Page",
+    icon: Search,
+    color: "text-orange-400 bg-orange-500/10",
+    urlLabel: "Careers Page URL (optional)",
+    placeholder: "Paste the careers/jobs page content here...\n\nExample:\nWe're hiring across all departments as we prepare to open our new Sydney HQ. Open roles: Executive Assistant, Office Coordinator, IT Manager, 15+ Engineering positions. Our office is located at...",
+    status: "live",
+  },
+  announcement: {
+    label: "Announcement",
+    icon: Newspaper,
+    color: "text-green-400 bg-green-500/10",
+    urlLabel: "Announcement URL (optional)",
+    placeholder: "Paste the company announcement or press release here...\n\nExample:\nACME Corp today announced a $40M Series C funding round led by Blackbird Ventures. The Brisbane-based company plans to triple headcount to 150 and is actively searching for a new permanent headquarters to accommodate its rapid growth...",
+    status: "live",
+  },
+  article: {
+    label: "News Article",
+    icon: FileText,
+    color: "text-cyan-400 bg-cyan-500/10",
+    urlLabel: "Article URL (optional)",
+    placeholder: "Paste the news article or blog post here...\n\nExample:\nBrisbane startup closes $15M raise as it prepares for national expansion. The company, which employs 45 staff across two floors of a Fortitude Valley co-working space, is searching for a permanent HQ to support its growth plans...",
+    status: "live",
+  },
+  website: {
+    label: "Company Website",
+    icon: Globe,
+    color: "text-white/50 bg-white/5",
+    urlLabel: "Website URL",
+    placeholder: "Paste the company website URL and relevant text from their About, Team, or Contact pages...\n\nNote: Auto-scraping coming soon. For now, copy and paste the relevant content.",
+    status: "manual_only",
+  },
+};
 
-Company: NovaPay Financial
-- Just announced $25M Series B funding round (TechCrunch, March 2026)
-- Currently hiring 40+ staff in Brisbane including office manager and executive assistant
-- LinkedIn shows team grew from 35 to 80 people in 6 months
-- Moving out of River City Labs coworking to private offices in Fortitude Valley
-- CEO mentioned "building a world-class Brisbane HQ" in press interview`;
+const BATCH_DELIMITER = "--- NEXT COMPANY ---";
 
 function ScoreBar({ score }: { score: number }) {
   return (
@@ -84,23 +143,199 @@ function ScoreBar({ score }: { score: number }) {
   );
 }
 
+function SourceBadge({ sourceType }: { sourceType: string | null }) {
+  const config = SOURCE_TYPE_CONFIG[sourceType as SourceType] || SOURCE_TYPE_CONFIG.manual;
+  const Icon = config.icon;
+  return (
+    <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border ${config.color} border-current/20`}>
+      <Icon className="w-2.5 h-2.5" />
+      {config.label}
+    </span>
+  );
+}
+
+interface BatchScanDialogProps {
+  onClose: () => void;
+  onComplete: () => void;
+}
+
+function BatchScanDialog({ onClose, onComplete }: BatchScanDialogProps) {
+  const [batchText, setBatchText] = useState("");
+  const [sourceType, setSourceType] = useState<SourceType>("manual");
+  const [skipDedupe, setSkipDedupe] = useState(false);
+  const [running, setRunning] = useState(false);
+  const [progress, setProgress] = useState<{ current: number; total: number; results: any[] } | null>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const blocks = batchText.split(BATCH_DELIMITER).map(b => b.trim()).filter(b => b.length >= 10);
+
+  async function runScan() {
+    if (blocks.length === 0) return;
+    setRunning(true);
+    setProgress({ current: 0, total: blocks.length, results: [] });
+
+    const items = blocks.map(block => ({
+      sourceType,
+      sourceText: block,
+    }));
+
+    try {
+      const res = await apiRequest("POST", "/api/admin/prospects/batch-scan", { items, skipDedupe });
+      const data = await res.json();
+      setProgress({ current: blocks.length, total: blocks.length, results: data.results || [] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/prospects"] });
+      toast({
+        title: `Batch scan complete`,
+        description: `${data.summary?.saved || 0} saved · ${data.summary?.duplicates || 0} duplicates · ${data.summary?.errors || 0} errors`,
+      });
+      onComplete();
+    } catch {
+      toast({ title: "Batch scan failed", variant: "destructive" });
+    } finally {
+      setRunning(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4" data-testid="batch-scan-dialog">
+      <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.2)] rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between p-6 border-b border-[rgba(255,255,255,0.06)]">
+          <div>
+            <h2 className="text-white font-semibold flex items-center gap-2">
+              <Play className="w-4 h-4 text-[hsl(43,78%,52%)]" /> Run Signal Scan
+            </h2>
+            <p className="text-white/40 text-xs mt-1">Paste multiple company signals — one per block, separated by the delimiter</p>
+          </div>
+          <button onClick={onClose} className="text-white/40 hover:text-white transition-colors p-1">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-6 flex-1 overflow-y-auto space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <label className="block text-xs text-white/40 mb-1.5">Source Type</label>
+              <select
+                value={sourceType}
+                onChange={e => setSourceType(e.target.value as SourceType)}
+                data-testid="select-batch-source-type"
+                className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-white text-sm rounded-lg px-3 py-2 focus:outline-none"
+              >
+                {(Object.keys(SOURCE_TYPE_CONFIG) as SourceType[]).filter(k => k !== "website").map(key => (
+                  <option key={key} value={key}>{SOURCE_TYPE_CONFIG[key].label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2 pt-5">
+              <input
+                type="checkbox"
+                id="skip-dedupe"
+                checked={skipDedupe}
+                onChange={e => setSkipDedupe(e.target.checked)}
+                data-testid="checkbox-skip-dedupe"
+                className="w-4 h-4 rounded accent-[hsl(43,78%,52%)]"
+              />
+              <label htmlFor="skip-dedupe" className="text-xs text-white/50 whitespace-nowrap">Skip dedupe check</label>
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs text-white/40">Company signals — one per block</label>
+              {blocks.length > 0 && (
+                <span className="text-xs text-[hsl(43,78%,65%)]">{blocks.length} block{blocks.length !== 1 ? "s" : ""} detected</span>
+              )}
+            </div>
+            <textarea
+              value={batchText}
+              onChange={e => setBatchText(e.target.value)}
+              placeholder={`Paste company 1 signals here...\n\n${BATCH_DELIMITER}\n\nPaste company 2 signals here...\n\n${BATCH_DELIMITER}\n\nPaste company 3 signals here...`}
+              data-testid="textarea-batch-signals"
+              rows={14}
+              className="w-full bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-3 text-white/80 placeholder:text-white/15 focus:outline-none focus:border-[rgba(201,168,76,0.3)] text-sm leading-relaxed resize-none font-mono"
+            />
+            <p className="text-white/25 text-xs mt-1">
+              Separate each company's signals with: <code className="text-white/40">{BATCH_DELIMITER}</code>
+            </p>
+          </div>
+
+          {progress && progress.results.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-white/40 text-xs font-medium">Results</p>
+              {progress.results.map((r: any, i) => (
+                <div key={i} className={`flex items-center gap-3 px-3 py-2 rounded-lg border text-xs ${
+                  r.status === "saved" ? "border-green-500/20 bg-green-500/5 text-green-400" :
+                  r.status === "duplicate" ? "border-yellow-500/20 bg-yellow-500/5 text-yellow-400" :
+                  "border-red-500/20 bg-red-500/5 text-red-400"
+                }`}>
+                  {r.status === "saved" ? <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" /> :
+                   r.status === "duplicate" ? <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" /> :
+                   <X className="w-3.5 h-3.5 flex-shrink-0" />}
+                  <span>
+                    Block {i + 1}: {r.status === "saved" ? `Saved — ${r.lead?.company} (${r.lead?.score}/10)` :
+                    r.status === "duplicate" ? `Duplicate — ${r.existingLead?.company} already in pipeline` :
+                    `Error — ${r.error}`}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="p-6 border-t border-[rgba(255,255,255,0.06)] flex items-center justify-between gap-3">
+          <p className="text-white/30 text-xs">Max 20 companies per scan · Duplicates skipped by default</p>
+          <div className="flex gap-3">
+            <Button
+              onClick={onClose}
+              variant="outline"
+              className="border-[rgba(255,255,255,0.1)] text-white/50 min-h-[44px]"
+            >
+              Close
+            </Button>
+            <Button
+              onClick={runScan}
+              disabled={running || blocks.length === 0}
+              data-testid="button-start-batch-scan"
+              className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[44px] px-6"
+            >
+              {running
+                ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Scanning {progress?.current}/{progress?.total}...</>
+                : <><Play className="w-4 h-4 mr-2" /> Scan {blocks.length} {blocks.length === 1 ? "Company" : "Companies"}</>
+              }
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminLeads() {
   const [authed, setAuthed] = useState(false);
   const [pw, setPw] = useState("");
   const [pwError, setPwError] = useState(false);
-  const [signals, setSignals] = useState("");
+
+  const [activeSourceType, setActiveSourceType] = useState<SourceType>("manual");
+  const [sourceText, setSourceText] = useState("");
+  const [sourceUrl, setSourceUrl] = useState("");
+  const [companyHint, setCompanyHint] = useState("");
+
   const [analysisResult, setAnalysisResult] = useState<ProspectedLead | null>(null);
+  const [duplicateWarning, setDuplicateWarning] = useState<{ message: string; existingLead: ProspectedLead } | null>(null);
   const [expandedLead, setExpandedLead] = useState<string | null>(null);
   const [showOutreach, setShowOutreach] = useState<string | null>(null);
   const [filterPriority, setFilterPriority] = useState<string>("All");
   const [filterStatus, setFilterStatus] = useState<string>("All");
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [showBatchScan, setShowBatchScan] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    document.title = "Lead Intelligence — Prospecting Engine | The Corporate Desk";
+    document.title = "Lead Intelligence Engine | The Corporate Desk Admin";
     if (sessionStorage.getItem("tcd_admin_auth") === "true") setAuthed(true);
   }, []);
 
@@ -111,19 +346,52 @@ export default function AdminLeads() {
   });
 
   const analyseMutation = useMutation({
-    mutationFn: async (input: string) => {
-      const res = await apiRequest("POST", "/api/admin/prospect", { signals: input });
-      return res.json();
+    mutationFn: async (payload: { sourceType: SourceType; sourceText: string; sourceUrl?: string; companyHint?: string }) => {
+      const res = await apiRequest("POST", "/api/admin/prospect", payload);
+      const data = await res.json();
+      if (res.status === 409) {
+        throw { isDuplicate: true, ...data };
+      }
+      if (!res.ok) throw new Error(data.error || "Analysis failed");
+      return data;
     },
     onSuccess: (data) => {
       if (data.lead) {
         setAnalysisResult(data.lead);
+        setDuplicateWarning(null);
         queryClient.invalidateQueries({ queryKey: ["/api/admin/prospects"] });
-        toast({ title: "Lead analysed successfully", description: `${data.lead.company} scored ${data.lead.score}/10 — ${data.lead.priority} priority.` });
+        toast({
+          title: "Lead analysed",
+          description: `${data.lead.company} — Score ${data.lead.score}/10 · ${data.lead.priority} priority`,
+        });
       }
     },
     onError: (err: any) => {
-      toast({ title: "Analysis failed", description: err?.message || "Please try again.", variant: "destructive" });
+      if (err?.isDuplicate && err?.existingLead) {
+        setDuplicateWarning({ message: err.message, existingLead: err.existingLead });
+      } else {
+        toast({ title: "Analysis failed", description: err?.message || "Please try again.", variant: "destructive" });
+      }
+    },
+  });
+
+  const forceAddMutation = useMutation({
+    mutationFn: async (payload: { sourceType: SourceType; sourceText: string; sourceUrl?: string; companyHint?: string }) => {
+      const res = await apiRequest("POST", "/api/admin/prospect", { ...payload, skipDedupe: true });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Analysis failed");
+      return data;
+    },
+    onSuccess: (data) => {
+      if (data.lead) {
+        setAnalysisResult(data.lead);
+        setDuplicateWarning(null);
+        queryClient.invalidateQueries({ queryKey: ["/api/admin/prospects"] });
+        toast({ title: "Lead added (duplicate overridden)" });
+      }
+    },
+    onError: (err: any) => {
+      toast({ title: "Failed to add lead", description: err?.message, variant: "destructive" });
     },
   });
 
@@ -166,16 +434,54 @@ export default function AdminLeads() {
     });
   }
 
+  function handleAnalyse(skipDedupe = false) {
+    if (!sourceText.trim() || sourceText.trim().length < 10) {
+      return toast({ title: "Add more content to analyse", variant: "destructive" });
+    }
+    const payload = {
+      sourceType: activeSourceType,
+      sourceText: sourceText.trim(),
+      sourceUrl: sourceUrl.trim() || undefined,
+      companyHint: companyHint.trim() || undefined,
+      ...(skipDedupe ? { skipDedupe: true } : {}),
+    };
+    if (skipDedupe) {
+      forceAddMutation.mutate(payload);
+    } else {
+      analyseMutation.mutate(payload);
+    }
+  }
+
+  function clearInput() {
+    setSourceText("");
+    setSourceUrl("");
+    setCompanyHint("");
+    setAnalysisResult(null);
+    setDuplicateWarning(null);
+  }
+
   const filteredProspects = prospects.filter(p => {
     if (filterPriority !== "All" && p.priority !== filterPriority) return false;
     if (filterStatus !== "All" && p.status !== filterStatus) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      return p.company.toLowerCase().includes(q) ||
+        p.location.toLowerCase().includes(q) ||
+        p.industry.toLowerCase().includes(q);
+    }
     return true;
   });
 
   const highCount = prospects.filter(p => p.priority === "High").length;
   const newCount = prospects.filter(p => p.status === "New").length;
   const qualifiedCount = prospects.filter(p => p.status === "Qualified").length;
-  const avgScore = prospects.length > 0 ? (prospects.reduce((s, p) => s + p.score, 0) / prospects.length).toFixed(1) : "—";
+  const avgScore = prospects.length > 0
+    ? (prospects.reduce((s, p) => s + p.score, 0) / prospects.length).toFixed(1)
+    : "—";
+
+  const sourceConfig = SOURCE_TYPE_CONFIG[activeSourceType];
+  const SourceIcon = sourceConfig.icon;
+  const isPending = analyseMutation.isPending || forceAddMutation.isPending;
 
   if (!authed) {
     return (
@@ -202,7 +508,11 @@ export default function AdminLeads() {
               style={{ minHeight: "48px" }}
             />
             {pwError && <p className="text-red-400 text-xs mb-3">Incorrect password</p>}
-            <Button onClick={handleLogin} className="w-full bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[48px] mt-3" data-testid="button-leads-login">
+            <Button
+              onClick={handleLogin}
+              className="w-full bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[48px] mt-3"
+              data-testid="button-leads-login"
+            >
               <ShieldCheck className="w-4 h-4 mr-2" /> Access Engine
             </Button>
           </div>
@@ -213,8 +523,15 @@ export default function AdminLeads() {
 
   return (
     <div className="min-h-screen bg-[hsl(220,20%,6%)]">
+      {showBatchScan && (
+        <BatchScanDialog
+          onClose={() => setShowBatchScan(false)}
+          onComplete={() => setShowBatchScan(false)}
+        />
+      )}
+
       <header className="bg-[hsl(220,18%,8%)] border-b border-[rgba(201,168,76,0.1)] px-4 sm:px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-4">
             <Link href="/">
               <div className="flex flex-col cursor-pointer">
@@ -228,12 +545,16 @@ export default function AdminLeads() {
               <span className="text-white/60 text-sm font-medium">Lead Intelligence Engine</span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button asChild size="sm" variant="outline" className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] min-h-[40px]" data-testid="button-leads-dashboard">
-              <Link href="/admin/dashboard"><LayoutDashboard className="w-4 h-4 mr-1.5" /> Dashboard</Link>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              onClick={() => setShowBatchScan(true)}
+              className="bg-[rgba(201,168,76,0.1)] border border-[rgba(201,168,76,0.25)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.18)] min-h-[40px]"
+              data-testid="button-run-signal-scan"
+            >
+              <Play className="w-4 h-4 mr-1.5" /> Run Signal Scan
             </Button>
-            <Button asChild size="sm" variant="ghost" className="text-white/50 hover:text-white min-h-[40px]" data-testid="button-leads-marketing">
-              <Link href="/admin/marketing"><Megaphone className="w-4 h-4 mr-1.5" /> Marketing</Link>
+            <Button asChild size="sm" variant="outline" className="border-[rgba(255,255,255,0.1)] text-white/50 min-h-[40px]" data-testid="button-leads-dashboard">
+              <Link href="/admin/dashboard"><LayoutDashboard className="w-4 h-4 mr-1.5" /> Dashboard</Link>
             </Button>
           </div>
         </div>
@@ -245,15 +566,17 @@ export default function AdminLeads() {
             <Target className="w-6 h-6 text-[hsl(43,78%,52%)]" />
             Lead Intelligence & Prospecting Engine
           </h1>
-          <p className="text-white/40 text-sm">Paste company signals — AI analyses expansion indicators, scores the opportunity, and generates personalised outreach.</p>
+          <p className="text-white/40 text-sm">
+            Paste company signals from any source — AI extracts intelligence, scores the opportunity, and generates personalised outreach.
+          </p>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[
-            { label: "Total Prospects", value: prospects.length, icon: Target, color: "text-[hsl(43,78%,65%)]" },
-            { label: "High Priority", value: highCount, icon: TrendingUp, color: "text-red-400" },
-            { label: "New (Uncontacted)", value: newCount, icon: Star, color: "text-blue-400" },
-            { label: "Avg Score", value: avgScore, icon: BarChart3, color: "text-green-400" },
+            { label: "Total Prospects", value: prospects.length, icon: Target, color: "text-[hsl(43,78%,65%)]", testId: "stat-total-prospects" },
+            { label: "High Priority", value: highCount, icon: TrendingUp, color: "text-red-400", testId: "stat-high-priority" },
+            { label: "New", value: newCount, icon: Star, color: "text-blue-400", testId: "stat-new" },
+            { label: "Avg Score", value: avgScore, icon: BarChart3, color: "text-green-400", testId: "stat-avg-score" },
           ].map(kpi => {
             const Icon = kpi.icon;
             return (
@@ -262,7 +585,7 @@ export default function AdminLeads() {
                   <p className="text-white/50 text-sm">{kpi.label}</p>
                   <Icon className={`w-5 h-5 ${kpi.color}`} />
                 </div>
-                <p className={`text-3xl font-serif font-bold ${kpi.color}`} data-testid={`stat-${kpi.label.toLowerCase().replace(/\s+/g, "-")}`}>{kpi.value}</p>
+                <p className={`text-3xl font-serif font-bold ${kpi.color}`} data-testid={kpi.testId}>{kpi.value}</p>
               </div>
             );
           })}
@@ -271,62 +594,157 @@ export default function AdminLeads() {
         <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 mb-8">
           <div className="xl:col-span-2 space-y-4">
             <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.15)] rounded-2xl p-6">
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-2 mb-5">
                 <div className="w-8 h-8 rounded-lg bg-[rgba(201,168,76,0.1)] flex items-center justify-center">
                   <Zap className="w-4 h-4 text-[hsl(43,78%,52%)]" />
                 </div>
                 <div>
-                  <h2 className="text-white font-semibold text-sm">Analyse Company Signals</h2>
-                  <p className="text-white/40 text-xs">Paste news, LinkedIn data, hiring info, funding announcements</p>
+                  <h2 className="text-white font-semibold text-sm">Ingest Company Signal</h2>
+                  <p className="text-white/40 text-xs">Choose source type, paste content, get AI analysis</p>
                 </div>
               </div>
 
               <div className="mb-4">
-                <label className="block text-xs text-white/40 mb-2">Company signals / expansion indicators</label>
+                <label className="block text-xs text-white/40 mb-2">Signal source type</label>
+                <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-4">
+                  {(Object.keys(SOURCE_TYPE_CONFIG) as SourceType[]).map(key => {
+                    const cfg = SOURCE_TYPE_CONFIG[key];
+                    const Icon = cfg.icon;
+                    const isActive = activeSourceType === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => { setActiveSourceType(key); setDuplicateWarning(null); setAnalysisResult(null); }}
+                        data-testid={`tab-source-${key}`}
+                        className={`flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl text-xs border transition-all min-h-[56px] ${
+                          isActive
+                            ? "bg-[rgba(201,168,76,0.1)] border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)]"
+                            : "border-[rgba(255,255,255,0.06)] text-white/40 hover:text-white/60 hover:border-[rgba(255,255,255,0.1)]"
+                        }`}
+                      >
+                        <Icon className="w-3.5 h-3.5" />
+                        <span className="leading-tight text-center">{cfg.label.split(" ")[0]}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {sourceConfig.urlLabel && (
+                <div className="mb-3">
+                  <label className="block text-xs text-white/40 mb-1.5">{sourceConfig.urlLabel}</label>
+                  <input
+                    type="url"
+                    value={sourceUrl}
+                    onChange={e => setSourceUrl(e.target.value)}
+                    placeholder="https://..."
+                    data-testid="input-source-url"
+                    className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-lg px-3 py-2.5 text-white/80 placeholder:text-white/20 focus:outline-none focus:border-[rgba(201,168,76,0.3)] text-sm"
+                  />
+                </div>
+              )}
+
+              <div className="mb-3">
+                <label className="block text-xs text-white/40 mb-1.5">Company name hint (optional)</label>
+                <input
+                  type="text"
+                  value={companyHint}
+                  onChange={e => setCompanyHint(e.target.value)}
+                  placeholder="e.g. NovaPay Financial"
+                  data-testid="input-company-hint"
+                  className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-lg px-3 py-2.5 text-white/80 placeholder:text-white/20 focus:outline-none focus:border-[rgba(201,168,76,0.3)] text-sm"
+                />
+              </div>
+
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs text-white/40 flex items-center gap-1.5">
+                    <SourceIcon className="w-3 h-3" />
+                    {sourceConfig.label} content
+                  </label>
+                  {sourceConfig.status === "manual_only" && (
+                    <span className="text-xs text-orange-400/70 bg-orange-500/10 border border-orange-500/15 px-2 py-0.5 rounded-full">
+                      Manual — auto-scrape coming soon
+                    </span>
+                  )}
+                </div>
                 <textarea
-                  value={signals}
-                  onChange={e => setSignals(e.target.value)}
-                  placeholder={EXAMPLE_SIGNALS}
+                  value={sourceText}
+                  onChange={e => setSourceText(e.target.value)}
+                  placeholder={sourceConfig.placeholder}
                   data-testid="textarea-signals"
-                  rows={12}
-                  className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(201,168,76,0.15)] rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-[rgba(201,168,76,0.4)] text-sm leading-relaxed resize-none"
+                  rows={11}
+                  className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(201,168,76,0.12)] rounded-xl px-4 py-3 text-white placeholder:text-white/15 focus:outline-none focus:border-[rgba(201,168,76,0.35)] text-sm leading-relaxed resize-none"
                 />
               </div>
 
               <div className="flex gap-2">
                 <Button
-                  onClick={() => { setSignals(""); setAnalysisResult(null); }}
+                  onClick={clearInput}
                   variant="outline"
                   className="border-[rgba(255,255,255,0.1)] text-white/50 min-h-[48px] px-4"
-                  disabled={analyseMutation.isPending}
+                  disabled={isPending}
                   data-testid="button-clear-signals"
                 >
                   Clear
                 </Button>
                 <Button
-                  onClick={() => {
-                    if (!signals.trim() || signals.trim().length < 10) return toast({ title: "Add company signals first", variant: "destructive" });
-                    analyseMutation.mutate(signals);
-                  }}
-                  disabled={analyseMutation.isPending || !signals.trim()}
-                  className="flex-1 bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[48px]"
+                  onClick={() => handleAnalyse()}
+                  disabled={isPending || sourceText.trim().length < 10}
                   data-testid="button-analyse"
+                  className="flex-1 bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[48px]"
                 >
-                  {analyseMutation.isPending
+                  {isPending
                     ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Analysing...</>
                     : <><Zap className="w-4 h-4 mr-2" /> Analyse with AI</>
                   }
                 </Button>
               </div>
 
-              <div className="mt-4 p-3 bg-[rgba(255,255,255,0.02)] rounded-lg border border-[rgba(255,255,255,0.05)]">
-                <p className="text-white/30 text-xs leading-relaxed">
-                  <strong className="text-white/50">What to paste:</strong> News articles, LinkedIn posts, funding announcements, job ad descriptions, press releases, company blog posts, commercial real estate leasing news, or any text describing a company's growth.
+              <div className="mt-4 pt-4 border-t border-[rgba(255,255,255,0.05)]">
+                <p className="text-white/25 text-xs leading-relaxed">
+                  <strong className="text-white/40">For batch processing:</strong> use "Run Signal Scan" in the top bar to process multiple companies at once, separated by <code className="text-white/35">--- NEXT COMPANY ---</code>
                 </p>
               </div>
             </div>
 
-            {analysisResult && (
+            {duplicateWarning && (
+              <div className="bg-[rgba(234,179,8,0.06)] border border-[rgba(234,179,8,0.25)] rounded-2xl p-5" data-testid="duplicate-warning">
+                <div className="flex items-start gap-3 mb-4">
+                  <AlertTriangle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-yellow-300 font-semibold text-sm mb-1">Duplicate Detected</p>
+                    <p className="text-yellow-300/70 text-xs leading-relaxed">{duplicateWarning.message}</p>
+                  </div>
+                </div>
+                <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3 mb-4 text-xs">
+                  <p className="text-white/80 font-semibold">{duplicateWarning.existingLead.company}</p>
+                  <p className="text-white/40 mt-0.5">{duplicateWarning.existingLead.industry} · {duplicateWarning.existingLead.location} · Score {duplicateWarning.existingLead.score}/10</p>
+                  <Badge className={`mt-2 text-xs border ${STATUS_CONFIG[duplicateWarning.existingLead.status]?.color}`}>
+                    {duplicateWarning.existingLead.status}
+                  </Badge>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => setDuplicateWarning(null)}
+                    variant="outline"
+                    className="flex-1 border-[rgba(255,255,255,0.1)] text-white/50 min-h-[40px] text-xs"
+                  >
+                    <SkipForward className="w-3.5 h-3.5 mr-1.5" /> Skip
+                  </Button>
+                  <Button
+                    onClick={() => handleAnalyse(true)}
+                    disabled={isPending}
+                    className="flex-1 bg-yellow-600/80 hover:bg-yellow-600 text-white font-semibold min-h-[40px] text-xs"
+                    data-testid="button-force-add"
+                  >
+                    {isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Plus className="w-3.5 h-3.5 mr-1.5" /> Add Anyway</>}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {analysisResult && !duplicateWarning && (
               <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.2)] rounded-2xl p-6" data-testid="analysis-result">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-[hsl(43,78%,65%)] font-semibold flex items-center gap-2">
@@ -341,6 +759,11 @@ export default function AdminLeads() {
                   <div>
                     <p className="text-white font-serif font-bold text-xl">{analysisResult.company}</p>
                     <p className="text-white/50 text-sm">{analysisResult.industry} · {analysisResult.location}</p>
+                    {analysisResult.domain && (
+                      <p className="text-white/30 text-xs mt-0.5 flex items-center gap-1">
+                        <Globe className="w-3 h-3" /> {analysisResult.domain}
+                      </p>
+                    )}
                   </div>
 
                   <ScoreBar score={analysisResult.score} />
@@ -355,6 +778,13 @@ export default function AdminLeads() {
                       <p className="text-[hsl(43,78%,65%)] font-medium">{analysisResult.estimatedProjectValue}</p>
                     </div>
                   </div>
+
+                  {analysisResult.likelyOfficeNeed && (
+                    <div className="bg-[rgba(255,255,255,0.03)] rounded-lg p-3 text-xs">
+                      <p className="text-white/40 mb-1 flex items-center gap-1"><Building2 className="w-3 h-3" /> Likely Office Need</p>
+                      <p className="text-white/70 leading-relaxed">{analysisResult.likelyOfficeNeed}</p>
+                    </div>
+                  )}
 
                   <div>
                     <p className="text-white/40 text-xs mb-2">Signals Detected</p>
@@ -406,12 +836,23 @@ export default function AdminLeads() {
                   <Target className="w-4 h-4 text-[hsl(43,78%,52%)]" /> Prospect Pipeline
                   <span className="text-white/30 font-normal text-sm">({filteredProspects.length})</span>
                 </h2>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 text-white/30 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      placeholder="Search..."
+                      data-testid="input-search-prospects"
+                      className="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] text-white/60 text-xs rounded-lg pl-7 pr-3 py-2 focus:outline-none focus:border-[rgba(201,168,76,0.25)] w-28"
+                    />
+                  </div>
                   <select
                     value={filterPriority}
                     onChange={e => setFilterPriority(e.target.value)}
                     data-testid="select-filter-priority"
-                    className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.1)] text-white/60 text-xs rounded-lg px-3 py-2 focus:outline-none min-h-[36px]"
+                    className="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] text-white/60 text-xs rounded-lg px-3 py-2 focus:outline-none"
                   >
                     <option value="All">All Priorities</option>
                     <option value="High">High</option>
@@ -422,7 +863,7 @@ export default function AdminLeads() {
                     value={filterStatus}
                     onChange={e => setFilterStatus(e.target.value)}
                     data-testid="select-filter-status"
-                    className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.1)] text-white/60 text-xs rounded-lg px-3 py-2 focus:outline-none min-h-[36px]"
+                    className="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] text-white/60 text-xs rounded-lg px-3 py-2 focus:outline-none"
                   >
                     <option value="All">All Statuses</option>
                     {Object.keys(STATUS_CONFIG).map(s => (
@@ -439,18 +880,25 @@ export default function AdminLeads() {
               ) : filteredProspects.length === 0 ? (
                 <div className="text-center py-16">
                   <Target className="w-12 h-12 text-white/10 mx-auto mb-4" />
-                  <p className="text-white/40 text-sm mb-2">No prospects in pipeline yet</p>
-                  <p className="text-white/25 text-xs">Paste company signals on the left and click "Analyse with AI" to identify opportunities.</p>
+                  <p className="text-white/40 text-sm mb-2">
+                    {prospects.length === 0 ? "No prospects yet" : "No prospects match filters"}
+                  </p>
+                  <p className="text-white/25 text-xs">
+                    {prospects.length === 0
+                      ? "Paste company signals on the left and click \"Analyse with AI\" to identify opportunities."
+                      : "Try adjusting the search or filters above."}
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-2 max-h-[70vh] overflow-y-auto pr-1">
                   {filteredProspects.map(lead => {
                     const statusConf = STATUS_CONFIG[lead.status];
                     const StatusIcon = statusConf.icon;
+                    const isExpanded = expandedLead === lead.id;
                     return (
                       <div key={lead.id} data-testid={`prospect-card-${lead.id}`}>
                         <button
-                          onClick={() => setExpandedLead(expandedLead === lead.id ? null : lead.id)}
+                          onClick={() => setExpandedLead(isExpanded ? null : lead.id)}
                           className="w-full text-left p-4 rounded-xl border border-[rgba(255,255,255,0.05)] hover:border-[rgba(201,168,76,0.15)] transition-all bg-[rgba(255,255,255,0.02)]"
                         >
                           <div className="flex items-start justify-between gap-3">
@@ -461,114 +909,114 @@ export default function AdminLeads() {
                               <div className="min-w-0">
                                 <p className="text-white font-semibold text-sm truncate">{lead.company}</p>
                                 <p className="text-white/40 text-xs mt-0.5 truncate">{lead.industry} · {lead.location}</p>
-                                <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                                <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                                   <Badge className={`text-xs border ${PRIORITY_COLOR[lead.priority]}`}>{lead.priority}</Badge>
                                   <Badge className={`text-xs border ${statusConf.color}`}><StatusIcon className="w-2.5 h-2.5 mr-1" />{lead.status}</Badge>
-                                  <span className={`text-xs font-bold ${SCORE_COLOR(lead.score)}`}>{lead.score}/10</span>
-                                  <span className="text-xs text-[hsl(43,78%,65%)]">{lead.estimatedProjectValue}</span>
+                                  {lead.sourceType && <SourceBadge sourceType={lead.sourceType} />}
                                 </div>
                               </div>
                             </div>
-                            <ChevronRight className={`w-4 h-4 text-white/30 flex-shrink-0 mt-1 transition-transform ${expandedLead === lead.id ? "rotate-90" : ""}`} />
+                            <div className="flex items-center gap-3 flex-shrink-0">
+                              <div className="text-right hidden sm:block">
+                                <p className={`text-sm font-bold ${SCORE_COLOR(lead.score)}`}>{lead.score}/10</p>
+                                <p className="text-white/30 text-xs">{lead.estimatedProjectValue}</p>
+                              </div>
+                              <ChevronDown className={`w-4 h-4 text-white/30 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                            </div>
                           </div>
                         </button>
 
-                        {expandedLead === lead.id && (
-                          <div className="mx-1 mb-1 bg-[rgba(201,168,76,0.03)] border border-[rgba(201,168,76,0.1)] border-t-0 rounded-b-xl p-5 space-y-4">
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                              {[
-                                { icon: Building2, label: "Industry", value: lead.industry },
-                                { icon: MapPin, label: "Location", value: lead.location },
-                                { icon: Users, label: "Team Size", value: lead.estimatedTeamSize },
-                                { icon: DollarSign, label: "Est. Value", value: lead.estimatedProjectValue },
-                                { icon: Mail, label: "Decision Makers", value: lead.decisionMakers },
-                                ...(lead.website ? [{ icon: Globe, label: "Website", value: lead.website }] : []),
-                              ].map(item => {
-                                const Icon = item.icon;
-                                return (
-                                  <div key={item.label} className="bg-[rgba(255,255,255,0.03)] rounded-lg p-3 border border-[rgba(255,255,255,0.04)]">
-                                    <div className="flex items-center gap-1.5 mb-1">
-                                      <Icon className="w-3 h-3 text-[hsl(43,78%,52%)]" />
-                                      <p className="text-white/30 text-xs">{item.label}</p>
-                                    </div>
-                                    <p className="text-white/80 text-xs font-medium">{item.value}</p>
-                                  </div>
-                                );
-                              })}
+                        {isExpanded && (
+                          <div className="mx-2 mb-2 p-5 rounded-b-xl border border-t-0 border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.01)] space-y-4">
+                            <ScoreBar score={lead.score} />
+
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                              <div className="bg-[rgba(255,255,255,0.04)] rounded-lg p-3">
+                                <p className="text-white/40 mb-1 flex items-center gap-1"><Users className="w-3 h-3" /> Team Size</p>
+                                <p className="text-white font-medium">{lead.estimatedTeamSize}</p>
+                              </div>
+                              <div className="bg-[rgba(255,255,255,0.04)] rounded-lg p-3">
+                                <p className="text-white/40 mb-1 flex items-center gap-1"><DollarSign className="w-3 h-3" /> Project Value</p>
+                                <p className="text-[hsl(43,78%,65%)] font-medium">{lead.estimatedProjectValue}</p>
+                              </div>
+                              <div className="bg-[rgba(255,255,255,0.04)] rounded-lg p-3">
+                                <p className="text-white/40 mb-1 flex items-center gap-1"><Clock className="w-3 h-3" /> Decision Makers</p>
+                                <p className="text-white/70 font-medium">{lead.decisionMakers}</p>
+                              </div>
                             </div>
 
+                            {lead.likelyOfficeNeed && (
+                              <div className="bg-[rgba(201,168,76,0.04)] border border-[rgba(201,168,76,0.1)] rounded-lg p-3 text-xs">
+                                <p className="text-white/40 mb-1 flex items-center gap-1"><Building2 className="w-3 h-3" /> Likely Office Need</p>
+                                <p className="text-white/70 leading-relaxed">{lead.likelyOfficeNeed}</p>
+                              </div>
+                            )}
+
                             <div>
-                              <p className="text-white/30 text-xs mb-2">Signals Detected</p>
+                              <p className="text-white/40 text-xs mb-2">Signals Detected</p>
                               <div className="flex flex-wrap gap-1.5">
                                 {lead.signalsDetected.map((s, i) => (
-                                  <span key={i} className="bg-[rgba(255,255,255,0.06)] text-white/60 text-xs px-2.5 py-1 rounded-full border border-[rgba(255,255,255,0.06)]">{s}</span>
+                                  <span key={i} className="bg-[rgba(255,255,255,0.06)] text-white/60 text-xs px-2.5 py-1 rounded-full border border-[rgba(255,255,255,0.08)]">
+                                    {s}
+                                  </span>
                                 ))}
                               </div>
                             </div>
 
                             <div>
-                              <p className="text-white/30 text-xs mb-1">Lead Score</p>
-                              <ScoreBar score={lead.score} />
-                            </div>
-
-                            <div>
-                              <p className="text-white/30 text-xs mb-1">AI Reasoning</p>
+                              <p className="text-white/40 text-xs mb-1">AI Reasoning</p>
                               <p className="text-white/60 text-xs leading-relaxed">{lead.reasoning}</p>
                             </div>
 
-                            <div>
-                              <button
-                                onClick={() => setShowOutreach(showOutreach === lead.id ? null : lead.id)}
-                                className="flex items-center gap-1.5 text-sm text-[hsl(43,78%,65%)] hover:text-[hsl(43,78%,75%)] min-h-[44px]"
-                                data-testid={`button-toggle-outreach-${lead.id}`}
+                            {lead.website && (
+                              <a
+                                href={lead.website.startsWith("http") ? lead.website : `https://${lead.website}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 text-xs text-[hsl(43,78%,65%)] hover:text-[hsl(43,78%,75%)]"
                               >
-                                <Mail className="w-4 h-4" />
-                                {showOutreach === lead.id ? "Hide outreach message" : "Show outreach message"}
-                                <ChevronDown className={`w-4 h-4 transition-transform ${showOutreach === lead.id ? "rotate-180" : ""}`} />
-                              </button>
-                              {showOutreach === lead.id && (
-                                <div className="relative mt-2">
-                                  <div className="bg-[rgba(255,255,255,0.04)] rounded-xl p-4 text-xs text-white/70 leading-relaxed whitespace-pre-wrap border border-[rgba(255,255,255,0.06)] max-h-60 overflow-y-auto">
-                                    {lead.outreachMessage}
-                                  </div>
-                                  <button
-                                    onClick={() => copyText(lead.outreachMessage, `outreach-${lead.id}`)}
-                                    className="absolute top-3 right-3 p-2 rounded-lg bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.2)] transition-all"
-                                    data-testid={`button-copy-outreach-${lead.id}`}
-                                  >
-                                    {copiedId === `outreach-${lead.id}` ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
-                                  </button>
-                                </div>
-                              )}
-                            </div>
+                                <Globe className="w-3 h-3" /> {lead.domain || lead.website}
+                              </a>
+                            )}
 
-                            <div className="flex items-center justify-between pt-2 border-t border-[rgba(255,255,255,0.05)]">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-white/40 text-xs mr-1">Status:</span>
-                                {(Object.keys(STATUS_CONFIG) as LeadStatus[]).map(s => (
-                                  <button
-                                    key={s}
-                                    data-testid={`button-status-${lead.id}-${s.toLowerCase()}`}
-                                    onClick={() => statusMutation.mutate({ id: lead.id, status: s })}
-                                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all min-h-[32px] ${
-                                      lead.status === s
-                                        ? STATUS_CONFIG[s].color + " opacity-100"
-                                        : "border-[rgba(255,255,255,0.1)] text-white/40 hover:text-white/70"
-                                    }`}
-                                  >
-                                    {s}
-                                  </button>
-                                ))}
+                            <button
+                              onClick={() => setShowOutreach(showOutreach === lead.id ? null : lead.id)}
+                              className="w-full text-left flex items-center justify-between py-2 text-sm text-[hsl(43,78%,65%)] hover:text-[hsl(43,78%,75%)] min-h-[44px]"
+                              data-testid={`button-toggle-outreach-${lead.id}`}
+                            >
+                              <span className="flex items-center gap-1.5"><Mail className="w-4 h-4" /> Outreach Message</span>
+                              <ChevronDown className={`w-4 h-4 transition-transform ${showOutreach === lead.id ? "rotate-180" : ""}`} />
+                            </button>
+                            {showOutreach === lead.id && (
+                              <div className="relative">
+                                <div className="bg-[rgba(255,255,255,0.04)] rounded-xl p-4 text-sm text-white/70 leading-relaxed whitespace-pre-wrap border border-[rgba(255,255,255,0.06)]">
+                                  {lead.outreachMessage}
+                                </div>
+                                <button
+                                  onClick={() => copyText(lead.outreachMessage, `${lead.id}-outreach`)}
+                                  className="absolute top-3 right-3 p-2 rounded-lg bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.2)] transition-all"
+                                  data-testid={`button-copy-outreach-${lead.id}`}
+                                >
+                                  {copiedId === `${lead.id}-outreach` ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+                                </button>
                               </div>
+                            )}
+
+                            <div className="flex items-center gap-2 pt-2 border-t border-[rgba(255,255,255,0.05)]">
+                              <select
+                                value={lead.status}
+                                onChange={e => statusMutation.mutate({ id: lead.id, status: e.target.value as LeadStatus })}
+                                data-testid={`select-status-${lead.id}`}
+                                className="flex-1 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-white/70 text-xs rounded-lg px-3 py-2 focus:outline-none min-h-[36px]"
+                              >
+                                {Object.keys(STATUS_CONFIG).map(s => (
+                                  <option key={s} value={s}>{s}</option>
+                                ))}
+                              </select>
                               <button
-                                onClick={() => {
-                                  if (confirm(`Remove ${lead.company} from pipeline?`)) {
-                                    deleteMutation.mutate(lead.id);
-                                    setExpandedLead(null);
-                                  }
-                                }}
-                                className="p-2 text-white/30 hover:text-red-400 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-                                data-testid={`button-delete-prospect-${lead.id}`}
+                                onClick={() => deleteMutation.mutate(lead.id)}
+                                className="p-2 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-all min-w-[36px] min-h-[36px] flex items-center justify-center"
+                                data-testid={`button-delete-${lead.id}`}
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -581,32 +1029,6 @@ export default function AdminLeads() {
                 </div>
               )}
             </div>
-          </div>
-        </div>
-
-        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6">
-          <h2 className="text-white font-semibold mb-4 flex items-center gap-2 text-sm">
-            <Search className="w-4 h-4 text-[hsl(43,78%,52%)]" /> What to Look For — Signal Guide
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { title: "Funding Signals", items: ["Series A/B/C announcements", "Seed funding rounds", "Private equity backing", "Government grants for expansion"] },
-              { title: "Growth Signals", items: ["LinkedIn headcount increase", "Multiple job ads open", "New city/state expansion", "Moving from coworking"] },
-              { title: "Real Estate Signals", items: ["Commercial lease signed", "New HQ announced", "Fitout permit applied", "Building completion news"] },
-              { title: "Industry Targets", items: ["Tech & SaaS companies", "Law & financial firms", "Consulting & architecture", "Healthcare administration"] },
-            ].map(section => (
-              <div key={section.title}>
-                <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-2">{section.title}</p>
-                <ul className="space-y-1">
-                  {section.items.map(item => (
-                    <li key={item} className="flex items-start gap-2 text-xs text-white/40">
-                      <ChevronRight className="w-3 h-3 text-[hsl(43,78%,52%)] flex-shrink-0 mt-0.5" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
           </div>
         </div>
       </main>

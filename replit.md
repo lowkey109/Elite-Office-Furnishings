@@ -16,10 +16,17 @@ A luxury, billionaire-aesthetic office furniture website for The Corporate Desk 
 - **Provider**: Replit built-in PostgreSQL (auto-provisioned)
 - **ORM**: Drizzle ORM (`drizzle-orm/node-postgres`) with `pg` pool
 - **Client**: `server/db.ts` — exports `db` (drizzle instance)
-- **Storage**: `server/storage.ts` — `DrizzleStorage` class (replaces former `MemStorage`)
-- **Schema**: `shared/schema.ts` — all 5 tables defined as Drizzle pgTable models
-- **Tables**: `users`, `leads`, `prospected_leads`, `supplier_quotes`, `referrals`
+- **Storage**: `server/storage.ts` — `DrizzleStorage` class
+- **Schema**: `shared/schema.ts` — 6 tables defined as Drizzle pgTable models
+- **Tables**: `users`, `leads`, `prospected_leads`, `supplier_quotes`, `referrals`, `planning_requests`
 - All data persists across server restarts
+
+### prospected_leads columns (key)
+- `domain` — extracted domain for deduplication
+- `likely_office_need` — AI-extracted specific fitout need description
+- `source_type` — one of: manual | job_ad | linkedin | hiring_page | announcement | article | website
+- `source_url` — original URL if provided
+- `signals_detected` — text[] array of extracted signals
 
 ## Environment Variables (set in Replit Secrets for deployment)
 | Variable | Description | Required |
@@ -116,8 +123,10 @@ The chatbot operates as a coordinated executive team:
 - `POST /api/marketing/twitter` — Post thread to X/Twitter
 - `POST /api/marketing/whatsapp` — Send WhatsApp Business message
 - `GET /api/marketing/status` — Check which channels are configured
-- `POST /api/admin/prospect` — AI analyses company signals, scores lead, generates outreach
+- `POST /api/admin/prospect` — AI analyses signals, dedupes, scores lead, generates outreach (body: sourceType, sourceText, sourceUrl?, companyHint?, skipDedupe?) → 409 if duplicate found
+- `POST /api/admin/prospects/batch-scan` — Process up to 20 signal blocks at once (body: items[], skipDedupe?)
 - `GET /api/admin/prospects` — Get all prospected leads pipeline
+- `GET /api/admin/prospects/adapters` — List available signal source adapters
 - `PATCH /api/admin/prospects/:id/status` — Update lead status
 - `DELETE /api/admin/prospects/:id` — Remove prospected lead
 
@@ -155,15 +164,17 @@ The chatbot operates as a coordinated executive team:
 - Leads by type breakdown chart
 - Quick actions: Lead Intelligence, Marketing Hub, View Site
 
-### Lead Intelligence Engine (/admin/leads)
-- Paste company signals (news, LinkedIn, funding announcements, job ads)
-- AI analyses expansion indicators and scores opportunity (1-10)
-- Returns: company, location, industry, team size, project value estimate, signals, decision makers, outreach message, reasoning
-- Priority: High/Medium/Low
-- Status tracking: New → Contacted → Responded → Qualified → Closed
+### Lead Intelligence Engine (/admin/lead-intelligence or /admin/leads)
+- **Multi-channel ingestion**: 7 source types — General Signals, Job Ad, LinkedIn Post, Hiring Page, Announcement, News Article, Company Website
+- Each source type has contextual textarea placeholder + optional URL field + company hint field
+- AI extracts: company, domain, location, industry, team size, likely office need, signals, project value, score, priority, decision makers, outreach message, reasoning
+- **Dedupe logic**: checks by company name similarity + domain + source URL before saving (409 response with option to override)
+- **Batch Signal Scan**: process up to 20 companies at once using `--- NEXT COMPANY ---` delimiter with progress tracking
+- Priority: High/Medium/Low · Status: New → Contacted → Responded → Qualified → Closed
+- Pipeline search (by company/location/industry), filter by priority and status
 - Copy outreach message to clipboard
-- Pipeline filtering by priority and status
-- Signal guide for what to look for
+- Service layer: `server/services/leadIntelligence.ts` — prompt building, AI analysis, domain extraction
+- Adapter architecture: `server/adapters/types.ts` + `server/adapters/manualAdapter.ts` — ready for future live scraping
 
 ### Marketing Hub (/admin/marketing)
 - Channels: Email, Facebook, Instagram, Telegram, X/Twitter, WhatsApp

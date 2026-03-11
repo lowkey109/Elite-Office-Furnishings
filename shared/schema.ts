@@ -45,10 +45,12 @@ export type Lead = typeof leads.$inferSelect;
 export const prospectedLeads = pgTable("prospected_leads", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   company: text("company").notNull(),
+  domain: text("domain"),
   website: text("website"),
   location: text("location").notNull(),
   industry: text("industry").notNull(),
   estimatedTeamSize: text("estimated_team_size").notNull(),
+  likelyOfficeNeed: text("likely_office_need"),
   signalsDetected: text("signals_detected").array().notNull().default(sql`'{}'`),
   estimatedProjectValue: text("estimated_project_value").notNull(),
   score: integer("score").notNull().default(5),
