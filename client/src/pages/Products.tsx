@@ -1,186 +1,255 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Layout } from "@/components/Layout";
-import { ArrowRight, Tag, Zap } from "lucide-react";
+import { ArrowRight, Tag, Search, SlidersHorizontal, X, Package, ChevronDown } from "lucide-react";
 
-const categories = ["All", "Executive Desks", "Manager Desks", "Boardroom Tables", "Reception Desks", "Office Seating", "Workstations", "Storage", "Office Pods"];
+interface Product {
+  product_name: string;
+  sku: string;
+  supplier: string;
+  category: string;
+  series: string;
+  dimensions?: string;
+  materials?: string;
+  colors?: string[];
+  features?: string[];
+  image?: string;
+  needs_manual_review?: boolean;
+}
 
-const products = [
-  {
-    name: "Luxury Modern Office Manager's Desk – Breeze Series",
-    sku: "LY-QF-01A",
-    category: "Manager Desks",
-    series: "Breeze Series",
-    image: "/images/category-desks.png",
-    description: "A statement piece for senior managers. Features premium wood veneer surfaces, integrated cable management, and coordinated storage unit.",
-    sizes: ["1600 × 800", "1800 × 900", "2000 × 1000"],
-    price: "From $2,890",
-  },
-  {
-    name: "Modern Manager's Office Desk – Minimalist Design",
-    sku: "LY-MD-8019",
-    category: "Manager Desks",
-    series: null,
-    image: "/images/category-desks.png",
-    description: "Clean lines, intelligent storage, and premium finishes define this highly functional manager's desk.",
-    sizes: ["1600 × 800", "1800 × 900"],
-    price: "From $1,990",
-  },
-  {
-    name: "Modern Office Desk For Executives – Minimalist Design",
-    sku: "LY-ED-B09",
-    category: "Executive Desks",
-    series: null,
-    image: "/images/category-desks.png",
-    description: "An executive desk designed to command authority. Premium materials, expansive workspace, and sophisticated styling.",
-    sizes: ["2000 × 1000", "2200 × 1100"],
-    price: "From $3,490",
-  },
-  {
-    name: "Luxury Executive Office Desk – Aimu Series",
-    sku: "LY-AM-01",
-    category: "Executive Desks",
-    series: "Aimu Series",
-    image: "/images/category-desks.png",
-    description: "The pinnacle of executive desk design. Part of our coordinated Aimu Series for a completely unified office look.",
-    sizes: ["2000 × 1000", "2200 × 1100", "2400 × 1200"],
-    price: "From $4,999",
-  },
-  {
-    name: "Executive Office Desk – Premium",
-    sku: "A-522-1",
-    category: "Executive Desks",
-    series: "Aimu Series",
-    image: "/images/category-desks.png",
-    description: "A commanding executive desk with premium veneer top, integrated cable spine, and coordinating credenza unit.",
-    sizes: ["2000 × 1000", "2200 × 1100"],
-    price: "$4,999",
-  },
-  {
-    name: "Spacious Professional Office Conference Table",
-    sku: "LY-MG-06",
-    category: "Boardroom Tables",
-    series: null,
-    image: "/images/category-boardroom.png",
-    description: "Seats up to 16 people. Designed for serious business. Premium veneer top with powder-coated steel base.",
-    sizes: ["3000 × 1200", "3600 × 1200", "4200 × 1300"],
-    price: "From $5,490",
-  },
-  {
-    name: "Modern Elegant Office Boardroom Table",
-    sku: "LY-BT-H-05",
-    category: "Boardroom Tables",
-    series: null,
-    image: "/images/category-boardroom.png",
-    description: "Where bold design meets practical function. Cable management trunking and premium finish options.",
-    sizes: ["2400 × 1100", "3000 × 1200", "3600 × 1200"],
-    price: "From $3,990",
-  },
-  {
-    name: "Premium Reception Counter with Feature Wall",
-    sku: "LY-RC-01",
-    category: "Reception Desks",
-    series: null,
-    image: "/images/category-reception.png",
-    description: "Make an unforgettable first impression. Full-height reception counter with integrated lighting options.",
-    sizes: ["Custom to specification"],
-    price: "POA",
-  },
-  {
-    name: "Ergonomic Executive Task Chair",
-    sku: "LY-CH-E01",
-    category: "Office Seating",
-    series: null,
-    image: "/images/category-seating.png",
-    description: "Full lumbar support, adjustable armrests, premium mesh or leather upholstery. AFRDI certified.",
-    sizes: ["Standard", "High-Back", "Extra-Wide"],
-    price: "From $890",
-  },
-  {
-    name: "Hot Desk Workstation – Open Plan",
-    sku: "LY-WS-04",
-    category: "Workstations",
-    series: null,
-    image: "/images/category-fitout.png",
-    description: "Configurable open-plan workstation pods. Available in 4, 6, and 8-person configurations with privacy screens.",
-    sizes: ["4-person", "6-person", "8-person"],
-    price: "From $590 pp",
-  },
-  {
-    name: "Premium Mobile Storage Pedestal",
-    sku: "LY-ST-P01",
-    category: "Storage",
-    series: null,
-    image: "/images/category-fitout.png",
-    description: "Mobile 3-drawer pedestal with soft-close drawers. Available in all desk-coordinated finishes.",
-    sizes: ["Standard 3-drawer", "High 4-drawer"],
-    price: "From $490",
-  },
-  {
-    name: "Acoustic Office Pod – Single",
-    sku: "LY-OP-S1",
-    category: "Office Pods",
-    series: null,
-    image: "/images/category-fitout.png",
-    description: "Create private focus zones within open-plan offices. Acoustic rated, ventilated, with integrated power.",
-    sizes: ["Single (1 person)", "Double (2 person)"],
-    price: "From $4,200",
-  },
-  {
-    name: "Coordinated Total Office Package – Breeze Series",
-    sku: "LY-QF-PKG",
-    category: "Executive Desks",
-    series: "Breeze Series",
-    image: "/images/category-fitout.png",
-    description: "Complete office furniture package with matching executive desk, credenza, boardroom table, and visitor chairs — all colour-coordinated.",
-    sizes: ["Custom configuration"],
-    price: "POA",
-  },
+const CATEGORY_IMAGES: Record<string, string> = {
+  "Executive Desks": "/images/category-desks.png",
+  "Manager Desks": "/images/category-desks.png",
+  "Boardroom Tables": "/images/category-boardroom.png",
+  "Reception Desks": "/images/category-reception.png",
+  "Office Seating": "/images/category-seating.png",
+  "Workstations": "/images/category-fitout.png",
+  "Storage": "/images/category-fitout.png",
+  "Storage & Filing": "/images/category-fitout.png",
+  "Lounge Seating": "/images/category-reception.png",
+  "Occasional Tables": "/images/category-reception.png",
+};
+
+const CATEGORY_PRICE_RANGES: Record<string, string> = {
+  "Executive Desks": "From $2,500",
+  "Manager Desks": "From $1,200",
+  "Boardroom Tables": "From $3,200",
+  "Reception Desks": "From $2,800",
+  "Office Seating": "From $450",
+  "Workstations": "From $890",
+  "Storage": "From $350",
+  "Storage & Filing": "From $280",
+  "Lounge Seating": "From $1,400",
+  "Occasional Tables": "From $320",
+};
+
+const SUPPLIER_LABELS: Record<string, string> = {
+  "Foshan Feisenzhuo Furniture Co., Ltd.": "FSZ",
+  "Huasheng Furniture Group — Gaozhuo Division": "HSG",
+  "Huasheng Furniture Group — GOJO Division": "GOJO",
+  "Huasheng Furniture Group — Lounge & Seating Division": "GOJO Lounge",
+};
+
+const ALL_CATEGORIES = [
+  "All",
+  "Executive Desks",
+  "Manager Desks",
+  "Boardroom Tables",
+  "Reception Desks",
+  "Office Seating",
+  "Workstations",
+  "Storage",
+  "Storage & Filing",
+  "Lounge Seating",
+  "Occasional Tables",
 ];
+
+const PAGE_SIZE = 24;
+
+function ProductCard({ product }: { product: Product }) {
+  const [imgError, setImgError] = useState(false);
+  const imgSrc = (!imgError && product.image) ? product.image : (CATEGORY_IMAGES[product.category] || "/images/category-fitout.png");
+  const price = CATEGORY_PRICE_RANGES[product.category] || "POA";
+  const supplierLabel = SUPPLIER_LABELS[product.supplier] || product.supplier;
+
+  return (
+    <div
+      className="luxury-card rounded-md overflow-hidden group hover-elevate flex flex-col"
+      data-testid={`card-product-${product.sku.toLowerCase().replace(/[^a-z0-9]/g, "-")}`}
+    >
+      <div className="relative overflow-hidden" style={{ aspectRatio: "4/3" }}>
+        <img
+          src={imgSrc}
+          alt={product.product_name}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          onError={() => setImgError(true)}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,18%,10%)]/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute top-3 left-3 flex gap-1.5 flex-wrap max-w-[80%]">
+          <Badge className="bg-[rgba(201,168,76,0.85)] text-[hsl(220,20%,6%)] text-xs font-semibold">
+            {product.series}
+          </Badge>
+          <Badge className="bg-[hsl(220,20%,10%)]/90 text-white/70 text-[10px] border border-white/10">
+            {supplierLabel}
+          </Badge>
+        </div>
+        <div className="absolute top-3 right-3">
+          <div className="flex items-center gap-1.5 bg-[hsl(220,20%,6%)]/90 backdrop-blur-sm border border-[rgba(201,168,76,0.3)] rounded-full px-3 py-1">
+            <Tag className="w-3 h-3 text-[hsl(43,78%,52%)]" />
+            <span className="text-[hsl(43,78%,65%)] text-xs font-bold" data-testid={`text-price-${product.sku.toLowerCase()}`}>{price}</span>
+          </div>
+        </div>
+      </div>
+      <div className="p-5 flex flex-col flex-1">
+        <div className="text-xs text-[hsl(43,78%,52%)] font-mono mb-2 tracking-wider">{product.sku}</div>
+        <h3 className="font-serif font-bold text-white text-base leading-snug mb-3 line-clamp-2">{product.product_name}</h3>
+        {product.dimensions && (
+          <p className="text-white/40 text-xs mb-2 font-mono">{product.dimensions}</p>
+        )}
+        {product.materials && (
+          <p className="text-white/45 text-sm leading-relaxed mb-3 line-clamp-2">{product.materials}</p>
+        )}
+        {product.colors && product.colors.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {product.colors.slice(0, 3).map(color => (
+              <span key={color} className="text-xs bg-[rgba(255,255,255,0.04)] border border-[rgba(201,168,76,0.12)] text-white/50 px-2 py-0.5 rounded">
+                {color}
+              </span>
+            ))}
+            {product.colors.length > 3 && (
+              <span className="text-xs text-white/30">+{product.colors.length - 3} more</span>
+            )}
+          </div>
+        )}
+        <div className="mt-auto flex items-center justify-between gap-3">
+          <span className="text-[hsl(43,78%,65%)] font-bold text-sm">{price}</span>
+          <Button
+            asChild
+            size="sm"
+            className="bg-transparent border border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] font-medium hover:bg-[rgba(201,168,76,0.1)]"
+            data-testid={`button-product-quote-${product.sku.toLowerCase().replace(/[^a-z0-9]/g, "-")}`}
+          >
+            <Link href="/send-us-your-quote">
+              Request Quote <ArrowRight className="ml-1.5 w-3.5 h-3.5" />
+            </Link>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Products() {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [page, setPage] = useState(1);
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
-    document.title = "Office Furniture Products — Desks, Chairs, Boardrooms | The Corporate Desk";
+    document.title = "Office Furniture Products — 301 SKUs | The Corporate Desk";
     const meta = document.querySelector('meta[name="description"]') || document.createElement("meta");
     meta.setAttribute("name", "description");
-    meta.setAttribute("content", "Browse premium commercial office furniture: executive desks, boardroom tables, ergonomic seating, workstations, reception areas, storage and office pods. Aimu and Breeze series.");
+    meta.setAttribute("content", "Browse 301 premium commercial office furniture products: executive desks, boardroom tables, ergonomic seating, workstations, reception areas, GOJO, Feisenzhuo, Huasheng collections.");
     if (!meta.parentNode) document.head.appendChild(meta);
   }, []);
 
-  const filtered = activeCategory === "All"
-    ? products
-    : products.filter(p => p.category === activeCategory);
+  const { data: products = [], isLoading } = useQuery<Product[]>({
+    queryKey: ["/api/products"],
+  });
+
+  const filtered = useMemo(() => {
+    let result = products;
+    if (activeCategory !== "All") result = result.filter(p => p.category === activeCategory);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter(p =>
+        p.product_name.toLowerCase().includes(q) ||
+        p.sku.toLowerCase().includes(q) ||
+        (p.series || "").toLowerCase().includes(q) ||
+        (p.materials || "").toLowerCase().includes(q) ||
+        (p.category || "").toLowerCase().includes(q)
+      );
+    }
+    result = result.filter(p => !p.needs_manual_review);
+    return result;
+  }, [products, activeCategory, search]);
+
+  const paginated = useMemo(() => filtered.slice(0, page * PAGE_SIZE), [filtered, page]);
+  const hasMore = paginated.length < filtered.length;
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSearch(searchInput);
+    setPage(1);
+  };
+
+  const clearSearch = () => {
+    setSearch("");
+    setSearchInput("");
+    setPage(1);
+  };
+
+  const handleCategoryChange = (cat: string) => {
+    setActiveCategory(cat);
+    setPage(1);
+  };
+
+  const seriesInView = useMemo(() => {
+    return [...new Set(filtered.map(p => p.series).filter(Boolean))].sort();
+  }, [filtered]);
 
   return (
     <Layout>
       <section className="relative pt-28 sm:pt-40 pb-16 sm:pb-20 bg-gradient-to-b from-[hsl(220,20%,5%)] to-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Badge className="mb-5 bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)]">
-            Product Collection
+            301 SKUs — 4 Supplier Divisions
           </Badge>
           <h1 className="text-5xl md:text-6xl font-serif font-bold text-white mb-4">
             Our Furniture<br />
             <span className="gold-text">Collections</span>
           </h1>
           <div className="section-divider mb-6" />
-          <p className="text-white/55 max-w-xl leading-relaxed">
-            Meticulously curated furniture for the modern corporate environment. Every piece designed for those who demand excellence.
+          <p className="text-white/55 max-w-xl leading-relaxed mb-8">
+            Meticulously curated furniture from four premium supplier divisions. Executive desks, boardroom tables, height-adjustable workstations, lounge seating, and steel filing systems — all engineered to commercial grade.
           </p>
+
+          <form onSubmit={handleSearch} className="flex gap-3 max-w-xl">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+              <Input
+                value={searchInput}
+                onChange={e => setSearchInput(e.target.value)}
+                placeholder="Search by name, SKU, series, material…"
+                className="pl-9 bg-[rgba(255,255,255,0.06)] border-[rgba(201,168,76,0.2)] text-white placeholder:text-white/30 focus:border-[rgba(201,168,76,0.5)] h-11"
+                data-testid="input-product-search"
+              />
+              {searchInput && (
+                <button type="button" onClick={clearSearch} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60">
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+            <Button type="submit" className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold h-11 px-5" data-testid="button-product-search">
+              Search
+            </Button>
+          </form>
         </div>
       </section>
 
       <section className="sticky top-16 sm:top-20 z-30 bg-[hsl(220,20%,7%)]/97 backdrop-blur-md border-b border-[rgba(201,168,76,0.1)] py-3">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex gap-2 overflow-x-auto touch-scroll pb-1 flex-nowrap">
-            {categories.map(cat => (
+            {ALL_CATEGORIES.map(cat => (
               <button
                 key={cat}
-                onClick={() => setActiveCategory(cat)}
-                data-testid={`filter-${cat.toLowerCase().replace(/\s+/g, "-")}`}
+                onClick={() => handleCategoryChange(cat)}
+                data-testid={`filter-${cat.toLowerCase().replace(/[\s&]+/g, "-")}`}
                 style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
                 className={`flex-shrink-0 px-4 min-h-[44px] rounded-md text-sm font-medium transition-all ${
                   activeCategory === cat
@@ -197,69 +266,104 @@ export default function Products() {
 
       <section className="py-16 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8 flex items-center justify-between">
-            <p className="text-white/40 text-sm">
-              Showing <span className="text-white">{filtered.length}</span> products
-            </p>
-            <Badge className="bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.2)]">
-              Quote available for all products
-            </Badge>
+          <div className="mb-8 flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-3">
+              <p className="text-white/40 text-sm">
+                {isLoading ? (
+                  <span className="text-white/30">Loading catalogue…</span>
+                ) : (
+                  <>Showing <span className="text-white">{paginated.length}</span> of <span className="text-white">{filtered.length}</span> products</>
+                )}
+              </p>
+              {search && (
+                <Badge className="bg-[rgba(201,168,76,0.15)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.2)]">
+                  Search: "{search}"
+                  <button onClick={clearSearch} className="ml-1.5 hover:text-white" data-testid="button-clear-search">
+                    <X className="w-3 h-3 inline" />
+                  </button>
+                </Badge>
+              )}
+            </div>
+            <div className="flex items-center gap-3">
+              <Badge className="bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.2)]">
+                Quote available for all products
+              </Badge>
+              {seriesInView.length > 0 && (
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="flex items-center gap-1.5 text-white/50 text-xs hover:text-white/80 border border-white/10 px-3 py-1.5 rounded"
+                  data-testid="button-toggle-series"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                  {seriesInView.length} Series
+                  <ChevronDown className={`w-3 h-3 transition-transform ${showFilters ? "rotate-180" : ""}`} />
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((product) => (
-              <div
-                key={product.sku}
-                className="luxury-card rounded-md overflow-hidden group hover-elevate flex flex-col"
-                data-testid={`card-product-${product.sku.toLowerCase()}`}
-              >
-                <div className="relative overflow-hidden" style={{ aspectRatio: "4/3" }}>
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/images/category-desks.png";
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,18%,10%)]/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  {product.series && (
-                    <div className="absolute top-3 left-3">
-                      <Badge className="bg-[rgba(201,168,76,0.8)] text-[hsl(220,20%,6%)] text-xs font-semibold">
-                        {product.series}
-                      </Badge>
-                    </div>
-                  )}
-                  <div className="absolute top-3 right-3">
-                    <div className="flex items-center gap-1.5 bg-[hsl(220,20%,6%)]/90 backdrop-blur-sm border border-[rgba(201,168,76,0.3)] rounded-full px-3 py-1">
-                      <Tag className="w-3 h-3 text-[hsl(43,78%,52%)]" />
-                      <span className="text-[hsl(43,78%,65%)] text-xs font-bold" data-testid={`text-price-${product.sku.toLowerCase()}`}>{product.price}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-5 flex flex-col flex-1">
-                  <div className="text-xs text-[hsl(43,78%,52%)] font-mono mb-2 tracking-wider">{product.sku}</div>
-                  <h3 className="font-serif font-bold text-white text-base leading-snug mb-3">{product.name}</h3>
-                  <p className="text-white/45 text-sm leading-relaxed mb-4 line-clamp-2">{product.description}</p>
-                  <div className="flex flex-wrap gap-1.5 mb-5">
-                    {product.sizes.map(size => (
-                      <span key={size} className="text-xs bg-[rgba(255,255,255,0.04)] border border-[rgba(201,168,76,0.12)] text-white/50 px-2 py-0.5 rounded">
-                        {size}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="mt-auto flex items-center justify-between gap-3">
-                    <span className="text-[hsl(43,78%,65%)] font-bold text-base">{product.price}</span>
-                    <Button asChild size="sm" className="bg-transparent border border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] font-medium hover:bg-[rgba(201,168,76,0.1)]" data-testid={`button-product-quote-${product.sku.toLowerCase()}`}>
-                      <Link href={`/send-us-your-quote`}>
-                        Request Quote <ArrowRight className="ml-1.5 w-3.5 h-3.5" />
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
+          {showFilters && seriesInView.length > 0 && (
+            <div className="mb-6 p-4 bg-[hsl(220,20%,7%)] border border-[rgba(201,168,76,0.12)] rounded-md">
+              <p className="text-white/40 text-xs mb-3 uppercase tracking-wider">Series in this category</p>
+              <div className="flex flex-wrap gap-2">
+                {seriesInView.map(series => (
+                  <button
+                    key={series}
+                    onClick={() => { setSearchInput(series); setSearch(series); setPage(1); }}
+                    className="text-xs px-3 py-1 bg-[rgba(201,168,76,0.08)] border border-[rgba(201,168,76,0.2)] text-[hsl(43,78%,60%)] rounded hover:bg-[rgba(201,168,76,0.15)] transition-colors"
+                    data-testid={`filter-series-${series.toLowerCase().replace(/\s+/g, "-")}`}
+                  >
+                    {series}
+                  </button>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
+
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 9 }).map((_, i) => (
+                <div key={i} className="luxury-card rounded-md overflow-hidden animate-pulse">
+                  <div className="bg-[rgba(255,255,255,0.04)]" style={{ aspectRatio: "4/3" }} />
+                  <div className="p-5">
+                    <div className="h-3 w-24 bg-[rgba(255,255,255,0.06)] rounded mb-3" />
+                    <div className="h-5 w-full bg-[rgba(255,255,255,0.04)] rounded mb-2" />
+                    <div className="h-4 w-3/4 bg-[rgba(255,255,255,0.04)] rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="text-center py-24">
+              <Package className="w-12 h-12 text-white/20 mx-auto mb-4" />
+              <h3 className="text-white/60 font-serif text-xl mb-2">No products found</h3>
+              <p className="text-white/30 text-sm mb-6">Try a different search term or category.</p>
+              <Button onClick={clearSearch} variant="outline" className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)]" data-testid="button-clear-search-empty">
+                Clear search
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {paginated.map((product) => (
+                  <ProductCard key={product.sku} product={product} />
+                ))}
+              </div>
+              {hasMore && (
+                <div className="mt-12 text-center">
+                  <Button
+                    onClick={() => setPage(p => p + 1)}
+                    variant="outline"
+                    size="lg"
+                    className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] px-10 min-h-[52px] hover:bg-[rgba(201,168,76,0.08)]"
+                    data-testid="button-load-more"
+                  >
+                    Load More Products ({filtered.length - paginated.length} remaining)
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </section>
 
@@ -268,14 +372,14 @@ export default function Products() {
           <div className="rounded-2xl border border-[rgba(201,168,76,0.3)] bg-gradient-to-br from-[hsl(220,18%,10%)] to-[hsl(220,20%,7%)] p-8 sm:p-10 flex flex-col md:flex-row items-center gap-8">
             <div className="flex-1 text-center md:text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[rgba(201,168,76,0.1)] border border-[rgba(201,168,76,0.2)] rounded-full mb-4">
-                <Zap className="w-3 h-3 text-[hsl(43,78%,52%)]" />
+                <Search className="w-3 h-3 text-[hsl(43,78%,52%)]" />
                 <span className="text-[hsl(43,78%,65%)] text-xs font-medium tracking-wider uppercase">AI-Powered</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white mb-3">
                 Not Sure Which Products Suit Your Space?
               </h2>
-              <p className="text-white/55 leading-relaxed mb-0 md:mb-0">
-                Upload your floor plan and let our AI analyse your space, recommend the right products from our full catalogue, and generate an estimated project cost — before you speak to anyone.
+              <p className="text-white/55 leading-relaxed">
+                Upload your floor plan and let our AI analyse your space, recommend the right products from our 301-SKU catalogue, and generate an estimated project cost — before you speak to anyone.
               </p>
             </div>
             <div className="flex flex-col gap-3 flex-shrink-0 w-full md:w-auto">
@@ -296,11 +400,14 @@ export default function Products() {
             Can't Find What You're Looking For?
           </h2>
           <p className="text-white/55 mb-8 leading-relaxed">
-            Our catalogue contains hundreds of products. Contact us with your specifications and we'll find the perfect solution for your office.
+            Our full catalogue contains 301 products across executive, manager, boardroom, sit-stand, storage and lounge categories. Speak to a specialist who knows every SKU.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Button asChild size="lg" className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold border-none px-8" data-testid="button-products-cta-contact">
               <Link href="/contact">Speak to a Specialist</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] px-8" data-testid="button-products-cta-solutions">
+              <Link href="/workplace-solutions">View Workplace Solutions</Link>
             </Button>
           </div>
         </div>

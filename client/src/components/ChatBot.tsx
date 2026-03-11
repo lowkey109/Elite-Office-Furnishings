@@ -34,10 +34,10 @@ const DEFAULT_GREETING =
   "Welcome to The Corporate Desk. I'm your AI consultant — here to help with products, pricing, fitouts, and more. What brings you here today?";
 
 const QUICK_REPLIES_INITIAL: QuickReply[] = [
-  { label: "See product range", value: "What products do you carry?" },
+  { label: "301 SKUs — browse products", value: "What products do you carry across your 301-SKU catalogue?" },
+  { label: "GOJO Vol 2 neo-Chinese luxury", value: "Tell me about the GOJO Vol 2 collections — JN, YOM and HXM series" },
   { label: "Get pricing info", value: "What are your pricing ranges for a typical office fitout?" },
-  { label: "How long does it take?", value: "What are your typical lead times for delivery and installation?" },
-  { label: "Are you ISO certified?", value: "What certifications do you have?" },
+  { label: "Are you ISO certified?", value: "What certifications do you have and what is your warranty?" },
 ];
 
 const QUICK_REPLIES_FOLLOWUP: QuickReply[] = [

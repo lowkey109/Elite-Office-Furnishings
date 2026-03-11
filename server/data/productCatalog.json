@@ -1,7 +1,7 @@
 {
   "metadata": {
     "generated": "2026-03-11",
-    "last_updated": "2026-03-11T13:37:58.896Z",
+    "last_updated": "2026-03-11T14:11:16.902Z",
     "sources": [
       "catalogs/feisenzhuo/design_style.pdf",
       "catalogs/feisenzhuo/four_color_series_products.pdf",
@@ -17,11 +17,11 @@
       "Huasheng Furniture Group — GOJO Division",
       "Huasheng Furniture Group — Lounge & Seating Division"
     ],
-    "total_products": 232,
+    "total_products": 301,
     "by_supplier": {
       "Foshan Feisenzhuo Furniture Co., Ltd.": 143,
       "Huasheng Furniture Group — Gaozhuo Division": 21,
-      "Huasheng Furniture Group — GOJO Division": 55,
+      "Huasheng Furniture Group — GOJO Division": 124,
       "Huasheng Furniture Group — Lounge & Seating Division": 13
     },
     "categories": {

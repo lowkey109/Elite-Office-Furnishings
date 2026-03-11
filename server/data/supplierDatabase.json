@@ -125,7 +125,7 @@
         "ISO 45001"
       ],
       "sku_prefix": "GJO",
-      "total_products": 25,
+      "total_products": 127,
       "series": [
         "LRU",
         "JCN",
@@ -139,16 +139,25 @@
         "WINA",
         "WPN",
         "MZE",
-        "JN",
-        "YA",
-        "HXT"
+        "JN (忆江南 Yi Jiang Nan — Memories of Jiangnan)",
+        "YOM (云曜 Yun Yao — Cloudy Radiance)",
+        "HXM (泓熙 Hong Xi — Flowing Brilliance)",
+        "Yashang Steel",
+        "Yafeng Steel Tank"
       ],
       "contact_note": "Do not contact directly — request via TCD procurement",
-      "product_count": 55,
+      "product_count": 127,
       "categories": [
-        "Storage & Filing"
+        "Executive Desks",
+        "Boardroom Tables",
+        "Storage",
+        "Storage & Filing",
+        "Lounge Seating",
+        "Office Seating",
+        "Occasional Tables",
+        "Reception Desks"
       ],
-      "notes": " Also manufactures GOJO Steel Office Systems (Yashang + Yafeng series) — filing cabinets, pedestals, lockers, mail cabinets. GOJO Executive Vol 2 covers JN series (忆江南)."
+      "notes": "GOJO Vol 1: LRU and other modern executive series. GOJO Vol 2: Three neo-Chinese premium collections — JN (忆江南, 24 SKUs, ebony/Zingana with moon gate lattice motifs), YOM (云曜, 24 SKUs, dark panel with copper medallion), HXM (泓熙, 24 SKUs, gold metal rails with slat fascia). Steel Office Systems: Yashang (orange-handle white steel filing) + Yafeng (matte white smart-lock lockers). All Vol 2 furniture uses imported Zingana (African zebrawood) with copper hardware and mortise-and-tenon joinery."
     },
     {
       "id": "LSG",

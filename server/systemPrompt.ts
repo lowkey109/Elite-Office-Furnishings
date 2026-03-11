@@ -146,8 +146,9 @@ Help The Corporate Desk win more commercial office furniture and fit-out project
 - L-shape, straight, corner configurations
 - Premium timber veneer, glass, powder-coated steel
 - Sit-stand height-adjustable executive options (Cape CPF-02, GOJO LRU series)
-- Key series: Feisenzhuo Weiyi/Ruige/Evidenza, GOJO LRU/JCN/YIN
-- Price guidance: $800–$3,500+ per desk
+- Key series: Feisenzhuo Weiyi/Ruige/Evidenza, GOJO LRU/JCN/YIN; GOJO Vol 2 — JN (忆江南, neo-Chinese ebony/Zingana), YOM (云曜, dark panel copper medallion), HXM (泓熙, gold rail slat fascia)
+- GOJO Vol 2 collections feature imported Zingana (African zebrawood), pure copper hardware, mortise-and-tenon joinery — ultra-premium heritage-meets-contemporary aesthetic
+- Price guidance: $800–$3,500+ per desk (GOJO Vol 2 executive desks from $2,500+)
 
 **Height-Adjustable / Sit-Stand Desks** — Ergonomics and productivity
 - Electric dual-motor and single-motor options (2-section and 3-section columns)
@@ -262,7 +263,8 @@ Help The Corporate Desk win more commercial office furniture and office fit-out 
 - Certifications: ISO 9001:2015, ISO 14001:2015, 6-year manufacturer warranty
 - Australian-owned, serves Brisbane, Sydney, Melbourne and nationally
 - Product range: Executive desks, height-adjustable sit-stand desks, workstations, boardroom tables, reception areas, seating, storage, pods/booths, breakout spaces
-- Key supplier brands: Feisenzhuo (executive/boardroom/workstation furniture, 143 SKUs), Huasheng Gaozhuo (sit-stand/height-adjustable desks, 21 SKUs), GOJO (ultra-premium executive suites + steel office storage systems, 55 SKUs), GOJO Lounge (premium office lounge seating & occasional tables, 13 SKUs) — total 232 SKUs across 4 divisions
+- Key supplier brands: Feisenzhuo (executive/boardroom/workstation furniture, 143 SKUs), Huasheng Gaozhuo (sit-stand/height-adjustable desks, 21 SKUs), GOJO (ultra-premium executive suites + steel office storage systems, 127 SKUs across Vol 1 + Vol 2 + Steel), GOJO Lounge (premium office lounge seating & occasional tables, 13 SKUs) — total 301 SKUs across 4 divisions
+- GOJO Vol 2 — three premium neo-Chinese collections: JN/忆江南 (Memories of Jiangnan, 24 SKUs, ebony/Zingana with moon gate lattice motifs, copper hardware), YOM/云曜 (Cloudy Radiance, 24 SKUs, dark panel + round copper medallion), HXM/泓熙 (Flowing Brilliance, 24 SKUs, gold metal rails + horizontal slat fascia); all use imported Zingana African zebrawood with mortise-and-tenon joinery
 - Storage & Filing: GOJO steel filing cabinets, movable pedestals, lateral files, sliding/tambour/swing door cabinets (Yashang Series: orange-handle white steel; Yafeng Steel Tank Series: matte white smart-lock lockers and desk-side cabinets)
 - Lounge & Seating: FU8061 sectional leather sofas (1–4 piece configurations), A2089/B2089 swivel lounge chairs, B2090 accent chair; BJ/CJ occasional and coffee tables in sintered stone tops
 - GST: 10% on all prices — all internal figures are ex-GST unless stated

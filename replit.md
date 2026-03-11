@@ -53,6 +53,23 @@ All admin pages are protected with email + password login (stored in sessionStor
 - Auth logic: `client/src/lib/adminAuth.ts` → `validateAdminLogin(email, password)`
 - Admin pages: `/admin/dashboard`, `/admin/planning-requests`, `/admin/leads`, `/admin/supplier-quotes`, `/admin/marketing`
 
+## Product Catalogue (301 SKUs — as of 2026-03-11)
+Live catalogue at `server/data/productCatalog.json`. Supplier DB at `server/data/supplierDatabase.json`.
+- **FSZ (Feisenzhuo)** — 143 SKUs: Weiyi, Blister, Red Cliff, Ruige, Vic, Zhuoya, Dynamic, Dell, Evidenza, Teak, Pari, New Berlin, Shanhe, Bit, Four Color series
+- **HSG (Huasheng Gaozhuo)** — 21 SKUs: Milan, Karen, Owen, Miller, Mige, Better, Baggio, Bonnie, Mike, Cape sit-stand desk series
+- **GJO (GOJO)** — 124 SKUs:
+  - Vol 1: LRU (premium dark oak executive suites + boardroom tables)
+  - Vol 2 neo-Chinese luxury (Zingana/ebony + copper hardware + mortise-and-tenon):
+    - **JN / 忆江南** (Memories of Jiangnan) — 24 SKUs, moon gate lattice motifs
+    - **YOM / 云曜** (Cloudy Radiance) — 24 SKUs, dark panel + round copper medallion
+    - **HXM / 泓熙** (Flowing Brilliance) — 24 SKUs, gold metal rails + slat fascia
+  - Steel Systems: Yashang (white/orange steel filing) + Yafeng (smart-lock lockers)
+  - Vol 1 placeholder series (needs_manual_review=true): JCN, YIN, VEP, VEIYE, YUP, GUANHE, YUZ, BSA, WINA, WPN, MZE
+- **LSG (GOJO Lounge)** — 13 SKUs: FU8061 sofas, accent chairs, BJ/CJ stone-top tables
+- Catalogue is built at server startup via `buildCatalogueForAI()` in `server/routes.ts`
+- Products page (`/products`) fetches from `/api/products` with live search + category filters
+- API: `/api/products`, `/api/products/search`, `/api/products/series/:series`, `/api/products/sku/:sku`
+
 ## 3D Office Walkthrough (`/3d-office-walkthrough`)
 Interactive Three.js 3D floor plan viewer (file: `client/src/pages/OfficeWalkthrough.tsx`):
 - **Demo mode** (no `?id` param): Shows "DEMONSTRATION LAYOUT" badge with generated office zones
