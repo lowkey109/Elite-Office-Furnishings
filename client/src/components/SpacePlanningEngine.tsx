@@ -267,7 +267,14 @@ export default function SpacePlanningEngine({
 
   const meetingCount = zones.filter(z => {
     const n = z.zone.toLowerCase();
-    return n.includes("meeting") || n.includes("boardroom") || n.includes("conference");
+    return (n.includes("meeting") || n.includes("conference")) && !n.includes("boardroom");
+  }).length;
+
+  const boardroomCount = zones.filter(z => z.zone.toLowerCase().includes("boardroom")).length;
+
+  const breakoutCount = zones.filter(z => {
+    const n = z.zone.toLowerCase();
+    return n.includes("breakout") || n.includes("lounge") || n.includes("collaborative");
   }).length;
 
   const workstationCapacity = zones.filter(z => {
@@ -284,6 +291,10 @@ export default function SpacePlanningEngine({
     const n = z.zone.toLowerCase();
     return n.includes("workstation") || n.includes("open") || n.includes("desk");
   }).reduce((s, z) => s + (z.percentage || 0), 0);
+
+  const efficiencyScore = sqmNum && staff
+    ? Math.min(100, Math.round((staff * 8 / sqmNum) * 100))
+    : null;
 
   const layoutItems = buildTreemap(
     validZones,
@@ -430,6 +441,32 @@ export default function SpacePlanningEngine({
               );
             })}
 
+            {/* Circulation paths overlay */}
+            {layoutItems.length >= 2 && (() => {
+              const cx = SVG_W / 2;
+              const cy = SVG_H / 2;
+              const pathColor = "rgba(255,255,255,0.18)";
+              const arrowSize = 5;
+              return (
+                <g>
+                  <line x1={MARGIN} y1={cy} x2={SVG_W - MARGIN} y2={cy}
+                    stroke={pathColor} strokeWidth="1.5" strokeDasharray="8,5" />
+                  <line x1={cx} y1={MARGIN} x2={cx} y2={SVG_H - MARGIN}
+                    stroke={pathColor} strokeWidth="1" strokeDasharray="6,5" />
+                  {[cx - 60, cx + 60].map((ax, i) => (
+                    <polygon key={i}
+                      points={`${ax},${cy - arrowSize} ${ax + (i === 0 ? -arrowSize * 1.4 : arrowSize * 1.4)},${cy} ${ax},${cy + arrowSize}`}
+                      fill={pathColor} />
+                  ))}
+                  <rect x={cx - 30} y={cy - 10} width={60} height={16} rx="3" fill="rgba(0,0,0,0.55)" />
+                  <text x={cx} y={cy + 2.5} textAnchor="middle" fontSize="8" fontWeight="600"
+                    fontFamily="Inter,sans-serif" fill="rgba(255,255,255,0.45)" letterSpacing="0.5">
+                    CIRCULATION
+                  </text>
+                </g>
+              );
+            })()}
+
             <g transform={`translate(${SVG_W - 32},32)`}>
               <circle cx="0" cy="0" r="16" fill="rgba(0,0,0,0.5)" stroke="rgba(201,168,76,0.35)" strokeWidth="1" />
               <text x="0" y="5" textAnchor="middle" fontSize="12" fontWeight="700"
@@ -471,10 +508,10 @@ export default function SpacePlanningEngine({
         <p className="text-[hsl(43,78%,65%)] text-xs font-semibold uppercase tracking-wider mb-4 flex items-center gap-1.5">
           <Users className="w-3.5 h-3.5" /> Workspace Summary
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <div data-testid="summary-total-staff">
             <p className="text-white font-bold text-xl">{staff || "—"}</p>
-            <p className="text-white/40 text-xs mt-0.5">Total Staff Capacity</p>
+            <p className="text-white/40 text-xs mt-0.5">Total Capacity</p>
           </div>
           <div data-testid="summary-workstations">
             <p className="text-white font-bold text-xl">{workstationCapacity || "—"}</p>
@@ -484,17 +521,36 @@ export default function SpacePlanningEngine({
             <p className="text-white font-bold text-xl">{meetingCount || "—"}</p>
             <p className="text-white/40 text-xs mt-0.5">Meeting Rooms</p>
           </div>
+          <div data-testid="summary-boardrooms">
+            <p className="text-white font-bold text-xl">{boardroomCount || "—"}</p>
+            <p className="text-white/40 text-xs mt-0.5">Boardroom{boardroomCount !== 1 ? "s" : ""}</p>
+          </div>
+          <div data-testid="summary-breakout-zones">
+            <p className="text-white font-bold text-xl">{breakoutCount || "—"}</p>
+            <p className="text-white/40 text-xs mt-0.5">Breakout Zones</p>
+          </div>
           <div data-testid="summary-sqm-per-staff">
             <p className="text-white font-bold text-xl">
               {sqmNum && staff ? `${(sqmNum / staff).toFixed(1)}m²` : "—"}
             </p>
-            <p className="text-white/40 text-xs mt-0.5">Per Workstation</p>
+            <p className="text-white/40 text-xs mt-0.5">Per Person</p>
           </div>
         </div>
 
-        {(workstationPct > 0 || collaborationPct > 0) && (
+        {(workstationPct > 0 || collaborationPct > 0 || efficiencyScore !== null) && (
           <div className="mt-4 pt-4 border-t border-[rgba(255,255,255,0.05)]">
-            <p className="text-white/40 text-xs mb-2">Layout Efficiency</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-white/40 text-xs">Layout Efficiency</p>
+              {efficiencyScore !== null && (
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                  efficiencyScore >= 80 ? "bg-green-500/15 text-green-400" :
+                  efficiencyScore >= 55 ? "bg-[rgba(201,168,76,0.15)] text-[hsl(43,78%,65%)]" :
+                  "bg-white/5 text-white/40"
+                }`}>
+                  {efficiencyScore >= 80 ? "High Density" : efficiencyScore >= 55 ? "Balanced" : "Spacious"} · {efficiencyScore}%
+                </span>
+              )}
+            </div>
             <div className="flex flex-wrap gap-4 text-xs">
               {workstationPct > 0 && (
                 <div className="flex items-center gap-1.5">
@@ -529,24 +585,38 @@ export default function SpacePlanningEngine({
               const zoneRecs = recs.filter(r => r.zone === zone.zone);
               if (!zoneRecs.length) return null;
               return (
-                <div key={zone.zone} className="rounded-xl p-3 border"
+                <div key={zone.zone} className="rounded-xl p-3.5 border"
                   style={{ borderColor: `${zone.color}35`, background: `${zone.color}08` }}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: zone.color }} />
-                    <span className="text-white font-semibold text-xs">{zone.zone}</span>
-                    <span className="text-white/30 text-xs">{zone.percentage}%</span>
+                  <div className="flex items-center justify-between gap-2 mb-2.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: zone.color }} />
+                      <span className="text-white font-semibold text-xs">{zone.zone}</span>
+                      <span className="text-white/30 text-xs">{zone.percentage}% of floor</span>
+                    </div>
+                    {zone.staffCapacity ? (
+                      <span className="text-white/40 text-xs">{zone.staffCapacity} pax</span>
+                    ) : null}
                   </div>
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     {zoneRecs.map((rec, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs">
-                        <span className="font-mono text-[hsl(43,78%,52%)] flex-shrink-0">{rec.sku}</span>
-                        <span className="text-white/60 flex-1 truncate">{rec.productName || rec.category}</span>
-                        <span className="text-white/40 flex-shrink-0">×{rec.quantity}</span>
-                        {rec.totalCost > 0 && (
-                          <span className="text-[hsl(43,78%,52%)] font-medium flex-shrink-0">
-                            ${rec.totalCost.toLocaleString("en-AU")}
-                          </span>
-                        )}
+                      <div key={i} className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-0.5">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-white/75 text-xs font-medium">{rec.category}</span>
+                            {rec.seriesRecommendation && (
+                              <span className="text-[hsl(43,78%,52%)] text-xs">· {rec.seriesRecommendation}</span>
+                            )}
+                          </div>
+                          <span className="font-mono text-white/35 text-[10px]">{rec.sku}</span>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-white/55 text-xs">×{rec.quantity}</p>
+                          {rec.totalCost > 0 && (
+                            <p className="text-[hsl(43,78%,52%)] text-xs font-medium">
+                              ${rec.totalCost.toLocaleString("en-AU")}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
