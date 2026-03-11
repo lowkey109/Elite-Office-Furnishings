@@ -1,7 +1,7 @@
 {
   "metadata": {
     "generated": "2026-03-11",
-    "last_updated": "2026-03-11T14:11:16.902Z",
+    "last_updated": "2026-03-11",
     "sources": [
       "catalogs/feisenzhuo/design_style.pdf",
       "catalogs/feisenzhuo/four_color_series_products.pdf",
@@ -17,7 +17,7 @@
       "Huasheng Furniture Group — GOJO Division",
       "Huasheng Furniture Group — Lounge & Seating Division"
     ],
-    "total_products": 301,
+    "total_products": 354,
     "by_supplier": {
       "Foshan Feisenzhuo Furniture Co., Ltd.": 143,
       "Huasheng Furniture Group — Gaozhuo Division": 21,
@@ -5271,6 +5271,813 @@
         "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
       ],
       "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "G01-1 Sled-Base Stackable Leisure Chair",
+      "sku": "GJN-G01-1",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G01",
+      "dimensions": "495W × 520D × 800H mm, Seat Height 430mm",
+      "materials": "PP plastic shell, chrome steel sled base, stackable up to 8 high",
+      "colors": [
+        "Apple Green",
+        "Amber Yellow",
+        "Tomato Red",
+        "Sky Blue",
+        "Charcoal Black",
+        "Cool Grey",
+        "Pure White"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g01-sled-chair.jpg"
+    },
+    {
+      "product_name": "G02-2 Four-Leg Stackable Leisure Chair",
+      "sku": "GJN-G02-2",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G02",
+      "dimensions": "510W × 510D × 760H mm, Seat Height 440mm",
+      "materials": "PP plastic shell with handle cut-out in backrest, chrome white four-leg base, stackable",
+      "colors": [
+        "Apple Green",
+        "Amber Yellow",
+        "Tomato Red",
+        "Charcoal Black",
+        "Cool Grey",
+        "Pure White"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g02-4leg-chair.jpg"
+    },
+    {
+      "product_name": "G03-2 Sled-Base Leisure Chair",
+      "sku": "GJN-G03-2",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G03",
+      "dimensions": "570W × 515D × 800H mm, Seat Height 440mm",
+      "materials": "Organic curved PP plastic shell, chrome sled base, stackable",
+      "colors": [
+        "Charcoal Black",
+        "Pure White",
+        "Sky Blue",
+        "Tomato Red",
+        "Forest Green"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g03-sled-chair.jpg"
+    },
+    {
+      "product_name": "G03-1M Sled-Base Chair with Seat Pad",
+      "sku": "GJN-G03-1M",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G03",
+      "dimensions": "490W × 515D × 800H mm, Seat Height 440mm",
+      "materials": "PP plastic shell, chrome sled base, removable fabric seat cushion pad",
+      "colors": [
+        "White shell / Lime Green pad",
+        "White shell / Blue pad",
+        "White shell / Grey pad",
+        "Black shell / Black pad"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g03-sled-pad-chair.jpg"
+    },
+    {
+      "product_name": "G03-2FM Four-Leg Armchair with Seat Pad",
+      "sku": "GJN-G03-2FM",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G03",
+      "dimensions": "570W × 515D × 800H mm, Seat Height 440mm",
+      "materials": "PP plastic shell with PP armrests, white four-leg base, removable fabric seat pad",
+      "colors": [
+        "White shell / Blue pad",
+        "White shell / Lime Green pad",
+        "White shell / Grey pad"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g03-4leg-armchair-pad.jpg"
+    },
+    {
+      "product_name": "G03-2FL Four-Leg Castor Chair with Arms",
+      "sku": "GJN-G03-2FL",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G03",
+      "dimensions": "570W × 515D × 800H mm, Seat Height 440mm",
+      "materials": "PP plastic shell with PP armrests, white four-leg base with dual-wheel castors",
+      "colors": [
+        "Sky Blue / White",
+        "White / White",
+        "Black / Black"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g03-castor-armchair.jpg"
+    },
+    {
+      "product_name": "G03-2LM Stackable Chair with Seat Pad",
+      "sku": "GJN-G03-2LM",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G03",
+      "dimensions": "500W × 515D × 800H mm, Seat Height 440mm",
+      "materials": "PP plastic shell, white four-leg base, removable fabric seat pad, stackable",
+      "colors": [
+        "White shell / Lime pad",
+        "White shell / Blue pad",
+        "White shell / Orange pad",
+        "Grey shell / Grey pad"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g03-4leg-stack-pad.jpg"
+    },
+    {
+      "product_name": "G03-5 Four Wooden Leg Leisure Chair",
+      "sku": "GJN-G03-5",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G03",
+      "dimensions": "505W × 515D × 800H mm, Seat Height 440mm",
+      "materials": "PP plastic organic shell, solid beech wood four-leg base",
+      "colors": [
+        "White shell / Natural wood",
+        "Grey shell / Natural wood"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g03-wood-leg-chair.jpg"
+    },
+    {
+      "product_name": "G03-6 Five-Star Swivel Leisure Chair",
+      "sku": "GJN-G03-6",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G03",
+      "dimensions": "600W × 515D × 430-520H mm (height adjustable)",
+      "materials": "PP plastic organic shell, aluminum five-star base, dual-wheel castors, pneumatic height adjustment",
+      "colors": [
+        "White",
+        "Sky Blue",
+        "Grey"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g03-swivel-chair.jpg"
+    },
+    {
+      "product_name": "G03-7 Five-Star Counter Stool",
+      "sku": "GJN-G03-7",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G03",
+      "dimensions": "600W × 515D × 580-680H mm (height adjustable)",
+      "materials": "PP plastic organic shell, aluminum five-star base, dual-wheel castors, high-lift pneumatic",
+      "colors": [
+        "White",
+        "Sky Blue",
+        "Black"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g03-counter-stool.jpg"
+    },
+    {
+      "product_name": "G03-M Metal Sled-Base Leisure Chair",
+      "sku": "GJN-G03-M",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G03",
+      "dimensions": "505W × 515D × 800H mm, Seat Height 440mm",
+      "materials": "PP plastic organic shell, powder-coated metal sled base, stackable",
+      "colors": [
+        "White",
+        "Black",
+        "Sky Blue",
+        "Red"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g03-metal-sled.jpg"
+    },
+    {
+      "product_name": "G04-1 Sled-Base Leisure Chair",
+      "sku": "GJN-G04-1",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G04",
+      "dimensions": "505W × 510D × 805H mm, Seat Height 430mm",
+      "materials": "Tall elegant PP plastic shell, chrome sled base, stackable",
+      "colors": [
+        "Pure White",
+        "Cool Grey"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g04-sled-chair.jpg"
+    },
+    {
+      "product_name": "G04-2 Four-Leg Leisure Chair",
+      "sku": "GJN-G04-2",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G04",
+      "dimensions": "505W × 510D × 805H mm, Seat Height 430mm",
+      "materials": "Tall elegant PP plastic shell, white powder-coat four-leg base, stackable",
+      "colors": [
+        "Pure White",
+        "Cool Grey"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g04-4leg-chair.jpg"
+    },
+    {
+      "product_name": "G04-1FM Sled-Base Armchair with Seat Pad",
+      "sku": "GJN-G04-1FM",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G04",
+      "dimensions": "590W × 510D × 805H mm, Seat Height 430mm",
+      "materials": "PP plastic shell with integrated armrests, chrome sled base, removable fabric seat pad",
+      "colors": [
+        "White shell / Amber pad",
+        "White shell / Blue pad",
+        "White shell / Lime pad",
+        "White shell / Grey pad"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g04-sled-armchair-pad.jpg"
+    },
+    {
+      "product_name": "G04-2LM Castor Chair with Seat Pad",
+      "sku": "GJN-G04-2LM",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G04",
+      "dimensions": "505W × 510D × 805H mm, Seat Height 430mm",
+      "materials": "PP plastic shell, white four-leg base with dual-wheel castors, removable fabric seat pad",
+      "colors": [
+        "White shell / Amber pad",
+        "White shell / Blue pad",
+        "White shell / Lime pad"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g04-castor-pad.jpg"
+    },
+    {
+      "product_name": "G04-5M Wooden-Leg Chair with Seat Pad",
+      "sku": "GJN-G04-5M",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G04",
+      "dimensions": "435W × 510D × 805H mm, Seat Height 430mm",
+      "materials": "PP plastic shell, solid beech wood four-leg base, removable fabric seat pad",
+      "colors": [
+        "White shell / Amber pad / Natural wood",
+        "White shell / Blue pad / Natural wood"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g04-wood-pad.jpg"
+    },
+    {
+      "product_name": "G04-6 Five-Star Swivel Leisure Chair",
+      "sku": "GJN-G04-6",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G04",
+      "dimensions": "600W × 510D × 430-520H mm (height adjustable)",
+      "materials": "PP plastic tall-back shell, black plastic five-star base, dual-wheel castors, pneumatic height adjustment",
+      "colors": [
+        "White",
+        "Black"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g04-5star-swivel.jpg"
+    },
+    {
+      "product_name": "G04-7L Aluminum Swivel Chair with Castors",
+      "sku": "GJN-G04-7L",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G04",
+      "dimensions": "600W × 510D × 430-520H mm (height adjustable)",
+      "materials": "PP plastic tall-back shell, polished aluminum five-star base, dual-wheel castors",
+      "colors": [
+        "White"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g04-alu-castor.jpg"
+    },
+    {
+      "product_name": "G04-7 Aluminum Four-Point Swivel Chair",
+      "sku": "GJN-G04-7",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G04",
+      "dimensions": "600W × 510D × 480H mm",
+      "materials": "PP plastic tall-back shell, polished aluminum four-star base (no castors), glide feet",
+      "colors": [
+        "White"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g04-alu-swivel.jpg"
+    },
+    {
+      "product_name": "G05-1 Four-Leg Stackable Leisure Chair",
+      "sku": "GJN-G05-1",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G05",
+      "dimensions": "510W × 520D × 800H mm, Seat Height 440mm",
+      "materials": "PP plastic shell with distinctive oval backrest cut-out, powder-coat four-leg base, stackable",
+      "colors": [
+        "Pure White",
+        "Charcoal Black",
+        "Cool Grey"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g05-4leg-chair.jpg"
+    },
+    {
+      "product_name": "G05-2 Wooden-Leg Leisure Chair",
+      "sku": "GJN-G05-2",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G05",
+      "dimensions": "510W × 520D × 800H mm, Seat Height 440mm",
+      "materials": "PP plastic shell with oval backrest cut-out, solid beech wood four-leg base",
+      "colors": [
+        "White shell / Natural wood",
+        "Black shell / Black stained wood"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g05-wood-chair.jpg"
+    },
+    {
+      "product_name": "G05-6 Five-Star Swivel Office Chair",
+      "sku": "GJN-G05-6",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G05",
+      "dimensions": "600W × 520D × 430-520H mm (height adjustable)",
+      "materials": "PP plastic shell with oval backrest cut-out, aluminum five-star base, dual-wheel castors, pneumatic lift",
+      "colors": [
+        "White",
+        "Grey",
+        "Black"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g05-swivel-chair.jpg"
+    },
+    {
+      "product_name": "G05-W Training Chair with Writing Tablet",
+      "sku": "GJN-G05-W",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G05",
+      "dimensions": "570W × 520D × 800H mm, Seat Height 440mm",
+      "materials": "PP plastic shell with oval cut-out, four-leg base, flip-up MDF writing tablet with chrome arm",
+      "colors": [
+        "Black shell / Black tablet",
+        "White shell / White tablet"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g05-writing-chair.jpg"
+    },
+    {
+      "product_name": "G06-1 Stackable Public Seating Chair",
+      "sku": "GJN-G06-1",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G06",
+      "dimensions": "530W × 535D × 810H mm, Seat Height 430mm",
+      "materials": "Reinforced PP plastic shell, powder-coat steel four-leg base, ganging capability, stackable",
+      "colors": [
+        "Navy Blue",
+        "Charcoal Black",
+        "Tomato Red",
+        "Pure White"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g06-public-chair.jpg"
+    },
+    {
+      "product_name": "G06-2 Training Chair with Flip Writing Tablet",
+      "sku": "GJN-G06-2",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G06",
+      "dimensions": "580W × 540D × 820H mm, Seat Height 430mm",
+      "materials": "Reinforced PP plastic, four-leg base, flip-up MDF laminate writing tablet",
+      "colors": [
+        "Navy Blue / tablet natural",
+        "Black / tablet black",
+        "White / tablet white"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g06-writing-chair.jpg"
+    },
+    {
+      "product_name": "G06-3 Linking Stackable Chair",
+      "sku": "GJN-G06-3",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G06",
+      "dimensions": "510W × 535D × 800H mm, Seat Height 430mm",
+      "materials": "PP plastic shell, sled base with chrome linking brackets, stackable up to 6",
+      "colors": [
+        "Navy Blue",
+        "Charcoal Black",
+        "Tomato Red",
+        "Pure White"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g06-linking-chair.jpg"
+    },
+    {
+      "product_name": "G06-4 Padded Seat Leisure Chair",
+      "sku": "GJN-G06-4",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G06",
+      "dimensions": "545W × 535D × 810H mm, Seat Height 430mm",
+      "materials": "PP plastic back, foam-padded upholstered seat, powder-coat sled base",
+      "colors": [
+        "Black frame / charcoal fabric",
+        "White frame / grey fabric",
+        "Blue frame / blue fabric"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g06-padded-chair.jpg"
+    },
+    {
+      "product_name": "G07-1 Heavy-Duty Stackable Chair",
+      "sku": "GJN-G07-1",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G07",
+      "dimensions": "540W × 545D × 820H mm, Seat Height 430mm",
+      "materials": "High-density reinforced PP plastic, heavy-gauge steel four-leg base, 150kg load rating, stackable",
+      "colors": [
+        "Charcoal Black",
+        "Slate Grey",
+        "Royal Blue"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g07-heavy-chair.jpg"
+    },
+    {
+      "product_name": "G07-2 Ergonomic Training Chair with Tablet",
+      "sku": "GJN-G07-2",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G07",
+      "dimensions": "545W × 545D × 820H mm, Seat Height 430mm",
+      "materials": "Reinforced PP plastic with lumbar support, steel base, optional flip-up MDF writing tablet",
+      "colors": [
+        "Black / Black tablet",
+        "Royal Blue / Blue tablet",
+        "Red / Black tablet"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g07-training-tablet.jpg"
+    },
+    {
+      "product_name": "G07-3 Row-Linked Public Seating",
+      "sku": "GJN-G07-3",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G07",
+      "dimensions": "510W × 545D × 820H mm per seat, Seat Height 430mm",
+      "materials": "PP plastic shell, sled base with chrome ganging links, bolt-down floor fixing option",
+      "colors": [
+        "Charcoal Black",
+        "Royal Blue",
+        "Tomato Red",
+        "Pure White"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g07-row-seating.jpg"
+    },
+    {
+      "product_name": "G07-4 Upholstered Public Seating Chair",
+      "sku": "GJN-G07-4",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "G07",
+      "dimensions": "520W × 545D × 820H mm, Seat Height 430mm",
+      "materials": "PP plastic back, foam padded fabric seat, heavy-gauge steel base",
+      "colors": [
+        "Black frame / charcoal fabric",
+        "Blue frame / navy fabric"
+      ],
+      "image": "/uploads/catalog-images/gaojin/g07-upholstered.jpg"
+    },
+    {
+      "product_name": "833-1C Classic Stacking Plastic Chair",
+      "sku": "GJN-833-1C",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Lounge Seating",
+      "series": "833-1C",
+      "dimensions": "490W × 485D × 820H mm, Seat Height 440mm",
+      "materials": "One-piece injection molded PP plastic, chrome or powder-coat four-leg base, stackable",
+      "colors": [
+        "White",
+        "Black",
+        "Grey",
+        "Beige"
+      ],
+      "image": "/uploads/catalog-images/gaojin/833-1c-classic-chair.jpg"
+    },
+    {
+      "product_name": "833-1C-A Classic Stacking Chair with Armrests",
+      "sku": "GJN-833-1C-A",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Lounge Seating",
+      "series": "833-1C",
+      "dimensions": "550W × 485D × 820H mm, Seat Height 440mm",
+      "materials": "One-piece injection molded PP plastic with integral armrests, chrome four-leg base, stackable",
+      "colors": [
+        "White",
+        "Black",
+        "Grey"
+      ],
+      "image": "/uploads/catalog-images/gaojin/833-1c-armchair.jpg"
+    },
+    {
+      "product_name": "842-3C Three-Seat Linked Training Seating",
+      "sku": "GJN-842-3C",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "842",
+      "dimensions": "1560W × 490D × 820H mm (3-seat unit), Seat Height 440mm",
+      "materials": "PP plastic seats, powder-coat tubular steel frame, bolt-down compatible, ganging brackets",
+      "colors": [
+        "Black",
+        "Grey",
+        "Blue",
+        "Red"
+      ],
+      "image": "/uploads/catalog-images/gaojin/842-3c-training-seat.jpg"
+    },
+    {
+      "product_name": "842-4C Four-Seat Linked Training Seating",
+      "sku": "GJN-842-4C",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Office Seating",
+      "series": "842",
+      "dimensions": "2080W × 490D × 820H mm (4-seat unit), Seat Height 440mm",
+      "materials": "PP plastic seats, powder-coat tubular steel frame, bolt-down compatible, ganging brackets",
+      "colors": [
+        "Black",
+        "Grey",
+        "Blue",
+        "Red"
+      ],
+      "image": "/uploads/catalog-images/gaojin/842-4c-training-seat.jpg"
+    },
+    {
+      "product_name": "848 Plastic Dining Chair",
+      "sku": "GJN-848",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Lounge Seating",
+      "series": "848/850",
+      "dimensions": "490W × 500D × 800H mm, Seat Height 450mm",
+      "materials": "One-piece PP plastic shell with textured seat, powder-coat metal four-leg base",
+      "colors": [
+        "White",
+        "Black",
+        "Nude Beige",
+        "Terracotta"
+      ],
+      "image": "/uploads/catalog-images/gaojin/848-dining-chair.jpg"
+    },
+    {
+      "product_name": "850 Plastic Dining Chair with Armrests",
+      "sku": "GJN-850",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Lounge Seating",
+      "series": "848/850",
+      "dimensions": "545W × 500D × 800H mm, Seat Height 450mm",
+      "materials": "One-piece PP plastic with integral armrests, powder-coat metal four-leg base",
+      "colors": [
+        "White",
+        "Black",
+        "Nude Beige"
+      ],
+      "image": "/uploads/catalog-images/gaojin/850-dining-armchair.jpg"
+    },
+    {
+      "product_name": "ZC Bull-Horn Stacking Plastic Chair",
+      "sku": "GJN-ZC-1",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Lounge Seating",
+      "series": "ZC 牛角椅",
+      "dimensions": "505W × 510D × 785H mm, Seat Height 445mm",
+      "materials": "Classic PP plastic with distinctive curved horn-shaped backrest profile, chrome sled base, stackable",
+      "colors": [
+        "Pure White",
+        "Charcoal Black",
+        "Warm Beige"
+      ],
+      "image": "/uploads/catalog-images/gaojin/zc-bullhorn-chair.jpg"
+    },
+    {
+      "product_name": "ZC-A Bull-Horn Plastic Armchair",
+      "sku": "GJN-ZC-A",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Lounge Seating",
+      "series": "ZC 牛角椅",
+      "dimensions": "550W × 510D × 785H mm, Seat Height 445mm",
+      "materials": "Classic PP plastic with horn backrest, integrated armrests, powder-coat four-leg base",
+      "colors": [
+        "Pure White",
+        "Charcoal Black"
+      ],
+      "image": "/uploads/catalog-images/gaojin/zc-bullhorn-armchair.jpg"
+    },
+    {
+      "product_name": "LZ9002 Modern Lounge Chair",
+      "sku": "GJN-LZ9002",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Lounge Seating",
+      "series": "LZ9002",
+      "dimensions": "680W × 650D × 760H mm, Seat Height 420mm",
+      "materials": "PP plastic shell with upholstered seat and back cushion, chrome four-leg base",
+      "colors": [
+        "White shell / Light Grey fabric",
+        "White shell / Navy fabric",
+        "Black shell / Black fabric"
+      ],
+      "image": "/uploads/catalog-images/gaojin/lz9002-lounge-chair.jpg"
+    },
+    {
+      "product_name": "LZ9003 Modern Lounge Chair with Ottoman",
+      "sku": "GJN-LZ9003",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Lounge Seating",
+      "series": "LZ9003",
+      "dimensions": "Chair: 680W × 650D × 760H mm, Ottoman: 480W × 450D × 420H mm",
+      "materials": "PP plastic shell, upholstered seat and back, chrome or powder-coat base, matching ottoman",
+      "colors": [
+        "White / Light Grey",
+        "White / Navy",
+        "Black / Charcoal",
+        "Ivory / Caramel"
+      ],
+      "image": "/uploads/catalog-images/gaojin/lz9003-lounge-ottoman.jpg"
+    },
+    {
+      "product_name": "K01 Single Lounge Chair",
+      "sku": "GJN-K01-1",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Lounge Seating",
+      "series": "K01",
+      "dimensions": "780W × 720D × 750H mm, Seat Height 420mm",
+      "materials": "Moulded PP shell with soft-touch overmold, foam cushion seat, polished aluminum legs",
+      "colors": [
+        "Warm White",
+        "Slate Grey",
+        "Sage Green",
+        "Dusty Rose"
+      ],
+      "image": "/uploads/catalog-images/gaojin/k01-single-lounge.jpg"
+    },
+    {
+      "product_name": "K01 Two-Seat Lounge Sofa",
+      "sku": "GJN-K01-2",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Lounge Seating",
+      "series": "K01",
+      "dimensions": "1480W × 720D × 750H mm, Seat Height 420mm",
+      "materials": "Moulded PP shell with soft-touch overmold, foam cushion, polished aluminum legs",
+      "colors": [
+        "Warm White",
+        "Slate Grey",
+        "Sage Green"
+      ],
+      "image": "/uploads/catalog-images/gaojin/k01-two-seat.jpg"
+    },
+    {
+      "product_name": "K01 Three-Seat Lounge Sofa",
+      "sku": "GJN-K01-3",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Lounge Seating",
+      "series": "K01",
+      "dimensions": "2180W × 720D × 750H mm, Seat Height 420mm",
+      "materials": "Moulded PP shell with soft-touch overmold, foam cushion, polished aluminum legs",
+      "colors": [
+        "Warm White",
+        "Slate Grey",
+        "Sage Green"
+      ],
+      "image": "/uploads/catalog-images/gaojin/k01-three-seat.jpg"
+    },
+    {
+      "product_name": "K01 Lounge Ottoman",
+      "sku": "GJN-K01-OT",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Lounge Seating",
+      "series": "K01",
+      "dimensions": "620W × 620D × 400H mm",
+      "materials": "PP base, foam cushion top with fabric upholstery, polished aluminum legs",
+      "colors": [
+        "Warm White / Light Grey",
+        "Slate Grey / Charcoal",
+        "Sage Green / Sage fabric"
+      ],
+      "image": "/uploads/catalog-images/gaojin/k01-ottoman.jpg"
+    },
+    {
+      "product_name": "K02 Single Modular Lounge Chair",
+      "sku": "GJN-K02-1",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Lounge Seating",
+      "series": "K02",
+      "dimensions": "820W × 760D × 780H mm, Seat Height 430mm",
+      "materials": "Structural PP frame, high-density foam cushions, premium fabric or PU upholstery, metal legs",
+      "colors": [
+        "Light Beige / Chrome legs",
+        "Charcoal / Black legs",
+        "Teal / Brass legs"
+      ],
+      "image": "/uploads/catalog-images/gaojin/k02-single.jpg"
+    },
+    {
+      "product_name": "K02 Corner Modular Unit",
+      "sku": "GJN-K02-C",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Lounge Seating",
+      "series": "K02",
+      "dimensions": "820W × 820D × 780H mm, Seat Height 430mm",
+      "materials": "Structural PP frame, high-density foam, premium fabric or PU upholstery, metal legs",
+      "colors": [
+        "Light Beige / Chrome legs",
+        "Charcoal / Black legs",
+        "Teal / Brass legs"
+      ],
+      "image": "/uploads/catalog-images/gaojin/k02-corner.jpg"
+    },
+    {
+      "product_name": "K02 Lounge Ottoman / Coffee Table",
+      "sku": "GJN-K02-OT",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Occasional Tables",
+      "series": "K02",
+      "dimensions": "900W × 450D × 380H mm",
+      "materials": "PP frame base, foam padded top or laminate table top, metal legs",
+      "colors": [
+        "Beige fabric top",
+        "Charcoal fabric top",
+        "White laminate top"
+      ],
+      "image": "/uploads/catalog-images/gaojin/k02-ottoman-table.jpg"
+    },
+    {
+      "product_name": "K02 High-Back Privacy Lounge Chair",
+      "sku": "GJN-K02-HB",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Lounge Seating",
+      "series": "K02",
+      "dimensions": "850W × 760D × 1100H mm, Seat Height 430mm",
+      "materials": "High-back PP shell frame, foam cushions, fabric or PU upholstery, swivel or fixed base",
+      "colors": [
+        "Ivory / Chrome",
+        "Charcoal / Black",
+        "Forest Green / Black"
+      ],
+      "image": "/uploads/catalog-images/gaojin/k02-highback.jpg"
+    },
+    {
+      "product_name": "K03 Single Reception Lounge Chair",
+      "sku": "GJN-K03-1",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Lounge Seating",
+      "series": "K03",
+      "dimensions": "870W × 780D × 780H mm, Seat Height 420mm",
+      "materials": "PP structural shell, memory foam cushions, premium leatherette or velvet, polished chrome sled base",
+      "colors": [
+        "Ivory leatherette",
+        "Charcoal velvet",
+        "Caramel leatherette",
+        "Midnight Navy velvet"
+      ],
+      "image": "/uploads/catalog-images/gaojin/k03-single.jpg"
+    },
+    {
+      "product_name": "K03 Two-Seat Reception Sofa",
+      "sku": "GJN-K03-2",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Lounge Seating",
+      "series": "K03",
+      "dimensions": "1620W × 780D × 780H mm, Seat Height 420mm",
+      "materials": "PP structural shell, memory foam cushions, premium leatherette or velvet, polished chrome sled base",
+      "colors": [
+        "Ivory leatherette",
+        "Charcoal velvet",
+        "Caramel leatherette",
+        "Midnight Navy velvet"
+      ],
+      "image": "/uploads/catalog-images/gaojin/k03-two-seat.jpg"
+    },
+    {
+      "product_name": "K03 Three-Seat Reception Sofa",
+      "sku": "GJN-K03-3",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Lounge Seating",
+      "series": "K03",
+      "dimensions": "2370W × 780D × 780H mm, Seat Height 420mm",
+      "materials": "PP structural shell, memory foam cushions, premium leatherette or velvet, polished chrome sled base",
+      "colors": [
+        "Ivory leatherette",
+        "Charcoal velvet",
+        "Caramel leatherette"
+      ],
+      "image": "/uploads/catalog-images/gaojin/k03-three-seat.jpg"
+    },
+    {
+      "product_name": "K03 Reception Ottoman",
+      "sku": "GJN-K03-OT",
+      "supplier": "Foshan Bohua Furniture Co., Ltd. (GAOJIN)",
+      "category": "Lounge Seating",
+      "series": "K03",
+      "dimensions": "650W × 650D × 400H mm",
+      "materials": "Foam cushion, matching leatherette or velvet upholstery, chrome sled base to match sofa",
+      "colors": [
+        "Ivory leatherette",
+        "Charcoal velvet",
+        "Caramel leatherette",
+        "Midnight Navy velvet"
+      ],
+      "image": "/uploads/catalog-images/gaojin/k03-ottoman.jpg"
     }
   ]
 }

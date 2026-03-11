@@ -1,0 +1,206 @@
+You are a senior full-stack developer, product information architect, premium eCommerce UX designer, and AI catalog enrichment engineer working on the live The Corporate Desk website in Replit.
+
+You are in SAFE IMPLEMENTATION MODE.
+
+Do NOT break any working systems.
+Do NOT rebuild the site from scratch.
+Only extend and improve the existing product system safely.
+
+CURRENT CONTEXT
+
+The Corporate Desk is a premium commercial office furniture and office fit-out brand.
+
+The website already includes:
+- public website pages
+- product catalog
+- premium collections
+- office packages
+- AI office planner
+- finance calculator
+- chatbot
+- admin / CRM systems
+
+OBJECTIVE
+
+Build a full product detail page system so that when a user clicks a product, they can view a premium product page with:
+- product images
+- detailed product information
+- product write-up
+- specifications
+- supplier information
+- related products
+- package compatibility
+- ratings and comments/reviews
+
+IMPORTANT:
+If product detail information is incomplete in the current site data, you may enrich the product pages using the supplier catalogs and, where necessary, the supplier/company websites for that product.
+
+However:
+- do NOT invent fake specs
+- do NOT invent fake dimensions
+- do NOT invent fake supplier details
+- if data cannot be confirmed, label it as "not confirmed" or leave it out cleanly
+
+PART 1 — PRODUCT DETAIL PAGE SYSTEM
+
+Create or improve product detail pages so each product can be clicked from:
+- products page
+- collections pages
+- package pages
+- AI planner recommendations if applicable
+
+Each product detail page must include:
+
+1. Product Header
+- product name
+- product images/gallery
+- SKU
+- category
+- collection
+- supplier name where available
+
+2. Product Description
+Create a premium, commercial-quality write-up explaining:
+- what the product is
+- where it is best used
+- why it suits commercial office environments
+
+3. Product Specifications
+Include confirmed information such as:
+- dimensions
+- materials
+- finishes
+- seating capacity if relevant
+- warranty if available
+- lead time if available
+
+4. Recommended Use
+Add a short section such as:
+- Best for executive offices
+- Best for workstation environments
+- Best for boardrooms
+- Best for reception spaces
+
+5. Related Products
+Show products that pair well with the item.
+
+6. Package Compatibility
+If the product belongs to any Office Package, show:
+- Included in The Director Suite
+- Included in The Team Studio
+etc.
+
+7. CTA Buttons
+Use commercial CTAs such as:
+- Request Quote
+- Add to Office Plan
+- Talk to a Specialist
+
+Do not use a cheap retail-style layout unless it already fits the site.
+
+PART 2 — DATA ENRICHMENT
+
+Audit the existing product data.
+
+If a product page lacks enough information, enrich it using:
+
+1. Existing product data in the project
+2. Uploaded supplier catalogs
+3. Supplier/company websites if necessary
+
+Supplier/company websites may be used only to confirm:
+- product names
+- SKU references
+- dimensions
+- material/finish info
+- product descriptions
+- gallery images if available and appropriate
+
+Do NOT scrape or use anything private.
+Use only public supplier product information if needed.
+
+PART 3 — REVIEWS / COMMENTS SYSTEM
+
+Add a product review and rating section.
+
+Requirements:
+
+1. Add star ratings
+2. Add written comments/reviews
+3. Store reviews safely in the database
+4. Add moderation or approval capability in admin if feasible
+5. Keep the UX premium and clean
+6. Do not let spam or broken review UI degrade the site
+
+If a full moderation workflow is needed, create an admin-visible review management area or a simple moderation status field.
+
+PART 4 — DATABASE / STORAGE
+
+If needed, extend the product data and create review storage safely.
+
+Possible additions:
+- product long description
+- specifications JSON
+- materials
+- finishes
+- lead time
+- supplier reference
+- reviews table
+- ratings field
+
+Do not break existing data or routes.
+
+PART 5 — DESIGN / UX
+
+The product pages must feel:
+- premium
+- editorial
+- commercial
+- high-trust
+- consistent with The Corporate Desk branding
+
+Requirements:
+- clean gallery layout
+- strong typography
+- clear specs section
+- clean CTA placement
+- responsive on desktop and mobile
+- no cheap marketplace feel
+
+PART 6 — AI / PLANNER CONNECTION
+
+Ensure the AI Office Planner and package system can reference these improved product pages.
+
+If the planner recommends a product, it should be able to point to the proper detail page.
+
+PART 7 — TESTING
+
+Before reporting completion, verify:
+1. Product cards click through correctly
+2. Product detail pages load correctly
+3. Descriptions and specs appear correctly
+4. Related products show correctly
+5. Package compatibility shows correctly
+6. Reviews and ratings work correctly
+7. Desktop/mobile both work
+8. No finance, chatbot, planner, admin, or lead systems are broken
+
+PART 8 — FINAL REPORT
+
+When complete, provide:
+1. files changed
+2. routes/pages added or updated
+3. what product information was enriched
+4. what data came from existing site/catalog data
+5. what data required supplier website lookup
+6. whether reviews/ratings were added
+7. how moderation works if implemented
+8. confirmation that desktop/mobile both work
+9. anything still needing manual review
+
+IMPORTANT
+
+Do not stay in planning mode.
+Audit the current product system first, then implement the product detail pages and review system carefully.
+Do not make messy changes.
+Keep everything premium, clean, and production-safe.

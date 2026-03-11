@@ -53,7 +53,7 @@ All admin pages are protected with email + password login (stored in sessionStor
 - Auth logic: `client/src/lib/adminAuth.ts` → `validateAdminLogin(email, password)`
 - Admin pages: `/admin/dashboard`, `/admin/planning-requests`, `/admin/leads`, `/admin/supplier-quotes`, `/admin/marketing`
 
-## Product Catalogue (301 SKUs — as of 2026-03-11)
+## Product Catalogue (354 SKUs — as of 2026-03-11)
 Live catalogue at `server/data/productCatalog.json`. Supplier DB at `server/data/supplierDatabase.json`.
 - **FSZ (Feisenzhuo)** — 143 SKUs: Weiyi, Blister, Red Cliff, Ruige, Vic, Zhuoya, Dynamic, Dell, Evidenza, Teak, Pari, New Berlin, Shanhe, Bit, Four Color series
 - **HSG (Huasheng Gaozhuo)** — 21 SKUs: Milan, Karen, Owen, Miller, Mige, Better, Baggio, Bonnie, Mike, Cape sit-stand desk series
@@ -66,6 +66,10 @@ Live catalogue at `server/data/productCatalog.json`. Supplier DB at `server/data
   - Steel Systems: Yashang (white/orange steel filing) + Yafeng (smart-lock lockers)
   - Vol 1 placeholder series (needs_manual_review=true): JCN, YIN, VEP, VEIYE, YUP, GUANHE, YUZ, BSA, WINA, WPN, MZE
 - **LSG (GOJO Lounge)** — 13 SKUs: FU8061 sofas, accent chairs, BJ/CJ stone-top tables
+- **GJN (GAOJIN / Foshan Bohua Furniture)** — 53 SKUs: Public seating, training chairs, stackable plastic leisure chairs, lounge & dining chairs
+  - G01 (sled-base leisure chair, 7 colors), G02 (4-leg stackable, 6 colors), G03 (organic multi-variant, 9 models), G04 (tall-back multi-variant, 8 models), G05 (hole-back design, 4 models), G06 (public/training, 4 models), G07 (heavy-duty public, 4 models)
+  - Section 2: 833-1C (classic stackable), 842 (linked training seating), 848/850 (dining chairs), ZC 牛角椅 (bull-horn plastic), LZ9002/LZ9003 (lounge chairs), K01/K02/K03 (premium lounge seating systems)
+  - Supplier: 佛山市博华家具有限公司 | Factory: Nanhai Shazhou Industrial Zone, Foshan | Phone: 0757-2388 2788
 - Catalogue is built at server startup via `buildCatalogueForAI()` in `server/routes.ts`
 - Products page (`/products`) fetches from `/api/products` with live search + category filters
 - API: `/api/products`, `/api/products/search`, `/api/products/series/:series`, `/api/products/sku/:sku`

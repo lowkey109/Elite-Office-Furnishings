@@ -179,6 +179,51 @@
         "catalogs/huasheng-gaozhuo/office-lounge-seating-catalog.pdf"
       ],
       "notes": "Lounge and seating division of Huasheng Gaozhuo. Product catalog: 'Inspiration Comes from Nature'. Sofas, accent chairs, side tables, coffee tables."
+    },
+    {
+      "id": "GJN",
+      "name": "Foshan Bohua Furniture Co., Ltd.",
+      "brand": "GAOJIN",
+      "brand_chinese": "高进 / 博华家具",
+      "country": "China",
+      "city": "Foshan, Guangdong",
+      "specialization": "Public seating, training chairs, stackable plastic leisure chairs, lounge seating, dining chairs",
+      "product_categories": [
+        "Office Seating",
+        "Lounge Seating",
+        "Occasional Tables"
+      ],
+      "catalog_files": [
+        "Gaojin_Plastic_Chair_Catalog.pdf"
+      ],
+      "factory_address": "佛山市南海沙头工业区工业一路8号 (Factory: Industrial Road 8, Shazhou Industrial Zone, Nanhai, Foshan)",
+      "showroom_address": "佛山市顺德区龙江镇乐龙国际创意城F座 (Showroom: Block F, Lelong International Creative City, Longjiang, Shunde, Foshan)",
+      "phone": "0757-2388 2788 / +86 133 0281 1900",
+      "certifications": [
+        "ISO 9001"
+      ],
+      "sku_prefix": "GJN",
+      "total_products": 53,
+      "series": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "833-1C",
+        "842",
+        "848/850",
+        "ZC 牛角椅",
+        "LZ9002",
+        "LZ9003",
+        "K01",
+        "K02",
+        "K03"
+      ],
+      "contact_note": "Do not contact directly — request via TCD procurement",
+      "product_count": 53
     }
   ]
 }
