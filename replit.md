@@ -1,7 +1,7 @@
 # The Corporate Desk — Premium Office Furniture Website
 
 ## Overview
-A luxury, billionaire-aesthetic office furniture website for The Corporate Desk (thecorporatedesk.com.au). Full commercial lead generation funnel, AI chatbot (14-role business OS), interactive quote builder, finance calculator, case studies, marketing hub, admin dashboard, and AI-powered lead intelligence prospecting engine.
+A luxury, billionaire-aesthetic office furniture website for The Corporate Desk (thecorporatedesk.com.au). Full commercial lead generation funnel, AI chatbot (14-role business OS), interactive quote builder, finance calculator, case studies, marketing hub, admin dashboard, AI-powered lead intelligence prospecting engine, and a full AI Workspace Planning Platform with visual zone layouts, furniture recommendations, project cost estimates, lead scoring, and downloadable planning reports.
 
 ## Deployment
 - **Target**: `app.thecorporatedesk.com.au` (Replit autoscale deployment)
@@ -20,6 +20,18 @@ A luxury, billionaire-aesthetic office furniture website for The Corporate Desk 
 - **Schema**: `shared/schema.ts` — 6 tables defined as Drizzle pgTable models
 - **Tables**: `users`, `leads`, `prospected_leads`, `supplier_quotes`, `referrals`, `planning_requests`
 - All data persists across server restarts
+
+### planning_requests columns (key)
+- `lead_score` — AI-generated lead quality score 0-100
+- `estimated_value` — AI-extracted project value range (e.g. "$80,000 – $150,000")
+- `implementation_timeline` — AI-generated timeline (e.g. "8-10 weeks")
+- `ai_summary` — Short clientBrief from AI
+- `ai_recommendations` — Full JSON blob: clientBrief, officeType, estimatedProjectValue, leadScore, leadScoreBreakdown, implementationTimeline, workspaceZones (with color+percentage), productRecommendations (with sku+unitCost), costBreakdown, styleDirection, keyConsiderations, recommendedNextStep, urgencyNote
+
+### AI Prompt for Planning (`buildSpacePlanningPrompt`)
+- Injects TCD furniture catalogue (13 products with SKUs and prices) into the prompt
+- Requests structured JSON with visual zone data, SKU-matched furniture, cost breakdown, lead score
+- Zone colors: gold #B8960C (primary), green #4A7C59 (collaborative), blue #2E5FA3 (focus), purple #8B3A8B (executive), orange #C65D3D (reception), teal #5C8E9A (breakout)
 
 ### prospected_leads columns (key)
 - `domain` — extracted domain for deduplication
@@ -78,6 +90,12 @@ A luxury, billionaire-aesthetic office furniture website for The Corporate Desk 
 | `/admin/dashboard` | AdminDashboard.tsx | Business metrics, leads overview |
 | `/admin/leads` | AdminLeads.tsx | AI Lead Intelligence & Prospecting Engine |
 | `/admin/supplier-quotes` | AdminSupplierQuotes.tsx | Supplier Quote Management + Referral Tracking |
+| `/admin/planning-requests` | AdminPlanningRequests.tsx | AI Workspace Planning Dashboard — 5-tab detail view: Overview, Workspace Zones (visual zone allocation), Furniture Recs (SKU-matched product table), Cost & Timeline (breakdown + lead score), Report (printable) |
+| `/upload-your-floor-plan` | UploadFloorPlan.tsx | Public 4-step floor plan upload + AI analysis submission form |
+
+## Key Libraries / Components
+- `client/src/lib/furnitureCatalogue.ts` — Shared furniture catalogue (13 products with SKU, category, price, image). Used by AI prompt builder and frontend components.
+- `client/src/components/PlanningReport.tsx` — Printable/downloadable workspace planning report component. Opens in new window with print-optimised HTML/CSS layout. Includes zone layout, furniture table, cost breakdown, timeline, next steps.
 
 ## Architecture
 - **Frontend**: React + Wouter routing + TanStack Query + Shadcn UI

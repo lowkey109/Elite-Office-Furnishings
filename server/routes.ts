@@ -51,6 +51,21 @@ interface ChatMessage {
 }
 
 // ─── AI space planning prompt builder ────────────────────────────────────────
+const TCD_CATALOGUE_FOR_AI = `SKU | Category | Product Name | Price
+LY-QF-01A | Manager Desks | Luxury Modern Office Manager's Desk – Breeze Series | From $2,890
+LY-MD-8019 | Manager Desks | Modern Manager's Office Desk – Minimalist Design | From $1,990
+LY-ED-B09 | Executive Desks | Modern Office Desk For Executives – Minimalist Design | From $3,490
+LY-AM-01 | Executive Desks | Luxury Executive Office Desk – Aimu Series | From $4,999
+A-522-1 | Executive Desks | Executive Office Desk – Premium (Aimu Series) | $4,999
+LY-MG-06 | Boardroom Tables | Spacious Professional Office Conference Table | From $5,490
+LY-BT-H-05 | Boardroom Tables | Modern Elegant Office Boardroom Table | From $3,990
+LY-RC-01 | Reception Desks | Premium Reception Counter with Feature Wall | POA
+LY-CH-E01 | Office Seating | Ergonomic Executive Task Chair | From $890
+LY-WS-04 | Workstations | Hot Desk Workstation – Open Plan | From $590 pp
+LY-ST-P01 | Storage | Premium Mobile Storage Pedestal | From $490
+LY-OP-S1 | Office Pods | Acoustic Office Pod – Single | From $4,200
+LY-QF-PKG | Executive Desks | Coordinated Total Office Package – Breeze Series | POA`;
+
 function buildSpacePlanningPrompt(data: {
   name: string;
   company: string;
@@ -75,7 +90,10 @@ function buildSpacePlanningPrompt(data: {
 
   return `You are a senior workplace strategy consultant and furniture specification expert for The Corporate Desk, Australia's premium commercial office furniture company.
 
-A client has submitted an office planning brief. Generate a structured preliminary workspace recommendation using The Corporate Desk product range.
+A client has submitted an office planning brief. Generate a comprehensive workspace planning analysis using ONLY products from The Corporate Desk catalogue below.
+
+THE CORPORATE DESK PRODUCT CATALOGUE:
+${TCD_CATALOGUE_FOR_AI}
 
 CLIENT BRIEF:
 - Name: ${data.name}
@@ -90,25 +108,78 @@ CLIENT BRIEF:
 - Special Requirements: ${data.specialRequirements || "None specified"}
 ${data.adminNotes ? "- Admin Notes: " + data.adminNotes : ""}
 
-Respond with ONLY valid JSON in exactly this format (no markdown, no explanation):
+LEAD SCORING CRITERIA (score 0-100):
+- Company size / staff count: larger = higher score (up to 30 pts)
+- Project value: higher budget = higher score (up to 25 pts)
+- Expansion signals (new fit-out, relocation): present = +20 pts
+- Budget clarity (specific range given): clear = +15 pts
+- Multiple zones required: more zones = +10 pts
+
+IMPLEMENTATION TIMELINE GUIDE:
+- Small office (<10 staff, <200sqm): 4-6 weeks
+- Medium office (10-50 staff, 200-500sqm): 6-10 weeks
+- Large office (50+ staff, 500sqm+): 10-16 weeks
+
+Respond with ONLY valid JSON in exactly this structure (no markdown, no explanation):
 
 {
   "clientBrief": "2-3 sentence summary of the client's office fit-out requirements",
-  "officeType": "Classification of office type (e.g. Professional Services HQ, Tech Scale-up, Corporate Expansion)",
+  "officeType": "Classification (e.g. Professional Services HQ, Tech Scale-up, Corporate Expansion, Law Firm, Financial Services)",
   "estimatedProjectValue": "Estimated total project value range (e.g. $80,000 – $150,000)",
+  "leadScore": 72,
+  "leadScoreBreakdown": {
+    "companySize": 20,
+    "projectValue": 20,
+    "expansionSignals": 20,
+    "budgetClarity": 12,
+    "zonesRequired": 0,
+    "reasoning": "One sentence explaining the score"
+  },
+  "implementationTimeline": "8-10 weeks",
   "workspaceZones": [
-    { "zone": "Zone name", "description": "What goes here and why", "priority": "Essential/Recommended/Optional" }
+    {
+      "zone": "Zone name",
+      "color": "#B8960C",
+      "percentage": 35,
+      "description": "What goes here and why",
+      "priority": "Essential",
+      "staffCapacity": 20,
+      "keyFurniture": ["Executive Desk", "Task Chair", "Storage Pedestal"]
+    }
   ],
   "productRecommendations": [
-    { "category": "TCD product category", "seriesRecommendation": "Which series (Breeze/Aimu/General)", "quantity": "Estimated quantity", "rationale": "Why this product fits their needs", "estimatedCost": "Indicative cost range" }
+    {
+      "zone": "Zone name this product belongs to",
+      "sku": "LY-AM-01",
+      "category": "Executive Desks",
+      "productName": "Luxury Executive Office Desk – Aimu Series",
+      "seriesRecommendation": "Aimu Series",
+      "quantity": 3,
+      "unitCost": 4999,
+      "totalCost": 14997,
+      "rationale": "Why this specific product fits their needs"
+    }
   ],
+  "costBreakdown": {
+    "furniture": 85000,
+    "installation": 12000,
+    "delivery": 3500,
+    "total": 100500,
+    "perStaff": 2011
+  },
   "styleDirection": "Paragraph describing the recommended aesthetic and material palette based on their style preference",
   "keyConsiderations": ["consideration 1", "consideration 2", "consideration 3"],
   "recommendedNextStep": "Specific recommended action for this client to move forward with The Corporate Desk",
   "urgencyNote": "Any timeline or budget observations worth flagging"
 }
 
-Ensure product recommendations use ONLY The Corporate Desk categories: Executive Desks, Manager & Staff Desks, Boardroom Tables, Reception Areas, Office Seating, Workstations, Storage & Filing, Office Pods & Booths, Breakout Spaces.`;
+IMPORTANT RULES:
+- leadScore must be an integer 0-100
+- workspaceZones percentages must sum to 100
+- productRecommendations must ONLY reference SKUs from the catalogue above
+- costBreakdown.total must equal furniture + installation + delivery
+- All cost figures must be realistic integers (no strings)
+- zone colors: use gold #B8960C for primary zones, #4A7C59 for collaborative, #2E5FA3 for focus, #8B3A8B for executive, #C65D3D for reception, #5C8E9A for breakout`;
 }
 
 export async function registerRoutes(
@@ -485,6 +556,9 @@ export async function registerRoutes(
       // Generate AI space planning recommendation
       let aiSummary = "";
       let aiRecommendations = "";
+      let aiLeadScore: number | null = null;
+      let aiEstimatedValue: string | null = null;
+      let aiTimeline: string | null = null;
 
       try {
         const prompt = buildSpacePlanningPrompt({
@@ -517,6 +591,9 @@ export async function registerRoutes(
           const parsed = JSON.parse(jsonMatch[0]);
           aiSummary = parsed.clientBrief || "";
           aiRecommendations = JSON.stringify(parsed, null, 2);
+          aiLeadScore = typeof parsed.leadScore === "number" ? parsed.leadScore : null;
+          aiEstimatedValue = parsed.estimatedProjectValue || null;
+          aiTimeline = parsed.implementationTimeline || null;
         }
       } catch (aiErr) {
         console.error("[AI] Space planning generation failed:", aiErr);
@@ -542,6 +619,9 @@ export async function registerRoutes(
         uploadedFilesJson: JSON.stringify(uploadedFiles),
         aiSummary,
         aiRecommendations,
+        leadScore: aiLeadScore ?? undefined,
+        estimatedValue: aiEstimatedValue ?? undefined,
+        implementationTimeline: aiTimeline ?? undefined,
         source: "upload-floor-plan",
       });
 
@@ -658,17 +738,26 @@ export async function registerRoutes(
       const rawContent = completion.choices[0]?.message?.content || "";
       let aiSummary = existing.aiSummary || "";
       let aiRecommendations = existing.aiRecommendations || "";
+      let aiLeadScore: number | null = existing.leadScore ?? null;
+      let aiEstimatedValue: string | null = existing.estimatedValue ?? null;
+      let aiTimeline: string | null = existing.implementationTimeline ?? null;
 
       const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
         aiSummary = parsed.clientBrief || aiSummary;
         aiRecommendations = JSON.stringify(parsed, null, 2);
+        if (typeof parsed.leadScore === "number") aiLeadScore = parsed.leadScore;
+        if (parsed.estimatedProjectValue) aiEstimatedValue = parsed.estimatedProjectValue;
+        if (parsed.implementationTimeline) aiTimeline = parsed.implementationTimeline;
       }
 
       const updated = await storage.updatePlanningRequest(id, {
         aiSummary,
         aiRecommendations,
+        leadScore: aiLeadScore ?? undefined,
+        estimatedValue: aiEstimatedValue ?? undefined,
+        implementationTimeline: aiTimeline ?? undefined,
         adminNotes: adminNotes || existing.adminNotes || undefined,
       });
 

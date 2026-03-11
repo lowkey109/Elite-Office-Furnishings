@@ -110,6 +110,9 @@ export interface InsertPlanningRequest {
   uploadedFilesJson?: string;
   aiSummary?: string;
   aiRecommendations?: string;
+  leadScore?: number;
+  estimatedValue?: string;
+  implementationTimeline?: string;
   source?: string;
 }
 
