@@ -840,6 +840,256 @@ export async function registerRoutes(
     }
   });
 
+  // ─── Pipeline stats aggregation ──────────────────────────────────────────────
+  app.get("/api/admin/pipeline-stats", async (req, res) => {
+    try {
+      const requests = await storage.getPlanningRequests();
+
+      const STYLE_RATES: Record<string, number> = {
+        "Luxury Executive": 1500,
+        "Corporate Prestige": 1200,
+        "Modern Open Plan": 950,
+        "Warm Timber / Premium": 1100,
+        "Minimal": 800,
+        "Mixed / Flexible": 900,
+      };
+
+      function parseValueString(v?: string | null): number {
+        if (!v) return 0;
+        const nums = (v.match(/[\d,]+/g) || []).map((s: string) => parseInt(s.replace(/,/g, ""), 10));
+        if (!nums.length) return 0;
+        return Math.round(nums.reduce((a: number, b: number) => a + b, 0) / nums.length);
+      }
+
+      // Scoring formula that mirrors the AI prompt criteria
+      function formulaScore(r: typeof requests[0], aiRec: Record<string, any> | null): number {
+        if (r.leadScore != null) return r.leadScore;
+        if (aiRec?.leadScore != null) return aiRec.leadScore;
+        let score = 0;
+        const staff = parseInt(r.staffCount || "0", 10);
+        const pt = (r.projectType || "").toLowerCase();
+        const budget = r.budgetRange || "";
+        // Staff count → up to 30
+        if (staff >= 50) score += 30;
+        else if (staff >= 25) score += 21;
+        else if (staff >= 15) score += 16;
+        else if (staff >= 10) score += 12;
+        else if (staff >= 5) score += 8;
+        else if (staff >= 1) score += 5;
+        // Budget / project value → up to 25
+        if (budget.includes("300,000") || budget.includes("300K") || budget.startsWith("$300")) score += 25;
+        else if (budget.includes("180,000") || budget.includes("180K")) score += 21;
+        else if (budget.includes("100,000") || budget.includes("100K")) score += 17;
+        else if (budget.includes("60,000") || budget.includes("60K")) score += 13;
+        else if (budget.includes("30,000") || budget.includes("30K")) score += 9;
+        else if (budget && budget !== "Not specified") score += 5;
+        // Expansion signals → +20
+        if (pt.includes("reloc") || pt.includes("new office") || pt.includes("expan") || pt.includes("new hq")) score += 20;
+        // Budget clarity → +15
+        if (budget && budget !== "Not specified") score += 15;
+        // Multiple zones → up to 10
+        let zones = 0;
+        if (r.receptionRequired) zones++;
+        if (r.breakoutRequired) zones++;
+        if (r.executiveOfficeRequired) zones++;
+        if (r.meetingRooms && r.meetingRooms !== "0") zones++;
+        score += Math.min(zones * 3, 10);
+        return Math.min(score, 100);
+      }
+
+      function formulaValue(r: typeof requests[0], aiRec: Record<string, any> | null): number {
+        // Priority 1: stored estimatedValue
+        if (r.estimatedValue) {
+          const v = parseValueString(r.estimatedValue);
+          if (v > 0) return v;
+        }
+        // Priority 2: AI-generated estimatedProjectValue from JSON
+        if (aiRec?.estimatedProjectValue) {
+          const v = parseValueString(aiRec.estimatedProjectValue);
+          if (v > 0) return v;
+        }
+        // Priority 3: cost breakdown total from AI
+        if (aiRec?.costBreakdown?.total && typeof aiRec.costBreakdown.total === "number") {
+          return aiRec.costBreakdown.total;
+        }
+        // Priority 4: sqm × style rate
+        const sqm = parseFloat(r.squareMetres || "0");
+        const rate = STYLE_RATES[r.stylePreference || ""] || 900;
+        if (sqm >= 20) return Math.round(sqm * rate);
+        // Priority 5: budget midpoint
+        const b = r.budgetRange || "";
+        if (b.includes("300")) return 400000;
+        if (b.includes("180")) return 240000;
+        if (b.includes("100")) return 140000;
+        if (b.includes("60")) return 80000;
+        if (b.includes("30")) return 45000;
+        return 0;
+      }
+
+      // Parse aiRecommendations for each record
+      const enriched = requests.map(r => {
+        let aiRec: Record<string, any> | null = null;
+        if (r.aiRecommendations) {
+          try {
+            const parsed = JSON.parse(r.aiRecommendations);
+            if (parsed && typeof parsed === "object") aiRec = parsed;
+          } catch {}
+        }
+        return {
+          id: r.id,
+          status: r.status,
+          isPaid: r.isPaid,
+          projectType: r.projectType,
+          stylePreference: r.stylePreference,
+          hasStoredScore: r.leadScore != null,
+          hasAiRec: aiRec !== null,
+          score: formulaScore(r, aiRec),
+          value: formulaValue(r, aiRec),
+          aiEstimatedValue: aiRec?.estimatedProjectValue || null,
+          aiTimeline: aiRec?.implementationTimeline || r.implementationTimeline || null,
+          aiOfficeType: aiRec?.officeType || null,
+        };
+      });
+
+      const stageCounts: Record<string, number> = { "New": 0, "In Review": 0, "Quoted": 0, "Converted": 0, "Archived": 0 };
+      for (const r of enriched) {
+        if (stageCounts[r.status] != null) stageCounts[r.status]++;
+      }
+
+      const stageValues: Record<string, number> = { "New": 0, "In Review": 0, "Quoted": 0, "Converted": 0, "Archived": 0 };
+      for (const r of enriched) {
+        if (stageValues[r.status] != null) stageValues[r.status] += r.value;
+      }
+
+      const totalPipeline = enriched.reduce((s, r) => s + r.value, 0);
+      const avgScore = enriched.length > 0
+        ? Math.round(enriched.reduce((s, r) => s + r.score, 0) / enriched.length) : 0;
+
+      res.json({
+        total: requests.length,
+        highValueCount: enriched.filter(r => r.score >= 70).length,
+        mediumCount: enriched.filter(r => r.score >= 45 && r.score < 70).length,
+        lowCount: enriched.filter(r => r.score < 45).length,
+        paidCount: requests.filter(r => r.isPaid).length,
+        unscoredInDb: requests.filter(r => r.leadScore == null).length,
+        avgScore,
+        totalPipelineValue: totalPipeline,
+        stageCounts,
+        stageValues,
+        topLeads: enriched.sort((a, b) => b.score - a.score).slice(0, 3).map(r => ({
+          id: r.id, score: r.score, value: r.value, aiEstimatedValue: r.aiEstimatedValue,
+          aiTimeline: r.aiTimeline, aiOfficeType: r.aiOfficeType,
+        })),
+      });
+    } catch (error) {
+      console.error("[PipelineStats]", error);
+      res.status(500).json({ error: "Failed to compute pipeline stats" });
+    }
+  });
+
+  // ─── Backfill AI scores from existing aiRecommendations JSON ─────────────────
+  // Extracts leadScore + estimatedProjectValue already stored in aiRecommendations JSON
+  // and saves them to the dedicated DB columns. Zero AI API calls. Safe read+update.
+  app.post("/api/admin/planning-requests/backfill-scores", async (req, res) => {
+    try {
+      const requests = await storage.getPlanningRequests();
+      const STYLE_RATES: Record<string, number> = {
+        "Luxury Executive": 1500, "Corporate Prestige": 1200,
+        "Modern Open Plan": 950, "Warm Timber / Premium": 1100,
+        "Minimal": 800, "Mixed / Flexible": 900,
+      };
+
+      function parseValueString(v?: string | null): string | null {
+        if (!v) return null;
+        const nums = (v.match(/[\d,]+/g) || []).map((s: string) => parseInt(s.replace(/,/g, ""), 10));
+        if (!nums.length) return null;
+        return v; // return original formatted string
+      }
+
+      const results: { id: string; name: string; action: string; score?: number; value?: string }[] = [];
+
+      for (const r of requests) {
+        if (r.leadScore != null && r.estimatedValue) {
+          results.push({ id: r.id, name: r.name, action: "already_scored" });
+          continue;
+        }
+
+        let newScore: number | undefined;
+        let newValue: string | undefined;
+
+        // Try to extract from aiRecommendations
+        if (r.aiRecommendations) {
+          try {
+            const ai = JSON.parse(r.aiRecommendations);
+            if (typeof ai.leadScore === "number" && r.leadScore == null) newScore = ai.leadScore;
+            if (ai.estimatedProjectValue && !r.estimatedValue) newValue = ai.estimatedProjectValue;
+          } catch {}
+        }
+
+        // Formula fallback for score
+        if (newScore == null && r.leadScore == null) {
+          let score = 0;
+          const staff = parseInt(r.staffCount || "0", 10);
+          const pt = (r.projectType || "").toLowerCase();
+          const budget = r.budgetRange || "";
+          if (staff >= 50) score += 30;
+          else if (staff >= 25) score += 21;
+          else if (staff >= 15) score += 16;
+          else if (staff >= 10) score += 12;
+          else if (staff >= 5) score += 8;
+          else if (staff >= 1) score += 5;
+          if (budget.includes("300")) score += 25;
+          else if (budget.includes("180")) score += 21;
+          else if (budget.includes("100")) score += 17;
+          else if (budget.includes("60")) score += 13;
+          else if (budget.includes("30")) score += 9;
+          else if (budget && budget !== "Not specified") score += 5;
+          if (pt.includes("reloc") || pt.includes("new office") || pt.includes("expan")) score += 20;
+          if (budget && budget !== "Not specified") score += 15;
+          let zones = 0;
+          if (r.receptionRequired) zones++;
+          if (r.breakoutRequired) zones++;
+          if (r.executiveOfficeRequired) zones++;
+          if (r.meetingRooms && r.meetingRooms !== "0") zones++;
+          score += Math.min(zones * 3, 10);
+          newScore = Math.min(score, 100);
+        }
+
+        // Formula fallback for value
+        if (!newValue && !r.estimatedValue) {
+          const sqm = parseFloat(r.squareMetres || "0");
+          const rate = STYLE_RATES[r.stylePreference || ""] || 900;
+          if (sqm >= 20) {
+            const total = Math.round(sqm * rate);
+            newValue = `$${Math.round(total * 0.85).toLocaleString("en-AU")} – $${total.toLocaleString("en-AU")}`;
+          } else {
+            const b = r.budgetRange || "";
+            if (b.includes("300")) newValue = "$300,000 – $450,000";
+            else if (b.includes("180")) newValue = "$180,000 – $300,000";
+            else if (b.includes("100")) newValue = "$100,000 – $180,000";
+            else if (b.includes("60")) newValue = "$60,000 – $100,000";
+            else if (b.includes("30")) newValue = "$30,000 – $60,000";
+          }
+        }
+
+        if (newScore != null || newValue) {
+          await storage.updatePlanningRequest(r.id, {
+            ...(newScore != null ? { leadScore: newScore } : {}),
+            ...(newValue ? { estimatedValue: newValue } : {}),
+          });
+          results.push({ id: r.id, name: r.name, action: "updated", score: newScore, value: newValue });
+        } else {
+          results.push({ id: r.id, name: r.name, action: "no_data" });
+        }
+      }
+
+      res.json({ success: true, processed: results.length, results });
+    } catch (error) {
+      console.error("[BackfillScores]", error);
+      res.status(500).json({ error: "Failed to backfill scores" });
+    }
+  });
+
   app.get("/api/admin/planning-requests", async (req, res) => {
     try {
       const requests = await storage.getPlanningRequests();

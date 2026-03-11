@@ -8,10 +8,12 @@ import { useToast } from "@/hooks/use-toast";
 import { validateAdminLogin } from "@/lib/adminAuth";
 import {
   LayoutDashboard, TrendingUp, DollarSign, Users, Star, AlertTriangle,
-  CheckCircle2, XCircle, ArrowRight, Building2, Clock, Zap, Target,
-  FileText, Package, ChevronRight, Phone, Mail, Megaphone, ExternalLink,
-  Eye, BarChart3, Shield, Calendar, Layers, Crown,
+  CheckCircle2, XCircle, Zap, Target, FileText, Package, ChevronRight,
+  Phone, Mail, Megaphone, ExternalLink, Eye, BarChart3, Shield, Calendar,
+  Layers, Crown, RefreshCw, Building2, Briefcase,
 } from "lucide-react";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface PlanningRequest {
   id: string;
@@ -24,10 +26,14 @@ interface PlanningRequest {
   squareMetres?: string;
   staffCount?: string;
   meetingRooms?: string;
+  receptionRequired?: boolean;
+  breakoutRequired?: boolean;
+  executiveOfficeRequired?: boolean;
   budgetRange?: string;
   stylePreference?: string;
   specialRequirements?: string;
   aiRecommendations?: string;
+  aiSummary?: string;
   leadScore?: number;
   estimatedValue?: string;
   implementationTimeline?: string;
@@ -53,16 +59,28 @@ interface Lead {
   createdAt?: string;
 }
 
-const BUDGET_MIDPOINTS: Record<string, number> = {
-  "Under $30,000": 22500,
-  "$30,000 – $60,000": 45000,
-  "$60,000 – $100,000": 80000,
-  "$100,000 – $180,000": 140000,
-  "$180,000 – $300,000": 240000,
-  "$300,000+": 400000,
-};
+interface PipelineStats {
+  total: number;
+  highValueCount: number;
+  mediumCount: number;
+  lowCount: number;
+  paidCount: number;
+  unscoredInDb: number;
+  avgScore: number;
+  totalPipelineValue: number;
+  stageCounts: Record<string, number>;
+  stageValues: Record<string, number>;
+  topLeads: Array<{
+    id: string; score: number; value: number;
+    aiEstimatedValue?: string | null;
+    aiTimeline?: string | null;
+    aiOfficeType?: string | null;
+  }>;
+}
 
-const SQM_RATE: Record<string, number> = {
+// ─── Client-side helpers (used for per-record display, not KPI totals) ────────
+
+const STYLE_RATES: Record<string, number> = {
   "Luxury Executive": 1500,
   "Corporate Prestige": 1200,
   "Modern Open Plan": 950,
@@ -71,117 +89,109 @@ const SQM_RATE: Record<string, number> = {
   "Mixed / Flexible": 900,
 };
 
-function parseBudgetMid(budget?: string): number {
-  if (!budget) return 0;
-  for (const [key, val] of Object.entries(BUDGET_MIDPOINTS)) {
-    if (budget.includes(key) || key.includes(budget)) return val;
-  }
-  for (const [key, val] of Object.entries(BUDGET_MIDPOINTS)) {
-    if (budget.includes("300")) return 400000;
-    if (budget.includes("180")) return 240000;
-    if (budget.includes("100")) return 140000;
-    if (budget.includes("60")) return 80000;
-    if (budget.includes("30")) return 45000;
-  }
-  return 0;
+function parseAiRec(req: PlanningRequest): Record<string, any> | null {
+  if (!req.aiRecommendations) return null;
+  try {
+    const p = JSON.parse(req.aiRecommendations);
+    return typeof p === "object" && p ? p : null;
+  } catch { return null; }
 }
 
-function parseStoredValue(val?: string): number {
-  if (!val) return 0;
-  const m = val.match(/[\d,]+/g);
-  if (!m) return 0;
-  const nums = m.map(s => parseInt(s.replace(/,/g, "")));
-  if (nums.length === 0) return 0;
-  if (nums.length === 1) return nums[0];
-  return Math.round((nums[0] + nums[nums.length - 1]) / 2);
+function parseValueStr(v?: string | null): number {
+  if (!v) return 0;
+  const nums = (v.match(/[\d,]+/g) || []).map(s => parseInt(s.replace(/,/g, ""), 10));
+  return nums.length ? Math.round(nums.reduce((a, b) => a + b, 0) / nums.length) : 0;
 }
 
-function computePipelineValue(req: PlanningRequest): number {
-  if (req.estimatedValue) {
-    const v = parseStoredValue(req.estimatedValue);
-    if (v > 0) return v;
-  }
-  const sqm = parseFloat(req.squareMetres || "0");
-  const staff = parseInt(req.staffCount || "0");
-  const style = req.stylePreference || "";
-  const rate = SQM_RATE[style] || 900;
-
-  if (sqm >= 30) return Math.round(sqm * rate);
-  if (staff >= 5) return Math.round(staff * 3500);
-  const budget = parseBudgetMid(req.budgetRange);
-  if (budget > 0) return budget;
-  return 0;
-}
-
-function computeLeadScore(req: PlanningRequest): number {
-  if (req.leadScore != null && req.leadScore > 0) return req.leadScore;
-
+// Mirrors the AI prompt scoring criteria exactly
+function computeScore(req: PlanningRequest, aiRec: Record<string, any> | null): number {
+  if (req.leadScore != null) return req.leadScore;
+  if (aiRec?.leadScore != null && typeof aiRec.leadScore === "number") return aiRec.leadScore;
   let score = 0;
-  const staff = parseInt(req.staffCount || "0");
-  const sqm = parseFloat(req.squareMetres || "0");
-  const pt = req.projectType || "";
+  const staff = parseInt(req.staffCount || "0", 10);
+  const pt = (req.projectType || "").toLowerCase();
   const budget = req.budgetRange || "";
-  const style = req.stylePreference || "";
-
-  if (staff >= 100) score += 25;
-  else if (staff >= 50) score += 21;
-  else if (staff >= 25) score += 16;
-  else if (staff >= 15) score += 12;
-  else if (staff >= 8) score += 8;
-  else if (staff >= 3) score += 4;
-
-  if (sqm >= 500) score += 25;
-  else if (sqm >= 300) score += 21;
-  else if (sqm >= 200) score += 16;
-  else if (sqm >= 100) score += 12;
-  else if (sqm >= 50) score += 8;
-  else if (sqm >= 20) score += 4;
-
-  if (pt.includes("New Office")) score += 20;
-  else if (pt.includes("Relocation")) score += 20;
-  else if (pt.includes("Expansion")) score += 17;
-  else if (pt.includes("Refurbishment")) score += 13;
-  else if (pt.includes("Refresh")) score += 8;
-
-  if (budget.includes("300")) score += 20;
-  else if (budget.includes("180")) score += 17;
-  else if (budget.includes("100")) score += 13;
-  else if (budget.includes("60")) score += 9;
-  else if (budget.includes("30")) score += 5;
-
-  if (style.includes("Luxury") || style.includes("Executive")) score += 10;
-  else if (style.includes("Prestige") || style.includes("Corporate")) score += 8;
-  else if (style.includes("Timber") || style.includes("Premium")) score += 7;
-  else if (style.includes("Modern")) score += 5;
-  else score += 3;
-
+  // Staff count → up to 30 pts
+  if (staff >= 50) score += 30;
+  else if (staff >= 25) score += 21;
+  else if (staff >= 15) score += 16;
+  else if (staff >= 10) score += 12;
+  else if (staff >= 5) score += 8;
+  else if (staff >= 1) score += 5;
+  // Budget / project value → up to 25 pts
+  if (budget.includes("300,000") || budget.startsWith("$300") || budget === "$300,000+") score += 25;
+  else if (budget.includes("180,000")) score += 21;
+  else if (budget.includes("100,000")) score += 17;
+  else if (budget.includes("60,000")) score += 13;
+  else if (budget.includes("30,000")) score += 9;
+  else if (budget && budget !== "Not specified") score += 5;
+  // Expansion signals → +20 pts
+  if (pt.includes("reloc") || pt.includes("new office") || pt.includes("expan") || pt.includes("new hq")) score += 20;
+  // Budget clarity → +15 pts
+  if (budget && budget !== "Not specified") score += 15;
+  // Multiple zones required → up to 10 pts
+  let zones = 0;
+  if (req.receptionRequired) zones++;
+  if (req.breakoutRequired) zones++;
+  if (req.executiveOfficeRequired) zones++;
+  if (req.meetingRooms && req.meetingRooms !== "0") zones++;
+  score += Math.min(zones * 3, 10);
   return Math.min(score, 100);
 }
 
-function getLeadTier(score: number): { label: string; color: string; bg: string } {
-  if (score >= 70) return { label: "High Value", color: "text-[hsl(43,78%,65%)]", bg: "bg-[rgba(201,168,76,0.12)] border-[rgba(201,168,76,0.25)]" };
-  if (score >= 45) return { label: "Medium", color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" };
-  return { label: "Low Priority", color: "text-white/40", bg: "bg-white/5 border-white/10" };
+function computeValue(req: PlanningRequest, aiRec: Record<string, any> | null): { num: number; display: string } {
+  // Priority 1: stored estimatedValue
+  if (req.estimatedValue) {
+    const v = parseValueStr(req.estimatedValue);
+    if (v > 0) return { num: v, display: req.estimatedValue };
+  }
+  // Priority 2: AI-generated text value from JSON
+  if (aiRec?.estimatedProjectValue) {
+    const v = parseValueStr(aiRec.estimatedProjectValue);
+    if (v > 0) return { num: v, display: aiRec.estimatedProjectValue };
+  }
+  // Priority 3: costBreakdown total from AI
+  if (aiRec?.costBreakdown?.total && typeof aiRec.costBreakdown.total === "number") {
+    const t = aiRec.costBreakdown.total;
+    return { num: t, display: `$${Math.round(t * 0.85).toLocaleString("en-AU")} – $${t.toLocaleString("en-AU")}` };
+  }
+  // Priority 4: sqm × style rate
+  const sqm = parseFloat(req.squareMetres || "0");
+  const rate = STYLE_RATES[req.stylePreference || ""] || 900;
+  if (sqm >= 20) {
+    const t = Math.round(sqm * rate);
+    return { num: t, display: `$${Math.round(t * 0.85).toLocaleString("en-AU")} – $${t.toLocaleString("en-AU")}` };
+  }
+  // Priority 5: budget midpoint
+  const b = req.budgetRange || "";
+  if (b === "$300,000+") return { num: 400000, display: "$300,000+" };
+  if (b.includes("180,000")) return { num: 240000, display: b };
+  if (b.includes("100,000")) return { num: 140000, display: b };
+  if (b.includes("60,000")) return { num: 80000, display: b };
+  if (b.includes("30,000")) return { num: 45000, display: b };
+  return { num: 0, display: "" };
 }
 
-function isRelocation(req: PlanningRequest): boolean {
-  return (req.projectType || "").toLowerCase().includes("reloc");
-}
-
-function isExpansion(req: PlanningRequest): boolean {
-  const pt = (req.projectType || "").toLowerCase();
-  return pt.includes("expan") || pt.includes("new office");
+function getScoreTier(score: number) {
+  if (score >= 70) return {
+    label: "High Value", color: "text-[hsl(43,78%,65%)]",
+    bg: "bg-[rgba(201,168,76,0.12)] border-[rgba(201,168,76,0.25)]",
+    bar: "bg-[hsl(43,78%,52%)]",
+  };
+  if (score >= 45) return {
+    label: "Medium", color: "text-blue-400",
+    bg: "bg-blue-500/10 border-blue-500/20", bar: "bg-blue-500",
+  };
+  return {
+    label: "Low Priority", color: "text-white/40",
+    bg: "bg-white/5 border-white/10", bar: "bg-white/25",
+  };
 }
 
 function formatAUD(n: number): string {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `$${Math.round(n / 1000)}K`;
-  return `$${n}`;
-}
-
-function formatDate(d?: string): string {
-  if (!d) return "—";
-  return new Date(d).toLocaleDateString("en-AU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  return n > 0 ? `$${n}` : "—";
 }
 
 function timeAgo(d?: string): string {
@@ -194,14 +204,13 @@ function timeAgo(d?: string): string {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
-const PIPELINE_STAGES = ["New", "In Review", "Quoted", "Converted", "Archived"] as const;
-const STAGE_COLORS: Record<string, string> = {
-  "New": "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  "In Review": "bg-purple-500/20 text-purple-400 border-purple-500/30",
-  "Quoted": "bg-amber-500/20 text-amber-400 border-amber-500/30",
-  "Converted": "bg-green-500/20 text-green-400 border-green-500/30",
-  "Archived": "bg-white/5 text-white/30 border-white/10",
+const PIPELINE_STAGES = ["New", "In Review", "Quoted", "Converted"] as const;
+const STAGE_BAR_COLORS: Record<string, string> = {
+  "New": "bg-blue-500", "In Review": "bg-purple-500",
+  "Quoted": "bg-amber-500", "Converted": "bg-green-500",
 };
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function AdminCommandCentre() {
   const [authed, setAuthed] = useState(false);
@@ -216,12 +225,18 @@ export default function AdminCommandCentre() {
     if (sessionStorage.getItem("tcd_admin_auth") === "true") setAuthed(true);
   }, []);
 
+  // ── Data queries ────────────────────────────────────────────────────────────
+  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useQuery<PipelineStats>({
+    queryKey: ["/api/admin/pipeline-stats"],
+    enabled: authed,
+  });
+
   const { data: requests = [], isLoading: reqLoading } = useQuery<PlanningRequest[]>({
     queryKey: ["/api/admin/planning-requests"],
     enabled: authed,
   });
 
-  const { data: leads = [], isLoading: leadLoading } = useQuery<Lead[]>({
+  const { data: leads = [] } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
     enabled: authed,
   });
@@ -232,16 +247,57 @@ export default function AdminCommandCentre() {
     refetchInterval: 60000,
   });
 
-  const statusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      await apiRequest("PATCH", `/api/admin/planning-requests/${id}/status`, { status });
+  // ── Score backfill mutation ─────────────────────────────────────────────────
+  const backfillMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("POST", "/api/admin/planning-requests/backfill-scores", {});
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
+      const updated = (data?.results || []).filter((r: any) => r.action === "updated").length;
+      toast({
+        title: updated > 0 ? `${updated} record${updated !== 1 ? "s" : ""} updated` : "Already up to date",
+        description: updated > 0
+          ? "Lead scores and estimated values synced from AI recommendations."
+          : "All records already have scores — no changes needed.",
+      });
       qc.invalidateQueries({ queryKey: ["/api/admin/planning-requests"] });
-      toast({ title: "Status updated" });
+      refetchStats();
     },
+    onError: () => toast({ title: "Sync failed", description: "Could not sync scores. Try again.", variant: "destructive" }),
   });
 
+  // ── Per-record enrichment for the opportunity list ─────────────────────────
+  const enrichedRequests = useMemo(() =>
+    requests.map(r => {
+      const aiRec = parseAiRec(r);
+      const score = computeScore(r, aiRec);
+      const val = computeValue(r, aiRec);
+      return {
+        ...r,
+        _score: score,
+        _value: val.num,
+        _valueDisplay: val.display,
+        _aiOfficeType: aiRec?.officeType || null,
+        _aiTimeline: aiRec?.implementationTimeline || r.implementationTimeline || null,
+        _aiSummary: r.aiSummary || aiRec?.clientBrief || null,
+        _aiRec: aiRec,
+      };
+    }).sort((a, b) => b._score - a._score),
+    [requests]
+  );
+
+  const topOpportunities = enrichedRequests.slice(0, 6);
+  const paidRequests = enrichedRequests.filter(r => r.isPaid);
+  const highValueRequests = enrichedRequests.filter(r => r._score >= 70);
+
+  // Lead type breakdowns from actual DB data
+  const leadTypeMap = useMemo(() => {
+    const map: Record<string, number> = {};
+    leads.forEach(l => { map[l.type] = (map[l.type] || 0) + 1; });
+    return map;
+  }, [leads]);
+
+  // ── Auth ────────────────────────────────────────────────────────────────────
   function handleLogin() {
     if (validateAdminLogin(email, pw)) {
       sessionStorage.setItem("tcd_admin_auth", "true");
@@ -252,40 +308,7 @@ export default function AdminCommandCentre() {
     }
   }
 
-  const scored = useMemo(() =>
-    requests.map(r => ({
-      ...r,
-      _score: computeLeadScore(r),
-      _value: computePipelineValue(r),
-    })).sort((a, b) => b._score - a._score),
-    [requests]
-  );
-
-  const totalPipeline = useMemo(() => scored.reduce((s, r) => s + r._value, 0), [scored]);
-  const paidCount = useMemo(() => requests.filter(r => r.isPaid).length, [requests]);
-  const highValue = useMemo(() => scored.filter(r => r._score >= 70), [scored]);
-  const topOpportunities = useMemo(() => scored.slice(0, 5), [scored]);
-
-  const stageCounts = useMemo(() => {
-    const map: Record<string, number> = {};
-    PIPELINE_STAGES.forEach(s => { map[s] = 0; });
-    requests.forEach(r => { if (map[r.status] != null) map[r.status]++; });
-    return map;
-  }, [requests]);
-
-  const avgScore = useMemo(() => {
-    if (scored.length === 0) return 0;
-    return Math.round(scored.reduce((s, r) => s + r._score, 0) / scored.length);
-  }, [scored]);
-
-  const recentLeads = leads.slice(0, 6);
-  const quoteLeads = leads.filter(l => l.type === "quote-request" || l.type === "quote-builder").length;
-  const strategyLeads = leads.filter(l => l.type === "strategy-call").length;
-  const layoutLeads = leads.filter(l => l.type === "layout-plan").length;
-
-  const relocationCount = scored.filter(r => isRelocation(r)).length;
-  const newHQCount = scored.filter(r => isExpansion(r)).length;
-
+  // ── Login screen ────────────────────────────────────────────────────────────
   if (!authed) {
     return (
       <div className="min-h-screen bg-[hsl(220,20%,6%)] flex items-center justify-center px-4">
@@ -298,35 +321,29 @@ export default function AdminCommandCentre() {
             <h1 className="text-xl font-semibold text-white">Command Centre</h1>
             <p className="text-white/40 text-sm mt-1">Authorised access only</p>
           </div>
-          <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.15)] rounded-2xl p-6">
-            <label className="block text-sm text-white/60 mb-2">Admin Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && handleLogin()}
-              placeholder="admin@thecorporatedesk.com.au"
-              data-testid="input-admin-email"
-              className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(201,168,76,0.2)] focus:border-[rgba(201,168,76,0.5)] rounded-md px-4 py-3 text-white placeholder:text-white/30 focus:outline-none text-base mb-4"
-              style={{ minHeight: "48px" }}
-            />
-            <label className="block text-sm text-white/60 mb-2">Password</label>
-            <input
-              type="password"
-              value={pw}
-              onChange={e => setPw(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && handleLogin()}
-              placeholder="Enter password"
-              data-testid="input-admin-password"
-              className={`w-full bg-[rgba(255,255,255,0.04)] border rounded-md px-4 py-3 text-white placeholder:text-white/30 focus:outline-none text-base mb-4 ${pwError ? "border-red-500/50" : "border-[rgba(201,168,76,0.2)] focus:border-[rgba(201,168,76,0.5)]"}`}
-              style={{ minHeight: "48px" }}
-            />
-            {pwError && <p className="text-red-400 text-xs mb-3">Invalid credentials.</p>}
-            <Button
-              onClick={handleLogin}
-              className="w-full bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[48px]"
-              data-testid="button-admin-login"
-            >
+          <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.15)] rounded-2xl p-6 space-y-4">
+            <div>
+              <label className="block text-sm text-white/60 mb-2">Admin Email</label>
+              <input
+                type="email" value={email} onChange={e => setEmail(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleLogin()}
+                placeholder="admin@thecorporatedesk.com.au"
+                data-testid="input-admin-email"
+                className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(201,168,76,0.2)] focus:border-[rgba(201,168,76,0.5)] rounded-md px-4 py-3 text-white placeholder:text-white/30 focus:outline-none text-base"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-white/60 mb-2">Password</label>
+              <input
+                type="password" value={pw} onChange={e => setPw(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleLogin()}
+                placeholder="Enter password"
+                data-testid="input-admin-password"
+                className={`w-full bg-[rgba(255,255,255,0.04)] border rounded-md px-4 py-3 text-white placeholder:text-white/30 focus:outline-none text-base ${pwError ? "border-red-500/50" : "border-[rgba(201,168,76,0.2)] focus:border-[rgba(201,168,76,0.5)]"}`}
+              />
+              {pwError && <p className="text-red-400 text-xs mt-1">Invalid credentials.</p>}
+            </div>
+            <Button onClick={handleLogin} className="w-full bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[48px]" data-testid="button-admin-login">
               Access Command Centre
             </Button>
           </div>
@@ -335,12 +352,24 @@ export default function AdminCommandCentre() {
     );
   }
 
-  const isLoading = reqLoading || leadLoading;
+  const isLoading = statsLoading || reqLoading;
+
+  // Use server stats where available, fall back to client-side
+  const kpiPipeline = stats?.totalPipelineValue ?? enrichedRequests.reduce((s, r) => s + r._value, 0);
+  const kpiHighValue = stats?.highValueCount ?? highValueRequests.length;
+  const kpiPaid = stats?.paidCount ?? paidRequests.length;
+  const kpiAvgScore = stats?.avgScore ?? (enrichedRequests.length > 0
+    ? Math.round(enrichedRequests.reduce((s, r) => s + r._score, 0) / enrichedRequests.length) : 0);
+  const kpiUnscored = stats?.unscoredInDb ?? 0;
+  const stageCounts = stats?.stageCounts ?? {};
+  const stageValues = stats?.stageValues ?? {};
 
   return (
     <div className="min-h-screen bg-[hsl(220,20%,6%)]">
+
+      {/* ── Header ──────────────────────────────────────────────────────────── */}
       <header className="bg-[hsl(220,18%,8%)] border-b border-[rgba(201,168,76,0.1)] px-4 sm:px-6 py-4 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-4">
             <Link href="/">
               <div className="flex flex-col cursor-pointer">
@@ -354,7 +383,21 @@ export default function AdminCommandCentre() {
               <span className="text-white font-semibold text-sm">Command Centre</span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Sync button — reads aiRecommendations JSON and populates DB columns */}
+            <Button
+              size="sm"
+              onClick={() => backfillMutation.mutate()}
+              disabled={backfillMutation.isPending}
+              className="bg-[rgba(201,168,76,0.12)] border border-[rgba(201,168,76,0.25)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.2)] min-h-[38px] text-xs"
+              data-testid="button-sync-scores"
+              title={kpiUnscored > 0 ? `${kpiUnscored} records missing stored scores` : "Sync AI scores to database"}
+            >
+              {backfillMutation.isPending
+                ? <><RefreshCw className="w-3.5 h-3.5 mr-1.5 animate-spin" />Syncing…</>
+                : <><RefreshCw className="w-3.5 h-3.5 mr-1.5" />Sync AI Scores{kpiUnscored > 0 ? ` (${kpiUnscored})` : ""}</>
+              }
+            </Button>
             <Button asChild size="sm" variant="outline" className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] min-h-[38px] text-xs">
               <Link href="/admin/dashboard"><LayoutDashboard className="w-3.5 h-3.5 mr-1" /> Dashboard</Link>
             </Button>
@@ -370,40 +413,45 @@ export default function AdminCommandCentre() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
+        {/* ── Page title ───────────────────────────────────────────────────── */}
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-serif font-bold text-white mb-1">Business Command Centre</h1>
-            <p className="text-white/40 text-sm">Real-time pipeline intelligence — The Corporate Desk</p>
+            <p className="text-white/40 text-sm">
+              Real-time pipeline intelligence — scores derived from{" "}
+              {requests.filter(r => r.leadScore != null).length > 0
+                ? `${requests.filter(r => r.leadScore != null).length} AI-scored records + formula fallback`
+                : "formula model (sync AI scores to populate from existing AI data)"}
+            </p>
           </div>
-          <div className="text-right text-xs text-white/30 hidden sm:block">
-            <p>{new Date().toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p>
-            <p className="mt-0.5">AEST</p>
-          </div>
+          <p className="text-white/25 text-xs hidden sm:block text-right">
+            {new Date().toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+          </p>
         </div>
 
+        {/* ── System health alerts ─────────────────────────────────────────── */}
         {health && (!health.email || !health.stripe) && (
           <div className="bg-[rgba(251,146,60,0.06)] border border-[rgba(251,146,60,0.2)] rounded-2xl overflow-hidden" data-testid="panel-system-alerts">
             <div className="px-5 py-3 border-b border-[rgba(251,146,60,0.12)] flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-orange-400" />
-              <span className="text-orange-400 text-sm font-semibold">Revenue-Critical Alerts</span>
-              <span className="ml-auto text-orange-400/50 text-xs">Action required</span>
+              <span className="text-orange-400 text-sm font-semibold">Revenue-Critical System Alerts</span>
             </div>
             <div className="p-4 flex flex-wrap gap-3">
               {!health.stripe && (
-                <div className="flex items-start gap-2.5 bg-[rgba(255,255,255,0.03)] rounded-xl p-3.5 border border-[rgba(251,146,60,0.15)] flex-1 min-w-[200px]">
+                <div className="flex items-start gap-2.5 bg-[rgba(255,255,255,0.03)] rounded-xl p-3.5 border border-[rgba(251,146,60,0.15)] flex-1 min-w-[240px]">
                   <XCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-white font-semibold text-sm">Stripe not configured</p>
-                    <p className="text-white/50 text-xs mt-0.5">$399 unlock button is broken for all users. Add <code className="bg-white/8 px-1 rounded text-orange-300">STRIPE_SECRET_KEY</code> in Secrets.</p>
+                    <p className="text-white/50 text-xs mt-0.5">$399 unlock is broken for all users. Add <code className="text-orange-300 bg-white/8 px-1 rounded">STRIPE_SECRET_KEY</code> to Secrets.</p>
                   </div>
                 </div>
               )}
               {!health.email && (
-                <div className="flex items-start gap-2.5 bg-[rgba(255,255,255,0.03)] rounded-xl p-3.5 border border-[rgba(251,146,60,0.15)] flex-1 min-w-[200px]">
+                <div className="flex items-start gap-2.5 bg-[rgba(255,255,255,0.03)] rounded-xl p-3.5 border border-[rgba(251,146,60,0.15)] flex-1 min-w-[240px]">
                   <XCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-white font-semibold text-sm">Email notifications off</p>
-                    <p className="text-white/50 text-xs mt-0.5">All lead alerts are silently dropping. Add <code className="bg-white/8 px-1 rounded text-orange-300">SMTP_HOST</code>, <code className="bg-white/8 px-1 rounded text-orange-300">SMTP_USER</code>, <code className="bg-white/8 px-1 rounded text-orange-300">SMTP_PASS</code> in Secrets.</p>
+                    <p className="text-white/50 text-xs mt-0.5">Lead alerts silently dropping. Add <code className="text-orange-300 bg-white/8 px-1 rounded">SMTP_HOST</code>, <code className="text-orange-300 bg-white/8 px-1 rounded">SMTP_USER</code>, <code className="text-orange-300 bg-white/8 px-1 rounded">SMTP_PASS</code>.</p>
                   </div>
                 </div>
               )}
@@ -411,52 +459,68 @@ export default function AdminCommandCentre() {
           </div>
         )}
 
+        {/* ── Sync status notice ───────────────────────────────────────────── */}
+        {!isLoading && kpiUnscored > 0 && (
+          <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.15)] rounded-xl px-4 py-3 flex items-center gap-3" data-testid="panel-sync-notice">
+            <AlertTriangle className="w-4 h-4 text-[hsl(43,78%,52%)] flex-shrink-0" />
+            <p className="text-white/70 text-sm flex-1">
+              <span className="text-[hsl(43,78%,65%)] font-semibold">{kpiUnscored} records</span> have AI data stored but not yet synced to the scoring database.
+              Click <span className="text-[hsl(43,78%,65%)] font-semibold">Sync AI Scores</span> above to populate in seconds — no API calls needed.
+            </p>
+            <Button size="sm" onClick={() => backfillMutation.mutate()} disabled={backfillMutation.isPending}
+              className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold text-xs flex-shrink-0 min-h-[34px]">
+              {backfillMutation.isPending ? <RefreshCw className="w-3 h-3 animate-spin" /> : "Sync Now"}
+            </Button>
+          </div>
+        )}
+
+        {/* ── KPI Cards ────────────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             {
-              label: "Estimated Pipeline", value: isLoading ? "—" : formatAUD(totalPipeline),
+              label: "Estimated Pipeline", value: isLoading ? "—" : formatAUD(kpiPipeline),
               sub: `${requests.length} planner submission${requests.length !== 1 ? "s" : ""}`,
               icon: DollarSign, color: "text-[hsl(43,78%,65%)]",
               bg: "bg-[rgba(201,168,76,0.08)] border-[rgba(201,168,76,0.15)]",
               testId: "stat-pipeline-value",
             },
             {
-              label: "High-Value Leads", value: isLoading ? "—" : highValue.length,
-              sub: `Score ≥ 70 · avg ${avgScore}/100`,
+              label: "High-Value Leads", value: isLoading ? "—" : kpiHighValue,
+              sub: `Score ≥70 · avg score ${kpiAvgScore}/100`,
               icon: Crown, color: "text-amber-400",
               bg: "bg-amber-500/8 border-amber-500/15",
               testId: "stat-high-value",
             },
             {
-              label: "Paid Unlocks", value: isLoading ? "—" : paidCount,
-              sub: `$${(paidCount * 399).toLocaleString("en-AU")} AUD collected`,
+              label: "Paid Unlocks", value: isLoading ? "—" : kpiPaid,
+              sub: `$${(kpiPaid * 399).toLocaleString("en-AU")} AUD collected`,
               icon: Shield, color: "text-green-400",
               bg: "bg-green-500/8 border-green-500/15",
               testId: "stat-paid-unlocks",
             },
             {
               label: "Web Leads", value: isLoading ? "—" : leads.length,
-              sub: `${quoteLeads} quote · ${strategyLeads} strategy · ${layoutLeads} layout`,
+              sub: Object.entries(leadTypeMap).map(([t, n]) => `${n} ${t}`).join(" · ") || "No leads yet",
               icon: Target, color: "text-blue-400",
               bg: "bg-blue-500/8 border-blue-500/15",
               testId: "stat-web-leads",
             },
           ].map(({ label, value, sub, icon: Icon, color, bg, testId }) => (
             <div key={label} className={`rounded-2xl border p-5 ${bg}`} data-testid={testId}>
-              <div className="flex items-start justify-between gap-2 mb-3">
-                <div className={`w-9 h-9 rounded-xl ${bg} flex items-center justify-center border`}>
-                  <Icon className={`w-4 h-4 ${color}`} />
-                </div>
+              <div className={`w-9 h-9 rounded-xl ${bg} flex items-center justify-center border mb-3`}>
+                <Icon className={`w-4 h-4 ${color}`} />
               </div>
               <p className={`text-2xl font-bold font-serif ${color} mb-0.5`}>{value}</p>
               <p className="text-white/50 text-xs">{label}</p>
-              <p className="text-white/25 text-xs mt-0.5">{sub}</p>
+              <p className="text-white/25 text-xs mt-0.5 truncate">{sub}</p>
             </div>
           ))}
         </div>
 
+        {/* ── Deal Pipeline + Commercial Mix ──────────────────────────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
+          {/* Pipeline funnel */}
           <div className="lg:col-span-2 bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl overflow-hidden">
             <div className="px-6 py-4 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -470,39 +534,30 @@ export default function AdminCommandCentre() {
               </Link>
             </div>
             <div className="p-6">
+              {/* Visual bar */}
               <div className="flex gap-1 mb-4 h-3 rounded-full overflow-hidden">
-                {PIPELINE_STAGES.filter(s => s !== "Archived").map(stage => {
+                {PIPELINE_STAGES.map(stage => {
                   const count = stageCounts[stage] || 0;
                   const total = requests.length || 1;
-                  const pct = (count / total) * 100;
-                  const colors: Record<string, string> = {
-                    "New": "bg-blue-500",
-                    "In Review": "bg-purple-500",
-                    "Quoted": "bg-amber-500",
-                    "Converted": "bg-green-500",
-                  };
+                  const pct = Math.max((count / total) * 100, count > 0 ? 4 : 0);
                   return (
-                    <div
-                      key={stage}
-                      style={{ width: `${Math.max(pct, count > 0 ? 4 : 0)}%` }}
-                      className={`${colors[stage]} rounded-full`}
-                      title={`${stage}: ${count}`}
-                    />
+                    <div key={stage} style={{ width: `${pct}%` }}
+                      className={`${STAGE_BAR_COLORS[stage]} rounded-full`}
+                      title={`${stage}: ${count}`} />
                   );
                 })}
                 {requests.length === 0 && <div className="w-full bg-white/5 rounded-full" />}
               </div>
+              {/* Stage cards */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {PIPELINE_STAGES.filter(s => s !== "Archived").map(stage => {
+                {PIPELINE_STAGES.map(stage => {
                   const count = stageCounts[stage] || 0;
-                  const stageValue = scored
-                    .filter(r => r.status === stage)
-                    .reduce((s, r) => s + r._value, 0);
+                  const val = stageValues[stage] || 0;
                   return (
-                    <div key={stage} className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3 border border-[rgba(255,255,255,0.05)]">
+                    <div key={stage} className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3 border border-[rgba(255,255,255,0.05)]" data-testid={`stage-${stage.toLowerCase().replace(" ", "-")}`}>
                       <p className="text-white/40 text-xs mb-1">{stage}</p>
                       <p className="text-white font-bold text-lg">{count}</p>
-                      {stageValue > 0 && <p className="text-[hsl(43,78%,65%)] text-xs mt-0.5">{formatAUD(stageValue)}</p>}
+                      {val > 0 && <p className="text-[hsl(43,78%,65%)] text-xs mt-0.5">{formatAUD(val)}</p>}
                     </div>
                   );
                 })}
@@ -510,6 +565,7 @@ export default function AdminCommandCentre() {
             </div>
           </div>
 
+          {/* Commercial mix */}
           <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl overflow-hidden">
             <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.06)] flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-[hsl(43,78%,52%)]" />
@@ -517,16 +573,16 @@ export default function AdminCommandCentre() {
             </div>
             <div className="p-5 space-y-3">
               {[
-                { label: "Relocation / Move", count: relocationCount, icon: Building2, color: "text-[hsl(43,78%,65%)]" },
-                { label: "New Office / HQ", count: newHQCount, icon: Crown, color: "text-amber-400" },
-                { label: "High Lead Score (70+)", count: highValue.length, icon: Star, color: "text-purple-400" },
-                { label: "Paid Report Access", count: paidCount, icon: Shield, color: "text-green-400" },
-                { label: "Quote Requests", count: quoteLeads, icon: FileText, color: "text-blue-400" },
-                { label: "Strategy Calls", count: strategyLeads, icon: Calendar, color: "text-pink-400" },
+                { label: "High Value (score ≥70)", count: kpiHighValue, icon: Crown, color: "text-[hsl(43,78%,65%)]" },
+                { label: "Medium (score 45–69)", count: stats?.mediumCount ?? enrichedRequests.filter(r => r._score >= 45 && r._score < 70).length, icon: Star, color: "text-blue-400" },
+                { label: "Low Priority (<45)", count: stats?.lowCount ?? enrichedRequests.filter(r => r._score < 45).length, icon: Target, color: "text-white/30" },
+                { label: "Paid Report Access", count: kpiPaid, icon: Shield, color: "text-green-400" },
+                { label: "Relocation / Expansion", count: enrichedRequests.filter(r => /(reloc|new office|expan)/i.test(r.projectType || "")).length, icon: Building2, color: "text-amber-400" },
+                { label: "Web Leads (all types)", count: leads.length, icon: Users, color: "text-purple-400" },
               ].map(({ label, count, icon: Icon, color }) => (
                 <div key={label} className="flex items-center gap-3">
                   <Icon className={`w-3.5 h-3.5 ${color} flex-shrink-0`} />
-                  <span className="text-white/60 text-xs flex-1">{label}</span>
+                  <span className="text-white/55 text-xs flex-1">{label}</span>
                   <span className={`font-bold text-sm ${count > 0 ? "text-white" : "text-white/20"}`}>{count}</span>
                 </div>
               ))}
@@ -534,6 +590,7 @@ export default function AdminCommandCentre() {
           </div>
         </div>
 
+        {/* ── Top Opportunities ────────────────────────────────────────────── */}
         <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl overflow-hidden">
           <div className="px-6 py-4 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -542,7 +599,7 @@ export default function AdminCommandCentre() {
               <span className="text-white/30 text-xs ml-1">ranked by lead score</span>
             </div>
             <Link href="/admin/planning-requests">
-              <button className="text-[hsl(43,78%,52%)] text-xs hover:underline flex items-center gap-1 hidden sm:flex">
+              <button className="text-[hsl(43,78%,52%)] text-xs hover:underline items-center gap-1 hidden sm:flex">
                 Full view <ChevronRight className="w-3 h-3" />
               </button>
             </Link>
@@ -551,58 +608,73 @@ export default function AdminCommandCentre() {
           {isLoading ? (
             <div className="p-8 text-center text-white/30 text-sm">Loading submissions…</div>
           ) : topOpportunities.length === 0 ? (
-            <div className="p-8 text-center text-white/30 text-sm">No planner submissions yet. Submissions appear here as the AI Planner is used.</div>
+            <div className="p-8 text-center text-white/30 text-sm">
+              No planner submissions yet. They appear here as the AI Planner is used.
+            </div>
           ) : (
             <div className="divide-y divide-[rgba(255,255,255,0.04)]">
               {topOpportunities.map((req, idx) => {
                 const score = req._score;
-                const value = req._value;
-                const tier = getLeadTier(score);
+                const tier = getScoreTier(score);
                 const isHighest = idx === 0;
                 return (
-                  <div key={req.id} className={`p-5 ${isHighest ? "bg-[rgba(201,168,76,0.04)]" : ""}`} data-testid={`opportunity-row-${req.id}`}>
+                  <div key={req.id} className={`p-5 ${isHighest ? "bg-[rgba(201,168,76,0.04)]" : ""}`}
+                    data-testid={`opportunity-row-${req.id}`}>
                     <div className="flex items-start gap-4">
+                      {/* Rank */}
                       <div className="w-9 h-9 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
                         {idx + 1}
                       </div>
                       <div className="flex-1 min-w-0">
+                        {/* Name + tier */}
                         <div className="flex flex-wrap items-start gap-2 mb-1.5">
                           <p className="text-white font-semibold text-sm">{req.name}</p>
                           {req.company && <span className="text-white/40 text-sm">· {req.company}</span>}
+                          {req._aiOfficeType && (
+                            <span className="text-white/30 text-xs bg-white/5 px-2 py-0.5 rounded-full border border-white/10">{req._aiOfficeType}</span>
+                          )}
                           <Badge className={`text-xs border ml-auto ${tier.bg} ${tier.color}`}>{tier.label}</Badge>
                         </div>
+
+                        {/* Meta row */}
                         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/40 mb-2">
                           {req.projectType && <span className="flex items-center gap-1"><Building2 className="w-3 h-3" />{req.projectType}</span>}
                           {req.squareMetres && <span>{req.squareMetres} sqm</span>}
                           {req.staffCount && <span><Users className="w-3 h-3 inline mr-0.5" />{req.staffCount} staff</span>}
                           {req.budgetRange && <span>{req.budgetRange}</span>}
+                          {req._aiTimeline && <span><Calendar className="w-3 h-3 inline mr-0.5" />{req._aiTimeline}</span>}
                           {req.city && <span>{req.city}</span>}
                           <span className="ml-auto text-white/25">{timeAgo(req.createdAt)}</span>
                         </div>
-                        <div className="flex flex-wrap items-center gap-3">
+
+                        {/* Score bar + value */}
+                        <div className="flex flex-wrap items-center gap-3 mb-2">
                           <div className="flex items-center gap-2">
-                            <div className="h-1.5 w-20 bg-white/10 rounded-full overflow-hidden">
-                              <div
-                                className={`h-full rounded-full transition-all ${score >= 70 ? "bg-[hsl(43,78%,52%)]" : score >= 45 ? "bg-blue-500" : "bg-white/30"}`}
-                                style={{ width: `${score}%` }}
-                              />
+                            <div className="h-1.5 w-24 bg-white/10 rounded-full overflow-hidden">
+                              <div className={`h-full ${tier.bar} rounded-full`} style={{ width: `${score}%` }} />
                             </div>
-                            <span className={`text-xs font-bold ${tier.color}`}>{score}/100</span>
+                            <span className={`text-xs font-bold ${tier.color}`} data-testid={`score-${req.id}`}>{score}/100</span>
+                            {req.leadScore != null && (
+                              <span className="text-white/25 text-xs">(AI)</span>
+                            )}
                           </div>
-                          {value > 0 && (
-                            <span className="text-[hsl(43,78%,65%)] text-xs font-semibold">{formatAUD(value)} est.</span>
+                          {req._valueDisplay && (
+                            <span className="text-[hsl(43,78%,65%)] text-xs font-semibold" data-testid={`value-${req.id}`}>
+                              {req._valueDisplay.startsWith("$") ? req._valueDisplay : formatAUD(req._value)} est.
+                            </span>
                           )}
                           {req.isPaid && (
                             <span className="text-xs text-green-400 flex items-center gap-1"><Shield className="w-3 h-3" />Paid</span>
                           )}
-                          {isRelocation(req) && (
-                            <span className="text-xs text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">Relocation</span>
-                          )}
-                          {isExpansion(req) && !isRelocation(req) && (
-                            <span className="text-xs text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">New HQ</span>
-                          )}
                         </div>
-                        <div className="flex flex-wrap gap-2 mt-3">
+
+                        {/* AI brief */}
+                        {req._aiSummary && (
+                          <p className="text-white/40 text-xs leading-relaxed mb-2 italic">"{req._aiSummary.slice(0, 140)}{req._aiSummary.length > 140 ? "…" : ""}"</p>
+                        )}
+
+                        {/* Contact + actions */}
+                        <div className="flex flex-wrap gap-3 items-center">
                           <a href={`mailto:${req.email}`} className="flex items-center gap-1.5 text-xs text-white/40 hover:text-[hsl(43,78%,65%)] transition-colors">
                             <Mail className="w-3 h-3" />{req.email}
                           </a>
@@ -617,16 +689,23 @@ export default function AdminCommandCentre() {
                             </button>
                           </Link>
                         </div>
+
+                        {/* CEO recommendation for high-value leads */}
                         {score >= 70 && (
                           <div className="mt-3 p-3 bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.15)] rounded-xl">
-                            <p className="text-[hsl(43,78%,65%)] text-xs font-semibold mb-1">CEO Recommendation</p>
+                            <p className="text-[hsl(43,78%,65%)] text-xs font-semibold mb-1 flex items-center gap-1.5">
+                              <Crown className="w-3 h-3" /> CEO Recommendation
+                            </p>
                             <p className="text-white/60 text-xs leading-relaxed">
-                              {value >= 150000
-                                ? `Priority contact. ${formatAUD(value)} estimated project — senior consultant call within 24h. Prepare full proposal package.`
-                                : value >= 80000
-                                ? `Strong commercial opportunity. ${formatAUD(value)} estimated — book strategy call and prepare preliminary quote.`
-                                : `Qualified lead. Follow up within 48h with workspace concept and product recommendations.`
+                              {req._value >= 200000
+                                ? `Priority contact. ${req._valueDisplay || formatAUD(req._value)} estimated project — senior consultant call within 24h. Prepare full proposal package.`
+                                : req._value >= 100000
+                                ? `Strong commercial opportunity. ${req._valueDisplay || formatAUD(req._value)} estimated — book strategy call and prepare preliminary quote.`
+                                : `Qualified lead. Score ${score}/100. Follow up within 48h with workspace concept and product recommendations.`
                               }
+                              {req._aiRec?.recommendedNextStep && (
+                                <span className="block mt-1 text-white/40">AI suggests: {req._aiRec.recommendedNextStep}</span>
+                              )}
                             </p>
                           </div>
                         )}
@@ -639,94 +718,41 @@ export default function AdminCommandCentre() {
           )}
         </div>
 
+        {/* ── Bottom panels: Pipeline Intelligence + Recent Leads ─────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-          <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl overflow-hidden">
-            <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-[hsl(43,78%,52%)]" />
-                <h2 className="text-white font-semibold text-sm">Recent Web Leads</h2>
-              </div>
-              <Link href="/admin/leads">
-                <button className="text-[hsl(43,78%,52%)] text-xs hover:underline flex items-center gap-1">
-                  All leads <ChevronRight className="w-3 h-3" />
-                </button>
-              </Link>
-            </div>
-            {recentLeads.length === 0 ? (
-              <div className="p-6 text-center text-white/30 text-sm">No web leads yet.</div>
-            ) : (
-              <div className="divide-y divide-[rgba(255,255,255,0.04)]">
-                {recentLeads.map(lead => {
-                  const typeColors: Record<string, string> = {
-                    "layout-plan": "text-blue-400 bg-blue-500/10 border-blue-500/20",
-                    "quote-request": "text-[hsl(43,78%,65%)] bg-[rgba(201,168,76,0.12)] border-[rgba(201,168,76,0.2)]",
-                    "strategy-call": "text-purple-400 bg-purple-500/10 border-purple-500/20",
-                    "quote-builder": "text-green-400 bg-green-500/10 border-green-500/20",
-                    "unlock-request": "text-amber-400 bg-amber-500/10 border-amber-500/20",
-                  };
-                  const typeLabel: Record<string, string> = {
-                    "layout-plan": "Layout Plan",
-                    "quote-request": "Quote Request",
-                    "strategy-call": "Strategy Call",
-                    "quote-builder": "Quote Builder",
-                    "unlock-request": "Unlock Request",
-                    "contact": "Contact",
-                  };
-                  const color = typeColors[lead.type] || "text-white/40 bg-white/5 border-white/10";
-                  const label = typeLabel[lead.type] || lead.type;
-                  return (
-                    <div key={lead.id} className="px-5 py-3.5 flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] flex items-center justify-center flex-shrink-0 text-white text-xs font-bold mt-0.5">
-                        {lead.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-white text-sm font-medium">{lead.name}</span>
-                          {lead.company && <span className="text-white/40 text-xs">· {lead.company}</span>}
-                          <Badge className={`text-xs border ml-auto ${color}`}>{label}</Badge>
-                        </div>
-                        <div className="flex items-center gap-3 mt-0.5">
-                          <a href={`mailto:${lead.email}`} className="text-white/35 text-xs hover:text-[hsl(43,78%,65%)] transition-colors truncate">{lead.email}</a>
-                          <span className="text-white/20 text-xs flex-shrink-0">{timeAgo(lead.createdAt)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
+          {/* Pipeline Intelligence */}
           <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl overflow-hidden">
             <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.06)] flex items-center gap-2">
               <Layers className="w-4 h-4 text-[hsl(43,78%,52%)]" />
               <h2 className="text-white font-semibold text-sm">Pipeline Intelligence</h2>
             </div>
             <div className="p-5 space-y-4">
+              {/* Value breakdown */}
               <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.15)] rounded-xl p-4">
                 <p className="text-[hsl(43,78%,65%)] text-xs font-semibold uppercase tracking-wider mb-3">Value Breakdown</p>
                 <div className="space-y-2">
                   {[
-                    { label: "Total estimated pipeline", value: formatAUD(totalPipeline), highlight: true },
-                    { label: "Average project value", value: requests.length > 0 ? formatAUD(Math.round(totalPipeline / requests.length)) : "—" },
-                    { label: "High-value share (≥$100K)", value: formatAUD(scored.filter(r => r._value >= 100000).reduce((s, r) => s + r._value, 0)) },
-                    { label: "Paid unlock revenue", value: `$${(paidCount * 399).toLocaleString("en-AU")}` },
-                  ].map(({ label, value, highlight }) => (
+                    { label: "Total estimated pipeline", value: formatAUD(kpiPipeline), hi: true },
+                    { label: "Average project value", value: requests.length > 0 ? formatAUD(Math.round(kpiPipeline / requests.length)) : "—" },
+                    { label: "High-value share (≥$100K)", value: formatAUD(enrichedRequests.filter(r => r._value >= 100000).reduce((s, r) => s + r._value, 0)) },
+                    { label: "Paid unlock revenue", value: `$${(kpiPaid * 399).toLocaleString("en-AU")}` },
+                  ].map(({ label, value, hi }) => (
                     <div key={label} className="flex items-center justify-between gap-3">
                       <span className="text-white/50 text-xs">{label}</span>
-                      <span className={`font-bold text-sm ${highlight ? "text-[hsl(43,78%,65%)]" : "text-white/80"}`}>{value}</span>
+                      <span className={`font-bold text-sm ${hi ? "text-[hsl(43,78%,65%)]" : "text-white/80"}`}>{value}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
+              {/* Score distribution */}
               <div className="bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] rounded-xl p-4">
                 <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-3">Lead Quality Distribution</p>
                 {[
-                  { label: "High Value (70–100)", count: scored.filter(r => r._score >= 70).length, color: "bg-[hsl(43,78%,52%)]" },
-                  { label: "Medium (45–69)", count: scored.filter(r => r._score >= 45 && r._score < 70).length, color: "bg-blue-500" },
-                  { label: "Low Priority (<45)", count: scored.filter(r => r._score < 45).length, color: "bg-white/20" },
+                  { label: "High Value (70–100)", count: kpiHighValue, color: "bg-[hsl(43,78%,52%)]" },
+                  { label: "Medium (45–69)", count: stats?.mediumCount ?? enrichedRequests.filter(r => r._score >= 45 && r._score < 70).length, color: "bg-blue-500" },
+                  { label: "Low Priority (<45)", count: stats?.lowCount ?? enrichedRequests.filter(r => r._score < 45).length, color: "bg-white/20" },
                 ].map(({ label, count, color }) => {
                   const pct = requests.length > 0 ? (count / requests.length) * 100 : 0;
                   return (
@@ -743,16 +769,72 @@ export default function AdminCommandCentre() {
                 })}
               </div>
 
-              <div className="text-center pt-1">
-                <p className="text-white/20 text-xs italic">
-                  Pipeline values estimated from office size, staff count, and style preference.
-                  {" "}Actual values confirmed after AI analysis.
-                </p>
-              </div>
+              <p className="text-white/20 text-xs italic">
+                {requests.filter(r => r.leadScore != null).length > 0
+                  ? `${requests.filter(r => r.leadScore != null).length} of ${requests.length} records use AI-generated scores. Formula used for remaining.`
+                  : "Scores computed by formula (click Sync AI Scores to use stored AI data)."}
+              </p>
             </div>
+          </div>
+
+          {/* Recent Web Leads */}
+          <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl overflow-hidden">
+            <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                <h2 className="text-white font-semibold text-sm">Recent Web Leads</h2>
+              </div>
+              <Link href="/admin/leads">
+                <button className="text-[hsl(43,78%,52%)] text-xs hover:underline flex items-center gap-1">
+                  All leads <ChevronRight className="w-3 h-3" />
+                </button>
+              </Link>
+            </div>
+            {leads.length === 0 ? (
+              <div className="p-8 text-center text-white/30 text-sm">No web leads yet.</div>
+            ) : (
+              <div className="divide-y divide-[rgba(255,255,255,0.04)]">
+                {leads.slice(0, 8).map(lead => {
+                  const typeColors: Record<string, string> = {
+                    "layout-plan": "text-blue-400 bg-blue-500/10 border-blue-500/20",
+                    "quote-request": "text-[hsl(43,78%,65%)] bg-[rgba(201,168,76,0.12)] border-[rgba(201,168,76,0.2)]",
+                    "strategy-call": "text-purple-400 bg-purple-500/10 border-purple-500/20",
+                    "quote-builder": "text-green-400 bg-green-500/10 border-green-500/20",
+                    "unlock-request": "text-amber-400 bg-amber-500/10 border-amber-500/20",
+                    "contact": "text-white/40 bg-white/5 border-white/10",
+                  };
+                  const typeLabels: Record<string, string> = {
+                    "layout-plan": "Layout Plan", "quote-request": "Quote Request",
+                    "strategy-call": "Strategy Call", "quote-builder": "Quote Builder",
+                    "unlock-request": "Unlock Request", "contact": "Contact",
+                  };
+                  const colorClass = typeColors[lead.type] || "text-white/40 bg-white/5 border-white/10";
+                  const typeLabel = typeLabels[lead.type] || lead.type;
+                  return (
+                    <div key={lead.id} className="px-5 py-3.5 flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] flex items-center justify-center flex-shrink-0 text-white text-xs font-bold mt-0.5">
+                        {(lead.name || "?").charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-white text-sm font-medium">{lead.name}</span>
+                          {lead.company && <span className="text-white/40 text-xs">· {lead.company}</span>}
+                          <Badge className={`text-xs border ml-auto ${colorClass}`}>{typeLabel}</Badge>
+                        </div>
+                        <div className="flex items-center gap-3 mt-0.5">
+                          <a href={`mailto:${lead.email}`} className="text-white/35 text-xs hover:text-[hsl(43,78%,65%)] transition-colors truncate">{lead.email}</a>
+                          <span className="text-white/20 text-xs flex-shrink-0">{timeAgo(lead.createdAt?.toString())}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
+        {/* ── Admin Navigation shortcuts ────────────────────────────────────── */}
         <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-5">
           <p className="text-white/30 text-xs font-semibold uppercase tracking-wider mb-4">Admin Navigation</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -774,6 +856,7 @@ export default function AdminCommandCentre() {
             ))}
           </div>
         </div>
+
       </main>
     </div>
   );
