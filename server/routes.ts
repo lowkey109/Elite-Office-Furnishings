@@ -446,5 +446,130 @@ ${signals}`;
     }
   });
 
+  // ─── Supplier Quotes ───────────────────────────────────────────────────────
+
+  app.get("/api/admin/supplier-quotes", async (req, res) => {
+    try {
+      const quotes = await storage.getSupplierQuotes();
+      res.json(quotes);
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
+  app.post("/api/admin/supplier-quotes", async (req, res) => {
+    try {
+      const {
+        supplierName, supplierPhone, supplierEmail, productName, sku,
+        quantity, colourFinish, unitPrice, freightCost, leadTime,
+        quoteDate, projectReference, status, notes,
+      } = req.body;
+      if (!supplierName || !productName || !sku || !unitPrice || !quoteDate) {
+        return res.status(400).json({ success: false, message: "Required fields missing" });
+      }
+      const quote = await storage.createSupplierQuote({
+        supplierName, supplierPhone, supplierEmail, productName, sku,
+        quantity: Number(quantity) || 1, colourFinish, unitPrice, freightCost,
+        leadTime, quoteDate, projectReference, status, notes,
+      });
+      res.json({ success: true, quote });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
+  app.patch("/api/admin/supplier-quotes/:id/status", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const validStatuses = ["Requested", "Received", "Approved", "Ordered", "Shipped", "Delivered"];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ error: "Invalid status" });
+      }
+      const updated = await storage.updateSupplierQuoteStatus(id, status);
+      if (!updated) return res.status(404).json({ error: "Quote not found" });
+      res.json({ success: true, quote: updated });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
+  app.patch("/api/admin/supplier-quotes/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updated = await storage.updateSupplierQuote(id, req.body);
+      if (!updated) return res.status(404).json({ error: "Quote not found" });
+      res.json({ success: true, quote: updated });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/admin/supplier-quotes/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteSupplierQuote(id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
+  // ─── Referrals ─────────────────────────────────────────────────────────────
+
+  app.get("/api/admin/referrals", async (req, res) => {
+    try {
+      const referrals = await storage.getReferrals();
+      res.json(referrals);
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
+  app.post("/api/admin/referrals", async (req, res) => {
+    try {
+      const {
+        referrerName, company, contactEmail, contactPhone, leadSource,
+        clientName, clientCompany, estimatedValue, notes,
+      } = req.body;
+      if (!referrerName || !leadSource) {
+        return res.status(400).json({ success: false, message: "Required fields missing" });
+      }
+      const referral = await storage.createReferral({
+        referrerName, company, contactEmail, contactPhone, leadSource,
+        clientName, clientCompany, estimatedValue, notes,
+      });
+      res.json({ success: true, referral });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
+  app.patch("/api/admin/referrals/:id/status", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const validStatuses = ["New", "Contacted", "Qualified", "Won", "Lost"];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ error: "Invalid status" });
+      }
+      const updated = await storage.updateReferralStatus(id, status);
+      if (!updated) return res.status(404).json({ error: "Referral not found" });
+      res.json({ success: true, referral: updated });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/admin/referrals/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteReferral(id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
   return httpServer;
 }

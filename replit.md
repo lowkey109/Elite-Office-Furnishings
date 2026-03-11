@@ -28,6 +28,7 @@ A luxury, billionaire-aesthetic office furniture website for The Corporate Desk 
 | `/admin/marketing` | Marketing.tsx | AI Marketing Hub (password protected) |
 | `/admin/dashboard` | AdminDashboard.tsx | Business metrics, leads overview |
 | `/admin/leads` | AdminLeads.tsx | AI Lead Intelligence & Prospecting Engine |
+| `/admin/supplier-quotes` | AdminSupplierQuotes.tsx | Supplier Quote Management + Referral Tracking |
 
 ## Architecture
 - **Frontend**: React + Wouter routing + TanStack Query + Shadcn UI

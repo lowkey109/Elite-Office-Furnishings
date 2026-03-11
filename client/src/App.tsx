@@ -19,6 +19,7 @@ import FinanceWorkspace from "@/pages/FinanceWorkspace";
 import CaseStudies from "@/pages/CaseStudies";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminLeads from "@/pages/AdminLeads";
+import AdminSupplierQuotes from "@/pages/AdminSupplierQuotes";
 import Testimonials from "@/pages/Testimonials";
 
 function Router() {
@@ -42,6 +43,7 @@ function Router() {
       <Route path="/admin/marketing" component={Marketing} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/leads" component={AdminLeads} />
+      <Route path="/admin/supplier-quotes" component={AdminSupplierQuotes} />
       <Route component={NotFound} />
     </Switch>
   );

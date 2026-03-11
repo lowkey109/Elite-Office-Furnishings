@@ -1,0 +1,460 @@
+Ben — I’ve merged and cleaned everything into one single MASTER PROMPT so the agent doesn’t get confused, duplicate work, or hallucinate features.
+It keeps all the systems you wanted:
+	•	Supplier quote management
+	•	Lead capture funnel
+	•	Lead tracking CRM
+	•	Referral tracking
+	•	Property / office move leads
+	•	Expansion lead detector
+	•	Email backups
+	•	Sales dashboard
+	•	Safety rules so the bot doesn’t break the app
+
+This is the version you should paste into your agent.
+
+⸻
+
+MASTER SYSTEM BUILD PROMPT
+
+The Corporate Desk – Quote System + Revenue Lead Engine
+
+You are working on the existing application for The Corporate Desk.
+
+Your task is to safely build a Supplier Quote Management System and Commercial Lead Generation System inside the current application.
+
+The system must help generate commercial office furniture and office fit-out projects worth $30,000 – $300,000+ while safely managing supplier quotes and tracking potential clients.
+
+You must not break the existing system.
+
+All work must be additive and safe.
+
+⸻
+
+IMPORTANT OPERATING RULES
+
+Before building anything:
+	1.	Inspect the existing application.
+	2.	Identify what systems already exist.
+	3.	Do not rebuild completed systems.
+	4.	Improve weak systems instead of replacing them.
+	5.	Do not delete or overwrite working components.
+
+⸻
+
+ANTI-HALLUCINATION RULE
+
+Do not invent features that are not requested.
+
+Do not assume functionality exists.
+
+Only build features explicitly described in this prompt.
+
+If something already exists in the system, reuse it rather than recreating it.
+
+Do not create duplicate databases, duplicate routes, duplicate dashboards, or duplicate forms.
+
+⸻
+
+PART 1 — SUPPLIER QUOTE MANAGEMENT SYSTEM
+
+Build a Supplier Quote Management System inside the admin panel.
+
+This system will track supplier pricing for furniture and fit-out items.
+
+The system must allow users to:
+
+• log supplier quotes
+• track quote status
+• store pricing
+• store freight costs
+• store lead times
+• store supplier contact information
+• link quotes to client projects
+
+⸻
+
+QUOTE STATUS TRACKING
+
+Each supplier quote must track these stages:
+
+Requested
+Received
+Approved
+Ordered
+Shipped
+Delivered
+
+Admin users must be able to easily update status.
+
+⸻
+
+QUOTE RECORD FIELDS
+
+Each supplier quote record must include:
+
+Supplier Name
+Product Name
+SKU
+Quantity
+Colour / Finish
+Unit Price
+Freight Cost
+Lead Time
+Quote Date
+Project / Client Reference
+Status
+
+Optional fields:
+
+Supplier Phone
+Supplier Email
+Notes
+Quote Attachment
+
+⸻
+
+DATABASE STORAGE
+
+All supplier quotes must:
+
+• be stored in the database
+• be searchable
+• be editable
+• be linked to leads or projects
+
+⸻
+
+EMAIL BACKUP SYSTEM
+
+Whenever a quote is created or updated, send a copy to:
+
+service@thecorporatedesk.com.au
+thecorporatedeskservice@gmail.com
+
+The email must contain:
+
+Supplier Name
+Product
+SKU
+Quantity
+Price
+Freight
+Lead Time
+Project Reference
+Status
+
+Subject format:
+
+Supplier Quote – [Supplier Name] – [Product]
+
+⸻
+
+ADMIN PANEL FEATURES
+
+The admin panel must allow users to:
+
+• view all supplier quotes
+• search quotes
+• filter by supplier
+• filter by project
+• filter by status
+• update quote status
+• view quote history
+
+The interface must be:
+
+• clean
+• simple
+• professional
+• easy to navigate
+
+⸻
+
+PART 2 — COMMERCIAL LEAD CAPTURE SYSTEM
+
+Build systems that capture leads from companies needing office furniture or office fit-outs.
+
+These leads often come from businesses that are:
+
+• moving offices
+• expanding teams
+• renovating workplaces
+• opening new locations
+
+⸻
+
+LEAD CAPTURE FORMS
+
+Create lead capture flows for:
+
+Free Office Layout Plan
+Send Us Your Quote
+Workplace Strategy Consultation
+
+Each lead record must capture:
+
+Name
+Company
+Email
+Phone
+Office Location
+Staff Count
+Project Type
+Estimated Budget
+Move Date
+Message
+
+⸻
+
+LEAD STATUS TRACKING
+
+Each lead must track status:
+
+New Lead
+Contacted
+Quote Sent
+Negotiation
+Won
+Lost
+
+⸻
+
+LEAD DASHBOARD
+
+Create an admin dashboard that allows users to:
+
+• view all leads
+• search leads
+• filter by company
+• filter by status
+• link leads to supplier quotes
+
+⸻
+
+PART 3 — HIGH VALUE LEAD DATABASES
+
+Build additional lead sources.
+
+These help identify companies likely to require office furniture.
+
+⸻
+
+OFFICE MOVE LEADS
+
+Create a database of companies that are:
+
+• relocating offices
+• leasing new office space
+• expanding workplaces
+
+Fields should include:
+
+Company Name
+Location
+Industry
+Estimated Staff
+Move Date
+
+⸻
+
+COMMERCIAL PROPERTY LEADS
+
+Allow logging of companies associated with:
+
+• new office leases
+• commercial tenants
+• office developments
+
+These are strong signals for office furniture purchases.
+
+⸻
+
+REFERRAL LEAD TRACKING
+
+Create a referral tracking system.
+
+Referrals may come from:
+
+• real estate agents
+• architects
+• interior designers
+• project managers
+• builders
+
+Fields should include:
+
+Referrer Name
+Company
+Contact
+Lead Source
+Lead Value
+
+⸻
+
+PARTNER LEADS
+
+Track leads from partnerships such as:
+
+• sit-stand desk suppliers
+• office relocation companies
+• workplace consultants
+
+⸻
+
+INBOUND WEBSITE LEADS
+
+All website enquiries must automatically create a lead record.
+
+This includes:
+
+• contact forms
+• layout plan requests
+• quote requests
+
+⸻
+
+PART 4 — COMPANY EXPANSION LEAD DETECTOR
+
+Build a Company Expansion Detection System.
+
+This system identifies businesses likely to need office furniture.
+
+Companies often require furniture when they:
+
+• hire rapidly
+• expand teams
+• open new offices
+• relocate headquarters
+• lease commercial space
+• raise funding
+
+⸻
+
+DATA SOURCES FOR EXPANSION SIGNALS
+
+The system may gather expansion signals from:
+
+• LinkedIn hiring activity
+• job postings
+• commercial property announcements
+• startup funding news
+• press releases
+• local business news
+
+⸻
+
+EXPANSION LEAD DATABASE
+
+Store expansion leads including:
+
+Company Name
+Industry
+City
+Estimated Team Size
+Expansion Signal
+Source Link
+Estimated Move Date
+Lead Confidence Score
+
+These leads must appear in the lead dashboard.
+
+⸻
+
+EXPANSION LEAD ALERTS
+
+If the system detects strong expansion signals, mark the lead as high opportunity.
+
+These companies are likely to require:
+
+• desks
+• boardroom tables
+• office chairs
+• reception desks
+• meeting furniture
+• full office fit-outs
+
+⸻
+
+PART 5 — LEAD CONVERSION TOOLS
+
+Add tools that help convert leads into projects.
+
+These may include:
+
+• quote upload forms
+• floor plan uploads
+• consultation booking
+• follow-up reminders
+
+⸻
+
+PART 6 — AUTOMATED EMAIL FOLLOW-UPS
+
+Create simple automated emails for:
+
+Lead enquiry confirmation
+Quote follow-up
+Consultation reminder
+
+⸻
+
+PART 7 — ADMIN SALES DASHBOARD
+
+Create a dashboard that displays:
+
+Total Leads
+Active Quotes
+Approved Projects
+Revenue Pipeline
+Expansion Leads
+Supplier Quotes
+
+This dashboard should help monitor sales growth.
+
+⸻
+
+DESIGN STANDARD
+
+All admin interfaces must be:
+
+• clean
+• modern
+• professional
+• easy to use
+
+Avoid clutter or confusing layouts.
+
+⸻
+
+SAFETY RULES
+
+Do NOT:
+
+• delete existing pages
+• break routing
+• remove existing features
+• overwrite stable systems
+
+All work must be safe and additive.
+
+⸻
+
+FINAL OBJECTIVE
+
+The system must help The Corporate Desk:
+
+• capture commercial leads
+• detect companies expanding offices
+• manage supplier quotes
+• track projects
+• convert leads into office furniture and fit-out sales
+
+The system must support consistent high-value commercial projects.
+
+⸻
+
+Ben — if you want, the next system to add after this is something very powerful:
+
+A B2B Outreach Engine that automatically emails or messages those expansion companies and asks if they need help fitting out their new office.
+
+That’s the system that actually turns those leads into meetings and contracts.
