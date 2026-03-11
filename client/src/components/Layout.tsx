@@ -337,6 +337,17 @@ function Footer() {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const [location] = useLocation();
+  const isEmbed = location.startsWith("/embed/");
+
+  if (isEmbed) {
+    return (
+      <div className="min-h-screen bg-background">
+        <main>{children}</main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />

@@ -44,6 +44,9 @@ function Router() {
       <Route path="/testimonials" component={Testimonials} />
       <Route path="/blog/:slug" component={BlogPost} />
       <Route path="/blog" component={Blog} />
+      {/* Embed routes — no header/footer/chatbot, safe for WordPress iframes */}
+      <Route path="/embed/quote-builder" component={QuoteBuilder} />
+      <Route path="/embed/finance-your-workspace" component={FinanceWorkspace} />
       <Route path="/admin"><Redirect to="/admin/dashboard" /></Route>
       <Route path="/admin/marketing" component={Marketing} />
       <Route path="/admin/dashboard" component={AdminDashboard} />

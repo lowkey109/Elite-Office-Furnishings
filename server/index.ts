@@ -15,10 +15,33 @@ declare module "http" {
   }
 }
 
+// WordPress domain — allow API and embed routes to be called cross-origin
+const WORDPRESS_ORIGINS = [
+  "https://thecorporatedesk.com.au",
+  "https://www.thecorporatedesk.com.au",
+];
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin as string | undefined;
+  if (origin && WORDPRESS_ORIGINS.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  }
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+  next();
+});
+
 // Security headers for all responses
-app.use((_req, res, next) => {
+app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  // Allow iframing on /embed/* paths from any origin (WordPress embeds)
+  if (!req.path.startsWith("/embed/")) {
+    res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  }
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   res.removeHeader("X-Powered-By");
   next();
