@@ -2881,48 +2881,6 @@
       "image": "/uploads/catalog-images/gojo/gojo-cover.jpg"
     },
     {
-      "product_name": "GOJO JN Series Executive Suite",
-      "sku": "GJO-JN-EXEC-01",
-      "supplier": "Huasheng Furniture Group — GOJO Division",
-      "category": "Executive Desks",
-      "series": "JN",
-      "dimensions": "needs_manual_review",
-      "materials": "needs_manual_review",
-      "colors": [
-        "needs_manual_review"
-      ],
-      "needs_manual_review": true,
-      "image": "/uploads/catalog-images/gojo/gojo-cover.jpg"
-    },
-    {
-      "product_name": "GOJO YA Series Executive Suite",
-      "sku": "GJO-YA-EXEC-01",
-      "supplier": "Huasheng Furniture Group — GOJO Division",
-      "category": "Executive Desks",
-      "series": "YA",
-      "dimensions": "needs_manual_review",
-      "materials": "needs_manual_review",
-      "colors": [
-        "needs_manual_review"
-      ],
-      "needs_manual_review": true,
-      "image": "/uploads/catalog-images/gojo/gojo-cover.jpg"
-    },
-    {
-      "product_name": "GOJO HXT Series Executive Suite",
-      "sku": "GJO-HXT-EXEC-01",
-      "supplier": "Huasheng Furniture Group — GOJO Division",
-      "category": "Executive Desks",
-      "series": "HXT",
-      "dimensions": "needs_manual_review",
-      "materials": "needs_manual_review",
-      "colors": [
-        "needs_manual_review"
-      ],
-      "needs_manual_review": true,
-      "image": "/uploads/catalog-images/gojo/gojo-cover.jpg"
-    },
-    {
       "product_name": "Yashang 3-Drawer Movable Pedestal (White/Orange)",
       "sku": "GJO-YS-MPD-BBF",
       "supplier": "Huasheng Furniture Group — GOJO Division",
@@ -3528,6 +3486,1791 @@
         "Smoke"
       ],
       "catalog_no": "CJ1816B"
+    },
+    {
+      "product_name": "GOJO JN Series Executive Desk — 2870",
+      "sku": "GJO-JN-JNM-A2811",
+      "series": "JN",
+      "category": "Executive Desks",
+      "dimensions": "2870W × 1100D × 780H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Lattice carved apron detail",
+        "Dual pedestal with circular medallion doors",
+        "Extended wingspan overhang"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Display Bookshelf — 4100",
+      "sku": "GJO-JN-JNB-A4020",
+      "series": "JN",
+      "category": "Storage",
+      "dimensions": "4100W × 400D × 2060H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Moon gate centrepiece with circular cabinet doors",
+        "Full-span display wall unit",
+        "Integrated open display and closed cabinet sections"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Executive Armchair",
+      "sku": "GJO-JN-JNY-A0710",
+      "series": "JN",
+      "category": "Office Seating",
+      "dimensions": "740W × 600D × 1070H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "High-back executive armchair",
+        "Traditional Chinese barrel chair silhouette",
+        "Cream fabric upholstery with timber frame"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Visitor Chair",
+      "sku": "GJO-JN-JNY-B0609",
+      "series": "JN",
+      "category": "Office Seating",
+      "dimensions": "730W × 600D × 960H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Side/visitor chair",
+        "Traditional Chinese barrel chair silhouette",
+        "Matching companion to executive armchair"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Conference Table — 2200",
+      "sku": "GJO-JN-JNC-A2208",
+      "series": "JN",
+      "category": "Boardroom Tables",
+      "dimensions": "2200W × 840D × 720H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Small conference/meeting table",
+        "Trestle leg construction",
+        "Seats 6-8 people"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Shelving Unit — 2420",
+      "sku": "GJO-JN-JNB-B2417",
+      "series": "JN",
+      "category": "Storage",
+      "dimensions": "2420W × 400D × 1700H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Multi-tier open shelving unit",
+        "Display and storage combination",
+        "Lattice detail accents"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Round Stool — Large",
+      "sku": "GJO-JN-JND-A0404",
+      "series": "JN",
+      "category": "Occasional Tables",
+      "dimensions": "410W × 410D × 420H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Round occasional stool",
+        "Traditional drum/barrel form",
+        "Multi-use as seat or accent table"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Round Stool — Small",
+      "sku": "GJO-JN-JND-B0404",
+      "series": "JN",
+      "category": "Occasional Tables",
+      "dimensions": "380W × 380D × 400H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Compact round stool",
+        "Cylindrical form",
+        "Companion to JND-A0404"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Folding Screen — 1800",
+      "sku": "GJO-JN-JNP-A2818",
+      "series": "JN",
+      "category": "Storage",
+      "dimensions": "450W × 40D × 1800H mm (per panel)",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Multi-panel folding screen/room divider",
+        "Brass lattice insert panels",
+        "Mountain silhouette inlay decoration",
+        "Privacy screen for executive offices"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Display Pedestal — 1200H",
+      "sku": "GJO-JN-JNH-B0412",
+      "series": "JN",
+      "category": "Occasional Tables",
+      "dimensions": "400W × 400D × 1200H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Tall display pedestal/stand",
+        "Showcase sculptures or art pieces",
+        "Square footprint with brass feet accents"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Display Pedestal — 1000H",
+      "sku": "GJO-JN-JNH-B0410",
+      "series": "JN",
+      "category": "Occasional Tables",
+      "dimensions": "400W × 400D × 1000H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Medium display pedestal/stand",
+        "Showcase sculptures or art pieces"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Display Pedestal — 800H",
+      "sku": "GJO-JN-JNH-B0408",
+      "series": "JN",
+      "category": "Occasional Tables",
+      "dimensions": "400W × 400D × 800H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Low display pedestal/stand",
+        "Side-table height showcase"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Coffee Table — 1800",
+      "sku": "GJO-JN-JNT-A1808",
+      "series": "JN",
+      "category": "Occasional Tables",
+      "dimensions": "1800W × 620D × 519H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Large rectangular coffee table",
+        "Lower shelf storage with drawer",
+        "Lounge suite centrepiece"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series End Table",
+      "sku": "GJO-JN-JNT-B0606",
+      "series": "JN",
+      "category": "Occasional Tables",
+      "dimensions": "600W × 620D × 550H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Square end/side table",
+        "Companion to lounge sofa set",
+        "Traditional square form with stretcher base"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Conference Table — 3600",
+      "sku": "GJO-JN-JNT-A3614",
+      "series": "JN",
+      "category": "Boardroom Tables",
+      "dimensions": "3600W × 1400D × 760H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Grand boardroom conference table",
+        "Seats 12-16 people",
+        "Trestle bridge-base construction",
+        "Cable management integration"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Coat Stand",
+      "sku": "GJO-JN-JNI-A0520",
+      "series": "JN",
+      "category": "Storage",
+      "dimensions": "500W × 500D × 1819H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Tall freestanding coat/hat stand",
+        "Traditional scholar's rack form",
+        "Brass-tipped feet"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Bedside Cabinet",
+      "sku": "GJO-JN-JNC-B0704",
+      "series": "JN",
+      "category": "Storage",
+      "dimensions": "760W × 440D × 680H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Small accent cabinet",
+        "Suitable for reception areas or private offices",
+        "Lattice door detail"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Three-Seater Sofa",
+      "sku": "GJO-JN-JNS-A2808",
+      "series": "JN",
+      "category": "Lounge Seating",
+      "dimensions": "2800W × 960D × 880H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Three-seater executive lounge sofa",
+        "Neo-Chinese lattice back frame",
+        "Cream fabric cushions with timber frame",
+        "Part of matched lounge suite"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Two-Seater Sofa",
+      "sku": "GJO-JN-JNS-A2108",
+      "series": "JN",
+      "category": "Lounge Seating",
+      "dimensions": "2100W × 960D × 880H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Two-seater executive lounge sofa",
+        "Neo-Chinese lattice back frame",
+        "Cream fabric cushions with timber frame"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Loveseat Sofa",
+      "sku": "GJO-JN-JNS-A1508",
+      "series": "JN",
+      "category": "Lounge Seating",
+      "dimensions": "1500W × 960D × 880H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Single/loveseat executive lounge sofa",
+        "Neo-Chinese lattice back frame"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Console Sideboard",
+      "sku": "GJO-JN-JNX-A1408",
+      "series": "JN",
+      "category": "Storage",
+      "dimensions": "1400W × 400D × 850H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Entry console / sideboard",
+        "Moon gate curved circular door with brass hardware",
+        "Hallway or reception use"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Storage Console",
+      "sku": "GJO-JN-JNC-C1408",
+      "series": "JN",
+      "category": "Storage",
+      "dimensions": "1400W × 400D × 850H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Storage console cabinet",
+        "Lattice front panels with brass handles",
+        "Companion to JNX-A1408"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Floor Display Stand",
+      "sku": "GJO-JN-JNZ-A0518",
+      "series": "JN",
+      "category": "Storage",
+      "dimensions": "500W × 300D × 1800H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Tall floor display/coat stand",
+        "Three-drawer base unit with upper rack",
+        "Versatile entrance or private office accessory"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO JN Series Single Lounge Chair",
+      "sku": "GJO-JN-JNS-B0908",
+      "series": "JN",
+      "category": "Lounge Seating",
+      "dimensions": "970W × 835D × 850H mm",
+      "features": [
+        "Neo-Chinese contemporary design — Memories of Jiangnan collection",
+        "Imported ebony/Zingana hardwood construction",
+        "Pure copper hardware accents throughout",
+        "Traditional mortise and tenon joinery",
+        "Moon gate and lattice design motifs",
+        "Environmentally friendly open-paint finish",
+        "CEO/Director suite appropriate",
+        "Single executive lounge chair",
+        "Barrel/tub form with circular armrest motif",
+        "Premium cream upholstery"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, pure wood paneling, mortise and tenon frame structure, environmentally friendly adhesive and open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-jn-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Executive Desk — Type A 2800",
+      "sku": "GJO-YA-YAM-A2810",
+      "series": "YOM",
+      "category": "Executive Desks",
+      "dimensions": "2800W × 1050D × 760H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Large executive boss desk",
+        "Dark panel fascia with copper medallion",
+        "Hidden cable box in marble-effect desktop"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Executive Desk — Type B 2400",
+      "sku": "GJO-YA-YAM-B2410",
+      "series": "YOM",
+      "category": "Executive Desks",
+      "dimensions": "2400W × 960D × 760H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Medium executive boss desk",
+        "Dark panel fascia with copper medallion",
+        "Compact variant for smaller executive offices"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Bookcase — Type A Left 940",
+      "sku": "GJO-YA-YAB-A0921L",
+      "series": "YOM",
+      "category": "Storage",
+      "dimensions": "940W × 450D × 2100H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Tall modular bookcase (left unit)",
+        "Open display shelves with lower cabinet doors",
+        "Part of modular wall system"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Bookcase — Type B Wide 1580",
+      "sku": "GJO-YA-YAB-B1521",
+      "series": "YOM",
+      "category": "Storage",
+      "dimensions": "1580W × 450D × 2100H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Wide modular bookcase unit",
+        "Mixed open/closed storage configuration"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Bookcase — Type A Right 940",
+      "sku": "GJO-YA-YAB-A0921R",
+      "series": "YOM",
+      "category": "Storage",
+      "dimensions": "940W × 450D × 2100H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Tall modular bookcase (right unit)",
+        "Mirror configuration to YAB-A0921L"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Large Bookcase — 2800",
+      "sku": "GJO-YA-YAB-B2820",
+      "series": "YOM",
+      "category": "Storage",
+      "dimensions": "2800W × 400D × 1900H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Full-width large display bookcase",
+        "Moon gate centrepiece panel",
+        "Integrated display and filing storage"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Small Cabinet",
+      "sku": "GJO-YA-YAD-C0504",
+      "series": "YOM",
+      "category": "Storage",
+      "dimensions": "520W × 380D × 420H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Small accent storage cabinet",
+        "Low profile side/pedestal unit"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Conference Table — 3600",
+      "sku": "GJO-YA-YAT-A3615",
+      "series": "YOM",
+      "category": "Boardroom Tables",
+      "dimensions": "3600W × 1500D × 760H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Large boardroom conference table",
+        "Seats 12-16 people",
+        "Trestle base with copper accent feet",
+        "Cable management integration"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Coffee Table — 1400",
+      "sku": "GJO-YA-YAT-A1407",
+      "series": "YOM",
+      "category": "Occasional Tables",
+      "dimensions": "1400W × 700D × 430H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Large rectangular coffee table",
+        "Lounge suite centrepiece",
+        "Low-profile contemporary form"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Side Table",
+      "sku": "GJO-YA-YAT-B0606",
+      "series": "YOM",
+      "category": "Occasional Tables",
+      "dimensions": "600W × 600D × 620H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Square side/end table",
+        "Companion to lounge suite"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Curved Reception Desk — 1980",
+      "sku": "GJO-YA-YAC-A1908",
+      "series": "YOM",
+      "category": "Reception Desks",
+      "dimensions": "1980W × 860D × 680H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Curved reception/front desk",
+        "Dramatic curved form with copper accent hardware",
+        "Premium executive entrance statement piece"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Tall Bookshelf — 2100",
+      "sku": "GJO-YA-YAB-C2119",
+      "series": "YOM",
+      "category": "Storage",
+      "dimensions": "2100W × 360D × 1920H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Slim tall bookshelf unit",
+        "Open display configuration",
+        "Wall-mount or freestanding"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Desk Credenza — 2000",
+      "sku": "GJO-YA-YAM-C2009",
+      "series": "YOM",
+      "category": "Storage",
+      "dimensions": "2000W × 500D × 760H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Executive desk credenza/return",
+        "Matches executive desk height",
+        "Storage/filing integration"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Flower Stand",
+      "sku": "GJO-YA-YAH-A0308",
+      "series": "YOM",
+      "category": "Occasional Tables",
+      "dimensions": "350W × 350D × 800H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Display/flower stand pedestal",
+        "Square form with brass feet"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Sideboard — 1400",
+      "sku": "GJO-YA-YAX-A1408",
+      "series": "YOM",
+      "category": "Storage",
+      "dimensions": "1400W × 350D × 680H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Entry/wall sideboard",
+        "Slim profile console-style unit"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Coat Stand",
+      "sku": "GJO-YA-YAJ-A0418",
+      "series": "YOM",
+      "category": "Storage",
+      "dimensions": "400W × 400D × 1840H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Tall freestanding coat/jacket stand",
+        "Compact square footprint"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Executive Chair High-Back",
+      "sku": "GJO-YA-YAY-A0712",
+      "series": "YOM",
+      "category": "Office Seating",
+      "dimensions": "720W × 630D × 1250H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "High-back executive leather chair",
+        "Swivel base with chrome/brass finish",
+        "CEO/Director grade seating"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Visitor Chair",
+      "sku": "GJO-YA-YAY-B0711",
+      "series": "YOM",
+      "category": "Office Seating",
+      "dimensions": "720W × 630D × 1050H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Mid-back visitor/conference chair",
+        "Matched to executive suite"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Single Sofa — Type C",
+      "sku": "GJO-YA-YAS-C0708",
+      "series": "YOM",
+      "category": "Lounge Seating",
+      "dimensions": "710W × 920D × 800H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Single executive lounge sofa",
+        "Contemporary square-arm form",
+        "Premium cream upholstery"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Single Sofa — Type B",
+      "sku": "GJO-YA-YAS-B0808",
+      "series": "YOM",
+      "category": "Lounge Seating",
+      "dimensions": "800W × 960D × 800H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Wide single executive lounge chair",
+        "Deep seat comfort configuration"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Ottoman — Low",
+      "sku": "GJO-YA-YAT-C0909",
+      "series": "YOM",
+      "category": "Occasional Tables",
+      "dimensions": "850W × 830D × 350H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Large square ottoman/coffee table",
+        "Upholstered top surface",
+        "Lounge area centrepiece"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Side Table — Small",
+      "sku": "GJO-YA-YAT-D0904",
+      "series": "YOM",
+      "category": "Occasional Tables",
+      "dimensions": "880W × 410D × 450H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Small side/occasional table",
+        "Companion to lounge seating"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Lounge Chair",
+      "sku": "GJO-YA-YAS-A2908",
+      "series": "YOM",
+      "category": "Lounge Seating",
+      "dimensions": "930W × 970D × 600H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Deep-seat executive lounge chair",
+        "Wide armchair form with timber frame",
+        "Premium cream upholstery"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO YOM Series Side Chair",
+      "sku": "GJO-YA-YAY-C0708",
+      "series": "YOM",
+      "category": "Office Seating",
+      "dimensions": "670W × 700D × 600H mm",
+      "features": [
+        "云曜 (Yun Yao) — Cloudy Radiance collection",
+        "Minimalist neo-Chinese contemporary design",
+        "Dark panel contrast with round copper medallion detail",
+        "Imported ebony/Zingana hardwood construction",
+        "Copper hardware with smooth lines aesthetic",
+        "Hidden cable management system",
+        "Mortise and tenon joinery throughout",
+        "Low-back side/visitor chair",
+        "Compact form for meeting rooms"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather accents, mortise and tenon frame structure, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain)"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-yom-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Executive Desk — Type A 3600",
+      "sku": "GJO-HX-HXM-A3625",
+      "series": "HXM",
+      "category": "Executive Desks",
+      "dimensions": "3600W × 1530D × 760H mm (long cabinet: 2360W × 550D × 170H mm)",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Grandest executive boss desk configuration",
+        "Full L-shape with extended return cabinet",
+        "Horizontal slat privacy fascia with gold rails",
+        "Open scroll calligraphy panel motif hardware"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Executive Desk — Type C 3600",
+      "sku": "GJO-HX-HXM-C3612",
+      "series": "HXM",
+      "category": "Executive Desks",
+      "dimensions": "3600W × 1190D × 780H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Large rectangular executive desk",
+        "Slat fascia with round copper boss hardware",
+        "Compact depth variant"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Executive Desk — Type B 3000",
+      "sku": "GJO-HX-HXM-B3011",
+      "series": "HXM",
+      "category": "Executive Desks",
+      "dimensions": "3000W × 1170D × 780H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Large executive boss desk",
+        "Statement Chinese-inspired hardware",
+        "Mid-size executive office appropriate"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series File Cabinet — Type A Left",
+      "sku": "GJO-HX-HXB-A1921L",
+      "series": "HXM",
+      "category": "Storage & Filing",
+      "dimensions": "1610W × 470D × 2150H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Full-height file/display cabinet (left unit)",
+        "Mixed open shelf and closed cabinet doors",
+        "Part of modular wall storage system"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series File Cabinet — Type B",
+      "sku": "GJO-HX-HXB-B1421",
+      "series": "HXM",
+      "category": "Storage & Filing",
+      "dimensions": "1600W × 550D × 2160H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Full-height storage cabinet",
+        "Deep filing configuration with door panels"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series File Cabinet — Type A Right",
+      "sku": "GJO-HX-HXB-A1921R",
+      "series": "HXM",
+      "category": "Storage & Filing",
+      "dimensions": "1610W × 700D × 2150H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Full-height file cabinet (right unit)",
+        "Deep variant with additional storage depth"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Large Wall Cabinet — Type C2",
+      "sku": "GJO-HX-HXB-C3021",
+      "series": "HXM",
+      "category": "Storage & Filing",
+      "dimensions": "3500W × 1700D × 2160H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Full-span wall cabinet system",
+        "Grand display wall with integrated filing",
+        "Moon gate display centrepiece opening",
+        "Complete executive wall solution"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Tea Water Cabinet — Type E",
+      "sku": "GJO-HX-HXB-E1009",
+      "series": "HXM",
+      "category": "Storage",
+      "dimensions": "1800W × 1500D × 960H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Executive tea ceremony/water cabinet",
+        "Wide low profile for tea service area",
+        "Premium reception room accessory"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Low Cabinet — Type C",
+      "sku": "GJO-HX-HXB-C2618",
+      "series": "HXM",
+      "category": "Storage",
+      "dimensions": "2600W × 290D × 1708H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Slim tall low-profile cabinet",
+        "Corridor or behind-desk storage"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Console Cabinet — Type A",
+      "sku": "GJO-HX-HXX-A1609",
+      "series": "HXM",
+      "category": "Storage",
+      "dimensions": "1600W × 500D × 913H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Entry console/hallway cabinet",
+        "Two-door storage with circular disc hardware",
+        "Reception area statement piece"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Conference Table — Type A 3800",
+      "sku": "GJO-HX-HXT-A3815",
+      "series": "HXM",
+      "category": "Boardroom Tables",
+      "dimensions": "3800W × 1500D × 760H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Grand boardroom conference table",
+        "Seats 14-18 people",
+        "Architectural base with lattice detail",
+        "Cable management integration",
+        "Gold accent base foot rails"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Conference Chair — Type A",
+      "sku": "GJO-HX-HXC-A2208",
+      "series": "HXM",
+      "category": "Office Seating",
+      "dimensions": "2210W × 290D × 720H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Boardroom conference chair",
+        "Cream upholstered seat with timber frame",
+        "Traditional Chinese chairback design"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Long Coffee Table",
+      "sku": "GJO-HX-HXT-B1212",
+      "series": "HXM",
+      "category": "Occasional Tables",
+      "dimensions": "1260W × 1260D × 450H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Large square coffee table",
+        "Lounge suite centrepiece",
+        "Gold accent lower shelf detail"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Square Coffee Table",
+      "sku": "GJO-HX-HXT-C0606",
+      "series": "HXM",
+      "category": "Occasional Tables",
+      "dimensions": "600W × 600D × 680H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Compact square side/coffee table",
+        "Taller form — dual use as side table or ottoman"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Side Coffee Table",
+      "sku": "GJO-HX-HXT-D6501",
+      "series": "HXM",
+      "category": "Occasional Tables",
+      "dimensions": "570W × 425D × 180H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Low side/corner table",
+        "Minimal accent table for lounge areas"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Full-Length Mirror",
+      "sku": "GJO-HX-HXZ-A1118",
+      "series": "HXM",
+      "category": "Storage",
+      "dimensions": "1600H × 310D × 1870H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Full-length dressing/floor mirror",
+        "Timber frame with brass accent corner caps",
+        "VIP executive office or private dressing area"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Flower Rack",
+      "sku": "GJO-HX-HXD-A0310",
+      "series": "HXM",
+      "category": "Storage",
+      "dimensions": "350W × 350D × 1000H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Tall plant/flower display stand",
+        "Compact square pedestal"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Coat Hanger",
+      "sku": "GJO-HX-HXJ-A1115",
+      "series": "HXM",
+      "category": "Storage",
+      "dimensions": "1150W × 350D × 1600H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Executive coat hanger rack",
+        "With lower storage drawer unit",
+        "Integrated shoes storage below"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Three-Person Sofa",
+      "sku": "GJO-HX-HXS-A2380",
+      "series": "HXM",
+      "category": "Lounge Seating",
+      "dimensions": "2500W × 900D × 830H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Three-seater executive lounge sofa",
+        "Square-arm contemporary Chinese form",
+        "Premium cream upholstery on timber frame"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Single Sofa",
+      "sku": "GJO-HX-HXS-A1180",
+      "series": "HXM",
+      "category": "Lounge Seating",
+      "dimensions": "1180W × 920D × 830H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Single executive lounge chair",
+        "Companion to three-seater sofa",
+        "Deep-seat comfort configuration"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Tea Bench — Square",
+      "sku": "GJO-HX-HXD-A0504",
+      "series": "HXM",
+      "category": "Occasional Tables",
+      "dimensions": "510W × 480D × 420H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Low square tea ceremony stool/bench",
+        "Tea room accent seating"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Tea Bench — Round",
+      "sku": "GJO-HX-HXD-B0504",
+      "series": "HXM",
+      "category": "Occasional Tables",
+      "dimensions": "500W × 500D × 400H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Low round tea ceremony stool/bench",
+        "Companion seating for tea tables"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Executive Chair",
+      "sku": "GJO-HX-HXY-F0713",
+      "series": "HXM",
+      "category": "Office Seating",
+      "dimensions": "670W × 830D × 1290H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "High-back executive leather swivel chair",
+        "Premium cream leather upholstery",
+        "CEO/Director grade seating for HXM suite"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
+    },
+    {
+      "product_name": "GOJO HXM Series Vanity Cabinet",
+      "sku": "GJO-HX-HXT-G0712",
+      "series": "HXM",
+      "category": "Storage",
+      "dimensions": "650W × 930D × 1640H mm",
+      "features": [
+        "泓熙 (Hong Xi) — Flowing Brilliance collection",
+        "International minimalism meets traditional Chinese aesthetics",
+        "Gold metal accent rails with horizontal slat detailing",
+        "Imported Zingana ebony hardwood construction",
+        "Pure copper hardware — circular disc handles",
+        "Rich brown panel doors with gold corner accents",
+        "Integrated cable management system",
+        "Executive vanity/wash cabinet unit",
+        "Private office or executive bathroom accessory"
+      ],
+      "supplier": "Huasheng Furniture Group — GOJO Division",
+      "materials": "Imported ebony/Zingana hardwood, pure copper hardware, genuine leather, mortise and tenon frame structure, gold metal accent profiles, environmentally friendly open-paint finish",
+      "colors": [
+        "Zingana (African zebrawood — deep brown with natural grain) with gold metal accents"
+      ],
+      "image": "/uploads/catalog-images/gojo/gojo-v2-hxm-series.jpg"
     }
   ]
 }
