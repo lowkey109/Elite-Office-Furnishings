@@ -8,6 +8,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import PlanningReport from "@/components/PlanningReport";
 import SpacePlanningEngine from "@/components/SpacePlanningEngine";
+import WorkspaceLayout2D from "@/components/WorkspaceLayout2D";
 import { CATALOGUE } from "@/lib/furnitureCatalogue";
 import {
   ShieldCheck, LayoutDashboard, Target, Megaphone, Upload,
@@ -1086,15 +1087,29 @@ export default function AdminPlanningRequests() {
                           {activeTab === "zones" && (
                             <div className="space-y-6">
                               {zones.length > 0 && zones.some(z => z.percentage > 0) && (
-                                <SpacePlanningEngine
-                                  zones={zones}
-                                  recs={recs}
-                                  sqm={req.squareMetres}
-                                  staffCount={req.staffCount}
-                                  costBreakdown={cost ?? undefined}
-                                  estimatedValue={req.estimatedValue}
-                                  implementationTimeline={timeline}
-                                />
+                                <div className="space-y-5">
+                                  <div>
+                                    <p className="text-[hsl(43,78%,65%)] text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                                      <LayoutDashboard className="w-3.5 h-3.5" /> 2D Workspace Layout
+                                    </p>
+                                    <WorkspaceLayout2D
+                                      zones={zones}
+                                      squareMetres={req.squareMetres}
+                                      staffCount={req.staffCount}
+                                      officeType={aiRec?.officeType}
+                                      isPaid={true}
+                                    />
+                                  </div>
+                                  <SpacePlanningEngine
+                                    zones={zones}
+                                    recs={recs}
+                                    sqm={req.squareMetres}
+                                    staffCount={req.staffCount}
+                                    costBreakdown={cost ?? undefined}
+                                    estimatedValue={req.estimatedValue}
+                                    implementationTimeline={timeline}
+                                  />
+                                </div>
                               )}
                               <ZoneVisualization zones={zones} />
                             </div>

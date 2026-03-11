@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Layout } from "@/components/Layout";
 import SpacePlanningEngine from "@/components/SpacePlanningEngine";
+import WorkspaceLayout2D from "@/components/WorkspaceLayout2D";
 import {
   Upload, CheckCircle2, Loader2, ArrowRight, ArrowLeft,
   Building2, Users, LayoutDashboard, Palette, FileText,
@@ -430,23 +431,15 @@ export default function UploadFloorPlan() {
                 {paymentStatus !== "paid" ? (
                   <div className="space-y-4">
                     {aiRec.workspaceZones && aiRec.workspaceZones.length > 0 && aiRec.workspaceZones.some(z => z.percentage > 0) && (
-                      <div className="relative rounded-2xl overflow-hidden border border-[rgba(201,168,76,0.15)]">
-                        <div className="pointer-events-none select-none" style={{ filter: "blur(2.5px)", opacity: 0.55 }}>
-                          <SpacePlanningEngine
-                            zones={aiRec.workspaceZones}
-                            recs={[]}
-                            sqm={squareMetres}
-                            staffCount={staffCount}
-                            isPreview={true}
-                            companyName={company || name}
-                            generatedDate={new Date().toLocaleDateString("en-AU", { day: "2-digit", month: "short", year: "numeric" })}
-                          />
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[hsl(220,20%,6%)]/40 to-[hsl(220,20%,6%)]/85 pointer-events-none" />
-                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                          <span className="text-[10px] font-semibold text-white/35 tracking-widest uppercase">Preview Only · Unlock to Access Full Layout</span>
-                        </div>
-                      </div>
+                      <WorkspaceLayout2D
+                        zones={aiRec.workspaceZones}
+                        squareMetres={squareMetres}
+                        staffCount={staffCount}
+                        officeType={aiRec.officeType}
+                        isPaid={false}
+                        onUnlockClick={handleUnlock}
+                        unlocking={unlocking}
+                      />
                     )}
 
                     <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.3)] rounded-2xl p-6 sm:p-8">
@@ -502,20 +495,35 @@ export default function UploadFloorPlan() {
                 ) : (
                   <>
                     {aiRec.workspaceZones && aiRec.workspaceZones.length > 0 && aiRec.workspaceZones.some(z => z.percentage > 0) && (
-                      <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.18)] rounded-2xl p-6">
-                        <div className="flex items-center gap-2 mb-4">
-                          <LayoutDashboard className="w-4 h-4 text-[hsl(43,78%,52%)]" />
-                          <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">AI Workspace Layout</h3>
+                      <div className="space-y-5">
+                        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.18)] rounded-2xl p-5">
+                          <div className="flex items-center gap-2 mb-4">
+                            <LayoutDashboard className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                            <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">2D Workspace Layout Plan</h3>
+                          </div>
+                          <WorkspaceLayout2D
+                            zones={aiRec.workspaceZones}
+                            squareMetres={squareMetres}
+                            staffCount={staffCount}
+                            officeType={aiRec.officeType}
+                            isPaid={true}
+                          />
                         </div>
-                        <SpacePlanningEngine
-                          zones={aiRec.workspaceZones}
-                          recs={aiRec.productRecommendations}
-                          sqm={squareMetres}
-                          staffCount={staffCount}
-                          costBreakdown={aiRec.costBreakdown}
-                          estimatedValue={aiRec.estimatedProjectValue}
-                          implementationTimeline={aiRec.implementationTimeline}
-                        />
+                        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.18)] rounded-2xl p-6">
+                          <div className="flex items-center gap-2 mb-4">
+                            <Layers className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                            <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Zone Analysis</h3>
+                          </div>
+                          <SpacePlanningEngine
+                            zones={aiRec.workspaceZones}
+                            recs={aiRec.productRecommendations}
+                            sqm={squareMetres}
+                            staffCount={staffCount}
+                            costBreakdown={aiRec.costBreakdown}
+                            estimatedValue={aiRec.estimatedProjectValue}
+                            implementationTimeline={aiRec.implementationTimeline}
+                          />
+                        </div>
                       </div>
                     )}
 
