@@ -1,0 +1,152 @@
+You are upgrading the live The Corporate Desk product catalog presentation.
+
+You are in SAFE LUXURY IMAGE MODE.
+
+IMPORTANT:
+Do NOT break the product catalog, AI planner, finance calculator, chatbot, admin, or lead systems.
+Do NOT rebuild the whole site.
+Only improve the public-facing product image system and branding safely.
+
+PRIMARY OBJECTIVE
+
+Transform the product catalog so the frontend looks like a world-class premium commercial furniture brand.
+
+The public website should no longer feel like a supplier catalog or PDF scrape.
+
+Instead, every SKU should be presented with luxury-grade branded product imagery that looks like it belongs on a billion-dollar furniture or design website.
+
+CRITICAL RULES
+
+1. Keep all real product data intact in the backend:
+   - SKU
+   - dimensions
+   - category
+   - materials
+   - variants
+   - supplier mapping
+2. Do NOT show supplier branding publicly.
+3. The frontend must be branded as The Corporate Desk only.
+4. The AI-generated images must match the real SKU as closely as possible.
+5. Do NOT generate random or generic furniture that does not match the SKU.
+
+IMAGE STRATEGY
+
+For each SKU:
+
+1. First inspect the existing source images/catalog data.
+2. Determine the real product characteristics:
+   - product type
+   - dimensions
+   - shape
+   - configuration
+   - left/right return
+   - cabinet position
+   - materials/finish
+   - style/family
+3. Generate luxury-grade branded product imagery for the website.
+
+Each SKU must have at least 2 images:
+
+Image 1:
+- isolated premium hero image
+- clean background or luxury studio-style setting
+- product clearly visible
+- accurate to SKU
+
+Image 2:
+- premium styled office environment image
+- same product in a believable executive/workplace setting
+- must still clearly match the SKU
+
+If feasible, generate a third image:
+- alternate angle / detail shot
+
+STYLE REQUIREMENTS
+
+The generated images must feel like:
+- premium commercial furniture photography
+- architectural/editorial quality
+- high-trust
+- luxury office design brand
+- clean, sophisticated, and polished
+
+They must NOT feel like:
+- cheap CGI
+- cartoon render
+- random concept art
+- generic office stock image
+- fake marketplace mockup
+
+SKU MATCHING RULES
+
+Generated images must remain faithful to the product.
+
+Use the SKU data and source catalog info to preserve:
+- desk shape
+- workstation layout
+- table proportions
+- cabinet integration
+- seating silhouette
+- materials/finish direction
+
+If exact fidelity is uncertain, stay within the correct family and flag the SKU for manual review.
+
+FRONTEND PRODUCT PAGE REQUIREMENTS
+
+Each product page must show:
+- The Corporate Desk branded product name
+- SKU
+- category
+- collection
+- branded description
+- dimensions
+- materials
+- at least 2 premium images
+- related products
+- Request Quote CTA
+- Add to Office Plan CTA
+
+SUPPLIER BRAND HIDING
+
+Do NOT display:
+- Boke
+- Gojo / Go Go
+- Feisenzhuo
+- any supplier/manufacturer names
+on the public-facing site.
+
+Keep supplier references in backend/admin only.
+
+FILE / ASSET HANDLING
+
+Store generated website-ready product images in a clean assets path suitable for frontend use.
+
+Use a consistent naming structure by SKU.
+
+TESTING
+
+Before completion verify:
+1. every SKU shown on the website has at least 2 premium images
+2. images match the SKU correctly
+3. supplier branding is hidden from frontend
+4. product pages look premium and consistent
+5. desktop and mobile both look polished
+6. no product routes break
+7. no existing systems are broken
+
+FINAL REPORT
+
+Return:
+1. files changed
+2. which SKUs received AI-generated images
+3. which SKUs used source-derived references
+4. which SKUs still need manual review
+5. confirmation that every live SKU has at least 2 images
+6. confirmation that supplier names are hidden from frontend
+7. confirmation that desktop/mobile both work
+
+IMPORTANT
+
+Do not stay in planning mode.
+Audit the current live product catalog first.
+Then upgrade the frontend image system so the website looks like a premium global design brand while staying faithful to the real SKUs.

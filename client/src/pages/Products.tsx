@@ -1,11 +1,11 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Layout } from "@/components/Layout";
-import { ArrowRight, Tag, Search, SlidersHorizontal, X, Package, ChevronDown } from "lucide-react";
+import { ArrowRight, Tag, Search, SlidersHorizontal, X, Package, ChevronDown, ChevronRight } from "lucide-react";
 
 interface Product {
   product_name: string;
@@ -47,12 +47,56 @@ const CATEGORY_PRICE_RANGES: Record<string, string> = {
   "Occasional Tables": "From $320",
 };
 
-const SUPPLIER_LABELS: Record<string, string> = {
-  "Foshan Feisenzhuo Furniture Co., Ltd.": "FSZ",
-  "Huasheng Furniture Group — Gaozhuo Division": "HSG",
-  "Huasheng Furniture Group — GOJO Division": "GOJO",
-  "Huasheng Furniture Group — Lounge & Seating Division": "GOJO Lounge",
-  "Foshan Bohua Furniture Co., Ltd. (GAOJIN)": "GAOJIN",
+interface CollectionConfig {
+  name: string;
+  tagline: string;
+  description: string;
+  accentColor: string;
+  badgeLabel: string;
+  order: number;
+}
+
+const SUPPLIER_COLLECTIONS: Record<string, CollectionConfig> = {
+  "Foshan Feisenzhuo Furniture Co., Ltd.": {
+    name: "Fessenz Design Collection",
+    tagline: "Bold executive aesthetics meets commercial-grade engineering",
+    description: "Our most expansive collection — executive desks, boardroom tables, workstations and storage systems spanning six distinct design series. From sweeping L-shaped command stations to modular open-plan fit-outs.",
+    accentColor: "hsl(43,78%,52%)",
+    badgeLabel: "Fessenz",
+    order: 1,
+  },
+  "Huasheng Furniture Group — GOJO Division": {
+    name: "GOJO Executive Collection",
+    tagline: "Prestige executive furniture for board-level interiors",
+    description: "Crafted from Zingana African ebony hardwood with pure copper hardware. The GOJO range spans executive desks, conference tables and full office suites — built to command the room.",
+    accentColor: "hsl(43,78%,52%)",
+    badgeLabel: "GOJO",
+    order: 2,
+  },
+  "Huasheng Furniture Group — Lounge & Seating Division": {
+    name: "GOJO Lounge & Seating Collection",
+    tagline: "Neo-Chinese design language for executive reception and lounge spaces",
+    description: "Mortise-and-tenon joinery, moon gate motifs, and imported ebony hardwood — the GOJO Lounge range brings architectural gravitas to reception areas and executive break-out zones.",
+    accentColor: "hsl(43,78%,52%)",
+    badgeLabel: "GOJO Lounge",
+    order: 3,
+  },
+  "Huasheng Furniture Group — Gaozhuo Division": {
+    name: "Milan Premium Workspace Collection",
+    tagline: "Sit-stand engineering with refined Scandinavian-inspired aesthetics",
+    description: "Electric height-adjustable desks, ergonomic workstations, and premium manager suites with oak veneer, teal accent panels and solid timber legs. Built for the modern high-performance workplace.",
+    accentColor: "hsl(43,78%,52%)",
+    badgeLabel: "Milan",
+    order: 4,
+  },
+  "Foshan Bohua Furniture Co., Ltd. (GAOJIN)": {
+    name: "Bohua Seating & Storage Collection",
+    tagline: "Commercial-grade seating and filing for every office environment",
+    description: "A comprehensive range of task chairs, visitor seating, training chairs, public seating and steel filing systems. Engineered to perform in high-traffic commercial environments across reception, training and open-plan workspaces.",
+    accentColor: "hsl(43,78%,52%)",
+    badgeLabel: "Bohua",
+    order: 5,
+  },
 };
 
 const ALL_CATEGORIES = [
@@ -69,13 +113,12 @@ const ALL_CATEGORIES = [
   "Occasional Tables",
 ];
 
-const PAGE_SIZE = 24;
+const PAGE_SIZE = 12;
 
 function ProductCard({ product }: { product: Product }) {
   const [imgError, setImgError] = useState(false);
   const imgSrc = (!imgError && product.image) ? product.image : (CATEGORY_IMAGES[product.category] || "/images/category-fitout.png");
   const price = CATEGORY_PRICE_RANGES[product.category] || "POA";
-  const supplierLabel = SUPPLIER_LABELS[product.supplier] || product.supplier;
   const slug = product.sku.toLowerCase().replace(/[^a-z0-9]/g, "-");
 
   return (
@@ -84,20 +127,18 @@ function ProductCard({ product }: { product: Product }) {
       data-testid={`card-product-${slug}`}
     >
       <Link href={`/products/${product.sku}`} className="block">
-        <div className="relative overflow-hidden" style={{ aspectRatio: "4/3" }}>
+        <div className="relative overflow-hidden bg-[hsl(220,20%,8%)]" style={{ aspectRatio: "1/1" }}>
           <img
             src={imgSrc}
             alt={product.product_name}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
+            style={{ transformOrigin: "center center" }}
             onError={() => setImgError(true)}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,18%,10%)]/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="absolute top-3 left-3 flex gap-1.5 flex-wrap max-w-[80%]">
+          <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,18%,6%)]/70 via-transparent to-transparent opacity-80" />
+          <div className="absolute top-3 left-3">
             <Badge className="bg-[rgba(201,168,76,0.85)] text-[hsl(220,20%,6%)] text-xs font-semibold">
               {product.series}
-            </Badge>
-            <Badge className="bg-[hsl(220,20%,10%)]/90 text-white/70 text-[10px] border border-white/10">
-              {supplierLabel}
             </Badge>
           </div>
           <div className="absolute top-3 right-3">
@@ -167,18 +208,90 @@ function ProductCard({ product }: { product: Product }) {
   );
 }
 
+function CollectionSection({
+  supplierKey,
+  collection,
+  products,
+}: {
+  supplierKey: string;
+  collection: CollectionConfig;
+  products: Product[];
+}) {
+  const [expanded, setExpanded] = useState(true);
+  const [page, setPage] = useState(1);
+  const visible = products.slice(0, page * PAGE_SIZE);
+  const hasMore = visible.length < products.length;
+
+  if (products.length === 0) return null;
+
+  return (
+    <section className="mb-20" data-testid={`section-collection-${collection.badgeLabel.toLowerCase().replace(/\s+/g, "-")}`}>
+      <div className="flex items-start justify-between gap-6 mb-8">
+        <div className="flex-1">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border border-[rgba(201,168,76,0.35)] bg-[rgba(201,168,76,0.08)] text-[hsl(43,78%,65%)] tracking-wider uppercase">
+              {collection.badgeLabel}
+            </span>
+            <span className="text-white/25 text-xs">{products.length} products</span>
+          </div>
+          <h2 className="text-3xl md:text-4xl font-serif font-bold text-white mb-2">
+            {collection.name}
+          </h2>
+          <p className="text-[hsl(43,78%,60%)] text-sm font-medium italic mb-3">{collection.tagline}</p>
+          <div className="w-16 h-px bg-[rgba(201,168,76,0.4)] mb-4" />
+          <p className="text-white/45 text-sm leading-relaxed max-w-2xl">{collection.description}</p>
+        </div>
+        <button
+          onClick={() => setExpanded(e => !e)}
+          className="flex items-center gap-1.5 text-white/40 text-xs hover:text-white/70 border border-white/10 px-3 py-2 rounded mt-1 flex-shrink-0"
+          data-testid={`button-toggle-collection-${collection.badgeLabel.toLowerCase().replace(/\s+/g, "-")}`}
+        >
+          {expanded ? "Collapse" : "Expand"}
+          <ChevronDown className={`w-3 h-3 transition-transform ${expanded ? "rotate-180" : ""}`} />
+        </button>
+      </div>
+
+      {expanded && (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {visible.map(product => (
+              <ProductCard key={product.sku} product={product} />
+            ))}
+          </div>
+          {hasMore && (
+            <div className="mt-8 text-center">
+              <Button
+                onClick={() => setPage(p => p + 1)}
+                variant="outline"
+                className="border-[rgba(201,168,76,0.25)] text-[hsl(43,78%,65%)] px-8 min-h-[44px] hover:bg-[rgba(201,168,76,0.08)]"
+                data-testid={`button-load-more-${collection.badgeLabel.toLowerCase().replace(/\s+/g, "-")}`}
+              >
+                Show more {collection.name} ({products.length - visible.length} remaining)
+              </Button>
+            </div>
+          )}
+        </>
+      )}
+
+      {!expanded && (
+        <p className="text-white/25 text-sm italic">{products.length} products hidden — click Expand to view</p>
+      )}
+    </section>
+  );
+}
+
 export default function Products() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [page, setPage] = useState(1);
-  const [showFilters, setShowFilters] = useState(false);
+  const [showSeriesFilter, setShowSeriesFilter] = useState(false);
 
   useEffect(() => {
-    document.title = "Office Furniture Products — 301 SKUs | The Corporate Desk";
+    document.title = "Office Furniture Collections | The Corporate Desk";
     const meta = document.querySelector('meta[name="description"]') || document.createElement("meta");
     meta.setAttribute("name", "description");
-    meta.setAttribute("content", "Browse 301 premium commercial office furniture products: executive desks, boardroom tables, ergonomic seating, workstations, reception areas, GOJO, Feisenzhuo, Huasheng collections.");
+    meta.setAttribute("content", "Browse premium commercial office furniture collections: executive desks, boardroom tables, ergonomic seating, workstations, reception areas and storage. Fessenz, GOJO, Milan and Bohua collections.");
     if (!meta.parentNode) document.head.appendChild(meta);
   }, []);
 
@@ -186,8 +299,12 @@ export default function Products() {
     queryKey: ["/api/products"],
   });
 
+  const publicProducts = useMemo(() => products.filter(p => !p.needs_manual_review), [products]);
+
+  const isFiltered = activeCategory !== "All" || search.trim() !== "";
+
   const filtered = useMemo(() => {
-    let result = products;
+    let result = publicProducts;
     if (activeCategory !== "All") result = result.filter(p => p.category === activeCategory);
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -199,12 +316,32 @@ export default function Products() {
         (p.category || "").toLowerCase().includes(q)
       );
     }
-    result = result.filter(p => !p.needs_manual_review);
     return result;
-  }, [products, activeCategory, search]);
+  }, [publicProducts, activeCategory, search]);
+
+  const byCollection = useMemo(() => {
+    if (isFiltered) return null;
+    const groups: Record<string, Product[]> = {};
+    publicProducts.forEach(p => {
+      const key = p.supplier || "unknown";
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(p);
+    });
+    return groups;
+  }, [publicProducts, isFiltered]);
+
+  const sortedCollections = useMemo(() => {
+    if (!byCollection) return [];
+    return Object.entries(byCollection)
+      .map(([key, prods]) => ({ key, config: SUPPLIER_COLLECTIONS[key], prods }))
+      .filter(({ config }) => !!config)
+      .sort((a, b) => a.config.order - b.config.order);
+  }, [byCollection]);
 
   const paginated = useMemo(() => filtered.slice(0, page * PAGE_SIZE), [filtered, page]);
   const hasMore = paginated.length < filtered.length;
+
+  const seriesInView = useMemo(() => [...new Set(filtered.map(p => p.series).filter(Boolean))].sort(), [filtered]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -223,16 +360,12 @@ export default function Products() {
     setPage(1);
   };
 
-  const seriesInView = useMemo(() => {
-    return [...new Set(filtered.map(p => p.series).filter(Boolean))].sort();
-  }, [filtered]);
-
   return (
     <Layout>
       <section className="relative pt-28 sm:pt-40 pb-16 sm:pb-20 bg-gradient-to-b from-[hsl(220,20%,5%)] to-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Badge className="mb-5 bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)]">
-            301 SKUs — 4 Supplier Divisions
+            {publicProducts.length} Products — 5 Premium Collections
           </Badge>
           <h1 className="text-5xl md:text-6xl font-serif font-bold text-white mb-4">
             Our Furniture<br />
@@ -240,7 +373,7 @@ export default function Products() {
           </h1>
           <div className="section-divider mb-6" />
           <p className="text-white/55 max-w-xl leading-relaxed mb-8">
-            Meticulously curated furniture from four premium supplier divisions. Executive desks, boardroom tables, height-adjustable workstations, lounge seating, and steel filing systems — all engineered to commercial grade.
+            Five curated collections spanning executive desks, boardroom tables, sit-stand workstations, lounge seating, and commercial storage — all engineered to commercial grade and available for specification Australia-wide.
           </p>
 
           <form onSubmit={handleSearch} className="flex gap-3 max-w-xl">
@@ -290,65 +423,12 @@ export default function Products() {
 
       <section className="py-16 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8 flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-3">
-              <p className="text-white/40 text-sm">
-                {isLoading ? (
-                  <span className="text-white/30">Loading catalogue…</span>
-                ) : (
-                  <>Showing <span className="text-white">{paginated.length}</span> of <span className="text-white">{filtered.length}</span> products</>
-                )}
-              </p>
-              {search && (
-                <Badge className="bg-[rgba(201,168,76,0.15)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.2)]">
-                  Search: "{search}"
-                  <button onClick={clearSearch} className="ml-1.5 hover:text-white" data-testid="button-clear-search">
-                    <X className="w-3 h-3 inline" />
-                  </button>
-                </Badge>
-              )}
-            </div>
-            <div className="flex items-center gap-3">
-              <Badge className="bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.2)]">
-                Quote available for all products
-              </Badge>
-              {seriesInView.length > 0 && (
-                <button
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center gap-1.5 text-white/50 text-xs hover:text-white/80 border border-white/10 px-3 py-1.5 rounded"
-                  data-testid="button-toggle-series"
-                >
-                  <SlidersHorizontal className="w-3.5 h-3.5" />
-                  {seriesInView.length} Series
-                  <ChevronDown className={`w-3 h-3 transition-transform ${showFilters ? "rotate-180" : ""}`} />
-                </button>
-              )}
-            </div>
-          </div>
-
-          {showFilters && seriesInView.length > 0 && (
-            <div className="mb-6 p-4 bg-[hsl(220,20%,7%)] border border-[rgba(201,168,76,0.12)] rounded-md">
-              <p className="text-white/40 text-xs mb-3 uppercase tracking-wider">Series in this category</p>
-              <div className="flex flex-wrap gap-2">
-                {seriesInView.map(series => (
-                  <button
-                    key={series}
-                    onClick={() => { setSearchInput(series); setSearch(series); setPage(1); }}
-                    className="text-xs px-3 py-1 bg-[rgba(201,168,76,0.08)] border border-[rgba(201,168,76,0.2)] text-[hsl(43,78%,60%)] rounded hover:bg-[rgba(201,168,76,0.15)] transition-colors"
-                    data-testid={`filter-series-${series.toLowerCase().replace(/\s+/g, "-")}`}
-                  >
-                    {series}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: 9 }).map((_, i) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="luxury-card rounded-md overflow-hidden animate-pulse">
-                  <div className="bg-[rgba(255,255,255,0.04)]" style={{ aspectRatio: "4/3" }} />
+                  <div className="bg-[rgba(255,255,255,0.04)]" style={{ aspectRatio: "1/1" }} />
                   <div className="p-5">
                     <div className="h-3 w-24 bg-[rgba(255,255,255,0.06)] rounded mb-3" />
                     <div className="h-5 w-full bg-[rgba(255,255,255,0.04)] rounded mb-2" />
@@ -357,35 +437,96 @@ export default function Products() {
                 </div>
               ))}
             </div>
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-24">
-              <Package className="w-12 h-12 text-white/20 mx-auto mb-4" />
-              <h3 className="text-white/60 font-serif text-xl mb-2">No products found</h3>
-              <p className="text-white/30 text-sm mb-6">Try a different search term or category.</p>
-              <Button onClick={clearSearch} variant="outline" className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)]" data-testid="button-clear-search-empty">
-                Clear search
-              </Button>
-            </div>
-          ) : (
+          ) : isFiltered ? (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {paginated.map((product) => (
-                  <ProductCard key={product.sku} product={product} />
-                ))}
+              <div className="mb-8 flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <p className="text-white/40 text-sm">
+                    Showing <span className="text-white">{paginated.length}</span> of <span className="text-white">{filtered.length}</span> products
+                    {activeCategory !== "All" && <span className="text-white/30"> in <span className="text-white/60">{activeCategory}</span></span>}
+                  </p>
+                  {search && (
+                    <Badge className="bg-[rgba(201,168,76,0.15)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.2)]">
+                      Search: "{search}"
+                      <button onClick={clearSearch} className="ml-1.5 hover:text-white" data-testid="button-clear-search">
+                        <X className="w-3 h-3 inline" />
+                      </button>
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex items-center gap-3">
+                  {seriesInView.length > 0 && (
+                    <button
+                      onClick={() => setShowSeriesFilter(s => !s)}
+                      className="flex items-center gap-1.5 text-white/50 text-xs hover:text-white/80 border border-white/10 px-3 py-1.5 rounded"
+                      data-testid="button-toggle-series"
+                    >
+                      <SlidersHorizontal className="w-3.5 h-3.5" />
+                      {seriesInView.length} Series
+                      <ChevronDown className={`w-3 h-3 transition-transform ${showSeriesFilter ? "rotate-180" : ""}`} />
+                    </button>
+                  )}
+                </div>
               </div>
-              {hasMore && (
-                <div className="mt-12 text-center">
-                  <Button
-                    onClick={() => setPage(p => p + 1)}
-                    variant="outline"
-                    size="lg"
-                    className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] px-10 min-h-[52px] hover:bg-[rgba(201,168,76,0.08)]"
-                    data-testid="button-load-more"
-                  >
-                    Load More Products ({filtered.length - paginated.length} remaining)
-                  </Button>
+
+              {showSeriesFilter && seriesInView.length > 0 && (
+                <div className="mb-6 p-4 bg-[hsl(220,20%,7%)] border border-[rgba(201,168,76,0.12)] rounded-md">
+                  <p className="text-white/40 text-xs mb-3 uppercase tracking-wider">Filter by series</p>
+                  <div className="flex flex-wrap gap-2">
+                    {seriesInView.map(series => (
+                      <button
+                        key={series}
+                        onClick={() => { setSearchInput(series); setSearch(series); setPage(1); }}
+                        className="text-xs px-3 py-1 bg-[rgba(201,168,76,0.08)] border border-[rgba(201,168,76,0.2)] text-[hsl(43,78%,60%)] rounded hover:bg-[rgba(201,168,76,0.15)] transition-colors"
+                        data-testid={`filter-series-${series.toLowerCase().replace(/\s+/g, "-")}`}
+                      >
+                        {series}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
+
+              {filtered.length === 0 ? (
+                <div className="text-center py-24">
+                  <Package className="w-12 h-12 text-white/20 mx-auto mb-4" />
+                  <h3 className="text-white/60 font-serif text-xl mb-2">No products found</h3>
+                  <p className="text-white/30 text-sm mb-6">Try a different search term or category filter.</p>
+                  <Button onClick={clearSearch} variant="outline" className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)]" data-testid="button-clear-search-empty">
+                    Clear filters
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                    {paginated.map(product => (
+                      <ProductCard key={product.sku} product={product} />
+                    ))}
+                  </div>
+                  {hasMore && (
+                    <div className="mt-12 text-center">
+                      <Button
+                        onClick={() => setPage(p => p + 1)}
+                        variant="outline"
+                        size="lg"
+                        className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] px-10 min-h-[52px] hover:bg-[rgba(201,168,76,0.08)]"
+                        data-testid="button-load-more"
+                      >
+                        Load More ({filtered.length - paginated.length} remaining)
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              {sortedCollections.map(({ key, config, prods }) => (
+                <div key={key}>
+                  <CollectionSection supplierKey={key} collection={config} products={prods} />
+                  <div className="border-t border-[rgba(201,168,76,0.08)] mb-20" />
+                </div>
+              ))}
             </>
           )}
         </div>
@@ -403,7 +544,7 @@ export default function Products() {
                 Not Sure Which Products Suit Your Space?
               </h2>
               <p className="text-white/55 leading-relaxed">
-                Upload your floor plan and let our AI analyse your space, recommend the right products from our 301-SKU catalogue, and generate an estimated project cost — before you speak to anyone.
+                Upload your floor plan and let our AI analyse your space, recommend the right products from our catalogue, and generate an estimated project cost — before you speak to anyone.
               </p>
             </div>
             <div className="flex flex-col gap-3 flex-shrink-0 w-full md:w-auto">
@@ -424,7 +565,7 @@ export default function Products() {
             Can't Find What You're Looking For?
           </h2>
           <p className="text-white/55 mb-8 leading-relaxed">
-            Our full catalogue contains 301 products across executive, manager, boardroom, sit-stand, storage and lounge categories. Speak to a specialist who knows every SKU.
+            Our full catalogue spans executive, manager, boardroom, sit-stand, storage and lounge categories. Speak to a specialist who knows every product.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Button asChild size="lg" className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold border-none px-8" data-testid="button-products-cta-contact">
