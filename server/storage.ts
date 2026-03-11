@@ -1,5 +1,9 @@
-import { type User, type InsertUser, type Lead, type InsertLead } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { eq, desc } from "drizzle-orm";
+import { db } from "./db";
+import {
+  users, leads, prospectedLeads, supplierQuotes, referrals,
+  type User, type InsertUser, type Lead, type InsertLead,
+} from "@shared/schema";
 
 export interface ProspectedLead {
   id: string;
@@ -93,176 +97,227 @@ export interface IStorage {
   getProspectedLeads(): Promise<ProspectedLead[]>;
   updateProspectedLeadStatus(id: string, status: ProspectedLead["status"]): Promise<ProspectedLead | undefined>;
   deleteProspectedLead(id: string): Promise<void>;
-  // Supplier quotes
   createSupplierQuote(data: InsertSupplierQuote): Promise<SupplierQuote>;
   getSupplierQuotes(): Promise<SupplierQuote[]>;
   updateSupplierQuoteStatus(id: string, status: SupplierQuote["status"]): Promise<SupplierQuote | undefined>;
   updateSupplierQuote(id: string, data: Partial<InsertSupplierQuote>): Promise<SupplierQuote | undefined>;
   deleteSupplierQuote(id: string): Promise<void>;
-  // Referrals
   createReferral(data: InsertReferral): Promise<Referral>;
   getReferrals(): Promise<Referral[]>;
   updateReferralStatus(id: string, status: Referral["status"]): Promise<Referral | undefined>;
   deleteReferral(id: string): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-  private leads: Map<string, Lead>;
-  private prospectedLeads: Map<string, ProspectedLead>;
-  private supplierQuotes: Map<string, SupplierQuote>;
-  private referrals: Map<string, Referral>;
+function rowToProspectedLead(row: typeof prospectedLeads.$inferSelect): ProspectedLead {
+  return {
+    id: row.id,
+    company: row.company,
+    website: row.website ?? null,
+    location: row.location,
+    industry: row.industry,
+    estimatedTeamSize: row.estimatedTeamSize,
+    signalsDetected: row.signalsDetected ?? [],
+    estimatedProjectValue: row.estimatedProjectValue,
+    score: row.score,
+    priority: row.priority as ProspectedLead["priority"],
+    decisionMakers: row.decisionMakers,
+    outreachMessage: row.outreachMessage,
+    reasoning: row.reasoning,
+    rawInput: row.rawInput,
+    status: row.status as ProspectedLead["status"],
+    createdAt: row.createdAt ?? new Date(),
+  };
+}
 
-  constructor() {
-    this.users = new Map();
-    this.leads = new Map();
-    this.prospectedLeads = new Map();
-    this.supplierQuotes = new Map();
-    this.referrals = new Map();
-  }
+function rowToSupplierQuote(row: typeof supplierQuotes.$inferSelect): SupplierQuote {
+  return {
+    id: row.id,
+    supplierName: row.supplierName,
+    supplierPhone: row.supplierPhone ?? undefined,
+    supplierEmail: row.supplierEmail ?? undefined,
+    productName: row.productName,
+    sku: row.sku,
+    quantity: row.quantity,
+    colourFinish: row.colourFinish ?? undefined,
+    unitPrice: row.unitPrice,
+    freightCost: row.freightCost ?? undefined,
+    leadTime: row.leadTime ?? undefined,
+    quoteDate: row.quoteDate,
+    projectReference: row.projectReference ?? undefined,
+    status: row.status as SupplierQuote["status"],
+    notes: row.notes ?? undefined,
+    createdAt: row.createdAt ?? new Date(),
+  };
+}
+
+function rowToReferral(row: typeof referrals.$inferSelect): Referral {
+  return {
+    id: row.id,
+    referrerName: row.referrerName,
+    company: row.company ?? undefined,
+    contactEmail: row.contactEmail ?? undefined,
+    contactPhone: row.contactPhone ?? undefined,
+    leadSource: row.leadSource as Referral["leadSource"],
+    clientName: row.clientName ?? undefined,
+    clientCompany: row.clientCompany ?? undefined,
+    estimatedValue: row.estimatedValue ?? undefined,
+    notes: row.notes ?? undefined,
+    status: row.status as Referral["status"],
+    createdAt: row.createdAt ?? new Date(),
+  };
+}
+
+export class DrizzleStorage implements IStorage {
 
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
   async createLead(insertLead: InsertLead): Promise<Lead> {
-    const id = randomUUID();
-    const lead: Lead = {
+    const [lead] = await db.insert(leads).values({
       ...insertLead,
-      id,
-      message: insertLead.message ?? null,
-      officeSize: insertLead.officeSize ?? null,
-      staffCount: insertLead.staffCount ?? null,
-      budget: insertLead.budget ?? null,
-      timeline: insertLead.timeline ?? null,
-      officeLocation: insertLead.officeLocation ?? null,
-      moveDate: insertLead.moveDate ?? null,
-      createdAt: new Date(),
-    };
-    this.leads.set(id, lead);
+      company: insertLead.company ?? "",
+    }).returning();
     return lead;
   }
 
   async getLeads(): Promise<Lead[]> {
-    return Array.from(this.leads.values()).sort(
-      (a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0)
-    );
+    return db.select().from(leads).orderBy(desc(leads.createdAt));
   }
 
   async createProspectedLead(data: Omit<ProspectedLead, "id" | "createdAt" | "status">): Promise<ProspectedLead> {
-    const id = randomUUID();
-    const lead: ProspectedLead = {
-      ...data,
-      id,
+    const [row] = await db.insert(prospectedLeads).values({
+      company: data.company,
+      website: data.website,
+      location: data.location,
+      industry: data.industry,
+      estimatedTeamSize: data.estimatedTeamSize,
+      signalsDetected: data.signalsDetected,
+      estimatedProjectValue: data.estimatedProjectValue,
+      score: data.score,
+      priority: data.priority,
+      decisionMakers: data.decisionMakers,
+      outreachMessage: data.outreachMessage,
+      reasoning: data.reasoning,
+      rawInput: data.rawInput,
       status: "New",
-      createdAt: new Date(),
-    };
-    this.prospectedLeads.set(id, lead);
-    return lead;
+    }).returning();
+    return rowToProspectedLead(row);
   }
 
   async getProspectedLeads(): Promise<ProspectedLead[]> {
-    return Array.from(this.prospectedLeads.values()).sort(
-      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
-    );
+    const rows = await db.select().from(prospectedLeads).orderBy(desc(prospectedLeads.createdAt));
+    return rows.map(rowToProspectedLead);
   }
 
   async updateProspectedLeadStatus(id: string, status: ProspectedLead["status"]): Promise<ProspectedLead | undefined> {
-    const lead = this.prospectedLeads.get(id);
-    if (!lead) return undefined;
-    const updated = { ...lead, status };
-    this.prospectedLeads.set(id, updated);
-    return updated;
+    const [row] = await db
+      .update(prospectedLeads)
+      .set({ status })
+      .where(eq(prospectedLeads.id, id))
+      .returning();
+    if (!row) return undefined;
+    return rowToProspectedLead(row);
   }
 
   async deleteProspectedLead(id: string): Promise<void> {
-    this.prospectedLeads.delete(id);
+    await db.delete(prospectedLeads).where(eq(prospectedLeads.id, id));
   }
 
-  // ─── Supplier Quotes ───────────────────────────────────────────────────────
-
   async createSupplierQuote(data: InsertSupplierQuote): Promise<SupplierQuote> {
-    const id = randomUUID();
-    const quote: SupplierQuote = {
-      ...data,
-      id,
+    const [row] = await db.insert(supplierQuotes).values({
+      supplierName: data.supplierName,
+      supplierPhone: data.supplierPhone,
+      supplierEmail: data.supplierEmail,
+      productName: data.productName,
+      sku: data.sku,
+      quantity: data.quantity,
+      colourFinish: data.colourFinish,
+      unitPrice: data.unitPrice,
+      freightCost: data.freightCost,
+      leadTime: data.leadTime,
+      quoteDate: data.quoteDate,
+      projectReference: data.projectReference,
       status: data.status ?? "Requested",
-      createdAt: new Date(),
-    };
-    this.supplierQuotes.set(id, quote);
-    return quote;
+      notes: data.notes,
+    }).returning();
+    return rowToSupplierQuote(row);
   }
 
   async getSupplierQuotes(): Promise<SupplierQuote[]> {
-    return Array.from(this.supplierQuotes.values()).sort(
-      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
-    );
+    const rows = await db.select().from(supplierQuotes).orderBy(desc(supplierQuotes.createdAt));
+    return rows.map(rowToSupplierQuote);
   }
 
   async updateSupplierQuoteStatus(id: string, status: SupplierQuote["status"]): Promise<SupplierQuote | undefined> {
-    const quote = this.supplierQuotes.get(id);
-    if (!quote) return undefined;
-    const updated = { ...quote, status };
-    this.supplierQuotes.set(id, updated);
-    return updated;
+    const [row] = await db
+      .update(supplierQuotes)
+      .set({ status })
+      .where(eq(supplierQuotes.id, id))
+      .returning();
+    if (!row) return undefined;
+    return rowToSupplierQuote(row);
   }
 
   async updateSupplierQuote(id: string, data: Partial<InsertSupplierQuote>): Promise<SupplierQuote | undefined> {
-    const quote = this.supplierQuotes.get(id);
-    if (!quote) return undefined;
-    const updated = { ...quote, ...data };
-    this.supplierQuotes.set(id, updated);
-    return updated;
+    const [row] = await db
+      .update(supplierQuotes)
+      .set(data)
+      .where(eq(supplierQuotes.id, id))
+      .returning();
+    if (!row) return undefined;
+    return rowToSupplierQuote(row);
   }
 
   async deleteSupplierQuote(id: string): Promise<void> {
-    this.supplierQuotes.delete(id);
+    await db.delete(supplierQuotes).where(eq(supplierQuotes.id, id));
   }
 
-  // ─── Referrals ─────────────────────────────────────────────────────────────
-
   async createReferral(data: InsertReferral): Promise<Referral> {
-    const id = randomUUID();
-    const referral: Referral = {
-      ...data,
-      id,
+    const [row] = await db.insert(referrals).values({
+      referrerName: data.referrerName,
+      company: data.company,
+      contactEmail: data.contactEmail,
+      contactPhone: data.contactPhone,
+      leadSource: data.leadSource,
+      clientName: data.clientName,
+      clientCompany: data.clientCompany,
+      estimatedValue: data.estimatedValue,
+      notes: data.notes,
       status: "New",
-      createdAt: new Date(),
-    };
-    this.referrals.set(id, referral);
-    return referral;
+    }).returning();
+    return rowToReferral(row);
   }
 
   async getReferrals(): Promise<Referral[]> {
-    return Array.from(this.referrals.values()).sort(
-      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
-    );
+    const rows = await db.select().from(referrals).orderBy(desc(referrals.createdAt));
+    return rows.map(rowToReferral);
   }
 
   async updateReferralStatus(id: string, status: Referral["status"]): Promise<Referral | undefined> {
-    const referral = this.referrals.get(id);
-    if (!referral) return undefined;
-    const updated = { ...referral, status };
-    this.referrals.set(id, updated);
-    return updated;
+    const [row] = await db
+      .update(referrals)
+      .set({ status })
+      .where(eq(referrals.id, id))
+      .returning();
+    if (!row) return undefined;
+    return rowToReferral(row);
   }
 
   async deleteReferral(id: string): Promise<void> {
-    this.referrals.delete(id);
+    await db.delete(referrals).where(eq(referrals.id, id));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DrizzleStorage();

@@ -1,0 +1,104 @@
+You are a senior full-stack engineer working inside this existing Replit project.
+
+Your task is to replace the current in-memory lead storage system with a real persistent database so data does NOT disappear when the server restarts.
+
+CRITICAL GOAL
+The app currently uses MemStorage / in-memory storage.
+This must be removed or bypassed and replaced with a persistent database-backed storage layer.
+
+USE THIS STACK
+Preferred option:
+- Supabase Postgres
+
+Acceptable fallback:
+- PostgreSQL
+
+DO NOT leave the project using memory-only storage.
+
+WHAT YOU MUST DO
+
+1. Inspect the existing storage implementation
+- Find where MemStorage or in-memory storage is defined
+- Find all routes, services, and admin pages that depend on it
+- Identify all entities currently being stored in memory:
+  - leads
+  - prospects
+  - supplier quotes
+  - referrals
+  - any other admin records
+
+2. Create a persistent database solution
+- Add database integration properly to the project
+- Create the required schema/tables
+- Preserve the current app behaviour and route contracts as much as possible
+- Keep the same frontend experience
+
+3. Replace the storage layer
+- Refactor the app so server routes use database reads/writes instead of in-memory arrays/objects
+- Remove the risk of data loss on restart
+- Keep types clean and consistent
+
+4. Add environment variable support
+Use environment variables for all secrets, including:
+- SUPABASE_URL
+- SUPABASE_ANON_KEY if needed
+- SUPABASE_SERVICE_ROLE_KEY if needed
+- DATABASE_URL if using direct Postgres connection
+
+Do not hardcode secrets anywhere.
+
+5. Create database-backed support for all current admin functions
+Make sure these persist properly:
+- lead submissions
+- quote builder submissions
+- contact form submissions
+- layout plan requests
+- strategy call requests
+- supplier quotes
+- referrals
+- prospect records
+- status updates
+- deletes
+- admin list views
+
+6. Update all relevant API routes
+Ensure these continue working with persistent storage:
+- /api/leads
+- /api/admin/prospect
+- /api/admin/prospects
+- /api/admin/supplier-quotes
+- /api/admin/referrals
+- any patch/delete/status routes
+
+7. Add seed-safe fallback behaviour
+- If database tables are empty, app should still load cleanly
+- No crashes if no records exist
+
+8. Test the whole system
+You must test:
+- creating a lead
+- retrieving leads
+- updating statuses
+- deleting records
+- server restart persistence
+- admin dashboard still works
+
+9. Give me a completion report
+When finished, provide:
+- exact files changed
+- exact env vars I must add in Replit Secrets
+- exact SQL schema created
+- exact routes updated
+- confirmation that persistence works after restart
+- any remaining issues
+
+IMPORTANT RULES
+- Do not break the frontend
+- Do not remove existing features
+- Do not leave placeholder code
+- Do not only describe what to do — actually implement it
+- Do not stop at planning mode
+- Complete the code changes
+
+SUCCESS CRITERIA
+The app must still run, but now all important records persist after restart using Supabase/Postgres instead of MemStorage.

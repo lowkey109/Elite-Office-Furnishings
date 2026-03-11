@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -41,3 +41,56 @@ export const insertLeadSchema = createInsertSchema(leads).omit({
 
 export type InsertLead = z.infer<typeof insertLeadSchema>;
 export type Lead = typeof leads.$inferSelect;
+
+export const prospectedLeads = pgTable("prospected_leads", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  company: text("company").notNull(),
+  website: text("website"),
+  location: text("location").notNull(),
+  industry: text("industry").notNull(),
+  estimatedTeamSize: text("estimated_team_size").notNull(),
+  signalsDetected: text("signals_detected").array().notNull().default(sql`'{}'`),
+  estimatedProjectValue: text("estimated_project_value").notNull(),
+  score: integer("score").notNull().default(5),
+  priority: text("priority").notNull().default("Medium"),
+  decisionMakers: text("decision_makers").notNull(),
+  outreachMessage: text("outreach_message").notNull(),
+  reasoning: text("reasoning").notNull(),
+  rawInput: text("raw_input").notNull(),
+  status: text("status").notNull().default("New"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const supplierQuotes = pgTable("supplier_quotes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  supplierName: text("supplier_name").notNull(),
+  supplierPhone: text("supplier_phone"),
+  supplierEmail: text("supplier_email"),
+  productName: text("product_name").notNull(),
+  sku: text("sku").notNull(),
+  quantity: integer("quantity").notNull().default(1),
+  colourFinish: text("colour_finish"),
+  unitPrice: text("unit_price").notNull(),
+  freightCost: text("freight_cost"),
+  leadTime: text("lead_time"),
+  quoteDate: text("quote_date").notNull(),
+  projectReference: text("project_reference"),
+  status: text("status").notNull().default("Requested"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const referrals = pgTable("referrals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  referrerName: text("referrer_name").notNull(),
+  company: text("company"),
+  contactEmail: text("contact_email"),
+  contactPhone: text("contact_phone"),
+  leadSource: text("lead_source").notNull(),
+  clientName: text("client_name"),
+  clientCompany: text("client_company"),
+  estimatedValue: text("estimated_value"),
+  notes: text("notes"),
+  status: text("status").notNull().default("New"),
+  createdAt: timestamp("created_at").defaultNow(),
+});

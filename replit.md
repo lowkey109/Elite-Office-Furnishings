@@ -12,9 +12,24 @@ A luxury, billionaire-aesthetic office furniture website for The Corporate Desk 
 - **Security headers**: X-Content-Type-Options, X-Frame-Options, Referrer-Policy (all responses)
 - **Static assets**: `/assets/*` cached immutably (1yr); `index.html` never cached
 
+## Database
+- **Provider**: Replit built-in PostgreSQL (auto-provisioned)
+- **ORM**: Drizzle ORM (`drizzle-orm/node-postgres`) with `pg` pool
+- **Client**: `server/db.ts` — exports `db` (drizzle instance)
+- **Storage**: `server/storage.ts` — `DrizzleStorage` class (replaces former `MemStorage`)
+- **Schema**: `shared/schema.ts` — all 5 tables defined as Drizzle pgTable models
+- **Tables**: `users`, `leads`, `prospected_leads`, `supplier_quotes`, `referrals`
+- All data persists across server restarts
+
 ## Environment Variables (set in Replit Secrets for deployment)
 | Variable | Description | Required |
 |----------|-------------|----------|
+| `DATABASE_URL` | PostgreSQL connection string | Auto-set by Replit DB |
+| `PGHOST` | Database host | Auto-set by Replit DB |
+| `PGPORT` | Database port | Auto-set by Replit DB |
+| `PGUSER` | Database user | Auto-set by Replit DB |
+| `PGPASSWORD` | Database password | Auto-set by Replit DB |
+| `PGDATABASE` | Database name | Auto-set by Replit DB |
 | `SMTP_HOST` | SMTP mail server host | Optional (email disabled if absent) |
 | `SMTP_PORT` | SMTP port (default 587) | Optional |
 | `SMTP_USER` | SMTP username/email address | Optional |
