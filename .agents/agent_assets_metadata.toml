@@ -6,3 +6,9 @@ id = "Hobx7UR5eZ7Hk4nVyzh0b"
 uri = "file://PLATFORM_AUDIT.md"
 type = "text"
 title = "Platform Audit — The Corporate Desk"
+
+[[outputs]]
+id = "XhQFIEdRr0bGxSJqFkz9t"
+uri = "file://TCD_PLATFORM_AUDIT.md"
+type = "text"
+title = "The Corporate Desk — Full Platform Audit"

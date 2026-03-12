@@ -1,0 +1,412 @@
+THE CORPORATE DESK — AUTONOMOUS WORKSPACE INTELLIGENCE PLATFORM
+
+You are a senior SaaS architect, AI systems engineer, automation engineer, and commercial workspace consultant.
+
+Your task is to COMPLETE the Corporate Desk platform so it operates as a commercial workspace intelligence system.
+
+The platform must support:
+
+• lead detection
+• office move intelligence
+• workspace planning
+• floor-plan analysis
+• furniture package generation
+• supplier sourcing
+• profit analysis
+• quote generation
+• pipeline forecasting
+• automated background intelligence
+
+The platform must be production-ready and usable by human operators.
+
+------------------------------------------------
+
+CRITICAL RULES
+
+Do NOT break existing systems.
+
+Do NOT modify or delete working systems including:
+
+workspace planner  
+profit engine  
+product catalog  
+supplier database  
+finance logic  
+Stripe payments  
+lead capture  
+chat concierge  
+admin dashboard  
+email system  
+
+Extend systems safely.
+
+------------------------------------------------
+
+PHASE 1 — PLATFORM AUDIT
+
+Before writing any code perform a full audit.
+
+Map:
+
+admin dashboard  
+planner engine  
+profit intelligence engine  
+supplier database  
+product catalog  
+lead capture  
+chat concierge  
+email system  
+quote generation  
+pipeline tools  
+
+Return an internal system map including:
+
+data models  
+routes  
+components  
+admin views  
+
+Avoid duplicate systems.
+
+------------------------------------------------
+
+PHASE 2 — LEAD INTELLIGENCE ENGINE
+
+Create a multi-signal lead detection system.
+
+Detect signals including:
+
+office relocations  
+lease announcements  
+tenant movements  
+company hiring spikes  
+funding announcements  
+expansion announcements  
+
+Target cities:
+
+Brisbane  
+Sydney  
+Melbourne  
+
+Store lead data:
+
+company_name  
+industry  
+city  
+signal_type  
+source  
+date_detected  
+estimated_headcount  
+estimated_office_size  
+estimated_project_value  
+lead_score  
+
+------------------------------------------------
+
+PHASE 3 — AI OFFICE MOVE RADAR
+
+Build a commercial lease detection system.
+
+Monitor signals from:
+
+commercial property listings  
+leasing agent announcements  
+office vacancy listings  
+commercial property marketing pages  
+property industry news  
+
+Detect companies signing leases before public announcements.
+
+When detected:
+
+create lead entry  
+estimate office size  
+estimate furniture demand  
+flag as high-priority opportunity  
+
+------------------------------------------------
+
+PHASE 4 — TERRITORY SCANNER
+
+Monitor major office buildings.
+
+Track:
+
+tenant move-ins  
+tenant move-outs  
+floor leases  
+office refurbishments  
+
+Target cities:
+
+Brisbane  
+Sydney  
+Melbourne  
+
+Flag tenants moving into buildings as workspace leads.
+
+------------------------------------------------
+
+PHASE 5 — AI WORKSPACE PLANNER
+
+Complete workspace planning system.
+
+Planner must accept:
+
+square metre input  
+staff count  
+budget range  
+workspace style  
+
+Generate:
+
+desk layouts  
+meeting rooms  
+breakout areas  
+reception space  
+collaboration zones  
+acoustic booths  
+
+Output recommended furniture packages.
+
+------------------------------------------------
+
+PHASE 6 — AI FLOOR-PLAN INTELLIGENCE (NEW)
+
+Create a floor-plan interpretation engine.
+
+The system must support:
+
+PDF floor-plan uploads  
+image floor-plan uploads  
+
+The AI must:
+
+detect walls  
+identify room boundaries  
+estimate usable workspace area  
+identify entrances and windows  
+calculate desk density  
+
+Generate:
+
+automatic workspace layout  
+desk placement suggestions  
+meeting room positioning  
+collaboration zones  
+
+Output a complete furniture package.
+
+The layout must generate in under 20 seconds.
+
+------------------------------------------------
+
+PHASE 7 — SUPPLIER PROCUREMENT ENGINE
+
+Create supplier intelligence system.
+
+Compare suppliers using:
+
+price  
+lead time  
+shipping cost  
+product quality  
+reliability  
+
+Recommend best supplier per category:
+
+task chairs  
+desks  
+workstations  
+meeting tables  
+reception desks  
+acoustic pods  
+
+------------------------------------------------
+
+PHASE 8 — PROFIT INTELLIGENCE ENGINE
+
+Calculate:
+
+landed_cost  
+quoted_price  
+gross_profit  
+margin_percentage  
+
+Display margin health:
+
+Excellent  
+Strong  
+Acceptable  
+Margin Watch  
+Low  
+
+Recommend the most profitable package.
+
+------------------------------------------------
+
+PHASE 9 — QUOTE GENERATION SYSTEM
+
+Create a quote builder.
+
+Quotes must include:
+
+client details  
+project summary  
+line items  
+quantities  
+unit price  
+subtotal  
+freight/install costs  
+discounts  
+total  
+
+Generate professional PDF quotes.
+
+PDF must follow Corporate Desk branding.
+
+------------------------------------------------
+
+PHASE 10 — SALES PIPELINE ENGINE
+
+Track opportunity stages:
+
+lead detected  
+contacted  
+planning  
+quoted  
+negotiation  
+won  
+lost  
+
+Calculate:
+
+deal_probability  
+expected_project_value  
+recommended_followup  
+
+------------------------------------------------
+
+PHASE 11 — PIPELINE FORECASTING
+
+Calculate:
+
+total_pipeline_value  
+expected_revenue  
+probable_closed_deals  
+
+Display forecasting inside admin dashboard.
+
+------------------------------------------------
+
+PHASE 12 — WORKSPACE LEARNING ENGINE
+
+Store project data including:
+
+layout choices  
+furniture packages  
+supplier selections  
+profit margins  
+
+Use this data to learn:
+
+best layout strategies  
+highest margin packages  
+optimal desk density  
+
+------------------------------------------------
+
+PHASE 13 — ADMIN OPERATIONS HUB
+
+Create a command center dashboard.
+
+Display:
+
+new leads  
+planning requests  
+quotes  
+finance leads  
+hot opportunities  
+pipeline value  
+
+Prioritize urgent actions.
+
+------------------------------------------------
+
+PHASE 14 — CHAT CONCIERGE
+
+The website AI assistant must:
+
+capture project details  
+suggest planner tools  
+answer product questions  
+generate leads  
+book consultations  
+
+Chat must remain persistent across pages.
+
+------------------------------------------------
+
+PHASE 15 — AUTOMATION ENGINE
+
+Create scheduled background jobs.
+
+Run:
+
+lead intelligence scans  
+office move radar scans  
+profit updates  
+supplier price refresh  
+pipeline forecasting  
+
+System must operate autonomously.
+
+------------------------------------------------
+
+PHASE 16 — SYSTEM TESTING
+
+Verify:
+
+planner generates layouts  
+floor-plan intelligence works  
+profit engine calculates margins  
+quotes generate correctly  
+PDF export works  
+lead intelligence detects signals  
+pipeline forecasting works  
+existing systems remain stable  
+
+------------------------------------------------
+
+FINAL RESULT
+
+The platform must be capable of:
+
+detecting companies moving offices  
+detecting companies expanding teams  
+detecting commercial lease activity  
+monitoring office towers  
+reading floor plans automatically  
+designing workspace layouts  
+generating furniture packages  
+calculating margins  
+generating quotes  
+tracking deals  
+forecasting revenue  
+
+The platform must function as a commercial workspace intelligence system.
+
+------------------------------------------------
+
+EXECUTION RULE
+
+Audit first.
+
+Then implement missing systems in phases.
+
+Prefer extending existing components over creating duplicates.
+
+Do not stop halfway.
+
+Complete the entire platform.
