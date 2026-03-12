@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -74,10 +74,10 @@ const CATEGORY_PRICE_RANGES: Record<string, string> = {
 };
 
 const SUPPLIER_COLLECTION_NAMES: Record<string, string> = {
-  "Foshan Feisenzhuo Furniture Co., Ltd.": "Fessenz Collection",
-  "Huasheng Furniture Group — Gaozhuo Division": "Gaozhuo Executive Collection",
-  "Huasheng Furniture Group — GOJO Division": "GOJO Executive Collection",
-  "Huasheng Furniture Group — Lounge & Seating Division": "GOJO Lounge & Seating",
+  "Foshan Feisenzhuo Furniture Co., Ltd.": "Fessenz Design Collection",
+  "Huasheng Furniture Group — Gaozhuo Division": "Milan Premium Workspace Collection",
+  "Huasheng Furniture Group — GOJO Division": "Presidia Executive Collection",
+  "Huasheng Furniture Group — Lounge & Seating Division": "Presidia Lounge & Seating",
   "Foshan Bohua Furniture Co., Ltd. (GAOJIN)": "The Corporate Desk Collection",
 };
 
@@ -278,6 +278,46 @@ export default function ProductDetail() {
     queryFn: () => fetch(`/api/products/${sku}/size-variants`).then(r => r.json()),
     enabled: !!sku,
   });
+
+  useEffect(() => {
+    if (!product) return;
+    const collectionNameForSeo = product.collection_name || SUPPLIER_COLLECTION_NAMES[product.supplier] || "The Corporate Desk Collection";
+    const priceForSeo = product.price_from || CATEGORY_PRICE_RANGES[product.category];
+    const description = `${product.product_name} — premium commercial office furniture. ${product.category}. ${product.dimensions ? product.dimensions + ". " : ""}Part of the ${collectionNameForSeo}.`;
+    const jsonLd: Record<string, unknown> = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: product.product_name,
+      description,
+      sku: product.sku,
+      brand: { "@type": "Brand", name: "The Corporate Desk" },
+      category: product.category,
+      ...(product.image && { image: `https://www.thecorporatedesk.com.au${product.image}` }),
+      offers: {
+        "@type": "Offer",
+        priceCurrency: "AUD",
+        ...(priceForSeo
+          ? { priceSpecification: { "@type": "PriceSpecification", priceCurrency: "AUD", description: priceForSeo } }
+          : { availability: "https://schema.org/InStock" }),
+        availability: "https://schema.org/InStock",
+        seller: { "@type": "Organization", name: "The Corporate Desk" },
+        areaServed: "AU",
+      },
+    };
+    const existing = document.getElementById("product-jsonld");
+    if (existing) existing.remove();
+    const script = document.createElement("script");
+    script.id = "product-jsonld";
+    script.type = "application/ld+json";
+    script.textContent = JSON.stringify(jsonLd);
+    document.head.appendChild(script);
+    document.title = `${product.product_name} — ${product.category} | The Corporate Desk`;
+    const metaDesc = document.querySelector('meta[name="description"]') || document.createElement("meta");
+    metaDesc.setAttribute("name", "description");
+    metaDesc.setAttribute("content", description.slice(0, 160));
+    if (!metaDesc.parentNode) document.head.appendChild(metaDesc);
+    return () => { document.getElementById("product-jsonld")?.remove(); };
+  }, [product]);
 
   const form = useForm<ReviewFormData>({
     resolver: zodResolver(reviewFormSchema),

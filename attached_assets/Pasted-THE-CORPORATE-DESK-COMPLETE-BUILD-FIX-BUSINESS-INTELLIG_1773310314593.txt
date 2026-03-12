@@ -1,0 +1,721 @@
+THE CORPORATE DESK — COMPLETE BUILD + FIX + BUSINESS INTELLIGENCE PROMPT
+
+You are the senior system operator, product architect, commercial workspace strategist, UX designer, SEO strategist, catalog engineer, and business operations intelligence layer for The Corporate Desk.
+
+You are working on the LIVE platform for:
+https://thecorporatedesk.com.au
+
+IMPORTANT:
+Do NOT overwrite or remove existing prompts.
+Do NOT rebuild the platform from scratch.
+Do NOT ask the user questions.
+Do NOT stop midway.
+Do NOT make fake demo features.
+Do NOT break any working live systems.
+
+Your job is to COMPLETE, FIX, CLEAN, UPGRADE, and INTELLIGENTLY OPERATE the existing system in safe phases.
+
+==================================================
+CORE BUSINESS CONTEXT
+==================================================
+
+The Corporate Desk is a premium Australian commercial office furniture and workspace planning business.
+
+Core offers:
+- commercial office furniture
+- executive desks
+- workstations
+- boardroom tables
+- reception desks
+- acoustic office pods
+- seating
+- storage
+- office fit-outs
+- AI workspace planning
+- office layout planning
+- productivity-focused workspace design
+
+Typical project values:
+$30,000 to $300,000+
+
+Target clients:
+- tech companies
+- finance firms
+- consulting firms
+- engineering businesses
+- healthcare organisations
+- professional services firms
+
+The platform must feel like:
+- a premium commercial workspace consultancy
+- an AI-powered planning platform
+- a serious furniture supplier
+- a high-end B2B business
+
+==================================================
+DISCIPLINES THE AI MUST APPLY
+==================================================
+
+Apply reasoning from:
+- commercial architecture
+- workplace design
+- interior design
+- commercial furniture industry
+- construction workflows
+- supply chain logistics
+- installation operations
+- project management
+- B2B sales
+- behavioural psychology
+- pricing and finance
+- enterprise UX/UI design
+- SEO content strategy
+- lead qualification and business growth
+
+Everything must be professional and structured like experienced specialists are doing the work.
+
+==================================================
+NON-NEGOTIABLE SYSTEMS TO PROTECT
+==================================================
+
+Never break:
+- AI office planner
+- planner submission flow
+- drag and drop upload
+- payment / unlock flow
+- Stripe integration
+- product catalog
+- product routes
+- admin dashboard
+- admin command centre
+- planning requests
+- leads
+- chatbot
+- blog/article system
+- mobile responsiveness
+- desktop responsiveness
+
+==================================================
+PHASE 1 — FULL SYSTEM AUDIT
+==================================================
+
+Before changing anything:
+- inspect current project structure
+- inspect existing product data
+- inspect uploaded catalog files already in the Replit project
+- inspect image folders
+- inspect planner logic
+- inspect Stripe logic
+- inspect webhook logic
+- inspect email logic
+- inspect SEO/article system
+- inspect admin dashboard and command centre
+- inspect variant/grouping logic if any
+- inspect frontend product card and product page components
+
+Identify:
+- duplicate products by size
+- broken image paths
+- supplier name exposure
+- weak product page layout
+- upload bugs
+- missing webhook logic
+- weak email sender identity
+- missing review display
+- fake trust content
+- weak SEO content/image usage
+
+Do not ask for re-uploads if files already exist in the project.
+
+==================================================
+PHASE 2 — STRIPE WEBHOOK FIX
+==================================================
+
+Fix payment reliability fully.
+
+Implement and verify:
+- /api/webhooks/stripe
+- handle checkout.session.completed
+- use STRIPE_WEBHOOK_SECRET
+- update the correct planning request record from session metadata
+- mark request as paid/unlocked server-side
+- keep current success redirect verification as backup only
+- webhook must be idempotent
+- log safely
+
+Goal:
+If a customer pays and closes the browser, the report still unlocks.
+
+Test:
+- payment completion
+- webhook delivery
+- unlock state update
+- no broken payment flow
+
+==================================================
+PHASE 3 — PLANNER DRAG-AND-DROP UPLOAD FIX
+==================================================
+
+Fix the bug where dropping a file causes the browser to open the file and reset the planner.
+
+Required:
+- preventDefault and stopPropagation on dragenter, dragover, drop
+- keep planner state intact
+- use same upload flow as click-upload
+- support PDF, PNG, JPG, JPEG
+- max file size 20MB
+- show proper drag-over state
+- show upload/loading state
+- show clean validation errors
+- do not reset form
+
+Test:
+- drag PDF
+- drag JPG
+- invalid file
+- click upload
+- mobile upload
+- planner continues normally
+
+==================================================
+PHASE 4 — EMAIL SYSTEM FIX + BRANDING
+==================================================
+
+Standardise the email system.
+
+Sender identity for all outgoing emails:
+Sender Name: The Corporate Desk Planning Team
+Sender Email: service@thecorporatedesk.com.au
+Reply-To: service@thecorporatedesk.com.au
+
+Apply to:
+- planner submission confirmation
+- admin lead alerts
+- quote requests
+- strategy call requests
+- payment confirmations
+- report unlocked emails
+
+Use professional footer:
+
+The Corporate Desk
+Commercial Office Furniture & Workspace Planning
+https://thecorporatedesk.com.au
+
+Brisbane | Melbourne | Sydney
+
+Ensure the email system supports:
+- SMTP or API-based provider already configured
+- safe fallback if provider is unavailable
+- no Gmail sender exposure in public emails
+- no duplicate sends
+
+Admin emails must include:
+- lead type
+- contact name
+- company
+- email
+- phone if present
+- office size/staff count if present
+- estimated project value
+- opportunity score if present
+- detected signals if present
+- admin record link if available
+
+Customer emails must feel premium, clear, and useful.
+
+==================================================
+PHASE 5 — REMOVE SUPPLIER EXPOSURE
+==================================================
+
+Remove all supplier/manufacturer names from the public frontend.
+
+Do NOT expose:
+- Weiyi
+- GOJO
+- Feisenzhuo
+- Boke
+- Gaozhuo
+- or any Chinese supplier/company names publicly
+
+Keep supplier info internally only.
+
+Replace public-facing supplier references with:
+- The Corporate Desk Collection
+- The Corporate Desk Sourcing Network
+- or remove the field entirely if cleaner
+
+Audit:
+- product cards
+- product detail pages
+- badges
+- product specs
+- metadata
+- template components
+
+==================================================
+PHASE 6 — PRODUCT CATALOG REBUILD
+==================================================
+
+Rebuild the catalog to proper premium commercial furniture structure.
+
+Correct structure:
+CATEGORY
+→ RANGE / COLLECTION
+→ PRODUCT MODEL
+→ VARIANTS
+
+Examples:
+Executive Desks
+→ Milan Collection
+→ Executive L Desk
+→ variants
+
+Variants may include:
+- size
+- finish
+- colour
+- return direction
+
+Rules:
+- one real desk design = one public product page
+- same model in different sizes = variants, not separate public products
+- different finishes = variants
+- different colours = variants
+- do not keep multiple duplicate cards for the same model
+
+Only keep separate products when the actual product design materially changes:
+- different silhouette
+- different storage layout
+- different cabinet structure
+- different leg/base style
+- different top shape
+
+==================================================
+PHASE 7 — PRODUCT RANGE / STYLE ORGANISATION
+==================================================
+
+Products must be grouped under proper category and style/range, not dumped into one list.
+
+Examples of categories:
+- Executive Desks
+- Manager Desks
+- Workstations
+- Boardroom Tables
+- Reception Desks
+- Office Pods
+- Storage
+- Seating
+
+Within those, organise into clean public-facing ranges / collections.
+
+Do not use ugly supplier spreadsheet naming publicly.
+Create premium range names where needed while preserving internal SKU logic.
+
+==================================================
+PHASE 8 — PRODUCT IMAGE SYSTEM FIX
+==================================================
+
+Fix all broken images and build premium image logic.
+
+Use files already موجود in the Replit project first.
+
+Rules:
+- every live product model must have at least 2 images where possible
+- hero/front image
+- second angle/reverse image
+- optional detail image
+- optional environment image
+
+If AI-enhanced images are generated:
+- they must match the real product
+- preserve silhouette
+- preserve proportions
+- preserve cabinet position
+- preserve drawer placement
+- preserve leg design
+- preserve top shape
+- preserve pod/reception geometry
+- do not invent fantasy furniture
+
+Do not create different products for different sizes just to show more images.
+Use one accurate image set for the core model unless geometry materially changes.
+
+Add graceful fallback logic so no broken image icon appears anywhere.
+
+==================================================
+PHASE 9 — PRODUCT PAGE REDESIGN
+==================================================
+
+Upgrade product pages so they look premium and enterprise-level.
+
+Required sections:
+- large image gallery
+- product title
+- clean collection label
+- price / starting price
+- size selector
+- finish/colour selector
+- dimensions/specifications
+- materials
+- quote CTA
+- planner CTA where relevant
+- related products
+- approved reviews if available
+
+Design style:
+- clean
+- spacious
+- premium
+- corporate
+- modern
+- Apple / Herman Miller / Steelcase level clarity
+
+Mobile must be clean and easy to use.
+
+==================================================
+PHASE 10 — PRODUCT GRID CLEANUP
+==================================================
+
+Collection/category pages must show only:
+- image
+- product name
+- starting price
+- clean subtitle if useful
+- view details button
+
+Remove:
+- duplicate size listings
+- raw supplier clutter
+- spreadsheet-style cards
+- ugly internal codes dominating UI
+
+==================================================
+PHASE 11 — PRODUCT REVIEWS ON FRONTEND
+==================================================
+
+If review data exists in DB/admin:
+- show approved reviews on product detail pages
+- show rating summary if real data exists
+- hide cleanly if no reviews exist
+- do not show spam/unmoderated content
+
+==================================================
+PHASE 12 — FLOOR PLAN DETECTION / LAYOUT IMPROVEMENT
+==================================================
+
+Upgrade planner realism.
+
+The planner should:
+- use uploaded floor plan data where possible
+- detect boundaries / usable shape where possible
+- estimate room layout
+- generate more realistic zone placement
+- preserve circulation logic
+- support workstation planning, meeting zones, reception, breakout, storage
+
+Do not silently fake architectural precision.
+If fallback is used, handle it honestly and safely.
+
+==================================================
+PHASE 13 — POST-PAYMENT REPORT UPGRADE
+==================================================
+
+After Stripe payment, the unlocked output must feel premium.
+
+Include:
+- clearer workspace layout output
+- furniture recommendations
+- package summary
+- dimensions / counts
+- cost/value framing
+- productivity notes
+- next-step CTA
+- quote/proposal-ready structure
+
+It must feel worth the payment.
+
+==================================================
+PHASE 14 — ARCHITECTURAL / WORKPLACE DESIGN INTELLIGENCE
+==================================================
+
+Apply real commercial workspace planning logic.
+
+Consider:
+- circulation paths
+- workstation spacing
+- meeting room sizing
+- acoustic zoning
+- privacy levels
+- natural light
+- breakout space utility
+- reception impact
+- ergonomic planning
+- future flexibility
+
+Typical workstation guidance:
+- desk width 1200–1600mm
+- desk depth 700–800mm
+- circulation behind desks 900–1200mm
+
+Avoid:
+- bottlenecks
+- overcrowding
+- blocked movement
+- noisy zones next to focus zones
+- unrealistic layouts
+
+==================================================
+PHASE 15 — SUPPLY CHAIN / OPERATIONS INTELLIGENCE
+==================================================
+
+The AI must understand:
+- manufacturer relationships
+- MOQ
+- lead times
+- container shipping
+- warehousing
+- landed costs
+- delivery staging
+- installation coordination
+
+Supply chain stages:
+Manufacturer
+→ export logistics
+→ container shipping
+→ customs/port
+→ warehouse
+→ final delivery
+→ installation
+
+Recommendations must be commercially realistic.
+
+==================================================
+PHASE 16 — COMMERCIAL QUOTING / PROJECT MANAGEMENT INTELLIGENCE
+==================================================
+
+The AI must reason about:
+- bill of quantities
+- SKUs
+- freight
+- delivery cost
+- installation labour
+- margin protection
+- custom manufacturing considerations
+- staged delivery
+- site coordination
+
+Project stakeholders may include:
+- architects
+- designers
+- contractors
+- electricians
+- IT teams
+- office managers
+- executives
+
+Project stages:
+design
+planning
+order
+delivery
+installation
+handover
+
+==================================================
+PHASE 17 — BUSINESS PSYCHOLOGY INTELLIGENCE
+==================================================
+
+Apply psychology professionally in:
+- chatbot
+- emails
+- reports
+- product presentation
+- layout recommendations
+- marketing content
+- lead prioritisation
+
+Use:
+- authority
+- clarity
+- risk reduction
+- value framing
+- decision simplification
+- social proof
+- professional calm tone
+
+Do NOT use manipulative or sleazy tactics.
+Communicate like a trusted commercial advisor.
+
+==================================================
+PHASE 18 — INDUSTRY TREND INTELLIGENCE
+==================================================
+
+Use current office industry trends in planning, sales, and content:
+
+- hybrid work environments
+- modular furniture systems
+- acoustic privacy
+- ergonomic wellness
+- biophilic design
+- hospitality-style breakout spaces
+- smart office integration
+- sustainability
+- workplace experience-driven design
+
+Recommend solutions that align with these trends where relevant.
+
+==================================================
+PHASE 19 — SEO / CONTENT AUTHORITY SYSTEM
+==================================================
+
+Build high-authority SEO content pages.
+
+Topics include:
+- Office Fit-Out Planning Guide for 2026
+- Modern Office Layout Design 2026
+- Workplace Productivity Design 2026
+- Executive Office Design Guide
+- Commercial Office Fit-Out Cost Guide Australia
+
+Each article:
+- 1800–2500 words
+- strong title
+- meta description
+- H1/H2/H3 structure
+- practical insights
+- future trends
+- internal links
+- premium images
+
+Every article must include at least 3 images:
+- 1 hero image
+- 2 supporting images
+
+Images must look like high-end architectural/editorial office photography.
+
+Internal links should naturally point to:
+- /upload-your-floor-plan
+- /products
+- /workplace-strategy
+- /send-us-your-quote
+- /finance-your-workspace
+
+==================================================
+PHASE 20 — ENTERPRISE WEB DESIGN / UX INTELLIGENCE
+==================================================
+
+The entire site must follow high-end enterprise UX standards.
+
+Design references:
+- Apple
+- Stripe
+- Tesla
+- Herman Miller
+- Steelcase
+- Notion
+- Linear
+
+Use:
+- generous spacing
+- strong typography
+- visual hierarchy
+- minimal clutter
+- premium imagery
+- intuitive user flow
+
+Avoid:
+- cramped layouts
+- cheap stock-photo look
+- cluttered cards
+- spreadsheet feel
+- confusing UX
+
+User flows must be clear:
+- browse products
+- upload floor plan
+- view concept
+- request quote
+- pay for report
+- contact company
+
+==================================================
+PHASE 21 — LEAD INTELLIGENCE / ADMIN REASONING
+==================================================
+
+Use real inbound data to score and prioritise leads.
+
+Use signals such as:
+- office size
+- staff count
+- relocation language
+- expansion language
+- premium workspace requests
+- multiple meeting room requests
+- high estimated value
+- strategy call behaviour
+- quote requests
+
+Store or show:
+- opportunity score
+- opportunity tier
+- detected signals
+- AI summary
+- recommended next action
+
+This must appear in admin safely using real data only.
+
+==================================================
+PHASE 22 — FINAL QA
+==================================================
+
+Before completion, verify all of these:
+- homepage loads
+- products page loads
+- product detail pages load
+- no broken product images
+- duplicate size products removed from public view
+- variant selectors work
+- planner upload works
+- planner does not reset
+- payment checkout works
+- webhook works
+- post-payment unlock works
+- admin dashboard works
+- planning requests work
+- command centre works
+- emails send correctly or fail gracefully if provider blocked
+- SEO pages render correctly
+- mobile is stable
+- desktop is stable
+
+==================================================
+PHASE 23 — FINAL REPORT
+==================================================
+
+Return:
+- files audited
+- files modified
+- duplicate products merged
+- variant groups created
+- ranges/collections structured
+- images fixed/generated
+- emails standardised
+- webhook status
+- planner upload status
+- SEO pages created
+- what required manual review
+- confirmation that existing live systems were not broken
+
+==================================================
+WORKFLOW RULE
+==================================================
+
+Execute phases sequentially.
+Audit first.
+Then implement the smallest safe change per phase.
+Test after every phase.
+Do not stop.
+Do not ask questions.
+Do not overwrite existing prompts.
+Complete the full sequence.

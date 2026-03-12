@@ -95,10 +95,42 @@ export default function BlogPost() {
   const post = getPostBySlug(params.slug);
 
   useEffect(() => {
-    if (post) {
-      document.title = `${post.title} | The Corporate Desk Blog`;
-      window.scrollTo(0, 0);
-    }
+    if (!post) return;
+    document.title = `${post.title} | The Corporate Desk Blog`;
+    window.scrollTo(0, 0);
+    const metaDesc = document.querySelector('meta[name="description"]') || document.createElement("meta");
+    metaDesc.setAttribute("name", "description");
+    metaDesc.setAttribute("content", (post.excerpt || post.title).slice(0, 160));
+    if (!metaDesc.parentNode) document.head.appendChild(metaDesc);
+    const ogTitle = document.querySelector('meta[property="og:title"]') || document.createElement("meta");
+    ogTitle.setAttribute("property", "og:title");
+    ogTitle.setAttribute("content", `${post.title} | The Corporate Desk`);
+    if (!ogTitle.parentNode) document.head.appendChild(ogTitle);
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: post.title,
+      description: post.excerpt || post.title,
+      author: { "@type": "Organization", name: "The Corporate Desk" },
+      publisher: {
+        "@type": "Organization",
+        name: "The Corporate Desk",
+        logo: { "@type": "ImageObject", url: "https://www.thecorporatedesk.com.au/logo.png" },
+      },
+      url: `https://www.thecorporatedesk.com.au/blog/${post.slug}`,
+      mainEntityOfPage: { "@type": "WebPage", "@id": `https://www.thecorporatedesk.com.au/blog/${post.slug}` },
+      keywords: post.tags ? post.tags.join(", ") : post.category,
+      articleSection: post.category,
+      timeRequired: post.readTime,
+    };
+    const existing = document.getElementById("blog-jsonld");
+    if (existing) existing.remove();
+    const script = document.createElement("script");
+    script.id = "blog-jsonld";
+    script.type = "application/ld+json";
+    script.textContent = JSON.stringify(jsonLd);
+    document.head.appendChild(script);
+    return () => { document.getElementById("blog-jsonld")?.remove(); };
   }, [post]);
 
   if (!post) {

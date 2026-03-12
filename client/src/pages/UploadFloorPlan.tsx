@@ -53,6 +53,7 @@ interface AiWorkspaceZone {
   priority: string;
   staffCapacity?: number;
   keyFurniture?: string[];
+  productivityNote?: string;
 }
 
 interface AiProductRec {
@@ -682,14 +683,28 @@ export default function UploadFloorPlan() {
                           {aiRec.workspaceZones.map((z, i) => (
                             <div key={i} className="bg-[rgba(255,255,255,0.03)] rounded-xl p-4 border border-[rgba(255,255,255,0.05)]">
                               <div className="flex items-center justify-between mb-1.5">
-                                <p className="text-white font-semibold text-sm">{z.zone}</p>
-                                <span className={`text-xs px-2 py-0.5 rounded-full border ${
-                                  z.priority === "Essential" ? "bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.2)]" :
-                                  z.priority === "Recommended" ? "bg-blue-500/10 text-blue-400 border-blue-500/20" :
-                                  "bg-white/5 text-white/40 border-white/10"
-                                }`}>{z.priority}</span>
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: z.color || "#B8960C" }} />
+                                  <p className="text-white font-semibold text-sm truncate">{z.zone}</p>
+                                </div>
+                                <div className="flex items-center gap-1.5 flex-shrink-0">
+                                  {z.percentage > 0 && <span className="text-white/30 text-xs">{z.percentage}%</span>}
+                                  <span className={`text-xs px-2 py-0.5 rounded-full border ${
+                                    z.priority === "Essential" ? "bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.2)]" :
+                                    z.priority === "Recommended" ? "bg-blue-500/10 text-blue-400 border-blue-500/20" :
+                                    "bg-white/5 text-white/40 border-white/10"
+                                  }`}>{z.priority}</span>
+                                </div>
                               </div>
                               <p className="text-white/50 text-xs leading-relaxed">{z.description}</p>
+                              {z.productivityNote && (
+                                <p className="text-[hsl(43,78%,45%)] text-xs mt-2 leading-relaxed italic border-t border-[rgba(255,255,255,0.04)] pt-2">
+                                  ↑ {z.productivityNote}
+                                </p>
+                              )}
+                              {z.staffCapacity && z.staffCapacity > 0 && (
+                                <p className="text-white/25 text-xs mt-1">Capacity: {z.staffCapacity} staff</p>
+                              )}
                             </div>
                           ))}
                         </div>
@@ -698,27 +713,80 @@ export default function UploadFloorPlan() {
 
                     {aiRec.productRecommendations && aiRec.productRecommendations.length > 0 && (
                       <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6">
-                        <div className="flex items-center gap-2 mb-4">
-                          <Package className="w-4 h-4 text-[hsl(43,78%,52%)]" />
-                          <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Suggested Product Package</h3>
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-2">
+                            <Package className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                            <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Furniture Schedule</h3>
+                          </div>
+                          <span className="text-white/30 text-xs">{aiRec.productRecommendations.length} line items</span>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-2.5">
                           {aiRec.productRecommendations.map((p, i) => (
-                            <div key={i} className="flex items-start gap-4 p-4 bg-[rgba(255,255,255,0.03)] rounded-xl border border-[rgba(255,255,255,0.05)]">
-                              <div className="w-2 h-2 rounded-full bg-[hsl(43,78%,52%)] mt-2 flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-start justify-between gap-2">
-                                  <div>
-                                    <p className="text-white font-semibold text-sm">{p.category}</p>
-                                    <p className="text-white/40 text-xs">{p.seriesRecommendation} · Qty: {p.quantity}</p>
+                            <div key={i} className="rounded-xl border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.03)] overflow-hidden">
+                              <div className="flex items-start gap-3 p-4">
+                                <div className="w-1.5 h-1.5 rounded-full bg-[hsl(43,78%,52%)] mt-2 flex-shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-start justify-between gap-2 mb-1">
+                                    <div className="min-w-0">
+                                      <p className="text-white font-semibold text-sm leading-tight">{p.productName || p.category}</p>
+                                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                                        <span className="text-white/40 text-xs">{p.category}</span>
+                                        {p.seriesRecommendation && <span className="text-white/25 text-xs">· {p.seriesRecommendation}</span>}
+                                        {p.zone && <span className="text-[hsl(43,78%,45%)] text-xs bg-[rgba(201,168,76,0.08)] px-1.5 py-0.5 rounded-full border border-[rgba(201,168,76,0.12)]">{p.zone}</span>}
+                                      </div>
+                                    </div>
+                                    <div className="text-right flex-shrink-0">
+                                      <p className="text-[hsl(43,78%,65%)] text-sm font-bold">
+                                        {p.totalCost > 0 ? `$${p.totalCost.toLocaleString("en-AU")}` : p.estimatedCost || "—"}
+                                      </p>
+                                      <p className="text-white/30 text-xs">
+                                        {p.unitCost > 0 && p.quantity > 1 ? `$${p.unitCost.toLocaleString("en-AU")} × ${p.quantity}` : `Qty: ${p.quantity}`}
+                                      </p>
+                                    </div>
                                   </div>
-                                  <span className="text-[hsl(43,78%,65%)] text-xs font-bold whitespace-nowrap">{p.estimatedCost}</span>
+                                  {p.rationale && <p className="text-white/45 text-xs leading-relaxed mt-1">{p.rationale}</p>}
+                                  {p.sku && (
+                                    <div className="flex items-center gap-2 mt-2">
+                                      <span className="text-white/20 text-xs font-mono bg-[rgba(255,255,255,0.04)] px-2 py-0.5 rounded border border-[rgba(255,255,255,0.06)]">
+                                        SKU: {p.sku}
+                                      </span>
+                                      <Link href={`/products/${p.sku}`}>
+                                        <span className="text-[hsl(43,78%,55%)] text-xs hover:text-[hsl(43,78%,70%)] cursor-pointer underline-offset-2 hover:underline transition-colors" data-testid={`link-product-rec-${i}`}>
+                                          View Product →
+                                        </span>
+                                      </Link>
+                                    </div>
+                                  )}
                                 </div>
-                                <p className="text-white/55 text-xs mt-1.5 leading-relaxed">{p.rationale}</p>
                               </div>
                             </div>
                           ))}
                         </div>
+                        {aiRec.costBreakdown && (
+                          <div className="mt-4 pt-4 border-t border-[rgba(255,255,255,0.06)] space-y-2">
+                            <div className="flex justify-between text-xs text-white/40">
+                              <span>Furniture subtotal</span>
+                              <span>${aiRec.costBreakdown.furniture.toLocaleString("en-AU")}</span>
+                            </div>
+                            {aiRec.costBreakdown.installation > 0 && (
+                              <div className="flex justify-between text-xs text-white/40">
+                                <span>Installation & delivery</span>
+                                <span>${(aiRec.costBreakdown.installation + (aiRec.costBreakdown.delivery || 0)).toLocaleString("en-AU")}</span>
+                              </div>
+                            )}
+                            <div className="flex justify-between text-xs text-white/40">
+                              <span>GST (10%)</span>
+                              <span>${Math.round(aiRec.costBreakdown.total * 0.1).toLocaleString("en-AU")}</span>
+                            </div>
+                            <div className="flex justify-between text-sm font-bold border-t border-[rgba(201,168,76,0.2)] pt-2 mt-1">
+                              <span className="text-white/80">Total inc. GST</span>
+                              <span className="text-[hsl(43,78%,65%)]">${Math.round(aiRec.costBreakdown.total * 1.1).toLocaleString("en-AU")}</span>
+                            </div>
+                            {aiRec.costBreakdown.perStaff && (
+                              <p className="text-white/25 text-xs text-right">${aiRec.costBreakdown.perStaff.toLocaleString("en-AU")} per staff member (ex GST)</p>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
 

@@ -160,12 +160,21 @@ IMPLEMENTATION TIMELINE GUIDE:
 - Medium office (10-50 staff, 200-500sqm): 6-10 weeks
 - Large office (50+ staff, 500sqm+): 10-16 weeks
 
+WORKSPACE DESIGN INTELLIGENCE (apply to every response):
+- Activity-Based Working: allocate 35-45% to flexible workstations, 30-40% to collaboration/meeting zones, 15-25% to focus/quiet zones. Post-2022 best practice.
+- Space ratios: 8-12 sqm per person ABW; 12-16 sqm professional services with private offices; always include 15-20% circulation buffer in zone sizing.
+- Ergonomics: height-adjustable desks are expected on all projects above $60k. Recommend the Milan or Cape sit-stand series for workstations.
+- Acoustic design: open-plan offices above 20 persons require acoustic treatment. Flag this in keyConsiderations.
+- Reception impact: the reception zone represents 5-10% of budget but creates 80% of first impressions. Never under-spec it.
+- Productivity data: quality breakout and social spaces correlate with 20%+ higher engagement scores. Quantify this value in zone descriptions.
+- Lead times: standard products 4-6 weeks; custom orders 8-14 weeks. Build this into implementationTimeline.
+
 Respond with ONLY valid JSON in exactly this structure (no markdown, no explanation):
 
 {
   "clientBrief": "2-3 sentence summary of the client's office fit-out requirements",
   "officeType": "Classification (e.g. Professional Services HQ, Tech Scale-up, Corporate Expansion, Law Firm, Financial Services)",
-  "estimatedProjectValue": "Estimated total project value range (e.g. $80,000 – $150,000)",
+  "estimatedProjectValue": "Estimated total project value range ex-GST (e.g. $80,000 – $150,000)",
   "leadScore": 72,
   "leadScoreBreakdown": {
     "companySize": 20,
@@ -181,23 +190,24 @@ Respond with ONLY valid JSON in exactly this structure (no markdown, no explanat
       "zone": "Zone name",
       "color": "#B8960C",
       "percentage": 35,
-      "description": "What goes here and why",
+      "description": "What goes here and why, including productivity and wellbeing impact",
       "priority": "Essential",
       "staffCapacity": 20,
-      "keyFurniture": ["Executive Desk", "Task Chair", "Storage Pedestal"]
+      "keyFurniture": ["Executive Desk", "Task Chair", "Storage Pedestal"],
+      "productivityNote": "One sentence on how this zone design improves team output or wellbeing"
     }
   ],
   "productRecommendations": [
     {
       "zone": "Zone name this product belongs to",
-      "sku": "LY-AM-01",
+      "sku": "exact-sku-from-catalogue",
       "category": "Executive Desks",
-      "productName": "Luxury Executive Office Desk – Aimu Series",
-      "seriesRecommendation": "Aimu Series",
+      "productName": "Exact product name from catalogue",
+      "seriesRecommendation": "Series name",
       "quantity": 3,
       "unitCost": 4999,
       "totalCost": 14997,
-      "rationale": "Why this specific product fits their needs"
+      "rationale": "Why this specific product fits their brief, style, and zone requirements"
     }
   ],
   "costBreakdown": {
@@ -207,19 +217,22 @@ Respond with ONLY valid JSON in exactly this structure (no markdown, no explanat
     "total": 100500,
     "perStaff": 2011
   },
-  "styleDirection": "Paragraph describing the recommended aesthetic and material palette based on their style preference",
-  "keyConsiderations": ["consideration 1", "consideration 2", "consideration 3"],
+  "styleDirection": "Paragraph describing the recommended aesthetic and material palette based on their style preference and office type",
+  "keyConsiderations": ["consideration 1", "consideration 2", "consideration 3", "consideration 4"],
   "recommendedNextStep": "Specific recommended action for this client to move forward with The Corporate Desk",
-  "urgencyNote": "Any timeline or budget observations worth flagging"
+  "urgencyNote": "Any timeline, lead-time, or budget observations worth flagging"
 }
 
 IMPORTANT RULES:
 - leadScore must be an integer 0-100
-- workspaceZones percentages must sum to 100
-- productRecommendations must ONLY reference SKUs from the catalogue above
-- costBreakdown.total must equal furniture + installation + delivery
-- All cost figures must be realistic integers (no strings)
-- zone colors: use gold #B8960C for primary zones, #4A7C59 for collaborative, #2E5FA3 for focus, #8B3A8B for executive, #C65D3D for reception, #5C8E9A for breakout`;
+- workspaceZones percentages must sum to exactly 100
+- productRecommendations MUST ONLY use SKUs that appear verbatim in the catalogue above — do not invent SKUs
+- costBreakdown.total must equal furniture + installation + delivery exactly
+- All cost figures must be realistic integers (no strings, no decimals)
+- estimatedProjectValue is ex-GST; the client will pay +10% GST on top
+- zone colors: use gold #B8960C for primary workstations, #4A7C59 for collaborative, #2E5FA3 for focus, #8B3A8B for executive, #C65D3D for reception, #5C8E9A for breakout/social
+- productivityNote must be concrete and data-referenced where possible (e.g. "Acoustic treatment reduces interruptions by ~40% in open-plan environments")
+- keyConsiderations must include at least one acoustic, one ergonomic, and one timeline observation`;
 }
 
 export async function registerRoutes(
@@ -243,6 +256,46 @@ export async function registerRoutes(
       email: isEmailConfigured(),
       stripe: !!process.env.STRIPE_SECRET_KEY,
     });
+  });
+
+  // XML Sitemap — dynamically generated for SEO
+  app.get("/sitemap.xml", (_req, res) => {
+    const catalog = loadProductCatalog();
+    const base = "https://www.thecorporatedesk.com.au";
+    const now = new Date().toISOString().split("T")[0];
+    const staticPages = [
+      { url: "/", priority: "1.0", changefreq: "weekly" },
+      { url: "/products", priority: "0.9", changefreq: "weekly" },
+      { url: "/ai-office-planner", priority: "0.9", changefreq: "monthly" },
+      { url: "/3d-office-walkthrough", priority: "0.8", changefreq: "monthly" },
+      { url: "/blog", priority: "0.8", changefreq: "weekly" },
+      { url: "/quote-builder", priority: "0.8", changefreq: "monthly" },
+      { url: "/send-us-your-quote", priority: "0.7", changefreq: "monthly" },
+      { url: "/workplace-solutions", priority: "0.7", changefreq: "monthly" },
+      { url: "/workplace-strategy", priority: "0.7", changefreq: "monthly" },
+      { url: "/about", priority: "0.6", changefreq: "monthly" },
+      { url: "/contact", priority: "0.6", changefreq: "monthly" },
+      { url: "/case-studies", priority: "0.7", changefreq: "monthly" },
+      { url: "/testimonials", priority: "0.6", changefreq: "monthly" },
+    ];
+    const productUrls = (catalog.products || []).map((p: { sku: string }) => ({
+      url: `/products/${p.sku}`,
+      priority: "0.7",
+      changefreq: "monthly",
+    }));
+    const allUrls = [...staticPages, ...productUrls];
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${allUrls.map(u => `  <url>
+    <loc>${base}${u.url}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>${u.changefreq}</changefreq>
+    <priority>${u.priority}</priority>
+  </url>`).join("\n")}
+</urlset>`;
+    res.setHeader("Content-Type", "application/xml; charset=utf-8");
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(xml);
   });
 
   // Product catalog — supplier products database
@@ -410,10 +463,10 @@ export async function registerRoutes(
   // ─── Collection names (public-facing, supplier names hidden) ──────────────
   const SUPPLIER_COLLECTION_MAP: Record<string, string> = {
     "Foshan Feisenzhuo Furniture Co., Ltd.": "Fessenz Design Collection",
-    "Huasheng Furniture Group — GOJO Division": "GOJO Executive Collection",
-    "Huasheng Furniture Group — Lounge & Seating Division": "GOJO Lounge & Seating Collection",
+    "Huasheng Furniture Group — GOJO Division": "Presidia Executive Collection",
+    "Huasheng Furniture Group — Lounge & Seating Division": "Presidia Lounge & Seating Collection",
     "Huasheng Furniture Group — Gaozhuo Division": "Milan Premium Workspace Collection",
-    "Foshan Bohua Furniture Co., Ltd. (GAOJIN)": "Bohua Seating & Storage Collection",
+    "Foshan Bohua Furniture Co., Ltd. (GAOJIN)": "Commercial Seating & Storage Collection",
   };
 
   // ─── Category starting prices ─────────────────────────────────────────────

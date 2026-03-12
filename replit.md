@@ -36,6 +36,34 @@ The application follows a client-server architecture.
   - Products page has series sub-filter tabs within each collection section (horizontal scrollable pills per series range)
   - Review system available on product detail pages
 
+## Brand / Supplier Naming Rules
+**Critical:** Supplier names must NEVER appear publicly. All internal supplier keys are mapped to public brand names:
+- `Foshan Feisenzhuo Furniture Co., Ltd.` → **Fessenz Design Collection**
+- `Huasheng Furniture Group — GOJO Division` → **Presidia Executive Collection**
+- `Huasheng Furniture Group — Lounge & Seating Division` → **Presidia Lounge & Seating Collection**
+- `Huasheng Furniture Group — Gaozhuo Division` → **Milan Premium Workspace Collection**
+- `Foshan Bohua Furniture Co., Ltd. (GAOJIN)` → **Commercial Seating & Storage Collection**
+This mapping exists in: `server/routes.ts` (SUPPLIER_COLLECTION_MAP), `client/src/pages/ProductDetail.tsx` (SUPPLIER_COLLECTION_NAMES), `client/src/pages/Products.tsx` (SUPPLIER_COLLECTIONS).
+
+## AI Workspace Planner — Post-Payment Report
+The paid report (unlocked after $399 Stripe payment) shows:
+1. **2D Layout Plan** — `WorkspaceLayout2D` component with zone percentages
+2. **Zone Analysis** — `SpacePlanningEngine` with cost breakdown
+3. **Workspace Zones** — grid cards with color dot, percentage, description, `productivityNote`, staff capacity
+4. **Furniture Schedule** — product name, SKU, zone badge, unit×qty cost, "View Product →" link to catalog, GST breakdown
+5. **Style Direction** — AI-generated aesthetic paragraph
+6. **Key Considerations** — acoustic, ergonomic, timeline notes
+7. **Recommended Next Step** — call-to-action
+8. **3D Walkthrough Access** — link to `/3d-office-walkthrough?id=...`
+The AI planning prompt (in `server/routes.ts`, `buildSpacePlanningPrompt()`) uses workspace design intelligence covering ABW principles, space ratios, acoustic/ergonomic guidance, and requires SKUs only from the live catalogue.
+
+## SEO
+- **robots.txt**: `client/public/robots.txt` — disallows /admin, /api/, /uploads/; points to sitemap
+- **sitemap.xml**: Dynamic server route at `/sitemap.xml` — generates all static pages + 330 product URLs
+- **Product JSON-LD**: `ProductDetail.tsx` injects Schema.org Product structured data via `useEffect`
+- **Blog JSON-LD**: `BlogPost.tsx` injects Schema.org BlogPosting structured data + meta description + OG title
+- **Home JSON-LD**: Already has Organization + LocalBusiness schema
+
 ## External Dependencies
 - **Database**: PostgreSQL
 - **ORM**: Drizzle ORM

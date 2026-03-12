@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://www.thecorporatedesk.com.au/sitemap.xml
+
+Disallow: /admin
+Disallow: /api/
+Disallow: /uploads/

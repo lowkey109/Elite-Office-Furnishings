@@ -77,19 +77,19 @@ const SUPPLIER_COLLECTIONS: Record<string, CollectionConfig> = {
     order: 1,
   },
   "Huasheng Furniture Group — GOJO Division": {
-    name: "GOJO Executive Collection",
+    name: "Presidia Executive Collection",
     tagline: "Prestige executive furniture for board-level interiors",
-    description: "Crafted from Zingana African ebony hardwood with pure copper hardware. The GOJO range spans executive desks, conference tables and full office suites — built to command the room.",
+    description: "Crafted from Zingana African ebony hardwood with pure copper hardware. The Presidia range spans executive desks, conference tables and full office suites — built to command the room.",
     accentColor: "hsl(43,78%,52%)",
-    badgeLabel: "GOJO",
+    badgeLabel: "Presidia",
     order: 2,
   },
   "Huasheng Furniture Group — Lounge & Seating Division": {
-    name: "GOJO Lounge & Seating Collection",
+    name: "Presidia Lounge & Seating Collection",
     tagline: "Neo-Chinese design language for executive reception and lounge spaces",
-    description: "Mortise-and-tenon joinery, moon gate motifs, and imported ebony hardwood — the GOJO Lounge range brings architectural gravitas to reception areas and executive break-out zones.",
+    description: "Mortise-and-tenon joinery, moon gate motifs, and imported ebony hardwood — the Presidia Lounge range brings architectural gravitas to reception areas and executive break-out zones.",
     accentColor: "hsl(43,78%,52%)",
-    badgeLabel: "GOJO Lounge",
+    badgeLabel: "Presidia Lounge",
     order: 3,
   },
   "Huasheng Furniture Group — Gaozhuo Division": {
@@ -101,11 +101,11 @@ const SUPPLIER_COLLECTIONS: Record<string, CollectionConfig> = {
     order: 4,
   },
   "Foshan Bohua Furniture Co., Ltd. (GAOJIN)": {
-    name: "Bohua Seating & Storage Collection",
+    name: "Commercial Seating & Storage Collection",
     tagline: "Commercial-grade seating and filing for every office environment",
     description: "A comprehensive range of task chairs, visitor seating, training chairs, public seating and steel filing systems. Engineered to perform in high-traffic commercial environments across reception, training and open-plan workspaces.",
     accentColor: "hsl(43,78%,52%)",
-    badgeLabel: "Bohua",
+    badgeLabel: "Seating & Storage",
     order: 5,
   },
 };
@@ -358,7 +358,7 @@ export default function Products() {
     document.title = "Office Furniture Collections | The Corporate Desk";
     const meta = document.querySelector('meta[name="description"]') || document.createElement("meta");
     meta.setAttribute("name", "description");
-    meta.setAttribute("content", "Browse premium commercial office furniture collections: executive desks, boardroom tables, ergonomic seating, workstations, reception areas and storage. Fessenz, GOJO, Milan and Bohua collections.");
+    meta.setAttribute("content", "Browse premium commercial office furniture collections: executive desks, boardroom tables, ergonomic seating, workstations, reception areas and storage. Australian-owned. 6-year warranty.");
     if (!meta.parentNode) document.head.appendChild(meta);
   }, []);
 
