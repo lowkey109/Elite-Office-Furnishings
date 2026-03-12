@@ -228,6 +228,41 @@ export const insertFollowUpSequenceSchema = createInsertSchema(followUpSequences
 export type InsertFollowUpSequence = z.infer<typeof insertFollowUpSequenceSchema>;
 export type FollowUpSequence = typeof followUpSequences.$inferSelect;
 
+// ─── Workspace Learning Records ─────────────────────────────────────────────
+export const workspaceLearningRecords = pgTable("workspace_learning_records", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  planningRequestId: text("planning_request_id"),
+  clientName: text("client_name"),
+  clientCompany: text("client_company"),
+  city: text("city"),
+  projectType: text("project_type"),
+  officeSqm: text("office_sqm"),
+  staffCount: text("staff_count"),
+  meetingRoomCount: text("meeting_room_count"),
+  receptionIncluded: boolean("reception_included").default(false),
+  breakoutIncluded: boolean("breakout_included").default(false),
+  executiveOfficeIncluded: boolean("executive_office_included").default(false),
+  budgetRange: text("budget_range"),
+  stylePreference: text("style_preference"),
+  officeType: text("office_type"),
+  packageTier: text("package_tier"),
+  estimatedCost: text("estimated_cost"),
+  leadScore: integer("lead_score"),
+  workspaceZonesJson: text("workspace_zones_json"),
+  productRecsJson: text("product_recs_json"),
+  supplierMix: text("supplier_mix"),
+  keyInsight: text("key_insight"),
+  conversionResult: text("conversion_result").default("pending"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertWorkspaceLearningSchema = createInsertSchema(workspaceLearningRecords).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertWorkspaceLearning = z.infer<typeof insertWorkspaceLearningSchema>;
+export type WorkspaceLearning = typeof workspaceLearningRecords.$inferSelect;
+
 export const manufacturerMessages = pgTable("manufacturer_messages", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   manufacturerId: text("manufacturer_id").notNull(),

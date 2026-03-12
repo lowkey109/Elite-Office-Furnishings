@@ -35,6 +35,7 @@ import AdminLeaseSignals from "@/pages/AdminLeaseSignals";
 import AdminDealPipeline from "@/pages/AdminDealPipeline";
 import AdminTerritoryScanner from "@/pages/AdminTerritoryScanner";
 import AdminProcurementEngine from "@/pages/AdminProcurementEngine";
+import AdminWorkspaceLearning from "@/pages/AdminWorkspaceLearning";
 
 function Router() {
   return (
@@ -77,6 +78,7 @@ function Router() {
       <Route path="/admin/deal-pipeline" component={AdminDealPipeline} />
       <Route path="/admin/territory-scanner" component={AdminTerritoryScanner} />
       <Route path="/admin/procurement-engine" component={AdminProcurementEngine} />
+      <Route path="/admin/workspace-learning" component={AdminWorkspaceLearning} />
       <Route component={NotFound} />
     </Switch>
   );

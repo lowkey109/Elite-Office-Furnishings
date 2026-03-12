@@ -7,7 +7,7 @@ import {
   Users, TrendingUp, FileText, BarChart3, MessageSquare,
   ChevronRight, Calendar, MapPin, Phone, Mail, Clock,
   Megaphone, ShieldCheck, Eye, ExternalLink, Target, Package, Upload, Star,
-  AlertTriangle, CheckCircle2, XCircle, Zap, Globe,
+  AlertTriangle, CheckCircle2, XCircle, Zap, Globe, Brain,
 } from "lucide-react";
 import { validateAdminLogin } from "@/lib/adminAuth";
 
@@ -497,6 +497,7 @@ export default function AdminDashboard() {
                   { label: "Deal Pipeline", href: "/admin/deal-pipeline", icon: TrendingUp, desc: "Weighted revenue forecast" },
                   { label: "Territory Scanner", href: "/admin/territory-scanner", icon: Globe, desc: "Office tower tenant tracking" },
                   { label: "Procurement Engine", href: "/admin/procurement-engine", icon: Package, desc: "Supplier routing & cost estimates" },
+                  { label: "Workspace Learning", href: "/admin/workspace-learning", icon: Brain, desc: "AI pattern intelligence from projects" },
                   { label: "Product Reviews", href: "/admin/product-reviews", icon: Star, desc: "Moderate client reviews" },
                   { label: "Marketing Hub", href: "/admin/marketing", icon: Megaphone, desc: "Generate & post content" },
                   { label: "View Full Site", href: "/", icon: Eye, desc: "See your website" },

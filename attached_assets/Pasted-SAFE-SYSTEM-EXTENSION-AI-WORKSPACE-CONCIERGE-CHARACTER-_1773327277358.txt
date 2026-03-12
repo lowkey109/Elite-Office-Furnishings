@@ -1,0 +1,326 @@
+SAFE SYSTEM EXTENSION — AI WORKSPACE CONCIERGE CHARACTER
+
+DO NOT OVERWRITE EXISTING PROMPTS.
+DO NOT REBUILD THE SITE.
+DO NOT BREAK:
+- workspace planner
+- estimator
+- product catalog
+- finance system
+- Stripe payments
+- admin dashboard
+- supplier messaging
+- email system
+- existing lead capture
+- mobile responsiveness
+- desktop responsiveness
+
+You are upgrading the LIVE The Corporate Desk platform.
+
+PRIMARY OBJECTIVE
+
+Build a premium persistent AI concierge character that lives across the website and moves with the user as they move between pages.
+
+This must feel like a high-end digital workspace advisor, not a gimmicky cartoon bot.
+
+The concierge should:
+- remain persistent across page navigation where technically possible
+- maintain conversation context
+- understand which page the visitor is on
+- adapt prompts, suggestions, and CTAs to that page
+- guide visitors toward the right next step
+- improve conversion without becoming annoying
+
+==================================================
+PHASE 1 — AUDIT CURRENT CHAT / UI SYSTEM
+==================================================
+
+Audit the current live website for:
+- existing chatbot / chat widget
+- planner UI
+- product page UI
+- estimator UI
+- finance page UI
+- admin AI/chat logic if relevant
+- route transitions
+- session storage / local storage / conversation storage
+- mobile behavior
+- any animation or avatar components already present
+
+Identify:
+- where a persistent AI concierge can live
+- how to preserve state between pages
+- how current chat context is stored
+- which components should be extended instead of duplicated
+
+Do not build until the audit is complete.
+
+==================================================
+PHASE 2 — CONCIERGE CHARACTER CONCEPT
+==================================================
+
+Build a premium AI character / assistant presence for the site.
+
+The character must feel like:
+- a workspace strategist
+- a commercial design advisor
+- a premium concierge
+
+It must NOT feel like:
+- a childish mascot
+- a cartoon gimmick
+- a cheap support bubble
+- an intrusive popup
+
+Visual direction:
+- elegant
+- minimal
+- premium
+- corporate
+- subtle motion
+- high-end SaaS / luxury consultancy feel
+
+If a full illustrated character is too risky for the current brand, use a refined AI guide presence:
+- premium avatar
+- elegant orb
+- subtle animated assistant panel
+- branded floating concierge module
+
+==================================================
+PHASE 3 — PERSISTENT CROSS-PAGE BEHAVIOR
+==================================================
+
+The concierge must move with the user across the website.
+
+Requirements:
+- persistent presence across pages where possible
+- preserve chat/session context
+- preserve known project details
+- preserve user journey state
+- do not restart from scratch every page
+
+Known state to preserve may include:
+- office size
+- staff count
+- budget
+- style preference
+- planner progress
+- quote interest
+- finance interest
+- viewed products
+- viewed categories
+
+Use safe browser/session persistence if needed.
+Do not break the current site routing.
+
+==================================================
+PHASE 4 — PAGE-AWARE INTELLIGENCE
+==================================================
+
+The concierge must react differently depending on the page.
+
+Examples:
+
+HOME PAGE
+- introduce the business
+- invite user to upload floor plan
+- invite quote or strategy conversation
+
+PRODUCT PAGE
+- explain the product/range
+- suggest related products
+- offer finance if relevant
+- offer planner if user is fitting out an office
+
+PLANNER PAGE
+- guide the user through upload
+- explain what the planner does
+- reduce drop-off
+- answer objections
+
+ESTIMATOR PAGE
+- explain estimate logic
+- frame value
+- suggest next step
+
+FINANCE PAGE
+- explain monthly payment logic
+- offer finance enquiry
+- reduce friction
+
+QUOTE PAGE
+- reassure
+- guide to completion
+- explain what happens next
+
+The concierge must feel intelligent and context-aware.
+
+==================================================
+PHASE 5 — BEHAVIOR / SALES LOGIC
+==================================================
+
+The concierge should guide users toward the best next step using page context and user behavior.
+
+Possible next-step recommendations:
+- Upload your floor plan
+- Get an AI workspace concept
+- Request a detailed quote
+- Explore matching furniture
+- Ask about monthly finance options
+- Book a workspace strategy call
+
+Rules:
+- do not be pushy
+- do not spam prompts
+- do not repeat the same CTA constantly
+- choose the most relevant next step based on context
+
+==================================================
+PHASE 6 — CONVERSATIONAL MEMORY
+==================================================
+
+The concierge must remember the user within the session.
+
+Examples:
+If user already said:
+- 250sqm office
+- 20 staff
+- premium style
+
+Then later, on product pages or estimator pages, the concierge should continue referencing that context naturally.
+
+Do not make users repeat themselves unless data is missing.
+
+==================================================
+PHASE 7 — MICRO-ANIMATION / MOVEMENT
+==================================================
+
+The concierge should have subtle movement so it feels alive.
+
+Possible behaviors:
+- gentle idle animation
+- subtle movement when route changes
+- slight position shift when user scrolls
+- elegant open / close transitions
+- soft motion when suggesting next steps
+
+Do not overanimate.
+Do not make it distracting.
+Do not harm site performance.
+
+==================================================
+PHASE 8 — MOBILE EXPERIENCE
+==================================================
+
+The concierge must work well on mobile.
+
+Requirements:
+- not block key buttons
+- not cover forms
+- not interfere with planner upload
+- not dominate the screen
+- easy open/close behavior
+- preserve premium feel
+
+==================================================
+PHASE 9 — BRAND VOICE
+==================================================
+
+The concierge must speak like The Corporate Desk:
+- professional
+- calm
+- strategic
+- premium
+- helpful
+- commercially intelligent
+
+It should sound like a workspace consultant, not customer support outsourcing.
+
+==================================================
+PHASE 10 — AI LOGIC INTEGRATION
+==================================================
+
+Connect the concierge to the existing AI intelligence stack.
+
+It should be able to use:
+- planner context
+- product intelligence
+- supplier knowledge where relevant
+- finance logic
+- estimator logic
+- lead context
+- session memory
+
+Do not create a dumb frontend shell.
+This must connect to the real AI logic.
+
+==================================================
+PHASE 11 — LEAD / CONVERSION SUPPORT
+==================================================
+
+The concierge should help improve conversion by:
+- reducing hesitation
+- answering common objections
+- guiding users into the planner
+- guiding users into quote requests
+- guiding users into finance
+- guiding users into strategy calls
+
+Track useful events if possible:
+- concierge opened
+- CTA clicked
+- planner started from concierge
+- quote started from concierge
+- finance CTA triggered from concierge
+
+==================================================
+PHASE 12 — DESIGN STANDARD
+==================================================
+
+Design references:
+- Apple
+- Stripe
+- Linear
+- premium architecture firm websites
+- luxury SaaS onboarding guides
+
+The final concierge must feel 10/10 premium.
+
+==================================================
+PHASE 13 — TESTING
+==================================================
+
+Before completion verify:
+1. concierge appears on the live site
+2. it persists correctly across pages where intended
+3. it keeps session context
+4. it changes behavior based on page
+5. it does not interfere with planner/upload/forms
+6. mobile experience is stable
+7. desktop experience is stable
+8. site performance remains acceptable
+9. existing systems remain fully functional
+
+==================================================
+PHASE 14 — FINAL REPORT
+==================================================
+
+Return:
+- files audited
+- files modified
+- how persistence works
+- how page-awareness works
+- how context memory works
+- what UI/animation approach was used
+- what conversion logic was added
+- what was tested
+- confirmation existing live systems still work
+
+EXECUTION RULE
+
+Audit first.
+Then build the premium AI concierge character in safe phases.
+Make it persistent, page-aware, context-aware, and premium.
+Do not stop halfway.
+Do not ask questions.
+Build the live working version, not just a visual concept.

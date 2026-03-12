@@ -79,6 +79,7 @@ interface AiCostBreakdown {
 
 interface AiRecommendation {
   clientBrief?: string;
+  executiveSummary?: string;
   officeType?: string;
   estimatedProjectValue?: string;
   leadScore?: number;
@@ -639,10 +640,73 @@ export default function UploadFloorPlan() {
                   </div>
                 ) : (
                   <>
+                    {/* ── PREMIUM REPORT HEADER ─────────────────────────────────────── */}
+                    <div className="bg-[hsl(220,22%,7%)] border border-[rgba(201,168,76,0.25)] rounded-2xl p-6 mb-2" data-testid="section-report-header">
+                      <div className="flex items-start justify-between gap-4 flex-wrap">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-[10px] font-bold tracking-[0.2em] text-[hsl(43,78%,52%)] uppercase">The Corporate Desk</span>
+                            <span className="text-[rgba(201,168,76,0.3)] text-xs">·</span>
+                            <span className="text-[10px] tracking-[0.15em] text-white/30 uppercase">Confidential</span>
+                          </div>
+                          <h2 className="text-white font-bold text-lg leading-tight mb-1">
+                            {planningRequestId ? "AI Workspace Strategy Report" : "Workspace Strategy Report"}
+                          </h2>
+                          <p className="text-white/40 text-xs">Prepared for {company || "your organisation"} · {new Date().toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}</p>
+                        </div>
+                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                          {aiRec.leadScore && (
+                            <div className={`text-xs font-bold px-3 py-1 rounded-full border ${
+                              aiRec.leadScore >= 70
+                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                : aiRec.leadScore >= 40
+                                ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                                : "bg-white/5 text-white/40 border-white/10"
+                            }`}>
+                              Lead Score {aiRec.leadScore}/100
+                            </div>
+                          )}
+                          <span className="text-[10px] text-white/25 tracking-wider uppercase">{aiRec.officeType || "Office Project"}</span>
+                        </div>
+                      </div>
+                      <div className="mt-5 pt-4 border-t border-[rgba(255,255,255,0.05)] grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        {[
+                          { label: "Office Area", value: squareMetres ? `${squareMetres}m²` : "—" },
+                          { label: "Headcount", value: staffCount ? `${staffCount} staff` : "—" },
+                          { label: "Est. Investment", value: aiRec.estimatedProjectValue || "—" },
+                          { label: "Timeline", value: aiRec.implementationTimeline || "—" },
+                        ].map(({ label, value }) => (
+                          <div key={label}>
+                            <p className="text-[10px] text-white/30 uppercase tracking-wider mb-0.5">{label}</p>
+                            <p className="text-white font-semibold text-sm">{value}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-3 flex items-center gap-2 flex-wrap">
+                        {["§01 Summary", "§02 Floor Plan", "§03 Zone Analysis", "§04 Zone Breakdown", "§05 Furniture", "§06 Style", "§07 Finance", "§08 Next Steps"].map(s => (
+                          <span key={s} className="text-[10px] text-white/20 bg-white/5 px-2 py-0.5 rounded border border-white/5">{s}</span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* §01 — EXECUTIVE SUMMARY */}
+                    {(aiRec.executiveSummary || aiRec.clientBrief) && (
+                      <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.18)] rounded-2xl p-6" data-testid="section-executive-summary">
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-[10px] font-bold text-[hsl(43,78%,40%)] tracking-widest">§01</span>
+                          <FileText className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                          <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Executive Summary</h3>
+                        </div>
+                        <p className="text-white/70 text-sm leading-relaxed">{aiRec.executiveSummary || aiRec.clientBrief}</p>
+                      </div>
+                    )}
+
                     {aiRec.workspaceZones && aiRec.workspaceZones.length > 0 && aiRec.workspaceZones.some(z => z.percentage > 0) && (
                       <div className="space-y-5">
+                        {/* §02 — FLOOR PLAN */}
                         <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.18)] rounded-2xl p-5">
                           <div className="flex items-center gap-2 mb-4">
+                            <span className="text-[10px] font-bold text-[hsl(43,78%,40%)] tracking-widest">§02</span>
                             <LayoutDashboard className="w-4 h-4 text-[hsl(43,78%,52%)]" />
                             <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">2D Workspace Layout Plan</h3>
                           </div>
@@ -656,6 +720,7 @@ export default function UploadFloorPlan() {
                         </div>
                         <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.18)] rounded-2xl p-6">
                           <div className="flex items-center gap-2 mb-4">
+                            <span className="text-[10px] font-bold text-[hsl(43,78%,40%)] tracking-widest">§03</span>
                             <Layers className="w-4 h-4 text-[hsl(43,78%,52%)]" />
                             <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Zone Analysis</h3>
                           </div>
@@ -676,6 +741,7 @@ export default function UploadFloorPlan() {
                     {aiRec.workspaceZones && aiRec.workspaceZones.length > 0 && (
                       <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6">
                         <div className="flex items-center gap-2 mb-4">
+                          <span className="text-[10px] font-bold text-[hsl(43,78%,40%)] tracking-widest">§04</span>
                           <Layers className="w-4 h-4 text-[hsl(43,78%,52%)]" />
                           <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Recommended Workspace Zones</h3>
                         </div>
@@ -715,6 +781,7 @@ export default function UploadFloorPlan() {
                       <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6">
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-bold text-[hsl(43,78%,40%)] tracking-widest">§05</span>
                             <Package className="w-4 h-4 text-[hsl(43,78%,52%)]" />
                             <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Furniture Schedule</h3>
                           </div>
@@ -790,40 +857,94 @@ export default function UploadFloorPlan() {
                       </div>
                     )}
 
+                    {/* §06 — STYLE DIRECTION */}
                     {aiRec.styleDirection && (
                       <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6">
                         <div className="flex items-center gap-2 mb-3">
+                          <span className="text-[10px] font-bold text-[hsl(43,78%,40%)] tracking-widest">§06</span>
                           <Palette className="w-4 h-4 text-[hsl(43,78%,52%)]" />
-                          <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Style Direction</h3>
+                          <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Style Direction & Key Considerations</h3>
                         </div>
-                        <p className="text-white/70 text-sm leading-relaxed">{aiRec.styleDirection}</p>
+                        <p className="text-white/70 text-sm leading-relaxed mb-4">{aiRec.styleDirection}</p>
+                        {aiRec.keyConsiderations && aiRec.keyConsiderations.length > 0 && (
+                          <ul className="space-y-2 pt-4 border-t border-[rgba(255,255,255,0.05)]">
+                            {aiRec.keyConsiderations.map((c, i) => (
+                              <li key={i} className="flex items-start gap-2.5 text-sm text-white/65">
+                                <ChevronRight className="w-3.5 h-3.5 text-[hsl(43,78%,52%)] mt-0.5 flex-shrink-0" />
+                                {c}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </div>
                     )}
 
-                    {aiRec.keyConsiderations && aiRec.keyConsiderations.length > 0 && (
-                      <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Star className="w-4 h-4 text-[hsl(43,78%,52%)]" />
-                          <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Key Considerations</h3>
+                    {/* §07 — FINANCE OPTIONS */}
+                    {aiRec.estimatedProjectValue && (
+                      <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6" data-testid="section-finance-options">
+                        <div className="flex items-center gap-2 mb-4">
+                          <span className="text-[10px] font-bold text-[hsl(43,78%,40%)] tracking-widest">§07</span>
+                          <DollarSign className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                          <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Finance Options</h3>
                         </div>
-                        <ul className="space-y-2">
-                          {aiRec.keyConsiderations.map((c, i) => (
-                            <li key={i} className="flex items-start gap-2.5 text-sm text-white/65">
-                              <ChevronRight className="w-3.5 h-3.5 text-[hsl(43,78%,52%)] mt-0.5 flex-shrink-0" />
-                              {c}
-                            </li>
+                        <p className="text-white/55 text-sm leading-relaxed mb-4">
+                          For an investment of <span className="text-white font-semibold">{aiRec.estimatedProjectValue}</span>, The Corporate Desk offers three commercial finance pathways — allowing you to preserve cash flow and equip your workspace now.
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {[
+                            {
+                              lender: "Stratton Finance",
+                              type: "Equipment Finance",
+                              note: "Preserve cash flow. Fixed repayments, 24–60 month terms. Our default partner for most office fit-outs.",
+                              contact: "Katherine & Chris",
+                              highlight: true,
+                            },
+                            {
+                              lender: "QPF Finance",
+                              type: "Commercial Lease",
+                              note: "Ideal for projects $200k+. Full-service commercial leasing with competitive rates.",
+                              contact: "Katelyn",
+                              highlight: false,
+                            },
+                            {
+                              lender: "Vestone Capital",
+                              type: "Equipment Leasing",
+                              note: "Structured as a true operating lease — suits companies with equipment-heavy fit-outs.",
+                              contact: "Cassie",
+                              highlight: false,
+                            },
+                          ].map((f) => (
+                            <div
+                              key={f.lender}
+                              className={`rounded-xl p-4 border ${f.highlight
+                                ? "bg-[rgba(201,168,76,0.06)] border-[rgba(201,168,76,0.2)]"
+                                : "bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.06)]"
+                              }`}
+                            >
+                              <div className="flex items-center justify-between mb-1.5">
+                                <p className="text-white font-semibold text-sm">{f.lender}</p>
+                                {f.highlight && <span className="text-[10px] text-[hsl(43,78%,52%)] bg-[rgba(201,168,76,0.12)] px-2 py-0.5 rounded-full border border-[rgba(201,168,76,0.2)]">Recommended</span>}
+                              </div>
+                              <p className="text-[hsl(43,78%,55%)] text-xs mb-2">{f.type}</p>
+                              <p className="text-white/45 text-xs leading-relaxed mb-2">{f.note}</p>
+                              <p className="text-white/25 text-xs">Contact: {f.contact}</p>
+                            </div>
                           ))}
-                        </ul>
+                        </div>
+                        <p className="text-white/25 text-xs mt-4">Finance enquiries can be arranged by your Corporate Desk consultant. Subject to lender approval. Not financial advice.</p>
                       </div>
                     )}
 
+                    {/* §08 — NEXT STEPS */}
                     {(aiRec.recommendedNextStep || aiRec.urgencyNote) && (
                       <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.2)] rounded-2xl p-6">
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-[10px] font-bold text-[hsl(43,78%,40%)] tracking-widest">§08</span>
+                          <ChevronRight className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                          <p className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Recommended Next Steps</p>
+                        </div>
                         {aiRec.recommendedNextStep && (
-                          <>
-                            <p className="text-[hsl(43,78%,65%)] font-semibold text-sm mb-2">Recommended Next Step</p>
-                            <p className="text-white/70 text-sm leading-relaxed">{aiRec.recommendedNextStep}</p>
-                          </>
+                          <p className="text-white/70 text-sm leading-relaxed">{aiRec.recommendedNextStep}</p>
                         )}
                         {aiRec.urgencyNote && (
                           <p className="text-white/50 text-xs mt-3 italic">{aiRec.urgencyNote}</p>

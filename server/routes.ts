@@ -20,6 +20,7 @@ import { parseFloorPlan, type FloorGeometry } from "./services/floorPlanParser";
 import { sendWhatsAppTextMessage, isWhatsAppConfigured } from "./services/whatsapp";
 import { startFollowUpForLead } from "./services/followUpScheduler";
 import { runLeaseSignalScan, computeProcurementRecommendations } from "./services/leaseSignalScanner";
+import { captureWorkspaceLearning, buildLearningContext } from "./services/workspaceLearning";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -124,6 +125,15 @@ function buildSpacePlanningPrompt(data: {
   stylePreference?: string;
   specialRequirements?: string;
   adminNotes?: string;
+  floorGeometry?: {
+    source: string;
+    confidence: number;
+    aspectRatio: number;
+    detectedShape?: string;
+    fallback: boolean;
+    internalWalls?: unknown[];
+  } | null;
+  learningContext?: string;
 }): string {
   const rooms = [];
   if (data.receptionRequired) rooms.push("Reception");
@@ -150,7 +160,19 @@ CLIENT BRIEF:
 - Style Preference: ${data.stylePreference || "Not specified"}
 - Special Requirements: ${data.specialRequirements || "None specified"}
 ${data.adminNotes ? "- Admin Notes: " + data.adminNotes : ""}
-
+${data.floorGeometry && !data.floorGeometry.fallback ? `
+DETECTED FLOOR GEOMETRY (use to guide zone placement — real shape detected from uploaded floor plan):
+- Shape Type: ${data.floorGeometry.detectedShape || "polygon"}
+- Aspect Ratio: ${data.floorGeometry.aspectRatio.toFixed(2)} (${data.floorGeometry.aspectRatio > 1.6 ? "elongated landscape — position reception at short end, workstations along long axis" : data.floorGeometry.aspectRatio < 0.75 ? "portrait layout — stack zones vertically" : "roughly square — flexible zoning"})
+- Detection Confidence: ${Math.round(data.floorGeometry.confidence * 100)}%
+- Internal Walls Detected: ${(data.floorGeometry.internalWalls as unknown[])?.length || 0}
+Apply these geometry observations when distributing workspace percentages across zones.
+${data.floorGeometry.detectedShape === "L-shape" ? "L-shaped floor: shorter wing → private offices/meeting rooms; longer wing → open plan workstations." : ""}
+${data.floorGeometry.detectedShape === "U-shape" ? "U-shaped floor: use central recessed area for collaboration/breakout; perimeter wings for focused work and private offices." : ""}
+` : ""}
+${data.learningContext ? `
+${data.learningContext}
+` : ""}
 LEAD SCORING CRITERIA (score 0-100):
 - Company size / staff count: larger = higher score (up to 30 pts)
 - Project value: higher budget = higher score (up to 25 pts)
@@ -1340,6 +1362,32 @@ ${allUrls.map(u => `  <url>
         ? path.join(process.cwd(), "uploads", "planning-requests", floorPlanFile.filename)
         : null;
 
+      // Load similar completed projects for learning context (non-blocking)
+      const similarProjects = await storage.getSimilarWorkspaceLearning(
+        body.squareMetres || "",
+        body.staffCount || "",
+        body.projectType || "",
+        3
+      ).catch(() => []);
+
+      const learningContext = buildLearningContext(similarProjects);
+
+      // Run floor plan parsing first so geometry can inform the AI prompt
+      const detectedGeometryEarly = floorPlanFilePath
+        ? await parseFloorPlan(floorPlanFilePath, openai, body.squareMetres).catch(() => null)
+        : null;
+
+      const geomForPrompt = detectedGeometryEarly && !detectedGeometryEarly.fallback
+        ? {
+            source: detectedGeometryEarly.source,
+            confidence: detectedGeometryEarly.confidence,
+            aspectRatio: detectedGeometryEarly.aspectRatio,
+            detectedShape: detectedGeometryEarly.detectedShape,
+            fallback: detectedGeometryEarly.fallback,
+            internalWalls: detectedGeometryEarly.internalWalls,
+          }
+        : null;
+
       // Build AI prompt for space planning analysis
       const spacePlanningPrompt = buildSpacePlanningPrompt({
         name: body.name,
@@ -1355,29 +1403,22 @@ ${allUrls.map(u => `  <url>
         budgetRange: body.budgetRange,
         stylePreference: body.stylePreference,
         specialRequirements: body.specialRequirements,
+        floorGeometry: geomForPrompt,
+        learningContext: learningContext || undefined,
       });
 
-      // Run AI planning analysis and floor plan parsing in parallel
-      const [aiResult, detectedGeometry] = await Promise.all([
-        // Task 1: AI space planning recommendation
-        openai.chat.completions.create({
-          model: "gpt-5-mini",
-          messages: [
-            { role: "system", content: buildAdvisorSystemPrompt() },
-            { role: "user", content: spacePlanningPrompt },
-          ],
-        } as any).catch((err: Error) => {
-          console.error("[AI] Space planning generation failed:", err.message);
-          return null;
-        }),
-        // Task 2: Floor plan boundary detection
-        floorPlanFilePath
-          ? parseFloorPlan(floorPlanFilePath, openai, body.squareMetres).catch((err: Error) => {
-              console.error("[FloorPlanParser] Non-fatal error:", err.message);
-              return null;
-            })
-          : Promise.resolve(null),
-      ]);
+      // Run AI planning analysis (geometry already parsed above — reuse result)
+      const aiResult = await openai.chat.completions.create({
+        model: "gpt-5-mini",
+        messages: [
+          { role: "system", content: buildAdvisorSystemPrompt() },
+          { role: "user", content: spacePlanningPrompt },
+        ],
+      } as any).catch((err: Error) => {
+        console.error("[AI] Space planning generation failed:", err.message);
+        return null;
+      });
+      const detectedGeometry = detectedGeometryEarly;
 
       // Process AI result
       let aiSummary = "";
@@ -1453,6 +1494,26 @@ ${allUrls.map(u => `  <url>
         geometrySource: geometrySource ?? undefined,
         source: "upload-floor-plan",
       });
+
+      // Auto-capture workspace learning (non-blocking — never fails the main request)
+      captureWorkspaceLearning({
+        planningRequestId: planningRequest.id,
+        clientName: body.name,
+        clientCompany: body.company || "",
+        city: body.city,
+        projectType: body.projectType,
+        officeSqm: body.squareMetres,
+        staffCount: body.staffCount,
+        meetingRoomCount: body.meetingRooms,
+        receptionIncluded: body.receptionRequired === "true" || body.receptionRequired === true,
+        breakoutIncluded: body.breakoutRequired === "true" || body.breakoutRequired === true,
+        executiveOfficeIncluded: body.executiveOfficeRequired === "true" || body.executiveOfficeRequired === true,
+        budgetRange: body.budgetRange,
+        stylePreference: body.stylePreference,
+        aiRec: (() => {
+          try { return JSON.parse(aiRecommendations || "null"); } catch { return null; }
+        })(),
+      }).catch(() => {});
 
       // Score opportunity using real inbound data
       const planningOpp = scoreOpportunity({
@@ -2125,6 +2186,7 @@ ${allUrls.map(u => `  <url>
           }
 
           await storage.markPlanningRequestPaid(planningRequestId, session.id);
+          storage.updateWorkspaceLearningConversion(planningRequestId, "paid").catch(() => {});
           console.log(`[Stripe Webhook] ✅ Planning request ${planningRequestId} marked PAID via webhook (session: ${session.id}, customer: ${session.customer_email || "unknown"}).`);
 
           if (session.customer_email) {
@@ -2246,6 +2308,7 @@ ${allUrls.map(u => `  <url>
       const session = await stripe.checkout.sessions.retrieve(sessionId);
       if (session.payment_status === "paid" && session.metadata?.planningRequestId === id) {
         await storage.markPlanningRequestPaid(id, sessionId);
+        storage.updateWorkspaceLearningConversion(id, "paid").catch(() => {});
         // Re-fetch to get latest state after marking paid
         const updated = await storage.getPlanningRequest(id);
         return res.json({
@@ -2706,6 +2769,91 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
       const { id } = req.params;
       const seq = await storage.updateFollowUpSequenceStatus(id, "replied");
       res.json(seq);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ─── Workspace Learning Admin Routes ─────────────────────────────────────────
+
+  app.get("/api/admin/workspace-learning", async (_req, res) => {
+    try {
+      const records = await storage.getWorkspaceLearningRecords();
+      res.json(records);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/admin/workspace-learning/:id", async (req, res) => {
+    try {
+      const record = await storage.getWorkspaceLearningById(req.params.id);
+      if (!record) return res.status(404).json({ error: "Not found" });
+      res.json(record);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.patch("/api/admin/workspace-learning/:id/conversion", async (req, res) => {
+    try {
+      const { planningRequestId, result } = req.body as { planningRequestId: string; result: string };
+      await storage.updateWorkspaceLearningConversion(planningRequestId, result);
+      res.json({ ok: true });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/admin/workspace-learning/stats/summary", async (_req, res) => {
+    try {
+      const all = await storage.getWorkspaceLearningRecords();
+      const total = all.length;
+      const paid = all.filter(r => r.conversionResult === "paid").length;
+      const pending = all.filter(r => r.conversionResult === "pending").length;
+      const avgSqm = total
+        ? (all.reduce((s, r) => s + parseFloat(r.officeSqm || "0"), 0) / total).toFixed(0)
+        : "0";
+      const avgStaff = total
+        ? (all.reduce((s, r) => s + parseInt(r.staffCount || "0", 10), 0) / total).toFixed(0)
+        : "0";
+      const tierCounts: Record<string, number> = {};
+      all.forEach(r => {
+        const tier = r.packageTier || "Unknown";
+        tierCounts[tier] = (tierCounts[tier] || 0) + 1;
+      });
+      res.json({ total, paid, pending, lost: total - paid - pending, avgSqm, avgStaff, tierCounts });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ─── Supplier Pricing Admin Routes ───────────────────────────────────────────
+
+  app.get("/api/admin/supplier-pricing", async (_req, res) => {
+    try {
+      const { readFileSync } = await import("fs");
+      const filePath = path.join(process.cwd(), "server/data/supplierPricing.json");
+      const data = JSON.parse(readFileSync(filePath, "utf-8"));
+      res.json(data);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/admin/supplier-pricing/record", async (req, res) => {
+    try {
+      const { readFileSync, writeFileSync } = await import("fs");
+      const filePath = path.join(process.cwd(), "server/data/supplierPricing.json");
+      const data = JSON.parse(readFileSync(filePath, "utf-8"));
+      const newRecord = {
+        id: `SP-${String(data.pricing_records.length + 1).padStart(3, "0")}`,
+        ...req.body,
+        quote_date: new Date().toISOString().split("T")[0],
+      };
+      data.pricing_records.push(newRecord);
+      writeFileSync(filePath, JSON.stringify(data, null, 2));
+      res.json(newRecord);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }

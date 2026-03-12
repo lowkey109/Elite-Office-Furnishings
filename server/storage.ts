@@ -2,12 +2,13 @@ import { eq, desc, or, ilike, and, sql as drizzleSql } from "drizzle-orm";
 import { db } from "./db";
 import {
   users, leads, prospectedLeads, supplierQuotes, referrals, planningRequests, productReviews,
-  manufacturerMessages, followUpSequences, territories,
+  manufacturerMessages, followUpSequences, territories, workspaceLearningRecords,
   type User, type InsertUser, type Lead, type InsertLead, type PlanningRequest,
   type ProductReview, type InsertProductReview,
   type ManufacturerMessage, type InsertManufacturerMessage,
   type FollowUpSequence, type InsertFollowUpSequence,
   type Territory, type InsertTerritory,
+  type WorkspaceLearning, type InsertWorkspaceLearning,
 } from "@shared/schema";
 
 export interface ProspectedLead {
@@ -672,6 +673,54 @@ export class DrizzleStorage implements IStorage {
       .where(eq(prospectedLeads.scanBatchId, scanBatchId))
       .orderBy(desc(prospectedLeads.createdAt));
     return rows.map(rowToProspectedLead);
+  }
+
+  // ─── Workspace Learning Records ───────────────────────────────────────────────
+
+  async createWorkspaceLearning(data: InsertWorkspaceLearning): Promise<WorkspaceLearning> {
+    const [row] = await db.insert(workspaceLearningRecords).values(data).returning();
+    return row;
+  }
+
+  async getWorkspaceLearningRecords(): Promise<WorkspaceLearning[]> {
+    return db.select().from(workspaceLearningRecords).orderBy(desc(workspaceLearningRecords.createdAt));
+  }
+
+  async getWorkspaceLearningById(id: string): Promise<WorkspaceLearning | undefined> {
+    const [row] = await db.select().from(workspaceLearningRecords).where(eq(workspaceLearningRecords.id, id));
+    return row;
+  }
+
+  async updateWorkspaceLearningConversion(planningRequestId: string, result: string): Promise<void> {
+    await db.update(workspaceLearningRecords)
+      .set({ conversionResult: result })
+      .where(eq(workspaceLearningRecords.planningRequestId, planningRequestId));
+  }
+
+  async getSimilarWorkspaceLearning(officeSqm: string, staffCount: string, projectType: string, limit = 3): Promise<WorkspaceLearning[]> {
+    const all = await db.select().from(workspaceLearningRecords)
+      .where(eq(workspaceLearningRecords.conversionResult, "paid"))
+      .orderBy(desc(workspaceLearningRecords.createdAt))
+      .limit(20);
+
+    const sqm = parseFloat(officeSqm || "0");
+    const staff = parseInt(staffCount || "0", 10);
+
+    // Sort by similarity: matching project type + closest sqm/staff
+    const scored = all.map(r => {
+      let score = 0;
+      if (r.projectType && r.projectType.toLowerCase() === (projectType || "").toLowerCase()) score += 10;
+      const rSqm = parseFloat(r.officeSqm || "0");
+      const rStaff = parseInt(r.staffCount || "0", 10);
+      if (sqm > 0 && rSqm > 0) score += Math.max(0, 10 - Math.abs(sqm - rSqm) / 50);
+      if (staff > 0 && rStaff > 0) score += Math.max(0, 10 - Math.abs(staff - rStaff) / 5);
+      return { r, score };
+    });
+
+    return scored
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit)
+      .map(x => x.r);
   }
 }
 
