@@ -2,8 +2,10 @@ import { eq, desc, or, ilike, and, sql as drizzleSql } from "drizzle-orm";
 import { db } from "./db";
 import {
   users, leads, prospectedLeads, supplierQuotes, referrals, planningRequests, productReviews,
+  manufacturerMessages,
   type User, type InsertUser, type Lead, type InsertLead, type PlanningRequest,
   type ProductReview, type InsertProductReview,
+  type ManufacturerMessage, type InsertManufacturerMessage,
 } from "@shared/schema";
 
 export interface ProspectedLead {
@@ -508,6 +510,30 @@ export class DrizzleStorage implements IStorage {
 
   async deleteProductReview(id: string): Promise<void> {
     await db.delete(productReviews).where(eq(productReviews.id, id));
+  }
+
+  // ─── Manufacturer Messages ──────────────────────────────────────────────────
+
+  async createManufacturerMessage(data: InsertManufacturerMessage): Promise<ManufacturerMessage> {
+    const [row] = await db.insert(manufacturerMessages).values(data).returning();
+    return row;
+  }
+
+  async getManufacturerMessages(manufacturerId?: string): Promise<ManufacturerMessage[]> {
+    if (manufacturerId) {
+      return db.select().from(manufacturerMessages)
+        .where(eq(manufacturerMessages.manufacturerId, manufacturerId))
+        .orderBy(desc(manufacturerMessages.sentAt));
+    }
+    return db.select().from(manufacturerMessages).orderBy(desc(manufacturerMessages.sentAt));
+  }
+
+  async updateManufacturerMessageStatus(id: string, status: string, wapiMessageId?: string): Promise<ManufacturerMessage | undefined> {
+    const [row] = await db.update(manufacturerMessages)
+      .set({ status, ...(wapiMessageId ? { wapiMessageId } : {}) })
+      .where(eq(manufacturerMessages.id, id))
+      .returning();
+    return row;
   }
 }
 

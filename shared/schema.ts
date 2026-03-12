@@ -170,3 +170,28 @@ export const insertProductReviewSchema = createInsertSchema(productReviews).omit
 
 export type InsertProductReview = z.infer<typeof insertProductReviewSchema>;
 export type ProductReview = typeof productReviews.$inferSelect;
+
+export const manufacturerMessages = pgTable("manufacturer_messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  manufacturerId: text("manufacturer_id").notNull(),
+  manufacturerName: text("manufacturer_name").notNull(),
+  contactName: text("contact_name"),
+  whatsappNumber: text("whatsapp_number"),
+  messageType: text("message_type").notNull().default("text"),
+  messageContent: text("message_content").notNull(),
+  relatedSku: text("related_sku"),
+  relatedProject: text("related_project"),
+  requestType: text("request_type"),
+  status: text("status").notNull().default("sent"),
+  wapiMessageId: text("wapi_message_id"),
+  adminUser: text("admin_user"),
+  sentAt: timestamp("sent_at").defaultNow(),
+});
+
+export const insertManufacturerMessageSchema = createInsertSchema(manufacturerMessages).omit({
+  id: true,
+  sentAt: true,
+});
+
+export type InsertManufacturerMessage = z.infer<typeof insertManufacturerMessageSchema>;
+export type ManufacturerMessage = typeof manufacturerMessages.$inferSelect;

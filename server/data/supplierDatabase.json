@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "generated": "2026-03-11",
-    "version": "1.0",
-    "total_suppliers": 3
+    "generated": "2026-03-12",
+    "version": "2.0",
+    "total_suppliers": 9
   },
   "suppliers": [
     {
@@ -13,6 +13,20 @@
       "country": "China",
       "city": "Foshan, Guangdong",
       "specialization": "Premium executive and managerial office furniture",
+      "category_specialization": [
+        "executive desks",
+        "manager desks",
+        "boardroom tables",
+        "storage",
+        "workstations",
+        "reception desks",
+        "office seating"
+      ],
+      "routing_rules": {
+        "contact_for": ["executive desks", "manager desks", "boardroom tables", "storage", "workstations", "reception desks"],
+        "do_not_contact_for": [],
+        "priority": "standard"
+      },
       "product_categories": [
         "Executive Desks",
         "Manager Desks",
@@ -33,21 +47,9 @@
       "sku_prefix": "FSZ",
       "total_products": 145,
       "series": [
-        "Weiyi",
-        "Blister",
-        "Red Cliff",
-        "Ruige",
-        "Vic",
-        "Zhuoya",
-        "Dynamic",
-        "Dell",
-        "Evidenza",
-        "Teak",
-        "Pari",
-        "New Berlin",
-        "Shanhe",
-        "Bit",
-        "Four Color"
+        "Weiyi", "Blister", "Red Cliff", "Ruige", "Vic", "Zhuoya",
+        "Dynamic", "Dell", "Evidenza", "Teak", "Pari", "New Berlin",
+        "Shanhe", "Bit", "Four Color"
       ],
       "contact_note": "Do not contact directly — request via TCD procurement",
       "product_count": 143
@@ -59,6 +61,20 @@
       "brand_chinese": "华晟高桌",
       "country": "China",
       "specialization": "Height-adjustable / sit-stand office desks",
+      "category_specialization": [
+        "sit-stand desks",
+        "height adjustable desks",
+        "workstations",
+        "manager desks",
+        "executive desks",
+        "storage",
+        "presentation"
+      ],
+      "routing_rules": {
+        "contact_for": ["sit-stand desks", "height adjustable desks", "workstations"],
+        "do_not_contact_for": ["office chairs", "seating"],
+        "priority": "standard"
+      },
       "product_categories": [
         "Sit-Stand Desks",
         "Workstations",
@@ -67,36 +83,11 @@
         "Storage",
         "Presentation"
       ],
-      "catalog_files": [
-        "huasheng-catalog-3.pdf"
-      ],
-      "certifications": [
-        "SGS",
-        "ISO 9001",
-        "ISO 14001",
-        "ISO 45001",
-        "FCC Class B",
-        "CE",
-        "EMC",
-        "BIFMA",
-        "LVD",
-        "MD",
-        "EN 527"
-      ],
+      "catalog_files": ["huasheng-catalog-3.pdf"],
+      "certifications": ["SGS", "ISO 9001", "ISO 14001", "ISO 45001", "FCC Class B", "CE", "EMC", "BIFMA", "LVD", "MD", "EN 527"],
       "sku_prefix": "HSG",
       "total_products": 19,
-      "series": [
-        "Milan",
-        "Karen",
-        "Owen",
-        "Miller",
-        "Mige",
-        "Better",
-        "Baggio",
-        "Bonnie",
-        "Mike",
-        "Cape"
-      ],
+      "series": ["Milan", "Karen", "Owen", "Miller", "Mige", "Better", "Baggio", "Bonnie", "Mike", "Cape"],
       "contact_note": "Do not contact directly — request via TCD procurement",
       "product_count": 21
     },
@@ -107,6 +98,17 @@
       "brand_chinese": "高卓",
       "country": "China",
       "specialization": "Modern high-end executive and business office furniture",
+      "category_specialization": [
+        "executive desks",
+        "boardroom tables",
+        "storage",
+        "workstations"
+      ],
+      "routing_rules": {
+        "contact_for": ["executive desks", "boardroom tables", "storage", "workstations"],
+        "do_not_contact_for": ["office chairs", "seating"],
+        "priority": "standard"
+      },
       "product_categories": [
         "Executive Desks",
         "Boardroom Tables",
@@ -118,44 +120,22 @@
         "catalogs/huasheng-gaozhuo/gojo-executive-furniture-vol2.pdf",
         "catalogs/huasheng-gaozhuo/gojo-steel-office-systems.pdf"
       ],
-      "certifications": [
-        "SGS",
-        "ISO 9001",
-        "ISO 14001",
-        "ISO 45001"
-      ],
+      "certifications": ["SGS", "ISO 9001", "ISO 14001", "ISO 45001"],
       "sku_prefix": "GJO",
       "total_products": 127,
       "series": [
-        "LRU",
-        "JCN",
-        "YIN",
-        "VEP",
-        "VEIYE",
-        "YUP",
-        "GUANHE",
-        "YUZ",
-        "BSA",
-        "WINA",
-        "WPN",
-        "MZE",
+        "LRU", "JCN", "YIN", "VEP", "VEIYE", "YUP", "GUANHE", "YUZ",
+        "BSA", "WINA", "WPN", "MZE",
         "JN (忆江南 Yi Jiang Nan — Memories of Jiangnan)",
         "YOM (云曜 Yun Yao — Cloudy Radiance)",
         "HXM (泓熙 Hong Xi — Flowing Brilliance)",
-        "Yashang Steel",
-        "Yafeng Steel Tank"
+        "Yashang Steel", "Yafeng Steel Tank"
       ],
       "contact_note": "Do not contact directly — request via TCD procurement",
       "product_count": 127,
       "categories": [
-        "Executive Desks",
-        "Boardroom Tables",
-        "Storage",
-        "Storage & Filing",
-        "Lounge Seating",
-        "Office Seating",
-        "Occasional Tables",
-        "Reception Desks"
+        "Executive Desks", "Boardroom Tables", "Storage", "Storage & Filing",
+        "Lounge Seating", "Office Seating", "Occasional Tables", "Reception Desks"
       ],
       "notes": "GOJO Vol 1: LRU and other modern executive series. GOJO Vol 2: Three neo-Chinese premium collections — JN (忆江南, 24 SKUs, ebony/Zingana with moon gate lattice motifs), YOM (云曜, 24 SKUs, dark panel with copper medallion), HXM (泓熙, 24 SKUs, gold metal rails with slat fascia). Steel Office Systems: Yashang (orange-handle white steel filing) + Yafeng (matte white smart-lock lockers). All Vol 2 furniture uses imported Zingana (African zebrawood) with copper hardware and mortise-and-tenon joinery."
     },
@@ -171,13 +151,19 @@
       "website": null,
       "sku_prefix": "GJO-LS",
       "product_count": 13,
-      "categories": [
-        "Lounge Seating",
-        "Occasional Tables"
+      "category_specialization": [
+        "lounge seating",
+        "occasional tables",
+        "sofas",
+        "accent chairs"
       ],
-      "catalog_files": [
-        "catalogs/huasheng-gaozhuo/office-lounge-seating-catalog.pdf"
-      ],
+      "routing_rules": {
+        "contact_for": ["lounge seating", "occasional tables"],
+        "do_not_contact_for": ["desks", "workstations"],
+        "priority": "standard"
+      },
+      "categories": ["Lounge Seating", "Occasional Tables"],
+      "catalog_files": ["catalogs/huasheng-gaozhuo/office-lounge-seating-catalog.pdf"],
       "notes": "Lounge and seating division of Huasheng Gaozhuo. Product catalog: 'Inspiration Comes from Nature'. Sofas, accent chairs, side tables, coffee tables."
     },
     {
@@ -188,42 +174,222 @@
       "country": "China",
       "city": "Foshan, Guangdong",
       "specialization": "Public seating, training chairs, stackable plastic leisure chairs, lounge seating, dining chairs",
-      "product_categories": [
-        "Office Seating",
-        "Lounge Seating",
-        "Occasional Tables"
+      "category_specialization": [
+        "office seating",
+        "training chairs",
+        "stackable chairs",
+        "lounge seating",
+        "occasional tables"
       ],
-      "catalog_files": [
-        "Gaojin_Plastic_Chair_Catalog.pdf"
-      ],
+      "routing_rules": {
+        "contact_for": ["office seating", "training chairs", "stackable chairs", "lounge seating"],
+        "do_not_contact_for": ["desks", "workstations", "reception desks", "meeting tables"],
+        "priority": "standard"
+      },
+      "product_categories": ["Office Seating", "Lounge Seating", "Occasional Tables"],
+      "catalog_files": ["Gaojin_Plastic_Chair_Catalog.pdf"],
       "factory_address": "佛山市南海沙头工业区工业一路8号 (Factory: Industrial Road 8, Shazhou Industrial Zone, Nanhai, Foshan)",
       "showroom_address": "佛山市顺德区龙江镇乐龙国际创意城F座 (Showroom: Block F, Lelong International Creative City, Longjiang, Shunde, Foshan)",
       "phone": "0757-2388 2788 / +86 133 0281 1900",
-      "certifications": [
-        "ISO 9001"
-      ],
+      "certifications": ["ISO 9001"],
       "sku_prefix": "GJN",
       "total_products": 53,
-      "series": [
-        "G01",
-        "G02",
-        "G03",
-        "G04",
-        "G05",
-        "G06",
-        "G07",
-        "833-1C",
-        "842",
-        "848/850",
-        "ZC 牛角椅",
-        "LZ9002",
-        "LZ9003",
-        "K01",
-        "K02",
-        "K03"
-      ],
+      "series": ["G01","G02","G03","G04","G05","G06","G07","833-1C","842","848/850","ZC 牛角椅","LZ9002","LZ9003","K01","K02","K03"],
       "contact_note": "Do not contact directly — request via TCD procurement",
       "product_count": 53
+    },
+    {
+      "id": "BOKE",
+      "name": "Boke Furniture",
+      "contact_name": "Boke Furniture Sales",
+      "whatsapp_number": "+8613392798732",
+      "whatsapp_enabled": true,
+      "country": "China",
+      "website": "https://www.bokeseating.com",
+      "specialization": "Office and ergonomic seating — task chairs, executive chairs, ergonomic chairs",
+      "category_specialization": [
+        "office chairs",
+        "ergonomic chairs",
+        "task chairs",
+        "executive chairs",
+        "seating"
+      ],
+      "routing_rules": {
+        "contact_for": ["office chairs", "ergonomic chairs", "task chairs", "executive chairs", "seating"],
+        "do_not_contact_for": ["desks", "reception desks", "workstations", "meeting tables", "storage", "boardroom tables"],
+        "note": "Boke must ONLY be contacted for seating products. Never send desk, workstation, or table requests.",
+        "priority": "primary_for_seating"
+      },
+      "product_categories": [
+        "Office Chairs",
+        "Ergonomic Chairs",
+        "Task Chairs",
+        "Executive Chairs"
+      ],
+      "notes": "Primary supplier for office seating products. Use WhatsApp for pricing, MOQ, shipping and catalog updates.",
+      "active": true
+    },
+    {
+      "id": "ELLA",
+      "name": "Ella Office Furniture",
+      "contact_name": "Ms Ella",
+      "whatsapp_number": "UNKNOWN",
+      "whatsapp_enabled": false,
+      "whatsapp_pending_confirmation": true,
+      "country": "China",
+      "website": "UNKNOWN",
+      "specialization": "Office furniture, workstations, desks",
+      "category_specialization": [
+        "office furniture",
+        "workstations",
+        "desks",
+        "office desks"
+      ],
+      "routing_rules": {
+        "contact_for": ["office furniture", "workstations", "desks"],
+        "do_not_contact_for": [],
+        "note": "WhatsApp number unknown — admin must confirm before sending messages.",
+        "priority": "standard"
+      },
+      "product_categories": [
+        "Office Furniture",
+        "Workstations",
+        "Desks"
+      ],
+      "notes": "Sales contact from Ella Office Furniture. Has WhatsApp Business catalog. AI should request catalog and product pricing updates. WhatsApp number requires admin confirmation.",
+      "active": true,
+      "admin_action_required": "Confirm WhatsApp number before sending any messages"
+    },
+    {
+      "id": "MEIYI",
+      "name": "Guangzhou Meiyi Furniture Co., Ltd",
+      "contact_name": "Asya",
+      "whatsapp_number": "+8613422161319",
+      "whatsapp_enabled": true,
+      "country": "China",
+      "websites": [
+        "https://www.meiyifurnishing.com",
+        "https://myofficefurniture.com.cn"
+      ],
+      "specialization": "Desk and workstation manufacturing — executive desks, office desks, conference tables, reception desks",
+      "category_specialization": [
+        "executive desks",
+        "office desks",
+        "workstations",
+        "meeting tables",
+        "conference tables",
+        "reception desks"
+      ],
+      "routing_rules": {
+        "contact_for": ["executive desks", "office desks", "workstations", "meeting tables", "conference tables", "reception desks"],
+        "do_not_contact_for": ["office chairs", "seating", "ergonomic chairs"],
+        "note": "Primary workstation and desk manufacturer. For desk/workstation requests, contact Asya first for pricing and lead time. For large projects, also request quote from Ruby (Xitian). Compare price, lead time, and reliability before choosing supplier.",
+        "priority": "primary_for_desks",
+        "relationship": "Asya is a trusted manufacturing contact. Maintain professional, friendly communication for all desk and workstation orders."
+      },
+      "product_categories": [
+        "Executive Desks",
+        "Office Desks",
+        "Workstations",
+        "Meeting Tables",
+        "Conference Tables",
+        "Reception Desks"
+      ],
+      "notes": "Main manufacturer for desk ranges. Communication strictly via WhatsApp for business. Asya is a trusted manufacturing contact — maintain consistent, friendly working relationship.",
+      "active": true
+    },
+    {
+      "id": "XITIAN",
+      "name": "Xitian Furniture",
+      "contact_name": "Ruby",
+      "whatsapp_number": "UNKNOWN",
+      "whatsapp_enabled": false,
+      "whatsapp_pending_confirmation": true,
+      "country": "China",
+      "specialization": "Executive desks, reception desks, project furniture, custom manufacturing",
+      "category_specialization": [
+        "executive desks",
+        "reception desks",
+        "project furniture",
+        "custom manufacturing",
+        "custom furniture"
+      ],
+      "routing_rules": {
+        "contact_for": ["executive desks", "reception desks", "project furniture", "custom manufacturing"],
+        "do_not_contact_for": ["office chairs", "seating"],
+        "note": "Priority supplier for large projects and custom furniture. Contact Ruby when project size is large or custom manufacturing is required. For desk/workstation requests above threshold, request quote from both Meiyi (Asya) and Xitian (Ruby) then compare.",
+        "priority": "priority_for_large_custom"
+      },
+      "product_categories": [
+        "Executive Desks",
+        "Reception Desks",
+        "Project Furniture",
+        "Custom Manufacturing"
+      ],
+      "notes": "Priority supplier for large projects and custom furniture.",
+      "active": true
+    },
+    {
+      "id": "DENNY",
+      "name": "UNKNOWN (to be confirmed)",
+      "contact_name": "Denny",
+      "whatsapp_number": "+8613127968208",
+      "whatsapp_enabled": true,
+      "country": "China",
+      "specialization": "Furniture sourcing and product support",
+      "category_specialization": [
+        "furniture sourcing",
+        "product support",
+        "supplier coordination"
+      ],
+      "routing_rules": {
+        "contact_for": ["furniture sourcing", "product support", "supplier coordination"],
+        "do_not_contact_for": [],
+        "note": "Used for supplier coordination and product sourcing. Company name to be confirmed by admin.",
+        "priority": "sourcing"
+      },
+      "product_categories": [
+        "Furniture Sourcing",
+        "Product Support"
+      ],
+      "notes": "Used for supplier coordination and product sourcing. Company name unknown — admin should confirm before formal engagement.",
+      "active": true,
+      "admin_action_required": "Confirm company name"
     }
-  ]
+  ],
+  "routing_logic": {
+    "description": "AI supplier routing rules based on product category",
+    "rules": [
+      {
+        "category": "office chairs / ergonomic chairs / task chairs / executive chairs / seating",
+        "primary_supplier": "BOKE",
+        "note": "Boke ONLY for seating. Never send desk or workstation requests to Boke."
+      },
+      {
+        "category": "executive desks / office desks / workstations / conference tables / meeting tables",
+        "primary_supplier": "MEIYI",
+        "secondary_supplier": "XITIAN",
+        "note": "Contact Asya (Meiyi) first. For large projects, also request from Ruby (Xitian). Compare price, lead time, reliability."
+      },
+      {
+        "category": "reception desks / custom furniture / large project furniture",
+        "primary_supplier": "XITIAN",
+        "secondary_supplier": "MEIYI",
+        "note": "Xitian (Ruby) is priority for large and custom projects."
+      },
+      {
+        "category": "lounge seating / occasional tables",
+        "primary_supplier": "LSG",
+        "secondary_supplier": "GJN"
+      },
+      {
+        "category": "sit-stand desks / height-adjustable desks",
+        "primary_supplier": "HSG"
+      },
+      {
+        "category": "sourcing / coordination",
+        "primary_supplier": "DENNY"
+      }
+    ]
+  }
 }

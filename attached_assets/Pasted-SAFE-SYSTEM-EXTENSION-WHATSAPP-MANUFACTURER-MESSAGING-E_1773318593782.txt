@@ -1,0 +1,233 @@
+SAFE SYSTEM EXTENSION — WHATSAPP MANUFACTURER MESSAGING ENGINE
+
+Do NOT overwrite existing prompts.
+Do NOT rebuild the live site.
+Do NOT break planner, estimator, product catalog, Stripe, emails, admin dashboard, or lead storage.
+
+You are upgrading the LIVE The Corporate Desk platform.
+
+PRIMARY OBJECTIVE
+
+Build a real WhatsApp manufacturer messaging system so the admin AI can prepare and send structured messages to approved suppliers/manufacturers using the official WhatsApp Business Platform / Cloud API.
+
+This system must be production-safe, admin-controlled, and use real configured manufacturer contact data.
+
+==================================================
+PHASE 1 — AUDIT EXISTING SYSTEM
+==================================================
+
+Audit the current project for:
+- supplier / manufacturer records
+- contact storage
+- admin dashboard structure
+- product-supplier mapping
+- quote request flow
+- lead / planner records
+- existing messaging or communication modules
+- existing config / secrets handling
+
+Identify:
+- where manufacturer contacts are stored
+- whether WhatsApp numbers already exist
+- where admin actions should live
+- where message logs should be stored
+
+Do not modify anything until audit is complete.
+
+==================================================
+PHASE 2 — MANUFACTURER CONTACT DATA MODEL
+==================================================
+
+Create or extend a safe manufacturer contact structure.
+
+Each manufacturer/supplier should support:
+- company name
+- contact name
+- whatsapp number in international format
+- email
+- category / product ranges supplied
+- notes
+- active/inactive status
+
+Do not hardcode fake data.
+Use real manufacturer details configured by admin.
+
+==================================================
+PHASE 3 — WHATSAPP CLOUD API INTEGRATION
+==================================================
+
+Implement official WhatsApp Cloud API integration.
+
+Use environment/config values such as:
+- WHATSAPP_ACCESS_TOKEN
+- WHATSAPP_PHONE_NUMBER_ID
+- WHATSAPP_BUSINESS_ACCOUNT_ID if needed
+- WHATSAPP_VERIFY_TOKEN if webhook status handling is added
+
+Use the official API approach, not browser automation, not WhatsApp Web scraping, and not fragile unofficial hacks.
+
+The system must support:
+- sending text messages
+- sending template messages if required
+- sending media links if needed in future
+- storing send status / response IDs if available
+
+==================================================
+PHASE 4 — ADMIN MESSAGING PANEL
+==================================================
+
+Add or extend an admin panel for supplier/manufacturer messaging.
+
+Required features:
+- list configured manufacturers
+- show WhatsApp-enabled contacts
+- compose message
+- choose message type:
+  - plain text
+  - template message
+- insert project context
+- send message manually from admin
+- log sent message history
+
+Do not create duplicate admin systems if a suitable admin page already exists.
+Extend safely.
+
+==================================================
+PHASE 5 — AI-ASSISTED MESSAGE COMPOSER
+==================================================
+
+The admin AI must help draft manufacturer messages professionally.
+
+It should be able to generate messages for scenarios such as:
+- request latest pricing
+- request MOQ
+- request lead time
+- request finish options
+- request dimension confirmation
+- request packaging details
+- request availability
+- request custom manufacturing feasibility
+- request updated catalog / images
+- request freight / shipping clarification
+
+The tone must be:
+- professional
+- concise
+- commercially clear
+- easy for suppliers to respond to
+
+Do not send messages automatically without an admin review/send action unless explicitly configured later.
+
+==================================================
+PHASE 6 — TEMPLATE SUPPORT
+==================================================
+
+Support template-based outbound messaging where required by WhatsApp Business rules.
+
+If template messages are needed for first-contact or non-open conversation sends:
+- support selecting an approved template
+- support filling variables such as:
+  - supplier name
+  - product/range
+  - SKU
+  - request type
+  - due date if applicable
+
+If a plain-text reply is allowed within an active conversation context, support that too.
+
+Do not fake template approval.
+Use real configured template names only if available.
+
+==================================================
+PHASE 7 — PROJECT / PRODUCT CONTEXT INSERTION
+==================================================
+
+Allow the admin AI to include context from the live system, such as:
+- product SKU
+- product name
+- range / collection
+- required quantity
+- finish needed
+- project value band
+- planner / estimate context
+- due date / urgency
+- freight destination if available
+
+This should help the manufacturer receive clear actionable requests.
+
+==================================================
+PHASE 8 — MESSAGE LOGGING
+==================================================
+
+Store message logs safely.
+
+For each sent WhatsApp message, store where possible:
+- manufacturer
+- contact
+- timestamp
+- message content
+- related SKU / product / project
+- sender/admin user if available
+- API response ID
+- delivery status if available later
+
+Show this in admin if practical.
+
+==================================================
+PHASE 9 — SAFETY / CONTROL RULES
+==================================================
+
+Do NOT allow uncontrolled autonomous spamming.
+
+Rules:
+- manufacturer messaging is admin-approved
+- AI drafts, admin sends
+- no mass sends by default
+- no duplicate rapid-fire messages
+- log all sends
+- validate WhatsApp number format before sending
+
+==================================================
+PHASE 10 — OPTIONAL FUTURE WEBHOOK SUPPORT
+==================================================
+
+Prepare the architecture so inbound message status / replies can be supported later through webhooks.
+
+Do not overbuild this now if unnecessary.
+Scaffold safely if useful.
+
+==================================================
+PHASE 11 — TESTING
+==================================================
+
+Verify:
+1. manufacturer contact records can store WhatsApp numbers
+2. admin messaging panel loads
+3. AI can draft a manufacturer message
+4. message can be sent through official WhatsApp API
+5. logs are stored
+6. no existing planner / catalog / Stripe / email / admin systems are broken
+7. mobile and desktop admin remain stable
+
+==================================================
+PHASE 12 — FINAL REPORT
+==================================================
+
+Return:
+- files audited
+- files modified
+- how manufacturer WhatsApp contacts are stored
+- how admin messaging works
+- whether template support was added
+- how message logging works
+- what environment variables are required
+- what was tested
+- confirmation existing live systems still work
+
+EXECUTION RULE
+
+Audit first.
+Then implement the official WhatsApp manufacturer messaging engine safely.
+Do not use unofficial browser automation.
+Do not stop midway.
+Do not ask questions.

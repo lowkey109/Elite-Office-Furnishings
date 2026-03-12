@@ -491,6 +491,7 @@ export default function AdminDashboard() {
                   { label: "Planning Requests", href: "/admin/planning-requests", icon: Upload, desc: "Floor plan & space planning" },
                   { label: "Lead Intelligence", href: "/admin/leads", icon: Target, desc: "AI prospecting engine" },
                   { label: "Supplier Quotes", href: "/admin/supplier-quotes", icon: Package, desc: "Quotes & referral tracking" },
+                  { label: "Manufacturer Messaging", href: "/admin/manufacturer-messaging", icon: MessageSquare, desc: "WhatsApp manufacturer comms" },
                   { label: "Product Reviews", href: "/admin/product-reviews", icon: Star, desc: "Moderate client reviews" },
                   { label: "Marketing Hub", href: "/admin/marketing", icon: Megaphone, desc: "Generate & post content" },
                   { label: "View Full Site", href: "/", icon: Eye, desc: "See your website" },

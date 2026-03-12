@@ -10,7 +10,7 @@ I prefer iterative development with clear, modular code. Before making any major
 The application follows a client-server architecture.
 - **Frontend**: Built with React, utilizing Wouter for routing, TanStack Query for data fetching, and Shadcn UI for components.
 - **Backend**: Implemented using Express.js.
-- **Database**: PostgreSQL with Drizzle ORM. The schema includes tables for users, leads, prospected leads, supplier quotes, referrals, and planning requests.
+- **Database**: PostgreSQL with Drizzle ORM. The schema includes tables for users, leads, prospected leads, supplier quotes, referrals, planning requests, product reviews, and manufacturer_messages.
 - **UI/UX Design**: The theme is dark luxury gold, featuring near-black backgrounds, rich gold accents (#C9A84C), and cream white text. Typography uses Playfair Display for headings and Inter for body text, inspired by Apple/Herman Miller's minimalist and premium aesthetic.
 - **AI Integration**: OpenAI's `gpt-5-mini` model is used for the AI chatbot (14-role business OS), marketing content generation, and lead prospecting. AI prompts inject the TCD furniture catalogue for tailored recommendations.
 - **Core Features**:
@@ -35,6 +35,35 @@ The application follows a client-server architecture.
   - Image gallery system: `SERIES_GALLERY` map in `server/routes.ts` assigns 2–4 images per series using available catalog images; enriched to both `/api/products/grouped` and `/api/products/sku/:sku` endpoints
   - Products page has series sub-filter tabs within each collection section (horizontal scrollable pills per series range)
   - Review system available on product detail pages
+
+## Manufacturer Messaging System
+Admin-only WhatsApp manufacturer communication system at `/admin/manufacturer-messaging`.
+
+**Supplier Database** (`server/data/supplierDatabase.json`): Extended to 9 suppliers/manufacturers. Each has `category_specialization`, `routing_rules` (contact_for, do_not_contact_for, priority), and optionally `whatsapp_number` and `whatsapp_enabled`. The file also contains a `routing_logic` block defining AI supplier routing rules by product category.
+
+**WhatsApp-enabled contacts:**
+- **Boke Furniture** (BOKE) — `+8613392798732` — Seating ONLY. Never send desk/workstation requests.
+- **Guangzhou Meiyi Furniture / Asya** (MEIYI) — `+8613422161319` — Primary for desks/workstations. Trusted contact.
+- **Denny** (DENNY) — `+8613127968208` — Sourcing & coordination. Company name TBC.
+
+**Pending confirmation:** Ella Office Furniture (Ms Ella), Xitian Furniture (Ruby) — WhatsApp numbers unknown.
+
+**Routing Logic:**
+- Seating → Boke (primary)
+- Desks/workstations → Meiyi/Asya (primary), Xitian/Ruby (secondary for large/custom)
+- Reception/custom/large → Xitian/Ruby (priority)
+- Lounge/occasional → LSG / GJN
+- Sit-stand → HSG
+
+**API endpoints:**
+- `GET /api/manufacturers` — All manufacturer contacts with routing rules + `whatsappConfigured` flag
+- `POST /api/whatsapp/send` — Send via WhatsApp Cloud API (requires `WHATSAPP_ACCESS_TOKEN` + `WHATSAPP_PHONE_NUMBER_ID`). Logs every attempt to DB.
+- `GET /api/manufacturer-messages` — Message log (filterable by manufacturerId)
+- `POST /api/ai/draft-manufacturer-message` — AI drafts professional supplier messages
+
+**Environment variables required for live WhatsApp:** `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`
+
+**Safety rules:** Admin reviews and manually sends all messages. No autonomous sending. All sends (including failed) are logged to `manufacturer_messages` DB table.
 
 ## Brand / Supplier Naming Rules
 **Critical:** Supplier names must NEVER appear publicly. All internal supplier keys are mapped to public brand names:

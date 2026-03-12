@@ -1,0 +1,106 @@
+MANUFACTURER CONTACT DATABASE
+
+Add the following manufacturer contacts to the system supplier database.
+
+Each contact must include:
+- company
+- contact_name
+- whatsapp_number
+- country
+- website
+- notes
+- category_supplied
+
+--------------------------------------------------
+
+Manufacturer 1
+
+company: Boke Furniture
+contact_name: Boke Furniture Sales
+whatsapp_number: +8613392798732
+country: China
+website: https://www.bokeseating.com
+category_supplied:
+- office chairs
+- ergonomic chairs
+- seating
+
+notes:
+Primary supplier for office seating products.
+Use WhatsApp for pricing, MOQ, shipping and catalog updates.
+
+--------------------------------------------------
+
+Manufacturer 2
+
+company: Ella Office Furniture
+contact_name: Ms Ella
+whatsapp_number: UNKNOWN (AI must request admin confirmation)
+country: China
+website: UNKNOWN
+category_supplied:
+- office furniture
+- workstations
+- desks
+
+notes:
+Sales contact from Ella Office Furniture.
+Has WhatsApp Business catalog.
+AI should request catalog and product pricing updates.
+
+--------------------------------------------------
+
+Manufacturer 3
+
+company: Guangzhou Meiyi Furniture Co., Ltd
+contact_name: Asya
+whatsapp_number: +8613422161319
+country: China
+website:
+https://www.meiyifurnishing.com
+https://myofficefurniture.com.cn
+
+category_supplied:
+- office desks
+- executive desks
+- conference tables
+- reception desks
+
+notes:
+Main manufacturer for desk ranges.
+Communication strictly via WhatsApp for business.
+
+--------------------------------------------------
+
+Manufacturer 4
+
+contact_name: Denny
+whatsapp_number: +8613127968208
+country: China
+company: UNKNOWN (AI should confirm)
+category_supplied:
+- furniture sourcing
+- product support
+notes:
+Used for supplier coordination and product sourcing.
+
+--------------------------------------------------
+
+SYSTEM RULES
+
+These contacts must be stored as manufacturers/suppliers in the database.
+
+The system must allow the AI to:
+
+• send WhatsApp messages to suppliers
+• request product details
+• request pricing
+• request lead times
+• request customization
+• request catalog updates
+• request packaging dimensions
+• request shipping details
+
+Messages must always be professional and clear.
+
+All messages must be logged in the supplier communication log.

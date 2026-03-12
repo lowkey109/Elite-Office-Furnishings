@@ -17,6 +17,7 @@ import { CORPORATE_DESK_SYSTEM_PROMPT, ADVISOR_SYSTEM_MESSAGE, buildChatSystemPr
 import { getAdaptersMeta } from "./adapters/manualAdapter";
 import { generatePackageAndQuote } from "./ai/packageGenerator";
 import { parseFloorPlan, type FloorGeometry } from "./services/floorPlanParser";
+import { sendWhatsAppTextMessage, isWhatsAppConfigured } from "./services/whatsapp";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -2347,6 +2348,131 @@ ${allUrls.map(u => `  <url>
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
+  // ─── Manufacturer Messaging ───────────────────────────────────────────────────
+
+  app.get("/api/manufacturers", (_req, res) => {
+    try {
+      const suppliersPath = path.join(process.cwd(), "server/data/supplierDatabase.json");
+      const data = JSON.parse(fs.readFileSync(suppliersPath, "utf-8"));
+      const manufacturers = (data.suppliers || []).map((s: any) => ({
+        id: s.id,
+        name: s.name,
+        contactName: s.contact_name || null,
+        whatsappNumber: s.whatsapp_number || null,
+        whatsappEnabled: s.whatsapp_enabled || false,
+        whatsappPendingConfirmation: s.whatsapp_pending_confirmation || false,
+        country: s.country,
+        website: s.website || s.websites || null,
+        categorySpecialization: s.category_specialization || [],
+        routingRules: s.routing_rules || null,
+        notes: s.notes || null,
+        active: s.active !== false,
+        adminActionRequired: s.admin_action_required || null,
+      }));
+      res.json({
+        manufacturers,
+        routingLogic: data.routing_logic || null,
+        whatsappConfigured: isWhatsAppConfigured(),
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to load manufacturer data" });
+    }
+  });
+
+  app.post("/api/whatsapp/send", async (req, res) => {
+    try {
+      const { manufacturerId, whatsappNumber, message, relatedSku, relatedProject, requestType, adminUser } = req.body;
+      if (!whatsappNumber || !message || !manufacturerId) {
+        return res.status(400).json({ error: "manufacturerId, whatsappNumber, and message are required" });
+      }
+      if (whatsappNumber === "UNKNOWN") {
+        return res.status(400).json({ error: "WhatsApp number is unknown — admin must confirm before sending." });
+      }
+
+      const suppliersPath = path.join(process.cwd(), "server/data/supplierDatabase.json");
+      const data = JSON.parse(fs.readFileSync(suppliersPath, "utf-8"));
+      const manufacturer = (data.suppliers || []).find((s: any) => s.id === manufacturerId);
+
+      const sendResult = await sendWhatsAppTextMessage(whatsappNumber, message);
+
+      const logEntry = await storage.createManufacturerMessage({
+        manufacturerId,
+        manufacturerName: manufacturer?.name || manufacturerId,
+        contactName: manufacturer?.contact_name || null,
+        whatsappNumber,
+        messageType: "text",
+        messageContent: message,
+        relatedSku: relatedSku || null,
+        relatedProject: relatedProject || null,
+        requestType: requestType || null,
+        status: sendResult.success ? "sent" : "failed",
+        wapiMessageId: sendResult.messageId || null,
+        adminUser: adminUser || "admin",
+      });
+
+      if (sendResult.success) {
+        res.json({ success: true, messageId: sendResult.messageId, logId: logEntry.id });
+      } else {
+        res.status(500).json({ success: false, error: sendResult.error, logId: logEntry.id });
+      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to send WhatsApp message" });
+    }
+  });
+
+  app.get("/api/manufacturer-messages", async (req, res) => {
+    try {
+      const { manufacturerId } = req.query;
+      const messages = await storage.getManufacturerMessages(manufacturerId as string | undefined);
+      res.json(messages);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch message log" });
+    }
+  });
+
+  app.post("/api/ai/draft-manufacturer-message", async (req, res) => {
+    try {
+      const { requestType, manufacturerName, contactName, categories, relatedSku, relatedProject, quantity, finishNeeded, projectValue, notes } = req.body;
+      if (!requestType || !manufacturerName) {
+        return res.status(400).json({ error: "requestType and manufacturerName are required" });
+      }
+
+      const prompt = `You are writing a professional WhatsApp message from The Corporate Desk (an Australian commercial office furniture company) to a furniture manufacturer/supplier.
+
+Manufacturer: ${manufacturerName}
+Contact: ${contactName || "the team"}
+Their specialisation: ${(categories || []).join(", ")}
+Request type: ${requestType}
+${relatedSku ? `Product SKU: ${relatedSku}` : ""}
+${relatedProject ? `Project reference: ${relatedProject}` : ""}
+${quantity ? `Quantity required: ${quantity}` : ""}
+${finishNeeded ? `Finish/colour required: ${finishNeeded}` : ""}
+${projectValue ? `Project value band: ${projectValue}` : ""}
+${notes ? `Additional notes: ${notes}` : ""}
+
+Write a professional, concise WhatsApp business message for this request type. The tone should be:
+- Professional and commercially clear
+- Friendly and respectful (these are trusted manufacturing partners)
+- Easy for the supplier to respond to
+- Concise — no fluff
+- Include a clear call to action
+
+Write ONLY the message body — no subject line, no labels, no explanation. Just the message itself.`;
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 500,
+        temperature: 0.7,
+      });
+
+      const draft = completion.choices[0]?.message?.content?.trim() || "";
+      res.json({ draft });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to generate draft" });
     }
   });
 
