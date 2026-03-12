@@ -25,6 +25,21 @@ interface ProductRec {
   rationale?: string;
 }
 
+interface BoundaryPt {
+  x: number;
+  y: number;
+}
+
+interface FloorBoundary {
+  boundary: BoundaryPt[];
+  aspectRatio?: number;
+  confidence?: number;
+  source?: string;
+  detectedShape?: string;
+  description?: string;
+  fallback?: boolean;
+}
+
 interface SpacePlanningEngineProps {
   zones: WorkspaceZone[];
   recs?: ProductRec[];
@@ -36,6 +51,7 @@ interface SpacePlanningEngineProps {
   isPreview?: boolean;
   companyName?: string;
   generatedDate?: string;
+  floorBoundary?: FloorBoundary | null;
 }
 
 const SVG_W = 720;
@@ -252,6 +268,10 @@ function ZoneFurniture({ zone, x, y, w, h }: { zone: WorkspaceZone; x: number; y
   );
 }
 
+function boundaryToSvgPoints(boundary: BoundaryPt[], svgW: number, svgH: number): string {
+  return boundary.map(p => `${(p.x * svgW).toFixed(1)},${(p.y * svgH).toFixed(1)}`).join(" ");
+}
+
 export default function SpacePlanningEngine({
   zones,
   recs = [],
@@ -263,8 +283,16 @@ export default function SpacePlanningEngine({
   isPreview = false,
   companyName,
   generatedDate,
+  floorBoundary,
 }: SpacePlanningEngineProps) {
   const svgRef = useRef<SVGSVGElement>(null);
+
+  const hasRealBoundary = !!(
+    floorBoundary &&
+    !floorBoundary.fallback &&
+    floorBoundary.boundary &&
+    floorBoundary.boundary.length > 3
+  );
 
   const validZones = zones.filter(z => (z.percentage || 0) > 0).sort((a, b) => b.percentage - a.percentage);
   const totalStaff = zones.reduce((s, z) => s + (z.staffCapacity || 0), 0);
@@ -401,6 +429,16 @@ export default function SpacePlanningEngine({
         </div>
 
         <div className="p-4">
+          {hasRealBoundary && (
+            <div className="mb-2 flex items-center gap-2 px-3 py-1.5 bg-[rgba(201,168,76,0.07)] border border-[rgba(201,168,76,0.2)] rounded-lg text-xs text-[hsl(43,78%,65%)]">
+              <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="5,1 9,9 1,9" fill="hsl(43,78%,52%)" /></svg>
+              Floor plan boundary detected
+              {floorBoundary!.detectedShape && <span className="text-white/40">— {floorBoundary!.detectedShape}</span>}
+              {floorBoundary!.confidence != null && (
+                <span className="ml-auto text-white/30">{Math.round(floorBoundary!.confidence * 100)}% confidence · via {floorBoundary!.source}</span>
+              )}
+            </div>
+          )}
           <svg
             ref={svgRef}
             viewBox={`0 0 ${SVG_W} ${SVG_H}`}
@@ -412,9 +450,25 @@ export default function SpacePlanningEngine({
               <pattern id="spe-grid" width="30" height="30" patternUnits="userSpaceOnUse">
                 <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="0.5" />
               </pattern>
+              {hasRealBoundary && (
+                <clipPath id="spe-floor-clip">
+                  <polygon points={boundaryToSvgPoints(floorBoundary!.boundary, SVG_W, SVG_H)} />
+                </clipPath>
+              )}
             </defs>
             <rect width={SVG_W} height={SVG_H} fill="url(#spe-grid)" rx="10" />
 
+            {hasRealBoundary && (
+              <polygon
+                points={boundaryToSvgPoints(floorBoundary!.boundary, SVG_W, SVG_H)}
+                fill="rgba(201,168,76,0.04)"
+                stroke="rgba(201,168,76,0.35)"
+                strokeWidth="2"
+                strokeDasharray="6 3"
+              />
+            )}
+
+            <g clipPath={hasRealBoundary ? "url(#spe-floor-clip)" : undefined}>
             {layoutItems.map(({ zone, x, y, w, h }, i) => {
               const color = zone.color || "#B8960C";
               const maxLabelChars = Math.max(4, Math.floor((w - 16) / 7.5));
@@ -472,6 +526,18 @@ export default function SpacePlanningEngine({
                 </g>
               );
             })()}
+
+            </g>
+
+            {/* Boundary outline drawn on top of clipped zones */}
+            {hasRealBoundary && (
+              <polygon
+                points={boundaryToSvgPoints(floorBoundary!.boundary, SVG_W, SVG_H)}
+                fill="none"
+                stroke="rgba(201,168,76,0.7)"
+                strokeWidth="2"
+              />
+            )}
 
             {/* Watermark overlay for unpaid previews */}
             {isPreview && (() => {

@@ -15,6 +15,7 @@ import { analyseSignals, extractDomain, type SignalInput, type SourceType } from
 import { CORPORATE_DESK_SYSTEM_PROMPT, ADVISOR_SYSTEM_MESSAGE, buildChatSystemPrompt, buildAdvisorSystemPrompt } from "./systemPrompt";
 import { getAdaptersMeta } from "./adapters/manualAdapter";
 import { generatePackageAndQuote } from "./ai/packageGenerator";
+import { parseFloorPlan, type FloorGeometry } from "./services/floorPlanParser";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -724,63 +725,95 @@ export async function registerRoutes(
         }
       }
 
-      // Generate AI space planning recommendation
+      // Find floor plan file path (prefer floorPlan > floorPlanImage)
+      const floorPlanFile = uploadedFiles.find(f => f.field === "floorPlan" || f.field === "floorPlanImage");
+      const floorPlanFilePath = floorPlanFile
+        ? path.join(process.cwd(), "uploads", "planning-requests", floorPlanFile.filename)
+        : null;
+
+      // Build AI prompt for space planning analysis
+      const spacePlanningPrompt = buildSpacePlanningPrompt({
+        name: body.name,
+        company: body.company || "",
+        city: body.city,
+        projectType: body.projectType,
+        squareMetres: body.squareMetres,
+        staffCount: body.staffCount,
+        meetingRooms: body.meetingRooms,
+        receptionRequired: body.receptionRequired === "true" || body.receptionRequired === true,
+        breakoutRequired: body.breakoutRequired === "true" || body.breakoutRequired === true,
+        executiveOfficeRequired: body.executiveOfficeRequired === "true" || body.executiveOfficeRequired === true,
+        budgetRange: body.budgetRange,
+        stylePreference: body.stylePreference,
+        specialRequirements: body.specialRequirements,
+      });
+
+      // Run AI planning analysis and floor plan parsing in parallel
+      const [aiResult, detectedGeometry] = await Promise.all([
+        // Task 1: AI space planning recommendation
+        openai.chat.completions.create({
+          model: "gpt-5-mini",
+          messages: [
+            { role: "system", content: buildAdvisorSystemPrompt() },
+            { role: "user", content: spacePlanningPrompt },
+          ],
+        } as any).catch((err: Error) => {
+          console.error("[AI] Space planning generation failed:", err.message);
+          return null;
+        }),
+        // Task 2: Floor plan boundary detection
+        floorPlanFilePath
+          ? parseFloorPlan(floorPlanFilePath, openai, body.squareMetres).catch((err: Error) => {
+              console.error("[FloorPlanParser] Non-fatal error:", err.message);
+              return null;
+            })
+          : Promise.resolve(null),
+      ]);
+
+      // Process AI result
       let aiSummary = "";
       let aiRecommendations = "";
       let aiLeadScore: number | null = null;
       let aiEstimatedValue: string | null = null;
       let aiTimeline: string | null = null;
 
-      try {
-        const prompt = buildSpacePlanningPrompt({
-          name: body.name,
-          company: body.company || "",
-          city: body.city,
-          projectType: body.projectType,
-          squareMetres: body.squareMetres,
-          staffCount: body.staffCount,
-          meetingRooms: body.meetingRooms,
-          receptionRequired: body.receptionRequired === "true" || body.receptionRequired === true,
-          breakoutRequired: body.breakoutRequired === "true" || body.breakoutRequired === true,
-          executiveOfficeRequired: body.executiveOfficeRequired === "true" || body.executiveOfficeRequired === true,
-          budgetRange: body.budgetRange,
-          stylePreference: body.stylePreference,
-          specialRequirements: body.specialRequirements,
-        });
-
-        const completion = await openai.chat.completions.create({
-          model: "gpt-5-mini",
-          messages: [
-            { role: "system", content: buildAdvisorSystemPrompt() },
-            { role: "user", content: prompt },
-          ],
-        } as any);
-
-        const rawContent = completion.choices[0]?.message?.content || "";
+      if (aiResult) {
+        const rawContent = (aiResult as any).choices?.[0]?.message?.content || "";
         const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
-          const parsed = JSON.parse(jsonMatch[0]);
-          aiSummary = parsed.clientBrief || "";
-          aiRecommendations = JSON.stringify(parsed, null, 2);
-          aiLeadScore = typeof parsed.leadScore === "number" ? parsed.leadScore : null;
-          aiEstimatedValue = parsed.estimatedProjectValue || null;
-          aiTimeline = parsed.implementationTimeline || null;
           try {
-            const { package: pkg, quote } = generatePackageAndQuote(
-              parsed,
-              body.name,
-              body.company || "",
-              body.staffCount
-            );
-            (body as any)._packageJson = JSON.stringify(pkg);
-            (body as any)._quoteJson = JSON.stringify(quote);
-          } catch (pkgErr) {
-            console.error("[PackageGen] Package generation failed:", pkgErr);
+            const parsed = JSON.parse(jsonMatch[0]);
+            aiSummary = parsed.clientBrief || "";
+            aiRecommendations = JSON.stringify(parsed, null, 2);
+            aiLeadScore = typeof parsed.leadScore === "number" ? parsed.leadScore : null;
+            aiEstimatedValue = parsed.estimatedProjectValue || null;
+            aiTimeline = parsed.implementationTimeline || null;
+            try {
+              const { package: pkg, quote } = generatePackageAndQuote(
+                parsed,
+                body.name,
+                body.company || "",
+                body.staffCount
+              );
+              (body as any)._packageJson = JSON.stringify(pkg);
+              (body as any)._quoteJson = JSON.stringify(quote);
+            } catch (pkgErr) {
+              console.error("[PackageGen] Package generation failed:", pkgErr);
+            }
+          } catch (parseErr) {
+            console.error("[AI] JSON parse failed:", parseErr);
           }
         }
-      } catch (aiErr) {
-        console.error("[AI] Space planning generation failed:", aiErr);
+      } else {
         aiSummary = "AI recommendation could not be generated — please review manually.";
+      }
+
+      const geometry = detectedGeometry as FloorGeometry | null;
+      const floorGeometryJson = geometry ? JSON.stringify(geometry) : null;
+      const geometrySource = geometry?.source || null;
+
+      if (geometry) {
+        console.log(`[FloorPlanParser] Stored geometry: source=${geometry.source}, confidence=${geometry.confidence.toFixed(2)}, fallback=${geometry.fallback}`);
       }
 
       const planningRequest = await storage.createPlanningRequest({
@@ -807,6 +840,8 @@ export async function registerRoutes(
         implementationTimeline: aiTimeline ?? undefined,
         packageJson: (body as any)._packageJson || undefined,
         quoteJson: (body as any)._quoteJson || undefined,
+        floorGeometryJson: floorGeometryJson ?? undefined,
+        geometrySource: geometrySource ?? undefined,
         source: "upload-floor-plan",
       });
 
@@ -833,6 +868,7 @@ export async function registerRoutes(
         aiRecommendations: planningRequest.aiRecommendations
           ? (() => { try { return JSON.parse(planningRequest.aiRecommendations!); } catch { return null; } })()
           : null,
+        floorGeometry: geometry ?? null,
       });
     } catch (error) {
       console.error("Planning request error:", error);

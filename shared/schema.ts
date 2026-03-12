@@ -134,6 +134,8 @@ export const planningRequests = pgTable("planning_requests", {
   packageJson: text("package_json"),
   quoteJson: text("quote_json"),
   quoteStatus: text("quote_status").default("draft"),
+  floorGeometryJson: text("floor_geometry_json"),
+  geometrySource: text("geometry_source"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

@@ -1,0 +1,249 @@
+You are upgrading the LIVE The Corporate Desk platform.
+
+You are in ZERO-DEMO REAL FLOOR PLAN DETECTION MODE.
+
+IMPORTANT:
+This must work on the live site.
+Do NOT build a fake demo.
+Do NOT generate a generic rectangle if the uploaded plan can be parsed.
+Do NOT break any existing working systems.
+Do NOT rebuild the platform from scratch.
+
+PROTECT THESE SYSTEMS:
+- AI office planner
+- planner submission flow
+- Stripe payment / unlock flow
+- SVG 2D workspace layout
+- 3D walkthrough
+- product catalog
+- admin dashboard
+- planning requests
+- chatbot
+- quote flow
+- mobile and desktop rendering
+
+==================================================
+PRIMARY OBJECTIVE
+==================================================
+
+Upgrade the planner so the uploaded floor plan image/PDF is actually used to generate the workspace layout.
+
+Current issue:
+The system generates a generic rectangular treemap layout based on planner inputs.
+
+Required outcome:
+The system must detect the actual floor plan shape from the uploaded file and place workspace zones inside that detected geometry.
+
+This must run on the live site and use real uploaded floor plans, not sample/demo templates.
+
+==================================================
+SUCCESS DEFINITION
+==================================================
+
+When a user uploads a floor plan and submits the planner:
+
+1. the uploaded plan is processed
+2. the system detects outer boundaries and major internal room/wall structures where possible
+3. the generated 2D layout uses the detected floor shape
+4. zones are placed within the detected plan
+5. the pre-payment preview shows a blurred real floor-shape layout
+6. the post-payment version shows the full clear layout
+7. the admin planning request stores the detected floor geometry and generated layout data
+
+If exact wall detection is incomplete, the system must still use the real outer floor shape and best available structure from the uploaded file instead of falling back immediately to a generic rectangle.
+
+==================================================
+MANDATORY IMPLEMENTATION STRATEGY
+==================================================
+
+Build this in safe stages.
+
+STAGE 1 — AUDIT CURRENT SYSTEM
+Before coding:
+- inspect the current planner upload flow
+- inspect how uploaded files are stored
+- inspect current SVG layout generation
+- inspect current planning request DB schema
+- inspect current post-payment unlock flow
+- identify where layout data is stored and rendered
+
+Do not guess.
+Do not code until this audit is complete.
+
+STAGE 2 — FLOOR PLAN PARSING LAYER
+Create a real floor plan processing module.
+
+It must support:
+- PNG
+- JPG / JPEG
+- PDF floor plans
+
+Use a practical production-safe approach such as:
+- image preprocessing
+- edge detection
+- contour detection
+- binary thresholding
+- wall/room boundary extraction
+- PDF rasterization where needed
+
+If libraries are needed, prefer stable production-safe ones only.
+
+Expected outputs:
+- detected outer boundary polygon
+- detected interior partition lines if available
+- normalized floor shape coordinates
+- detected usable zones / room regions if feasible
+
+Store this in structured JSON.
+
+Suggested output structure:
+{
+  "floorBoundary": [...points],
+  "internalWalls": [...],
+  "rooms": [...],
+  "detectionConfidence": 0.0,
+  "sourceType": "pdf|image"
+}
+
+STAGE 3 — LAYOUT ENGINE UPGRADE
+Upgrade the existing layout engine so it places zones into the detected floor shape.
+
+The engine must use:
+- uploaded floor plan geometry
+- office size
+- staff count
+- meeting room count
+- executive office requirement
+- breakout requirement
+- reception requirement
+- style/budget inputs
+
+Rules:
+- use real floor shape first
+- use detected room areas when available
+- preserve practical circulation
+- preserve Australian workplace safety spacing logic
+- avoid placing zones outside the detected plan
+- avoid reverting to a rectangle unless parsing truly fails
+
+If parsing confidence is low:
+- use outer boundary only
+- still avoid a generic rectangle if the boundary is known
+
+STAGE 4 — SVG RENDERER UPGRADE
+Upgrade the live SVG renderer so it draws the generated layout inside the detected floor plan shape.
+
+Must show:
+- real floor outline
+- internal walls/partitions if detected
+- placed workspace zones
+- zone labels
+- circulation paths if feasible
+- title block / legend
+- premium styling
+
+Pre-payment:
+- blurred preview of the real floor-shape layout
+
+Post-payment:
+- full clear layout
+
+Do NOT generate a fake architectural drawing unrelated to the uploaded file.
+
+STAGE 5 — ADMIN DATA STORAGE
+Persist the real parsed floor plan data into the planning request record.
+
+Store:
+- parsed floor geometry
+- detection confidence
+- layout output JSON
+- whether real geometry or fallback logic was used
+
+Admin should be able to see whether:
+- real floor geometry was detected
+- only outer boundary was detected
+- fallback logic was used
+
+STAGE 6 — FALLBACK LOGIC (HONEST, NOT FAKE)
+If parsing truly fails:
+
+1. log the failure reason
+2. mark the planning request as fallback-generated
+3. use the best available approximation from:
+   - outer page boundary
+   - office dimensions
+   - form inputs
+
+Do NOT pretend this is full geometry detection if it is not.
+Do NOT silently fall back to a generic rectangle without flagging it internally.
+
+STAGE 7 — PAYMENT / UNLOCK INTEGRATION
+Keep the current payment flow intact.
+
+Requirements:
+- preview before payment uses blurred real parsed layout
+- after payment the same planning request unlocks the full layout
+- no payment logic breaks
+- no Stripe webhook logic breaks
+
+STAGE 8 — 3D PREPARATION
+Do not rebuild the 3D viewer in this task.
+
+But prepare the layout output so the detected floor boundary and zone placement can later drive 3D generation.
+
+Store output in a structure that can feed:
+- 2D layout
+- 3D zone extrusion
+- future furniture placement
+
+STAGE 9 — TESTING
+This is mandatory.
+
+Test using real uploads on the live system:
+- at least one JPG floor plan
+- at least one PDF floor plan
+
+Verify:
+1. planner submission still works
+2. upload still works
+3. parsed floor geometry is produced
+4. rendered layout uses real floor shape
+5. pre-payment blur still works
+6. post-payment unlock still works
+7. admin planning request still works
+8. mobile layout still works
+9. desktop layout still works
+10. no existing routes break
+11. no product/catalog/admin/payment regressions occur
+
+STAGE 10 — FINAL REPORT
+Return a brutally honest report with:
+
+1. files created
+2. files modified
+3. parsing libraries/tools used
+4. how floor plan detection works
+5. whether outer boundary detection works
+6. whether interior wall detection works
+7. what happens when parsing fails
+8. whether the live planner now uses real uploaded floor geometry
+9. what is fully real
+10. what is still approximate
+11. confirmation that payment/admin/planner flows still work
+
+==================================================
+NON-NEGOTIABLE QUALITY RULES
+==================================================
+
+- No fake demo layout generation
+- No generic rectangle if real boundary can be detected
+- No breaking the current live funnel
+- No silent fallback pretending to be real AI parsing
+- No placeholder visuals passed off as production
+
+If something cannot be fully solved in one pass:
+build the strongest real working version first,
+keep it production-safe,
+and clearly label any remaining limitations in the final report.
+
+Start with Stage 1 audit only, then implement in safe stages.

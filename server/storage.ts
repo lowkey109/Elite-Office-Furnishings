@@ -118,6 +118,8 @@ export interface InsertPlanningRequest {
   packageJson?: string;
   quoteJson?: string;
   quoteStatus?: string;
+  floorGeometryJson?: string;
+  geometrySource?: string;
 }
 
 export interface IStorage {
@@ -147,6 +149,7 @@ export interface IStorage {
   updatePlanningRequest(id: string, data: Partial<InsertPlanningRequest & { status?: string; adminNotes?: string }>): Promise<PlanningRequest | undefined>;
   deletePlanningRequest(id: string): Promise<void>;
   markPlanningRequestPaid(id: string, sessionId: string): Promise<PlanningRequest | undefined>;
+  updateFloorGeometry(id: string, floorGeometryJson: string, geometrySource: string): Promise<PlanningRequest | undefined>;
 }
 
 function rowToProspectedLead(row: typeof prospectedLeads.$inferSelect): ProspectedLead {
@@ -423,6 +426,8 @@ export class DrizzleStorage implements IStorage {
       implementationTimeline: data.implementationTimeline,
       packageJson: data.packageJson,
       quoteJson: data.quoteJson,
+      floorGeometryJson: data.floorGeometryJson,
+      geometrySource: data.geometrySource,
       status: "New",
       source: data.source ?? "upload-floor-plan",
     }).returning();
@@ -464,6 +469,15 @@ export class DrizzleStorage implements IStorage {
     const [row] = await db
       .update(planningRequests)
       .set({ isPaid: true, stripeSessionId: sessionId, paymentStatus: "paid", paymentTier: "full_report" })
+      .where(eq(planningRequests.id, id))
+      .returning();
+    return row;
+  }
+
+  async updateFloorGeometry(id: string, floorGeometryJson: string, geometrySource: string): Promise<PlanningRequest | undefined> {
+    const [row] = await db
+      .update(planningRequests)
+      .set({ floorGeometryJson, geometrySource })
       .where(eq(planningRequests.id, id))
       .returning();
     return row;

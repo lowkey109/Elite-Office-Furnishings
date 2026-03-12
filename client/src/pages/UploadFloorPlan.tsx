@@ -130,6 +130,7 @@ export default function UploadFloorPlan() {
   const [aiRec, setAiRec] = useState<AiRecommendation | null>(null);
   const [planningRequestId, setPlanningRequestId] = useState<string | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<"locked" | "verifying" | "paid">("locked");
+  const [floorGeometry, setFloorGeometry] = useState<any | null>(null);
   const [unlocking, setUnlocking] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [contactSubmitting, setContactSubmitting] = useState(false);
@@ -253,6 +254,9 @@ export default function UploadFloorPlan() {
       if (data.aiRecommendations) {
         setAiRec(data.aiRecommendations);
       }
+      if (data.floorGeometry) {
+        setFloorGeometry(data.floorGeometry);
+      }
       if (data.id) setPlanningRequestId(data.id);
       setPaymentStatus("locked");
       setSubmitted(true);
@@ -302,6 +306,9 @@ export default function UploadFloorPlan() {
             if (pr.aiRecommendations) setAiRec(pr.aiRecommendations);
             if (pr.squareMetres) setSquareMetres(pr.squareMetres);
             if (pr.staffCount) setStaffCount(pr.staffCount);
+            if (pr.floorGeometryJson) {
+              try { setFloorGeometry(JSON.parse(pr.floorGeometryJson)); } catch {}
+            }
             setPlanningRequestId(id);
             setPaymentStatus("paid");
             setSubmitted(true);
@@ -597,6 +604,7 @@ export default function UploadFloorPlan() {
                             costBreakdown={aiRec.costBreakdown}
                             estimatedValue={aiRec.estimatedProjectValue}
                             implementationTimeline={aiRec.implementationTimeline}
+                            floorBoundary={floorGeometry}
                           />
                         </div>
                       </div>

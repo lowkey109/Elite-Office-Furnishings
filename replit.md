@@ -31,6 +31,26 @@ The application follows a client-server architecture.
 - **Phase 7 — Product reviews**: Already working via `getApprovedReviewsBySku`; no changes needed
 - **Phase 8 — Blog category visuals**: `Blog.tsx` — `CategoryBanner` component with 10 category-specific gradient backgrounds and icons; each blog card now has a rich visual header above the text
 
+## Floor Plan Boundary Detection (2026-03-12)
+
+Real floor plan geometry is now extracted from uploaded files and used to clip the AI workspace layout SVG:
+
+- **Parser** (`server/services/floorPlanParser.ts`): 4-tier detection:
+  1. **OpenAI Vision** (`gpt-4o-mini`): semantic boundary extraction from images — normalised 0-1 polygon points, confidence score, shape type
+  2. **Pixel scan** (`sharp`): grayscale threshold scan — finds outermost dark pixels per row/column to build silhouette polygon
+  3. **PDF dimensions** (`pdf-parse`): page size fallback for PDFs without rasterization
+  4. **Fallback rectangle**: honest 4-corner rectangle when all methods fail, with logged reason
+
+- **Schema**: `planning_requests` gains `floorGeometryJson` (full JSON) and `geometrySource` (source string) columns — migrated via `drizzle-kit push`
+
+- **Storage**: `InsertPlanningRequest` interface + `createPlanningRequest()` include new fields; new `updateFloorGeometry()` method on `IStorage`
+
+- **Routes** (`/api/planning-requests` POST): `parseFloorPlan()` runs in **parallel** with the OpenAI space planning AI call — adds ~2–5s vision latency without blocking the primary AI path; geometry stored in DB and returned in response as `floorGeometry`
+
+- **SpacePlanningEngine**: accepts optional `floorBoundary` prop — if boundary is non-fallback with >3 points: renders a dashed gold outline pre-clip, a `<clipPath>` in SVG `<defs>`, applies `clipPath="url(#spe-floor-clip)"` to zone group, then draws solid gold perimeter on top; confidence badge shows source + % when geometry is real
+
+- **UploadFloorPlan**: stores `floorGeometry` from API response in state, passes it to SpacePlanningEngine; payment-verify path reads `floorGeometryJson` from DB and parses it
+
 ## Stripe Paywall
 The AI Workspace Planning Report is gated behind a $399 AUD one-time payment:
 - **Free tier**: Client brief summary + zone color bar teaser + blurred/watermarked SVG preview
