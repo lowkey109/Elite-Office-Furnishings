@@ -18,11 +18,7 @@
 
 import fs from "fs";
 import path from "path";
-import { createRequire } from "module";
 import sharp from "sharp";
-
-const _require = createRequire(import.meta.url);
-const pdfParse: (buffer: Buffer, options?: any) => Promise<{ text: string; numpages: number; metadata: any }> = _require("pdf-parse");
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -397,7 +393,10 @@ function polyArea(pts: BoundaryPoint[]): number {
 async function pdfDimensions(filePath: string): Promise<{ aspectRatio: number; pageWidthMm?: number; pageHeightMm?: number } | null> {
   try {
     const buffer = fs.readFileSync(filePath);
-    await pdfParse(buffer, { max: 1 });
+    // Validate PDF by checking magic bytes (%PDF- header)
+    if (buffer.length < 5 || buffer.slice(0, 4).toString("ascii") !== "%PDF") {
+      throw new Error("Not a valid PDF file");
+    }
     // Default A1 landscape aspect ratio for architectural floor plans
     return { aspectRatio: 1.414 };
   } catch (err: any) {
