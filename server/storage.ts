@@ -33,7 +33,7 @@ export interface ProspectedLead {
   outreachMessage: string;
   reasoning: string;
   rawInput: string;
-  status: "New" | "Contacted" | "Responded" | "Qualified" | "Closed";
+  status: "New" | "Contacted" | "Responded" | "Qualified" | "Closed" | "Lead Detected" | "Planning" | "Quoted" | "Negotiation" | "Won" | "Lost";
   sourceType: string | null;
   sourceUrl: string | null;
   createdAt: Date;

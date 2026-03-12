@@ -1297,7 +1297,10 @@ ${allUrls.map(u => `  <url>
     try {
       const { id } = req.params;
       const { status } = req.body;
-      const validStatuses = ["New", "Contacted", "Responded", "Qualified", "Closed"];
+      const validStatuses = [
+        "Lead Detected", "Contacted", "Planning", "Quoted", "Negotiation", "Won", "Lost",
+        "New", "Responded", "Qualified", "Closed",
+      ];
       if (!validStatuses.includes(status)) {
         return res.status(400).json({ error: "Invalid status" });
       }
@@ -3073,6 +3076,64 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
     try {
       const record = await storage.updateProfitRecord(req.params.id, req.body);
       res.json(record);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ─── Deal Forecast (lightweight pipeline summary for dashboard) ──────────
+
+  app.get("/api/admin/deal-forecast", async (_req, res) => {
+    try {
+      const leads = await storage.getProspectedLeads();
+
+      const STAGE_PROB: Record<string, number> = {
+        "Lead Detected": 10, "New": 10,
+        "Contacted": 25, "Responded": 25,
+        "Planning": 40, "Qualified": 40,
+        "Quoted": 60,
+        "Negotiation": 80,
+        "Won": 100, "Closed": 100,
+        "Lost": 0,
+      };
+
+      function parseVal(v: string | null | undefined): number {
+        if (!v) return 0;
+        const m = v.match(/\$([\d,]+)/);
+        return m ? parseInt(m[1].replace(/,/g, "")) : 0;
+      }
+
+      const active = leads.filter(l => l.status !== "Lost");
+      const grossPipeline = active.reduce((s, l) => s + parseVal(l.estimatedProjectValue), 0);
+      const weightedRevenue = leads.reduce((s, l) => {
+        const prob = (STAGE_PROB[l.status] ?? 30) / 100;
+        return s + parseVal(l.estimatedProjectValue) * prob;
+      }, 0);
+      const probableDeals = leads.filter(l => (STAGE_PROB[l.status] ?? 0) >= 60 && l.status !== "Lost");
+      const wonDeals = leads.filter(l => l.status === "Won" || l.status === "Closed");
+      const wonValue = wonDeals.reduce((s, l) => s + parseVal(l.estimatedProjectValue), 0);
+      const lostDeals = leads.filter(l => l.status === "Lost");
+      const totalClosed = wonDeals.length + lostDeals.length;
+      const winRate = totalClosed > 0 ? Math.round((wonDeals.length / totalClosed) * 100) : null;
+
+      const stageCounts: Record<string, { count: number; value: number }> = {};
+      for (const l of leads) {
+        if (!stageCounts[l.status]) stageCounts[l.status] = { count: 0, value: 0 };
+        stageCounts[l.status].count++;
+        stageCounts[l.status].value += parseVal(l.estimatedProjectValue);
+      }
+
+      res.json({
+        grossPipeline,
+        weightedRevenue: Math.round(weightedRevenue),
+        probableDealsCount: probableDeals.length,
+        probableDealsValue: probableDeals.reduce((s, l) => s + parseVal(l.estimatedProjectValue), 0),
+        wonValue,
+        wonDealsCount: wonDeals.length,
+        winRate,
+        totalLeads: leads.length,
+        stageCounts,
+      });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }

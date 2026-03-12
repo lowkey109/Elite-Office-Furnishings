@@ -101,6 +101,23 @@ export default function AdminDashboard() {
     refetchInterval: 60000,
   });
 
+  interface DealForecast {
+    grossPipeline: number;
+    weightedRevenue: number;
+    probableDealsCount: number;
+    probableDealsValue: number;
+    wonValue: number;
+    wonDealsCount: number;
+    winRate: number | null;
+    totalLeads: number;
+    stageCounts: Record<string, { count: number; value: number }>;
+  }
+  const { data: forecast } = useQuery<DealForecast>({
+    queryKey: ["/api/admin/deal-forecast"],
+    queryFn: () => fetch("/api/admin/deal-forecast").then(r => r.json()),
+    enabled: authed,
+  });
+
   interface ScheduledJob { id: string; jobType: string; status: string; startedAt?: string; completedAt?: string; }
   const { data: recentJobs = [] } = useQuery<ScheduledJob[]>({
     queryKey: ["/api/admin/intelligence/jobs"],
@@ -651,33 +668,83 @@ export default function AdminDashboard() {
               )}
             </div>
 
-            {/* Pipeline Summary */}
+            {/* Revenue Forecasting Panel */}
             <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.15)] rounded-2xl p-5">
-              <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm mb-3">Pipeline Breakdown</h3>
-              <div className="space-y-2 text-sm text-white/60">
-                <div className="flex justify-between">
-                  <span>Quote Requests</span>
-                  <span className="text-white font-medium">{quoteLeads}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Layout Plans</span>
-                  <span className="text-white font-medium">{layoutLeads}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Strategy Calls</span>
-                  <span className="text-white font-medium">{strategyLeads}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Finance Leads</span>
-                  <span className="text-white font-medium">{financeLeads}</span>
-                </div>
-                {planningRequests.length > 0 && (
-                  <div className="flex justify-between border-t border-[rgba(255,255,255,0.05)] pt-2 mt-2">
-                    <span>Planning Submissions</span>
-                    <span className="text-white font-medium">{planningRequests.length}</span>
-                  </div>
-                )}
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm flex items-center gap-2">
+                  <TrendingUp className="w-3.5 h-3.5" /> Revenue Forecast
+                </h3>
+                <a href="/admin/deal-pipeline" className="text-white/30 hover:text-white/60 text-xs transition-colors cursor-pointer">
+                  Full pipeline →
+                </a>
               </div>
+              {forecast ? (
+                <div className="space-y-2.5 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-white/50">Gross Pipeline</span>
+                    <span className="text-white font-semibold" data-testid="forecast-gross-pipeline">
+                      {forecast.grossPipeline >= 1000000
+                        ? `$${(forecast.grossPipeline / 1000000).toFixed(1)}M`
+                        : forecast.grossPipeline >= 1000
+                        ? `$${(forecast.grossPipeline / 1000).toFixed(0)}k`
+                        : `$${forecast.grossPipeline}`}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-white/50">Expected Revenue</span>
+                    <span className="text-[hsl(43,78%,65%)] font-bold" data-testid="forecast-expected-revenue">
+                      {forecast.weightedRevenue >= 1000000
+                        ? `$${(forecast.weightedRevenue / 1000000).toFixed(1)}M`
+                        : forecast.weightedRevenue >= 1000
+                        ? `$${(forecast.weightedRevenue / 1000).toFixed(0)}k`
+                        : `$${forecast.weightedRevenue}`}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-white/50">Probable Deals <span className="text-white/25 text-xs">(≥60%)</span></span>
+                    <span className="text-amber-400 font-semibold" data-testid="forecast-probable-deals">{forecast.probableDealsCount}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-white/50">Won Revenue</span>
+                    <span className="text-green-400 font-semibold" data-testid="forecast-won-revenue">
+                      {forecast.wonValue >= 1000000
+                        ? `$${(forecast.wonValue / 1000000).toFixed(1)}M`
+                        : forecast.wonValue >= 1000
+                        ? `$${(forecast.wonValue / 1000).toFixed(0)}k`
+                        : forecast.wonValue > 0 ? `$${forecast.wonValue}` : "—"}
+                    </span>
+                  </div>
+                  {forecast.winRate !== null && (
+                    <div className="flex justify-between items-center border-t border-[rgba(255,255,255,0.05)] pt-2 mt-2">
+                      <span className="text-white/50">Win Rate</span>
+                      <span className="text-blue-400 font-semibold" data-testid="forecast-win-rate">{forecast.winRate}%</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center">
+                    <span className="text-white/30 text-xs">Active prospects</span>
+                    <span className="text-white/50 text-xs">{forecast.totalLeads}</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2 text-sm text-white/60">
+                  <div className="flex justify-between">
+                    <span>Quote Requests</span>
+                    <span className="text-white font-medium">{quoteLeads}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Layout Plans</span>
+                    <span className="text-white font-medium">{layoutLeads}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Strategy Calls</span>
+                    <span className="text-white font-medium">{strategyLeads}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Finance Leads</span>
+                    <span className="text-white font-medium">{financeLeads}</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Intelligence Status */}
