@@ -513,7 +513,7 @@ ${FITOUT_CONSTRUCTION_LAYER}`;
 // psychology insights) from /ai/knowledge/ at the time of the AI call.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function buildChatSystemPrompt(sessionContext?: string): string {
+export function buildChatSystemPrompt(sessionContext?: string, pageContext?: string, userProfile?: string): string {
   const workplaceKnowledge = getWorkplaceDesignKnowledge();
   const salesKnowledge = getSalesFramework();
   const supplierRules = getSupplierRoutingRules();
@@ -524,7 +524,17 @@ export function buildChatSystemPrompt(sessionContext?: string): string {
     ? `\n## ACTIVE SESSION CONTEXT\nThe following project details have been established in this conversation. Use them automatically — do NOT ask for these again:\n${sessionContext}\n`
     : "";
 
+  const pageBlock = pageContext
+    ? `\n## CURRENT PAGE CONTEXT\nThe visitor is currently viewing: **${pageContext}**.\nTailor your tone and suggestions to be most relevant for what this page offers. If they ask about something not on this page, guide them toward the right next step.\n`
+    : "";
+
+  const profileBlock = userProfile
+    ? `\n## KNOWN VISITOR PROJECT DATA\nThe following details are already known about this visitor from prior conversation. Reference them naturally and do NOT ask for these again:\n${userProfile}\n`
+    : "";
+
   return `${CORPORATE_DESK_SYSTEM_PROMPT}
+${pageBlock}
+${profileBlock}
 ${sessionBlock}
 ## STRUCTURED KNOWLEDGE BASE — LOADED AT RUNTIME
 The following structured knowledge has been loaded from the TCD knowledge system.

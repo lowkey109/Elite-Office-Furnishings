@@ -1,0 +1,562 @@
+SAFE SYSTEM EXTENSION — COMPLETE AI WORKSPACE INTELLIGENCE PLATFORM
+
+DO NOT OVERWRITE EXISTING PROMPTS.
+DO NOT REBUILD THE SITE.
+DO NOT BREAK:
+- workspace planner
+- estimator
+- product catalog
+- finance system
+- Stripe payments
+- admin dashboard
+- supplier messaging
+- email system
+- existing lead capture
+- mobile responsiveness
+- desktop responsiveness
+
+You are upgrading the LIVE The Corporate Desk platform.
+
+PRIMARY OBJECTIVE
+
+Complete the entire AI Workplace Intelligence Platform so it works as a real production system.
+
+The finished platform must do all of the following as working features, not placeholders:
+
+1. Real AI office planner
+2. Real floor-plan detection
+3. Real workspace layout generation
+4. Real furniture package recommendations
+5. Real supplier pricing intelligence
+6. Real lead signal ingestion
+7. Real workspace learning system
+8. Real deal pipeline forecasting
+9. Real admin intelligence views
+10. Real procurement support
+11. Real finance overlays
+12. Real report output
+
+This must be implemented in safe phases and fully tested.
+
+==================================================
+PHASE 1 — FULL PLATFORM AUDIT
+==================================================
+
+Before writing code, audit the current platform and map all relevant files, routes, models, storage, and admin screens.
+
+Inspect at minimum:
+- workspace planner frontend
+- floor plan upload flow
+- drag-and-drop upload logic
+- file parsing logic for PDF / PNG / JPG
+- planner analysis routes
+- layout generation logic
+- post-payment unlock logic
+- estimator / quote builder
+- product catalog schema
+- range / variant logic
+- supplier database
+- supplier pricing storage
+- admin dashboard
+- planning requests
+- lead intelligence views
+- finance system
+- email system
+- AI context / knowledge loader
+- webhook / payment logic
+- existing project records
+- existing logs / analytics / scoring modules
+
+Return an internal implementation map of:
+- what already works
+- what is partial
+- what is missing
+- what should be extended instead of duplicated
+- what data models already exist
+- what admin pages already exist
+- which routes/services/components should be reused
+
+Do NOT create duplicate systems if a working one already exists.
+
+==================================================
+PHASE 2 — REAL FLOOR-PLAN DETECTION
+==================================================
+
+Complete the planner so uploaded files influence the workspace result in a real way.
+
+Supported inputs:
+- PDF floor plans
+- PNG floor plans
+- JPG / JPEG floor plans
+
+Required capabilities:
+- detect outer boundary / floor shape
+- detect major walls where possible
+- detect major rooms / zones where possible
+- detect likely doors / openings where possible
+- estimate usable floor area
+- preserve uploaded plan orientation where possible
+- fall back gracefully only when necessary
+
+Important rules:
+- do NOT silently revert to a generic rectangle unless parsing truly fails
+- if parsing is partial, use the real outer shape plus user inputs
+- store confidence level of the parsing result
+- preserve current planner flow and file upload stability
+
+If precise CAD-level reading is not possible for all files, implement the strongest production-safe geometry extraction available now and clearly structure the pipeline for future improvements.
+
+==================================================
+PHASE 3 — REAL WORKSPACE LAYOUT GENERATION
+==================================================
+
+Upgrade layout generation so it produces a realistic commercial office concept based on:
+- detected floor shape
+- office size
+- staff count
+- office type
+- meeting room requirement
+- breakout requirement
+- reception requirement
+- executive office requirement
+- storage requirement
+- acoustic/privacy requirement
+- budget/style preference
+
+The layout engine must generate:
+- workstation zones
+- meeting rooms
+- boardroom if required
+- reception if required
+- breakout zones if required
+- storage zones
+- circulation logic
+- acoustic/privacy zones where relevant
+
+Use practical workplace rules such as:
+- sensible desk density
+- practical circulation
+- meeting room sizing
+- logical zoning
+- separation of noisy and quiet areas
+- realistic placement of reception/breakout areas
+
+Do not produce random furniture placement.
+Do not overcrowd plans.
+
+==================================================
+PHASE 4 — REAL FURNITURE PACKAGE ENGINE
+==================================================
+
+Complete the package engine so the planner maps layouts to real product categories, ranges, and core models.
+
+Use the catalog structure:
+CATEGORY
+→ RANGE / COLLECTION
+→ PRODUCT MODEL
+→ VARIANTS
+
+Rules:
+- one real model = one public product page
+- sizes are variants
+- finishes are variants
+- colours are variants
+
+The package engine must:
+- recommend coherent product families
+- bundle desks with matching chairs where relevant
+- bundle meeting tables with meeting chairs
+- bundle reception desks with reception seating
+- bundle storage where needed
+- bundle acoustic pods where needed
+
+Do not treat flat SKU lists as the only intelligence layer.
+Use range/series/product relationships.
+
+==================================================
+PHASE 5 — REAL SUPPLIER PRICING DATABASE
+==================================================
+
+Build a working supplier pricing intelligence layer.
+
+Use three pricing sources:
+1. stored historical supplier quotes
+2. known supplier/category pricing records
+3. indicative category benchmarks when direct pricing is unavailable
+
+The supplier pricing system must support:
+- supplier name
+- category specialization
+- product/range support
+- historical quoted price
+- last quote date
+- MOQ if known
+- average lead time
+- quote response speed
+- shipping notes
+- packaging notes
+- confidence level
+
+Supplier specialization rules at minimum:
+- Boke = chairs only
+- Guangzhou Meiyi / Asya = desks, workstations, meeting tables, reception desks
+- Ruby / Xitian = executive desks, reception desks, custom projects, premium project furniture
+- Denny = sourcing support
+- Ella = general office furniture support as configured
+
+The AI must use this data to estimate:
+- likely factory cost
+- likely landed cost
+- likely project margin
+
+If exact live quote is unavailable, use structured indicative pricing and mark confidence clearly.
+
+==================================================
+PHASE 6 — PROCUREMENT ENGINE
+==================================================
+
+Build a real procurement assistant linked to projects.
+
+The procurement engine must:
+- identify relevant suppliers for each category
+- compare supplier suitability
+- compare pricing
+- compare lead times
+- compare reliability
+- estimate landed cost
+- estimate margin
+- recommend best supplier mix for the project
+
+For procurement drafts, the system must generate supplier messages requesting:
+- pricing
+- lead time
+- MOQ
+- finishes
+- dimensions
+- packaging details
+- freight information where relevant
+
+Messages must be:
+- short
+- natural
+- friendly
+- commercially clear
+- admin-approved before sending
+
+==================================================
+PHASE 7 — REAL LEAD SIGNAL FEEDS
+==================================================
+
+Complete the lead intelligence ingestion system.
+
+It must support these signal groups:
+1. office move signals
+2. company growth signals
+3. building tenant movement signals
+4. territory scanner signals
+
+Office move signals include:
+- lease announcements
+- relocation announcements
+- office move news
+- refurbishment / fit-out mentions
+- new office announcements
+
+Growth signals include:
+- rapid hiring
+- funding announcements
+- expansion into new cities
+- workplace/facilities hiring roles
+- recruitment campaigns
+
+Building signals include:
+- tenant move-ins
+- tenant move-outs
+- new floor leases
+- tower leasing announcements
+- vacancy / replacement activity
+
+Territory scanner must focus on:
+- Brisbane
+- Melbourne
+- Sydney
+
+The ingestion layer must support:
+- source name
+- source type
+- signal extraction
+- source URL
+- timestamp
+- deduplication
+
+If fully automated live connectors are not available for every source, implement:
+- the strongest safe ingestion architecture
+- admin/manual signal import support
+- source normalization
+- scoring pipeline
+- route storage
+so the system is operational now and connector-ready later
+
+==================================================
+PHASE 8 — LEAD SCORING + OUTREACH
+==================================================
+
+Build a real scoring engine.
+
+Score factors should include:
+- office move signal strength
+- growth signal strength
+- building / territory signal strength
+- target city match
+- target industry match
+- estimated office size
+- estimated project value
+- likely furniture / fit-out relevance
+
+Classify:
+- HIGH PRIORITY
+- MEDIUM PRIORITY
+- LOW PRIORITY
+
+Also calculate:
+- estimated project band
+- outreach urgency
+- recommended next action
+- recommended offer
+
+Build human outreach drafts for admin review:
+- subject
+- first email
+- follow-up email
+- CTA
+
+Emails must:
+- sound human
+- be short
+- reference real signal context
+- not sound AI-generated
+- not sound like spam
+
+Do NOT auto-send by default.
+
+==================================================
+PHASE 9 — DEAL PIPELINE ENGINE
+==================================================
+
+Build a real deal intelligence system.
+
+For each lead/project, estimate:
+- deal probability
+- expected project value
+- recommended follow-up timing
+- recommended close strategy
+- recommended offer
+
+Use factors such as:
+- lead score
+- office move signals
+- growth signals
+- building signals
+- estimated office size
+- budget indicators
+- industry
+- decision-maker strength
+- engagement history if available
+- project fit with current catalog/suppliers
+
+Output:
+- deal_probability
+- expected_project_value
+- recommended_next_action
+- recommended_follow_up_timing
+- recommended_offer
+
+Also calculate:
+- total pipeline value
+- weighted pipeline value
+- expected revenue
+- probable closed deals
+
+==================================================
+PHASE 10 — WORKSPACE LEARNING SYSTEM
+==================================================
+
+Build a workspace learning system that learns from every project and improves future recommendations.
+
+Use and store:
+- office size
+- staff count
+- industry type
+- layout type
+- desk density
+- meeting room count
+- breakout included
+- reception included
+- acoustic zones included
+- estimated furniture package
+- supplier mix
+- estimated cost
+- quoted price
+- estimated margin
+- final margin if available
+- conversion result
+
+The system must start learning:
+- best layout type for similar offices
+- most profitable furniture package
+- optimal desk density
+- likely meeting room mix
+- breakout need
+- supplier mix that protects margin and lead time
+- which package/range combinations convert best
+
+For future projects, the AI should reuse relevant historical intelligence from similar projects.
+
+Do not fake precision.
+Use real prior project data where available.
+If data is limited, implement the learning record structure and start capturing it now.
+
+==================================================
+PHASE 11 — FINANCE OVERLAY
+==================================================
+
+Preserve and extend the finance layer so planner results and estimates can show:
+- indicative monthly payments
+- finance CTA
+- finance lead routing
+- finance partner logic
+
+Use existing finance infrastructure and do not break the current finance page or finance enquiry flow.
+
+==================================================
+PHASE 12 — PREMIUM OUTPUT / REPORTS
+==================================================
+
+Upgrade the planner output and post-payment result into a premium commercial report.
+
+Required sections:
+- Project Summary
+- Workspace Strategy
+- Layout Overview
+- Recommended Furniture Package
+- Estimated Investment Range
+- Indicative Monthly Finance Option where relevant
+- Productivity / Workplace Notes
+- Recommended Next Step
+
+The report must feel commercially valuable and worth the fee.
+
+==================================================
+PHASE 13 — ADMIN INTELLIGENCE VIEWS
+==================================================
+
+Extend the current admin dashboard/views so the business can actually use the system.
+
+Admin must be able to see:
+- detected leads
+- lead score
+- lead priority
+- source
+- outreach drafts
+- pipeline intelligence
+- building/territory activity
+- procurement recommendations
+- supplier comparisons
+- project learning records
+- finance-related opportunity flags
+
+Do not create duplicate admin systems if current views can be extended.
+
+==================================================
+PHASE 14 — AI CONTEXT INTEGRATION
+==================================================
+
+Feed the new lead intelligence, procurement, pipeline, and workspace learning data into the AI context safely.
+
+The AI should be able to reason about:
+- detected lead opportunities
+- likely office demand
+- estimated project size
+- recommended outreach angle
+- supplier suitability
+- indicative margin logic
+- likely best layout type
+- likely most profitable package
+- likely follow-up strategy
+
+Use structured context objects.
+Do not dump raw data blindly into prompts.
+
+==================================================
+PHASE 15 — SAFETY / DEDUPLICATION
+==================================================
+
+Implement safeguards:
+- deduplicate detected leads by company + city + signal proximity
+- do not create duplicate building events unnecessarily
+- do not spam the same company repeatedly
+- do not auto-contact without approval by default
+- preserve inbound lead system separately from outbound detected opportunities
+- preserve planner/payment/admin stability
+
+==================================================
+PHASE 16 — FULL TESTING
+==================================================
+
+Before completion, verify all of the following:
+
+1. floor-plan uploads still work
+2. floor-plan parsing uses real uploaded geometry where possible
+3. planner layout generation still works
+4. furniture package generation works
+5. supplier pricing logic works
+6. procurement comparisons work
+7. supplier quote drafts generate correctly
+8. lead signals can be ingested or manually entered
+9. detected leads populate the admin dashboard
+10. lead scoring works
+11. outreach drafts generate properly
+12. territory scanner stores building activity
+13. deal pipeline engine calculates probabilities and next steps
+14. pipeline forecasting renders correctly
+15. workspace learning records are stored and reused
+16. existing planner still works
+17. estimator still works
+18. product catalog still works
+19. finance system still works
+20. Stripe still works
+21. emails still work
+22. mobile and desktop remain stable
+
+==================================================
+PHASE 17 — FINAL REPORT
+==================================================
+
+Return:
+- files audited
+- files modified
+- models created or extended
+- admin views extended
+- how floor-plan detection works now
+- how workspace layout generation works now
+- how supplier pricing works
+- how procurement comparisons work
+- how lead ingestion works
+- how scoring works
+- how outreach drafts work
+- how territory scanner works
+- how deal probability works
+- how pipeline forecasting works
+- how workspace learning improves future projects
+- what remains manual vs automated
+- what was tested
+- confirmation that existing live systems still work
+
+EXECUTION RULE
+
+Audit first.
+Then implement this in safe phases.
+Prefer extending current models, routes, and admin views over creating duplicates.
+Do not stop halfway.
+Do not ask questions.
+Build the working system, not just the framework.

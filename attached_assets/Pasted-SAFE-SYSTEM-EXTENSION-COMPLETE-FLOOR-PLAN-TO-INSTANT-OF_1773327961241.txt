@@ -1,0 +1,224 @@
+SAFE SYSTEM EXTENSION — COMPLETE FLOOR-PLAN-TO-INSTANT-OFFICE-DESIGN ENGINE
+
+DO NOT OVERWRITE EXISTING PROMPTS.
+DO NOT REBUILD THE SITE.
+DO NOT BREAK:
+- workspace planner
+- estimator
+- product catalog
+- finance system
+- Stripe payments
+- admin dashboard
+- supplier messaging
+- email system
+- existing lead capture
+- mobile responsiveness
+- desktop responsiveness
+
+You are upgrading the LIVE The Corporate Desk platform.
+
+PRIMARY OBJECTIVE
+
+Complete the AI Office Planner so it becomes a real floor-plan-to-instant-office-design engine.
+
+The goal is:
+A user uploads a floor plan and within seconds the system produces a convincing workspace concept that is actually influenced by the uploaded plan, not just generic zoning logic.
+
+This must be a real upgrade to the live system, not a demo.
+
+==================================================
+PHASE 1 — AUDIT THE CURRENT PLANNER
+==================================================
+
+Audit:
+- current floor plan upload flow
+- file parser logic for PDF / PNG / JPG
+- current planner form inputs
+- current AI analysis route
+- current SVG layout renderer
+- current 3D walkthrough logic
+- current package generator
+- current planning request storage
+- current free preview / paid unlock flow
+
+Identify:
+- what currently uses real uploaded geometry
+- what currently falls back to generic rectangular logic
+- where floor plan interpretation is weak
+- where layout generation can be upgraded safely
+
+Do not modify anything until the audit is complete.
+
+==================================================
+PHASE 2 — REAL FLOOR PLAN GEOMETRY EXTRACTION
+==================================================
+
+Upgrade the system so uploaded floor plans influence the result in a real way.
+
+Support:
+- PDF
+- PNG
+- JPG
+- JPEG
+
+Implement the strongest production-safe geometry extraction available.
+
+The engine should attempt to identify:
+- outer building / tenancy boundary
+- major walls
+- room blocks where possible
+- openings / circulation paths where possible
+- usable floor area
+- general orientation
+
+Rules:
+- do NOT silently ignore the uploaded plan
+- do NOT always fall back to a rectangle
+- if only partial parsing is possible, use the real outer boundary plus user inputs
+- store a confidence score for the parsing result
+
+==================================================
+PHASE 3 — REAL LAYOUT RESPONSE
+==================================================
+
+Use the parsed floor-plan geometry plus planner inputs to generate a real office concept.
+
+Inputs should include:
+- office size
+- staff count
+- office type
+- meeting room requirements
+- boardroom requirement
+- reception requirement
+- breakout requirement
+- storage requirement
+- executive office requirement
+- acoustic/privacy requirement
+- budget/style preference
+
+Generate:
+- workstation zones
+- meeting rooms
+- boardroom if needed
+- reception
+- breakout zones
+- storage zones
+- circulation logic
+- acoustic/privacy zones
+
+The layout should follow the actual detected floor shape as much as possible.
+
+==================================================
+PHASE 4 — FURNITURE PLACEMENT LOGIC
+==================================================
+
+Upgrade furniture placement so it aligns with the floor-plan-driven layout.
+
+The engine should:
+- estimate realistic desk counts
+- place workstation clusters logically
+- place meeting tables in meeting zones
+- place reception desk in reception zone
+- place breakout furniture in breakout areas
+- place storage in practical positions
+- place pods/quiet zones where appropriate
+
+Do not fake exact CAD-level precision if it is not available.
+But do produce a believable, professional layout driven by the real plan.
+
+==================================================
+PHASE 5 — INSTANT WOW OUTPUT
+==================================================
+
+Make the user experience feel instant and premium.
+
+After upload and processing, the user should quickly see:
+- detected floor shape
+- AI workspace concept
+- zone labels
+- staff capacity estimate
+- recommended furniture package
+- estimated project value
+
+This should feel like:
+upload → instant workspace concept
+
+not:
+upload → generic abstract rectangle
+
+==================================================
+PHASE 6 — FREE PREVIEW + PAID UPGRADE
+==================================================
+
+Preserve the current business model:
+- free preview still works
+- paid unlock still works
+- post-payment output becomes premium
+
+But improve the preview so the user can clearly see that the uploaded plan has influenced the result.
+
+==================================================
+PHASE 7 — ADMIN STORAGE
+==================================================
+
+Store:
+- uploaded original file
+- parsed geometry result
+- confidence level
+- layout output
+- package output
+- staff capacity estimate
+- estimated project value
+
+Admin should be able to see whether the result came from:
+- strong floor plan detection
+- partial detection
+- fallback logic
+
+==================================================
+PHASE 8 — 3D / FUTURE STRUCTURE
+==================================================
+
+Ensure the upgraded floor-plan interpretation can feed the 3D system more accurately later.
+
+Do not break the existing 3D walkthrough.
+Improve the data structure so better geometry can be used in future.
+
+==================================================
+PHASE 9 — TESTING
+==================================================
+
+Verify:
+1. PDF upload works
+2. PNG upload works
+3. JPG upload works
+4. parsed plan influences layout
+5. system no longer defaults to rectangle unless necessary
+6. free preview still works
+7. paid unlock still works
+8. admin stores parsed results
+9. planner remains stable on mobile and desktop
+10. existing systems are not broken
+
+==================================================
+PHASE 10 — FINAL REPORT
+==================================================
+
+Return:
+- files audited
+- files modified
+- what was previously generic
+- what now uses real uploaded geometry
+- how floor plan extraction works
+- how confidence scoring works
+- what output improved
+- what was tested
+- confirmation the live platform still works
+
+EXECUTION RULE
+
+Audit first.
+Then complete the planner into a true floor-plan-to-instant-office-design engine in safe phases.
+Do not stop halfway.
+Do not ask questions.
+Build the live working upgrade, not just the concept.

@@ -1044,9 +1044,11 @@ ${allUrls.map(u => `  <url>
 
   app.post("/api/chat", async (req, res) => {
     try {
-      const { messages, stream: useStream = true } = req.body as {
+      const { messages, stream: useStream = true, pageContext, userProfile } = req.body as {
         messages: ChatMessage[];
         stream?: boolean;
+        pageContext?: string;
+        userProfile?: string;
       };
 
       if (!messages || !Array.isArray(messages)) {
@@ -1060,7 +1062,11 @@ ${allUrls.map(u => `  <url>
 
       // Extract project context from conversation history and inject into system prompt
       const sessionContext = extractSessionContext(formattedMessages);
-      const systemPrompt = buildChatSystemPrompt(sessionContext || undefined);
+      const systemPrompt = buildChatSystemPrompt(
+        sessionContext || undefined,
+        pageContext || undefined,
+        userProfile || undefined
+      );
 
       if (useStream) {
         res.setHeader("Content-Type", "text/event-stream");

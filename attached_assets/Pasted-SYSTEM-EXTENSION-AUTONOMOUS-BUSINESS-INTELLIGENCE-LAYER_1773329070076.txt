@@ -1,0 +1,284 @@
+SYSTEM EXTENSION — AUTONOMOUS BUSINESS INTELLIGENCE LAYER
+
+CRITICAL RULES
+
+Do NOT overwrite existing systems.
+Do NOT break:
+
+• workspace planner
+• estimator
+• product catalog
+• finance system
+• Stripe payments
+• admin dashboard
+• lead intelligence
+• procurement system
+• supplier messaging
+• email system
+
+This extension adds a scheduled AI intelligence layer that continuously improves the business without manual intervention.
+
+------------------------------------------------
+PRIMARY OBJECTIVE
+------------------------------------------------
+
+Create a background automation system that runs on scheduled intervals and continuously improves:
+
+• market intelligence
+• lead generation
+• website performance
+• conversion optimisation
+• content growth
+• system health
+• supplier intelligence
+• pricing awareness
+
+The system must operate safely and autonomously.
+
+------------------------------------------------
+SECTION 1 — SCHEDULED JOB ENGINE
+------------------------------------------------
+
+Create a scheduled job system.
+
+Jobs must run automatically at defined intervals.
+
+Example schedules:
+
+Every 6 hours
+• scan for new office move signals
+• scan for company growth signals
+
+Every 12 hours
+• scan commercial real estate news
+• update building tenant intelligence
+
+Every 24 hours
+• analyze spending trends in office furniture
+• update pricing intelligence
+• check supplier pricing signals
+
+Every 48 hours
+• analyze website analytics
+• detect conversion drop issues
+• detect UX problems
+
+Every 7 days
+• generate SEO content
+• publish new blog articles
+• expand industry intelligence
+• update trend reports
+
+------------------------------------------------
+SECTION 2 — SPENDING TREND INTELLIGENCE
+------------------------------------------------
+
+The AI must monitor spending trends in commercial office furniture and workplace design.
+
+Track signals such as:
+
+• industry growth trends
+• office fit-out spending trends
+• workspace design trends
+• hybrid work adoption
+• office downsizing or expansion trends
+• popular furniture categories
+• price changes across suppliers
+
+Sources may include:
+
+industry reports
+business news
+commercial real estate data
+workplace design publications
+commercial furniture suppliers
+
+The system must produce weekly insights such as:
+
+• growing furniture categories
+• declining categories
+• pricing changes
+• demand signals
+• design trends
+
+Store results inside admin intelligence reports.
+
+------------------------------------------------
+SECTION 3 — AUTOMATED SEO CONTENT ENGINE
+------------------------------------------------
+
+Create a scheduled SEO publishing system.
+
+Every week the AI should generate high-quality articles about topics such as:
+
+• office fit-out planning
+• modern office design
+• workplace productivity
+• office layout strategy
+• workspace psychology
+• executive office design
+• commercial furniture trends
+
+Each article must include:
+
+• SEO title
+• meta description
+• structured headings
+• internal linking suggestions
+• 3 high-quality image prompts
+
+Articles must be stored in the blog database and flagged for admin review before publishing.
+
+------------------------------------------------
+SECTION 4 — WEBSITE ISSUE DETECTION
+------------------------------------------------
+
+Create an automated system that scans the website for problems.
+
+Detect:
+
+• broken product images
+• missing product data
+• slow page load times
+• layout issues
+• conversion drop signals
+• checkout/payment issues
+• form failures
+
+When issues are detected:
+
+• log issue
+• classify severity
+• suggest fix
+• notify admin dashboard
+
+------------------------------------------------
+SECTION 5 — USER GROWTH INTELLIGENCE
+------------------------------------------------
+
+The AI must analyze visitor behaviour.
+
+Track:
+
+• popular pages
+• drop-off points
+• planner usage
+• lead conversion rates
+• most viewed products
+• search keywords bringing traffic
+
+Use this data to recommend:
+
+• page improvements
+• new landing pages
+• new content topics
+• UX improvements
+
+------------------------------------------------
+SECTION 6 — CONVERSION OPTIMISATION
+------------------------------------------------
+
+Monitor key conversion events:
+
+• planner submissions
+• layout plan purchases
+• quote requests
+• finance enquiries
+• contact form submissions
+
+If conversion drops occur, the AI should suggest:
+
+• improved call-to-actions
+• new landing pages
+• layout adjustments
+• improved messaging
+
+------------------------------------------------
+SECTION 7 — SUPPLIER INTELLIGENCE MONITORING
+------------------------------------------------
+
+Track supplier-related intelligence.
+
+Monitor:
+
+• price changes
+• product updates
+• new product ranges
+• shipping delays
+• factory announcements
+• manufacturing capacity signals
+
+Update supplier records automatically where appropriate.
+
+------------------------------------------------
+SECTION 8 — SYSTEM HEALTH MONITORING
+------------------------------------------------
+
+Create automated system monitoring.
+
+Check regularly:
+
+• API failures
+• job failures
+• slow queries
+• payment verification
+• email sending status
+• background worker status
+
+Log problems and alert admin dashboard.
+
+------------------------------------------------
+SECTION 9 — AUTONOMOUS BUSINESS REPORT
+------------------------------------------------
+
+Generate a weekly business intelligence report.
+
+Include:
+
+• new leads detected
+• high-value opportunities
+• pipeline forecast
+• industry trends
+• spending trends
+• website performance
+• conversion insights
+• supplier updates
+
+The report must appear in the admin dashboard.
+
+------------------------------------------------
+SECTION 10 — SAFETY
+------------------------------------------------
+
+Important rules:
+
+The system must NOT:
+
+• automatically send outbound emails without approval
+• automatically change pricing
+• automatically modify live products
+• automatically delete data
+
+The system may:
+
+• recommend actions
+• generate drafts
+• generate reports
+• generate insights
+
+------------------------------------------------
+RESULT
+------------------------------------------------
+
+After deployment the platform will automatically:
+
+• monitor the market
+• detect new business opportunities
+• analyze industry spending trends
+• generate SEO growth content
+• detect website issues
+• analyze visitor behaviour
+• recommend improvements
+• produce weekly intelligence reports
+
+The system must run on a scheduled background job architecture without affecting normal website performance.
