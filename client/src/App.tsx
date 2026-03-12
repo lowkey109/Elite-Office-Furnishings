@@ -31,6 +31,10 @@ import AdminProductReviews from "@/pages/AdminProductReviews";
 import AdminCommandCentre from "@/pages/AdminCommandCentre";
 import AdminManufacturerMessaging from "@/pages/AdminManufacturerMessaging";
 import AdminFollowUpSequences from "@/pages/AdminFollowUpSequences";
+import AdminLeaseSignals from "@/pages/AdminLeaseSignals";
+import AdminDealPipeline from "@/pages/AdminDealPipeline";
+import AdminTerritoryScanner from "@/pages/AdminTerritoryScanner";
+import AdminProcurementEngine from "@/pages/AdminProcurementEngine";
 
 function Router() {
   return (
@@ -69,6 +73,10 @@ function Router() {
       <Route path="/admin/command-centre" component={AdminCommandCentre} />
       <Route path="/admin/manufacturer-messaging" component={AdminManufacturerMessaging} />
       <Route path="/admin/follow-up-sequences" component={AdminFollowUpSequences} />
+      <Route path="/admin/lease-signals" component={AdminLeaseSignals} />
+      <Route path="/admin/deal-pipeline" component={AdminDealPipeline} />
+      <Route path="/admin/territory-scanner" component={AdminTerritoryScanner} />
+      <Route path="/admin/procurement-engine" component={AdminProcurementEngine} />
       <Route component={NotFound} />
     </Switch>
   );

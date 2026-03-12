@@ -1,0 +1,582 @@
+SAFE SYSTEM EXTENSION — FULLY WORKING ENTERPRISE LEVENUE + PROCUREMENT + WORKSPACE INTELLIGENCE PLATFORM
+
+DO NOT OVERWRITE EXISTING PROMPTS.
+DO NOT REBUILD THE SITE.
+DO NOT BREAK:
+- workspace planner
+- estimator
+- product catalog
+- finance system
+- Stripe payments
+- admin dashboard
+- supplier messaging
+- email system
+- existing lead capture
+- mobile responsiveness
+- desktop responsiveness
+
+You are upgrading the LIVE The Corporate Desk platform.
+
+PRIMARY OBJECTIVE
+
+Build a production-safe, fully functioning AI business system that actually works inside the live platform.
+
+The system must deliver these real outcomes:
+
+1. Detect and store likely office furniture / fit-out opportunities from external signals
+2. Show those opportunities inside admin with scores, filters, outreach drafts, and pipeline intelligence
+3. Help procurement by comparing suppliers, estimated landed costs, and likely margins
+4. Learn from every workspace project and improve future layout, package, and margin recommendations
+5. Forecast deal probability, expected revenue, and best next actions
+
+This must be implemented as working admin/business logic, not as placeholder copy or future ideas.
+
+==================================================
+PHASE 1 — FULL PLATFORM AUDIT
+==================================================
+
+Before writing code, audit the existing system and map all relevant files, routes, models, and admin screens.
+
+Inspect at minimum:
+- admin dashboard
+- lead intelligence views
+- existing leads table / storage
+- planning requests table / storage
+- estimator / quote builder
+- supplier database / manufacturer contact storage
+- product catalog schema
+- product range / variant logic
+- current AI context / knowledge loader
+- current planner output structure
+- email sending system
+- finance lead routing
+- admin marketing/social features if relevant
+- any existing analytics or scoring modules
+
+Return an internal map of:
+- existing lead storage locations
+- existing admin list/detail views that can be extended
+- existing supplier records
+- current email utilities
+- current AI scoring / intelligence logic
+- planner output structure
+- product package logic if present
+- routes/components/models that should be extended instead of duplicated
+
+Do not create duplicate systems if a relevant one already exists.
+
+==================================================
+PHASE 2 — DATA MODEL EXTENSIONS
+==================================================
+
+Create or extend structured data models so the system can work properly.
+
+A. Lead Intelligence Record
+Fields:
+- id
+- company_name
+- industry
+- city
+- state
+- country
+- signal_type
+- signal_subtype
+- signal_source
+- source_url
+- date_detected
+- estimated_headcount_growth
+- estimated_office_size
+- estimated_project_value
+- lead_score
+- lead_priority
+- recommended_outreach_angle
+- recommended_offer
+- contact_name if available
+- contact_role if available
+- contact_email if available
+- contact_phone if available
+- notes
+- status (new, reviewed, contacted, qualified, closed, ignored)
+- created_at
+- updated_at
+
+B. Territory / Building Record
+Fields:
+- id
+- building_name
+- address
+- suburb
+- city
+- state
+- property_type
+- notes
+- last_activity_at
+
+C. Supplier Procurement Record
+Fields:
+- id
+- supplier_name
+- contact_name
+- email
+- whatsapp_number
+- preferred_language
+- category_specialization
+- reliability_score
+- average_quote_response_time
+- average_lead_time
+- pricing_rank
+- notes
+- active_status
+
+D. Workspace Intelligence Record
+Fields:
+- id
+- project_id
+- office_size_sqm
+- staff_count
+- industry_type
+- layout_type
+- desk_density
+- meeting_room_count
+- breakout_included
+- reception_included
+- acoustic_zones_included
+- estimated_furniture_package
+- estimated_cost
+- quoted_price
+- estimated_margin
+- final_margin if available
+- supplier_mix
+- conversion_result
+- created_at
+- updated_at
+
+Do not delete existing fields. Extend safely.
+
+==================================================
+PHASE 3 — LEAD SIGNAL INGESTION LAYER
+==================================================
+
+Build a working ingestion layer that can process external office-demand signals.
+
+The system must support these signal groups:
+
+1. OFFICE MOVE SIGNALS
+Examples:
+- new lease announcements
+- relocation announcements
+- office expansion announcements
+- commercial refurbishment mentions
+- office move news
+
+2. COMPANY GROWTH SIGNALS
+Examples:
+- rapid hiring activity
+- funding announcements
+- expansion into new cities
+- workplace / facilities hiring roles
+- large recruitment campaigns
+
+3. BUILDING TENANT MOVEMENT SIGNALS
+Examples:
+- tenant move-ins
+- tenant move-outs
+- office tower leasing announcements
+- floor leases
+- office vacancy / replacement activity
+
+4. TERRITORY SCANNER SIGNALS
+Examples:
+- new tenants in target office towers
+- major leasing activity in Brisbane, Melbourne, Sydney
+- refurbishment / fit-out activity linked to known office buildings
+
+The ingestion layer must support:
+- source name
+- source type
+- signal extraction
+- source URL
+- timestamp
+- deduplication
+
+If live connectors are not fully available yet, scaffold the ingestion architecture and allow safe manual/admin import of signals so the rest of the system still functions.
+
+==================================================
+PHASE 4 — LEAD SCORING ENGINE
+==================================================
+
+Build a real weighted lead scoring engine.
+
+Score factors should include:
+- office move signal strength
+- growth signal strength
+- building / territory signal strength
+- target city match
+- target industry match
+- estimated office size
+- estimated project value
+- likely furniture / fit-out relevance
+
+Classify:
+- HIGH PRIORITY
+- MEDIUM PRIORITY
+- LOW PRIORITY
+
+Also calculate:
+- estimated project band (for example $20k–$50k, $50k–$100k, $100k–$300k+)
+- outreach urgency
+- recommended next action
+
+Do not use random scoring. Use clear weighted logic in code.
+
+==================================================
+PHASE 5 — OFFICE CAPACITY / FIT-OUT ESTIMATION LOGIC
+==================================================
+
+When a signal suggests growth or relocation, estimate likely workspace needs.
+
+Use practical commercial reasoning such as:
+- headcount growth
+- likely workstation count
+- likely meeting room needs
+- breakout need
+- storage need
+- reception need
+- acoustic pod need
+
+Example:
+If detected growth = 20 employees
+Estimate:
+- 20–30 desks
+- chairs
+- meeting tables
+- storage
+- breakout seating
+- possible phone booths / acoustic pods
+
+Use indicative logic only and label it clearly as estimated opportunity context.
+
+==================================================
+PHASE 6 — ADMIN LEAD INTELLIGENCE PANEL
+==================================================
+
+Extend the existing admin dashboard / lead intelligence views so detected leads actually appear in the platform.
+
+The admin UI must show:
+- company
+- city
+- signal type
+- source
+- lead score
+- priority
+- estimated opportunity
+- recommended outreach angle
+- status
+- date detected
+
+Add filters for:
+- city
+- signal type
+- priority
+- industry
+- status
+
+Add sorting by:
+- score
+- date detected
+- opportunity value
+
+Do not create a completely separate admin if one already exists. Extend current admin safely.
+
+==================================================
+PHASE 7 — HUMAN OUTREACH DRAFT ENGINE
+==================================================
+
+Build an outreach drafting engine that creates natural, human-style drafts.
+
+Important:
+- do NOT auto-send by default
+- generate drafts for admin review first
+
+Drafts must:
+- sound human
+- be short
+- reference the actual detected signal
+- not sound AI-generated
+- not sound like spam
+
+Output for each lead:
+- email subject
+- first email draft
+- optional short follow-up draft
+- recommended CTA
+
+Example CTA angles:
+- free office layout plan
+- AI workspace concept
+- quote request
+- workspace strategy call
+- finance option discussion
+
+Do not generate generic boilerplate for every lead. Personalize using actual signal context.
+
+==================================================
+PHASE 8 — OPTIONAL OUTREACH SENDING LAYER
+==================================================
+
+If the system already has working outbound email infrastructure, support an admin-approved send action.
+
+Rules:
+- never auto-send without admin approval unless explicitly configured later
+- no duplicate sends
+- log each outreach event
+- store:
+  - sent_at
+  - recipient
+  - subject
+  - body
+  - related_lead_id
+  - status
+
+If outbound sending is not ready, keep the system in draft-only mode and make that explicit.
+
+==================================================
+PHASE 9 — TERRITORY SCANNER
+==================================================
+
+Build a territory scanner focused on:
+- Brisbane
+- Melbourne
+- Sydney
+
+The system should support tracking target office towers / precincts.
+
+For each territory/building, allow:
+- manual addition of building
+- notes
+- observed tenant movement
+- related leads
+- last activity date
+
+If external building data sources are available, ingest them.
+If not, scaffold the model and allow admin/manual territory intelligence entry while preserving the scoring pipeline.
+
+The territory scanner must connect building activity to lead creation.
+
+==================================================
+PHASE 10 — AI PROCUREMENT ENGINE
+==================================================
+
+Build a real procurement assistant linked to projects and opportunities.
+
+The procurement engine should:
+- identify relevant product categories for a project
+- identify matching suppliers by specialization
+- compare indicative or known supplier pricing
+- compare lead time
+- compare reliability
+- estimate landed cost
+- estimate project margin
+
+Supplier specialization rules must include at minimum:
+- Boke = chairs only
+- Guangzhou Meiyi / Asya = desks, workstations, meeting tables, reception desks
+- Ruby / Xitian = executive desks, reception desks, custom projects, premium project furniture
+- Denny = sourcing support
+- Ella = general office furniture support as configured
+
+Do not route wrong categories to the wrong suppliers.
+
+==================================================
+PHASE 11 — SUPPLIER QUOTE REQUEST DRAFTS
+==================================================
+
+Support AI-drafted supplier messages for procurement.
+
+Drafts should include:
+- supplier name
+- product category / SKU / item context
+- quantity if known
+- request for pricing
+- request for lead time
+- request for MOQ if relevant
+- request for finishes / dimensions / packaging if relevant
+
+Messages must be:
+- polite
+- short
+- natural
+- relationship-friendly
+- suitable for WhatsApp or email
+
+Do not auto-send supplier requests unless explicitly approved.
+
+==================================================
+PHASE 12 — AI DEAL PIPELINE ENGINE
+==================================================
+
+Build a deal intelligence engine.
+
+For each lead, estimate:
+- probability of winning the deal
+- expected project value
+- best follow-up timing
+- recommended close strategy
+- recommended offer to move the deal forward
+
+Use factors such as:
+- lead score
+- office move signals
+- growth signals
+- building signals
+- estimated office size
+- budget indicators
+- industry
+- decision-maker strength
+- engagement history if available
+
+Output:
+- deal_probability
+- expected_project_value
+- recommended_next_action
+- recommended_follow_up_timing
+- recommended_offer
+
+Example output:
+- Deal probability: 62%
+- Estimated project value: $120,000
+- Recommended next step: Send workspace planning proposal and offer free office layout consultation
+- Follow-up timing: within 3 business days
+
+==================================================
+PHASE 13 — PIPELINE FORECASTING
+==================================================
+
+The system must estimate:
+- total pipeline value
+- weighted pipeline value
+- expected revenue
+- probable closed deals
+
+This should be visible in admin and tied to lead/deal status where possible.
+
+==================================================
+PHASE 14 — AI WORKSPACE DESIGN INTELLIGENCE
+==================================================
+
+Build a workspace design intelligence layer that learns from every layout / project and improves future recommendations.
+
+The system must use:
+- planner outputs
+- office size
+- staff count
+- project type
+- product package used
+- supplier mix
+- estimated cost
+- quoted value
+- conversion outcome
+- margin outcome if available
+
+It must start predicting:
+- best layout type for similar offices
+- most profitable furniture package
+- optimal desk density
+- likely meeting room mix
+- likely breakout need
+- likely project margin
+- supplier mix that protects margin and lead time
+
+For future projects, the AI should be able to say:
+- based on similar 250sqm / 20-staff offices, a layout with X desks, Y meeting rooms, breakout seating, and Z product mix performs best
+- based on prior projects, this package tends to produce stronger margin
+- based on prior conversions, this style/range is more likely to convert in this industry type
+
+Do not fake precision.
+Use real prior project data where available.
+If data is limited, scaffold the learning model and begin storing the required outcomes now.
+
+==================================================
+PHASE 15 — AI CONTEXT INTEGRATION
+==================================================
+
+Feed the new lead intelligence, procurement, deal, and workspace intelligence data into the AI context safely.
+
+The AI should be able to reason about:
+- detected lead opportunities
+- likely office demand
+- estimated project size
+- recommended outreach angle
+- supplier suitability
+- indicative margin logic
+- likely best layout type
+- likely most profitable package
+
+Do not bloat the prompt with raw data dumps.
+Use structured context objects.
+
+==================================================
+PHASE 16 — DEDUPLICATION / SAFETY
+==================================================
+
+Implement safeguards:
+- deduplicate detected leads by company + city + signal proximity
+- do not create duplicate building events unnecessarily
+- do not spam the same company repeatedly
+- do not auto-contact without approval by default
+- preserve existing inbound lead system separately from detected outbound opportunities
+
+==================================================
+PHASE 17 — SYSTEM TESTING
+==================================================
+
+Before completion, verify all of the following:
+
+1. lead signals can be ingested or manually entered
+2. detected leads populate the admin dashboard
+3. lead scoring works
+4. filters and sorting work
+5. outreach drafts generate properly
+6. territory scanner stores building activity
+7. procurement engine compares suppliers correctly
+8. supplier quote drafts generate correctly
+9. deal pipeline engine calculates probabilities and next steps
+10. pipeline forecasting renders correctly
+11. workspace design intelligence stores project outcomes and can reuse them
+12. existing planner still works
+13. estimator still works
+14. product catalog still works
+15. finance system still works
+16. Stripe still works
+17. emails still work
+18. mobile and desktop remain stable
+
+==================================================
+PHASE 18 — FINAL REPORT
+==================================================
+
+Return:
+- files audited
+- files modified
+- models created or extended
+- admin panels extended
+- how lead ingestion works
+- how scoring works
+- how outreach drafts work
+- how territory scanner works
+- how procurement comparisons work
+- how deal probability works
+- how pipeline forecasting works
+- how workspace intelligence learns from projects
+- what remains manual vs automated
+- what was tested
+- confirmation that existing live systems still work
+
+EXECUTION RULE
+
+Audit first.
+Then implement this in safe phases.
+Prefer extending current models, routes, and admin views over creating duplicates.
+Do not stop halfway.
+Do not ask questions.
+Build the working system, not just the framework.

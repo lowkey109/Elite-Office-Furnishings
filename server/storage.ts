@@ -2,11 +2,12 @@ import { eq, desc, or, ilike, and, sql as drizzleSql } from "drizzle-orm";
 import { db } from "./db";
 import {
   users, leads, prospectedLeads, supplierQuotes, referrals, planningRequests, productReviews,
-  manufacturerMessages, followUpSequences,
+  manufacturerMessages, followUpSequences, territories,
   type User, type InsertUser, type Lead, type InsertLead, type PlanningRequest,
   type ProductReview, type InsertProductReview,
   type ManufacturerMessage, type InsertManufacturerMessage,
   type FollowUpSequence, type InsertFollowUpSequence,
+  type Territory, type InsertTerritory,
 } from "@shared/schema";
 
 export interface ProspectedLead {
@@ -30,6 +31,17 @@ export interface ProspectedLead {
   sourceType: string | null;
   sourceUrl: string | null;
   createdAt: Date;
+  // Extended intelligence fields
+  signalType: string | null;
+  city: string | null;
+  contactEmail: string | null;
+  contactRole: string | null;
+  dealProbability: number | null;
+  estimatedOfficeSqm: string | null;
+  estimatedHeadcount: string | null;
+  recommendedNextAction: string | null;
+  outreachSubject: string | null;
+  scanBatchId: string | null;
 }
 
 export interface SupplierQuote {
@@ -177,6 +189,16 @@ function rowToProspectedLead(row: typeof prospectedLeads.$inferSelect): Prospect
     sourceType: row.sourceType ?? null,
     sourceUrl: row.sourceUrl ?? null,
     createdAt: row.createdAt ?? new Date(),
+    signalType: row.signalType ?? null,
+    city: row.city ?? null,
+    contactEmail: row.contactEmail ?? null,
+    contactRole: row.contactRole ?? null,
+    dealProbability: row.dealProbability ?? null,
+    estimatedOfficeSqm: row.estimatedOfficeSqm ?? null,
+    estimatedHeadcount: row.estimatedHeadcount ?? null,
+    recommendedNextAction: row.recommendedNextAction ?? null,
+    outreachSubject: row.outreachSubject ?? null,
+    scanBatchId: row.scanBatchId ?? null,
   };
 }
 
@@ -267,6 +289,16 @@ export class DrizzleStorage implements IStorage {
       status: "New",
       sourceType: data.sourceType ?? "manual",
       sourceUrl: data.sourceUrl ?? null,
+      signalType: data.signalType ?? null,
+      city: data.city ?? null,
+      contactEmail: data.contactEmail ?? null,
+      contactRole: data.contactRole ?? null,
+      dealProbability: data.dealProbability ?? null,
+      estimatedOfficeSqm: data.estimatedOfficeSqm ?? null,
+      estimatedHeadcount: data.estimatedHeadcount ?? null,
+      recommendedNextAction: data.recommendedNextAction ?? null,
+      outreachSubject: data.outreachSubject ?? null,
+      scanBatchId: data.scanBatchId ?? null,
     }).returning();
     return rowToProspectedLead(row);
   }
@@ -595,6 +627,51 @@ export class DrizzleStorage implements IStorage {
       .where(eq(followUpSequences.id, id))
       .returning();
     return row;
+  }
+
+  // ─── Territories ──────────────────────────────────────────────────────────────
+
+  async createTerritory(data: InsertTerritory): Promise<Territory> {
+    const [row] = await db.insert(territories).values(data).returning();
+    return row;
+  }
+
+  async getTerritories(): Promise<Territory[]> {
+    return db.select().from(territories).orderBy(desc(territories.lastActivityAt));
+  }
+
+  async updateTerritory(id: string, data: Partial<InsertTerritory>): Promise<Territory | undefined> {
+    const [row] = await db.update(territories)
+      .set({ ...data, lastActivityAt: new Date() })
+      .where(eq(territories.id, id))
+      .returning();
+    return row;
+  }
+
+  async deleteTerritory(id: string): Promise<void> {
+    await db.delete(territories).where(eq(territories.id, id));
+  }
+
+  // ─── Extended prospectedLeads bulk insert ─────────────────────────────────────
+
+  async bulkCreateProspectedLeads(leads: Array<Omit<ProspectedLead, "id" | "createdAt" | "status">>): Promise<ProspectedLead[]> {
+    const results: ProspectedLead[] = [];
+    for (const lead of leads) {
+      try {
+        const created = await this.createProspectedLead(lead);
+        results.push(created);
+      } catch {
+        // skip duplicates
+      }
+    }
+    return results;
+  }
+
+  async getProspectedLeadsByBatch(scanBatchId: string): Promise<ProspectedLead[]> {
+    const rows = await db.select().from(prospectedLeads)
+      .where(eq(prospectedLeads.scanBatchId, scanBatchId))
+      .orderBy(desc(prospectedLeads.createdAt));
+    return rows.map(rowToProspectedLead);
   }
 }
 

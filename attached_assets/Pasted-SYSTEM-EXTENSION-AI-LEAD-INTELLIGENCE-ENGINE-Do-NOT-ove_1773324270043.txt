@@ -1,0 +1,215 @@
+SYSTEM EXTENSION — AI LEAD INTELLIGENCE ENGINE
+
+Do NOT overwrite existing systems.
+
+This upgrade adds an automated lead discovery and outreach system for The Corporate Desk.
+
+The goal is to automatically identify companies likely to require office furniture, workspace planning, or office fit-outs.
+
+------------------------------------------------
+OBJECTIVE
+------------------------------------------------
+
+The AI must continuously scan public sources for companies that may need:
+
+• office furniture
+• workspace planning
+• office relocations
+• office expansions
+• new office leases
+
+The AI should generate a list of qualified leads and automatically prepare outreach emails.
+
+------------------------------------------------
+SECTION 1 — LEAD DISCOVERY SOURCES
+------------------------------------------------
+
+The AI should scan publicly available sources for signals that a company may need office furniture.
+
+Examples include:
+
+LinkedIn company posts
+LinkedIn hiring announcements
+Commercial real estate listings
+Startup funding announcements
+Office relocation announcements
+Coworking expansions
+Business news sites
+Job boards advertising large hiring campaigns
+
+Lead signals include:
+
+• "moving office"
+• "new office"
+• "expanding team"
+• "opening new headquarters"
+• "new lease signed"
+• "office renovation"
+• "hiring 20+ employees"
+
+These signals indicate potential furniture demand.
+
+------------------------------------------------
+SECTION 2 — LEAD QUALIFICATION
+------------------------------------------------
+
+The AI must prioritize leads based on likelihood of purchasing office furniture.
+
+Lead scoring factors:
+
+company size
+recent hiring activity
+office relocation signals
+industry type
+location proximity
+team growth rate
+
+Example high-value lead:
+
+tech startup
+recent funding
+expanding team
+new office lease
+
+------------------------------------------------
+SECTION 3 — CONTACT DISCOVERY
+------------------------------------------------
+
+For qualified leads the AI should attempt to identify decision makers.
+
+Preferred contacts:
+
+operations manager
+office manager
+facilities manager
+founder
+CEO
+HR manager
+
+Contact sources may include:
+
+LinkedIn profiles
+company websites
+business directories
+
+------------------------------------------------
+SECTION 4 — HUMAN-STYLE EMAIL GENERATION
+------------------------------------------------
+
+The AI must generate outreach emails that feel natural and personal.
+
+The emails must NOT sound automated.
+
+Tone should be:
+
+friendly
+professional
+brief
+helpful
+
+Avoid marketing language.
+
+Example tone:
+
+"Hi Sarah,
+
+I noticed your team is expanding and it looks like you're growing quickly.
+
+We work with companies planning new offices or upgrading their workspace and often help with layout planning and furniture sourcing.
+
+If you're currently planning a workspace change I'd be happy to share a few ideas.
+
+Best,
+Ben"
+
+Emails should feel like they were written by a real person.
+
+------------------------------------------------
+SECTION 5 — EMAIL PERSONALIZATION
+------------------------------------------------
+
+Every outreach email should reference a real signal.
+
+Examples:
+
+recent hiring
+new office
+company expansion
+team growth
+
+This makes the email feel genuine rather than generic.
+
+------------------------------------------------
+SECTION 6 — OUTREACH SCHEDULING
+------------------------------------------------
+
+Emails should be sent gradually to avoid spam signals.
+
+Example:
+
+10–20 emails per day.
+
+Leads should be tracked in a lead database.
+
+Fields:
+
+company
+contact_name
+email
+industry
+location
+lead_signal
+date_contacted
+response_status
+
+------------------------------------------------
+SECTION 7 — RESPONSE MANAGEMENT
+------------------------------------------------
+
+When a lead replies the AI should:
+
+notify admin
+store conversation
+suggest next steps
+
+Example next steps:
+
+offer free office layout plan
+schedule consultation
+request office floor plan
+
+------------------------------------------------
+SECTION 8 — SALES FUNNEL CONNECTION
+------------------------------------------------
+
+When a lead engages, the AI should route them into the existing system:
+
+workspace planner
+quote builder
+finance options
+product catalog
+
+This converts cold leads into active projects.
+
+------------------------------------------------
+SECTION 9 — SAFETY
+------------------------------------------------
+
+Do not spam.
+Respect rate limits.
+Do not send duplicate emails.
+Do not contact the same company repeatedly.
+
+------------------------------------------------
+RESULT
+------------------------------------------------
+
+After implementation the system should:
+
+discover companies planning offices
+identify decision makers
+generate human-style outreach emails
+send emails gradually
+route replies into the workspace planning funnel
+
+This system should continuously feed new leads into The Corporate Desk pipeline.

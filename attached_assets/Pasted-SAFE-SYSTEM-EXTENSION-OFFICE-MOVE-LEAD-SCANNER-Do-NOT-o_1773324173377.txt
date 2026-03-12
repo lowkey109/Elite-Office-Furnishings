@@ -1,0 +1,122 @@
+SAFE SYSTEM EXTENSION — OFFICE MOVE LEAD SCANNER
+
+Do NOT overwrite existing prompts.
+Do NOT rebuild the live site.
+Do NOT break planner, estimator, catalog, Stripe, emails, admin dashboard, or supplier systems.
+
+You are upgrading the LIVE The Corporate Desk platform.
+
+PRIMARY OBJECTIVE
+
+Build an AI lead-scanning engine that identifies likely commercial office furniture and fit-out opportunities by scanning external lead-signal sources and turning them into qualified leads inside admin.
+
+The system must help The Corporate Desk find companies that are likely to:
+- move offices
+- expand headcount
+- renew or replace office space
+- open new offices
+- refurbish existing workspaces
+- require workstations, desks, chairs, boardrooms, reception, pods, and fit-out planning
+
+==================================================
+PHASE 1 — LEAD SIGNAL MODEL
+==================================================
+
+The AI must score lead opportunities using external office-move / expansion signals.
+
+Primary signal groups:
+
+1. Lease expiry / tenant movement signals
+- tenants nearing lease expiry
+- commercial property tenancy intelligence
+- office relocation indicators
+
+2. Hiring / growth signals
+- Office Manager roles
+- Facilities Manager roles
+- Workplace Manager roles
+- Project Manager fit-out roles
+- Office Coordinator roles
+- Facilities Team Lead roles
+
+3. Commercial real estate activity signals
+- office leasing news
+- office demand rebound
+- tenant relocations
+- new office developments
+- major office refurbishments
+
+4. Company expansion signals
+- headcount growth
+- multi-city expansion
+- new workplace / operations roles
+- relocation / workplace transformation content
+
+==================================================
+PHASE 2 — SOURCE TARGETS
+==================================================
+
+Use these source types where legally and technically appropriate:
+
+A. Lease / tenant intelligence
+- lease expiry and tenant intelligence tools
+- commercial property platforms that identify upcoming tenant decision points
+
+B. Job platforms
+- SEEK
+- LinkedIn Jobs
+- Adzuna
+- Indeed
+
+C. Commercial property / office market sources
+- commercial property news
+- office vacancy / absorption reports
+- leasing market updates
+- office project / fit-out announcements
+
+D. Company public signals
+- company websites
+- LinkedIn company posts
+- careers pages
+- media/news pages
+
+==================================================
+PHASE 3 — LEAD DETECTION RULES
+==================================================
+
+The AI should identify leads when one or more of these signals appear:
+
+HIGH INTENT SIGNALS
+- company relocating office
+- tenant lease expiry approaching
+- office fit-out / refurbishment mentioned
+- new office opening
+- facilities/workplace hiring for a known office location
+
+MEDIUM INTENT SIGNALS
+- strong headcount growth
+- multiple office admin/workplace roles posted
+- new city expansion
+- office demand / tenant movement in target building or precinct
+
+LOWER INTENT SIGNALS
+- company posts about workplace culture / new workspace
+- general hiring growth without workplace-specific roles
+
+==================================================
+PHASE 4 — TARGETING FILTERS
+==================================================
+
+Prioritise target companies in:
+- Brisbane
+- Melbourne
+- Sydney
+- major metro office precincts
+
+Prioritise industries:
+- technology
+- finance
+- consulting
+- engineering
+- healthcare
+- professional services

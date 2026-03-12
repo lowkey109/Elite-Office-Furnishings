@@ -1,0 +1,475 @@
+SAFE SYSTEM EXTENSION — ENTERPRISE LEAD INTELLIGENCE + PROCUREMENT + DEAL PIPELINE PLATFORM
+
+CRITICAL RULES
+
+DO NOT overwrite existing prompts.
+DO NOT rebuild the website.
+DO NOT break the following systems:
+
+• workspace planner
+• estimator
+• product catalog
+• finance system
+• Stripe payments
+• admin dashboard
+• supplier messaging
+• email system
+• existing lead capture
+• mobile responsiveness
+• desktop responsiveness
+
+You are upgrading the LIVE platform for The Corporate Desk.
+
+This upgrade must EXTEND the platform safely.
+
+------------------------------------------------
+PRIMARY OBJECTIVE
+------------------------------------------------
+
+Build a production-safe AI intelligence system capable of:
+
+1. Detecting companies likely to require office furniture or workspace planning
+2. Showing these opportunities inside the admin dashboard
+3. Assisting procurement decisions for projects
+4. Predicting deal probability and project value
+5. Forecasting the business revenue pipeline
+
+This must be implemented as a functional business system inside the admin platform.
+
+==================================================
+PHASE 1 — SYSTEM AUDIT
+==================================================
+
+Before building anything, audit the entire system.
+
+Inspect:
+
+• admin dashboard
+• lead intelligence views
+• existing leads table
+• planning requests table
+• estimator / quote builder
+• supplier database
+• manufacturer contacts
+• product catalog schema
+• AI knowledge loader
+• email sending utilities
+• finance lead routing
+• admin marketing/social systems
+
+Return an internal system map showing:
+
+• where leads are stored
+• admin components that can be extended
+• supplier storage
+• AI scoring logic
+• email utilities
+• routes and components that should be extended
+
+DO NOT create duplicate systems.
+
+==================================================
+PHASE 2 — DATA MODEL EXTENSIONS
+==================================================
+
+Extend the data structure.
+
+LEAD INTELLIGENCE RECORD
+
+Fields:
+
+id
+company_name
+industry
+city
+state
+country
+signal_type
+signal_subtype
+signal_source
+source_url
+date_detected
+estimated_headcount_growth
+estimated_office_size
+estimated_project_value
+lead_score
+lead_priority
+recommended_outreach_angle
+recommended_offer
+contact_name
+contact_role
+contact_email
+contact_phone
+notes
+status
+created_at
+updated_at
+
+STATUS TYPES
+
+new
+reviewed
+contacted
+qualified
+closed
+ignored
+
+------------------------------------------------
+
+TERRITORY / BUILDING RECORD
+
+Fields:
+
+id
+building_name
+address
+suburb
+city
+state
+property_type
+notes
+last_activity_at
+
+------------------------------------------------
+
+SUPPLIER PROCUREMENT RECORD
+
+Fields:
+
+id
+supplier_name
+contact_name
+email
+whatsapp_number
+preferred_language
+category_specialization
+reliability_score
+average_quote_response_time
+average_lead_time
+pricing_rank
+notes
+active_status
+
+==================================================
+PHASE 3 — LEAD SIGNAL INGESTION LAYER
+==================================================
+
+Build a signal ingestion layer capable of detecting office demand signals.
+
+Signal categories:
+
+OFFICE MOVE SIGNALS
+
+Examples:
+
+• new office leases
+• relocation announcements
+• office expansions
+• refurbishment permits
+• office move news
+
+------------------------------------------------
+
+COMPANY GROWTH SIGNALS
+
+Examples:
+
+• rapid hiring
+• funding announcements
+• company expansion
+• facilities hiring roles
+• recruitment campaigns
+
+------------------------------------------------
+
+BUILDING TENANT MOVEMENT SIGNALS
+
+Examples:
+
+• tenant move-ins
+• tenant move-outs
+• office tower leasing
+• floor leasing announcements
+• office vacancy replacements
+
+------------------------------------------------
+
+TERRITORY SCANNER SIGNALS
+
+Examples:
+
+• new tenants in office towers
+• major leasing activity
+• building refurbishment activity
+
+Cities to monitor:
+
+• Brisbane
+• Melbourne
+• Sydney
+
+------------------------------------------------
+
+The ingestion layer must support:
+
+source_name
+source_type
+signal_data
+source_url
+timestamp
+deduplication
+
+If real connectors are not available, allow manual admin imports.
+
+==================================================
+PHASE 4 — LEAD SCORING ENGINE
+==================================================
+
+Build a weighted scoring engine.
+
+Score factors:
+
+• office move signals
+• growth signals
+• building signals
+• target city match
+• industry relevance
+• estimated workspace size
+• estimated project value
+
+Lead categories:
+
+HIGH PRIORITY
+MEDIUM PRIORITY
+LOW PRIORITY
+
+Also calculate:
+
+• estimated project band
+• outreach urgency
+• recommended next action
+
+==================================================
+PHASE 5 — OFFICE CAPACITY ESTIMATION
+==================================================
+
+When signals suggest growth or relocation estimate workspace needs.
+
+Example logic:
+
+If hiring 20 employees:
+
+Estimate:
+
+20–30 desks
+task chairs
+meeting tables
+storage
+breakout seating
+acoustic booths
+
+Use indicative reasoning only.
+
+==================================================
+PHASE 6 — ADMIN LEAD INTELLIGENCE PANEL
+==================================================
+
+Extend the admin dashboard.
+
+Display columns:
+
+company
+city
+signal type
+source
+lead score
+priority
+estimated opportunity
+recommended outreach
+status
+date detected
+
+Filters:
+
+city
+industry
+signal type
+priority
+status
+
+Sorting:
+
+lead score
+opportunity value
+date detected
+
+==================================================
+PHASE 7 — HUMAN OUTREACH DRAFT ENGINE
+==================================================
+
+Generate natural outreach drafts.
+
+Important:
+
+Do NOT auto-send.
+
+Create drafts for admin review.
+
+Outputs:
+
+• subject
+• initial email
+• optional follow-up
+• recommended CTA
+
+CTA examples:
+
+• free office layout plan
+• AI workspace design
+• workspace consultation
+• furniture quotation
+• finance discussion
+
+Emails must sound human.
+
+==================================================
+PHASE 8 — TERRITORY SCANNER
+==================================================
+
+Monitor office towers in:
+
+Brisbane
+Melbourne
+Sydney
+
+Track:
+
+• new tenants
+• office relocations
+• floor leasing
+• building vacancy
+• refurbishment activity
+
+These signals must generate high-priority leads.
+
+==================================================
+PHASE 9 — AI PROCUREMENT ENGINE
+==================================================
+
+Build a supplier procurement assistant.
+
+Capabilities:
+
+• identify suppliers by category
+• compare supplier pricing
+• estimate landed cost
+• estimate project margin
+• recommend best supplier
+
+Product categories:
+
+chairs
+desks
+workstations
+meeting tables
+reception desks
+acoustic pods
+
+Evaluation factors:
+
+price
+lead time
+quality
+shipping cost
+reliability
+
+==================================================
+PHASE 10 — SUPPLIER QUOTE REQUEST DRAFTS
+==================================================
+
+Draft supplier messages.
+
+Example:
+
+Hello Ruby,
+
+We are reviewing a workspace project and may require pricing for several desks.
+
+Could you confirm pricing and lead times?
+
+Thank you.
+
+Messages must be polite and professional.
+
+==================================================
+PHASE 11 — AI DEAL PIPELINE ENGINE
+==================================================
+
+For each lead estimate:
+
+• deal probability
+• expected project value
+• best follow-up timing
+• recommended close strategy
+
+Output example:
+
+Deal probability: 62%
+
+Estimated project value: $120,000
+
+Recommended action:
+Send workspace layout proposal.
+
+==================================================
+PHASE 12 — PIPELINE FORECASTING
+==================================================
+
+Calculate:
+
+• total pipeline value
+• expected revenue
+• probable closed deals
+
+This allows forecasting of company growth.
+
+==================================================
+PHASE 13 — SAFETY CONTROLS
+==================================================
+
+Implement safeguards:
+
+• deduplicate leads
+• avoid duplicate company signals
+• prevent repeated outreach
+• protect existing systems
+
+==================================================
+PHASE 14 — SYSTEM TESTING
+==================================================
+
+Verify:
+
+1. signals are detected
+2. leads appear in admin
+3. scoring works
+4. outreach drafts generate
+5. territory scanner works
+6. procurement comparisons work
+7. deal pipeline predictions work
+8. existing systems remain functional
+
+==================================================
+FINAL RESULT
+==================================================
+
+The platform becomes an AI commercial furniture intelligence system capable of:
+
+• detecting office move opportunities
+• detecting company growth
+• monitoring office towers
+• prioritizing leads
+• drafting outreach emails
+• assisting supplier procurement
+• predicting deal probability
+• forecasting revenue pipeline

@@ -65,6 +65,41 @@ Admin-only WhatsApp manufacturer communication system at `/admin/manufacturer-me
 
 **Safety rules:** Admin reviews and manually sends all messages. No autonomous sending. All sends (including failed) are logged to `manufacturer_messages` DB table.
 
+## Enterprise Lead Intelligence Platform
+
+### Lease Signal Intelligence (`/admin/lease-signals`)
+AI-powered commercial intelligence engine that detects companies likely to need office furniture by identifying office move, relocation, expansion, and hiring signals across Brisbane, Melbourne, and Sydney.
+
+**How it works:** Runs GPT-4o with deep Australian office market knowledge to generate realistic, qualified leads with: company name, city, industry, signal type, deal probability (0-100%), estimated office sqm, headcount, project value, personalised outreach email, and recommended next action.
+
+**Signal types:** `new_lease`, `relocation`, `office_expansion`, `refurbishment`, `hiring_signals`, `funding_growth`, `new_office_opening`, `territory_signal`
+
+**API:** `POST /api/admin/lease-signal-scan` — accepts `{ cities, signalTypes, count }`. Saves to `prospected_leads` table with extended fields. Deduplicates automatically.
+
+**Extended `prospected_leads` fields:** `signal_type`, `city`, `contact_email`, `contact_role`, `deal_probability`, `estimated_office_sqm`, `estimated_headcount`, `recommended_next_action`, `outreach_subject`, `scan_batch_id`
+
+### Territory Scanner (`/admin/territory-scanner`)
+Tracks key office towers and commercial precincts across Brisbane, Melbourne, and Sydney. Admin can add buildings with notes on tenant movements, then trigger an AI scan to generate leads tied to that building.
+
+**DB table:** `territories` — id, building_name, address, suburb, city, state, property_type, notes, tenant_count, active_status, last_activity_at
+
+**API:** `GET/POST /api/admin/territories`, `PATCH/DELETE /api/admin/territories/:id`
+
+### Deal Pipeline (`/admin/deal-pipeline`)
+Kanban-style pipeline view across all prospected leads (New → Contacted → Qualified → Won). Shows weighted revenue forecast (probability × value), gross pipeline, high-probability count, and won deal totals. Integrates with existing pipeline-stats from inbound leads.
+
+### Procurement Engine (`/admin/procurement-engine`)
+Build a product list (category + quantity) → get supplier routing, landed cost estimates, lead times, and margin bands. Enforces supplier routing rules (Boke = seating only, Meiyi = desks/workstations, Ruby = reception/executive/custom). Generates WhatsApp message drafts per supplier.
+
+**API:** `POST /api/admin/procurement/calculate` — accepts `{ lines: [{ category, quantity }] }`. Returns recommendations with supplier routing.
+
+**Files:**
+- `server/services/leaseSignalScanner.ts` — AI scanner + procurement calculator
+- `client/src/pages/AdminLeaseSignals.tsx` — AI scanner dashboard
+- `client/src/pages/AdminDealPipeline.tsx` — pipeline forecasting
+- `client/src/pages/AdminTerritoryScanner.tsx` — building tracker
+- `client/src/pages/AdminProcurementEngine.tsx` — supplier procurement
+
 ## Automated Follow-Up Email Sequences
 Every inbound lead automatically enters a 4-stage personalised email follow-up sequence.
 

@@ -19,6 +19,7 @@ import { generatePackageAndQuote } from "./ai/packageGenerator";
 import { parseFloorPlan, type FloorGeometry } from "./services/floorPlanParser";
 import { sendWhatsAppTextMessage, isWhatsAppConfigured } from "./services/whatsapp";
 import { startFollowUpForLead } from "./services/followUpScheduler";
+import { runLeaseSignalScan, computeProcurementRecommendations } from "./services/leaseSignalScanner";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -2541,6 +2542,120 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch layout data" });
+    }
+  });
+
+  // ─── Lease Signal Scanner ─────────────────────────────────────────────────────
+
+  app.post("/api/admin/lease-signal-scan", async (req, res) => {
+    try {
+      const { cities, signalTypes, count } = req.body;
+      const scanBatchId = `scan_${Date.now()}`;
+
+      const scanned = await runLeaseSignalScan({ cities, signalTypes, count });
+
+      const created = [];
+      for (const lead of scanned) {
+        try {
+          const dup = await storage.findProspectDuplicate(lead.company, null, null);
+          if (dup) continue;
+
+          const saved = await storage.createProspectedLead({
+            company: lead.company,
+            domain: null,
+            website: null,
+            location: `${lead.suburb}, ${lead.city}`,
+            industry: lead.industry,
+            estimatedTeamSize: lead.estimatedHeadcount,
+            likelyOfficeNeed: lead.estimatedOfficeSqm,
+            signalsDetected: lead.signalsDetected,
+            estimatedProjectValue: lead.estimatedProjectValue,
+            score: lead.score,
+            priority: lead.priority,
+            decisionMakers: `${lead.contactName} — ${lead.contactRole}`,
+            outreachMessage: lead.outreachEmail,
+            reasoning: lead.reasoning,
+            rawInput: lead.signalSummary,
+            sourceType: "ai_scan",
+            sourceUrl: null,
+            sourceText: lead.signalSource,
+            // Extended fields
+            signalType: lead.signalType,
+            city: lead.city,
+            contactEmail: null,
+            contactRole: lead.contactRole,
+            dealProbability: lead.dealProbability,
+            estimatedOfficeSqm: lead.estimatedOfficeSqm,
+            estimatedHeadcount: lead.estimatedHeadcount,
+            recommendedNextAction: lead.recommendedNextAction,
+            outreachSubject: lead.outreachSubject,
+            scanBatchId,
+          } as any);
+          created.push(saved);
+        } catch { /* skip duplicates */ }
+      }
+
+      res.json({
+        success: true,
+        count: created.length,
+        batchId: scanBatchId,
+        message: `${created.length} new leads detected across ${[...new Set(scanned.map(l => l.city))].join(", ")}`,
+      });
+    } catch (err: any) {
+      console.error("[lease-scan]", err.message);
+      res.status(500).json({ error: err.message || "Scan failed" });
+    }
+  });
+
+  // ─── Territory CRUD ───────────────────────────────────────────────────────────
+
+  app.get("/api/admin/territories", async (req, res) => {
+    try {
+      res.json(await storage.getTerritories());
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/admin/territories", async (req, res) => {
+    try {
+      const t = await storage.createTerritory(req.body);
+      res.json(t);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.patch("/api/admin/territories/:id", async (req, res) => {
+    try {
+      const t = await storage.updateTerritory(req.params.id, req.body);
+      res.json(t);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.delete("/api/admin/territories/:id", async (req, res) => {
+    try {
+      await storage.deleteTerritory(req.params.id);
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ─── Procurement Engine ────────────────────────────────────────────────────────
+
+  app.post("/api/admin/procurement/calculate", async (req, res) => {
+    try {
+      const { lines } = req.body;
+      if (!Array.isArray(lines) || lines.length === 0) {
+        return res.status(400).json({ error: "Provide at least one product line" });
+      }
+      const recommendations = computeProcurementRecommendations(lines);
+      res.json({ recommendations });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
     }
   });
 

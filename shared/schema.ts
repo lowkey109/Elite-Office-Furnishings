@@ -71,7 +71,38 @@ export const prospectedLeads = pgTable("prospected_leads", {
   sourceText: text("source_text"),
   updatedAt: timestamp("updated_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
+  // — Extended intelligence fields —
+  signalType: text("signal_type"),
+  city: text("city"),
+  contactEmail: text("contact_email"),
+  contactRole: text("contact_role"),
+  dealProbability: integer("deal_probability"),
+  estimatedOfficeSqm: text("estimated_office_sqm"),
+  estimatedHeadcount: text("estimated_headcount"),
+  recommendedNextAction: text("recommended_next_action"),
+  outreachSubject: text("outreach_subject"),
+  scanBatchId: text("scan_batch_id"),
 });
+
+// ─── Territories ───────────────────────────────────────────────────────────────
+export const territories = pgTable("territories", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  buildingName: text("building_name").notNull(),
+  address: text("address"),
+  suburb: text("suburb"),
+  city: text("city").notNull(),
+  state: text("state"),
+  propertyType: text("property_type").default("office_tower"),
+  notes: text("notes"),
+  tenantCount: integer("tenant_count"),
+  activeStatus: boolean("active_status").default(true),
+  lastActivityAt: timestamp("last_activity_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertTerritorySchema = createInsertSchema(territories).omit({ id: true, createdAt: true });
+export type InsertTerritory = z.infer<typeof insertTerritorySchema>;
+export type Territory = typeof territories.$inferSelect;
 
 export const supplierQuotes = pgTable("supplier_quotes", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
