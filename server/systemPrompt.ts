@@ -21,7 +21,10 @@ import {
   getSalesFramework,
   getWorkplaceDesignKnowledge,
   getLeadQualificationRules,
+  getBusinessMemory,
 } from "./ai/knowledgeLoader";
+import { getSupplierRoutingRules } from "./ai/supplierIntelligence";
+import { getProductIntelligence } from "./ai/productIntelligence";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SECTION 1 — STRATEGIC INTELLIGENCE LAYER
@@ -510,30 +513,116 @@ ${FITOUT_CONSTRUCTION_LAYER}`;
 // psychology insights) from /ai/knowledge/ at the time of the AI call.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function buildChatSystemPrompt(): string {
+export function buildChatSystemPrompt(sessionContext?: string): string {
   const workplaceKnowledge = getWorkplaceDesignKnowledge();
   const salesKnowledge = getSalesFramework();
-  return `${CORPORATE_DESK_SYSTEM_PROMPT}
+  const supplierRules = getSupplierRoutingRules();
+  const productIntel = getProductIntelligence();
+  const businessMemory = getBusinessMemory();
 
+  const sessionBlock = sessionContext
+    ? `\n## ACTIVE SESSION CONTEXT\nThe following project details have been established in this conversation. Use them automatically — do NOT ask for these again:\n${sessionContext}\n`
+    : "";
+
+  return `${CORPORATE_DESK_SYSTEM_PROMPT}
+${sessionBlock}
 ## STRUCTURED KNOWLEDGE BASE — LOADED AT RUNTIME
 The following structured knowledge has been loaded from the TCD knowledge system.
 Use this to inform every recommendation, layout, and product suggestion.
 
 ${workplaceKnowledge}
 
-${salesKnowledge}`;
+${salesKnowledge}
+
+${supplierRules}
+
+${productIntel}
+
+${businessMemory}`;
 }
 
-export function buildAdvisorSystemPrompt(): string {
+export function buildAdvisorSystemPrompt(sessionContext?: string): string {
   const fullKnowledge = getCompiledKnowledge();
-  return `${ADVISOR_SYSTEM_MESSAGE}
+  const supplierRules = getSupplierRoutingRules();
+  const productIntel = getProductIntelligence();
+  const businessMemory = getBusinessMemory();
 
+  const sessionBlock = sessionContext
+    ? `\n## ACTIVE SESSION CONTEXT\nThe following project details are known. Use them automatically — do NOT ask for these again:\n${sessionContext}\n`
+    : "";
+
+  return `${ADVISOR_SYSTEM_MESSAGE}
+${sessionBlock}
 ## COMPREHENSIVE KNOWLEDGE BASE — LOADED AT RUNTIME
 The following structured knowledge covers all aspects of TCD operations, industry
 context, client psychology, and commercial strategy. Apply this intelligence to
 all analysis and recommendations.
 
-${fullKnowledge}`;
+${fullKnowledge}
+
+${supplierRules}
+
+${productIntel}
+
+${businessMemory}`;
+}
+
+// ─── SESSION CONTEXT EXTRACTOR ────────────────────────────────────────────────
+// Scans conversation history for project context so the AI doesn't re-ask.
+// Called by the chat route before each AI request.
+
+export function extractSessionContext(
+  messages: Array<{ role: string; content: string }>
+): string {
+  if (!messages || messages.length < 2) return "";
+
+  const fullText = messages.map((m) => m.content).join(" ").toLowerCase();
+  const context: Record<string, string> = {};
+
+  // Office size
+  const sqmMatch = fullText.match(/(\d{2,5})\s*(?:sqm|square\s*met(?:re|er)|m2|sq\.?\s*m)/);
+  if (sqmMatch) context["Office size"] = `${sqmMatch[1]} sqm`;
+
+  // Staff / desks / people
+  const staffMatch = fullText.match(/(\d{1,4})\s*(?:staff|people|person|employee|desk|workstation|seat)/);
+  if (staffMatch) context["Staff / headcount"] = `${staffMatch[1]} people`;
+
+  // Budget
+  const budgetMatch = fullText.match(/\$\s*([\d,]+(?:\.\d+)?(?:k|,000|m)?)/i);
+  if (budgetMatch) context["Budget"] = `$${budgetMatch[1]}`;
+
+  // Style preference
+  if (/executive|luxury|prestige/i.test(fullText)) context["Style preference"] = "executive / luxury";
+  else if (/premium|high.end|upscale/i.test(fullText)) context["Style preference"] = "premium";
+  else if (/modern|contemporary|sleek/i.test(fullText)) context["Style preference"] = "modern / contemporary";
+  else if (/minimalist|clean|simple/i.test(fullText)) context["Style preference"] = "minimalist";
+
+  // Location
+  const locationMatch = fullText.match(/(sydney|melbourne|brisbane|perth|adelaide|canberra|darwin|hobart)/i);
+  if (locationMatch) context["Location"] = locationMatch[1].charAt(0).toUpperCase() + locationMatch[1].slice(1);
+
+  // Project type / industry
+  if (/law\s*firm|legal/i.test(fullText)) context["Industry"] = "legal";
+  else if (/tech|software|startup/i.test(fullText)) context["Industry"] = "technology / startup";
+  else if (/finance|bank|insurance/i.test(fullText)) context["Industry"] = "financial services";
+  else if (/health|medical|clinic/i.test(fullText)) context["Industry"] = "healthcare";
+  else if (/real\s*estate|property/i.test(fullText)) context["Industry"] = "real estate";
+
+  // Timeline
+  const timelineMatch = fullText.match(/(\d+)\s*(?:week|month)/i);
+  if (timelineMatch) context["Timeline"] = timelineMatch[0];
+
+  // Finance interest
+  if (/finance|lease|rental|monthly\s*payment/i.test(fullText)) context["Finance interest"] = "yes — has mentioned finance/leasing";
+
+  // Sit-stand interest
+  if (/sit.stand|height.adjust|standing\s*desk/i.test(fullText)) context["Sit-stand interest"] = "yes";
+
+  if (Object.keys(context).length === 0) return "";
+
+  return Object.entries(context)
+    .map(([k, v]) => `- ${k}: ${v}`)
+    .join("\n");
 }
 
 export function buildLeadIntelligenceContext(): string {

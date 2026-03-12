@@ -1,0 +1,311 @@
+SAFE SYSTEM EXTENSION — FIX AI MEMORY, PRODUCT INTELLIGENCE, AND SUPPLIER REASONING
+
+Do NOT overwrite existing prompts.
+Do NOT rebuild the site.
+Do NOT break planner, catalog, estimator, finance, Stripe, email system, admin dashboard, or supplier messaging.
+
+You are upgrading the LIVE The Corporate Desk platform.
+
+PRIMARY OBJECTIVE
+
+Fix the AI so it no longer behaves like a flat SKU matcher with weak session memory.
+
+The AI must become a structured commercial workspace intelligence system with:
+
+1. richer system prompt intelligence
+2. deeper product and supplier knowledge
+3. stronger contextual memory within each session
+
+This must be implemented properly in the live system, not as a demo.
+
+==================================================
+PHASE 1 — AUDIT CURRENT AI ARCHITECTURE
+==================================================
+
+Audit the current AI stack and identify exactly how chat/planner/admin AI context is currently built.
+
+Inspect at minimum:
+- server/systemPrompt.ts
+- any knowledge loader files
+- any AI context builder functions
+- planner AI request payloads
+- chatbot request payloads
+- admin AI request payloads
+- quote / estimator AI request payloads
+- product catalog data model
+- supplier/manufacturer data model
+- any session or conversation state logic
+- any cached/project context logic
+
+Return an internal map of:
+- where the base system prompt is defined
+- where per-request context is injected
+- where product data is flattened
+- where supplier data is missing
+- where session memory is weak
+
+Do not modify anything until this audit is complete.
+
+==================================================
+PHASE 2 — SYSTEM PROMPT ENRICHMENT
+==================================================
+
+Upgrade the AI’s core reasoning layers in server/systemPrompt.ts and any related prompt builders.
+
+The AI must reason as:
+- commercial workspace consultant
+- office furniture specialist
+- sourcing manager
+- supplier coordinator
+- estimator / quote assistant
+- B2B sales advisor
+- finance-aware workspace strategist
+
+Add structured knowledge so the AI can reason about:
+- office size
+- staff count
+- layout type
+- budget level
+- style/range
+- product categories
+- series relationships
+- supplier specialization
+- lead times
+- price bands
+- finance suitability
+- project value
+
+Do not just append random text.
+Organize the prompt into clear knowledge sections.
+
+==================================================
+PHASE 3 — PRODUCT KNOWLEDGE DEPTH
+==================================================
+
+The AI must stop seeing products as only a flat list of SKUs.
+
+Extend the product intelligence model so each product/core model can include:
+
+- sku
+- product_name
+- category
+- subcategory
+- range / collection
+- series
+- dimensions
+- finish_options
+- variant_options
+- price_band
+- estimated_factory_cost if available
+- supplier
+- lead_time_range
+- recommended_use
+- related_products
+- compatibility / bundle logic
+
+The AI must understand:
+- desks in the same range belong together
+- chairs pair with desks/workstations
+- boardroom tables pair with meeting chairs
+- reception desks suit reception seating
+- pods relate to acoustic/privacy needs
+
+Do not destroy current catalog routes or structures.
+Extend intelligence safely.
+
+==================================================
+PHASE 4 — SUPPLIER INTELLIGENCE DEPTH
+==================================================
+
+The AI must understand exactly which supplier handles which category.
+
+At minimum preserve and use these supplier rules:
+
+Boke Furniture
+- chairs only
+- ergonomic chairs
+- task chairs
+- executive chairs
+
+Guangzhou Meiyi / Asya
+- executive desks
+- office desks
+- workstations
+- meeting tables
+- reception desks
+
+Ruby / Xitian Furniture
+- executive desks
+- reception desks
+- custom projects
+- premium / large project furniture
+
+Denny
+- sourcing support / supplier coordination
+
+Ella Office Furniture
+- office furniture / general support as configured
+
+The AI must use supplier specialization when:
+- recommending products
+- sourcing pricing
+- estimating lead times
+- drafting supplier messages
+- deciding which supplier to contact first
+
+Never let the AI contact unrelated suppliers for the wrong category.
+
+==================================================
+PHASE 5 — SERIES / RANGE RELATIONSHIP INTELLIGENCE
+==================================================
+
+The AI must understand product family logic.
+
+Examples:
+- products in the same range share style language
+- finishes may carry across a range
+- accessories and related products can be bundled
+- size variants should not be treated as completely different products
+
+When recommending products, the AI should prefer coherent product packages instead of random item lists.
+
+==================================================
+PHASE 6 — PRICE BAND / COMMERCIAL INTELLIGENCE
+==================================================
+
+The AI must understand commercial price banding.
+
+Support bands such as:
+- entry
+- mid-range
+- premium
+- executive / luxury
+
+For each recommendation the AI should reason about:
+- project budget
+- expected visual quality
+- likely factory cost
+- likely selling band
+- finance suitability
+- commercial margin logic
+
+If exact pricing is unavailable, use structured indicative price-band logic rather than random guessing.
+
+==================================================
+PHASE 7 — SESSION CONTEXT MEMORY
+==================================================
+
+Fix contextual memory within a session.
+
+The AI must retain and reuse key project context across the conversation, including:
+- office size (sqm)
+- staff count
+- budget
+- style preference
+- required spaces
+- preferred ranges/products
+- finance preference
+- timeline
+- project type
+- location
+
+If the user says early in the conversation:
+“250 sqm office, 20 staff, premium style”
+
+Later responses must continue using that context automatically.
+
+Do not make the AI ask for the same details again unless they are genuinely missing.
+
+==================================================
+PHASE 8 — CONTEXT OBJECT / REQUEST PAYLOAD UPGRADE
+==================================================
+
+Do not rely on the prompt alone.
+
+Update the context data passed into each AI request so relevant structured project information is included in chat/planner/admin conversations.
+
+Where appropriate, include a session context object such as:
+- current_project_summary
+- known_office_size
+- known_staff_count
+- known_budget
+- known_style
+- linked_planner_id
+- linked_estimate_id
+- linked_lead_id
+- recommended_supplier_candidates
+- relevant_product_categories
+
+Use real data from the live system where available.
+
+==================================================
+PHASE 9 — CONSULTANT BEHAVIOUR
+==================================================
+
+After the upgrade, the AI must behave like a real workspace consultant.
+
+It must:
+- build on earlier answers
+- recommend logically
+- connect layout to product packages
+- connect products to suppliers
+- connect project size to estimate logic
+- speak with commercial clarity
+- reduce repetition
+- stop acting like each message is isolated
+
+==================================================
+PHASE 10 — APPLY ACROSS ALL AI SURFACES
+==================================================
+
+This intelligence upgrade must apply to:
+- website chatbot
+- planner AI
+- admin AI / command centre
+- estimator / quote assistant
+- supplier messaging logic
+- finance-aware recommendation logic where relevant
+
+Do not leave one part upgraded and others weak.
+
+==================================================
+PHASE 11 — TESTING
+==================================================
+
+Verify all of the following:
+
+1. chatbot remembers project details across a session
+2. planner AI uses project context consistently
+3. admin AI sees richer supplier/product context
+4. product recommendations use categories/ranges, not just flat SKUs
+5. supplier suggestions follow specialization rules
+6. AI stops re-asking for already-known office size/staff/budget
+7. finance / estimate logic still works
+8. planner, catalog, Stripe, email, and admin systems remain stable
+
+==================================================
+PHASE 12 — FINAL REPORT
+==================================================
+
+Return:
+- files audited
+- files modified
+- where the system prompt was enriched
+- how product intelligence was deepened
+- how supplier intelligence was deepened
+- how session memory was improved
+- how request context objects were changed
+- what was tested
+- confirmation that existing live systems still work
+
+EXECUTION RULE
+
+Audit first.
+Then implement the smallest safe set of changes needed to fix:
+- system prompt enrichment
+- product knowledge depth
+- contextual memory within a session
+
+Do not stop midway.
+Do not ask questions.
+Do not overwrite existing prompts.

@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 
 const KNOWLEDGE_BASE_PATH = path.join(process.cwd(), "ai/knowledge");
+const BUSINESS_MEMORY_PATH = path.join(process.cwd(), "server/businessMemory");
 
 function safeReadJson(filePath: string): Record<string, unknown> | null {
   try {
@@ -235,6 +236,37 @@ export function getSupplierKnowledge(): string {
     ],
     null
   );
+}
+
+let _memCached: string | null = null;
+let _memCachedAt: number | null = null;
+const MEM_TTL_MS = 5 * 60 * 1000;
+
+export function getBusinessMemory(): string {
+  const now = Date.now();
+  if (_memCached && _memCachedAt && now - _memCachedAt < MEM_TTL_MS) return _memCached;
+
+  const memFiles: Array<[string, string]> = [
+    ["supplierPerformance.json", "Live Supplier Contacts & Performance"],
+    ["pricingPatterns.json", "Pricing Patterns & Commercial Intelligence"],
+    ["projectPatterns.json", "Project Package Patterns & Layout Rules"],
+  ];
+
+  const sections: string[] = ["## BUSINESS MEMORY — Persistent Operational Intelligence"];
+
+  for (const [file, label] of memFiles) {
+    try {
+      const raw = fs.readFileSync(path.join(BUSINESS_MEMORY_PATH, file), "utf-8");
+      const data = JSON.parse(raw);
+      sections.push(`\n### ${label.toUpperCase()}\n${JSON.stringify(data, null, 0)}`);
+    } catch {
+      // file not found or parse error — skip silently
+    }
+  }
+
+  _memCached = sections.join("\n");
+  _memCachedAt = now;
+  return _memCached;
 }
 
 export function getKnowledgeStats(): {

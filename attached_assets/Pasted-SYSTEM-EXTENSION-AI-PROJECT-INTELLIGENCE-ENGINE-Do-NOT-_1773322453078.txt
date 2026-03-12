@@ -1,0 +1,278 @@
+SYSTEM EXTENSION — AI PROJECT INTELLIGENCE ENGINE
+
+Do NOT remove existing functionality.
+Do NOT rebuild the platform.
+Do NOT overwrite existing prompts.
+
+This upgrade adds a project intelligence system so the AI can learn from every workspace project and improve future recommendations.
+
+The Corporate Desk AI must operate as a commercial workspace intelligence platform.
+
+------------------------------------------------
+OBJECTIVE
+------------------------------------------------
+
+Create a project intelligence engine that allows the AI to learn from every office fit-out.
+
+The AI must be able to analyze past projects and use that knowledge to predict:
+
+• project cost
+• project margin
+• supplier selection
+• furniture packages
+• layout efficiency
+• installation complexity
+
+The system should improve recommendations as more projects are completed.
+
+------------------------------------------------
+SECTION 1 — PROJECT DATA MODEL
+------------------------------------------------
+
+Create a structured project database.
+
+Each project record must include:
+
+project_id
+client_company
+location
+office_size_sqm
+staff_count
+industry_type
+workspace_style
+project_budget
+project_timeline
+furniture_package
+supplier_selection
+estimated_cost
+final_cost
+quoted_price
+margin
+installation_complexity
+delivery_lead_time
+client_feedback
+
+Store projects permanently so they can be analyzed by the AI.
+
+------------------------------------------------
+SECTION 2 — LAYOUT EFFICIENCY MODEL
+------------------------------------------------
+
+The AI must calculate workspace capacity using commercial planning rules.
+
+Example rules:
+
+average workstation allocation
+6–8 sqm per desk
+
+meeting rooms
+15–25 sqm each
+
+circulation space
+10–20 percent
+
+breakout areas
+variable
+
+Example reasoning:
+
+250 sqm office
+
+capacity estimate:
+
+18–25 workstations
+1–2 meeting rooms
+breakout space
+focus booths
+
+The AI should recommend layouts based on these rules.
+
+------------------------------------------------
+SECTION 3 — FURNITURE PACKAGE INTELLIGENCE
+------------------------------------------------
+
+The AI must learn which furniture packages work best for different office types.
+
+Examples:
+
+small startup office
+bench workstations
+shared meeting table
+minimal storage
+
+corporate office
+executive desks
+private meeting rooms
+reception desk
+
+open collaborative office
+workstations
+breakout seating
+phone booths
+
+When a project is created the AI should automatically generate a suggested furniture package.
+
+------------------------------------------------
+SECTION 4 — SUPPLIER SELECTION ENGINE
+------------------------------------------------
+
+The AI must choose suppliers based on category specialization.
+
+Example supplier rules:
+
+Boke Furniture
+chairs
+
+Guangzhou Meiyi
+desks
+workstations
+meeting tables
+
+Ruby / Xitian
+executive desks
+reception desks
+custom projects
+
+The AI should select suppliers based on:
+
+category specialization
+project scale
+lead time
+historical reliability
+
+------------------------------------------------
+SECTION 5 — COST PREDICTION
+------------------------------------------------
+
+The AI should estimate project cost before quotes are finalized.
+
+Estimation factors:
+
+furniture quantity
+supplier pricing patterns
+office size
+project complexity
+
+Example:
+
+20 staff office
+
+estimated furniture package
+
+20 desks
+20 chairs
+2 meeting tables
+storage units
+
+estimated cost range calculated automatically.
+
+------------------------------------------------
+SECTION 6 — MARGIN OPTIMIZATION
+------------------------------------------------
+
+The AI must analyze project margin.
+
+Calculate:
+
+estimated factory cost
+shipping
+installation
+selling price
+
+Then determine margin.
+
+If margin is too low the AI should suggest:
+
+alternative suppliers
+alternative product ranges
+package adjustments
+
+------------------------------------------------
+SECTION 7 — SUPPLIER PERFORMANCE MEMORY
+------------------------------------------------
+
+Track supplier performance metrics.
+
+supplier fields:
+
+average quote response time
+lead time reliability
+quality feedback
+pricing competitiveness
+project success rate
+
+This allows the AI to make better sourcing decisions.
+
+------------------------------------------------
+SECTION 8 — LEARNING SYSTEM
+------------------------------------------------
+
+After each completed project the AI must update its knowledge.
+
+Update:
+
+pricing patterns
+supplier performance
+layout success
+conversion rates
+
+The AI should gradually improve predictions.
+
+------------------------------------------------
+SECTION 9 — SALES INTELLIGENCE
+------------------------------------------------
+
+The AI must identify patterns that lead to successful projects.
+
+Example insights:
+
+project size vs conversion rate
+best furniture bundles
+most profitable product ranges
+fastest suppliers
+
+Use these insights to guide recommendations.
+
+------------------------------------------------
+SECTION 10 — CONSULTANT MODE
+------------------------------------------------
+
+The AI must behave like a senior workspace consultant.
+
+It should:
+
+analyze the office size
+estimate capacity
+recommend layouts
+recommend furniture
+predict project cost
+identify suppliers
+estimate margin
+
+The AI should guide clients through workspace planning logically.
+
+------------------------------------------------
+RESULT
+------------------------------------------------
+
+After implementation the system becomes an AI project intelligence engine capable of:
+
+• learning from past projects
+• predicting project cost
+• recommending furniture packages
+• selecting suppliers
+• optimizing margin
+• improving over time
+
+The upgrade must integrate with:
+
+planner
+catalog
+supplier messaging
+finance system
+admin dashboard
+chatbot
+
+Do not break existing systems.
+
+Extend the platform only.

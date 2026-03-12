@@ -1,0 +1,171 @@
+SYSTEM UPGRADE — PERSISTENT BUSINESS MEMORY
+
+Do not break any existing systems.
+
+The AI must now store and recall long-term knowledge about the business.
+
+Current problem:
+The AI only remembers context within a single conversation session.
+
+Goal:
+Create persistent business memory so the AI remembers important information across all sessions.
+
+------------------------------------------------
+
+STEP 1 — CREATE BUSINESS MEMORY STORE
+
+Create a structured memory system in the server layer.
+
+Suggested storage:
+
+/server/businessMemory/
+
+memory structure should support:
+
+suppliers
+products
+projects
+clients
+pricing
+quotes
+supplier_performance
+lead_times
+successful_layouts
+sales_patterns
+
+------------------------------------------------
+
+STEP 2 — SUPPLIER MEMORY
+
+The AI must remember supplier information including:
+
+supplier_name
+contact_person
+whatsapp_number
+categories_supplied
+average_response_time
+lead_time_estimates
+quality_notes
+pricing_history
+
+Example suppliers:
+
+Boke Furniture
+category: chairs
+
+Guangzhou Meiyi (Asya)
+category: desks, workstations
+
+Ruby (Xitian)
+category: executive desks, reception desks
+
+------------------------------------------------
+
+STEP 3 — PRODUCT MEMORY
+
+Store product intelligence so the AI understands relationships.
+
+product memory fields:
+
+sku
+range
+category
+dimensions
+variants
+finish options
+supplier
+price_band
+related_products
+
+The AI should understand which products belong to the same series.
+
+------------------------------------------------
+
+STEP 4 — PROJECT MEMORY
+
+Store project data after a consultation or quote.
+
+fields:
+
+office_size
+staff_count
+budget_range
+layout_type
+furniture_package
+quote_value
+supplier_used
+conversion_result
+
+This allows the AI to learn which projects convert.
+
+------------------------------------------------
+
+STEP 5 — CLIENT MEMORY
+
+The AI should remember repeat clients.
+
+client fields:
+
+company_name
+office_locations
+previous_projects
+budget_preferences
+style_preferences
+purchasing_patterns
+
+------------------------------------------------
+
+STEP 6 — LEARNING FROM PROJECTS
+
+When projects are completed the AI should update memory.
+
+Example:
+
+store supplier used
+store lead time
+store price paid
+store client satisfaction signals
+
+This allows the AI to make better decisions over time.
+
+------------------------------------------------
+
+STEP 7 — LOAD MEMORY INTO AI CONTEXT
+
+Every AI request should load relevant memory.
+
+Examples:
+
+supplier intelligence
+product relationships
+recent projects
+pricing trends
+
+This makes the AI smarter over time.
+
+------------------------------------------------
+
+STEP 8 — MEMORY SAFETY
+
+Do not store sensitive credentials.
+
+Store only operational business knowledge.
+
+------------------------------------------------
+
+STEP 9 — RESULT
+
+After implementation the AI should behave like a long-term business intelligence system.
+
+It should remember:
+
+suppliers
+products
+projects
+clients
+pricing patterns
+
+across all sessions.
+
+Do not break existing architecture.
+Extend the system only.

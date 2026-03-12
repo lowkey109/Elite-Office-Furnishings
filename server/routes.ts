@@ -13,7 +13,7 @@ import { registerMarketingRoutes } from "./marketing";
 import { sendLeadNotification, sendSupplierQuoteNotification, sendPlanningRequestNotification, sendPaymentConfirmationNotification, sendPlannerSubmissionCustomerEmail, sendQuoteRequestCustomerEmail, sendStrategyCallCustomerEmail, sendEnquiryCustomerEmail, sendFinanceLeadAdminEmail, sendFinanceLeadPartnerEmail, sendFinanceLeadCustomerEmail, isEmailConfigured } from "./email";
 import { scoreOpportunity } from "./services/opportunityScoring";
 import { analyseSignals, extractDomain, type SignalInput, type SourceType } from "./services/leadIntelligence";
-import { CORPORATE_DESK_SYSTEM_PROMPT, ADVISOR_SYSTEM_MESSAGE, buildChatSystemPrompt, buildAdvisorSystemPrompt } from "./systemPrompt";
+import { CORPORATE_DESK_SYSTEM_PROMPT, ADVISOR_SYSTEM_MESSAGE, buildChatSystemPrompt, buildAdvisorSystemPrompt, extractSessionContext } from "./systemPrompt";
 import { getAdaptersMeta } from "./adapters/manualAdapter";
 import { generatePackageAndQuote } from "./ai/packageGenerator";
 import { parseFloorPlan, type FloorGeometry } from "./services/floorPlanParser";
@@ -998,6 +998,10 @@ ${allUrls.map(u => `  <url>
         content: m.content,
       }));
 
+      // Extract project context from conversation history and inject into system prompt
+      const sessionContext = extractSessionContext(formattedMessages);
+      const systemPrompt = buildChatSystemPrompt(sessionContext || undefined);
+
       if (useStream) {
         res.setHeader("Content-Type", "text/event-stream");
         res.setHeader("Cache-Control", "no-cache, no-transform");
@@ -1008,7 +1012,7 @@ ${allUrls.map(u => `  <url>
         const stream = await openai.chat.completions.create({
           model: "gpt-5-mini",
           messages: [
-            { role: "system", content: buildChatSystemPrompt() },
+            { role: "system", content: systemPrompt },
             ...formattedMessages,
           ],
           stream: true,
@@ -1027,7 +1031,7 @@ ${allUrls.map(u => `  <url>
         const completion = await openai.chat.completions.create({
           model: "gpt-5-mini",
           messages: [
-            { role: "system", content: buildChatSystemPrompt() },
+            { role: "system", content: systemPrompt },
             ...formattedMessages,
           ],
         } as any);

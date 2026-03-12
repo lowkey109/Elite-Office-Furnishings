@@ -1,0 +1,66 @@
+{
+  "_description": "Live supplier performance and contact intelligence. Updated by admin as projects are completed.",
+  "suppliers": [
+    {
+      "id": "BOKE",
+      "name": "Boke Furniture",
+      "contact": "Boke Furniture Sales",
+      "whatsapp": "+8613392798732",
+      "website": "https://www.bokeseating.com",
+      "categories": ["office chairs", "ergonomic chairs", "task chairs", "executive chairs"],
+      "lead_time_range": "8–12 weeks from order confirmation",
+      "avg_response_time": "to be tracked",
+      "quality_notes": "Primary seating supplier. Specialises in ergonomic and office chairs only.",
+      "pricing_band": "competitive",
+      "reliability": "to be tracked",
+      "active": true
+    },
+    {
+      "id": "MEIYI",
+      "name": "Guangzhou Meiyi Furniture Co., Ltd",
+      "contact": "Asya",
+      "whatsapp": "+8613422161319",
+      "websites": ["https://www.meiyifurnishing.com", "https://myofficefurniture.com.cn"],
+      "categories": ["executive desks", "office desks", "workstations", "meeting tables", "conference tables", "reception desks"],
+      "lead_time_range": "8–14 weeks from order confirmation",
+      "avg_response_time": "to be tracked",
+      "quality_notes": "Primary desk and workstation manufacturer. Trusted contact — maintain friendly professional relationship.",
+      "pricing_band": "competitive",
+      "reliability": "trusted",
+      "active": true
+    },
+    {
+      "id": "XITIAN",
+      "name": "Xitian Furniture",
+      "contact": "Ruby",
+      "whatsapp": "to be confirmed",
+      "categories": ["executive desks", "reception desks", "custom manufacturing", "project furniture"],
+      "lead_time_range": "10–16 weeks from order confirmation",
+      "avg_response_time": "to be tracked",
+      "quality_notes": "Priority for large projects and custom furniture. Contact for projects requiring bespoke manufacturing.",
+      "pricing_band": "premium",
+      "reliability": "to be tracked",
+      "active": true
+    },
+    {
+      "id": "DENNY",
+      "name": "TBC",
+      "contact": "Denny",
+      "whatsapp": "+8613127968208",
+      "categories": ["furniture sourcing", "supplier coordination", "product support"],
+      "lead_time_range": "varies",
+      "quality_notes": "Used for supplier coordination and product sourcing. Company name to be confirmed.",
+      "active": true
+    },
+    {
+      "id": "ELLA",
+      "name": "Ella Office Furniture",
+      "contact": "Ms Ella",
+      "whatsapp": "UNKNOWN — requires admin confirmation",
+      "categories": ["office furniture", "workstations", "desks"],
+      "lead_time_range": "to be confirmed",
+      "quality_notes": "WhatsApp number unknown. Has WhatsApp Business catalog. Request pricing and catalog when number confirmed.",
+      "active": true
+    }
+  ]
+}

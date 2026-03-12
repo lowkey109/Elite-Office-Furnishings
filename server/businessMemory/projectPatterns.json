@@ -1,0 +1,82 @@
+{
+  "_description": "Successful project package patterns and layout intelligence for AI recommendations.",
+  "layout_planning_rules": {
+    "sqm_per_person_open_plan_abw": "8–12 sqm",
+    "sqm_per_person_professional_services": "12–16 sqm",
+    "sqm_per_person_executive_suites": "16–20 sqm",
+    "circulation_buffer_percent": "15–20%",
+    "meeting_room_sqm": "15–25 sqm each",
+    "reception_area_sqm": "10–20 sqm",
+    "breakout_zone_sqm_per_person": "1.5–3 sqm",
+    "phone_booth_sqm": "1.5–2.5 sqm each",
+    "note": "Hybrid work (2–3 days/week in office) reduces desks needed by 20–30% vs headcount. Apply 70% ratio for hot-desking."
+  },
+  "furniture_packages": [
+    {
+      "type": "startup_small",
+      "label": "Startup / Small Office",
+      "staff_range": "5–12",
+      "sqm_range": "60–120",
+      "items": [
+        "Workstations x staff count",
+        "Ergonomic/task chairs x staff count",
+        "Shared meeting table (6-person)",
+        "Meeting chairs x6",
+        "Reception desk (entry level)",
+        "Mobile pedestals / storage",
+        "Optional: 1–2 phone booths"
+      ],
+      "value_range": "$15,000 – $40,000",
+      "recommended_series": "mid-range workstation series with ergonomic chairs"
+    },
+    {
+      "type": "professional_services",
+      "label": "Professional Services Office",
+      "staff_range": "15–30",
+      "sqm_range": "150–300",
+      "items": [
+        "Workstations (consider sit-stand upgrade) x staff count",
+        "Ergonomic chairs x staff count",
+        "Meeting rooms x2 (8–10 person each)",
+        "Meeting chairs x16–20",
+        "Reception desk (premium)",
+        "Reception lounge seating (3-seat + armchairs)",
+        "Occasional table",
+        "Executive desk x1–3 (principals)",
+        "Executive chairs x1–3",
+        "Storage / filing units"
+      ],
+      "value_range": "$60,000 – $130,000",
+      "finance_note": "Offer Stratton Finance at quote stage"
+    },
+    {
+      "type": "corporate_executive",
+      "label": "Corporate Executive Office",
+      "staff_range": "30–80",
+      "sqm_range": "300–800",
+      "items": [
+        "Open-plan workstations (mix of sit-stand and fixed) x staff count",
+        "Ergonomic chairs x staff count",
+        "Executive desks x senior staff (director-level +)",
+        "Executive chairs x senior staff",
+        "Boardroom table (14–20 person)",
+        "Boardroom chairs x seats",
+        "Reception desk (statement piece)",
+        "Reception lounge area (seating + coffee table)",
+        "Meeting rooms x3–6",
+        "Breakout/lounge zone",
+        "Storage wall + mobile pedestals",
+        "Phone booths / focus pods x2–4"
+      ],
+      "value_range": "$120,000 – $400,000",
+      "finance_note": "Lead with finance option — Stratton below $200k, QPF above"
+    }
+  ],
+  "upsell_opportunities": [
+    "Sit-stand desk upgrade: $400–$600 per desk uplift. 60–70% acceptance when framed as health investment.",
+    "Acoustic screens for workstations: $150–$350 per workstation. High ROI on productivity.",
+    "Phone booths / focus pods: $3,500–$8,000 each. Growing demand in hybrid work environments.",
+    "Delivery + installation: 15–25% of product value. Always include — protects margin and ensures quality.",
+    "Asset tagging: $500–$1,500 flat. Easy value-add for corporate clients."
+  ]
+}
