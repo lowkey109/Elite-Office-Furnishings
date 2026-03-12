@@ -172,12 +172,74 @@ export default function UploadFloorPlan() {
     existingOfficePhotos: useRef<HTMLInputElement>(null),
   };
 
+  const [draggingOver, setDraggingOver] = useState<string | null>(null);
+
   const fileFields: FileItem[] = [
     { field: "floorPlan", label: "Floor Plan (PDF)", file: files.floorPlan },
     { field: "floorPlanImage", label: "Floor Plan Image", file: files.floorPlanImage },
     { field: "inspirationImages", label: "Inspiration Images", file: files.inspirationImages },
     { field: "existingOfficePhotos", label: "Existing Office Photos", file: files.existingOfficePhotos },
   ];
+
+  const ACCEPTED_TYPES = ["application/pdf", "image/png", "image/jpeg", "image/webp"];
+  const ACCEPTED_EXTS = [".pdf", ".png", ".jpg", ".jpeg", ".webp"];
+  const MAX_FILE_SIZE = 20 * 1024 * 1024;
+
+  useEffect(() => {
+    const stopBrowserDefault = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+    document.addEventListener("dragover", stopBrowserDefault);
+    document.addEventListener("drop", stopBrowserDefault);
+    return () => {
+      document.removeEventListener("dragover", stopBrowserDefault);
+      document.removeEventListener("drop", stopBrowserDefault);
+    };
+  }, []);
+
+  function validateDroppedFile(file: File): string | null {
+    const ext = "." + file.name.split(".").pop()?.toLowerCase();
+    if (!ACCEPTED_TYPES.includes(file.type) && !ACCEPTED_EXTS.includes(ext)) {
+      return "Please upload a PDF, JPG, PNG, or WEBP floor plan up to 20MB.";
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      return "File is too large. Maximum size is 20MB.";
+    }
+    return null;
+  }
+
+  function handleDragEnter(field: string, e: React.DragEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    setDraggingOver(field);
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  function handleDragLeave(field: string, e: React.DragEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+    setDraggingOver(prev => prev === field ? null : prev);
+  }
+
+  function handleDrop(field: string, e: React.DragEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    setDraggingOver(null);
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    const err = validateDroppedFile(file);
+    if (err) {
+      toast({ title: err, variant: "destructive" });
+      return;
+    }
+    setFiles(prev => ({ ...prev, [field]: file }));
+  }
 
   function handleFileChange(field: string, e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] || null;
@@ -1049,10 +1111,20 @@ export default function UploadFloorPlan() {
                       ) : (
                         <label
                           data-testid={`input-file-${field}`}
-                          className="flex items-center gap-3 px-4 py-3 bg-[rgba(255,255,255,0.03)] border border-[rgba(201,168,76,0.15)] hover:border-[rgba(201,168,76,0.4)] rounded-xl cursor-pointer transition-colors"
+                          className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all border ${
+                            draggingOver === field
+                              ? "bg-[rgba(201,168,76,0.12)] border-[hsl(43,78%,52%)] scale-[1.01] shadow-[0_0_0_2px_rgba(201,168,76,0.25)]"
+                              : "bg-[rgba(255,255,255,0.03)] border-[rgba(201,168,76,0.15)] hover:border-[rgba(201,168,76,0.4)]"
+                          }`}
+                          onDragEnter={e => handleDragEnter(field, e)}
+                          onDragOver={handleDragOver}
+                          onDragLeave={e => handleDragLeave(field, e)}
+                          onDrop={e => handleDrop(field, e)}
                         >
-                          <Paperclip className="w-4 h-4 text-white/40 flex-shrink-0" />
-                          <span className="text-sm text-white/40">Click to attach {label}</span>
+                          <Paperclip className={`w-4 h-4 flex-shrink-0 transition-colors ${draggingOver === field ? "text-[hsl(43,78%,52%)]" : "text-white/40"}`} />
+                          <span className={`text-sm transition-colors ${draggingOver === field ? "text-[hsl(43,78%,65%)]" : "text-white/40"}`}>
+                            {draggingOver === field ? "Drop to attach" : `Drag & drop or click to attach ${label}`}
+                          </span>
                           <input
                             ref={fileInputRefs[field as keyof typeof fileInputRefs]}
                             type="file"

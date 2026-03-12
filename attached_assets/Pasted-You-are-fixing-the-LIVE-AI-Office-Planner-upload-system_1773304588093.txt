@@ -1,0 +1,144 @@
+You are fixing the LIVE AI Office Planner upload system for The Corporate Desk.
+
+You are in ZERO-FAILURE UPLOAD BUG FIX MODE.
+
+IMPORTANT:
+Do NOT rebuild the planner.
+Do NOT change unrelated planner logic.
+Do NOT break payment, admin, layout generation, or lead capture.
+Fix only the upload / drag-and-drop behaviour safely.
+
+==================================================
+CURRENT BUG
+==================================================
+
+When a user drags and drops a floor plan file into the planner upload area:
+
+- the browser opens the file instead of uploading it
+- the planner resets back to the start
+- the upload flow feels broken and frustrating
+
+This must be fixed on the live site.
+
+==================================================
+ROOT CAUSE TO FIX
+==================================================
+
+The upload area is not fully preventing the browser’s default drag-and-drop behaviour.
+
+This means the browser handles the dropped file itself instead of the planner upload component handling it.
+
+==================================================
+REQUIRED OUTCOME
+==================================================
+
+When a user drags a PDF, JPG, JPEG, or PNG onto the upload zone:
+
+1. the browser must NOT open the file
+2. the planner must stay on the same step
+3. the file must be captured by the upload component
+4. the upload must begin
+5. the user must see a loading/progress state
+6. the planner must continue normally after upload
+
+==================================================
+IMPLEMENTATION TASKS
+==================================================
+
+STAGE 1 — AUDIT
+Before changing code:
+- inspect the current planner upload component
+- inspect drag/drop handlers
+- inspect any global document/window drag/drop listeners
+- inspect file input fallback logic
+- identify where the planner resets
+
+Do not guess.
+
+STAGE 2 — FIX DRAG EVENTS
+Ensure the upload zone properly handles:
+- dragenter
+- dragover
+- dragleave
+- drop
+
+For dragenter / dragover / drop:
+- call preventDefault()
+- call stopPropagation() where needed
+
+Ensure the browser default file-open behaviour is blocked.
+
+If needed, add safe window/document-level prevention for dragover/drop outside the uploader while the planner page is active.
+
+STAGE 3 — HANDLE DROP CORRECTLY
+On drop:
+- extract files from event.dataTransfer.files
+- validate the first file
+- pass it into the same upload flow used by click-to-upload
+- do not reload page
+- do not reset planner step state
+
+Supported files:
+- PDF
+- PNG
+- JPG
+- JPEG
+
+Max file size:
+20MB
+
+STAGE 4 — UX IMPROVEMENT
+When a valid file is dragged over the drop zone:
+- show a visual highlighted drop state
+
+When a file is dropped:
+- show uploading state
+- show selected filename
+- show validation error if invalid
+
+If invalid:
+Display a clean message such as:
+"Please upload a PDF, JPG, or PNG floor plan up to 20MB."
+
+STAGE 5 — MOBILE / TAP FALLBACK
+Ensure tap-to-upload still works through the file input.
+Do not break mobile upload behaviour.
+
+STAGE 6 — PROTECT PLANNER STATE
+The planner must not reset to the first step when:
+- dragging a file
+- dropping a file
+- encountering an invalid file
+
+Keep the current user inputs intact.
+
+STAGE 7 — TESTING
+Test all of these:
+
+1. drag PDF into upload zone
+2. drag JPG into upload zone
+3. drag invalid file type
+4. click-to-upload PDF
+5. click-to-upload image
+6. mobile tap upload
+7. confirm planner does not reset
+8. confirm browser does not open dropped file
+9. confirm upload continues into existing analysis flow
+10. confirm admin/planning request still works after successful upload
+
+==================================================
+REPORT
+==================================================
+
+Return:
+1. files audited
+2. files modified
+3. root cause found
+4. exact fix implemented
+5. tests performed
+6. confirmation that drag-and-drop now works on the live planner
+7. confirmation that the planner no longer resets on file drop
+
+IMPORTANT:
+Do not stay in planning mode.
+Audit first, then implement the smallest safe fix, then test it.
