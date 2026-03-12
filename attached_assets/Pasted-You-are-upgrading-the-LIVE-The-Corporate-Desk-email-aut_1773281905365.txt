@@ -1,0 +1,283 @@
+You are upgrading the LIVE The Corporate Desk email automation system.
+
+You are in CEO-GRADE EMAIL MODE.
+
+IMPORTANT:
+The system must NOT send weak, generic, robotic, or low-trust emails.
+
+The AI has already been given business, psychology, commercial, finance, and CEO-level operating intelligence.
+It must now use that intelligence in every outbound email.
+
+==================================================
+PRIMARY OBJECTIVE
+==================================================
+
+Upgrade all customer-facing and admin-facing email automation so every email feels like it was written by a high-level commercial operator at a premium office furniture and fit-out company.
+
+Emails must sound like:
+- a credible CEO
+- a premium sales director
+- a strategic workspace consultant
+- a commercially intelligent business
+
+Not like:
+- a cheap autoresponder
+- a generic CRM notification
+- a templated spam email
+- a weak assistant
+
+==================================================
+EMAIL QUALITY RULES
+==================================================
+
+All emails must be:
+
+- premium in tone
+- commercially smart
+- concise but valuable
+- specific to the lead
+- confidence-building
+- action-oriented
+- aligned with The Corporate Desk brand
+
+Every email should reduce doubt, increase trust, and move the lead closer to:
+- payment
+- quote request
+- strategy call
+- project engagement
+
+==================================================
+DO NOT ALLOW THESE
+==================================================
+
+Do NOT send emails that are:
+- vague
+- fluffy
+- overly friendly in a low-trust way
+- generic
+- robotic
+- repetitive
+- weak in authority
+- lacking next steps
+- missing business context
+
+Avoid lines like:
+- “Thanks for your submission”
+- “We will get back to you soon”
+- “Your request has been received”
+unless they are expanded into premium, useful messaging.
+
+==================================================
+EMAIL INTELLIGENCE LAYER
+==================================================
+
+The email system must use the real lead/planner data to personalise each email.
+
+Use available data such as:
+- contact name
+- company name
+- office size
+- staff count
+- office type
+- style preference
+- budget range
+- estimated project value
+- detected opportunity signals
+- workspace requirements
+- payment status
+- quote type
+- strategy call type
+
+If a field is missing, omit it cleanly.
+Do not invent facts.
+
+==================================================
+MANDATORY EMAIL STRUCTURE
+==================================================
+
+Every customer-facing email should follow this structure:
+
+1. Strong premium subject line
+2. Personal greeting
+3. Acknowledgement of their specific project/request
+4. Commercially intelligent summary of what they submitted or purchased
+5. Clear explanation of what happens next
+6. Why The Corporate Desk is credible / what value they get
+7. Strong next-step CTA
+8. Contact details
+
+Every admin-facing email should follow this structure:
+
+1. Strong subject line with urgency/value
+2. Lead type
+3. Company/contact details
+4. Project context
+5. Estimated value
+6. Opportunity score/tier if available
+7. Key signals
+8. Recommended action
+
+==================================================
+CREATE FIXED PREMIUM TEMPLATES
+==================================================
+
+Do NOT rely on weak ad-hoc generation.
+
+Create strong reusable email templates for these events:
+
+1. AI planner submission received
+2. Payment received / full report unlocked
+3. Quote request received
+4. Strategy call request received
+5. General contact enquiry
+6. High-opportunity lead alert to admin
+7. Standard new lead alert to admin
+8. Supplier quote saved alert if needed
+
+These templates must be:
+- branded
+- premium
+- commercially persuasive
+- reusable
+- populated with real fields from the submission
+
+==================================================
+CUSTOMER EMAIL REQUIREMENTS
+==================================================
+
+PLANNER SUBMISSION EMAIL
+Must sound like:
+“We understand the kind of workplace you’re planning, and we’re preparing the right next step.”
+
+Include:
+- confirmation of the request
+- company/project summary
+- what the workspace concept process involves
+- what happens next
+- contact options
+
+PAYMENT / FULL REPORT UNLOCKED EMAIL
+Must sound like:
+“Your workspace concept is ready and your report is now unlocked.”
+
+Include:
+- payment confirmation
+- amount paid
+- what is now available
+- direct link to report
+- how to move toward quote or strategy call
+
+QUOTE REQUEST EMAIL
+Must sound like:
+“Your quote request is in motion and we understand the commercial context.”
+
+Include:
+- project summary
+- next-step expectation
+- why this matters commercially
+- timeframe guidance
+
+STRATEGY CALL EMAIL
+Must sound like:
+“We’re aligning the call around your workspace and commercial objectives.”
+
+Include:
+- confirmation
+- project context
+- what will be discussed
+- preparation suggestions if needed
+
+GENERAL ENQUIRY EMAIL
+Must sound like:
+“We’ve received your enquiry and will direct it appropriately.”
+
+Include:
+- acknowledgement
+- next step
+- brand credibility
+
+==================================================
+ADMIN EMAIL REQUIREMENTS
+==================================================
+
+Every admin email must make it easy to act fast.
+
+Subjects should look like:
+- HIGH OPPORTUNITY LEAD — [Company] — Est. $300k–$420k
+- NEW PLANNER SUBMISSION — [Company] — 28 Staff / Bowen Hills
+- PAYMENT RECEIVED — [Company] — $399 Unlock Complete
+
+Admin emails must include:
+- lead type
+- company
+- contact
+- phone
+- email
+- office size
+- staff count
+- workspace requirements
+- estimated value
+- opportunity score
+- detected signals
+- recommended next action
+- direct admin link if available
+
+==================================================
+CEO-GRADE TONE
+==================================================
+
+The tone must reflect:
+- authority
+- clarity
+- premium positioning
+- commercial intelligence
+- calm confidence
+
+The system should sound like a company that handles serious office projects, not like a startup toy app.
+
+==================================================
+IMPLEMENTATION
+==================================================
+
+1. Audit current email templates / email generation logic.
+2. Replace weak/generic wording with fixed premium templates.
+3. Use real field substitution from the live platform.
+4. Keep SMTP/email sending logic intact.
+5. Ensure no duplicate or spammy behaviour.
+6. Ensure formatting works on both desktop and mobile email clients.
+
+==================================================
+TESTING
+==================================================
+
+Test these events:
+- planner submission
+- payment received
+- quote request
+- strategy call request
+- contact enquiry
+- admin high-opportunity alert
+
+Verify:
+1. emails send successfully
+2. content is premium and specific
+3. no weak generic copy remains
+4. fields populate correctly
+5. no broken formatting
+6. no duplicate sends
+
+==================================================
+FINAL REPORT
+==================================================
+
+Return:
+1. files modified
+2. which templates were created/updated
+3. which events now use CEO-grade templates
+4. examples of subject lines used
+5. confirmation that SMTP flow still works
+6. confirmation that existing systems still work
+
+IMPORTANT:
+Do not stay in planning mode.
+Audit the current email system first, then upgrade the templates and content quality so the system sends premium CEO-grade emails using real platform data.

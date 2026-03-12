@@ -31,6 +31,11 @@ export const leads = pgTable("leads", {
   timeline: text("timeline"),
   officeLocation: text("office_location"),
   moveDate: text("move_date"),
+  opportunityScore: integer("opportunity_score"),
+  opportunityTier: text("opportunity_tier"),
+  signalsJson: text("signals_json"),
+  nextAction: text("next_action"),
+  estimatedValueRange: text("estimated_value_range"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

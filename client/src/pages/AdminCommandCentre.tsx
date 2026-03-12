@@ -59,6 +59,50 @@ interface Lead {
   createdAt?: string;
 }
 
+interface OppSignal {
+  type: string;
+  confidence: number;
+  source: string;
+  reason: string;
+}
+
+interface OppRecord {
+  id: string;
+  sourceType: "inbound_lead" | "planning_request";
+  name: string;
+  company: string;
+  email: string;
+  phone: string;
+  leadType: string;
+  opportunityScore: number;
+  opportunityTier: "high" | "medium" | "low";
+  signals: OppSignal[];
+  nextAction: string;
+  estimatedValueRange: string;
+  createdAt: string;
+  isPaid?: boolean;
+  status?: string;
+  details: {
+    officeSize?: string | null;
+    staffCount?: string | null;
+    budget?: string | null;
+    timeline?: string | null;
+    message?: string | null;
+    officeLocation?: string | null;
+    squareMetres?: string | null;
+    budgetRange?: string | null;
+    stylePreference?: string | null;
+    city?: string | null;
+  };
+}
+
+interface OppIntelligenceResult {
+  all: OppRecord[];
+  highOpportunities: OppRecord[];
+  mediumOpportunities: OppRecord[];
+  summary: { total: number; highCount: number; mediumCount: number; lowCount: number };
+}
+
 interface PipelineStats {
   total: number;
   highValueCount: number;
@@ -245,6 +289,12 @@ export default function AdminCommandCentre() {
     queryKey: ["/api/health"],
     enabled: authed,
     refetchInterval: 60000,
+  });
+
+  const { data: oppIntelligence, isLoading: oppLoading } = useQuery<OppIntelligenceResult>({
+    queryKey: ["/api/admin/opportunity-intelligence"],
+    enabled: authed,
+    staleTime: 60000,
   });
 
   // ── Score backfill mutation ─────────────────────────────────────────────────
@@ -709,6 +759,130 @@ export default function AdminCommandCentre() {
                             </p>
                           </div>
                         )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* ── Opportunity Intelligence Panel ───────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.18)] rounded-2xl overflow-hidden" data-testid="panel-opportunity-intelligence">
+          <div className="px-6 py-4 border-b border-[rgba(201,168,76,0.15)] flex items-center justify-between bg-[rgba(201,168,76,0.04)]">
+            <div className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+              <h2 className="text-white font-semibold text-sm">High Opportunity Intelligence</h2>
+              <span className="text-white/30 text-xs ml-1">— inbound leads + planner submissions scored by office move signals</span>
+            </div>
+            {oppIntelligence && (
+              <div className="flex items-center gap-3">
+                <span className="text-[hsl(43,78%,65%)] text-xs font-bold">{oppIntelligence.summary.highCount} HIGH</span>
+                <span className="text-blue-400 text-xs">{oppIntelligence.summary.mediumCount} MED</span>
+                <span className="text-white/30 text-xs">{oppIntelligence.summary.lowCount} LOW</span>
+              </div>
+            )}
+          </div>
+
+          {oppLoading ? (
+            <div className="p-8 text-center text-white/30 text-sm">Scoring opportunities…</div>
+          ) : !oppIntelligence || oppIntelligence.summary.highCount === 0 ? (
+            <div className="p-8 text-center text-white/30 text-sm">
+              No high-opportunity signals detected yet. New leads and planner submissions are scored automatically on arrival.
+            </div>
+          ) : (
+            <div className="divide-y divide-[rgba(255,255,255,0.04)]">
+              {oppIntelligence.highOpportunities.slice(0, 8).map((rec) => {
+                const tierBg = rec.opportunityTier === "high"
+                  ? "bg-[rgba(201,168,76,0.12)] border-[rgba(201,168,76,0.25)] text-[hsl(43,78%,65%)]"
+                  : rec.opportunityTier === "medium"
+                  ? "bg-blue-500/10 border-blue-500/20 text-blue-400"
+                  : "bg-white/5 border-white/10 text-white/40";
+                const tierBar = rec.opportunityTier === "high" ? "bg-[hsl(43,78%,52%)]" : rec.opportunityTier === "medium" ? "bg-blue-500" : "bg-white/20";
+                const sourceLabel = rec.sourceType === "inbound_lead" ? "Web Lead" : "Planner";
+                const sourceBadge = rec.sourceType === "inbound_lead"
+                  ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
+                  : "bg-blue-500/10 text-blue-400 border-blue-500/20";
+                return (
+                  <div key={`${rec.sourceType}-${rec.id}`} className="p-5 bg-[rgba(201,168,76,0.02)]" data-testid={`opp-record-${rec.id}`}>
+                    <div className="flex items-start gap-4">
+                      <div className="w-9 h-9 rounded-xl bg-[rgba(201,168,76,0.12)] border border-[rgba(201,168,76,0.2)] flex items-center justify-center flex-shrink-0">
+                        <Crown className="w-4 h-4 text-[hsl(43,78%,65%)]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        {/* Name + badges */}
+                        <div className="flex flex-wrap items-start gap-2 mb-1.5">
+                          <p className="text-white font-semibold text-sm">{rec.name}</p>
+                          {rec.company && <span className="text-white/40 text-sm">· {rec.company}</span>}
+                          <Badge className={`text-xs border ${sourceBadge}`}>{sourceLabel}</Badge>
+                          <Badge className={`text-xs border ${tierBg} ml-auto`}>HIGH</Badge>
+                        </div>
+
+                        {/* Meta row */}
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/40 mb-2">
+                          {rec.leadType && rec.leadType !== "Floor Plan" && (
+                            <span className="flex items-center gap-1"><Briefcase className="w-3 h-3" />{rec.leadType.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase())}</span>
+                          )}
+                          {(rec.details.staffCount) && <span><Users className="w-3 h-3 inline mr-0.5" />{rec.details.staffCount} staff</span>}
+                          {(rec.details.squareMetres || rec.details.officeSize) && <span>{rec.details.squareMetres || rec.details.officeSize} sqm</span>}
+                          {(rec.details.budgetRange || rec.details.budget) && <span>{rec.details.budgetRange || rec.details.budget}</span>}
+                          {rec.details.city && <span>{rec.details.city}</span>}
+                          {rec.details.officeLocation && <span>{rec.details.officeLocation}</span>}
+                          <span className="ml-auto text-white/20">{timeAgo(rec.createdAt)}</span>
+                        </div>
+
+                        {/* Score bar + estimated value */}
+                        <div className="flex flex-wrap items-center gap-3 mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="h-1.5 w-24 bg-white/10 rounded-full overflow-hidden">
+                              <div className={`h-full ${tierBar} rounded-full`} style={{ width: `${rec.opportunityScore}%` }} />
+                            </div>
+                            <span className="text-xs font-bold text-[hsl(43,78%,65%)]">{rec.opportunityScore}/100</span>
+                          </div>
+                          {rec.estimatedValueRange && (
+                            <span className="text-[hsl(43,78%,65%)] text-xs font-semibold">{rec.estimatedValueRange} est.</span>
+                          )}
+                        </div>
+
+                        {/* Detected signals */}
+                        {rec.signals.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mb-2">
+                            {rec.signals.slice(0, 4).map(sig => (
+                              <span key={sig.type} className="text-xs bg-[rgba(201,168,76,0.08)] border border-[rgba(201,168,76,0.2)] text-[hsl(43,78%,65%)] px-2 py-0.5 rounded-full" title={sig.reason}>
+                                {sig.type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+                              </span>
+                            ))}
+                            {rec.signals.length > 4 && (
+                              <span className="text-xs text-white/30 px-2 py-0.5">+{rec.signals.length - 4} more</span>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Next action */}
+                        {rec.nextAction && (
+                          <div className="mt-2 p-2.5 bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.15)] rounded-xl flex items-start gap-2">
+                            <Target className="w-3 h-3 text-[hsl(43,78%,52%)] flex-shrink-0 mt-0.5" />
+                            <p className="text-white/60 text-xs leading-relaxed">{rec.nextAction}</p>
+                          </div>
+                        )}
+
+                        {/* Contacts */}
+                        <div className="flex flex-wrap gap-3 items-center mt-2">
+                          <a href={`mailto:${rec.email}`} className="flex items-center gap-1.5 text-xs text-white/40 hover:text-[hsl(43,78%,65%)] transition-colors">
+                            <Mail className="w-3 h-3" />{rec.email}
+                          </a>
+                          {rec.phone && (
+                            <a href={`tel:${rec.phone}`} className="flex items-center gap-1.5 text-xs text-white/40 hover:text-[hsl(43,78%,65%)] transition-colors">
+                              <Phone className="w-3 h-3" />{rec.phone}
+                            </a>
+                          )}
+                          <Link href={rec.sourceType === "planning_request" ? "/admin/planning-requests" : "/admin/dashboard"}>
+                            <button className="ml-auto flex items-center gap-1 text-xs text-[hsl(43,78%,52%)] hover:underline">
+                              <Eye className="w-3 h-3" /> View record
+                            </button>
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   </div>

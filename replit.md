@@ -21,6 +21,20 @@ The application follows a client-server architecture.
     - **Admin Dashboard**: Provides KPIs, recent lead overviews, lead type breakdown charts, and access to other admin functionalities.
     - **SEO Blog**: Client-side blog with 200 articles across 10 topic clusters, featuring search, category filters, and pagination.
 
+## Opportunity Intelligence + Email Automation (2026-03-12)
+- **Opportunity Scoring Engine** (`server/services/opportunityScoring.ts`): Deterministic signal model scoring inbound leads and planning requests 0–100 with tier (high/medium/low). 11 signal types: office_relocation, new_office, company_expansion, fitout_language, large/mid/growing/small_team, large/medium_space, high/strong/mid_budget, premium_brief, multiple_meeting_rooms, premium_fit_out, urgent/active_timeline, strategy_call_request, active_procurement, layout_planning, hiring_activity, funding_growth.
+- **Schema update**: `leads` table gains nullable `opportunityScore` (integer), `opportunityTier` (text), `signalsJson` (text), `nextAction` (text), `estimatedValueRange` (text).
+- **API endpoint**: `GET /api/admin/opportunity-intelligence` returns combined scored view of all inbound leads + planning requests sorted by opportunity score. No AI calls — pure deterministic formula.
+- **Admin Command Centre**: New "High Opportunity Intelligence" panel shows HIGH-tier records from both leads and planning requests, with score bar, detected signal badges (up to 4 shown), estimated value, and next-action recommendation.
+- **Admin email enhancements**: `sendLeadNotification()` and `sendPlanningRequestNotification()` now include opportunity score, tier, estimated value, detected signals, and next action. HIGH opportunity leads get `HIGH OPPORTUNITY —` subject line prefix.
+- **Customer emails added**:
+  - Type A (Planner submission): `sendPlannerSubmissionCustomerEmail()` — branded confirmation for AI Planner submissions
+  - Type C (Quote request): `sendQuoteRequestCustomerEmail()` — confirmation for quote-request and quote-builder leads
+  - Type D (Strategy/layout): `sendStrategyCallCustomerEmail()` — confirmation for strategy-call and layout-plan leads
+  - Type E (General enquiry): `sendEnquiryCustomerEmail()` — fallback confirmation for all other lead types
+  - Type B (Payment): already existed — `sendPaymentConfirmationNotification()` sends both admin + customer email
+- **Email template system**: New `customerTemplate()` with light background, clean typography, and premium TCD branding for all customer-facing emails. Admin emails still use dark luxury template.
+
 ## Production Recovery — Completed Phases (2026-03-12)
 - **Phase 1 — Stripe webhook**: `/api/webhooks/stripe` handles `checkout.session.completed` with signature verification; idempotent; requires `STRIPE_WEBHOOK_SECRET` Replit secret
 - **Phase 2 — Supplier names stripped**: `ProductDetail.tsx` — `SUPPLIER_LABELS` → `SUPPLIER_COLLECTION_NAMES` (e.g., "Foshan Feisenzhuo" → "Fessenz Collection"); also fixed `QuoteBuilder.tsx` ("Aimu Series"→"Fessenz Executive", "Breeze Series"→"Milan Workstation") and `OfficeWalkthrough.tsx` ("Feisenzhuo Ruige"→"Presidia Conference Table", "Feisenzhuo Weiyi"→"Presidia Reception Counter")

@@ -10,7 +10,8 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { registerMarketingRoutes } from "./marketing";
-import { sendLeadNotification, sendSupplierQuoteNotification, sendPlanningRequestNotification, sendPaymentConfirmationNotification, isEmailConfigured } from "./email";
+import { sendLeadNotification, sendSupplierQuoteNotification, sendPlanningRequestNotification, sendPaymentConfirmationNotification, sendPlannerSubmissionCustomerEmail, sendQuoteRequestCustomerEmail, sendStrategyCallCustomerEmail, sendEnquiryCustomerEmail, isEmailConfigured } from "./email";
+import { scoreOpportunity } from "./services/opportunityScoring";
 import { analyseSignals, extractDomain, type SignalInput, type SourceType } from "./services/leadIntelligence";
 import { CORPORATE_DESK_SYSTEM_PROMPT, ADVISOR_SYSTEM_MESSAGE, buildChatSystemPrompt, buildAdvisorSystemPrompt } from "./systemPrompt";
 import { getAdaptersMeta } from "./adapters/manualAdapter";
@@ -379,8 +380,31 @@ export async function registerRoutes(
   app.post("/api/leads", async (req, res) => {
     try {
       const data = insertLeadSchema.parse(req.body);
-      const lead = await storage.createLead(data);
 
+      // Score opportunity using real inbound data before saving
+      const opp = scoreOpportunity({
+        type: data.type,
+        name: data.name,
+        company: data.company,
+        message: data.message,
+        officeSize: data.officeSize,
+        staffCount: data.staffCount,
+        budget: data.budget,
+        timeline: data.timeline,
+        officeLocation: data.officeLocation,
+        moveDate: data.moveDate,
+      });
+
+      const lead = await storage.createLead({
+        ...data,
+        opportunityScore: opp.opportunityScore,
+        opportunityTier: opp.opportunityTier,
+        signalsJson: JSON.stringify(opp.signals),
+        nextAction: opp.nextAction,
+        estimatedValueRange: opp.estimatedValueRange || null,
+      } as any);
+
+      // Non-blocking admin email — enhanced with opportunity intelligence
       sendLeadNotification({
         name: lead.name,
         company: lead.company ?? "",
@@ -394,7 +418,47 @@ export async function registerRoutes(
         moveDate: lead.moveDate,
         message: lead.message,
         type: lead.type,
+        opportunityScore: opp.opportunityScore,
+        opportunityTier: opp.opportunityTier,
+        estimatedValueRange: opp.estimatedValueRange || null,
+        nextAction: opp.nextAction,
+        signals: opp.signals,
       }).catch((err) => console.error("[email] Lead notification failed:", err));
+
+      // Non-blocking customer confirmation email based on lead type
+      const lt = (lead.type || "").toLowerCase();
+      if (lt === "quote-request" || lt === "quote-builder") {
+        sendQuoteRequestCustomerEmail({
+          name: lead.name,
+          company: lead.company ?? "",
+          email: lead.email,
+          officeSize: lead.officeSize,
+          staffCount: lead.staffCount,
+          budget: lead.budget,
+          timeline: lead.timeline,
+          message: lead.message,
+          type: lead.type,
+        }).catch((err) => console.error("[email] Quote customer email failed:", err));
+      } else if (lt === "strategy-call" || lt === "layout-plan") {
+        sendStrategyCallCustomerEmail({
+          name: lead.name,
+          company: lead.company ?? "",
+          email: lead.email,
+          officeSize: lead.officeSize,
+          staffCount: lead.staffCount,
+          budget: lead.budget,
+          timeline: lead.timeline,
+          message: lead.message,
+          type: lead.type,
+        }).catch((err) => console.error("[email] Strategy customer email failed:", err));
+      } else {
+        sendEnquiryCustomerEmail({
+          name: lead.name,
+          company: lead.company,
+          email: lead.email,
+          message: lead.message,
+        }).catch((err) => console.error("[email] Enquiry customer email failed:", err));
+      }
 
       res.json({ success: true, id: lead.id });
     } catch (error) {
@@ -845,7 +909,23 @@ export async function registerRoutes(
         source: "upload-floor-plan",
       });
 
-      // Non-blocking email notification
+      // Score opportunity using real inbound data
+      const planningOpp = scoreOpportunity({
+        projectType: body.projectType,
+        squareMetres: body.squareMetres,
+        staffCount: body.staffCount,
+        budgetRange: body.budgetRange,
+        stylePreference: body.stylePreference,
+        specialRequirements: body.specialRequirements,
+        meetingRooms: body.meetingRooms,
+        receptionRequired: body.receptionRequired === "true" || body.receptionRequired === true,
+        breakoutRequired: body.breakoutRequired === "true" || body.breakoutRequired === true,
+        executiveOfficeRequired: body.executiveOfficeRequired === "true" || body.executiveOfficeRequired === true,
+        aiSummary,
+        leadScore: aiLeadScore ?? null,
+      });
+
+      // Non-blocking admin email notification — enhanced with opportunity intelligence
       sendPlanningRequestNotification({
         name: body.name,
         company: body.company || "",
@@ -859,7 +939,26 @@ export async function registerRoutes(
         stylePreference: body.stylePreference,
         specialRequirements: body.specialRequirements,
         fileCount: uploadedFiles.length,
+        opportunityScore: planningOpp.opportunityScore,
+        opportunityTier: planningOpp.opportunityTier,
+        estimatedValueRange: planningOpp.estimatedValueRange || null,
+        nextAction: planningOpp.nextAction,
+        signals: planningOpp.signals,
       }).catch((err) => console.error("[email] Planning request notification failed:", err));
+
+      // Non-blocking customer confirmation email (Type A)
+      sendPlannerSubmissionCustomerEmail({
+        name: body.name,
+        company: body.company || "",
+        email: body.email,
+        city: body.city,
+        projectType: body.projectType,
+        squareMetres: body.squareMetres,
+        staffCount: body.staffCount,
+        budgetRange: body.budgetRange,
+        stylePreference: body.stylePreference,
+        specialRequirements: body.specialRequirements,
+      }).catch((err) => console.error("[email] Planner customer email failed:", err));
 
       res.json({
         success: true,
@@ -1020,6 +1119,146 @@ export async function registerRoutes(
     } catch (error) {
       console.error("[PipelineStats]", error);
       res.status(500).json({ error: "Failed to compute pipeline stats" });
+    }
+  });
+
+  // ─── Opportunity Intelligence — combined view of inbound leads + planning requests ──
+  app.get("/api/admin/opportunity-intelligence", async (_req, res) => {
+    try {
+      const [inboundLeads, planningRequests] = await Promise.all([
+        storage.getLeads(),
+        storage.getPlanningRequests(),
+      ]);
+
+      // Score/re-score all inbound leads using the deterministic model
+      const scoredLeads = inboundLeads.map(l => {
+        const existingScore = l.opportunityScore;
+        const existingSignals = l.signalsJson ? (() => { try { return JSON.parse(l.signalsJson); } catch { return []; } })() : [];
+        // Use stored score if already computed, else compute fresh
+        if (existingScore != null) {
+          return {
+            id: l.id,
+            sourceType: "inbound_lead" as const,
+            name: l.name,
+            company: l.company,
+            email: l.email,
+            phone: l.phone,
+            leadType: l.type,
+            opportunityScore: existingScore,
+            opportunityTier: (l.opportunityTier || "low") as "high" | "medium" | "low",
+            signals: existingSignals,
+            nextAction: l.nextAction || "",
+            estimatedValueRange: l.estimatedValueRange || "",
+            createdAt: l.createdAt?.toISOString() || "",
+            details: {
+              officeSize: l.officeSize,
+              staffCount: l.staffCount,
+              budget: l.budget,
+              timeline: l.timeline,
+              message: l.message,
+              officeLocation: l.officeLocation,
+            },
+          };
+        }
+        // Fresh score for older records
+        const opp = scoreOpportunity({
+          type: l.type,
+          message: l.message,
+          officeSize: l.officeSize,
+          staffCount: l.staffCount,
+          budget: l.budget,
+          timeline: l.timeline,
+          officeLocation: l.officeLocation,
+          moveDate: l.moveDate,
+        });
+        return {
+          id: l.id,
+          sourceType: "inbound_lead" as const,
+          name: l.name,
+          company: l.company,
+          email: l.email,
+          phone: l.phone,
+          leadType: l.type,
+          opportunityScore: opp.opportunityScore,
+          opportunityTier: opp.opportunityTier,
+          signals: opp.signals,
+          nextAction: opp.nextAction,
+          estimatedValueRange: opp.estimatedValueRange,
+          createdAt: l.createdAt?.toISOString() || "",
+          details: {
+            officeSize: l.officeSize,
+            staffCount: l.staffCount,
+            budget: l.budget,
+            timeline: l.timeline,
+            message: l.message,
+            officeLocation: l.officeLocation,
+          },
+        };
+      });
+
+      // Score planning requests
+      const scoredPlanningRequests = planningRequests.map(r => {
+        const opp = scoreOpportunity({
+          projectType: r.projectType,
+          squareMetres: r.squareMetres,
+          staffCount: r.staffCount,
+          budgetRange: r.budgetRange,
+          stylePreference: r.stylePreference,
+          specialRequirements: r.specialRequirements,
+          meetingRooms: r.meetingRooms,
+          receptionRequired: r.receptionRequired,
+          breakoutRequired: r.breakoutRequired,
+          executiveOfficeRequired: r.executiveOfficeRequired,
+          aiSummary: r.aiSummary,
+          estimatedValue: r.estimatedValue,
+          leadScore: r.leadScore,
+        });
+        return {
+          id: r.id,
+          sourceType: "planning_request" as const,
+          name: r.name,
+          company: r.company,
+          email: r.email,
+          phone: r.phone,
+          leadType: r.projectType || "Floor Plan",
+          opportunityScore: opp.opportunityScore,
+          opportunityTier: opp.opportunityTier,
+          signals: opp.signals,
+          nextAction: opp.nextAction,
+          estimatedValueRange: r.estimatedValue || opp.estimatedValueRange,
+          createdAt: r.createdAt?.toISOString() || "",
+          isPaid: r.isPaid,
+          status: r.status,
+          details: {
+            squareMetres: r.squareMetres,
+            staffCount: r.staffCount,
+            budgetRange: r.budgetRange,
+            stylePreference: r.stylePreference,
+            city: r.city,
+          },
+        };
+      });
+
+      const all = [...scoredLeads, ...scoredPlanningRequests]
+        .sort((a, b) => b.opportunityScore - a.opportunityScore);
+
+      const highOpportunities = all.filter(r => r.opportunityTier === "high");
+      const mediumOpportunities = all.filter(r => r.opportunityTier === "medium");
+
+      res.json({
+        all,
+        highOpportunities,
+        mediumOpportunities,
+        summary: {
+          total: all.length,
+          highCount: highOpportunities.length,
+          mediumCount: mediumOpportunities.length,
+          lowCount: all.filter(r => r.opportunityTier === "low").length,
+        },
+      });
+    } catch (err) {
+      console.error("[OpportunityIntelligence]", err);
+      res.status(500).json({ error: "Failed to compute opportunity intelligence" });
     }
   });
 

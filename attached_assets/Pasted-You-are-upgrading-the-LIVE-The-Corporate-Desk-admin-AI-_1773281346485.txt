@@ -1,0 +1,435 @@
+You are upgrading the LIVE The Corporate Desk admin AI and lead handling system.
+
+You are in ZERO-DEMO LIVE LEAD INTELLIGENCE + EMAIL AUTOMATION MODE.
+
+IMPORTANT:
+This must be a real working admin intelligence and email system.
+Do NOT build a fake dashboard.
+Do NOT create static example leads.
+Do NOT create placeholder widgets.
+Do NOT pretend third-party data exists if it is not connected.
+
+Protect all working systems:
+- AI office planner
+- payment / unlock flow
+- admin dashboard
+- admin command centre
+- planning requests
+- leads system
+- product catalog
+- 2D layout renderer
+- 3D walkthrough
+- chatbot
+- SMTP/email system
+- mobile and desktop responsiveness
+
+==================================================
+PRIMARY OBJECTIVE
+==================================================
+
+Build a LIVE Office Move Intelligence system for the admin AI and make sure it sends proper emails to:
+
+1. admin recipients
+2. the customer / company contact
+
+This must work in the live admin environment.
+It must use real data sources.
+No fake prospecting.
+No fake email records.
+
+==================================================
+WHAT THE SYSTEM MUST DO
+==================================================
+
+The admin AI must be able to:
+
+1. identify likely office move / expansion signals
+2. score the commercial value of those signals
+3. estimate likely fit-out opportunity value
+4. show why a lead/opportunity was flagged
+5. recommend the next action
+6. make this visible inside the admin command centre
+7. send email alerts for all new leads and high-opportunity leads to admin
+8. send branded confirmation / next-step emails to the customer/company
+
+==================================================
+STAGE 1 — AUDIT CURRENT ADMIN / LEAD / EMAIL SYSTEM
+==================================================
+
+Before coding:
+- audit current admin dashboard
+- audit /admin/command-centre
+- audit /admin/leads
+- audit planning requests
+- inspect existing DB schema for leads, planning requests, notes, tags, and opportunity scoring
+- inspect existing email sending logic and current SMTP usage
+- inspect current admin recipient configuration
+- inspect current customer-facing email templates if any
+
+Do not guess.
+Do not code until audit is complete.
+
+==================================================
+STAGE 2 — BUILD LIVE OPPORTUNITY SIGNAL MODEL
+==================================================
+
+Create a real signal model for office move / fit-out opportunities.
+
+Signals should include at minimum:
+
+- rapid hiring
+- company expansion
+- new HQ / office language
+- relocation language
+- facilities / office manager hiring
+- funding / growth announcements
+- larger office size requirement from planner
+- premium office requests
+- multiple meeting room requests
+- new city expansion
+- headquarters move
+- tenancy / fit-out / workspace wording
+
+The signal model must allow:
+- signal name
+- confidence score
+- business relevance
+- source type
+- notes
+
+Suggested output structure:
+{
+  "signals": [
+    {
+      "type": "rapid_hiring",
+      "confidence": 0.82,
+      "source": "manual|planner|admin_note|future_api",
+      "reason": "Company described growth and 28 staff requirement"
+    }
+  ],
+  "opportunityScore": 78,
+  "opportunityTier": "high"
+}
+
+==================================================
+STAGE 3 — USE REAL DATA FIRST
+==================================================
+
+Use real currently available sources first:
+
+1. planner submissions
+2. lead form content
+3. quote requests
+4. strategy call requests
+5. admin notes if present
+6. company / project details already captured in forms
+
+The first live version must work even without external APIs by extracting opportunity intelligence from real inbound data already entering the platform.
+
+Do NOT wait for external integrations to build the first useful version.
+
+==================================================
+STAGE 4 — OPTIONAL EXTERNAL SOURCE FRAMEWORK
+==================================================
+
+Prepare the system so future connectors can be added for:
+
+- LinkedIn/company growth data
+- job board signals
+- commercial property / lease signals
+- funding/news signals
+
+But in this task:
+- do not fake these integrations
+- scaffold them cleanly if needed
+- keep the current live version focused on real existing data
+
+==================================================
+STAGE 5 — ADMIN COMMAND CENTRE INTEGRATION
+==================================================
+
+Extend /admin/command-centre so it shows real opportunity intelligence.
+
+Add panels such as:
+
+- High Opportunity Leads
+- Likely Office Move Signals
+- Expansion Signals
+- Recommended High-Value Follow-Ups
+
+For each lead or planning request, show:
+
+- company / contact
+- estimated project value
+- opportunity score
+- opportunity tier
+- detected signals
+- AI summary
+- recommended next action
+
+==================================================
+STAGE 6 — ADMIN AI OUTPUT
+==================================================
+
+For each strong opportunity, the admin AI must generate structured analysis like:
+
+Opportunity Summary
+Why This Lead Was Flagged
+Detected Growth / Move Signals
+Estimated Commercial Value
+Buyer Psychology Notes
+Recommended Offer
+Recommended Next Action
+
+The AI must reason like a commercial operator, not a generic chatbot.
+
+==================================================
+STAGE 7 — LIVE PRIORITISATION RULES
+==================================================
+
+The system should prioritise:
+
+- relocation-style requests
+- expansion requests
+- premium workspace requests
+- larger staff counts
+- larger office sizes
+- stronger commercial language
+- higher estimated project values
+
+The system should deprioritise:
+
+- low-budget one-off furniture requests
+- unclear or weak fit-out intent
+- low commercial value enquiries
+
+==================================================
+STAGE 8 — STORAGE
+==================================================
+
+Persist live opportunity intelligence safely.
+
+For relevant leads/planning requests, store:
+- opportunity score
+- opportunity tier
+- signal JSON
+- AI summary
+- next action recommendation
+
+Do not break existing tables.
+If needed, add safe nullable fields or a linked intelligence table.
+
+==================================================
+STAGE 9 — ADMIN EMAIL ALERTS (MANDATORY)
+==================================================
+
+Use the existing SMTP/email system.
+
+Email all relevant admin recipients for:
+- new lead form submission
+- new floor plan / planner submission
+- new quote request
+- new strategy call request
+- payment received / report unlocked
+- any lead scored as HIGH opportunity
+
+Each admin email should contain:
+- lead type
+- contact name
+- company name
+- email
+- phone if available
+- office size / staff count if available
+- estimated project value
+- opportunity score
+- opportunity tier
+- key detected signals
+- link to the relevant admin record
+
+For HIGH opportunity leads, use stronger subject lines such as:
+HIGH OPPORTUNITY LEAD — [Company Name] — Estimated [Value Range]
+
+Deduplicate where necessary by lead ID / planning request ID / event type.
+
+==================================================
+STAGE 10 — CUSTOMER / COMPANY EMAILS (MANDATORY)
+==================================================
+
+Send branded customer-facing emails to the company/contact automatically.
+
+At minimum send customer/company emails for:
+
+1. new AI office planner submission
+2. payment received / report unlocked
+3. quote request received
+4. strategy call request received
+5. contact/enquiry form submission
+
+Each customer email must be professional, branded, and useful.
+
+--------------------------------------------------
+EMAIL TYPE A — PLANNER SUBMISSION RECEIVED
+--------------------------------------------------
+
+Purpose:
+Confirm that The Corporate Desk received the workspace planning request.
+
+Include:
+- customer name
+- company name
+- submission type
+- office size if available
+- staff count if available
+- key requirements if available
+- style / budget preferences if available
+- message that a workspace concept is being prepared or reviewed
+- what happens next
+- company contact details for The Corporate Desk
+
+Suggested tone:
+Premium, professional, helpful, confidence-building.
+
+--------------------------------------------------
+EMAIL TYPE B — PAYMENT RECEIVED / FULL REPORT UNLOCKED
+--------------------------------------------------
+
+Purpose:
+Confirm payment and give the customer access path to the report.
+
+Include:
+- customer name
+- company name
+- payment confirmation
+- amount paid
+- payment reference / session reference if available
+- link back to the unlocked report
+- summary of what is now included:
+  - interactive visual floor plan
+  - furniture SKUs
+  - cost estimate
+  - export access
+  - 3D walkthrough consultation if applicable
+- what happens next
+- The Corporate Desk contact details
+
+--------------------------------------------------
+EMAIL TYPE C — QUOTE REQUEST RECEIVED
+--------------------------------------------------
+
+Purpose:
+Confirm quote enquiry and set expectations.
+
+Include:
+- customer name
+- company name
+- confirmation quote request received
+- project type if available
+- office size if available
+- estimated next step
+- timeframe expectation
+- company contact details
+
+--------------------------------------------------
+EMAIL TYPE D — STRATEGY CALL REQUEST RECEIVED
+--------------------------------------------------
+
+Purpose:
+Confirm strategy request and outline next steps.
+
+Include:
+- customer name
+- company name
+- strategy call request confirmation
+- project context if available
+- next step message
+- The Corporate Desk contact details
+
+--------------------------------------------------
+EMAIL TYPE E — GENERAL ENQUIRY / CONTACT FORM
+--------------------------------------------------
+
+Purpose:
+Acknowledge the enquiry.
+
+Include:
+- customer name
+- company name if available
+- brief confirmation
+- next step expectation
+- company contact details
+
+==================================================
+EMAIL CONTENT REQUIREMENTS
+==================================================
+
+Customer/company emails must:
+
+- use The Corporate Desk branding
+- feel premium and credible
+- include the company/contact details submitted in the form
+- include relevant project details captured from the form
+- include a clear next step
+- include The Corporate Desk phone/email
+- not look like generic automated spam
+- not include fake promises
+- not expose internal admin notes or raw AI JSON
+
+If data is missing, omit that section cleanly.
+
+==================================================
+STAGE 11 — TESTING
+==================================================
+
+Test using real existing records already in the live system.
+
+Verify:
+1. admin command centre still loads
+2. planning requests still load
+3. lead pages still load
+4. opportunity scoring works on real data
+5. AI summaries generate on real records
+6. admin email alerts send for new leads
+7. admin email alerts send for planner submissions
+8. admin email alerts send for high-opportunity leads
+9. customer emails send for planner submissions
+10. customer emails send for payment unlock
+11. customer emails send for quote requests
+12. customer emails send for strategy calls
+13. no duplicate spam emails
+14. no existing routes break
+15. no fake demo records are shown
+16. mobile and desktop admin still work
+
+==================================================
+STAGE 12 — FINAL REPORT
+==================================================
+
+Return:
+1. files created
+2. files modified
+3. what real data sources are used now
+4. how the opportunity scoring works
+5. what signals are detected
+6. where this appears in admin
+7. how admin email alerts work
+8. how customer/company emails work
+9. which events trigger which email
+10. what is live and real now
+11. what future integrations are scaffolded only
+12. confirmation that all existing systems still work
+
+==================================================
+NON-NEGOTIABLE QUALITY RULES
+==================================================
+
+- No fake lead intelligence
+- No demo prospect data
+- No static mockups passed off as real
+- Must work in the live admin system
+- Must use real inbound platform data first
+- Must improve actual commercial decision-making for The Corporate Desk
+- Must email real lead alerts to admin
+- Must email real branded confirmations to customers
+- Must not break the current SMTP/email system
+
+Start with the audit first, then build the smallest real live version of this intelligence and email system.
