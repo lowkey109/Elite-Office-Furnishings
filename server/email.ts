@@ -2,11 +2,10 @@ import { Resend } from "resend";
 import type { OppSignal } from "./services/opportunityScoring";
 
 const TCD_RECIPIENTS = [
-  "service@thecorporatedesk.com.au",
   "thecorporatedeskservice@gmail.com",
 ];
 
-const TCD_FROM = "The Corporate Desk <service@thecorporatedesk.com.au>";
+const TCD_FROM = "The Corporate Desk <onboarding@resend.dev>";
 const TCD_PHONE = "1300 977 607";
 const TCD_EMAIL = "service@thecorporatedesk.com.au";
 const TCD_WEBSITE = "https://thecorporatedesk.com.au";
