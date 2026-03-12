@@ -1,0 +1,256 @@
+SYSTEM CONTINUATION TASK
+
+The platform audit, stress testing, and performance fixes are complete.
+
+You are now continuing development of the Office Move Radar system.
+
+DO NOT rebuild the website.
+DO NOT modify existing working systems unless required.
+
+Do not break:
+
+- product catalogue
+- workspace planner
+- quote builder
+- planning requests
+- deal pipeline
+- profit engine
+- admin dashboard
+- email notifications
+- Stripe payments
+- follow-up sequences
+- lead capture
+- finance applications
+- supplier messaging
+
+This is an extension to the platform.
+
+------------------------------------------------
+
+OBJECTIVE
+
+Complete the Office Move Radar system and integrate it with the existing intelligence and lead pipeline.
+
+This system detects companies that are likely to:
+
+• move offices
+• expand teams
+• open new offices
+• refit existing offices
+
+The system must feed these opportunities into the platform.
+
+------------------------------------------------
+
+PHASE 1 — DATA STRUCTURE
+
+Create a new database table:
+
+office_move_radar
+
+Fields:
+
+id
+company_name
+industry
+city
+state
+country
+signal_type
+signal_subtype
+signal_source
+source_url
+date_detected
+confidence_score
+estimated_headcount
+estimated_office_size
+estimated_project_value
+radar_score
+priority
+recommended_outreach
+recommended_offer
+recommended_next_action
+status
+notes
+created_at
+updated_at
+
+Ensure compatibility with existing schema.
+
+------------------------------------------------
+
+PHASE 2 — SIGNAL PROCESSING
+
+Extend the existing:
+
+• lease signal scanner
+• territory scanner
+• lead intelligence
+
+to generate Office Move Radar records.
+
+Signals should include:
+
+- lease announcements
+- tenant move-ins
+- expansion signals
+- hiring spikes
+- funding announcements
+- new office openings
+
+Normalize signals before storing.
+
+Deduplicate results.
+
+------------------------------------------------
+
+PHASE 3 — RADAR SCORING
+
+Build a scoring engine.
+
+Score based on:
+
+signal strength
+company size
+growth indicators
+location
+industry relevance
+workspace probability
+
+Output:
+
+LOW
+MEDIUM
+HIGH
+
+Estimate potential project value using headcount and office size assumptions.
+
+------------------------------------------------
+
+PHASE 4 — ADMIN INTERFACE
+
+Create a new admin route:
+
+/admin/office-move-radar
+
+Display table columns:
+
+Company
+City
+Signal Type
+Source
+Radar Score
+Priority
+Estimated Office Size
+Estimated Project Value
+Date Detected
+Status
+
+Add filters:
+
+City
+Priority
+Industry
+Signal Type
+
+Add sorting:
+
+Radar score
+Project value
+Date detected
+
+------------------------------------------------
+
+PHASE 5 — PIPELINE INTEGRATION
+
+Allow radar records to be converted into prospects.
+
+Button:
+
+"Add to Pipeline"
+
+This creates a prospected_lead record and inserts into the existing deal pipeline.
+
+Maintain link between radar record and pipeline deal.
+
+------------------------------------------------
+
+PHASE 6 — OUTREACH GENERATOR
+
+Add AI outreach draft generation.
+
+Generate:
+
+• email subject
+• email body
+• follow-up message
+
+Reference the detected signal naturally.
+
+Do not auto-send.
+
+Admin review required.
+
+------------------------------------------------
+
+PHASE 7 — DASHBOARD INTEGRATION
+
+Add radar alerts to:
+
+/admin/dashboard
+/admin/command-centre
+
+Display:
+
+New high-priority opportunities
+Estimated project values
+Suggested outreach actions
+
+------------------------------------------------
+
+PHASE 8 — SCHEDULER
+
+Add radar scans to the existing scheduler.
+
+Suggested cadence:
+
+Lease signals → daily
+Growth signals → daily
+Territory scans → weekly
+Radar scoring refresh → hourly
+
+------------------------------------------------
+
+PHASE 9 — TESTING
+
+Verify:
+
+Radar records can be created
+Signals ingest correctly
+Scoring works
+Admin radar page loads
+Filters and sorting work
+Radar deals can enter pipeline
+Outreach drafts generate
+Scheduler jobs run
+
+Ensure no existing systems break.
+
+------------------------------------------------
+
+PHASE 10 — FINAL REPORT
+
+Provide summary:
+
+Files modified
+New routes
+New tables
+Admin UI added
+Scheduler jobs added
+Scoring logic
+Pipeline integration
+Testing results
+
+Do not stop mid-build.
+
+Complete the Office Move Radar system.
