@@ -23,6 +23,7 @@ const allowlist = [
   "openai",
   "passport",
   "passport-local",
+  "pdf-parse",
   "pg",
   "stripe",
   "uuid",
@@ -49,7 +50,7 @@ async function buildAll() {
   await esbuild({
     entryPoints: ["server/index.ts"],
     platform: "node",
-    packages: "external",
+    external: externals,
     bundle: true,
     format: "cjs",
     outfile: "dist/index.cjs",
