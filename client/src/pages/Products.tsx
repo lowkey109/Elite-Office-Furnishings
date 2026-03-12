@@ -8,8 +8,15 @@ import { Layout } from "@/components/Layout";
 import { ArrowRight, Tag, Search, SlidersHorizontal, X, Package, ChevronDown, ChevronRight } from "lucide-react";
 import { getSeriesDisplayName } from "@/lib/seriesDisplayNames";
 
+interface SizeVariant {
+  sku: string;
+  sizeLabel: string;
+  dimensions: string;
+}
+
 interface Product {
   product_name: string;
+  display_name?: string;
   sku: string;
   supplier: string;
   category: string;
@@ -20,6 +27,9 @@ interface Product {
   features?: string[];
   image?: string;
   needs_manual_review?: boolean;
+  has_variants?: boolean;
+  variant_count?: number;
+  size_variants?: SizeVariant[];
 }
 
 const CATEGORY_IMAGES: Record<string, string> = {
@@ -157,12 +167,14 @@ function ProductCard({ product }: { product: Product }) {
       </Link>
       <div className="p-5 flex flex-col flex-1">
         <Link href={`/products/${product.sku}`} className="block" data-testid={`link-product-${slug}`}>
-          <div className="text-xs text-[hsl(43,78%,52%)] font-mono mb-2 tracking-wider">{product.sku}</div>
-          <h3 className="font-serif font-bold text-white text-base leading-snug mb-3 line-clamp-2 hover:text-[hsl(43,78%,65%)] transition-colors">{product.product_name}</h3>
+          {product.has_variants && product.variant_count && product.variant_count > 1 && (
+            <div className="text-xs text-[hsl(43,78%,52%)] mb-2 tracking-wider flex items-center gap-1.5">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[hsl(43,78%,52%)]" />
+              Available in {product.variant_count} sizes
+            </div>
+          )}
+          <h3 className="font-serif font-bold text-white text-base leading-snug mb-3 line-clamp-2 hover:text-[hsl(43,78%,65%)] transition-colors">{product.display_name || product.product_name}</h3>
         </Link>
-        {product.dimensions && (
-          <p className="text-white/40 text-xs mb-2 font-mono">{product.dimensions}</p>
-        )}
         {product.materials && (
           <p className="text-white/45 text-sm leading-relaxed mb-3 line-clamp-2">{product.materials}</p>
         )}
@@ -297,7 +309,7 @@ export default function Products() {
   }, []);
 
   const { data: products = [], isLoading } = useQuery<Product[]>({
-    queryKey: ["/api/products"],
+    queryKey: ["/api/products/grouped"],
   });
 
   const publicProducts = useMemo(() => products.filter(p => !p.needs_manual_review), [products]);
@@ -313,6 +325,7 @@ export default function Products() {
         p.product_name.toLowerCase().includes(q) ||
         p.sku.toLowerCase().includes(q) ||
         (p.series || "").toLowerCase().includes(q) ||
+        getSeriesDisplayName(p.series || "").toLowerCase().includes(q) ||
         (p.materials || "").toLowerCase().includes(q) ||
         (p.category || "").toLowerCase().includes(q)
       );
@@ -477,11 +490,11 @@ export default function Products() {
                     {seriesInView.map(series => (
                       <button
                         key={series}
-                        onClick={() => { setSearchInput(series); setSearch(series); setPage(1); }}
+                        onClick={() => { setSearchInput(getSeriesDisplayName(series)); setSearch(getSeriesDisplayName(series)); setPage(1); }}
                         className="text-xs px-3 py-1 bg-[rgba(201,168,76,0.08)] border border-[rgba(201,168,76,0.2)] text-[hsl(43,78%,60%)] rounded hover:bg-[rgba(201,168,76,0.15)] transition-colors"
                         data-testid={`filter-series-${series.toLowerCase().replace(/\s+/g, "-")}`}
                       >
-                        {series}
+                        {getSeriesDisplayName(series)}
                       </button>
                     ))}
                   </div>

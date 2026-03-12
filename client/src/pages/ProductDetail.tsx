@@ -78,6 +78,29 @@ const SUPPLIER_COLLECTION_NAMES: Record<string, string> = {
   "Foshan Bohua Furniture Co., Ltd. (GAOJIN)": "The Corporate Desk Collection",
 };
 
+const SUPPLIER_PREFIXES_STRIP = ["GOJO", "Weiyi", "Ruige", "Blister", "Vic", "Zhuoya", "Dynamic", "Dell", "Yashang", "Fei"];
+
+function cleanProductName(name: string): string {
+  let n = name;
+  for (const prefix of SUPPLIER_PREFIXES_STRIP) {
+    if (n.startsWith(prefix + " ")) { n = n.slice(prefix.length + 1); break; }
+  }
+  n = n.replace(/^([A-Z][A-Z0-9]{2,8}[A-Z0-9\-]*)\s+(?=[A-Z])/, "");
+  n = n.replace(/^(\d[0-9A-Z\-]+)\s+(?=[A-Z])/, "");
+  return n.trim();
+}
+
+function cleanBaseName(name: string): string {
+  return cleanProductName(name).replace(/\s+\d{3,4}\s*$/, "").trim();
+}
+
+interface SizeVariantInfo {
+  sku: string;
+  sizeLabel: string;
+  dimensions: string;
+  isCurrent: boolean;
+}
+
 const PACKAGE_COMPATIBILITY: Record<string, { name: string; slug: string }[]> = {
   "Weiyi": [{ name: "The Executive Suite", slug: "executive-suite" }],
   "Red Cliff": [{ name: "The Director Package", slug: "director-package" }],
@@ -205,12 +228,11 @@ function RelatedProductCard({ product }: { product: Product }) {
         <img src={imgSrc} alt={product.product_name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" onError={() => setImgError(true)} />
         <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,18%,10%)]/70 to-transparent" />
         <div className="absolute top-2 left-2">
-          <Badge className="bg-[rgba(201,168,76,0.85)] text-[hsl(220,20%,6%)] text-xs font-semibold">{product.series}</Badge>
+          <Badge className="bg-[rgba(201,168,76,0.85)] text-[hsl(220,20%,6%)] text-xs font-semibold">{getSeriesDisplayName(product.series)}</Badge>
         </div>
       </div>
       <div className="p-4 flex flex-col flex-1">
-        <div className="text-xs text-[hsl(43,78%,52%)] font-mono mb-1">{product.sku}</div>
-        <h4 className="font-serif font-bold text-white text-sm leading-snug mb-2 line-clamp-2">{product.product_name}</h4>
+        <h4 className="font-serif font-bold text-white text-sm leading-snug mb-2 line-clamp-2">{cleanBaseName(product.product_name)}</h4>
         <div className="mt-auto flex items-center justify-between">
           <span className="text-[hsl(43,78%,65%)] text-xs font-bold">{price}</span>
           <span className="text-white/40 text-xs flex items-center gap-1 group-hover:text-[hsl(43,78%,52%)] transition-colors">
@@ -245,6 +267,12 @@ export default function ProductDetail() {
     queryKey: ["/api/products/series", product?.series],
     queryFn: () => fetch(`/api/products/series/${encodeURIComponent(product!.series)}`).then(r => r.json()),
     enabled: !!product?.series,
+  });
+
+  const { data: sizeVariantData } = useQuery<{ baseName: string; cleanedName: string; variants: SizeVariantInfo[] }>({
+    queryKey: ["/api/products", sku, "size-variants"],
+    queryFn: () => fetch(`/api/products/${sku}/size-variants`).then(r => r.json()),
+    enabled: !!sku,
   });
 
   const form = useForm<ReviewFormData>({
@@ -297,6 +325,9 @@ export default function ProductDetail() {
   const description = generateDescription(product);
   const recommendedUses = getRecommendedUse(product);
   const packages = PACKAGE_COMPATIBILITY[product.series] || [];
+  const cleanedName = sizeVariantData?.baseName || cleanBaseName(product.product_name);
+  const hasMultipleSizes = (sizeVariantData?.variants?.length ?? 0) > 1;
+  const sizeVariants = sizeVariantData?.variants || [];
   const relatedProducts = (relatedData?.products || [])
     .filter(p => p.sku !== product.sku)
     .slice(0, 4);
@@ -318,7 +349,7 @@ export default function ProductDetail() {
               <span>/</span>
               <span className="text-white/60">{product.category}</span>
               <span>/</span>
-              <span className="text-white/80 truncate max-w-[200px]">{product.product_name}</span>
+              <span className="text-white/80 truncate max-w-[200px]">{cleanedName}</span>
             </nav>
           </div>
         </div>
@@ -357,13 +388,36 @@ export default function ProductDetail() {
             <div className="flex flex-col gap-5" data-testid="product-info">
 
               <div>
-                <div className="text-[hsl(43,78%,52%)] text-xs font-mono tracking-widest uppercase mb-2" data-testid="text-product-sku">
-                  SKU: {product.sku}
-                </div>
-                <h1 className="font-serif font-bold text-white text-3xl md:text-4xl leading-tight mb-3" data-testid="text-product-name">
-                  {product.product_name}
+                <h1 className="font-serif font-bold text-white text-3xl md:text-4xl leading-tight mb-2" data-testid="text-product-name">
+                  {cleanedName}
                 </h1>
-                <div className="text-white/50 text-sm mb-4">{product.category}</div>
+                <div className="text-white/50 text-sm mb-4">{product.category} · {collectionName}</div>
+
+                {/* Size Variant Selector */}
+                {hasMultipleSizes && (
+                  <div className="mb-5 p-4 rounded-lg bg-[hsl(220,20%,8%)] border border-[rgba(201,168,76,0.15)]" data-testid="size-variant-selector">
+                    <div className="text-white/40 text-xs uppercase tracking-wider mb-3">Choose Size</div>
+                    <div className="flex flex-wrap gap-2">
+                      {sizeVariants.map(variant => (
+                        <Link
+                          key={variant.sku}
+                          href={`/products/${variant.sku}`}
+                          data-testid={`size-option-${variant.sku.toLowerCase()}`}
+                          className={`px-4 py-2 rounded text-sm font-medium border transition-all ${
+                            variant.isCurrent
+                              ? "bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] border-[hsl(43,78%,52%)]"
+                              : "bg-transparent border-[rgba(201,168,76,0.25)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.1)]"
+                          }`}
+                        >
+                          {variant.sizeLabel}
+                        </Link>
+                      ))}
+                    </div>
+                    {product.dimensions && (
+                      <div className="mt-2 text-white/30 text-xs font-mono">{product.dimensions}</div>
+                    )}
+                  </div>
+                )}
 
                 {/* Rating Summary */}
                 {avgRating !== null && avgRating !== undefined && reviews.length > 0 && (

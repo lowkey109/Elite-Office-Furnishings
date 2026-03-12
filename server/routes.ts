@@ -319,6 +319,85 @@ export async function registerRoutes(
     res.json({ series: req.params.series, count: products.length, products });
   });
 
+  // ─── Public product name cleaning ─────────────────────────────────────────
+  const SERIES_PREFIXES_STRIP = ["GOJO", "Weiyi", "Ruige", "Blister", "Vic", "Zhuoya", "Dynamic", "Dell", "Yashang", "Fei"];
+  // Strips alpha-led model codes (e.g. "FU8061", "G01-1", "A2089") and numeric-led model codes (e.g. "842-3C", "833-1C", "848")
+  const MODEL_CODE_STRIP_ALPHA = /^([A-Z][A-Z0-9]{2,8}[A-Z0-9\-]*)\s+(?=[A-Z])/;
+  const MODEL_CODE_STRIP_NUMERIC = /^(\d[0-9A-Z\-]+)\s+(?=[A-Z])/;
+
+  function cleanPublicProductName(name: string): string {
+    let n = name;
+    for (const prefix of SERIES_PREFIXES_STRIP) {
+      if (n.startsWith(prefix + " ")) { n = n.slice(prefix.length + 1); break; }
+    }
+    n = n.replace(MODEL_CODE_STRIP_ALPHA, "");
+    n = n.replace(MODEL_CODE_STRIP_NUMERIC, "");
+    return n.trim();
+  }
+
+  function groupProductVariants(products: any[]) {
+    // Matches " 2400", " — 2800", "—2800" etc. at end of name
+    const SIZE_SUFFIX = /(\s+[—–]\s*|\s+)(\d{3,4})\s*$/;
+    const groups = new Map<string, any[]>();
+    for (const p of products) {
+      if (p.needs_manual_review) continue;
+      const cleanedFull = cleanPublicProductName(p.product_name).replace(/\s*[—–]\s*$/, "").trim();
+      const baseName = cleanedFull.replace(SIZE_SUFFIX, "").replace(/\s*[—–]\s*$/, "").trim();
+      // Include series in key so different-design same-name products stay separate
+      const key = `${baseName}||${p.category}||${p.series}`;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push({ ...p, _cleanedName: cleanedFull, _baseName: baseName });
+    }
+    const result: any[] = [];
+    for (const [, variants] of groups) {
+      const primary = variants[0];
+      const hasVariants = variants.length > 1;
+      const sizeVariants = hasVariants ? variants.map((v: any) => {
+        const m = v.product_name.match(SIZE_SUFFIX);
+        const sizeNum = m ? m[2] : null;
+        return { sku: v.sku, sizeLabel: sizeNum ? `${sizeNum}mm` : "Standard", dimensions: v.dimensions || "" };
+      }).sort((a: any, b: any) => parseInt(a.sizeLabel) - parseInt(b.sizeLabel)) : [];
+      result.push({
+        ...primary,
+        product_name: primary._baseName,
+        display_name: primary._baseName,
+        _cleanedName: undefined,
+        _baseName: undefined,
+        size_variants: sizeVariants,
+        has_variants: hasVariants,
+        variant_count: variants.length,
+      });
+    }
+    return result;
+  }
+
+  app.get("/api/products/grouped", (_req, res) => {
+    const catalog = loadProductCatalog();
+    res.json(groupProductVariants(catalog.products));
+  });
+
+  app.get("/api/products/:sku/size-variants", (req, res) => {
+    const catalog = loadProductCatalog();
+    const { sku } = req.params;
+    const SIZE_SUFFIX = /(\s+[—–]\s*|\s+)(\d{3,4})\s*$/;
+    const product = catalog.products.find((p: any) => p.sku.toLowerCase() === sku.toLowerCase());
+    if (!product) return res.status(404).json({ error: "Product not found" });
+    const cleanedFull = cleanPublicProductName(product.product_name).replace(/\s*[—–]\s*$/, "").trim();
+    const baseName = cleanedFull.replace(SIZE_SUFFIX, "").replace(/\s*[—–]\s*$/, "").trim();
+    const variants = catalog.products
+      .filter((p: any) => {
+        const cn = cleanPublicProductName(p.product_name).replace(/\s*[—–]\s*$/, "").replace(SIZE_SUFFIX, "").replace(/\s*[—–]\s*$/, "").trim();
+        return cn === baseName && p.category === product.category && p.series === product.series;
+      })
+      .map((v: any) => {
+        const m = v.product_name.match(SIZE_SUFFIX);
+        const sizeNum = m ? m[2] : null;
+        return { sku: v.sku, sizeLabel: sizeNum ? `${sizeNum}mm` : "Standard", dimensions: v.dimensions || "", isCurrent: v.sku.toLowerCase() === sku.toLowerCase() };
+      })
+      .sort((a: any, b: any) => parseInt(a.sizeLabel) - parseInt(b.sizeLabel));
+    res.json({ baseName, cleanedName: cleanedFull, variants });
+  });
+
   app.get("/api/catalog/metadata", (_req, res) => {
     const catalog = loadProductCatalog();
     res.json(catalog.metadata);

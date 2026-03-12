@@ -4,6 +4,21 @@
  * Display names are shown on all public-facing pages.
  */
 export const SERIES_DISPLAY_NAMES: Record<string, string> = {
+  // Fessenz Design Collection series (Feisenzhuo products — supplier names removed)
+  "Weiyi": "Prestige Series",
+  "Ruige": "Director Series",
+  "Blister": "Icon Series",
+  "Vic": "Signature Series",
+  "Zhuoya": "Landmark Series",
+  "Dynamic": "Dynamic Series",
+  "Dell": "Premier Series",
+  "Aimu": "Aimu Collection",
+  "Red Cliff": "Heritage Series",
+  "Milan": "Milan Collection",
+  // Yashang steel products (GOJO division)
+  "Yashang Steel": "Steel Filing",
+  // LRU series (GOJO)
+  "LRU": "Executive Series",
   "JN": "Heritage Director",
   "YOM": "Presidia",
   "HXM": "Presidia Executive",
