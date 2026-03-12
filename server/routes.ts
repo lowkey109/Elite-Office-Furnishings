@@ -2718,6 +2718,50 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
         } catch { /* skip duplicates */ }
       }
 
+      // ── Forward high-signal results to Office Move Radar ──────────────────
+      const radarSignalMap: Record<string, string> = {
+        new_lease: "new_lease", office_move: "office_move",
+        expansion: "office_expansion", office_expansion: "office_expansion",
+        hiring_surge: "hiring_surge", funding: "funding_growth",
+        new_office_opening: "new_office_opening",
+      };
+      for (const lead of scanned) {
+        try {
+          const mappedSignal = radarSignalMap[lead.signalType ?? ""] ?? "office_move";
+          const existing = await storage.findRadarDuplicate(lead.company, lead.city, mappedSignal);
+          if (existing) continue;
+          const { scoreRadarSignal } = await import("./services/officeMovRadarService");
+          const scoring = scoreRadarSignal({
+            signalType: mappedSignal as any,
+            confidence: (lead.priority === "High" ? "high" : lead.priority === "Medium" ? "medium" : "low") as any,
+            city: lead.city,
+            industry: lead.industry,
+            estimatedHeadcount: lead.estimatedHeadcount ?? undefined,
+            hasSourceUrl: false,
+          });
+          await storage.createOfficeMovRadarRecord({
+            companyName: lead.company,
+            industry: lead.industry ?? null,
+            city: lead.city,
+            state: null,
+            country: "Australia",
+            signalType: mappedSignal,
+            signalSource: lead.signalSource ?? "Lease Signal Scanner",
+            confidenceLevel: scoring.priority === "High" ? "high" : scoring.priority === "Medium" ? "medium" : "low",
+            estimatedHeadcount: lead.estimatedHeadcount ?? null,
+            estimatedOfficeSizeSqm: scoring.estimatedOfficeSizeSqm,
+            estimatedProjectValue: scoring.estimatedProjectValue,
+            radarScore: scoring.radarScore,
+            priority: scoring.priority,
+            recommendedOutreachAngle: scoring.recommendedOutreachAngle,
+            recommendedOffer: scoring.recommendedOffer,
+            recommendedNextAction: scoring.recommendedNextAction,
+            notes: lead.signalSummary ?? `Detected via Lease Signal Scanner — ${lead.signalType ?? "office signal"}`,
+            status: "New",
+          });
+        } catch { /* skip */ }
+      }
+
       res.json({
         success: true,
         count: created.length,

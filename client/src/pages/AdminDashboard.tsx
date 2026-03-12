@@ -803,10 +803,10 @@ export default function AdminDashboard() {
                 </Link>
               </div>
               {radarStats && radarStats.total > 0 ? (
-                <div className="space-y-2">
+                <div className="space-y-2" data-testid="radar-widget-stats">
                   <div className="flex items-center justify-between">
                     <span className="text-white/40 text-xs">Total signals</span>
-                    <span className="text-white text-xs font-medium">{radarStats.total}</span>
+                    <span data-testid="radar-widget-total" className="text-white text-xs font-medium">{radarStats.total}</span>
                   </div>
                   {radarStats.high > 0 && (
                     <div className="flex items-center justify-between">

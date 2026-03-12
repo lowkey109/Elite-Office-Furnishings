@@ -10,7 +10,7 @@ import {
   LayoutDashboard, TrendingUp, DollarSign, Users, Star, AlertTriangle,
   CheckCircle2, XCircle, Zap, Target, FileText, Package, ChevronRight,
   Phone, Mail, Megaphone, ExternalLink, Eye, BarChart3, Shield, Calendar,
-  Layers, Crown, RefreshCw, Building2, Briefcase,
+  Layers, Crown, RefreshCw, Building2, Briefcase, Radio, MapPin, ArrowRight,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -254,6 +254,31 @@ const STAGE_BAR_COLORS: Record<string, string> = {
   "Quoted": "bg-amber-500", "Converted": "bg-green-500",
 };
 
+interface RadarRecord {
+  id: string;
+  companyName: string;
+  city: string;
+  state: string | null;
+  industry: string | null;
+  signalType: string;
+  priority: string;
+  radarScore: number;
+  estimatedProjectValue: string | null;
+  estimatedOfficeSizeSqm: string | null;
+  status: string;
+  createdAt: string;
+}
+
+interface RadarStats {
+  total: number;
+  high: number;
+  medium: number;
+  low: number;
+  newCount: number;
+  inPipeline: number;
+  avgScore: number;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function AdminCommandCentre() {
@@ -295,6 +320,19 @@ export default function AdminCommandCentre() {
     queryKey: ["/api/admin/opportunity-intelligence"],
     enabled: authed,
     staleTime: 60000,
+  });
+
+  const { data: radarStats } = useQuery<RadarStats>({
+    queryKey: ["/api/admin/office-move-radar/stats"],
+    enabled: authed,
+    refetchInterval: 60000,
+  });
+
+  const { data: radarRecords = [] } = useQuery<RadarRecord[]>({
+    queryKey: ["/api/admin/office-move-radar", "", "", "", "New"],
+    queryFn: () => fetch("/api/admin/office-move-radar?status=New").then(r => r.json()),
+    enabled: authed && (radarStats?.total ?? 0) > 0,
+    refetchInterval: 60000,
   });
 
   // ── Score backfill mutation ─────────────────────────────────────────────────
@@ -892,6 +930,92 @@ export default function AdminCommandCentre() {
           )}
         </div>
 
+        {/* ── Office Move Radar Panel ──────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(250,180,50,0.18)] rounded-2xl overflow-hidden" data-testid="panel-office-move-radar">
+          <div className="px-6 py-4 border-b border-[rgba(250,180,50,0.15)] flex items-center justify-between bg-[rgba(250,180,50,0.04)]">
+            <div className="flex items-center gap-2">
+              <Radio className="w-4 h-4 text-amber-400" />
+              <h2 className="text-white font-semibold text-sm">Office Move Radar</h2>
+              <span className="text-white/30 text-xs ml-1">— companies detected relocating, expanding, or fitting out</span>
+            </div>
+            <div className="flex items-center gap-4">
+              {radarStats && radarStats.total > 0 && (
+                <>
+                  {radarStats.high > 0 && <span className="text-red-400 text-xs font-bold">{radarStats.high} HIGH</span>}
+                  {radarStats.medium > 0 && <span className="text-amber-400 text-xs">{radarStats.medium} MED</span>}
+                  <span className="text-white/30 text-xs">{radarStats.newCount} unreviewed</span>
+                </>
+              )}
+              <Link href="/admin/office-move-radar">
+                <button data-testid="link-radar-view-all" className="text-amber-400/70 text-xs hover:text-amber-400 flex items-center gap-1">View all <ChevronRight className="w-3 h-3" /></button>
+              </Link>
+            </div>
+          </div>
+
+          {!radarStats || radarStats.total === 0 ? (
+            <div className="p-8 text-center">
+              <Radio className="w-8 h-8 text-white/10 mx-auto mb-3" />
+              <p className="text-white/30 text-sm mb-2">No radar signals yet.</p>
+              <p className="text-white/20 text-xs mb-4">Run a scan to detect companies relocating, expanding, or fitting out their offices.</p>
+              <Link href="/admin/office-move-radar">
+                <button className="text-amber-400/60 text-xs hover:text-amber-400 transition-colors flex items-center gap-1.5 mx-auto">
+                  <Radio className="w-3.5 h-3.5" /> Open Radar
+                </button>
+              </Link>
+            </div>
+          ) : (
+            <div className="divide-y divide-[rgba(255,255,255,0.04)]">
+              {radarRecords.slice(0, 6).map(rec => {
+                const priorityColor = rec.priority === "High"
+                  ? "text-red-400 bg-red-500/10 border-red-500/20"
+                  : rec.priority === "Medium"
+                  ? "text-amber-400 bg-amber-500/10 border-amber-500/20"
+                  : "text-zinc-400 bg-zinc-500/10 border-zinc-600/20";
+                const signalLabel = rec.signalType.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+                return (
+                  <Link key={rec.id} href="/admin/office-move-radar">
+                    <div className="px-5 py-4 hover:bg-[rgba(255,255,255,0.02)] transition-colors cursor-pointer" data-testid={`radar-row-${rec.id}`}>
+                      <div className="flex items-start gap-4">
+                        <div className="w-9 h-9 rounded-xl bg-[rgba(250,180,50,0.08)] border border-[rgba(250,180,50,0.15)] flex items-center justify-center flex-shrink-0">
+                          <Radio className="w-4 h-4 text-amber-400/70" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start gap-2 mb-1 flex-wrap">
+                            <p className="text-white font-semibold text-sm">{rec.companyName}</p>
+                            <Badge className={`text-xs border ${priorityColor}`}>{rec.priority}</Badge>
+                            <span className="ml-auto text-[hsl(43,78%,65%)] text-sm font-bold">{rec.estimatedProjectValue ?? "—"}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-white/40">
+                            <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{rec.city}</span>
+                            {rec.industry && <span>{rec.industry}</span>}
+                            <span className="text-amber-400/60">{signalLabel}</span>
+                            <span className="ml-auto">Score {rec.radarScore}</span>
+                          </div>
+                          {rec.estimatedOfficeSizeSqm && (
+                            <p className="text-white/30 text-xs mt-1">{rec.estimatedOfficeSizeSqm} estimated</p>
+                          )}
+                        </div>
+                        <div className="flex-shrink-0">
+                          <ArrowRight className="w-4 h-4 text-white/20" />
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+              {radarStats.newCount > 6 && (
+                <div className="px-5 py-3 text-center">
+                  <Link href="/admin/office-move-radar">
+                    <button className="text-white/30 text-xs hover:text-white/60 transition-colors">
+                      +{radarStats.newCount - 6} more unreviewed opportunities
+                    </button>
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* ── Bottom panels: Pipeline Intelligence + Recent Leads ─────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
@@ -1015,6 +1139,7 @@ export default function AdminCommandCentre() {
             {[
               { href: "/admin/planning-requests", icon: FileText, label: "Planning Requests", sub: `${requests.length} submissions` },
               { href: "/admin/leads", icon: Users, label: "Lead Intelligence", sub: `${leads.length} web leads` },
+              { href: "/admin/office-move-radar", icon: Radio, label: "Office Move Radar", sub: radarStats ? `${radarStats.total} signals` : "Radar signals" },
               { href: "/admin/supplier-quotes", icon: Package, label: "Supplier Quotes", sub: "Purchase orders" },
               { href: "/admin/marketing", icon: Megaphone, label: "Marketing Hub", sub: "Prospects & outreach" },
             ].map(({ href, icon: Icon, label, sub }) => (

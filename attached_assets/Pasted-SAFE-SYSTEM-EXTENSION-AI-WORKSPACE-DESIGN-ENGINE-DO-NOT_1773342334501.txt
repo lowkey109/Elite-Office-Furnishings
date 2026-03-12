@@ -1,0 +1,388 @@
+SAFE SYSTEM EXTENSION — AI WORKSPACE DESIGN ENGINE
+
+DO NOT OVERWRITE EXISTING PROMPTS.
+DO NOT REBUILD THE SITE.
+DO NOT BREAK:
+- workspace planner
+- upload floor plan
+- 3D office walkthrough
+- quote builder
+- formal quotes
+- product catalog
+- supplier system
+- finance system
+- Stripe payments
+- admin dashboard
+- planning requests
+- profit engine
+- deal pipeline
+- email system
+- mobile responsiveness
+- desktop responsiveness
+
+You are upgrading the LIVE The Corporate Desk platform.
+
+PRIMARY OBJECTIVE
+
+Build the AI Workspace Design Engine.
+
+This system must allow a user to upload a floor plan and have the platform automatically generate:
+
+1. workspace layout
+2. furniture package
+3. indicative budget
+4. formal quote draft
+
+This must be a real working system connected to the existing platform, not a placeholder concept.
+
+The engine must use:
+- uploaded floor plan geometry where possible
+- planner inputs
+- product catalog intelligence
+- supplier routing rules
+- profit intelligence
+- quote generation logic
+
+The result must feel fast, premium, and commercially useful.
+
+==================================================
+PHASE 1 — FULL AUDIT
+==================================================
+
+Before writing code, audit all existing systems that this engine must extend.
+
+Inspect at minimum:
+- /upload-your-floor-plan
+- floorPlanParser.ts
+- AI workspace planner flow
+- planning requests
+- AI package generator
+- knowledge loader
+- product intelligence
+- supplier intelligence
+- profit optimisation engine
+- quote builder
+- formal quotes system
+- 3D walkthrough
+- admin planning requests
+- quote print/PDF flow
+
+Return an internal map of:
+- what already exists
+- what already works
+- what is partial
+- what should be reused
+- what should be extended instead of duplicated
+- which models/routes/components are the correct integration points
+
+Do not create duplicate planner, quote, or package systems if current ones can be extended.
+
+==================================================
+PHASE 2 — DESIGN ENGINE INPUTS
+==================================================
+
+The AI Workspace Design Engine must support these inputs:
+
+A. Uploaded floor plan
+- PDF
+- PNG
+- JPG / JPEG
+
+B. Planner inputs
+- office size sqm
+- staff count
+- budget band
+- workspace style
+- required zones
+- reception yes/no
+- breakout yes/no
+- meeting rooms yes/no
+- boardroom yes/no
+- acoustic booths yes/no
+- storage need
+- executive office need
+
+C. Commercial context
+- industry type
+- city / location
+- likely project quality tier
+- supplier availability
+- profit targets
+
+==================================================
+PHASE 3 — FLOOR PLAN INTELLIGENCE
+==================================================
+
+Use the existing floor plan parser and strengthen the engine so real uploaded geometry influences the result.
+
+The engine should attempt to identify:
+- outer boundary
+- major walls
+- room blocks
+- access points / openings where possible
+- approximate circulation paths
+- usable area
+
+Important rules:
+- do not ignore uploaded plans
+- do not silently default to a generic rectangle unless parsing truly fails
+- preserve confidence scoring
+- if parsing is partial, combine real geometry with planner inputs
+
+Store whether the result is:
+- strong geometry driven
+- partial geometry driven
+- fallback logic driven
+
+==================================================
+PHASE 4 — AUTOMATIC WORKSPACE LAYOUT GENERATION
+==================================================
+
+Generate an actual workspace concept from the floor plan + planner inputs.
+
+The engine must produce:
+- workstation zones
+- meeting rooms
+- boardroom if needed
+- reception area if needed
+- breakout zones
+- storage zones
+- collaboration zones
+- acoustic/privacy zones
+- circulation logic
+
+Use practical commercial rules:
+- realistic desk density
+- non-overcrowded layout
+- logical adjacency
+- quiet vs noisy zones
+- practical reception placement
+- practical meeting room sizing
+
+The output must feel like a real office concept, not random furniture placement.
+
+==================================================
+PHASE 5 — FURNITURE PACKAGE GENERATION
+==================================================
+
+After generating the layout, automatically build the furniture package.
+
+Use the existing catalog structure:
+CATEGORY
+→ RANGE / COLLECTION
+→ CORE MODEL
+→ VARIANTS
+
+The engine must map zones to product needs.
+
+Examples:
+- workstation zone → desks + task chairs + storage if relevant
+- meeting room → meeting tables + meeting chairs
+- reception → reception desk + visitor seating
+- breakout → lounge / casual seating
+- acoustic area → pods / booths
+
+The system must recommend coherent packages using existing supplier and catalog intelligence.
+
+==================================================
+PHASE 6 — BUDGET / COST GENERATION
+==================================================
+
+Generate an indicative budget automatically.
+
+The budget engine must calculate:
+- package subtotal
+- freight allowance
+- installation allowance
+- indicative landed cost
+- indicative project total
+- optional finance estimate where relevant
+
+Use:
+- existing profit engine
+- supplier pricing benchmarks
+- package intelligence
+- category benchmarks
+
+Clearly label confidence when exact cost data is not available.
+
+==================================================
+PHASE 7 — AUTOMATIC QUOTE DRAFT GENERATION
+==================================================
+
+Automatically generate a quote draft from the design output.
+
+This must feed into the existing formal quote system.
+
+The generated quote must include:
+- client details if known
+- project summary
+- line items
+- quantities
+- unit prices
+- subtotal
+- freight / install
+- total
+- indicative finance option if relevant
+
+The system must allow:
+AI Design Engine → Quote Draft → Admin Review → PDF Quote → Send
+
+Do not bypass admin review by default.
+
+==================================================
+PHASE 8 — OUTPUT EXPERIENCE
+==================================================
+
+Create a premium user-facing result experience.
+
+After upload + processing, the user should see:
+
+- detected floor shape / layout preview
+- workspace zone plan
+- key workspace summary
+- recommended furniture package
+- indicative budget
+- clear next step CTA
+- optional upgrade to detailed quote / paid report if relevant
+
+This should feel fast and impressive.
+
+Target effect:
+Upload floor plan → instant office concept
+
+==================================================
+PHASE 9 — ADMIN DESIGN REVIEW FLOW
+==================================================
+
+Extend admin planning requests so staff can review the output easily.
+
+In admin, the design engine result should show:
+- parsed floor plan status
+- workspace concept summary
+- zone plan
+- recommended package
+- indicative budget
+- quote draft status
+- create / open formal quote button
+- profit / margin preview
+
+Prefer extending existing Planning Requests and Quotes admin pages over creating duplicate admin systems.
+
+==================================================
+PHASE 10 — 3D WALKTHROUGH INTEGRATION
+==================================================
+
+Connect the design engine to the existing 3D office walkthrough.
+
+The generated design data should feed:
+- zones
+- furniture placements
+- product metadata
+- room structure where available
+
+Do not break the current 3D walkthrough.
+Improve the handoff data structure so the 3D result becomes more accurate.
+
+==================================================
+PHASE 11 — WORKSPACE LEARNING INTEGRATION
+==================================================
+
+Store each generated design in the workspace learning system.
+
+Capture:
+- floor plan type
+- office size
+- staff count
+- layout type
+- zone mix
+- package mix
+- estimated budget
+- profit/margin snapshot
+- whether a quote was created
+- whether project progressed
+
+Use this to improve future recommendations.
+
+==================================================
+PHASE 12 — ROUTES / SYSTEM FLOW
+==================================================
+
+Build or extend the flow so it works cleanly.
+
+Target system flow:
+
+Upload floor plan
+→ Parse geometry
+→ Generate workspace design
+→ Generate furniture package
+→ Generate indicative budget
+→ Generate quote draft
+→ Save planning request / admin record
+→ Optionally render 3D walkthrough
+→ Admin review and send formal quote
+
+Do not create broken disconnected outputs.
+
+==================================================
+PHASE 13 — SAFETY RULES
+==================================================
+
+Important:
+- do not overwrite the public quote builder
+- do not break the planner paywall logic
+- do not remove current floor plan upload flow
+- do not create duplicate quotes unnecessarily
+- do not auto-send formal quotes by default
+- do not fake perfect geometry when confidence is low
+- do not break current admin flows
+
+==================================================
+PHASE 14 — TESTING
+==================================================
+
+Before completion verify:
+1. floor plan upload still works
+2. parser still works
+3. uploaded geometry influences design where possible
+4. workspace layout generation works
+5. furniture package generation works
+6. indicative budget generation works
+7. quote draft generation works
+8. formal quote integration works
+9. admin review flow works
+10. 3D walkthrough still works
+11. planning requests remain stable
+12. product catalog remains stable
+13. finance and Stripe remain stable
+14. mobile and desktop remain stable
+
+==================================================
+PHASE 15 — FINAL REPORT
+==================================================
+
+Return:
+- files audited
+- files modified
+- models created or extended
+- routes created or extended
+- admin pages extended
+- how floor plan intelligence is used
+- how workspace layout generation works
+- how package generation works
+- how budget generation works
+- how quote draft generation works
+- how 3D integration works
+- how workspace learning now captures design intelligence
+- what remains indicative vs exact
+- what was tested
+- confirmation existing live systems still work
+
+EXECUTION RULE
+
+Audit first.
+Then implement the AI Workspace Design Engine in safe phases.
+Prefer extending the current upload, planner, package, quote, admin, and 3D systems over creating duplicates.
+Do not stop halfway.
+Do not ask questions.
+Build the working system, not just the framework.

@@ -535,6 +535,14 @@ export default function AdminOfficeMovRadar() {
     .sort((a, b) => {
       if (sortBy === "radarScore") return b.radarScore - a.radarScore;
       if (sortBy === "dateDetected") return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      if (sortBy === "estimatedProjectValue") {
+        const parse = (v: string | null) => {
+          if (!v) return 0;
+          const m = v.replace(/,/g, "").match(/\$?([\d]+)/);
+          return m ? parseInt(m[1]) : 0;
+        };
+        return parse(b.estimatedProjectValue) - parse(a.estimatedProjectValue);
+      }
       return 0;
     });
 
@@ -677,6 +685,7 @@ export default function AdminOfficeMovRadar() {
               className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-amber-500/50"
             >
               <option value="radarScore">Sort: Score</option>
+              <option value="estimatedProjectValue">Sort: Project Value</option>
               <option value="dateDetected">Sort: Newest</option>
             </select>
           </div>
