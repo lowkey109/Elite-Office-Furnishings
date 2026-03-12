@@ -49,6 +49,7 @@ async function buildAll() {
   await esbuild({
     entryPoints: ["server/index.ts"],
     platform: "node",
+    packages: "external",
     bundle: true,
     format: "cjs",
     outfile: "dist/index.cjs",
@@ -56,7 +57,6 @@ async function buildAll() {
       "process.env.NODE_ENV": '"production"',
     },
     minify: true,
-    external: externals,
     logLevel: "info",
   });
 }

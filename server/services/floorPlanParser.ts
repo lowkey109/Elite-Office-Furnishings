@@ -18,11 +18,11 @@
 
 import fs from "fs";
 import path from "path";
-import { createRequire } from "module";
 import sharp from "sharp";
 
-const _require = createRequire(import.meta.url);
-const pdfParse: (buffer: Buffer, options?: any) => Promise<{ text: string; numpages: number; metadata: any }> = _require("pdf-parse");
+// pdf-parse is a CJS-only module — use require for CJS bundle compat
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pdfParse: (buffer: Buffer, options?: any) => Promise<{ text: string; numpages: number; metadata: any }> = require("pdf-parse");
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
