@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Printer, MapPin, Users, LayoutDashboard, Calendar, DollarSign, TrendingUp, CheckCircle2 } from "lucide-react";
 import { CATALOGUE } from "@/lib/furnitureCatalogue";
+import { FinancePanel } from "@/components/FinancePanel";
 
 interface WorkspaceZone {
   zone: string;
@@ -327,6 +328,16 @@ export default function PlanningReport({ request }: PlanningReportProps) {
               <CheckCircle2 className="w-3.5 h-3.5" /> Recommended Next Step
             </p>
             <p className="text-white/70 text-sm leading-relaxed">{aiRec.recommendedNextStep}</p>
+          </div>
+        )}
+
+        {cost?.total && cost.total >= 15000 && (
+          <div className="border-t border-[rgba(255,255,255,0.05)] pt-4">
+            <FinancePanel
+              projectValue={cost.total}
+              sourcePage="AI Office Planner"
+              compact
+            />
           </div>
         )}
 

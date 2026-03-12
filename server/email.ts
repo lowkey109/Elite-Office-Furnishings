@@ -599,6 +599,167 @@ export async function sendEnquiryCustomerEmail(data: {
   });
 }
 
+// ─── FINANCE: Admin alert ──────────────────────────────────────────────────────
+
+export async function sendFinanceLeadAdminEmail(data: {
+  name: string;
+  company: string;
+  email: string;
+  phone: string;
+  projectValue?: string | null;
+  financeType?: string | null;
+  financeTerm?: string | null;
+  officeSize?: string | null;
+  staffCount?: string | null;
+  notes?: string | null;
+  sourcePage?: string | null;
+  linkedId?: string | null;
+  routingDestination?: string | null;
+  opportunityScore?: number | null;
+  estimatedValueRange?: string | null;
+}): Promise<void> {
+  const body =
+    adminSectionHeader("Contact Details") +
+    adminRow("Name", data.name) +
+    adminRow("Company", data.company) +
+    adminRow("Email", data.email) +
+    adminRow("Phone", data.phone) +
+    adminSectionHeader("Finance Request") +
+    adminRow("Estimated Project Value", data.projectValue) +
+    adminRow("Finance Type", data.financeType) +
+    adminRow("Preferred Finance Term", data.financeTerm) +
+    adminRow("Office Size", data.officeSize) +
+    adminRow("Staff Count", data.staffCount) +
+    adminRow("Notes", data.notes) +
+    adminSectionHeader("Routing & Source") +
+    adminRow("Routing Destination", data.routingDestination || "Stratton Finance") +
+    adminRow("Source Page", data.sourcePage) +
+    adminRow("Linked Planner / Estimate ID", data.linkedId) +
+    adminRow("Opportunity Score", data.opportunityScore != null ? `${data.opportunityScore}/100` : null) +
+    adminRow("Est. Value Range", data.estimatedValueRange) +
+    adminRow("Received", TCD_AEST()) +
+    adminCtaButton("Open Admin Dashboard", `${TCD_WEBSITE}/admin`);
+
+  await sendEmail({
+    to: TCD_RECIPIENTS,
+    subject: `FINANCE LEAD — ${data.company || data.name}${data.projectValue ? ` — ${data.projectValue}` : ""}${data.financeTerm ? ` · ${data.financeTerm}` : ""}`,
+    html: adminTemplate("New Finance Lead — The Corporate Desk", body, "#c9a84c"),
+  });
+}
+
+// ─── FINANCE: Partner routing email ───────────────────────────────────────────
+
+export async function sendFinanceLeadPartnerEmail(data: {
+  name: string;
+  company: string;
+  email: string;
+  phone: string;
+  projectValue?: string | null;
+  financeType?: string | null;
+  financeTerm?: string | null;
+  officeSize?: string | null;
+  staffCount?: string | null;
+  notes?: string | null;
+  sourcePage?: string | null;
+  partnerName: string;
+  partnerEmails: string[];
+}): Promise<void> {
+  const html = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f2ef;font-family:'Helvetica Neue',Arial,sans-serif">
+  <div style="max-width:600px;margin:28px auto;background:#ffffff;border-radius:10px;overflow:hidden;border:1px solid #e0dcd6">
+    <div style="background:#0f0f13;padding:24px 28px;border-bottom:3px solid #c9a84c">
+      <div style="font-size:9px;color:#c9a84c;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;font-weight:700">The Corporate Desk — Finance Partner Referral</div>
+      <div style="font-size:18px;font-weight:700;color:#ffffff">New Finance Enquiry — ${data.company}</div>
+    </div>
+    <div style="padding:28px">
+      <p style="color:#333;font-size:14px;line-height:1.7;margin:0 0 18px">
+        Hi ${data.partnerName} team,<br><br>
+        A client of The Corporate Desk has expressed interest in financing their workspace project. Their details are below for your assessment.
+      </p>
+      <table style="width:100%;border-collapse:collapse;border:1px solid #e8e4de;border-radius:7px;overflow:hidden;margin:0 0 20px">
+        ${[
+          ["Client Name", data.name],
+          ["Company", data.company],
+          ["Email", data.email],
+          ["Phone", data.phone],
+          ["Estimated Project Value", data.projectValue || "To be confirmed"],
+          ["Finance Type", data.financeType || "Office Furniture / Workspace"],
+          ["Preferred Term", data.financeTerm || "To be discussed"],
+          ["Office Size", data.officeSize],
+          ["Staff Count", data.staffCount],
+          ["Notes", data.notes],
+          ["Source", data.sourcePage || "The Corporate Desk — thecorporatedesk.com.au"],
+        ].filter(([, v]) => v).map(([l, v]) => `
+          <tr>
+            <td style="padding:8px 12px;font-size:12px;color:#8a8278;width:160px;border-bottom:1px solid #f0ede8">${l}</td>
+            <td style="padding:8px 12px;font-size:13px;color:#1a1a1a;font-weight:500;border-bottom:1px solid #f0ede8">${v}</td>
+          </tr>`).join("")}
+      </table>
+      <p style="color:#555;font-size:13px;line-height:1.7;margin:0 0 18px">
+        Please reach out to the client directly to progress their enquiry. If you need any additional information about the project or our quote, contact The Corporate Desk directly on <strong>1300 977 607</strong> or reply to this email.
+      </p>
+      <p style="color:#8a8278;font-size:11px;line-height:1.6;border-top:1px solid #f0ede8;padding-top:14px;margin-top:18px">
+        The Corporate Desk · 1300 977 607 · service@thecorporatedesk.com.au · thecorporatedesk.com.au<br>
+        10 Primrose St Bowen Hills QLD 4006 · Premium Commercial Office Furniture &amp; Fit-Outs · Australia
+      </p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  await sendEmail({
+    to: [...data.partnerEmails, "service@thecorporatedesk.com.au"],
+    subject: `New Finance Lead – The Corporate Desk — ${data.company}${data.projectValue ? ` — ${data.projectValue}` : ""}`,
+    html,
+  });
+}
+
+// ─── FINANCE: Customer confirmation ───────────────────────────────────────────
+
+export async function sendFinanceLeadCustomerEmail(data: {
+  name: string;
+  company: string;
+  email: string;
+  projectValue?: string | null;
+  financeTerm?: string | null;
+  financeType?: string | null;
+  partnerName: string;
+}): Promise<void> {
+  const firstName = data.name.split(" ")[0];
+  const body =
+    p(`${firstName}, your workspace finance enquiry for <strong>${data.company}</strong> has been received and is now under review.`) +
+    p(`Your enquiry has been referred to <strong>${data.partnerName}</strong>, our preferred finance partner for this type of project. They will be in contact with you directly to discuss your options and begin the assessment process.`) +
+    goldDivider() +
+    sectionLabel("Your Finance Enquiry") +
+    detailTable(
+      detailRow("Company", data.company) +
+      detailRow("Estimated Project Value", data.projectValue || "To be confirmed") +
+      detailRow("Finance Type", data.financeType || "Office Furniture / Workspace") +
+      detailRow("Preferred Term", data.financeTerm || "To be discussed") +
+      detailRow("Submitted", TCD_AEST())
+    ) +
+    sectionLabel("What Happens Next") +
+    p(`<strong>1. Finance Partner Review</strong> — Your enquiry has been sent to ${data.partnerName}, who will review your details and reach out directly to progress your application.<br><br>
+       <strong>2. Assessment</strong> — The finance partner will assess your business, the project scope, and the best finance structure for your situation.<br><br>
+       <strong>3. Formal Offer</strong> — Once assessed, you'll receive a formal finance offer for your review. All terms are subject to lender approval.`) +
+    credibilityBar() +
+    `<div style="background:#fffbf0;border:1px solid #e8d9a0;border-radius:7px;padding:14px 16px;margin:18px 0">
+      <p style="margin:0;color:#6b5c22;font-size:12px;line-height:1.7">
+        <strong>Important:</strong> This is an indicative enquiry only. Repayment estimates provided are for guidance purposes and do not constitute a finance offer or guarantee of approval. Final approval and pricing are subject to lender credit assessment.
+      </p>
+    </div>` +
+    p(`If you have any questions in the meantime, call our team directly on <strong>${TCD_PHONE}</strong> and reference your company name.`) +
+    cta("Explore Our Product Range", `${TCD_WEBSITE}/products`);
+
+  await sendEmail({
+    to: data.email,
+    subject: `Workspace Finance Enquiry Received — ${data.company} — The Corporate Desk`,
+    html: customerTemplate(`Your Finance Enquiry is Being Reviewed, ${firstName}`, body),
+  });
+}
+
 export function isEmailConfigured(): boolean {
   return !!process.env.RESEND_API_KEY;
 }

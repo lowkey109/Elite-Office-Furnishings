@@ -1,0 +1,342 @@
+SAFE SYSTEM EXTENSION — ADVANCED WORKSPACE FINANCE ENGINE
+
+Do NOT overwrite existing prompts.
+Do NOT rebuild the site.
+Do NOT break planner, estimator, product catalog, Stripe, admin dashboard, emails, or mobile layout.
+
+You are upgrading the LIVE The Corporate Desk platform.
+
+PRIMARY OBJECTIVE
+
+Add a powerful finance layer that automatically calculates indicative monthly repayments for workspace plans, estimates, and relevant product/range pages.
+
+This system must:
+- increase conversions
+- make larger projects feel more affordable
+- route finance enquiries to the correct finance partner
+- save finance leads in admin
+- email admin and finance contacts automatically
+- remain premium and commercially credible
+
+==================================================
+PART 1 — FINANCE CONTACT ROUTING
+==================================================
+
+PRIMARY FINANCE PARTNER
+
+Company: Stratton Finance
+
+Contacts:
+Katherine Collett
+Email: katherine.collett@stratton.com.au
+Mobile: 0416 050 764
+
+Chris Stafford
+Email: chris.stafford@stratton.com.au
+
+These contacts should receive finance enquiries for standard office furniture and workspace projects.
+
+--------------------------------------------------
+
+SECONDARY FINANCE PARTNER
+
+Company: Vestone Capital
+
+Contact:
+Cassie Ould
+Senior Relationship Manager
+
+Email: cassie.ould@vestonecapital.com
+Mobile: +61 448 841 863
+Website: https://vestonecapital.com
+
+Send enquiries here if the project involves equipment leasing or larger asset finance.
+
+--------------------------------------------------
+
+LARGE PROJECT FINANCE
+
+Company: QPF Finance
+
+Contact:
+Katelyn Barnett
+Finance Broker
+
+Email: katelyn@qpf.com.au
+Mobile: 0402 152 417
+Phone: 07 3290 7400
+Website: https://www.qpf.com.au
+
+Send enquiries here for large commercial fit-out projects or specialised finance structures.
+
+--------------------------------------------------
+
+ADMIN COPY
+
+Every finance enquiry must also send a copy to:
+service@thecorporatedesk.com.au
+
+--------------------------------------------------
+
+EMAIL SUBJECT FORMAT
+
+New Finance Lead – The Corporate Desk
+
+--------------------------------------------------
+
+EMAIL CONTENT
+
+Include:
+- Customer Name
+- Company
+- Email
+- Phone
+- Office Size
+- Staff Count if available
+- Estimated Project Value
+- Furniture Only or Full Fit-Out
+- Preferred Finance Term
+- Planner / Estimate Source
+- Notes from Customer
+
+==================================================
+PART 2 — ADVANCED MONTHLY FINANCE CALCULATOR
+==================================================
+
+Upgrade the site so monthly repayments can be shown automatically for:
+
+1. AI planner results
+2. advanced estimator results
+3. finance page
+4. relevant product/range pages
+5. quote-related outputs where appropriate
+
+The goal is to turn large upfront project values into easy monthly payment framing.
+
+Examples:
+- $25,000 workspace → estimated monthly payment
+- $58,000 workspace → estimated monthly payment
+- $120,000 office fit-out → estimated monthly payment
+
+==================================================
+PART 3 — CALCULATION LOGIC
+==================================================
+
+Build an indicative repayment engine.
+
+Required inputs:
+- estimated project value
+- finance term
+- indicative interest factor or finance multiplier
+- furniture only vs full fit-out
+
+Default term options:
+- 24 months
+- 36 months
+- 48 months
+- 60 months
+
+If no lender-specific rate is supplied, use clearly labelled indicative finance assumptions only.
+
+The output must be presented as:
+- indicative monthly repayment
+- selected term
+- note that final approval and pricing are subject to lender assessment
+
+Do NOT present fake guaranteed finance approvals.
+Do NOT present exact lender-issued offers unless real lender data exists.
+
+==================================================
+PART 4 — WHERE TO SHOW FINANCE
+==================================================
+
+A. On planner results
+If a workspace plan generates an estimated investment, show:
+
+Finance Available
+Estimated from $X/month over 36 months
+
+Buttons:
+- Apply for Finance
+- Talk to Finance Specialist
+
+B. On estimator results
+Show a clean monthly repayment panel below the total estimate.
+
+C. On relevant product/range pages
+Where commercially appropriate, show:
+Finance Available for This Workspace
+Indicative monthly payments available on larger projects
+
+D. On finance page
+Keep the finance page as the main finance hub with:
+- calculator
+- benefits of financing
+- finance application form
+- next steps
+
+==================================================
+PART 5 — FINANCE CTA LOGIC
+==================================================
+
+Show finance CTA more prominently when:
+- project estimate exceeds a sensible threshold
+- planner result is substantial
+- product/range is suitable for business finance
+- user is viewing premium / fit-out / executive / full-office solutions
+
+Use tags where helpful:
+- Finance Available
+- Fit-Out Eligible
+- Lease Friendly
+- Commercial Grade
+
+==================================================
+PART 6 — FINANCE LEAD FORM
+==================================================
+
+Add or extend the finance lead form so it captures:
+- name
+- company
+- email
+- phone
+- office size if available
+- staff count if available
+- estimated project value if available
+- furniture only or full fit-out
+- preferred finance term
+- message / notes
+- source page
+- linked planner / estimate ID if available
+
+If planner or estimate data exists, prefill it automatically.
+
+==================================================
+PART 7 — FINANCE ROUTING RULES
+==================================================
+
+Route enquiries as follows:
+
+Standard furniture and workspace projects
+→ Stratton Finance
+- katherine.collett@stratton.com.au
+- chris.stafford@stratton.com.au
+
+Equipment leasing / larger asset finance
+→ Vestone Capital
+- cassie.ould@vestonecapital.com
+
+Large commercial fit-out projects / specialised finance structures
+→ QPF Finance
+- katelyn@qpf.com.au
+
+Always cc:
+service@thecorporatedesk.com.au
+
+If routing logic is not yet sophisticated enough, send to all configured finance recipients plus admin on first pass.
+
+==================================================
+PART 8 — ADMIN STORAGE
+==================================================
+
+Store all finance leads in admin.
+
+Tag with:
+- Finance Lead
+
+Also preserve relevant tags where applicable:
+- Planner Lead
+- Quote Request
+- High Value
+- Full Fit-Out
+- Furniture Only
+- Paid Report
+
+Admin should be able to see:
+- finance lead details
+- source page
+- linked planner/estimate if present
+- estimated project value
+- selected finance term
+- routing destination if possible
+
+==================================================
+PART 9 — EMAILS
+==================================================
+
+Use the existing live email system.
+
+Send:
+1. admin alert email
+2. finance company routing email
+3. customer confirmation email
+
+Sender identity:
+The Corporate Desk Planning Team
+service@thecorporatedesk.com.au
+
+Customer confirmation email must feel premium and explain:
+- finance request received
+- project is being reviewed
+- next step is contact from The Corporate Desk and/or finance partner
+- no guarantee until lender assessment
+- company contact details
+
+==================================================
+PART 10 — UX / DESIGN
+==================================================
+
+Finance messaging must feel premium, not pushy.
+
+Design style:
+- clean
+- commercial
+- professional
+- calm
+- premium
+
+Do NOT make it look like consumer loan spam.
+
+Use messaging like:
+- Finance Available
+- Prefer Monthly Payments?
+- Indicative Repayments Available
+- Ask About Workspace Finance
+
+==================================================
+PART 11 — TESTING
+==================================================
+
+Verify:
+1. finance page still loads
+2. calculator still works
+3. monthly repayment output displays correctly
+4. planner results can show finance estimate
+5. estimator results can show finance estimate
+6. finance form submits
+7. finance lead saves in admin
+8. finance lead is tagged correctly
+9. admin email sends
+10. finance company emails send
+11. customer confirmation sends
+12. planner, estimator, Stripe, admin, product pages remain unaffected
+13. mobile and desktop layouts are clean
+
+==================================================
+PART 12 — FINAL REPORT
+==================================================
+
+Return:
+- files modified
+- where monthly finance calculations now appear
+- how repayment logic works
+- how finance routing works
+- how admin tagging works
+- what emails are sent to whom
+- what was tested
+- confirmation that live systems still work
+
+EXECUTION RULE
+
+Start by auditing the current finance page, estimator, planner results, product page logic, email system, and admin lead storage.
+Then implement the advanced monthly finance engine and routing system safely without breaking the live site.

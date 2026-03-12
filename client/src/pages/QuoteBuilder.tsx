@@ -12,6 +12,7 @@ import {
   TrendingUp, Package, MapPin, Clock, Star, Phone, Mail,
   ChevronRight, Zap, FileText, Calendar, Sofa,
 } from "lucide-react";
+import { FinancePanel } from "@/components/FinancePanel";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -397,15 +398,12 @@ function EstimateResultsPage({
 
                 <div className="space-y-4">
                   {/* Finance option */}
-                  {quote.financeOption && (
-                    <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.2)] rounded-xl p-5">
-                      <div className="flex items-center gap-2 mb-3">
-                        <TrendingUp className="w-4 h-4 text-[hsl(43,78%,52%)]" />
-                        <span className="text-sm font-semibold text-white">Finance Your Workspace</span>
-                      </div>
-                      <p className="text-2xl font-bold text-[hsl(43,78%,65%)]">{quote.financeOption.monthlyEstimate}</p>
-                      <p className="text-white/40 text-xs mt-1">{quote.financeOption.term} · {quote.financeOption.note}</p>
-                    </div>
+                  {cs.totalIncGst >= 15000 && (
+                    <FinancePanel
+                      projectValue={cs.totalIncGst}
+                      sourcePage="Advanced Estimator"
+                      compact
+                    />
                   )}
                   {/* Style direction */}
                   {(styleDirection || quote.styleDirection) && (

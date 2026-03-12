@@ -35,6 +35,7 @@ const TYPE_LABELS: Record<string, string> = {
   "quote-request": "Quote Request",
   "strategy-call": "Strategy Call",
   "quote-builder": "Quote Builder",
+  "finance-lead": "Finance Lead",
   "contact": "Contact",
   "general": "General",
 };
@@ -44,6 +45,7 @@ const TYPE_COLORS: Record<string, string> = {
   "quote-request": "bg-[rgba(201,168,76,0.12)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.2)]",
   "strategy-call": "bg-purple-500/10 text-purple-400 border-purple-500/20",
   "quote-builder": "bg-green-500/10 text-green-400 border-green-500/20",
+  "finance-lead": "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
   "contact": "bg-white/10 text-white/60 border-white/10",
   "general": "bg-white/10 text-white/60 border-white/10",
 };
@@ -396,6 +398,21 @@ export default function AdminDashboard() {
                         {lead.estimateJson && (() => {
                           try {
                             const est = JSON.parse(lead.estimateJson);
+                            if (lead.type === "finance-lead") {
+                              return (
+                                <div className="pt-2 border-t border-emerald-500/20">
+                                  <p className="text-emerald-400 text-xs font-semibold mb-2">Finance Lead Details</p>
+                                  <div className="grid grid-cols-2 gap-2 mb-2">
+                                    {est.financeType && <div><p className="text-white/35 text-xs">Finance Type</p><p className="text-white/70 text-xs font-medium">{est.financeType}</p></div>}
+                                    {est.financeTerm && <div><p className="text-white/35 text-xs">Preferred Term</p><p className="text-white/70 text-xs font-medium">{est.financeTerm}</p></div>}
+                                    {est.projectValue && <div><p className="text-white/35 text-xs">Project Value</p><p className="text-emerald-400 text-xs font-bold">{est.projectValue}</p></div>}
+                                    {est.routingDestination && <div><p className="text-white/35 text-xs">Routed To</p><p className="text-white/70 text-xs font-medium">{est.routingDestination}</p></div>}
+                                    {est.sourcePage && <div><p className="text-white/35 text-xs">Source</p><p className="text-white/70 text-xs">{est.sourcePage}</p></div>}
+                                    {est.linkedId && <div><p className="text-white/35 text-xs">Linked ID</p><p className="text-white/60 text-xs font-mono">{est.linkedId}</p></div>}
+                                  </div>
+                                </div>
+                              );
+                            }
                             const cs = est?.costSummary;
                             return (
                               <div className="pt-2 border-t border-[rgba(201,168,76,0.15)]">

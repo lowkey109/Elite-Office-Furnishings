@@ -10,7 +10,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { registerMarketingRoutes } from "./marketing";
-import { sendLeadNotification, sendSupplierQuoteNotification, sendPlanningRequestNotification, sendPaymentConfirmationNotification, sendPlannerSubmissionCustomerEmail, sendQuoteRequestCustomerEmail, sendStrategyCallCustomerEmail, sendEnquiryCustomerEmail, isEmailConfigured } from "./email";
+import { sendLeadNotification, sendSupplierQuoteNotification, sendPlanningRequestNotification, sendPaymentConfirmationNotification, sendPlannerSubmissionCustomerEmail, sendQuoteRequestCustomerEmail, sendStrategyCallCustomerEmail, sendEnquiryCustomerEmail, sendFinanceLeadAdminEmail, sendFinanceLeadPartnerEmail, sendFinanceLeadCustomerEmail, isEmailConfigured } from "./email";
 import { scoreOpportunity } from "./services/opportunityScoring";
 import { analyseSignals, extractDomain, type SignalInput, type SourceType } from "./services/leadIntelligence";
 import { CORPORATE_DESK_SYSTEM_PROMPT, ADVISOR_SYSTEM_MESSAGE, buildChatSystemPrompt, buildAdvisorSystemPrompt } from "./systemPrompt";
@@ -726,6 +726,104 @@ ${allUrls.map(u => `  <url>
       const leads = await storage.getLeads();
       res.json(leads);
     } catch (error) {
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
+  // ─── Finance Lead ────────────────────────────────────────────────────────────
+  app.post("/api/finance-lead", async (req, res) => {
+    try {
+      const {
+        name, company, email, phone,
+        projectValue, financeType, financeTerm,
+        officeSize, staffCount, notes, sourcePage, linkedId,
+      } = req.body as Record<string, string>;
+
+      if (!name || !company || !email || !phone) {
+        return res.status(400).json({ success: false, message: "Name, company, email and phone are required." });
+      }
+
+      // ── Routing logic ────────────────────────────────────────────────────────
+      const numericValue = parseFloat((projectValue || "0").replace(/[^0-9.]/g, ""));
+      let partnerName = "Stratton Finance";
+      let partnerEmails = ["katherine.collett@stratton.com.au", "chris.stafford@stratton.com.au"];
+
+      if (numericValue >= 200000 || financeType === "full-fitout-large") {
+        partnerName = "QPF Finance";
+        partnerEmails = ["katelyn@qpf.com.au"];
+      } else if (financeType === "equipment-leasing") {
+        partnerName = "Vestone Capital";
+        partnerEmails = ["cassie.ould@vestonecapital.com"];
+      }
+
+      // ── Opportunity scoring ──────────────────────────────────────────────────
+      const opp = scoreOpportunity({
+        type: "finance-lead",
+        name, company,
+        message: notes,
+        officeSize,
+        staffCount,
+        budget: projectValue,
+        timeline: financeTerm,
+      });
+
+      // ── Save to leads table ───────────────────────────────────────────────────
+      const lead = await storage.createLead({
+        type: "finance-lead",
+        name,
+        company,
+        email,
+        phone,
+        officeSize: officeSize || null,
+        staffCount: staffCount || null,
+        budget: financeTerm || null,
+        message: [
+          financeType ? `Finance Type: ${financeType}` : null,
+          notes ? `Notes: ${notes}` : null,
+        ].filter(Boolean).join("\n") || null,
+        estimatedValueRange: projectValue || opp.estimatedValueRange || null,
+        opportunityScore: opp.opportunityScore,
+        opportunityTier: opp.opportunityTier,
+        signalsJson: JSON.stringify(opp.signals),
+        nextAction: opp.nextAction,
+        estimateJson: JSON.stringify({
+          financeType,
+          financeTerm,
+          projectValue,
+          sourcePage,
+          linkedId,
+          routingDestination: partnerName,
+          partnerEmails,
+          tag: "Finance Lead",
+        }),
+      } as any);
+
+      // ── Emails (non-blocking) ─────────────────────────────────────────────────
+      sendFinanceLeadAdminEmail({
+        name, company, email, phone,
+        projectValue, financeType, financeTerm,
+        officeSize, staffCount, notes, sourcePage, linkedId,
+        routingDestination: partnerName,
+        opportunityScore: opp.opportunityScore,
+        estimatedValueRange: projectValue || opp.estimatedValueRange || null,
+      }).catch(err => console.error("[email] Finance admin email failed:", err));
+
+      sendFinanceLeadPartnerEmail({
+        name, company, email, phone,
+        projectValue, financeType, financeTerm,
+        officeSize, staffCount, notes, sourcePage,
+        partnerName, partnerEmails,
+      }).catch(err => console.error("[email] Finance partner email failed:", err));
+
+      sendFinanceLeadCustomerEmail({
+        name, company, email,
+        projectValue, financeTerm, financeType,
+        partnerName,
+      }).catch(err => console.error("[email] Finance customer email failed:", err));
+
+      res.json({ success: true, id: lead.id, routedTo: partnerName });
+    } catch (error) {
+      console.error("[finance-lead] Error:", error);
       res.status(500).json({ success: false, message: "Internal server error" });
     }
   });

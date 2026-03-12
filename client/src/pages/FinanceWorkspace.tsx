@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/Layout";
 import {
   CheckCircle2, TrendingUp, DollarSign, Shield, Clock,
-  FileText, ArrowRight, Phone, Calculator, Percent,
+  FileText, ArrowRight, Phone, Calculator, Percent, Send, Loader2, User, Building2, Mail,
 } from "lucide-react";
 
 const BENEFITS = [
@@ -71,16 +71,115 @@ function formatCurrency(v: number) {
   return v.toLocaleString("en-AU", { style: "currency", currency: "AUD", maximumFractionDigits: 0 });
 }
 
+interface FormState {
+  name: string; company: string; email: string; phone: string;
+  projectValue: string; financeType: string; financeTerm: string;
+  officeSize: string; staffCount: string; notes: string;
+}
+const FORM_DEFAULTS: FormState = {
+  name: "", company: "", email: "", phone: "",
+  projectValue: "", financeType: "full-fitout",
+  financeTerm: "36 months", officeSize: "", staffCount: "", notes: "",
+};
+const FINANCE_TYPE_OPTIONS = [
+  { id: "full-fitout", label: "Full Office Fit-Out", desc: "Furniture, delivery & installation" },
+  { id: "furniture-only", label: "Furniture Only", desc: "Product supply only" },
+];
+const TERM_FORM_OPTIONS = ["24 months", "36 months", "48 months", "60 months"];
+
+function FinanceInput({ label, value, onChange, type = "text", placeholder = "", required = false, testId = "" }: {
+  label: string; value: string; onChange: (v: string) => void;
+  type?: string; placeholder?: string; required?: boolean; testId?: string;
+}) {
+  return (
+    <div>
+      <label className="block text-sm text-white/60 mb-1.5">
+        {label}{required && <span className="text-[hsl(43,78%,52%)] ml-1">*</span>}
+      </label>
+      <input
+        type={type}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        data-testid={testId}
+        className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(201,168,76,0.2)] rounded-md px-4 py-3 text-white placeholder:text-white/25 focus:outline-none focus:border-[rgba(201,168,76,0.5)] text-base"
+        style={{ minHeight: "48px" }}
+      />
+    </div>
+  );
+}
+
 export default function FinanceWorkspace() {
   const [amount, setAmount] = useState("80000");
   const [term, setTerm] = useState(36);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [form, setForm] = useState<FormState>(FORM_DEFAULTS);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
+  function setField(key: keyof FormState) {
+    return (v: string) => setForm(f => ({ ...f, [key]: v }));
+  }
 
   useEffect(() => {
     document.title = "Finance Your Workspace — Office Furniture Finance | The Corporate Desk";
     const meta = document.querySelector('meta[name="description"]');
     if (meta) meta.setAttribute("content", "Spread the cost of your commercial office fitout with flexible business finance. Preserve cash flow, possible tax benefits, fast approval.");
+
+    const params = new URLSearchParams(window.location.search);
+    const preAmount = params.get("amount");
+    const preTerm = params.get("term");
+    const preSource = params.get("source");
+    if (preAmount) {
+      const n = parseFloat(preAmount);
+      if (!isNaN(n)) {
+        setAmount(String(n));
+        setForm(f => ({ ...f, projectValue: `$${Math.round(n).toLocaleString("en-AU")}` }));
+      }
+    }
+    if (preTerm) {
+      const t = parseInt(preTerm);
+      if ([24, 36, 48, 60].includes(t)) {
+        setTerm(t);
+        setForm(f => ({ ...f, financeTerm: `${t} months` }));
+      }
+    }
+    if (preSource) {
+      setForm(f => ({ ...f, notes: f.notes || `Referred from: ${decodeURIComponent(preSource)}` }));
+    }
+
+    if (params.get("apply") === "1") {
+      setTimeout(() => {
+        document.getElementById("apply")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 300);
+    }
   }, []);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!form.name || !form.company || !form.email || !form.phone) return;
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const resp = await fetch("/api/finance-lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          sourcePage: params.get("source") || "Finance Page",
+          linkedId: params.get("linkedId") || undefined,
+        }),
+      });
+      if (!resp.ok) throw new Error("Server error");
+      setSubmitted(true);
+    } catch {
+      setSubmitError("Something went wrong. Please try again or call 1300 977 607.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   const numericAmount = parseFloat(amount.replace(/[^0-9.]/g, "")) || 0;
   const monthlyFactor = RATE_FACTORS[term] || RATE_FACTORS[36];
@@ -309,6 +408,133 @@ export default function FinanceWorkspace() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ─── Finance Application Form ─────────────────────────────────────── */}
+      <section id="apply" className="py-16 px-4 bg-[rgba(201,168,76,0.02)]">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-10">
+            <Badge className="bg-[rgba(201,168,76,0.12)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.2)] mb-4">
+              <Send className="w-3.5 h-3.5 mr-1.5" /> Finance Application
+            </Badge>
+            <h2 className="text-3xl font-serif font-bold text-white mb-3">Apply for Workspace Finance</h2>
+            <p className="text-white/50 max-w-lg mx-auto text-sm">
+              Submit your details and we'll connect you with the right finance partner for your project. No obligation, no upfront commitment.
+            </p>
+          </div>
+
+          {submitted ? (
+            <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.25)] rounded-2xl p-10 text-center">
+              <div className="w-14 h-14 rounded-full bg-[rgba(201,168,76,0.12)] flex items-center justify-center mx-auto mb-5">
+                <CheckCircle2 className="w-7 h-7 text-[hsl(43,78%,52%)]" />
+              </div>
+              <h3 className="text-xl font-serif font-bold text-white mb-3">Finance Enquiry Received</h3>
+              <p className="text-white/60 text-sm leading-relaxed max-w-md mx-auto mb-6">
+                Your enquiry is being reviewed. Our team and our finance partner will be in contact with you shortly to discuss your options and next steps.
+              </p>
+              <p className="text-white/35 text-xs">
+                Questions? Call <a href="tel:1300977607" className="text-[hsl(43,78%,52%)] hover:underline">1300 977 607</a>
+              </p>
+            </div>
+          ) : (
+            <form
+              onSubmit={handleSubmit}
+              data-testid="form-finance-application"
+              className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.15)] rounded-2xl p-6 sm:p-8 space-y-6"
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <FinanceInput label="Full Name" value={form.name} onChange={setField("name")} required placeholder="Jane Smith" testId="input-finance-name" />
+                <FinanceInput label="Company" value={form.company} onChange={setField("company")} required placeholder="Acme Pty Ltd" testId="input-finance-company" />
+                <FinanceInput label="Email Address" value={form.email} onChange={setField("email")} type="email" required placeholder="jane@company.com.au" testId="input-finance-email" />
+                <FinanceInput label="Phone Number" value={form.phone} onChange={setField("phone")} type="tel" required placeholder="04XX XXX XXX" testId="input-finance-phone" />
+              </div>
+
+              <div>
+                <label className="block text-sm text-white/60 mb-3">Finance Type <span className="text-[hsl(43,78%,52%)]">*</span></label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {FINANCE_TYPE_OPTIONS.map(opt => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      data-testid={`finance-type-${opt.id}`}
+                      onClick={() => setField("financeType")(opt.id)}
+                      className={`text-left p-4 rounded-xl border transition-all ${
+                        form.financeType === opt.id
+                          ? "border-[hsl(43,78%,52%)] bg-[rgba(201,168,76,0.08)]"
+                          : "border-[rgba(255,255,255,0.08)] hover:border-[rgba(201,168,76,0.3)]"
+                      }`}
+                    >
+                      <p className="text-white font-semibold text-sm">{opt.label}</p>
+                      <p className="text-white/40 text-xs mt-0.5">{opt.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm text-white/60 mb-3">Preferred Finance Term</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {TERM_FORM_OPTIONS.map(t => (
+                    <button
+                      key={t}
+                      type="button"
+                      data-testid={`finance-form-term-${t.replace(" ", "-")}`}
+                      onClick={() => setField("financeTerm")(t)}
+                      className={`py-2.5 rounded-lg text-sm font-semibold transition-all min-h-[44px] ${
+                        form.financeTerm === t
+                          ? "bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)]"
+                          : "border border-[rgba(255,255,255,0.1)] text-white/60 hover:border-[rgba(201,168,76,0.3)]"
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <FinanceInput label="Estimated Project Value" value={form.projectValue} onChange={setField("projectValue")} placeholder="e.g. $80,000" testId="input-finance-project-value" />
+                <FinanceInput label="Office Size (sqm)" value={form.officeSize} onChange={setField("officeSize")} placeholder="e.g. 300 sqm" testId="input-finance-office-size" />
+                <FinanceInput label="Number of Staff" value={form.staffCount} onChange={setField("staffCount")} placeholder="e.g. 25" testId="input-finance-staff-count" />
+              </div>
+
+              <div>
+                <label className="block text-sm text-white/60 mb-1.5">Notes or Additional Context</label>
+                <textarea
+                  value={form.notes}
+                  onChange={e => setField("notes")(e.target.value)}
+                  placeholder="Any additional details about your project, timeline, or finance needs…"
+                  data-testid="textarea-finance-notes"
+                  rows={3}
+                  className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(201,168,76,0.2)] rounded-md px-4 py-3 text-white placeholder:text-white/25 focus:outline-none focus:border-[rgba(201,168,76,0.5)] text-sm resize-none"
+                />
+              </div>
+
+              <div className="bg-[rgba(201,168,76,0.05)] border border-[rgba(201,168,76,0.12)] rounded-xl p-4">
+                <p className="text-white/35 text-xs leading-relaxed">
+                  <strong className="text-white/50">Disclaimer:</strong> Submitting this form is an expression of interest only and does not constitute a finance application or guarantee of approval. Your enquiry will be referred to our preferred finance partner for assessment. All finance is subject to lender credit assessment and standard terms and conditions.
+                </p>
+              </div>
+
+              {submitError && (
+                <p className="text-red-400 text-sm text-center">{submitError}</p>
+              )}
+
+              <Button
+                type="submit"
+                disabled={submitting || !form.name || !form.company || !form.email || !form.phone}
+                data-testid="button-finance-submit"
+                className="w-full bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[52px] text-base hover:bg-[hsl(43,78%,60%)] disabled:opacity-50"
+              >
+                {submitting ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Submitting…</>
+                ) : (
+                  <>Submit Finance Enquiry <ArrowRight className="w-4 h-4 ml-2" /></>
+                )}
+              </Button>
+            </form>
+          )}
         </div>
       </section>
 
