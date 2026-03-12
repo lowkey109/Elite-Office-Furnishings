@@ -1,0 +1,417 @@
+SAFE SYSTEM EXTENSION — OFFICE MOVE RADAR
+
+DO NOT OVERWRITE EXISTING PROMPTS.
+DO NOT REBUILD THE SITE.
+DO NOT BREAK:
+- workspace planner
+- estimator
+- product catalog
+- finance system
+- Stripe payments
+- admin dashboard
+- supplier messaging
+- email system
+- existing lead capture
+- deal pipeline
+- profit engine
+- mobile responsiveness
+- desktop responsiveness
+
+You are upgrading the LIVE The Corporate Desk platform.
+
+PRIMARY OBJECTIVE
+
+Build a working Office Move Radar system that detects companies likely to:
+- relocate offices
+- expand teams and outgrow their space
+- refit an existing office
+- take new office space
+- trigger a furniture / fit-out opportunity
+
+This must be a real working intelligence system inside the platform, not a placeholder page.
+
+The system must:
+1. detect move and growth signals
+2. score opportunities
+3. estimate likely project size/value
+4. push opportunities into admin
+5. connect opportunities to outreach, planner, quote, and pipeline workflows
+
+==================================================
+PHASE 1 — FULL AUDIT
+==================================================
+
+Before writing code, audit the current platform and map all relevant parts already built.
+
+Inspect at minimum:
+- lead intelligence system
+- prospected leads table
+- lease signal scanner
+- territory scanner
+- deal pipeline
+- admin dashboard
+- command centre
+- opportunity scoring logic
+- intelligence hub
+- follow-up sequences
+- outreach/email utilities
+- any existing prospect scan routes
+- any existing background job scheduler
+
+Return an internal map of:
+- what already exists
+- what is partial
+- what can be extended
+- what should not be duplicated
+- what current routes/models/components should be reused
+
+Do not create duplicate intelligence systems if existing ones can be extended.
+
+==================================================
+PHASE 2 — SIGNAL MODEL
+==================================================
+
+Build the Office Move Radar around multiple signal types.
+
+Required signal groups:
+
+A. OFFICE MOVE SIGNALS
+Examples:
+- office relocation announcements
+- new office announcements
+- company moving HQ
+- fit-out / refurbishment mentions
+- commercial office move news
+
+B. LEASE / TENANCY SIGNALS
+Examples:
+- commercial lease announcements
+- tenant move-ins
+- tenant move-outs
+- new floor leases
+- vacancy replacement signals
+- leasing agent updates
+
+C. COMPANY GROWTH SIGNALS
+Examples:
+- rapid hiring spikes
+- new departments
+- expansion into new cities
+- funding announcements
+- workplace / facilities hiring roles
+- recruitment surges
+
+D. BUILDING / TERRITORY SIGNALS
+Examples:
+- new tenant in target tower
+- refurbishment at key office building
+- major leasing activity in monitored precincts
+
+Each signal must have:
+- signal_type
+- signal_subtype
+- company_name if inferable
+- source_name
+- source_url
+- city
+- date_detected
+- confidence
+- notes
+
+==================================================
+PHASE 3 — DATA MODEL EXTENSIONS
+==================================================
+
+Create or extend structured records to support the radar.
+
+A. Office Move Radar Record
+Fields:
+- id
+- company_name
+- industry
+- city
+- state
+- country
+- signal_type
+- signal_subtype
+- signal_source
+- source_url
+- date_detected
+- confidence_level
+- estimated_headcount
+- estimated_office_size
+- estimated_project_value
+- radar_score
+- priority
+- recommended_outreach_angle
+- recommended_offer
+- recommended_next_action
+- linked_building_id if relevant
+- linked_prospect_id if relevant
+- status
+- notes
+- created_at
+- updated_at
+
+B. Building Signal Record
+Fields:
+- id
+- building_name
+- address
+- suburb
+- city
+- state
+- signal_type
+- source_url
+- observed_company
+- observed_floor if known
+- notes
+- created_at
+
+Do not delete existing fields. Extend safely.
+
+==================================================
+PHASE 4 — INGESTION LAYER
+==================================================
+
+Build a working ingestion layer for Office Move Radar signals.
+
+The ingestion layer must support:
+- signal import
+- normalization
+- deduplication
+- scoring handoff
+- storage
+
+If live external connectors are not fully available yet, implement:
+- connector-ready architecture
+- safe manual/admin import support
+- scheduled scan placeholders with real persistence
+- route support so the system functions now and can scale later
+
+The radar must be operational even if some sources start manual-first.
+
+==================================================
+PHASE 5 — RADAR SCORING ENGINE
+==================================================
+
+Build a weighted radar scoring engine.
+
+Score factors should include:
+- signal strength
+- multiple-signal overlap
+- city fit
+- industry fit
+- estimated office size
+- likely furniture / fit-out relevance
+- company growth evidence
+- lease / building evidence
+
+Classify:
+- HIGH PRIORITY
+- MEDIUM PRIORITY
+- LOW PRIORITY
+
+Also calculate:
+- estimated project band
+- outreach urgency
+- recommended next step
+
+Do not use random scoring.
+Use clear weighted logic in code.
+
+==================================================
+PHASE 6 — OPPORTUNITY ESTIMATION
+==================================================
+
+When the radar detects a company, estimate likely workspace demand.
+
+Use practical commercial logic such as:
+- growth signals
+- likely staff count
+- likely office size
+- likely desks needed
+- likely meeting rooms
+- likely breakout / reception / storage needs
+- likely furniture spend
+
+Examples:
+If company hiring surge suggests +20 staff:
+- estimate 20–30 desks
+- meeting room / breakout requirement
+- likely project band
+
+If a major tenant move-in is detected in a CBD tower:
+- estimate a higher-value workspace opportunity based on office size clues
+
+Clearly label estimates as indicative where needed.
+
+==================================================
+PHASE 7 — ADMIN OFFICE MOVE RADAR PANEL
+==================================================
+
+Create or extend an admin page for Office Move Radar.
+
+Preferred route:
+- /admin/office-move-radar
+
+If a closely related route already exists, extend it instead of duplicating.
+
+The radar panel must show:
+- company
+- city
+- signal type
+- source
+- radar score
+- priority
+- estimated office size
+- estimated project value
+- recommended outreach angle
+- status
+- date detected
+
+Add filters for:
+- city
+- signal type
+- priority
+- status
+- industry
+
+Add sorting by:
+- radar score
+- project value
+- date detected
+
+==================================================
+PHASE 8 — PIPELINE INTEGRATION
+==================================================
+
+Connect radar opportunities to the deal pipeline.
+
+The system must support:
+- creating a prospected lead from radar result
+- pushing high-priority radar results into pipeline
+- linking radar record to pipeline record
+- preserving source intelligence on the deal
+
+Where possible:
+Office Move Radar result → Prospected Lead → Deal Pipeline
+
+Do not break the current deal pipeline.
+
+==================================================
+PHASE 9 — OUTREACH INTELLIGENCE
+==================================================
+
+Generate human-style outreach drafts for radar opportunities.
+
+Drafts must:
+- sound human
+- be short
+- reference the actual detected signal
+- not sound spammy
+- not sound AI-generated
+
+Output:
+- subject line
+- first outreach email
+- optional follow-up
+- recommended CTA
+
+CTA examples:
+- free office layout plan
+- workspace strategy call
+- AI workspace concept
+- quote support
+- finance option conversation
+
+Do NOT auto-send by default.
+Admin review first.
+
+==================================================
+PHASE 10 — SCHEDULED RADAR JOBS
+==================================================
+
+Add Office Move Radar to the background intelligence scheduler.
+
+Suggested job types:
+- lease signal scan
+- growth signal scan
+- territory / building scan
+- radar scoring refresh
+
+Use existing scheduled job architecture where possible.
+Do not create a separate scheduler if one already exists.
+
+==================================================
+PHASE 11 — COMMAND CENTRE / DASHBOARD INTEGRATION
+==================================================
+
+Show radar results in relevant admin surfaces.
+
+At minimum integrate into:
+- admin dashboard
+- command centre
+- lead intelligence / prospects views
+
+Surface:
+- new high-priority office move opportunities
+- radar alerts
+- project value estimates
+- recommended next actions
+
+==================================================
+PHASE 12 — SAFETY / DEDUPLICATION
+==================================================
+
+Implement safeguards:
+- deduplicate company signals by company + city + time proximity
+- avoid duplicate radar entries from the same event
+- do not auto-contact companies by default
+- preserve manual review control
+- do not overwrite existing lead records unnecessarily
+
+==================================================
+PHASE 13 — TESTING
+==================================================
+
+Before completion verify:
+1. radar records can be created
+2. signals can be ingested or manually entered
+3. radar scoring works
+4. admin radar page loads correctly
+5. filters and sorting work
+6. high-priority radar results can enter the pipeline
+7. outreach drafts generate correctly
+8. scheduled radar jobs can run
+9. existing lead/pipeline/admin systems remain stable
+10. mobile/desktop admin remains usable
+
+==================================================
+PHASE 14 — FINAL REPORT
+==================================================
+
+Return:
+- files audited
+- files modified
+- models created or extended
+- routes created or extended
+- admin pages created or extended
+- how radar ingestion works
+- how scoring works
+- how project estimation works
+- how pipeline integration works
+- how outreach drafting works
+- how scheduled radar jobs work
+- what remains manual vs automated
+- what was tested
+- confirmation existing live systems still work
+
+EXECUTION RULE
+
+Audit first.
+Then implement Office Move Radar in safe phases.
+Prefer extending existing lead intelligence, lease signal, territory scanner, command centre, and pipeline systems over creating duplicates.
+Do not stop halfway.
+Do not ask questions.
+Build the working system, not just a framework.

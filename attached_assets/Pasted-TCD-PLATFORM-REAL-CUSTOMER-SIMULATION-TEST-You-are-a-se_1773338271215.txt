@@ -1,0 +1,231 @@
+TCD PLATFORM — REAL CUSTOMER SIMULATION TEST
+
+You are a senior QA engineer, SaaS reliability engineer, and automation testing specialist.
+
+Your task is to simulate real customers using The Corporate Desk platform and verify that the entire system functions correctly under real usage scenarios.
+
+The platform is live at:
+
+https://thecorporatedesk.com.au
+
+You must simulate complete user journeys and verify that every system works correctly.
+
+Do not assume anything works.
+
+Act like real users interacting with the site.
+
+------------------------------------------------
+
+TEST GROUP 1 — PRODUCT BROWSING
+
+Simulate users browsing the catalogue.
+
+Test the following pages:
+
+/
+/products
+/products/:sku
+
+Verify:
+
+• product pages load correctly
+• images load
+• specifications display
+• variant selectors work
+• related products load
+• no console errors
+
+Run product searches and filters.
+
+Confirm response times remain under 500ms.
+
+------------------------------------------------
+
+TEST GROUP 2 — LEAD CAPTURE FORMS
+
+Simulate real lead submissions.
+
+Test forms on:
+
+/free-office-layout-plan
+/send-us-your-quote
+/workplace-strategy
+/contact
+
+Submit realistic test data.
+
+Verify:
+
+• form submission succeeds
+• lead stored in database
+• admin notification email sent
+• customer confirmation email sent
+
+Confirm records appear in:
+
+/admin/leads
+/admin/planning-requests
+
+------------------------------------------------
+
+TEST GROUP 3 — AI WORKSPACE PLANNER
+
+Simulate a customer requesting a workspace layout.
+
+Submit a planning request including:
+
+office_size = 1200m²
+staff_count = 65
+budget = mid-range
+style = modern corporate
+
+Test both cases:
+
+• with floor plan upload
+• without floor plan
+
+Verify:
+
+• AI planner runs successfully
+• zone layout generated
+• furniture package created
+• report preview generated
+
+Confirm record appears in admin planning requests.
+
+------------------------------------------------
+
+TEST GROUP 4 — FLOOR PLAN PARSER
+
+Upload multiple floor plan images.
+
+Verify:
+
+• parser detects boundaries
+• room shapes detected
+• layout geometry generated
+• planner uses geometry in layout generation
+
+Confirm system does not crash on unusual floor plans.
+
+------------------------------------------------
+
+TEST GROUP 5 — QUOTE SYSTEM
+
+Simulate admin workflow.
+
+Create a quote from a planning request.
+
+Verify:
+
+• quote editor loads
+• line items calculate totals correctly
+• GST calculation correct
+• freight/install costs apply
+• PDF print view works
+• quote email sends successfully
+
+------------------------------------------------
+
+TEST GROUP 6 — DEAL PIPELINE
+
+Move a prospect through all stages:
+
+Lead Detected
+Contacted
+Planning
+Quoted
+Negotiation
+Won
+
+Verify:
+
+• pipeline stage updates correctly
+• deal probability updates
+• revenue forecast recalculates
+• dashboard metrics update
+
+------------------------------------------------
+
+TEST GROUP 7 — CHAT CONCIERGE
+
+Simulate customer conversations.
+
+Ask questions such as:
+
+"I have a 500m² office for 35 staff"
+
+"I need desks and meeting rooms"
+
+"Can you help plan my office?"
+
+Verify:
+
+• AI responses load quickly
+• recommendations are relevant
+• quick reply buttons work
+• planner CTA suggestions appear
+
+------------------------------------------------
+
+TEST GROUP 8 — STRIPE PAYMENT FLOW
+
+Simulate a payment for the premium planning report.
+
+Test:
+
+• payment intent creation
+• Stripe checkout
+• webhook trigger
+• report unlock logic
+
+Verify:
+
+• payment recorded
+• planning request updated
+• confirmation email sent
+
+------------------------------------------------
+
+TEST GROUP 9 — ADMIN SYSTEM
+
+Verify all admin dashboards function:
+
+/admin/dashboard
+/admin/leads
+/admin/planning-requests
+/admin/deal-pipeline
+/admin/quotes
+/admin/intelligence-hub
+/admin/profit-engine
+
+Confirm:
+
+• dashboards load
+• API calls succeed
+• metrics display correctly
+• no errors in console
+
+------------------------------------------------
+
+FINAL REPORT
+
+Provide a full system test report including:
+
+PASS / FAIL status for:
+
+• Product browsing
+• Lead capture
+• AI planner
+• Floor plan parsing
+• Quote generation
+• Pipeline tracking
+• Chat concierge
+• Stripe payments
+• Admin dashboards
+
+List any errors, crashes, or unexpected behaviour.
+
+If problems exist, identify the root cause and propose safe fixes.
+
+If all systems pass, confirm the platform is ready for real-world production traffic.
