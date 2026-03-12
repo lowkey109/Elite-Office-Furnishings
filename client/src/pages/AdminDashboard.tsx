@@ -94,6 +94,20 @@ export default function AdminDashboard() {
     refetchInterval: 60000,
   });
 
+  interface PlanningReq { id: string; name: string; company: string; status: string; leadScore?: number; estimatedValue?: string; squareMetres?: string; staffCount?: string; createdAt?: string; packageJson?: string; }
+  const { data: planningRequests = [] } = useQuery<PlanningReq[]>({
+    queryKey: ["/api/admin/planning-requests"],
+    enabled: authed,
+    refetchInterval: 60000,
+  });
+
+  interface ScheduledJob { id: string; jobType: string; status: string; startedAt?: string; completedAt?: string; }
+  const { data: recentJobs = [] } = useQuery<ScheduledJob[]>({
+    queryKey: ["/api/admin/intelligence/jobs"],
+    enabled: authed,
+    refetchInterval: 120000,
+  });
+
   function handleLogin() {
     if (validateAdminLogin(email, pw)) {
       sessionStorage.setItem("tcd_admin_auth", "true");
@@ -110,6 +124,16 @@ export default function AdminDashboard() {
   const quoteLeads = leads.filter(l => l.type === "quote-request" || l.type === "quote-builder").length;
   const layoutLeads = leads.filter(l => l.type === "layout-plan").length;
   const strategyLeads = leads.filter(l => l.type === "strategy-call").length;
+  const financeLeads = leads.filter(l => l.type === "finance-lead").length;
+
+  const hotLeads = [...leads]
+    .filter(l => (l.opportunityScore || 0) >= 70)
+    .sort((a, b) => (b.opportunityScore || 0) - (a.opportunityScore || 0))
+    .slice(0, 5);
+
+  const newPlanningCount = planningRequests.filter(r => r.status === "New").length;
+  const newLeadsToday = leads.filter(l => isToday(l.createdAt));
+  const planningWithPackages = planningRequests.filter(r => r.packageJson).length;
 
   const leadsByType = Object.entries(
     leads.reduce<Record<string, number>>((acc, l) => {
@@ -117,6 +141,9 @@ export default function AdminDashboard() {
       return acc;
     }, {})
   ).sort((a, b) => b[1] - a[1]);
+
+  const lastJobRun = recentJobs.length > 0 ? recentJobs[0] : null;
+  const jobStatusColor = lastJobRun?.status === "completed" ? "text-green-400" : lastJobRun?.status === "failed" ? "text-red-400" : "text-white/40";
 
   if (!authed) {
     return (
@@ -272,12 +299,71 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {/* ── Action Required Banner ───────────────────────────────────────────── */}
+        {(newPlanningCount > 0 || newLeadsToday.length > 0 || hotLeads.length > 0) && (
+          <div className="mb-6 bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.2)] rounded-2xl p-5" data-testid="panel-action-required">
+            <p className="text-[hsl(43,78%,65%)] text-sm font-semibold mb-3 flex items-center gap-2">
+              <Zap className="w-4 h-4" /> Needs Your Attention
+            </p>
+            <div className="flex flex-wrap gap-3">
+              {newPlanningCount > 0 && (
+                <Link href="/admin/planning-requests">
+                  <div className="flex items-center gap-2 bg-[rgba(201,168,76,0.1)] border border-[rgba(201,168,76,0.2)] rounded-xl px-4 py-2.5 cursor-pointer hover:bg-[rgba(201,168,76,0.15)] transition-all" data-testid="action-new-planning">
+                    <Upload className="w-3.5 h-3.5 text-[hsl(43,78%,65%)]" />
+                    <span className="text-white text-sm font-medium">{newPlanningCount} new planning submission{newPlanningCount !== 1 ? "s" : ""}</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-white/30" />
+                  </div>
+                </Link>
+              )}
+              {newLeadsToday.length > 0 && (
+                <Link href="/admin/command-centre">
+                  <div className="flex items-center gap-2 bg-[rgba(34,197,94,0.08)] border border-green-500/20 rounded-xl px-4 py-2.5 cursor-pointer hover:bg-[rgba(34,197,94,0.12)] transition-all" data-testid="action-today-leads">
+                    <Users className="w-3.5 h-3.5 text-green-400" />
+                    <span className="text-white text-sm font-medium">{newLeadsToday.length} new lead{newLeadsToday.length !== 1 ? "s" : ""} today</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-white/30" />
+                  </div>
+                </Link>
+              )}
+              {hotLeads.length > 0 && (
+                <Link href="/admin/command-centre">
+                  <div className="flex items-center gap-2 bg-[rgba(251,146,60,0.08)] border border-orange-500/20 rounded-xl px-4 py-2.5 cursor-pointer hover:bg-[rgba(251,146,60,0.12)] transition-all" data-testid="action-hot-leads">
+                    <Star className="w-3.5 h-3.5 text-orange-400" />
+                    <span className="text-white text-sm font-medium">{hotLeads.length} hot lead{hotLeads.length !== 1 ? "s" : ""} ready to convert</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-white/30" />
+                  </div>
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── KPI Cards ────────────────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[
             { label: "Total Leads", value: isLoading ? "—" : totalLeads, icon: Users, color: "text-[hsl(43,78%,65%)]", testId: "stat-total-leads" },
             { label: "Leads Today", value: isLoading ? "—" : todayLeads, icon: Calendar, color: "text-green-400", testId: "stat-today-leads" },
-            { label: "This Week", value: isLoading ? "—" : weekLeads, icon: TrendingUp, color: "text-blue-400", testId: "stat-week-leads" },
-            { label: "Quote Requests", value: isLoading ? "—" : quoteLeads, icon: FileText, color: "text-purple-400", testId: "stat-quote-leads" },
+            { label: "Planning Requests", value: planningRequests.length || "—", icon: Upload, color: "text-blue-400", testId: "stat-planning-requests" },
+            { label: "Finance Leads", value: isLoading ? "—" : financeLeads, icon: DollarSign, color: "text-emerald-400", testId: "stat-finance-leads" },
+          ].map(kpi => {
+            const Icon = kpi.icon;
+            return (
+              <div key={kpi.label} className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-white/50 text-sm">{kpi.label}</p>
+                  <Icon className={`w-5 h-5 ${kpi.color}`} />
+                </div>
+                <p className={`text-3xl font-serif font-bold ${kpi.color}`} data-testid={kpi.testId}>{kpi.value}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {[
+            { label: "This Week", value: isLoading ? "—" : weekLeads, icon: TrendingUp, color: "text-purple-400", testId: "stat-week-leads" },
+            { label: "Quote Requests", value: isLoading ? "—" : quoteLeads, icon: FileText, color: "text-[hsl(43,78%,65%)]", testId: "stat-quote-leads" },
+            { label: "Hot Leads", value: isLoading ? "—" : hotLeads.length, icon: Star, color: "text-orange-400", testId: "stat-hot-leads" },
+            { label: "Packaged Plans", value: planningWithPackages || "—", icon: Package, color: "text-green-400", testId: "stat-packaged-plans" },
           ].map(kpi => {
             const Icon = kpi.icon;
             return (
@@ -526,8 +612,47 @@ export default function AdminDashboard() {
               </div>
             </div>
 
+            {/* Hot Leads */}
+            <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-white font-semibold flex items-center gap-2 text-sm">
+                  <Star className="w-4 h-4 text-orange-400" /> Hot Leads
+                </h2>
+                <Link href="/admin/command-centre">
+                  <span className="text-white/30 text-xs hover:text-white/60 transition-colors cursor-pointer">View all</span>
+                </Link>
+              </div>
+              {hotLeads.length === 0 ? (
+                <div className="text-center py-6">
+                  <Star className="w-7 h-7 text-white/15 mx-auto mb-2" />
+                  <p className="text-white/30 text-xs">No high-score leads yet</p>
+                  <p className="text-white/20 text-xs mt-1">Leads scoring 70+ appear here</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {hotLeads.map(lead => (
+                    <Link key={lead.id} href="/admin/command-centre">
+                      <div className="flex items-center gap-3 p-3 rounded-xl border border-[rgba(255,255,255,0.04)] hover:border-[rgba(251,146,60,0.2)] transition-all cursor-pointer" data-testid={`row-hot-lead-${lead.id}`}>
+                        <div className="w-7 h-7 rounded-full bg-orange-500/10 flex items-center justify-center flex-shrink-0 text-orange-400 text-xs font-bold">
+                          {lead.opportunityScore}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-white text-xs font-medium truncate">{lead.name}</p>
+                          <p className="text-white/40 text-xs truncate">{lead.company || lead.type}</p>
+                        </div>
+                        {lead.estimatedValueRange && (
+                          <span className="text-[hsl(43,78%,65%)] text-xs font-semibold flex-shrink-0">{lead.estimatedValueRange}</span>
+                        )}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Pipeline Summary */}
             <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.15)] rounded-2xl p-5">
-              <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm mb-3">Pipeline Overview</h3>
+              <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm mb-3">Pipeline Breakdown</h3>
               <div className="space-y-2 text-sm text-white/60">
                 <div className="flex justify-between">
                   <span>Quote Requests</span>
@@ -541,7 +666,48 @@ export default function AdminDashboard() {
                   <span>Strategy Calls</span>
                   <span className="text-white font-medium">{strategyLeads}</span>
                 </div>
+                <div className="flex justify-between">
+                  <span>Finance Leads</span>
+                  <span className="text-white font-medium">{financeLeads}</span>
+                </div>
+                {planningRequests.length > 0 && (
+                  <div className="flex justify-between border-t border-[rgba(255,255,255,0.05)] pt-2 mt-2">
+                    <span>Planning Submissions</span>
+                    <span className="text-white font-medium">{planningRequests.length}</span>
+                  </div>
+                )}
               </div>
+            </div>
+
+            {/* Intelligence Status */}
+            <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-white font-semibold text-sm flex items-center gap-2">
+                  <BarChart3 className="w-3.5 h-3.5 text-[hsl(43,78%,52%)]" /> Intelligence Engine
+                </h3>
+                <Link href="/admin/intelligence-hub">
+                  <span className="text-white/30 text-xs hover:text-white/60 transition-colors cursor-pointer">Hub</span>
+                </Link>
+              </div>
+              {lastJobRun ? (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/40 text-xs">Last job</span>
+                    <span className={`text-xs font-medium ${jobStatusColor}`}>{lastJobRun.jobType?.replace(/_/g, " ")}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/40 text-xs">Status</span>
+                    <span className={`text-xs ${jobStatusColor}`}>{lastJobRun.status}</span>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-white/30 text-xs">No jobs run yet</p>
+              )}
+              <Link href="/admin/profit-engine">
+                <div className="mt-3 text-xs text-white/40 hover:text-white/70 transition-colors flex items-center gap-1.5 cursor-pointer">
+                  <DollarSign className="w-3 h-3" /> Profit Engine
+                </div>
+              </Link>
             </div>
           </div>
         </div>

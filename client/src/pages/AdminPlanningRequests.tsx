@@ -16,12 +16,12 @@ import {
   Loader2, Trash2, RefreshCw, Package, FileText, Palette,
   Star, DollarSign, Users, Layers, CheckCircle2, Calendar,
   ExternalLink, Paperclip, TrendingUp, Briefcase, BarChart3,
-  Zap, Clock, Table2,
+  Zap, Clock, Table2, TrendingDown, ShieldAlert, Award,
 } from "lucide-react";
 
 
 type PlanningStatus = "New" | "In Review" | "Quoted" | "Converted" | "Archived";
-type ActiveTab = "overview" | "zones" | "furniture" | "cost" | "report" | "package";
+type ActiveTab = "overview" | "zones" | "furniture" | "cost" | "report" | "package" | "profit";
 
 const STATUS_CONFIG: Record<PlanningStatus, { color: string }> = {
   New: { color: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
@@ -466,6 +466,233 @@ const TIER_COLORS: Record<string, string> = {
   Executive: "bg-purple-500/10 text-purple-400 border-purple-500/20",
 };
 
+// ─── Profit Intelligence Panel ────────────────────────────────────────────────
+
+interface CostStackTier {
+  packageTier: string;
+  packageName: string;
+  totalLandedCost: number;
+  installationCost: number;
+  totalLandedWithInstall: number;
+  quotedPrice: number;
+  grossProfit: number;
+  marginPercent: number;
+  confidenceLevel: string;
+  supplierMix: Record<string, string[]>;
+  keyStrengths: string[];
+}
+interface ProfitComparison {
+  officeSqm: number;
+  staffCount: number;
+  premium: CostStackTier;
+  balanced: CostStackTier;
+  value: CostStackTier;
+  recommendation: string;
+  bestMarginTier: string;
+}
+
+function marginHealthConfig(m: number): { label: string; color: string; bg: string; icon: any } {
+  if (m >= 55) return { label: "Excellent Margin", color: "text-green-400", bg: "bg-green-500/10 border-green-500/20", icon: Award };
+  if (m >= 48) return { label: "Strong Margin", color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20", icon: TrendingUp };
+  if (m >= 40) return { label: "Acceptable Margin", color: "text-[hsl(43,78%,65%)]", bg: "bg-[rgba(201,168,76,0.1)] border-[rgba(201,168,76,0.2)]", icon: BarChart3 };
+  if (m >= 32) return { label: "Margin Watch", color: "text-orange-400", bg: "bg-orange-500/10 border-orange-500/20", icon: ShieldAlert };
+  return { label: "Low Margin", color: "text-red-400", bg: "bg-red-500/10 border-red-500/20", icon: TrendingDown };
+}
+
+function ProfitIntelligencePanel({ request }: { request: PlanningRequest }) {
+  const [data, setData] = useState<ProfitComparison | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const { toast } = useToast();
+
+  const sqm = Number(request.squareMetres) || 0;
+  const staff = Number(request.staffCount) || 0;
+
+  async function loadAnalysis() {
+    if (!sqm || !staff) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/profit/compare", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ officeSqm: sqm, staffCount: staff }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed");
+      setData(json);
+      setLoaded(true);
+    } catch (e: any) {
+      toast({ title: "Profit analysis failed", description: e.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (!sqm || !staff) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
+        <DollarSign className="w-10 h-10 text-white/20" />
+        <div>
+          <p className="text-white/50 text-sm font-medium mb-1">Workspace dimensions required</p>
+          <p className="text-white/25 text-xs max-w-xs">Office size (sqm) and staff count must be set on this submission before profit analysis can run.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!loaded) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center gap-4">
+        <div className="w-14 h-14 rounded-2xl bg-[rgba(201,168,76,0.08)] border border-[rgba(201,168,76,0.15)] flex items-center justify-center">
+          <DollarSign className="w-7 h-7 text-[hsl(43,78%,52%)]" />
+        </div>
+        <div>
+          <p className="text-white font-semibold text-sm mb-1">Package Profit Intelligence</p>
+          <p className="text-white/40 text-xs max-w-xs leading-relaxed">Run a full cost stack analysis for this {sqm} sqm / {staff}-person workspace. See Premium, Balanced, and Value package margins with supplier mix recommendations.</p>
+        </div>
+        <Button
+          size="sm"
+          onClick={loadAnalysis}
+          disabled={loading}
+          className="bg-[rgba(201,168,76,0.15)] text-[hsl(43,78%,65%)] border border-[rgba(201,168,76,0.3)] hover:bg-[rgba(201,168,76,0.25)] min-h-[36px]"
+          data-testid={`button-profit-analyse-${request.id}`}
+        >
+          {loading ? <><Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> Analysing...</> : <><BarChart3 className="w-3.5 h-3.5 mr-1.5" /> Run Profit Analysis</>}
+        </Button>
+      </div>
+    );
+  }
+
+  if (!data) return null;
+
+  const tiers = [
+    { key: "premium", stack: data.premium, label: "Premium", color: "border-[rgba(201,168,76,0.3)]", labelColor: "text-[hsl(43,78%,65%)]" },
+    { key: "balanced", stack: data.balanced, label: "Balanced", color: "border-blue-500/20", labelColor: "text-blue-400" },
+    { key: "value", stack: data.value, label: "Value", color: "border-white/10", labelColor: "text-white/50" },
+  ] as const;
+
+  return (
+    <div className="space-y-6" data-testid={`panel-profit-${request.id}`}>
+
+      {/* Header */}
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <p className="text-[hsl(43,78%,65%)] text-xs font-semibold uppercase tracking-wider mb-1 flex items-center gap-1.5">
+            <DollarSign className="w-3.5 h-3.5" /> Profit Intelligence
+          </p>
+          <p className="text-white/40 text-xs">{sqm} sqm · {staff} staff · Indicative cost stack</p>
+        </div>
+        <Button
+          size="sm"
+          onClick={loadAnalysis}
+          disabled={loading}
+          variant="ghost"
+          className="text-white/40 hover:text-white text-xs min-h-[32px]"
+        >
+          {loading ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <RefreshCw className="w-3 h-3 mr-1" />} Refresh
+        </Button>
+      </div>
+
+      {/* Tier Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {tiers.map(({ key, stack, label, color, labelColor }) => {
+          const health = marginHealthConfig(stack.marginPercent);
+          const HealthIcon = health.icon;
+          const isBest = data.bestMarginTier === key;
+          return (
+            <div
+              key={key}
+              className={`bg-[rgba(255,255,255,0.02)] border rounded-xl p-4 space-y-3 ${isBest ? "border-green-500/30 ring-1 ring-green-500/10" : color}`}
+              data-testid={`card-profit-tier-${key}-${request.id}`}
+            >
+              <div className="flex items-center justify-between">
+                <span className={`text-xs font-bold ${labelColor}`}>{label}</span>
+                {isBest && <span className="text-green-400 text-xs bg-green-500/10 border border-green-500/20 rounded-full px-2 py-0.5 font-medium">Best Margin</span>}
+              </div>
+              <div>
+                <p className="text-white font-serif font-bold text-xl">${Math.round(stack.quotedPrice / 1000)}k</p>
+                <p className="text-white/30 text-xs">quoted · ${Math.round(stack.totalLandedWithInstall / 1000)}k landed</p>
+              </div>
+              <div className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg border ${health.bg} ${health.color}`}>
+                <HealthIcon className="w-3 h-3" />
+                <span>{Math.round(stack.marginPercent)}% · {health.label}</span>
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs">
+                  <span className="text-white/30">Landed cost</span>
+                  <span className="text-white/60">${Math.round(stack.totalLandedCost).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-white/30">Installation</span>
+                  <span className="text-white/60">${Math.round(stack.installationCost).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-xs font-semibold border-t border-[rgba(255,255,255,0.05)] pt-1.5 mt-1.5">
+                  <span className="text-white/50">Gross Profit</span>
+                  <span className="text-green-400">${Math.round(stack.grossProfit).toLocaleString()}</span>
+                </div>
+              </div>
+              {stack.keyStrengths?.length > 0 && (
+                <p className="text-white/30 text-xs leading-relaxed">{stack.keyStrengths[0]}</p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Recommendation */}
+      {data.recommendation && (
+        <div className="bg-[rgba(34,197,94,0.05)] border border-green-500/15 rounded-xl p-4">
+          <p className="text-green-400 text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5" /> AI Profit Recommendation
+          </p>
+          <p className="text-white/70 text-sm leading-relaxed">{data.recommendation}</p>
+        </div>
+      )}
+
+      {/* Supplier Mix */}
+      {data.balanced?.supplierMix && Object.keys(data.balanced.supplierMix).length > 0 && (
+        <div>
+          <p className="text-[hsl(43,78%,65%)] text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <Package className="w-3.5 h-3.5" /> Recommended Supplier Mix (Balanced)
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {Object.entries(data.balanced.supplierMix).map(([supplier, categories]) => (
+              <div key={supplier} className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-lg px-3 py-2.5">
+                <p className="text-white/70 text-xs font-semibold mb-1">{supplier}</p>
+                <p className="text-white/35 text-xs leading-relaxed">{(categories as string[]).join(" · ")}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Finance framing */}
+      <div className="bg-[rgba(201,168,76,0.05)] border border-[rgba(201,168,76,0.12)] rounded-xl p-4">
+        <p className="text-[hsl(43,78%,65%)] text-xs font-semibold mb-2 flex items-center gap-1.5">
+          <DollarSign className="w-3.5 h-3.5" /> Finance Framing
+        </p>
+        <div className="grid grid-cols-3 gap-3 text-center">
+          {tiers.map(({ key, stack, label }) => {
+            const monthly = Math.round(stack.quotedPrice / 60);
+            return (
+              <div key={key}>
+                <p className="text-white/30 text-xs mb-0.5">{label}</p>
+                <p className="text-white font-semibold text-sm">${monthly.toLocaleString()}/mo</p>
+                <p className="text-white/25 text-xs">60-mo est.</p>
+              </div>
+            );
+          })}
+        </div>
+        <p className="text-white/25 text-xs mt-3 text-center">Indicative finance estimate — actual rates subject to lender approval</p>
+      </div>
+
+      <p className="text-white/20 text-xs text-right">Confidence: {data.balanced?.confidenceLevel ?? "medium"} · Supplier pricing data</p>
+    </div>
+  );
+}
+
+// ─── Package Quote Panel ──────────────────────────────────────────────────────
+
 function PackageQuotePanel({ request, onRegenerateClick, revisingId }: {
   request: PlanningRequest;
   onRegenerateClick: () => void;
@@ -814,6 +1041,7 @@ export default function AdminPlanningRequests() {
     { key: "furniture", label: "Furniture Recs", icon: <Package className="w-3.5 h-3.5" /> },
     { key: "cost", label: "Cost & Timeline", icon: <BarChart3 className="w-3.5 h-3.5" /> },
     { key: "package", label: "Package & Quote", icon: <Briefcase className="w-3.5 h-3.5" /> },
+    { key: "profit", label: "Profit Intelligence", icon: <DollarSign className="w-3.5 h-3.5" /> },
     { key: "report", label: "Report", icon: <FileText className="w-3.5 h-3.5" /> },
   ];
 
@@ -1129,6 +1357,10 @@ export default function AdminPlanningRequests() {
                               onRegenerateClick={() => revisePlan(req.id)}
                               revisingId={revisingId}
                             />
+                          )}
+
+                          {activeTab === "profit" && (
+                            <ProfitIntelligencePanel request={req} />
                           )}
 
                           {activeTab === "report" && (

@@ -1,0 +1,303 @@
+SAFE SYSTEM EXTENSION — QUOTE BUILDER + PDF QUOTE ENGINE
+
+DO NOT OVERWRITE EXISTING PROMPTS.
+DO NOT REBUILD THE SITE.
+DO NOT BREAK:
+- workspace planner
+- estimator
+- product catalog
+- finance system
+- Stripe payments
+- admin dashboard
+- supplier messaging
+- email system
+- existing lead capture
+- mobile responsiveness
+- desktop responsiveness
+
+You are upgrading the LIVE The Corporate Desk platform.
+
+PRIMARY OBJECTIVE
+
+Build a real quote creation system that allows the platform to generate professional commercial quotes and export them as PDFs.
+
+This must be a working business tool, not placeholder text.
+
+The system must allow:
+1. AI-assisted quote creation
+2. editable quote line items
+3. quote totals and pricing logic
+4. finance option display where relevant
+5. PDF quote generation
+6. admin review before sending
+7. quote sending by email
+8. quote storage inside admin
+
+==================================================
+PHASE 1 — FULL AUDIT
+==================================================
+
+Audit the current system for:
+- estimator / quote builder
+- planner output
+- product catalog pricing
+- supplier pricing records
+- finance logic
+- email system
+- admin records
+- any existing PDF/document generation utilities
+- any existing quote routes/components/models
+- any existing proposal/report generation logic
+
+Return an internal map of:
+- what quote functionality already exists
+- what pricing logic already exists
+- where line items can be generated from
+- whether any PDF generation library already exists
+- where quote records should live
+- which existing admin screens should be extended
+
+Do not build until the audit is complete.
+
+==================================================
+PHASE 2 — QUOTE DATA MODEL
+==================================================
+
+Create or extend a structured quote model.
+
+Each quote should support:
+- id
+- quote_number
+- status
+- client_name
+- company_name
+- email
+- phone
+- project_id if linked
+- planner_id if linked
+- lead_id if linked
+- office_size_sqm if known
+- staff_count if known
+- project_summary
+- quote_items
+- subtotal
+- freight_cost
+- installation_cost
+- other_costs
+- discount if any
+- total
+- finance_monthly_estimate if relevant
+- notes
+- created_at
+- updated_at
+- sent_at if sent
+
+Each quote item should support:
+- product_name
+- sku or core model
+- category
+- variant / finish / size if relevant
+- quantity
+- unit_price
+- line_total
+- supplier if known
+- notes
+
+Do not delete existing fields. Extend safely.
+
+==================================================
+PHASE 3 — AI QUOTE CREATION ENGINE
+==================================================
+
+Build an AI-assisted quote engine.
+
+The AI should be able to generate a draft quote from:
+- planner output
+- estimator output
+- selected products
+- supplier pricing intelligence
+- manually added items
+
+The AI should create:
+- project summary
+- line items
+- quantities
+- indicative pricing
+- freight/install allowances if relevant
+- total
+- optional finance estimate
+
+The AI must use real product/range/category logic where possible.
+
+Do not generate nonsense line items.
+Do not create fake precision where data is weak.
+Use confidence-aware pricing logic if needed.
+
+==================================================
+PHASE 4 — ADMIN QUOTE EDITOR
+==================================================
+
+Build or extend an admin quote editor.
+
+The human operator must be able to:
+- review quote
+- edit line items
+- change quantities
+- adjust pricing
+- add/remove items
+- add notes
+- add freight/install
+- add discount if needed
+- preview final total
+- preview finance estimate if relevant
+
+The admin quote editor must be easy to use and not overly technical.
+
+==================================================
+PHASE 5 — PDF QUOTE GENERATION
+==================================================
+
+Build a real PDF quote generator.
+
+The output must be a professional commercial quote PDF.
+
+The PDF should include:
+- The Corporate Desk branding
+- quote number
+- date
+- client/company details
+- project summary
+- quote line items
+- subtotal
+- freight/install/other costs
+- total
+- finance option line if relevant
+- notes / assumptions
+- next steps / acceptance instructions if appropriate
+
+The PDF must look:
+- premium
+- clean
+- commercial
+- easy to read
+
+Do not generate ugly raw tables only.
+Do not make it look like a developer printout.
+
+==================================================
+PHASE 6 — SEND QUOTE FLOW
+==================================================
+
+Add quote sending capability using the existing email system.
+
+Workflow:
+1. admin generates quote
+2. admin reviews quote
+3. system generates PDF
+4. admin sends quote email
+5. PDF is attached or linked appropriately
+6. quote record is marked sent
+
+Customer email must be:
+- human
+- professional
+- concise
+- branded
+
+Do not auto-send without admin approval.
+
+==================================================
+PHASE 7 — QUOTE STORAGE IN ADMIN
+==================================================
+
+Store quotes inside admin with statuses such as:
+- Draft
+- Ready
+- Sent
+- Accepted
+- Declined
+- Expired
+
+Admin should be able to:
+- search quotes
+- filter by status
+- open quote record
+- regenerate PDF
+- resend quote if needed
+
+==================================================
+PHASE 8 — LINK QUOTES TO PROJECTS
+==================================================
+
+Where possible, link quote generation to:
+- leads
+- planner projects
+- estimator results
+- finance opportunities
+
+The admin should be able to move from:
+lead → planner → quote → finance → close
+
+==================================================
+PHASE 9 — FINANCE INTEGRATION
+==================================================
+
+If relevant, show finance options inside the quote.
+
+Examples:
+- indicative monthly payment
+- finance available
+- contact us for structured payment options
+
+Use the existing finance logic and do not break it.
+
+==================================================
+PHASE 10 — TEMPLATE / BRAND STANDARD
+==================================================
+
+Use the strongest existing design system / brand styling already present in the project.
+
+The quote PDF and quote editor should match the premium brand style already used on the platform.
+
+Do not invent a clashing design language if a good one already exists.
+
+==================================================
+PHASE 11 — TESTING
+==================================================
+
+Before completion verify:
+1. quote draft can be created
+2. line items can be edited
+3. totals calculate correctly
+4. PDF quote generates correctly
+5. PDF layout looks professional
+6. quote can be stored in admin
+7. quote can be sent using the email system
+8. finance estimate still works where relevant
+9. planner/estimator/product/admin systems remain stable
+10. desktop and mobile admin remain usable
+
+==================================================
+PHASE 12 — FINAL REPORT
+==================================================
+
+Return:
+- files audited
+- files modified
+- quote models created or extended
+- how AI quote generation works
+- how admin editing works
+- how PDF generation works
+- how sending works
+- how quote storage/status works
+- what was tested
+- confirmation existing live systems still work
+
+EXECUTION RULE
+
+Audit first.
+Then build the working quote builder and PDF quote engine in safe phases.
+Prefer extending existing quote/estimator/admin/email systems over creating duplicates.
+Do not stop halfway.
+Do not ask questions.
+Build the working business tool, not just a concept.

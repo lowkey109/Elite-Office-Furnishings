@@ -2084,6 +2084,37 @@ ${allUrls.map(u => `  <url>
           );
           revisedPackageJson = JSON.stringify(pkg);
           revisedQuoteJson = JSON.stringify(quote);
+
+          // Auto-save profit record for this planning request
+          try {
+            const sqm = Number(existing.squareMetres) || 100;
+            const staff = Number(existing.staffCount) || 10;
+            const { calculateCostStack } = await import("./services/profitOptimisation");
+            const balancedStack = calculateCostStack(sqm, staff, "balanced");
+            await storage.createProfitRecord({
+              planningRequestId: id,
+              officeSizeSqm: sqm,
+              staffCount: staff,
+              industryType: existing.projectType || "General Office",
+              layoutType: existing.stylePreference || "balanced",
+              packageName: pkg.packageName,
+              packageTier: pkg.packageTier,
+              productMixSummary: `${pkg.totalItems} items · ${pkg.workspaceType}`,
+              supplierMixSummary: Object.entries(balancedStack.supplierMix).map(([s, cats]) => `${s}: ${(cats as string[]).join(", ")}`).join(" | "),
+              estimatedFactoryCost: Math.round(balancedStack.totalLandedCost * 0.55),
+              estimatedShippingCost: Math.round(balancedStack.totalLandedCost * 0.08),
+              estimatedInstallationCost: Math.round(balancedStack.installationCost),
+              estimatedLandedCost: Math.round(balancedStack.totalLandedWithInstall),
+              quotedPrice: Math.round(balancedStack.quotedPrice),
+              estimatedProfit: Math.round(balancedStack.grossProfit),
+              estimatedMarginPercent: Math.round(balancedStack.marginPercent),
+              confidenceLevel: balancedStack.confidenceLevel,
+              conversionResult: "pending",
+            });
+            console.log(`[ProfitRecord] Auto-saved profit record for planning request ${id}`);
+          } catch (profitErr) {
+            console.warn("[ProfitRecord] Auto-save failed (non-fatal):", profitErr);
+          }
         } catch (pkgErr) {
           console.error("[PackageGen] Package revision failed:", pkgErr);
         }
