@@ -1,0 +1,326 @@
+SAFE SYSTEM EXTENSION — DO NOT OVERWRITE EXISTING PROMPTS
+
+You are upgrading the LIVE The Corporate Desk platform.
+
+You are in AI WORKSPACE OPERATING SYSTEM MODE.
+
+IMPORTANT:
+Do NOT rebuild the site.
+Do NOT break the planner, Stripe, webhook, emails, product catalog, admin dashboard, SEO pages, or mobile layout.
+Do NOT ask the user questions.
+Do NOT stop midway.
+Do NOT create fake demo outputs.
+Use existing project files, catalog data, uploaded assets, and live systems already in the Replit project.
+
+PRIMARY OBJECTIVE
+
+Unify the site into one advanced end-to-end commercial workspace flow:
+
+1. user uploads floor plan
+2. system captures workspace requirements
+3. system detects usable floor shape and key zones where possible
+4. AI generates workspace layout
+5. AI recommends real product categories / core models / variants
+6. system produces an advanced commercial estimate
+7. post-payment output becomes a premium report / proposal-style result
+8. admin receives full structured lead intelligence
+
+The whole experience must feel like a serious enterprise-grade workspace planning platform, not a furniture store with separate tools.
+
+==================================================
+PHASE 1 — FULL AUDIT
+==================================================
+
+Audit all relevant live systems before changing anything:
+
+- AI planner
+- floor plan upload
+- drag/drop upload logic
+- planner output
+- layout renderer
+- quote builder / estimator
+- product catalog
+- variant/grouping structure
+- Stripe / unlock flow
+- webhook logic
+- email triggers
+- admin planning requests
+- admin command centre
+- lead storage
+- article / SEO routes
+- mobile layouts
+
+Map:
+- which routes already exist
+- what data is already stored
+- what can already be reused
+- where duplicate logic exists
+
+Do not modify anything until this audit is complete.
+
+==================================================
+PHASE 2 — UNIFIED WORKSPACE FLOW
+==================================================
+
+Create one connected workflow between planner, estimator, catalog, and paid output.
+
+The user flow must be:
+
+STEP 1
+Upload floor plan and enter business/project details
+
+STEP 2
+AI analyses:
+- office size
+- staff count
+- meeting room needs
+- reception needs
+- breakout needs
+- executive office needs
+- storage needs
+- style preference
+- budget level
+
+STEP 3
+Generate a workspace concept:
+- workstation zones
+- meeting rooms
+- boardroom if needed
+- reception
+- breakout
+- storage logic
+- circulation logic
+
+STEP 4
+Match the layout to real product families from the catalog
+
+STEP 5
+Generate a commercial estimate with quantities and value range
+
+STEP 6
+Show premium results with clear CTA:
+- Request Detailed Quote
+- Book Strategy Call
+- Unlock Full Report if gated
+
+Do not leave these as separate disconnected tools.
+
+==================================================
+PHASE 3 — FLOOR PLAN + LAYOUT INTELLIGENCE
+==================================================
+
+Upgrade the planner so the uploaded file influences layout generation as much as safely possible.
+
+Support:
+- PDF
+- JPG
+- PNG
+
+Use:
+- actual uploaded file data
+- detected outer shape where possible
+- internal zoning where possible
+- fallback only when necessary
+
+Do not silently revert to a generic rectangle unless parsing genuinely fails.
+
+If parsing is partial:
+- use real outer boundary
+- use form inputs for interior logic
+- log confidence
+
+Preserve:
+- circulation
+- spacing
+- practical workstation density
+- meeting room logic
+- breakout logic
+- reception placement
+
+==================================================
+PHASE 4 — PRODUCT FAMILY + VARIANT MAPPING
+==================================================
+
+Use the correct product structure:
+
+CATEGORY
+→ RANGE / COLLECTION
+→ PRODUCT MODEL
+→ VARIANTS
+
+Rules:
+- one real model = one product page
+- sizes are variants
+- finishes are variants
+- colours are variants
+- same desk in multiple sizes must not appear as duplicate public products
+
+When generating recommendations:
+- use real categories
+- use real ranges/collections
+- use core product models
+- use variant logic where relevant
+
+Do not recommend duplicate size products as separate items.
+
+==================================================
+PHASE 5 — ADVANCED COMMERCIAL ESTIMATOR
+==================================================
+
+Extend the existing estimator into a real workspace estimator.
+
+Use:
+- planner inputs
+- layout zones
+- staff count
+- room requirements
+- product family mapping
+- real catalog pricing where possible
+
+Output:
+- recommended furniture mix
+- estimated quantities
+- estimated unit values
+- estimated line totals where possible
+- total investment range
+- delivery/install allowance if appropriate
+- indicative commercial estimate language
+
+The result must feel like a serious B2B estimate, not a toy calculator.
+
+==================================================
+PHASE 6 — PREMIUM RESULTS / REPORT OUTPUT
+==================================================
+
+Upgrade the planner result and paid unlock output into a premium report.
+
+Required sections:
+- Project Summary
+- Workspace Strategy
+- Layout Overview
+- Recommended Furniture Mix
+- Estimated Investment Range
+- Productivity / Workplace Notes
+- Recommended Next Step
+
+After payment, the unlocked output must feel worth the price.
+
+If possible, make the result ready for future PDF export structure.
+
+==================================================
+PHASE 7 — ADMIN INTELLIGENCE
+==================================================
+
+For every relevant planner / estimate record, admin should be able to see:
+
+- contact details
+- company
+- office size
+- staff count
+- planner summary
+- layout summary
+- estimate range
+- opportunity score
+- recommended next action
+- payment status
+- report unlocked status
+
+Use real inbound data only.
+Do not create fake intelligence.
+
+==================================================
+PHASE 8 — EMAIL INTEGRATION
+==================================================
+
+Preserve and extend the existing email system.
+
+Use sender identity:
+The Corporate Desk Planning Team
+service@thecorporatedesk.com.au
+
+Trigger emails for:
+- planner submission
+- estimate submission
+- payment confirmation
+- report unlocked
+- admin lead alert
+
+Customer emails must:
+- confirm submission
+- summarise project context
+- explain next step
+- feel premium and professional
+
+Admin emails must:
+- highlight commercial value
+- include project context
+- show estimated value
+- include admin link if available
+
+==================================================
+PHASE 9 — UX / DESIGN STANDARD
+==================================================
+
+The entire unified flow must feel like a premium enterprise product.
+
+Design references:
+- Apple
+- Stripe
+- Herman Miller
+- Steelcase
+
+Use:
+- generous spacing
+- strong hierarchy
+- minimal clutter
+- premium imagery
+- calm, professional tone
+- clean mobile responsiveness
+
+The planner, estimator, and result pages must feel like one system.
+
+==================================================
+PHASE 10 — TESTING
+==================================================
+
+Before completion, verify all of the following:
+
+1. planner loads
+2. drag-and-drop upload works
+3. click upload works
+4. planner does not reset
+5. floor plan analysis runs
+6. layout output renders
+7. product mapping works
+8. estimate output renders
+9. payment flow still works
+10. webhook still works
+11. emails still work or fail gracefully
+12. admin records store correctly
+13. product catalog still works
+14. mobile layout is clean
+15. desktop layout is clean
+16. no critical routes are broken
+
+==================================================
+PHASE 11 — FINAL REPORT
+==================================================
+
+Return:
+- files audited
+- files modified
+- what was unified
+- how planner + layout + catalog + estimate now connect
+- what is fully live
+- what remains approximate
+- what was tested
+- confirmation that existing live systems still work
+
+EXECUTION RULE
+
+Execute sequentially.
+Audit first.
+Then implement the smallest safe upgrades needed to create the unified AI workspace operating system.
+Do not stop.
+Do not ask questions.
+Do not overwrite existing prompts.

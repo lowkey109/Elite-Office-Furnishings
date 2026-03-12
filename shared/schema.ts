@@ -36,6 +36,7 @@ export const leads = pgTable("leads", {
   signalsJson: text("signals_json"),
   nextAction: text("next_action"),
   estimatedValueRange: text("estimated_value_range"),
+  estimateJson: text("estimate_json"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

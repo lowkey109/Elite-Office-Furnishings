@@ -12,13 +12,21 @@ import {
 import { validateAdminLogin } from "@/lib/adminAuth";
 
 interface Lead {
-  id: number;
+  id: string;
   name: string;
   email: string;
   phone?: string;
   company?: string;
   type: string;
   message?: string;
+  officeSize?: string;
+  staffCount?: string;
+  budget?: string;
+  officeLocation?: string;
+  opportunityScore?: number;
+  opportunityTier?: string;
+  estimatedValueRange?: string;
+  estimateJson?: string;
   createdAt?: string;
 }
 
@@ -355,6 +363,63 @@ export default function AdminDashboard() {
                             </div>
                           )}
                         </div>
+                        {(lead.officeSize || lead.staffCount || lead.budget || lead.officeLocation) && (
+                          <div className="pt-2 border-t border-[rgba(255,255,255,0.05)] grid grid-cols-2 gap-2">
+                            {lead.staffCount && <div><p className="text-white/35 text-xs">Staff</p><p className="text-white/70 text-xs font-medium">{lead.staffCount}</p></div>}
+                            {lead.officeSize && <div><p className="text-white/35 text-xs">Office Size</p><p className="text-white/70 text-xs font-medium">{lead.officeSize}</p></div>}
+                            {lead.budget && <div><p className="text-white/35 text-xs">Budget</p><p className="text-white/70 text-xs font-medium">{lead.budget}</p></div>}
+                            {lead.officeLocation && <div><p className="text-white/35 text-xs">Location</p><p className="text-white/70 text-xs font-medium">{lead.officeLocation}</p></div>}
+                          </div>
+                        )}
+                        {(lead.opportunityScore || lead.estimatedValueRange) && (
+                          <div className="pt-2 border-t border-[rgba(255,255,255,0.05)] flex items-center gap-4">
+                            {lead.opportunityScore !== undefined && (
+                              <div>
+                                <p className="text-white/35 text-xs">Opportunity Score</p>
+                                <p className="text-[hsl(43,78%,65%)] text-sm font-bold">{lead.opportunityScore}<span className="text-white/30 text-xs font-normal">/100</span></p>
+                              </div>
+                            )}
+                            {lead.estimatedValueRange && (
+                              <div>
+                                <p className="text-white/35 text-xs">Estimated Value</p>
+                                <p className="text-[hsl(43,78%,65%)] text-sm font-bold">{lead.estimatedValueRange}</p>
+                              </div>
+                            )}
+                            {lead.opportunityTier && (
+                              <div>
+                                <p className="text-white/35 text-xs">Tier</p>
+                                <p className="text-white/70 text-xs font-medium">{lead.opportunityTier}</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {lead.estimateJson && (() => {
+                          try {
+                            const est = JSON.parse(lead.estimateJson);
+                            const cs = est?.costSummary;
+                            return (
+                              <div className="pt-2 border-t border-[rgba(201,168,76,0.15)]">
+                                <p className="text-[hsl(43,78%,52%)] text-xs font-semibold mb-2">Advanced Estimate Summary</p>
+                                <div className="grid grid-cols-2 gap-2 mb-2">
+                                  {est.packageTier && <div><p className="text-white/35 text-xs">Package Tier</p><p className="text-white/70 text-xs font-medium">{est.packageTier}</p></div>}
+                                  {est.workspaceType && <div><p className="text-white/35 text-xs">Workspace Type</p><p className="text-white/70 text-xs font-medium">{est.workspaceType}</p></div>}
+                                  {est.quoteReference && <div><p className="text-white/35 text-xs">Quote Ref</p><p className="text-white/70 text-xs font-mono">{est.quoteReference}</p></div>}
+                                  {est.implementationTimeline && <div><p className="text-white/35 text-xs">Timeline</p><p className="text-white/70 text-xs font-medium">{est.implementationTimeline}</p></div>}
+                                </div>
+                                {cs && (
+                                  <div className="bg-[rgba(201,168,76,0.05)] border border-[rgba(201,168,76,0.12)] rounded-lg p-3 text-xs space-y-1">
+                                    <div className="flex justify-between"><span className="text-white/40">Furniture</span><span className="text-white/70">${Math.round(cs.furnitureSubtotal || 0).toLocaleString()}</span></div>
+                                    <div className="flex justify-between"><span className="text-white/40">Delivery + Install</span><span className="text-white/70">${Math.round((cs.delivery || 0) + (cs.installation || 0)).toLocaleString()}</span></div>
+                                    <div className="flex justify-between font-semibold border-t border-[rgba(201,168,76,0.1)] pt-1 mt-1"><span className="text-white/70">Total Inc GST</span><span className="text-[hsl(43,78%,65%)]">${Math.round(cs.totalIncGst || 0).toLocaleString()}</span></div>
+                                  </div>
+                                )}
+                                {est.productSchedule && est.productSchedule.length > 0 && (
+                                  <p className="text-white/35 text-xs mt-1">{est.productSchedule.length} line item{est.productSchedule.length !== 1 ? "s" : ""} in BOQ</p>
+                                )}
+                              </div>
+                            );
+                          } catch { return null; }
+                        })()}
                         {lead.message && (
                           <div className="pt-2 border-t border-[rgba(255,255,255,0.05)]">
                             <p className="text-white/40 text-xs mb-1">Message</p>

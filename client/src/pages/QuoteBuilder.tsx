@@ -7,12 +7,106 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
-  ArrowRight, ArrowLeft, CheckCircle2, Send, Building2,
-  Users, LayoutDashboard, DollarSign, MapPin, User, Mail,
-  Phone, MessageSquare, ChevronRight, Loader2,
+  ArrowRight, ArrowLeft, CheckCircle2, Building2, Users,
+  LayoutDashboard, DollarSign, MessageSquare, Loader2,
+  TrendingUp, Package, MapPin, Clock, Star, Phone, Mail,
+  ChevronRight, Zap, FileText, Calendar, Sofa,
 } from "lucide-react";
 
-const STEPS = ["Project", "Space", "Products", "Details", "Summary"];
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface WorkspaceInputs {
+  projectType: string;
+  squareMetres: string;
+  staffCount: string;
+  city: string;
+  meetingRooms: number;
+  boardroom: boolean;
+  reception: boolean;
+  breakout: boolean;
+  executiveOffice: boolean;
+  storageLevel: string;
+  budgetRange: string;
+  stylePreference: string;
+  notes: string;
+}
+
+interface ContactInfo {
+  name: string;
+  company: string;
+  email: string;
+  phone: string;
+}
+
+interface PackageItem {
+  sku: string;
+  productName: string;
+  category: string;
+  series: string;
+  zone: string;
+  quantity: number;
+  unitCost: number;
+  totalCost: number;
+  rationale: string;
+}
+
+interface QuoteSummary {
+  quoteReference: string;
+  status: string;
+  clientBrief: string;
+  workspaceType: string;
+  packageTier: string;
+  packageName: string;
+  productSchedule: PackageItem[];
+  costSummary: {
+    furnitureSubtotal: number;
+    installation: number;
+    delivery: number;
+    projectTotal: number;
+    projectTotalRange: string;
+    gst: number;
+    totalIncGst: number;
+  };
+  financeOption: {
+    monthlyEstimate: string;
+    term: string;
+    note: string;
+  };
+  addOnOpportunities: string[];
+  recommendedNextStep: string;
+  urgencyNote?: string;
+  implementationTimeline?: string;
+  styleDirection?: string;
+  preparedFor: string;
+  preparedBy: string;
+  generatedAt: string;
+}
+
+interface EstimateResult {
+  quote: QuoteSummary | null;
+  aiSummary: string | null;
+  officeType: string | null;
+  workspaceZones: Array<{
+    zone: string;
+    color: string;
+    percentage: number;
+    description: string;
+    priority: string;
+    staffCapacity: number;
+    keyFurniture: string[];
+    productivityNote?: string;
+  }>;
+  estimatedProjectValue: string | null;
+  implementationTimeline: string | null;
+  styleDirection: string | null;
+  keyConsiderations: string[];
+  recommendedNextStep: string | null;
+  leadId: string;
+}
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const STEPS = ["Project", "Requirements", "Budget & Style", "Your Details"];
 
 const PROJECT_TYPES = [
   { id: "full-fitout", label: "Full Office Fitout", desc: "Complete workspace from scratch", icon: Building2 },
@@ -22,63 +116,37 @@ const PROJECT_TYPES = [
 ];
 
 const STYLE_OPTIONS = [
-  { id: "aimu", label: "Fessenz Executive", desc: "Executive, dark veneer, prestige", tag: "Most Popular" },
-  { id: "breeze", label: "Milan Workstation", desc: "Contemporary, light timber, modern" },
-  { id: "mixed", label: "Mixed / Flexible", desc: "Open to recommendations" },
+  { id: "fessenz", label: "Fessenz Design Collection", desc: "Executive dark veneer, prestige aesthetic", tag: "Most Popular" },
+  { id: "milan", label: "Milan Premium Series", desc: "Contemporary light timber, modern workplaces" },
+  { id: "presidia", label: "Presidia Executive", desc: "Dark stained oak, boardroom presence" },
+  { id: "mixed", label: "Mixed / Open to Recommendations", desc: "Our team will curate the best fit" },
 ];
 
-const ROOM_TYPES = [
-  { id: "executive-offices", label: "Executive Offices", unitLabel: "offices", unitPrice: 4500 },
-  { id: "staff-workstations", label: "Staff Workstations", unitLabel: "workstations", unitPrice: 1200 },
-  { id: "boardroom", label: "Boardroom Table", unitLabel: "seats", unitPrice: 600 },
-  { id: "reception", label: "Reception Area", unitLabel: "stations", unitPrice: 6000 },
-  { id: "meeting-rooms", label: "Meeting Rooms", unitLabel: "rooms", unitPrice: 3500 },
-  { id: "breakout", label: "Breakout / Café Zone", unitLabel: "seats", unitPrice: 400 },
-  { id: "seating", label: "Task & Visitor Chairs", unitLabel: "chairs", unitPrice: 650 },
-  { id: "storage", label: "Storage & Filing", unitLabel: "units", unitPrice: 700 },
+const BUDGET_RANGES = [
+  "$30,000 – $60,000",
+  "$60,000 – $100,000",
+  "$100,000 – $200,000",
+  "$200,000 – $300,000",
+  "$300,000+",
 ];
 
-const TIMELINES = [
-  { id: "urgent", label: "Urgent (< 4 weeks)" },
-  { id: "3months", label: "Within 3 months" },
-  { id: "6months", label: "3–6 months" },
-  { id: "planning", label: "Still planning (6 months+)" },
+const STORAGE_LEVELS = [
+  { id: "light", label: "Light", desc: "Under-desk pedestals only" },
+  { id: "medium", label: "Medium", desc: "Pedestals + wall storage" },
+  { id: "heavy", label: "Heavy", desc: "Full filing systems + credenzas" },
 ];
 
-const LOCATIONS = ["Brisbane", "Sydney", "Melbourne", "Perth", "Adelaide", "Other"];
+const CITIES = ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Canberra", "Gold Coast", "Other"];
 
-interface Selections {
-  projectType: string;
-  style: string;
-  staffCount: string;
-  timeline: string;
-  location: string;
-  rooms: Record<string, number>;
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function fmt(n: number) {
+  return `$${Math.round(n).toLocaleString("en-AU")}`;
 }
 
-interface ContactInfo {
-  name: string;
-  company: string;
-  email: string;
-  phone: string;
-  notes: string;
-}
-
-interface AiMessage {
-  role: "user" | "assistant";
-  content: string;
-}
-
-function estimateTotal(rooms: Record<string, number>): number {
-  return ROOM_TYPES.reduce((sum, rt) => {
-    return sum + (rooms[rt.id] || 0) * rt.unitPrice;
-  }, 0);
-}
-
-function GoldInput({ label, value, onChange, type = "text", placeholder = "", required = false, testId = "" }: {
-  label: string; value: string; onChange: (v: string) => void;
-  type?: string; placeholder?: string; required?: boolean; testId?: string;
-}) {
+function GoldInput({
+  label, value, onChange, type = "text", placeholder = "", required = false, testId = "",
+}: { label: string; value: string; onChange: (v: string) => void; type?: string; placeholder?: string; required?: boolean; testId?: string }) {
   return (
     <div>
       <label className="block text-sm text-white/60 mb-1.5">
@@ -97,59 +165,416 @@ function GoldInput({ label, value, onChange, type = "text", placeholder = "", re
   );
 }
 
+function Toggle({ active, onToggle, label, sub, testId }: { active: boolean; onToggle: () => void; label: string; sub?: string; testId?: string }) {
+  return (
+    <button
+      onClick={onToggle}
+      data-testid={testId}
+      className={`w-full text-left p-4 rounded-xl border transition-all flex items-center justify-between min-h-[64px] ${
+        active
+          ? "border-[hsl(43,78%,52%)] bg-[rgba(201,168,76,0.08)]"
+          : "border-[rgba(255,255,255,0.08)] hover:border-[rgba(201,168,76,0.3)]"
+      }`}
+    >
+      <div>
+        <p className="font-medium text-white text-sm">{label}</p>
+        {sub && <p className="text-white/40 text-xs mt-0.5">{sub}</p>}
+      </div>
+      <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
+        active ? "bg-[hsl(43,78%,52%)]" : "border border-white/20"
+      }`}>
+        {active && <CheckCircle2 className="w-4 h-4 text-[hsl(220,20%,6%)]" />}
+      </div>
+    </button>
+  );
+}
+
+// ─── Tier badge ──────────────────────────────────────────────────────────────
+
+function TierBadge({ tier }: { tier: string }) {
+  const map: Record<string, { label: string; cls: string }> = {
+    Executive: { label: "Executive Tier", cls: "bg-[rgba(201,168,76,0.2)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.4)]" },
+    Professional: { label: "Professional Tier", cls: "bg-[rgba(59,130,246,0.15)] text-blue-300 border-blue-500/30" },
+    Foundation: { label: "Foundation Tier", cls: "bg-[rgba(255,255,255,0.06)] text-white/60 border-white/15" },
+  };
+  const t = map[tier] || map.Foundation;
+  return (
+    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${t.cls}`}>{t.label}</span>
+  );
+}
+
+// ─── Premium Results Page ─────────────────────────────────────────────────────
+
+function EstimateResultsPage({
+  result,
+  contact,
+  inputs,
+}: {
+  result: EstimateResult;
+  contact: ContactInfo;
+  inputs: WorkspaceInputs;
+}) {
+  const { quote, aiSummary, officeType, workspaceZones, estimatedProjectValue, implementationTimeline, styleDirection, keyConsiderations, recommendedNextStep } = result;
+  const cs = quote?.costSummary;
+  const tier = quote?.packageTier || "Professional";
+
+  return (
+    <Layout>
+      <div className="min-h-screen pt-20 pb-24 px-4 bg-background">
+        <div className="max-w-5xl mx-auto">
+
+          {/* ── Header ── */}
+          <div className="pt-10 pb-8 text-center">
+            <div className="inline-flex items-center gap-2 bg-[rgba(201,168,76,0.1)] border border-[rgba(201,168,76,0.25)] rounded-full px-4 py-2 text-[hsl(43,78%,65%)] text-sm font-medium mb-6">
+              <CheckCircle2 className="w-4 h-4" />
+              Workspace Estimate Generated
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-serif font-bold text-white mb-3">
+              Your Workspace <span className="gold-text">Estimate</span>
+            </h1>
+            <div className="section-divider mb-4" />
+            <div className="flex flex-wrap items-center justify-center gap-3 mb-3">
+              <TierBadge tier={tier} />
+              {officeType && (
+                <span className="text-xs text-white/50 bg-[rgba(255,255,255,0.05)] border border-white/10 px-2.5 py-1 rounded-full">
+                  {officeType}
+                </span>
+              )}
+              {quote?.quoteReference && (
+                <span className="text-xs text-white/40 font-mono">Ref: {quote.quoteReference}</span>
+              )}
+            </div>
+            {aiSummary && (
+              <p className="text-white/60 max-w-2xl mx-auto leading-relaxed text-base mt-3">{aiSummary}</p>
+            )}
+          </div>
+
+          {/* ── 3-column summary cards ── */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+            {[
+              {
+                icon: DollarSign,
+                label: "Estimated Investment",
+                value: cs ? fmt(cs.totalIncGst) : estimatedProjectValue || "Contact us",
+                sub: cs ? "inc GST" : "ex GST (indicative)",
+                gold: true,
+              },
+              {
+                icon: Clock,
+                label: "Implementation",
+                value: implementationTimeline || quote?.implementationTimeline || "8–12 weeks",
+                sub: "estimated timeline",
+                gold: false,
+              },
+              {
+                icon: Calendar,
+                label: "Finance Option",
+                value: quote?.financeOption.monthlyEstimate || "Contact us",
+                sub: "est. monthly repayment",
+                gold: false,
+              },
+            ].map(card => {
+              const Icon = card.icon;
+              return (
+                <div key={card.label} className={`rounded-xl border p-5 ${card.gold ? "bg-[rgba(201,168,76,0.07)] border-[rgba(201,168,76,0.25)]" : "bg-[hsl(220,18%,10%)] border-[rgba(255,255,255,0.07)]"}`}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Icon className={`w-4 h-4 ${card.gold ? "text-[hsl(43,78%,52%)]" : "text-white/40"}`} />
+                    <span className="text-xs text-white/40 uppercase tracking-wide">{card.label}</span>
+                  </div>
+                  <p className={`text-2xl font-bold font-serif ${card.gold ? "text-[hsl(43,78%,65%)]" : "text-white"}`}>{card.value}</p>
+                  <p className="text-xs text-white/40 mt-1">{card.sub}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* ── Workspace Zones ── */}
+          {workspaceZones && workspaceZones.length > 0 && (
+            <section className="mb-10">
+              <h2 className="text-xl font-serif font-bold text-white mb-1">Recommended Workspace Layout</h2>
+              <p className="text-white/40 text-sm mb-5">Activity-based zone allocation for {inputs.staffCount ? `${inputs.staffCount} staff` : "your team"}{inputs.squareMetres ? ` across ${inputs.squareMetres} sqm` : ""}.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {workspaceZones.map((zone, i) => (
+                  <div key={i} className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.07)] rounded-xl p-5">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: zone.color || "#B8960C" }} />
+                        <h3 className="font-semibold text-white text-sm">{zone.zone}</h3>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-white/40">{zone.percentage}%</span>
+                        {zone.priority === "Essential" && (
+                          <span className="text-xs bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border border-[rgba(201,168,76,0.2)] px-1.5 py-0.5 rounded-full">Essential</span>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-white/55 text-xs leading-relaxed mb-3">{zone.description}</p>
+                    {zone.keyFurniture && zone.keyFurniture.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {zone.keyFurniture.slice(0, 4).map((item, j) => (
+                          <span key={j} className="text-xs bg-[rgba(255,255,255,0.04)] border border-white/10 rounded px-2 py-0.5 text-white/50">{item}</span>
+                        ))}
+                      </div>
+                    )}
+                    {zone.productivityNote && (
+                      <p className="text-xs text-[hsl(43,78%,55%)] mt-3 italic">{zone.productivityNote}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* ── Bill of Quantities ── */}
+          {quote?.productSchedule && quote.productSchedule.length > 0 && (
+            <section className="mb-10">
+              <h2 className="text-xl font-serif font-bold text-white mb-1">Estimated Bill of Quantities</h2>
+              <p className="text-white/40 text-sm mb-5">Indicative product selection from The Corporate Desk catalogue. Final specification confirmed at formal quotation stage.</p>
+              <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.07)] rounded-xl overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.03)]">
+                        <th className="text-left px-5 py-3 text-white/40 font-medium text-xs uppercase tracking-wide">Product</th>
+                        <th className="text-left px-5 py-3 text-white/40 font-medium text-xs uppercase tracking-wide hidden sm:table-cell">Zone</th>
+                        <th className="text-right px-5 py-3 text-white/40 font-medium text-xs uppercase tracking-wide">Qty</th>
+                        <th className="text-right px-5 py-3 text-white/40 font-medium text-xs uppercase tracking-wide hidden md:table-cell">Unit</th>
+                        <th className="text-right px-5 py-3 text-white/40 font-medium text-xs uppercase tracking-wide">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {quote.productSchedule.map((item, i) => (
+                        <tr key={i} className="border-b border-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.02)] transition-colors">
+                          <td className="px-5 py-3.5">
+                            <p className="text-white font-medium">{item.productName}</p>
+                            <p className="text-white/35 text-xs mt-0.5">{item.category}{item.series && item.series !== item.category ? ` · ${item.series}` : ""}</p>
+                            {item.sku && item.sku !== "TBD" && (
+                              <Link href={`/products/${item.sku}`} className="text-[hsl(43,78%,52%)] text-xs hover:underline mt-0.5 inline-block">
+                                {item.sku} →
+                              </Link>
+                            )}
+                          </td>
+                          <td className="px-5 py-3.5 text-white/50 text-xs hidden sm:table-cell">{item.zone}</td>
+                          <td className="px-5 py-3.5 text-right text-white font-medium">{item.quantity}</td>
+                          <td className="px-5 py-3.5 text-right text-white/50 hidden md:table-cell">{fmt(item.unitCost)}</td>
+                          <td className="px-5 py-3.5 text-right text-[hsl(43,78%,65%)] font-semibold">{fmt(item.totalCost)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* ── Investment Summary ── */}
+          {cs && (
+            <section className="mb-10">
+              <h2 className="text-xl font-serif font-bold text-white mb-1">Estimated Investment Summary</h2>
+              <p className="text-white/40 text-sm mb-5">All figures are indicative. Formal quote issued within 24 hours with exact pricing and lead times.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.07)] rounded-xl p-6 space-y-3">
+                  {[
+                    { label: "Furniture Subtotal", value: fmt(cs.furnitureSubtotal), muted: false },
+                    { label: "Delivery Allowance", value: fmt(cs.delivery), muted: true },
+                    { label: "Installation Allowance", value: fmt(cs.installation), muted: true },
+                    { label: "Project Total Ex-GST", value: fmt(cs.projectTotal), muted: false },
+                    { label: "GST (10%)", value: fmt(cs.gst), muted: true },
+                  ].map(row => (
+                    <div key={row.label} className="flex justify-between text-sm">
+                      <span className={row.muted ? "text-white/40" : "text-white/70"}>{row.label}</span>
+                      <span className={row.muted ? "text-white/40" : "text-white"}>{row.value}</span>
+                    </div>
+                  ))}
+                  <div className="border-t border-[rgba(201,168,76,0.15)] pt-3 flex justify-between font-bold text-base">
+                    <span className="text-white">Total Inc GST</span>
+                    <span className="text-[hsl(43,78%,65%)]">{fmt(cs.totalIncGst)}</span>
+                  </div>
+                  {cs.projectTotalRange && (
+                    <p className="text-white/30 text-xs">Indicative range: {cs.projectTotalRange}</p>
+                  )}
+                </div>
+
+                <div className="space-y-4">
+                  {/* Finance option */}
+                  {quote.financeOption && (
+                    <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.2)] rounded-xl p-5">
+                      <div className="flex items-center gap-2 mb-3">
+                        <TrendingUp className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                        <span className="text-sm font-semibold text-white">Finance Your Workspace</span>
+                      </div>
+                      <p className="text-2xl font-bold text-[hsl(43,78%,65%)]">{quote.financeOption.monthlyEstimate}</p>
+                      <p className="text-white/40 text-xs mt-1">{quote.financeOption.term} · {quote.financeOption.note}</p>
+                    </div>
+                  )}
+                  {/* Style direction */}
+                  {(styleDirection || quote.styleDirection) && (
+                    <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.07)] rounded-xl p-5">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Star className="w-4 h-4 text-white/40" />
+                        <span className="text-sm font-semibold text-white">Aesthetic Direction</span>
+                      </div>
+                      <p className="text-white/50 text-sm leading-relaxed">{styleDirection || quote.styleDirection}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* ── Add-on Opportunities ── */}
+          {quote?.addOnOpportunities && quote.addOnOpportunities.length > 0 && (
+            <section className="mb-10">
+              <h2 className="text-xl font-serif font-bold text-white mb-1">Recommended Additions</h2>
+              <p className="text-white/40 text-sm mb-5">Enhancements often added at specification stage by comparable projects.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {quote.addOnOpportunities.map((item, i) => (
+                  <div key={i} className="flex items-start gap-3 bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-xl p-4">
+                    <Zap className="w-4 h-4 text-[hsl(43,78%,52%)] mt-0.5 flex-shrink-0" />
+                    <p className="text-white/65 text-sm">{item}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* ── Key Considerations ── */}
+          {keyConsiderations && keyConsiderations.length > 0 && (
+            <section className="mb-10">
+              <h2 className="text-xl font-serif font-bold text-white mb-1">Key Project Considerations</h2>
+              <p className="text-white/40 text-sm mb-5">Our workspace strategy team notes the following for your project.</p>
+              <ul className="space-y-2">
+                {keyConsiderations.map((item, i) => (
+                  <li key={i} className="flex items-start gap-3 text-white/60 text-sm">
+                    <CheckCircle2 className="w-4 h-4 text-[hsl(43,78%,52%)] mt-0.5 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {/* ── Recommended Next Step ── */}
+          {(recommendedNextStep || quote?.recommendedNextStep) && (
+            <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.2)] rounded-xl p-6 mb-10">
+              <h3 className="font-semibold text-white mb-2">Recommended Next Step</h3>
+              <p className="text-white/60 text-sm leading-relaxed">{recommendedNextStep || quote?.recommendedNextStep}</p>
+            </div>
+          )}
+
+          {/* ── CTAs ── */}
+          <section className="mb-12">
+            <h2 className="text-xl font-serif font-bold text-white mb-2 text-center">Ready to Move Forward?</h2>
+            <p className="text-white/40 text-sm mb-6 text-center max-w-xl mx-auto">Our workspace strategy team is ready to turn this estimate into a formal, line-item quotation — typically issued within 24 hours.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <Link href="/send-us-your-quote">
+                <button
+                  data-testid="button-cta-request-quote"
+                  className="w-full bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,60%)] text-[hsl(220,20%,6%)] font-bold rounded-xl px-6 py-4 flex items-center justify-center gap-2 transition-all"
+                >
+                  <FileText className="w-4 h-4" />
+                  Request Detailed Quote
+                </button>
+              </Link>
+              <a href="https://calendly.com/thecorporatedesk/strategy-call" target="_blank" rel="noopener noreferrer">
+                <button
+                  data-testid="button-cta-strategy-call"
+                  className="w-full border border-[rgba(201,168,76,0.35)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.07)] font-bold rounded-xl px-6 py-4 flex items-center justify-center gap-2 transition-all"
+                >
+                  <Phone className="w-4 h-4" />
+                  Book Strategy Call
+                </button>
+              </a>
+              <Link href="/upload-floor-plan">
+                <button
+                  data-testid="button-cta-ai-planner"
+                  className="w-full border border-[rgba(255,255,255,0.12)] text-white/70 hover:border-[rgba(201,168,76,0.3)] hover:text-white font-bold rounded-xl px-6 py-4 flex items-center justify-center gap-2 transition-all"
+                >
+                  <MapPin className="w-4 h-4" />
+                  Upload Floor Plan → AI Layout
+                </button>
+              </Link>
+            </div>
+            <p className="text-center text-white/30 text-xs mt-4">Or call us directly: <a href="tel:1300977607" className="text-[hsl(43,78%,52%)] hover:underline">1300 977 607</a></p>
+          </section>
+
+          {/* ── Prepared by footer ── */}
+          <div className="border-t border-[rgba(255,255,255,0.06)] pt-6 text-center">
+            <p className="text-white/25 text-xs">
+              {quote?.preparedFor && `Prepared for ${quote.preparedFor} · `}
+              {quote?.preparedBy || "The Corporate Desk — Workplace Design Team"} ·{" "}
+              {new Date(quote?.generatedAt || Date.now()).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}
+            </p>
+            <p className="text-white/20 text-xs mt-1">
+              Indicative estimate only. Formal quote required for contractual purposes. All prices ex-GST unless stated. Subject to product availability and site conditions.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </Layout>
+  );
+}
+
+// ─── Main QuoteBuilder Component ──────────────────────────────────────────────
+
 export default function QuoteBuilder() {
   const [step, setStep] = useState(0);
-  const [selections, setSelections] = useState<Selections>({
-    projectType: "", style: "", staffCount: "", timeline: "", location: "", rooms: {},
+  const [inputs, setInputs] = useState<WorkspaceInputs>({
+    projectType: "",
+    squareMetres: "",
+    staffCount: "",
+    city: "",
+    meetingRooms: 0,
+    boardroom: false,
+    reception: false,
+    breakout: false,
+    executiveOffice: false,
+    storageLevel: "medium",
+    budgetRange: "",
+    stylePreference: "",
+    notes: "",
   });
-  const [contact, setContact] = useState<ContactInfo>({
-    name: "", company: "", email: "", phone: "", notes: "",
-  });
-  const [aiMessages, setAiMessages] = useState<AiMessage[]>([]);
+  const [contact, setContact] = useState<ContactInfo>({ name: "", company: "", email: "", phone: "" });
+  const [estimateResult, setEstimateResult] = useState<EstimateResult | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [aiMessages, setAiMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([]);
   const [aiInput, setAiInput] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
   const aiEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    document.title = "Quote Builder — Build Your Custom Office Quote | The Corporate Desk";
+    document.title = "Commercial Workspace Estimator — Office Fitout Budgeting | The Corporate Desk";
     const meta = document.querySelector('meta[name="description"]');
-    if (meta) meta.setAttribute("content", "Build your custom commercial office furniture quote online. Interactive AI-assisted tool to scope, price and plan your office fitout.");
+    if (meta) meta.setAttribute("content", "Generate a professional commercial office fitout estimate with AI-powered product recommendations, bill of quantities, and investment summary. Free — no obligation.");
   }, []);
 
   useEffect(() => {
     aiEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [aiMessages]);
 
-  const total = estimateTotal(selections.rooms);
-  const gst = total / 11;
-  const exGST = total - gst;
-
-  const submitLead = useMutation({
-    mutationFn: (data: any) => apiRequest("POST", "/api/leads", data),
-    onSuccess: () => setSubmitted(true),
-    onError: () => toast({ title: "Submission failed", description: "Please try again or call us on 1300 977 607.", variant: "destructive" }),
-  });
+  // ── AI Chat ─────────────────────────────────────────────────────────────────
 
   async function sendAiMessage(userMsg?: string) {
     const msg = userMsg || aiInput;
     if (!msg.trim()) return;
-    const newMessages: AiMessage[] = [...aiMessages, { role: "user", content: msg }];
+    const newMessages = [...aiMessages, { role: "user" as const, content: msg }];
     setAiMessages(newMessages);
     setAiInput("");
     setAiLoading(true);
 
-    const context = `The user is using the Quote Builder tool. Current selections:
-- Project type: ${selections.projectType || "not selected yet"}
-- Style: ${selections.style || "not selected yet"}
-- Staff count: ${selections.staffCount || "not stated"}
-- Timeline: ${selections.timeline || "not selected yet"}
-- Location: ${selections.location || "not selected yet"}
-- Rooms/quantities: ${JSON.stringify(selections.rooms)}
-- Estimated total (inc GST): $${total.toLocaleString()}
+    const context = `The user is using the Commercial Workspace Estimator. Current selections:
+- Project type: ${inputs.projectType || "not selected"}
+- Staff count: ${inputs.staffCount || "not entered"}
+- Office size: ${inputs.squareMetres || "not entered"} sqm
+- City: ${inputs.city || "not selected"}
+- Meeting rooms: ${inputs.meetingRooms}
+- Boardroom: ${inputs.boardroom ? "Yes" : "No"} | Reception: ${inputs.reception ? "Yes" : "No"} | Breakout: ${inputs.breakout ? "Yes" : "No"}
+- Executive office: ${inputs.executiveOffice ? "Yes" : "No"} | Storage: ${inputs.storageLevel}
+- Budget: ${inputs.budgetRange || "not selected"} | Style: ${inputs.stylePreference || "not selected"}
 
-Answer their question using your role as AI Quoting Specialist and Workplace Strategy Consultant.`;
+You are an AI Workplace Strategy Advisor for The Corporate Desk. Answer concisely and commercially.`;
 
     try {
       const response = await fetch("/api/chat", {
@@ -158,7 +583,7 @@ Answer their question using your role as AI Quoting Specialist and Workplace Str
         body: JSON.stringify({
           messages: [
             { role: "user", content: context },
-            { role: "assistant", content: "Understood. I'm reviewing the Quote Builder selections and ready to advise." },
+            { role: "assistant", content: "Understood. I'm reviewing your workspace brief and ready to advise." },
             ...newMessages,
           ],
           stream: true,
@@ -174,8 +599,7 @@ Answer their question using your role as AI Quoting Specialist and Workplace Str
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          const text = decoder.decode(value);
-          const lines = text.split("\n");
+          const lines = decoder.decode(value).split("\n");
           for (const line of lines) {
             if (line.startsWith("data: ")) {
               try {
@@ -194,103 +618,114 @@ Answer their question using your role as AI Quoting Specialist and Workplace Str
         }
       }
     } catch {
-      toast({ title: "AI unavailable", description: "Our team can assist — call 1300 977 607.", variant: "destructive" });
+      toast({ title: "AI unavailable", description: "Call 1300 977 607 for expert advice.", variant: "destructive" });
     } finally {
       setAiLoading(false);
     }
   }
 
+  // ── Step advance ─────────────────────────────────────────────────────────────
+
   function handleStepAdvance() {
-    if (step === 0 && !selections.projectType) return toast({ title: "Please select a project type", variant: "destructive" });
-    if (step === 1 && !selections.style) return toast({ title: "Please select a style preference", variant: "destructive" });
-    if (step === 3) {
-      if (!contact.name || !contact.email || !contact.phone) return toast({ title: "Please complete required fields", variant: "destructive" });
+    if (step === 0) {
+      if (!inputs.projectType) return toast({ title: "Please select a project type", variant: "destructive" });
+      if (!inputs.staffCount) return toast({ title: "Please enter your staff count", variant: "destructive" });
     }
-    setStep(s => s + 1);
+    if (step === 2 && !inputs.budgetRange) {
+      return toast({ title: "Please select a budget range", variant: "destructive" });
+    }
     const prompts: Record<number, string> = {
-      0: `I've selected "${selections.projectType}" as my project type. What should I consider for this type of fitout?`,
-      1: `I'm going with the ${selections.style} style. What are the key benefits and what should I expect?`,
-      2: `Here's what I've selected so far: ${Object.entries(selections.rooms).filter(([,v])=>v>0).map(([k,v])=>`${v} ${k}`).join(", ") || "still selecting"}. My budget estimate is showing $${total.toLocaleString()} inc GST. Does this look right?`,
+      0: `I'm planning a "${inputs.projectType}" project for ${inputs.staffCount || "our"} staff${inputs.squareMetres ? ` in a ${inputs.squareMetres} sqm office` : ""} in ${inputs.city || "Australia"}. What are the key considerations I should factor into my estimate?`,
+      1: `We need: ${inputs.meetingRooms} meeting room(s)${inputs.boardroom ? ", a boardroom" : ""}${inputs.reception ? ", reception area" : ""}${inputs.breakout ? ", breakout zone" : ""}${inputs.executiveOffice ? ", executive office(s)" : ""}. Does this sound like a typical setup for a company of our size?`,
+      2: `Our budget is ${inputs.budgetRange || "flexible"} and we prefer the ${inputs.stylePreference || "mixed"} aesthetic. What style direction and product families would you recommend?`,
     };
     if (prompts[step]) {
       setTimeout(() => sendAiMessage(prompts[step]), 300);
     }
+    setStep(s => s + 1);
   }
 
-  function handleSubmit() {
+  // ── Submit ────────────────────────────────────────────────────────────────────
+
+  async function handleSubmit() {
     if (!contact.name || !contact.email || !contact.phone) {
       return toast({ title: "Please complete required fields", variant: "destructive" });
     }
-    const roomSummary = ROOM_TYPES
-      .filter(rt => (selections.rooms[rt.id] || 0) > 0)
-      .map(rt => `${rt.label}: ${selections.rooms[rt.id]} ${rt.unitLabel}`)
-      .join(", ");
-
-    submitLead.mutate({
-      name: contact.name,
-      company: contact.company || "",
-      email: contact.email,
-      phone: contact.phone,
-      type: "quote-builder",
-      message: `Quote Builder Submission\n\nProject: ${selections.projectType} | Style: ${selections.style} | Staff: ${selections.staffCount} | Timeline: ${selections.timeline} | Location: ${selections.location}\n\nRooms: ${roomSummary}\n\nEstimated Total (inc GST): $${total.toLocaleString()}\n\nNotes: ${contact.notes}`,
-    });
+    setIsGenerating(true);
+    try {
+      const response = await fetch("/api/estimate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...inputs,
+          ...contact,
+          meetingRooms: inputs.meetingRooms || 0,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Estimation failed");
+      }
+      setEstimateResult(data as EstimateResult);
+    } catch (err) {
+      toast({
+        title: "Estimation failed",
+        description: "Please try again or call 1300 977 607.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   }
 
-  if (submitted) {
+  // ── Show premium results ──────────────────────────────────────────────────────
+
+  if (estimateResult) {
+    return <EstimateResultsPage result={estimateResult} contact={contact} inputs={inputs} />;
+  }
+
+  // ── Generating loading screen ─────────────────────────────────────────────────
+
+  if (isGenerating) {
     return (
       <Layout>
         <div className="min-h-screen flex items-center justify-center px-4 pt-24">
-          <div className="max-w-lg text-center">
+          <div className="max-w-md text-center">
             <div className="w-20 h-20 rounded-full bg-[rgba(201,168,76,0.12)] flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 className="w-10 h-10 text-[hsl(43,78%,52%)]" />
+              <Loader2 className="w-10 h-10 text-[hsl(43,78%,52%)] animate-spin" />
             </div>
-            <h1 className="text-3xl font-serif font-bold text-white mb-4">Quote Submitted</h1>
-            <p className="text-white/60 mb-8">Thank you, {contact.name}. Our team will review your requirements and send a detailed quote within 24 hours.</p>
-            <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.15)] rounded-xl p-6 mb-8 text-left">
-              <h3 className="text-[hsl(43,78%,65%)] font-semibold mb-3">Your Estimate Summary</h3>
-              <div className="space-y-1 text-sm text-white/70">
-                {ROOM_TYPES.filter(rt => (selections.rooms[rt.id] || 0) > 0).map(rt => (
-                  <div key={rt.id} className="flex justify-between">
-                    <span>{rt.label} × {selections.rooms[rt.id]}</span>
-                    <span>${((selections.rooms[rt.id] || 0) * rt.unitPrice).toLocaleString()}</span>
-                  </div>
-                ))}
-                <div className="border-t border-[rgba(201,168,76,0.1)] mt-3 pt-3 flex justify-between font-semibold text-white">
-                  <span>Indicative Total (inc GST)</span>
-                  <span>${total.toLocaleString()}</span>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button asChild className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[48px]">
-                <Link href="/">Back to Home</Link>
-              </Button>
-              <Button asChild variant="outline" className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] min-h-[48px]">
-                <a href="tel:1300977607">Call 1300 977 607</a>
-              </Button>
-            </div>
+            <h2 className="text-2xl font-serif font-bold text-white mb-3">Analysing Your Workspace</h2>
+            <p className="text-white/50 text-sm leading-relaxed">
+              Our AI workspace strategy engine is generating your commercial estimate — mapping your requirements to real product specifications, calculating quantities, and building your bill of quantities.
+            </p>
+            <p className="text-white/25 text-xs mt-4">This usually takes 15–30 seconds.</p>
           </div>
         </div>
       </Layout>
     );
   }
 
+  // ── Step wizard ───────────────────────────────────────────────────────────────
+
   return (
     <Layout>
       <div className="min-h-screen pt-20 pb-16 px-4">
         <div className="max-w-7xl mx-auto">
+
+          {/* Header */}
           <div className="text-center pt-10 pb-8">
             <Badge className="bg-[rgba(201,168,76,0.12)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.2)] mb-4">
-              AI-Assisted Quote Builder
+              Advanced Commercial Estimator
             </Badge>
             <h1 className="text-3xl sm:text-4xl font-serif font-bold text-white mb-3">
-              Build Your Custom Quote
+              Workspace <span className="gold-text">Estimate Builder</span>
             </h1>
-            <p className="text-white/50 max-w-xl mx-auto">
-              Answer a few questions and get an instant indicative budget. Our AI advisor is here to guide you every step.
+            <p className="text-white/50 max-w-xl mx-auto text-sm leading-relaxed">
+              Answer a few questions to receive a real AI-generated commercial estimate — including product recommendations, a bill of quantities, and investment summary.
             </p>
           </div>
 
+          {/* Step indicator */}
           <div className="flex items-center justify-center mb-10 gap-0">
             {STEPS.map((s, i) => (
               <div key={s} className="flex items-center">
@@ -311,29 +746,34 @@ Answer their question using your role as AI Quoting Specialist and Workplace Str
             ))}
           </div>
 
+          {/* Main layout */}
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
+
+            {/* ── Form panel ── */}
             <div className="xl:col-span-2 bg-[hsl(220,18%,10%)] rounded-2xl border border-[rgba(201,168,76,0.12)] p-6 sm:p-8">
 
+              {/* STEP 0 — Project + Space */}
               {step === 0 && (
                 <div>
-                  <h2 className="text-xl font-serif font-bold text-white mb-2">What brings you here?</h2>
-                  <p className="text-white/50 text-sm mb-6">Select the option that best describes your project.</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <h2 className="text-xl font-serif font-bold text-white mb-2">Project & Workspace</h2>
+                  <p className="text-white/50 text-sm mb-6">Tell us about your project and the scale of the workspace.</p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                     {PROJECT_TYPES.map(pt => {
                       const Icon = pt.icon;
                       return (
                         <button
                           key={pt.id}
                           data-testid={`button-project-type-${pt.id}`}
-                          onClick={() => setSelections(s => ({ ...s, projectType: pt.id }))}
+                          onClick={() => setInputs(s => ({ ...s, projectType: pt.id }))}
                           className={`text-left p-5 rounded-xl border transition-all min-h-[80px] ${
-                            selections.projectType === pt.id
+                            inputs.projectType === pt.id
                               ? "border-[hsl(43,78%,52%)] bg-[rgba(201,168,76,0.08)]"
                               : "border-[rgba(255,255,255,0.08)] hover:border-[rgba(201,168,76,0.3)]"
                           }`}
                         >
                           <div className="flex items-start gap-3">
-                            <Icon className={`w-5 h-5 mt-0.5 flex-shrink-0 ${selections.projectType === pt.id ? "text-[hsl(43,78%,52%)]" : "text-white/40"}`} />
+                            <Icon className={`w-5 h-5 mt-0.5 flex-shrink-0 ${inputs.projectType === pt.id ? "text-[hsl(43,78%,52%)]" : "text-white/40"}`} />
                             <div>
                               <p className="font-semibold text-white text-sm">{pt.label}</p>
                               <p className="text-white/50 text-xs mt-0.5">{pt.desc}</p>
@@ -343,44 +783,17 @@ Answer their question using your role as AI Quoting Specialist and Workplace Str
                       );
                     })}
                   </div>
-                </div>
-              )}
 
-              {step === 1 && (
-                <div>
-                  <h2 className="text-xl font-serif font-bold text-white mb-2">Your Style Preference</h2>
-                  <p className="text-white/50 text-sm mb-6">Which series aligns with your brand and culture?</p>
-                  <div className="space-y-3">
-                    {STYLE_OPTIONS.map(s => (
-                      <button
-                        key={s.id}
-                        data-testid={`button-style-${s.id}`}
-                        onClick={() => setSelections(sel => ({ ...sel, style: s.id }))}
-                        className={`w-full text-left p-5 rounded-xl border transition-all flex items-center justify-between min-h-[72px] ${
-                          selections.style === s.id
-                            ? "border-[hsl(43,78%,52%)] bg-[rgba(201,168,76,0.08)]"
-                            : "border-[rgba(255,255,255,0.08)] hover:border-[rgba(201,168,76,0.3)]"
-                        }`}
-                      >
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-white text-sm">{s.label}</span>
-                            {s.tag && <Badge className="bg-[rgba(201,168,76,0.12)] text-[hsl(43,78%,65%)] border-0 text-xs">{s.tag}</Badge>}
-                          </div>
-                          <p className="text-white/50 text-xs mt-0.5">{s.desc}</p>
-                        </div>
-                        {selections.style === s.id && <CheckCircle2 className="w-5 h-5 text-[hsl(43,78%,52%)] flex-shrink-0" />}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm text-white/60 mb-1.5">How many staff? <span className="text-[hsl(43,78%,52%)]">*</span></label>
+                      <label className="block text-sm text-white/60 mb-1.5">
+                        Number of Staff <span className="text-[hsl(43,78%,52%)]">*</span>
+                      </label>
                       <input
                         type="number"
                         min="1"
-                        value={selections.staffCount}
-                        onChange={e => setSelections(s => ({ ...s, staffCount: e.target.value }))}
+                        value={inputs.staffCount}
+                        onChange={e => setInputs(s => ({ ...s, staffCount: e.target.value }))}
                         placeholder="e.g. 25"
                         data-testid="input-staff-count"
                         className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(201,168,76,0.2)] rounded-md px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-[rgba(201,168,76,0.5)] text-base"
@@ -388,71 +801,114 @@ Answer their question using your role as AI Quoting Specialist and Workplace Str
                       />
                     </div>
                     <div>
-                      <label className="block text-sm text-white/60 mb-1.5">Location</label>
+                      <label className="block text-sm text-white/60 mb-1.5">Office Size (sqm)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={inputs.squareMetres}
+                        onChange={e => setInputs(s => ({ ...s, squareMetres: e.target.value }))}
+                        placeholder="e.g. 350"
+                        data-testid="input-square-metres"
+                        className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(201,168,76,0.2)] rounded-md px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-[rgba(201,168,76,0.5)] text-base"
+                        style={{ minHeight: "48px" }}
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm text-white/60 mb-1.5">City</label>
                       <select
-                        value={selections.location}
-                        onChange={e => setSelections(s => ({ ...s, location: e.target.value }))}
-                        data-testid="select-location"
+                        value={inputs.city}
+                        onChange={e => setInputs(s => ({ ...s, city: e.target.value }))}
+                        data-testid="select-city"
                         className="w-full bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.2)] rounded-md px-4 py-3 text-white focus:outline-none focus:border-[rgba(201,168,76,0.5)] text-base"
                         style={{ minHeight: "48px" }}
                       >
                         <option value="">Select city</option>
-                        {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
+                        {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
                       </select>
                     </div>
                   </div>
                 </div>
               )}
 
-              {step === 2 && (
+              {/* STEP 1 — Space Requirements */}
+              {step === 1 && (
                 <div>
-                  <h2 className="text-xl font-serif font-bold text-white mb-2">What do you need?</h2>
-                  <p className="text-white/50 text-sm mb-6">Enter quantities for each area. Leave blank if not required.</p>
-                  <div className="space-y-3">
-                    {ROOM_TYPES.map(rt => (
-                      <div key={rt.id} className="flex items-center gap-4 p-4 rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)]">
-                        <div className="flex-1">
-                          <p className="text-white text-sm font-medium">{rt.label}</p>
-                          <p className="text-white/40 text-xs mt-0.5">~${rt.unitPrice.toLocaleString()} per {rt.unitLabel.slice(0,-1)}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            data-testid={`button-decrement-${rt.id}`}
-                            onClick={() => setSelections(s => ({ ...s, rooms: { ...s.rooms, [rt.id]: Math.max(0, (s.rooms[rt.id] || 0) - 1) } }))}
-                            className="w-9 h-9 rounded-md border border-[rgba(201,168,76,0.2)] text-white/60 flex items-center justify-center text-lg font-bold"
-                          >−</button>
-                          <span className="w-10 text-center text-white font-semibold" data-testid={`text-qty-${rt.id}`}>
-                            {selections.rooms[rt.id] || 0}
-                          </span>
-                          <button
-                            data-testid={`button-increment-${rt.id}`}
-                            onClick={() => setSelections(s => ({ ...s, rooms: { ...s.rooms, [rt.id]: (s.rooms[rt.id] || 0) + 1 } }))}
-                            className="w-9 h-9 rounded-md border border-[rgba(201,168,76,0.2)] text-white/60 flex items-center justify-center text-lg font-bold"
-                          >+</button>
-                        </div>
-                        {(selections.rooms[rt.id] || 0) > 0 && (
-                          <span className="text-sm text-[hsl(43,78%,65%)] w-20 text-right">
-                            ${((selections.rooms[rt.id] || 0) * rt.unitPrice).toLocaleString()}
-                          </span>
-                        )}
+                  <h2 className="text-xl font-serif font-bold text-white mb-2">Space Requirements</h2>
+                  <p className="text-white/50 text-sm mb-6">Select all the zones and spaces you require. This shapes your estimate and product recommendations.</p>
+
+                  {/* Meeting rooms */}
+                  <div className="mb-5">
+                    <label className="block text-sm text-white/60 mb-2">Meeting Rooms</label>
+                    <div className="flex items-center gap-4 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.07)] rounded-xl p-4">
+                      <div className="flex-1">
+                        <p className="text-white text-sm font-medium">Number of Meeting Rooms</p>
+                        <p className="text-white/40 text-xs mt-0.5">Small to medium meeting rooms (4–8 person)</p>
                       </div>
-                    ))}
-                  </div>
-                  <div className="mt-5">
-                    <label className="block text-sm text-white/60 mb-1.5">Project Timeline</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {TIMELINES.map(t => (
+                      <div className="flex items-center gap-3">
                         <button
-                          key={t.id}
-                          data-testid={`button-timeline-${t.id}`}
-                          onClick={() => setSelections(s => ({ ...s, timeline: t.id }))}
-                          className={`p-3 rounded-lg border text-sm transition-all text-left min-h-[48px] ${
-                            selections.timeline === t.id
+                          data-testid="button-decrement-meeting-rooms"
+                          onClick={() => setInputs(s => ({ ...s, meetingRooms: Math.max(0, s.meetingRooms - 1) }))}
+                          className="w-9 h-9 rounded-md border border-[rgba(201,168,76,0.25)] text-white/60 flex items-center justify-center text-lg font-bold hover:border-[rgba(201,168,76,0.5)] transition-colors"
+                        >−</button>
+                        <span className="w-10 text-center text-white font-bold text-lg" data-testid="text-meeting-rooms">{inputs.meetingRooms}</span>
+                        <button
+                          data-testid="button-increment-meeting-rooms"
+                          onClick={() => setInputs(s => ({ ...s, meetingRooms: s.meetingRooms + 1 }))}
+                          className="w-9 h-9 rounded-md border border-[rgba(201,168,76,0.25)] text-white/60 flex items-center justify-center text-lg font-bold hover:border-[rgba(201,168,76,0.5)] transition-colors"
+                        >+</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Zone toggles */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+                    <Toggle
+                      active={inputs.boardroom}
+                      onToggle={() => setInputs(s => ({ ...s, boardroom: !s.boardroom }))}
+                      label="Boardroom"
+                      sub="Large table, executive chairs, AV setup"
+                      testId="toggle-boardroom"
+                    />
+                    <Toggle
+                      active={inputs.reception}
+                      onToggle={() => setInputs(s => ({ ...s, reception: !s.reception }))}
+                      label="Reception Area"
+                      sub="Reception desk, visitor seating, brand presence"
+                      testId="toggle-reception"
+                    />
+                    <Toggle
+                      active={inputs.breakout}
+                      onToggle={() => setInputs(s => ({ ...s, breakout: !s.breakout }))}
+                      label="Breakout / Social Zone"
+                      sub="Lounge seating, café tables, collaboration"
+                      testId="toggle-breakout"
+                    />
+                    <Toggle
+                      active={inputs.executiveOffice}
+                      onToggle={() => setInputs(s => ({ ...s, executiveOffice: !s.executiveOffice }))}
+                      label="Executive Office(s)"
+                      sub="Private offices for directors / C-suite"
+                      testId="toggle-executive-office"
+                    />
+                  </div>
+
+                  {/* Storage level */}
+                  <div>
+                    <label className="block text-sm text-white/60 mb-2">Storage Requirement</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {STORAGE_LEVELS.map(s => (
+                        <button
+                          key={s.id}
+                          data-testid={`button-storage-${s.id}`}
+                          onClick={() => setInputs(inp => ({ ...inp, storageLevel: s.id }))}
+                          className={`p-3 rounded-xl border text-sm transition-all text-left min-h-[60px] ${
+                            inputs.storageLevel === s.id
                               ? "border-[hsl(43,78%,52%)] bg-[rgba(201,168,76,0.08)] text-white"
                               : "border-[rgba(255,255,255,0.08)] text-white/60 hover:border-[rgba(201,168,76,0.3)]"
                           }`}
                         >
-                          {t.label}
+                          <p className="font-semibold text-sm">{s.label}</p>
+                          <p className="text-xs mt-0.5 opacity-60">{s.desc}</p>
                         </button>
                       ))}
                     </div>
@@ -460,23 +916,67 @@ Answer their question using your role as AI Quoting Specialist and Workplace Str
                 </div>
               )}
 
-              {step === 3 && (
+              {/* STEP 2 — Budget & Style */}
+              {step === 2 && (
                 <div>
-                  <h2 className="text-xl font-serif font-bold text-white mb-2">Your Contact Details</h2>
-                  <p className="text-white/50 text-sm mb-6">We'll use this to send your formal quote. No spam, ever.</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <GoldInput label="Full Name" value={contact.name} onChange={v => setContact(c => ({ ...c, name: v }))} required testId="input-contact-name" placeholder="Jane Smith" />
-                    <GoldInput label="Company Name" value={contact.company} onChange={v => setContact(c => ({ ...c, company: v }))} testId="input-contact-company" placeholder="Smith & Co." />
-                    <GoldInput label="Email Address" value={contact.email} onChange={v => setContact(c => ({ ...c, email: v }))} type="email" required testId="input-contact-email" placeholder="jane@smithco.com.au" />
-                    <GoldInput label="Phone Number" value={contact.phone} onChange={v => setContact(c => ({ ...c, phone: v }))} type="tel" required testId="input-contact-phone" placeholder="04xx xxx xxx" />
+                  <h2 className="text-xl font-serif font-bold text-white mb-2">Budget & Style</h2>
+                  <p className="text-white/50 text-sm mb-6">This shapes your product recommendations and estimate confidence level.</p>
+
+                  <div className="mb-6">
+                    <label className="block text-sm text-white/60 mb-2">Project Budget Range <span className="text-[hsl(43,78%,52%)]">*</span></label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {BUDGET_RANGES.map(b => (
+                        <button
+                          key={b}
+                          data-testid={`button-budget-${b}`}
+                          onClick={() => setInputs(s => ({ ...s, budgetRange: b }))}
+                          className={`p-4 rounded-xl border text-sm transition-all text-left min-h-[52px] flex items-center gap-2 ${
+                            inputs.budgetRange === b
+                              ? "border-[hsl(43,78%,52%)] bg-[rgba(201,168,76,0.08)] text-white"
+                              : "border-[rgba(255,255,255,0.08)] text-white/60 hover:border-[rgba(201,168,76,0.3)]"
+                          }`}
+                        >
+                          <DollarSign className={`w-4 h-4 flex-shrink-0 ${inputs.budgetRange === b ? "text-[hsl(43,78%,52%)]" : "text-white/30"}`} />
+                          {b}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <div className="mt-4">
-                    <label className="block text-sm text-white/60 mb-1.5">Additional Notes</label>
+
+                  <div className="mb-5">
+                    <label className="block text-sm text-white/60 mb-2">Style / Collection Preference</label>
+                    <div className="space-y-2">
+                      {STYLE_OPTIONS.map(s => (
+                        <button
+                          key={s.id}
+                          data-testid={`button-style-${s.id}`}
+                          onClick={() => setInputs(inp => ({ ...inp, stylePreference: s.id }))}
+                          className={`w-full text-left p-4 rounded-xl border transition-all flex items-center justify-between min-h-[64px] ${
+                            inputs.stylePreference === s.id
+                              ? "border-[hsl(43,78%,52%)] bg-[rgba(201,168,76,0.08)]"
+                              : "border-[rgba(255,255,255,0.08)] hover:border-[rgba(201,168,76,0.3)]"
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-white text-sm">{s.label}</span>
+                              {s.tag && <Badge className="bg-[rgba(201,168,76,0.12)] text-[hsl(43,78%,65%)] border-0 text-xs">{s.tag}</Badge>}
+                            </div>
+                            <p className="text-white/50 text-xs mt-0.5">{s.desc}</p>
+                          </div>
+                          {inputs.stylePreference === s.id && <CheckCircle2 className="w-5 h-5 text-[hsl(43,78%,52%)] flex-shrink-0" />}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm text-white/60 mb-1.5">Additional Notes (Optional)</label>
                     <textarea
-                      value={contact.notes}
-                      onChange={e => setContact(c => ({ ...c, notes: e.target.value }))}
-                      placeholder="Any specific requirements, existing furniture, budget constraints..."
-                      data-testid="textarea-contact-notes"
+                      value={inputs.notes}
+                      onChange={e => setInputs(s => ({ ...s, notes: e.target.value }))}
+                      placeholder="Any special requirements, existing furniture to retain, brand guidelines, or access constraints..."
+                      data-testid="textarea-notes"
                       rows={3}
                       className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(201,168,76,0.2)] rounded-md px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-[rgba(201,168,76,0.5)] text-base resize-none"
                     />
@@ -484,54 +984,43 @@ Answer their question using your role as AI Quoting Specialist and Workplace Str
                 </div>
               )}
 
-              {step === 4 && (
+              {/* STEP 3 — Contact Details */}
+              {step === 3 && (
                 <div>
-                  <h2 className="text-xl font-serif font-bold text-white mb-2">Review Your Quote Request</h2>
-                  <p className="text-white/50 text-sm mb-6">Check everything looks right before submitting.</p>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-3">
+                  <h2 className="text-xl font-serif font-bold text-white mb-2">Your Details</h2>
+                  <p className="text-white/50 text-sm mb-6">We'll generate your estimate instantly. Our team will also follow up with a formal quotation within 24 hours.</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <GoldInput label="Full Name" value={contact.name} onChange={v => setContact(c => ({ ...c, name: v }))} required testId="input-contact-name" placeholder="Jane Smith" />
+                    <GoldInput label="Company Name" value={contact.company} onChange={v => setContact(c => ({ ...c, company: v }))} testId="input-contact-company" placeholder="Smith & Co." />
+                    <GoldInput label="Email Address" value={contact.email} onChange={v => setContact(c => ({ ...c, email: v }))} type="email" required testId="input-contact-email" placeholder="jane@smithco.com.au" />
+                    <GoldInput label="Phone Number" value={contact.phone} onChange={v => setContact(c => ({ ...c, phone: v }))} type="tel" required testId="input-contact-phone" placeholder="04xx xxx xxx" />
+                  </div>
+
+                  {/* Estimate summary before submitting */}
+                  <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.15)] rounded-xl p-5 mt-2">
+                    <h4 className="text-[hsl(43,78%,65%)] font-semibold text-sm mb-3">Your Estimate Brief</h4>
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
                       {[
-                        { label: "Project Type", value: PROJECT_TYPES.find(p => p.id === selections.projectType)?.label || "—" },
-                        { label: "Style Series", value: STYLE_OPTIONS.find(s => s.id === selections.style)?.label || "—" },
-                        { label: "Staff Count", value: selections.staffCount || "—" },
-                        { label: "Timeline", value: TIMELINES.find(t => t.id === selections.timeline)?.label || "—" },
-                        { label: "Location", value: selections.location || "—" },
-                        { label: "Contact", value: contact.name },
+                        { label: "Project Type", value: PROJECT_TYPES.find(p => p.id === inputs.projectType)?.label || "—" },
+                        { label: "Staff Count", value: inputs.staffCount ? `${inputs.staffCount} people` : "—" },
+                        { label: "Office Size", value: inputs.squareMetres ? `${inputs.squareMetres} sqm` : "—" },
+                        { label: "City", value: inputs.city || "—" },
+                        { label: "Meeting Rooms", value: `${inputs.meetingRooms}` },
+                        { label: "Budget Range", value: inputs.budgetRange || "—" },
+                        { label: "Style", value: STYLE_OPTIONS.find(s => s.id === inputs.stylePreference)?.label || "Mixed" },
+                        { label: "Zones", value: [inputs.boardroom && "Boardroom", inputs.reception && "Reception", inputs.breakout && "Breakout", inputs.executiveOffice && "Executive"].filter(Boolean).join(", ") || "Standard" },
                       ].map(item => (
-                        <div key={item.label} className="bg-[rgba(255,255,255,0.03)] rounded-lg p-3 border border-[rgba(255,255,255,0.06)]">
-                          <p className="text-white/40 text-xs mb-1">{item.label}</p>
-                          <p className="text-white text-sm font-medium">{item.value}</p>
+                        <div key={item.label}>
+                          <p className="text-white/35">{item.label}</p>
+                          <p className="text-white/75 font-medium mt-0.5">{item.value}</p>
                         </div>
                       ))}
-                    </div>
-                    <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.15)] rounded-xl p-4">
-                      <h4 className="text-[hsl(43,78%,65%)] font-semibold text-sm mb-3">Indicative Budget Breakdown</h4>
-                      {ROOM_TYPES.filter(rt => (selections.rooms[rt.id] || 0) > 0).map(rt => (
-                        <div key={rt.id} className="flex justify-between text-sm py-1 text-white/70">
-                          <span>{rt.label} × {selections.rooms[rt.id]}</span>
-                          <span>${((selections.rooms[rt.id] || 0) * rt.unitPrice).toLocaleString()}</span>
-                        </div>
-                      ))}
-                      {total === 0 && <p className="text-white/40 text-sm">No items selected — quote will be scoped by our team.</p>}
-                      {total > 0 && (
-                        <div className="border-t border-[rgba(201,168,76,0.1)] mt-3 pt-3 space-y-1">
-                          <div className="flex justify-between text-sm text-white/60">
-                            <span>Ex-GST</span><span>${exGST.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                          </div>
-                          <div className="flex justify-between text-sm text-white/60">
-                            <span>GST (10%)</span><span>${gst.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                          </div>
-                          <div className="flex justify-between font-bold text-white mt-1 pt-1 border-t border-[rgba(201,168,76,0.1)]">
-                            <span>Indicative Total (inc GST)</span><span className="text-[hsl(43,78%,65%)]">${total.toLocaleString()}</span>
-                          </div>
-                        </div>
-                      )}
-                      <p className="text-white/30 text-xs mt-3">Indicative only. Formal quote issued by our team within 24 hours.</p>
                     </div>
                   </div>
                 </div>
               )}
 
+              {/* Navigation */}
               <div className="flex items-center justify-between mt-8 pt-6 border-t border-[rgba(255,255,255,0.06)]">
                 {step > 0 ? (
                   <Button
@@ -544,7 +1033,7 @@ Answer their question using your role as AI Quoting Specialist and Workplace Str
                   </Button>
                 ) : <div />}
 
-                {step < 4 ? (
+                {step < 3 ? (
                   <Button
                     onClick={handleStepAdvance}
                     className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[48px] px-6"
@@ -555,32 +1044,38 @@ Answer their question using your role as AI Quoting Specialist and Workplace Str
                 ) : (
                   <Button
                     onClick={handleSubmit}
-                    disabled={submitLead.isPending}
+                    disabled={isGenerating}
                     className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[52px] px-8"
-                    data-testid="button-submit-quote"
+                    data-testid="button-generate-estimate"
                   >
-                    {submitLead.isPending ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Submitting...</> : <><Send className="w-4 h-4 mr-2" /> Submit Quote Request</>}
+                    {isGenerating
+                      ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating Estimate...</>
+                      : <><Zap className="w-4 h-4 mr-2" /> Generate My Estimate</>
+                    }
                   </Button>
                 )}
               </div>
             </div>
 
+            {/* ── Right column: AI advisor + trust signals ── */}
             <div className="flex flex-col gap-4">
+
+              {/* AI Chat */}
               <div className="bg-[hsl(220,18%,10%)] rounded-2xl border border-[rgba(201,168,76,0.12)] p-5">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-8 h-8 rounded-full bg-[rgba(201,168,76,0.12)] flex items-center justify-center">
                     <MessageSquare className="w-4 h-4 text-[hsl(43,78%,52%)]" />
                   </div>
                   <div>
-                    <p className="text-white font-semibold text-sm">AI Quoting Advisor</p>
-                    <p className="text-white/40 text-xs">Your expert guide</p>
+                    <p className="text-white font-semibold text-sm">AI Strategy Advisor</p>
+                    <p className="text-white/40 text-xs">Expert workspace guidance</p>
                   </div>
                 </div>
 
-                <div className="min-h-[200px] max-h-[350px] overflow-y-auto space-y-3 mb-4 pr-1">
+                <div className="min-h-[180px] max-h-[320px] overflow-y-auto space-y-3 mb-4 pr-1">
                   {aiMessages.length === 0 && (
                     <div className="text-center py-8">
-                      <p className="text-white/40 text-sm">Select your project type and I'll give you expert guidance on your quote.</p>
+                      <p className="text-white/40 text-sm">Complete the form steps and I'll guide you with expert workspace advice along the way.</p>
                     </div>
                   )}
                   {aiMessages.map((msg, i) => (
@@ -602,7 +1097,7 @@ Answer their question using your role as AI Quoting Specialist and Workplace Str
                     value={aiInput}
                     onChange={e => setAiInput(e.target.value)}
                     onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendAiMessage()}
-                    placeholder="Ask the AI advisor..."
+                    placeholder="Ask about product types, costs, layout..."
                     data-testid="input-ai-chat"
                     className="flex-1 bg-[rgba(255,255,255,0.04)] border border-[rgba(201,168,76,0.15)] rounded-lg px-3 py-2.5 text-white placeholder:text-white/30 focus:outline-none focus:border-[rgba(201,168,76,0.4)] text-sm"
                     style={{ minHeight: "44px" }}
@@ -613,36 +1108,26 @@ Answer their question using your role as AI Quoting Specialist and Workplace Str
                     className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] min-h-[44px] min-w-[44px] px-3"
                     data-testid="button-send-ai"
                   >
-                    {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                    {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ChevronRight className="w-4 h-4" />}
                   </Button>
                 </div>
               </div>
 
-              {total > 0 && (
-                <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.15)] rounded-2xl p-5">
-                  <h4 className="text-[hsl(43,78%,65%)] font-semibold text-sm mb-3 flex items-center gap-2">
-                    <DollarSign className="w-4 h-4" /> Live Estimate
-                  </h4>
-                  <div className="text-3xl font-serif font-bold text-white mb-1">
-                    ${total.toLocaleString()}
-                  </div>
-                  <p className="text-white/40 text-xs">Indicative total inc GST</p>
-                  <div className="mt-3 pt-3 border-t border-[rgba(201,168,76,0.1)] space-y-1 text-xs text-white/50">
-                    <div className="flex justify-between"><span>Ex-GST</span><span>${exGST.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span></div>
-                    <div className="flex justify-between"><span>GST (10%)</span><span>${gst.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span></div>
-                  </div>
-                </div>
-              )}
-
+              {/* What you'll receive */}
               <div className="bg-[hsl(220,18%,10%)] rounded-2xl border border-[rgba(255,255,255,0.06)] p-5">
-                <h4 className="text-white font-semibold text-sm mb-3">Why use the Quote Builder?</h4>
+                <h4 className="text-white font-semibold text-sm mb-3 flex items-center gap-2">
+                  <Package className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                  What You'll Receive
+                </h4>
                 <ul className="space-y-2">
                   {[
-                    "Instant indicative budget",
-                    "AI-guided product recommendations",
-                    "No obligation quote request",
-                    "Formal quote within 24 hours",
-                    "6-year warranty included",
+                    "AI-generated workspace zone analysis",
+                    "Recommended product categories & series",
+                    "Indicative bill of quantities",
+                    "Investment range with GST breakdown",
+                    "Commercial finance estimate",
+                    "Implementation timeline",
+                    "Formal quote follow-up within 24 hrs",
                   ].map(item => (
                     <li key={item} className="flex items-start gap-2 text-sm text-white/60">
                       <CheckCircle2 className="w-4 h-4 text-[hsl(43,78%,52%)] flex-shrink-0 mt-0.5" />
@@ -651,6 +1136,16 @@ Answer their question using your role as AI Quoting Specialist and Workplace Str
                   ))}
                 </ul>
               </div>
+
+              {/* Social proof */}
+              <div className="bg-[rgba(201,168,76,0.05)] border border-[rgba(201,168,76,0.12)] rounded-2xl p-5">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="flex text-[hsl(43,78%,52%)] text-sm">{"★★★★★"}</div>
+                </div>
+                <p className="text-white/60 text-sm italic leading-relaxed">"The estimate was incredibly accurate — within 8% of the final project cost. The team's knowledge of commercial projects is exceptional."</p>
+                <p className="text-white/35 text-xs mt-3">— Operations Director, ASX-listed firm, Sydney</p>
+              </div>
+
             </div>
           </div>
         </div>

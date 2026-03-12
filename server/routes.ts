@@ -730,6 +730,159 @@ ${allUrls.map(u => `  <url>
     }
   });
 
+  /**
+   * Advanced Commercial Estimator — POST /api/estimate
+   * Takes structured workspace inputs, runs the space-planning AI, generates
+   * a QuoteSummary via generatePackageAndQuote, saves a lead record, and returns
+   * the full QuoteSummary to the frontend for premium display.
+   */
+  app.post("/api/estimate", async (req, res) => {
+    try {
+      const {
+        name, company = "", email, phone,
+        staffCount, squareMetres, projectType, meetingRooms, boardroom,
+        reception, breakout, executiveOffice, storageLevel, budgetRange,
+        stylePreference, city, notes,
+      } = req.body;
+
+      if (!name || !email || !phone) {
+        return res.status(400).json({ success: false, message: "Name, email and phone are required." });
+      }
+
+      // Build the AI space planning prompt (reuse existing function)
+      const prompt = buildSpacePlanningPrompt({
+        name,
+        company,
+        city,
+        projectType: projectType || "Full Office Fitout",
+        squareMetres,
+        staffCount,
+        meetingRooms: meetingRooms ? String(meetingRooms) : undefined,
+        receptionRequired: Boolean(reception),
+        breakoutRequired: Boolean(breakout),
+        executiveOfficeRequired: Boolean(executiveOffice),
+        budgetRange,
+        stylePreference,
+        specialRequirements: [
+          boardroom ? "Boardroom required" : null,
+          storageLevel ? `Storage level: ${storageLevel}` : null,
+          notes || null,
+        ].filter(Boolean).join("; ") || undefined,
+      });
+
+      // Run space planning AI
+      let aiRec: any = null;
+      let quoteResult: { package: any; quote: any } | null = null;
+
+      try {
+        const aiResult = await openai.chat.completions.create({
+          model: "gpt-5-mini",
+          messages: [
+            { role: "system", content: buildAdvisorSystemPrompt() },
+            { role: "user", content: prompt },
+          ],
+        } as any);
+
+        const rawContent = (aiResult as any).choices?.[0]?.message?.content || "";
+        const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          aiRec = JSON.parse(jsonMatch[0]);
+          quoteResult = generatePackageAndQuote(aiRec, name, company, staffCount);
+        }
+      } catch (aiErr) {
+        console.error("[Estimate] AI generation failed:", aiErr);
+      }
+
+      // Build the opportunity score
+      const opp = scoreOpportunity({
+        type: "quote-builder",
+        name,
+        company,
+        officeSize: squareMetres ? `${squareMetres} sqm` : undefined,
+        staffCount,
+        budget: budgetRange,
+        timeline: undefined,
+        officeLocation: city,
+      });
+
+      // Create lead record with estimate data attached
+      const lead = await storage.createLead({
+        type: "quote-builder",
+        name,
+        company,
+        email,
+        phone,
+        officeSize: squareMetres ? `${squareMetres} sqm` : undefined,
+        staffCount,
+        budget: budgetRange,
+        officeLocation: city,
+        message: [
+          `Advanced Estimator Submission`,
+          `Project: ${projectType || "Full Fitout"} | Staff: ${staffCount || "?"}`,
+          `Sqm: ${squareMetres || "?"} | City: ${city || "?"}`,
+          `Meeting rooms: ${meetingRooms || 0} | Boardroom: ${boardroom ? "Yes" : "No"}`,
+          `Reception: ${reception ? "Yes" : "No"} | Breakout: ${breakout ? "Yes" : "No"}`,
+          `Executive offices: ${executiveOffice ? "Yes" : "No"} | Storage: ${storageLevel || "?"}`,
+          `Budget: ${budgetRange || "?"} | Style: ${stylePreference || "?"}`,
+          notes ? `Notes: ${notes}` : null,
+        ].filter(Boolean).join("\n"),
+        opportunityScore: opp.opportunityScore,
+        opportunityTier: opp.opportunityTier,
+        signalsJson: JSON.stringify(opp.signals),
+        nextAction: opp.nextAction,
+        estimatedValueRange: aiRec?.estimatedProjectValue || opp.estimatedValueRange || null,
+        estimateJson: quoteResult ? JSON.stringify(quoteResult.quote) : null,
+      } as any);
+
+      // Send admin notification (non-blocking)
+      sendLeadNotification({
+        name: lead.name,
+        company: lead.company ?? "",
+        email: lead.email,
+        phone: lead.phone,
+        officeLocation: city,
+        officeSize: squareMetres ? `${squareMetres} sqm` : undefined,
+        staffCount,
+        budget: budgetRange,
+        message: lead.message,
+        type: "Advanced Estimator",
+        opportunityScore: opp.opportunityScore,
+        opportunityTier: opp.opportunityTier,
+        estimatedValueRange: aiRec?.estimatedProjectValue || opp.estimatedValueRange || null,
+        nextAction: opp.nextAction,
+        signals: opp.signals,
+      }).catch((err) => console.error("[email] Estimate admin email failed:", err));
+
+      // Send customer confirmation (non-blocking)
+      sendQuoteRequestCustomerEmail({
+        name: lead.name,
+        company: lead.company ?? "",
+        email: lead.email,
+        officeSize: squareMetres ? `${squareMetres} sqm` : undefined,
+        staffCount,
+        budget: budgetRange,
+        type: "Advanced Estimator",
+      }).catch((err) => console.error("[email] Estimate customer email failed:", err));
+
+      res.json({
+        success: true,
+        leadId: lead.id,
+        quote: quoteResult?.quote || null,
+        aiSummary: aiRec?.clientBrief || null,
+        officeType: aiRec?.officeType || null,
+        workspaceZones: aiRec?.workspaceZones || [],
+        estimatedProjectValue: aiRec?.estimatedProjectValue || null,
+        implementationTimeline: aiRec?.implementationTimeline || null,
+        styleDirection: aiRec?.styleDirection || null,
+        keyConsiderations: aiRec?.keyConsiderations || [],
+        recommendedNextStep: aiRec?.recommendedNextStep || null,
+      });
+    } catch (error) {
+      console.error("[Estimate] Endpoint error:", error);
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
   app.post("/api/chat", async (req, res) => {
     try {
       const { messages, stream: useStream = true } = req.body as {

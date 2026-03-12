@@ -1,0 +1,388 @@
+SAFE SYSTEM EXTENSION — DO NOT OVERWRITE EXISTING PROMPTS OR REBUILD WORKING SYSTEMS
+
+You are upgrading the LIVE The Corporate Desk platform.
+
+You are in ZERO-FAILURE ADVANCED COMMERCIAL ESTIMATOR MODE.
+
+IMPORTANT:
+Do NOT rebuild the website.
+Do NOT remove the existing estimator.
+Do NOT break the planner, Stripe, webhook, emails, admin dashboard, product catalog, product routes, SEO pages, or mobile layout.
+Do NOT create fake demo outputs.
+Do NOT use placeholder prices or fake products if real catalog data exists.
+Do NOT ask the user questions.
+Audit first, then implement safely, then test thoroughly.
+
+==================================================
+PRIMARY OBJECTIVE
+==================================================
+
+Upgrade the current /quote-builder into a real advanced commercial workspace estimator that feels premium, works on the live site, and uses real business logic.
+
+The estimator must:
+- feel like a serious B2B office fit-out tool
+- produce believable project estimates
+- use real product catalog data where possible
+- integrate with planner data where available
+- store estimates against leads/admin records
+- help convert visitors into quote requests and strategy calls
+
+The final estimator must work cleanly on the live site without bullshit, without fake logic, and without breaking anything else.
+
+==================================================
+CURRENT PROBLEM
+==================================================
+
+The existing estimator is only a basic formula tool.
+
+It currently:
+- uses simple room-type estimation
+- does not generate a true bill of quantities
+- does not properly use real catalog structure
+- does not feel premium enough
+- is not strong enough for commercial buyers
+
+==================================================
+TARGET OUTCOME
+==================================================
+
+The new estimator must:
+
+1. collect meaningful workspace inputs
+2. calculate realistic furniture requirements
+3. map those requirements to real products or product categories
+4. generate an estimated bill of quantities
+5. show a professional project value range
+6. present a premium commercial summary
+7. push the user toward:
+   - Request Detailed Quote
+   - Book Strategy Call
+   - Upload Floor Plan / View AI Layout
+8. save estimate results in admin
+
+==================================================
+PHASE 1 — FULL AUDIT
+==================================================
+
+Before changing code, audit:
+
+- current /quote-builder route and components
+- any embed route such as /embed/quote-builder
+- current estimator formulas
+- current product catalog schema
+- current pricing fields
+- current variant logic
+- planner output schema
+- planning request records
+- admin dashboard / admin planning requests / lead records
+- any existing estimate storage fields
+- mobile estimator layout
+
+Return an internal map before implementing.
+
+Do not guess.
+Do not replace working logic until you understand it.
+
+==================================================
+PHASE 2 — INPUT MODEL
+==================================================
+
+Upgrade the estimator input model to support commercial workspace estimation.
+
+Inputs should include at minimum:
+
+- office size in sqm
+- staff count
+- office type
+- number of meeting rooms
+- boardroom yes/no
+- reception yes/no
+- breakout area yes/no
+- storage requirement
+- executive office yes/no
+- budget level
+- style / range preference if available
+
+The form must remain simple enough for conversion, but detailed enough to support a believable estimate.
+
+Do not overload the user with unnecessary fields.
+
+==================================================
+PHASE 3 — ESTIMATION LOGIC
+==================================================
+
+Build a real commercial estimation engine.
+
+The estimator must calculate likely furniture needs based on the user’s inputs.
+
+Examples of logic:
+- staff count → workstation / chair quantity
+- meeting room count → meeting table + meeting chair quantity
+- boardroom yes → boardroom table + boardroom chairs
+- reception yes → reception desk + waiting seating
+- breakout yes → lounge seating / occasional tables
+- storage requirement → storage units / credenzas / filing
+
+The engine must produce:
+- recommended furniture categories
+- likely quantities
+- estimated pricing range
+- confidence level if appropriate
+
+If real SKU mapping is available, use it.
+If not, use real product categories and real average category pricing from the catalog.
+
+Do not use random hardcoded fantasy prices if real data already exists.
+
+==================================================
+PHASE 4 — PRODUCT / SKU MAPPING
+==================================================
+
+Where possible, connect estimate items to real catalog data.
+
+Use:
+- product categories
+- ranges / collections
+- core product models
+- size / finish variants where relevant
+
+The estimator should try to produce a bill-of-quantities style output including:
+
+- product/category name
+- SKU or core model where available
+- quantity
+- estimated unit price
+- estimated line total
+
+If exact SKU selection is too rigid for first pass:
+- use best-fit real product family/category
+- preserve premium credibility
+- label estimate as indicative, not final quote
+
+==================================================
+PHASE 5 — VARIANT / RANGE AWARENESS
+==================================================
+
+The estimator must respect the catalog structure:
+
+CATEGORY
+→ RANGE / COLLECTION
+→ PRODUCT MODEL
+→ VARIANTS
+
+Do not treat every size as a separate product.
+
+If one desk model exists in multiple sizes:
+- estimate against the core model
+- use size as variant logic
+- do not produce duplicate line items unless genuinely required
+
+If style/range preference exists:
+- bias recommendations toward that range
+- maintain consistency in the suggested package
+
+==================================================
+PHASE 6 — COMMERCIAL PRICE LOGIC
+==================================================
+
+The estimator must use commercially sensible pricing.
+
+Where possible include:
+- product price
+- quantity
+- subtotal
+- indicative delivery / installation allowance if appropriate
+- estimated project total range
+
+If exact freight/install values are not available:
+- use a clearly labelled estimate allowance
+- keep it believable and commercially realistic
+
+Do not underprice.
+Do not output suspiciously neat fake numbers.
+Use sensible ranges where uncertainty exists.
+
+==================================================
+PHASE 7 — PLANNER INTEGRATION
+==================================================
+
+If planner data already exists for a user / request, the estimator must be able to use it.
+
+Examples:
+- staff count from planner
+- detected zones
+- office type
+- meeting room requirements
+- breakout requirement
+- executive office requirement
+
+If planner result exists:
+- prefill or enhance estimate logic
+- align estimator recommendations with planner output
+
+Do not break the existing AI planner flow.
+
+==================================================
+PHASE 8 — PREMIUM FRONTEND OUTPUT
+==================================================
+
+The estimator results page must look premium and professional.
+
+Required output sections:
+
+1. Workspace Estimate Summary
+2. Recommended Furniture Mix
+3. Estimated Bill of Quantities
+4. Estimated Investment Range
+5. What This Covers
+6. Recommended Next Step
+
+Use language that feels commercially intelligent and premium.
+
+Design style:
+- clean
+- spacious
+- professional
+- Apple / Herman Miller / premium consultancy feel
+- strong hierarchy
+- no clutter
+- mobile-friendly
+
+==================================================
+PHASE 9 — CALLS TO ACTION
+==================================================
+
+At the end of the estimate show strong commercial actions:
+
+- Request Detailed Quote
+- Book Strategy Call
+- Upload Floor Plan / Get AI Layout
+- Finance Your Workspace (if relevant)
+
+These CTAs must be integrated cleanly and not feel spammy.
+
+==================================================
+PHASE 10 — ADMIN / DATA STORAGE
+==================================================
+
+Store the estimate results against the relevant record where possible.
+
+Persist:
+- key inputs
+- estimate summary
+- estimated value range
+- recommended furniture mix
+- estimated quantities
+- timestamp
+- linked lead/planning request if available
+
+Ensure admin can see:
+- estimate value
+- project type
+- estimate details
+- next action opportunity
+
+Do not break existing admin records.
+
+==================================================
+PHASE 11 — EMAIL / LEAD SUPPORT
+==================================================
+
+If the site already has email automation, extend it safely.
+
+Admin emails should include:
+- estimate request type
+- contact name
+- company
+- staff count
+- office size
+- estimated project value
+- key recommended categories
+- admin link if available
+
+Customer-facing follow-up should remain premium and professional if triggered.
+
+Do not break current email flow.
+
+==================================================
+PHASE 12 — EMBED / WORDPRESS COMPATIBILITY
+==================================================
+
+If /embed/quote-builder exists, preserve it.
+
+Ensure the upgraded estimator still works:
+- on the standalone route
+- in the embedded route if currently used
+- on desktop and mobile
+
+Do not break current WordPress embedding behaviour.
+
+==================================================
+PHASE 13 — QUALITY RULES
+==================================================
+
+This estimator must feel like it was built by a serious commercial office planning company.
+
+It must NOT feel like:
+- a toy calculator
+- a cheap home office quote form
+- a fake AI demo
+- a placeholder estimator
+- a random number generator
+
+It must feel:
+- commercially credible
+- grounded
+- useful
+- premium
+- conversion-focused
+
+==================================================
+PHASE 14 — TESTING
+==================================================
+
+Before completion, test all of the following:
+
+1. estimator route loads
+2. estimator embed route loads if used
+3. form submission works
+4. estimate output renders correctly
+5. calculation logic is believable
+6. product/category mapping works
+7. planner integration works if data exists
+8. admin record storage works
+9. email flow still works if connected
+10. mobile layout is clean
+11. desktop layout is clean
+12. planner still works
+13. product catalog still works
+14. Stripe/payment still works
+15. no critical routes are broken
+
+==================================================
+PHASE 15 — FINAL REPORT
+==================================================
+
+Return:
+- files audited
+- files modified
+- old estimator weaknesses found
+- new estimation logic implemented
+- how product/category mapping works
+- whether planner integration was added
+- what is stored in admin
+- what was tested
+- confirmation that existing live systems still work
+
+==================================================
+EXECUTION RULE
+==================================================
+
+Execute in phases.
+Audit first.
+Implement the smallest safe upgrade.
+Test after each stage.
+Do not stop.
+Do not ask questions.
+Do not overwrite existing prompts.
+Complete the advanced estimator properly on the live site.
