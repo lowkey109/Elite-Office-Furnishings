@@ -33,6 +33,21 @@ function getStripeClient(): Stripe | null {
   return new Stripe(key, { apiVersion: "2024-06-20" } as any);
 }
 
+// ─── Lightweight in-memory response cache (TTL-based) ─────────────────────────
+const _cache = new Map<string, { data: any; expiresAt: number }>();
+function getCached<T>(key: string): T | null {
+  const entry = _cache.get(key);
+  if (entry && entry.expiresAt > Date.now()) return entry.data as T;
+  _cache.delete(key);
+  return null;
+}
+function setCached(key: string, data: any, ttlMs: number): void {
+  _cache.set(key, { data, expiresAt: Date.now() + ttlMs });
+}
+function invalidateCache(key: string): void {
+  _cache.delete(key);
+}
+
 // ─── Multer file upload setup ─────────────────────────────────────────────────
 const uploadDir = path.join(process.cwd(), "uploads", "planning-requests");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
@@ -325,7 +340,10 @@ ${allUrls.map(u => `  <url>
 
   // Product catalog — supplier products database
   app.get("/api/products", (_req, res) => {
+    const hit = getCached<any[]>("products:all");
+    if (hit) return res.json(hit);
     const catalog = loadProductCatalog();
+    setCached("products:all", catalog.products, 300_000);
     res.json(catalog.products);
   });
 
@@ -928,7 +946,7 @@ ${allUrls.map(u => `  <url>
             { role: "system", content: buildAdvisorSystemPrompt() },
             { role: "user", content: prompt },
           ],
-        } as any);
+        } as any, { signal: AbortSignal.timeout(25000) });
 
         const rawContent = (aiResult as any).choices?.[0]?.message?.content || "";
         const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
@@ -936,8 +954,9 @@ ${allUrls.map(u => `  <url>
           aiRec = JSON.parse(jsonMatch[0]);
           quoteResult = generatePackageAndQuote(aiRec, name, company, staffCount);
         }
-      } catch (aiErr) {
-        console.error("[Estimate] AI generation failed:", aiErr);
+      } catch (aiErr: any) {
+        const isTimeout = aiErr?.name === "AbortError" || aiErr?.message?.includes("timeout");
+        console.error("[Estimate] AI generation failed:", isTimeout ? "Timeout after 25s" : aiErr);
       }
 
       // Build the opportunity score
@@ -1306,6 +1325,7 @@ ${allUrls.map(u => `  <url>
       }
       const updated = await storage.updateProspectedLeadStatus(id, status);
       if (!updated) return res.status(404).json({ error: "Lead not found" });
+      invalidateCache("deal-forecast");
       res.json({ success: true, lead: updated });
     } catch {
       res.status(500).json({ success: false, message: "Internal server error" });
@@ -3085,6 +3105,8 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
 
   app.get("/api/admin/deal-forecast", async (_req, res) => {
     try {
+      const cached = getCached<object>("deal-forecast");
+      if (cached) return res.json(cached);
       const leads = await storage.getProspectedLeads();
 
       const STAGE_PROB: Record<string, number> = {
@@ -3123,7 +3145,7 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
         stageCounts[l.status].value += parseVal(l.estimatedProjectValue);
       }
 
-      res.json({
+      const payload = {
         grossPipeline,
         weightedRevenue: Math.round(weightedRevenue),
         probableDealsCount: probableDeals.length,
@@ -3133,7 +3155,9 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
         winRate,
         totalLeads: leads.length,
         stageCounts,
-      });
+      };
+      setCached("deal-forecast", payload, 30_000);
+      res.json(payload);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }

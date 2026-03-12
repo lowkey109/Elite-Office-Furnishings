@@ -18,3 +18,9 @@ id = "qDXeZ9EG6wI7n5aybge8T"
 uri = "file://TCD_INSPECTION_REPORT.md"
 type = "text"
 title = "TCD Admin System Inspection Report — March 12, 2026"
+
+[[outputs]]
+id = "_LasxFBtiWKaRvJQhH0f9"
+uri = "file://TCD_STRESS_TEST_REPORT.md"
+type = "text"
+title = "TCD Stress Test & Performance Report — March 12, 2026"
