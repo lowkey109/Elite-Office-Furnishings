@@ -1,0 +1,212 @@
+SAFE CATALOG REBUILD UPGRADE — DO NOT ASK FOR FILES AGAIN
+
+You are working on the LIVE The Corporate Desk product catalog.
+
+IMPORTANT:
+Do NOT ask me to re-upload any catalog ZIP files if they already exist in the project.
+First inspect the current project files, uploads folder, public assets, and any extracted catalog folders already present in the codebase.
+
+This is a SAFE UPGRADE to the existing catalog system.
+Do NOT overwrite the existing system prompt.
+Do NOT rebuild the whole site.
+Do NOT break payments, planner, admin, SEO, or existing routes.
+
+==================================================
+PRIMARY OBJECTIVE
+==================================================
+
+Use the product/catalog files that already exist in the Replit project to rebuild the public product catalog into a premium commercial furniture structure.
+
+The goal is:
+
+1. one real product model = one product page
+2. different sizes = variants
+3. different finishes / colours = variants
+4. products organised into their proper category and range/collection
+5. at least 2 images per core product model where possible
+6. AI-enhanced product images must look like the real product, not a fantasy redesign
+
+==================================================
+STEP 1 — AUDIT EXISTING PROJECT FILES FIRST
+==================================================
+
+Before doing anything else:
+
+- inspect all uploaded ZIPs already in the project
+- inspect extracted catalog folders
+- inspect uploads/
+- inspect public/
+- inspect product JSON / TS data files
+- inspect any scripts already used for catalog generation
+- inspect any existing SKU mapping logic
+- inspect any existing product image folders
+
+Return a file inventory first.
+
+Do NOT ask for files again unless they are genuinely absent from the project.
+
+==================================================
+STEP 2 — PRODUCT STRUCTURE RULES
+==================================================
+
+The catalog must follow this hierarchy:
+
+CATEGORY
+→ RANGE / COLLECTION
+→ PRODUCT MODEL
+→ VARIANTS
+
+Example:
+
+Category:
+Executive Desks
+
+Range:
+Weiyi Collection
+
+Product:
+Executive L-Desk
+
+Variants:
+- Size
+- Finish
+- Return direction
+
+Do NOT keep multiple public products for the same desk just because the size changes.
+
+==================================================
+STEP 3 — DEDUPLICATE SAME-MODEL PRODUCTS
+==================================================
+
+Merge duplicate public products where the design is the same and only these change:
+- size
+- finish
+- colour
+- woodgrain
+- left/right return where appropriate
+
+Keep separate products only when the actual design materially changes.
+
+==================================================
+STEP 4 — IMAGE RULES
+==================================================
+
+Each core product model should have at least 2 images where possible:
+
+1. hero/front angle
+2. second angle / reverse side
+
+Optional:
+3. detail shot
+4. environment render
+
+IMPORTANT:
+If AI-enhanced images are used, they must preserve the real product geometry:
+- same silhouette
+- same cabinet placement
+- same drawer layout
+- same leg style
+- same top shape
+- same proportions
+
+Do NOT invent a different desk.
+
+If source imagery already exists in project files, use that as the reference base.
+
+==================================================
+STEP 5 — RANGE / STYLE ORGANISATION
+==================================================
+
+Products must not sit in one giant messy list.
+
+They must be organised under their proper:
+- category
+- range / style / collection
+
+Examples:
+- Executive Desks → Weiyi Collection
+- Executive Desks → Milan Collection
+- Workstations → Focus Collection
+- Reception → Horizon Collection
+- Pods → Aysa Collection
+
+Use clean public-facing collection names.
+Hide ugly supplier/manufacturer naming if needed.
+
+==================================================
+STEP 6 — VARIANT SELECTORS
+==================================================
+
+On the product page, the customer must be able to choose:
+
+- size
+- finish / colour
+- return direction where relevant
+
+When the variant changes, update:
+- dimensions
+- finish text
+- SKU if needed
+- price if variant-specific
+
+==================================================
+STEP 7 — PRODUCT CARD CLEANUP
+==================================================
+
+Collection/category product cards should show only:
+- image
+- product name
+- starting price
+- clean subtitle if useful
+- view details button
+
+Do NOT show:
+- duplicated size products
+- clutter
+- raw supplier sheet styling
+- repeated ugly codes
+
+==================================================
+STEP 8 — USE EXISTING FILES, THEN FALL BACK
+==================================================
+
+Use already existing project files first.
+
+Only if required assets are truly missing should you:
+- use placeholders temporarily
+- or mark products for manual review
+
+Do NOT stop the job just because some source files are imperfect.
+Build the best premium catalog possible from the files already in the project.
+
+==================================================
+STEP 9 — TESTING
+==================================================
+
+Verify:
+- duplicate size products are merged
+- ranges/collections display correctly
+- product pages work
+- variant selectors work
+- at least 2 images appear where possible
+- planner, payment, admin, and SEO systems are unaffected
+- mobile layout is clean
+- desktop layout is clean
+
+==================================================
+STEP 10 — FINAL REPORT
+==================================================
+
+Return:
+
+1. which existing files/folders were found and used
+2. how many duplicate products were merged
+3. how many variant groups were created
+4. how many categories and ranges were structured
+5. how many product models now have 2+ images
+6. which products need manual review
+7. confirmation that no existing live systems were broken
+
+IMPORTANT:
+Start by auditing the files already in the Replit project.
+Do not ask me to upload those files again unless they are actually missing from the project.

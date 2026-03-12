@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import OpenAI from "openai";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import { ADVISOR_SYSTEM_MESSAGE } from "./systemPrompt";
 
 const openai = new OpenAI({
@@ -119,25 +119,12 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no extra text.`;
     try {
       const { to, subject, htmlBody, previewText } = req.body;
 
-      const smtpHost = process.env.SMTP_HOST;
-      const smtpPort = parseInt(process.env.SMTP_PORT || "587");
-      const smtpUser = process.env.SMTP_USER;
-      const smtpPass = process.env.SMTP_PASS;
-      const emailFrom = process.env.EMAIL_FROM || "The Corporate Desk <service@thecorporatedesk.com.au>";
-
-      if (!smtpHost || !smtpUser || !smtpPass) {
-        return res.status(400).json({
-          error: "Email not configured",
-          missing: ["SMTP_HOST", "SMTP_USER", "SMTP_PASS"].filter(k => !process.env[k]),
-        });
+      const apiKey = process.env.RESEND_API_KEY;
+      if (!apiKey) {
+        return res.status(400).json({ error: "Email not configured", missing: ["RESEND_API_KEY"] });
       }
 
-      const transporter = nodemailer.createTransport({
-        host: smtpHost,
-        port: smtpPort,
-        secure: smtpPort === 465,
-        auth: { user: smtpUser, pass: smtpPass },
-      });
+      const resend = new Resend(apiKey);
 
       const html = `<!DOCTYPE html>
 <html>
@@ -159,8 +146,14 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no extra text.`;
 </div>
 </body></html>`;
 
-      const recipients = Array.isArray(to) ? to.join(", ") : to;
-      await transporter.sendMail({ from: emailFrom, to: recipients, subject, html });
+      const recipients = Array.isArray(to) ? to : [to];
+      const { error: sendError } = await resend.emails.send({
+        from: "The Corporate Desk <service@thecorporatedesk.com.au>",
+        to: recipients,
+        subject,
+        html,
+      });
+      if (sendError) throw new Error(sendError.message);
 
       res.json({ success: true, message: `Email sent to ${recipients}` });
     } catch (error: any) {
@@ -360,7 +353,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no extra text.`;
 
   app.get("/api/marketing/status", async (req, res) => {
     const channels = {
-      email: !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS),
+      email: !!process.env.RESEND_API_KEY,
       telegram: !!(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHANNEL_ID),
       facebook: !!(process.env.FACEBOOK_PAGE_ACCESS_TOKEN && process.env.FACEBOOK_PAGE_ID),
       instagram: !!(process.env.FACEBOOK_PAGE_ACCESS_TOKEN && process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID),

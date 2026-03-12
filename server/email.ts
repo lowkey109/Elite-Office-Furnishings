@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import type { OppSignal } from "./services/opportunityScoring";
 
 const TCD_RECIPIENTS = [
@@ -6,24 +6,30 @@ const TCD_RECIPIENTS = [
   "thecorporatedeskservice@gmail.com",
 ];
 
+const TCD_FROM = "The Corporate Desk <service@thecorporatedesk.com.au>";
 const TCD_PHONE = "1300 977 607";
 const TCD_EMAIL = "service@thecorporatedesk.com.au";
 const TCD_WEBSITE = "https://thecorporatedesk.com.au";
 const TCD_AEST = () => new Date().toLocaleString("en-AU", { timeZone: "Australia/Brisbane" }) + " AEST";
 
-// ─── SMTP ─────────────────────────────────────────────────────────────────────
+// ─── Resend client ─────────────────────────────────────────────────────────────
 
-function createTransporter() {
-  const host = process.env.SMTP_HOST;
-  const port = parseInt(process.env.SMTP_PORT || "587", 10);
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-  if (!host || !user || !pass) return null;
-  return nodemailer.createTransport({
-    host, port, secure: port === 465,
-    auth: { user, pass },
-    tls: { rejectUnauthorized: false },
+function getResend(): Resend | null {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return null;
+  return new Resend(key);
+}
+
+async function sendEmail(opts: { to: string | string[]; subject: string; html: string }): Promise<void> {
+  const resend = getResend();
+  if (!resend) { console.log("[email] RESEND_API_KEY not set — skipping email"); return; }
+  const { error } = await resend.emails.send({
+    from: TCD_FROM,
+    to: Array.isArray(opts.to) ? opts.to : [opts.to],
+    subject: opts.subject,
+    html: opts.html,
   });
+  if (error) throw new Error(`Resend error: ${error.message}`);
 }
 
 // ─── Admin template (dark luxury) ────────────────────────────────────────────
@@ -80,9 +86,8 @@ function adminTemplate(title: string, body: string, accentColor = "#c9a84c"): st
         ${body}
       </table>
     </div>
-    <div style="padding:14px 28px;border-top:1px solid #1e1e28;display:flex;justify-content:space-between;align-items:center">
+    <div style="padding:14px 28px;border-top:1px solid #1e1e28">
       <a href="${TCD_WEBSITE}/admin/command-centre" style="color:${accentColor};font-size:12px;text-decoration:none;font-weight:600">→ Command Centre</a>
-      <span style="color:#444;font-size:11px">thecorporatedesk.com.au</span>
     </div>
   </div>
 </body>
@@ -176,16 +181,12 @@ export async function sendLeadNotification(lead: {
   nextAction?: string | null;
   signals?: OppSignal[];
 }): Promise<void> {
-  const transporter = createTransporter();
-  if (!transporter) { console.log("[email] SMTP not configured — skipping lead notification"); return; }
-
   const isHigh = lead.opportunityTier === "high";
   const isMed = lead.opportunityTier === "medium";
   const typeLabel = lead.type ? lead.type.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()) : "Website Lead";
   const scoreStr = lead.opportunityScore != null ? `${lead.opportunityScore}/100` : null;
   const tierStr = lead.opportunityTier ? lead.opportunityTier.toUpperCase() : null;
 
-  // ── Subject line construction ──────────────────────────────────────────────
   let subject: string;
   if (isHigh) {
     subject = `HIGH OPPORTUNITY — ${lead.company || lead.name}${lead.estimatedValueRange ? ` — Est. ${lead.estimatedValueRange}` : ""}${lead.staffCount ? ` · ${lead.staffCount} Staff` : ""}${lead.officeLocation ? ` · ${lead.officeLocation}` : ""}`;
@@ -196,9 +197,7 @@ export async function sendLeadNotification(lead: {
   }
 
   const accentColor = isHigh ? "#e8a020" : "#c9a84c";
-  const titleText = isHigh
-    ? `HIGH OPPORTUNITY: ${typeLabel}`
-    : `New ${typeLabel}`;
+  const titleText = isHigh ? `HIGH OPPORTUNITY: ${typeLabel}` : `New ${typeLabel}`;
 
   const body =
     adminSectionHeader("Contact Details") +
@@ -226,12 +225,7 @@ export async function sendLeadNotification(lead: {
     adminRow("Received", TCD_AEST()) +
     adminCtaButton("Open Command Centre", `${TCD_WEBSITE}/admin/command-centre`);
 
-  await transporter.sendMail({
-    from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
-    to: TCD_RECIPIENTS,
-    subject,
-    html: adminTemplate(titleText, body, accentColor),
-  });
+  await sendEmail({ to: TCD_RECIPIENTS, subject, html: adminTemplate(titleText, body, accentColor) });
 }
 
 // ─── ADMIN: Planning request notification ─────────────────────────────────────
@@ -255,9 +249,6 @@ export async function sendPlanningRequestNotification(req: {
   nextAction?: string | null;
   signals?: OppSignal[];
 }): Promise<void> {
-  const transporter = createTransporter();
-  if (!transporter) { console.log("[email] SMTP not configured — skipping planning request notification"); return; }
-
   const isHigh = req.opportunityTier === "high";
   const tierStr = req.opportunityTier ? req.opportunityTier.toUpperCase() : null;
   const contextLine = [req.squareMetres ? `${req.squareMetres}sqm` : null, req.staffCount ? `${req.staffCount} staff` : null, req.city].filter(Boolean).join(" · ");
@@ -292,8 +283,7 @@ export async function sendPlanningRequestNotification(req: {
     adminRow("Received", TCD_AEST()) +
     adminCtaButton("Review Planning Request", `${TCD_WEBSITE}/admin/planning-requests`);
 
-  await transporter.sendMail({
-    from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
+  await sendEmail({
     to: TCD_RECIPIENTS,
     subject,
     html: adminTemplate(isHigh ? "HIGH OPPORTUNITY: New Planner Submission" : "New Floor Plan & Space Planning Request", body, isHigh ? "#e8a020" : "#c9a84c"),
@@ -317,9 +307,6 @@ export async function sendSupplierQuoteNotification(quote: {
   supplierPhone?: string | null;
   notes?: string | null;
 }): Promise<void> {
-  const transporter = createTransporter();
-  if (!transporter) { console.log("[email] SMTP not configured — skipping supplier quote notification"); return; }
-
   const body =
     adminSectionHeader("Supplier") +
     adminRow("Supplier", quote.supplierName) +
@@ -339,8 +326,7 @@ export async function sendSupplierQuoteNotification(quote: {
     adminRow("Notes", quote.notes) +
     adminRow("Saved", TCD_AEST());
 
-  await transporter.sendMail({
-    from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
+  await sendEmail({
     to: TCD_RECIPIENTS,
     subject: `SUPPLIER QUOTE — ${quote.supplierName} · ${quote.productName} · ${quote.status}`,
     html: adminTemplate(`Supplier Quote: ${quote.supplierName}`, body),
@@ -355,14 +341,10 @@ export async function sendPaymentConfirmationNotification(payment: {
   sessionId: string;
   amountAud: number;
 }): Promise<void> {
-  const transporter = createTransporter();
-  if (!transporter) { console.log("[email] SMTP not configured — skipping payment confirmation"); return; }
-
   const time = TCD_AEST();
   const firstName = payment.customerName ? payment.customerName.split(" ")[0] : null;
   const ref = payment.sessionId.slice(-12).toUpperCase();
 
-  // Admin alert
   const adminBody =
     adminSectionHeader("Payment Details") +
     adminRow("Event", "AI Office Planner — Full Report Unlocked") +
@@ -376,20 +358,18 @@ export async function sendPaymentConfirmationNotification(payment: {
     adminRow("Received", time) +
     adminCtaButton("Open Admin Dashboard", `${TCD_WEBSITE}/admin`);
 
-  await transporter.sendMail({
-    from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
+  await sendEmail({
     to: TCD_RECIPIENTS,
     subject: `PAYMENT RECEIVED — AI Office Planner${payment.customerName ? ` — ${payment.customerName}` : ""} — $${payment.amountAud.toFixed(2)} AUD`,
     html: adminTemplate("Payment Received — AI Office Planner Report Unlocked", adminBody),
   });
 
-  // Customer email — premium, specific
   const customerBody =
     p(`${firstName ? `${firstName}, your` : "Your"} <strong>AI Office Planner report is now fully unlocked</strong>. Your payment of <strong style="color:#1a1a1a">$${payment.amountAud.toFixed(2)} AUD</strong> has been processed and confirmed.`) +
     goldDivider() +
     sectionLabel("What You Now Have Access To") +
     p(`<strong>Interactive Visual Floor Plan</strong> — your workspace zones and layout rendered in 2D, with proportional zone sizing based on your brief.<br><br>
-      <strong>Furniture Specification & SKUs</strong> — curated product recommendations matched to your style preference and staff count.<br><br>
+      <strong>Furniture Specification &amp; SKUs</strong> — curated product recommendations matched to your style preference and staff count.<br><br>
       <strong>Project Cost Estimate</strong> — itemised cost breakdown including furniture, installation, and delivery.<br><br>
       <strong>Exportable Planning Report</strong> — a formatted PDF-ready workspace concept you can share with your team or fitout contractor.`) +
     detailTable(
@@ -405,8 +385,7 @@ export async function sendPaymentConfirmationNotification(payment: {
       To request a quote or book a consultation based on your report, call <strong style="color:#1a1a1a">${TCD_PHONE}</strong> or reply to this email. Reference: <strong>${ref}</strong>.
     </p>`;
 
-  await transporter.sendMail({
-    from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
+  await sendEmail({
     to: payment.customerEmail,
     subject: `Your AI Office Planner Report is Unlocked — The Corporate Desk`,
     html: customerTemplate(`Your Workspace Report is Ready${firstName ? `, ${firstName}` : ""}`, customerBody),
@@ -427,12 +406,8 @@ export async function sendPlannerSubmissionCustomerEmail(data: {
   stylePreference?: string | null;
   specialRequirements?: string | null;
 }): Promise<void> {
-  const transporter = createTransporter();
-  if (!transporter) return;
-
   const firstName = data.name.split(" ")[0];
 
-  // Build project context string for personalised opening
   const contextParts = [
     data.squareMetres ? `${data.squareMetres}sqm` : null,
     data.staffCount ? `${data.staffCount} staff` : null,
@@ -470,8 +445,7 @@ export async function sendPlannerSubmissionCustomerEmail(data: {
     p(`If you'd like to move faster or discuss your brief directly, call our team on <strong>${TCD_PHONE}</strong>. Reference your company name and we'll connect you to the right consultant.`) +
     cta("View Our Project Portfolio", `${TCD_WEBSITE}/case-studies`);
 
-  await transporter.sendMail({
-    from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
+  await sendEmail({
     to: data.email,
     subject: `Workspace Concept Initiated — ${data.company}${contextStr ? ` · ${contextStr}` : ""} — The Corporate Desk`,
     html: customerTemplate(`Your Workspace Brief is With Our Planning Team, ${firstName}`, body),
@@ -491,13 +465,9 @@ export async function sendQuoteRequestCustomerEmail(data: {
   message?: string | null;
   type?: string | null;
 }): Promise<void> {
-  const transporter = createTransporter();
-  if (!transporter) return;
-
   const firstName = data.name.split(" ")[0];
   const isBuilder = data.type === "quote-builder";
 
-  // Contextual project summary
   const contextParts = [
     data.officeSize ? `${data.officeSize}` : null,
     data.staffCount ? `${data.staffCount} staff` : null,
@@ -527,8 +497,7 @@ export async function sendQuoteRequestCustomerEmail(data: {
     p(`For an immediate discussion, call our team on <strong>${TCD_PHONE}</strong>. Reference <strong>${data.company}</strong> and we'll connect you to the right consultant.`) +
     cta("Explore Our Product Range", `${TCD_WEBSITE}/products`);
 
-  await transporter.sendMail({
-    from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
+  await sendEmail({
     to: data.email,
     subject: `Quote in Motion — ${data.company}${contextStr ? ` · ${contextStr}` : ""} — The Corporate Desk`,
     html: customerTemplate(`Your Quote Request is Under Active Review, ${firstName}`, body),
@@ -548,9 +517,6 @@ export async function sendStrategyCallCustomerEmail(data: {
   message?: string | null;
   type?: string | null;
 }): Promise<void> {
-  const transporter = createTransporter();
-  if (!transporter) return;
-
   const firstName = data.name.split(" ")[0];
   const isLayout = data.type === "layout-plan";
 
@@ -599,8 +565,7 @@ export async function sendStrategyCallCustomerEmail(data: {
     p(`For anything time-sensitive, call us directly on <strong>${TCD_PHONE}</strong>. Our consultants work across projects of all scales and can advise immediately.`) +
     cta(isLayout ? "View Our Design Portfolio" : "Explore Workplace Strategy", isLayout ? `${TCD_WEBSITE}/case-studies` : `${TCD_WEBSITE}/workplace-strategy`);
 
-  await transporter.sendMail({
-    from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
+  await sendEmail({
     to: data.email,
     subject: subjectLine,
     html: customerTemplate(titleLine, body),
@@ -615,9 +580,6 @@ export async function sendEnquiryCustomerEmail(data: {
   email: string;
   message?: string | null;
 }): Promise<void> {
-  const transporter = createTransporter();
-  if (!transporter) return;
-
   const firstName = data.name.split(" ")[0];
   const hasCompany = !!(data.company && data.company.trim());
 
@@ -631,8 +593,7 @@ export async function sendEnquiryCustomerEmail(data: {
     p(`Whether you're planning a new office, relocating, or expanding your current space — our team can provide a structured response based on your commercial situation.`) +
     cta("Explore Our Work", `${TCD_WEBSITE}/case-studies`);
 
-  await transporter.sendMail({
-    from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
+  await sendEmail({
     to: data.email,
     subject: `${hasCompany ? `${data.company} — ` : ""}Your Enquiry is with Our Team — The Corporate Desk`,
     html: customerTemplate(`Your Enquiry is with Our Team, ${firstName}`, body),
@@ -640,5 +601,5 @@ export async function sendEnquiryCustomerEmail(data: {
 }
 
 export function isEmailConfigured(): boolean {
-  return !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+  return !!process.env.RESEND_API_KEY;
 }
