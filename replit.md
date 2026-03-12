@@ -87,3 +87,39 @@ Confidence badge shows 5 detection method tiers: `canny-contour` (High), `pixel-
 - `FloorGeometryMeta` interface added to LayoutData for geometry-aware rendering
 - When a planning request has real floor geometry (from CV pipeline), the 3D room's aspect ratio is derived from `floorGeometry.aspectRatio` instead of defaulting to 1.35. This makes the Three.js room shape match the actual floor plan geometry.
 - Aspect ratio is clamped to 0.6–2.5 and only applied when geometry source confidence is within valid bounds (0.3–5.0).
+## Phase 13 — AI Deal Intelligence Engine (Complete)
+
+### New DB Table: `dealIntelligenceRecords`
+Stores per-deal intelligence records for every lead, planning request, radar signal, quote, and prospect. Key fields: `sourceType` (prospect/planning_request/lead/radar/quote), `winProbability` (0–100), `probabilityTier` (high ≥65 / medium ≥35 / low), `dealStrength`, `estimatedProjectValue`, `estimatedGrossProfit`, `estimatedMarginPct`, `weightedExpectedRevenue`, `weightedExpectedProfit`, `recommendedNextAction`, `recommendedFollowUpTiming`, `recommendedOffer`, `reasoningSummary`, `scoringSignalsJson`. Upserts per sourceType + relatedId so re-running analyse-all is idempotent.
+
+### New Service: `server/services/dealIntelligence.ts`
+Full deal intelligence engine with:
+- `computeWinProbability(signals)` — 11-signal scoring model (pipeline stage, budget size, staff count, sqm, planning request status, quote sent/accepted, finance interest, radar score, urgency, industry, timing) → 0–100 score with confidence level
+- `estimateProjectValue(signals, exactQuote?)` — value estimator using exact quote total or staff-count/sqm heuristics (AU market pricing)
+- `getNextAction(signals)` — contextual next action with follow-up timing
+- `getOfferStrategy(signals)` — offer recommendation by deal stage
+- `analyseDeal(signals, exactQuote?)` — full analysis returning all metrics
+- `analyseAllDeals()` — processes all 5 source types: prospected leads (excludes Lost), planning requests (with linked quote data), active radar signals (excludes Converted/Dismissed), inbound leads (top 50), standalone quotes (no planning request link). 68 deals processed.
+- Signal converters: `prospectsToSignals()`, `planningRequestToSignals()`, `radarToSignals()`, `leadToSignals()`
+
+### New Page: `/admin/deal-intelligence` (`AdminDealIntelligence.tsx`)
+Dedicated deal intelligence dashboard with:
+- KPI cards: total deals, weighted pipeline revenue, best win probability, avg margin
+- "Best Deals to Chase" spotlight: top 5 deals ranked by win probability
+- Deal cards: expandable with win probability donut, source badge, pipeline stage, value/profit, next action panel, offer strategy, outcome buttons (Won/Lost)
+- Filters: by probability tier (all/high/medium/low) and source type (all/5 types)
+- "Analyse All" button triggers POST /api/admin/deal-intelligence/analyse-all
+
+### API Routes (all under `/api/admin/deal-intelligence`)
+- `GET /` — list all records (optional ?tier= and ?sourceType= filters, ?limit= cap)
+- `POST /analyse-all` — run full analysis across all 5 sources, upsert results
+- `GET /summary` — aggregate stats (total, weighted revenue, profit, tier breakdown)
+- `GET /by-related/:id` — get intel for a specific related entity ID
+- `PATCH /:id/outcome` — mark deal as won/lost
+
+### Integration Points
+- **AdminDealPipeline.tsx**: Each pipeline kanban card gets a `dealIntel` prop from a batch query (`dealIntelMap`). Win probability badge (green/amber/gray) shows in the top-right of each card.
+- **AdminCommandCentre.tsx**: "AI Deal Intelligence" panel shows weighted pipeline revenue, total profit, and "Best Deals to Chase" top-5 list with win probability badges and quick action links.
+- **AdminDashboard.tsx**: "AI Deal Intelligence" quick action link added to the action grid.
+- **AdminPlanningRequests.tsx**: "AI Deal Intelligence" panel appears in the Overview tab of each expanded planning request (when a deal intelligence record exists for that planning request). Shows win probability, value, profit, next action, follow-up timing, and offer recommendation.
+- **AdminQuotes.tsx**: Win probability badge appears below the status badge in each quote row. Looks up by `planningRequestId` (for linked quotes) or by `quoteId` (for standalone quotes). Both lookup maps are combined via `quoteDealIntelMap`.

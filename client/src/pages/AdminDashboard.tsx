@@ -611,6 +611,7 @@ export default function AdminDashboard() {
                   { label: "Follow-Up Sequences", href: "/admin/follow-up-sequences", icon: Mail, desc: "Automated lead email sequences" },
                   { label: "Office Move Radar", href: "/admin/office-move-radar", icon: Zap, desc: "Detect relocations, expansions & fit-outs" },
                   { label: "Lease Signal Scanner", href: "/admin/lease-signals", icon: Zap, desc: "AI office move lead detection" },
+                  { label: "AI Deal Intelligence", href: "/admin/deal-intelligence", icon: TrendingUp, desc: "Win probability · value · next action · offer strategy" },
                   { label: "Deal Pipeline", href: "/admin/deal-pipeline", icon: TrendingUp, desc: "Weighted revenue forecast" },
                   { label: "Territory Scanner", href: "/admin/territory-scanner", icon: Globe, desc: "Office tower tenant tracking" },
                   { label: "Procurement Engine", href: "/admin/procurement-engine", icon: Package, desc: "Supplier routing & cost estimates" },

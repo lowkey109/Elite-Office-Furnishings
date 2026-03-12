@@ -926,6 +926,16 @@ export default function AdminPlanningRequests() {
     refetchInterval: 30000,
   });
 
+  const { data: planningDealIntel = [] } = useQuery<any[]>({
+    queryKey: ["/api/admin/deal-intelligence", "planning_request"],
+    queryFn: () => fetch("/api/admin/deal-intelligence?sourceType=planning_request").then(r => r.json()),
+    enabled: authed,
+    staleTime: 120000,
+  });
+  const planningDealIntelMap = new Map<string, any>(
+    planningDealIntel.map((r: any) => [r.relatedPlanningRequestId, r])
+  );
+
   const statusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
       const res = await apiRequest("PATCH", `/api/admin/planning-requests/${id}/status`, { status });
@@ -1378,6 +1388,40 @@ export default function AdminPlanningRequests() {
                                   <p className="text-white/60 text-sm leading-relaxed">{aiRec.styleDirection}</p>
                                 </div>
                               )}
+
+                              {/* ── AI Deal Intelligence Panel ────────────── */}
+                              {(() => {
+                                const di = planningDealIntelMap.get(req.id);
+                                if (!di) return null;
+                                const fmtAUD = (n: number | null | undefined) => n ? (n >= 1000000 ? `$${(n/1000000).toFixed(1)}M` : n >= 1000 ? `$${(n/1000).toFixed(0)}k` : `$${n}`) : "TBD";
+                                return (
+                                  <div className={`border rounded-xl p-4 ${di.probabilityTier === "high" ? "border-green-500/25 bg-green-500/5" : di.probabilityTier === "medium" ? "border-amber-500/20 bg-amber-500/5" : "border-white/10 bg-white/[0.02]"}`} data-testid={`deal-intel-panel-${req.id}`}>
+                                    <div className="flex items-center justify-between mb-3">
+                                      <p className="text-white/60 text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
+                                        <span>⚡</span> AI Deal Intelligence
+                                      </p>
+                                      <span className={`text-[10px] font-bold border rounded-full px-2 py-0.5 ${di.probabilityTier === "high" ? "text-green-400 border-green-500/30 bg-green-500/10" : di.probabilityTier === "medium" ? "text-amber-400 border-amber-500/25 bg-amber-500/10" : "text-white/30 border-white/10"}`}>
+                                        {di.winProbability}% WIN PROB
+                                      </span>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3 mb-3 text-xs">
+                                      <div><p className="text-white/30 mb-0.5">Est. Project Value</p><p className="text-[hsl(43,78%,65%)] font-bold">{fmtAUD(di.estimatedProjectValue)}</p></div>
+                                      <div><p className="text-white/30 mb-0.5">Est. Gross Profit</p><p className="text-green-400 font-bold">{fmtAUD(di.estimatedGrossProfit)}</p></div>
+                                    </div>
+                                    {di.recommendedNextAction && (
+                                      <div className="bg-amber-500/5 border border-amber-500/15 rounded-lg px-3 py-2 mb-2">
+                                        <p className="text-amber-400 text-[11px] font-semibold">Next Action</p>
+                                        <p className="text-amber-400/80 text-[11px] mt-0.5">{di.recommendedNextAction}</p>
+                                        {di.recommendedFollowUpTiming && <p className="text-amber-400/40 text-[10px] mt-0.5">{di.recommendedFollowUpTiming}</p>}
+                                      </div>
+                                    )}
+                                    {di.recommendedOffer && (
+                                      <p className="text-white/40 text-[11px] leading-relaxed">{di.recommendedOffer}</p>
+                                    )}
+                                    <a href="/admin/deal-intelligence" className="text-white/20 text-[10px] hover:text-white/50 transition-colors mt-2 block">View full deal intelligence →</a>
+                                  </div>
+                                );
+                              })()}
                             </div>
                           )}
 

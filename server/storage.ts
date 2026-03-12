@@ -4,7 +4,7 @@ import {
   users, leads, prospectedLeads, supplierQuotes, referrals, planningRequests, productReviews,
   manufacturerMessages, followUpSequences, territories, workspaceLearningRecords,
   scheduledJobs, intelligenceReports, spendingTrends, websiteIssues, profitRecords,
-  generatedBlogArticles, quotes, officeMovRadar, buildingSignals,
+  generatedBlogArticles, quotes, officeMovRadar, buildingSignals, dealIntelligenceRecords,
   type User, type InsertUser, type Lead, type InsertLead, type PlanningRequest,
   type ProductReview, type InsertProductReview,
   type ManufacturerMessage, type InsertManufacturerMessage,
@@ -16,6 +16,7 @@ import {
   type GeneratedBlogArticle, type Quote, type InsertQuote,
   type OfficeMovRadar, type InsertOfficeMovRadar,
   type BuildingSignal, type InsertBuildingSignal,
+  type DealIntelligenceRecord, type InsertDealIntelligence,
 } from "@shared/schema";
 
 export interface ProspectedLead {
@@ -223,6 +224,14 @@ export interface IStorage {
   // Building Signals
   createBuildingSignal(data: InsertBuildingSignal): Promise<BuildingSignal>;
   getBuildingSignals(city?: string): Promise<BuildingSignal[]>;
+
+  // Deal Intelligence
+  upsertDealIntelligence(data: InsertDealIntelligence): Promise<DealIntelligenceRecord>;
+  getDealIntelligenceRecords(filters?: { probabilityTier?: string; sourceType?: string }): Promise<DealIntelligenceRecord[]>;
+  getDealIntelligenceRecord(id: string): Promise<DealIntelligenceRecord | undefined>;
+  getDealIntelligenceByRelated(relatedId: string): Promise<DealIntelligenceRecord | undefined>;
+  updateDealIntelligence(id: string, data: Partial<DealIntelligenceRecord>): Promise<DealIntelligenceRecord | undefined>;
+  deleteDealIntelligence(id: string): Promise<void>;
 }
 
 function rowToProspectedLead(row: typeof prospectedLeads.$inferSelect): ProspectedLead {
@@ -1009,6 +1018,69 @@ export class DrizzleStorage implements IStorage {
         .limit(100);
     }
     return db.select().from(buildingSignals).orderBy(desc(buildingSignals.createdAt)).limit(100);
+  }
+
+  // ─── Deal Intelligence ────────────────────────────────────────────────────
+
+  async upsertDealIntelligence(data: InsertDealIntelligence): Promise<DealIntelligenceRecord> {
+    // Check if a record exists for any related ID
+    const relatedId = data.relatedProspectId || data.relatedLeadId || data.relatedPlanningRequestId || data.relatedQuoteId || data.relatedRadarId;
+    let existing: DealIntelligenceRecord | undefined;
+    if (relatedId) {
+      existing = await this.getDealIntelligenceByRelated(relatedId);
+    }
+    if (existing) {
+      const [updated] = await db.update(dealIntelligenceRecords)
+        .set({ ...data as any, updatedAt: new Date() })
+        .where(eq(dealIntelligenceRecords.id, existing.id))
+        .returning();
+      return updated;
+    }
+    const [row] = await db.insert(dealIntelligenceRecords).values(data as any).returning();
+    return row;
+  }
+
+  async getDealIntelligenceRecords(filters?: { probabilityTier?: string; sourceType?: string }): Promise<DealIntelligenceRecord[]> {
+    let q = db.select().from(dealIntelligenceRecords);
+    const conditions = [];
+    if (filters?.probabilityTier) conditions.push(eq(dealIntelligenceRecords.probabilityTier, filters.probabilityTier));
+    if (filters?.sourceType) conditions.push(eq(dealIntelligenceRecords.sourceType, filters.sourceType));
+    if (conditions.length > 0) {
+      return (q as any).where(and(...conditions)).orderBy(desc(dealIntelligenceRecords.winProbability)).limit(500);
+    }
+    return db.select().from(dealIntelligenceRecords).orderBy(desc(dealIntelligenceRecords.winProbability)).limit(500);
+  }
+
+  async getDealIntelligenceRecord(id: string): Promise<DealIntelligenceRecord | undefined> {
+    const [row] = await db.select().from(dealIntelligenceRecords).where(eq(dealIntelligenceRecords.id, id)).limit(1);
+    return row ?? undefined;
+  }
+
+  async getDealIntelligenceByRelated(relatedId: string): Promise<DealIntelligenceRecord | undefined> {
+    const [row] = await db.select().from(dealIntelligenceRecords)
+      .where(
+        or(
+          eq(dealIntelligenceRecords.relatedProspectId, relatedId),
+          eq(dealIntelligenceRecords.relatedLeadId, relatedId),
+          eq(dealIntelligenceRecords.relatedPlanningRequestId, relatedId),
+          eq(dealIntelligenceRecords.relatedQuoteId, relatedId),
+          eq(dealIntelligenceRecords.relatedRadarId, relatedId),
+        )
+      )
+      .limit(1);
+    return row ?? undefined;
+  }
+
+  async updateDealIntelligence(id: string, data: Partial<DealIntelligenceRecord>): Promise<DealIntelligenceRecord | undefined> {
+    const [row] = await db.update(dealIntelligenceRecords)
+      .set({ ...data as any, updatedAt: new Date() })
+      .where(eq(dealIntelligenceRecords.id, id))
+      .returning();
+    return row ?? undefined;
+  }
+
+  async deleteDealIntelligence(id: string): Promise<void> {
+    await db.delete(dealIntelligenceRecords).where(eq(dealIntelligenceRecords.id, id));
   }
 }
 

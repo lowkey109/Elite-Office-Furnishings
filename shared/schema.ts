@@ -471,6 +471,52 @@ export const insertBuildingSignalSchema = createInsertSchema(buildingSignals).om
 export type InsertBuildingSignal = z.infer<typeof insertBuildingSignalSchema>;
 export type BuildingSignal = typeof buildingSignals.$inferSelect;
 
+// ─── Deal Intelligence Records ────────────────────────────────────────────────
+export const dealIntelligenceRecords = pgTable("deal_intelligence_records", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sourceType: text("source_type").notNull(), // "lead" | "prospect" | "planning_request" | "quote" | "radar"
+  relatedLeadId: text("related_lead_id"),
+  relatedPlanningRequestId: text("related_planning_request_id"),
+  relatedQuoteId: text("related_quote_id"),
+  relatedProspectId: text("related_prospect_id"),
+  relatedRadarId: text("related_radar_id"),
+  companyName: text("company_name").notNull(),
+  city: text("city"),
+  industry: text("industry"),
+  officeSizeSqm: text("office_size_sqm"),
+  staffCount: text("staff_count"),
+  budgetBand: text("budget_band"),
+  pipelineStage: text("pipeline_stage"),
+  estimatedProjectValue: integer("estimated_project_value"),
+  estimatedGrossProfit: integer("estimated_gross_profit"),
+  estimatedMarginPct: integer("estimated_margin_pct"),
+  winProbability: integer("win_probability").notNull().default(0),
+  probabilityTier: text("probability_tier").notNull().default("low"), // "low" | "medium" | "high"
+  confidenceLevel: text("confidence_level").notNull().default("low"), // "low" | "medium" | "high"
+  dealStrength: integer("deal_strength").notNull().default(0),
+  weightedExpectedRevenue: integer("weighted_expected_revenue"),
+  weightedExpectedProfit: integer("weighted_expected_profit"),
+  recommendedNextAction: text("recommended_next_action"),
+  recommendedFollowUpTiming: text("recommended_follow_up_timing"),
+  recommendedOffer: text("recommended_offer"),
+  reasoningSummary: text("reasoning_summary"),
+  scoringSignalsJson: text("scoring_signals_json"),
+  quoteStatus: text("quote_status"),
+  financeInterest: boolean("finance_interest").default(false),
+  hasRadarSignal: boolean("has_radar_signal").default(false),
+  hasPlanningRequest: boolean("has_planning_request").default(false),
+  hasQuote: boolean("has_quote").default(false),
+  outcomeResult: text("outcome_result").default("pending"), // "pending" | "won" | "lost" | "stalled"
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertDealIntelligenceSchema = createInsertSchema(dealIntelligenceRecords).omit({
+  id: true, createdAt: true, updatedAt: true,
+});
+export type InsertDealIntelligence = z.infer<typeof insertDealIntelligenceSchema>;
+export type DealIntelligenceRecord = typeof dealIntelligenceRecords.$inferSelect;
+
 // ─── Generated Blog Articles ─────────────────────────────────────────────────
 export const generatedBlogArticles = pgTable("generated_blog_articles", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

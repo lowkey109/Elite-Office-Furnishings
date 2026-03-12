@@ -336,6 +336,16 @@ export default function AdminCommandCentre() {
     refetchInterval: 60000,
   });
 
+  const { data: dealIntelSummary } = useQuery<{
+    total: number; highCount: number; mediumCount: number; lowCount: number;
+    totalWeightedRevenue: number; totalWeightedProfit: number; avgWinProbability: number;
+    bestDeals: any[]; highestProfit: any[]; atRiskQuoted: any[];
+  }>({
+    queryKey: ["/api/admin/deal-intelligence/summary"],
+    enabled: authed,
+    staleTime: 120000,
+  });
+
   // ── Score backfill mutation ─────────────────────────────────────────────────
   const backfillMutation = useMutation({
     mutationFn: async () => {
@@ -964,6 +974,79 @@ export default function AdminCommandCentre() {
             </div>
           )}
         </div>
+
+        {/* ── AI Deal Intelligence Panel ────────────────────────────────────── */}
+        {dealIntelSummary && dealIntelSummary.total > 0 && (
+          <div className="bg-[hsl(220,18%,10%)] border border-[rgba(100,200,120,0.18)] rounded-2xl overflow-hidden" data-testid="panel-deal-intelligence">
+            <div className="px-6 py-4 border-b border-[rgba(100,200,120,0.12)] flex items-center justify-between bg-[rgba(100,200,120,0.04)]">
+              <div className="flex items-center gap-2">
+                <Target className="w-4 h-4 text-green-400" />
+                <h2 className="text-white font-semibold text-sm">AI Deal Intelligence</h2>
+                <span className="text-white/30 text-xs ml-1">— win probability · weighted revenue · next actions</span>
+              </div>
+              <div className="flex items-center gap-3">
+                {dealIntelSummary.highCount > 0 && (
+                  <span className="text-green-400 text-xs font-bold">{dealIntelSummary.highCount} HIGH PROB</span>
+                )}
+                {dealIntelSummary.mediumCount > 0 && (
+                  <span className="text-amber-400 text-xs">{dealIntelSummary.mediumCount} MED</span>
+                )}
+                <span className="text-white/30 text-xs">avg {dealIntelSummary.avgWinProbability}% win</span>
+                <a href="/admin/deal-intelligence" className="text-green-400/70 text-xs hover:text-green-400 flex items-center gap-1">
+                  View all <ChevronRight className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+
+            {/* Summary financials */}
+            <div className="px-6 py-4 grid grid-cols-2 gap-4 border-b border-[rgba(255,255,255,0.04)]">
+              <div>
+                <p className="text-white/30 text-xs mb-1">Weighted Pipeline Revenue</p>
+                <p className="text-[hsl(43,78%,65%)] font-bold font-serif text-lg">{formatAUD(dealIntelSummary.totalWeightedRevenue)}</p>
+              </div>
+              <div>
+                <p className="text-white/30 text-xs mb-1">Weighted Gross Profit</p>
+                <p className="text-green-400 font-bold font-serif text-lg">{formatAUD(dealIntelSummary.totalWeightedProfit)}</p>
+              </div>
+            </div>
+
+            {/* Best deals to chase */}
+            {dealIntelSummary.bestDeals.length > 0 && (
+              <div>
+                <div className="px-5 py-3 border-b border-[rgba(255,255,255,0.04)]">
+                  <p className="text-white/40 text-xs font-semibold uppercase tracking-wider">Best Deals to Chase Now</p>
+                </div>
+                <div className="divide-y divide-[rgba(255,255,255,0.04)]">
+                  {dealIntelSummary.bestDeals.slice(0, 4).map((deal: any, idx: number) => (
+                    <div key={deal.id} className="flex items-center px-5 py-3 gap-3 hover:bg-white/[0.015] transition-colors">
+                      <span className="text-white/15 text-sm font-bold w-4 flex-shrink-0">{idx + 1}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white font-semibold text-sm truncate">{deal.companyName}</p>
+                        {deal.recommendedNextAction && (
+                          <p className="text-amber-400/70 text-xs truncate mt-0.5">{deal.recommendedNextAction}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="text-right">
+                          <p className="text-[hsl(43,78%,65%)] font-bold text-sm">{formatAUD(deal.weightedExpectedRevenue ?? 0)}</p>
+                          <p className="text-white/20 text-[10px]">weighted</p>
+                        </div>
+                        <span className="text-[10px] font-bold border border-green-500/30 bg-green-500/10 text-green-400 rounded-full px-2 py-0.5">
+                          {deal.winProbability}%
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="px-5 py-3 border-t border-[rgba(255,255,255,0.04)]">
+                  <a href="/admin/deal-intelligence" className="text-green-400/60 text-xs hover:text-green-400 transition-colors">
+                    View full deal intelligence dashboard →
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ── Office Move Radar Panel ──────────────────────────────────────── */}
         <div className="bg-[hsl(220,18%,10%)] border border-[rgba(250,180,50,0.18)] rounded-2xl overflow-hidden" data-testid="panel-office-move-radar">

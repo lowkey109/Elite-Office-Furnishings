@@ -4,8 +4,18 @@ import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
   DollarSign, TrendingUp, Target, BarChart3, Trophy,
-  MapPin, Loader2, ChevronDown, Zap, Building2
+  MapPin, Loader2, ChevronDown, Zap, Building2, Sparkles,
 } from "lucide-react";
+
+interface DealIntelLookup {
+  winProbability: number;
+  probabilityTier: string;
+  recommendedNextAction: string | null;
+  recommendedOffer: string | null;
+  estimatedProjectValue: number | null;
+  estimatedGrossProfit: number | null;
+  weightedExpectedRevenue: number | null;
+}
 
 const ADMIN_EMAIL = "admin@thecorporatedesk.com.au";
 const ADMIN_PASS = "Jaymin12!/";
@@ -70,10 +80,22 @@ function fmtVal(n: number): string {
 }
 
 // ─── Stage Card ───────────────────────────────────────────────────────────────
-function LeadCard({ lead, onMove }: { lead: ProspectedLead; onMove: (id: string, status: string) => void }) {
+function LeadCard({
+  lead,
+  onMove,
+  dealIntel,
+}: {
+  lead: ProspectedLead;
+  onMove: (id: string, status: string) => void;
+  dealIntel?: DealIntelLookup;
+}) {
   const [open, setOpen] = useState(false);
   const stage = getStageMeta(lead.status);
   const val = parseValue(lead.estimatedProjectValue);
+
+  const winProb = dealIntel?.winProbability;
+  const winTier = dealIntel?.probabilityTier;
+  const nextAction = dealIntel?.recommendedNextAction || lead.recommendedNextAction;
 
   return (
     <div className="bg-[hsl(220,18%,12%)] border border-[rgba(255,255,255,0.06)] rounded-xl p-3.5 space-y-2.5" data-testid={`pipeline-card-${lead.id}`}>
@@ -86,9 +108,20 @@ function LeadCard({ lead, onMove }: { lead: ProspectedLead; onMove: (id: string,
             </p>
           )}
         </div>
-        <span className={`text-[10px] font-bold border rounded-full px-2 py-0.5 flex-shrink-0 ${stage.badge}`}>
-          {stage.prob}%
-        </span>
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          {winProb !== undefined && (
+            <span className={`text-[10px] font-bold border rounded-full px-2 py-0.5 flex items-center gap-0.5 ${
+              winTier === "high" ? "bg-green-500/10 text-green-400 border-green-500/20"
+              : winTier === "medium" ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+              : "bg-white/5 text-white/30 border-white/10"
+            }`} data-testid={`badge-win-prob-${lead.id}`}>
+              <Sparkles className="w-2 h-2" />{winProb}%
+            </span>
+          )}
+          <span className={`text-[10px] font-bold border rounded-full px-2 py-0.5 flex-shrink-0 ${stage.badge}`}>
+            {stage.prob}%
+          </span>
+        </div>
       </div>
 
       {lead.signalType && (
@@ -108,9 +141,9 @@ function LeadCard({ lead, onMove }: { lead: ProspectedLead; onMove: (id: string,
         </span>
       </div>
 
-      {lead.recommendedNextAction && (
+      {nextAction && (
         <p className="text-amber-400/70 text-[11px] leading-relaxed bg-amber-500/5 border border-amber-500/10 rounded-lg px-2.5 py-1.5">
-          {lead.recommendedNextAction}
+          {nextAction}
         </p>
       )}
 
@@ -168,6 +201,17 @@ export default function AdminDealPipeline() {
     queryFn: () => fetch("/api/admin/prospects").then(r => r.json()),
     enabled: authed,
   });
+
+  const { data: dealIntelRecords = [] } = useQuery<any[]>({
+    queryKey: ["/api/admin/deal-intelligence", "prospect"],
+    queryFn: () => fetch("/api/admin/deal-intelligence?sourceType=prospect").then(r => r.json()),
+    enabled: authed,
+    staleTime: 120000,
+  });
+
+  const dealIntelMap = new Map<string, DealIntelLookup>(
+    dealIntelRecords.map((r: any) => [r.relatedProspectId, r])
+  );
 
   const moveMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
@@ -346,6 +390,7 @@ export default function AdminDealPipeline() {
                           key={lead.id}
                           lead={lead}
                           onMove={(id, status) => moveMutation.mutate({ id, status })}
+                          dealIntel={dealIntelMap.get(lead.id)}
                         />
                       ))}
                     </div>

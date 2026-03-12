@@ -21,6 +21,7 @@ import { sendWhatsAppTextMessage, isWhatsAppConfigured } from "./services/whatsa
 import { startFollowUpForLead } from "./services/followUpScheduler";
 import { runLeaseSignalScan, computeProcurementRecommendations } from "./services/leaseSignalScanner";
 import { captureWorkspaceLearning, buildLearningContext } from "./services/workspaceLearning";
+import { analyseAllDeals, analyseDeal, prospectsToSignals, planningRequestToSignals, radarToSignals, leadToSignals } from "./services/dealIntelligence";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -3551,6 +3552,103 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
     try {
       const signal = await storage.createBuildingSignal(req.body);
       res.json(signal);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ─── Deal Intelligence ──────────────────────────────────────────────────────
+
+  app.get("/api/admin/deal-intelligence", async (req, res) => {
+    try {
+      const { probabilityTier, sourceType } = req.query as Record<string, string>;
+      const records = await storage.getDealIntelligenceRecords({
+        probabilityTier: probabilityTier || undefined,
+        sourceType: sourceType || undefined,
+      });
+      res.json(records);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/admin/deal-intelligence/summary", async (req, res) => {
+    try {
+      const records = await storage.getDealIntelligenceRecords();
+      const active = records.filter(r => r.outcomeResult === "pending");
+      const total = active.length;
+      const highCount = active.filter(r => r.probabilityTier === "high").length;
+      const mediumCount = active.filter(r => r.probabilityTier === "medium").length;
+      const lowCount = active.filter(r => r.probabilityTier === "low").length;
+      const totalWeightedRevenue = active.reduce((s, r) => s + (r.weightedExpectedRevenue ?? 0), 0);
+      const totalWeightedProfit = active.reduce((s, r) => s + (r.weightedExpectedProfit ?? 0), 0);
+      const avgWinProbability = total > 0
+        ? Math.round(active.reduce((s, r) => s + r.winProbability, 0) / total)
+        : 0;
+      const bestDeals = active
+        .filter(r => r.probabilityTier === "high")
+        .sort((a, b) => (b.weightedExpectedRevenue ?? 0) - (a.weightedExpectedRevenue ?? 0))
+        .slice(0, 5);
+      const highestProfit = active
+        .filter(r => r.probabilityTier !== "low")
+        .sort((a, b) => (b.weightedExpectedProfit ?? 0) - (a.weightedExpectedProfit ?? 0))
+        .slice(0, 5);
+      const atRiskQuoted = active
+        .filter(r => r.quoteStatus === "Sent" || (r.hasPlanningRequest && !r.hasQuote))
+        .slice(0, 5);
+
+      res.json({
+        total, highCount, mediumCount, lowCount,
+        totalWeightedRevenue, totalWeightedProfit, avgWinProbability,
+        bestDeals, highestProfit, atRiskQuoted,
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/admin/deal-intelligence/analyse-all", async (req, res) => {
+    try {
+      const result = await analyseAllDeals();
+      res.json({ success: true, processed: result.processed, message: `Analysed ${result.processed} deals across all sources` });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/admin/deal-intelligence/:id", async (req, res) => {
+    try {
+      const record = await storage.getDealIntelligenceRecord(req.params.id);
+      if (!record) return res.status(404).json({ error: "Not found" });
+      res.json(record);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/admin/deal-intelligence/by-related/:relatedId", async (req, res) => {
+    try {
+      const record = await storage.getDealIntelligenceByRelated(req.params.relatedId);
+      res.json(record ?? null);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.patch("/api/admin/deal-intelligence/:id/outcome", async (req, res) => {
+    try {
+      const { outcomeResult } = req.body as { outcomeResult: string };
+      const updated = await storage.updateDealIntelligence(req.params.id, { outcomeResult });
+      res.json(updated);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.delete("/api/admin/deal-intelligence/:id", async (req, res) => {
+    try {
+      await storage.deleteDealIntelligence(req.params.id);
+      res.json({ success: true });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }

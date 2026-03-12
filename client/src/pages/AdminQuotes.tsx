@@ -630,6 +630,23 @@ export default function AdminQuotes() {
     enabled: authed,
   });
 
+  const { data: quoteDealIntelPR = [] } = useQuery<any[]>({
+    queryKey: ["/api/admin/deal-intelligence", "planning_request"],
+    queryFn: () => fetch("/api/admin/deal-intelligence?sourceType=planning_request").then(r => r.json()),
+    enabled: authed,
+    staleTime: 120000,
+  });
+  const { data: quoteDealIntelQ = [] } = useQuery<any[]>({
+    queryKey: ["/api/admin/deal-intelligence", "quote"],
+    queryFn: () => fetch("/api/admin/deal-intelligence?sourceType=quote").then(r => r.json()),
+    enabled: authed,
+    staleTime: 120000,
+  });
+  const quoteDealIntelMap = new Map<string, any>([
+    ...quoteDealIntelPR.map((r: any) => [r.relatedPlanningRequestId, r] as [string, any]),
+    ...quoteDealIntelQ.map((r: any) => [r.relatedQuoteId, r] as [string, any]),
+  ]);
+
   const deleteMutation = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/admin/quotes/${id}`, {}),
     onSuccess: () => {
@@ -827,10 +844,22 @@ export default function AdminQuotes() {
                     {q.companyName && <p className="text-white/40 text-xs mt-0.5">{q.companyName}</p>}
                     <p className="text-white/30 text-xs">{q.email}</p>
                   </div>
-                  <div className="px-4 py-4 flex items-center">
-                    <span className={`text-xs border rounded-full px-2.5 py-0.5 font-medium ${STATUS_COLORS[q.status] ?? STATUS_COLORS.Draft}`}>
+                  <div className="px-4 py-4 flex flex-col gap-1">
+                    <span className={`text-xs border rounded-full px-2.5 py-0.5 font-medium self-start ${STATUS_COLORS[q.status] ?? STATUS_COLORS.Draft}`}>
                       {q.status}
                     </span>
+                    {(() => {
+                      const di = quoteDealIntelMap.get(q.planningRequestId ?? "") ?? quoteDealIntelMap.get(q.id);
+                      if (!di) return null;
+                      return (
+                        <span
+                          className={`text-[10px] font-bold rounded-full px-2 py-0.5 self-start border ${di.probabilityTier === "high" ? "text-green-400 border-green-500/30 bg-green-500/10" : di.probabilityTier === "medium" ? "text-amber-400 border-amber-500/25 bg-amber-500/10" : "text-white/30 border-white/10"}`}
+                          data-testid={`badge-win-prob-${q.id}`}
+                        >
+                          ⚡ {di.winProbability}% WIN
+                        </span>
+                      );
+                    })()}
                   </div>
                   <div className="px-4 py-4 flex items-center">
                     <span className="text-[hsl(43,78%,65%)] font-bold text-sm">{fmt(q.totalIncGst)}</span>
