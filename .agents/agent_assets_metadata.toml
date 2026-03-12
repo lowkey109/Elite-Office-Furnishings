@@ -12,3 +12,9 @@ id = "XhQFIEdRr0bGxSJqFkz9t"
 uri = "file://TCD_PLATFORM_AUDIT.md"
 type = "text"
 title = "TCD Full Platform Audit — March 12, 2026"
+
+[[outputs]]
+id = "qDXeZ9EG6wI7n5aybge8T"
+uri = "file://TCD_INSPECTION_REPORT.md"
+type = "text"
+title = "TCD Admin System Inspection Report — March 12, 2026"

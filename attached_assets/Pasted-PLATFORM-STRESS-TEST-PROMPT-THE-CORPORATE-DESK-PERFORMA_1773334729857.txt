@@ -1,0 +1,304 @@
+PLATFORM STRESS TEST PROMPT
+THE CORPORATE DESK — PERFORMANCE, STABILITY, AND LOAD TEST VERIFICATION
+
+You are a senior performance engineer, QA automation engineer, and full-stack reliability auditor working on the live Corporate Desk platform.
+
+Your task is to stress-test the platform and determine whether it can handle realistic multi-user usage without breaking.
+
+Do NOT redesign anything.
+Do NOT rebuild major systems first.
+This task is primarily:
+- load testing
+- failure detection
+- bottleneck detection
+- reporting
+- safe fixes only if critical and low-risk
+
+If a critical issue is found and a small safe fix can be applied without risking the platform, you may apply that fix and retest.
+Do NOT perform risky refactors.
+
+==================================================
+PRIMARY OBJECTIVE
+==================================================
+
+Test whether the platform can survive realistic concurrent usage across the most important business flows.
+
+Simulate usage across:
+- workspace planner
+- quote system
+- deal pipeline
+- lead capture
+- admin dashboard
+- AI chat concierge
+- floor-plan upload
+- core API routes
+
+The goal is to identify:
+- performance bottlenecks
+- API failures
+- UI failures
+- concurrency issues
+- database slowdowns
+- memory leaks
+- timeout risks
+- rate-limit risks
+- broken user flows under load
+
+==================================================
+STEP 1 — FULL PERFORMANCE AUDIT
+==================================================
+
+Audit the current stack and identify:
+- frontend framework/runtime
+- backend runtime
+- database access layer
+- key APIs used by planner, quotes, leads, chat, and admin
+- any existing caching
+- any job scheduler/background processes
+- any expensive queries
+- any likely bottlenecks
+
+Map the highest-risk routes for concurrent usage.
+
+==================================================
+STEP 2 — TARGET USER FLOWS TO TEST
+==================================================
+
+Stress-test these flows:
+
+A. Public Lead Submission
+- contact / quote / planner / finance lead creation
+
+B. Workspace Planner
+- create planning request
+- upload floor plan if supported
+- generate planner output
+- retrieve layout/report data
+
+C. Quotes
+- load quotes list
+- open quote editor
+- save/update quote
+- generate print/PDF route
+
+D. Deal Pipeline
+- load pipeline
+- move deal stages
+- refresh forecast data
+
+E. Admin Dashboard
+- load KPI cards
+- load revenue forecast
+- load hot leads
+- load intelligence status
+
+F. AI Chat Concierge
+- load chat
+- send messages
+- preserve session context
+
+==================================================
+STEP 3 — CONCURRENCY LEVELS
+==================================================
+
+Run tests in escalating levels.
+
+Test tiers:
+- 5 concurrent users
+- 10 concurrent users
+- 25 concurrent users
+- 50 concurrent users
+- 100 concurrent users
+
+If the system fails badly at a lower tier, stop escalation, diagnose, apply safe fixes if possible, and retest.
+
+==================================================
+STEP 4 — KEY ROUTES TO TEST
+==================================================
+
+At minimum test these route groups if present:
+
+Public/API
+- GET /
+- GET /products
+- GET /products/:sku
+- POST /api/leads
+- POST /api/planning-requests
+- POST /api/chat
+- POST /api/estimate
+- POST /api/finance-lead
+
+Planner/API
+- GET /api/planning-requests/:id/layout
+- POST /api/planning-requests/:id/checkout
+- GET /api/planning-requests/:id/verify-payment
+
+Admin/API
+- GET /api/admin/deal-forecast
+- GET /api/admin/planning-requests
+- GET /api/admin/quotes
+- GET /api/admin/prospects
+- PATCH /api/admin/prospects/:id/status
+- POST /api/admin/profit/cost-stack
+- POST /api/admin/profit/supplier-mix
+
+Quote/API
+- GET /api/admin/quotes
+- POST /api/admin/quotes
+- PATCH /api/admin/quotes/:id
+- POST /api/admin/quotes/:id/send
+
+==================================================
+STEP 5 — WHAT TO MEASURE
+==================================================
+
+Measure and report:
+- average response time
+- p95 response time
+- p99 response time
+- error rate
+- timeout rate
+- failed requests by route
+- memory spikes
+- CPU spikes
+- database slowdown indicators
+- frontend rendering failures
+- browser console errors
+- duplicate submission risks
+
+Identify which routes degrade first.
+
+==================================================
+STEP 6 — FRONTEND STABILITY TESTS
+==================================================
+
+Under load, verify:
+- pages still render
+- admin dashboard loads
+- pipeline board remains usable
+- quote editor remains usable
+- planner form remains usable
+- chat widget remains usable
+- no major broken UI states appear
+
+Capture screenshots if UI breaks.
+
+==================================================
+STEP 7 — DATABASE / QUERY RISK CHECK
+==================================================
+
+Inspect for likely database bottlenecks:
+- slow list queries
+- N+1 query patterns
+- repeated expensive aggregations
+- unindexed filters if detectable
+- repeated forecast calculations
+- repeated quote/planner joins
+
+If small safe optimisations are possible without schema risk, apply them and retest.
+
+Do NOT do dangerous refactors.
+
+==================================================
+STEP 8 — SAFE FIXES ONLY
+==================================================
+
+If critical issues are found, you may apply only low-risk fixes such as:
+- debouncing duplicate requests
+- guarding duplicate form submissions
+- lightweight caching of expensive read endpoints
+- pagination limits
+- reducing repeated client refetching
+- fixing obvious inefficient loops
+- improving request batching
+- improving staleTime/cacheTime in safe places
+- defensive timeout/error handling
+
+Do NOT:
+- rewrite the whole architecture
+- change protected files unnecessarily
+- break working business flows
+- redesign the app
+
+==================================================
+STEP 9 — PASS / FAIL THRESHOLDS
+==================================================
+
+Use practical thresholds.
+
+A route/flow is considered:
+- Healthy if it stays responsive with low failure rate at 25+ concurrent users
+- Strong if it survives 50 concurrent users with acceptable degradation
+- Excellent if it survives 100 concurrent users without major failures
+
+Mark each major flow:
+- Pass
+- Partial Pass
+- Fail
+
+==================================================
+STEP 10 — FINAL REPORT
+==================================================
+
+Return a structured report with:
+
+1. Executive Summary
+- Can the system handle 5 / 10 / 25 / 50 / 100 concurrent users?
+- Biggest bottlenecks
+- Safest next improvements
+
+2. Flow-by-Flow Results
+- Leads
+- Planner
+- Quotes
+- Deal Pipeline
+- Admin Dashboard
+- Chat Concierge
+
+3. Route Performance Table
+For each key route include:
+- avg latency
+- p95 latency
+- error rate
+- pass/fail
+
+4. Stability Findings
+- UI failures
+- API failures
+- duplicate submission risks
+- timeout risks
+- memory/CPU concerns
+
+5. Safe Fixes Applied
+- exact files changed
+- what was improved
+- retest results
+
+6. Final Verdict
+State clearly:
+- whether the platform is ready for light usage
+- whether it is ready for moderate usage
+- whether it is ready for 100 real users hitting it at once
+
+==================================================
+CRITICAL RULES
+==================================================
+
+Do NOT modify protected files unless absolutely necessary:
+- server/db.ts
+- client/src/lib/furnitureCatalogue.ts
+- package.json
+- client/src/pages/QuoteBuilder.tsx
+
+Do NOT rebuild the site.
+Do NOT create duplicate systems.
+Prefer inspection, testing, safe fixes, and retesting.
+
+==================================================
+EXECUTION RULE
+==================================================
+
+Start with the performance audit.
+Then run escalating load tests.
+Then apply only safe fixes if needed.
+Then retest and return the full stress-test report.

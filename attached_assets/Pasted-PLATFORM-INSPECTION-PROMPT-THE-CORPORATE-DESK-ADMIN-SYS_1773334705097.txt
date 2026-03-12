@@ -1,0 +1,239 @@
+PLATFORM INSPECTION PROMPT
+THE CORPORATE DESK — ADMIN SYSTEM VERIFICATION
+
+You are a senior full-stack engineer and QA auditor working on the live Corporate Desk platform.
+
+Your task is to inspect and verify the functionality of the core admin systems and provide screenshots and findings.
+
+Do NOT rebuild anything.
+Do NOT modify code.
+This task is inspection and reporting only.
+
+==================================================
+SYSTEM AREAS TO INSPECT
+==================================================
+
+Open and verify the following admin routes:
+
+1. /admin/dashboard
+2. /admin/deal-pipeline
+3. /admin/quotes
+4. /admin/planning-requests
+
+You must load the actual pages in the running application.
+
+==================================================
+STEP 1 — ADMIN LOGIN
+==================================================
+
+Authenticate using the existing admin credentials:
+
+Email:
+admin@thecorporatedesk.com.au
+
+Password:
+Jaymin12!/
+
+Use the existing admin auth mechanism and store authentication in sessionStorage using the current key:
+tcd_admin_auth
+
+Do not change the auth logic.
+
+==================================================
+STEP 2 — DASHBOARD INSPECTION
+==================================================
+
+Open:
+/admin/dashboard
+
+Verify the following elements exist and render correctly:
+
+- KPI cards
+- Revenue Forecast panel
+- Hot Leads panel
+- Needs Your Attention banner
+- Intelligence Engine status widget
+- pipeline / revenue metrics
+
+Check the API request:
+GET /api/admin/deal-forecast
+
+Confirm it returns fields for:
+- grossPipeline
+- weightedExpectedRevenue
+- probableDeals
+- wonRevenue
+- winRate
+
+Capture a screenshot of the dashboard.
+
+==================================================
+STEP 3 — DEAL PIPELINE
+==================================================
+
+Open:
+/admin/deal-pipeline
+
+Verify the Kanban board loads correctly.
+
+Stages must include:
+- Lead Detected
+- Contacted
+- Planning
+- Quoted
+- Negotiation
+- Won
+- Lost
+
+Check that:
+- cards display company name
+- stage probability appears
+- estimated project value appears
+- stage move/update works
+
+Confirm the update route exists and works:
+PATCH /api/admin/prospects/:id/status
+
+Capture a screenshot of the pipeline board.
+
+==================================================
+STEP 4 — QUOTES SYSTEM
+==================================================
+
+Open:
+/admin/quotes
+
+Verify:
+- quote list loads
+- quote numbers appear in format TCD-YYYYMM-XXXX
+- status badges appear
+- search works
+- edit button opens editor
+
+Then open a single quote and verify the editor contains:
+- client details
+- project summary
+- line item table
+- subtotal calculation
+- freight/install costs
+- discount field
+- GST calculation
+- total inc GST
+
+Confirm API routes:
+GET /api/admin/quotes
+POST /api/admin/quotes
+PATCH /api/admin/quotes/:id
+
+Capture screenshots of:
+- quote list
+- quote editor
+
+==================================================
+STEP 5 — PLANNING REQUESTS
+==================================================
+
+Open:
+/admin/planning-requests
+
+Verify the planning request list loads correctly.
+
+Open a single planning request and inspect the tabs:
+- Overview
+- AI Plan
+- Package & Quote
+- Profit Intelligence
+- Supplier
+- Report
+- Admin
+
+Confirm that the Create Formal Quote button exists.
+
+Verify it routes into the formal quote flow and pre-fills client details where expected.
+
+Capture screenshots of:
+- planning request list
+- planning request detail view
+
+==================================================
+STEP 6 — SYSTEM CHECKS
+==================================================
+
+Verify the following backend routes respond correctly:
+- GET /api/admin/deal-forecast
+- GET /api/admin/planning-requests
+- GET /api/admin/quotes
+- GET /api/admin/prospects
+
+Check for:
+- console errors
+- failed network requests
+- broken rendering
+- missing data states
+- auth issues
+
+==================================================
+STEP 7 — REPORT
+==================================================
+
+Return a structured report containing:
+
+1. Admin Dashboard
+- Working / Issues
+- What renders correctly
+- What is missing or broken
+
+2. Deal Pipeline
+- Working / Issues
+- What renders correctly
+- What is missing or broken
+
+3. Quotes System
+- Working / Issues
+- What renders correctly
+- What is missing or broken
+
+4. Planning Requests
+- Working / Issues
+- What renders correctly
+- What is missing or broken
+
+5. API Health
+- Any failing routes
+- Any slow routes
+- Any auth problems
+
+==================================================
+STEP 8 — SCREENSHOTS
+==================================================
+
+Include screenshots of:
+- /admin/dashboard
+- /admin/deal-pipeline
+- /admin/quotes
+- /admin/planning-requests
+
+Screenshots must show the UI loaded and populated.
+
+==================================================
+CRITICAL RULES
+==================================================
+
+Do NOT modify:
+- server/db.ts
+- client/src/lib/furnitureCatalogue.ts
+- package.json
+- client/src/pages/QuoteBuilder.tsx
+
+Do NOT rebuild components.
+This task is inspection only.
+
+==================================================
+FINAL OUTPUT
+==================================================
+
+Return:
+1. screenshots
+2. system status report
+3. bugs detected
+4. recommended next fixes in priority order

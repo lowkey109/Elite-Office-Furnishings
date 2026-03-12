@@ -405,4 +405,4 @@ Probability is auto-assigned by stage in the Kanban. Move-stage dropdown on each
 
 ---
 
-*Last updated: March 12, 2026 — all 16 phases complete, post Phase 10 (7-stage pipeline) + Phase 11 (revenue forecasting) implementation*
+*Last updated: March 12, 2026 — all 16 phases complete, post Phase 10 (7-stage pipeline) + Phase 11 (revenue forecasting) implementation*oi
