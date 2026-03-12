@@ -9,119 +9,153 @@ const TCD_RECIPIENTS = [
 const TCD_PHONE = "1300 977 607";
 const TCD_EMAIL = "service@thecorporatedesk.com.au";
 const TCD_WEBSITE = "https://thecorporatedesk.com.au";
+const TCD_AEST = () => new Date().toLocaleString("en-AU", { timeZone: "Australia/Brisbane" }) + " AEST";
+
+// ─── SMTP ─────────────────────────────────────────────────────────────────────
 
 function createTransporter() {
   const host = process.env.SMTP_HOST;
   const port = parseInt(process.env.SMTP_PORT || "587", 10);
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
-
   if (!host || !user || !pass) return null;
-
   return nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
+    host, port, secure: port === 465,
     auth: { user, pass },
     tls: { rejectUnauthorized: false },
   });
 }
 
-// ─── Shared template helpers ──────────────────────────────────────────────────
+// ─── Admin template (dark luxury) ────────────────────────────────────────────
 
-function row(label: string, value: string | number | null | undefined): string {
+function adminRow(label: string, value: string | number | null | undefined): string {
   if (!value && value !== 0) return "";
-  return `
-    <tr>
-      <td style="padding:8px 12px;border-bottom:1px solid #2a2a2a;color:#999;font-size:13px;width:160px;vertical-align:top">${label}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #2a2a2a;color:#f0f0f0;font-size:13px;vertical-align:top">${value}</td>
-    </tr>`;
-}
-
-function adminTemplate(title: string, body: string): string {
-  return `<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"></head>
-<body style="margin:0;padding:0;background:#0f0f13;font-family:'Helvetica Neue',Arial,sans-serif">
-  <div style="max-width:640px;margin:32px auto;background:#16161e;border-radius:12px;overflow:hidden;border:1px solid #2a2a2a">
-    <div style="background:linear-gradient(135deg,#1a1a24,#0f0f13);padding:28px 32px;border-bottom:2px solid #c9a84c">
-      <div style="font-size:11px;color:#c9a84c;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px">The Corporate Desk — Admin</div>
-      <div style="font-size:22px;font-weight:700;color:#ffffff">${title}</div>
-    </div>
-    <div style="padding:28px 32px">
-      <table style="width:100%;border-collapse:collapse;background:#1c1c26;border-radius:8px;overflow:hidden">
-        ${body}
-      </table>
-    </div>
-    <div style="padding:16px 32px;border-top:1px solid #2a2a2a;text-align:center">
-      <a href="${TCD_WEBSITE}/admin/command-centre" style="color:#c9a84c;font-size:12px;text-decoration:none">Admin Command Centre</a>
-      <span style="color:#555;font-size:12px;margin:0 8px">·</span>
-      <a href="${TCD_WEBSITE}" style="color:#c9a84c;font-size:12px;text-decoration:none">thecorporatedesk.com.au</a>
-    </div>
-  </div>
-</body>
-</html>`;
-}
-
-// Customer-facing template — lighter, premium branded
-function customerTemplate(title: string, body: string): string {
-  return `<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"></head>
-<body style="margin:0;padding:0;background:#f5f4f2;font-family:'Helvetica Neue',Arial,sans-serif">
-  <div style="max-width:600px;margin:32px auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
-    <div style="background:#0f0f13;padding:28px 32px">
-      <div style="font-size:10px;color:#c9a84c;letter-spacing:4px;text-transform:uppercase;margin-bottom:6px">The Corporate Desk</div>
-      <div style="font-size:20px;font-weight:700;color:#ffffff;line-height:1.3">${title}</div>
-    </div>
-    <div style="padding:32px">
-      ${body}
-    </div>
-    <div style="background:#f9f8f6;border-top:1px solid #e8e5e0;padding:20px 32px">
-      <p style="margin:0 0 4px;color:#6b6560;font-size:12px">Questions? Contact our team:</p>
-      <p style="margin:0;color:#0f0f13;font-size:13px;font-weight:600">${TCD_PHONE} &nbsp;·&nbsp; <a href="mailto:${TCD_EMAIL}" style="color:#0f0f13;text-decoration:none">${TCD_EMAIL}</a></p>
-      <p style="margin:8px 0 0;color:#9e9890;font-size:11px"><a href="${TCD_WEBSITE}" style="color:#9e9890;text-decoration:none">thecorporatedesk.com.au</a> &nbsp;·&nbsp; Premium Commercial Furniture &amp; Office Fit-Outs, Australia</p>
-    </div>
-  </div>
-</body>
-</html>`;
-}
-
-function customerPara(text: string): string {
-  return `<p style="color:#1a1a1a;font-size:14px;line-height:1.75;margin:0 0 16px">${text}</p>`;
-}
-
-function customerDetailRow(label: string, value: string | null | undefined): string {
-  if (!value) return "";
   return `<tr>
-    <td style="padding:8px 12px;font-size:13px;color:#6b6560;width:140px;vertical-align:top;border-bottom:1px solid #f0ece6">${label}</td>
-    <td style="padding:8px 12px;font-size:13px;color:#1a1a1a;vertical-align:top;border-bottom:1px solid #f0ece6">${value}</td>
+    <td style="padding:8px 14px;border-bottom:1px solid #252530;color:#888;font-size:12px;width:170px;vertical-align:top;white-space:nowrap">${label}</td>
+    <td style="padding:8px 14px;border-bottom:1px solid #252530;color:#f0f0f0;font-size:13px;vertical-align:top">${value}</td>
   </tr>`;
 }
 
-function customerDetailsTable(rows: string): string {
-  return `<table style="width:100%;border-collapse:collapse;border:1px solid #f0ece6;border-radius:8px;overflow:hidden;margin:16px 0 24px">${rows}</table>`;
-}
-
-function customerCta(label: string, href: string): string {
-  return `<p style="margin:24px 0 0"><a href="${href}" style="display:inline-block;background:#0f0f13;color:#ffffff;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;font-size:14px;letter-spacing:0.3px">${label} →</a></p>`;
-}
-
-function signalsSummary(signals: OppSignal[]): string {
-  if (!signals.length) return "";
-  const items = signals.map(s => `<li style="color:#f0f0f0;font-size:12px;margin-bottom:4px">
-    <span style="color:#c9a84c;font-weight:600">${s.type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}</span>
-    <span style="color:#888"> — ${s.reason}</span>
-  </li>`).join("");
+function adminSectionHeader(label: string): string {
   return `<tr>
-    <td style="padding:8px 12px;border-bottom:1px solid #2a2a2a;color:#999;font-size:13px;width:160px;vertical-align:top">Signals Detected</td>
-    <td style="padding:8px 12px;border-bottom:1px solid #2a2a2a;font-size:12px;vertical-align:top">
-      <ul style="margin:0;padding-left:16px">${items}</ul>
+    <td colspan="2" style="padding:14px 14px 6px;background:#0f0f13;color:#c9a84c;font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase">${label}</td>
+  </tr>`;
+}
+
+function adminSignalsBlock(signals: OppSignal[]): string {
+  if (!signals.length) return "";
+  const items = signals.map(s =>
+    `<li style="font-size:12px;margin-bottom:5px;line-height:1.5">
+      <span style="color:#c9a84c;font-weight:700">${s.type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}</span>
+      <span style="color:#777"> — ${s.reason}</span>
+    </li>`
+  ).join("");
+  return `<tr>
+    <td colspan="2" style="padding:10px 14px 12px;border-bottom:1px solid #252530">
+      <ul style="margin:0;padding-left:18px">${items}</ul>
     </td>
   </tr>`;
 }
 
-// ─── ADMIN EMAILS ─────────────────────────────────────────────────────────────
+function adminCtaButton(label: string, href: string): string {
+  return `<tr>
+    <td colspan="2" style="padding:16px 14px">
+      <a href="${href}" style="display:inline-block;background:#c9a84c;color:#0f0f13;font-weight:700;padding:10px 22px;border-radius:6px;text-decoration:none;font-size:13px;letter-spacing:0.3px">${label} →</a>
+    </td>
+  </tr>`;
+}
+
+function adminTemplate(title: string, body: string, accentColor = "#c9a84c"): string {
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#0a0a0f;font-family:'Helvetica Neue',Arial,sans-serif">
+  <div style="max-width:660px;margin:28px auto;background:#14141c;border-radius:10px;overflow:hidden;border:1px solid #252530">
+    <div style="background:linear-gradient(135deg,#1c1c28 0%,#0f0f16 100%);padding:24px 28px;border-bottom:2px solid ${accentColor}">
+      <div style="font-size:10px;color:${accentColor};letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;font-weight:600">The Corporate Desk · Internal Alert</div>
+      <div style="font-size:20px;font-weight:700;color:#ffffff;line-height:1.3">${title}</div>
+    </div>
+    <div style="padding:24px 28px">
+      <table style="width:100%;border-collapse:collapse;background:#1a1a24;border-radius:8px;overflow:hidden;border:1px solid #252530">
+        ${body}
+      </table>
+    </div>
+    <div style="padding:14px 28px;border-top:1px solid #1e1e28;display:flex;justify-content:space-between;align-items:center">
+      <a href="${TCD_WEBSITE}/admin/command-centre" style="color:${accentColor};font-size:12px;text-decoration:none;font-weight:600">→ Command Centre</a>
+      <span style="color:#444;font-size:11px">thecorporatedesk.com.au</span>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+// ─── Customer template (clean, premium) ──────────────────────────────────────
+
+function customerTemplate(title: string, body: string): string {
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f0ede8;font-family:'Helvetica Neue',Arial,sans-serif">
+  <div style="max-width:580px;margin:32px auto;background:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 2px 20px rgba(0,0,0,0.07)">
+    <div style="background:#0f0f13;padding:26px 32px">
+      <div style="font-size:9px;color:#c9a84c;letter-spacing:4px;text-transform:uppercase;margin-bottom:8px;font-weight:700">The Corporate Desk</div>
+      <div style="font-size:18px;font-weight:700;color:#ffffff;line-height:1.35">${title}</div>
+    </div>
+    <div style="padding:30px 32px 24px">
+      ${body}
+    </div>
+    <div style="background:#f7f5f2;border-top:1px solid #e8e4de;padding:18px 32px">
+      <p style="margin:0 0 3px;color:#8a8278;font-size:11px;text-transform:uppercase;letter-spacing:0.8px">Direct Line</p>
+      <p style="margin:0 0 6px;color:#1a1a1a;font-size:13px;font-weight:600">${TCD_PHONE} &nbsp;·&nbsp; <a href="mailto:${TCD_EMAIL}" style="color:#1a1a1a;text-decoration:none">${TCD_EMAIL}</a></p>
+      <p style="margin:0;color:#b0a89e;font-size:11px"><a href="${TCD_WEBSITE}" style="color:#b0a89e;text-decoration:none">thecorporatedesk.com.au</a> &nbsp;·&nbsp; Premium Commercial Office Furniture &amp; Fit-Outs · Australia</p>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+function p(text: string, style = ""): string {
+  return `<p style="color:#1a1a1a;font-size:14px;line-height:1.8;margin:0 0 18px;${style}">${text}</p>`;
+}
+
+function sectionLabel(text: string): string {
+  return `<p style="color:#8a8278;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:22px 0 8px;border-bottom:1px solid #f0ede8;padding-bottom:6px">${text}</p>`;
+}
+
+function detailRow(label: string, value: string | null | undefined): string {
+  if (!value) return "";
+  return `<tr>
+    <td style="padding:7px 12px;font-size:12px;color:#8a8278;width:145px;vertical-align:top;border-bottom:1px solid #f5f2ee">${label}</td>
+    <td style="padding:7px 12px;font-size:13px;color:#1a1a1a;vertical-align:top;border-bottom:1px solid #f5f2ee;font-weight:500">${value}</td>
+  </tr>`;
+}
+
+function detailTable(rows: string): string {
+  if (!rows) return "";
+  return `<table style="width:100%;border-collapse:collapse;border:1px solid #ede9e3;border-radius:7px;overflow:hidden;margin:4px 0 22px">${rows}</table>`;
+}
+
+function cta(label: string, href: string): string {
+  return `<p style="margin:24px 0 0">
+    <a href="${href}" style="display:inline-block;background:#0f0f13;color:#ffffff;font-weight:700;padding:13px 26px;border-radius:7px;text-decoration:none;font-size:13px;letter-spacing:0.3px">${label} →</a>
+  </p>`;
+}
+
+function goldDivider(): string {
+  return `<div style="height:2px;background:linear-gradient(90deg,#c9a84c,transparent);margin:20px 0;border-radius:2px"></div>`;
+}
+
+function credibilityBar(): string {
+  return `<div style="background:#f7f5f1;border-radius:7px;padding:14px 16px;margin:18px 0;border-left:3px solid #c9a84c">
+    <p style="margin:0;color:#4a453e;font-size:12px;line-height:1.7">
+      The Corporate Desk delivers premium commercial fit-outs across Australia.
+      We work with companies scaling from <strong>10 to 200+ staff</strong> — across CBD offices, suburban campuses, and multi-site projects.
+      Our workspace consultants specialise in high-specification environments where design, procurement, and delivery are managed as a single commercial project.
+    </p>
+  </div>`;
+}
+
+// ─── ADMIN: New lead notification ─────────────────────────────────────────────
 
 export async function sendLeadNotification(lead: {
   name: string;
@@ -143,97 +177,64 @@ export async function sendLeadNotification(lead: {
   signals?: OppSignal[];
 }): Promise<void> {
   const transporter = createTransporter();
-  if (!transporter) {
-    console.log("[email] SMTP not configured — skipping lead notification");
-    return;
-  }
-
-  const formLabel = lead.type
-    ? lead.type.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
-    : "Website Lead";
+  if (!transporter) { console.log("[email] SMTP not configured — skipping lead notification"); return; }
 
   const isHigh = lead.opportunityTier === "high";
-  const tierLabel = lead.opportunityTier
-    ? lead.opportunityTier.charAt(0).toUpperCase() + lead.opportunityTier.slice(1)
-    : null;
+  const isMed = lead.opportunityTier === "medium";
+  const typeLabel = lead.type ? lead.type.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()) : "Website Lead";
+  const scoreStr = lead.opportunityScore != null ? `${lead.opportunityScore}/100` : null;
+  const tierStr = lead.opportunityTier ? lead.opportunityTier.toUpperCase() : null;
 
-  const body =
-    row("Form", formLabel) +
-    row("Name", lead.name) +
-    row("Company", lead.company) +
-    row("Email", lead.email) +
-    row("Phone", lead.phone) +
-    row("Location", lead.officeLocation) +
-    row("Office Size", lead.officeSize) +
-    row("Staff Count", lead.staffCount) +
-    row("Budget", lead.budget) +
-    row("Timeline", lead.timeline) +
-    row("Move Date", lead.moveDate) +
-    row("Message", lead.message) +
-    (lead.opportunityScore != null ? row("Opportunity Score", `${lead.opportunityScore}/100`) : "") +
-    (tierLabel ? row("Opportunity Tier", tierLabel) : "") +
-    (lead.estimatedValueRange ? row("Est. Project Value", lead.estimatedValueRange) : "") +
-    (lead.nextAction ? row("Next Action", lead.nextAction) : "") +
-    (lead.signals?.length ? signalsSummary(lead.signals) : "") +
-    row("Admin Link", `${TCD_WEBSITE}/admin/command-centre`) +
-    row("Received", new Date().toLocaleString("en-AU", { timeZone: "Australia/Brisbane" }) + " AEST");
-
-  const subjectPrefix = isHigh
-    ? `HIGH OPPORTUNITY — ${lead.name} / ${lead.company}${lead.estimatedValueRange ? ` — Est. ${lead.estimatedValueRange}` : ""}`
-    : `New ${formLabel}: ${lead.name} — ${lead.company}`;
-
-  await transporter.sendMail({
-    from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
-    to: TCD_RECIPIENTS,
-    subject: subjectPrefix,
-    html: adminTemplate(isHigh ? `HIGH OPPORTUNITY: New ${formLabel}` : `New ${formLabel}`, body),
-  });
-}
-
-export async function sendSupplierQuoteNotification(quote: {
-  supplierName: string;
-  productName: string;
-  sku: string;
-  quantity: number;
-  colourFinish?: string | null;
-  unitPrice: string;
-  freightCost?: string | null;
-  leadTime?: string | null;
-  projectReference?: string | null;
-  status: string;
-  supplierEmail?: string | null;
-  supplierPhone?: string | null;
-  notes?: string | null;
-}): Promise<void> {
-  const transporter = createTransporter();
-  if (!transporter) {
-    console.log("[email] SMTP not configured — skipping supplier quote notification");
-    return;
+  // ── Subject line construction ──────────────────────────────────────────────
+  let subject: string;
+  if (isHigh) {
+    subject = `HIGH OPPORTUNITY — ${lead.company || lead.name}${lead.estimatedValueRange ? ` — Est. ${lead.estimatedValueRange}` : ""}${lead.staffCount ? ` · ${lead.staffCount} Staff` : ""}${lead.officeLocation ? ` · ${lead.officeLocation}` : ""}`;
+  } else if (isMed) {
+    subject = `NEW ${typeLabel.toUpperCase()} — ${lead.company || lead.name}${lead.officeLocation ? ` · ${lead.officeLocation}` : ""}${lead.staffCount ? ` · ${lead.staffCount} staff` : ""}`;
+  } else {
+    subject = `NEW ${typeLabel.toUpperCase()} — ${lead.name}${lead.company ? ` / ${lead.company}` : ""}`;
   }
 
+  const accentColor = isHigh ? "#e8a020" : "#c9a84c";
+  const titleText = isHigh
+    ? `HIGH OPPORTUNITY: ${typeLabel}`
+    : `New ${typeLabel}`;
+
   const body =
-    row("Supplier", quote.supplierName) +
-    row("Supplier Email", quote.supplierEmail) +
-    row("Supplier Phone", quote.supplierPhone) +
-    row("Product", quote.productName) +
-    row("SKU", quote.sku) +
-    row("Quantity", quote.quantity) +
-    row("Colour / Finish", quote.colourFinish) +
-    row("Unit Price", `$${quote.unitPrice}`) +
-    row("Freight Cost", quote.freightCost ? `$${quote.freightCost}` : null) +
-    row("Lead Time", quote.leadTime) +
-    row("Project Reference", quote.projectReference) +
-    row("Status", quote.status) +
-    row("Notes", quote.notes) +
-    row("Saved", new Date().toLocaleString("en-AU", { timeZone: "Australia/Brisbane" }) + " AEST");
+    adminSectionHeader("Contact Details") +
+    adminRow("Name", lead.name) +
+    adminRow("Company", lead.company) +
+    adminRow("Email", lead.email) +
+    adminRow("Phone", lead.phone) +
+    adminRow("Location", lead.officeLocation) +
+    adminSectionHeader("Project Context") +
+    adminRow("Lead Type", typeLabel) +
+    adminRow("Office Size", lead.officeSize) +
+    adminRow("Staff Count", lead.staffCount) +
+    adminRow("Budget", lead.budget) +
+    adminRow("Timeline", lead.timeline) +
+    adminRow("Move Date", lead.moveDate) +
+    (lead.message ? adminRow("Message", `<em style="color:#bbb">${lead.message}</em>`) : "") +
+    (lead.opportunityScore != null || lead.estimatedValueRange ? adminSectionHeader("Commercial Intelligence") : "") +
+    adminRow("Opportunity Score", scoreStr) +
+    adminRow("Opportunity Tier", tierStr) +
+    adminRow("Estimated Project Value", lead.estimatedValueRange) +
+    (lead.signals?.length ? adminRow("Signals Detected", `${lead.signals.length} signals`) : "") +
+    (lead.signals?.length ? adminSignalsBlock(lead.signals) : "") +
+    adminSectionHeader("Next Action") +
+    adminRow("Recommended Action", lead.nextAction || (isHigh ? "Call within 24h — high-intent buyer" : "Respond within 2 business days")) +
+    adminRow("Received", TCD_AEST()) +
+    adminCtaButton("Open Command Centre", `${TCD_WEBSITE}/admin/command-centre`);
 
   await transporter.sendMail({
     from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
     to: TCD_RECIPIENTS,
-    subject: `Supplier Quote: ${quote.supplierName} — ${quote.productName} (${quote.status})`,
-    html: adminTemplate("Supplier Quote Notification", body),
+    subject,
+    html: adminTemplate(titleText, body, accentColor),
   });
 }
+
+// ─── ADMIN: Planning request notification ─────────────────────────────────────
 
 export async function sendPlanningRequestNotification(req: {
   name: string;
@@ -255,48 +256,98 @@ export async function sendPlanningRequestNotification(req: {
   signals?: OppSignal[];
 }): Promise<void> {
   const transporter = createTransporter();
-  if (!transporter) {
-    console.log("[email] SMTP not configured — skipping planning request notification");
-    return;
-  }
+  if (!transporter) { console.log("[email] SMTP not configured — skipping planning request notification"); return; }
 
   const isHigh = req.opportunityTier === "high";
-  const tierLabel = req.opportunityTier
-    ? req.opportunityTier.charAt(0).toUpperCase() + req.opportunityTier.slice(1)
-    : null;
-
-  const body =
-    row("Name", req.name) +
-    row("Company", req.company) +
-    row("Email", req.email) +
-    row("Phone", req.phone) +
-    row("City", req.city) +
-    row("Project Type", req.projectType) +
-    row("Office Size (sqm)", req.squareMetres) +
-    row("Staff Count", req.staffCount) +
-    row("Budget Range", req.budgetRange) +
-    row("Style Preference", req.stylePreference) +
-    row("Special Requirements", req.specialRequirements) +
-    row("Files Uploaded", req.fileCount > 0 ? `${req.fileCount} file(s)` : "None") +
-    (req.opportunityScore != null ? row("Opportunity Score", `${req.opportunityScore}/100`) : "") +
-    (tierLabel ? row("Opportunity Tier", tierLabel) : "") +
-    (req.estimatedValueRange ? row("Est. Project Value", req.estimatedValueRange) : "") +
-    (req.nextAction ? row("Next Action", req.nextAction) : "") +
-    (req.signals?.length ? signalsSummary(req.signals) : "") +
-    row("Admin Link", `${TCD_WEBSITE}/admin/planning-requests`) +
-    row("Received", new Date().toLocaleString("en-AU", { timeZone: "Australia/Brisbane" }) + " AEST");
+  const tierStr = req.opportunityTier ? req.opportunityTier.toUpperCase() : null;
+  const contextLine = [req.squareMetres ? `${req.squareMetres}sqm` : null, req.staffCount ? `${req.staffCount} staff` : null, req.city].filter(Boolean).join(" · ");
 
   const subject = isHigh
-    ? `HIGH OPPORTUNITY — Floor Plan: ${req.name} / ${req.company}${req.estimatedValueRange ? ` — Est. ${req.estimatedValueRange}` : ""}`
-    : `Floor Plan Request: ${req.name} — ${req.company || req.city || "New Enquiry"}`;
+    ? `HIGH OPPORTUNITY — PLANNER: ${req.company || req.name}${req.estimatedValueRange ? ` — Est. ${req.estimatedValueRange}` : ""}${contextLine ? ` · ${contextLine}` : ""}`
+    : `NEW PLANNER SUBMISSION — ${req.company || req.name}${contextLine ? ` · ${contextLine}` : ""}`;
+
+  const body =
+    adminSectionHeader("Contact Details") +
+    adminRow("Name", req.name) +
+    adminRow("Company", req.company) +
+    adminRow("Email", req.email) +
+    adminRow("Phone", req.phone) +
+    adminRow("City", req.city) +
+    adminSectionHeader("Project Brief") +
+    adminRow("Project Type", req.projectType) +
+    adminRow("Office Size (sqm)", req.squareMetres) +
+    adminRow("Staff Count", req.staffCount) +
+    adminRow("Budget Range", req.budgetRange) +
+    adminRow("Style Preference", req.stylePreference) +
+    adminRow("Special Requirements", req.specialRequirements) +
+    adminRow("Floor Plan Files", req.fileCount > 0 ? `${req.fileCount} file(s) uploaded` : "No files") +
+    adminSectionHeader("Commercial Intelligence") +
+    adminRow("Opportunity Score", req.opportunityScore != null ? `${req.opportunityScore}/100` : null) +
+    adminRow("Opportunity Tier", tierStr) +
+    adminRow("Estimated Project Value", req.estimatedValueRange) +
+    (req.signals?.length ? adminRow("Signals Count", `${req.signals.length} detected`) : "") +
+    (req.signals?.length ? adminSignalsBlock(req.signals) : "") +
+    adminSectionHeader("Recommended Action") +
+    adminRow("Next Step", req.nextAction || (isHigh ? "Priority follow-up within 24h" : "Follow up within 2 business days")) +
+    adminRow("Received", TCD_AEST()) +
+    adminCtaButton("Review Planning Request", `${TCD_WEBSITE}/admin/planning-requests`);
 
   await transporter.sendMail({
     from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
     to: TCD_RECIPIENTS,
     subject,
-    html: adminTemplate(isHigh ? "HIGH OPPORTUNITY: New Floor Plan / Space Planning Request" : "New Floor Plan / Space Planning Request", body),
+    html: adminTemplate(isHigh ? "HIGH OPPORTUNITY: New Planner Submission" : "New Floor Plan & Space Planning Request", body, isHigh ? "#e8a020" : "#c9a84c"),
   });
 }
+
+// ─── ADMIN: Supplier quote notification ───────────────────────────────────────
+
+export async function sendSupplierQuoteNotification(quote: {
+  supplierName: string;
+  productName: string;
+  sku: string;
+  quantity: number;
+  colourFinish?: string | null;
+  unitPrice: string;
+  freightCost?: string | null;
+  leadTime?: string | null;
+  projectReference?: string | null;
+  status: string;
+  supplierEmail?: string | null;
+  supplierPhone?: string | null;
+  notes?: string | null;
+}): Promise<void> {
+  const transporter = createTransporter();
+  if (!transporter) { console.log("[email] SMTP not configured — skipping supplier quote notification"); return; }
+
+  const body =
+    adminSectionHeader("Supplier") +
+    adminRow("Supplier", quote.supplierName) +
+    adminRow("Email", quote.supplierEmail) +
+    adminRow("Phone", quote.supplierPhone) +
+    adminSectionHeader("Product") +
+    adminRow("Product", quote.productName) +
+    adminRow("SKU", quote.sku) +
+    adminRow("Quantity", quote.quantity) +
+    adminRow("Colour / Finish", quote.colourFinish) +
+    adminRow("Unit Price", `$${quote.unitPrice} AUD`) +
+    adminRow("Freight Cost", quote.freightCost ? `$${quote.freightCost} AUD` : null) +
+    adminRow("Lead Time", quote.leadTime) +
+    adminSectionHeader("Project") +
+    adminRow("Project Reference", quote.projectReference) +
+    adminRow("Status", quote.status) +
+    adminRow("Notes", quote.notes) +
+    adminRow("Saved", TCD_AEST());
+
+  await transporter.sendMail({
+    from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
+    to: TCD_RECIPIENTS,
+    subject: `SUPPLIER QUOTE — ${quote.supplierName} · ${quote.productName} · ${quote.status}`,
+    html: adminTemplate(`Supplier Quote: ${quote.supplierName}`, body),
+  });
+}
+
+// ─── ADMIN + CUSTOMER: Payment confirmation ────────────────────────────────────
 
 export async function sendPaymentConfirmationNotification(payment: {
   customerEmail: string;
@@ -305,54 +356,65 @@ export async function sendPaymentConfirmationNotification(payment: {
   amountAud: number;
 }): Promise<void> {
   const transporter = createTransporter();
-  if (!transporter) {
-    console.log("[email] SMTP not configured — skipping payment confirmation");
-    return;
-  }
+  if (!transporter) { console.log("[email] SMTP not configured — skipping payment confirmation"); return; }
 
-  const time = new Date().toLocaleString("en-AU", { timeZone: "Australia/Brisbane" }) + " AEST";
+  const time = TCD_AEST();
+  const firstName = payment.customerName ? payment.customerName.split(" ")[0] : null;
+  const ref = payment.sessionId.slice(-12).toUpperCase();
 
+  // Admin alert
   const adminBody =
-    row("Type", "AI Office Planner — Payment Received") +
-    row("Customer Email", payment.customerEmail) +
-    row("Customer Name", payment.customerName) +
-    row("Amount", `$${payment.amountAud.toFixed(2)} AUD`) +
-    row("Stripe Session", payment.sessionId) +
-    row("Admin Link", `${TCD_WEBSITE}/admin`) +
-    row("Received", time);
+    adminSectionHeader("Payment Details") +
+    adminRow("Event", "AI Office Planner — Full Report Unlocked") +
+    adminRow("Customer Email", payment.customerEmail) +
+    adminRow("Customer Name", payment.customerName) +
+    adminRow("Amount", `$${payment.amountAud.toFixed(2)} AUD`) +
+    adminRow("Payment Ref", ref) +
+    adminRow("Stripe Session", payment.sessionId) +
+    adminSectionHeader("Action") +
+    adminRow("Status", "Payment complete. Report is unlocked and accessible to customer.") +
+    adminRow("Received", time) +
+    adminCtaButton("Open Admin Dashboard", `${TCD_WEBSITE}/admin`);
 
   await transporter.sendMail({
     from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
     to: TCD_RECIPIENTS,
-    subject: `Payment Received — AI Office Planner — ${payment.customerEmail}`,
-    html: adminTemplate("Payment Received — AI Office Planner", adminBody),
+    subject: `PAYMENT RECEIVED — AI Office Planner${payment.customerName ? ` — ${payment.customerName}` : ""} — $${payment.amountAud.toFixed(2)} AUD`,
+    html: adminTemplate("Payment Received — AI Office Planner Report Unlocked", adminBody),
   });
 
-  // Customer confirmation email
-  const customerBodyHtml =
-    customerPara(`Thank you for unlocking your personalised <strong>AI Office Planner report</strong>, ${payment.customerName ? payment.customerName.split(" ")[0] : ""}.`) +
-    customerPara(`Your payment of <strong>$${payment.amountAud.toFixed(2)} AUD</strong> has been received and your full report is now available. Return to the planner to access your interactive floor plan, furniture specifications, cost estimate, and export options.`) +
-    customerDetailsTable(
-      customerDetailRow("Your Email", payment.customerEmail) +
-      customerDetailRow("Amount Paid", `$${payment.amountAud.toFixed(2)} AUD`) +
-      customerDetailRow("Payment Ref", payment.sessionId.slice(-12).toUpperCase()) +
-      customerDetailRow("Date", time)
+  // Customer email — premium, specific
+  const customerBody =
+    p(`${firstName ? `${firstName}, your` : "Your"} <strong>AI Office Planner report is now fully unlocked</strong>. Your payment of <strong style="color:#1a1a1a">$${payment.amountAud.toFixed(2)} AUD</strong> has been processed and confirmed.`) +
+    goldDivider() +
+    sectionLabel("What You Now Have Access To") +
+    p(`<strong>Interactive Visual Floor Plan</strong> — your workspace zones and layout rendered in 2D, with proportional zone sizing based on your brief.<br><br>
+      <strong>Furniture Specification & SKUs</strong> — curated product recommendations matched to your style preference and staff count.<br><br>
+      <strong>Project Cost Estimate</strong> — itemised cost breakdown including furniture, installation, and delivery.<br><br>
+      <strong>Exportable Planning Report</strong> — a formatted PDF-ready workspace concept you can share with your team or fitout contractor.`) +
+    detailTable(
+      detailRow("Payment Confirmed", `$${payment.amountAud.toFixed(2)} AUD`) +
+      detailRow("Payment Reference", ref) +
+      detailRow("Your Email", payment.customerEmail) +
+      detailRow("Confirmed", time)
     ) +
-    customerCta("View Your Report", `${TCD_WEBSITE}/office-planner`);
+    sectionLabel("Your Next Step") +
+    p(`Return to your planner to access the full report. If you'd like to convert this into a live quote or arrange a strategy session, contact our team directly — we can progress this from concept to delivery.`) +
+    cta("Access Your Full Report", `${TCD_WEBSITE}/office-planner`) +
+    `<p style="color:#8a8278;font-size:12px;margin:20px 0 0;line-height:1.6">
+      To request a quote or book a consultation based on your report, call <strong style="color:#1a1a1a">${TCD_PHONE}</strong> or reply to this email. Reference: <strong>${ref}</strong>.
+    </p>`;
 
   await transporter.sendMail({
     from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
     to: payment.customerEmail,
-    subject: "Your AI Office Planner Report is Ready — The Corporate Desk",
-    html: customerTemplate("Your AI Office Planner Report is Ready", customerBodyHtml),
+    subject: `Your AI Office Planner Report is Unlocked — The Corporate Desk`,
+    html: customerTemplate(`Your Workspace Report is Ready${firstName ? `, ${firstName}` : ""}`, customerBody),
   });
 }
 
-// ─── CUSTOMER EMAILS ──────────────────────────────────────────────────────────
+// ─── CUSTOMER: AI Planner submission (Type A) ─────────────────────────────────
 
-/**
- * Type A — AI Planner submission received (customer confirmation)
- */
 export async function sendPlannerSubmissionCustomerEmail(data: {
   name: string;
   company: string;
@@ -370,34 +432,54 @@ export async function sendPlannerSubmissionCustomerEmail(data: {
 
   const firstName = data.name.split(" ")[0];
 
-  const detailRows =
-    customerDetailRow("Company", data.company) +
-    customerDetailRow("City", data.city) +
-    customerDetailRow("Project Type", data.projectType) +
-    customerDetailRow("Office Size", data.squareMetres ? `${data.squareMetres} sqm` : null) +
-    customerDetailRow("Staff Count", data.staffCount ? `${data.staffCount} staff` : null) +
-    customerDetailRow("Budget Range", data.budgetRange) +
-    customerDetailRow("Style Preference", data.stylePreference) +
-    customerDetailRow("Key Requirements", data.specialRequirements);
+  // Build project context string for personalised opening
+  const contextParts = [
+    data.squareMetres ? `${data.squareMetres}sqm` : null,
+    data.staffCount ? `${data.staffCount} staff` : null,
+    data.city || null,
+    data.stylePreference || null,
+  ].filter(Boolean);
+  const contextStr = contextParts.length ? contextParts.join(" · ") : null;
+  const budgetStr = data.budgetRange && data.budgetRange !== "Not specified" ? data.budgetRange : null;
 
-  const bodyHtml =
-    customerPara(`Thank you, <strong>${firstName}</strong>. We've received your workspace planning submission for <strong>${data.company}</strong>.`) +
-    customerPara("Our team is reviewing your brief and preparing a tailored concept for your space. You'll hear from us shortly with next steps — typically within one business day.") +
-    (detailRows ? `<p style="color:#6b6560;font-size:13px;font-weight:600;margin:20px 0 8px;text-transform:uppercase;letter-spacing:0.5px">Your Submission Summary</p>${customerDetailsTable(detailRows)}` : "") +
-    customerPara("In the meantime, if you'd like to discuss your project sooner, call us on <strong>${TCD_PHONE}</strong> — we're happy to talk through your brief.".replace("${TCD_PHONE}", TCD_PHONE)) +
-    customerCta("Explore Our Fit-Out Portfolio", `${TCD_WEBSITE}/case-studies`);
+  const detailRows =
+    detailRow("Company", data.company) +
+    detailRow("Location", data.city) +
+    detailRow("Project Type", data.projectType) +
+    detailRow("Office Size", data.squareMetres ? `${data.squareMetres} sqm` : null) +
+    detailRow("Staff Capacity", data.staffCount ? `${data.staffCount} staff` : null) +
+    detailRow("Budget Range", budgetStr) +
+    detailRow("Style Preference", data.stylePreference) +
+    detailRow("Key Requirements", data.specialRequirements);
+
+  const projectIntro = contextStr
+    ? `Based on your brief — <strong>${contextStr}</strong> — this is a project our workspace team is well positioned to develop a strong concept for.`
+    : `Your workspace planning brief is with our team and we're preparing the right approach for your project.`;
+
+  const body =
+    p(`${firstName}, your workspace planning submission for <strong>${data.company}</strong> has been received and is now with our planning team.`) +
+    p(projectIntro) +
+    goldDivider() +
+    sectionLabel("Your Project Brief") +
+    (detailRows ? detailTable(detailRows) : "") +
+    sectionLabel("What Happens Next") +
+    p(`<strong>1. Brief Review (Today)</strong> — Our workspace consultants will review your submission and assess the scope, style, and commercial context of your project.<br><br>
+       <strong>2. Concept Development (1–2 Business Days)</strong> — We'll prepare a preliminary workspace concept aligned with your brief${data.stylePreference ? `, your ${data.stylePreference} style preference,` : ""} and space requirements.<br><br>
+       <strong>3. Consultation Call</strong> — One of our senior consultants will contact you to walk through the concept, discuss refinements, and outline next steps.`) +
+    credibilityBar() +
+    p(`If you'd like to move faster or discuss your brief directly, call our team on <strong>${TCD_PHONE}</strong>. Reference your company name and we'll connect you to the right consultant.`) +
+    cta("View Our Project Portfolio", `${TCD_WEBSITE}/case-studies`);
 
   await transporter.sendMail({
     from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
     to: data.email,
-    subject: `Your Workspace Planning Brief is Received — The Corporate Desk`,
-    html: customerTemplate(`Your Workspace Brief is Confirmed, ${firstName}`, bodyHtml),
+    subject: `Workspace Concept Initiated — ${data.company}${contextStr ? ` · ${contextStr}` : ""} — The Corporate Desk`,
+    html: customerTemplate(`Your Workspace Brief is With Our Planning Team, ${firstName}`, body),
   });
 }
 
-/**
- * Type C — Quote request received (customer confirmation)
- */
+// ─── CUSTOMER: Quote request (Type C) ─────────────────────────────────────────
+
 export async function sendQuoteRequestCustomerEmail(data: {
   name: string;
   company: string;
@@ -413,34 +495,48 @@ export async function sendQuoteRequestCustomerEmail(data: {
   if (!transporter) return;
 
   const firstName = data.name.split(" ")[0];
-  const label = data.type === "quote-builder" ? "Quote Builder" : "Quote Request";
+  const isBuilder = data.type === "quote-builder";
+
+  // Contextual project summary
+  const contextParts = [
+    data.officeSize ? `${data.officeSize}` : null,
+    data.staffCount ? `${data.staffCount} staff` : null,
+    data.budget || null,
+  ].filter(Boolean);
+  const contextStr = contextParts.length ? contextParts.join(" · ") : null;
+  const budgetContext = data.budget ? `a project budget of <strong>${data.budget}</strong>` : "the scope you've described";
 
   const detailRows =
-    customerDetailRow("Company", data.company) +
-    customerDetailRow("Office Size", data.officeSize) +
-    customerDetailRow("Team Size", data.staffCount ? `${data.staffCount} staff` : null) +
-    customerDetailRow("Budget", data.budget) +
-    customerDetailRow("Timeline", data.timeline) +
-    customerDetailRow("Project Notes", data.message);
+    detailRow("Company", data.company) +
+    detailRow("Office Size", data.officeSize) +
+    detailRow("Team Size", data.staffCount ? `${data.staffCount} staff` : null) +
+    detailRow("Project Budget", data.budget) +
+    detailRow("Target Timeline", data.timeline) +
+    detailRow("Project Notes", data.message);
 
-  const bodyHtml =
-    customerPara(`Thank you, <strong>${firstName}</strong>. We've received your ${label.toLowerCase()} for <strong>${data.company}</strong>.`) +
-    customerPara("Our team will prepare a detailed, itemised proposal tailored to your requirements. You can expect a response within one to two business days.") +
-    (detailRows ? `<p style="color:#6b6560;font-size:13px;font-weight:600;margin:20px 0 8px;text-transform:uppercase;letter-spacing:0.5px">Your Request Summary</p>${customerDetailsTable(detailRows)}` : "") +
-    customerPara(`If you need an urgent turnaround, call us directly on <strong>${TCD_PHONE}</strong> and reference your company name.`) +
-    customerCta("View Our Product Range", `${TCD_WEBSITE}/products`);
+  const body =
+    p(`${firstName}, your ${isBuilder ? "quote builder submission" : "quote request"} for <strong>${data.company}</strong> is under active review by our commercial team.`) +
+    p(`For ${budgetContext}, we'll prepare a detailed, itemised proposal that covers furniture specification, procurement, delivery, and installation — matched to your space and commercial requirements.`) +
+    goldDivider() +
+    sectionLabel("Your Quote Request") +
+    (detailRows ? detailTable(detailRows) : "") +
+    sectionLabel("What Happens Next") +
+    p(`<strong>Within 48 hours</strong>, you'll receive a structured proposal from our commercial team. For more complex or time-sensitive projects, we'll arrange a call to align on scope before submitting the quote.<br><br>
+       ${data.timeline ? `Given your target timeline of <strong>${data.timeline}</strong>, we'll move quickly to ensure you have the information needed to make decisions on schedule.` : "If you're working to a specific timeline, call us directly and we'll prioritise your request."}`) +
+    credibilityBar() +
+    p(`For an immediate discussion, call our team on <strong>${TCD_PHONE}</strong>. Reference <strong>${data.company}</strong> and we'll connect you to the right consultant.`) +
+    cta("Explore Our Product Range", `${TCD_WEBSITE}/products`);
 
   await transporter.sendMail({
     from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
     to: data.email,
-    subject: `Your Quote Request is Confirmed — The Corporate Desk`,
-    html: customerTemplate(`Quote Request Confirmed, ${firstName}`, bodyHtml),
+    subject: `Quote in Motion — ${data.company}${contextStr ? ` · ${contextStr}` : ""} — The Corporate Desk`,
+    html: customerTemplate(`Your Quote Request is Under Active Review, ${firstName}`, body),
   });
 }
 
-/**
- * Type D — Strategy call / layout plan request (customer confirmation)
- */
+// ─── CUSTOMER: Strategy call / layout plan (Type D) ───────────────────────────
+
 export async function sendStrategyCallCustomerEmail(data: {
   name: string;
   company: string;
@@ -457,37 +553,62 @@ export async function sendStrategyCallCustomerEmail(data: {
 
   const firstName = data.name.split(" ")[0];
   const isLayout = data.type === "layout-plan";
-  const requestLabel = isLayout ? "layout plan request" : "strategy consultation request";
-  const title = isLayout ? `Your Layout Plan Request is Confirmed, ${firstName}` : `Strategy Consultation Confirmed, ${firstName}`;
+
+  const contextParts = [
+    data.officeSize ? `${data.officeSize}` : null,
+    data.staffCount ? `${data.staffCount} staff` : null,
+  ].filter(Boolean);
+  const contextStr = contextParts.length ? contextParts.join(", ") : null;
 
   const detailRows =
-    customerDetailRow("Company", data.company) +
-    customerDetailRow("Office Size", data.officeSize) +
-    customerDetailRow("Team Size", data.staffCount ? `${data.staffCount} staff` : null) +
-    customerDetailRow("Budget", data.budget) +
-    customerDetailRow("Preferred Timeline", data.timeline) +
-    customerDetailRow("Project Context", data.message);
+    detailRow("Company", data.company) +
+    detailRow("Office Size", data.officeSize) +
+    detailRow("Team Size", data.staffCount ? `${data.staffCount} staff` : null) +
+    detailRow("Project Budget", data.budget) +
+    detailRow("Preferred Timeline", data.timeline) +
+    detailRow("Project Context", data.message);
 
-  const bodyHtml =
-    customerPara(`Thank you, <strong>${firstName}</strong>. We've received your ${requestLabel} for <strong>${data.company}</strong>.`) +
-    (isLayout
-      ? customerPara("Our workspace design team will review your brief and prepare a preliminary layout concept. We'll be in touch to walk you through the plan and discuss any refinements.")
-      : customerPara("One of our senior workspace consultants will reach out within one business day to schedule your strategy session and confirm a time that suits you.")) +
-    (detailRows ? `<p style="color:#6b6560;font-size:13px;font-weight:600;margin:20px 0 8px;text-transform:uppercase;letter-spacing:0.5px">Your Brief</p>${customerDetailsTable(detailRows)}` : "") +
-    customerPara(`We look forward to helping you create a workspace that works — beautifully and commercially. For anything urgent, call us on <strong>${TCD_PHONE}</strong>.`) +
-    customerCta("Explore Workplace Strategy", `${TCD_WEBSITE}/workplace-strategy`);
+  const titleLine = isLayout
+    ? `Your Layout Plan Request is With Our Design Team, ${firstName}`
+    : `Your Strategy Consultation is Confirmed, ${firstName}`;
+
+  const subjectLine = isLayout
+    ? `Layout Plan Initiated — ${data.company}${contextStr ? ` · ${contextStr}` : ""} — The Corporate Desk`
+    : `Strategy Session Confirmed — ${data.company} — The Corporate Desk`;
+
+  const introText = isLayout
+    ? `${firstName}, your layout plan request for <strong>${data.company}</strong> has been received${contextStr ? ` — our design team is now working with your brief (${contextStr})` : ""}.`
+    : `${firstName}, your strategy consultation request for <strong>${data.company}</strong> has been received. One of our senior workspace consultants will contact you within one business day to confirm the session and align on your objectives.`;
+
+  const nextSteps = isLayout
+    ? `<strong>Brief Assessment (Today)</strong> — Our design team will review your space requirements and any reference materials you've provided.<br><br>
+       <strong>Layout Concept (1–3 Business Days)</strong> — We'll develop a preliminary layout plan for your space${contextStr ? ` (${contextStr})` : ""}, showing zone allocation, circulation, and furniture placement.<br><br>
+       <strong>Review Session</strong> — We'll walk you through the concept, discuss refinements, and outline how to proceed from concept to furnished space.`
+    : `<strong>Confirmation Call (Within 1 Business Day)</strong> — A senior workspace consultant will contact you to confirm the strategy session time and send a calendar invite.<br><br>
+       <strong>Pre-Session Preparation</strong> — To make the session as productive as possible, have on hand: any existing floor plans, a list of key requirements, and any budget or timeline constraints.<br><br>
+       <strong>Strategy Session</strong> — We'll cover your workspace objectives, commercial constraints, design brief, and proposed next steps — including concept development, procurement, and delivery.`;
+
+  const body =
+    p(introText) +
+    goldDivider() +
+    sectionLabel("Your Brief") +
+    (detailRows ? detailTable(detailRows) : "") +
+    sectionLabel("What Happens Next") +
+    p(nextSteps) +
+    credibilityBar() +
+    p(`For anything time-sensitive, call us directly on <strong>${TCD_PHONE}</strong>. Our consultants work across projects of all scales and can advise immediately.`) +
+    cta(isLayout ? "View Our Design Portfolio" : "Explore Workplace Strategy", isLayout ? `${TCD_WEBSITE}/case-studies` : `${TCD_WEBSITE}/workplace-strategy`);
 
   await transporter.sendMail({
     from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
     to: data.email,
-    subject: `${isLayout ? "Layout Plan" : "Strategy Consultation"} Request Confirmed — The Corporate Desk`,
-    html: customerTemplate(title, bodyHtml),
+    subject: subjectLine,
+    html: customerTemplate(titleLine, body),
   });
 }
 
-/**
- * Type E — General enquiry / contact form (customer confirmation)
- */
+// ─── CUSTOMER: General enquiry (Type E) ───────────────────────────────────────
+
 export async function sendEnquiryCustomerEmail(data: {
   name: string;
   company?: string | null;
@@ -498,18 +619,23 @@ export async function sendEnquiryCustomerEmail(data: {
   if (!transporter) return;
 
   const firstName = data.name.split(" ")[0];
+  const hasCompany = !!(data.company && data.company.trim());
 
-  const bodyHtml =
-    customerPara(`Thank you for getting in touch, <strong>${firstName}</strong>.${data.company ? ` We've received your enquiry from <strong>${data.company}</strong>.` : ""}`) +
-    customerPara("Our team will review your message and respond within one business day. If your matter is time-sensitive, please call us directly.") +
-    (data.message ? `<div style="background:#f9f8f6;border-left:3px solid #c9a84c;border-radius:4px;padding:14px 16px;margin:16px 0"><p style="margin:0;color:#4a4540;font-size:13px;line-height:1.7;font-style:italic">${data.message}</p></div>` : "") +
-    customerCta("Visit Our Showroom", `${TCD_WEBSITE}/contact`);
+  const body =
+    p(`${firstName}, your enquiry${hasCompany ? ` from <strong>${data.company}</strong>` : ""} has been received and forwarded to the right member of our team.`) +
+    p(`We respond to commercial enquiries within one business day. If your project is time-sensitive or you need an immediate answer, call us directly on <strong>${TCD_PHONE}</strong> — our team is equipped to advise without delay.`) +
+    (data.message
+      ? `${goldDivider()}<p style="color:#8a8278;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:0 0 8px">Your Message</p><div style="background:#f7f5f1;border-radius:6px;padding:14px 16px;margin:0 0 20px;border-left:3px solid #c9a84c"><p style="margin:0;color:#4a453e;font-size:13px;line-height:1.75">${data.message}</p></div>`
+      : "") +
+    credibilityBar() +
+    p(`Whether you're planning a new office, relocating, or expanding your current space — our team can provide a structured response based on your commercial situation.`) +
+    cta("Explore Our Work", `${TCD_WEBSITE}/case-studies`);
 
   await transporter.sendMail({
     from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
     to: data.email,
-    subject: `Enquiry Received — The Corporate Desk`,
-    html: customerTemplate(`We've Received Your Enquiry, ${firstName}`, bodyHtml),
+    subject: `${hasCompany ? `${data.company} — ` : ""}Your Enquiry is with Our Team — The Corporate Desk`,
+    html: customerTemplate(`Your Enquiry is with Our Team, ${firstName}`, body),
   });
 }
 
