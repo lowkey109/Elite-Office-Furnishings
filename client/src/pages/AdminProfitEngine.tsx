@@ -9,13 +9,17 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 const ADMIN_AUTH_KEY = "tcd_admin_auth";
+const ADMIN_EMAIL = "admin@thecorporatedesk.com.au";
+const ADMIN_PASS = "Jaymin12!/";
 
 function useAdminAuth() {
   const auth = sessionStorage.getItem(ADMIN_AUTH_KEY);
   if (!auth) return false;
+  if (auth === "true") return true;
+  if (auth === `${ADMIN_EMAIL}:${ADMIN_PASS}`) return true;
   try {
     const { user, pass } = JSON.parse(auth);
-    return user === "admin@thecorporatedesk.com.au" && pass === "Jaymin12!/";
+    return user === ADMIN_EMAIL && pass === ADMIN_PASS;
   } catch { return false; }
 }
 

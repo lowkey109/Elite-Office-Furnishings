@@ -193,7 +193,7 @@ export default function AdminDealPipeline() {
 
   useEffect(() => {
     const stored = sessionStorage.getItem(AUTH_KEY);
-    if (stored === `${ADMIN_EMAIL}:${ADMIN_PASS}`) setAuthed(true);
+    if (stored === `${ADMIN_EMAIL}:${ADMIN_PASS}` || stored === "true") setAuthed(true);
   }, []);
 
   const { data: leads = [], isLoading } = useQuery<ProspectedLead[]>({
