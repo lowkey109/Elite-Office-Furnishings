@@ -97,6 +97,10 @@ app.use((req, res, next) => {
 (async () => {
   await registerRoutes(httpServer, app);
 
+  // Start automated follow-up email scheduler
+  const { startFollowUpScheduler } = await import("./services/followUpScheduler");
+  startFollowUpScheduler();
+
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";

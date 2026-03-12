@@ -65,6 +65,38 @@ Admin-only WhatsApp manufacturer communication system at `/admin/manufacturer-me
 
 **Safety rules:** Admin reviews and manually sends all messages. No autonomous sending. All sends (including failed) are logged to `manufacturer_messages` DB table.
 
+## Automated Follow-Up Email Sequences
+Every inbound lead automatically enters a 4-stage personalised email follow-up sequence.
+
+**Schedule:**
+- Stage 1 — 24h after lead creation: warm follow-up, personalised by lead type
+- Stage 2 — 72h (Day 3): value content (timing advice, hybrid office trends, finance comparison)
+- Stage 3 — 168h (Day 7): social proof, 500+ projects, case studies
+- Stage 4 — 336h (Day 14): low-pressure final touch, sequence completes
+
+**Lead type personalisation:** `quote-builder`, `finance-lead`, `planner`/`planning-request`, and all other types (contact/strategy/enquiry) each get different email copy tailored to their enquiry context.
+
+**Key files:**
+- `server/services/followUpEmails.ts` — All 4 stage × lead-type email templates
+- `server/services/followUpScheduler.ts` — Hourly background scheduler + `startFollowUpForLead()` helper
+- `shared/schema.ts` — `followUpSequences` DB table
+- `server/storage.ts` — CRUD methods for sequences
+- `client/src/pages/AdminFollowUpSequences.tsx` — Admin control panel
+
+**Auto-trigger:** Sequences start automatically when leads are created via `/api/leads`, `/api/finance-lead`, or `/api/advanced-estimate`.
+
+**Admin panel:** `/admin/follow-up-sequences` — view all sequences, filter by status, pause/resume/stop individual sequences, mark as replied.
+
+**Sequence statuses:** `active`, `paused`, `completed`, `stopped`, `replied`
+
+**Scheduler:** Starts on server boot (10s delay), runs every hour. Checks `followUpSequences` for rows where `nextSendAt <= NOW()` and `status = active`.
+
+**DB table:** `follow_up_sequences`
+
+**API endpoints:**
+- `GET /api/admin/follow-up-sequences?status=active` — List sequences
+- `PATCH /api/admin/follow-up-sequences/:id/pause|resume|stop|mark-replied` — Update status
+
 ## Brand / Supplier Naming Rules
 **Critical:** Supplier names must NEVER appear publicly. All internal supplier keys are mapped to public brand names:
 - `Foshan Feisenzhuo Furniture Co., Ltd.` → **Fessenz Design Collection**

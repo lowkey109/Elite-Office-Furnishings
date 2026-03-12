@@ -171,6 +171,32 @@ export const insertProductReviewSchema = createInsertSchema(productReviews).omit
 export type InsertProductReview = z.infer<typeof insertProductReviewSchema>;
 export type ProductReview = typeof productReviews.$inferSelect;
 
+export const followUpSequences = pgTable("follow_up_sequences", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  leadId: text("lead_id").notNull(),
+  leadName: text("lead_name").notNull(),
+  leadEmail: text("lead_email").notNull(),
+  leadCompany: text("lead_company").notNull(),
+  leadType: text("lead_type").notNull(),
+  officeSize: text("office_size"),
+  staffCount: text("staff_count"),
+  budget: text("budget"),
+  stage: integer("stage").notNull().default(0),
+  status: text("status").notNull().default("active"),
+  nextSendAt: timestamp("next_send_at"),
+  lastSentAt: timestamp("last_sent_at"),
+  stagesCompleted: text("stages_completed").array().notNull().default(sql`'{}'`),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertFollowUpSequenceSchema = createInsertSchema(followUpSequences).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertFollowUpSequence = z.infer<typeof insertFollowUpSequenceSchema>;
+export type FollowUpSequence = typeof followUpSequences.$inferSelect;
+
 export const manufacturerMessages = pgTable("manufacturer_messages", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   manufacturerId: text("manufacturer_id").notNull(),

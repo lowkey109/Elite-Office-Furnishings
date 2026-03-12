@@ -18,6 +18,7 @@ import { getAdaptersMeta } from "./adapters/manualAdapter";
 import { generatePackageAndQuote } from "./ai/packageGenerator";
 import { parseFloorPlan, type FloorGeometry } from "./services/floorPlanParser";
 import { sendWhatsAppTextMessage, isWhatsAppConfigured } from "./services/whatsapp";
+import { startFollowUpForLead } from "./services/followUpScheduler";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -677,6 +678,18 @@ ${allUrls.map(u => `  <url>
         signals: opp.signals,
       }).catch((err) => console.error("[email] Lead notification failed:", err));
 
+      // Start automated follow-up sequence (non-blocking)
+      startFollowUpForLead({
+        id: String(lead.id),
+        name: lead.name,
+        email: lead.email,
+        company: lead.company ?? "",
+        type: lead.type,
+        officeSize: lead.officeSize,
+        staffCount: lead.staffCount,
+        budget: lead.budget,
+      }).catch(err => console.error("[followup] Failed to start sequence:", err));
+
       // Non-blocking customer confirmation email based on lead type
       const lt = (lead.type || "").toLowerCase();
       if (lt === "quote-request" || lt === "quote-builder") {
@@ -822,6 +835,18 @@ ${allUrls.map(u => `  <url>
         partnerName,
       }).catch(err => console.error("[email] Finance customer email failed:", err));
 
+      // Start automated follow-up sequence (non-blocking)
+      startFollowUpForLead({
+        id: String(lead.id),
+        name: lead.name,
+        email: lead.email,
+        company: lead.company ?? "",
+        type: "finance-lead",
+        officeSize: lead.officeSize,
+        staffCount: lead.staffCount,
+        budget: projectValue,
+      }).catch(err => console.error("[followup] Finance lead sequence failed:", err));
+
       res.json({ success: true, id: lead.id, routedTo: partnerName });
     } catch (error) {
       console.error("[finance-lead] Error:", error);
@@ -962,6 +987,18 @@ ${allUrls.map(u => `  <url>
         budget: budgetRange,
         type: "Advanced Estimator",
       }).catch((err) => console.error("[email] Estimate customer email failed:", err));
+
+      // Start automated follow-up sequence (non-blocking)
+      startFollowUpForLead({
+        id: String(lead.id),
+        name: lead.name,
+        email: lead.email,
+        company: lead.company ?? "",
+        type: "quote-builder",
+        officeSize: squareMetres ? `${squareMetres} sqm` : undefined,
+        staffCount,
+        budget: budgetRange,
+      }).catch(err => console.error("[followup] Quote builder sequence failed:", err));
 
       res.json({
         success: true,
@@ -2504,6 +2541,58 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch layout data" });
+    }
+  });
+
+  // ─── Follow-Up Sequence Management ───────────────────────────────────────────
+
+  app.get("/api/admin/follow-up-sequences", async (req, res) => {
+    try {
+      const status = req.query.status as string | undefined;
+      const sequences = await storage.getFollowUpSequences(status);
+      res.json(sequences);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.patch("/api/admin/follow-up-sequences/:id/pause", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const seq = await storage.updateFollowUpSequenceStatus(id, "paused");
+      res.json(seq);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.patch("/api/admin/follow-up-sequences/:id/resume", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const seq = await storage.updateFollowUpSequenceStatus(id, "active");
+      res.json(seq);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.patch("/api/admin/follow-up-sequences/:id/stop", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const seq = await storage.updateFollowUpSequenceStatus(id, "stopped");
+      res.json(seq);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.patch("/api/admin/follow-up-sequences/:id/mark-replied", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const seq = await storage.updateFollowUpSequenceStatus(id, "replied");
+      res.json(seq);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
     }
   });
 

@@ -2,10 +2,11 @@ import { eq, desc, or, ilike, and, sql as drizzleSql } from "drizzle-orm";
 import { db } from "./db";
 import {
   users, leads, prospectedLeads, supplierQuotes, referrals, planningRequests, productReviews,
-  manufacturerMessages,
+  manufacturerMessages, followUpSequences,
   type User, type InsertUser, type Lead, type InsertLead, type PlanningRequest,
   type ProductReview, type InsertProductReview,
   type ManufacturerMessage, type InsertManufacturerMessage,
+  type FollowUpSequence, type InsertFollowUpSequence,
 } from "@shared/schema";
 
 export interface ProspectedLead {
@@ -532,6 +533,66 @@ export class DrizzleStorage implements IStorage {
     const [row] = await db.update(manufacturerMessages)
       .set({ status, ...(wapiMessageId ? { wapiMessageId } : {}) })
       .where(eq(manufacturerMessages.id, id))
+      .returning();
+    return row;
+  }
+
+  // ─── Follow-Up Sequences ────────────────────────────────────────────────────
+
+  async createFollowUpSequence(data: InsertFollowUpSequence): Promise<FollowUpSequence> {
+    const [row] = await db.insert(followUpSequences).values(data).returning();
+    return row;
+  }
+
+  async getFollowUpSequences(status?: string): Promise<FollowUpSequence[]> {
+    if (status) {
+      return db.select().from(followUpSequences)
+        .where(eq(followUpSequences.status, status))
+        .orderBy(desc(followUpSequences.createdAt));
+    }
+    return db.select().from(followUpSequences).orderBy(desc(followUpSequences.createdAt));
+  }
+
+  async getFollowUpSequenceByLeadId(leadId: string): Promise<FollowUpSequence | undefined> {
+    const [row] = await db.select().from(followUpSequences)
+      .where(eq(followUpSequences.leadId, leadId));
+    return row;
+  }
+
+  async getDueFollowUpSequences(): Promise<FollowUpSequence[]> {
+    return db.select().from(followUpSequences)
+      .where(
+        and(
+          eq(followUpSequences.status, "active"),
+          drizzleSql`${followUpSequences.nextSendAt} <= NOW()`
+        )
+      );
+  }
+
+  async advanceFollowUpSequence(
+    id: string,
+    nextStage: number,
+    nextSendAt: Date | null,
+    status: string,
+    stagesCompleted: string[]
+  ): Promise<FollowUpSequence | undefined> {
+    const [row] = await db.update(followUpSequences)
+      .set({
+        stage: nextStage,
+        nextSendAt,
+        lastSentAt: new Date(),
+        status,
+        stagesCompleted,
+      })
+      .where(eq(followUpSequences.id, id))
+      .returning();
+    return row;
+  }
+
+  async updateFollowUpSequenceStatus(id: string, status: string): Promise<FollowUpSequence | undefined> {
+    const [row] = await db.update(followUpSequences)
+      .set({ status })
+      .where(eq(followUpSequences.id, id))
       .returning();
     return row;
   }
