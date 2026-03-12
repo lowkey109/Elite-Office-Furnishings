@@ -1,0 +1,193 @@
+You are in FULL PLATFORM AUDIT MODE for The Corporate Desk.
+
+Do NOT build anything yet.
+Do NOT change code yet.
+Do NOT refactor yet.
+Do NOT install anything yet.
+
+Your job is to inspect the live platform and give me a clear, brutally honest report on exactly what exists right now across the public website and admin system.
+
+I want to know what is REAL, what is PARTIAL, what is DEMO, what is BROKEN, and what still needs to be built or connected.
+
+IMPORTANT:
+Audit the actual code, actual routes, actual components, actual database usage, and actual live flows.
+Do not guess.
+If something is not confirmed, say "not confirmed".
+
+==================================================
+PART 1 — PUBLIC WEBSITE AUDIT
+==================================================
+
+List every public-facing route/page currently available and explain what each one does.
+
+Include at minimum:
+- homepage
+- products
+- collections
+- office packages
+- product detail pages
+- finance page
+- AI office planner
+- visual layout page/results
+- 3D walkthrough
+- payment unlock flow
+- quote pages
+- contact/strategy call pages
+- any thank-you/success pages
+
+For each route/page report:
+1. route
+2. page name
+3. whether it loads successfully
+4. whether it is production-ready or partial
+5. whether it uses real data or demo/placeholder data
+6. whether it is linked in navigation
+7. key functionality on the page
+8. what is still missing or weak
+
+==================================================
+PART 2 — ADMIN / BACKEND AUDIT
+==================================================
+
+List every admin/internal route and explain what each one does.
+
+Include at minimum:
+- /admin
+- /admin/planning-requests
+- /admin/command-centre
+- any leads pages
+- any quote pages
+- any payment/admin status pages
+- any product admin / mapping views
+- any review/moderation pages if they exist
+
+For each route/page report:
+1. route
+2. purpose
+3. whether it loads successfully
+4. what real data it uses
+5. whether it is production-ready or partial
+6. what still needs to be connected or improved
+
+==================================================
+PART 3 — PLANNER FLOW AUDIT
+==================================================
+
+Audit the end-to-end planner flow.
+
+Check:
+- floor plan upload
+- form submission
+- workspace analysis
+- zone recommendations
+- project value estimate
+- payment lock/unlock
+- admin record creation
+- quote/package linkage
+- 3D linkage if present
+
+Report clearly:
+1. what happens after submit
+2. what is real
+3. what is still demo
+4. what is missing
+5. whether the paid unlock is fully connected
+
+==================================================
+PART 4 — VISUAL LAYOUT / 3D AUDIT
+==================================================
+
+Inspect the visual layout system and 3D walkthrough.
+
+Report:
+1. does the planner generate a true visual floor-plan layout or only text/zone summaries
+2. is the 3D walkthrough demo-based or planner-data-driven
+3. what data powers the 3D viewer
+4. whether real product mapping exists
+5. whether the layout/3D system is fully integrated or partial
+
+Be very specific.
+
+==================================================
+PART 5 — PRODUCT CATALOG AUDIT
+==================================================
+
+Inspect the product catalog and product detail pages.
+
+Report:
+1. are products using real product data
+2. are product names clean and branded as The Corporate Desk
+3. are supplier names hidden from frontend
+4. are product images correct per SKU
+5. do all products have multiple images
+6. are collections and packages working
+7. what still looks messy, duplicated, or incorrect
+
+==================================================
+PART 6 — PAYMENT / MONETISATION AUDIT
+==================================================
+
+Inspect the monetisation flow.
+
+Report:
+1. is Stripe connected
+2. does the unlock button trigger real payment
+3. what unlocks after payment
+4. is payment status stored anywhere
+5. is the success flow complete
+6. what is still incomplete
+
+==================================================
+PART 7 — AI / INTELLIGENCE AUDIT
+==================================================
+
+Inspect the AI system and knowledge system.
+
+Report:
+1. what AI prompts/system prompts exist
+2. what knowledge files have actually been created
+3. whether the admin AI is using business/psychology/industry knowledge
+4. whether CEO reasoning is actually wired in or only scaffolded
+5. what parts are real vs still just file structure
+
+==================================================
+PART 8 — REAL VS DEMO SUMMARY
+==================================================
+
+Create a section with these headings exactly:
+
+A. FULLY REAL AND WORKING
+B. PARTIALLY WORKING
+C. DEMO / PLACEHOLDER / NOT FULLY CONNECTED
+D. BROKEN OR NOT PRODUCTION READY
+
+==================================================
+PART 9 — TOP PRIORITIES
+==================================================
+
+List the top 10 highest-value fixes or upgrades in order.
+
+Prioritise based on:
+- revenue impact
+- conversion impact
+- premium brand perception
+- system completeness
+- safety of implementation
+
+==================================================
+PART 10 — FINAL VERDICT
+==================================================
+
+Answer these directly:
+
+1. Is the platform truly live or still partially demo?
+2. What percentage complete is it?
+3. What is the single biggest missing feature?
+4. What is the single most commercially valuable next step?
+
+IMPORTANT:
+Be brutally honest.
+Do not sugarcoat.
+Do not stay vague.
+This is an audit only.
+No code changes yet.
