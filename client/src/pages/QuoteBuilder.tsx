@@ -22,8 +22,8 @@ const PROJECT_TYPES = [
 ];
 
 const STYLE_OPTIONS = [
-  { id: "aimu", label: "Aimu Series", desc: "Executive, dark veneer, prestige", tag: "Most Popular" },
-  { id: "breeze", label: "Breeze Series", desc: "Contemporary, light timber, modern" },
+  { id: "aimu", label: "Fessenz Executive", desc: "Executive, dark veneer, prestige", tag: "Most Popular" },
+  { id: "breeze", label: "Milan Workstation", desc: "Contemporary, light timber, modern" },
   { id: "mixed", label: "Mixed / Flexible", desc: "Open to recommendations" },
 ];
 

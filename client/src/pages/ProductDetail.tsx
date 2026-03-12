@@ -15,6 +15,7 @@ import {
   ArrowRight, ChevronLeft, Star, Tag, Package, CheckCircle2,
   Ruler, Layers, Palette, Clock, Shield, Award, Phone, FileText, Cpu
 } from "lucide-react";
+import { getSeriesDisplayName } from "@/lib/seriesDisplayNames";
 
 interface Product {
   product_name: string;
@@ -69,12 +70,12 @@ const CATEGORY_PRICE_RANGES: Record<string, string> = {
   "Occasional Tables": "From $320",
 };
 
-const SUPPLIER_LABELS: Record<string, string> = {
-  "Foshan Feisenzhuo Furniture Co., Ltd.": "FSZ",
-  "Huasheng Furniture Group — Gaozhuo Division": "HSG",
-  "Huasheng Furniture Group — GOJO Division": "GOJO",
-  "Huasheng Furniture Group — Lounge & Seating Division": "GOJO Lounge",
-  "Foshan Bohua Furniture Co., Ltd. (GAOJIN)": "GAOJIN",
+const SUPPLIER_COLLECTION_NAMES: Record<string, string> = {
+  "Foshan Feisenzhuo Furniture Co., Ltd.": "Fessenz Collection",
+  "Huasheng Furniture Group — Gaozhuo Division": "Gaozhuo Executive Collection",
+  "Huasheng Furniture Group — GOJO Division": "GOJO Executive Collection",
+  "Huasheng Furniture Group — Lounge & Seating Division": "GOJO Lounge & Seating",
+  "Foshan Bohua Furniture Co., Ltd. (GAOJIN)": "The Corporate Desk Collection",
 };
 
 const PACKAGE_COMPATIBILITY: Record<string, { name: string; slug: string }[]> = {
@@ -292,7 +293,7 @@ export default function ProductDetail() {
 
   const imgSrc = (!imgError && product.image) ? product.image : (CATEGORY_IMAGES[product.category] || "/images/category-fitout.png");
   const price = CATEGORY_PRICE_RANGES[product.category] || "POA";
-  const supplierLabel = SUPPLIER_LABELS[product.supplier] || product.supplier;
+  const collectionName = SUPPLIER_COLLECTION_NAMES[product.supplier] || "The Corporate Desk Collection";
   const description = generateDescription(product);
   const recommendedUses = getRecommendedUse(product);
   const packages = PACKAGE_COMPATIBILITY[product.series] || [];
@@ -344,10 +345,10 @@ export default function ProductDetail() {
               {/* Badges */}
               <div className="absolute top-4 left-4 flex flex-col gap-2">
                 <Badge className="bg-[rgba(201,168,76,0.9)] text-[hsl(220,20%,6%)] text-xs font-bold px-3 py-1">
-                  {product.series}
+                  {getSeriesDisplayName(product.series)}
                 </Badge>
                 <Badge className="bg-[hsl(220,20%,10%)]/90 text-white/60 text-[10px] border border-white/10 px-2 py-1">
-                  {supplierLabel}
+                  {collectionName}
                 </Badge>
               </div>
             </div>
@@ -451,12 +452,10 @@ export default function ProductDetail() {
                 </Button>
               </div>
 
-              {/* Supplier */}
-              {product.supplier && (
-                <div className="pt-2 border-t border-white/5 text-xs text-white/30">
-                  Supplied by: <span className="text-white/50">{product.supplier}</span>
-                </div>
-              )}
+              {/* Collection */}
+              <div className="pt-2 border-t border-white/5 text-xs text-white/30">
+                Collection: <span className="text-white/50">{collectionName}</span>
+              </div>
             </div>
           </div>
         </section>
@@ -495,7 +494,7 @@ export default function ProductDetail() {
                   {[
                     { label: "Product Name", value: product.product_name },
                     { label: "SKU", value: product.sku },
-                    { label: "Series / Collection", value: product.series },
+                    { label: "Series / Collection", value: getSeriesDisplayName(product.series) },
                     { label: "Category", value: product.category },
                     product.dimensions && { label: "Dimensions", value: product.dimensions },
                     product.materials && { label: "Materials & Construction", value: product.materials },
@@ -669,25 +668,25 @@ export default function ProductDetail() {
                 </div>
               )}
 
-              {/* Supplier Card */}
+              {/* Collection & Provenance Card */}
               <div className="luxury-card rounded-lg p-6" data-testid="supplier-info">
-                <h3 className="font-serif font-semibold text-white text-lg mb-4">Supplier & Sourcing</h3>
+                <h3 className="font-serif font-semibold text-white text-lg mb-4">Collection & Provenance</h3>
                 <div className="flex flex-col gap-3 text-sm">
                   <div>
-                    <div className="text-white/40 text-xs uppercase tracking-wider mb-1">Supplier</div>
-                    <div className="text-white/75">{product.supplier || "The Corporate Desk Network"}</div>
+                    <div className="text-white/40 text-xs uppercase tracking-wider mb-1">Collection</div>
+                    <div className="text-white/75">{collectionName}</div>
                   </div>
                   <div>
-                    <div className="text-white/40 text-xs uppercase tracking-wider mb-1">Origin</div>
-                    <div className="text-white/75">China — ISO 9001:2015 Certified Manufacturing</div>
-                  </div>
-                  <div>
-                    <div className="text-white/40 text-xs uppercase tracking-wider mb-1">Certification</div>
-                    <div className="text-white/75">ISO 9001:2015 | ISO 14001:2015</div>
+                    <div className="text-white/40 text-xs uppercase tracking-wider mb-1">Manufacturing</div>
+                    <div className="text-white/75">ISO 9001:2015 &amp; ISO 14001:2015 Certified Facilities</div>
                   </div>
                   <div>
                     <div className="text-white/40 text-xs uppercase tracking-wider mb-1">Distribution</div>
-                    <div className="text-white/75">Exclusive Australian distribution via The Corporate Desk</div>
+                    <div className="text-white/75">Exclusive Australian distribution — The Corporate Desk</div>
+                  </div>
+                  <div>
+                    <div className="text-white/40 text-xs uppercase tracking-wider mb-1">Warranty</div>
+                    <div className="text-white/75">6 years — commercial use</div>
                   </div>
                 </div>
               </div>

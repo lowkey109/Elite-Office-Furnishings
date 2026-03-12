@@ -1,0 +1,290 @@
+You are working on the live The Corporate Desk platform.
+
+You are in PRODUCTION RECOVERY AND COMPLETION MODE.
+
+IMPORTANT:
+This is not a cosmetic cleanup.
+This is a real conversion from partial/demo systems into working production systems.
+
+Do NOT break any currently working live functionality.
+Do NOT rebuild the site from scratch.
+Do NOT refactor broadly.
+Do NOT leave fake placeholders, fake trust content, fake product signals, fake payment behaviour, or fake dashboards.
+
+Your job is to fix the known platform issues with concrete implementation solutions and make the system as real, stable, and production-ready as possible.
+
+==================================================
+NON-NEGOTIABLE SYSTEMS TO PROTECT
+==================================================
+
+Do NOT break:
+
+- AI office planner
+- planner submission flow
+- payment flow
+- unlock flow
+- product catalog routes
+- product detail pages
+- admin dashboard
+- admin command centre
+- planning requests
+- lead capture
+- chatbot
+- finance calculator
+- 2D layout renderer
+- 3D walkthrough page
+- public website routes
+- mobile and desktop responsiveness
+
+==================================================
+PRIMARY GOAL
+==================================================
+
+Convert the platform from:
+partially real + partially demo
+into:
+real working system + honest fallback handling
+
+If something cannot be made fully real safely, do NOT fake it.
+Either:
+1. connect it to real data properly, or
+2. downgrade/remove the fake/demo element and replace it with a safe honest version.
+
+==================================================
+IMPLEMENTATION ORDER
+==================================================
+
+Work in this order only:
+
+1. Revenue safety
+2. Brand integrity
+3. Product catalog integrity
+4. Operational communications
+5. Trust layer cleanup
+6. Product page completeness
+7. Knowledge/AI loader reliability
+
+Do not jump ahead until each step is safely tested.
+
+==================================================
+PHASE 1 — STRIPE WEBHOOK (REVENUE SAFETY)
+==================================================
+
+CURRENT ISSUE:
+Payments depend on the browser completing the success redirect.
+If a customer pays and closes the tab, the payment may succeed but the report may remain locked.
+
+SOLUTION TO IMPLEMENT:
+1. Create a real Stripe webhook endpoint.
+2. Listen for checkout completion events.
+3. On successful payment, update the correct planning request record in the database.
+4. Set payment status and unlock fields server-side from webhook events.
+5. Preserve the existing success redirect verification flow as a secondary check, not the primary dependency.
+6. Add safe idempotency logic so webhook retries do not break records.
+7. Add server logging for webhook handling.
+
+REQUIRED RESULT:
+A paid customer must be unlocked even if the browser redirect fails.
+
+==================================================
+PHASE 2 — REMOVE SUPPLIER NAMES FROM FRONTEND
+==================================================
+
+CURRENT ISSUE:
+Chinese manufacturer names are visible on public product pages.
+
+SOLUTION TO IMPLEMENT:
+1. Audit all product card and product detail page components.
+2. Remove public supplier text and badges from frontend.
+3. Keep supplier fields in backend/admin/internal mappings only.
+4. Replace public-facing supplier areas with either:
+   - nothing, if cleaner
+   - or branded language such as:
+     "The Corporate Desk Collection"
+     "Commercial Sourcing Network"
+5. Do not remove supplier data from DB or internal logic.
+
+REQUIRED RESULT:
+Customers see The Corporate Desk brand only.
+Internal sourcing still works.
+
+==================================================
+PHASE 3 — FIX BROKEN PRODUCT IMAGE SYSTEM
+==================================================
+
+CURRENT ISSUE:
+Many product image paths are broken.
+The catalog rotates generic images and many products show 404s.
+
+SOLUTION TO IMPLEMENT:
+1. Audit every referenced image path.
+2. Build a real map of which image files actually exist on disk.
+3. Reassign live products to valid image files.
+4. Add safe fallback logic so missing product images never render as broken icons.
+5. If a product has no valid real image, use a safe branded placeholder image, not a broken link.
+6. Prefer category-appropriate fallback images over random images.
+7. Keep product pages stable even if perfect SKU-specific imagery does not yet exist.
+8. If multi-image gallery is possible using existing assets, support it. If not, keep a stable single-image system.
+
+REQUIRED RESULT:
+No broken image links on product cards or product pages.
+Every live product shows at least one valid image.
+
+==================================================
+PHASE 4 — FIX FAKE TRUST CONTENT
+==================================================
+
+CURRENT ISSUE:
+Case studies and testimonials contain fictional references and non-existent product lines such as Aimu Series.
+
+SOLUTION TO IMPLEMENT:
+1. Audit all case study and testimonial content.
+2. Remove any non-existent product series references.
+3. Replace fake product references with real catalog families if safely possible.
+4. If the pages cannot be made fully real yet, convert them into safer formats such as:
+   - workspace inspiration examples
+   - sample fit-out scenarios
+   - design concepts
+   - example office transformations
+5. Remove fake company names if they create credibility risk.
+6. Preserve the page layout and premium feel.
+
+REQUIRED RESULT:
+No obvious fictional product lines or fake credibility landmines remain on the public site.
+
+==================================================
+PHASE 5 — SMTP / EMAIL NOTIFICATIONS
+==================================================
+
+CURRENT ISSUE:
+No email notifications are firing.
+
+SOLUTION TO IMPLEMENT:
+1. Audit current email sending logic.
+2. Wire planner submissions, lead forms, and payment unlock confirmations to SMTP if env vars are present.
+3. Add safe graceful fallback if SMTP is not configured.
+4. Do not throw runtime errors if credentials are missing.
+5. Document exactly which env vars are required in final report.
+
+REQUIRED RESULT:
+When SMTP is configured, admin and customer emails send correctly.
+When SMTP is missing, the platform remains stable and logs the limitation.
+
+==================================================
+PHASE 6 — CLEAN PRODUCT NAMING / PRESENTATION
+==================================================
+
+CURRENT ISSUE:
+Raw internal codes such as JN, HXM, YOM, G03 appear publicly and weaken the premium brand.
+
+SOLUTION TO IMPLEMENT:
+1. Create a presentation-layer naming map.
+2. Keep raw backend codes and SKUs internal.
+3. Show cleaner branded collection/family names on public pages.
+4. Do not break route resolution or product lookup.
+5. Preserve SKU visibility where useful, but remove ugly internal series naming from customer-facing headings.
+
+REQUIRED RESULT:
+Frontend feels premium and branded, while backend data remains intact.
+
+==================================================
+PHASE 7 — SHOW REAL REVIEWS ON PRODUCT PAGES
+==================================================
+
+CURRENT ISSUE:
+Review data exists in admin/database but is not shown publicly.
+
+SOLUTION TO IMPLEMENT:
+1. Audit reviews table/data structure.
+2. Show approved reviews on product detail pages.
+3. Show average rating only if real review data exists.
+4. If no reviews exist, hide the section cleanly instead of showing empty UI.
+5. Do not show unmoderated/spam content.
+
+REQUIRED RESULT:
+Public product pages display real approved reviews where available.
+
+==================================================
+PHASE 8 — BLOG IMAGE LAYER
+==================================================
+
+CURRENT ISSUE:
+Blog content exists but has no featured images.
+
+SOLUTION TO IMPLEMENT:
+1. Add featured image support without breaking existing post routes.
+2. If real article images do not exist, use safe category-based branded cover images.
+3. Keep performance stable.
+4. Do not require a CMS migration.
+
+REQUIRED RESULT:
+Blog index and blog posts look visually complete and premium.
+
+==================================================
+PHASE 9 — KNOWLEDGE LOADER RELIABILITY
+==================================================
+
+CURRENT ISSUE:
+Knowledge files exist, but subdirectory loading may fail silently.
+
+SOLUTION TO IMPLEMENT:
+1. Audit the knowledge loader.
+2. Ensure subdirectories for business, industry, psychology, finance, growth, market, accounting, and risk are actually loaded.
+3. Replace silent failures with safe logging.
+4. Keep optional files non-fatal.
+5. Do not break existing AI calls.
+
+REQUIRED RESULT:
+The AI actually uses the knowledge structure rather than merely having files on disk.
+
+==================================================
+PHASE 10 — HONEST FALLBACK RULE
+==================================================
+
+If any feature cannot be made fully real because required assets/integrations are missing, do NOT leave it pretending to be real.
+
+Examples:
+- if no real finance partner API exists, keep calculator clearly indicative
+- if no real furniture 3D models exist, keep 3D as zone-based but label/restrict it honestly
+- if no real case study evidence exists, convert to examples/inspirations rather than fake testimonials
+
+The site must become more credible, not more inflated.
+
+==================================================
+MANDATORY TESTING AFTER EACH PHASE
+==================================================
+
+After every phase test:
+
+1. Homepage loads
+2. Products page loads
+3. Product detail pages load
+4. Planner submission works
+5. Payment flow still works
+6. Unlock flow still works
+7. Admin dashboard works
+8. Planning requests page works
+9. Command centre works
+10. 3D walkthrough still loads
+11. Mobile is stable
+12. Desktop is stable
+13. No critical server errors occur
+
+==================================================
+FINAL REPORT FORMAT
+==================================================
+
+For each phase report:
+
+1. What was audited
+2. What exact solution was implemented
+3. Files changed
+4. What was tested
+5. What is now fully real
+6. What remains partial but honest
+7. Confirmation that existing live systems still work
+
+IMPORTANT:
+Do not stay in planning mode.
+Start with Phase 1 only.
+Implement the real solution, test it, and report before moving to the next phase.

@@ -21,6 +21,16 @@ The application follows a client-server architecture.
     - **Admin Dashboard**: Provides KPIs, recent lead overviews, lead type breakdown charts, and access to other admin functionalities.
     - **SEO Blog**: Client-side blog with 200 articles across 10 topic clusters, featuring search, category filters, and pagination.
 
+## Production Recovery — Completed Phases (2026-03-12)
+- **Phase 1 — Stripe webhook**: `/api/webhooks/stripe` handles `checkout.session.completed` with signature verification; idempotent; requires `STRIPE_WEBHOOK_SECRET` Replit secret
+- **Phase 2 — Supplier names stripped**: `ProductDetail.tsx` — `SUPPLIER_LABELS` → `SUPPLIER_COLLECTION_NAMES` (e.g., "Foshan Feisenzhuo" → "Fessenz Collection"); also fixed `QuoteBuilder.tsx` ("Aimu Series"→"Fessenz Executive", "Breeze Series"→"Milan Workstation") and `OfficeWalkthrough.tsx` ("Feisenzhuo Ruige"→"Presidia Conference Table", "Feisenzhuo Weiyi"→"Presidia Reception Counter")
+- **Phase 3 — Images fixed**: All 330 product images remapped in `productCatalog.json` via category/series fallback; 0 broken links remain
+- **Phase 4 — Brand names fixed**: `CaseStudies.tsx` + `Testimonials.tsx`: "Aimu Series" → "Fessenz Executive Collection", "Breeze Series" → "Milan Workstation Series" across all 6 case studies and testimonial 1
+- **Phase 5 — Payment email**: `server/email.ts` — `sendPaymentConfirmationNotification()` sends admin alert + customer confirmation on Stripe webhook; wired to `checkout.session.completed` event in `routes.ts`
+- **Phase 6 — Series display names**: `client/src/lib/seriesDisplayNames.ts` maps raw codes (JN, YOM, HXM, G01–G07, etc.) to branded display names; imported and used in `Products.tsx` (card badge) and `ProductDetail.tsx` (series badge + specs table)
+- **Phase 7 — Product reviews**: Already working via `getApprovedReviewsBySku`; no changes needed
+- **Phase 8 — Blog category visuals**: `Blog.tsx` — `CategoryBanner` component with 10 category-specific gradient backgrounds and icons; each blog card now has a rich visual header above the text
+
 ## Stripe Paywall
 The AI Workspace Planning Report is gated behind a $399 AUD one-time payment:
 - **Free tier**: Client brief summary + zone color bar teaser + blurred/watermarked SVG preview

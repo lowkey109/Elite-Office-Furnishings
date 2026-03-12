@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Layout } from "@/components/Layout";
 import { ArrowRight, Tag, Search, SlidersHorizontal, X, Package, ChevronDown, ChevronRight } from "lucide-react";
+import { getSeriesDisplayName } from "@/lib/seriesDisplayNames";
 
 interface Product {
   product_name: string;
@@ -138,7 +139,7 @@ function ProductCard({ product }: { product: Product }) {
           <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,18%,6%)]/70 via-transparent to-transparent opacity-80" />
           <div className="absolute top-3 left-3">
             <Badge className="bg-[rgba(201,168,76,0.85)] text-[hsl(220,20%,6%)] text-xs font-semibold">
-              {product.series}
+              {getSeriesDisplayName(product.series)}
             </Badge>
           </div>
           <div className="absolute top-3 right-3">

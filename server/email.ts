@@ -192,6 +192,64 @@ export async function sendPlanningRequestNotification(req: {
   });
 }
 
+export async function sendPaymentConfirmationNotification(payment: {
+  customerEmail: string;
+  customerName?: string | null;
+  sessionId: string;
+  amountAud: number;
+}): Promise<void> {
+  const transporter = createTransporter();
+  if (!transporter) {
+    console.log("[email] SMTP not configured — skipping payment confirmation");
+    return;
+  }
+
+  const time = new Date().toLocaleString("en-AU", { timeZone: "Australia/Brisbane" }) + " AEST";
+
+  const adminBody =
+    row("Type", "AI Office Planner — Payment Received") +
+    row("Customer Email", payment.customerEmail) +
+    row("Customer Name", payment.customerName) +
+    row("Amount", `$${payment.amountAud.toFixed(2)} AUD`) +
+    row("Stripe Session", payment.sessionId) +
+    row("Admin Link", "thecorporatedesk.com.au/admin") +
+    row("Received", time);
+
+  await transporter.sendMail({
+    from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
+    to: TCD_RECIPIENTS,
+    subject: `Payment Received — AI Office Planner — ${payment.customerEmail}`,
+    html: baseTemplate("Payment Received — AI Office Planner", adminBody),
+  });
+
+  const customerBody = `
+    <tr>
+      <td colspan="2" style="padding:20px 12px 8px;color:#f0f0f0;font-size:15px;line-height:1.7">
+        Thank you for unlocking your personalised AI Office Planner report.<br><br>
+        Your payment of <strong style="color:#c9a84c">$${payment.amountAud.toFixed(2)} AUD</strong> has been received and your full report is now available on your device.<br><br>
+        If you have any questions or need assistance, our team is here to help.
+      </td>
+    </tr>
+    ${row("Your Email", payment.customerEmail)}
+    ${row("Amount Paid", `$${payment.amountAud.toFixed(2)} AUD`)}
+    ${row("Payment Ref", payment.sessionId.slice(-12).toUpperCase())}
+    ${row("Date", time)}
+    <tr>
+      <td colspan="2" style="padding:20px 12px 8px">
+        <a href="https://thecorporatedesk.com.au/office-planner" style="display:inline-block;background:#c9a84c;color:#0f0f13;font-weight:700;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px">
+          Return to Your Report →
+        </a>
+      </td>
+    </tr>`;
+
+  await transporter.sendMail({
+    from: `"The Corporate Desk" <${process.env.SMTP_USER}>`,
+    to: payment.customerEmail,
+    subject: "Your AI Office Planner Report is Ready — The Corporate Desk",
+    html: baseTemplate("Your AI Office Planner Report is Ready", customerBody),
+  });
+}
+
 export function isEmailConfigured(): boolean {
   return !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
 }

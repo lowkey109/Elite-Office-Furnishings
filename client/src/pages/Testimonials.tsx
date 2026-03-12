@@ -32,7 +32,7 @@ const TESTIMONIALS: Testimonial[] = [
     industry: "Legal",
     location: "Brisbane CBD",
     rating: 5,
-    quote: "The Corporate Desk transformed our new offices into something we're genuinely proud to bring clients into. From the first consultation through to final installation, every interaction was professional and the quality exceeded our expectations. The Aimu Series boardroom table alone has become a talking point in client meetings. I cannot recommend them highly enough to any professional services firm seeking to elevate their workspace.",
+    quote: "The Corporate Desk transformed our new offices into something we're genuinely proud to bring clients into. From the first consultation through to final installation, every interaction was professional and the quality exceeded our expectations. The Fessenz boardroom table alone has become a talking point in client meetings. I cannot recommend them highly enough to any professional services firm seeking to elevate their workspace.",
     highlight: "Every client who visits comments on the quality of our space.",
     projectValue: "$240,000",
     featured: true,

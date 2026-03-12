@@ -10,7 +10,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { registerMarketingRoutes } from "./marketing";
-import { sendLeadNotification, sendSupplierQuoteNotification, sendPlanningRequestNotification, isEmailConfigured } from "./email";
+import { sendLeadNotification, sendSupplierQuoteNotification, sendPlanningRequestNotification, sendPaymentConfirmationNotification, isEmailConfigured } from "./email";
 import { analyseSignals, extractDomain, type SignalInput, type SourceType } from "./services/leadIntelligence";
 import { CORPORATE_DESK_SYSTEM_PROMPT, ADVISOR_SYSTEM_MESSAGE, buildChatSystemPrompt, buildAdvisorSystemPrompt } from "./systemPrompt";
 import { getAdaptersMeta } from "./adapters/manualAdapter";
@@ -1233,6 +1233,99 @@ export async function registerRoutes(
       res.status(500).json({ success: false, message: "Internal server error" });
     }
   });
+
+  // ─── Stripe Webhook (primary payment confirmation — server-side) ───────────
+  //
+  // This is the AUTHORITATIVE payment confirmation path.
+  // It fires server-side regardless of whether the customer's browser completes
+  // the success redirect. The verify-payment endpoint remains as a secondary check.
+  //
+  // Required env var: STRIPE_WEBHOOK_SECRET
+  // Get this from: Stripe Dashboard → Developers → Webhooks → Add endpoint
+  // Endpoint URL: https://<your-domain>/api/webhooks/stripe
+  // Events to listen for: checkout.session.completed
+
+  app.post(
+    "/api/webhooks/stripe",
+    express.raw({ type: "application/json" }),
+    async (req, res) => {
+      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+      const sig = req.headers["stripe-signature"] as string | undefined;
+
+      if (!webhookSecret) {
+        console.warn("[Stripe Webhook] STRIPE_WEBHOOK_SECRET not set — webhook received but cannot be verified. Set this env var to enable server-side payment confirmation.");
+        return res.sendStatus(200);
+      }
+
+      if (!sig) {
+        console.error("[Stripe Webhook] Missing stripe-signature header.");
+        return res.status(400).json({ error: "Missing signature" });
+      }
+
+      const stripe = getStripeClient();
+      if (!stripe) {
+        console.error("[Stripe Webhook] Stripe client not available.");
+        return res.status(503).json({ error: "Payment system not configured" });
+      }
+
+      let event: Stripe.Event;
+      try {
+        event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+      } catch (err: any) {
+        console.error("[Stripe Webhook] Signature verification failed:", err.message);
+        return res.status(400).json({ error: `Webhook signature verification failed: ${err.message}` });
+      }
+
+      console.log(`[Stripe Webhook] Event received: ${event.type} (id: ${event.id})`);
+
+      if (event.type === "checkout.session.completed") {
+        const session = event.data.object as Stripe.Checkout.Session;
+
+        if (session.payment_status !== "paid") {
+          console.log(`[Stripe Webhook] Session ${session.id} not yet paid (status: ${session.payment_status}) — skipping.`);
+          return res.sendStatus(200);
+        }
+
+        const planningRequestId = session.metadata?.planningRequestId;
+        if (!planningRequestId) {
+          console.warn(`[Stripe Webhook] Session ${session.id} has no planningRequestId in metadata — cannot unlock.`);
+          return res.sendStatus(200);
+        }
+
+        try {
+          const existing = await storage.getPlanningRequest(planningRequestId);
+          if (!existing) {
+            console.error(`[Stripe Webhook] Planning request ${planningRequestId} not found in DB.`);
+            return res.sendStatus(200);
+          }
+
+          if (existing.isPaid) {
+            console.log(`[Stripe Webhook] Planning request ${planningRequestId} already marked paid — idempotent skip.`);
+            return res.sendStatus(200);
+          }
+
+          await storage.markPlanningRequestPaid(planningRequestId, session.id);
+          console.log(`[Stripe Webhook] ✅ Planning request ${planningRequestId} marked PAID via webhook (session: ${session.id}, customer: ${session.customer_email || "unknown"}).`);
+
+          if (session.customer_email) {
+            sendPaymentConfirmationNotification({
+              customerEmail: session.customer_email,
+              customerName: session.customer_details?.name ?? null,
+              sessionId: session.id,
+              amountAud: (session.amount_total ?? 39900) / 100,
+            }).catch((emailErr: Error) => {
+              console.error("[Stripe Webhook] Payment confirmation email failed:", emailErr.message);
+            });
+          }
+        } catch (dbErr: any) {
+          console.error(`[Stripe Webhook] DB error updating planning request ${planningRequestId}:`, dbErr.message);
+          return res.status(500).json({ error: "DB update failed" });
+        }
+      }
+
+      res.sendStatus(200);
+    }
+  );
 
   // ─── Stripe Payment: AI Workspace Report Unlock ────────────────────────────
 

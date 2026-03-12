@@ -2,11 +2,99 @@ import { useState, useEffect, useMemo } from "react";
 import { Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/Layout";
-import { Search, Clock, ArrowRight, BookOpen, ChevronRight } from "lucide-react";
+import { Search, Clock, ArrowRight, BookOpen, ChevronRight, Armchair, LayoutDashboard, Brain, Truck, Heart, DoorOpen, Users, TrendingUp, Leaf, ShoppingBag } from "lucide-react";
 import { allPosts, categories } from "@/data/blog/index";
 import type { BlogPost } from "@/data/blog/types";
 
 const POSTS_PER_PAGE = 12;
+
+const CATEGORY_VISUALS: Record<string, { gradient: string; icon: React.ReactNode; label: string }> = {
+  "Buying Guides": {
+    gradient: "linear-gradient(135deg, #1a1207 0%, #2d1f08 50%, #1a1207 100%)",
+    icon: <ShoppingBag className="w-7 h-7 text-[hsl(43,78%,65%)]" />,
+    label: "Buying Guides",
+  },
+  "Fitout Planning": {
+    gradient: "linear-gradient(135deg, #0d1620 0%, #102232 50%, #0d1620 100%)",
+    icon: <LayoutDashboard className="w-7 h-7 text-[#5ba3d9]" />,
+    label: "Fitout Planning",
+  },
+  "Layout Design": {
+    gradient: "linear-gradient(135deg, #12100d 0%, #221c10 50%, #12100d 100%)",
+    icon: <LayoutDashboard className="w-7 h-7 text-[hsl(43,78%,52%)]" />,
+    label: "Layout Design",
+  },
+  "Productivity": {
+    gradient: "linear-gradient(135deg, #0a1a12 0%, #0f2a1a 50%, #0a1a12 100%)",
+    icon: <Brain className="w-7 h-7 text-[#4ec990]" />,
+    label: "Productivity",
+  },
+  "Office Relocation": {
+    gradient: "linear-gradient(135deg, #150d20 0%, #261635 50%, #150d20 100%)",
+    icon: <Truck className="w-7 h-7 text-[#a78bdd]" />,
+    label: "Office Relocation",
+  },
+  "Ergonomics": {
+    gradient: "linear-gradient(135deg, #1a0f0f 0%, #2d1616 50%, #1a0f0f 100%)",
+    icon: <Heart className="w-7 h-7 text-[#e07070]" />,
+    label: "Ergonomics",
+  },
+  "Reception Design": {
+    gradient: "linear-gradient(135deg, #0d1a18 0%, #122a26 50%, #0d1a18 100%)",
+    icon: <DoorOpen className="w-7 h-7 text-[#4dc8be]" />,
+    label: "Reception Design",
+  },
+  "Boardroom Design": {
+    gradient: "linear-gradient(135deg, #161208 0%, #2a2010 50%, #161208 100%)",
+    icon: <Users className="w-7 h-7 text-[hsl(43,78%,60%)]" />,
+    label: "Boardroom Design",
+  },
+  "Office Design Trends": {
+    gradient: "linear-gradient(135deg, #0a0f1a 0%, #0f1a32 50%, #0a0f1a 100%)",
+    icon: <TrendingUp className="w-7 h-7 text-[#6b9fe4]" />,
+    label: "Design Trends",
+  },
+  "Sustainable Offices": {
+    gradient: "linear-gradient(135deg, #091508 0%, #0f2310 50%, #091508 100%)",
+    icon: <Leaf className="w-7 h-7 text-[#6ecf72]" />,
+    label: "Sustainable",
+  },
+};
+
+const DEFAULT_VISUAL = {
+  gradient: "linear-gradient(135deg, #111118 0%, #1a1a26 100%)",
+  icon: <Armchair className="w-7 h-7 text-[hsl(43,78%,52%)]" />,
+};
+
+function CategoryBanner({ category, title }: { category: string; title: string }) {
+  const visual = CATEGORY_VISUALS[category] ?? DEFAULT_VISUAL;
+  const initials = title
+    .split(" ")
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? "")
+    .join("");
+  return (
+    <div
+      className="relative w-full h-28 flex items-center justify-between px-5 overflow-hidden"
+      style={{ background: visual.gradient }}
+    >
+      <div className="flex flex-col gap-1.5">
+        {visual.icon}
+        <span className="text-white/35 text-[10px] uppercase tracking-widest font-semibold">
+          {"label" in visual ? visual.label : category}
+        </span>
+      </div>
+      <div
+        className="text-white/5 font-serif font-black select-none leading-none"
+        style={{ fontSize: "clamp(3rem, 8vw, 4.5rem)" }}
+        aria-hidden
+      >
+        {initials}
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[rgba(0,0,0,0.35)]" />
+    </div>
+  );
+}
 
 function PostCard({ post }: { post: BlogPost }) {
   return (
@@ -15,13 +103,14 @@ function PostCard({ post }: { post: BlogPost }) {
         data-testid={`card-blog-${post.id}`}
         className="group bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] hover:border-[rgba(201,168,76,0.25)] rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer h-full flex flex-col"
       >
-        <div className="p-6 flex flex-col flex-1">
+        <CategoryBanner category={post.category} title={post.title} />
+        <div className="p-5 flex flex-col flex-1">
           <div className="flex items-center gap-2 mb-3">
             <Badge className="bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.2)] text-xs">
               {post.category}
             </Badge>
           </div>
-          <h2 className="text-white font-serif font-semibold text-lg leading-snug mb-3 group-hover:text-[hsl(43,78%,65%)] transition-colors line-clamp-2">
+          <h2 className="text-white font-serif font-semibold text-base leading-snug mb-3 group-hover:text-[hsl(43,78%,65%)] transition-colors line-clamp-2">
             {post.title}
           </h2>
           <p className="text-white/45 text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
