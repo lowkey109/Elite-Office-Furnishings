@@ -1700,9 +1700,18 @@ export async function registerRoutes(
         });
       }
 
-      const domain = process.env.REPLIT_DEV_DOMAIN
-        ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-        : "https://app.thecorporatedesk.com.au";
+      // Use production domain if deployed, otherwise dev domain
+      const domain = (() => {
+        // REPLIT_DOMAINS contains the deployed app's domain(s) — prefer over dev domain
+        if (process.env.REPLIT_DOMAINS) {
+          const domains = process.env.REPLIT_DOMAINS.split(",").map(d => d.trim()).filter(Boolean);
+          // Prefer any non-replit.dev domain (custom domain), else use first domain
+          const preferred = domains.find(d => !d.includes(".replit.dev")) || domains[0];
+          if (preferred) return `https://${preferred}`;
+        }
+        if (process.env.REPLIT_DEV_DOMAIN) return `https://${process.env.REPLIT_DEV_DOMAIN}`;
+        return "https://thecorporatedesk.com.au";
+      })();
 
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card", "link"],
@@ -1745,18 +1754,21 @@ export async function registerRoutes(
         try { return JSON.parse(raw); } catch { return null; }
       };
 
+      const buildPlanningRequestPayload = (r: typeof request) => ({
+        id: r.id,
+        name: r.name,
+        company: r.company,
+        email: r.email,
+        squareMetres: r.squareMetres,
+        staffCount: r.staffCount,
+        aiRecommendations: parseRec(r.aiRecommendations),
+        floorGeometryJson: r.floorGeometryJson ?? null,
+      });
+
       if (request.isPaid) {
         return res.json({
           paid: true,
-          planningRequest: {
-            id: request.id,
-            name: request.name,
-            company: request.company,
-            email: request.email,
-            squareMetres: request.squareMetres,
-            staffCount: request.staffCount,
-            aiRecommendations: parseRec(request.aiRecommendations),
-          },
+          planningRequest: buildPlanningRequestPayload(request),
         });
       }
 
@@ -1768,17 +1780,11 @@ export async function registerRoutes(
       const session = await stripe.checkout.sessions.retrieve(sessionId);
       if (session.payment_status === "paid" && session.metadata?.planningRequestId === id) {
         await storage.markPlanningRequestPaid(id, sessionId);
+        // Re-fetch to get latest state after marking paid
+        const updated = await storage.getPlanningRequest(id);
         return res.json({
           paid: true,
-          planningRequest: {
-            id: request.id,
-            name: request.name,
-            company: request.company,
-            email: request.email,
-            squareMetres: request.squareMetres,
-            staffCount: request.staffCount,
-            aiRecommendations: parseRec(request.aiRecommendations),
-          },
+          planningRequest: buildPlanningRequestPayload(updated ?? request),
         });
       }
 
