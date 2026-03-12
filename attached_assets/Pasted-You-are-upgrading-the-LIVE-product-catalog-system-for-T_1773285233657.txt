@@ -1,0 +1,186 @@
+You are upgrading the LIVE product catalog system for The Corporate Desk website.
+
+CRITICAL RULES
+
+Do NOT break:
+• payment system
+• AI planner
+• admin dashboard
+• leads system
+• Stripe integration
+• product database
+
+Work only on the product catalog display and structure.
+
+--------------------------------
+
+PRIMARY OBJECTIVE
+
+Transform the current catalog into a premium commercial furniture experience similar to:
+
+Apple
+Herman Miller
+Steelcase
+
+The website must look like a billion-dollar brand.
+
+--------------------------------
+
+PHASE 1 — REMOVE DUPLICATE PRODUCTS
+
+Identify products where the same desk appears multiple times with different dimensions.
+
+Example:
+
+Weiyi Executive L-Desk 2400  
+Weiyi Executive L-Desk 2600  
+Weiyi Executive L-Desk 2800  
+Weiyi Executive L-Desk 3200
+
+These must become ONE product.
+
+Group by base SKU.
+
+--------------------------------
+
+PHASE 2 — CONVERT SIZES TO VARIANTS
+
+Instead of separate products create selectable size options.
+
+Example:
+
+Size options:
+
+2400 x 2000
+2600 x 2000
+2800 x 2200
+3200 x 2200
+
+When a size is selected:
+
+price updates
+dimensions update
+
+--------------------------------
+
+PHASE 3 — REMOVE SUPPLIER BRANDING
+
+Remove any visible references to:
+
+Weiyi
+GOJO
+Feisenzhuo
+Boke
+Gaozhuo
+
+Replace with branded collection names.
+
+Example:
+
+Weiyi → Executive Series
+GOJO → Signature Executive Collection
+
+The supplier names must NEVER appear on the public website.
+
+--------------------------------
+
+PHASE 4 — CLEAN PRODUCT CARD DESIGN
+
+Product cards must display ONLY:
+
+Product image  
+Product name  
+Starting price  
+View Details button
+
+Remove:
+
+factory codes
+supplier labels
+raw series codes
+
+--------------------------------
+
+PHASE 5 — AI PRODUCT IMAGE GENERATION
+
+For every product SKU:
+
+Generate 3 premium renders:
+
+1 Hero product image
+1 office environment render
+1 detail close-up
+
+Requirements:
+
+Luxury corporate office
+neutral background
+consistent lighting
+high realism
+same desk geometry as SKU
+
+The AI image MUST match the product shape.
+
+Store these images in:
+
+/public/products/
+
+Update product database image references.
+
+--------------------------------
+
+PHASE 6 — PRODUCT PAGE REDESIGN
+
+Product page must include:
+
+Large hero image
+image gallery
+size selector
+colour selector
+dimensions table
+materials description
+quote button
+delivery info
+
+Design style:
+
+minimal
+premium
+Apple style spacing
+dark theme
+
+--------------------------------
+
+PHASE 7 — MOBILE DESIGN FIX
+
+Ensure:
+
+product grid responsive
+no duplicated cards
+no overlapping UI
+images aligned
+clean spacing
+
+--------------------------------
+
+PHASE 8 — TESTING
+
+Verify:
+
+products load
+variants change price
+images load correctly
+admin panel unchanged
+planner still works
+payment still works
+
+--------------------------------
+
+PHASE 9 — REPORT
+
+Return:
+
+number of merged products
+number of AI images generated
+files modified
+confirmation no systems broke
