@@ -287,3 +287,105 @@ export const insertManufacturerMessageSchema = createInsertSchema(manufacturerMe
 
 export type InsertManufacturerMessage = z.infer<typeof insertManufacturerMessageSchema>;
 export type ManufacturerMessage = typeof manufacturerMessages.$inferSelect;
+
+// ─── Scheduled Jobs ──────────────────────────────────────────────────────────
+export const scheduledJobs = pgTable("scheduled_jobs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  jobType: text("job_type").notNull(),
+  status: text("status").notNull().default("pending"),
+  triggeredBy: text("triggered_by").notNull().default("scheduler"),
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  durationMs: integer("duration_ms"),
+  result: text("result"),
+  error: text("error"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type ScheduledJob = typeof scheduledJobs.$inferSelect;
+
+// ─── Intelligence Reports ────────────────────────────────────────────────────
+export const intelligenceReports = pgTable("intelligence_reports", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  reportType: text("report_type").notNull(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  period: text("period").notNull(),
+  status: text("status").notNull().default("draft"),
+  generatedAt: timestamp("generated_at").defaultNow(),
+});
+export type IntelligenceReport = typeof intelligenceReports.$inferSelect;
+
+// ─── Spending Trends ─────────────────────────────────────────────────────────
+export const spendingTrends = pgTable("spending_trends", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  category: text("category").notNull(),
+  trend: text("trend").notNull(),
+  insight: text("insight").notNull(),
+  confidenceLevel: text("confidence_level").notNull().default("medium"),
+  sourceNotes: text("source_notes"),
+  periodWeek: text("period_week").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type SpendingTrend = typeof spendingTrends.$inferSelect;
+
+// ─── Website Issues ──────────────────────────────────────────────────────────
+export const websiteIssues = pgTable("website_issues", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  issueType: text("issue_type").notNull(),
+  severity: text("severity").notNull().default("warning"),
+  description: text("description").notNull(),
+  affectedUrl: text("affected_url"),
+  affectedItem: text("affected_item"),
+  suggestion: text("suggestion"),
+  status: text("status").notNull().default("open"),
+  detectedAt: timestamp("detected_at").defaultNow(),
+  resolvedAt: timestamp("resolved_at"),
+});
+export type WebsiteIssue = typeof websiteIssues.$inferSelect;
+
+// ─── Profit Records ──────────────────────────────────────────────────────────
+export const profitRecords = pgTable("profit_records", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  planningRequestId: text("planning_request_id"),
+  officeSizeSqm: integer("office_size_sqm"),
+  staffCount: integer("staff_count"),
+  industryType: text("industry_type"),
+  layoutType: text("layout_type"),
+  packageName: text("package_name"),
+  packageTier: text("package_tier"),
+  productMixSummary: text("product_mix_summary"),
+  supplierMixSummary: text("supplier_mix_summary"),
+  estimatedFactoryCost: integer("estimated_factory_cost"),
+  estimatedShippingCost: integer("estimated_shipping_cost"),
+  estimatedInstallationCost: integer("estimated_installation_cost"),
+  estimatedLandedCost: integer("estimated_landed_cost"),
+  quotedPrice: integer("quoted_price"),
+  estimatedProfit: integer("estimated_profit"),
+  estimatedMarginPercent: integer("estimated_margin_percent"),
+  confidenceLevel: text("confidence_level").default("medium"),
+  financeUsed: boolean("finance_used").default(false),
+  conversionResult: text("conversion_result").default("pending"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertProfitRecordSchema = createInsertSchema(profitRecords).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertProfitRecord = z.infer<typeof insertProfitRecordSchema>;
+export type ProfitRecord = typeof profitRecords.$inferSelect;
+
+// ─── Generated Blog Articles ─────────────────────────────────────────────────
+export const generatedBlogArticles = pgTable("generated_blog_articles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  slug: text("slug").notNull(),
+  metaDescription: text("meta_description"),
+  content: text("content").notNull(),
+  category: text("category"),
+  tags: text("tags").array(),
+  internalLinkingSuggestions: text("internal_linking_suggestions"),
+  imagePrompts: text("image_prompts").array(),
+  status: text("status").notNull().default("draft"),
+  qualityScore: integer("quality_score"),
+  generatedAt: timestamp("generated_at").defaultNow(),
+  publishedAt: timestamp("published_at"),
+});
+export type GeneratedBlogArticle = typeof generatedBlogArticles.$inferSelect;

@@ -3,12 +3,17 @@ import { db } from "./db";
 import {
   users, leads, prospectedLeads, supplierQuotes, referrals, planningRequests, productReviews,
   manufacturerMessages, followUpSequences, territories, workspaceLearningRecords,
+  scheduledJobs, intelligenceReports, spendingTrends, websiteIssues, profitRecords,
+  generatedBlogArticles,
   type User, type InsertUser, type Lead, type InsertLead, type PlanningRequest,
   type ProductReview, type InsertProductReview,
   type ManufacturerMessage, type InsertManufacturerMessage,
   type FollowUpSequence, type InsertFollowUpSequence,
   type Territory, type InsertTerritory,
   type WorkspaceLearning, type InsertWorkspaceLearning,
+  type ScheduledJob, type IntelligenceReport, type SpendingTrend,
+  type WebsiteIssue, type ProfitRecord, type InsertProfitRecord,
+  type GeneratedBlogArticle,
 } from "@shared/schema";
 
 export interface ProspectedLead {
@@ -166,6 +171,36 @@ export interface IStorage {
   deletePlanningRequest(id: string): Promise<void>;
   markPlanningRequestPaid(id: string, sessionId: string): Promise<PlanningRequest | undefined>;
   updateFloorGeometry(id: string, floorGeometryJson: string, geometrySource: string): Promise<PlanningRequest | undefined>;
+
+  // Scheduled Jobs
+  createScheduledJob(data: Omit<ScheduledJob, "id" | "createdAt">): Promise<ScheduledJob>;
+  getScheduledJobs(limit?: number): Promise<ScheduledJob[]>;
+  updateScheduledJob(id: string, data: Partial<ScheduledJob>): Promise<ScheduledJob | undefined>;
+
+  // Intelligence Reports
+  createIntelligenceReport(data: Omit<IntelligenceReport, "id" | "generatedAt">): Promise<IntelligenceReport>;
+  getIntelligenceReports(reportType?: string): Promise<IntelligenceReport[]>;
+  updateIntelligenceReportStatus(id: string, status: string): Promise<IntelligenceReport | undefined>;
+
+  // Spending Trends
+  createSpendingTrend(data: Omit<SpendingTrend, "id" | "createdAt">): Promise<SpendingTrend>;
+  getSpendingTrends(limit?: number): Promise<SpendingTrend[]>;
+
+  // Website Issues
+  createWebsiteIssue(data: Omit<WebsiteIssue, "id" | "detectedAt">): Promise<WebsiteIssue>;
+  getWebsiteIssues(status?: string): Promise<WebsiteIssue[]>;
+  resolveWebsiteIssue(id: string): Promise<WebsiteIssue | undefined>;
+  updateWebsiteIssueStatus(id: string, status: string): Promise<WebsiteIssue | undefined>;
+
+  // Profit Records
+  createProfitRecord(data: InsertProfitRecord): Promise<ProfitRecord>;
+  getProfitRecords(limit?: number): Promise<ProfitRecord[]>;
+  updateProfitRecord(id: string, data: Partial<ProfitRecord>): Promise<ProfitRecord | undefined>;
+
+  // Generated Blog Articles
+  createGeneratedBlogArticle(data: Omit<GeneratedBlogArticle, "id" | "generatedAt">): Promise<GeneratedBlogArticle>;
+  getGeneratedBlogArticles(status?: string): Promise<GeneratedBlogArticle[]>;
+  updateBlogArticleStatus(id: string, status: string): Promise<GeneratedBlogArticle | undefined>;
 }
 
 function rowToProspectedLead(row: typeof prospectedLeads.$inferSelect): ProspectedLead {
@@ -706,7 +741,6 @@ export class DrizzleStorage implements IStorage {
     const sqm = parseFloat(officeSqm || "0");
     const staff = parseInt(staffCount || "0", 10);
 
-    // Sort by similarity: matching project type + closest sqm/staff
     const scored = all.map(r => {
       let score = 0;
       if (r.projectType && r.projectType.toLowerCase() === (projectType || "").toLowerCase()) score += 10;
@@ -721,6 +755,134 @@ export class DrizzleStorage implements IStorage {
       .sort((a, b) => b.score - a.score)
       .slice(0, limit)
       .map(x => x.r);
+  }
+
+  // ─── Scheduled Jobs ───────────────────────────────────────────────────────
+
+  async createScheduledJob(data: Omit<ScheduledJob, "id" | "createdAt">): Promise<ScheduledJob> {
+    const [row] = await db.insert(scheduledJobs).values(data as any).returning();
+    return row;
+  }
+
+  async getScheduledJobs(limit = 100): Promise<ScheduledJob[]> {
+    return db.select().from(scheduledJobs)
+      .orderBy(desc(scheduledJobs.createdAt))
+      .limit(limit);
+  }
+
+  async updateScheduledJob(id: string, data: Partial<ScheduledJob>): Promise<ScheduledJob | undefined> {
+    const [row] = await db.update(scheduledJobs).set(data as any).where(eq(scheduledJobs.id, id)).returning();
+    return row;
+  }
+
+  // ─── Intelligence Reports ─────────────────────────────────────────────────
+
+  async createIntelligenceReport(data: Omit<IntelligenceReport, "id" | "generatedAt">): Promise<IntelligenceReport> {
+    const [row] = await db.insert(intelligenceReports).values(data as any).returning();
+    return row;
+  }
+
+  async getIntelligenceReports(reportType?: string): Promise<IntelligenceReport[]> {
+    const query = db.select().from(intelligenceReports).orderBy(desc(intelligenceReports.generatedAt));
+    if (reportType) {
+      return db.select().from(intelligenceReports)
+        .where(eq(intelligenceReports.reportType, reportType))
+        .orderBy(desc(intelligenceReports.generatedAt))
+        .limit(50);
+    }
+    return query.limit(50);
+  }
+
+  async updateIntelligenceReportStatus(id: string, status: string): Promise<IntelligenceReport | undefined> {
+    const [row] = await db.update(intelligenceReports).set({ status }).where(eq(intelligenceReports.id, id)).returning();
+    return row;
+  }
+
+  // ─── Spending Trends ──────────────────────────────────────────────────────
+
+  async createSpendingTrend(data: Omit<SpendingTrend, "id" | "createdAt">): Promise<SpendingTrend> {
+    const [row] = await db.insert(spendingTrends).values(data as any).returning();
+    return row;
+  }
+
+  async getSpendingTrends(limit = 50): Promise<SpendingTrend[]> {
+    return db.select().from(spendingTrends)
+      .orderBy(desc(spendingTrends.createdAt))
+      .limit(limit);
+  }
+
+  // ─── Website Issues ───────────────────────────────────────────────────────
+
+  async createWebsiteIssue(data: Omit<WebsiteIssue, "id" | "detectedAt">): Promise<WebsiteIssue> {
+    const [row] = await db.insert(websiteIssues).values(data as any).returning();
+    return row;
+  }
+
+  async getWebsiteIssues(status?: string): Promise<WebsiteIssue[]> {
+    if (status) {
+      return db.select().from(websiteIssues)
+        .where(eq(websiteIssues.status, status))
+        .orderBy(desc(websiteIssues.detectedAt))
+        .limit(100);
+    }
+    return db.select().from(websiteIssues).orderBy(desc(websiteIssues.detectedAt)).limit(100);
+  }
+
+  async resolveWebsiteIssue(id: string): Promise<WebsiteIssue | undefined> {
+    const [row] = await db.update(websiteIssues)
+      .set({ status: "resolved", resolvedAt: new Date() })
+      .where(eq(websiteIssues.id, id))
+      .returning();
+    return row;
+  }
+
+  async updateWebsiteIssueStatus(id: string, status: string): Promise<WebsiteIssue | undefined> {
+    const updates: any = { status };
+    if (status === "resolved") updates.resolvedAt = new Date();
+    const [row] = await db.update(websiteIssues).set(updates).where(eq(websiteIssues.id, id)).returning();
+    return row;
+  }
+
+  // ─── Profit Records ───────────────────────────────────────────────────────
+
+  async createProfitRecord(data: InsertProfitRecord): Promise<ProfitRecord> {
+    const [row] = await db.insert(profitRecords).values(data as any).returning();
+    return row;
+  }
+
+  async getProfitRecords(limit = 50): Promise<ProfitRecord[]> {
+    return db.select().from(profitRecords)
+      .orderBy(desc(profitRecords.createdAt))
+      .limit(limit);
+  }
+
+  async updateProfitRecord(id: string, data: Partial<ProfitRecord>): Promise<ProfitRecord | undefined> {
+    const [row] = await db.update(profitRecords).set(data as any).where(eq(profitRecords.id, id)).returning();
+    return row;
+  }
+
+  // ─── Generated Blog Articles ──────────────────────────────────────────────
+
+  async createGeneratedBlogArticle(data: Omit<GeneratedBlogArticle, "id" | "generatedAt">): Promise<GeneratedBlogArticle> {
+    const [row] = await db.insert(generatedBlogArticles).values(data as any).returning();
+    return row;
+  }
+
+  async getGeneratedBlogArticles(status?: string): Promise<GeneratedBlogArticle[]> {
+    if (status) {
+      return db.select().from(generatedBlogArticles)
+        .where(eq(generatedBlogArticles.status, status))
+        .orderBy(desc(generatedBlogArticles.generatedAt))
+        .limit(50);
+    }
+    return db.select().from(generatedBlogArticles).orderBy(desc(generatedBlogArticles.generatedAt)).limit(50);
+  }
+
+  async updateBlogArticleStatus(id: string, status: string): Promise<GeneratedBlogArticle | undefined> {
+    const updates: any = { status };
+    if (status === "published") updates.publishedAt = new Date();
+    const [row] = await db.update(generatedBlogArticles).set(updates).where(eq(generatedBlogArticles.id, id)).returning();
+    return row;
   }
 }
 

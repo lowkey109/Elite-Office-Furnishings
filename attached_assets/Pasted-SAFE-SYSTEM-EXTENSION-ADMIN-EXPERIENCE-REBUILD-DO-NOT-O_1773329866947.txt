@@ -1,0 +1,411 @@
+SAFE SYSTEM EXTENSION — ADMIN EXPERIENCE REBUILD
+
+DO NOT OVERWRITE EXISTING PROMPTS.
+DO NOT REBUILD THE SITE.
+DO NOT BREAK:
+- workspace planner
+- estimator
+- product catalog
+- finance system
+- Stripe payments
+- supplier messaging
+- email system
+- existing lead capture
+- AI concierge / chatbot
+- mobile responsiveness
+- desktop responsiveness
+
+You are upgrading the LIVE The Corporate Desk platform.
+
+PRIMARY OBJECTIVE
+
+Rebuild and simplify the admin experience so it is easy for a real human operator to manage the business.
+
+The admin must feel:
+- premium
+- clear
+- fast
+- uncluttered
+- intuitive
+- commercially useful
+
+The admin must NOT feel:
+- developer-only
+- messy
+- spreadsheet-heavy
+- confusing
+- overcomplicated
+
+This is a usability and business-operations upgrade, not just a visual redesign.
+
+==================================================
+PHASE 1 — FULL ADMIN AUDIT
+==================================================
+
+Audit the current admin system and map:
+- dashboard
+- leads views
+- planner request views
+- quote / estimator views
+- finance leads
+- supplier / procurement views
+- product management views
+- reporting views
+- AI / concierge / chat context views if relevant
+- any existing settings pages
+- any duplicate admin sections
+- any weak navigation
+- any cluttered or overly technical UI
+
+Return an internal map of:
+- current admin routes
+- current navigation structure
+- what is hard to use
+- what can be merged
+- what can be simplified
+- which screens should be redesigned first
+- which components should be extended instead of duplicated
+
+Do not build until audit is complete.
+
+==================================================
+PHASE 2 — ADMIN INFORMATION ARCHITECTURE
+==================================================
+
+Restructure the admin into simple business sections.
+
+Target primary admin sections:
+
+1. Dashboard
+2. Leads
+3. Planner Projects
+4. Quotes & Estimates
+5. Products
+6. Suppliers & Procurement
+7. Finance
+8. Reports & Intelligence
+9. Settings
+
+If current routes differ, map them into this logic without breaking existing functionality.
+
+Each section must have a clear purpose.
+
+==================================================
+PHASE 3 — EXECUTIVE DASHBOARD
+==================================================
+
+Create or improve the main dashboard so a human instantly sees what matters.
+
+Show at minimum:
+- new leads
+- hot leads
+- planner submissions
+- quote requests
+- finance enquiries
+- pipeline value
+- weighted pipeline
+- supplier alerts
+- system issues / warnings
+- top recommended actions
+
+The dashboard should answer:
+- what happened today
+- what needs attention now
+- what has highest value
+- what is broken
+- what should be followed up next
+
+Do not overload with too many widgets.
+Prioritize clarity.
+
+==================================================
+PHASE 4 — ACTION-FIRST DESIGN
+==================================================
+
+Every key admin area must make the next action obvious.
+
+Examples:
+
+Leads
+- contact
+- review outreach draft
+- mark qualified
+- move to quote
+- archive
+
+Planner Projects
+- review uploaded plan
+- view AI output
+- send premium report
+- move to quote
+- flag for follow-up
+
+Quotes & Estimates
+- review estimate
+- adjust package
+- send quote
+- link finance
+- mark won/lost
+
+Suppliers & Procurement
+- review supplier comparison
+- send supplier draft
+- log pricing
+- mark preferred supplier
+
+Finance
+- view finance leads
+- route to finance partner
+- review status
+
+The admin should never leave a user wondering what to click next.
+
+==================================================
+PHASE 5 — HUMAN-FRIENDLY TABLES AND DETAIL VIEWS
+==================================================
+
+Upgrade admin tables and detail screens.
+
+Tables must be:
+- easy to scan
+- sortable
+- filterable
+- not overcrowded
+
+Each important table should support:
+- status badges
+- quick filters
+- search
+- priority sorting
+- date sorting
+
+Each detail page should show:
+- summary at top
+- important facts first
+- related actions clearly visible
+- related records linked cleanly
+
+Do not dump raw JSON or overly technical data into the UI.
+
+==================================================
+PHASE 6 — STATUS / PRIORITY SYSTEM
+==================================================
+
+Use clean visual status labels across admin.
+
+Examples:
+- New
+- Hot
+- Waiting
+- In Progress
+- Ready
+- Sent
+- Won
+- Lost
+- Needs Review
+- Urgent
+
+Priority examples:
+- Low
+- Medium
+- High
+- Critical
+
+Use these consistently across:
+- leads
+- planner projects
+- quotes
+- finance
+- supplier tasks
+- system issues
+
+==================================================
+PHASE 7 — UNIFIED RECORD PAGES
+==================================================
+
+Where possible, unify related data around one record.
+
+Example:
+A lead/company/project page should let the admin see:
+- company details
+- detected signals
+- planner activity
+- quote activity
+- finance interest
+- outreach drafts
+- notes
+- next recommended action
+
+Reduce the need to jump between too many screens.
+
+==================================================
+PHASE 8 — AI ASSISTANCE FOR THE HUMAN OPERATOR
+==================================================
+
+The admin should use AI to help the human, not confuse them.
+
+For relevant records, show:
+- AI summary
+- recommended next step
+- recommended offer
+- recommended follow-up timing
+- confidence / reasoning summary
+
+Examples:
+- “High-value Brisbane tech lead with office growth signal. Recommend offering free layout plan.”
+- “Planner result suitable for premium package. Margin stronger with Ruby + Boke supplier mix.”
+
+Keep AI suggestions concise and useful.
+
+==================================================
+PHASE 9 — QUICK ACTIONS
+==================================================
+
+Add quick actions in the admin where useful.
+
+Examples:
+- Generate outreach draft
+- Send outreach draft
+- Open planner result
+- Generate quote
+- Route finance lead
+- Generate supplier request
+- Mark as hot lead
+- Add note
+- Change status
+
+These actions should reduce clicks and save time.
+
+==================================================
+PHASE 10 — REPORTS & INTELLIGENCE UX
+==================================================
+
+The intelligence/reporting area must be understandable by a business owner, not just a developer.
+
+Show:
+- lead trends
+- pipeline trends
+- conversion trends
+- supplier performance
+- planner usage
+- estimate usage
+- finance enquiry trends
+- issue alerts
+- market / spending trend summaries
+
+Use:
+- simple cards
+- clean charts
+- plain-English summaries
+
+Do not make the reporting area dense or academic.
+
+==================================================
+PHASE 11 — SETTINGS / CONFIG CLEANUP
+==================================================
+
+Make settings easier to manage.
+
+Group settings clearly:
+- business profile
+- email settings
+- finance routing
+- supplier contacts
+- social accounts
+- lead intelligence settings
+- territory scanner settings
+- AI behavior/settings if needed
+
+Hide or de-emphasize technical settings that a normal operator does not need often.
+
+==================================================
+PHASE 12 — MOBILE / TABLET ADMIN USABILITY
+==================================================
+
+Improve admin usability on mobile and tablet where practical.
+
+Requirements:
+- key actions still accessible
+- tables do not become unreadable
+- important cards stack cleanly
+- no overlapping buttons
+- no broken forms
+
+The desktop admin is primary, but the human should still be able to check key data from phone.
+
+==================================================
+PHASE 13 — PREMIUM VISUAL STANDARD
+==================================================
+
+Admin design references:
+- Stripe Dashboard
+- Linear
+- Notion
+- HubSpot (clarity, not clutter)
+- premium SaaS analytics products
+
+Use:
+- strong hierarchy
+- spacious layouts
+- clear typography
+- clean status badges
+- subtle cards
+- useful empty states
+- premium minimal styling
+
+==================================================
+PHASE 14 — PERFORMANCE / SIMPLICITY
+==================================================
+
+Do not make the admin heavy or bloated.
+
+Rules:
+- prefer extending existing components
+- avoid duplicate pages
+- avoid unnecessary complexity
+- keep navigation simple
+- keep page load reasonable
+
+==================================================
+PHASE 15 — TESTING
+==================================================
+
+Before completion verify:
+1. admin navigation is clearer
+2. dashboard shows top priorities
+3. leads are easier to manage
+4. planner projects are easier to review
+5. quotes/estimates are easier to manage
+6. supplier/procurement screens are easier to use
+7. finance lead handling is clearer
+8. reports are more understandable
+9. quick actions work
+10. existing live systems are not broken
+11. desktop admin works
+12. mobile/tablet admin remains usable
+
+==================================================
+PHASE 16 — FINAL REPORT
+==================================================
+
+Return:
+- files audited
+- files modified
+- admin sections restructured
+- dashboard improvements
+- table/detail improvements
+- quick actions added
+- AI assistance improvements
+- reporting improvements
+- settings cleanup changes
+- what was tested
+- confirmation existing live systems still work
+
+EXECUTION RULE
+
+Audit first.
+Then rebuild the admin experience in safe phases.
+Make it simple for a real human operator to run the business.
+Do not stop halfway.
+Do not ask questions.
+Build the working admin upgrade, not just a prettier layout.

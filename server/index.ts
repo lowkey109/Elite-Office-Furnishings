@@ -101,6 +101,10 @@ app.use((req, res, next) => {
   const { startFollowUpScheduler } = await import("./services/followUpScheduler");
   startFollowUpScheduler();
 
+  // Start autonomous intelligence scheduler
+  const { startIntelligenceScheduler } = await import("./services/intelligenceScheduler");
+  startIntelligenceScheduler();
+
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";

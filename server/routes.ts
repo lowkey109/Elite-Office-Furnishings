@@ -2865,5 +2865,187 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
     }
   });
 
+  // ─── Intelligence Hub Routes ────────────────────────────────────────────────
+
+  app.get("/api/admin/intelligence/jobs", async (_req, res) => {
+    try {
+      const jobs = await storage.getScheduledJobs(100);
+      res.json(jobs);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/admin/intelligence/jobs/trigger", async (req, res) => {
+    try {
+      const { jobType } = req.body;
+      const { triggerJobManually } = await import("./services/intelligenceScheduler");
+      const result = await triggerJobManually(jobType);
+      res.json(result);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/admin/intelligence/reports", async (req, res) => {
+    try {
+      const reportType = req.query.type as string | undefined;
+      const reports = await storage.getIntelligenceReports(reportType);
+      res.json(reports);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.patch("/api/admin/intelligence/reports/:id/status", async (req, res) => {
+    try {
+      const { status } = req.body;
+      const report = await storage.updateIntelligenceReportStatus(req.params.id, status);
+      res.json(report);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/admin/intelligence/trends", async (_req, res) => {
+    try {
+      const trends = await storage.getSpendingTrends(50);
+      res.json(trends);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/admin/intelligence/issues", async (req, res) => {
+    try {
+      const status = req.query.status as string | undefined;
+      const issues = await storage.getWebsiteIssues(status);
+      res.json(issues);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.patch("/api/admin/intelligence/issues/:id/status", async (req, res) => {
+    try {
+      const { status } = req.body;
+      const issue = await storage.updateWebsiteIssueStatus(req.params.id, status);
+      res.json(issue);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/admin/intelligence/blog-articles", async (req, res) => {
+    try {
+      const status = req.query.status as string | undefined;
+      const articles = await storage.getGeneratedBlogArticles(status);
+      res.json(articles);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.patch("/api/admin/intelligence/blog-articles/:id/status", async (req, res) => {
+    try {
+      const { status } = req.body;
+      const article = await storage.updateBlogArticleStatus(req.params.id, status);
+      res.json(article);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/admin/intelligence/health", async (_req, res) => {
+    try {
+      const { runSystemHealthCheck } = await import("./services/intelligenceEngine");
+      const report = await runSystemHealthCheck();
+      res.json(report);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ─── Profit Optimisation Routes ─────────────────────────────────────────────
+
+  app.post("/api/admin/profit/compare", async (req, res) => {
+    try {
+      const { officeSqm, staffCount } = req.body;
+      if (!officeSqm || !staffCount) {
+        return res.status(400).json({ error: "officeSqm and staffCount are required" });
+      }
+      const { comparePackageOptions } = await import("./services/profitOptimisation");
+      const comparison = comparePackageOptions(Number(officeSqm), Number(staffCount));
+      res.json(comparison);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/admin/profit/cost-stack", async (req, res) => {
+    try {
+      const { officeSqm, staffCount, tier } = req.body;
+      if (!officeSqm || !staffCount || !tier) {
+        return res.status(400).json({ error: "officeSqm, staffCount, and tier are required" });
+      }
+      const { calculateCostStack } = await import("./services/profitOptimisation");
+      const stack = calculateCostStack(Number(officeSqm), Number(staffCount), tier);
+      res.json(stack);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/admin/profit/supplier-mix", async (req, res) => {
+    try {
+      const { categories } = req.body;
+      if (!Array.isArray(categories)) {
+        return res.status(400).json({ error: "categories must be an array" });
+      }
+      const { optimiseSupplierMix } = await import("./services/profitOptimisation");
+      const mix = optimiseSupplierMix(categories);
+      res.json(mix);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/admin/profit/layout-patterns", async (_req, res) => {
+    try {
+      const { getLayoutProfitPatterns } = await import("./services/profitOptimisation");
+      const patterns = getLayoutProfitPatterns();
+      res.json(patterns);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/admin/profit/records", async (_req, res) => {
+    try {
+      const records = await storage.getProfitRecords(50);
+      res.json(records);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/admin/profit/records", async (req, res) => {
+    try {
+      const record = await storage.createProfitRecord(req.body);
+      res.json(record);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.patch("/api/admin/profit/records/:id", async (req, res) => {
+    try {
+      const record = await storage.updateProfitRecord(req.params.id, req.body);
+      res.json(record);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   return httpServer;
 }

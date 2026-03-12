@@ -1,0 +1,387 @@
+SAFE SYSTEM EXTENSION — AI WORKSPACE PROFIT OPTIMISATION ENGINE
+
+DO NOT OVERWRITE EXISTING PROMPTS.
+DO NOT REBUILD THE SITE.
+DO NOT BREAK:
+- workspace planner
+- estimator
+- product catalog
+- finance system
+- Stripe payments
+- admin dashboard
+- supplier messaging
+- email system
+- existing lead capture
+- mobile responsiveness
+- desktop responsiveness
+- lead intelligence
+- procurement engine
+- deal pipeline engine
+- workspace learning system
+
+You are upgrading the LIVE The Corporate Desk platform.
+
+PRIMARY OBJECTIVE
+
+Build a fully functional AI Workspace Profit Optimisation Engine that learns which furniture packages, supplier mixes, and layout strategies generate the strongest margins for each type of office project.
+
+This must be a real working business system inside the platform, not a placeholder concept.
+
+The system must:
+1. calculate estimated profit and margin on workspace packages
+2. compare alternative product mixes
+3. compare alternative supplier mixes
+4. learn which office layouts and furniture packages are most profitable
+5. recommend the highest-margin package that still fits the client’s budget, style, and workspace needs
+6. surface profit intelligence inside admin, planner, estimator, and quote workflows
+
+==================================================
+PHASE 1 — FULL AUDIT
+==================================================
+
+Before writing code, audit the existing platform and map all relevant files, models, routes, services, and admin screens related to:
+
+- workspace planner
+- estimator / quote builder
+- product catalog
+- product category / range / variant structure
+- supplier pricing records
+- procurement engine
+- historical quotes
+- project records
+- workspace learning records
+- admin dashboard
+- finance logic
+- package generation logic
+- any cost / margin logic already present
+
+Return an internal map of:
+- where package recommendations are generated
+- where product pricing is stored
+- where supplier pricing is stored
+- where quote totals are calculated
+- where project records are stored
+- where margins can be calculated safely
+- which admin views should be extended instead of duplicated
+
+Do not create duplicate systems if a relevant one already exists.
+
+==================================================
+PHASE 2 — DATA MODEL EXTENSIONS
+==================================================
+
+Create or extend structured models to support profit optimisation.
+
+A. Workspace Package Profit Record
+Fields:
+- id
+- project_id
+- office_size_sqm
+- staff_count
+- industry_type
+- layout_type
+- package_name
+- package_version
+- product_mix_summary
+- supplier_mix_summary
+- estimated_factory_cost
+- estimated_shipping_cost
+- estimated_installation_cost
+- estimated_landed_cost
+- quoted_price
+- estimated_profit
+- estimated_margin_percent
+- finance_used_if_any
+- conversion_result
+- created_at
+- updated_at
+
+B. Product Profit Intelligence Record
+Fields:
+- id
+- product_id or core_model_id
+- category
+- range_name
+- supplier_name
+- average_factory_cost
+- average_landed_cost
+- average_selling_price
+- average_margin_percent
+- usage_frequency
+- conversion_strength
+- profitability_rank
+- created_at
+- updated_at
+
+C. Layout Profit Pattern Record
+Fields:
+- id
+- office_size_band
+- staff_band
+- industry_type
+- layout_type
+- avg_margin_percent
+- avg_project_value
+- avg_conversion_rate_if_known
+- best_performing_package_type
+- best_supplier_mix
+- notes
+- created_at
+- updated_at
+
+Do not delete existing fields. Extend safely.
+
+==================================================
+PHASE 3 — COST STACK CALCULATION ENGINE
+==================================================
+
+Build a real cost-stack engine for workspace packages.
+
+The engine must calculate, per package:
+- estimated factory cost
+- estimated shipping/freight cost
+- estimated installation cost
+- estimated landed cost
+- quoted price
+- estimated gross profit
+- estimated margin percent
+
+If exact values are unavailable, use structured indicative logic with confidence markers.
+
+Use:
+- supplier pricing database
+- historical quote data
+- category benchmarks
+- product/range pricing intelligence
+
+Always preserve a confidence level:
+- high confidence
+- medium confidence
+- low confidence
+
+Do not use random numbers.
+Do not fake precision.
+
+==================================================
+PHASE 4 — PACKAGE COMPARISON ENGINE
+==================================================
+
+Build an engine that compares multiple workspace package options.
+
+For each project, the system should be able to compare:
+- premium package
+- balanced package
+- value-engineered package
+
+Each package comparison should show:
+- product mix
+- supplier mix
+- estimated cost
+- quoted price
+- estimated margin
+- suitability for client budget/style
+- finance suitability if relevant
+
+The engine must not just recommend the cheapest package.
+It must recommend the strongest commercial package that balances:
+- client needs
+- visual quality
+- practical function
+- margin strength
+- conversion potential
+
+==================================================
+PHASE 5 — SUPPLIER MIX OPTIMISATION
+==================================================
+
+Use supplier specialization rules to optimize profit.
+
+At minimum preserve:
+- Boke = chairs only
+- Guangzhou Meiyi / Asya = desks, workstations, meeting tables, reception desks
+- Ruby / Xitian = executive desks, reception desks, custom projects, premium project furniture
+- Denny = sourcing support
+- Ella = general office furniture support as configured
+
+The engine should compare supplier mixes and recommend:
+- best profit-protecting mix
+- best lead-time-balanced mix
+- best premium-project mix
+- best budget-project mix
+
+Do not route wrong categories to wrong suppliers.
+
+==================================================
+PHASE 6 — LAYOUT-TYPE PROFIT INTELLIGENCE
+==================================================
+
+Build logic that learns which layout types tend to produce stronger margins.
+
+Examples:
+- open-plan dense workstation layout
+- premium executive office layout
+- collaborative startup layout
+- reception-heavy client-facing layout
+- acoustic/privacy-focused layout
+
+The system must learn from past projects:
+- which layout types produce stronger package value
+- which layout types need more premium furniture
+- which layout types convert better in certain industries
+- which layout types create the best margin opportunities
+
+Do not fake learning if there is not enough data yet.
+If data is limited, start capturing it now and use indicative logic where needed.
+
+==================================================
+PHASE 7 — RECOMMENDATION ENGINE
+==================================================
+
+When the planner, estimator, or quote system produces a workspace package, the profit optimisation engine must be able to recommend:
+
+- the most profitable viable package
+- the best balanced package
+- a safer lower-cost alternative
+- the best supplier mix for margin protection
+
+Recommendations must consider:
+- client budget
+- office size
+- staff count
+- workspace style
+- furniture quality expectation
+- target margin band
+- finance suitability
+- supplier lead time
+
+Do not blindly maximize margin if it damages suitability.
+Recommend the highest-value commercially smart option.
+
+==================================================
+PHASE 8 — ADMIN PROFIT INTELLIGENCE PANEL
+==================================================
+
+Extend the admin dashboard or relevant admin views so profit intelligence is visible.
+
+Admin should be able to see:
+- package margin
+- package profit
+- landed cost
+- supplier mix
+- category contribution to margin
+- recommended better package option
+- warning if margin is too low
+- warning if supplier mix is weak
+- profitability by office size/type if data exists
+
+Do not create a duplicate admin system if an existing view can be extended.
+
+==================================================
+PHASE 9 — WORKSPACE LEARNING INTEGRATION
+==================================================
+
+Integrate this engine into the existing workspace learning system.
+
+For each completed or quoted project, store:
+- chosen layout type
+- chosen package
+- supplier mix
+- estimated margin
+- final margin if known
+- conversion result
+- whether finance was used
+- whether the project was won/lost if known
+
+The system should gradually learn:
+- what package wins
+- what package makes the most money
+- what package gives the best tradeoff between conversion and margin
+
+==================================================
+PHASE 10 — PLANNER / ESTIMATOR INTEGRATION
+==================================================
+
+Integrate profit optimisation into:
+- workspace planner
+- estimator
+- quote builder
+- admin project intelligence
+
+The planner/estimator should be able to:
+- generate a recommended package
+- generate a more profitable alternative
+- generate a more budget-safe alternative
+
+These options should be grounded in real product/range/supplier intelligence.
+
+==================================================
+PHASE 11 — FINANCE INTEGRATION
+==================================================
+
+Preserve and extend finance overlays.
+
+Where relevant, show:
+- indicative monthly payment
+- package price comparison with finance framing
+- premium package vs balanced package monthly difference
+
+This must support conversion while preserving margin awareness.
+
+==================================================
+PHASE 12 — SAFETY RULES
+==================================================
+
+Important rules:
+- do not automatically change public product pricing
+- do not automatically change supplier records without review
+- do not override package recommendations blindly
+- do not recommend high-margin packages that are clearly unsuitable
+- do not break current planner, estimator, procurement, or finance systems
+
+This is a decision-support and recommendation engine.
+
+==================================================
+PHASE 13 — TESTING
+==================================================
+
+Before completion verify all of the following:
+
+1. existing planner still works
+2. existing estimator still works
+3. package margin calculations render correctly
+4. landed cost calculations work
+5. supplier mix optimisation works
+6. premium / balanced / value package comparisons work
+7. admin profit intelligence appears correctly
+8. workspace learning records store package profit data
+9. finance overlays remain functional
+10. product catalog, Stripe, email, and admin systems remain stable
+11. mobile and desktop remain stable
+
+==================================================
+PHASE 14 — FINAL REPORT
+==================================================
+
+Return:
+- files audited
+- files modified
+- models created or extended
+- how cost stack calculation works
+- how package comparison works
+- how supplier mix optimisation works
+- how layout-type profit intelligence works
+- how the recommendation engine works
+- where profit intelligence appears in admin
+- how workspace learning uses the new data
+- what remains indicative vs exact
+- what was tested
+- confirmation that existing live systems still work
+
+EXECUTION RULE
+
+Audit first.
+Then implement the AI Workspace Profit Optimisation Engine in safe phases.
+Prefer extending existing planner, estimator, procurement, workspace learning, and admin systems over creating duplicates.
+Do not stop halfway.
+Do not ask questions.
+Build the working system, not just a framework.
