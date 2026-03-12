@@ -5,6 +5,8 @@ import { Layout } from "@/components/Layout";
 import { Clock, ArrowLeft, ArrowRight, ChevronRight, Tag } from "lucide-react";
 import { getPostBySlug, getRelatedPosts } from "@/data/blog/index";
 import type { BlogPost as BlogPostType } from "@/data/blog/types";
+import { getBlogImages } from "@/data/blog/blogImages";
+import type { BlogImageSet } from "@/data/blog/blogImages";
 
 function RelatedCard({ post }: { post: BlogPostType }) {
   return (
@@ -26,6 +28,66 @@ function RelatedCard({ post }: { post: BlogPostType }) {
       </div>
     </Link>
   );
+}
+
+function ArticleImage({ src, alt, caption, testId }: { src: string; alt: string; caption?: string; testId: string }) {
+  return (
+    <figure data-testid={testId} className="my-8 rounded-xl overflow-hidden">
+      <img
+        src={src}
+        alt={alt}
+        className="w-full object-cover rounded-xl"
+        style={{ aspectRatio: "16/9" }}
+        loading="lazy"
+      />
+      {caption && (
+        <figcaption className="mt-3 text-center text-white/35 text-sm italic leading-relaxed px-4">
+          {caption}
+        </figcaption>
+      )}
+    </figure>
+  );
+}
+
+function injectImagesIntoContent(html: string, images: BlogImageSet): string {
+  const h2Regex = /<h2[\s>]/gi;
+  const matches: number[] = [];
+  let match: RegExpExecArray | null;
+  while ((match = h2Regex.exec(html)) !== null) {
+    matches.push(match.index);
+  }
+
+  if (matches.length === 0) return html;
+
+  const midImageBlock = `
+<figure class="blog-injected-image" style="margin:2rem 0;border-radius:0.75rem;overflow:hidden;">
+  <img src="${images.mid.src}" alt="${images.mid.alt}" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:0.75rem;" loading="lazy" />
+  ${images.mid.caption ? `<figcaption style="margin-top:0.75rem;text-align:center;color:rgba(255,255,255,0.35);font-size:0.875rem;font-style:italic;padding:0 1rem;">${images.mid.caption}</figcaption>` : ""}
+</figure>`;
+
+  const bottomImageBlock = `
+<figure class="blog-injected-image" style="margin:2rem 0;border-radius:0.75rem;overflow:hidden;">
+  <img src="${images.bottom.src}" alt="${images.bottom.alt}" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:0.75rem;" loading="lazy" />
+  ${images.bottom.caption ? `<figcaption style="margin-top:0.75rem;text-align:center;color:rgba(255,255,255,0.35);font-size:0.875rem;font-style:italic;padding:0 1rem;">${images.bottom.caption}</figcaption>` : ""}
+</figure>`;
+
+  const midInsertIdx = matches.length >= 3 ? matches[Math.floor(matches.length / 3)] : matches[0];
+  const bottomInsertIdx = matches.length >= 2 ? matches[Math.floor((matches.length * 2) / 3)] : null;
+
+  let result = html;
+  let offset = 0;
+
+  const insertAt = (idx: number, block: string) => {
+    result = result.slice(0, idx + offset) + block + result.slice(idx + offset);
+    offset += block.length;
+  };
+
+  insertAt(midInsertIdx, midImageBlock);
+  if (bottomInsertIdx && bottomInsertIdx !== midInsertIdx) {
+    insertAt(bottomInsertIdx, bottomImageBlock);
+  }
+
+  return result;
 }
 
 export default function BlogPost() {
@@ -58,12 +120,14 @@ export default function BlogPost() {
   }
 
   const related = getRelatedPosts(post, 3);
+  const images = getBlogImages(post.id, post.category);
+  const enrichedContent = injectImagesIntoContent(post.content, images);
 
   return (
     <Layout>
       <div className="min-h-screen bg-background">
         {/* Article header */}
-        <section className="pt-28 pb-12 bg-[hsl(220,20%,5%)] border-b border-[rgba(201,168,76,0.1)]">
+        <section className="pt-28 pb-10 bg-[hsl(220,20%,5%)] border-b border-[rgba(201,168,76,0.1)]">
           <div className="max-w-4xl mx-auto px-6 lg:px-8">
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-white/30 text-sm mb-8 flex-wrap">
@@ -99,6 +163,18 @@ export default function BlogPost() {
           </div>
         </section>
 
+        {/* Hero image — below the header, full-width within content column */}
+        <div className="bg-[hsl(220,20%,5%)] pb-0">
+          <div className="max-w-4xl mx-auto px-6 lg:px-8">
+            <ArticleImage
+              src={images.hero.src}
+              alt={images.hero.alt}
+              caption={images.hero.caption}
+              testId={`img-hero-${post.id}`}
+            />
+          </div>
+        </div>
+
         {/* Main content */}
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12">
@@ -107,7 +183,7 @@ export default function BlogPost() {
               <div
                 data-testid="article-content"
                 className="prose-blog"
-                dangerouslySetInnerHTML={{ __html: post.content }}
+                dangerouslySetInnerHTML={{ __html: enrichedContent }}
               />
 
               {/* Tags */}

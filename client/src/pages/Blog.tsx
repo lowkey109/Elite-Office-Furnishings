@@ -5,6 +5,7 @@ import { Layout } from "@/components/Layout";
 import { Search, Clock, ArrowRight, BookOpen, ChevronRight, Armchair, LayoutDashboard, Brain, Truck, Heart, DoorOpen, Users, TrendingUp, Leaf, ShoppingBag } from "lucide-react";
 import { allPosts, categories } from "@/data/blog/index";
 import type { BlogPost } from "@/data/blog/types";
+import { getBlogImages } from "@/data/blog/blogImages";
 
 const POSTS_PER_PAGE = 12;
 
@@ -97,13 +98,22 @@ function CategoryBanner({ category, title }: { category: string; title: string }
 }
 
 function PostCard({ post }: { post: BlogPost }) {
+  const images = getBlogImages(post.id, post.category);
   return (
     <Link href={`/blog/${post.slug}`}>
       <article
         data-testid={`card-blog-${post.id}`}
         className="group bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] hover:border-[rgba(201,168,76,0.25)] rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer h-full flex flex-col"
       >
-        <CategoryBanner category={post.category} title={post.title} />
+        <div className="relative overflow-hidden" style={{ aspectRatio: "16/9" }}>
+          <img
+            src={images.hero.src}
+            alt={images.hero.alt}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[rgba(10,10,16,0.7)] via-transparent to-transparent" />
+        </div>
         <div className="p-5 flex flex-col flex-1">
           <div className="flex items-center gap-2 mb-3">
             <Badge className="bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.2)] text-xs">

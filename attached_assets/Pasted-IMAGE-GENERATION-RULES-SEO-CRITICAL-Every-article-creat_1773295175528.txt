@@ -1,0 +1,113 @@
+IMAGE GENERATION RULES (SEO CRITICAL)
+
+Every article created for The Corporate Desk must include images.
+
+Images improve:
+• SEO rankings
+• user engagement
+• AI discovery systems
+• page quality signals
+
+For every article created:
+
+Generate at least 3 images.
+
+Required image types:
+
+1️⃣ Hero Image (Top of Article)
+A large premium image placed directly under the title.
+
+2️⃣ Supporting Image 1 (Middle Section)
+Used within a key section explaining layout planning or productivity.
+
+3️⃣ Supporting Image 2 (Later Section)
+Used in design trends or furniture discussion.
+
+Image style must be:
+
+• luxury commercial office interiors
+• premium architecture
+• modern executive desks
+• natural lighting
+• Australian CBD office environment
+• ultra realistic
+• editorial quality
+
+Do NOT use:
+
+• generic stock photos
+• unrealistic AI scenes
+• cartoon style images
+• low resolution images
+
+⸻
+
+IMAGE IMPLEMENTATION
+
+Images must be integrated into the article layout properly:
+
+Hero image
+→ below H1 title
+
+Supporting images
+→ inserted between major sections
+
+Images must include:
+
+• descriptive alt text
+• descriptive filenames
+• SEO-friendly captions where appropriate
+
+Example alt text:
+
+“modern executive office layout design with premium desks and natural lighting”
+
+Example filename:
+
+office-fitout-planning-modern-workspace.jpg
+
+⸻
+
+IMAGE PROMPT GENERATION
+
+When creating images, use prompts similar to:
+
+luxury corporate office interior, modern executive desks, natural lighting, glass meeting rooms, Australian CBD skyline, premium architectural photography, ultra realistic, 8k
+
+modern collaborative workspace design, workstation clusters, glass meeting rooms, indoor plants, premium commercial office design, architectural photography
+
+executive office interior design, luxury executive desk, leather chair, skyline view, sophisticated lighting, ultra realistic
+
+⸻
+
+IMAGE QUALITY CONTROL
+
+Before publishing any article ensure:
+
+• the hero image loads correctly
+• images are high resolution
+• images appear professional on desktop and mobile
+• images visually match the article topic
+
+⸻
+
+IMPORTANT
+
+If the CMS currently has no image system, implement one safely before publishing articles.
+
+Do not publish articles without images.
+
+⸻
+
+That will make the AI add pictures automatically to every article.
+
+⸻
+
+One more important thing (most people miss this):
+
+Your SEO images should also be saved with good filenames like:
+	•	office-fitout-planning-2026.jpg
+	•	modern-office-layout-design.jpg
+	•	executive-office-design.jpg
+
+Google actually reads those.
