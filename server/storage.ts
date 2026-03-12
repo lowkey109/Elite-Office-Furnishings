@@ -5,6 +5,8 @@ import {
   manufacturerMessages, followUpSequences, territories, workspaceLearningRecords,
   scheduledJobs, intelligenceReports, spendingTrends, websiteIssues, profitRecords,
   generatedBlogArticles, quotes, officeMovRadar, buildingSignals, dealIntelligenceRecords,
+  partners, partnerOpportunities, partnerReferrals, revenueShareRecords,
+  relocationSignals, workspaceStrategyRecommendations,
   type User, type InsertUser, type Lead, type InsertLead, type PlanningRequest,
   type ProductReview, type InsertProductReview,
   type ManufacturerMessage, type InsertManufacturerMessage,
@@ -17,6 +19,12 @@ import {
   type OfficeMovRadar, type InsertOfficeMovRadar,
   type BuildingSignal, type InsertBuildingSignal,
   type DealIntelligenceRecord, type InsertDealIntelligence,
+  type Partner, type InsertPartner,
+  type PartnerOpportunity, type InsertPartnerOpportunity,
+  type PartnerReferral, type InsertPartnerReferral,
+  type RevenueShareRecord, type InsertRevenueShare,
+  type RelocationSignal, type InsertRelocationSignal,
+  type WorkspaceStrategyRecommendation, type InsertWorkspaceStrategy,
 } from "@shared/schema";
 
 export interface ProspectedLead {
@@ -232,6 +240,38 @@ export interface IStorage {
   getDealIntelligenceByRelated(relatedId: string): Promise<DealIntelligenceRecord | undefined>;
   updateDealIntelligence(id: string, data: Partial<DealIntelligenceRecord>): Promise<DealIntelligenceRecord | undefined>;
   deleteDealIntelligence(id: string): Promise<void>;
+
+  // Partner Network
+  createPartner(data: InsertPartner): Promise<Partner>;
+  getPartners(status?: string): Promise<Partner[]>;
+  getPartner(id: string): Promise<Partner | undefined>;
+  getPartnerByEmail(email: string): Promise<Partner | undefined>;
+  updatePartner(id: string, data: Partial<Partner>): Promise<Partner | undefined>;
+  incrementPartnerStats(id: string, field: "totalOpportunitiesReceived" | "totalProjectsWon"): Promise<void>;
+  deletePartner(id: string): Promise<void>;
+  createPartnerOpportunity(data: InsertPartnerOpportunity): Promise<PartnerOpportunity>;
+  getPartnerOpportunities(partnerId?: string): Promise<PartnerOpportunity[]>;
+  getPartnerOpportunity(id: string): Promise<PartnerOpportunity | undefined>;
+  updatePartnerOpportunity(id: string, data: Partial<PartnerOpportunity>): Promise<PartnerOpportunity | undefined>;
+  createPartnerReferral(data: InsertPartnerReferral): Promise<PartnerReferral>;
+  getPartnerReferrals(partnerId?: string): Promise<PartnerReferral[]>;
+  updatePartnerReferral(id: string, data: Partial<PartnerReferral>): Promise<PartnerReferral | undefined>;
+  createRevenueShare(data: InsertRevenueShare): Promise<RevenueShareRecord>;
+  getRevenueShares(partnerId?: string): Promise<RevenueShareRecord[]>;
+  updateRevenueShare(id: string, data: Partial<RevenueShareRecord>): Promise<RevenueShareRecord | undefined>;
+
+  // Relocation Intelligence
+  createRelocationSignal(data: InsertRelocationSignal): Promise<RelocationSignal>;
+  getRelocationSignals(filters?: { city?: string; tier?: string; status?: string }): Promise<RelocationSignal[]>;
+  getRelocationSignalById(id: string): Promise<RelocationSignal | undefined>;
+  updateRelocationSignal(id: string, data: Partial<RelocationSignal>): Promise<RelocationSignal | undefined>;
+  deleteRelocationSignal(id: string): Promise<void>;
+
+  // Workspace Strategy
+  createWorkspaceStrategy(data: InsertWorkspaceStrategy): Promise<WorkspaceStrategyRecommendation>;
+  getWorkspaceStrategies(limit?: number): Promise<WorkspaceStrategyRecommendation[]>;
+  getWorkspaceStrategy(id: string): Promise<WorkspaceStrategyRecommendation | undefined>;
+  updateWorkspaceStrategy(id: string, data: Partial<WorkspaceStrategyRecommendation>): Promise<WorkspaceStrategyRecommendation | undefined>;
 }
 
 function rowToProspectedLead(row: typeof prospectedLeads.$inferSelect): ProspectedLead {
@@ -1081,6 +1121,144 @@ export class DrizzleStorage implements IStorage {
 
   async deleteDealIntelligence(id: string): Promise<void> {
     await db.delete(dealIntelligenceRecords).where(eq(dealIntelligenceRecords.id, id));
+  }
+
+  // ─── Partner Network ──────────────────────────────────────────────────────────
+  async createPartner(data: InsertPartner): Promise<Partner> {
+    const [row] = await db.insert(partners).values(data as any).returning();
+    return row;
+  }
+
+  async getPartners(status?: string): Promise<Partner[]> {
+    if (status) return db.select().from(partners).where(eq(partners.activeStatus, status)).orderBy(desc(partners.createdAt));
+    return db.select().from(partners).orderBy(desc(partners.createdAt));
+  }
+
+  async getPartner(id: string): Promise<Partner | undefined> {
+    const [row] = await db.select().from(partners).where(eq(partners.id, id)).limit(1);
+    return row ?? undefined;
+  }
+
+  async getPartnerByEmail(email: string): Promise<Partner | undefined> {
+    const [row] = await db.select().from(partners).where(eq(partners.email, email)).limit(1);
+    return row ?? undefined;
+  }
+
+  async updatePartner(id: string, data: Partial<Partner>): Promise<Partner | undefined> {
+    const [row] = await db.update(partners).set({ ...data as any, updatedAt: new Date() }).where(eq(partners.id, id)).returning();
+    return row ?? undefined;
+  }
+
+  async incrementPartnerStats(id: string, field: "totalOpportunitiesReceived" | "totalProjectsWon"): Promise<void> {
+    if (field === "totalOpportunitiesReceived") {
+      await db.update(partners).set({ totalOpportunitiesReceived: drizzleSql`${partners.totalOpportunitiesReceived} + 1`, updatedAt: new Date() }).where(eq(partners.id, id));
+    } else {
+      await db.update(partners).set({ totalProjectsWon: drizzleSql`${partners.totalProjectsWon} + 1`, updatedAt: new Date() }).where(eq(partners.id, id));
+    }
+  }
+
+  async deletePartner(id: string): Promise<void> {
+    await db.delete(partners).where(eq(partners.id, id));
+  }
+
+  async createPartnerOpportunity(data: InsertPartnerOpportunity): Promise<PartnerOpportunity> {
+    const [row] = await db.insert(partnerOpportunities).values(data as any).returning();
+    return row;
+  }
+
+  async getPartnerOpportunities(partnerId?: string): Promise<PartnerOpportunity[]> {
+    if (partnerId) return db.select().from(partnerOpportunities).where(eq(partnerOpportunities.partnerId, partnerId)).orderBy(desc(partnerOpportunities.createdAt));
+    return db.select().from(partnerOpportunities).orderBy(desc(partnerOpportunities.createdAt));
+  }
+
+  async getPartnerOpportunity(id: string): Promise<PartnerOpportunity | undefined> {
+    const [row] = await db.select().from(partnerOpportunities).where(eq(partnerOpportunities.id, id)).limit(1);
+    return row ?? undefined;
+  }
+
+  async updatePartnerOpportunity(id: string, data: Partial<PartnerOpportunity>): Promise<PartnerOpportunity | undefined> {
+    const [row] = await db.update(partnerOpportunities).set({ ...data as any, updatedAt: new Date() }).where(eq(partnerOpportunities.id, id)).returning();
+    return row ?? undefined;
+  }
+
+  async createPartnerReferral(data: InsertPartnerReferral): Promise<PartnerReferral> {
+    const [row] = await db.insert(partnerReferrals).values(data as any).returning();
+    return row;
+  }
+
+  async getPartnerReferrals(partnerId?: string): Promise<PartnerReferral[]> {
+    if (partnerId) return db.select().from(partnerReferrals).where(eq(partnerReferrals.partnerId, partnerId)).orderBy(desc(partnerReferrals.createdAt));
+    return db.select().from(partnerReferrals).orderBy(desc(partnerReferrals.createdAt));
+  }
+
+  async updatePartnerReferral(id: string, data: Partial<PartnerReferral>): Promise<PartnerReferral | undefined> {
+    const [row] = await db.update(partnerReferrals).set({ ...data as any, updatedAt: new Date() }).where(eq(partnerReferrals.id, id)).returning();
+    return row ?? undefined;
+  }
+
+  async createRevenueShare(data: InsertRevenueShare): Promise<RevenueShareRecord> {
+    const [row] = await db.insert(revenueShareRecords).values(data as any).returning();
+    return row;
+  }
+
+  async getRevenueShares(partnerId?: string): Promise<RevenueShareRecord[]> {
+    if (partnerId) return db.select().from(revenueShareRecords).where(eq(revenueShareRecords.partnerId, partnerId)).orderBy(desc(revenueShareRecords.createdAt));
+    return db.select().from(revenueShareRecords).orderBy(desc(revenueShareRecords.createdAt));
+  }
+
+  async updateRevenueShare(id: string, data: Partial<RevenueShareRecord>): Promise<RevenueShareRecord | undefined> {
+    const [row] = await db.update(revenueShareRecords).set(data as any).where(eq(revenueShareRecords.id, id)).returning();
+    return row ?? undefined;
+  }
+
+  // ─── Relocation Intelligence ──────────────────────────────────────────────────
+  async createRelocationSignal(data: InsertRelocationSignal): Promise<RelocationSignal> {
+    const [row] = await db.insert(relocationSignals).values(data as any).returning();
+    return row;
+  }
+
+  async getRelocationSignals(filters?: { city?: string; tier?: string; status?: string }): Promise<RelocationSignal[]> {
+    let q = db.select().from(relocationSignals) as any;
+    const conditions: any[] = [];
+    if (filters?.city) conditions.push(ilike(relocationSignals.city, `%${filters.city}%`));
+    if (filters?.tier) conditions.push(eq(relocationSignals.probabilityTier, filters.tier));
+    if (filters?.status) conditions.push(eq(relocationSignals.status, filters.status));
+    if (conditions.length > 0) q = q.where(and(...conditions));
+    return q.orderBy(desc(relocationSignals.relocationProbability));
+  }
+
+  async getRelocationSignalById(id: string): Promise<RelocationSignal | undefined> {
+    const [row] = await db.select().from(relocationSignals).where(eq(relocationSignals.id, id)).limit(1);
+    return row ?? undefined;
+  }
+
+  async updateRelocationSignal(id: string, data: Partial<RelocationSignal>): Promise<RelocationSignal | undefined> {
+    const [row] = await db.update(relocationSignals).set({ ...data as any, updatedAt: new Date() }).where(eq(relocationSignals.id, id)).returning();
+    return row ?? undefined;
+  }
+
+  async deleteRelocationSignal(id: string): Promise<void> {
+    await db.delete(relocationSignals).where(eq(relocationSignals.id, id));
+  }
+
+  // ─── Workspace Strategy ───────────────────────────────────────────────────────
+  async createWorkspaceStrategy(data: InsertWorkspaceStrategy): Promise<WorkspaceStrategyRecommendation> {
+    const [row] = await db.insert(workspaceStrategyRecommendations).values(data as any).returning();
+    return row;
+  }
+
+  async getWorkspaceStrategies(limit = 50): Promise<WorkspaceStrategyRecommendation[]> {
+    return db.select().from(workspaceStrategyRecommendations).orderBy(desc(workspaceStrategyRecommendations.createdAt)).limit(limit);
+  }
+
+  async getWorkspaceStrategy(id: string): Promise<WorkspaceStrategyRecommendation | undefined> {
+    const [row] = await db.select().from(workspaceStrategyRecommendations).where(eq(workspaceStrategyRecommendations.id, id)).limit(1);
+    return row ?? undefined;
+  }
+
+  async updateWorkspaceStrategy(id: string, data: Partial<WorkspaceStrategyRecommendation>): Promise<WorkspaceStrategyRecommendation | undefined> {
+    const [row] = await db.update(workspaceStrategyRecommendations).set({ ...data as any, updatedAt: new Date() }).where(eq(workspaceStrategyRecommendations.id, id)).returning();
+    return row ?? undefined;
   }
 }
 

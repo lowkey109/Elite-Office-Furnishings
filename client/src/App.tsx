@@ -44,6 +44,11 @@ import QuotePrint from "@/pages/QuotePrint";
 import AdminOfficeMovRadar from "@/pages/AdminOfficeMovRadar";
 import WorkspaceDesignEngine from "@/pages/WorkspaceDesignEngine";
 import AdminDealIntelligence from "@/pages/AdminDealIntelligence";
+import AdminPartnerNetwork from "@/pages/AdminPartnerNetwork";
+import AdminRelocationIntelligence from "@/pages/AdminRelocationIntelligence";
+import AdminWorkspaceStrategy from "@/pages/AdminWorkspaceStrategy";
+import PartnerOnboarding from "@/pages/PartnerOnboarding";
+import PartnerDashboard from "@/pages/PartnerDashboard";
 
 function Router() {
   return (
@@ -94,6 +99,11 @@ function Router() {
       <Route path="/admin/deal-intelligence" component={AdminDealIntelligence} />
       <Route path="/admin/quotes/:id/print" component={QuotePrint} />
       <Route path="/admin/quotes" component={AdminQuotes} />
+      <Route path="/admin/partner-network" component={AdminPartnerNetwork} />
+      <Route path="/admin/relocation-intelligence" component={AdminRelocationIntelligence} />
+      <Route path="/admin/workspace-strategy" component={AdminWorkspaceStrategy} />
+      <Route path="/partner-onboarding" component={PartnerOnboarding} />
+      <Route path="/partner-dashboard" component={PartnerDashboard} />
       <Route component={NotFound} />
     </Switch>
   );

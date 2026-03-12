@@ -22,6 +22,9 @@ import { startFollowUpForLead } from "./services/followUpScheduler";
 import { runLeaseSignalScan, computeProcurementRecommendations } from "./services/leaseSignalScanner";
 import { captureWorkspaceLearning, buildLearningContext } from "./services/workspaceLearning";
 import { analyseAllDeals, analyseDeal, prospectsToSignals, planningRequestToSignals, radarToSignals, leadToSignals } from "./services/dealIntelligence";
+import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } from "./services/partnerNetwork";
+import { generateRelocationSignals, getMarketIntelligence, pushRelocationToPipeline } from "./services/relocationIntelligence";
+import { generateStrategyRecommendation, getLearningInsights } from "./services/workspaceStrategy";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -3652,6 +3655,232 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }
+  });
+
+  // ─── Partner Network ──────────────────────────────────────────────────────────
+  app.post("/api/partners", async (req, res) => {
+    try {
+      const partner = await storage.createPartner(req.body);
+      res.json(partner);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/partners", async (req, res) => {
+    try {
+      const status = req.query.status as string | undefined;
+      const list = await storage.getPartners(status);
+      res.json(list);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/partners/summary", async (req, res) => {
+    try {
+      const summary = await getNetworkSummary();
+      res.json(summary);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/partners/:id", async (req, res) => {
+    try {
+      const partner = await storage.getPartner(req.params.id);
+      if (!partner) return res.status(404).json({ error: "Not found" });
+      const opportunities = await storage.getPartnerOpportunities(req.params.id);
+      const referrals = await storage.getPartnerReferrals(req.params.id);
+      const revenue = await storage.getRevenueShares(req.params.id);
+      res.json({ partner, opportunities, referrals, revenue });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.patch("/api/admin/partners/:id", async (req, res) => {
+    try {
+      const updated = await storage.updatePartner(req.params.id, req.body);
+      res.json(updated);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/partners/:id/approve", async (req, res) => {
+    try {
+      const updated = await storage.updatePartner(req.params.id, { activeStatus: "active", approvedAt: new Date() });
+      res.json(updated);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/partners/:id/suspend", async (req, res) => {
+    try {
+      const updated = await storage.updatePartner(req.params.id, { activeStatus: "suspended" });
+      res.json(updated);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.delete("/api/admin/partners/:id", async (req, res) => {
+    try {
+      await storage.deletePartner(req.params.id);
+      res.json({ success: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/partners/route-opportunity", async (req, res) => {
+    try {
+      const { partnerTypes, ...opportunityData } = req.body as { partnerTypes?: string[] } & Record<string, any>;
+      const result = await routeOpportunityToPartners(opportunityData, partnerTypes);
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/partners/route-radar/:radarId", async (req, res) => {
+    try {
+      const radar = await storage.getOfficeMovRadarRecord(req.params.radarId);
+      if (!radar) return res.status(404).json({ error: "Radar record not found" });
+      const result = await routeRadarToPartners(radar);
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/partner-opportunities", async (req, res) => {
+    try {
+      const partnerId = req.query.partnerId as string | undefined;
+      const list = await storage.getPartnerOpportunities(partnerId);
+      res.json(list);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.patch("/api/admin/partner-opportunities/:id", async (req, res) => {
+    try {
+      const updated = await storage.updatePartnerOpportunity(req.params.id, req.body);
+      res.json(updated);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // Partner dashboard — public access by email
+  app.get("/api/partner-dashboard/:email", async (req, res) => {
+    try {
+      const partner = await storage.getPartnerByEmail(decodeURIComponent(req.params.email));
+      if (!partner) return res.status(404).json({ error: "Partner not found" });
+      const opportunities = await storage.getPartnerOpportunities(partner.id);
+      const referrals = await storage.getPartnerReferrals(partner.id);
+      res.json({ partner, opportunities, referrals });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.patch("/api/partner-opportunities/:id/respond", async (req, res) => {
+    try {
+      const { status, notes } = req.body as { status: string; notes?: string };
+      const updated = await storage.updatePartnerOpportunity(req.params.id, {
+        status,
+        notes: notes ?? null,
+        respondedAt: new Date(),
+      });
+      res.json(updated);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/revenue-shares", async (req, res) => {
+    try {
+      const partnerId = req.query.partnerId as string | undefined;
+      const list = await storage.getRevenueShares(partnerId);
+      res.json(list);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Relocation Intelligence ──────────────────────────────────────────────────
+  app.get("/api/admin/relocation-signals", async (req, res) => {
+    try {
+      const filters: { city?: string; tier?: string; status?: string } = {};
+      if (req.query.city) filters.city = req.query.city as string;
+      if (req.query.tier) filters.tier = req.query.tier as string;
+      if (req.query.status) filters.status = req.query.status as string;
+      const signals = await storage.getRelocationSignals(Object.keys(filters).length ? filters : undefined);
+      res.json(signals);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/relocation-signals/generate", async (req, res) => {
+    try {
+      const count = parseInt(String(req.body.count ?? 15));
+      const signals = await generateRelocationSignals(count);
+      res.json({ generated: signals.length, signals });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/relocation-signals/market-intelligence", async (req, res) => {
+    try {
+      const intel = await getMarketIntelligence();
+      res.json(intel);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/relocation-signals/:id/push-to-pipeline", async (req, res) => {
+    try {
+      const result = await pushRelocationToPipeline(req.params.id);
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/relocation-signals/:id/route-to-partners", async (req, res) => {
+    try {
+      const signal = await storage.getRelocationSignalById(req.params.id);
+      if (!signal) return res.status(404).json({ error: "Signal not found" });
+      const { routeRelocationSignalToPartners } = await import("./services/partnerNetwork");
+      const result = await routeRelocationSignalToPartners(signal);
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.patch("/api/admin/relocation-signals/:id", async (req, res) => {
+    try {
+      const updated = await storage.updateRelocationSignal(req.params.id, req.body);
+      res.json(updated);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.delete("/api/admin/relocation-signals/:id", async (req, res) => {
+    try {
+      await storage.deleteRelocationSignal(req.params.id);
+      res.json({ success: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Workspace Strategy Engine ────────────────────────────────────────────────
+  app.post("/api/admin/workspace-strategy/generate", async (req, res) => {
+    try {
+      const { planningRequestId, officeSqm, staffCount, projectType, industryContext, budgetRange, stylePreference } = req.body;
+      if (!officeSqm || !staffCount) return res.status(400).json({ error: "officeSqm and staffCount are required" });
+      const strategy = await generateStrategyRecommendation({
+        planningRequestId, officeSqm: parseInt(officeSqm), staffCount: parseInt(staffCount),
+        projectType, industryContext, budgetRange, stylePreference,
+      });
+      res.json(strategy);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/workspace-strategy", async (req, res) => {
+    try {
+      const limit = parseInt(String(req.query.limit ?? 50));
+      const strategies = await storage.getWorkspaceStrategies(limit);
+      res.json(strategies);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/workspace-strategy/learning-insights", async (req, res) => {
+    try {
+      const insights = await getLearningInsights();
+      res.json(insights);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/workspace-strategy/:id", async (req, res) => {
+    try {
+      const strategy = await storage.getWorkspaceStrategy(req.params.id);
+      if (!strategy) return res.status(404).json({ error: "Not found" });
+      res.json(strategy);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.patch("/api/admin/workspace-strategy/:id", async (req, res) => {
+    try {
+      const updated = await storage.updateWorkspaceStrategy(req.params.id, req.body);
+      res.json(updated);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
   return httpServer;

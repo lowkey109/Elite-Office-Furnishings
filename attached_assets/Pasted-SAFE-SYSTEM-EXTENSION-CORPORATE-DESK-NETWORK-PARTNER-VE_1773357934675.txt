@@ -1,0 +1,288 @@
+SAFE SYSTEM EXTENSION — CORPORATE DESK NETWORK
+PARTNER / VENDOR NETWORK
+
+DO NOT OVERWRITE EXISTING PROMPTS.
+DO NOT REBUILD THE SITE.
+DO NOT BREAK:
+
+workspace planner
+AI workspace design engine
+deal intelligence engine
+profit engine
+office move radar
+upload floor plan
+3D office walkthrough
+quote builder
+formal quotes
+product catalog
+supplier system
+finance system
+Stripe payments
+admin dashboard
+planning requests
+deal pipeline
+command centre
+email system
+mobile responsiveness
+desktop responsiveness
+
+You are upgrading the LIVE Corporate Desk platform.
+
+PRIMARY OBJECTIVE
+
+Build the Corporate Desk Partner Network.
+
+This system allows trusted partners across the commercial workspace industry to receive relevant project opportunities from the platform.
+
+Partners may include:
+
+commercial real estate brokers
+tenant representatives
+architects
+workplace designers
+fitout builders
+furniture suppliers
+relocation companies
+technology integrators
+finance providers
+
+The platform must support:
+
+partner onboarding
+partner capability profiles
+geographic coverage
+opportunity routing
+lead sharing rules
+referral tracking
+revenue share tracking
+partner dashboards
+admin network management
+
+This must integrate with:
+
+lead intelligence
+deal intelligence
+office move radar
+workspace design engine
+planning requests
+quotes
+deal pipeline
+command centre
+
+This must be a real operational network layer.
+
+------------------------------------------------
+
+PHASE 1 — SYSTEM AUDIT
+
+Audit existing systems:
+
+office move radar
+lead intelligence
+deal intelligence
+planning requests
+workspace design engine
+quote system
+supplier database
+finance routing
+command centre
+admin dashboard
+
+Return internal map of:
+
+lead data models
+opportunity records
+supplier records
+routing logic
+partner-like data structures
+
+Prefer extending existing models.
+
+------------------------------------------------
+
+PHASE 2 — PARTNER DATA MODEL
+
+Create partner records supporting:
+
+partner_id
+company_name
+partner_type
+contact_name
+email
+phone
+website
+city
+service_regions
+industry_specialties
+services_offered
+company_size
+portfolio_examples
+active_status
+rating
+total_opportunities_received
+total_projects_won
+total_revenue_generated
+
+Partner types:
+
+broker
+tenant_rep
+architect
+designer
+builder
+furniture_supplier
+mover
+finance_partner
+technology_partner
+
+------------------------------------------------
+
+PHASE 3 — PARTNER ONBOARDING
+
+Build partner onboarding system.
+
+Partners submit:
+
+company profile
+services
+coverage regions
+industry specialties
+portfolio examples
+
+Admin must approve partners before activation.
+
+Activation enables routing eligibility.
+
+------------------------------------------------
+
+PHASE 4 — OPPORTUNITY ROUTING
+
+Build routing engine matching opportunities to partners.
+
+Routing should consider:
+
+location
+office size
+project type
+industry
+partner capability
+partner reliability
+existing supplier relationships
+
+Example routing:
+
+office move radar detects relocation
+→ platform creates opportunity
+
+routing:
+
+broker → tenant lead
+architect → workspace concept
+builder → fitout opportunity
+supplier → furniture opportunity
+mover → relocation opportunity
+
+Admin must retain control.
+
+------------------------------------------------
+
+PHASE 5 — REFERRAL TRACKING
+
+Track partner referral activity.
+
+Each shared opportunity records:
+
+partner_id
+opportunity_id
+date_shared
+status
+
+Statuses:
+
+invited
+viewed
+accepted
+declined
+won
+lost
+
+Track:
+
+conversion rate
+revenue generated
+
+------------------------------------------------
+
+PHASE 6 — REVENUE SHARE TRACKING
+
+Support:
+
+referral fees
+project commissions
+partner subscription tiers
+
+Each deal records:
+
+project_value
+platform_fee
+partner_fee
+referral_source
+
+------------------------------------------------
+
+PHASE 7 — PARTNER DASHBOARD
+
+Partners see:
+
+available opportunities
+assigned opportunities
+project details
+project stage
+referral performance
+profile management
+
+------------------------------------------------
+
+PHASE 8 — ADMIN NETWORK MANAGEMENT
+
+Admins can:
+
+approve partners
+suspend partners
+manually route opportunities
+review partner performance
+
+Dashboard shows:
+
+partner directory
+active opportunities
+network revenue
+partner performance
+
+------------------------------------------------
+
+PHASE 9 — PIPELINE INTEGRATION
+
+Partner activity must integrate with the existing deal pipeline.
+
+Do not create duplicate pipelines.
+
+------------------------------------------------
+
+PHASE 10 — TESTING
+
+Verify:
+
+partner onboarding works
+opportunity routing works
+referral tracking works
+revenue tracking works
+partner dashboards work
+admin network controls work
+deal pipeline remains stable
+workspace design engine remains stable
+office move radar remains stable
+
+------------------------------------------------
+
+Return full implementation report.

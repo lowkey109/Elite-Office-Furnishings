@@ -534,3 +534,160 @@ export const generatedBlogArticles = pgTable("generated_blog_articles", {
   publishedAt: timestamp("published_at"),
 });
 export type GeneratedBlogArticle = typeof generatedBlogArticles.$inferSelect;
+
+// ─── Partner Network ──────────────────────────────────────────────────────────
+export const partners = pgTable("partners", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyName: text("company_name").notNull(),
+  partnerType: text("partner_type").notNull(), // broker|tenant_rep|architect|designer|builder|furniture_supplier|mover|finance_partner|technology_partner
+  contactName: text("contact_name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  website: text("website"),
+  city: text("city"),
+  state: text("state"),
+  serviceRegions: text("service_regions").array(), // ["Brisbane","Sydney","Melbourne"]
+  industrySpecialties: text("industry_specialties").array(), // ["Technology","Finance","Legal"]
+  servicesOffered: text("services_offered").array(),
+  companySize: text("company_size"), // "1-10"|"10-50"|"50-200"|"200+"
+  portfolioExamples: text("portfolio_examples"),
+  bio: text("bio"),
+  activeStatus: text("active_status").notNull().default("pending"), // pending|active|suspended
+  rating: integer("rating").default(0), // 0-100 internal rating
+  totalOpportunitiesReceived: integer("total_opportunities_received").default(0),
+  totalProjectsWon: integer("total_projects_won").default(0),
+  totalRevenueGenerated: integer("total_revenue_generated").default(0), // in cents
+  adminNotes: text("admin_notes"),
+  approvedAt: timestamp("approved_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertPartnerSchema = createInsertSchema(partners).omit({ id: true, createdAt: true, updatedAt: true, approvedAt: true, totalOpportunitiesReceived: true, totalProjectsWon: true, totalRevenueGenerated: true });
+export type InsertPartner = z.infer<typeof insertPartnerSchema>;
+export type Partner = typeof partners.$inferSelect;
+
+export const partnerOpportunities = pgTable("partner_opportunities", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  partnerId: varchar("partner_id").notNull(),
+  opportunityTitle: text("opportunity_title").notNull(),
+  companyName: text("company_name"),
+  city: text("city"),
+  industry: text("industry"),
+  projectType: text("project_type"), // relocation|expansion|refit|new_office
+  officeSizeSqm: text("office_size_sqm"),
+  staffCount: text("staff_count"),
+  estimatedProjectValue: integer("estimated_project_value"), // in dollars
+  relocationScore: integer("relocation_score"), // 0-100
+  sourceType: text("source_type"), // radar|lead|planning_request|manual|relocation_signal
+  sourceId: varchar("source_id"),
+  routingReason: text("routing_reason"),
+  status: text("status").notNull().default("invited"), // invited|viewed|accepted|declined|won|lost
+  viewedAt: timestamp("viewed_at"),
+  respondedAt: timestamp("responded_at"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertPartnerOpportunitySchema = createInsertSchema(partnerOpportunities).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertPartnerOpportunity = z.infer<typeof insertPartnerOpportunitySchema>;
+export type PartnerOpportunity = typeof partnerOpportunities.$inferSelect;
+
+export const partnerReferrals = pgTable("partner_referrals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  partnerId: varchar("partner_id").notNull(),
+  opportunityId: varchar("opportunity_id"),
+  clientName: text("client_name"),
+  clientCompany: text("client_company"),
+  projectValue: integer("project_value"), // in dollars
+  referralFee: integer("referral_fee"), // in dollars
+  commissionPercent: integer("commission_percent").default(5),
+  status: text("status").notNull().default("invited"), // invited|viewed|accepted|declined|won|lost
+  conversionResult: text("conversion_result"), // won|lost|pending
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertPartnerReferralSchema = createInsertSchema(partnerReferrals).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertPartnerReferral = z.infer<typeof insertPartnerReferralSchema>;
+export type PartnerReferral = typeof partnerReferrals.$inferSelect;
+
+export const revenueShareRecords = pgTable("revenue_share_records", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  partnerId: varchar("partner_id").notNull(),
+  opportunityId: varchar("opportunity_id"),
+  projectValue: integer("project_value").notNull(), // in dollars
+  platformFee: integer("platform_fee"), // in dollars
+  partnerFee: integer("partner_fee"), // in dollars
+  referralSource: text("referral_source"),
+  status: text("status").notNull().default("pending"), // pending|approved|paid
+  paidAt: timestamp("paid_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertRevenueShareSchema = createInsertSchema(revenueShareRecords).omit({ id: true, createdAt: true });
+export type InsertRevenueShare = z.infer<typeof insertRevenueShareSchema>;
+export type RevenueShareRecord = typeof revenueShareRecords.$inferSelect;
+
+// ─── Relocation Intelligence ──────────────────────────────────────────────────
+export const relocationSignals = pgTable("relocation_signals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyName: text("company_name").notNull(),
+  industry: text("industry"),
+  city: text("city").notNull(),
+  state: text("state"),
+  signalType: text("signal_type").notNull(), // job_growth|hiring_surge|lease_expiry|commercial_listing|headcount_growth|press_announcement|planning_permit|linkedin_growth|expansion_news|new_office
+  signalSource: text("signal_source"), // seek.com|linkedin|domain.com|afr|planning_portal|ai_scan
+  signalDetail: text("signal_detail"),
+  sourceUrl: text("source_url"),
+  jobPostingsCount: integer("job_postings_count"),
+  estimatedHeadcount: integer("estimated_headcount"),
+  headcountGrowthPct: integer("headcount_growth_pct"),
+  leaseExpiryDate: text("lease_expiry_date"),
+  officeSizeSqm: integer("office_size_sqm"),
+  relocationProbability: integer("relocation_probability").notNull().default(0), // 0-100
+  probabilityTier: text("probability_tier").notNull().default("low"), // high|medium|low
+  estimatedProjectValue: integer("estimated_project_value"),
+  estimatedTimeline: text("estimated_timeline"), // "0-3 months"|"3-6 months"|"6-12 months"|"12+ months"
+  recommendedAction: text("recommended_action"),
+  linkedRadarId: varchar("linked_radar_id"),
+  linkedProspectId: varchar("linked_prospect_id"),
+  pushedToPipeline: boolean("pushed_to_pipeline").default(false),
+  status: text("status").notNull().default("active"), // active|converted|dismissed
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertRelocationSignalSchema = createInsertSchema(relocationSignals).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertRelocationSignal = z.infer<typeof insertRelocationSignalSchema>;
+export type RelocationSignal = typeof relocationSignals.$inferSelect;
+
+// ─── Workspace Strategy Recommendations ───────────────────────────────────────
+export const workspaceStrategyRecommendations = pgTable("workspace_strategy_recommendations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  planningRequestId: varchar("planning_request_id"),
+  officeSqm: integer("office_sqm"),
+  staffCount: integer("staff_count"),
+  projectType: text("project_type"),
+  industryContext: text("industry_context"),
+  recommendedLayoutType: text("recommended_layout_type"), // open_plan|hybrid|executive|collaborative|cellular|mixed
+  recommendedDeskDensity: text("recommended_desk_density"), // sqm per person
+  recommendedZonesJson: text("recommended_zones_json"), // JSON array of zone allocations
+  recommendedPackageTier: text("recommended_package_tier"), // Premium|Balanced|Value
+  recommendedFurnitureJson: text("recommended_furniture_json"), // JSON list of product recommendations
+  predictedProjectValue: integer("predicted_project_value"),
+  predictedGrossProfit: integer("predicted_gross_profit"),
+  predictedMarginPct: integer("predicted_margin_pct"),
+  supplierMixJson: text("supplier_mix_json"),
+  workspaceConcept: text("workspace_concept"), // AI-generated concept description
+  budgetEstimateLow: integer("budget_estimate_low"),
+  budgetEstimateHigh: integer("budget_estimate_high"),
+  proposalSummary: text("proposal_summary"),
+  keyInsights: text("key_insights").array(),
+  confidenceScore: integer("confidence_score").default(50), // 0-100 based on data quality
+  dataSourcesUsed: integer("data_sources_used").default(0), // how many learning records informed this
+  outcomeTracked: boolean("outcome_tracked").default(false),
+  actualProjectValue: integer("actual_project_value"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertWorkspaceStrategySchema = createInsertSchema(workspaceStrategyRecommendations).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertWorkspaceStrategy = z.infer<typeof insertWorkspaceStrategySchema>;
+export type WorkspaceStrategyRecommendation = typeof workspaceStrategyRecommendations.$inferSelect;

@@ -11,7 +11,7 @@ import {
   CheckCircle2, XCircle, Zap, Target, FileText, Package, ChevronRight,
   Phone, Mail, Megaphone, ExternalLink, Eye, BarChart3, Shield, Calendar,
   Layers, Crown, RefreshCw, Building2, Briefcase, Radio, MapPin, ArrowRight,
-  Loader2,
+  Loader2, Network, Radar, Brain,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -1260,6 +1260,9 @@ export default function AdminCommandCentre() {
               { href: "/admin/office-move-radar", icon: Radio, label: "Office Move Radar", sub: radarStats ? `${radarStats.total} signals` : "Radar signals" },
               { href: "/admin/supplier-quotes", icon: Package, label: "Supplier Quotes", sub: "Purchase orders" },
               { href: "/admin/marketing", icon: Megaphone, label: "Marketing Hub", sub: "Prospects & outreach" },
+              { href: "/admin/partner-network", icon: Network, label: "Partner Network", sub: "Broker & partner ecosystem" },
+              { href: "/admin/relocation-intelligence", icon: Radar, label: "Relocation Intel", sub: "Market relocation signals" },
+              { href: "/admin/workspace-strategy", icon: Brain, label: "Workspace Strategy", sub: "AI layout & package optimisation" },
             ].map(({ href, icon: Icon, label, sub }) => (
               <Link key={href} href={href}>
                 <div className="flex items-center gap-3 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.06)] rounded-xl p-3.5 cursor-pointer transition-colors">
