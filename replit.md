@@ -58,3 +58,32 @@ The aesthetic is dark luxury gold, using near-black backgrounds, rich gold accen
 - **AI**: OpenAI
 - **Payments**: Stripe
 - **Marketing Channels (API Integrations)**: Telegram, Facebook, Instagram, X/Twitter, WhatsApp Business
+
+## Phase 11 — AI Workspace Design Engine (Complete)
+
+### New Page: `/ai-workspace-design` (`client/src/pages/WorkspaceDesignEngine.tsx`)
+A public-facing 2-step AI design flow:
+1. **Step 1** — Upload a floor plan image (optional) + fill out office details (sqm, staff, style, budget, project type)
+2. **Step 2** — Instant free AI concept showing: zone allocation breakdown, budget range, top furniture, floor geometry badge (confidence level from CV pipeline), and a CTA to the full $399 planning report and 3D walkthrough
+
+Confidence badge shows 5 detection method tiers: `canny-contour` (High), `pixel-silhouette` (High), `convex-hull` (Medium), `pdf-dimensions` (Medium), `fallback-rectangle` (Low). Submits via existing `/api/planning-requests` endpoint with `source: "design-engine"` in FormData.
+
+### Schema Additions (workspace_learning_records)
+- `geometrySource` — Detection method string (canny-contour, pixel-silhouette, convex-hull, pdf-dimensions, fallback-rectangle)
+- `geometryConfidence` — Numeric confidence score 0–1
+- `designEngineUsed` — Boolean flag for Design Engine vs standard planner submissions
+
+### Backend Updates
+- `server/services/workspaceLearning.ts` — Now captures geometry metadata (source, confidence) from floor plan parser output
+- `server/routes.ts` — Layout endpoint now returns `floorGeometry` object including boundary points, aspectRatio, confidence, detectedShape, internalWalls
+- `server/services/floorPlanParser.ts` — Already had full CV pipeline (689 lines); output now fully wired to learning system
+
+### Admin Updates (`client/src/pages/AdminPlanningRequests.tsx`)
+- **Geometry Intelligence Panel** — Appears in the Overview tab of each request card when `geometrySource` is set. Shows: Detection Method (color-coded by confidence: green = high, amber = medium, grey = low), Detected Shape, Confidence %, Internal Walls count. A note confirms when real geometry influenced the AI zone placement.
+- **AI Engine Badge** — Small gold "⚡ AI Engine" badge appears on request cards where `source === "design-engine"`, letting admins instantly identify Design Engine submissions
+- **PlanningRequest interface** — Added `floorGeometryJson`, `geometrySource`, `source` fields
+
+### 3D Walkthrough Enhancement (`client/src/pages/OfficeWalkthrough.tsx`)
+- `FloorGeometryMeta` interface added to LayoutData for geometry-aware rendering
+- When a planning request has real floor geometry (from CV pipeline), the 3D room's aspect ratio is derived from `floorGeometry.aspectRatio` instead of defaulting to 1.35. This makes the Three.js room shape match the actual floor plan geometry.
+- Aspect ratio is clamped to 0.6–2.5 and only applied when geometry source confidence is within valid bounds (0.3–5.0).

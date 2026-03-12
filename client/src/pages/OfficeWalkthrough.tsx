@@ -35,6 +35,16 @@ interface ProductRec {
   totalCost: number;
 }
 
+interface FloorGeometryMeta {
+  boundary: { x: number; y: number }[];
+  aspectRatio: number;
+  confidence: number;
+  source: string;
+  detectedShape?: string | null;
+  fallback: boolean;
+  internalWalls?: unknown[];
+}
+
 interface LayoutData {
   id: string;
   name: string;
@@ -50,6 +60,8 @@ interface LayoutData {
     totalBudget?: number;
     styleDirection?: string;
   } | null;
+  floorGeometry?: FloorGeometryMeta | null;
+  geometrySource?: string | null;
 }
 
 interface ZoneRect {
@@ -771,7 +783,11 @@ export default function OfficeWalkthrough() {
   const sqm = parseFloat(layoutData?.squareMetres || "") || 280;
   const staff = parseInt(layoutData?.staffCount || "") || 20;
 
-  const officeW = Math.sqrt(sqm * 1.35);
+  // Use real floor geometry aspect ratio if available for accurate 3D room shape
+  const geomAspect = layoutData?.floorGeometry?.aspectRatio;
+  const officeW = geomAspect && geomAspect > 0.3 && geomAspect < 5
+    ? Math.sqrt(sqm * Math.max(0.6, Math.min(geomAspect, 2.5)))
+    : Math.sqrt(sqm * 1.35);
   const officeD = sqm / officeW;
 
   const productRecsByZone: Record<string, ProductRec[]> = {};

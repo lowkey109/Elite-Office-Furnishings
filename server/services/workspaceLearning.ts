@@ -93,6 +93,9 @@ export async function captureWorkspaceLearning(data: {
   budgetRange?: string;
   stylePreference?: string;
   aiRec: AiRecSummary | null;
+  geometrySource?: string | null;
+  geometryConfidence?: number | null;
+  designEngineUsed?: boolean;
 }): Promise<void> {
   try {
     if (!data.aiRec) return;
@@ -132,6 +135,9 @@ export async function captureWorkspaceLearning(data: {
       supplierMix: supplierMix || null,
       keyInsight: keyInsight || null,
       conversionResult: "pending",
+      geometrySource: data.geometrySource || null,
+      geometryConfidence: data.geometryConfidence != null ? String(Math.round(data.geometryConfidence * 100)) + "%" : null,
+      designEngineUsed: data.designEngineUsed ?? false,
     });
 
     console.log(`[WorkspaceLearning] Captured record for PR ${data.planningRequestId}`);

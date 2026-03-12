@@ -253,6 +253,9 @@ export const workspaceLearningRecords = pgTable("workspace_learning_records", {
   supplierMix: text("supplier_mix"),
   keyInsight: text("key_insight"),
   conversionResult: text("conversion_result").default("pending"),
+  geometrySource: text("geometry_source"),
+  geometryConfidence: text("geometry_confidence"),
+  designEngineUsed: boolean("design_engine_used").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

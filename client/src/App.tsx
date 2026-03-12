@@ -42,6 +42,7 @@ import AdminProfitEngine from "@/pages/AdminProfitEngine";
 import AdminQuotes from "@/pages/AdminQuotes";
 import QuotePrint from "@/pages/QuotePrint";
 import AdminOfficeMovRadar from "@/pages/AdminOfficeMovRadar";
+import WorkspaceDesignEngine from "@/pages/WorkspaceDesignEngine";
 
 function Router() {
   return (
@@ -58,6 +59,7 @@ function Router() {
       <Route path="/finance-your-workspace" component={FinanceWorkspace} />
       <Route path="/case-studies" component={CaseStudies} />
       <Route path="/upload-your-floor-plan" component={UploadFloorPlan} />
+      <Route path="/ai-workspace-design" component={WorkspaceDesignEngine} />
       <Route path="/3d-office-walkthrough" component={OfficeWalkthrough} />
       <Route path="/thank-you-layout-plan" component={ThankYouLayoutPlan} />
       <Route path="/thank-you-quote" component={ThankYouQuote} />

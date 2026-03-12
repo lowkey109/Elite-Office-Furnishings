@@ -122,6 +122,9 @@ interface PlanningRequest {
   packageJson?: string;
   quoteJson?: string;
   quoteStatus?: string;
+  floorGeometryJson?: string;
+  geometrySource?: string;
+  source?: string;
   createdAt?: string;
 }
 
@@ -1200,6 +1203,11 @@ export default function AdminPlanningRequests() {
                                   <Paperclip className="w-3 h-3" />{uploadedFiles.length} file{uploadedFiles.length > 1 ? "s" : ""}
                                 </span>
                               )}
+                              {req.source === "design-engine" && (
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-[rgba(201,168,76,0.12)] text-[hsl(43,78%,65%)] border border-[rgba(201,168,76,0.25)] flex items-center gap-1" data-testid={`badge-design-engine-${req.id}`}>
+                                  <Zap className="w-2.5 h-2.5" /> AI Engine
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1301,6 +1309,53 @@ export default function AdminPlanningRequests() {
                                       </a>
                                     ))}
                                   </div>
+                                </div>
+                              )}
+
+                              {/* Floor Plan Intelligence Panel */}
+                              {req.geometrySource && (
+                                <div className={`border rounded-xl p-4 ${req.geometrySource === "fallback-rectangle" ? "border-white/10 bg-white/[0.02]" : "border-[rgba(201,168,76,0.18)] bg-[rgba(201,168,76,0.03)]"}`} data-testid={`geometry-panel-${req.id}`}>
+                                  <p className="text-[hsl(43,78%,65%)] text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                                    <Zap className="w-3.5 h-3.5" /> Floor Plan Intelligence
+                                  </p>
+                                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                                    <div>
+                                      <p className="text-white/30 mb-0.5 uppercase tracking-wider text-[10px]">Detection Method</p>
+                                      <p className={`font-semibold ${req.geometrySource === "canny-contour" || req.geometrySource === "pixel-silhouette" ? "text-green-400" : req.geometrySource === "convex-hull" || req.geometrySource === "pdf-dimensions" ? "text-amber-400" : "text-white/40"}`}>
+                                        {req.geometrySource === "canny-contour" ? "Canny Edge (High)" : req.geometrySource === "pixel-silhouette" ? "Pixel Silhouette (High)" : req.geometrySource === "convex-hull" ? "Convex Hull (Med)" : req.geometrySource === "pdf-dimensions" ? "PDF Dimensions (Med)" : "Fallback Rectangle"}
+                                      </p>
+                                    </div>
+                                    {(() => {
+                                      const geom = (() => { try { return req.floorGeometryJson ? JSON.parse(req.floorGeometryJson) : null; } catch { return null; } })();
+                                      return (
+                                        <>
+                                          {geom?.detectedShape && (
+                                            <div>
+                                              <p className="text-white/30 mb-0.5 uppercase tracking-wider text-[10px]">Detected Shape</p>
+                                              <p className="text-white/70 font-semibold">{geom.detectedShape}</p>
+                                            </div>
+                                          )}
+                                          {geom?.confidence != null && (
+                                            <div>
+                                              <p className="text-white/30 mb-0.5 uppercase tracking-wider text-[10px]">Confidence</p>
+                                              <p className="text-white/70 font-semibold">{Math.round(geom.confidence * 100)}%</p>
+                                            </div>
+                                          )}
+                                          {geom?.internalWalls != null && (
+                                            <div>
+                                              <p className="text-white/30 mb-0.5 uppercase tracking-wider text-[10px]">Internal Walls</p>
+                                              <p className="text-white/70 font-semibold">{geom.internalWalls.length} detected</p>
+                                            </div>
+                                          )}
+                                        </>
+                                      );
+                                    })()}
+                                  </div>
+                                  {req.geometrySource !== "fallback-rectangle" && (
+                                    <p className="text-white/30 text-xs mt-2 border-t border-[rgba(255,255,255,0.05)] pt-2">
+                                      ✓ Real floor plan geometry influenced zone placement in the AI recommendation above.
+                                    </p>
+                                  )}
                                 </div>
                               )}
 

@@ -1542,6 +1542,9 @@ ${allUrls.map(u => `  <url>
         aiRec: (() => {
           try { return JSON.parse(aiRecommendations || "null"); } catch { return null; }
         })(),
+        geometrySource: geometry?.source || null,
+        geometryConfidence: geometry?.confidence ?? null,
+        designEngineUsed: body.source === "design-engine",
       }).catch(() => {});
 
       // Score opportunity using real inbound data
@@ -2651,6 +2654,7 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
         if (!raw) return null;
         try { return JSON.parse(raw); } catch { return null; }
       };
+      const geomData = parseRec(request.floorGeometryJson);
       res.json({
         id: request.id,
         name: request.name,
@@ -2662,6 +2666,16 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
         isPaid: request.isPaid,
         paymentStatus: request.paymentStatus,
         aiRecommendations: request.isPaid ? parseRec(request.aiRecommendations) : null,
+        floorGeometry: geomData ? {
+          boundary: geomData.boundary || [],
+          aspectRatio: geomData.aspectRatio || 1,
+          confidence: geomData.confidence || 0,
+          source: geomData.source || "fallback-rectangle",
+          detectedShape: geomData.detectedShape || null,
+          fallback: geomData.fallback ?? true,
+          internalWalls: geomData.internalWalls || [],
+        } : null,
+        geometrySource: request.geometrySource || null,
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch layout data" });
