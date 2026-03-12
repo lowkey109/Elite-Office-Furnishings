@@ -41,6 +41,7 @@ import AdminIntelligenceHub from "@/pages/AdminIntelligenceHub";
 import AdminProfitEngine from "@/pages/AdminProfitEngine";
 import AdminQuotes from "@/pages/AdminQuotes";
 import QuotePrint from "@/pages/QuotePrint";
+import AdminOfficeMovRadar from "@/pages/AdminOfficeMovRadar";
 
 function Router() {
   return (
@@ -86,6 +87,7 @@ function Router() {
       <Route path="/admin/workspace-learning" component={AdminWorkspaceLearning} />
       <Route path="/admin/intelligence-hub" component={AdminIntelligenceHub} />
       <Route path="/admin/profit-engine" component={AdminProfitEngine} />
+      <Route path="/admin/office-move-radar" component={AdminOfficeMovRadar} />
       <Route path="/admin/quotes/:id/print" component={QuotePrint} />
       <Route path="/admin/quotes" component={AdminQuotes} />
       <Route component={NotFound} />

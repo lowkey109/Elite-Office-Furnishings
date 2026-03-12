@@ -406,6 +406,68 @@ export const insertQuoteSchema = createInsertSchema(quotes).omit({ id: true, cre
 export type InsertQuote = z.infer<typeof insertQuoteSchema>;
 export type Quote = typeof quotes.$inferSelect;
 
+// ─── Office Move Radar ────────────────────────────────────────────────────────
+export const officeMovRadar = pgTable("office_move_radar", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyName: text("company_name").notNull(),
+  industry: text("industry"),
+  city: text("city").notNull(),
+  state: text("state"),
+  country: text("country").default("Australia"),
+  signalType: text("signal_type").notNull(),
+  signalSubtype: text("signal_subtype"),
+  signalSource: text("signal_source"),
+  sourceUrl: text("source_url"),
+  dateDetected: timestamp("date_detected").defaultNow(),
+  confidenceLevel: text("confidence_level").notNull().default("medium"),
+  estimatedHeadcount: text("estimated_headcount"),
+  estimatedOfficeSizeSqm: text("estimated_office_size_sqm"),
+  estimatedProjectValue: text("estimated_project_value"),
+  radarScore: integer("radar_score").notNull().default(0),
+  priority: text("priority").notNull().default("Medium"),
+  recommendedOutreachAngle: text("recommended_outreach_angle"),
+  recommendedOffer: text("recommended_offer"),
+  recommendedNextAction: text("recommended_next_action"),
+  outreachSubject: text("outreach_subject"),
+  outreachEmailDraft: text("outreach_email_draft"),
+  outreachFollowUp: text("outreach_follow_up"),
+  outreachCta: text("outreach_cta"),
+  linkedBuildingId: text("linked_building_id"),
+  linkedProspectId: text("linked_prospect_id"),
+  status: text("status").notNull().default("New"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertOfficeMovRadarSchema = createInsertSchema(officeMovRadar).omit({
+  id: true, createdAt: true, updatedAt: true,
+});
+export type InsertOfficeMovRadar = z.infer<typeof insertOfficeMovRadarSchema>;
+export type OfficeMovRadar = typeof officeMovRadar.$inferSelect;
+
+// ─── Building Signals ─────────────────────────────────────────────────────────
+export const buildingSignals = pgTable("building_signals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  buildingName: text("building_name").notNull(),
+  address: text("address"),
+  suburb: text("suburb"),
+  city: text("city").notNull(),
+  state: text("state"),
+  signalType: text("signal_type").notNull(),
+  sourceUrl: text("source_url"),
+  observedCompany: text("observed_company"),
+  observedFloor: text("observed_floor"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertBuildingSignalSchema = createInsertSchema(buildingSignals).omit({
+  id: true, createdAt: true,
+});
+export type InsertBuildingSignal = z.infer<typeof insertBuildingSignalSchema>;
+export type BuildingSignal = typeof buildingSignals.$inferSelect;
+
 // ─── Generated Blog Articles ─────────────────────────────────────────────────
 export const generatedBlogArticles = pgTable("generated_blog_articles", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

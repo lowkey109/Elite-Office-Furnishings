@@ -4,7 +4,7 @@ import {
   users, leads, prospectedLeads, supplierQuotes, referrals, planningRequests, productReviews,
   manufacturerMessages, followUpSequences, territories, workspaceLearningRecords,
   scheduledJobs, intelligenceReports, spendingTrends, websiteIssues, profitRecords,
-  generatedBlogArticles, quotes,
+  generatedBlogArticles, quotes, officeMovRadar, buildingSignals,
   type User, type InsertUser, type Lead, type InsertLead, type PlanningRequest,
   type ProductReview, type InsertProductReview,
   type ManufacturerMessage, type InsertManufacturerMessage,
@@ -14,6 +14,8 @@ import {
   type ScheduledJob, type IntelligenceReport, type SpendingTrend,
   type WebsiteIssue, type ProfitRecord, type InsertProfitRecord,
   type GeneratedBlogArticle, type Quote, type InsertQuote,
+  type OfficeMovRadar, type InsertOfficeMovRadar,
+  type BuildingSignal, type InsertBuildingSignal,
 } from "@shared/schema";
 
 export interface ProspectedLead {
@@ -208,6 +210,18 @@ export interface IStorage {
   createGeneratedBlogArticle(data: Omit<GeneratedBlogArticle, "id" | "generatedAt">): Promise<GeneratedBlogArticle>;
   getGeneratedBlogArticles(status?: string): Promise<GeneratedBlogArticle[]>;
   updateBlogArticleStatus(id: string, status: string): Promise<GeneratedBlogArticle | undefined>;
+
+  // Office Move Radar
+  createOfficeMovRadarRecord(data: InsertOfficeMovRadar): Promise<OfficeMovRadar>;
+  getOfficeMovRadarRecords(filters?: { city?: string; signalType?: string; priority?: string; status?: string }): Promise<OfficeMovRadar[]>;
+  getOfficeMovRadarRecord(id: string): Promise<OfficeMovRadar | undefined>;
+  updateOfficeMovRadarRecord(id: string, data: Partial<OfficeMovRadar>): Promise<OfficeMovRadar | undefined>;
+  deleteOfficeMovRadarRecord(id: string): Promise<void>;
+  findRadarDuplicate(companyName: string, city: string, signalType: string): Promise<OfficeMovRadar | null>;
+
+  // Building Signals
+  createBuildingSignal(data: InsertBuildingSignal): Promise<BuildingSignal>;
+  getBuildingSignals(city?: string): Promise<BuildingSignal[]>;
 }
 
 function rowToProspectedLead(row: typeof prospectedLeads.$inferSelect): ProspectedLead {
@@ -918,6 +932,72 @@ export class DrizzleStorage implements IStorage {
     if (status === "published") updates.publishedAt = new Date();
     const [row] = await db.update(generatedBlogArticles).set(updates).where(eq(generatedBlogArticles.id, id)).returning();
     return row;
+  }
+
+  // ─── Office Move Radar ────────────────────────────────────────────────────
+
+  async createOfficeMovRadarRecord(data: InsertOfficeMovRadar): Promise<OfficeMovRadar> {
+    const [row] = await db.insert(officeMovRadar).values(data as any).returning();
+    return row;
+  }
+
+  async getOfficeMovRadarRecords(filters?: { city?: string; signalType?: string; priority?: string; status?: string }): Promise<OfficeMovRadar[]> {
+    let query = db.select().from(officeMovRadar).orderBy(desc(officeMovRadar.radarScore), desc(officeMovRadar.createdAt)).$dynamic();
+    const conditions: any[] = [];
+    if (filters?.city) conditions.push(ilike(officeMovRadar.city, `%${filters.city}%`));
+    if (filters?.signalType) conditions.push(eq(officeMovRadar.signalType, filters.signalType));
+    if (filters?.priority) conditions.push(eq(officeMovRadar.priority, filters.priority));
+    if (filters?.status) conditions.push(eq(officeMovRadar.status, filters.status));
+    if (conditions.length > 0) query = query.where(and(...conditions));
+    return query.limit(200);
+  }
+
+  async getOfficeMovRadarRecord(id: string): Promise<OfficeMovRadar | undefined> {
+    const [row] = await db.select().from(officeMovRadar).where(eq(officeMovRadar.id, id));
+    return row;
+  }
+
+  async updateOfficeMovRadarRecord(id: string, data: Partial<OfficeMovRadar>): Promise<OfficeMovRadar | undefined> {
+    const [row] = await db.update(officeMovRadar)
+      .set({ ...data as any, updatedAt: new Date() })
+      .where(eq(officeMovRadar.id, id))
+      .returning();
+    return row;
+  }
+
+  async deleteOfficeMovRadarRecord(id: string): Promise<void> {
+    await db.delete(officeMovRadar).where(eq(officeMovRadar.id, id));
+  }
+
+  async findRadarDuplicate(companyName: string, city: string, signalType: string): Promise<OfficeMovRadar | null> {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const rows = await db.select().from(officeMovRadar)
+      .where(
+        and(
+          ilike(officeMovRadar.companyName, companyName),
+          ilike(officeMovRadar.city, city),
+          eq(officeMovRadar.signalType, signalType),
+        )
+      )
+      .limit(1);
+    return rows[0] ?? null;
+  }
+
+  // ─── Building Signals ─────────────────────────────────────────────────────
+
+  async createBuildingSignal(data: InsertBuildingSignal): Promise<BuildingSignal> {
+    const [row] = await db.insert(buildingSignals).values(data as any).returning();
+    return row;
+  }
+
+  async getBuildingSignals(city?: string): Promise<BuildingSignal[]> {
+    if (city) {
+      return db.select().from(buildingSignals)
+        .where(ilike(buildingSignals.city, `%${city}%`))
+        .orderBy(desc(buildingSignals.createdAt))
+        .limit(100);
+    }
+    return db.select().from(buildingSignals).orderBy(desc(buildingSignals.createdAt)).limit(100);
   }
 }
 

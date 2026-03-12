@@ -3236,5 +3236,230 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
     }
   });
 
+  // ─── Office Move Radar ────────────────────────────────────────────────────
+
+  app.get("/api/admin/office-move-radar", async (req, res) => {
+    try {
+      const { city, signalType, priority, status } = req.query as Record<string, string>;
+      const records = await storage.getOfficeMovRadarRecords({
+        city: city || undefined,
+        signalType: signalType || undefined,
+        priority: priority || undefined,
+        status: status || undefined,
+      });
+      res.json(records);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/admin/office-move-radar/stats", async (_req, res) => {
+    try {
+      const all = await storage.getOfficeMovRadarRecords();
+      const high = all.filter(r => r.priority === "High").length;
+      const medium = all.filter(r => r.priority === "Medium").length;
+      const low = all.filter(r => r.priority === "Low").length;
+      const newCount = all.filter(r => r.status === "New").length;
+      const inPipeline = all.filter(r => r.status === "In Pipeline").length;
+      const avgScore = all.length ? Math.round(all.reduce((s, r) => s + r.radarScore, 0) / all.length) : 0;
+      res.json({ total: all.length, high, medium, low, newCount, inPipeline, avgScore });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/admin/office-move-radar/:id", async (req, res) => {
+    try {
+      const record = await storage.getOfficeMovRadarRecord(req.params.id);
+      if (!record) return res.status(404).json({ error: "Not found" });
+      res.json(record);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/admin/office-move-radar", async (req, res) => {
+    try {
+      const { scoreRadarSignal } = await import("./services/officeMovRadarService");
+      const body = req.body;
+      const signalType = body.signalType ?? "manual";
+      const confidence = body.confidenceLevel ?? "medium";
+
+      const existing = await storage.findRadarDuplicate(
+        body.companyName, body.city ?? "", signalType
+      );
+      if (existing && !body.skipDedupe) {
+        return res.status(409).json({
+          error: `A radar record for "${body.companyName}" in ${body.city} with signal "${signalType}" already exists.`,
+          existingId: existing.id,
+        });
+      }
+
+      const scoring = scoreRadarSignal({
+        signalType,
+        confidence,
+        city: body.city ?? "",
+        industry: body.industry,
+        estimatedHeadcount: body.estimatedHeadcount,
+        hasSourceUrl: !!body.sourceUrl,
+      });
+
+      const record = await storage.createOfficeMovRadarRecord({
+        ...body,
+        radarScore: body.radarScore ?? scoring.radarScore,
+        priority: body.priority ?? scoring.priority,
+        estimatedOfficeSizeSqm: body.estimatedOfficeSizeSqm ?? scoring.estimatedOfficeSizeSqm,
+        estimatedProjectValue: body.estimatedProjectValue ?? scoring.estimatedProjectValue,
+        recommendedOutreachAngle: body.recommendedOutreachAngle ?? scoring.recommendedOutreachAngle,
+        recommendedOffer: body.recommendedOffer ?? scoring.recommendedOffer,
+        recommendedNextAction: body.recommendedNextAction ?? scoring.recommendedNextAction,
+        status: body.status ?? "New",
+      });
+
+      res.json(record);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.patch("/api/admin/office-move-radar/:id", async (req, res) => {
+    try {
+      const updated = await storage.updateOfficeMovRadarRecord(req.params.id, req.body);
+      if (!updated) return res.status(404).json({ error: "Not found" });
+      res.json(updated);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.delete("/api/admin/office-move-radar/:id", async (req, res) => {
+    try {
+      await storage.deleteOfficeMovRadarRecord(req.params.id);
+      res.json({ ok: true });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // Push radar record → deal pipeline as a prospected lead
+  app.post("/api/admin/office-move-radar/:id/push-to-pipeline", async (req, res) => {
+    try {
+      const record = await storage.getOfficeMovRadarRecord(req.params.id);
+      if (!record) return res.status(404).json({ error: "Not found" });
+
+      const existing = await storage.findProspectDuplicate(record.companyName, null, record.sourceUrl);
+      if (existing && !req.body.skipDedupe) {
+        return res.status(409).json({
+          error: `${record.companyName} is already in the pipeline.`,
+          existingId: existing.id,
+        });
+      }
+
+      const prospect = await storage.createProspectedLead({
+        company: record.companyName,
+        domain: null,
+        website: null,
+        location: `${record.city}${record.state ? ", " + record.state : ""}`,
+        industry: record.industry ?? "Unknown",
+        estimatedTeamSize: record.estimatedHeadcount ?? "Unknown",
+        likelyOfficeNeed: record.estimatedOfficeSizeSqm
+          ? `${record.estimatedOfficeSizeSqm} — ${record.signalType.replace(/_/g, " ")}`
+          : record.signalType.replace(/_/g, " "),
+        signalsDetected: [record.signalType, record.signalSubtype].filter(Boolean) as string[],
+        estimatedProjectValue: record.estimatedProjectValue ?? "Unknown",
+        score: record.radarScore,
+        priority: record.priority as "High" | "Medium" | "Low",
+        decisionMakers: "Unknown — recommend researching via LinkedIn",
+        outreachMessage: record.outreachEmailDraft ?? record.recommendedOutreachAngle ?? "",
+        reasoning: `Office Move Radar signal: ${record.notes ?? record.signalSubtype ?? record.signalType}`,
+        rawInput: `Source: ${record.signalSource ?? "radar"} | ${record.notes ?? ""}`,
+        sourceType: "radar",
+        sourceUrl: record.sourceUrl ?? null,
+        signalType: record.signalType,
+        city: record.city,
+        contactEmail: null,
+        contactRole: null,
+        dealProbability: record.priority === "High" ? 25 : record.priority === "Medium" ? 15 : 10,
+        estimatedOfficeSqm: record.estimatedOfficeSizeSqm ?? null,
+        estimatedHeadcount: record.estimatedHeadcount ?? null,
+        recommendedNextAction: record.recommendedNextAction ?? null,
+        outreachSubject: record.outreachSubject ?? null,
+        scanBatchId: null,
+      });
+
+      await storage.updateOfficeMovRadarRecord(record.id, {
+        status: "In Pipeline",
+        linkedProspectId: prospect.id,
+      });
+
+      res.json({ prospect, radarRecord: await storage.getOfficeMovRadarRecord(record.id) });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // Generate AI outreach draft for a radar record
+  app.post("/api/admin/office-move-radar/:id/generate-outreach", async (req, res) => {
+    try {
+      const record = await storage.getOfficeMovRadarRecord(req.params.id);
+      if (!record) return res.status(404).json({ error: "Not found" });
+
+      const { generateOutreachDraft } = await import("./services/officeMovRadarService");
+      const draft = await generateOutreachDraft({
+        companyName: record.companyName,
+        city: record.city,
+        industry: record.industry ?? undefined,
+        signalType: record.signalType as any,
+        signalSource: record.signalSource ?? undefined,
+        estimatedProjectValue: record.estimatedProjectValue ?? undefined,
+        recommendedOffer: record.recommendedOffer ?? undefined,
+      });
+
+      const updated = await storage.updateOfficeMovRadarRecord(record.id, {
+        outreachSubject: draft.subject,
+        outreachEmailDraft: draft.email,
+        outreachFollowUp: draft.followUp,
+        outreachCta: draft.cta,
+      });
+
+      res.json({ draft, record: updated });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // Trigger AI-powered radar scan
+  app.post("/api/admin/office-move-radar/scan", async (req, res) => {
+    try {
+      const { cities, signalTypes, count } = req.body;
+      const { runOfficeMovRadarScan } = await import("./services/officeMovRadarService");
+      const results = await runOfficeMovRadarScan({ cities, signalTypes, count });
+      res.json({ saved: results.length, records: results });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ─── Building Signals ─────────────────────────────────────────────────────
+
+  app.get("/api/admin/building-signals", async (req, res) => {
+    try {
+      const { city } = req.query as Record<string, string>;
+      const signals = await storage.getBuildingSignals(city || undefined);
+      res.json(signals);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/admin/building-signals", async (req, res) => {
+    try {
+      const signal = await storage.createBuildingSignal(req.body);
+      res.json(signal);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   return httpServer;
 }

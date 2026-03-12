@@ -18,7 +18,8 @@ type JobType =
   | "seo_content"
   | "website_issues"
   | "system_health"
-  | "weekly_report";
+  | "weekly_report"
+  | "radar_scan";
 
 const JOB_LABELS: Record<JobType, string> = {
   spending_trends: "Spending Trend Analysis",
@@ -26,6 +27,7 @@ const JOB_LABELS: Record<JobType, string> = {
   website_issues: "Website Issue Detection",
   system_health: "System Health Check",
   weekly_report: "Weekly Business Report",
+  radar_scan: "Office Move Radar Scan",
 };
 
 // ─── Job runner ───────────────────────────────────────────────────────────────
@@ -75,6 +77,13 @@ async function runJob(jobType: JobType, triggeredBy: "scheduler" | "manual" = "s
         await generateWeeklyBusinessReport();
         resultSummary = "Weekly business intelligence report generated";
         break;
+
+      case "radar_scan": {
+        const { runOfficeMovRadarScan } = await import("./officeMovRadarService");
+        const saved = await runOfficeMovRadarScan({ count: 6 });
+        resultSummary = `Office Move Radar scan complete — ${saved.length} new opportunities detected`;
+        break;
+      }
     }
 
     await storage.updateScheduledJob(job.id, {
@@ -133,13 +142,17 @@ export function startIntelligenceScheduler(): void {
   setTimeout(() => runJob("weekly_report"), 20 * 60 * 1000);
   setInterval(() => runJob("weekly_report"), WEEK);
 
-  console.log("[IntelligenceScheduler] Jobs scheduled: health(12h), trends(24h), issues(24h), seo(7d), report(7d)");
+  // Office Move Radar scan — every 24 hours (offset 35 minutes to stagger)
+  setTimeout(() => runJob("radar_scan"), 35 * 60 * 1000);
+  setInterval(() => runJob("radar_scan"), DAY);
+
+  console.log("[IntelligenceScheduler] Jobs scheduled: health(12h), trends(24h), issues(24h), seo(7d), report(7d), radar(24h)");
 }
 
 // ─── Manual trigger (for admin API) ──────────────────────────────────────────
 
 export async function triggerJobManually(jobType: string): Promise<{ success: boolean; message: string }> {
-  const validJobs: JobType[] = ["spending_trends", "seo_content", "website_issues", "system_health", "weekly_report"];
+  const validJobs: JobType[] = ["spending_trends", "seo_content", "website_issues", "system_health", "weekly_report", "radar_scan"];
 
   if (!validJobs.includes(jobType as JobType)) {
     return { success: false, message: `Unknown job type: ${jobType}` };

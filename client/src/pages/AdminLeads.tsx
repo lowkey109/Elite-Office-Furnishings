@@ -11,12 +11,12 @@ import {
   Mail, Globe, BarChart3, CheckCircle2, Loader2, ShieldCheck,
   Megaphone, LayoutDashboard, RefreshCw, Star, AlertCircle, Clock,
   Link2, Briefcase, Linkedin, FileText, Newspaper, Layers,
-  Play, SkipForward, X, Plus, AlertTriangle, ChevronRight,
+  Play, SkipForward, X, Plus, AlertTriangle, ChevronRight, XCircle,
 } from "lucide-react";
 
 import { validateAdminLogin } from "@/lib/adminAuth";
 
-type LeadStatus = "New" | "Contacted" | "Responded" | "Qualified" | "Closed";
+type LeadStatus = "New" | "Contacted" | "Responded" | "Qualified" | "Closed" | "Lead Detected" | "Planning" | "Quoted" | "Negotiation" | "Won" | "Lost";
 type SourceType = "manual" | "job_ad" | "linkedin" | "hiring_page" | "announcement" | "article" | "website";
 
 interface ProspectedLead {
@@ -48,6 +48,12 @@ const STATUS_CONFIG: Record<LeadStatus, { label: string; color: string; icon: an
   Responded: { label: "Responded", color: "bg-purple-500/10 text-purple-400 border-purple-500/20", icon: RefreshCw },
   Qualified: { label: "Qualified", color: "bg-green-500/10 text-green-400 border-green-500/20", icon: CheckCircle2 },
   Closed: { label: "Closed", color: "bg-white/10 text-white/40 border-white/10", icon: AlertCircle },
+  "Lead Detected": { label: "Lead Detected", color: "bg-blue-500/10 text-blue-400 border-blue-500/20", icon: Target },
+  Planning: { label: "Planning", color: "bg-[rgba(201,168,76,0.12)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.2)]", icon: RefreshCw },
+  Quoted: { label: "Quoted", color: "bg-purple-500/10 text-purple-400 border-purple-500/20", icon: FileText },
+  Negotiation: { label: "Negotiation", color: "bg-orange-500/10 text-orange-400 border-orange-500/20", icon: AlertCircle },
+  Won: { label: "Won", color: "bg-green-500/10 text-green-400 border-green-500/20", icon: CheckCircle2 },
+  Lost: { label: "Lost", color: "bg-red-500/10 text-red-400 border-red-500/20", icon: XCircle },
 };
 
 const PRIORITY_COLOR: Record<string, string> = {
@@ -904,7 +910,7 @@ export default function AdminLeads() {
               ) : (
                 <div className="space-y-2 max-h-[70vh] overflow-y-auto pr-1">
                   {filteredProspects.map(lead => {
-                    const statusConf = STATUS_CONFIG[lead.status];
+                    const statusConf = STATUS_CONFIG[lead.status as LeadStatus] ?? STATUS_CONFIG.New;
                     const StatusIcon = statusConf.icon;
                     const isExpanded = expandedLead === lead.id;
                     return (

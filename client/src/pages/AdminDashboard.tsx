@@ -125,6 +125,19 @@ export default function AdminDashboard() {
     refetchInterval: 120000,
   });
 
+  interface RadarStats { total: number; high: number; medium: number; low: number; newCount: number; inPipeline: number; avgScore: number; }
+  const { data: radarStats } = useQuery<RadarStats>({
+    queryKey: ["/api/admin/office-move-radar/stats"],
+    enabled: authed,
+    refetchInterval: 60000,
+  });
+  interface RadarRecord { id: string; companyName: string; city: string; priority: string; radarScore: number; estimatedProjectValue: string | null; signalType: string; status: string; }
+  const { data: radarRecords = [] } = useQuery<RadarRecord[]>({
+    queryKey: ["/api/admin/office-move-radar"],
+    enabled: authed && (radarStats?.total ?? 0) > 0,
+    refetchInterval: 60000,
+  });
+
   function handleLogin() {
     if (validateAdminLogin(email, pw)) {
       sessionStorage.setItem("tcd_admin_auth", "true");
@@ -596,6 +609,7 @@ export default function AdminDashboard() {
                   { label: "Supplier Quotes", href: "/admin/supplier-quotes", icon: Package, desc: "Quotes & referral tracking" },
                   { label: "Manufacturer Messaging", href: "/admin/manufacturer-messaging", icon: MessageSquare, desc: "WhatsApp manufacturer comms" },
                   { label: "Follow-Up Sequences", href: "/admin/follow-up-sequences", icon: Mail, desc: "Automated lead email sequences" },
+                  { label: "Office Move Radar", href: "/admin/office-move-radar", icon: Zap, desc: "Detect relocations, expansions & fit-outs" },
                   { label: "Lease Signal Scanner", href: "/admin/lease-signals", icon: Zap, desc: "AI office move lead detection" },
                   { label: "Deal Pipeline", href: "/admin/deal-pipeline", icon: TrendingUp, desc: "Weighted revenue forecast" },
                   { label: "Territory Scanner", href: "/admin/territory-scanner", icon: Globe, desc: "Office tower tenant tracking" },
@@ -776,6 +790,57 @@ export default function AdminDashboard() {
                   <DollarSign className="w-3 h-3" /> Profit Engine
                 </div>
               </Link>
+            </div>
+
+            {/* Office Move Radar Widget */}
+            <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-white font-semibold text-sm flex items-center gap-2">
+                  <Zap className="w-3.5 h-3.5 text-amber-400" /> Office Move Radar
+                </h3>
+                <Link href="/admin/office-move-radar">
+                  <span className="text-white/30 text-xs hover:text-white/60 transition-colors cursor-pointer">View all</span>
+                </Link>
+              </div>
+              {radarStats && radarStats.total > 0 ? (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/40 text-xs">Total signals</span>
+                    <span className="text-white text-xs font-medium">{radarStats.total}</span>
+                  </div>
+                  {radarStats.high > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-white/40 text-xs">High priority</span>
+                      <span className="text-red-400 text-xs font-medium">{radarStats.high} urgent</span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/40 text-xs">Unreviewed</span>
+                    <span className="text-blue-400 text-xs font-medium">{radarStats.newCount} new</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/40 text-xs">In pipeline</span>
+                    <span className="text-emerald-400 text-xs font-medium">{radarStats.inPipeline}</span>
+                  </div>
+                  {radarRecords.filter(r => r.priority === "High" && r.status === "New").slice(0, 2).map(r => (
+                    <Link key={r.id} href="/admin/office-move-radar">
+                      <div className="mt-1 p-2 rounded-lg bg-red-500/5 border border-red-500/20 cursor-pointer hover:border-red-500/40 transition-colors">
+                        <p className="text-red-300 text-xs font-medium">{r.companyName}</p>
+                        <p className="text-white/30 text-xs">{r.city} · Score {r.radarScore}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div>
+                  <p className="text-white/30 text-xs mb-3">No radar signals yet — run a scan to detect office move opportunities.</p>
+                  <Link href="/admin/office-move-radar">
+                    <div className="text-xs text-amber-400/60 hover:text-amber-400 transition-colors flex items-center gap-1 cursor-pointer">
+                      <Zap className="w-3 h-3" /> Open Radar
+                    </div>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
