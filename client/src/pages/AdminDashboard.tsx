@@ -585,6 +585,7 @@ export default function AdminDashboard() {
                   { label: "Procurement Engine", href: "/admin/procurement-engine", icon: Package, desc: "Supplier routing & cost estimates" },
                   { label: "Workspace Learning", href: "/admin/workspace-learning", icon: Brain, desc: "AI pattern intelligence from projects" },
                   { label: "Intelligence Hub", href: "/admin/intelligence-hub", icon: BarChart3, desc: "Autonomous BI, trends & SEO content" },
+                  { label: "Formal Quotes", href: "/admin/quotes", icon: FileText, desc: "Create & send PDF client quotes" },
                   { label: "Profit Engine", href: "/admin/profit-engine", icon: DollarSign, desc: "Package margin & cost stack analysis" },
                   { label: "Product Reviews", href: "/admin/product-reviews", icon: Star, desc: "Moderate client reviews" },
                   { label: "Marketing Hub", href: "/admin/marketing", icon: Megaphone, desc: "Generate & post content" },

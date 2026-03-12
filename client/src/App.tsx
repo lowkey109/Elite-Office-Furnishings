@@ -39,6 +39,8 @@ import AdminProcurementEngine from "@/pages/AdminProcurementEngine";
 import AdminWorkspaceLearning from "@/pages/AdminWorkspaceLearning";
 import AdminIntelligenceHub from "@/pages/AdminIntelligenceHub";
 import AdminProfitEngine from "@/pages/AdminProfitEngine";
+import AdminQuotes from "@/pages/AdminQuotes";
+import QuotePrint from "@/pages/QuotePrint";
 
 function Router() {
   return (
@@ -84,6 +86,8 @@ function Router() {
       <Route path="/admin/workspace-learning" component={AdminWorkspaceLearning} />
       <Route path="/admin/intelligence-hub" component={AdminIntelligenceHub} />
       <Route path="/admin/profit-engine" component={AdminProfitEngine} />
+      <Route path="/admin/quotes/:id/print" component={QuotePrint} />
+      <Route path="/admin/quotes" component={AdminQuotes} />
       <Route component={NotFound} />
     </Switch>
   );

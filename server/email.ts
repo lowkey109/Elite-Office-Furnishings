@@ -760,6 +760,104 @@ export async function sendFinanceLeadCustomerEmail(data: {
   });
 }
 
+// ─── Formal Quote Email ────────────────────────────────────────────────────────
+
+export async function sendFormalQuoteEmail(quote: {
+  id: string; quoteNumber: string; clientName: string; companyName?: string | null;
+  email: string; phone?: string | null; projectSummary?: string | null;
+  quoteItems?: string | null; subtotal?: number | null; freightCost?: number | null;
+  installationCost?: number | null; otherCosts?: number | null; discount?: number | null;
+  gst?: number | null; totalIncGst?: number | null; financeMonthlyEstimate?: number | null;
+  notes?: string | null; validityDays?: number | null; preparedBy?: string | null;
+}): Promise<void> {
+  const fmt = (n?: number | null) => n ? `$${n.toLocaleString("en-AU")}` : "$0";
+  const firstName = quote.clientName.split(" ")[0];
+  const printUrl = `${TCD_WEBSITE}/admin/quotes/${quote.id}/print`;
+
+  let lineItemsHtml = "";
+  if (quote.quoteItems) {
+    try {
+      const items = JSON.parse(quote.quoteItems) as Array<{ productName: string; quantity: number; unitPrice: number; lineTotal: number; category?: string; variant?: string }>;
+      if (items.length > 0) {
+        lineItemsHtml = `
+        <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:13px">
+          <thead>
+            <tr style="background:#f7f5f2">
+              <th style="padding:8px 10px;text-align:left;border-bottom:2px solid #e8e4de;color:#6b6258;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.8px">Item</th>
+              <th style="padding:8px 10px;text-align:center;border-bottom:2px solid #e8e4de;color:#6b6258;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;width:60px">Qty</th>
+              <th style="padding:8px 10px;text-align:right;border-bottom:2px solid #e8e4de;color:#6b6258;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;width:90px">Unit</th>
+              <th style="padding:8px 10px;text-align:right;border-bottom:2px solid #e8e4de;color:#6b6258;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;width:90px">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${items.map((item, i) => `
+            <tr style="background:${i % 2 === 0 ? "#fff" : "#fafaf9"}">
+              <td style="padding:8px 10px;border-bottom:1px solid #f0ede8;color:#1a1a1a;font-size:13px">${item.productName}${item.variant ? ` <span style="color:#888;font-size:11px">(${item.variant})</span>` : ""}</td>
+              <td style="padding:8px 10px;border-bottom:1px solid #f0ede8;text-align:center;color:#1a1a1a">${item.quantity}</td>
+              <td style="padding:8px 10px;border-bottom:1px solid #f0ede8;text-align:right;color:#1a1a1a">${fmt(item.unitPrice)}</td>
+              <td style="padding:8px 10px;border-bottom:1px solid #f0ede8;text-align:right;color:#1a1a1a;font-weight:600">${fmt(item.lineTotal)}</td>
+            </tr>`).join("")}
+          </tbody>
+        </table>`;
+      }
+    } catch {}
+  }
+
+  const totalsHtml = `
+    <table style="width:240px;margin-left:auto;border-collapse:collapse;font-size:13px">
+      <tr><td style="padding:5px 10px;color:#6b6258">Subtotal</td><td style="padding:5px 10px;text-align:right;color:#1a1a1a">${fmt(quote.subtotal)}</td></tr>
+      ${(quote.freightCost ?? 0) > 0 ? `<tr><td style="padding:5px 10px;color:#6b6258">Freight & Delivery</td><td style="padding:5px 10px;text-align:right;color:#1a1a1a">${fmt(quote.freightCost)}</td></tr>` : ""}
+      ${(quote.installationCost ?? 0) > 0 ? `<tr><td style="padding:5px 10px;color:#6b6258">Installation</td><td style="padding:5px 10px;text-align:right;color:#1a1a1a">${fmt(quote.installationCost)}</td></tr>` : ""}
+      ${(quote.otherCosts ?? 0) > 0 ? `<tr><td style="padding:5px 10px;color:#6b6258">Other Costs</td><td style="padding:5px 10px;text-align:right;color:#1a1a1a">${fmt(quote.otherCosts)}</td></tr>` : ""}
+      ${(quote.discount ?? 0) > 0 ? `<tr><td style="padding:5px 10px;color:#6b6258">Discount</td><td style="padding:5px 10px;text-align:right;color:#c05050">−${fmt(quote.discount)}</td></tr>` : ""}
+      <tr><td style="padding:5px 10px;color:#6b6258">GST (10%)</td><td style="padding:5px 10px;text-align:right;color:#1a1a1a">${fmt(quote.gst)}</td></tr>
+      <tr style="background:#0f0f13"><td style="padding:10px 10px;color:#c9a84c;font-weight:700;font-size:14px">Total (inc. GST)</td><td style="padding:10px 10px;text-align:right;color:#c9a84c;font-weight:700;font-size:14px">${fmt(quote.totalIncGst)}</td></tr>
+    </table>`;
+
+  const financeHtml = quote.financeMonthlyEstimate && quote.financeMonthlyEstimate > 0
+    ? `<div style="background:#fffbf0;border:1px solid #e8d9a0;border-radius:8px;padding:14px 16px;margin:18px 0">
+        <p style="margin:0 0 4px;color:#8a6d00;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px">Finance Option Available</p>
+        <p style="margin:0;color:#6b5c22;font-size:13px">From approximately <strong style="font-size:15px;color:#1a1a1a">${fmt(quote.financeMonthlyEstimate)}/month</strong> — subject to lender approval.</p>
+      </div>`
+    : "";
+
+  const body = sectionLabel("Your Formal Quote") +
+    p(`${firstName}, please find your formal quotation from The Corporate Desk below.${quote.companyName ? ` This quote has been prepared for <strong>${quote.companyName}</strong>.` : ""}`) +
+    (quote.projectSummary ? p(`<em>${quote.projectSummary}</em>`) : "") +
+    lineItemsHtml + totalsHtml + financeHtml +
+    (quote.notes ? sectionLabel("Notes") + p(quote.notes) : "") +
+    sectionLabel("Quote Details") +
+    `<table style="font-size:13px;border-collapse:collapse;width:100%;margin-bottom:18px">
+      <tr><td style="padding:5px 0;color:#8a8278;width:140px">Quote Number</td><td style="padding:5px 0;color:#1a1a1a;font-weight:600">${quote.quoteNumber}</td></tr>
+      <tr><td style="padding:5px 0;color:#8a8278">Valid For</td><td style="padding:5px 0;color:#1a1a1a">${quote.validityDays ?? 30} days from issue</td></tr>
+      <tr><td style="padding:5px 0;color:#8a8278">Prepared By</td><td style="padding:5px 0;color:#1a1a1a">${quote.preparedBy ?? "The Corporate Desk"}</td></tr>
+    </table>` +
+    cta("View Full Quote as PDF", printUrl) +
+    p(`To accept this quote, reply to this email or call us on <strong>${TCD_PHONE}</strong>. Prices are valid for ${quote.validityDays ?? 30} days from the date of this email.`, "font-size:13px;color:#6b6258");
+
+  await sendEmail({
+    to: quote.email,
+    subject: `Formal Quote ${quote.quoteNumber} — The Corporate Desk`,
+    html: customerTemplate(`Your Quote from The Corporate Desk, ${firstName}`, body),
+  });
+
+  // Also send internal notification
+  await sendEmail({
+    to: TCD_RECIPIENTS,
+    subject: `[Quote Sent] ${quote.quoteNumber} — ${quote.clientName}${quote.companyName ? ` / ${quote.companyName}` : ""} — ${fmt(quote.totalIncGst)} inc GST`,
+    html: adminTemplate("Quote Dispatched", `<table style="width:100%;border-collapse:collapse">
+      ${adminRow("Quote Number", quote.quoteNumber)}
+      ${adminRow("Client", quote.clientName)}
+      ${adminRow("Company", quote.companyName ?? "")}
+      ${adminRow("Email", quote.email)}
+      ${adminRow("Phone", quote.phone ?? "")}
+      ${adminRow("Total (inc GST)", fmt(quote.totalIncGst))}
+      ${adminRow("Finance Est.", quote.financeMonthlyEstimate ? fmt(quote.financeMonthlyEstimate) + "/mo" : "")}
+      ${adminRow("Valid For", `${quote.validityDays ?? 30} days`)}
+    </table>`),
+  });
+}
+
 export function isEmailConfigured(): boolean {
   return !!process.env.RESEND_API_KEY;
 }

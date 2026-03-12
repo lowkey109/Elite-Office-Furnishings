@@ -3078,5 +3078,78 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
     }
   });
 
+  // ─── Formal Quotes ────────────────────────────────────────────────────────
+
+  app.get("/api/admin/quotes", async (req, res) => {
+    try {
+      const { status } = req.query as { status?: string };
+      const data = await storage.getQuotes(status);
+      res.json(data);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/admin/quotes/:id", async (req, res) => {
+    try {
+      const data = await storage.getQuote(req.params.id);
+      if (!data) return res.status(404).json({ error: "Not found" });
+      res.json(data);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/admin/quotes", async (req, res) => {
+    try {
+      const body = req.body;
+      // Auto-generate quote number: TCD-YYYYMM-XXXX
+      const now = new Date();
+      const ym = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}`;
+      const existing = await storage.getQuotes();
+      const seq = String(existing.length + 1).padStart(4, "0");
+      const quoteNumber = `TCD-${ym}-${seq}`;
+      const created = await storage.createQuote({ ...body, quoteNumber });
+      res.json(created);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.patch("/api/admin/quotes/:id", async (req, res) => {
+    try {
+      const updated = await storage.updateQuote(req.params.id, req.body);
+      if (!updated) return res.status(404).json({ error: "Not found" });
+      res.json(updated);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.delete("/api/admin/quotes/:id", async (req, res) => {
+    try {
+      await storage.deleteQuote(req.params.id);
+      res.json({ ok: true });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/admin/quotes/:id/send", async (req, res) => {
+    try {
+      const quote = await storage.getQuote(req.params.id);
+      if (!quote) return res.status(404).json({ error: "Not found" });
+      const { sendFormalQuoteEmail } = await import("./email");
+      await sendFormalQuoteEmail(quote);
+      const updated = await storage.updateQuote(req.params.id, {
+        status: "Sent",
+        sentAt: new Date(),
+      });
+      res.json(updated);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   return httpServer;
 }

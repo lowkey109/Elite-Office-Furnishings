@@ -879,6 +879,20 @@ function PackageQuotePanel({ request, onRegenerateClick, revisingId }: {
       <p className="text-white/20 text-xs text-right">
         Prepared for: {quote.preparedFor} · Generated {new Date(pkg.generatedAt).toLocaleDateString("en-AU")}
       </p>
+
+      {/* Create Formal Quote CTA */}
+      <div className="border-t border-[rgba(255,255,255,0.06)] pt-4 flex justify-end">
+        <button
+          data-testid={`button-create-formal-quote-${request.id}`}
+          onClick={() => {
+            window.location.href = `/admin/quotes?planningRequestId=${request.id}`;
+          }}
+          className="flex items-center gap-2 bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[#0f0f13] text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+        >
+          <FileText className="w-4 h-4" />
+          Create Formal Quote
+        </button>
+      </div>
     </div>
   );
 }

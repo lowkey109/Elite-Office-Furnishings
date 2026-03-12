@@ -4,7 +4,7 @@ import {
   users, leads, prospectedLeads, supplierQuotes, referrals, planningRequests, productReviews,
   manufacturerMessages, followUpSequences, territories, workspaceLearningRecords,
   scheduledJobs, intelligenceReports, spendingTrends, websiteIssues, profitRecords,
-  generatedBlogArticles,
+  generatedBlogArticles, quotes,
   type User, type InsertUser, type Lead, type InsertLead, type PlanningRequest,
   type ProductReview, type InsertProductReview,
   type ManufacturerMessage, type InsertManufacturerMessage,
@@ -13,7 +13,7 @@ import {
   type WorkspaceLearning, type InsertWorkspaceLearning,
   type ScheduledJob, type IntelligenceReport, type SpendingTrend,
   type WebsiteIssue, type ProfitRecord, type InsertProfitRecord,
-  type GeneratedBlogArticle,
+  type GeneratedBlogArticle, type Quote, type InsertQuote,
 } from "@shared/schema";
 
 export interface ProspectedLead {
@@ -196,6 +196,13 @@ export interface IStorage {
   createProfitRecord(data: InsertProfitRecord): Promise<ProfitRecord>;
   getProfitRecords(limit?: number): Promise<ProfitRecord[]>;
   updateProfitRecord(id: string, data: Partial<ProfitRecord>): Promise<ProfitRecord | undefined>;
+
+  // Formal Quotes
+  createQuote(data: InsertQuote): Promise<Quote>;
+  getQuotes(status?: string): Promise<Quote[]>;
+  getQuote(id: string): Promise<Quote | undefined>;
+  updateQuote(id: string, data: Partial<Quote>): Promise<Quote | undefined>;
+  deleteQuote(id: string): Promise<void>;
 
   // Generated Blog Articles
   createGeneratedBlogArticle(data: Omit<GeneratedBlogArticle, "id" | "generatedAt">): Promise<GeneratedBlogArticle>;
@@ -859,6 +866,34 @@ export class DrizzleStorage implements IStorage {
   async updateProfitRecord(id: string, data: Partial<ProfitRecord>): Promise<ProfitRecord | undefined> {
     const [row] = await db.update(profitRecords).set(data as any).where(eq(profitRecords.id, id)).returning();
     return row;
+  }
+
+  // ─── Formal Quotes ────────────────────────────────────────────────────────
+
+  async createQuote(data: InsertQuote): Promise<Quote> {
+    const [row] = await db.insert(quotes).values(data as any).returning();
+    return row;
+  }
+
+  async getQuotes(status?: string): Promise<Quote[]> {
+    if (status && status !== "All") {
+      return db.select().from(quotes).where(eq(quotes.status, status)).orderBy(desc(quotes.createdAt)).limit(100);
+    }
+    return db.select().from(quotes).orderBy(desc(quotes.createdAt)).limit(100);
+  }
+
+  async getQuote(id: string): Promise<Quote | undefined> {
+    const [row] = await db.select().from(quotes).where(eq(quotes.id, id));
+    return row;
+  }
+
+  async updateQuote(id: string, data: Partial<Quote>): Promise<Quote | undefined> {
+    const [row] = await db.update(quotes).set({ ...data as any, updatedAt: new Date() }).where(eq(quotes.id, id)).returning();
+    return row;
+  }
+
+  async deleteQuote(id: string): Promise<void> {
+    await db.delete(quotes).where(eq(quotes.id, id));
   }
 
   // ─── Generated Blog Articles ──────────────────────────────────────────────

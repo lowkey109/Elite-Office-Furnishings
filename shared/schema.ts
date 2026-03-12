@@ -372,6 +372,40 @@ export const insertProfitRecordSchema = createInsertSchema(profitRecords).omit({
 export type InsertProfitRecord = z.infer<typeof insertProfitRecordSchema>;
 export type ProfitRecord = typeof profitRecords.$inferSelect;
 
+// ─── Formal Quotes ───────────────────────────────────────────────────────────
+export const quotes = pgTable("quotes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  quoteNumber: text("quote_number").notNull(),
+  status: text("status").notNull().default("Draft"),
+  clientName: text("client_name").notNull(),
+  companyName: text("company_name"),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  planningRequestId: text("planning_request_id"),
+  officeSizeSqm: integer("office_size_sqm"),
+  staffCount: integer("staff_count"),
+  projectSummary: text("project_summary"),
+  quoteItems: text("quote_items"),
+  subtotal: integer("subtotal").default(0),
+  freightCost: integer("freight_cost").default(0),
+  installationCost: integer("installation_cost").default(0),
+  otherCosts: integer("other_costs").default(0),
+  discount: integer("discount").default(0),
+  gst: integer("gst").default(0),
+  total: integer("total").default(0),
+  totalIncGst: integer("total_inc_gst").default(0),
+  financeMonthlyEstimate: integer("finance_monthly_estimate"),
+  notes: text("notes"),
+  validityDays: integer("validity_days").default(30),
+  preparedBy: text("prepared_by").default("The Corporate Desk"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  sentAt: timestamp("sent_at"),
+});
+export const insertQuoteSchema = createInsertSchema(quotes).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertQuote = z.infer<typeof insertQuoteSchema>;
+export type Quote = typeof quotes.$inferSelect;
+
 // ─── Generated Blog Articles ─────────────────────────────────────────────────
 export const generatedBlogArticles = pgTable("generated_blog_articles", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
