@@ -232,8 +232,25 @@ function CollectionSection({
 }) {
   const [expanded, setExpanded] = useState(true);
   const [page, setPage] = useState(1);
-  const visible = products.slice(0, page * PAGE_SIZE);
-  const hasMore = visible.length < products.length;
+  const [activeSeries, setActiveSeries] = useState<string>("All");
+
+  const seriesOptions = useMemo(() => {
+    const unique = Array.from(new Set(products.map(p => p.series).filter(Boolean))).sort();
+    return unique;
+  }, [products]);
+
+  const filteredProducts = useMemo(() => {
+    if (activeSeries === "All") return products;
+    return products.filter(p => p.series === activeSeries);
+  }, [products, activeSeries]);
+
+  const visible = filteredProducts.slice(0, page * PAGE_SIZE);
+  const hasMore = visible.length < filteredProducts.length;
+
+  const handleSeriesChange = (series: string) => {
+    setActiveSeries(series);
+    setPage(1);
+  };
 
   if (products.length === 0) return null;
 
@@ -264,24 +281,61 @@ function CollectionSection({
         </button>
       </div>
 
+      {/* Series sub-filter tabs */}
+      {expanded && seriesOptions.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto pb-2 mb-6 touch-scroll flex-nowrap border-b border-[rgba(201,168,76,0.08)]" data-testid={`series-filter-${supplierKey.slice(0,8)}`}>
+          <button
+            onClick={() => handleSeriesChange("All")}
+            className={`flex-shrink-0 px-3 py-1.5 rounded text-xs font-medium transition-all whitespace-nowrap ${
+              activeSeries === "All"
+                ? "bg-[rgba(201,168,76,0.2)] text-[hsl(43,78%,65%)] border border-[rgba(201,168,76,0.4)]"
+                : "text-white/40 hover:text-white/70 border border-transparent hover:border-white/10"
+            }`}
+            data-testid={`series-tab-all-${supplierKey.slice(0,8)}`}
+          >
+            All Ranges
+          </button>
+          {seriesOptions.map(series => (
+            <button
+              key={series}
+              onClick={() => handleSeriesChange(series)}
+              className={`flex-shrink-0 px-3 py-1.5 rounded text-xs font-medium transition-all whitespace-nowrap ${
+                activeSeries === series
+                  ? "bg-[rgba(201,168,76,0.2)] text-[hsl(43,78%,65%)] border border-[rgba(201,168,76,0.4)]"
+                  : "text-white/40 hover:text-white/70 border border-transparent hover:border-white/10"
+              }`}
+              data-testid={`series-tab-${series.toLowerCase().replace(/[\s&\/]+/g, "-")}`}
+            >
+              {getSeriesDisplayName(series)}
+            </button>
+          ))}
+        </div>
+      )}
+
       {expanded && (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {visible.map(product => (
-              <ProductCard key={product.sku} product={product} />
-            ))}
-          </div>
-          {hasMore && (
-            <div className="mt-8 text-center">
-              <Button
-                onClick={() => setPage(p => p + 1)}
-                variant="outline"
-                className="border-[rgba(201,168,76,0.25)] text-[hsl(43,78%,65%)] px-8 min-h-[44px] hover:bg-[rgba(201,168,76,0.08)]"
-                data-testid={`button-load-more-${collection.badgeLabel.toLowerCase().replace(/\s+/g, "-")}`}
-              >
-                Show more {collection.name} ({products.length - visible.length} remaining)
-              </Button>
-            </div>
+          {filteredProducts.length === 0 ? (
+            <p className="text-white/30 text-sm italic py-8 text-center">No products found in this range.</p>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                {visible.map(product => (
+                  <ProductCard key={product.sku} product={product} />
+                ))}
+              </div>
+              {hasMore && (
+                <div className="mt-8 text-center">
+                  <Button
+                    onClick={() => setPage(p => p + 1)}
+                    variant="outline"
+                    className="border-[rgba(201,168,76,0.25)] text-[hsl(43,78%,65%)] px-8 min-h-[44px] hover:bg-[rgba(201,168,76,0.08)]"
+                    data-testid={`button-load-more-${collection.badgeLabel.toLowerCase().replace(/\s+/g, "-")}`}
+                  >
+                    Show more ({filteredProducts.length - visible.length} remaining)
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </>
       )}

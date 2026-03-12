@@ -30,8 +30,10 @@ The application follows a client-server architecture.
   - `/api/products/grouped` — 293 grouped products with clean public names (strips supplier prefixes: Weiyi, Ruige, GOJO, etc.), merges size variants by series+category+baseName
   - `/api/products/:sku/size-variants` — size options for products with multiple dimensions
   - Products page (`/products`) uses the grouped endpoint, shows clean names without supplier branding, with "Available in X sizes" badges for variant products
-  - Product detail (`/products/:sku`) shows cleaned name, size variant selector (choose 2400mm / 3200mm etc.), breadcrumb with clean name
-  - Series display names mapped in `client/src/lib/seriesDisplayNames.ts` (Weiyi→"Prestige Series", Ruige→"Director Series", LRU→"Executive Series", etc.)
+  - Product detail (`/products/:sku`) shows cleaned name, size variant selector (choose 2400mm / 3200mm etc.), breadcrumb with clean name, and image gallery (thumbnail strip + main image; 257/293 products have 2+ images)
+  - Series display names mapped in `client/src/lib/seriesDisplayNames.ts` (Weiyi→"Prestige Series", Ruige→"Director Series", LRU→"Executive Series", etc.) — all 65 series now mapped
+  - Image gallery system: `SERIES_GALLERY` map in `server/routes.ts` assigns 2–4 images per series using available catalog images; enriched to both `/api/products/grouped` and `/api/products/sku/:sku` endpoints
+  - Products page has series sub-filter tabs within each collection section (horizontal scrollable pills per series range)
   - Review system available on product detail pages
 
 ## External Dependencies

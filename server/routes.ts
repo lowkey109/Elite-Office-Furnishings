@@ -307,7 +307,17 @@ export async function registerRoutes(
       p.sku.toLowerCase() === req.params.sku.toLowerCase()
     );
     if (!product) return res.status(404).json({ error: "Product not found" });
-    res.json(product);
+    // Enrich with gallery and collection name (constants defined later in scope, safe in closure)
+    const seriesGallery = SERIES_GALLERY[product.series] ?? [];
+    const gallery = seriesGallery.length > 0
+      ? seriesGallery
+      : product.image ? [product.image] : [];
+    res.json({
+      ...product,
+      gallery,
+      collection_name: SUPPLIER_COLLECTION_MAP[product.supplier] ?? "",
+      price_from: CATEGORY_PRICE_FROM[product.category] ?? "POA",
+    });
   });
 
   app.get("/api/products/series/:series", (req, res) => {
@@ -318,6 +328,107 @@ export async function registerRoutes(
     );
     res.json({ series: req.params.series, count: products.length, products });
   });
+
+  // ─── Series image gallery — 2+ images per series for ProductDetail gallery ───
+  const FSZ = "/uploads/catalog-images/feisenzhuo/";
+  const GJO = "/uploads/catalog-images/gojo/";
+  const HSG = "/uploads/catalog-images/huasheng-gaozhuo/";
+  const SERIES_GALLERY: Record<string, string[]> = {
+    // Fessenz / Feisenzhuo series
+    "Weiyi":        [FSZ+"design-04.jpg", FSZ+"design-03.jpg", FSZ+"four-1.jpg"],
+    "Blister":      [FSZ+"design-05.jpg", FSZ+"design-06.jpg"],
+    "Red Cliff":    [FSZ+"design-06.jpg", FSZ+"design-05.jpg"],
+    "New Art":      [FSZ+"design-07.jpg", FSZ+"design-06.jpg"],
+    "Ruige":        [FSZ+"design-08.jpg", FSZ+"design-09.jpg", FSZ+"four-2.jpg"],
+    "Vic":          [FSZ+"design-09.jpg", FSZ+"design-08.jpg"],
+    "Zhuoya":       [FSZ+"design-10.jpg", FSZ+"design-11.jpg"],
+    "Dynamic":      [FSZ+"design-11.jpg", FSZ+"design-10.jpg", FSZ+"design-12.jpg"],
+    "Dell":         [FSZ+"design-12.jpg", FSZ+"design-11.jpg"],
+    "Evidenza":     [FSZ+"design-13.jpg", FSZ+"design-12.jpg", FSZ+"design-14.jpg"],
+    "Teak":         [FSZ+"design-14.jpg", FSZ+"design-13.jpg"],
+    "Pari":         [FSZ+"design-15.jpg", FSZ+"design-14.jpg", FSZ+"four-3.jpg"],
+    "New Berlin":   [FSZ+"design-16.jpg", FSZ+"design-17.jpg"],
+    "Top Grid":     [FSZ+"design-17.jpg", FSZ+"design-16.jpg"],
+    "Guangsheng":   [FSZ+"design-18.jpg", FSZ+"design-19.jpg"],
+    "Nais":         [FSZ+"design-19.jpg", FSZ+"design-18.jpg"],
+    "Milan":        [FSZ+"design-20.jpg", HSG+"milan-desk.jpg", HSG+"milan-back-to-back.jpg", HSG+"milan-gaming.jpg"],
+    "Shanhe":       [FSZ+"design-21.jpg", FSZ+"design-22.jpg"],
+    "Bit":          [FSZ+"design-22.jpg", FSZ+"design-21.jpg"],
+    "Fessenz":      [FSZ+"four-5.jpg", FSZ+"four-6.jpg", FSZ+"four-7.jpg", FSZ+"four-8.jpg"],
+    "Mike":         [HSG+"hsg3-contents.jpg", HSG+"baggio-desk.jpg"],
+    "Karen":        [HSG+"milan-desk.jpg", HSG+"milan-back-to-back.jpg"],
+    "Bonnie":       [HSG+"milan-desk.jpg", HSG+"cape-executive.jpg"],
+    // GOJO series
+    "LRU":          [GJO+"lru-executive-desk.jpg", GJO+"lru-conference-table.jpg", GJO+"lru-dimensions.jpg"],
+    "JN":           [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "YOM":          [GJO+"lru-executive-desk.jpg", GJO+"gojo-cover.jpg"],
+    "HXM":          [GJO+"lru-executive-desk.jpg", GJO+"gojo-cover.jpg"],
+    "JCN":          [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "YIN":          [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "VEP":          [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "VEIYE":        [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "YUP":          [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "YUZ":          [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "GUANHE":       [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "BSA":          [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "WINA":         [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "WPN":          [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "MZE":          [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "FU8061 Sofa Collection": [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "Accent Chair Collection":[GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "BJ Side Table Collection":[GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "CJ Coffee Table Collection":[GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "833-1C":       [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "848/850":      [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "ZC 牛角椅":    [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "LZ9002":       [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "LZ9003":       [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "K01":          [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "K02":          [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    "K03":          [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
+    // Huasheng-Gaozhuo
+    "Better":       [HSG+"better-desk.jpg", HSG+"better-rostrum.jpg"],
+    "Baggio":       [HSG+"baggio-desk.jpg", HSG+"cape-executive.jpg"],
+    "Owen":         [HSG+"owen-desk.jpg", HSG+"milan-back-to-back.jpg"],
+    "Miller":       [HSG+"miller-pod.jpg"],
+    "Cape":         [HSG+"cape-executive.jpg", HSG+"milan-desk.jpg"],
+    "Mige":         [HSG+"milan-back-to-back.jpg", HSG+"milan-desk.jpg"],
+    // Seating (Bohua/GAOJIN)
+    "842":          [HSG+"miller-pod.jpg"],
+    "G01":          [HSG+"miller-pod.jpg"],
+    "G02":          [HSG+"miller-pod.jpg"],
+    "G03":          [HSG+"miller-pod.jpg"],
+    "G04":          [HSG+"miller-pod.jpg"],
+    "G05":          [HSG+"miller-pod.jpg"],
+    "G06":          [HSG+"miller-pod.jpg"],
+    "G07":          [HSG+"miller-pod.jpg"],
+    // Steel filing — use unused design images
+    "Yashang Steel": [FSZ+"design-23.jpg", FSZ+"design-24.jpg"],
+    "Yafeng Steel Tank": [FSZ+"design-25.jpg", FSZ+"design-26.jpg"],
+  };
+
+  // ─── Collection names (public-facing, supplier names hidden) ──────────────
+  const SUPPLIER_COLLECTION_MAP: Record<string, string> = {
+    "Foshan Feisenzhuo Furniture Co., Ltd.": "Fessenz Design Collection",
+    "Huasheng Furniture Group — GOJO Division": "GOJO Executive Collection",
+    "Huasheng Furniture Group — Lounge & Seating Division": "GOJO Lounge & Seating Collection",
+    "Huasheng Furniture Group — Gaozhuo Division": "Milan Premium Workspace Collection",
+    "Foshan Bohua Furniture Co., Ltd. (GAOJIN)": "Bohua Seating & Storage Collection",
+  };
+
+  // ─── Category starting prices ─────────────────────────────────────────────
+  const CATEGORY_PRICE_FROM: Record<string, string> = {
+    "Executive Desks": "From $2,500",
+    "Manager Desks": "From $1,200",
+    "Boardroom Tables": "From $3,200",
+    "Reception Desks": "From $2,800",
+    "Office Seating": "From $450",
+    "Workstations": "From $890",
+    "Storage": "From $350",
+    "Storage & Filing": "From $280",
+    "Lounge Seating": "From $1,400",
+    "Occasional Tables": "From $320",
+  };
 
   // ─── Public product name cleaning ─────────────────────────────────────────
   const SERIES_PREFIXES_STRIP = ["GOJO", "Weiyi", "Ruige", "Blister", "Vic", "Zhuoya", "Dynamic", "Dell", "Yashang", "Fei"];
@@ -357,6 +468,11 @@ export async function registerRoutes(
         const sizeNum = m ? m[2] : null;
         return { sku: v.sku, sizeLabel: sizeNum ? `${sizeNum}mm` : "Standard", dimensions: v.dimensions || "" };
       }).sort((a: any, b: any) => parseInt(a.sizeLabel) - parseInt(b.sizeLabel)) : [];
+      // Build gallery: use series gallery if defined, else fall back to primary image
+      const galleryFromSeries = SERIES_GALLERY[primary.series] || [];
+      const gallery = galleryFromSeries.length > 0
+        ? galleryFromSeries
+        : primary.image ? [primary.image] : [];
       result.push({
         ...primary,
         product_name: primary._baseName,
@@ -366,6 +482,9 @@ export async function registerRoutes(
         size_variants: sizeVariants,
         has_variants: hasVariants,
         variant_count: variants.length,
+        gallery,
+        collection_name: SUPPLIER_COLLECTION_MAP[primary.supplier] || "",
+        price_from: CATEGORY_PRICE_FROM[primary.category] || "POA",
       });
     }
     return result;

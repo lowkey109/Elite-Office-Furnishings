@@ -28,6 +28,9 @@ interface Product {
   colors?: string[];
   features?: string[];
   image?: string;
+  gallery?: string[];
+  collection_name?: string;
+  price_from?: string;
   needs_manual_review?: boolean;
 }
 
@@ -249,7 +252,8 @@ export default function ProductDetail() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
-  const [imgError, setImgError] = useState(false);
+  const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
+  const [galleryErrors, setGalleryErrors] = useState<Record<number, boolean>>({});
 
   const { data: product, isLoading } = useQuery<Product>({
     queryKey: ["/api/products/sku", sku],
@@ -319,9 +323,15 @@ export default function ProductDetail() {
     );
   }
 
-  const imgSrc = (!imgError && product.image) ? product.image : (CATEGORY_IMAGES[product.category] || "/images/category-fitout.png");
-  const price = CATEGORY_PRICE_RANGES[product.category] || "POA";
-  const collectionName = SUPPLIER_COLLECTION_NAMES[product.supplier] || "The Corporate Desk Collection";
+  const gallery = product.gallery && product.gallery.length > 0
+    ? product.gallery
+    : product.image ? [product.image] : [CATEGORY_IMAGES[product.category] || "/images/category-fitout.png"];
+  const safeIndex = Math.min(activeGalleryIndex, gallery.length - 1);
+  const activeImgSrc = galleryErrors[safeIndex]
+    ? (CATEGORY_IMAGES[product.category] || "/images/category-fitout.png")
+    : gallery[safeIndex];
+  const price = product.price_from || CATEGORY_PRICE_RANGES[product.category] || "POA";
+  const collectionName = product.collection_name || SUPPLIER_COLLECTION_NAMES[product.supplier] || "The Corporate Desk Collection";
   const description = generateDescription(product);
   const recommendedUses = getRecommendedUse(product);
   const packages = PACKAGE_COMPATIBILITY[product.series] || [];
@@ -358,30 +368,63 @@ export default function ProductDetail() {
         <section className="max-w-7xl mx-auto px-4 py-10 md:py-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
 
-            {/* Image */}
-            <div className="relative">
+            {/* Image Gallery */}
+            <div className="flex flex-col gap-3" data-testid="product-image-container">
+              {/* Main image */}
               <div
                 className="rounded-lg overflow-hidden border border-white/8"
-                style={{ aspectRatio: "4/3", background: "hsl(220,18%,9%)" }}
-                data-testid="product-image-container"
+                style={{ aspectRatio: "4/3", background: "hsl(220,18%,9%)", position: "relative" }}
               >
                 <img
-                  src={imgSrc}
-                  alt={product.product_name}
-                  className="w-full h-full object-cover"
-                  onError={() => setImgError(true)}
+                  key={safeIndex}
+                  src={activeImgSrc}
+                  alt={`${product.product_name} — image ${safeIndex + 1}`}
+                  className="w-full h-full object-cover transition-opacity duration-300"
+                  onError={() => setGalleryErrors(e => ({ ...e, [safeIndex]: true }))}
                   data-testid="product-main-image"
                 />
+                {/* Badges */}
+                <div className="absolute top-4 left-4 flex flex-col gap-2">
+                  <Badge className="bg-[rgba(201,168,76,0.9)] text-[hsl(220,20%,6%)] text-xs font-bold px-3 py-1">
+                    {getSeriesDisplayName(product.series)}
+                  </Badge>
+                  <Badge className="bg-[hsl(220,20%,10%)]/90 text-white/60 text-[10px] border border-white/10 px-2 py-1">
+                    {collectionName}
+                  </Badge>
+                </div>
+                {/* Image counter */}
+                {gallery.length > 1 && (
+                  <div className="absolute bottom-3 right-3 bg-[hsl(220,20%,6%)]/80 backdrop-blur-sm rounded-full px-2.5 py-1 text-[10px] text-white/50 font-mono border border-white/10">
+                    {safeIndex + 1}/{gallery.length}
+                  </div>
+                )}
               </div>
-              {/* Badges */}
-              <div className="absolute top-4 left-4 flex flex-col gap-2">
-                <Badge className="bg-[rgba(201,168,76,0.9)] text-[hsl(220,20%,6%)] text-xs font-bold px-3 py-1">
-                  {getSeriesDisplayName(product.series)}
-                </Badge>
-                <Badge className="bg-[hsl(220,20%,10%)]/90 text-white/60 text-[10px] border border-white/10 px-2 py-1">
-                  {collectionName}
-                </Badge>
-              </div>
+              {/* Thumbnail strip */}
+              {gallery.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto pb-1" data-testid="gallery-thumbnails">
+                  {gallery.map((imgUrl, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveGalleryIndex(idx)}
+                      data-testid={`gallery-thumb-${idx}`}
+                      className={`flex-shrink-0 rounded overflow-hidden border transition-all ${
+                        idx === safeIndex
+                          ? "border-[hsl(43,78%,52%)] opacity-100 ring-1 ring-[hsl(43,78%,52%)]"
+                          : "border-white/10 opacity-50 hover:opacity-80"
+                      }`}
+                      style={{ width: 72, height: 54 }}
+                      aria-label={`View image ${idx + 1}`}
+                    >
+                      <img
+                        src={galleryErrors[idx] ? (CATEGORY_IMAGES[product.category] || "/images/category-fitout.png") : imgUrl}
+                        alt={`Thumbnail ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                        onError={() => setGalleryErrors(e => ({ ...e, [idx]: true }))}
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Product Info */}
