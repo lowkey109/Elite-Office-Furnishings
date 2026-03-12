@@ -33,23 +33,35 @@ The application follows a client-server architecture.
 
 ## Floor Plan Boundary Detection (2026-03-12)
 
-Real floor plan geometry is now extracted from uploaded files and used to clip the AI workspace layout SVG:
+Deterministic computer vision pipeline — no AI/network calls, target < 500ms:
 
-- **Parser** (`server/services/floorPlanParser.ts`): 4-tier detection:
-  1. **OpenAI Vision** (`gpt-4o-mini`): semantic boundary extraction from images — normalised 0-1 polygon points, confidence score, shape type
-  2. **Pixel scan** (`sharp`): grayscale threshold scan — finds outermost dark pixels per row/column to build silhouette polygon
-  3. **PDF dimensions** (`pdf-parse`): page size fallback for PDFs without rasterization
-  4. **Fallback rectangle**: honest 4-corner rectangle when all methods fail, with logged reason
+**Pipeline** (`server/services/floorPlanParser.ts`):
+1. Load image with `sharp`, resize to 500px working size, convert to grayscale
+2. **Gaussian blur** (5×5 kernel, σ≈1.4) — noise reduction
+3. **Canny edge detection** — Sobel gradients → NMS → double threshold (15/45) → hysteresis
+4. **Background flood-fill** — 4-connected BFS from all 4 image edges to label background
+5. **Outer contour extraction** — edge pixels adjacent to background form the outer boundary ring
+6. **Moore Neighbor Boundary Tracing** — walks the outer ring collecting ordered contour points
+7. **Douglas-Peucker simplification** (ε = 0.012 × max dimension) — reduces polygon to 4-24 pts
+8. **Normalise** — all coordinates to 0-1 space
+9. **Hough-style line scan** — horizontal/vertical edge-pixel runs ≥ 8% of image = internal wall segments (max 40 stored)
 
-- **Schema**: `planning_requests` gains `floorGeometryJson` (full JSON) and `geometrySource` (source string) columns — migrated via `drizzle-kit push`
+**Fallback chain** (all logged):
+1. Pixel silhouette scan — row/column edge sweeps → silhouette polygon
+2. Convex hull of all dark pixels
+3. Rectangle (only if image is truly blank)
 
-- **Storage**: `InsertPlanningRequest` interface + `createPlanningRequest()` include new fields; new `updateFloorGeometry()` method on `IStorage`
+PDF files use page-dimension extraction (no rasterizer available server-side).
 
-- **Routes** (`/api/planning-requests` POST): `parseFloorPlan()` runs in **parallel** with the OpenAI space planning AI call — adds ~2–5s vision latency without blocking the primary AI path; geometry stored in DB and returned in response as `floorGeometry`
+**Schema**: `planning_requests` gains `floorGeometryJson` (full JSON) and `geometrySource` (source string) — migrated
 
-- **SpacePlanningEngine**: accepts optional `floorBoundary` prop — if boundary is non-fallback with >3 points: renders a dashed gold outline pre-clip, a `<clipPath>` in SVG `<defs>`, applies `clipPath="url(#spe-floor-clip)"` to zone group, then draws solid gold perimeter on top; confidence badge shows source + % when geometry is real
+**Storage**: `InsertPlanningRequest` + `createPlanningRequest()` include new fields; `updateFloorGeometry()` method on `IStorage`
 
-- **UploadFloorPlan**: stores `floorGeometry` from API response in state, passes it to SpacePlanningEngine; payment-verify path reads `floorGeometryJson` from DB and parses it
+**Routes** (`POST /api/planning-requests`): `parseFloorPlan()` runs in **parallel** with the OpenAI space planning call (no added latency); geometry stored in DB + returned as `floorGeometry` in response
+
+**SpacePlanningEngine**: accepts `floorBoundary` prop → clips zone treemap via SVG `<clipPath>` to real polygon; renders gold perimeter outline; renders dashed internal wall lines (semi-transparent); confidence badge shows detection %, shape type, and timing in ms
+
+**UploadFloorPlan**: stores `floorGeometry` from API response; payment-verify path reads `floorGeometryJson` from DB and parses it into state; both paths pass geometry to SpacePlanningEngine
 
 ## Stripe Paywall
 The AI Workspace Planning Report is gated behind a $399 AUD one-time payment:

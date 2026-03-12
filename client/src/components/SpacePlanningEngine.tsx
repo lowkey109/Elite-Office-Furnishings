@@ -32,12 +32,14 @@ interface BoundaryPt {
 
 interface FloorBoundary {
   boundary: BoundaryPt[];
+  internalWalls?: BoundaryPt[][];
   aspectRatio?: number;
   confidence?: number;
   source?: string;
   detectedShape?: string;
   description?: string;
   fallback?: boolean;
+  timingMs?: number;
 }
 
 interface SpacePlanningEngineProps {
@@ -432,10 +434,13 @@ export default function SpacePlanningEngine({
           {hasRealBoundary && (
             <div className="mb-2 flex items-center gap-2 px-3 py-1.5 bg-[rgba(201,168,76,0.07)] border border-[rgba(201,168,76,0.2)] rounded-lg text-xs text-[hsl(43,78%,65%)]">
               <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="5,1 9,9 1,9" fill="hsl(43,78%,52%)" /></svg>
-              Floor plan boundary detected
+              Real floor plan boundary
               {floorBoundary!.detectedShape && <span className="text-white/40">— {floorBoundary!.detectedShape}</span>}
               {floorBoundary!.confidence != null && (
-                <span className="ml-auto text-white/30">{Math.round(floorBoundary!.confidence * 100)}% confidence · via {floorBoundary!.source}</span>
+                <span className="ml-auto text-white/30">
+                  {Math.round(floorBoundary!.confidence * 100)}% confidence
+                  {floorBoundary!.timingMs != null && ` · ${floorBoundary!.timingMs}ms`}
+                </span>
               )}
             </div>
           )}
@@ -531,12 +536,30 @@ export default function SpacePlanningEngine({
 
             {/* Boundary outline drawn on top of clipped zones */}
             {hasRealBoundary && (
-              <polygon
-                points={boundaryToSvgPoints(floorBoundary!.boundary, SVG_W, SVG_H)}
-                fill="none"
-                stroke="rgba(201,168,76,0.7)"
-                strokeWidth="2"
-              />
+              <>
+                <polygon
+                  points={boundaryToSvgPoints(floorBoundary!.boundary, SVG_W, SVG_H)}
+                  fill="none"
+                  stroke="rgba(201,168,76,0.75)"
+                  strokeWidth="2"
+                />
+                {floorBoundary!.internalWalls && floorBoundary!.internalWalls.length > 0 && (
+                  <g opacity={0.45}>
+                    {floorBoundary!.internalWalls.map((wall, wi) => (
+                      wall.length >= 2 && (
+                        <line
+                          key={wi}
+                          x1={wall[0].x * SVG_W} y1={wall[0].y * SVG_H}
+                          x2={wall[1].x * SVG_W} y2={wall[1].y * SVG_H}
+                          stroke="rgba(255,255,255,0.55)"
+                          strokeWidth="1"
+                          strokeDasharray="4 3"
+                        />
+                      )
+                    ))}
+                  </g>
+                )}
+              </>
             )}
 
             {/* Watermark overlay for unpaid previews */}

@@ -1,0 +1,95 @@
+Stop using OpenAI Vision for floor plan boundary detection.
+
+This must be replaced with a deterministic computer vision parser.
+
+OpenAI Vision is unreliable for production geometry detection.
+
+------------------------------------------------
+
+REQUIRED CHANGES
+
+Remove the OpenAI Vision detection step entirely.
+
+Replace it with proper boundary detection using image processing.
+
+Detection pipeline must be:
+
+1. Convert image to grayscale
+2. Apply adaptive threshold
+3. Run Canny edge detection
+4. Detect contours
+5. Identify the largest external contour
+6. Approximate the contour to a polygon
+7. Normalize coordinates to 0-1 space
+
+Use this polygon as the real floor boundary.
+
+------------------------------------------------
+
+INTERIOR WALL DETECTION
+
+Add Hough Line detection to identify internal walls where possible.
+
+These lines should be stored separately from the outer boundary.
+
+------------------------------------------------
+
+REMOVE RECTANGLE FALLBACK
+
+The system must never default to a generic rectangle if a boundary can be detected.
+
+Fallback logic should be:
+
+1. use detected outer contour
+2. if contour detection fails, use convex hull of edges
+3. only if the image is completely unreadable may a rectangle be used
+
+All fallbacks must be logged.
+
+------------------------------------------------
+
+UPDATE THE SVG ENGINE
+
+The renderer must:
+
+- draw the detected polygon boundary
+- clip workspace zones to that polygon
+- preserve the current premium styling
+- maintain blur before payment and full render after payment
+
+------------------------------------------------
+
+PERFORMANCE
+
+Detection must run in under 500ms.
+
+Do not add latency to the planner experience.
+
+------------------------------------------------
+
+TEST
+
+Test using:
+
+1 PNG floor plan
+1 JPG floor plan
+1 PDF floor plan
+
+Confirm:
+
+- boundary polygon detected
+- L-shaped plans render correctly
+- zones are clipped to the real geometry
+- admin stores geometry JSON
+- payment flow remains unchanged
+
+------------------------------------------------
+
+REPORT
+
+Return:
+
+- new detection pipeline
+- files modified
+- performance timing
+- examples of detected polygons
