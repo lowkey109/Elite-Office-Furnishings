@@ -1,0 +1,299 @@
+SAFE SYSTEM EXTENSION — AI DEAL INTELLIGENCE ENGINE
+
+DO NOT OVERWRITE EXISTING PROMPTS.
+DO NOT REBUILD THE SITE.
+DO NOT BREAK:
+- workspace planner
+- AI Workspace Design Engine
+- upload floor plan
+- 3D office walkthrough
+- quote builder
+- formal quotes
+- product catalog
+- supplier system
+- finance system
+- Stripe payments
+- admin dashboard
+- planning requests
+- profit engine
+- deal pipeline
+- office move radar
+- email system
+- mobile responsiveness
+- desktop responsiveness
+
+You are upgrading the LIVE The Corporate Desk platform.
+
+PRIMARY OBJECTIVE
+
+Build the AI Deal Intelligence Engine.
+
+This system must analyse leads, planning requests, quotes, radar opportunities, and pipeline records to predict:
+
+1. win probability
+2. expected project value
+3. expected gross profit
+4. recommended next action
+5. recommended follow-up timing
+6. recommended offer strategy
+
+This must be a real working intelligence layer connected to the existing platform, not a placeholder concept.
+
+The result must help The Corporate Desk prioritise the best deals and increase close rate.
+
+==================================================
+PHASE 1 — FULL AUDIT
+==================================================
+
+Before writing code, audit all existing systems this engine must extend.
+
+Inspect at minimum:
+- leads
+- prospected leads
+- planning requests
+- formal quotes
+- profit records
+- workspace learning records
+- deal pipeline
+- office move radar
+- finance leads / referrals
+- follow-up sequences
+- command centre
+- admin dashboard
+- lead intelligence scoring
+- opportunity scoring
+- revenue forecast logic
+
+Return an internal map of:
+- what already exists
+- what already works
+- what can be reused
+- what is partial
+- what should be extended instead of duplicated
+- which models/routes/components are the correct integration points
+
+Do not create duplicate scoring or pipeline systems if current ones can be extended.
+
+==================================================
+PHASE 2 — DEAL INTELLIGENCE MODEL
+==================================================
+
+Create or extend structured records to support deal intelligence.
+
+Each deal intelligence record should support:
+- id
+- related_lead_id if applicable
+- related_planning_request_id if applicable
+- related_quote_id if applicable
+- related_prospect_id if applicable
+- company_name
+- city
+- industry
+- office_size
+- staff_count
+- budget_band
+- estimated_project_value
+- estimated_gross_profit
+- win_probability
+- confidence_level
+- deal_strength
+- recommended_next_action
+- recommended_follow_up_timing
+- recommended_offer
+- reasoning_summary
+- created_at
+- updated_at
+
+Do not delete existing fields. Extend safely.
+
+==================================================
+PHASE 3 — WIN PROBABILITY ENGINE
+==================================================
+
+Build a real win probability engine.
+
+Use weighted factors such as:
+- lead source
+- office move radar strength
+- company size
+- office size
+- budget quality
+- planning request completion
+- quote generated
+- quote sent
+- finance interest
+- response / engagement signals if available
+- industry fit
+- urgency
+- workspace complexity
+- historical conversion patterns from workspace learning
+- margin quality from profit engine
+
+Output a probability score from 0–100.
+
+Classify:
+- LOW PROBABILITY
+- MEDIUM PROBABILITY
+- HIGH PROBABILITY
+
+Do not use random scoring.
+Use transparent weighted logic in code.
+
+==================================================
+PHASE 4 — EXPECTED VALUE + PROFIT ESTIMATION
+==================================================
+
+For each opportunity calculate:
+- expected project value
+- expected gross profit
+- weighted expected revenue
+- weighted expected profit
+
+Use:
+- current quote data where available
+- package/budget intelligence
+- profit engine logic
+- workspace learning patterns
+
+Where exact data is not available, use best indicative logic and clearly track confidence.
+
+==================================================
+PHASE 5 — NEXT ACTION RECOMMENDATION ENGINE
+==================================================
+
+For each deal recommend:
+- best next step
+- best follow-up timing
+- best offer type
+
+Possible next actions:
+- send workspace concept
+- generate formal quote
+- offer free office layout plan
+- offer finance discussion
+- schedule strategy call
+- send supplier-backed package option
+- move to nurture sequence
+- deprioritise
+
+The system must not just score deals — it must tell the operator what to do next.
+
+==================================================
+PHASE 6 — OFFER STRATEGY ENGINE
+==================================================
+
+Recommend the best offer for each deal.
+
+Examples:
+- free office layout plan
+- premium workspace concept
+- quote comparison
+- finance option
+- executive package
+- value-engineered package
+
+Use company profile, project value, margin, and stage to choose the offer.
+
+==================================================
+PHASE 7 — PIPELINE INTEGRATION
+==================================================
+
+Integrate deal intelligence into the existing deal pipeline.
+
+Each deal card or detail view should show:
+- win probability
+- expected value
+- expected gross profit
+- recommended next action
+- recommended follow-up timing
+
+Do not break the current pipeline.
+
+==================================================
+PHASE 8 — DASHBOARD + COMMAND CENTRE
+==================================================
+
+Add deal intelligence summaries to:
+- admin dashboard
+- command centre
+
+Display:
+- best opportunities to chase now
+- highest probability deals
+- highest expected profit deals
+- at-risk quoted deals
+- recommended follow-up queue
+
+==================================================
+PHASE 9 — QUOTE + PLANNING REQUEST INTEGRATION
+==================================================
+
+In Planning Requests and Formal Quotes, show:
+- deal probability
+- expected value
+- expected margin/profit
+- recommended next action
+- recommended offer
+
+This must help the admin know what to do immediately after generating a plan or quote.
+
+==================================================
+PHASE 10 — WORKSPACE LEARNING FEEDBACK LOOP
+==================================================
+
+Feed outcomes back into the learning system.
+
+Track:
+- won / lost outcomes
+- accepted / declined quotes
+- timing to conversion
+- margin outcome
+- finance usage
+- offer used
+
+Use these results to improve future deal predictions.
+
+==================================================
+PHASE 11 — TESTING
+==================================================
+
+Before completion verify:
+1. deal intelligence records can be created
+2. win probability engine works
+3. expected value/profit logic works
+4. recommended next actions generate correctly
+5. offer recommendations generate correctly
+6. pipeline integration works
+7. dashboard/command centre surfaces deal intelligence correctly
+8. planning requests and quotes remain stable
+9. office move radar remains stable
+10. existing live systems still work on mobile and desktop
+
+==================================================
+PHASE 12 — FINAL REPORT
+==================================================
+
+Return:
+- files audited
+- files modified
+- models created or extended
+- routes created or extended
+- admin pages extended
+- how win probability works
+- how expected value/profit works
+- how next-action recommendations work
+- how offer recommendations work
+- how pipeline integration works
+- how workspace learning now improves deal prediction
+- what remains indicative vs exact
+- what was tested
+- confirmation existing live systems still work
+
+EXECUTION RULE
+
+Audit first.
+Then implement the AI Deal Intelligence Engine in safe phases.
+Prefer extending the current leads, planning, quote, profit, radar, dashboard, command centre, and pipeline systems over creating duplicates.
+Do not stop halfway.
+Do not ask questions.
+Build the working system, not just the framework.

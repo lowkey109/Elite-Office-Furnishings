@@ -1,10 +1,11 @@
 /**
- * Opportunity Scoring Engine
+ * Opportunity Scoring Engine — v2
  *
  * Deterministic signal model — NO AI calls.
- * Extracts and scores office move / fit-out signals from real inbound platform data:
- *   - lead form submissions
- *   - AI Office Planner submissions
+ * Updated to correctly value mid-sized office projects:
+ *   - 20–50 staff = medium opportunity baseline
+ *   - 200–500 sqm = medium opportunity baseline
+ *   - $120k+ projects never default to LOW tier
  *
  * Returns: signals[], opportunityScore (0–100), opportunityTier, nextAction
  */
@@ -19,7 +20,7 @@ export interface OppSignal {
 export interface OpportunityResult {
   signals: OppSignal[];
   opportunityScore: number;
-  opportunityTier: "high" | "medium" | "low";
+  opportunityTier: "enterprise" | "high" | "medium" | "low";
   nextAction: string;
   estimatedValueRange: string;
 }
@@ -36,17 +37,16 @@ function hasKeyword(text: string | null | undefined, ...terms: string[]): boolea
 
 function budgetMidpoint(budget: string | null | undefined): number {
   if (!budget) return 0;
-  if (budget.includes("300,000") || budget.startsWith("$300") || budget === "$300,000+") return 400000;
+  if (budget.includes("300,000") || budget.startsWith("$300") || budget === "$300,000+") return 420000;
   if (budget.includes("180,000")) return 240000;
   if (budget.includes("100,000")) return 140000;
   if (budget.includes("60,000")) return 80000;
   if (budget.includes("30,000")) return 40000;
-  // Parse numeric from any other format
   const nums = (budget.match(/[\d,]+/g) || []).map(s => parseInt(s.replace(/,/g, ""), 10)).filter(n => n > 100);
   return nums.length ? Math.round(nums.reduce((a, b) => a + b, 0) / nums.length) : 0;
 }
 
-// ─── Estimate value range string ──────────────────────────────────────────────
+// ─── Style rate map ───────────────────────────────────────────────────────────
 
 const STYLE_RATES: Record<string, number> = {
   "Luxury Executive": 1500,
@@ -57,10 +57,13 @@ const STYLE_RATES: Record<string, number> = {
   "Mixed / Flexible": 900,
 };
 
+// ─── Estimate value range string ──────────────────────────────────────────────
+
 function estimateValue(data: Partial<ScoringInput>): string {
   const budget = budgetMidpoint(data.budget || data.budgetRange);
-  if (budget >= 300000) return "$300,000+";
-  if (budget >= 100000) return `$${Math.round(budget / 1000)}K – $${Math.round(budget * 1.3 / 1000)}K`;
+  if (budget >= 400000) return "$400,000+";
+  if (budget >= 120000) return `$${Math.round(budget / 1000)}K – $${Math.round(budget * 1.25 / 1000)}K`;
+  if (budget >= 50000) return `$${Math.round(budget / 1000)}K – $${Math.round(budget * 1.3 / 1000)}K`;
 
   const sqm = parseFloat(data.squareMetres || data.officeSize || "0");
   const rate = STYLE_RATES[data.stylePreference || ""] || 900;
@@ -71,11 +74,12 @@ function estimateValue(data: Partial<ScoringInput>): string {
   }
 
   const staff = parseInt(data.staffCount || "0", 10);
-  if (staff >= 50) return "$150,000 – $350,000";
-  if (staff >= 25) return "$80,000 – $180,000";
-  if (staff >= 15) return "$50,000 – $120,000";
-  if (staff >= 10) return "$35,000 – $80,000";
-  if (staff >= 5) return "$20,000 – $50,000";
+  if (staff >= 75)  return "$250,000 – $600,000";
+  if (staff >= 50)  return "$150,000 – $350,000";
+  if (staff >= 25)  return "$90,000 – $220,000";
+  if (staff >= 15)  return "$55,000 – $130,000";
+  if (staff >= 10)  return "$35,000 – $80,000";
+  if (staff >= 5)   return "$20,000 – $50,000";
   return "";
 }
 
@@ -136,53 +140,59 @@ export function scoreOpportunity(data: ScoringInput): OpportunityResult {
     score += 10;
   }
 
-  // ── 3. Staff count / team size (up to 25 pts) ────────────────────────────
+  // ── 3. Staff count / team size (up to 28 pts) ────────────────────────────
+  // Updated tiers: 1-10 low | 10-25 medium | 25-75 medium-high | 75+ high
   const staffNum = parseInt(data.staffCount || "0", 10);
-  if (staffNum >= 50) {
+  if (staffNum >= 75) {
     signals.push({ type: "large_team", confidence: 0.95, source: "planner", reason: `${staffNum} staff — enterprise-scale project` });
-    score += 25;
+    score += 28;
   } else if (staffNum >= 25) {
-    signals.push({ type: "mid_team", confidence: 0.85, source: "planner", reason: `${staffNum} staff — mid-market opportunity` });
-    score += 18;
-  } else if (staffNum >= 15) {
-    signals.push({ type: "growing_team", confidence: 0.75, source: "planner", reason: `${staffNum} staff — growing business` });
-    score += 13;
-  } else if (staffNum >= 8) {
+    signals.push({ type: "mid_large_team", confidence: 0.90, source: "planner", reason: `${staffNum} staff — medium-high commercial opportunity` });
+    score += 21;
+  } else if (staffNum >= 10) {
+    signals.push({ type: "mid_team", confidence: 0.80, source: "planner", reason: `${staffNum} staff — medium opportunity` });
+    score += 14;
+  } else if (staffNum >= 5) {
     signals.push({ type: "small_team", confidence: 0.65, source: "planner", reason: `${staffNum} staff — small business fit-out` });
-    score += 8;
-  } else if (staffNum >= 3) {
-    score += 4;
-  }
-
-  // ── 4. Office size / sqm (up to 15 pts) ──────────────────────────────────
-  const sqmNum = parseFloat(data.squareMetres || data.officeSize || "0");
-  if (sqmNum >= 500) {
-    signals.push({ type: "large_space", confidence: 0.90, source: "planner", reason: `${sqmNum}sqm — large commercial fit-out` });
-    score += 15;
-  } else if (sqmNum >= 200) {
-    signals.push({ type: "medium_space", confidence: 0.80, source: "planner", reason: `${sqmNum}sqm — medium commercial space` });
-    score += 10;
-  } else if (sqmNum >= 80) {
-    score += 6;
-  } else if (sqmNum >= 30) {
-    score += 3;
-  }
-
-  // ── 5. Budget clarity (up to 20 pts) ──────────────────────────────────────
-  const budgetVal = budgetMidpoint(data.budget || data.budgetRange);
-  if (budgetVal >= 300000) {
-    signals.push({ type: "high_budget", confidence: 0.95, source: "planner", reason: `Budget stated at $300K+ — premium commercial project` });
-    score += 20;
-  } else if (budgetVal >= 100000) {
-    signals.push({ type: "strong_budget", confidence: 0.85, source: "planner", reason: `Budget in $100K–$300K range` });
-    score += 16;
-  } else if (budgetVal >= 60000) {
-    signals.push({ type: "mid_budget", confidence: 0.75, source: "planner", reason: `Budget $60K–$100K` });
-    score += 11;
-  } else if (budgetVal >= 30000) {
     score += 7;
-  } else if ((data.budget || data.budgetRange) && !hasKeyword(data.budget || data.budgetRange, "not specified")) {
+  } else if (staffNum >= 2) {
     score += 3;
+  }
+
+  // ── 4. Office size / sqm (up to 18 pts) ──────────────────────────────────
+  // Updated tiers: <100 low | 100-300 medium | 300-800 medium-high | 800+ high
+  const sqmNum = parseFloat(data.squareMetres || data.officeSize || "0");
+  if (sqmNum >= 800) {
+    signals.push({ type: "large_space", confidence: 0.92, source: "planner", reason: `${sqmNum}sqm — large-scale commercial fit-out` });
+    score += 18;
+  } else if (sqmNum >= 300) {
+    signals.push({ type: "medium_large_space", confidence: 0.85, source: "planner", reason: `${sqmNum}sqm — medium-high commercial space` });
+    score += 14;
+  } else if (sqmNum >= 100) {
+    signals.push({ type: "medium_space", confidence: 0.78, source: "planner", reason: `${sqmNum}sqm — medium commercial space` });
+    score += 9;
+  } else if (sqmNum >= 50) {
+    score += 4;
+  } else if (sqmNum >= 20) {
+    score += 1;
+  }
+
+  // ── 5. Budget / estimated project value (up to 22 pts) ───────────────────
+  // Updated tiers: <$50k low | $50k-$120k medium | $120k-$400k high | $400k+ enterprise
+  const budgetVal = budgetMidpoint(data.budget || data.budgetRange);
+  if (budgetVal >= 400000) {
+    signals.push({ type: "enterprise_budget", confidence: 0.97, source: "planner", reason: `Budget $400K+ — enterprise commercial project` });
+    score += 22;
+  } else if (budgetVal >= 120000) {
+    signals.push({ type: "high_budget", confidence: 0.92, source: "planner", reason: `Budget $120K–$400K — high-value commercial project` });
+    score += 17;
+  } else if (budgetVal >= 50000) {
+    signals.push({ type: "mid_budget", confidence: 0.80, source: "planner", reason: `Budget $50K–$120K — solid mid-market project` });
+    score += 10;
+  } else if (budgetVal >= 25000) {
+    score += 5;
+  } else if ((data.budget || data.budgetRange) && !hasKeyword(data.budget || data.budgetRange, "not specified")) {
+    score += 2;
   }
 
   // ── 6. Premium style signals (up to 8 pts) ───────────────────────────────
@@ -241,7 +251,7 @@ export function scoreOpportunity(data: ScoringInput): OpportunityResult {
     score += 6;
   }
 
-  // ── Cap and tier ──────────────────────────────────────────────────────────
+  // ── Cap at 100 ────────────────────────────────────────────────────────────
   score = Math.min(100, Math.round(score));
 
   // If AI already scored it and it's higher, respect that
@@ -249,12 +259,22 @@ export function scoreOpportunity(data: ScoringInput): OpportunityResult {
     score = Math.min(100, data.leadScore);
   }
 
-  const opportunityTier: "high" | "medium" | "low" =
-    score >= 68 ? "high" : score >= 42 ? "medium" : "low";
+  // ── Tier assignment ───────────────────────────────────────────────────────
+  // enterprise ≥ 68 | high ≥ 52 | medium ≥ 36 | low < 36
+  // Enterprise = 100+ staff / 800+sqm / $400k+ or combined high signals
+  // High = 25-75 staff / 300-800sqm / $120k-$400k range projects
+  // Medium = 10-25 staff / 100-300sqm / $50k-$120k baseline
+  const opportunityTier: "enterprise" | "high" | "medium" | "low" =
+    score >= 68 ? "enterprise"
+    : score >= 52 ? "high"
+    : score >= 36 ? "medium"
+    : "low";
 
   // ── Next action recommendation ────────────────────────────────────────────
   let nextAction = "";
-  if (opportunityTier === "high") {
+  if (opportunityTier === "enterprise") {
+    nextAction = "Escalate immediately — enterprise project. Director-level contact within 4 hours. Prepare tailored capability deck.";
+  } else if (opportunityTier === "high") {
     if (signals.some(s => s.type === "strategy_call_request")) {
       nextAction = "Book strategy consultation within 24h — high-intent buyer confirmed";
     } else if (signals.some(s => s.type === "office_relocation" || s.type === "new_office")) {

@@ -11,6 +11,7 @@ import {
   CheckCircle2, XCircle, Zap, Target, FileText, Package, ChevronRight,
   Phone, Mail, Megaphone, ExternalLink, Eye, BarChart3, Shield, Calendar,
   Layers, Crown, RefreshCw, Building2, Briefcase, Radio, MapPin, ArrowRight,
+  Loader2,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -75,7 +76,7 @@ interface OppRecord {
   phone: string;
   leadType: string;
   opportunityScore: number;
-  opportunityTier: "high" | "medium" | "low";
+  opportunityTier: "enterprise" | "high" | "medium" | "low";
   signals: OppSignal[];
   nextAction: string;
   estimatedValueRange: string;
@@ -352,6 +353,22 @@ export default function AdminCommandCentre() {
       refetchStats();
     },
     onError: () => toast({ title: "Sync failed", description: "Could not sync scores. Try again.", variant: "destructive" }),
+  });
+
+  // ── Rescore all leads with updated scoring model ────────────────────────────
+  const rescoreMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("POST", "/api/admin/opportunity-intelligence/rescore-all", {});
+    },
+    onSuccess: (data: any) => {
+      toast({
+        title: `${data?.updated || 0} leads rescored`,
+        description: "All leads recalculated with updated scoring model (v2). Enterprise tier now active.",
+      });
+      qc.invalidateQueries({ queryKey: ["/api/admin/opportunity-intelligence"] });
+      qc.invalidateQueries({ queryKey: ["/api/admin/leads"] });
+    },
+    onError: () => toast({ title: "Rescore failed", description: "Could not rescore leads.", variant: "destructive" }),
   });
 
   // ── Per-record enrichment for the opportunity list ─────────────────────────
@@ -814,13 +831,29 @@ export default function AdminCommandCentre() {
               <h2 className="text-white font-semibold text-sm">High Opportunity Intelligence</h2>
               <span className="text-white/30 text-xs ml-1">— inbound leads + planner submissions scored by office move signals</span>
             </div>
-            {oppIntelligence && (
-              <div className="flex items-center gap-3">
-                <span className="text-[hsl(43,78%,65%)] text-xs font-bold">{oppIntelligence.summary.highCount} HIGH</span>
-                <span className="text-blue-400 text-xs">{oppIntelligence.summary.mediumCount} MED</span>
-                <span className="text-white/30 text-xs">{oppIntelligence.summary.lowCount} LOW</span>
-              </div>
-            )}
+            <div className="flex items-center gap-3 flex-wrap">
+              {oppIntelligence && (
+                <>
+                  {(oppIntelligence.summary as any).enterpriseCount > 0 && (
+                    <span className="text-purple-300 text-xs font-bold">{(oppIntelligence.summary as any).enterpriseCount} ENTERPRISE</span>
+                  )}
+                  <span className="text-[hsl(43,78%,65%)] text-xs font-bold">{oppIntelligence.summary.highCount} HIGH</span>
+                  <span className="text-blue-400 text-xs">{oppIntelligence.summary.mediumCount} MED</span>
+                  <span className="text-white/30 text-xs">{oppIntelligence.summary.lowCount} LOW</span>
+                </>
+              )}
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-white/40 hover:text-white text-xs min-h-[28px] h-7 px-2"
+                onClick={() => rescoreMutation.mutate()}
+                disabled={rescoreMutation.isPending}
+                data-testid="button-rescore-all"
+              >
+                {rescoreMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <RefreshCw className="w-3 h-3 mr-1" />}
+                Rescore All
+              </Button>
+            </div>
           </div>
 
           {oppLoading ? (
@@ -832,12 +865,14 @@ export default function AdminCommandCentre() {
           ) : (
             <div className="divide-y divide-[rgba(255,255,255,0.04)]">
               {oppIntelligence.highOpportunities.slice(0, 8).map((rec) => {
-                const tierBg = rec.opportunityTier === "high"
+                const tierBg = rec.opportunityTier === "enterprise"
+                  ? "bg-purple-500/15 border-purple-400/30 text-purple-300"
+                  : rec.opportunityTier === "high"
                   ? "bg-[rgba(201,168,76,0.12)] border-[rgba(201,168,76,0.25)] text-[hsl(43,78%,65%)]"
                   : rec.opportunityTier === "medium"
                   ? "bg-blue-500/10 border-blue-500/20 text-blue-400"
                   : "bg-white/5 border-white/10 text-white/40";
-                const tierBar = rec.opportunityTier === "high" ? "bg-[hsl(43,78%,52%)]" : rec.opportunityTier === "medium" ? "bg-blue-500" : "bg-white/20";
+                const tierBar = rec.opportunityTier === "enterprise" ? "bg-purple-400" : rec.opportunityTier === "high" ? "bg-[hsl(43,78%,52%)]" : rec.opportunityTier === "medium" ? "bg-blue-500" : "bg-white/20";
                 const sourceLabel = rec.sourceType === "inbound_lead" ? "Web Lead" : "Planner";
                 const sourceBadge = rec.sourceType === "inbound_lead"
                   ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
@@ -854,7 +889,7 @@ export default function AdminCommandCentre() {
                           <p className="text-white font-semibold text-sm">{rec.name}</p>
                           {rec.company && <span className="text-white/40 text-sm">· {rec.company}</span>}
                           <Badge className={`text-xs border ${sourceBadge}`}>{sourceLabel}</Badge>
-                          <Badge className={`text-xs border ${tierBg} ml-auto`}>HIGH</Badge>
+                          <Badge className={`text-xs border ${tierBg} ml-auto`}>{rec.opportunityTier.toUpperCase()}</Badge>
                         </div>
 
                         {/* Meta row */}

@@ -180,7 +180,8 @@ export async function sendLeadNotification(lead: {
   nextAction?: string | null;
   signals?: OppSignal[];
 }): Promise<void> {
-  const isHigh = lead.opportunityTier === "high";
+  const isHigh = lead.opportunityTier === "high" || lead.opportunityTier === "enterprise";
+  const isEnterprise = lead.opportunityTier === "enterprise";
   const isMed = lead.opportunityTier === "medium";
   const typeLabel = lead.type ? lead.type.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()) : "Website Lead";
   const scoreStr = lead.opportunityScore != null ? `${lead.opportunityScore}/100` : null;
@@ -248,11 +249,14 @@ export async function sendPlanningRequestNotification(req: {
   nextAction?: string | null;
   signals?: OppSignal[];
 }): Promise<void> {
-  const isHigh = req.opportunityTier === "high";
+  const isHigh = req.opportunityTier === "high" || req.opportunityTier === "enterprise";
+  const isEnterprise = req.opportunityTier === "enterprise";
   const tierStr = req.opportunityTier ? req.opportunityTier.toUpperCase() : null;
   const contextLine = [req.squareMetres ? `${req.squareMetres}sqm` : null, req.staffCount ? `${req.staffCount} staff` : null, req.city].filter(Boolean).join(" · ");
 
-  const subject = isHigh
+  const subject = isEnterprise
+    ? `ENTERPRISE — PLANNER: ${req.company || req.name}${req.estimatedValueRange ? ` — Est. ${req.estimatedValueRange}` : ""}${contextLine ? ` · ${contextLine}` : ""}`
+    : isHigh
     ? `HIGH OPPORTUNITY — PLANNER: ${req.company || req.name}${req.estimatedValueRange ? ` — Est. ${req.estimatedValueRange}` : ""}${contextLine ? ` · ${contextLine}` : ""}`
     : `NEW PLANNER SUBMISSION — ${req.company || req.name}${contextLine ? ` · ${contextLine}` : ""}`;
 

@@ -26,7 +26,7 @@ The aesthetic is dark luxury gold, using near-black backgrounds, rich gold accen
 - **Marketing Hub**: Facilitates AI-generated content creation and direct posting to various marketing channels.
 - **Admin Dashboard**: Provides KPIs, lead overviews, and administrative functionalities.
 - **SEO Blog**: Client-side blog with search, category filters, and pagination.
-- **Opportunity Scoring Engine**: Deterministic signal model scoring inbound leads (0–100) with tier assignment based on 11 signal types.
+- **Opportunity Scoring Engine v2**: Deterministic signal model scoring inbound leads (0–100) with 4-tier assignment (enterprise/high/medium/low) based on 11 signal types. Updated weights correctly value mid-sized projects: staff 10-25=medium, 25-75=medium-high, 75+=high; sqm 100-300=medium, 300-800=medium-high, 800+=high; budget $50k-120k=medium, $120k-400k=high, $400k+=enterprise. Tier thresholds: enterprise≥68, high≥52, medium≥36. Force-rescore endpoint: POST /api/admin/opportunity-intelligence/rescore-all. "Rescore All" button in Admin Command Centre updates all 225 existing leads live.
 - **Floor Plan Boundary Detection**: A computer vision pipeline extracts floor plan geometry from uploaded images, feeding detected shapes and internal wall counts to the AI for zone placement.
 - **Workspace Learning System**: Auto-captures project intelligence from AI Planner submissions, storing data like office size, headcount, zone mix, and cost. This intelligence calibrates future AI recommendations.
 - **Supplier Pricing Records**: Structured historical pricing data for products across suppliers, accessible via API.

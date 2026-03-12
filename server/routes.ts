@@ -1783,7 +1783,7 @@ ${allUrls.map(u => `  <url>
             phone: l.phone,
             leadType: l.type,
             opportunityScore: existingScore,
-            opportunityTier: (l.opportunityTier || "low") as "high" | "medium" | "low",
+            opportunityTier: (l.opportunityTier || "low") as "enterprise" | "high" | "medium" | "low",
             signals: existingSignals,
             nextAction: l.nextAction || "",
             estimatedValueRange: l.estimatedValueRange || "",
@@ -1880,8 +1880,9 @@ ${allUrls.map(u => `  <url>
       const all = [...scoredLeads, ...scoredPlanningRequests]
         .sort((a, b) => b.opportunityScore - a.opportunityScore);
 
-      const highOpportunities = all.filter(r => r.opportunityTier === "high");
+      const highOpportunities = all.filter(r => r.opportunityTier === "enterprise" || r.opportunityTier === "high");
       const mediumOpportunities = all.filter(r => r.opportunityTier === "medium");
+      const enterpriseOpportunities = all.filter(r => r.opportunityTier === "enterprise");
 
       res.json({
         all,
@@ -1889,6 +1890,7 @@ ${allUrls.map(u => `  <url>
         mediumOpportunities,
         summary: {
           total: all.length,
+          enterpriseCount: enterpriseOpportunities.length,
           highCount: highOpportunities.length,
           mediumCount: mediumOpportunities.length,
           lowCount: all.filter(r => r.opportunityTier === "low").length,
@@ -1897,6 +1899,41 @@ ${allUrls.map(u => `  <url>
     } catch (err) {
       console.error("[OpportunityIntelligence]", err);
       res.status(500).json({ error: "Failed to compute opportunity intelligence" });
+    }
+  });
+
+  // ─── Force-rescore all leads with updated scoring model ──────────────────────
+  // Recalculates scores for ALL inbound leads using the current deterministic model.
+  // Safe: reads from DB, rewrites opportunity columns, zero AI calls.
+  app.post("/api/admin/opportunity-intelligence/rescore-all", async (req, res) => {
+    try {
+      const allLeads = await storage.getLeads();
+      let updated = 0;
+      for (const lead of allLeads) {
+        const opp = scoreOpportunity({
+          type: lead.type,
+          message: lead.message,
+          officeSize: lead.officeSize,
+          staffCount: lead.staffCount,
+          budget: lead.budget,
+          timeline: lead.timeline,
+          officeLocation: lead.officeLocation,
+          moveDate: lead.moveDate,
+          leadScore: lead.opportunityScore ?? undefined,
+        });
+        await storage.updateLeadScore(lead.id, {
+          opportunityScore: opp.opportunityScore,
+          opportunityTier: opp.opportunityTier,
+          signalsJson: JSON.stringify(opp.signals),
+          nextAction: opp.nextAction,
+          estimatedValueRange: opp.estimatedValueRange,
+        });
+        updated++;
+      }
+      res.json({ success: true, updated, message: `Rescored ${updated} leads with updated scoring model` });
+    } catch (err) {
+      console.error("[RescoreAll]", err);
+      res.status(500).json({ error: "Failed to rescore leads" });
     }
   });
 

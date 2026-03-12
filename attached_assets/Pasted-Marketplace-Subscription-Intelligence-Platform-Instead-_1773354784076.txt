@@ -1,0 +1,231 @@
+Marketplace + Subscription Intelligence Platform
+
+Instead of only using the system internally, the platform becomes a national commercial workspace intelligence network where companies pay to access opportunities.
+
+Think of it like:
+
+“Zillow + Salesforce + Upwork for office projects.”
+
+Partners pay to access:
+
+• relocation leads
+• workspace planning tools
+• office design engine
+• supplier marketplace
+• analytics on office demand
+
+That is the scalable revenue model.
+
+So we add one final system:
+
+PLATFORM MARKETPLACE + SAAS ENGINE
+
+Below is the final section you add to your prompt.
+
+You can paste this directly after Phase 15.
+
+⸻
+
+PHASE 16 — MARKETPLACE & SAAS PLATFORM ENGINE
+
+Extend the platform so it can operate as a commercial workspace intelligence marketplace.
+
+The platform must support subscription-based access for partners.
+
+Partner tiers may include:
+
+FREE
+PROFESSIONAL
+ENTERPRISE
+
+Each tier may unlock different capabilities.
+
+Examples:
+
+FREE
+• limited opportunity access
+• limited planner usage
+
+PROFESSIONAL
+• access to qualified relocation opportunities
+• workspace design engine access
+• opportunity notifications
+
+ENTERPRISE
+• full market intelligence
+• unlimited opportunities
+• analytics dashboards
+• API access (future capability)
+
+The system must support:
+
+• partner subscription records
+• partner tier permissions
+• feature gating
+• Stripe subscription billing
+• billing management
+• subscription upgrades/downgrades
+
+Do not break the existing Stripe payment system.
+
+Extend the existing finance logic safely.
+
+⸻
+
+PHASE 17 — OPPORTUNITY MARKETPLACE
+
+Create an opportunity marketplace inside the partner dashboard.
+
+Partners should be able to see:
+
+• available workspace opportunities
+• relocation leads detected by Office Move Radar
+• planning requests requiring partners
+• projects needing suppliers or builders
+
+Each opportunity should display:
+
+company (limited details if required)
+city
+office size
+staff estimate
+project type
+estimated project value
+opportunity tier
+stage
+
+Partners should be able to:
+
+• request access to the opportunity
+• express interest
+• accept referral opportunity
+
+Admin must approve access where required.
+
+⸻
+
+PHASE 18 — MARKET INTELLIGENCE DASHBOARD
+
+Create an analytics layer that shows trends in commercial workspace demand.
+
+Possible insights:
+
+• offices relocating in each city
+• industries expanding offices
+• average office size trends
+• workspace design trends
+• project value ranges
+
+Partners should see insights relevant to their region.
+
+This turns the platform into a commercial real estate intelligence tool.
+
+⸻
+
+PHASE 19 — PARTNER PERFORMANCE ANALYTICS
+
+Track partner performance across the network.
+
+Metrics may include:
+
+• opportunities received
+• opportunities accepted
+• projects won
+• average project value
+• revenue generated
+
+This allows the platform to prioritise high-performing partners.
+
+⸻
+
+PHASE 20 — NETWORK GROWTH ARCHITECTURE
+
+Design the system so the network can scale nationally.
+
+Support:
+
+• multiple cities
+• multiple partner types
+• growing opportunity volume
+• increasing user accounts
+
+Future capability should allow:
+
+• national expansion across Australia
+• international markets
+• partner APIs
+• large enterprise partners.
+
+⸻
+
+PHASE 21 — PLATFORM MONETISATION
+
+Ensure the platform can generate revenue from:
+
+• partner subscriptions
+• referral fees
+• project commissions
+• premium intelligence access
+
+Each deal should support tracking:
+
+project_value
+platform_revenue
+partner_revenue.
+
+⸻
+
+PHASE 22 — TESTING
+
+Verify:
+
+1 partner subscriptions work
+2 Stripe subscription billing works
+3 marketplace opportunity listing works
+4 partner dashboard works
+5 opportunity access requests work
+6 referral tracking works
+7 analytics dashboards work
+8 deal pipeline remains stable
+9 workspace design engine remains stable
+10 lead intelligence remains stable
+11 mobile and desktop layouts remain stable
+
+⸻
+
+PHASE 23 — FINAL REPORT
+
+Return:
+
+files audited
+files modified
+models created or extended
+routes created or extended
+admin pages extended
+partner marketplace features
+subscription billing logic
+analytics dashboards
+network scalability architecture
+what was tested
+
+Confirm the live platform remains stable.
+
+⸻
+
+EXECUTION RULE
+
+Audit first.
+Then implement the Partner Network, Marketplace, and SaaS platform features safely.
+
+Prefer extending:
+
+• lead intelligence
+• workspace design engine
+• quotes
+• deal pipeline
+• command centre
+• Stripe payments
+
+Do not create duplicate systems.
+
+Build the working marketplace system end-to-end.

@@ -173,6 +173,7 @@ export interface IStorage {
   deletePlanningRequest(id: string): Promise<void>;
   markPlanningRequestPaid(id: string, sessionId: string): Promise<PlanningRequest | undefined>;
   updateFloorGeometry(id: string, floorGeometryJson: string, geometrySource: string): Promise<PlanningRequest | undefined>;
+  updateLeadScore(id: string, data: { opportunityScore: number; opportunityTier: string; signalsJson: string; nextAction: string; estimatedValueRange: string }): Promise<void>;
 
   // Scheduled Jobs
   createScheduledJob(data: Omit<ScheduledJob, "id" | "createdAt">): Promise<ScheduledJob>;
@@ -324,6 +325,16 @@ export class DrizzleStorage implements IStorage {
 
   async getLeads(): Promise<Lead[]> {
     return db.select().from(leads).orderBy(desc(leads.createdAt));
+  }
+
+  async updateLeadScore(id: string, data: { opportunityScore: number; opportunityTier: string; signalsJson: string; nextAction: string; estimatedValueRange: string }): Promise<void> {
+    await db.update(leads).set({
+      opportunityScore: data.opportunityScore,
+      opportunityTier: data.opportunityTier,
+      signalsJson: data.signalsJson,
+      nextAction: data.nextAction,
+      estimatedValueRange: data.estimatedValueRange,
+    }).where(eq(leads.id, id));
   }
 
   async createProspectedLead(data: Omit<ProspectedLead, "id" | "createdAt" | "status">): Promise<ProspectedLead> {
