@@ -4305,7 +4305,8 @@ Rules:
 
       const monthViews = Number(pageViews.month || 0);
       const monthLeads = Number(leadsRow.month || 0);
-      const conversionRate = monthViews > 0 ? ((monthLeads / monthViews) * 100).toFixed(1) : "0.0";
+      const rawRate = monthViews > 0 ? (monthLeads / monthViews) * 100 : 0;
+      const conversionRate = Math.min(rawRate, 100).toFixed(1);
 
       res.json({
         pageViews: {

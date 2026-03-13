@@ -229,6 +229,7 @@ export interface IStorage {
   updateOfficeMovRadarRecord(id: string, data: Partial<OfficeMovRadar>): Promise<OfficeMovRadar | undefined>;
   deleteOfficeMovRadarRecord(id: string): Promise<void>;
   findRadarDuplicate(companyName: string, city: string, signalType: string): Promise<OfficeMovRadar | null>;
+  findRadarBySourceUrl(sourceUrl: string): Promise<OfficeMovRadar | null>;
 
   // Building Signals
   createBuildingSignal(data: InsertBuildingSignal): Promise<BuildingSignal>;
@@ -1040,7 +1041,6 @@ export class DrizzleStorage implements IStorage {
   }
 
   async findRadarDuplicate(companyName: string, city: string, signalType: string): Promise<OfficeMovRadar | null> {
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const rows = await db.select().from(officeMovRadar)
       .where(
         and(
@@ -1049,6 +1049,13 @@ export class DrizzleStorage implements IStorage {
           eq(officeMovRadar.signalType, signalType),
         )
       )
+      .limit(1);
+    return rows[0] ?? null;
+  }
+
+  async findRadarBySourceUrl(sourceUrl: string): Promise<OfficeMovRadar | null> {
+    const rows = await db.select().from(officeMovRadar)
+      .where(eq(officeMovRadar.sourceUrl, sourceUrl))
       .limit(1);
     return rows[0] ?? null;
   }

@@ -1,0 +1,124 @@
+BUG FIX + STABILISATION MODE
+THE CORPORATE DESK PLATFORM
+
+You are now in bug-fix and stabilisation mode.
+
+Do NOT add new features.
+Do NOT redesign the app.
+Do NOT rebuild systems that already exist.
+
+Your task is to identify and fix all current bugs across the live platform while preserving all existing working systems.
+
+PROTECT:
+- Office Move Radar
+- deal pipeline
+- admin dashboard
+- WhatsApp assistant
+- quote builder
+- workspace planner
+- product catalogue
+- analytics
+- scheduler jobs
+- webhooks
+- production deployment
+
+==================================================
+PHASE 1 — FULL BUG AUDIT
+==================================================
+
+Inspect the platform and identify all current bugs, including but not limited to:
+
+- broken UI rendering
+- raw encoded/debug data appearing on screen
+- malformed API responses
+- radar cards showing incomplete or incorrect values
+- estimated project values not calculating
+- buttons not triggering correct actions
+- duplicate records
+- incorrect status updates
+- broken admin views
+- dev-only behaviour leaking into production
+- failed scheduler jobs
+- failed pipeline pushes
+- broken outreach generation
+- bad loading states
+- console errors
+- server errors
+
+Return an internal bug list first, grouped by:
+- critical
+- high
+- medium
+- low
+
+==================================================
+PHASE 2 — FIX CRITICAL BUGS FIRST
+==================================================
+
+Fix anything that causes:
+- broken pages
+- corrupted display output
+- invalid API responses
+- raw HTML / binary / encoded payloads reaching the UI
+- actions failing silently
+- invalid data being shown as real
+
+Add sanitisation and validation layers where needed.
+
+==================================================
+PHASE 3 — RADAR STABILISATION
+==================================================
+
+Ensure the radar only shows clean, structured, source-backed data.
+
+Fix:
+- incomplete cards
+- broken project value display
+- inconsistent confidence display
+- wrong signal labels
+- bad source rendering
+- duplicate signals
+- broken action buttons
+
+Ensure radar actions work:
+- Generate Outreach
+- Push to Pipeline
+- Status update
+- View source
+
+==================================================
+PHASE 4 — ADMIN STABILISATION
+==================================================
+
+Ensure admin pages load cleanly and show:
+- no debug dumps
+- no fake values
+- no malformed content
+- no broken state transitions
+
+==================================================
+PHASE 5 — TESTING
+==================================================
+
+Test all major flows:
+
+1. radar scan
+2. radar card open
+3. generate outreach
+4. push to pipeline
+5. analytics cards
+6. admin dashboard load
+7. WhatsApp webhook
+8. lead creation
+9. quote flow
+
+==================================================
+FINAL REPORT
+==================================================
+
+Return:
+- bugs found
+- bugs fixed
+- files changed
+- any remaining issues
+- confirmation platform is now stable

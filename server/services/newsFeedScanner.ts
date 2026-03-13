@@ -302,11 +302,20 @@ async function saveSignals(
     const item = items[signal.itemIndex];
     if (!item) continue;
 
-    // Dedup check
+    // Dedup check 1: same company + city + signal type
     const existing = await storage.findRadarDuplicate(signal.companyName, city, signal.signalType);
     if (existing) {
       console.log(`[NewsFeedScanner] Duplicate skipped: ${signal.companyName} / ${city} / ${signal.signalType}`);
       continue;
+    }
+
+    // Dedup check 2: same source URL (same article shouldn't create entries for multiple cities)
+    if (item.link) {
+      const existingByUrl = await storage.findRadarBySourceUrl(item.link);
+      if (existingByUrl) {
+        console.log(`[NewsFeedScanner] Same-article duplicate skipped: ${signal.companyName} / ${city} (URL already exists)`);
+        continue;
+      }
     }
 
     const scoring = scoreRadarSignal({
@@ -331,8 +340,8 @@ async function saveSignals(
         sourceUrl: item.link,
         confidenceLevel: signal.confidence ?? "medium",
         estimatedHeadcount: null,
-        estimatedOfficeSizeSqm: null,
-        estimatedProjectValue: null,
+        estimatedOfficeSizeSqm: scoring.estimatedOfficeSizeSqm ?? null,
+        estimatedProjectValue: scoring.estimatedProjectValue ?? null,
         radarScore: scoring.radarScore,
         priority: scoring.priority,
         recommendedOutreachAngle: scoring.recommendedOutreachAngle ?? null,
