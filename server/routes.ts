@@ -4124,18 +4124,31 @@ Rules:
 
   // ─── WhatsApp Webhook (Twilio) ────────────────────────────────────────────
   app.post("/webhook/whatsapp", async (req, res) => {
-    const message = req.body.Body;
+    const timestamp = new Date().toISOString();
+    const from = req.body.From || "(no From field)";
+    const message = req.body.Body || "(no Body field)";
+    const accountSid = req.body.AccountSid || "(no AccountSid)";
 
-    console.log("WhatsApp message:", message);
+    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    console.log("[WhatsApp] INCOMING REQUEST");
+    console.log(`[WhatsApp] Timestamp : ${timestamp}`);
+    console.log(`[WhatsApp] From      : ${from}`);
+    console.log(`[WhatsApp] Message   : ${message}`);
+    console.log(`[WhatsApp] AccountSid: ${accountSid}`);
+    console.log("[WhatsApp] Full body :", JSON.stringify(req.body, null, 2));
+    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
     const reply = "Hello! This is The Corporate Desk AI assistant. How can we help with your office fit-out or workspace project?";
 
+    const twiml = `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Message>${reply}</Message>
+</Response>`;
+
+    console.log("[WhatsApp] Responding with TwiML:", twiml);
+
     res.set("Content-Type", "text/xml");
-    res.send(`
-      <Response>
-        <Message>${reply}</Message>
-      </Response>
-    `);
+    res.send(twiml);
   });
 
   return httpServer;
