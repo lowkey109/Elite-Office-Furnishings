@@ -1,0 +1,186 @@
+OFFICE MOVE RADAR — AUSTRALIA WIDE ACTIVATION
+
+You are configuring the Office Move Radar system for The Corporate Desk platform.
+
+Do NOT rebuild the radar engine.
+Do NOT modify existing AI systems.
+Do NOT break the deal pipeline, admin dashboard, or workspace planner.
+
+Your task is to activate and configure the Office Move Radar so it monitors commercial office activity across ALL major Australian cities.
+
+--------------------------------------------------
+
+PRIMARY OBJECTIVE
+
+Detect companies across Australia that may require:
+
+• office relocation
+• office expansion
+• new commercial leases
+• workspace refurbishments
+• team growth requiring larger offices
+
+The radar must automatically generate opportunity records for these companies.
+
+--------------------------------------------------
+
+GEOGRAPHIC SCOPE
+
+The radar must monitor signals across Australia including:
+
+Sydney  
+Melbourne  
+Brisbane  
+Perth  
+Adelaide  
+Canberra  
+Gold Coast  
+Newcastle  
+Sunshine Coast  
+Hobart  
+
+The system should not restrict results to only one city.
+
+--------------------------------------------------
+
+SIGNAL SOURCES
+
+Configure radar_sources with the following Australian commercial data sources.
+
+Commercial property listings
+
+https://www.realcommercial.com.au
+https://www.commercialrealestate.com.au
+https://www.colliers.com/en-au
+https://www.jll.com.au
+https://www.knightfrank.com.au
+https://www.savills.com.au
+
+Business expansion signals
+
+https://www.afr.com
+https://www.smartcompany.com.au
+https://www.startupdaily.net
+https://www.businessnews.com.au
+
+Hiring signals
+
+https://www.seek.com.au
+https://www.linkedin.com/jobs
+
+--------------------------------------------------
+
+SIGNAL DETECTION RULES
+
+When scanning content, detect signals including:
+
+• new office
+• company relocation
+• office expansion
+• new headquarters
+• new tenancy
+• commercial lease signed
+• office refurbishment
+• rapid hiring
+• team expansion
+• company growth
+
+--------------------------------------------------
+
+DATA EXTRACTION
+
+For each detected signal extract:
+
+company_name  
+city  
+industry (if available)  
+signal_type  
+source_url  
+date_detected  
+
+Estimate where possible:
+
+estimated_headcount  
+estimated_office_size  
+estimated_project_value  
+
+--------------------------------------------------
+
+OPPORTUNITY CREATION
+
+For every valid signal create an opportunity record.
+
+Example:
+
+company_name  
+city  
+signal_type  
+source  
+estimated_office_size  
+estimated_project_value  
+confidence_score  
+
+--------------------------------------------------
+
+PIPELINE INTEGRATION
+
+Push the opportunity into:
+
+Office Move Radar  
+→ Deal Intelligence Engine  
+→ Deal Pipeline
+
+The opportunity must appear in the admin dashboard.
+
+--------------------------------------------------
+
+SCHEDULER
+
+Enable automatic scanning.
+
+Radar scan cycle:
+
+Every 12 hours.
+
+Each scan should:
+
+• check signal sources
+• detect office move indicators
+• generate opportunity records
+• update the admin dashboard
+
+--------------------------------------------------
+
+ADMIN VISIBILITY
+
+Confirm the admin page exists:
+
+/admin/move-radar
+
+Display:
+
+• company name
+• city
+• signal detected
+• estimated project value
+• confidence score
+• source link
+
+--------------------------------------------------
+
+TESTING
+
+Run an initial scan immediately.
+
+Verify:
+
+1 sources respond correctly  
+2 signals are detected  
+3 opportunities are created  
+4 results appear in the admin dashboard  
+
+Return a short report confirming:
+
+sources configured  
+scheduler active  
+first radar scan completed

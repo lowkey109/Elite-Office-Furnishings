@@ -1,0 +1,453 @@
+MASTER ACTIVATION PROMPT
+THE CORPORATE DESK — OFFICE MOVE RADAR
+AUSTRALIA-WIDE REAL SIGNAL DISCOVERY ENGINE
+
+ROLE
+
+You are a senior AI systems architect, data engineer, automation engineer, proptech intelligence engineer, and QA engineer working on the live Corporate Desk platform.
+
+Your task is to activate, strengthen, and complete the Office Move Radar so it becomes a real-source commercial office opportunity discovery engine for Australia.
+
+Do NOT rebuild the radar engine from scratch.
+Do NOT break:
+- deal pipeline
+- admin dashboard
+- workspace planner
+- quote builder
+- partner network
+- lead intelligence
+- deal intelligence
+- WhatsApp / messaging systems
+- existing admin navigation
+
+Extend the current radar safely and make it fully operational.
+
+==================================================
+PRIMARY OBJECTIVE
+==================================================
+
+Configure the Office Move Radar to monitor commercial office activity across Australia and detect companies likely to require:
+
+- office relocation
+- office expansion
+- new commercial leases
+- workspace refurbishments
+- team growth requiring larger office space
+- new office openings
+- HQ relocations
+- major fit-out opportunities
+
+The radar must automatically create opportunity records based on real source-backed signals.
+
+The radar must NOT fabricate companies, leases, relocations, or hiring events.
+
+==================================================
+GEOGRAPHIC SCOPE
+==================================================
+
+The radar must scan across Australia, including but not limited to:
+
+Sydney
+Melbourne
+Brisbane
+Perth
+Adelaide
+Canberra
+Gold Coast
+Newcastle
+Sunshine Coast
+Hobart
+Darwin
+Geelong
+Wollongong
+Townsville
+
+The system must not be locked to only one city.
+
+It should be able to detect signals from any Australian city or metro area that appears in source content.
+
+==================================================
+PHASE 1 — FULL AUDIT
+==================================================
+
+Before modifying anything, audit the existing Office Move Radar system.
+
+Inspect and return an internal map of:
+
+- current radar routes
+- current radar tables / schema
+- current admin page route
+- existing scan scheduler jobs
+- current source ingestion logic
+- current scoring logic
+- current pipeline integration
+- current duplicate detection
+- whether current signals are seeded/demo/AI-generated or real-source-backed
+- which files currently control:
+  - radar scan
+  - signal storage
+  - dashboard cards
+  - pipeline push
+  - signal scoring
+
+Do not duplicate systems if an existing radar engine can be safely extended.
+
+==================================================
+PHASE 2 — REAL SIGNAL SOURCE CONFIGURATION
+==================================================
+
+Create or populate a real-source radar configuration layer.
+
+Configure radar_sources with Australian commercial data sources including:
+
+COMMERCIAL PROPERTY SOURCES
+https://www.realcommercial.com.au
+https://www.commercialrealestate.com.au
+https://www.colliers.com/en-au
+https://www.jll.com.au
+https://www.knightfrank.com.au
+https://www.savills.com.au
+
+BUSINESS EXPANSION / COMPANY NEWS SOURCES
+https://www.afr.com
+https://www.smartcompany.com.au
+https://www.startupdaily.net
+https://www.businessnews.com.au
+
+HIRING SIGNAL SOURCES
+https://www.seek.com.au
+https://www.linkedin.com/jobs
+
+Allow source categories such as:
+- commercial_property
+- business_expansion
+- hiring
+- press_release
+- company_news
+- fitout_signal
+
+Build the source configuration so additional feeds can be added later without rewriting the radar.
+
+==================================================
+PHASE 3 — SIGNAL DISCOVERY RULES
+==================================================
+
+When scanning source content, the radar should detect signals including but not limited to:
+
+- new office
+- opening office
+- new headquarters
+- company relocation
+- office move
+- expansion
+- expanding office
+- larger premises
+- new tenancy
+- commercial lease signed
+- office refurbishment
+- fit-out planned
+- hiring surge
+- workplace manager hiring
+- operations team growth
+- facilities manager hiring
+- national expansion
+- interstate expansion
+- staff growth
+- office opening announcement
+
+The system must extract real evidence from source text.
+
+Do NOT create fake signals.
+
+==================================================
+PHASE 4 — DATA EXTRACTION
+==================================================
+
+For each detected signal, extract and store:
+
+company_name
+city
+state if available
+industry if available
+signal_type
+signal_subtype
+source_name
+source_url
+evidence_excerpt
+date_detected
+discovered_at
+verification_status
+
+Estimate where possible:
+
+estimated_headcount
+estimated_office_size
+estimated_project_value
+confidence_score
+
+Verification statuses must include:
+
+verified_source
+source_backed
+manual_review
+rejected
+
+Only source-backed signals should appear as valid radar opportunities.
+
+==================================================
+PHASE 5 — OPPORTUNITY ENRICHMENT
+==================================================
+
+For each valid detected signal, enrich the opportunity where possible using reasoning and source evidence.
+
+Estimate:
+
+- likely office size requirement
+- likely staff count
+- likely project value
+- likely fit-out complexity
+- urgency level
+- likely next step
+
+Use practical commercial assumptions.
+
+The system should infer useful commercial opportunity data without inventing unsupported facts.
+
+==================================================
+PHASE 6 — OPPORTUNITY CREATION
+==================================================
+
+For every valid real-source signal, create an opportunity record.
+
+Opportunity structure should include:
+
+company_name
+city
+signal_type
+source
+source_url
+evidence_excerpt
+estimated_headcount
+estimated_office_size
+estimated_project_value
+confidence_score
+priority_level
+verification_status
+created_at
+
+Priority should be based on:
+- confidence
+- project value
+- fit-out potential
+- office move likelihood
+- team growth significance
+
+==================================================
+PHASE 7 — DEDUPLICATION
+==================================================
+
+Implement duplicate detection and safe merge logic.
+
+The radar must avoid duplicate opportunities for the same company and event.
+
+Check duplicates using combinations of:
+
+- company_name
+- city
+- source_url
+- signal_type
+- date proximity
+
+If multiple signals refer to the same company and opportunity, merge them into one stronger record where appropriate.
+
+Never spam the dashboard or pipeline with duplicates.
+
+==================================================
+PHASE 8 — PIPELINE INTEGRATION
+==================================================
+
+Push every valid opportunity into:
+
+Office Move Radar
+→ Deal Intelligence Engine
+→ Deal Pipeline
+
+Ensure all required fields are passed so pipeline insertion does not fail.
+
+Each opportunity must be visible in the admin dashboard and pipeline system.
+
+Do not create broken or partial records.
+
+==================================================
+PHASE 9 — SCORING SYSTEM
+==================================================
+
+Apply a commercial scoring model to each opportunity.
+
+Score based on:
+
+- signal confidence
+- source reliability
+- office move relevance
+- hiring scale
+- location relevance
+- likely fit-out value
+- fit-out / furniture potential
+
+Output:
+
+confidence_score
+priority_level
+reasoning_summary
+
+Priority levels may include:
+- urgent
+- high
+- medium
+- low
+
+==================================================
+PHASE 10 — AUTOMATED SCHEDULER
+==================================================
+
+Enable automated radar scanning.
+
+Scan cycle:
+Every 12 hours
+
+Each scan should:
+
+- check all configured sources
+- extract source content
+- detect signals
+- create or merge opportunities
+- enrich data
+- score records
+- update dashboard
+- push opportunities to pipeline
+
+Use the existing scheduler if present.
+Do not create duplicate scheduler systems if one already exists.
+
+==================================================
+PHASE 11 — ADMIN VISIBILITY
+==================================================
+
+Confirm or create the admin page:
+
+/admin/move-radar
+
+Display for each opportunity:
+
+- company name
+- city
+- signal detected
+- source name
+- source link
+- evidence excerpt
+- estimated project value
+- confidence score
+- priority level
+- verification status
+- pipeline status
+
+Add filters for:
+
+- city
+- priority
+- signal type
+- source type
+- verification status
+
+Add actions for:
+
+- review
+- push to pipeline
+- archive
+- reject
+- open source
+- mark duplicate
+
+==================================================
+PHASE 12 — DASHBOARD INTEGRATION
+==================================================
+
+Update dashboard widgets so they reflect real radar data only.
+
+Show:
+
+- total signals
+- urgent opportunities
+- unreviewed opportunities
+- in-pipeline opportunities
+
+Do not display fictional or demo opportunities as real radar output.
+
+==================================================
+PHASE 13 — CLEANUP OF OLD FAKE / SEEDED DATA
+==================================================
+
+Audit existing radar records and identify seeded/demo/AI-generated fake signals.
+
+Create an admin-safe cleanup path to:
+
+- archive legacy fake/demo records
+- remove obviously fictional radar entries
+- preserve real manually entered records if any
+- preserve system structure
+
+Do not delete real source-backed records.
+
+==================================================
+PHASE 14 — TESTING
+==================================================
+
+Run an initial scan immediately.
+
+Verify:
+
+1. sources respond correctly
+2. source content is fetched
+3. signals are detected from real source text
+4. evidence excerpts are stored
+5. opportunities are created
+6. duplicate opportunities are merged correctly
+7. opportunities appear in /admin/move-radar
+8. opportunities push to Deal Intelligence
+9. opportunities push to Deal Pipeline
+10. dashboard widgets update correctly
+11. no existing systems break
+
+==================================================
+PHASE 15 — FINAL REPORT
+==================================================
+
+Return a short but complete implementation report confirming:
+
+- sources configured
+- scheduler active
+- first radar scan completed
+- files modified
+- routes modified or added
+- tables created or extended
+- fake/demo legacy signals handled
+- how real signals are verified
+- how opportunities are scored
+- how opportunities reach pipeline
+- what remains manual vs automated
+
+==================================================
+SUCCESS STANDARD
+==================================================
+
+This is only complete if:
+
+- the radar scans real Australian sources
+- source-backed signals are detected
+- evidence excerpts and source URLs are stored
+- opportunities are created from real signals
+- opportunities appear in the admin dashboard
+- opportunities enter the pipeline
+- fake AI-generated radar records are no longer treated as real
+- the scheduler runs automatically every 12 hours
+- all existing platform systems remain stable

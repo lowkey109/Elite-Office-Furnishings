@@ -3562,6 +3562,28 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
     }
   });
 
+  // Predictive intelligence scan — funding, hiring spikes, startup expansion, growth news
+  app.post("/api/admin/office-move-radar/scan-predictive", async (req, res) => {
+    try {
+      const { runPredictiveScan } = await import("./services/newsFeedScanner");
+      const result = await runPredictiveScan();
+      res.json({ saved: result.saved, processed: result.processed, source: "predictive" });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // Full combined scan — news + jobs + predictive in parallel
+  app.post("/api/admin/office-move-radar/scan-all", async (req, res) => {
+    try {
+      const { runFullRadarScan } = await import("./services/newsFeedScanner");
+      const result = await runFullRadarScan();
+      res.json({ saved: result.saved, processed: result.processed, breakdown: result.breakdown, source: "full" });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // LinkedIn manual intake — admin pastes a real LinkedIn post URL + text
   app.post("/api/admin/office-move-radar/linkedin-intake", async (req, res) => {
     try {

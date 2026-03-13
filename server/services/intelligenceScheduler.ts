@@ -22,7 +22,8 @@ type JobType =
   | "radar_scan"
   | "deal_hunter"
   | "news_rss_scan"
-  | "job_signal_scan";
+  | "job_signal_scan"
+  | "predictive_scan";
 
 const JOB_LABELS: Record<JobType, string> = {
   spending_trends: "Spending Trend Analysis",
@@ -34,6 +35,7 @@ const JOB_LABELS: Record<JobType, string> = {
   deal_hunter: "AI Deal Hunter Scan",
   news_rss_scan: "News Feed Real Signal Scan",
   job_signal_scan: "Job Posting Signal Scan",
+  predictive_scan: "Predictive Intelligence Scan",
 };
 
 // ─── Job runner ───────────────────────────────────────────────────────────────
@@ -111,6 +113,13 @@ async function runJob(jobType: JobType, triggeredBy: "scheduler" | "manual" = "s
         resultSummary = `Job signal scan complete — ${result.saved} new signals from ${result.processed} articles`;
         break;
       }
+
+      case "predictive_scan": {
+        const { runPredictiveScan } = await import("./newsFeedScanner");
+        const result = await runPredictiveScan();
+        resultSummary = `Predictive scan complete — ${result.saved} new signals from ${result.processed} articles`;
+        break;
+      }
     }
 
     await storage.updateScheduledJob(job.id, {
@@ -185,13 +194,17 @@ export function startIntelligenceScheduler(): void {
   setTimeout(() => runJob("job_signal_scan"), 90 * 60 * 1000);
   setInterval(() => runJob("job_signal_scan"), 12 * HOUR);
 
-  console.log("[IntelligenceScheduler] Jobs scheduled: health(12h), trends(24h), issues(24h), seo(7d), report(7d), radar(24h), deal_hunter(24h), news_rss(12h), job_signal(12h)");
+  // Predictive intelligence scan — every 12 hours (offset 120 minutes)
+  setTimeout(() => runJob("predictive_scan"), 120 * 60 * 1000);
+  setInterval(() => runJob("predictive_scan"), 12 * HOUR);
+
+  console.log("[IntelligenceScheduler] Jobs scheduled: health(12h), trends(24h), issues(24h), seo(7d), report(7d), radar(24h), deal_hunter(24h), news_rss(12h), job_signal(12h), predictive(12h)");
 }
 
 // ─── Manual trigger (for admin API) ──────────────────────────────────────────
 
 export async function triggerJobManually(jobType: string): Promise<{ success: boolean; message: string }> {
-  const validJobs: JobType[] = ["spending_trends", "seo_content", "website_issues", "system_health", "weekly_report", "radar_scan", "deal_hunter", "news_rss_scan", "job_signal_scan"];
+  const validJobs: JobType[] = ["spending_trends", "seo_content", "website_issues", "system_health", "weekly_report", "radar_scan", "deal_hunter", "news_rss_scan", "job_signal_scan", "predictive_scan"];
 
   if (!validJobs.includes(jobType as JobType)) {
     return { success: false, message: `Unknown job type: ${jobType}` };

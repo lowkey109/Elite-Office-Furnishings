@@ -19,8 +19,13 @@ export type RadarSignalType =
   | "office_expansion"
   | "refurbishment"
   | "hiring_surge"
+  | "hiring_spike"
   | "funding_growth"
+  | "funding"
   | "new_office_opening"
+  | "startup_expansion"
+  | "workplace_role"
+  | "growth_news"
   | "territory_alert"
   | "tenant_move_in"
   | "tenant_move_out"
@@ -40,9 +45,14 @@ const SIGNAL_BASE_SCORES: Record<RadarSignalType, number> = {
   office_expansion: 72,
   refurbishment: 70,
   new_office_opening: 75,
+  startup_expansion: 72,
   lease_expiry: 65,
   hiring_surge: 55,
-  funding_growth: 50,
+  hiring_spike: 58,
+  funding_growth: 62,
+  funding: 62,
+  workplace_role: 52,
+  growth_news: 48,
   territory_alert: 45,
   tenant_move_out: 40,
   manual: 30,
@@ -174,9 +184,14 @@ export function scoreRadarSignal(input: RadarScoringInput): RadarScoringResult {
     office_expansion: "Growing team? Lead with workspace planning for the expanded headcount",
     refurbishment: "Existing space, fresh look — lead with product upgrade packages",
     new_office_opening: "First-time setup — offer full workspace design and supply package",
+    startup_expansion: "New city, blank canvas — pitch a full office fitout package for the expansion",
     lease_expiry: "Lease approaching expiry — help them plan ahead for next space",
     hiring_surge: "Rapid hiring = desk shortage — lead with fast-delivery workstations",
+    hiring_spike: "Rapid team growth = desk demand — offer fast-delivery workstation package",
     funding_growth: "Fresh funding = ready to invest — pitch premium workspace package",
+    funding: "Post-funding team growth is coming — get in early with a workspace plan",
+    workplace_role: "Hiring a Workplace Manager signals an office upgrade — reach out now",
+    growth_news: "Business growth often means more space — engage before they start looking",
     territory_alert: "Active in your target precinct — reach out with local knowledge",
     tenant_move_out: "Outgoing tenant may need help winding down and selling furniture",
     manual: "Manually detected signal — outreach based on known intelligence",
@@ -189,9 +204,14 @@ export function scoreRadarSignal(input: RadarScoringInput): RadarScoringResult {
     office_expansion: "Free workspace expansion plan + headcount-based pricing",
     refurbishment: "Product upgrade package + trade-in offer on existing furniture",
     new_office_opening: "Full workspace supply package + design consultation",
+    startup_expansion: "Full fitout and supply package for new city office",
     lease_expiry: "Free new-space planning consultation",
     hiring_surge: "Fast-delivery workstation package + bulk pricing",
+    hiring_spike: "Fast-delivery workstation package + bulk desk pricing",
     funding_growth: "Premium workspace package + finance option",
+    funding: "Premium workspace package — position ahead of their growth phase",
+    workplace_role: "Workspace audit + upgrade package for incoming Workplace Manager",
+    growth_news: "Office layout consultation to plan for upcoming team growth",
     territory_alert: "Local market knowledge + office layout consultation",
     tenant_move_out: "Asset disposal and relocation support",
     manual: "Office layout consultation and product recommendation",
@@ -242,9 +262,14 @@ export async function generateOutreachDraft(input: OutreachDraftInput): Promise<
     office_expansion: "expanding their office space",
     refurbishment: "refurbishing their existing office",
     new_office_opening: "opening a new office",
+    startup_expansion: "expanding into a new city office",
     lease_expiry: "approaching a lease expiry or renewal",
     hiring_surge: "rapidly growing their team",
+    hiring_spike: "experiencing a rapid hiring spike across their team",
     funding_growth: "recently receiving new funding and planning team growth",
+    funding: "recently closing a funding round and expected to grow their team",
+    workplace_role: "actively recruiting for a Workplace or Facilities role indicating office growth",
+    growth_news: "experiencing significant business growth likely requiring more office space",
     territory_alert: "occupying space in a monitored building",
     tenant_move_out: "moving out of their current space",
     manual: "being identified as a potential office fitout opportunity",

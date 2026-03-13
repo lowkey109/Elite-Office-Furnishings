@@ -1,0 +1,446 @@
+MASTER UPGRADE PROMPT
+THE CORPORATE DESK — OFFICE MOVE RADAR V2
+PREDICTIVE SIGNAL INTELLIGENCE ENGINE
+
+You are upgrading the existing Office Move Radar inside The Corporate Desk platform.
+
+Do NOT rebuild the radar from scratch.
+Do NOT break:
+- deal pipeline
+- deal intelligence
+- admin dashboard
+- workspace planner
+- quote builder
+- partner network
+- WhatsApp integration
+- command centre
+- existing radar UI
+
+Your task is to make the Office Move Radar 10x smarter by detecting predictive business signals that usually happen BEFORE an office move, expansion, or fit-out opportunity.
+
+==================================================
+PRIMARY OBJECTIVE
+==================================================
+
+Upgrade the Office Move Radar so it does not only detect direct office move signals.
+
+It must also detect early-stage predictive signals that indicate a company is likely to require:
+
+- office relocation
+- office expansion
+- new office lease
+- workspace refurbishment
+- additional furniture
+- fit-out services
+
+The radar must become a predictive commercial opportunity engine.
+
+==================================================
+PREDICTIVE SIGNAL TYPES
+==================================================
+
+Teach the radar to detect these high-value pre-move indicators:
+
+1. FUNDING ANNOUNCEMENTS
+Examples:
+- seed funding
+- Series A
+- Series B
+- venture round
+- growth capital
+- private equity backing
+- strategic investment
+
+Interpretation:
+Companies that receive funding often expand teams and require larger office space within 3–12 months.
+
+2. HIRING SPIKES
+Examples:
+- hiring 10+ roles in 30–60 days
+- rapid team expansion
+- new hiring across operations, engineering, sales, customer success
+- new workplace manager / office manager / facilities roles
+
+Interpretation:
+A sustained hiring spike often predicts office expansion or a new office requirement.
+
+3. STARTUP / SCALEUP EXPANSION
+Examples:
+- opening new city office
+- interstate expansion
+- regional expansion
+- Australian HQ announcement
+- team doubling
+- moving out of coworking into private office
+
+Interpretation:
+Fast-growth businesses often become fit-out and furniture opportunities before the move is publicly obvious.
+
+4. WORKPLACE / OPERATIONS ROLES
+Examples:
+- office manager hiring
+- workplace experience manager hiring
+- facilities coordinator hiring
+- operations manager hiring tied to office growth
+
+Interpretation:
+These are strong workspace demand signals.
+
+5. NEWS GROWTH SIGNALS
+Examples:
+- company growth stories
+- contract wins
+- major client expansion
+- acquisition announcements
+- merger activity
+- new office opening plans
+
+Interpretation:
+These often lead to office change requirements.
+
+==================================================
+PHASE 1 — AUDIT CURRENT RADAR
+==================================================
+
+Audit the current Office Move Radar and identify:
+
+- current source adapters
+- current signal categories
+- current scheduler jobs
+- current extraction logic
+- current scoring logic
+- current data model
+- current admin radar display
+- current dashboard cards
+- current pipeline integration
+
+Return an internal map only for implementation purposes.
+
+Do not duplicate systems if existing radar modules can be extended.
+
+==================================================
+PHASE 2 — EXPAND SIGNAL MODEL
+==================================================
+
+Create or extend the radar signal model to support predictive signal intelligence.
+
+Each signal should store:
+
+company_name
+city
+state if available
+industry
+signal_type
+signal_subtype
+source_name
+source_url
+evidence_excerpt
+date_detected
+discovered_at
+verification_status
+confidence_score
+estimated_headcount
+estimated_office_size
+estimated_project_value
+priority_level
+reasoning_summary
+
+Signal_type examples:
+- funding
+- hiring_spike
+- startup_expansion
+- office_move
+- new_lease
+- workplace_role
+- growth_news
+- refurbishment_signal
+
+==================================================
+PHASE 3 — SOURCE CONFIGURATION
+==================================================
+
+Configure the radar to monitor real sources across Australia for these signal classes.
+
+COMMERCIAL / PROPERTY
+- realcommercial.com.au
+- commercialrealestate.com.au
+- Colliers Australia
+- JLL Australia
+- Knight Frank Australia
+- Savills Australia
+
+BUSINESS / GROWTH NEWS
+- AFR
+- SmartCompany
+- Startup Daily
+- Business News Australia
+- Australian Financial Review style business sources already connected if any
+
+HIRING SIGNALS
+- SEEK
+- LinkedIn Jobs if available
+- job listing sources already configured if any
+
+The radar should scan these sources for predictive business signals, not just explicit office move announcements.
+
+==================================================
+PHASE 4 — SIGNAL DETECTION RULES
+==================================================
+
+Detect language and evidence patterns such as:
+
+FUNDING
+- raised
+- secured funding
+- investment round
+- Series A
+- Series B
+- growth capital
+- venture backed
+
+HIRING SPIKES
+- we’re hiring
+- growing team
+- multiple openings
+- expanding team
+- hiring across departments
+- rapid growth
+
+STARTUP EXPANSION
+- opening Brisbane office
+- launching Melbourne office
+- expanding into Sydney
+- scaling Australian operations
+- moving into larger premises
+- outgrowing current office
+
+WORKPLACE / OFFICE SIGNALS
+- workplace manager
+- office manager
+- facilities manager
+- workplace experience
+- office relocation
+- lease signed
+- new HQ
+
+NEWS / GROWTH EVENTS
+- major client win
+- acquisition
+- merger
+- new division launch
+- expansion announcement
+
+==================================================
+PHASE 5 — PREDICTIVE REASONING
+==================================================
+
+For each signal, the radar must reason commercially.
+
+Examples:
+
+If a company raises Series A funding
+→ estimate likely team growth
+→ estimate office space requirement in 3–12 months
+→ estimate potential furniture / fit-out value
+
+If a company is hiring 15 roles in 45 days
+→ estimate expansion probability
+→ estimate new desk requirement
+→ estimate office reconfiguration need
+
+If a startup opens a second city office
+→ estimate immediate workspace package need
+
+Use practical business logic.
+Do not fabricate unsupported details.
+Base reasoning on evidence + commercial inference.
+
+==================================================
+PHASE 6 — OPPORTUNITY SCORING
+==================================================
+
+Upgrade the scoring model so it prioritises predictive opportunities based on:
+
+- signal reliability
+- source quality
+- growth intensity
+- likely office demand
+- likely fit-out / furniture value
+- timing urgency
+- business type relevance
+
+Output:
+confidence_score
+priority_level
+reasoning_summary
+
+Priority levels:
+- urgent
+- high
+- medium
+- low
+
+==================================================
+PHASE 7 — OPPORTUNITY CREATION
+==================================================
+
+For each valid predictive signal create an opportunity record that includes:
+
+company_name
+city
+industry
+signal_type
+signal_subtype
+source_name
+source_url
+evidence_excerpt
+estimated_headcount
+estimated_office_size
+estimated_project_value
+confidence_score
+priority_level
+reasoning_summary
+verification_status
+
+These must feed into:
+
+Office Move Radar
+→ Deal Intelligence Engine
+→ Deal Pipeline
+
+==================================================
+PHASE 8 — DEDUPLICATION
+==================================================
+
+Prevent duplicate opportunities by checking:
+
+- company_name
+- city
+- signal_type
+- source_url
+- date proximity
+- similar evidence excerpts
+
+Merge related signals where appropriate.
+
+Example:
+A funding announcement and hiring spike for the same company should strengthen a single opportunity, not create messy duplicates.
+
+==================================================
+PHASE 9 — ADMIN UI ENHANCEMENT
+==================================================
+
+Enhance /admin/move-radar so it visibly distinguishes predictive signal types.
+
+Show badges such as:
+- Funding
+- Hiring Spike
+- Expansion
+- Lease
+- Workplace Role
+- Growth News
+
+For each opportunity display:
+- company
+- city
+- signal type
+- source
+- evidence snippet
+- estimated project value
+- confidence
+- priority
+- pipeline status
+
+Add filters for:
+- city
+- signal type
+- priority
+- source type
+- verification status
+
+==================================================
+PHASE 10 — DASHBOARD INTEGRATION
+==================================================
+
+Update dashboard and command centre cards to reflect predictive signal intelligence.
+
+Show:
+- funding signals detected
+- hiring spikes detected
+- expansion signals detected
+- urgent predictive opportunities
+- opportunities already in pipeline
+
+==================================================
+PHASE 11 — AUTOMATION
+==================================================
+
+Run the radar scheduler every 12 hours.
+
+Each cycle should:
+- scan configured sources
+- detect predictive signals
+- extract evidence
+- enrich opportunity data
+- score opportunities
+- merge duplicates
+- push valid records to radar and pipeline
+- update dashboard
+
+Use existing scheduler if already present.
+
+==================================================
+PHASE 12 — CLEANUP
+==================================================
+
+Do not treat fictional or seeded demo radar entries as real.
+
+If needed:
+- archive old fake/demo radar entries
+- preserve structure
+- surface only real source-backed opportunities going forward
+
+==================================================
+PHASE 13 — TESTING
+==================================================
+
+Run an immediate full scan after implementation.
+
+Verify:
+1. funding announcements can be detected
+2. hiring spikes can be detected
+3. startup expansion signals can be detected
+4. evidence excerpts are stored
+5. opportunities are scored
+6. opportunities appear in /admin/move-radar
+7. opportunities push to deal pipeline
+8. dashboard cards update correctly
+9. no existing platform systems break
+
+==================================================
+FINAL REPORT
+==================================================
+
+Return a concise implementation report showing:
+
+- files modified
+- source types added
+- signal categories added
+- scoring changes made
+- scheduler status
+- example predictive opportunities found
+- whether real source-backed opportunities are now entering the radar
+- what remains to improve later
+
+==================================================
+SUCCESS STANDARD
+==================================================
+
+This upgrade is only complete if the radar can now detect and score predictive signals such as:
+
+- funding announcements
+- hiring spikes
+- startup expansions
+- workplace growth indicators
+
+and turn them into real commercial opportunities before the office move is obvious.

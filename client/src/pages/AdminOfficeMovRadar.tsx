@@ -6,6 +6,7 @@ import {
   Building2, MapPin, Zap, AlertCircle, CheckCircle,
   ExternalLink, ArrowRight, Trash2, Mail, Target, BarChart3, Eye,
   Radio, Crosshair, Activity, Sparkles, X, Linkedin, Newspaper, Briefcase,
+  Brain, DollarSign, Layers,
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -20,10 +21,15 @@ const SIGNAL_TYPES = [
   { value: "office_move", label: "Office Move" },
   { value: "new_lease", label: "New Lease" },
   { value: "office_expansion", label: "Office Expansion" },
+  { value: "new_office_opening", label: "New Office Opening" },
+  { value: "startup_expansion", label: "Startup Expansion" },
   { value: "refurbishment", label: "Refurbishment" },
   { value: "hiring_surge", label: "Hiring Surge" },
+  { value: "hiring_spike", label: "Hiring Spike" },
   { value: "funding_growth", label: "Funding / Growth" },
-  { value: "new_office_opening", label: "New Office Opening" },
+  { value: "funding", label: "Funding Round" },
+  { value: "workplace_role", label: "Workplace Role" },
+  { value: "growth_news", label: "Growth News" },
   { value: "territory_alert", label: "Territory Alert" },
   { value: "tenant_move_in", label: "Tenant Move In" },
   { value: "tenant_move_out", label: "Tenant Move Out" },
@@ -35,10 +41,15 @@ const SIGNAL_COLORS: Record<string, string> = {
   office_move: "bg-red-500/20 text-red-300 border-red-500/30",
   new_lease: "bg-blue-500/20 text-blue-300 border-blue-500/30",
   office_expansion: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+  new_office_opening: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
+  startup_expansion: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
   refurbishment: "bg-amber-500/20 text-amber-300 border-amber-500/30",
   hiring_surge: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+  hiring_spike: "bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30",
   funding_growth: "bg-green-500/20 text-green-300 border-green-500/30",
-  new_office_opening: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
+  funding: "bg-lime-500/20 text-lime-300 border-lime-500/30",
+  workplace_role: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+  growth_news: "bg-teal-500/20 text-teal-300 border-teal-500/30",
   territory_alert: "bg-orange-500/20 text-orange-300 border-orange-500/30",
   tenant_move_in: "bg-teal-500/20 text-teal-300 border-teal-500/30",
   tenant_move_out: "bg-zinc-500/20 text-zinc-300 border-zinc-600/30",
@@ -60,7 +71,11 @@ const STATUS_COLORS: Record<string, string> = {
   Dismissed: "bg-zinc-600/30 text-zinc-400",
 };
 
-const CITIES = ["Brisbane", "Sydney", "Melbourne", "Perth", "Adelaide", "Gold Coast", "Canberra"];
+const CITIES = [
+  "Brisbane", "Sydney", "Melbourne", "Perth", "Adelaide",
+  "Gold Coast", "Canberra", "Newcastle", "Wollongong", "Hobart",
+  "Darwin", "Sunshine Coast", "Geelong", "Townsville", "Cairns",
+];
 const PRIORITIES = ["High", "Medium", "Low"];
 const STATUSES = ["New", "Reviewing", "Outreach Sent", "In Pipeline", "Dismissed"];
 
@@ -79,6 +94,11 @@ const SOURCE_TYPE_CONFIG: Record<string, { label: string; color: string; icon: J
     label: "Job Signal",
     color: "bg-sky-500/20 text-sky-300 border-sky-500/30",
     icon: <Briefcase className="w-2.5 h-2.5" />,
+  },
+  predictive: {
+    label: "Predictive",
+    color: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
+    icon: <Brain className="w-2.5 h-2.5" />,
   },
   ai_generated: {
     label: "AI Scan",
@@ -647,6 +667,8 @@ export default function AdminOfficeMovRadar() {
   const [scanning, setScanning] = useState(false);
   const [scanningNews, setScanningNews] = useState(false);
   const [scanningJobs, setScanningJobs] = useState(false);
+  const [scanningPredictive, setScanningPredictive] = useState(false);
+  const [scanningAll, setScanningAll] = useState(false);
 
   const { data: records = [], isLoading, refetch } = useQuery<RadarRecord[]>({
     queryKey: ["/api/admin/office-move-radar", filterCity, filterSignal, filterPriority, filterStatus],
@@ -725,6 +747,48 @@ export default function AdminOfficeMovRadar() {
       toast({ title: "Job scan failed", description: "Could not reach job signal scanner", variant: "destructive" });
     } finally {
       setScanningJobs(false);
+    }
+  };
+
+  const handleScanPredictive = async () => {
+    setScanningPredictive(true);
+    try {
+      const res = await fetch("/api/admin/office-move-radar/scan-predictive", { method: "POST" });
+      const data = await res.json();
+      if (data.saved !== undefined) {
+        toast({ title: "Predictive scan complete", description: `${data.saved} new signals from ${data.processed} articles — funding, hiring spikes, startup expansion.` });
+        refetch();
+        qc.invalidateQueries({ queryKey: ["/api/admin/office-move-radar/stats"] });
+      } else {
+        toast({ title: "Predictive scan error", description: data.error ?? "Unknown error", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Predictive scan failed", description: "Could not reach predictive scanner", variant: "destructive" });
+    } finally {
+      setScanningPredictive(false);
+    }
+  };
+
+  const handleScanAll = async () => {
+    setScanningAll(true);
+    try {
+      const res = await fetch("/api/admin/office-move-radar/scan-all", { method: "POST" });
+      const data = await res.json();
+      if (data.saved !== undefined) {
+        const { breakdown } = data;
+        const detail = breakdown
+          ? `News: ${breakdown.news} · Jobs: ${breakdown.jobs} · Predictive: ${breakdown.predictive}`
+          : `${data.processed} articles processed`;
+        toast({ title: `Full scan: ${data.saved} new signals`, description: detail });
+        refetch();
+        qc.invalidateQueries({ queryKey: ["/api/admin/office-move-radar/stats"] });
+      } else {
+        toast({ title: "Full scan error", description: data.error ?? "Unknown error", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Full scan failed", description: "Could not reach radar scanners", variant: "destructive" });
+    } finally {
+      setScanningAll(false);
     }
   };
 
@@ -835,6 +899,26 @@ export default function AdminOfficeMovRadar() {
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-blue-300 text-xs font-medium transition-colors"
             >
               <Linkedin className="w-3.5 h-3.5" />LinkedIn
+            </button>
+            <button
+              data-testid="button-scan-predictive"
+              onClick={handleScanPredictive}
+              disabled={scanningPredictive}
+              title="Scan for predictive signals: funding rounds, hiring spikes, startup expansion"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 text-indigo-300 text-xs font-medium transition-colors"
+            >
+              {scanningPredictive ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Brain className="w-3.5 h-3.5" />}
+              {scanningPredictive ? "Scanning..." : "Predictive"}
+            </button>
+            <button
+              data-testid="button-scan-all"
+              onClick={handleScanAll}
+              disabled={scanningAll}
+              title="Run all three scanners: news, jobs, and predictive signals"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-300 text-xs font-medium transition-colors"
+            >
+              {scanningAll ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Layers className="w-3.5 h-3.5" />}
+              {scanningAll ? "Scanning..." : "Scan All"}
             </button>
             <button
               data-testid="button-scan-radar"
