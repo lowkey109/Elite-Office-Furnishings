@@ -4122,5 +4122,21 @@ Rules:
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
+  // ─── WhatsApp Webhook (Twilio) ────────────────────────────────────────────
+  app.post("/webhook/whatsapp", async (req, res) => {
+    const message = req.body.Body;
+
+    console.log("WhatsApp message:", message);
+
+    const reply = "Hello! This is The Corporate Desk AI assistant. How can we help with your office fit-out or workspace project?";
+
+    res.set("Content-Type", "text/xml");
+    res.send(`
+      <Response>
+        <Message>${reply}</Message>
+      </Response>
+    `);
+  });
+
   return httpServer;
 }
