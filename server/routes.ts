@@ -597,6 +597,143 @@ ${allUrls.map(u => `  <url>
     res.json(groupProductVariants(catalog.products));
   });
 
+  // ─── Curated catalogue ─────────────────────────────────────────────────────
+  const CURATION_PATH = path.join(process.cwd(), "server/data/catalogCuration.json");
+
+  function loadCuration() {
+    try { return JSON.parse(fs.readFileSync(CURATION_PATH, "utf8")); }
+    catch { return { curatedProducts: [], seriesMarketing: {} }; }
+  }
+
+  // Map of baseSku → AI-generated image public URL
+  const AI_IMAGES: Record<string, string> = {
+    // Batch 1 — Executive desks + workstations
+    "FSZ-VE-D0124":     "/uploads/catalog-images/curated/apex-executive-l-desk.png",
+    "FSZ-RG-T01":       "/uploads/catalog-images/curated/atlas-ceo-executive-l-desk.png",
+    "FSZ-DDC-D0124":    "/uploads/catalog-images/curated/evidenza-executive-desk.png",
+    "FSZ-57MHS001":     "/uploads/catalog-images/curated/teak-executive-l-desk.png",
+    "FSZ-56MPL001":     "/uploads/catalog-images/curated/pari-executive-l-desk.png",
+    "GJO-LRU-OEA3224":  "/uploads/catalog-images/curated/presidia-lru-executive-suite.png",
+    "GJO-HX-HXM-A3625": "/uploads/catalog-images/curated/presidia-hxm-executive-suite.png",
+    "FSZ-XBL-D0218":    "/uploads/catalog-images/curated/berlin-manager-desk.png",
+    "FSZ-CC-CC-01I":    "/uploads/catalog-images/curated/fessenz-2-person-back-to-back.png",
+    "FSZ-CC-AE-06":     "/uploads/catalog-images/curated/fessenz-4-person-cluster.png",
+    // Batch 2 — Boardroom, reception, seating, storage, sit-stand
+    "FSZ-RG-MT01":      "/uploads/catalog-images/curated/atlas-boardroom-table.png",
+    "FSZ-56CPL002":     "/uploads/catalog-images/curated/pari-boardroom-table.png",
+    "FSZ-CC-AC-01":     "/uploads/catalog-images/curated/fessenz-reception-counter.png",
+    "GJO-JN-JNL-A01":  "/uploads/catalog-images/curated/presidia-jn-lounge-chair.png",
+    "GJN-G03-2":        "/uploads/catalog-images/curated/forma-task-chair.png",
+    "GJO-JN-JNY-A0710": "/uploads/catalog-images/curated/presidia-executive-armchair.png",
+    "HSG-MLN-MLF01-SM": "/uploads/catalog-images/curated/milan-sit-stand-desk.png",
+    "HSG-CPE-CPF02":    "/uploads/catalog-images/curated/cape-executive-sit-stand.png",
+    "HSG-MLR-POD01":    "/uploads/catalog-images/curated/miller-workspace-pod.png",
+    "FSZ-VE-D0820":     "/uploads/catalog-images/curated/apex-storage-credenza.png",
+  };
+
+  function buildCuratedCatalogue() {
+    const catalog = loadProductCatalog();
+    const curation = loadCuration();
+    const { curatedProducts, seriesMarketing } = curation;
+
+    // Index raw products by SKU
+    const rawBySku = new Map<string, any>();
+    for (const p of catalog.products) rawBySku.set(p.sku, p);
+
+    // Deduplicate curated entries by baseSku
+    const seenBaseSku = new Set<string>();
+    const result: any[] = [];
+
+    for (const entry of curatedProducts) {
+      if (seenBaseSku.has(entry.baseSku)) continue;
+      seenBaseSku.add(entry.baseSku);
+
+      const rawBase = rawBySku.get(entry.baseSku);
+      if (!rawBase) continue;
+
+      // Gather all variant raw products
+      const variantRaws = (entry.variantSkus || [entry.baseSku])
+        .map((s: string) => rawBySku.get(s))
+        .filter(Boolean);
+
+      // Build the gallery — AI image first if available, then series gallery, then raw images
+      const aiImg = AI_IMAGES[entry.baseSku];
+      const galleryFromSeries = SERIES_GALLERY[rawBase.series] || [];
+      const allImages = variantRaws.map((v: any) => v.image).filter(Boolean);
+      const uniqueImages = [...new Set([...galleryFromSeries, ...allImages])];
+      const baseGallery = uniqueImages.length > 0 ? uniqueImages : [CATEGORY_IMAGES_FALLBACK[rawBase.category] ?? "/images/category-desks.png"];
+      const gallery = aiImg ? [aiImg, ...baseGallery.filter(u => u !== aiImg)] : baseGallery;
+
+      const marketing = seriesMarketing[rawBase.series] || {};
+      const collectionName = SUPPLIER_COLLECTION_MAP[rawBase.supplier] || "";
+
+      result.push({
+        sku: entry.baseSku,
+        product_name: entry.displayName,
+        display_name: entry.displayName,
+        category: entry.category,
+        series: rawBase.series,
+        series_marketing_name: marketing.marketingName || rawBase.series,
+        series_tagline: marketing.tagline || "",
+        supplier: rawBase.supplier,
+        collection_name: collectionName,
+        materials: rawBase.materials || "",
+        colors: entry.coloursAvailable || rawBase.colors || [],
+        features: rawBase.features || [],
+        dimensions: rawBase.dimensions || "",
+        image: gallery[0] || "",
+        gallery,
+        has_variants: (entry.variantSkus || []).length > 1,
+        variant_count: (entry.variantSkus || []).length,
+        size_variants: (entry.variantSkus || []).map((sku: string) => {
+          const v = rawBySku.get(sku);
+          return { sku, sizeLabel: v?.dimensions?.split("/")?.[0]?.trim() || "Standard", dimensions: v?.dimensions || "" };
+        }),
+        sizes_available: entry.sizesAvailable || [],
+        colours_available: entry.coloursAvailable || [],
+        configurations_available: entry.configurationsAvailable || [],
+        short_description: entry.shortDescription || rawBase.description || "",
+        price_from: entry.priceFrom ? `From $${entry.priceFrom.toLocaleString()}` : (CATEGORY_PRICE_FROM[entry.category] || "POA"),
+        price_from_num: entry.priceFrom || null,
+        featured: !!entry.featured,
+        needs_manual_review: false,
+      });
+    }
+
+    return result;
+  }
+
+  const CATEGORY_IMAGES_FALLBACK: Record<string, string> = {
+    "Executive Desks":  "/images/category-desks.png",
+    "Manager Desks":    "/images/category-desks.png",
+    "Boardroom Tables": "/images/category-boardroom.png",
+    "Reception Desks":  "/images/category-reception.png",
+    "Office Seating":   "/images/category-seating.png",
+    "Workstations":     "/images/category-fitout.png",
+    "Storage":          "/images/category-fitout.png",
+    "Lounge Seating":   "/images/category-reception.png",
+    "Occasional Tables":"/images/category-reception.png",
+  };
+
+  app.get("/api/products/curated", (_req, res) => {
+    try {
+      const cached = getCached<any[]>("products:curated");
+      if (cached) return res.json(cached);
+      const result = buildCuratedCatalogue();
+      setCached("products:curated", result, 120_000);
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/products/curated/:sku", (req, res) => {
+    try {
+      const curated = buildCuratedCatalogue();
+      const product = curated.find((p: any) => p.sku.toLowerCase() === req.params.sku.toLowerCase());
+      if (!product) return res.status(404).json({ error: "Product not found in curated catalogue" });
+      res.json(product);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
   app.get("/api/products/:sku/size-variants", (req, res) => {
     const catalog = loadProductCatalog();
     const { sku } = req.params;

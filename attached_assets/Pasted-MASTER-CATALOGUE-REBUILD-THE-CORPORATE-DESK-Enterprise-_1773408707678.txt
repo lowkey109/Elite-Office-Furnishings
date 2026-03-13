@@ -1,0 +1,284 @@
+MASTER CATALOGUE REBUILD
+
+THE CORPORATE DESK
+Enterprise Furniture Catalogue Structure (Steelcase / Herman Miller Standard)
+
+You are rebuilding and fixing the product catalogue structure and product imagery for The Corporate Desk website.
+
+The catalogue must follow the premium commercial furniture structure used by Steelcase, Herman Miller, and Haworth.
+
+These companies structure catalogues with:
+
+• one product per model
+• variations for sizes and configurations
+• clean product imagery
+• clear category navigation
+• no duplicate products
+• professional gallery structure
+
+The current catalogue structure is incorrect and must be rebuilt.
+
+⸻
+
+CRITICAL RULE
+
+Do NOT delete real products or data.
+
+Instead:
+
+• merge duplicate entries
+• convert duplicates into variations
+• restructure catalogue logic
+
+⸻
+
+PRIMARY PROBLEMS
+
+1 Duplicate Products
+
+The system created separate products for size variations.
+
+Example:
+
+Desk 2400
+Desk 2600
+Desk 2800
+Desk 3200
+
+These must be one product with size variations, not separate listings.
+
+⸻
+
+2 Supplier Catalogue Images
+
+Many product images contain supplier sheet layouts including:
+
+• multiple desks in one image
+• product numbers
+• measurement diagrams
+• catalog layout grids
+• supplier labels
+
+These make the site look like a supplier PDF instead of a premium furniture catalogue.
+
+⸻
+
+STEP 1 — IDENTIFY PRODUCT MODELS
+
+Scan the catalogue and detect duplicated products that represent the same desk model.
+
+Example duplicates:
+
+Prestige Executive Desk 2400
+Prestige Executive Desk 2600
+Prestige Executive Desk 2800
+
+These must become one parent product model.
+
+Example:
+
+Prestige Executive Desk
+
+⸻
+
+STEP 2 — CREATE PRODUCT VARIATION STRUCTURE
+
+Each product model must support variations.
+
+Standard attributes:
+
+Size
+Colour
+Configuration
+Return Side
+Finish
+
+Example product structure:
+
+Prestige Executive Desk
+
+Variations:
+
+2400 × 2000 – Walnut
+2400 × 2000 – Charcoal
+2600 × 2000 – Walnut
+2600 × 2000 – Charcoal
+2800 × 2200 – Walnut
+
+The catalogue must show only the parent product, not each variation.
+
+⸻
+
+STEP 3 — REBUILD CATEGORY STRUCTURE
+
+Products must appear in correct categories.
+
+Categories:
+
+Executive Desks
+Manager Desks
+Workstations
+Meeting Tables
+Reception Desks
+Storage
+Office Chairs
+
+A product must only appear in the category that matches its type.
+
+⸻
+
+STEP 4 — CLEAN PRODUCT IMAGES
+
+Many images currently show supplier catalog sheets.
+
+These must not be used as primary product images.
+
+Remove or replace images containing:
+
+• measurement text
+• SKU numbers
+• product codes
+• multiple desks in one image
+• catalog layout grids
+• supplier labels
+
+Primary product images must show:
+
+• one product only
+• clean background
+• no text overlays
+• no dimension labels
+• no catalog layout
+
+⸻
+
+STEP 5 — AI IMAGE ENHANCEMENT SYSTEM
+
+Implement an automated system to convert supplier product images into premium catalogue images.
+
+Process:
+	1.	Extract the desk from the supplier image.
+	2.	Remove background and catalog text.
+	3.	Generate a clean render of the desk.
+	4.	Place the desk into a premium office scene.
+
+Each product must generate the following images:
+
+1 Hero product render
+2 Secondary angle render
+3 Premium office lifestyle scene
+4 Material detail close-up
+5 Dimension diagram
+
+Dimension diagrams must never be the first image.
+
+They must appear as image 4 or 5.
+
+⸻
+
+STEP 6 — PRODUCT PAGE STRUCTURE
+
+Each product page must contain:
+
+Product Gallery
+Product Name
+Short Description
+Specifications
+Variation selectors
+Quote button
+
+Selectors must allow customers to choose:
+
+• size
+• colour
+• configuration
+
+Price must update based on variation.
+
+⸻
+
+STEP 7 — CATEGORY PAGE DESIGN
+
+Category pages must display:
+
+• one product card per model
+• clean product thumbnail
+• product name
+• starting price
+• quote button
+
+No duplicate products should appear.
+
+The catalogue must feel:
+
+• clean
+• minimal
+• premium
+
+⸻
+
+STEP 8 — MOBILE LAYOUT
+
+Ensure mobile layout is clean:
+
+• no overlapping elements
+• proper spacing
+• product cards aligned
+• selectors usable
+• quote buttons visible
+
+⸻
+
+STEP 9 — PERFORMANCE
+
+Limit product grids to:
+
+12 products per load
+
+Add pagination or load-more functionality.
+
+⸻
+
+FINAL TESTING
+
+Verify:
+
+• duplicate products removed
+• variation system working
+• categories correct
+• images cleaned
+• gallery order correct
+• product pages structured correctly
+• mobile layout working
+• pages load quickly
+
+⸻
+
+REQUIRED OUTPUT
+
+Return confirmation including:
+
+• merged product models
+• variation attributes created
+• variation combinations generated
+• duplicate entries removed
+• product images cleaned
+• category structure rebuilt
+• gallery system implemented
+
+⸻
+
+FINAL RESULT
+
+The catalogue must look and behave like an enterprise commercial furniture brand similar to:
+
+Steelcase
+Herman Miller
+Haworth
+
+The final result must feel:
+
+• premium
+• structured
+• minimal
+• scalable

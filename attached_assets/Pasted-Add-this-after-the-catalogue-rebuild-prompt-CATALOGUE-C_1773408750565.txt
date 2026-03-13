@@ -1,0 +1,195 @@
+Add this after the catalogue rebuild prompt.
+
+⸻
+
+CATALOGUE CURATION SYSTEM
+
+THE CORPORATE DESK
+
+You must now build a curated furniture catalogue, not a supplier dump.
+
+The Corporate Desk catalogue must only contain modern, high-quality, commercially relevant products suitable for corporate offices.
+
+The system must analyze supplier catalogues and select the best products only.
+
+⸻
+
+PRODUCT SELECTION CRITERIA
+
+When evaluating supplier products, prioritize furniture that is:
+
+Modern
+Minimal
+Architectural
+Corporate
+Professional
+
+Avoid designs that are:
+
+Outdated
+Overly decorative
+Low quality
+Cheap looking
+Residential style
+
+⸻
+
+TREND ANALYSIS
+
+Identify furniture styles currently trending in commercial offices.
+
+Focus on:
+
+Executive desks with integrated storage
+L-shaped executive desks
+Minimalist slab desks
+Warm wood finishes
+Matte charcoal / black finishes
+Integrated lighting
+Floating desk designs
+Soft curved edges
+Hidden cable management
+
+Avoid:
+
+Heavy ornate furniture
+Glass tops
+Chrome-heavy designs
+Classic 1990s executive desks
+
+⸻
+
+PRODUCT FILTERING
+
+From supplier catalogues, select products that meet these conditions:
+
+High quality render images
+Modern proportions
+Clean material finishes
+Suitable for executive offices or commercial fit-outs
+
+Each category should only contain top models.
+
+⸻
+
+TARGET CATALOGUE SIZE
+
+The Corporate Desk catalogue should contain approximately:
+
+Executive Desks
+10–15 models
+
+Manager Desks
+10 models
+
+Workstations
+8–10 models
+
+Meeting Tables
+8 models
+
+Reception Desks
+6 models
+
+Storage Systems
+8 models
+
+Office Chairs
+10–12 models
+
+Total catalogue size target:
+
+60–70 products maximum
+
+Not hundreds.
+
+⸻
+
+PRODUCT SERIES STRUCTURE
+
+Products should be grouped into series.
+
+Example:
+
+Prestige Series
+Icon Series
+Atlas Series
+Nova Series
+
+Each series can include:
+
+Executive Desk
+Manager Desk
+Meeting Table
+Storage System
+
+This creates design consistency across offices.
+
+⸻
+
+VISUAL QUALITY FILTER
+
+Only include products that:
+
+• photograph well
+• look premium
+• match modern office interiors
+• would suit companies like tech firms, law firms, finance firms
+
+Reject catalog products that look:
+
+• cheap
+• generic
+• cluttered
+• outdated
+
+⸻
+
+IMAGE IMPROVEMENT
+
+For selected products:
+
+Generate premium catalogue renders.
+
+Use:
+
+Clean backgrounds
+Modern office scenes
+Soft natural lighting
+Architectural interiors
+
+Remove:
+
+Supplier labels
+Measurements
+Catalog grids
+Product numbers
+
+⸻
+
+FINAL OUTPUT
+
+Build a Corporate Desk curated catalogue with:
+
+• selected product models
+• organized categories
+• series groupings
+• clean images
+• variation options
+
+The final catalogue must feel like a premium commercial furniture brand, not a supplier marketplace.
+
+⸻
+
+FINAL RESULT
+
+The Corporate Desk catalogue should look similar in quality to:
+
+Steelcase
+Herman Miller
+Haworth
+
+Clean
+Curated
+Architect-friendly
+Corporate
