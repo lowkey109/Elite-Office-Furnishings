@@ -1,0 +1,397 @@
+MASTER PLATFORM BUILD PROMPT
+CORPORATE DESK PROPTECH SYSTEM EXPANSION
+
+ROLE
+
+You are a senior AI software architect, full-stack engineer, data engineer, DevOps engineer, and QA tester working on the Corporate Desk platform.
+
+Your task is to safely extend the existing platform and build four advanced systems without breaking anything already working.
+
+CRITICAL RULES
+
+Do NOT delete existing code
+Do NOT rename existing database tables
+Do NOT modify working APIs unnecessarily
+Do NOT break UI components
+Do NOT duplicate records
+Do NOT break authentication
+Do NOT interrupt payment systems
+Do NOT break pipeline or quotes
+
+You must extend the system safely and follow the existing architecture.
+
+Existing systems already live on the platform include:
+
+Office Move Radar
+Workspace Planner
+AI Workspace Design Engine
+Deal Intelligence Engine
+Quote Builder
+Product Catalog
+Supplier System
+Finance System
+Stripe Payments
+Deal Pipeline
+Profit Engine
+Planning Requests
+Email System
+Admin Dashboard
+Mobile and Desktop UI
+
+All new systems must integrate with these systems.
+
+--------------------------------------------------
+
+SYSTEM 1
+OFFICE MOVE PREDICTION ENGINE
+
+Objective
+
+Build a predictive intelligence engine that detects companies likely to move or expand offices 6-18 months before relocation.
+
+DATA SIGNAL SOURCES
+
+Analyze signals including:
+
+LinkedIn hiring growth
+employee headcount increases
+job listings mentioning expansion
+venture funding announcements
+lease expiry data
+coworking exit signals
+company news mentioning expansion
+industry growth signals
+commercial leasing activity
+
+SIGNAL DATA MODEL
+
+Create database table:
+
+relocationSignals
+
+Fields:
+
+signal_id
+company_name
+city
+industry
+employee_count_estimate
+growth_rate
+signal_source
+signal_type
+signal_strength
+signal_date
+
+PREDICTION MODEL
+
+Generate predictions containing:
+
+company_name
+city
+industry
+current_headcount
+growth_rate
+predicted_headcount
+current_office_size_estimate
+predicted_space_requirement
+prediction_confidence
+estimated_project_value
+estimated_move_timeline
+
+Example output:
+
+Company: XYZ Fintech
+City: Sydney
+Employees: 80
+Growth: 45%
+
+Prediction:
+Office expansion required within 9 months
+
+Estimated project value:
+$250000 - $600000
+
+SYSTEM FLOW
+
+Daily job runs:
+
+Signal ingestion
+→ prediction scoring
+→ opportunity record created
+→ push to Office Move Radar
+→ push to Deal Intelligence Engine
+→ create pipeline entry
+
+ADMIN PAGE
+
+/admin/move-predictions
+
+Display:
+
+predicted companies
+predicted office size
+estimated project value
+confidence score
+move timeline
+
+--------------------------------------------------
+
+SYSTEM 2
+CORPORATE DESK PARTNER NETWORK
+
+Objective
+
+Create a partner marketplace allowing external vendors to receive opportunities.
+
+Partner types include:
+
+broker
+architect
+workplace_designer
+builder
+furniture_supplier
+office_mover
+technology_installer
+finance_partner
+
+PARTNER DATABASE
+
+Create table:
+
+partners
+
+Fields:
+
+partner_id
+company_name
+partner_type
+contact_name
+email
+phone
+website
+city
+regions_served
+services_offered
+industry_specialties
+partner_rating
+projects_completed
+revenue_generated
+status
+
+PARTNER ONBOARDING FORM
+
+Create page:
+
+/partner-onboarding
+
+Partners submit:
+
+company profile
+services offered
+regions served
+portfolio examples
+team size
+
+Admin must approve partners before activation.
+
+PARTNER DASHBOARD
+
+Create secure portal:
+
+/partner-dashboard
+
+Partners can see:
+
+available opportunities
+assigned opportunities
+active projects
+past projects
+performance metrics
+
+ADMIN MANAGEMENT
+
+Create page:
+
+/admin/partner-network
+
+Admins can:
+
+approve partners
+suspend partners
+route opportunities
+track partner performance
+track referral revenue
+
+OPPORTUNITY ROUTING
+
+Example flow:
+
+Office Move Radar detects relocation
+→ broker notified
+
+Workspace design generated
+→ architect notified
+
+Furniture package generated
+→ supplier notified
+
+Fit-out project generated
+→ builder notified
+
+--------------------------------------------------
+
+SYSTEM 3
+INSTANT AI WORKSPACE DESIGN SYSTEM
+
+Objective
+
+Allow users to upload a floor plan and instantly generate:
+
+workspace layout
+furniture package
+budget estimate
+quote draft
+optional 3D walkthrough
+
+INPUTS
+
+floor plan file
+office size
+staff count
+workspace style
+budget band
+required zones
+
+PROCESS
+
+Parse floor plan geometry.
+
+Generate zones:
+
+workstations
+meeting rooms
+boardroom
+reception
+breakout areas
+circulation space
+
+Map zones to product catalog items.
+
+Generate furniture package.
+
+Calculate project budget.
+
+Generate quote draft.
+
+OUTPUT PAGE
+
+Show user:
+
+floor plan preview
+workspace layout concept
+recommended furniture package
+estimated project cost
+button to request full quote
+
+--------------------------------------------------
+
+SYSTEM 4
+WORKSPACE DATA INTELLIGENCE PLATFORM
+
+Objective
+
+Capture workspace project data and generate industry benchmarks.
+
+DATA CAPTURE
+
+Create table:
+
+workspaceAnalytics
+
+Fields:
+
+office_size
+industry_type
+staff_count
+desk_density
+meeting_room_ratio
+furniture_spend
+project_budget
+project_duration
+
+ANALYTICS ENGINE
+
+Generate insights including:
+
+average office size by industry
+average furniture spend
+desk density benchmarks
+meeting room ratios
+workspace design trends
+
+ADMIN PAGE
+
+/admin/workspace-intelligence
+
+Show:
+
+industry benchmarks
+project averages
+market trends
+
+--------------------------------------------------
+
+MASTER PLATFORM FLOW
+
+Prediction Engine
+→ Office Move Radar
+→ Workspace Design Engine
+→ Quote Builder
+→ Partner Network
+→ Deal Pipeline
+→ Workspace Data Intelligence
+
+--------------------------------------------------
+
+ADMIN COMMAND CENTRE
+
+Create dashboard:
+
+/admin/command-centre
+
+Display:
+
+predicted office relocations
+active opportunities
+pipeline value
+partner activity
+workspace analytics
+
+--------------------------------------------------
+
+TESTING
+
+Verify:
+
+predictions generate opportunities
+opportunities appear in radar
+workspace designs generate quotes
+partner routing works
+analytics capture project data
+pipeline updates correctly
+no existing systems are broken
+
+--------------------------------------------------
+
+FINAL OUTPUT
+
+Return full implementation report including:
+
+systems built
+database tables created
+APIs created
+UI pages created
+tests completed
+integration status
+
+All systems must function together without breaking existing platform components.

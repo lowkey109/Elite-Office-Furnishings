@@ -1,0 +1,237 @@
+AI DEAL HUNTER ENGINE
+AUTOMATED OFFICE PROJECT DISCOVERY SYSTEM
+
+ROLE
+
+You are a senior AI data engineer and automation architect working on the Corporate Desk PropTech platform.
+
+Your task is to build the AI Deal Hunter Engine.
+
+This system automatically discovers companies likely to require office relocation, expansion, or workspace redesign and feeds those opportunities directly into the Corporate Desk pipeline.
+
+The system must extend the existing platform safely without breaking any existing components.
+
+Existing platform systems include:
+
+Office Move Radar
+Office Move Prediction Engine
+Workspace Planner
+AI Workspace Design Engine
+Deal Intelligence Engine
+Quote Builder
+Product Catalog
+Supplier System
+Finance System
+Deal Pipeline
+Partner Network
+Workspace Data Intelligence
+Admin Dashboard
+
+Do NOT break or modify these systems.
+
+--------------------------------------------------
+
+OBJECTIVE
+
+Automatically discover office projects across Australia before competitors know about them.
+
+The AI Deal Hunter Engine should identify companies that may require:
+
+office relocation
+office expansion
+office redesign
+workspace strategy consulting
+new furniture procurement
+full office fit-outs
+
+--------------------------------------------------
+
+DATA SOURCES
+
+Continuously scan the following sources:
+
+LinkedIn hiring growth
+LinkedIn company headcount growth
+job listings mentioning office expansion
+venture capital funding announcements
+startup funding databases
+commercial real estate leasing listings
+commercial property lease expiry databases
+coworking membership changes
+news articles mentioning company growth
+industry growth reports
+office relocation announcements
+commercial property transactions
+
+--------------------------------------------------
+
+SIGNAL DETECTION
+
+Each signal must be scored using weighted indicators.
+
+Example signals include:
+
+rapid hiring growth
+team expansion announcements
+funding rounds
+new regional offices
+lease expiry approaching
+large hiring campaigns
+company moving out of coworking spaces
+new product launches
+major client acquisitions
+
+Each signal contributes to a relocation probability score.
+
+--------------------------------------------------
+
+DEAL HUNTER DATA MODEL
+
+Create database table:
+
+dealHunterSignals
+
+Fields:
+
+signal_id
+company_name
+city
+industry
+employee_estimate
+growth_rate
+signal_type
+signal_source
+signal_strength
+signal_date
+
+--------------------------------------------------
+
+OPPORTUNITY GENERATION
+
+When signals exceed a threshold the system creates an opportunity.
+
+Opportunity fields:
+
+company_name
+city
+industry
+employee_estimate
+predicted_future_headcount
+estimated_workspace_size
+estimated_project_value
+probability_score
+recommended_action
+
+Example opportunity:
+
+Company: Fintech Labs
+City: Sydney
+Employees: 95
+Growth: 38%
+
+Prediction:
+
+Workspace expansion likely within 12 months
+
+Estimated project value:
+
+$180000 - $500000
+
+--------------------------------------------------
+
+SYSTEM FLOW
+
+Deal Hunter Engine runs daily.
+
+Signal ingestion
+→ signal scoring
+→ opportunity generation
+→ push to Office Move Radar
+→ push to Deal Intelligence Engine
+→ create Deal Pipeline entry
+→ notify admin dashboard
+
+--------------------------------------------------
+
+ADMIN INTERFACE
+
+Create dashboard:
+
+/admin/deal-hunter
+
+Display:
+
+discovered companies
+relocation probability
+estimated project value
+growth signals detected
+recommended outreach actions
+
+Admin can:
+
+review opportunities
+push opportunities to pipeline
+assign sales outreach
+flag high-value prospects
+
+--------------------------------------------------
+
+AI OUTREACH ASSISTANT
+
+When an opportunity is generated the system should suggest outreach strategies including:
+
+recommended contact roles
+suggested introduction message
+workspace strategy offer
+estimated project timeline
+
+--------------------------------------------------
+
+INTEGRATION WITH EXISTING SYSTEMS
+
+Deal Hunter must integrate with:
+
+Office Move Radar
+Deal Intelligence Engine
+Deal Pipeline
+Workspace Planner
+Quote Builder
+Partner Network
+
+--------------------------------------------------
+
+AUTOMATION
+
+Schedule daily automated job:
+
+scan signal sources
+detect growth signals
+score relocation probability
+generate opportunities
+update dashboards
+
+--------------------------------------------------
+
+TESTING
+
+Verify:
+
+signals are captured
+opportunities are generated
+radar updates correctly
+pipeline entries are created
+admin dashboard loads correctly
+no existing systems break
+
+--------------------------------------------------
+
+FINAL OUTPUT
+
+Return full implementation report including:
+
+data sources connected
+signals detected
+opportunities generated
+dashboard created
+pipeline integration confirmed
+system automation verified
