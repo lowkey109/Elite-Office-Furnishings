@@ -4125,30 +4125,47 @@ Rules:
   // ─── WhatsApp Webhook (Twilio) ────────────────────────────────────────────
   app.post("/webhook/whatsapp", async (req, res) => {
     const timestamp = new Date().toISOString();
-    const from = req.body.From || "(no From field)";
-    const message = req.body.Body || "(no Body field)";
+    const from: string = req.body.From || "";
+    const message: string = (req.body.Body || "").trim();
     const accountSid = req.body.AccountSid || "(no AccountSid)";
 
     console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     console.log("[WhatsApp] INCOMING REQUEST");
     console.log(`[WhatsApp] Timestamp : ${timestamp}`);
-    console.log(`[WhatsApp] From      : ${from}`);
-    console.log(`[WhatsApp] Message   : ${message}`);
+    console.log(`[WhatsApp] From      : ${from || "(no From field)"}`);
+    console.log(`[WhatsApp] Message   : ${message || "(empty)"}`);
     console.log(`[WhatsApp] AccountSid: ${accountSid}`);
-    console.log("[WhatsApp] Full body :", JSON.stringify(req.body, null, 2));
     console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
-    const reply = "Hello! This is The Corporate Desk AI assistant. How can we help with your office fit-out or workspace project?";
+    if (!message) {
+      res.set("Content-Type", "text/xml");
+      return res.send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
+    }
 
-    const twiml = `<?xml version="1.0" encoding="UTF-8"?>
+    try {
+      const { processWhatsAppMessage } = await import("./services/whatsappAI.js");
+      const { reply, intent, mode } = await processWhatsAppMessage(from, message);
+
+      console.log(`[WhatsApp] Intent    : ${intent}`);
+      console.log(`[WhatsApp] Mode      : ${mode}`);
+      console.log(`[WhatsApp] AI Reply  : ${reply}`);
+
+      const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Message>${reply}</Message>
+  <Message>${reply.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</Message>
 </Response>`;
 
-    console.log("[WhatsApp] Responding with TwiML:", twiml);
-
-    res.set("Content-Type", "text/xml");
-    res.send(twiml);
+      res.set("Content-Type", "text/xml");
+      res.send(twiml);
+    } catch (err: any) {
+      console.error("[WhatsApp] AI error:", err.message);
+      const fallback = "Thanks for your message. Our team will be in touch shortly. You can also visit thecorporatedesk.com.au for more information.";
+      res.set("Content-Type", "text/xml");
+      res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Message>${fallback}</Message>
+</Response>`);
+    }
   });
 
   return httpServer;
