@@ -19,7 +19,8 @@ type JobType =
   | "website_issues"
   | "system_health"
   | "weekly_report"
-  | "radar_scan";
+  | "radar_scan"
+  | "deal_hunter";
 
 const JOB_LABELS: Record<JobType, string> = {
   spending_trends: "Spending Trend Analysis",
@@ -28,6 +29,7 @@ const JOB_LABELS: Record<JobType, string> = {
   system_health: "System Health Check",
   weekly_report: "Weekly Business Report",
   radar_scan: "Office Move Radar Scan",
+  deal_hunter: "AI Deal Hunter Scan",
 };
 
 // ─── Job runner ───────────────────────────────────────────────────────────────
@@ -82,6 +84,13 @@ async function runJob(jobType: JobType, triggeredBy: "scheduler" | "manual" = "s
         const { runOfficeMovRadarScan } = await import("./officeMovRadarService");
         const saved = await runOfficeMovRadarScan({ count: 6 });
         resultSummary = `Office Move Radar scan complete — ${saved.length} new opportunities detected`;
+        break;
+      }
+
+      case "deal_hunter": {
+        const { runDealHunterScan } = await import("./dealHunter");
+        const result = await runDealHunterScan(8);
+        resultSummary = `AI Deal Hunter scan complete — ${result.created} signals discovered, ${result.deduplicated} deduplicated`;
         break;
       }
     }
@@ -146,13 +155,17 @@ export function startIntelligenceScheduler(): void {
   setTimeout(() => runJob("radar_scan"), 35 * 60 * 1000);
   setInterval(() => runJob("radar_scan"), DAY);
 
-  console.log("[IntelligenceScheduler] Jobs scheduled: health(12h), trends(24h), issues(24h), seo(7d), report(7d), radar(24h)");
+  // AI Deal Hunter scan — every 24 hours (offset 45 minutes to stagger)
+  setTimeout(() => runJob("deal_hunter"), 45 * 60 * 1000);
+  setInterval(() => runJob("deal_hunter"), DAY);
+
+  console.log("[IntelligenceScheduler] Jobs scheduled: health(12h), trends(24h), issues(24h), seo(7d), report(7d), radar(24h), deal_hunter(24h)");
 }
 
 // ─── Manual trigger (for admin API) ──────────────────────────────────────────
 
 export async function triggerJobManually(jobType: string): Promise<{ success: boolean; message: string }> {
-  const validJobs: JobType[] = ["spending_trends", "seo_content", "website_issues", "system_health", "weekly_report", "radar_scan"];
+  const validJobs: JobType[] = ["spending_trends", "seo_content", "website_issues", "system_health", "weekly_report", "radar_scan", "deal_hunter"];
 
   if (!validJobs.includes(jobType as JobType)) {
     return { success: false, message: `Unknown job type: ${jobType}` };

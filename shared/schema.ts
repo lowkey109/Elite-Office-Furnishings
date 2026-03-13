@@ -659,6 +659,58 @@ export const insertRelocationSignalSchema = createInsertSchema(relocationSignals
 export type InsertRelocationSignal = z.infer<typeof insertRelocationSignalSchema>;
 export type RelocationSignal = typeof relocationSignals.$inferSelect;
 
+// ─── AI Deal Hunter Signals ───────────────────────────────────────────────────
+export const dealHunterSignals = pgTable("deal_hunter_signals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Company identity
+  companyName: text("company_name").notNull(),
+  companyDomain: text("company_domain"),
+  city: text("city").notNull(),
+  state: text("state"),
+  country: text("country").default("Australia"),
+  industry: text("industry").notNull(),
+  // Raw signal data
+  employeeEstimate: integer("employee_estimate"),
+  growthRateEstimate: integer("growth_rate_estimate"), // %
+  signalType: text("signal_type").notNull(), // hiring_growth|funding|lease_activity|relocation_signal|new_office_signal|coworking_exit|facilities_hiring|building_move_signal|industry_growth|other_growth_indicator
+  signalSubtype: text("signal_subtype"),
+  signalSource: text("signal_source").notNull(), // seek.com.au|linkedin|domain.com.au|afr.com|asx|crunchbase|press_release|manual
+  sourceUrl: text("source_url"),
+  signalDate: timestamp("signal_date").defaultNow(),
+  rawPayloadSummary: text("raw_payload_summary"),
+  // Scoring
+  signalStrengthScore: integer("signal_strength_score").notNull().default(0), // 0-100
+  signalConfidence: integer("signal_confidence").notNull().default(50), // 0-100
+  reasoningSummary: text("reasoning_summary"),
+  // Opportunity enrichment
+  estimatedWorkspaceSqm: integer("estimated_workspace_sqm"),
+  estimatedProjectValue: integer("estimated_project_value"),
+  relocationProbability: integer("relocation_probability").default(0), // 0-100
+  officeChangeProbability: integer("office_change_probability").default(0), // 0-100
+  probabilityTier: text("probability_tier").notNull().default("low"), // high|medium|low
+  projectType: text("project_type"), // relocation|expansion|redesign|new_office|fit_out|strategy
+  estimatedTimeline: text("estimated_timeline"), // "0-3 months"|"3-6 months"|"6-12 months"|"12+ months"
+  recommendedAction: text("recommended_action"),
+  recommendedOutreachAngle: text("recommended_outreach_angle"),
+  recommendedContactRolesJson: text("recommended_contact_roles_json"), // JSON array
+  outreachDraft: text("outreach_draft"),
+  sourceSignalCount: integer("source_signal_count").default(1),
+  // Status & routing
+  isReviewed: boolean("is_reviewed").default(false),
+  pushedToPipeline: boolean("pushed_to_pipeline").default(false),
+  pushedToRadar: boolean("pushed_to_radar").default(false),
+  linkedRadarId: varchar("linked_radar_id"),
+  linkedProspectId: varchar("linked_prospect_id"),
+  isDuplicate: boolean("is_duplicate").default(false),
+  mergedFromIds: text("merged_from_ids").array().default(sql`'{}'`),
+  status: text("status").notNull().default("new"), // new|reviewed|pushed|dismissed|duplicate
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertDealHunterSignalSchema = createInsertSchema(dealHunterSignals).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertDealHunterSignal = z.infer<typeof insertDealHunterSignalSchema>;
+export type DealHunterSignal = typeof dealHunterSignals.$inferSelect;
+
 // ─── Workspace Strategy Recommendations ───────────────────────────────────────
 export const workspaceStrategyRecommendations = pgTable("workspace_strategy_recommendations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

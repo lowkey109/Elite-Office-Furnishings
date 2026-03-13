@@ -25,6 +25,7 @@ import { analyseAllDeals, analyseDeal, prospectsToSignals, planningRequestToSign
 import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } from "./services/partnerNetwork";
 import { generateRelocationSignals, getMarketIntelligence, pushRelocationToPipeline } from "./services/relocationIntelligence";
 import { generateStrategyRecommendation, getLearningInsights } from "./services/workspaceStrategy";
+import { runDealHunterScan, pushDealHunterToRadar, pushDealHunterToPipeline, reviewDealHunterSignal, dismissDealHunterSignal, getDealHunterStats } from "./services/dealHunter";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -3880,6 +3881,89 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
     try {
       const updated = await storage.updateWorkspaceStrategy(req.params.id, req.body);
       res.json(updated);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Deal Hunter Engine ──────────────────────────────────────────────────────
+
+  app.get("/api/admin/deal-hunter/stats", async (req, res) => {
+    try {
+      const stats = await getDealHunterStats();
+      res.json(stats);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/deal-hunter/signals", async (req, res) => {
+    try {
+      const { city, industry, probabilityTier, signalType, status, isReviewed, pushedToPipeline } = req.query as Record<string, string>;
+      const filters: any = {};
+      if (city) filters.city = city;
+      if (industry) filters.industry = industry;
+      if (probabilityTier) filters.probabilityTier = probabilityTier;
+      if (signalType) filters.signalType = signalType;
+      if (status) filters.status = status;
+      if (isReviewed !== undefined) filters.isReviewed = isReviewed === "true";
+      if (pushedToPipeline !== undefined) filters.pushedToPipeline = pushedToPipeline === "true";
+      const signals = await storage.getDealHunterSignals(Object.keys(filters).length ? filters : undefined);
+      res.json(signals);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/deal-hunter/signals/:id", async (req, res) => {
+    try {
+      const signal = await storage.getDealHunterSignal(req.params.id);
+      if (!signal) return res.status(404).json({ error: "Not found" });
+      res.json(signal);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/deal-hunter/run", async (req, res) => {
+    try {
+      const count = Math.min(Number(req.body?.count ?? 10), 20);
+      const result = await runDealHunterScan(count);
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/deal-hunter/signals/:id/push-to-pipeline", async (req, res) => {
+    try {
+      const result = await pushDealHunterToPipeline(req.params.id);
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/deal-hunter/signals/:id/push-to-radar", async (req, res) => {
+    try {
+      const result = await pushDealHunterToRadar(req.params.id);
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/deal-hunter/signals/:id/review", async (req, res) => {
+    try {
+      const updated = await reviewDealHunterSignal(req.params.id);
+      res.json(updated);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/deal-hunter/signals/:id/dismiss", async (req, res) => {
+    try {
+      const updated = await dismissDealHunterSignal(req.params.id);
+      res.json(updated);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.patch("/api/admin/deal-hunter/signals/:id/mark-duplicate", async (req, res) => {
+    try {
+      const updated = await storage.updateDealHunterSignal(req.params.id, { isDuplicate: true, status: "dismissed" });
+      res.json(updated);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.delete("/api/admin/deal-hunter/signals/:id", async (req, res) => {
+    try {
+      await storage.deleteDealHunterSignal(req.params.id);
+      res.json({ success: true });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 

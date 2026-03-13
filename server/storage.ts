@@ -6,7 +6,7 @@ import {
   scheduledJobs, intelligenceReports, spendingTrends, websiteIssues, profitRecords,
   generatedBlogArticles, quotes, officeMovRadar, buildingSignals, dealIntelligenceRecords,
   partners, partnerOpportunities, partnerReferrals, revenueShareRecords,
-  relocationSignals, workspaceStrategyRecommendations,
+  relocationSignals, workspaceStrategyRecommendations, dealHunterSignals,
   type User, type InsertUser, type Lead, type InsertLead, type PlanningRequest,
   type ProductReview, type InsertProductReview,
   type ManufacturerMessage, type InsertManufacturerMessage,
@@ -25,6 +25,7 @@ import {
   type RevenueShareRecord, type InsertRevenueShare,
   type RelocationSignal, type InsertRelocationSignal,
   type WorkspaceStrategyRecommendation, type InsertWorkspaceStrategy,
+  type DealHunterSignal, type InsertDealHunterSignal,
 } from "@shared/schema";
 
 export interface ProspectedLead {
@@ -272,6 +273,15 @@ export interface IStorage {
   getWorkspaceStrategies(limit?: number): Promise<WorkspaceStrategyRecommendation[]>;
   getWorkspaceStrategy(id: string): Promise<WorkspaceStrategyRecommendation | undefined>;
   updateWorkspaceStrategy(id: string, data: Partial<WorkspaceStrategyRecommendation>): Promise<WorkspaceStrategyRecommendation | undefined>;
+
+  // Deal Hunter
+  createDealHunterSignal(data: InsertDealHunterSignal): Promise<DealHunterSignal>;
+  getDealHunterSignals(filters?: { city?: string; industry?: string; probabilityTier?: string; signalType?: string; status?: string; isReviewed?: boolean; pushedToPipeline?: boolean }): Promise<DealHunterSignal[]>;
+  getDealHunterSignal(id: string): Promise<DealHunterSignal | undefined>;
+  updateDealHunterSignal(id: string, data: Partial<DealHunterSignal>): Promise<DealHunterSignal | undefined>;
+  deleteDealHunterSignal(id: string): Promise<void>;
+  getDealHunterStats(): Promise<{ total: number; newCount: number; highCount: number; mediumCount: number; lowCount: number; pushedCount: number; dismissedCount: number; totalPipelineValue: number }>;
+  findDuplicateDealHunterSignal(companyName: string, city: string, signalType: string): Promise<DealHunterSignal | undefined>;
 }
 
 function rowToProspectedLead(row: typeof prospectedLeads.$inferSelect): ProspectedLead {
@@ -1258,6 +1268,66 @@ export class DrizzleStorage implements IStorage {
 
   async updateWorkspaceStrategy(id: string, data: Partial<WorkspaceStrategyRecommendation>): Promise<WorkspaceStrategyRecommendation | undefined> {
     const [row] = await db.update(workspaceStrategyRecommendations).set({ ...data as any, updatedAt: new Date() }).where(eq(workspaceStrategyRecommendations.id, id)).returning();
+    return row ?? undefined;
+  }
+
+  // ─── Deal Hunter ──────────────────────────────────────────────────────────────
+  async createDealHunterSignal(data: InsertDealHunterSignal): Promise<DealHunterSignal> {
+    const [row] = await db.insert(dealHunterSignals).values(data as any).returning();
+    return row;
+  }
+
+  async getDealHunterSignals(filters?: { city?: string; industry?: string; probabilityTier?: string; signalType?: string; status?: string; isReviewed?: boolean; pushedToPipeline?: boolean }): Promise<DealHunterSignal[]> {
+    let query = db.select().from(dealHunterSignals).orderBy(desc(dealHunterSignals.signalStrengthScore), desc(dealHunterSignals.createdAt)).$dynamic();
+    const conditions = [];
+    if (filters?.city) conditions.push(ilike(dealHunterSignals.city, `%${filters.city}%`));
+    if (filters?.industry) conditions.push(ilike(dealHunterSignals.industry, `%${filters.industry}%`));
+    if (filters?.probabilityTier) conditions.push(eq(dealHunterSignals.probabilityTier, filters.probabilityTier));
+    if (filters?.signalType) conditions.push(eq(dealHunterSignals.signalType, filters.signalType));
+    if (filters?.status) conditions.push(eq(dealHunterSignals.status, filters.status));
+    if (filters?.isReviewed !== undefined) conditions.push(eq(dealHunterSignals.isReviewed, filters.isReviewed));
+    if (filters?.pushedToPipeline !== undefined) conditions.push(eq(dealHunterSignals.pushedToPipeline, filters.pushedToPipeline));
+    if (conditions.length > 0) query = query.where(and(...conditions)) as typeof query;
+    return query.limit(200);
+  }
+
+  async getDealHunterSignal(id: string): Promise<DealHunterSignal | undefined> {
+    const [row] = await db.select().from(dealHunterSignals).where(eq(dealHunterSignals.id, id)).limit(1);
+    return row ?? undefined;
+  }
+
+  async updateDealHunterSignal(id: string, data: Partial<DealHunterSignal>): Promise<DealHunterSignal | undefined> {
+    const [row] = await db.update(dealHunterSignals).set({ ...data as any, updatedAt: new Date() }).where(eq(dealHunterSignals.id, id)).returning();
+    return row ?? undefined;
+  }
+
+  async deleteDealHunterSignal(id: string): Promise<void> {
+    await db.delete(dealHunterSignals).where(eq(dealHunterSignals.id, id));
+  }
+
+  async getDealHunterStats(): Promise<{ total: number; newCount: number; highCount: number; mediumCount: number; lowCount: number; pushedCount: number; dismissedCount: number; totalPipelineValue: number }> {
+    const all = await db.select().from(dealHunterSignals).where(eq(dealHunterSignals.isDuplicate, false));
+    return {
+      total: all.length,
+      newCount: all.filter(r => r.status === "new").length,
+      highCount: all.filter(r => r.probabilityTier === "high").length,
+      mediumCount: all.filter(r => r.probabilityTier === "medium").length,
+      lowCount: all.filter(r => r.probabilityTier === "low").length,
+      pushedCount: all.filter(r => r.pushedToPipeline).length,
+      dismissedCount: all.filter(r => r.status === "dismissed").length,
+      totalPipelineValue: all.filter(r => r.estimatedProjectValue).reduce((s, r) => s + (r.estimatedProjectValue ?? 0), 0),
+    };
+  }
+
+  async findDuplicateDealHunterSignal(companyName: string, city: string, signalType: string): Promise<DealHunterSignal | undefined> {
+    const [row] = await db.select().from(dealHunterSignals)
+      .where(and(
+        ilike(dealHunterSignals.companyName, companyName),
+        ilike(dealHunterSignals.city, city),
+        eq(dealHunterSignals.signalType, signalType)
+      ))
+      .orderBy(desc(dealHunterSignals.createdAt))
+      .limit(1);
     return row ?? undefined;
   }
 }

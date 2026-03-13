@@ -45,6 +45,7 @@ import AdminOfficeMovRadar from "@/pages/AdminOfficeMovRadar";
 import WorkspaceDesignEngine from "@/pages/WorkspaceDesignEngine";
 import AdminDealIntelligence from "@/pages/AdminDealIntelligence";
 import AdminPartnerNetwork from "@/pages/AdminPartnerNetwork";
+import AdminDealHunter from "@/pages/AdminDealHunter";
 import AdminRelocationIntelligence from "@/pages/AdminRelocationIntelligence";
 import AdminWorkspaceStrategy from "@/pages/AdminWorkspaceStrategy";
 import PartnerOnboarding from "@/pages/PartnerOnboarding";
@@ -99,6 +100,7 @@ function Router() {
       <Route path="/admin/deal-intelligence" component={AdminDealIntelligence} />
       <Route path="/admin/quotes/:id/print" component={QuotePrint} />
       <Route path="/admin/quotes" component={AdminQuotes} />
+      <Route path="/admin/deal-hunter" component={AdminDealHunter} />
       <Route path="/admin/partner-network" component={AdminPartnerNetwork} />
       <Route path="/admin/relocation-intelligence" component={AdminRelocationIntelligence} />
       <Route path="/admin/workspace-strategy" component={AdminWorkspaceStrategy} />

@@ -1,0 +1,661 @@
+MASTER SYSTEM BUILD — AI DEAL HUNTER ENGINE
+AUTOMATED OFFICE PROJECT DISCOVERY + QUALIFICATION + PIPELINE FEEDER
+
+ROLE
+
+You are a senior AI systems architect, senior full-stack engineer, senior data engineer, automation engineer, backend engineer, frontend engineer, QA lead, and production reliability engineer working on the live Corporate Desk proptech platform.
+
+Your task is to build a production-safe AI Deal Hunter Engine that automatically discovers, qualifies, scores, enriches, and routes commercial office opportunities into the existing Corporate Desk platform.
+
+This system must work as a real operating layer, not a demo, placeholder, or conceptual prototype.
+
+==================================================
+CORE MISSION
+==================================================
+
+Build an automated deal discovery engine that identifies companies likely to require:
+
+- office relocation
+- office expansion
+- office redesign
+- workspace strategy consulting
+- commercial furniture procurement
+- full office fit-outs
+
+The engine must continuously detect opportunities before competitors, estimate likely project value, classify urgency, enrich lead data, and push valid opportunities into the existing Office Move Radar, Deal Intelligence Engine, and Deal Pipeline.
+
+The result must be robust, stable, deduplicated, testable, explainable, and safe for live platform use.
+
+==================================================
+DO NOT BREAK ANY EXISTING SYSTEMS
+==================================================
+
+This platform already contains working systems that must remain stable:
+
+- Office Move Radar
+- Office Move Prediction Engine
+- Workspace Planner
+- AI Workspace Design Engine
+- Deal Intelligence Engine
+- Quote Builder
+- Product Catalog
+- Supplier System
+- Finance System
+- Stripe Payments
+- Deal Pipeline
+- Partner Network
+- Workspace Data Intelligence
+- Profit Engine
+- Planning Requests
+- Admin Dashboard
+- Command Centre
+- Email System
+- Mobile and Desktop UI
+
+You must extend these safely.
+
+Do NOT:
+- delete existing code
+- rename existing tables unless absolutely required
+- break auth
+- break pipeline records
+- break quote generation
+- break Office Move Radar
+- break existing admin dashboards
+- create duplicate routing systems
+- create duplicate prospect records for the same company/event
+- create fake outputs when data is unavailable
+- leave silent failures
+- stop halfway
+
+==================================================
+MANDATORY EXECUTION RULES
+==================================================
+
+You must follow this order:
+
+1. FULL AUDIT FIRST
+2. MAP EXISTING MODELS / ROUTES / SERVICES / UI
+3. DESIGN SAFE EXTENSIONS
+4. IMPLEMENT BACKEND
+5. IMPLEMENT FRONTEND
+6. IMPLEMENT AUTOMATION
+7. ADD VALIDATION + LOGGING + DEDUPLICATION
+8. RUN TESTS
+9. FIX FAILURES
+10. RETURN COMPLETE IMPLEMENTATION REPORT
+
+If something already exists, extend it instead of duplicating it.
+
+If live data sources are not fully connected yet, build the architecture so the engine still works with:
+- connector-ready adapters
+- manual signal ingestion
+- seeded test signals
+- scheduled jobs
+- admin review
+
+Do not pretend something is live if it is not.
+
+==================================================
+PHASE 1 — FULL SYSTEM AUDIT
+==================================================
+
+Before writing code, audit the existing platform and identify the correct integration points.
+
+Inspect at minimum:
+
+- Office Move Radar
+- Office Move Prediction Engine
+- Deal Intelligence Engine
+- Deal Pipeline
+- Command Centre
+- Admin Dashboard
+- Office relocation signal storage
+- Prospected leads storage
+- Planning requests
+- Quote system
+- Workspace Data Intelligence
+- Partner Network
+- Email / notification utilities
+- Existing background job scheduler
+- Existing admin navigation
+- Existing scoring logic
+- Existing prospect/opportunity models
+- Existing route patterns
+- Existing authentication pattern
+- Existing logging/error handling patterns
+
+Return an internal map of:
+
+- existing lead/opportunity tables
+- existing signal tables
+- existing routing flows
+- existing enrichment services
+- pipeline entry requirements
+- required fields for prospected leads
+- current dedupe logic if any
+- which components should be extended
+- which routes already partially solve this problem
+
+Do NOT create duplicate systems if existing ones can be safely extended.
+
+==================================================
+PHASE 2 — AI DEAL HUNTER OBJECTIVE
+==================================================
+
+The AI Deal Hunter Engine must automatically discover office project opportunities across Australia.
+
+It must detect companies likely to require:
+
+- office move
+- office expansion
+- new office opening
+- office redesign
+- workspace consultancy
+- furniture procurement
+- fit-out services
+
+The engine must prioritize opportunities that are commercially relevant to Corporate Desk.
+
+==================================================
+PHASE 3 — DATA SOURCE ADAPTER LAYER
+==================================================
+
+Build a source adapter architecture for deal hunting.
+
+The engine must be able to process signals from sources such as:
+
+- LinkedIn hiring growth
+- LinkedIn company headcount changes
+- job listings mentioning growth, facilities, workplace, HQ, operations
+- venture capital and funding announcements
+- startup and scaleup funding databases
+- commercial leasing listings
+- lease expiry data
+- commercial property marketing material
+- office tower leasing updates
+- commercial real estate transactions
+- coworking membership exit indicators
+- news mentions of expansion
+- industry growth reports
+- new city expansion announcements
+- relocation announcements
+- workplace strategy / facilities hiring roles
+
+If live connectors are not available yet, implement:
+- source adapter architecture
+- manual signal import
+- mock ingestion for testing
+- scheduled source refresh jobs
+- source normalization pipeline
+
+Each source adapter must output normalized signal records.
+
+==================================================
+PHASE 4 — NORMALIZED SIGNAL DATA MODEL
+==================================================
+
+Create or extend a normalized signal model.
+
+Create table or extend appropriate storage:
+
+dealHunterSignals
+
+Required fields:
+
+signal_id
+company_name
+company_domain if available
+city
+state
+country
+industry
+employee_estimate
+growth_rate_estimate
+signal_type
+signal_subtype
+signal_source
+source_url
+signal_strength
+signal_date
+raw_payload_summary
+is_reviewed
+created_at
+updated_at
+
+Signal types may include:
+
+- hiring_growth
+- funding
+- lease_activity
+- relocation_signal
+- new_office_signal
+- coworking_exit
+- facilities_hiring
+- building_move_signal
+- industry_growth
+- other_growth_indicator
+
+==================================================
+PHASE 5 — SIGNAL SCORING ENGINE
+==================================================
+
+Build a weighted signal scoring engine.
+
+Each signal must receive a normalized strength score using clear logic.
+
+Factors may include:
+
+- hiring velocity
+- number of open roles
+- funding amount
+- lease timing
+- office move wording in source text
+- office/facilities role presence
+- company size
+- growth trend consistency
+- location relevance
+- known office tower activity
+- industry match
+
+Do NOT use random scoring.
+
+Create explainable scoring logic.
+
+Each scored signal should produce:
+
+signal_strength_score
+signal_confidence
+reasoning_summary
+
+==================================================
+PHASE 6 — OPPORTUNITY GENERATION ENGINE
+==================================================
+
+When signals exceed threshold, generate an opportunity candidate.
+
+Opportunity fields must include:
+
+company_name
+city
+state
+country
+industry
+employee_estimate
+predicted_future_headcount
+estimated_workspace_size
+estimated_project_value
+relocation_probability
+office_change_probability
+project_type
+estimated_timeline
+recommended_action
+recommended_outreach_angle
+recommended_contact_roles
+source_signal_count
+confidence_score
+reasoning_summary
+
+This output must be commercially useful.
+
+Example:
+
+Company: Fintech Labs
+City: Sydney
+Employees: 95
+Growth: 38%
+
+Prediction:
+Workspace expansion likely within 12 months
+
+Estimated project value:
+$180000 - $500000
+
+Recommended action:
+Add to pipeline and draft outreach for workplace/operations contact
+
+==================================================
+PHASE 7 — DEDUPLICATION + SAFETY
+==================================================
+
+Implement strong deduplication.
+
+The engine must avoid duplicate opportunities for the same company and event.
+
+Deduplicate based on combinations of:
+
+- company_name
+- domain if available
+- city
+- signal_type
+- time proximity
+- similar source URLs
+- same event detected from multiple sources
+
+If multiple signals exist for same company, merge them into a stronger composite opportunity where appropriate.
+
+Never spam the pipeline with duplicates.
+
+Implement safe merge logic.
+
+==================================================
+PHASE 8 — ENRICHMENT ENGINE
+==================================================
+
+Add enrichment logic to improve discovered opportunities.
+
+Enrichment should attempt to infer or compute:
+
+- company website
+- likely office size
+- likely decision maker roles
+- likely project type
+- likely budget range
+- likely need for planning, design, fit-out, furniture, finance
+
+Suggested recommended contact roles may include:
+
+- Head of Workplace
+- Facilities Manager
+- Office Manager
+- COO
+- Operations Manager
+- People & Culture lead
+- Property Manager
+- Workplace Experience Manager
+
+Do not invent precise personal data if unavailable.
+Use role-level recommendations when names are not known.
+
+==================================================
+PHASE 9 — PIPELINE PUSH ENGINE
+==================================================
+
+Integrate discovered opportunities into the existing pipeline architecture.
+
+Flow must be:
+
+deal hunter signal
+→ scored opportunity
+→ Office Move Radar
+→ Deal Intelligence Engine
+→ create prospected lead / pipeline entry
+→ surface in dashboard and command centre
+
+Before creating pipeline entries, ensure all required fields are supplied so insertion does not fail.
+
+Explicitly audit required prospect fields and satisfy them.
+
+Include all required NOT NULL fields.
+
+Do not leave the push-to-pipeline flow brittle.
+
+If a record cannot be pushed, log the exact reason and surface it in admin review state.
+
+==================================================
+PHASE 10 — OFFICE MOVE RADAR INTEGRATION
+==================================================
+
+Push validated opportunities into the existing Office Move Radar.
+
+Radar entries must preserve:
+
+- company
+- city
+- signal type
+- source
+- project value estimate
+- confidence
+- timeline
+- recommended action
+
+Do not create conflicting radar structures.
+Extend existing radar models/views safely.
+
+==================================================
+PHASE 11 — DEAL INTELLIGENCE INTEGRATION
+==================================================
+
+Every valid opportunity should also be analyzable by the existing Deal Intelligence Engine.
+
+The Deal Hunter output must provide enough structured data for:
+
+- win probability scoring
+- project value estimation
+- next action recommendation
+- offer strategy
+- pipeline prioritization
+
+If Deal Intelligence requires specific fields, map them correctly.
+
+==================================================
+PHASE 12 — ADMIN DASHBOARD
+==================================================
+
+Create or extend an admin page:
+
+/admin/deal-hunter
+
+This page must show:
+
+- company
+- city
+- industry
+- employee estimate
+- signal count
+- relocation probability
+- office change probability
+- estimated project value
+- timeline
+- confidence
+- recommended action
+- pipeline status
+
+Add filters for:
+
+- city
+- industry
+- probability tier
+- signal type
+- reviewed / unreviewed
+- in pipeline / not in pipeline
+
+Add sorting by:
+
+- probability
+- estimated project value
+- recency
+- confidence
+
+Allow actions:
+
+- review
+- push to pipeline
+- dismiss
+- mark duplicate
+- open radar
+- open deal intelligence
+- draft outreach
+
+==================================================
+PHASE 13 — COMMAND CENTRE + ADMIN INTEGRATION
+==================================================
+
+Extend the Command Centre and Admin Dashboard to surface deal hunter data.
+
+Display:
+
+- newly discovered opportunities
+- highest probability office moves
+- biggest estimated project values
+- new signals this week
+- opportunities not yet routed
+- opportunities already pushed to pipeline
+
+Do not break existing dashboard cards or command centre flows.
+
+==================================================
+PHASE 14 — AI OUTREACH ASSISTANT
+==================================================
+
+For every high-value opportunity, generate an internal outreach recommendation.
+
+Output should include:
+
+- recommended contact roles
+- recommended first message angle
+- suggested offer
+- urgency level
+- best follow-up timing
+
+Examples of suggested offer:
+
+- free office layout plan
+- workspace strategy session
+- AI workspace concept
+- indicative budget consultation
+- quote comparison
+
+Do NOT auto-send emails unless existing platform explicitly supports approved sending logic.
+Default to draft/recommendation only.
+
+==================================================
+PHASE 15 — AUTOMATION + SCHEDULER
+==================================================
+
+Create or extend scheduled jobs.
+
+The engine must support daily automation:
+
+- scan sources
+- normalize signals
+- score signals
+- generate opportunities
+- deduplicate
+- enrich
+- push eligible opportunities
+- refresh dashboards
+
+Use the existing scheduler if present.
+Do not create a duplicate scheduler if one already exists.
+
+Add job logging.
+
+==================================================
+PHASE 16 — ERROR HANDLING + LOGGING
+==================================================
+
+Add robust logging and diagnostics.
+
+The engine must log:
+
+- source ingestion failures
+- malformed signals
+- dedupe merges
+- pipeline push failures
+- missing required fields
+- enrichment failures
+- dashboard query failures
+
+Errors must be actionable.
+
+Do not fail silently.
+
+==================================================
+PHASE 17 — TEST DATA + SEEDED VALIDATION
+==================================================
+
+Seed realistic Australian example opportunities for testing if live data is limited.
+
+Use realistic company-style examples and, where existing system already produces live named signals, preserve those.
+
+Test the engine with:
+
+- multiple signals for same company
+- duplicate sources
+- low-confidence signals
+- high-confidence signals
+- missing optional fields
+- all required fields present
+- pipeline insertion edge cases
+
+==================================================
+PHASE 18 — TESTING REQUIREMENTS
+==================================================
+
+Run end-to-end tests and verify all of the following:
+
+1. signals are captured
+2. signals are normalized
+3. signals are scored
+4. duplicate signals are merged correctly
+5. opportunities are generated
+6. opportunities are enriched
+7. Office Move Radar receives valid entries
+8. Deal Intelligence receives valid entries
+9. pipeline entries are created correctly
+10. admin deal hunter page loads
+11. filtering and sorting works
+12. dashboard widgets load
+13. command centre surfaces opportunities
+14. no existing systems are broken
+15. mobile and desktop remain stable
+
+If tests fail, fix them before reporting complete.
+
+==================================================
+PHASE 19 — PERFORMANCE + STABILITY
+==================================================
+
+Ensure the system is safe under repeated automated runs.
+
+Prevent:
+
+- duplicate daily insert floods
+- broken reprocessing
+- repeated pipeline spam
+- slow dashboard queries
+- unstable source scans
+
+Add indexes or query optimizations if needed.
+
+==================================================
+PHASE 20 — FINAL IMPLEMENTATION REPORT
+==================================================
+
+Return a full report including:
+
+- files audited
+- files modified
+- tables created or extended
+- APIs created or extended
+- admin pages created or extended
+- scheduler jobs created or extended
+- deduplication strategy
+- scoring model summary
+- enrichment logic summary
+- pipeline integration summary
+- Office Move Radar integration summary
+- Deal Intelligence integration summary
+- test results
+- remaining manual steps if any
+- confirmation that existing systems remain stable
+
+==================================================
+SUCCESS STANDARD
+==================================================
+
+This is only complete if:
+
+- the engine discovers real or testable opportunities
+- opportunities are structured, deduplicated, and commercially useful
+- opportunities successfully feed Office Move Radar
+- opportunities successfully feed Deal Intelligence
+- opportunities successfully enter the pipeline without required-field failures
+- admin users can review and act on the results
+- the system is stable, repeatable, and test-verified
+
+Do not stop at a framework.
+Do not stop at partial implementation.
+Complete the full working system end-to-end.
+Don’t get sloppy do a better than excellent job 

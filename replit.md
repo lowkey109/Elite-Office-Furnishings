@@ -39,6 +39,10 @@ The aesthetic is dark luxury gold, utilizing near-black backgrounds, rich gold a
 - **AI Workspace Profit Optimisation Engine**: A cost stack calculator deriving itemized furniture packages (Premium/Balanced/Value) for any office size and staff count using real supplier pricing data, returning landed cost, sell price, gross profit, and margin.
 - **Formal Quote Builder**: An admin-only system for creating and sending professional PDF quotations to clients, with auto-generated quote numbers, inline editing, status tracking, and email dispatch.
 - **AI Deal Intelligence Engine**: A comprehensive system that calculates win probability, estimated project value, estimated gross profit, recommended next actions, and offer strategies for all leads, planning requests, radar signals, and quotes.
+- **Partner Network System**: Broker, referral partner, and agent management with automated opportunity routing, revenue share tracking, and partner dashboard.
+- **Relocation Intelligence Engine**: Market signal discovery for companies likely to relocate, with probability scoring, relocation timeline inference, and push-to-pipeline.
+- **Workspace Strategy Engine**: AI-powered workspace recommendations covering layout, product packages, and margin optimisation for submitted planning requests.
+- **AI Deal Hunter Engine**: Automated discovery, scoring, deduplication, and routing of commercial office opportunities from 30 real Australian market signal profiles. Runs daily via the intelligence scheduler. Features weighted scoring (0–100), project type inference, timeline estimation, outreach draft generation, and one-click push to pipeline or Office Move Radar. Admin page at `/admin/deal-hunter`.
 
 ## External Dependencies
 - **Database**: PostgreSQL

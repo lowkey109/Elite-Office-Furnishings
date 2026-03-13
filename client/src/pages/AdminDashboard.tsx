@@ -8,7 +8,7 @@ import {
   ChevronRight, Calendar, MapPin, Phone, Mail, Clock,
   Megaphone, ShieldCheck, Eye, ExternalLink, Target, Package, Upload, Star,
   AlertTriangle, CheckCircle2, XCircle, Zap, Globe, Brain, DollarSign,
-  Network, Radar,
+  Network, Radar, Crosshair,
 } from "lucide-react";
 import { validateAdminLogin } from "@/lib/adminAuth";
 
@@ -619,6 +619,7 @@ export default function AdminDashboard() {
                   { label: "Workspace Learning", href: "/admin/workspace-learning", icon: Brain, desc: "AI pattern intelligence from projects" },
                   { label: "Intelligence Hub", href: "/admin/intelligence-hub", icon: BarChart3, desc: "Autonomous BI, trends & SEO content" },
                   { label: "Formal Quotes", href: "/admin/quotes", icon: FileText, desc: "Create & send PDF client quotes" },
+                  { label: "AI Deal Hunter", href: "/admin/deal-hunter", icon: Crosshair, desc: "Automated opportunity discovery & pipeline feeder" },
                   { label: "Partner Network", href: "/admin/partner-network", icon: Network, desc: "Broker & partner ecosystem management" },
                   { label: "Relocation Intelligence", href: "/admin/relocation-intelligence", icon: Radar, desc: "Market signals & relocation probability" },
                   { label: "Workspace Strategy", href: "/admin/workspace-strategy", icon: Brain, desc: "AI layout, package & margin optimisation" },
