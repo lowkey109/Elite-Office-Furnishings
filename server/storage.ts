@@ -7,7 +7,7 @@ import {
   generatedBlogArticles, quotes, officeMovRadar, buildingSignals, dealIntelligenceRecords,
   partners, partnerOpportunities, partnerReferrals, revenueShareRecords,
   relocationSignals, workspaceStrategyRecommendations, dealHunterSignals,
-  supplierProfiles, rfqProjects, rfqResponses,
+  supplierProfiles, rfqProjects, rfqResponses, visitorSessions,
   type User, type InsertUser, type Lead, type InsertLead, type PlanningRequest,
   type ProductReview, type InsertProductReview,
   type ManufacturerMessage, type InsertManufacturerMessage,
@@ -30,6 +30,7 @@ import {
   type SupplierProfile, type InsertSupplierProfile,
   type RfqProject, type InsertRfqProject,
   type RfqResponse, type InsertRfqResponse,
+  type VisitorSession, type InsertVisitorSession,
 } from "@shared/schema";
 
 export interface ProspectedLead {
@@ -307,6 +308,12 @@ export interface IStorage {
   getRfqResponsesByProject(rfqProjectId: string): Promise<RfqResponse[]>;
   updateRfqResponse(id: string, data: Partial<RfqResponse>): Promise<RfqResponse | undefined>;
   deleteRfqResponse(id: string): Promise<void>;
+
+  // Visitor Sessions
+  upsertVisitorSession(visitorId: string, data: Partial<InsertVisitorSession>): Promise<VisitorSession>;
+  getVisitorSessions(filters?: { minScore?: number; intent?: string; city?: string; limit?: number }): Promise<VisitorSession[]>;
+  getVisitorSessionByVisitorId(visitorId: string): Promise<VisitorSession | undefined>;
+  getVisitorSession(id: string): Promise<VisitorSession | undefined>;
 }
 
 function rowToProspectedLead(row: typeof prospectedLeads.$inferSelect): ProspectedLead {
@@ -1441,6 +1448,47 @@ export class DrizzleStorage implements IStorage {
 
   async deleteRfqResponse(id: string): Promise<void> {
     await db.delete(rfqResponses).where(eq(rfqResponses.id, id));
+  }
+
+  // ─── Visitor Sessions ────────────────────────────────────────────────────────
+
+  async upsertVisitorSession(visitorId: string, data: Partial<InsertVisitorSession>): Promise<VisitorSession> {
+    const [existing] = await db.select().from(visitorSessions)
+      .where(eq(visitorSessions.visitorId, visitorId)).limit(1);
+
+    if (existing) {
+      // Merge pages viewed
+      const newPages = data.pagesViewed ?? [];
+      const mergedPages = [...new Set([...(existing.pagesViewed ?? []), ...newPages])];
+      const [updated] = await db.update(visitorSessions)
+        .set({ ...data, pagesViewed: mergedPages, updatedAt: new Date() } as any)
+        .where(eq(visitorSessions.visitorId, visitorId))
+        .returning();
+      return updated;
+    }
+
+    const [row] = await db.insert(visitorSessions).values({ ...data, visitorId } as any).returning();
+    return row;
+  }
+
+  async getVisitorSessions(filters?: { minScore?: number; intent?: string; city?: string; limit?: number }): Promise<VisitorSession[]> {
+    const conditions = [];
+    if (filters?.minScore) conditions.push(drizzleSql`${visitorSessions.engagementScore} >= ${filters.minScore}`);
+    if (filters?.intent) conditions.push(eq(visitorSessions.intent, filters.intent));
+    if (filters?.city) conditions.push(eq(visitorSessions.city, filters.city));
+    const q = db.select().from(visitorSessions);
+    const withWhere = conditions.length ? (q as any).where(and(...conditions)) : q;
+    return withWhere.orderBy(desc(visitorSessions.engagementScore)).limit(filters?.limit ?? 200);
+  }
+
+  async getVisitorSession(id: string): Promise<VisitorSession | undefined> {
+    const [row] = await db.select().from(visitorSessions).where(eq(visitorSessions.id, id)).limit(1);
+    return row ?? undefined;
+  }
+
+  async getVisitorSessionByVisitorId(visitorId: string): Promise<VisitorSession | undefined> {
+    const [row] = await db.select().from(visitorSessions).where(eq(visitorSessions.visitorId, visitorId)).limit(1);
+    return row ?? undefined;
   }
 }
 

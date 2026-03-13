@@ -4526,5 +4526,255 @@ Rules:
     catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
+  // ─── National Office Market Map ────────────────────────────────────────────
+
+  const AU_CITY_COORDS: Record<string, { lat: number; lng: number }> = {
+    "Sydney":        { lat: -33.8688, lng: 151.2093 },
+    "Melbourne":     { lat: -37.8136, lng: 144.9631 },
+    "Brisbane":      { lat: -27.4698, lng: 153.0251 },
+    "Perth":         { lat: -31.9505, lng: 115.8605 },
+    "Adelaide":      { lat: -34.9285, lng: 138.6007 },
+    "Canberra":      { lat: -35.2809, lng: 149.1300 },
+    "Gold Coast":    { lat: -28.0167, lng: 153.4000 },
+    "Newcastle":     { lat: -32.9283, lng: 151.7817 },
+    "Wollongong":    { lat: -34.4278, lng: 150.8931 },
+    "Hobart":        { lat: -42.8821, lng: 147.3272 },
+    "Darwin":        { lat: -12.4634, lng: 130.8456 },
+    "Townsville":    { lat: -19.2590, lng: 146.8169 },
+    "Cairns":        { lat: -16.9186, lng: 145.7781 },
+    "Geelong":       { lat: -38.1499, lng: 144.3617 },
+    "Sunshine Coast":{ lat: -26.6500, lng: 153.0667 },
+    "Ballarat":      { lat: -37.5622, lng: 143.8503 },
+    "Bendigo":       { lat: -36.7570, lng: 144.2794 },
+    "Toowoomba":     { lat: -27.5598, lng: 151.9507 },
+    "Launceston":    { lat: -41.4332, lng: 147.1441 },
+    "Albury":        { lat: -36.0737, lng: 146.9135 },
+    "Mackay":        { lat: -21.1437, lng: 149.1859 },
+    "Rockhampton":   { lat: -23.3791, lng: 150.5100 },
+    "Bunbury":       { lat: -33.3271, lng: 115.6414 },
+  };
+
+  function getSignalColor(signalType: string): string {
+    const t = (signalType || "").toLowerCase();
+    if (t.includes("expan") || t.includes("growth") || t.includes("hiring")) return "orange";
+    if (t.includes("reloc") || t.includes("move")) return "red";
+    if (t.includes("lease") || t.includes("property")) return "blue";
+    if (t.includes("fund") || t.includes("invest")) return "green";
+    return "blue";
+  }
+
+  app.get("/api/market-map", async (_req, res) => {
+    try {
+      const cached = getCached<object>("market-map");
+      if (cached) return res.json(cached);
+
+      const radarRecords = await storage.getOfficeMovRadarRecords({ status: "New" });
+      const markers = radarRecords
+        .filter(r => r.status !== "Archived")
+        .map(r => {
+          const cityKey = Object.keys(AU_CITY_COORDS).find(c =>
+            (r.city || "").toLowerCase().includes(c.toLowerCase()) ||
+            c.toLowerCase().includes((r.city || "").toLowerCase())
+          );
+          const coords = cityKey ? AU_CITY_COORDS[cityKey] : null;
+          if (!coords) return null;
+
+          // Add slight jitter so markers in the same city don't stack
+          const jitter = () => (Math.random() - 0.5) * 0.04;
+          const pv = parseInt((r.estimatedProjectValue || "0").replace(/[^0-9]/g, "")) || 0;
+
+          return {
+            id: r.id,
+            companyName: r.companyName,
+            city: r.city,
+            state: r.state,
+            industry: r.industry,
+            lat: coords.lat + jitter(),
+            lng: coords.lng + jitter(),
+            signalType: r.signalType,
+            estimatedHeadcount: r.estimatedHeadcount,
+            estimatedOfficeSizeSqm: r.estimatedOfficeSizeSqm,
+            estimatedProjectValue: pv,
+            confidenceScore: r.radarScore,
+            priority: r.priority,
+            status: r.status,
+            sourceUrl: r.sourceUrl,
+            color: getSignalColor(r.signalType),
+            dateDetected: r.dateDetected,
+            linkedProspectId: r.linkedProspectId,
+          };
+        })
+        .filter(Boolean);
+
+      const payload = { markers, total: markers.length, updatedAt: new Date().toISOString() };
+      setCached("market-map", payload, 60_000);
+      res.json(payload);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/market-intelligence", async (_req, res) => {
+    try {
+      const cached = getCached<object>("market-intelligence");
+      if (cached) return res.json(cached);
+
+      const [all, active] = await Promise.all([
+        storage.getOfficeMovRadarRecords({}),
+        storage.getOfficeMovRadarRecords({ status: "New" }),
+      ]);
+
+      const byCity: Record<string, number> = {};
+      const byIndustry: Record<string, number> = {};
+      const bySignal: Record<string, number> = {};
+      let totalPipelineValue = 0;
+
+      for (const r of active) {
+        byCity[r.city] = (byCity[r.city] || 0) + 1;
+        if (r.industry) byIndustry[r.industry] = (byIndustry[r.industry] || 0) + 1;
+        bySignal[r.signalType] = (bySignal[r.signalType] || 0) + 1;
+        const pv = parseInt((r.estimatedProjectValue || "0").replace(/[^0-9]/g, "")) || 0;
+        totalPipelineValue += pv;
+      }
+
+      const topCities = Object.entries(byCity)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10)
+        .map(([city, count]) => ({ city, count }));
+
+      const topIndustries = Object.entries(byIndustry)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8)
+        .map(([industry, count]) => ({ industry, count }));
+
+      const payload = {
+        totalDetected: all.length,
+        activeSignals: active.length,
+        totalPipelineValue,
+        topCities,
+        topIndustries,
+        bySignalType: bySignal,
+        highPriority: active.filter(r => r.priority === "High").length,
+        recentSignals: active.slice(0, 10).map(r => ({
+          id: r.id, companyName: r.companyName, city: r.city,
+          signalType: r.signalType, priority: r.priority,
+          estimatedProjectValue: r.estimatedProjectValue, dateDetected: r.dateDetected,
+        })),
+      };
+      setCached("market-intelligence", payload, 60_000);
+      res.json(payload);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Company Visitor Identification ───────────────────────────────────────
+
+  function calcEngagementScore(pages: string[]): { score: number; intent: string } {
+    let score = 0;
+    const pathStr = pages.join(" ").toLowerCase();
+    if (pathStr.includes("/product")) score += 10;
+    if (pathStr.includes("/ai-workspace") || pathStr.includes("/workspace-planner") || pathStr.includes("/free-office-layout")) score += 25;
+    if (pathStr.includes("/upload-your-floor-plan")) score += 40;
+    if (pathStr.includes("/quote-builder") || pathStr.includes("/send-us-your-quote") || pathStr.includes("/finance-your-workspace")) score += 30;
+    if (pathStr.includes("/workplace-solution") || pathStr.includes("/workplace-strategy")) score += 20;
+    if (pathStr.includes("/contact")) score += 15;
+    if (pages.length >= 4) score += 10;
+    if (pages.length >= 7) score += 10;
+
+    let intent = "general_enquiry";
+    if (pathStr.includes("/upload-your-floor-plan") || pathStr.includes("/ai-workspace")) intent = "workspace_planning";
+    else if (pathStr.includes("/quote-builder") || pathStr.includes("/finance-your-workspace")) intent = "fitout_project";
+    else if (pathStr.includes("/product")) intent = "furniture_purchase";
+    else if (pathStr.includes("/workplace-solution") || pathStr.includes("/workplace-strategy")) intent = "office_expansion";
+
+    return { score: Math.min(score, 100), intent };
+  }
+
+  // Extend the existing pageview tracker to also update visitor sessions
+  app.post("/api/track/visitor-session", async (req, res) => {
+    try {
+      const { visitorId, pagePath, referrer, utmSource, sessionDuration } = req.body;
+      if (!visitorId || !pagePath) return res.json({ ok: false });
+
+      const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.socket.remoteAddress || "";
+      const ua = req.headers["user-agent"] || "";
+      const BOT_PATTERN = /bot|crawl|spider|slurp|mediapartners|googlebot|bingbot|facebookexternalhit|semrush|ahrefs|mj12bot/i;
+      if (BOT_PATTERN.test(ua)) return res.json({ ok: false, reason: "bot" });
+
+      const isMobile = /mobile|android|iphone|ipad/i.test(ua);
+      const deviceType = isMobile ? "mobile" : "desktop";
+
+      // Get current session to compute merged engagement score
+      const existingSession = await storage.getVisitorSessionByVisitorId(visitorId).catch(() => null);
+      const existingPages = (existingSession?.pagesViewed ?? []) as string[];
+      const mergedPages = [...new Set([...existingPages, pagePath])];
+      const { score, intent } = calcEngagementScore(mergedPages);
+
+      // IP enrichment — optional, non-blocking
+      let enriched: { city?: string; country?: string; org?: string; region?: string } = {};
+      const isPrivateIp = !ip || ip === "127.0.0.1" || ip.startsWith("192.168") || ip.startsWith("10.") || ip.startsWith("::1");
+      if (!isPrivateIp) {
+        try {
+          const ipResp = await fetch(`https://ipapi.co/${ip}/json/`, { signal: AbortSignal.timeout(2000) });
+          if (ipResp.ok) {
+            const ipData = await ipResp.json() as any;
+            enriched = { city: ipData.city, country: ipData.country_name, org: ipData.org, region: ipData.region };
+          }
+        } catch { /* optional */ }
+      }
+
+      const companyName = enriched.org ? enriched.org.replace(/^AS\d+\s*/i, "").trim() : undefined;
+
+      await storage.upsertVisitorSession(visitorId, {
+        pagesViewed: [pagePath],
+        engagementScore: score,
+        intent,
+        deviceType,
+        city: enriched.city,
+        country: enriched.country,
+        region: enriched.region,
+        companyName: companyName || undefined,
+        isp: enriched.org,
+        referrer: referrer || undefined,
+        utmSource: utmSource || undefined,
+        sessionDurationSeconds: sessionDuration || 0,
+        ipAddress: ip || undefined,
+      });
+
+      res.json({ ok: true, score, intent });
+    } catch (err: any) {
+      res.json({ ok: false });
+    }
+  });
+
+  app.get("/api/admin/company-visitors", async (req, res) => {
+    try {
+      const { minScore, intent, city } = req.query;
+      const sessions = await storage.getVisitorSessions({
+        minScore: minScore ? parseInt(minScore as string) : undefined,
+        intent: intent as string | undefined,
+        city: city as string | undefined,
+        limit: 200,
+      });
+      res.json(sessions);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/company-visitors/stats", async (_req, res) => {
+    try {
+      const sessions = await storage.getVisitorSessions({ limit: 1000 });
+      const highIntent = sessions.filter(s => (s.engagementScore ?? 0) >= 40);
+      const byCity: Record<string, number> = {};
+      const byIntent: Record<string, number> = {};
+      for (const s of sessions) {
+        if (s.city) byCity[s.city] = (byCity[s.city] || 0) + 1;
+        if (s.intent) byIntent[s.intent] = (byIntent[s.intent] || 0) + 1;
+      }
+      res.json({
+        total: sessions.length,
+        highIntent: highIntent.length,
+        byCity: Object.entries(byCity).sort((a,b) => b[1]-a[1]).slice(0,10),
+        byIntent: Object.entries(byIntent).sort((a,b) => b[1]-a[1]),
+      });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
   return httpServer;
 }

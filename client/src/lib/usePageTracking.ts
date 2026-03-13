@@ -23,6 +23,7 @@ function getUtmParams() {
 export function usePageTracking() {
   const [location] = useLocation();
   const lastTracked = useRef<string>("");
+  const sessionStart = useRef<number>(Date.now());
 
   useEffect(() => {
     const path = location || window.location.pathname;
@@ -32,11 +33,21 @@ export function usePageTracking() {
     const sessionId = getOrCreateSessionId();
     const referrer = document.referrer || undefined;
     const utms = getUtmParams();
+    const sessionDuration = Math.round((Date.now() - sessionStart.current) / 1000);
 
+    // Existing analytics pageview tracker
     fetch("/api/track/pageview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ pagePath: path, referrer, sessionId, ...utms }),
+      keepalive: true,
+    }).catch(() => {});
+
+    // Company visitor identification — enrich with IP and score engagement
+    fetch("/api/track/visitor-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ visitorId: sessionId, pagePath: path, referrer, utmSource: utms.utmSource, sessionDuration }),
       keepalive: true,
     }).catch(() => {});
   }, [location]);

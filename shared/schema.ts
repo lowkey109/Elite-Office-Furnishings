@@ -835,3 +835,34 @@ export const rfqResponses = pgTable("rfq_responses", {
 export const insertRfqResponseSchema = createInsertSchema(rfqResponses).omit({ id: true, createdAt: true });
 export type InsertRfqResponse = z.infer<typeof insertRfqResponseSchema>;
 export type RfqResponse = typeof rfqResponses.$inferSelect;
+
+// ─── Visitor Sessions ─────────────────────────────────────────────────────────
+export const visitorSessions = pgTable("visitor_sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  visitorId: text("visitor_id").notNull(),           // anonymous cookie-based ID
+  ipAddress: text("ip_address"),
+  country: text("country"),
+  city: text("city"),
+  region: text("region"),
+  companyName: text("company_name"),                 // from IP org enrichment
+  companyDomain: text("company_domain"),
+  isp: text("isp"),                                  // ISP / org from IP lookup
+  industry: text("industry"),
+  deviceType: text("device_type"),
+  browser: text("browser"),
+  pagesViewed: text("pages_viewed").array().notNull().default(sql`'{}'`),
+  sessionDurationSeconds: integer("session_duration_seconds").default(0),
+  engagementScore: integer("engagement_score").notNull().default(0),
+  intent: text("intent"),                            // workspace_planning|office_relocation|furniture_purchase|fitout_project|general_enquiry
+  estimatedProjectValue: integer("estimated_project_value"),
+  confidenceScore: integer("confidence_score").default(0),
+  pushedToPipeline: boolean("pushed_to_pipeline").default(false),
+  isBot: boolean("is_bot").default(false),
+  referrer: text("referrer"),
+  utmSource: text("utm_source"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertVisitorSessionSchema = createInsertSchema(visitorSessions).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertVisitorSession = z.infer<typeof insertVisitorSessionSchema>;
+export type VisitorSession = typeof visitorSessions.$inferSelect;
