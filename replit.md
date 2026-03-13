@@ -28,6 +28,8 @@ The aesthetic is dark luxury gold, utilizing near-black backgrounds, rich gold a
 - **Marketing Hub**: AI-generated content creation and direct posting to marketing channels.
 - **Admin Dashboard**: Provides KPIs, lead overviews, and administrative functionalities.
 - **Opportunity Scoring Engine v2**: Deterministic signal model scoring inbound leads (0–100) with dynamic tier assignment (enterprise/high/medium/low) based on 11 signal types.
+- **Supplier Procurement Intelligence**: Supplier performance profiles (6-axis scoring: pricing, delivery, reliability, quality, installation, responsiveness), RFQ project creation with auto-furniture-list generation from headcount, supplier routing matrix, RFQ email draft generation, and supplier response tracking with accept/reject workflow. Tables: `supplier_profiles`, `rfq_projects`, `rfq_responses`. Admin UI at `/admin/supplier-intelligence`.
+- **Alex WhatsApp AI Persona**: WhatsApp webhook now uses "Alex, Operations Manager" persona with micro-commitment conversion method, HOT/WARM/COLD lead qualification, discovery flow, workspace planning knowledge (8–12 sqm/staff), and automatic lead capture every 4 messages with DB upsert.
 - **Workspace Learning System**: Auto-captures project intelligence from AI Planner submissions to calibrate future AI recommendations.
 - **Stripe Paywall**: Gated access to premium AI Workspace Planning Reports ($399 AUD) which include detailed SVG floor plans, zone cards, product SKUs, cost breakdowns, and 3D walkthroughs.
 - **Product Catalogue**: A live catalogue of 330 SKUs from 5 supplier collections with public brand mapping, product detail pages, size variant selectors, image galleries, and a review system.

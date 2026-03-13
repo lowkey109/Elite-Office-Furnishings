@@ -36,6 +36,7 @@ import AdminLeaseSignals from "@/pages/AdminLeaseSignals";
 import AdminDealPipeline from "@/pages/AdminDealPipeline";
 import AdminTerritoryScanner from "@/pages/AdminTerritoryScanner";
 import AdminProcurementEngine from "@/pages/AdminProcurementEngine";
+import AdminSupplierIntelligence from "@/pages/AdminSupplierIntelligence";
 import AdminWorkspaceLearning from "@/pages/AdminWorkspaceLearning";
 import AdminIntelligenceHub from "@/pages/AdminIntelligenceHub";
 import AdminProfitEngine from "@/pages/AdminProfitEngine";
@@ -95,6 +96,7 @@ function Router() {
       <Route path="/admin/deal-pipeline" component={AdminDealPipeline} />
       <Route path="/admin/territory-scanner" component={AdminTerritoryScanner} />
       <Route path="/admin/procurement-engine" component={AdminProcurementEngine} />
+      <Route path="/admin/supplier-intelligence" component={AdminSupplierIntelligence} />
       <Route path="/admin/workspace-learning" component={AdminWorkspaceLearning} />
       <Route path="/admin/intelligence-hub" component={AdminIntelligenceHub} />
       <Route path="/admin/profit-engine" component={AdminProfitEngine} />

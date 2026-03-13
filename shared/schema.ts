@@ -764,3 +764,74 @@ export const siteVisits = pgTable("site_visits", {
 export const insertSiteVisitSchema = createInsertSchema(siteVisits).omit({ id: true, createdAt: true });
 export type InsertSiteVisit = z.infer<typeof insertSiteVisitSchema>;
 export type SiteVisit = typeof siteVisits.$inferSelect;
+
+// ─── Supplier Performance Profiles ───────────────────────────────────────────
+
+export const supplierProfiles = pgTable("supplier_profiles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  supplierId: text("supplier_id").notNull().unique(),
+  supplierName: text("supplier_name").notNull(),
+  contactName: text("contact_name"),
+  email: text("email"),
+  phone: text("phone"),
+  country: text("country"),
+  specializations: text("specializations"), // JSON string[]
+  pricingScore: integer("pricing_score").default(3),       // 1–5
+  deliveryScore: integer("delivery_score").default(3),     // 1–5
+  reliabilityScore: integer("reliability_score").default(3), // 1–5
+  qualityScore: integer("quality_score").default(3),       // 1–5
+  installationScore: integer("installation_score").default(3), // 1–5
+  responsivenessScore: integer("responsiveness_score").default(3), // 1–5
+  overallScore: integer("overall_score"),
+  notes: text("notes"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertSupplierProfileSchema = createInsertSchema(supplierProfiles).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertSupplierProfile = z.infer<typeof insertSupplierProfileSchema>;
+export type SupplierProfile = typeof supplierProfiles.$inferSelect;
+
+// ─── RFQ Projects ─────────────────────────────────────────────────────────────
+
+export const rfqProjects = pgTable("rfq_projects", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectName: text("project_name").notNull(),
+  clientName: text("client_name"),
+  clientCompany: text("client_company"),
+  clientEmail: text("client_email"),
+  city: text("city"),
+  headcount: integer("headcount"),
+  officeSizeSqm: integer("office_size_sqm"),
+  budget: text("budget"),
+  timeline: text("timeline"),
+  status: text("status").notNull().default("draft"), // draft | sent | responding | awarded | complete
+  furnitureJson: text("furniture_json"),         // JSON: [{category, quantity, notes}]
+  recommendationsJson: text("recommendations_json"), // JSON: [{supplier, categories, reason}]
+  linkedLeadId: varchar("linked_lead_id"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertRfqProjectSchema = createInsertSchema(rfqProjects).omit({ id: true, createdAt: true });
+export type InsertRfqProject = z.infer<typeof insertRfqProjectSchema>;
+export type RfqProject = typeof rfqProjects.$inferSelect;
+
+// ─── RFQ Responses ────────────────────────────────────────────────────────────
+
+export const rfqResponses = pgTable("rfq_responses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  rfqProjectId: varchar("rfq_project_id").notNull(),
+  supplierName: text("supplier_name").notNull(),
+  category: text("category").notNull(),
+  quotedUnitPrice: text("quoted_unit_price"),
+  quotedTotalPrice: text("quoted_total_price"),
+  deliveryWeeks: text("delivery_weeks"),
+  availability: text("availability"),
+  alternatives: text("alternatives"),
+  notes: text("notes"),
+  status: text("status").notNull().default("received"), // received | accepted | rejected
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertRfqResponseSchema = createInsertSchema(rfqResponses).omit({ id: true, createdAt: true });
+export type InsertRfqResponse = z.infer<typeof insertRfqResponseSchema>;
+export type RfqResponse = typeof rfqResponses.$inferSelect;

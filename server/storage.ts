@@ -7,6 +7,7 @@ import {
   generatedBlogArticles, quotes, officeMovRadar, buildingSignals, dealIntelligenceRecords,
   partners, partnerOpportunities, partnerReferrals, revenueShareRecords,
   relocationSignals, workspaceStrategyRecommendations, dealHunterSignals,
+  supplierProfiles, rfqProjects, rfqResponses,
   type User, type InsertUser, type Lead, type InsertLead, type PlanningRequest,
   type ProductReview, type InsertProductReview,
   type ManufacturerMessage, type InsertManufacturerMessage,
@@ -26,6 +27,9 @@ import {
   type RelocationSignal, type InsertRelocationSignal,
   type WorkspaceStrategyRecommendation, type InsertWorkspaceStrategy,
   type DealHunterSignal, type InsertDealHunterSignal,
+  type SupplierProfile, type InsertSupplierProfile,
+  type RfqProject, type InsertRfqProject,
+  type RfqResponse, type InsertRfqResponse,
 } from "@shared/schema";
 
 export interface ProspectedLead {
@@ -283,6 +287,26 @@ export interface IStorage {
   deleteDealHunterSignal(id: string): Promise<void>;
   getDealHunterStats(): Promise<{ total: number; newCount: number; highCount: number; mediumCount: number; lowCount: number; pushedCount: number; dismissedCount: number; totalPipelineValue: number }>;
   findDuplicateDealHunterSignal(companyName: string, city: string, signalType: string): Promise<DealHunterSignal | undefined>;
+
+  // Supplier Profiles
+  createSupplierProfile(data: InsertSupplierProfile): Promise<SupplierProfile>;
+  getSupplierProfiles(): Promise<SupplierProfile[]>;
+  getSupplierProfile(id: string): Promise<SupplierProfile | undefined>;
+  updateSupplierProfile(id: string, data: Partial<SupplierProfile>): Promise<SupplierProfile | undefined>;
+  deleteSupplierProfile(id: string): Promise<void>;
+
+  // RFQ Projects
+  createRfqProject(data: InsertRfqProject): Promise<RfqProject>;
+  getRfqProjects(): Promise<RfqProject[]>;
+  getRfqProject(id: string): Promise<RfqProject | undefined>;
+  updateRfqProject(id: string, data: Partial<RfqProject>): Promise<RfqProject | undefined>;
+  deleteRfqProject(id: string): Promise<void>;
+
+  // RFQ Responses
+  createRfqResponse(data: InsertRfqResponse): Promise<RfqResponse>;
+  getRfqResponsesByProject(rfqProjectId: string): Promise<RfqResponse[]>;
+  updateRfqResponse(id: string, data: Partial<RfqResponse>): Promise<RfqResponse | undefined>;
+  deleteRfqResponse(id: string): Promise<void>;
 }
 
 function rowToProspectedLead(row: typeof prospectedLeads.$inferSelect): ProspectedLead {
@@ -1336,6 +1360,87 @@ export class DrizzleStorage implements IStorage {
       .orderBy(desc(dealHunterSignals.createdAt))
       .limit(1);
     return row ?? undefined;
+  }
+
+  // ─── Supplier Profiles ────────────────────────────────────────────────────
+
+  async createSupplierProfile(data: InsertSupplierProfile): Promise<SupplierProfile> {
+    const [row] = await db.insert(supplierProfiles).values(data as any).returning();
+    return row;
+  }
+
+  async getSupplierProfiles(): Promise<SupplierProfile[]> {
+    return db.select().from(supplierProfiles).orderBy(desc(supplierProfiles.overallScore));
+  }
+
+  async getSupplierProfile(id: string): Promise<SupplierProfile | undefined> {
+    const [row] = await db.select().from(supplierProfiles).where(eq(supplierProfiles.id, id));
+    return row ?? undefined;
+  }
+
+  async updateSupplierProfile(id: string, data: Partial<SupplierProfile>): Promise<SupplierProfile | undefined> {
+    const [row] = await db.update(supplierProfiles)
+      .set({ ...data as any, updatedAt: new Date() })
+      .where(eq(supplierProfiles.id, id))
+      .returning();
+    return row ?? undefined;
+  }
+
+  async deleteSupplierProfile(id: string): Promise<void> {
+    await db.delete(supplierProfiles).where(eq(supplierProfiles.id, id));
+  }
+
+  // ─── RFQ Projects ─────────────────────────────────────────────────────────
+
+  async createRfqProject(data: InsertRfqProject): Promise<RfqProject> {
+    const [row] = await db.insert(rfqProjects).values(data as any).returning();
+    return row;
+  }
+
+  async getRfqProjects(): Promise<RfqProject[]> {
+    return db.select().from(rfqProjects).orderBy(desc(rfqProjects.createdAt));
+  }
+
+  async getRfqProject(id: string): Promise<RfqProject | undefined> {
+    const [row] = await db.select().from(rfqProjects).where(eq(rfqProjects.id, id));
+    return row ?? undefined;
+  }
+
+  async updateRfqProject(id: string, data: Partial<RfqProject>): Promise<RfqProject | undefined> {
+    const [row] = await db.update(rfqProjects)
+      .set(data as any)
+      .where(eq(rfqProjects.id, id))
+      .returning();
+    return row ?? undefined;
+  }
+
+  async deleteRfqProject(id: string): Promise<void> {
+    await db.delete(rfqProjects).where(eq(rfqProjects.id, id));
+  }
+
+  // ─── RFQ Responses ────────────────────────────────────────────────────────
+
+  async createRfqResponse(data: InsertRfqResponse): Promise<RfqResponse> {
+    const [row] = await db.insert(rfqResponses).values(data as any).returning();
+    return row;
+  }
+
+  async getRfqResponsesByProject(rfqProjectId: string): Promise<RfqResponse[]> {
+    return db.select().from(rfqResponses)
+      .where(eq(rfqResponses.rfqProjectId, rfqProjectId))
+      .orderBy(desc(rfqResponses.createdAt));
+  }
+
+  async updateRfqResponse(id: string, data: Partial<RfqResponse>): Promise<RfqResponse | undefined> {
+    const [row] = await db.update(rfqResponses)
+      .set(data as any)
+      .where(eq(rfqResponses.id, id))
+      .returning();
+    return row ?? undefined;
+  }
+
+  async deleteRfqResponse(id: string): Promise<void> {
+    await db.delete(rfqResponses).where(eq(rfqResponses.id, id));
   }
 }
 

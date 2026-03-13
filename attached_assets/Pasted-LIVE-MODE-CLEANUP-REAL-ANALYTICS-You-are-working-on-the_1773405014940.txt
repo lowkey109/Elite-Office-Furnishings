@@ -1,0 +1,145 @@
+LIVE MODE CLEANUP + REAL ANALYTICS
+
+You are working on the live Corporate Desk platform.
+
+The bug-fix pass has already been completed.
+Do NOT rebuild or redesign anything.
+Do NOT touch working systems unless required for cleanup or analytics.
+
+Protect:
+- Office Move Radar
+- Alex Operations Manager
+- WhatsApp webhook
+- quote builder
+- workspace planner
+- product catalogue
+- supplier system
+- deal pipeline
+- admin auth
+- scheduler jobs
+- published live site
+
+==================================================
+PART 1 — REMOVE DEMO / SEEDED DATA
+==================================================
+
+Audit the database and identify all demo, seeded, fake, placeholder, or test records currently shown in admin.
+
+Remove or archive demo data from:
+- fake radar signals
+- demo leads
+- demo hot leads
+- demo quote requests
+- demo finance leads
+- demo revenue forecast numbers
+- demo recent activity
+- demo pipeline values
+- demo dashboard counters
+
+KEEP:
+- users
+- products
+- integrations
+- real settings
+- real webhook connections
+- real routes
+- real scheduler code
+- real conversations
+- real enquiries
+- real opportunities
+
+Rules:
+- Never delete records where source != demo/test/seeded/placeholder
+- If a record cannot be confidently identified as demo, preserve it
+- Prefer archive over hard delete
+- After cleanup, dashboard should show zero if no real data exists
+
+==================================================
+PART 2 — REAL WEBSITE ANALYTICS
+==================================================
+
+Implement real traffic analytics on the live site.
+
+Track and report:
+- visitors today
+- visitors this week
+- visitors this month
+- visitors this year
+- page views
+- top landing pages
+- traffic sources if available
+
+Use real tracking only.
+Do not show fake numbers.
+
+==================================================
+PART 3 — REAL LEAD ANALYTICS
+==================================================
+
+Track and report:
+- leads today
+- leads this week
+- leads this month
+- leads this year
+- lead type breakdown
+- visitor to lead conversion rate
+
+Lead types may include:
+- website enquiry
+- workspace planner
+- quote request
+- WhatsApp
+- radar opportunity
+
+==================================================
+PART 4 — ADMIN DASHBOARD UPDATE
+==================================================
+
+Update the admin dashboard so it shows two clean sections:
+
+TRAFFIC
+- unique visitors today
+- unique visitors this week
+- unique visitors this month
+- unique visitors this year
+- page views
+- top pages
+- traffic sources
+
+LEADS
+- new leads today
+- new leads this week
+- new leads this month
+- new leads this year
+- lead type breakdown
+- visitor to lead conversion rate
+
+The dashboard must show real data only.
+If there is no data yet, display zero cleanly.
+
+==================================================
+PART 5 — TESTING
+==================================================
+
+Verify:
+1. demo data removed or archived
+2. no real data deleted
+3. live visitor tracking records real visits
+4. live lead tracking records real enquiries
+5. traffic metrics calculate correctly
+6. lead metrics calculate correctly
+7. admin dashboard loads correctly
+8. existing systems remain stable
+
+==================================================
+FINAL REPORT
+==================================================
+
+Return:
+- files changed
+- tables/collections changed
+- what demo data was removed or archived
+- how visitor tracking works
+- how lead tracking works
+- where analytics appear in admin
+- confirmation that dashboard now shows real data only

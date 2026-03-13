@@ -4340,5 +4340,140 @@ Rules:
     }
   });
 
+  // ─── Supplier Procurement Intelligence ───────────────────────────────────────
+
+  // Supplier profiles
+  app.get("/api/admin/supplier-profiles", async (_req, res) => {
+    try { res.json(await storage.getSupplierProfiles()); }
+    catch (e: any) { res.status(500).json({ error: e.message }); }
+  });
+
+  app.post("/api/admin/supplier-profiles", async (req, res) => {
+    try {
+      const { computeSupplierScore } = await import("./services/supplierProcurement.js");
+      const data = req.body;
+      const overallScore = computeSupplierScore(data);
+      const profile = await storage.createSupplierProfile({ ...data, overallScore });
+      res.json(profile);
+    } catch (e: any) { res.status(500).json({ error: e.message }); }
+  });
+
+  app.patch("/api/admin/supplier-profiles/:id", async (req, res) => {
+    try {
+      const { computeSupplierScore } = await import("./services/supplierProcurement.js");
+      const data = req.body;
+      const overallScore = computeSupplierScore(data);
+      const profile = await storage.updateSupplierProfile(req.params.id, { ...data, overallScore });
+      res.json(profile);
+    } catch (e: any) { res.status(500).json({ error: e.message }); }
+  });
+
+  app.delete("/api/admin/supplier-profiles/:id", async (req, res) => {
+    try { await storage.deleteSupplierProfile(req.params.id); res.json({ ok: true }); }
+    catch (e: any) { res.status(500).json({ error: e.message }); }
+  });
+
+  // Auto-generate furniture list from headcount
+  app.post("/api/admin/rfq/auto-generate-furniture", async (req, res) => {
+    try {
+      const { headcount, hasReception, hasBoardroom } = req.body;
+      if (!headcount || headcount < 1) return res.status(400).json({ error: "headcount required" });
+      const { autoGenerateFurnitureList, routeFurnitureToSuppliers } = await import("./services/supplierProcurement.js");
+      const furniture = autoGenerateFurnitureList(Number(headcount), hasReception, hasBoardroom);
+      const routing = routeFurnitureToSuppliers(furniture);
+      res.json({ furniture, routing });
+    } catch (e: any) { res.status(500).json({ error: e.message }); }
+  });
+
+  // RFQ Projects
+  app.get("/api/admin/rfq", async (_req, res) => {
+    try { res.json(await storage.getRfqProjects()); }
+    catch (e: any) { res.status(500).json({ error: e.message }); }
+  });
+
+  app.post("/api/admin/rfq", async (req, res) => {
+    try {
+      const { routeFurnitureToSuppliers } = await import("./services/supplierProcurement.js");
+      const body = req.body;
+      let furnitureJson = body.furnitureJson;
+      let recommendationsJson = body.recommendationsJson;
+
+      if (furnitureJson && !recommendationsJson) {
+        const items = JSON.parse(furnitureJson);
+        const routing = routeFurnitureToSuppliers(items);
+        recommendationsJson = JSON.stringify(routing);
+      }
+
+      const project = await storage.createRfqProject({ ...body, furnitureJson, recommendationsJson });
+      res.json(project);
+    } catch (e: any) { res.status(500).json({ error: e.message }); }
+  });
+
+  app.get("/api/admin/rfq/:id", async (req, res) => {
+    try {
+      const project = await storage.getRfqProject(req.params.id);
+      if (!project) return res.status(404).json({ error: "Not found" });
+      const responses = await storage.getRfqResponsesByProject(req.params.id);
+      res.json({ project, responses });
+    } catch (e: any) { res.status(500).json({ error: e.message }); }
+  });
+
+  app.patch("/api/admin/rfq/:id", async (req, res) => {
+    try {
+      const project = await storage.updateRfqProject(req.params.id, req.body);
+      res.json(project);
+    } catch (e: any) { res.status(500).json({ error: e.message }); }
+  });
+
+  app.delete("/api/admin/rfq/:id", async (req, res) => {
+    try { await storage.deleteRfqProject(req.params.id); res.json({ ok: true }); }
+    catch (e: any) { res.status(500).json({ error: e.message }); }
+  });
+
+  // Generate RFQ email drafts for a project
+  app.post("/api/admin/rfq/:id/generate-emails", async (req, res) => {
+    try {
+      const { generateRfqEmail, routeFurnitureToSuppliers } = await import("./services/supplierProcurement.js");
+      const project = await storage.getRfqProject(req.params.id);
+      if (!project) return res.status(404).json({ error: "Not found" });
+
+      const furniture = project.furnitureJson ? JSON.parse(project.furnitureJson) : [];
+      const suppliers: any[] = project.recommendationsJson ? JSON.parse(project.recommendationsJson) : routeFurnitureToSuppliers(furniture);
+
+      const emails = suppliers.map(s => generateRfqEmail(s, furniture, {
+        projectName: project.projectName,
+        clientCompany: project.clientCompany,
+        city: project.city,
+        timeline: project.timeline,
+        headcount: project.headcount,
+      }));
+
+      await storage.updateRfqProject(req.params.id, { status: "sent" });
+      res.json({ emails });
+    } catch (e: any) { res.status(500).json({ error: e.message }); }
+  });
+
+  // RFQ Responses
+  app.post("/api/admin/rfq/:id/responses", async (req, res) => {
+    try {
+      const response = await storage.createRfqResponse({ ...req.body, rfqProjectId: req.params.id });
+      // Auto-update project to "responding" status
+      await storage.updateRfqProject(req.params.id, { status: "responding" });
+      res.json(response);
+    } catch (e: any) { res.status(500).json({ error: e.message }); }
+  });
+
+  app.patch("/api/admin/rfq/responses/:responseId", async (req, res) => {
+    try {
+      const response = await storage.updateRfqResponse(req.params.responseId, req.body);
+      res.json(response);
+    } catch (e: any) { res.status(500).json({ error: e.message }); }
+  });
+
+  app.delete("/api/admin/rfq/responses/:responseId", async (req, res) => {
+    try { await storage.deleteRfqResponse(req.params.responseId); res.json({ ok: true }); }
+    catch (e: any) { res.status(500).json({ error: e.message }); }
+  });
+
   return httpServer;
 }

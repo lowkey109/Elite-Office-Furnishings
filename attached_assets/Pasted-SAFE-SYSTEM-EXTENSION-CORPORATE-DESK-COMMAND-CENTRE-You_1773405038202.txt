@@ -1,0 +1,240 @@
+SAFE SYSTEM EXTENSION — CORPORATE DESK COMMAND CENTRE
+
+You are a senior SaaS architect, data engineer, and platform engineer working on the live Corporate Desk platform.
+
+Your task is to build the Corporate Desk Command Centre.
+
+This dashboard becomes the operational control hub for the entire system.
+
+Do NOT break existing systems including:
+
+• Office Move Radar
+• Workspace Design Engine
+• Alex Operations Manager AI
+• Quote Builder
+• Supplier RFQ automation
+• Product catalogue
+• Deal pipeline
+• WhatsApp assistant
+• website chat
+• analytics tracking
+• authentication
+• scheduler jobs
+
+You must extend the system safely.
+
+--------------------------------------------------
+
+PRIMARY OBJECTIVE
+
+Create a single command dashboard that allows the operator to see the entire platform in one place.
+
+The command centre should display real-time intelligence and operational activity.
+
+--------------------------------------------------
+
+COMMAND CENTRE LOCATION
+
+Create admin route:
+
+/admin/command-centre
+
+This becomes the main operational dashboard.
+
+--------------------------------------------------
+
+SECTION 1 — MARKET INTELLIGENCE
+
+Display signals detected by the Office Move Radar.
+
+Show:
+
+• company name
+• city
+• signal type
+• confidence score
+• estimated project value
+• source link
+• status
+
+Allow quick actions:
+
+• generate outreach
+• add to pipeline
+• mark reviewed
+
+--------------------------------------------------
+
+SECTION 2 — VISITOR INTELLIGENCE
+
+Display companies visiting the website when identifiable.
+
+Show:
+
+• company name
+• location
+• industry
+• visits
+• pages viewed
+• last visit time
+
+Highlight repeat visits.
+
+--------------------------------------------------
+
+SECTION 3 — LEAD INTAKE
+
+Display new leads captured from:
+
+• website chat
+• WhatsApp
+• contact forms
+• planner requests
+
+Show:
+
+• company
+• contact name
+• project type
+• lead score
+• status
+
+--------------------------------------------------
+
+SECTION 4 — PIPELINE
+
+Display current opportunities.
+
+Show:
+
+• company
+• stage
+• project value
+• probability
+• expected close date
+
+Also display:
+
+Total pipeline value.
+
+--------------------------------------------------
+
+SECTION 5 — QUOTES
+
+Show active quotes.
+
+Display:
+
+• client
+• project value
+• quote status
+• supplier responses
+• follow-up status
+
+--------------------------------------------------
+
+SECTION 6 — SUPPLIER RFQs
+
+Show active supplier requests.
+
+Display:
+
+• project
+• supplier
+• response status
+• quoted price
+• lead time
+
+Highlight fastest suppliers.
+
+--------------------------------------------------
+
+SECTION 7 — ANALYTICS
+
+Show live analytics.
+
+Display:
+
+Visitors Today  
+Visitors This Week  
+Visitors This Month  
+Visitors This Year  
+
+Leads Today  
+Leads This Week  
+Leads This Month  
+Leads This Year  
+
+Also display conversion funnel:
+
+Traffic → Lead → Quote → Deal
+
+--------------------------------------------------
+
+SECTION 8 — REVENUE FORECAST
+
+Display estimated revenue from pipeline.
+
+Show:
+
+• total pipeline value
+• expected revenue
+• deals likely to close this quarter
+
+--------------------------------------------------
+
+SECTION 9 — AI OPERATIONS MANAGER
+
+Display Alex activity feed.
+
+Show:
+
+• conversations handled
+• leads qualified
+• outreach messages generated
+• meetings scheduled
+
+--------------------------------------------------
+
+UI REQUIREMENTS
+
+The command centre must:
+
+• load quickly
+• use a clean card-based layout
+• display real data only
+• avoid demo placeholders
+• allow quick actions
+
+--------------------------------------------------
+
+TESTING
+
+Verify:
+
+1 radar signals appear
+2 leads appear
+3 pipeline data appears
+4 analytics update correctly
+5 RFQ data appears
+6 quotes appear
+7 Alex activity appears
+8 no existing systems break
+
+--------------------------------------------------
+
+FINAL RESULT
+
+The command centre becomes the operational brain of the Corporate Desk platform.
+
+The operator should be able to open one page and immediately see:
+
+market signals  
+visitor intelligence  
+new leads  
+pipeline value  
+quotes  
+supplier responses  
+revenue forecast
+
+All in one interface.
