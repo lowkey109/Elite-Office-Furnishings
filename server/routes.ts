@@ -3540,6 +3540,161 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
     }
   });
 
+  // Trigger real news RSS scan manually
+  app.post("/api/admin/office-move-radar/scan-news", async (req, res) => {
+    try {
+      const { runNewsFeedScan } = await import("./services/newsFeedScanner");
+      const result = await runNewsFeedScan();
+      res.json({ saved: result.saved, processed: result.processed, source: "news_rss" });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // Trigger real job signal scan manually
+  app.post("/api/admin/office-move-radar/scan-jobs", async (req, res) => {
+    try {
+      const { runJobSignalScan } = await import("./services/newsFeedScanner");
+      const result = await runJobSignalScan();
+      res.json({ saved: result.saved, processed: result.processed, source: "job_signal" });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // LinkedIn manual intake — admin pastes a real LinkedIn post URL + text
+  app.post("/api/admin/office-move-radar/linkedin-intake", async (req, res) => {
+    try {
+      const { postUrl, postText, companyName: hintCompany, city: hintCity } = req.body as {
+        postUrl: string;
+        postText: string;
+        companyName?: string;
+        city?: string;
+      };
+
+      if (!postUrl || !postText) {
+        return res.status(400).json({ error: "postUrl and postText are required" });
+      }
+
+      const openaiModule = await import("openai");
+      const client = new openaiModule.default({
+        apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+        baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+      });
+
+      const systemPrompt = `You are a commercial office intelligence analyst for Australia.
+You are given a real LinkedIn post. Extract key signals from it.
+You ONLY identify real, named companies — never invent or guess.
+Return ONLY valid JSON.`;
+
+      const userPrompt = `Analyse this LinkedIn post and extract the office/workspace signal.
+
+Post URL: ${postUrl}
+Post Text: ${postText}
+${hintCompany ? `Hint - Company Name: ${hintCompany}` : ""}
+${hintCity ? `Hint - City: ${hintCity}` : ""}
+
+Return a single JSON object:
+{
+  "isRelevant": true or false,
+  "companyName": "exact company name from the post, or null",
+  "city": "Australian city, or null",
+  "state": "Australian state abbreviation, or null",
+  "industry": "one of: Technology, Finance, Legal, Consulting, Retail, Healthcare, Property, Resources, Government, Education, Media, Other — or null",
+  "signalType": "one of: office_move, new_office_opening, office_expansion, refurbishment, hiring_surge, funding_growth, new_lease — or null",
+  "confidence": "high, medium, or low",
+  "evidenceExcerpt": "the most relevant sentence or phrase from the post that proves the signal, verbatim, max 200 chars",
+  "estimatedHeadcount": "e.g. 30-60 or null"
+}
+
+Rules:
+- companyName MUST come from the post text. If no specific company is named, set isRelevant to false.
+- Only return relevant if there is a real, named company with a clear office/workspace signal in Australia.`;
+
+      const resp = await client.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.1,
+        max_tokens: 600,
+      });
+
+      const raw = resp.choices[0].message.content ?? "{}";
+      let parsed: any;
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        return res.status(422).json({ error: "GPT returned invalid JSON", raw });
+      }
+
+      if (!parsed.isRelevant) {
+        return res.status(422).json({ error: "No relevant office signal detected in this post", parsed });
+      }
+      if (!parsed.companyName) {
+        return res.status(422).json({ error: "No specific company name identified in the post", parsed });
+      }
+
+      const city = parsed.city ?? hintCity ?? "Sydney";
+      const signalType = parsed.signalType ?? "office_move";
+
+      const existing = await storage.findRadarDuplicate(parsed.companyName, city, signalType);
+      if (existing) {
+        return res.status(409).json({
+          error: `A radar record for "${parsed.companyName}" in ${city} with signal "${signalType}" already exists.`,
+          existingId: existing.id,
+        });
+      }
+
+      const { scoreRadarSignal } = await import("./services/officeMovRadarService");
+      const scoring = scoreRadarSignal({
+        signalType,
+        confidenceLevel: parsed.confidence ?? "medium",
+        industry: parsed.industry ?? "Other",
+        city,
+        estimatedHeadcount: parsed.estimatedHeadcount ?? null,
+      });
+
+      const record = await storage.createOfficeMovRadarRecord({
+        companyName: parsed.companyName,
+        industry: parsed.industry ?? null,
+        city,
+        state: parsed.state ?? null,
+        country: "Australia",
+        signalType,
+        signalSubtype: null,
+        signalSource: "LinkedIn",
+        sourceUrl: postUrl,
+        confidenceLevel: parsed.confidence ?? "medium",
+        estimatedHeadcount: parsed.estimatedHeadcount ?? null,
+        estimatedOfficeSizeSqm: null,
+        estimatedProjectValue: null,
+        radarScore: scoring.radarScore,
+        priority: scoring.priority,
+        recommendedOutreachAngle: scoring.recommendedOutreachAngle ?? null,
+        recommendedOffer: scoring.recommendedOffer ?? null,
+        recommendedNextAction: scoring.recommendedNextAction ?? null,
+        outreachSubject: null,
+        outreachEmailDraft: null,
+        outreachFollowUp: null,
+        outreachCta: null,
+        linkedBuildingId: null,
+        linkedProspectId: null,
+        status: "New",
+        notes: parsed.evidenceExcerpt ?? postText.slice(0, 300),
+        sourceType: "linkedin",
+        verificationStatus: "source_post",
+        evidenceExcerpt: parsed.evidenceExcerpt ?? postText.slice(0, 300),
+      });
+
+      res.json({ record, scoring });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // ─── Building Signals ─────────────────────────────────────────────────────
 
   app.get("/api/admin/building-signals", async (req, res) => {

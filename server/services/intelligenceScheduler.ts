@@ -20,7 +20,9 @@ type JobType =
   | "system_health"
   | "weekly_report"
   | "radar_scan"
-  | "deal_hunter";
+  | "deal_hunter"
+  | "news_rss_scan"
+  | "job_signal_scan";
 
 const JOB_LABELS: Record<JobType, string> = {
   spending_trends: "Spending Trend Analysis",
@@ -30,6 +32,8 @@ const JOB_LABELS: Record<JobType, string> = {
   weekly_report: "Weekly Business Report",
   radar_scan: "Office Move Radar Scan",
   deal_hunter: "AI Deal Hunter Scan",
+  news_rss_scan: "News Feed Real Signal Scan",
+  job_signal_scan: "Job Posting Signal Scan",
 };
 
 // ─── Job runner ───────────────────────────────────────────────────────────────
@@ -91,6 +95,20 @@ async function runJob(jobType: JobType, triggeredBy: "scheduler" | "manual" = "s
         const { runDealHunterScan } = await import("./dealHunter");
         const result = await runDealHunterScan(8);
         resultSummary = `AI Deal Hunter scan complete — ${result.created} signals discovered, ${result.deduplicated} deduplicated`;
+        break;
+      }
+
+      case "news_rss_scan": {
+        const { runNewsFeedScan } = await import("./newsFeedScanner");
+        const result = await runNewsFeedScan();
+        resultSummary = `News RSS scan complete — ${result.saved} new signals from ${result.processed} articles`;
+        break;
+      }
+
+      case "job_signal_scan": {
+        const { runJobSignalScan } = await import("./newsFeedScanner");
+        const result = await runJobSignalScan();
+        resultSummary = `Job signal scan complete — ${result.saved} new signals from ${result.processed} articles`;
         break;
       }
     }
@@ -159,13 +177,21 @@ export function startIntelligenceScheduler(): void {
   setTimeout(() => runJob("deal_hunter"), 45 * 60 * 1000);
   setInterval(() => runJob("deal_hunter"), DAY);
 
-  console.log("[IntelligenceScheduler] Jobs scheduled: health(12h), trends(24h), issues(24h), seo(7d), report(7d), radar(24h), deal_hunter(24h)");
+  // News RSS real signal scan — every 12 hours (offset 60 minutes)
+  setTimeout(() => runJob("news_rss_scan"), 60 * 60 * 1000);
+  setInterval(() => runJob("news_rss_scan"), 12 * HOUR);
+
+  // Job posting signal scan — every 12 hours (offset 90 minutes)
+  setTimeout(() => runJob("job_signal_scan"), 90 * 60 * 1000);
+  setInterval(() => runJob("job_signal_scan"), 12 * HOUR);
+
+  console.log("[IntelligenceScheduler] Jobs scheduled: health(12h), trends(24h), issues(24h), seo(7d), report(7d), radar(24h), deal_hunter(24h), news_rss(12h), job_signal(12h)");
 }
 
 // ─── Manual trigger (for admin API) ──────────────────────────────────────────
 
 export async function triggerJobManually(jobType: string): Promise<{ success: boolean; message: string }> {
-  const validJobs: JobType[] = ["spending_trends", "seo_content", "website_issues", "system_health", "weekly_report", "radar_scan", "deal_hunter"];
+  const validJobs: JobType[] = ["spending_trends", "seo_content", "website_issues", "system_health", "weekly_report", "radar_scan", "deal_hunter", "news_rss_scan", "job_signal_scan"];
 
   if (!validJobs.includes(jobType as JobType)) {
     return { success: false, message: `Unknown job type: ${jobType}` };

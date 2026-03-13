@@ -439,6 +439,9 @@ export const officeMovRadar = pgTable("office_move_radar", {
   linkedProspectId: text("linked_prospect_id"),
   status: text("status").notNull().default("New"),
   notes: text("notes"),
+  sourceType: text("source_type").default("manual"),
+  verificationStatus: text("verification_status").default("unverified"),
+  evidenceExcerpt: text("evidence_excerpt"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

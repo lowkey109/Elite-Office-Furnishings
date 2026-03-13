@@ -2,10 +2,10 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import {
-  Radar, ArrowLeft, Plus, Search, Filter, RefreshCw, TrendingUp,
-  Building2, MapPin, Zap, AlertCircle, CheckCircle, ChevronDown,
+  Radar, ArrowLeft, Plus, Search, RefreshCw, TrendingUp,
+  Building2, MapPin, Zap, AlertCircle, CheckCircle,
   ExternalLink, ArrowRight, Trash2, Mail, Target, BarChart3, Eye,
-  Radio, Crosshair, Activity, Sparkles, X,
+  Radio, Crosshair, Activity, Sparkles, X, Linkedin, Newspaper, Briefcase,
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -64,6 +64,34 @@ const CITIES = ["Brisbane", "Sydney", "Melbourne", "Perth", "Adelaide", "Gold Co
 const PRIORITIES = ["High", "Medium", "Low"];
 const STATUSES = ["New", "Reviewing", "Outreach Sent", "In Pipeline", "Dismissed"];
 
+const SOURCE_TYPE_CONFIG: Record<string, { label: string; color: string; icon: JSX.Element }> = {
+  linkedin: {
+    label: "LinkedIn",
+    color: "bg-blue-600/20 text-blue-300 border-blue-600/30",
+    icon: <Linkedin className="w-2.5 h-2.5" />,
+  },
+  news_rss: {
+    label: "News Feed",
+    color: "bg-violet-500/20 text-violet-300 border-violet-500/30",
+    icon: <Newspaper className="w-2.5 h-2.5" />,
+  },
+  job_signal: {
+    label: "Job Signal",
+    color: "bg-sky-500/20 text-sky-300 border-sky-500/30",
+    icon: <Briefcase className="w-2.5 h-2.5" />,
+  },
+  ai_generated: {
+    label: "AI Scan",
+    color: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+    icon: <Sparkles className="w-2.5 h-2.5" />,
+  },
+  manual: {
+    label: "Manual",
+    color: "bg-zinc-600/30 text-zinc-400 border-zinc-600/40",
+    icon: <Plus className="w-2.5 h-2.5" />,
+  },
+};
+
 interface RadarRecord {
   id: string;
   companyName: string;
@@ -91,6 +119,9 @@ interface RadarRecord {
   linkedProspectId: string | null;
   status: string;
   notes: string | null;
+  sourceType: string | null;
+  verificationStatus: string | null;
+  evidenceExcerpt: string | null;
   createdAt: string;
 }
 
@@ -112,6 +143,127 @@ function ScoreBar({ score }: { score: number }) {
         <div className={`h-full rounded-full ${color}`} style={{ width: `${score}%` }} />
       </div>
       <span className="text-xs font-mono text-zinc-300 w-6 text-right">{score}</span>
+    </div>
+  );
+}
+
+function SourceBadge({ sourceType }: { sourceType: string | null }) {
+  if (!sourceType || sourceType === "manual") return null;
+  const cfg = SOURCE_TYPE_CONFIG[sourceType];
+  if (!cfg) return null;
+  return (
+    <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${cfg.color}`}>
+      {cfg.icon}{cfg.label}
+    </span>
+  );
+}
+
+function LinkedInIntakeModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
+  const { toast } = useToast();
+  const [form, setForm] = useState({
+    postUrl: "",
+    postText: "",
+    companyName: "",
+    city: "",
+  });
+
+  const mutation = useMutation({
+    mutationFn: (data: typeof form) =>
+      apiRequest("POST", "/api/admin/office-move-radar/linkedin-intake", data),
+    onSuccess: (data: any) => {
+      toast({
+        title: "Signal created from LinkedIn",
+        description: `${data.record?.companyName ?? "Record"} added with radar score ${data.record?.radarScore ?? "—"}.`,
+      });
+      onSaved();
+      onClose();
+    },
+    onError: (err: any) =>
+      toast({ title: "Import failed", description: err.message, variant: "destructive" }),
+  });
+
+  return (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-zinc-900 border border-zinc-700/50 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
+          <div>
+            <h2 className="text-white font-semibold text-lg flex items-center gap-2">
+              <Linkedin className="w-5 h-5 text-blue-400" />
+              LinkedIn Signal Intake
+            </h2>
+            <p className="text-zinc-500 text-xs mt-0.5">Paste a real LinkedIn post URL and text — GPT will classify and score it</p>
+          </div>
+          <button onClick={onClose} className="text-zinc-400 hover:text-white">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="text-zinc-400 text-xs font-medium block mb-1.5">LinkedIn Post URL *</label>
+            <input
+              data-testid="input-linkedin-url"
+              value={form.postUrl}
+              onChange={e => setForm(f => ({ ...f, postUrl: e.target.value }))}
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500/50"
+              placeholder="https://www.linkedin.com/posts/..."
+            />
+          </div>
+          <div>
+            <label className="text-zinc-400 text-xs font-medium block mb-1.5">Post Text (paste full text) *</label>
+            <textarea
+              data-testid="input-linkedin-text"
+              value={form.postText}
+              onChange={e => setForm(f => ({ ...f, postText: e.target.value }))}
+              rows={6}
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500/50 resize-none"
+              placeholder="Paste the full LinkedIn post text here..."
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-zinc-400 text-xs font-medium block mb-1.5">Company Name (optional hint)</label>
+              <input
+                value={form.companyName}
+                onChange={e => setForm(f => ({ ...f, companyName: e.target.value }))}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500/50"
+                placeholder="e.g. Atlassian"
+              />
+            </div>
+            <div>
+              <label className="text-zinc-400 text-xs font-medium block mb-1.5">City (optional hint)</label>
+              <select
+                value={form.city}
+                onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500/50"
+              >
+                <option value="">Auto-detect</option>
+                {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-3 text-xs text-blue-300">
+            GPT will extract: company name · city · signal type · confidence · evidence excerpt.
+            Only real office signals from named companies will be saved.
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button
+              onClick={onClose}
+              className="flex-1 px-4 py-2.5 rounded-xl border border-zinc-700 text-zinc-300 text-sm hover:border-zinc-600 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              data-testid="button-linkedin-submit"
+              onClick={() => mutation.mutate(form)}
+              disabled={!form.postUrl || !form.postText || mutation.isPending}
+              className="flex-1 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {mutation.isPending ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Linkedin className="w-4 h-4" />}
+              {mutation.isPending ? "Analysing..." : "Import Signal"}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -341,19 +493,31 @@ function RecordDetailPanel({
           </div>
 
           <div className="bg-zinc-800/30 rounded-xl p-4 space-y-2.5">
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${SIGNAL_COLORS[record.signalType] ?? "bg-zinc-700 text-zinc-300"}`}>
                 {SIGNAL_TYPES.find(s => s.value === record.signalType)?.label ?? record.signalType}
               </span>
               <span className="text-xs text-zinc-500">{record.confidenceLevel} confidence</span>
+              <SourceBadge sourceType={record.sourceType} />
+              {record.verificationStatus === "source_post" && (
+                <span className="text-xs text-emerald-400 flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" />Verified from source
+                </span>
+              )}
             </div>
-            {record.notes && <p className="text-sm text-zinc-300">{record.notes}</p>}
+            {record.evidenceExcerpt && (
+              <div className="bg-zinc-900/60 border border-zinc-700/50 rounded-lg px-3 py-2">
+                <p className="text-zinc-500 text-xs mb-0.5">Evidence excerpt</p>
+                <p className="text-xs text-zinc-300 italic">"{record.evidenceExcerpt}"</p>
+              </div>
+            )}
+            {record.notes && !record.evidenceExcerpt && <p className="text-sm text-zinc-300">{record.notes}</p>}
             {record.signalSource && (
               <p className="text-xs text-zinc-500">
                 Source: {record.signalSource}
                 {record.sourceUrl && (
                   <a href={record.sourceUrl} target="_blank" rel="noopener noreferrer" className="ml-2 text-amber-400 hover:text-amber-300">
-                    <ExternalLink className="w-3 h-3 inline" />
+                    <ExternalLink className="w-3 h-3 inline" /> View original
                   </a>
                 )}
               </p>
@@ -478,8 +642,11 @@ export default function AdminOfficeMovRadar() {
   const [filterStatus, setFilterStatus] = useState("");
   const [sortBy, setSortBy] = useState<"radarScore" | "estimatedProjectValue" | "dateDetected">("radarScore");
   const [showAdd, setShowAdd] = useState(false);
+  const [showLinkedIn, setShowLinkedIn] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<RadarRecord | null>(null);
   const [scanning, setScanning] = useState(false);
+  const [scanningNews, setScanningNews] = useState(false);
+  const [scanningJobs, setScanningJobs] = useState(false);
 
   const { data: records = [], isLoading, refetch } = useQuery<RadarRecord[]>({
     queryKey: ["/api/admin/office-move-radar", filterCity, filterSignal, filterPriority, filterStatus],
@@ -510,7 +677,7 @@ export default function AdminOfficeMovRadar() {
       });
       const data = await res.json();
       if (data.saved !== undefined) {
-        toast({ title: "Radar scan complete", description: `${data.saved} new opportunities detected.` });
+        toast({ title: "AI radar scan complete", description: `${data.saved} new opportunities detected.` });
         refetch();
         qc.invalidateQueries({ queryKey: ["/api/admin/office-move-radar/stats"] });
       } else {
@@ -520,6 +687,44 @@ export default function AdminOfficeMovRadar() {
       toast({ title: "Scan failed", description: "Could not connect to scanner", variant: "destructive" });
     } finally {
       setScanning(false);
+    }
+  };
+
+  const handleScanNews = async () => {
+    setScanningNews(true);
+    try {
+      const res = await fetch("/api/admin/office-move-radar/scan-news", { method: "POST" });
+      const data = await res.json();
+      if (data.saved !== undefined) {
+        toast({ title: "News feed scan complete", description: `${data.saved} new signals from ${data.processed} articles.` });
+        refetch();
+        qc.invalidateQueries({ queryKey: ["/api/admin/office-move-radar/stats"] });
+      } else {
+        toast({ title: "News scan error", description: data.error ?? "Unknown error", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "News scan failed", description: "Could not reach news feed scanner", variant: "destructive" });
+    } finally {
+      setScanningNews(false);
+    }
+  };
+
+  const handleScanJobs = async () => {
+    setScanningJobs(true);
+    try {
+      const res = await fetch("/api/admin/office-move-radar/scan-jobs", { method: "POST" });
+      const data = await res.json();
+      if (data.saved !== undefined) {
+        toast({ title: "Job signal scan complete", description: `${data.saved} new signals from ${data.processed} articles.` });
+        refetch();
+        qc.invalidateQueries({ queryKey: ["/api/admin/office-move-radar/stats"] });
+      } else {
+        toast({ title: "Job scan error", description: data.error ?? "Unknown error", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Job scan failed", description: "Could not reach job signal scanner", variant: "destructive" });
+    } finally {
+      setScanningJobs(false);
     }
   };
 
@@ -568,6 +773,15 @@ export default function AdminOfficeMovRadar() {
           }}
         />
       )}
+      {showLinkedIn && (
+        <LinkedInIntakeModal
+          onClose={() => setShowLinkedIn(false)}
+          onSaved={() => {
+            refetch();
+            qc.invalidateQueries({ queryKey: ["/api/admin/office-move-radar/stats"] });
+          }}
+        />
+      )}
       {selectedRecord && (
         <RecordDetailPanel
           record={selectedRecord}
@@ -594,20 +808,47 @@ export default function AdminOfficeMovRadar() {
             </h1>
             <p className="text-zinc-400 text-sm mt-0.5">Detect companies relocating, expanding, or fitting out — before they shop elsewhere</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              data-testid="button-scan-news"
+              onClick={handleScanNews}
+              disabled={scanningNews}
+              title="Scan Google News RSS for real office move signals"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-violet-600/20 hover:bg-violet-600/30 border border-violet-500/30 text-violet-300 text-xs font-medium transition-colors"
+            >
+              {scanningNews ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Newspaper className="w-3.5 h-3.5" />}
+              {scanningNews ? "Scanning..." : "News Feed"}
+            </button>
+            <button
+              data-testid="button-scan-jobs"
+              onClick={handleScanJobs}
+              disabled={scanningJobs}
+              title="Scan job postings for hiring/facilities signals"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-sky-600/20 hover:bg-sky-600/30 border border-sky-500/30 text-sky-300 text-xs font-medium transition-colors"
+            >
+              {scanningJobs ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Briefcase className="w-3.5 h-3.5" />}
+              {scanningJobs ? "Scanning..." : "Job Signals"}
+            </button>
+            <button
+              data-testid="button-linkedin-intake"
+              onClick={() => setShowLinkedIn(true)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-blue-300 text-xs font-medium transition-colors"
+            >
+              <Linkedin className="w-3.5 h-3.5" />LinkedIn
+            </button>
             <button
               data-testid="button-scan-radar"
               onClick={handleScan}
               disabled={scanning}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 text-sm font-medium transition-colors"
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 text-xs font-medium transition-colors"
             >
-              {scanning ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
-              {scanning ? "Scanning..." : "Run Scan"}
+              {scanning ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Crosshair className="w-3.5 h-3.5" />}
+              {scanning ? "Scanning..." : "AI Scan"}
             </button>
             <button
               data-testid="button-add-radar"
               onClick={() => setShowAdd(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm transition-colors"
             >
               <Plus className="w-4 h-4" />Add Signal
             </button>
@@ -738,6 +979,7 @@ export default function AdminOfficeMovRadar() {
                         <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[record.status] ?? "bg-zinc-700 text-zinc-300"}`}>
                           {record.status}
                         </span>
+                        <SourceBadge sourceType={record.sourceType} />
                       </div>
                       <div className="flex items-center gap-3 text-xs text-zinc-500 flex-wrap">
                         <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{record.city}</span>
