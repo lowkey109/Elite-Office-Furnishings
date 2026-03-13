@@ -3907,6 +3907,196 @@ Rules:
     }
   });
 
+  // ─── Company Intelligence ─────────────────────────────────────────────────
+
+  app.get("/api/admin/company-intelligence", async (req, res) => {
+    try {
+      const { country, city, priority, status, limit } = req.query as Record<string, string>;
+      const records = await storage.getCompanyIntelligenceRecords({
+        country: country || undefined,
+        city: city || undefined,
+        priority: priority || undefined,
+        status: status || undefined,
+        limit: limit ? parseInt(limit) : 200,
+      });
+      res.json(records);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/admin/company-intelligence/:id", async (req, res) => {
+    try {
+      const record = await storage.getCompanyIntelligence(req.params.id);
+      if (!record) return res.status(404).json({ error: "Not found" });
+      const contacts = await storage.getCompanyContacts(req.params.id);
+      res.json({ ...record, contacts });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/admin/company-intelligence/sync", async (req, res) => {
+    try {
+      const { syncCompanyIntelligence } = await import("./services/companyIntelligenceService");
+      const result = await syncCompanyIntelligence();
+      res.json({ success: true, ...result });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/admin/company-intelligence/:id/extract-contacts", async (req, res) => {
+    try {
+      const { extractOrgChartContacts } = await import("./services/companyIntelligenceService");
+      const result = await extractOrgChartContacts(req.params.id);
+      res.json({ success: true, ...result });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.delete("/api/admin/company-intelligence/:id", async (req, res) => {
+    try {
+      await storage.deleteCompanyContacts(req.params.id);
+      await storage.deleteCompanyIntelligence(req.params.id);
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ─── Deal Heatmap Data ────────────────────────────────────────────────────
+
+  app.get("/api/admin/heatmap-data", async (req, res) => {
+    try {
+      const [radarRecords, visitorSessions] = await Promise.all([
+        storage.getOfficeMovRadarRecords({}),
+        storage.getVisitorSessions({ limit: 1000 }),
+      ]);
+
+      // Group by city for Australian cities primarily
+      const AUS_CITIES = [
+        "Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide",
+        "Canberra", "Gold Coast", "Newcastle", "Sunshine Coast", "Hobart",
+        "Darwin", "Wollongong", "Geelong", "Townsville", "Cairns",
+      ];
+
+      const INTL_CITIES = [
+        "New York", "Austin", "San Francisco", "Los Angeles", "Chicago",
+        "London", "Manchester", "Birmingham",
+        "Auckland", "Wellington", "Christchurch",
+      ];
+
+      const allCities = [...AUS_CITIES, ...INTL_CITIES];
+
+      const cityData: Record<string, {
+        city: string;
+        country: string;
+        opportunities: number;
+        highPriority: number;
+        avgConfidence: number;
+        totalPipelineValue: number;
+        companies: { name: string; signalType: string; confidence: number; value: string; priority: string }[];
+      }> = {};
+
+      // Initialise city buckets
+      for (const city of allCities) {
+        const country = AUS_CITIES.includes(city) ? "Australia" :
+          ["New York", "Austin", "San Francisco", "Los Angeles", "Chicago"].includes(city) ? "United States" :
+          ["London", "Manchester", "Birmingham"].includes(city) ? "United Kingdom" : "New Zealand";
+        cityData[city] = { city, country, opportunities: 0, highPriority: 0, avgConfidence: 0, totalPipelineValue: 0, companies: [] };
+      }
+
+      // Process radar records
+      for (const rec of radarRecords) {
+        const matchedCity = allCities.find(c =>
+          rec.city?.toLowerCase().includes(c.toLowerCase()) || c.toLowerCase().includes(rec.city?.toLowerCase() || "")
+        );
+        const key = matchedCity || rec.city;
+        if (!cityData[key]) {
+          const country = rec.country || "Australia";
+          cityData[key] = { city: key, country, opportunities: 0, highPriority: 0, avgConfidence: 0, totalPipelineValue: 0, companies: [] };
+        }
+        const bucket = cityData[key];
+        bucket.opportunities++;
+        if (rec.priority === "High") bucket.highPriority++;
+        bucket.avgConfidence += rec.radarScore || 50;
+
+        const valueStr = rec.estimatedProjectValue || "";
+        const valueNum = (() => {
+          const m = valueStr.match(/\$?([\d,]+(?:\.\d+)?)\s*([KkMmBb]?)/);
+          if (!m) return 0;
+          const n = parseFloat(m[1].replace(/,/g, ""));
+          const s = (m[2] || "").toUpperCase();
+          return isNaN(n) ? 0 : s === "K" ? n * 1_000 : s === "M" ? n * 1_000_000 : s === "B" ? n * 1_000_000_000 : n;
+        })();
+        bucket.totalPipelineValue += valueNum;
+
+        if (bucket.companies.length < 10) {
+          bucket.companies.push({
+            name: rec.companyName,
+            signalType: rec.signalType,
+            confidence: rec.radarScore || 50,
+            value: rec.estimatedProjectValue || "N/A",
+            priority: rec.priority,
+          });
+        }
+      }
+
+      // Process visitor sessions (group by city)
+      for (const vs of visitorSessions) {
+        if (!vs.city || vs.isBot) continue;
+        const matchedCity = allCities.find(c =>
+          vs.city?.toLowerCase().includes(c.toLowerCase()) || c.toLowerCase().includes(vs.city?.toLowerCase() || "")
+        );
+        if (!matchedCity) continue;
+        const bucket = cityData[matchedCity];
+        if (!bucket) continue;
+        if (vs.companyName && !bucket.companies.find(c => c.name === vs.companyName)) {
+          bucket.opportunities++;
+          bucket.companies.push({
+            name: vs.companyName || "Website Visitor",
+            signalType: "visitor_intelligence",
+            confidence: vs.confidenceScore || 40,
+            value: vs.estimatedProjectValue ? `$${vs.estimatedProjectValue.toLocaleString()}` : "N/A",
+            priority: vs.engagementScore > 70 ? "High" : "Medium",
+          });
+        }
+      }
+
+      // Finalise averages and build result
+      const result = Object.values(cityData)
+        .filter(c => c.opportunities > 0)
+        .map(c => ({
+          ...c,
+          avgConfidence: c.opportunities > 0 ? Math.round(c.avgConfidence / c.opportunities) : 0,
+          formattedValue: c.totalPipelineValue > 0
+            ? `$${(c.totalPipelineValue / 1_000_000).toFixed(1)}M`
+            : "$0",
+        }))
+        .sort((a, b) => b.opportunities - a.opportunities);
+
+      // Country breakdowns for global pipeline visibility
+      const countryBreakdown = ["Australia", "United States", "United Kingdom", "New Zealand"].map(country => {
+        const countryCities = result.filter(c => c.country === country);
+        return {
+          country,
+          totalOpportunities: countryCities.reduce((s, c) => s + c.opportunities, 0),
+          totalPipelineValue: countryCities.reduce((s, c) => s + c.totalPipelineValue, 0),
+          formattedValue: `$${(countryCities.reduce((s, c) => s + c.totalPipelineValue, 0) / 1_000_000).toFixed(1)}M`,
+          cities: countryCities.length,
+        };
+      });
+
+      const hottestCity = result[0] || null;
+
+      res.json({ cities: result, countryBreakdown, hottestCity, totalOpportunities: result.reduce((s, c) => s + c.opportunities, 0) });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // ─── Building Signals ─────────────────────────────────────────────────────
 
   app.get("/api/admin/building-signals", async (req, res) => {

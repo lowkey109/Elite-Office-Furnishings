@@ -1,0 +1,154 @@
+CATALOG SOURCE CORRECTION — CORPORATE DESK
+
+The current build is incorrectly sourcing all product content from:
+
+thecorporatedesk.com.au
+
+This is causing the old supplier catalogue sheets and duplicate product blocks to appear in the new premium catalogue.
+
+The catalogue must NOT mirror the existing website database.
+
+Instead, the catalogue must be rebuilt using the uploaded supplier catalog files as the primary source.
+
+--------------------------------------------------
+
+OBJECTIVE
+
+Switch the catalogue source from the live website database to the uploaded catalog files.
+
+The system must extract and curate products directly from the supplier catalog files.
+
+--------------------------------------------------
+
+STEP 1 — IDENTIFY SOURCE
+
+Confirm where the catalogue data is currently coming from.
+
+If any product data is being fetched from:
+
+thecorporatedesk.com.au
+
+disconnect that source from the new premium catalogue.
+
+--------------------------------------------------
+
+STEP 2 — USE UPLOADED CATALOG FILES
+
+The uploaded supplier catalog files must be the new source of product data.
+
+From these files the system should extract:
+
+• product model
+• product category
+• available sizes
+• configurations
+• materials
+• product imagery
+
+--------------------------------------------------
+
+STEP 3 — PRODUCT CURATION
+
+Do NOT import every product.
+
+Instead select the best modern commercial products based on:
+
+• modern office design trends
+• executive furniture aesthetics
+• boardroom furniture demand
+• workstation demand
+• reception desk demand
+• ergonomic chairs
+
+The catalogue should feel curated, not wholesale.
+
+Target approximately:
+
+80–120 products total.
+
+--------------------------------------------------
+
+STEP 4 — REMOVE SUPPLIER SHEET IMAGES
+
+Do not display supplier catalog sheets.
+
+Replace them with:
+
+• clean product renders
+• AI-enhanced product images
+• one product per image
+• no dimensions on thumbnails
+• no supplier text overlays
+
+--------------------------------------------------
+
+STEP 5 — STRUCTURE PRODUCTS PROPERLY
+
+Each product must be structured as:
+
+One model → multiple variations.
+
+Example:
+
+Prestige Executive Desk
+
+Variations:
+
+2400 × 2000
+2600 × 2000
+2800 × 2200
+3200 × 2200
+
+Do not create separate products for each size.
+
+--------------------------------------------------
+
+STEP 6 — CATEGORIES
+
+Products must be assigned to the correct categories:
+
+Executive Desks  
+Manager Desks  
+Workstations  
+Meeting Tables  
+Reception Desks  
+Storage  
+Office Chairs
+
+--------------------------------------------------
+
+STEP 7 — PRODUCT PAGE STRUCTURE
+
+Each product page must include:
+
+Product Gallery  
+Product Description  
+Specifications  
+Size Selector  
+Configuration Selector  
+Quote Button
+
+--------------------------------------------------
+
+STEP 8 — VERIFY
+
+Confirm that:
+
+• catalogue is no longer pulling products from thecorporatedesk.com.au
+• products are sourced from uploaded catalog files
+• supplier sheet images are removed
+• product thumbnails are clean
+• categories display correctly
+• duplicate products are eliminated
+
+--------------------------------------------------
+
+FINAL REPORT
+
+Return:
+
+• new catalogue source
+• number of curated products created
+• number of supplier sheet images removed
+• categories built
+• confirmation that the catalogue no longer mirrors the old website database

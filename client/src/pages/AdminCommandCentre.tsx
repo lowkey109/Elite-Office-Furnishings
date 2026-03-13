@@ -11,7 +11,8 @@ import {
   CheckCircle2, XCircle, Zap, Target, FileText, Package, ChevronRight,
   Phone, Mail, Megaphone, ExternalLink, Eye, BarChart3, Shield, Calendar,
   Layers, Crown, RefreshCw, Building2, Briefcase, Radio, MapPin, ArrowRight,
-  Loader2, Network, Radar, Brain, Crosshair,
+  Loader2, Network, Radar, Brain, Crosshair, Globe, Flame, Activity,
+  ChevronDown, X as XIcon, UserCheck, Sparkles,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -344,6 +345,53 @@ export default function AdminCommandCentre() {
     queryKey: ["/api/admin/deal-intelligence/summary"],
     enabled: authed,
     staleTime: 120000,
+  });
+
+  // ── Heatmap + Company Intelligence queries ─────────────────────────────────
+  const [selectedHeatmapCity, setSelectedHeatmapCity] = useState<string | null>(null);
+  const [showHeatmapDetail, setShowHeatmapDetail] = useState(false);
+
+  const { data: heatmapData } = useQuery<{
+    cities: {
+      city: string; country: string; opportunities: number; highPriority: number;
+      avgConfidence: number; totalPipelineValue: number; formattedValue: string;
+      companies: { name: string; signalType: string; confidence: number; value: string; priority: string }[];
+    }[];
+    countryBreakdown: { country: string; totalOpportunities: number; formattedValue: string; cities: number }[];
+    hottestCity: { city: string; opportunities: number; formattedValue: string } | null;
+    totalOpportunities: number;
+  }>({
+    queryKey: ["/api/admin/heatmap-data"],
+    enabled: authed,
+    refetchInterval: 120000,
+    staleTime: 60000,
+  });
+
+  const { data: companyProfiles = [] } = useQuery<{
+    id: string; companyName: string; city: string; country: string; industry: string | null;
+    confidenceScore: number; priorityLevel: string; moveProbability: number;
+    radarSignalCount: number; visitorSessions: number; estimatedProjectValue: string | null;
+    reasoningSummary: string | null; signalTypesJson: string | null; latestSignalDate: string | null;
+  }[]>({
+    queryKey: ["/api/admin/company-intelligence"],
+    enabled: authed,
+    staleTime: 120000,
+  });
+
+  const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
+
+  const { data: companyDetail } = useQuery<{
+    id: string; companyName: string; city: string; country: string; industry: string | null;
+    employeeEstimate: string | null; estimatedOfficeSizeSqm: string | null;
+    estimatedProjectValue: string | null; confidenceScore: number; moveProbability: number;
+    priorityLevel: string; radarSignalCount: number; visitorSessions: number;
+    reasoningSummary: string | null; signalTimelineJson: string | null;
+    contacts: { id: string; role: string; contactName: string | null; department: string | null; confidenceScore: number; notes: string | null }[];
+  }>({
+    queryKey: ["/api/admin/company-intelligence", selectedCompany],
+    queryFn: () => fetch(`/api/admin/company-intelligence/${selectedCompany}`).then(r => r.json()),
+    enabled: authed && !!selectedCompany,
+    staleTime: 30000,
   });
 
   // ── Score backfill mutation ─────────────────────────────────────────────────
@@ -1128,6 +1176,347 @@ export default function AdminCommandCentre() {
                       +{radarStats.newCount - 6} more unreviewed opportunities
                     </button>
                   </Link>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* ── Deal Heatmap Panel ───────────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,90,50,0.18)] rounded-2xl overflow-hidden" data-testid="panel-deal-heatmap">
+          <div className="px-6 py-4 border-b border-[rgba(255,90,50,0.15)] flex items-center justify-between bg-[rgba(255,90,50,0.03)]">
+            <div className="flex items-center gap-2">
+              <Flame className="w-4 h-4 text-orange-400" />
+              <h2 className="text-white font-semibold text-sm">Deal Heatmap</h2>
+              <span className="text-white/30 text-xs ml-1">— opportunity density by city</span>
+            </div>
+            <div className="flex items-center gap-3">
+              {heatmapData?.hottestCity && (
+                <span className="text-orange-400 text-xs font-semibold">
+                  🔥 {heatmapData.hottestCity.city} ({heatmapData.hottestCity.opportunities} opps)
+                </span>
+              )}
+              {showHeatmapDetail && (
+                <button onClick={() => { setShowHeatmapDetail(false); setSelectedHeatmapCity(null); }}
+                  className="text-white/30 hover:text-white/60 text-xs flex items-center gap-1">
+                  <XIcon className="w-3 h-3" /> Close
+                </button>
+              )}
+            </div>
+          </div>
+
+          {!heatmapData || heatmapData.cities.length === 0 ? (
+            <div className="p-8 text-center">
+              <Flame className="w-8 h-8 text-white/10 mx-auto mb-3" />
+              <p className="text-white/30 text-sm mb-1">No heatmap data yet.</p>
+              <p className="text-white/20 text-xs">Add radar signals or visitor data to populate the heatmap.</p>
+            </div>
+          ) : (
+            <div className="p-5">
+              {/* Australian city heatmap — visual bubble map */}
+              <div className="relative bg-[rgba(0,0,0,0.3)] rounded-xl border border-[rgba(255,255,255,0.06)] overflow-hidden mb-4" style={{ height: 260 }}>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-white/5 text-[80px] font-black select-none pointer-events-none">AU</span>
+                </div>
+                {/* City bubbles positioned geographically */}
+                {(() => {
+                  const CITY_POSITIONS: Record<string, { x: number; y: number }> = {
+                    "Sydney": { x: 86, y: 66 }, "Melbourne": { x: 72, y: 80 }, "Brisbane": { x: 87, y: 45 },
+                    "Perth": { x: 12, y: 58 }, "Adelaide": { x: 56, y: 70 }, "Canberra": { x: 81, y: 72 },
+                    "Gold Coast": { x: 88, y: 49 }, "Newcastle": { x: 86, y: 60 }, "Hobart": { x: 72, y: 93 },
+                    "Darwin": { x: 42, y: 8 }, "Sunshine Coast": { x: 88, y: 42 }, "Wollongong": { x: 84, y: 69 },
+                    "Geelong": { x: 70, y: 82 }, "Cairns": { x: 68, y: 15 }, "Townsville": { x: 65, y: 22 },
+                  };
+                  const auCities = heatmapData.cities.filter(c => c.country === "Australia" && CITY_POSITIONS[c.city]);
+                  const maxOpp = Math.max(...auCities.map(c => c.opportunities), 1);
+                  return auCities.map(city => {
+                    const pos = CITY_POSITIONS[city.city];
+                    if (!pos) return null;
+                    const intensity = city.opportunities / maxOpp;
+                    const size = Math.max(24, Math.min(56, 24 + intensity * 32));
+                    const color = intensity >= 0.75 ? "rgb(239,68,68)" : intensity >= 0.5 ? "rgb(251,146,60)" : intensity >= 0.25 ? "rgb(234,179,8)" : "rgb(74,222,128)";
+                    const isSelected = selectedHeatmapCity === city.city;
+                    return (
+                      <button
+                        key={city.city}
+                        data-testid={`heatmap-city-${city.city.replace(/\s/g, "-")}`}
+                        onClick={() => { setSelectedHeatmapCity(city.city); setShowHeatmapDetail(true); }}
+                        className="absolute flex flex-col items-center transition-all hover:scale-110"
+                        style={{ left: `${pos.x}%`, top: `${pos.y}%`, transform: "translate(-50%, -50%)" }}
+                      >
+                        <div
+                          className="rounded-full flex items-center justify-center transition-all"
+                          style={{
+                            width: size, height: size,
+                            backgroundColor: color + "33",
+                            border: `2px solid ${isSelected ? "white" : color}`,
+                            boxShadow: isSelected ? `0 0 12px ${color}` : `0 0 6px ${color}44`,
+                          }}
+                        >
+                          <span className="text-white font-black text-xs">{city.opportunities}</span>
+                        </div>
+                        <span className="text-white/70 text-[9px] mt-0.5 whitespace-nowrap font-medium">{city.city}</span>
+                      </button>
+                    );
+                  });
+                })()}
+              </div>
+
+              {/* City detail drill-down */}
+              {showHeatmapDetail && selectedHeatmapCity && (() => {
+                const city = heatmapData.cities.find(c => c.city === selectedHeatmapCity);
+                if (!city) return null;
+                return (
+                  <div className="bg-[rgba(255,90,50,0.05)] border border-[rgba(255,90,50,0.18)] rounded-xl p-4 mb-4" data-testid="heatmap-city-detail">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <p className="text-white font-semibold text-sm">{city.city}</p>
+                        <p className="text-white/40 text-xs">{city.opportunities} opportunities · Avg confidence {city.avgConfidence}% · {city.formattedValue} est. value</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {city.highPriority > 0 && <Badge className="text-xs bg-red-500/20 text-red-400 border-red-500/30">{city.highPriority} HIGH</Badge>}
+                      </div>
+                    </div>
+                    <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                      {city.companies.map((co, i) => (
+                        <div key={i} className="flex items-center gap-3 py-1.5 border-b border-[rgba(255,255,255,0.04)] last:border-0">
+                          <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: co.priority === "High" ? "rgb(239,68,68)" : co.priority === "Medium" ? "rgb(251,146,60)" : "rgb(74,222,128)" }} />
+                          <span className="text-white text-xs font-medium flex-1 truncate">{co.name}</span>
+                          <span className="text-white/40 text-xs flex-shrink-0">{co.signalType.replace(/_/g, " ")}</span>
+                          <span className="text-[hsl(43,78%,65%)] text-xs flex-shrink-0 font-semibold">{co.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* City ranking bar chart */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-white/40 text-xs font-semibold uppercase tracking-wider mb-2">Top Cities</p>
+                  <div className="space-y-1.5">
+                    {heatmapData.cities.filter(c => c.country === "Australia").slice(0, 5).map((city, i) => {
+                      const maxOpp = heatmapData.cities[0]?.opportunities || 1;
+                      const pct = (city.opportunities / maxOpp) * 100;
+                      const barColor = i === 0 ? "bg-red-500" : i === 1 ? "bg-orange-500" : i === 2 ? "bg-yellow-500" : "bg-green-500";
+                      return (
+                        <button key={city.city} onClick={() => { setSelectedHeatmapCity(city.city); setShowHeatmapDetail(true); }}
+                          className="w-full" data-testid={`heatmap-bar-${city.city.replace(/\s/g, "-")}`}>
+                          <div className="flex items-center gap-2">
+                            <span className="text-white/60 text-xs w-20 text-left truncate">{city.city}</span>
+                            <div className="flex-1 h-1.5 bg-[rgba(255,255,255,0.06)] rounded-full overflow-hidden">
+                              <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
+                            </div>
+                            <span className="text-white/50 text-xs w-4 text-right">{city.opportunities}</span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-white/40 text-xs font-semibold uppercase tracking-wider mb-2">Global Pipeline</p>
+                  <div className="space-y-1.5">
+                    {(heatmapData.countryBreakdown || []).filter(c => c.totalOpportunities > 0).map(country => (
+                      <div key={country.country} className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <Globe className="w-3 h-3 text-white/30" />
+                          <span className="text-white/60 text-xs truncate" style={{ maxWidth: 90 }}>{country.country}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-white/40 text-xs">{country.totalOpportunities} opps</span>
+                          <span className="text-[hsl(43,78%,65%)] text-xs font-semibold">{country.formattedValue}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── Company Intelligence Panel ────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(100,180,255,0.18)] rounded-2xl overflow-hidden" data-testid="panel-company-intelligence">
+          <div className="px-6 py-4 border-b border-[rgba(100,180,255,0.15)] flex items-center justify-between bg-[rgba(100,180,255,0.03)]">
+            <div className="flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-blue-400" />
+              <h2 className="text-white font-semibold text-sm">Company Intelligence</h2>
+              <span className="text-white/30 text-xs ml-1">— persistent profiles with stacked signal scoring</span>
+            </div>
+            <div className="flex items-center gap-3">
+              {companyProfiles.length > 0 && (
+                <span className="text-blue-400/70 text-xs">{companyProfiles.length} companies tracked</span>
+              )}
+              <button
+                onClick={() => apiRequest("POST", "/api/admin/company-intelligence/sync", {}).then(() => qc.invalidateQueries({ queryKey: ["/api/admin/company-intelligence"] }))}
+                className="text-blue-400/70 text-xs hover:text-blue-400 flex items-center gap-1 transition-colors"
+                data-testid="button-company-intel-sync"
+              >
+                <RefreshCw className="w-3 h-3" /> Sync
+              </button>
+              {selectedCompany && (
+                <button onClick={() => setSelectedCompany(null)}
+                  className="text-white/30 hover:text-white/60 text-xs flex items-center gap-1">
+                  <XIcon className="w-3 h-3" /> Close
+                </button>
+              )}
+            </div>
+          </div>
+
+          {companyProfiles.length === 0 ? (
+            <div className="p-8 text-center">
+              <Building2 className="w-8 h-8 text-white/10 mx-auto mb-3" />
+              <p className="text-white/30 text-sm mb-1">No company profiles yet.</p>
+              <p className="text-white/20 text-xs mb-4">Click Sync to aggregate radar signals into company intelligence profiles.</p>
+              <button
+                onClick={() => apiRequest("POST", "/api/admin/company-intelligence/sync", {}).then(() => qc.invalidateQueries({ queryKey: ["/api/admin/company-intelligence"] }))}
+                className="text-blue-400/60 text-xs hover:text-blue-400 transition-colors flex items-center gap-1.5 mx-auto"
+                data-testid="button-company-intel-sync-empty"
+              >
+                <RefreshCw className="w-3.5 h-3.5" /> Sync now
+              </button>
+            </div>
+          ) : selectedCompany && companyDetail ? (
+            /* Company detail view */
+            <div className="p-5" data-testid="panel-company-detail">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <p className="text-white font-bold text-base">{companyDetail.companyName}</p>
+                  <p className="text-white/40 text-xs mt-0.5">{companyDetail.city}, {companyDetail.country} · {companyDetail.industry || "Unknown industry"}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-black" style={{ color: companyDetail.confidenceScore >= 80 ? "rgb(239,68,68)" : companyDetail.confidenceScore >= 65 ? "rgb(251,146,60)" : companyDetail.confidenceScore >= 45 ? "rgb(234,179,8)" : "rgb(74,222,128)" }}>
+                    {companyDetail.confidenceScore}%
+                  </p>
+                  <p className="text-white/40 text-xs">confidence</p>
+                </div>
+              </div>
+
+              {/* Signal stacking summary */}
+              {companyDetail.reasoningSummary && (
+                <div className="bg-[rgba(100,180,255,0.06)] border border-[rgba(100,180,255,0.15)] rounded-xl p-3 mb-4">
+                  <p className="text-blue-400 text-xs font-semibold uppercase tracking-wider mb-1">Why this score</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {companyDetail.reasoningSummary.split(" • ").map((reason, i) => (
+                      <span key={i} className="text-white/70 text-xs bg-[rgba(255,255,255,0.05)] rounded-lg px-2 py-0.5 border border-[rgba(255,255,255,0.08)]">
+                        {reason}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                {[
+                  { label: "Radar signals", value: companyDetail.radarSignalCount },
+                  { label: "Visitor sessions", value: companyDetail.visitorSessions },
+                  { label: "Move probability", value: `${companyDetail.moveProbability}%` },
+                ].map(({ label, value }) => (
+                  <div key={label} className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3 text-center border border-[rgba(255,255,255,0.06)]">
+                    <p className="text-white font-bold text-lg">{value}</p>
+                    <p className="text-white/40 text-xs">{label}</p>
+                  </div>
+                ))}
+              </div>
+
+              {companyDetail.estimatedProjectValue && (
+                <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.15)] rounded-xl p-3 mb-4 flex justify-between items-center">
+                  <span className="text-white/60 text-xs">Estimated project value</span>
+                  <span className="text-[hsl(43,78%,65%)] font-bold">{companyDetail.estimatedProjectValue}</span>
+                </div>
+              )}
+
+              {/* Org chart contacts */}
+              {companyDetail.contacts && companyDetail.contacts.length > 0 && (
+                <div>
+                  <p className="text-white/40 text-xs font-semibold uppercase tracking-wider mb-2">Inferred Decision Makers</p>
+                  <div className="space-y-2">
+                    {companyDetail.contacts.map(contact => (
+                      <div key={contact.id} className="flex items-center gap-3 bg-[rgba(255,255,255,0.03)] rounded-xl p-3 border border-[rgba(255,255,255,0.06)]">
+                        <UserCheck className="w-4 h-4 text-blue-400/60 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white text-xs font-semibold">{contact.contactName || "Unknown contact"}</p>
+                          <p className="text-white/40 text-xs">{contact.role}{contact.department ? ` · ${contact.department}` : ""}</p>
+                        </div>
+                        <span className="text-white/30 text-xs">{contact.confidenceScore}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {companyDetail.contacts && companyDetail.contacts.length === 0 && (
+                <button
+                  onClick={() => apiRequest("POST", `/api/admin/company-intelligence/${selectedCompany}/extract-contacts`, {}).then(() => qc.invalidateQueries({ queryKey: ["/api/admin/company-intelligence", selectedCompany] }))}
+                  className="w-full mt-2 text-blue-400/60 hover:text-blue-400 text-xs flex items-center gap-1.5 justify-center py-2 border border-[rgba(100,180,255,0.15)] rounded-xl transition-colors"
+                  data-testid="button-extract-contacts"
+                >
+                  <Sparkles className="w-3.5 h-3.5" /> Extract decision maker contacts (AI)
+                </button>
+              )}
+            </div>
+          ) : (
+            /* Company list view */
+            <div className="divide-y divide-[rgba(255,255,255,0.04)]">
+              {companyProfiles.slice(0, 8).map(company => {
+                const priorityColor = company.priorityLevel === "urgent"
+                  ? "text-red-400 bg-red-500/10 border-red-500/20"
+                  : company.priorityLevel === "high"
+                  ? "text-orange-400 bg-orange-500/10 border-orange-500/20"
+                  : company.priorityLevel === "medium"
+                  ? "text-yellow-400 bg-yellow-500/10 border-yellow-500/20"
+                  : "text-zinc-400 bg-zinc-500/10 border-zinc-600/20";
+                const signalTypes = (() => {
+                  try { return JSON.parse(company.signalTypesJson || "[]") as string[]; } catch { return []; }
+                })();
+                return (
+                  <button
+                    key={company.id}
+                    onClick={() => setSelectedCompany(company.id)}
+                    className="w-full text-left px-5 py-4 hover:bg-[rgba(255,255,255,0.02)] transition-colors"
+                    data-testid={`company-intel-row-${company.id}`}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="w-9 h-9 rounded-xl bg-[rgba(100,180,255,0.08)] border border-[rgba(100,180,255,0.15)] flex items-center justify-center flex-shrink-0">
+                        <Building2 className="w-4 h-4 text-blue-400/70" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start gap-2 mb-1 flex-wrap">
+                          <p className="text-white font-semibold text-sm">{company.companyName}</p>
+                          <Badge className={`text-xs border capitalize ${priorityColor}`}>{company.priorityLevel}</Badge>
+                          {company.estimatedProjectValue && (
+                            <span className="ml-auto text-[hsl(43,78%,65%)] text-sm font-bold">{company.estimatedProjectValue}</span>
+                          )}
+                        </div>
+                        <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-white/40">
+                          <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{company.city}, {company.country}</span>
+                          {company.industry && <span>{company.industry}</span>}
+                          <span className="text-blue-400/60">{company.radarSignalCount} signals</span>
+                          <span className="ml-auto text-white/60 font-semibold">{company.confidenceScore}% confidence</span>
+                        </div>
+                        {signalTypes.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {signalTypes.slice(0, 3).map(st => (
+                              <span key={st} className="text-[10px] text-white/30 bg-[rgba(255,255,255,0.04)] rounded px-1.5 py-0.5 border border-[rgba(255,255,255,0.06)]">
+                                {st.replace(/_/g, " ")}
+                              </span>
+                            ))}
+                            {signalTypes.length > 3 && <span className="text-[10px] text-white/20">+{signalTypes.length - 3}</span>}
+                          </div>
+                        )}
+                        {company.reasoningSummary && (
+                          <p className="text-white/25 text-xs mt-1 italic truncate">{company.reasoningSummary}</p>
+                        )}
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-white/20 flex-shrink-0 mt-1" />
+                    </div>
+                  </button>
+                );
+              })}
+              {companyProfiles.length > 8 && (
+                <div className="px-5 py-3 text-center">
+                  <span className="text-white/30 text-xs">{companyProfiles.length - 8} more companies tracked</span>
                 </div>
               )}
             </div>

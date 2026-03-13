@@ -866,3 +866,54 @@ export const visitorSessions = pgTable("visitor_sessions", {
 export const insertVisitorSessionSchema = createInsertSchema(visitorSessions).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertVisitorSession = z.infer<typeof insertVisitorSessionSchema>;
 export type VisitorSession = typeof visitorSessions.$inferSelect;
+
+// ─── Company Intelligence Profiles ───────────────────────────────────────────
+export const companyIntelligence = pgTable("company_intelligence", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyName: text("company_name").notNull(),
+  domain: text("domain"),
+  country: text("country").notNull().default("Australia"),
+  city: text("city").notNull(),
+  state: text("state"),
+  industry: text("industry"),
+  employeeEstimate: text("employee_estimate"),
+  estimatedOfficeSizeSqm: text("estimated_office_size_sqm"),
+  estimatedProjectValue: text("estimated_project_value"),
+  growthRateEstimate: text("growth_rate_estimate"),
+  radarSignalCount: integer("radar_signal_count").notNull().default(0),
+  visitorSessions: integer("visitor_sessions").notNull().default(0),
+  engagementScore: integer("engagement_score").notNull().default(0),
+  moveProbability: integer("move_probability").notNull().default(0),
+  confidenceScore: integer("confidence_score").notNull().default(0),
+  priorityLevel: text("priority_level").notNull().default("low"), // urgent|high|medium|low
+  signalTypesJson: text("signal_types_json"), // JSON string[]
+  signalTimelineJson: text("signal_timeline_json"), // JSON [{type, date, source}]
+  latestSignalDate: timestamp("latest_signal_date"),
+  reasoningSummary: text("reasoning_summary"),
+  notes: text("notes"),
+  linkedRadarIds: text("linked_radar_ids"), // JSON string[] of radar record IDs
+  status: text("status").notNull().default("active"), // active|archived|converted
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertCompanyIntelligenceSchema = createInsertSchema(companyIntelligence).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertCompanyIntelligence = z.infer<typeof insertCompanyIntelligenceSchema>;
+export type CompanyIntelligence = typeof companyIntelligence.$inferSelect;
+
+// ─── Company Contacts (Org-Chart) ─────────────────────────────────────────────
+export const companyContacts = pgTable("company_contacts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyIntelligenceId: varchar("company_intelligence_id").notNull(),
+  companyName: text("company_name").notNull(),
+  contactName: text("contact_name"),
+  role: text("role").notNull(), // Head of Workplace | Facilities Manager | etc.
+  department: text("department"),
+  confidenceScore: integer("confidence_score").notNull().default(50),
+  contactSource: text("contact_source").notNull().default("inferred"), // inferred|linkedin|directory
+  linkedinUrl: text("linkedin_url"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertCompanyContactSchema = createInsertSchema(companyContacts).omit({ id: true, createdAt: true });
+export type InsertCompanyContact = z.infer<typeof insertCompanyContactSchema>;
+export type CompanyContact = typeof companyContacts.$inferSelect;

@@ -1,0 +1,327 @@
+MASTER SYSTEM EXTENSION
+THE CORPORATE DESK — DEAL HEATMAP + RADAR ACCURACY UPGRADE
+
+You are extending the live Corporate Desk platform.
+
+CRITICAL RULES
+Do NOT rebuild the platform.
+Do NOT break any existing systems.
+Do NOT add unnecessary menu clutter.
+
+Protect:
+- Office Move Radar
+- Move Prediction Engine
+- Command Centre
+- Deal Pipeline
+- Deal Intelligence Engine
+- Visitor Intelligence
+- RFQ / Supplier System
+- Workspace Planner
+- AI Workspace Design Engine
+- Quote Builder
+- WhatsApp / Alex Operations Manager
+- Analytics
+- Admin authentication
+- Existing routes and integrations
+
+You are adding:
+1. a Deal Heatmap visual layer
+2. a Radar prediction accuracy upgrade
+
+==================================================
+PART 1 — DEAL HEATMAP
+==================================================
+
+OBJECTIVE
+
+Create a visual heatmap layer on top of existing radar and opportunity data.
+
+This is NOT a separate engine.
+It is a visual intelligence view built from existing data.
+
+The heatmap must show:
+
+- where opportunities are concentrated
+- where office move signals are strongest
+- where estimated project value is highest
+- which Australian cities are most active
+
+Do NOT create a new cluttered admin section.
+The heatmap must live inside:
+
+/admin/command-centre
+
+and optionally also on:
+
+/admin/intelligence
+
+==================================================
+DATA SOURCE
+==================================================
+
+Build the heatmap using existing live data from:
+
+- Office Move Radar
+- Move Prediction Engine
+- Visitor Intelligence
+- Deal Pipeline
+- Opportunity records
+
+Do NOT use demo or fake data.
+
+==================================================
+HEATMAP DISPLAY
+==================================================
+
+The heatmap must show Australia with city-level opportunity clusters.
+
+Target cities include:
+- Sydney
+- Melbourne
+- Brisbane
+- Perth
+- Adelaide
+- Canberra
+- Gold Coast
+- Newcastle
+- Sunshine Coast
+- Hobart
+
+Each city marker or region cluster must show:
+
+- total opportunities
+- average confidence score
+- total estimated pipeline value
+- number of high-priority signals
+
+Use visual intensity to show stronger opportunity areas.
+
+Examples:
+- red = strongest opportunity density
+- orange = medium
+- yellow = lower
+- green = emerging
+
+==================================================
+HEATMAP INTERACTION
+==================================================
+
+Clicking a city or cluster must show:
+
+- company names
+- signal types
+- estimated project value
+- confidence score
+- current pipeline status
+
+Allow filtering by:
+
+- signal type
+- city
+- confidence level
+- project value
+- timeline
+- industry
+
+==================================================
+COMMAND CENTRE INTEGRATION
+==================================================
+
+Add a clean card or module inside /admin/command-centre called:
+
+Deal Heatmap
+
+This card should summarize:
+
+- hottest city right now
+- total opportunities by city
+- total estimated pipeline value by city
+
+The full interactive heatmap can open in a drill-down modal or detailed view.
+
+==================================================
+PART 2 — RADAR ACCURACY UPGRADE
+==================================================
+
+OBJECTIVE
+
+Improve the Office Move Radar so it becomes significantly more accurate at predicting office moves and fit-out opportunities.
+
+The key improvement is:
+
+MULTI-SIGNAL CONFIDENCE STACKING
+
+Instead of scoring a company based on a single signal only, the radar must combine multiple signals for the same company over time.
+
+==================================================
+MULTI-SIGNAL CONFIDENCE STACKING
+==================================================
+
+If the same company shows multiple related signals, confidence must increase.
+
+Examples of stacked signals:
+
+- hiring spike
+- funding announcement
+- new office / expansion news
+- visitor intelligence activity
+- workplace / facilities job posting
+- commercial lease signal
+- repeat website visits
+- workspace planner usage
+
+Example logic:
+
+Single signal:
+Hiring spike only
+→ confidence = medium
+
+Stacked signals:
+Hiring spike + funding + repeated website visits + workplace manager hiring
+→ confidence = high / urgent
+
+==================================================
+STACKING RULES
+==================================================
+
+For each company, create a signal profile that aggregates recent evidence.
+
+Track for each company:
+
+- number of unique signals
+- signal recency
+- source reliability
+- signal diversity
+- repeat activity
+- visitor engagement
+- pipeline interaction if any
+
+Increase confidence when:
+- signals come from multiple source types
+- signals occur within a recent time window
+- website behaviour supports intent
+- company scale supports project value
+
+==================================================
+NEW RADAR DATA LAYER
+==================================================
+
+Create or extend a company signal rollup model containing:
+
+company_name
+city
+industry
+unique_signal_count
+signal_types[]
+latest_signal_date
+visitor_activity_score
+growth_signal_score
+move_probability_score
+estimated_headcount
+estimated_office_size
+estimated_project_value
+confidence_score
+priority_level
+reasoning_summary
+
+==================================================
+SCORING UPGRADE
+==================================================
+
+Update radar scoring so it uses:
+
+1. source quality
+2. signal recency
+3. number of signal types
+4. visitor engagement
+5. company scale
+6. project value likelihood
+7. stacked evidence consistency
+
+Priority levels:
+- urgent
+- high
+- medium
+- low
+
+==================================================
+UI UPGRADE
+==================================================
+
+On the radar and command centre views, show a clearer explanation of WHY a company is scored highly.
+
+Example:
+
+Confidence: 86%
+Reason:
+- hiring spike detected
+- funding announcement detected
+- 3 repeat website visits
+- workplace manager role advertised
+
+This makes the radar easier to trust and easier to use.
+
+==================================================
+PIPELINE INTEGRATION
+==================================================
+
+If confidence passes a strong threshold, the system should:
+
+- mark as high-priority opportunity
+- push into Deal Intelligence
+- push into Deal Pipeline
+- notify Alex / Operations layer for follow-up preparation
+
+Do NOT auto-contact unless an existing workflow already allows it.
+
+==================================================
+ADMIN SIMPLICITY RULE
+==================================================
+
+Do NOT create messy new menus.
+
+All of this must fit inside the existing simplified admin structure:
+
+- Command Centre
+- Opportunities
+- Workspace Tools
+- Supplier Network
+- Intelligence
+- Settings
+
+Prefer embedding the new functionality inside:
+- Command Centre
+- Intelligence
+
+==================================================
+TESTING
+==================================================
+
+Verify:
+
+1. heatmap loads correctly
+2. heatmap uses real data only
+3. city clusters display correctly
+4. clicking a city shows underlying companies
+5. radar stacked scoring works
+6. confidence increases when multiple signals exist
+7. command centre remains clean
+8. no duplicate admin clutter is introduced
+9. pipeline integration still works
+10. no existing systems break
+
+==================================================
+FINAL REPORT
+==================================================
+
+Return:
+
+- files modified
+- models created or extended
+- routes created or extended
+- heatmap library used
+- how heatmap gets data
+- how multi-signal stacking works
+- how confidence is calculated now
+- what changed in command centre
+- confirmation that admin remains uncluttered

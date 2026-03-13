@@ -8,6 +8,7 @@ import {
   partners, partnerOpportunities, partnerReferrals, revenueShareRecords,
   relocationSignals, workspaceStrategyRecommendations, dealHunterSignals,
   supplierProfiles, rfqProjects, rfqResponses, visitorSessions,
+  companyIntelligence, companyContacts,
   type User, type InsertUser, type Lead, type InsertLead, type PlanningRequest,
   type ProductReview, type InsertProductReview,
   type ManufacturerMessage, type InsertManufacturerMessage,
@@ -31,6 +32,8 @@ import {
   type RfqProject, type InsertRfqProject,
   type RfqResponse, type InsertRfqResponse,
   type VisitorSession, type InsertVisitorSession,
+  type CompanyIntelligence, type InsertCompanyIntelligence,
+  type CompanyContact, type InsertCompanyContact,
 } from "@shared/schema";
 
 export interface ProspectedLead {
@@ -314,6 +317,15 @@ export interface IStorage {
   getVisitorSessions(filters?: { minScore?: number; intent?: string; city?: string; limit?: number }): Promise<VisitorSession[]>;
   getVisitorSessionByVisitorId(visitorId: string): Promise<VisitorSession | undefined>;
   getVisitorSession(id: string): Promise<VisitorSession | undefined>;
+  // Company Intelligence
+  upsertCompanyIntelligence(companyName: string, data: Partial<InsertCompanyIntelligence>): Promise<CompanyIntelligence>;
+  getCompanyIntelligenceRecords(filters?: { country?: string; city?: string; priority?: string; status?: string; limit?: number }): Promise<CompanyIntelligence[]>;
+  getCompanyIntelligence(id: string): Promise<CompanyIntelligence | undefined>;
+  deleteCompanyIntelligence(id: string): Promise<void>;
+  // Company Contacts
+  createCompanyContact(data: InsertCompanyContact): Promise<CompanyContact>;
+  getCompanyContacts(companyIntelligenceId: string): Promise<CompanyContact[]>;
+  deleteCompanyContacts(companyIntelligenceId: string): Promise<void>;
 }
 
 function rowToProspectedLead(row: typeof prospectedLeads.$inferSelect): ProspectedLead {
@@ -1489,6 +1501,59 @@ export class DrizzleStorage implements IStorage {
   async getVisitorSessionByVisitorId(visitorId: string): Promise<VisitorSession | undefined> {
     const [row] = await db.select().from(visitorSessions).where(eq(visitorSessions.visitorId, visitorId)).limit(1);
     return row ?? undefined;
+  }
+
+  // ─── Company Intelligence ─────────────────────────────────────────────────
+
+  async upsertCompanyIntelligence(companyName: string, data: Partial<InsertCompanyIntelligence>): Promise<CompanyIntelligence> {
+    const [existing] = await db.select().from(companyIntelligence)
+      .where(ilike(companyIntelligence.companyName, companyName)).limit(1);
+    if (existing) {
+      const [updated] = await db.update(companyIntelligence)
+        .set({ ...data, updatedAt: new Date() })
+        .where(eq(companyIntelligence.id, existing.id))
+        .returning();
+      return updated;
+    }
+    const [row] = await db.insert(companyIntelligence).values({ companyName, ...data } as any).returning();
+    return row;
+  }
+
+  async getCompanyIntelligenceRecords(filters?: { country?: string; city?: string; priority?: string; status?: string; limit?: number }): Promise<CompanyIntelligence[]> {
+    const conditions: any[] = [];
+    if (filters?.country) conditions.push(ilike(companyIntelligence.country, `%${filters.country}%`));
+    if (filters?.city) conditions.push(ilike(companyIntelligence.city, `%${filters.city}%`));
+    if (filters?.priority) conditions.push(eq(companyIntelligence.priorityLevel, filters.priority));
+    if (filters?.status) conditions.push(eq(companyIntelligence.status, filters.status));
+    const q = db.select().from(companyIntelligence);
+    const withWhere = conditions.length ? (q as any).where(and(...conditions)) : q;
+    return withWhere.orderBy(desc(companyIntelligence.confidenceScore), desc(companyIntelligence.updatedAt)).limit(filters?.limit ?? 200);
+  }
+
+  async getCompanyIntelligence(id: string): Promise<CompanyIntelligence | undefined> {
+    const [row] = await db.select().from(companyIntelligence).where(eq(companyIntelligence.id, id)).limit(1);
+    return row ?? undefined;
+  }
+
+  async deleteCompanyIntelligence(id: string): Promise<void> {
+    await db.delete(companyIntelligence).where(eq(companyIntelligence.id, id));
+  }
+
+  // ─── Company Contacts (Org Chart) ────────────────────────────────────────
+
+  async createCompanyContact(data: InsertCompanyContact): Promise<CompanyContact> {
+    const [row] = await db.insert(companyContacts).values(data as any).returning();
+    return row;
+  }
+
+  async getCompanyContacts(companyIntelligenceId: string): Promise<CompanyContact[]> {
+    return db.select().from(companyContacts)
+      .where(eq(companyContacts.companyIntelligenceId, companyIntelligenceId))
+      .orderBy(desc(companyContacts.confidenceScore));
+  }
+
+  async deleteCompanyContacts(companyIntelligenceId: string): Promise<void> {
+    await db.delete(companyContacts).where(eq(companyContacts.companyIntelligenceId, companyIntelligenceId));
   }
 }
 

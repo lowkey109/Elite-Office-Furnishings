@@ -23,7 +23,9 @@ type JobType =
   | "deal_hunter"
   | "news_rss_scan"
   | "job_signal_scan"
-  | "predictive_scan";
+  | "predictive_scan"
+  | "global_radar_scan"
+  | "company_intel_sync";
 
 const JOB_LABELS: Record<JobType, string> = {
   spending_trends: "Spending Trend Analysis",
@@ -36,6 +38,8 @@ const JOB_LABELS: Record<JobType, string> = {
   news_rss_scan: "News Feed Real Signal Scan",
   job_signal_scan: "Job Posting Signal Scan",
   predictive_scan: "Predictive Intelligence Scan",
+  global_radar_scan: "Global Radar Detection Scan",
+  company_intel_sync: "Company Intelligence Sync",
 };
 
 // ─── Job runner ───────────────────────────────────────────────────────────────
@@ -120,6 +124,20 @@ async function runJob(jobType: JobType, triggeredBy: "scheduler" | "manual" = "s
         resultSummary = `Predictive scan complete — ${result.saved} new signals from ${result.processed} articles`;
         break;
       }
+
+      case "global_radar_scan": {
+        const { runGlobalRadarScan } = await import("./companyIntelligenceService");
+        const result = await runGlobalRadarScan(10);
+        resultSummary = `Global Radar scan complete — ${result.saved} international signals detected`;
+        break;
+      }
+
+      case "company_intel_sync": {
+        const { syncCompanyIntelligence } = await import("./companyIntelligenceService");
+        const result = await syncCompanyIntelligence();
+        resultSummary = `Company Intelligence sync complete — ${result.created} new profiles, ${result.synced} updated`;
+        break;
+      }
     }
 
     await storage.updateScheduledJob(job.id, {
@@ -198,13 +216,21 @@ export function startIntelligenceScheduler(): void {
   setTimeout(() => runJob("predictive_scan"), 120 * 60 * 1000);
   setInterval(() => runJob("predictive_scan"), 12 * HOUR);
 
-  console.log("[IntelligenceScheduler] Jobs scheduled: health(12h), trends(24h), issues(24h), seo(7d), report(7d), radar(24h), deal_hunter(24h), news_rss(12h), job_signal(12h), predictive(12h)");
+  // Global Radar scan — every 24 hours (offset 150 minutes)
+  setTimeout(() => runJob("global_radar_scan"), 150 * 60 * 1000);
+  setInterval(() => runJob("global_radar_scan"), DAY);
+
+  // Company Intelligence sync — every 6 hours (offset 30 minutes after global radar)
+  setTimeout(() => runJob("company_intel_sync"), 180 * 60 * 1000);
+  setInterval(() => runJob("company_intel_sync"), 6 * HOUR);
+
+  console.log("[IntelligenceScheduler] Jobs scheduled: health(12h), trends(24h), issues(24h), seo(7d), report(7d), radar(24h), deal_hunter(24h), news_rss(12h), job_signal(12h), predictive(12h), global_radar(24h), company_intel(6h)");
 }
 
 // ─── Manual trigger (for admin API) ──────────────────────────────────────────
 
 export async function triggerJobManually(jobType: string): Promise<{ success: boolean; message: string }> {
-  const validJobs: JobType[] = ["spending_trends", "seo_content", "website_issues", "system_health", "weekly_report", "radar_scan", "deal_hunter", "news_rss_scan", "job_signal_scan", "predictive_scan"];
+  const validJobs: JobType[] = ["spending_trends", "seo_content", "website_issues", "system_health", "weekly_report", "radar_scan", "deal_hunter", "news_rss_scan", "job_signal_scan", "predictive_scan", "global_radar_scan", "company_intel_sync"];
 
   if (!validJobs.includes(jobType as JobType)) {
     return { success: false, message: `Unknown job type: ${jobType}` };

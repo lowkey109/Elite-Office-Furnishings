@@ -1,0 +1,281 @@
+MASTER SYSTEM EXTENSION  
+CORPORATE DESK — COMPANY INTELLIGENCE + GLOBAL RADAR
+
+You are extending the live Corporate Desk platform.
+
+CRITICAL RULES
+
+Do NOT rebuild the system.  
+Do NOT break existing engines.  
+Do NOT add unnecessary admin menus.
+
+Protect all existing systems including:
+
+• Office Move Radar  
+• Move Prediction Engine  
+• Visitor Intelligence  
+• Command Centre  
+• Deal Intelligence Engine  
+• Deal Pipeline  
+• RFQ / Supplier System  
+• Workspace Planner  
+• AI Workspace Design Engine  
+• Quote Builder  
+• Alex Operations Manager  
+• Analytics  
+• Webhooks  
+• Integrations  
+• Authentication
+
+You are adding:
+
+1. Global Radar Detection  
+2. Company Intelligence Profiles  
+3. Org-Chart Extraction  
+4. Signal Time Window Analysis
+
+These must integrate cleanly into the existing admin structure.
+
+ADMIN STRUCTURE RULE
+
+Do not add new admin sections.
+
+All functionality must live inside existing pages:
+
+• Command Centre  
+• Opportunities  
+• Workspace Tools  
+• Supplier Network  
+• Intelligence  
+• Settings
+
+==================================================
+
+PART 1 — GLOBAL RADAR DETECTION
+
+Expand the Office Move Radar so it detects signals globally.
+
+Countries to monitor:
+
+Australia  
+United States  
+United Kingdom  
+New Zealand
+
+Detection should include major cities such as:
+
+Sydney  
+Melbourne  
+Brisbane  
+Perth  
+Adelaide  
+
+New York  
+Austin  
+San Francisco  
+Los Angeles  
+Chicago  
+
+London  
+Manchester  
+Birmingham  
+
+Auckland  
+Wellington  
+Christchurch
+
+Radar should detect companies showing signals that suggest office growth, relocation or expansion.
+
+Signals include:
+
+• hiring spikes  
+• funding announcements  
+• workplace / facilities job postings  
+• expansion news  
+• new commercial leases  
+• visitor intelligence activity  
+• workspace planner usage
+
+Each detection must produce a structured record including:
+
+company_name  
+country  
+city  
+industry  
+employee_estimate  
+signal_type  
+signal_source  
+signal_date  
+move_probability  
+estimated_office_size  
+estimated_project_value  
+confidence_score
+
+==================================================
+
+PART 2 — SIGNAL TIME WINDOW ANALYSIS
+
+Upgrade radar intelligence by detecting sequences of signals over time.
+
+Signals must be tracked by timeline.
+
+Example:
+
+Hiring spike → January  
+Funding announcement → February  
+Facilities manager hiring → March
+
+When multiple signals appear within a time window, increase move probability.
+
+Example scoring logic:
+
+Single signal  
+→ confidence medium
+
+Multiple signals within 90 days  
+→ confidence high
+
+Multiple signals + visitor engagement  
+→ confidence very high
+
+Store signal timelines per company.
+
+==================================================
+
+PART 3 — COMPANY INTELLIGENCE PROFILES
+
+Create a persistent intelligence profile for every detected company.
+
+Profiles must aggregate all known data.
+
+Profile structure:
+
+company_name  
+domain  
+country  
+city  
+industry  
+employee_estimate  
+estimated_office_size  
+estimated_project_value  
+growth_rate_estimate  
+radar_signal_count  
+visitor_sessions  
+engagement_score  
+move_probability  
+confidence_score  
+latest_signals  
+notes
+
+Each company must accumulate intelligence over time.
+
+If new signals appear, update the profile rather than creating duplicates.
+
+==================================================
+
+PART 4 — ORG CHART EXTRACTION
+
+For each company profile, identify likely workplace decision makers.
+
+Roles to identify:
+
+Head of Workplace  
+Facilities Manager  
+Office Manager  
+Operations Manager  
+Head of Real Estate  
+Workplace Experience Manager
+
+Extract or infer potential contacts using:
+
+company domain  
+public professional data  
+role patterns
+
+Store contact intelligence:
+
+contact_name  
+role  
+department  
+confidence_score  
+contact_source
+
+This data should assist Alex in preparing outreach but should not automatically contact anyone.
+
+==================================================
+
+PART 5 — COMMAND CENTRE INTEGRATION
+
+Company intelligence must appear in the Command Centre.
+
+Display summary metrics including:
+
+companies detected today  
+high probability office moves  
+global opportunity count  
+estimated pipeline value
+
+Clicking a company should open its intelligence profile.
+
+==================================================
+
+PART 6 — ALEX OPERATIONS INTEGRATION
+
+When a company reaches high probability threshold:
+
+Alex should prepare operational intelligence.
+
+Tasks include:
+
+• identifying local furniture suppliers  
+• identifying installers  
+• identifying logistics partners  
+• preparing RFQ templates  
+• preparing outreach drafts
+
+Alex should not automatically contact companies unless a user confirms.
+
+==================================================
+
+PART 7 — GLOBAL PIPELINE VISIBILITY
+
+Add geographic breakdowns to pipeline analytics.
+
+Command Centre should show:
+
+Australia pipeline  
+United States pipeline  
+United Kingdom pipeline  
+New Zealand pipeline
+
+This is intelligence only.
+
+Operations remain active only where supplier networks exist.
+
+==================================================
+
+TESTING
+
+Verify:
+
+• radar scans international signals  
+• company profiles accumulate signals  
+• signal time window analysis increases accuracy  
+• org-chart extraction generates role intelligence  
+• command centre displays company intelligence  
+• admin remains uncluttered  
+• no existing systems break
+
+==================================================
+
+FINAL REPORT
+
+Return:
+
+• models created  
+• routes added  
+• signal sources used  
+• radar improvements implemented  
+• company intelligence profile structure  
+• org-chart extraction logic  
+• confirmation that admin structure remains clean
