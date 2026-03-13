@@ -1,0 +1,234 @@
+MASTER PROMPT
+THE CORPORATE DESK — PRODUCTION MODE ACTIVATION
+ADMIN RESET + LIVE ANALYTICS + REAL DATA ONLY
+
+You are a senior backend engineer, data engineer, and QA engineer working on the live Corporate Desk platform.
+
+Your objective is to remove all demo/test data and enable real analytics so the admin dashboard reflects only real activity.
+
+DO NOT break or remove the following systems:
+
+• AI assistant
+• workspace planner
+• quote builder
+• product catalogue
+• deal pipeline
+• deal intelligence
+• WhatsApp automation
+• authentication
+• admin routing
+• webhook endpoints
+• scheduler jobs
+• radar engine code
+
+You must CLEAN and ACTIVATE the system, not rebuild it.
+
+==================================================
+PHASE 1 — AUDIT CURRENT DATA
+==================================================
+
+Scan the database and identify all demo, seeded, or placeholder records used for testing.
+
+Likely categories include:
+
+• radar signals
+• demo leads
+• hot leads
+• quote requests
+• finance enquiries
+• pipeline deals
+• revenue forecast counters
+• dashboard widgets
+• recent activity entries
+
+Create a temporary audit list but do not delete structure.
+
+==================================================
+PHASE 2 — CLEAN RESET
+==================================================
+
+Remove or archive demo data while keeping system integrity.
+
+RESET:
+
+• fake radar signals
+• demo leads
+• demo hot leads
+• demo quote requests
+• demo finance leads
+• demo revenue forecast numbers
+• demo recent activity
+• demo pipeline values
+• demo dashboard counters
+
+KEEP:
+
+• users
+• products
+• integrations
+• real settings
+• real webhook connections
+• real routes
+• real scheduler code
+• authentication
+• API keys
+
+After reset the dashboard should show zero until real data appears.
+
+==================================================
+PHASE 3 — VISITOR ANALYTICS
+==================================================
+
+Install real visitor tracking for the website.
+
+Track and store:
+
+• visitors today
+• visitors this week
+• visitors this month
+• visitors this year
+• page views
+• top pages
+• traffic sources
+
+Create analytics storage tables.
+
+Example fields:
+
+visitor_id
+session_id
+timestamp
+page_path
+referrer
+user_agent_hash
+ip_hash
+
+Ensure privacy-safe tracking.
+
+==================================================
+PHASE 4 — LEAD ANALYTICS
+==================================================
+
+Track all incoming enquiries.
+
+Calculate:
+
+• leads today
+• leads this week
+• leads this month
+• leads this year
+
+Break leads into types:
+
+• workspace planner leads
+• quote requests
+• contact enquiries
+• radar opportunities
+
+Store:
+
+lead_source
+lead_type
+timestamp
+conversion_stage
+
+==================================================
+PHASE 5 — CONVERSION FUNNEL
+==================================================
+
+Track the full commercial funnel:
+
+traffic → enquiry → quote → deal
+
+Calculate conversion metrics including:
+
+visitor_to_lead_rate
+lead_to_quote_rate
+quote_to_deal_rate
+
+Store these values for dashboard reporting.
+
+==================================================
+PHASE 6 — ADMIN DASHBOARD STRUCTURE
+==================================================
+
+Update the dashboard UI to show two sections.
+
+SECTION 1 — TRAFFIC
+
+• unique visitors today
+• unique visitors this week
+• unique visitors this month
+• unique visitors this year
+• page views
+• top pages
+• traffic sources
+
+SECTION 2 — LEADS
+
+• new leads today
+• new leads this week
+• new leads this month
+• new leads this year
+• lead type breakdown
+• visitor → lead conversion rate
+
+Ensure values update automatically.
+
+If no traffic exists yet show zero.
+
+==================================================
+PHASE 7 — RADAR DATA POLICY
+==================================================
+
+Ensure the Office Move Radar shows only real detected signals.
+
+Remove demo radar signals.
+
+Allow radar opportunities only if they come from:
+
+• source scan
+• signal parser
+• manual verified entry
+
+==================================================
+PHASE 8 — PRODUCTION MODE
+==================================================
+
+Switch system into live production mode.
+
+Ensure:
+
+• analytics tracking is active
+• lead tracking is active
+• scheduler jobs are active
+• radar engine can run automatically
+• dashboard reads live database values
+• no demo values appear
+
+==================================================
+PHASE 9 — TESTING
+==================================================
+
+Run system tests:
+
+1 dashboard loads with zero-state cleanly
+2 visitor tracking records page visits
+3 lead tracking records enquiries
+4 conversion funnel metrics calculate
+5 radar system still operates
+6 pipeline receives real leads
+7 no existing systems break
+
+==================================================
+FINAL REPORT
+==================================================
+
+Return a short implementation report confirming:
+
+• demo data removed
+• analytics tracking installed
+• lead tracking installed
+• conversion funnel tracking active
+• admin dashboard updated
+• system running in production mode

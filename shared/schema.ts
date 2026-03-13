@@ -746,3 +746,21 @@ export const workspaceStrategyRecommendations = pgTable("workspace_strategy_reco
 export const insertWorkspaceStrategySchema = createInsertSchema(workspaceStrategyRecommendations).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertWorkspaceStrategy = z.infer<typeof insertWorkspaceStrategySchema>;
 export type WorkspaceStrategyRecommendation = typeof workspaceStrategyRecommendations.$inferSelect;
+
+// ─── Site Analytics — Visitor Tracking ────────────────────────────────────────
+export const siteVisits = pgTable("site_visits", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sessionId: varchar("session_id"),
+  pagePath: text("page_path").notNull(),
+  referrer: text("referrer"),
+  utmSource: text("utm_source"),
+  utmMedium: text("utm_medium"),
+  utmCampaign: text("utm_campaign"),
+  ipHash: varchar("ip_hash"),
+  userAgentHash: varchar("user_agent_hash"),
+  isBot: boolean("is_bot").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertSiteVisitSchema = createInsertSchema(siteVisits).omit({ id: true, createdAt: true });
+export type InsertSiteVisit = z.infer<typeof insertSiteVisitSchema>;
+export type SiteVisit = typeof siteVisits.$inferSelect;

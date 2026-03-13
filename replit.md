@@ -50,4 +50,10 @@ The aesthetic is dark luxury gold, utilizing near-black backgrounds, rich gold a
 - **Email**: Nodemailer
 - **AI**: OpenAI
 - **Payments**: Stripe
-- **Marketing Channels (API Integrations)**: Telegram, Facebook, Instagram, X/Twitter, WhatsApp Business
+- **Marketing Channels (API Integrations)**: Telegram, Facebook, Instagram, X/Twitter, WhatsApp Business- **Live Visitor Analytics & Lead Tracking**: Privacy-safe server-side visitor tracking via `site_visits` table (ip-hashed, bot-filtered). Tracking endpoint `POST /api/track/pageview` called on every frontend page change via `usePageTracking` hook in `client/src/lib/usePageTracking.ts`. Analytics API at `GET /api/admin/analytics` returns page views, unique visitors, leads, conversion funnel, top pages, and referrer breakdown across today/week/month/year windows. Admin dashboard shows two live sections: Traffic and Lead Tracking.
+
+## Production Data Policy
+- **Demo data removed** (March 2026): 221 test leads deleted, 6 demo radar signals archived, 2 demo prospected leads removed
+- **Real leads preserved**: 4 genuine enquiries retained (Benjamin Mumford, Sleep user, Sarah Baxter, Sarah Chen)
+- **Radar signals**: 72 real signals active (news_rss, job_signal, predictive sources); 6 manual/unverified demo seeds archived
+- **Radar listing/stats API**: Excludes archived signals by default; pass `?status=archived` to query archived records

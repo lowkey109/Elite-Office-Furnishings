@@ -50,8 +50,10 @@ import AdminRelocationIntelligence from "@/pages/AdminRelocationIntelligence";
 import AdminWorkspaceStrategy from "@/pages/AdminWorkspaceStrategy";
 import PartnerOnboarding from "@/pages/PartnerOnboarding";
 import PartnerDashboard from "@/pages/PartnerDashboard";
+import { usePageTracking } from "@/lib/usePageTracking";
 
 function Router() {
+  usePageTracking();
   return (
     <Switch>
       <Route path="/" component={Home} />

@@ -3,7 +3,8 @@ import express from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { storage } from "./storage";
-import { insertLeadSchema, insertProductReviewSchema } from "@shared/schema";
+import { db } from "./db";
+import { insertLeadSchema, insertProductReviewSchema, siteVisits } from "@shared/schema";
 import { ZodError } from "zod";
 import OpenAI from "openai";
 import multer from "multer";
@@ -3347,7 +3348,8 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
         priority: priority || undefined,
         status: status || undefined,
       });
-      res.json(records);
+      const filtered = status ? records : records.filter(r => r.status !== "archived");
+      res.json(filtered);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }
@@ -3355,7 +3357,7 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
 
   app.get("/api/admin/office-move-radar/stats", async (_req, res) => {
     try {
-      const all = await storage.getOfficeMovRadarRecords();
+      const all = (await storage.getOfficeMovRadarRecords()).filter(r => r.status !== "archived");
       const high = all.filter(r => r.priority === "High").length;
       const medium = all.filter(r => r.priority === "Medium").length;
       const low = all.filter(r => r.priority === "Low").length;
@@ -4187,6 +4189,153 @@ Rules:
 <Response>
   <Message>${fallback}</Message>
 </Response>`);
+    }
+  });
+
+  // ─── Visitor Analytics Tracking ─────────────────────────────────────────────
+
+  app.post("/api/track/pageview", async (req, res) => {
+    try {
+      const { pagePath, referrer, sessionId, utmSource, utmMedium, utmCampaign } = req.body;
+      if (!pagePath) return res.status(400).json({ error: "pagePath required" });
+
+      const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.socket.remoteAddress || "";
+      const ua = req.headers["user-agent"] || "";
+
+      const BOT_PATTERN = /bot|crawl|spider|slurp|mediapartners|googlebot|bingbot|facebookexternalhit|semrush|ahrefs|mj12bot|rogerbot|dotbot/i;
+      const isBot = BOT_PATTERN.test(ua);
+      if (isBot) return res.json({ tracked: false, reason: "bot" });
+
+      const crypto = await import("crypto");
+      const ipHash = ip ? crypto.createHash("sha256").update(ip + process.env.SESSION_SECRET).digest("hex").slice(0, 16) : null;
+      const uaHash = ua ? crypto.createHash("sha256").update(ua).digest("hex").slice(0, 16) : null;
+
+      await db.insert(siteVisits).values({
+        pagePath,
+        referrer: referrer || null,
+        sessionId: sessionId || null,
+        utmSource: utmSource || null,
+        utmMedium: utmMedium || null,
+        utmCampaign: utmCampaign || null,
+        ipHash,
+        userAgentHash: uaHash,
+        isBot: false,
+      });
+
+      res.json({ tracked: true });
+    } catch (err: any) {
+      console.error("[Analytics] Track error:", err.message);
+      res.json({ tracked: false });
+    }
+  });
+
+  app.get("/api/admin/analytics", async (req, res) => {
+    try {
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+      const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      const yearStart = new Date(now.getFullYear(), 0, 1).toISOString();
+
+      const visitorQuery = await db.execute(`
+        SELECT
+          COUNT(*) FILTER (WHERE created_at >= '${todayStart}') AS today,
+          COUNT(*) FILTER (WHERE created_at >= '${weekStart}') AS week,
+          COUNT(*) FILTER (WHERE created_at >= '${monthStart}') AS month,
+          COUNT(*) FILTER (WHERE created_at >= '${yearStart}') AS year,
+          COUNT(*) AS total
+        FROM site_visits
+        WHERE is_bot = false
+      `);
+
+      const uniqueVisitorsQuery = await db.execute(`
+        SELECT
+          COUNT(DISTINCT ip_hash) FILTER (WHERE created_at >= '${todayStart}') AS today,
+          COUNT(DISTINCT ip_hash) FILTER (WHERE created_at >= '${weekStart}') AS week,
+          COUNT(DISTINCT ip_hash) FILTER (WHERE created_at >= '${monthStart}') AS month,
+          COUNT(DISTINCT ip_hash) FILTER (WHERE created_at >= '${yearStart}') AS year
+        FROM site_visits
+        WHERE is_bot = false AND ip_hash IS NOT NULL
+      `);
+
+      const topPagesQuery = await db.execute(`
+        SELECT page_path, COUNT(*) as views
+        FROM site_visits
+        WHERE is_bot = false AND created_at >= '${monthStart}'
+        GROUP BY page_path
+        ORDER BY views DESC
+        LIMIT 10
+      `);
+
+      const referrersQuery = await db.execute(`
+        SELECT
+          COALESCE(referrer, 'Direct') as source,
+          COUNT(*) as visits
+        FROM site_visits
+        WHERE is_bot = false AND created_at >= '${monthStart}'
+        GROUP BY referrer
+        ORDER BY visits DESC
+        LIMIT 10
+      `);
+
+      const leadsQuery = await db.execute(`
+        SELECT
+          COUNT(*) FILTER (WHERE created_at >= '${todayStart}') AS today,
+          COUNT(*) FILTER (WHERE created_at >= '${weekStart}') AS week,
+          COUNT(*) FILTER (WHERE created_at >= '${monthStart}') AS month,
+          COUNT(*) FILTER (WHERE created_at >= '${yearStart}') AS year,
+          COUNT(*) AS total
+        FROM leads
+      `);
+
+      const leadsBreakdownQuery = await db.execute(`
+        SELECT type, COUNT(*) as count
+        FROM leads
+        WHERE created_at >= '${monthStart}'
+        GROUP BY type
+        ORDER BY count DESC
+      `);
+
+      const pageViews = (visitorQuery.rows?.[0] as any) || {};
+      const uniqueV = (uniqueVisitorsQuery.rows?.[0] as any) || {};
+      const leadsRow = (leadsQuery.rows?.[0] as any) || {};
+      const topPages = (topPagesQuery.rows || []) as any[];
+      const referrers = (referrersQuery.rows || []) as any[];
+      const leadsBreakdown = (leadsBreakdownQuery.rows || []) as any[];
+
+      const monthViews = Number(pageViews.month || 0);
+      const monthLeads = Number(leadsRow.month || 0);
+      const conversionRate = monthViews > 0 ? ((monthLeads / monthViews) * 100).toFixed(1) : "0.0";
+
+      res.json({
+        pageViews: {
+          today: Number(pageViews.today || 0),
+          week: Number(pageViews.week || 0),
+          month: Number(pageViews.month || 0),
+          year: Number(pageViews.year || 0),
+          total: Number(pageViews.total || 0),
+        },
+        uniqueVisitors: {
+          today: Number(uniqueV.today || 0),
+          week: Number(uniqueV.week || 0),
+          month: Number(uniqueV.month || 0),
+          year: Number(uniqueV.year || 0),
+        },
+        leads: {
+          today: Number(leadsRow.today || 0),
+          week: Number(leadsRow.week || 0),
+          month: Number(leadsRow.month || 0),
+          year: Number(leadsRow.year || 0),
+          total: Number(leadsRow.total || 0),
+        },
+        topPages,
+        referrers,
+        leadsBreakdown,
+        conversionRate: parseFloat(conversionRate),
+      });
+    } catch (err: any) {
+      console.error("[Analytics] Error:", err.message);
+      res.status(500).json({ error: err.message });
     }
   });
 

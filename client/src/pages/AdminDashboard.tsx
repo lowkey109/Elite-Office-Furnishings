@@ -132,6 +132,21 @@ export default function AdminDashboard() {
     enabled: authed,
     refetchInterval: 60000,
   });
+
+  interface AnalyticsData {
+    pageViews: { today: number; week: number; month: number; year: number; total: number };
+    uniqueVisitors: { today: number; week: number; month: number; year: number };
+    leads: { today: number; week: number; month: number; year: number; total: number };
+    topPages: { page_path: string; views: number }[];
+    referrers: { source: string; visits: number }[];
+    leadsBreakdown: { type: string; count: number }[];
+    conversionRate: number;
+  }
+  const { data: analytics } = useQuery<AnalyticsData>({
+    queryKey: ["/api/admin/analytics"],
+    enabled: authed,
+    refetchInterval: 120000,
+  });
   interface RadarRecord { id: string; companyName: string; city: string; priority: string; radarScore: number; estimatedProjectValue: string | null; signalType: string; status: string; }
   const { data: radarRecords = [] } = useQuery<RadarRecord[]>({
     queryKey: ["/api/admin/office-move-radar"],
@@ -329,6 +344,105 @@ export default function AdminDashboard() {
             <span className="text-white/30 text-xs ml-auto">Email · Stripe · AI</span>
           </div>
         )}
+
+        {/* ── SECTION 1: TRAFFIC ANALYTICS ────────────────────────────────────── */}
+        <div className="mb-6 bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.12)] rounded-2xl overflow-hidden" data-testid="panel-traffic-analytics">
+          <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.06)] flex items-center gap-2">
+            <Globe className="w-4 h-4 text-[hsl(43,78%,65%)]" />
+            <span className="text-white font-semibold text-sm">Website Traffic</span>
+            <span className="ml-auto text-white/25 text-xs">Live · updates every 2 min</span>
+          </div>
+          <div className="p-5 grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[
+              { label: "Visitors Today", pv: analytics?.pageViews.today ?? 0, uv: analytics?.uniqueVisitors.today ?? 0 },
+              { label: "This Week", pv: analytics?.pageViews.week ?? 0, uv: analytics?.uniqueVisitors.week ?? 0 },
+              { label: "This Month", pv: analytics?.pageViews.month ?? 0, uv: analytics?.uniqueVisitors.month ?? 0 },
+              { label: "This Year", pv: analytics?.pageViews.year ?? 0, uv: analytics?.uniqueVisitors.year ?? 0 },
+            ].map(({ label, pv, uv }) => (
+              <div key={label} className="bg-[rgba(255,255,255,0.03)] rounded-xl p-4 border border-[rgba(255,255,255,0.06)]" data-testid={`stat-traffic-${label.toLowerCase().replace(/\s+/g, "-")}`}>
+                <p className="text-white/40 text-xs mb-1">{label}</p>
+                <p className="text-2xl font-bold text-white">{pv.toLocaleString()}</p>
+                <p className="text-white/30 text-xs mt-0.5">{uv.toLocaleString()} unique</p>
+              </div>
+            ))}
+          </div>
+          {(analytics?.topPages?.length ?? 0) > 0 && (
+            <div className="px-5 pb-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <p className="text-white/40 text-xs mb-2 font-medium uppercase tracking-wide">Top Pages (This Month)</p>
+                <div className="space-y-1.5" data-testid="list-top-pages">
+                  {(analytics?.topPages ?? []).slice(0, 5).map((p) => (
+                    <div key={p.page_path} className="flex items-center justify-between py-1.5 border-b border-[rgba(255,255,255,0.04)] last:border-0">
+                      <span className="text-white/60 text-xs truncate max-w-[200px]">{p.page_path || "/"}</span>
+                      <span className="text-white/80 text-xs font-medium ml-2">{Number(p.views).toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-white/40 text-xs mb-2 font-medium uppercase tracking-wide">Traffic Sources</p>
+                <div className="space-y-1.5" data-testid="list-referrers">
+                  {(analytics?.referrers ?? []).slice(0, 5).map((r) => (
+                    <div key={r.source} className="flex items-center justify-between py-1.5 border-b border-[rgba(255,255,255,0.04)] last:border-0">
+                      <span className="text-white/60 text-xs truncate max-w-[200px]">{r.source || "Direct"}</span>
+                      <span className="text-white/80 text-xs font-medium ml-2">{Number(r.visits).toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          {(analytics?.topPages?.length ?? 0) === 0 && (
+            <div className="px-5 pb-5">
+              <p className="text-white/20 text-xs text-center py-2">Tracking active — page view data will appear as visitors browse the site</p>
+            </div>
+          )}
+        </div>
+
+        {/* ── SECTION 2: LEAD ANALYTICS ────────────────────────────────────────── */}
+        <div className="mb-6 bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.12)] rounded-2xl overflow-hidden" data-testid="panel-lead-analytics">
+          <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.06)] flex items-center gap-2">
+            <Target className="w-4 h-4 text-[hsl(43,78%,65%)]" />
+            <span className="text-white font-semibold text-sm">Lead Tracking</span>
+            <span className="ml-auto text-white/25 text-xs">All lead types combined</span>
+          </div>
+          <div className="p-5 grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[
+              { label: "New Today", val: analytics?.leads.today ?? 0 },
+              { label: "This Week", val: analytics?.leads.week ?? 0 },
+              { label: "This Month", val: analytics?.leads.month ?? 0 },
+              { label: "This Year", val: analytics?.leads.year ?? 0 },
+            ].map(({ label, val }) => (
+              <div key={label} className="bg-[rgba(255,255,255,0.03)] rounded-xl p-4 border border-[rgba(255,255,255,0.06)]" data-testid={`stat-leads-${label.toLowerCase().replace(/\s+/g, "-")}`}>
+                <p className="text-white/40 text-xs mb-1">{label}</p>
+                <p className="text-2xl font-bold text-white">{val}</p>
+              </div>
+            ))}
+          </div>
+          <div className="px-5 pb-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {(analytics?.leadsBreakdown?.length ?? 0) > 0 && (
+              <div>
+                <p className="text-white/40 text-xs mb-2 font-medium uppercase tracking-wide">By Type (This Month)</p>
+                <div className="space-y-1.5" data-testid="list-leads-breakdown">
+                  {(analytics?.leadsBreakdown ?? []).map((b) => (
+                    <div key={b.type} className="flex items-center justify-between py-1.5 border-b border-[rgba(255,255,255,0.04)] last:border-0">
+                      <span className="text-white/60 text-xs">{TYPE_LABELS[b.type] ?? b.type}</span>
+                      <span className="text-white/80 text-xs font-medium">{Number(b.count)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="flex flex-col gap-2">
+              <p className="text-white/40 text-xs mb-1 font-medium uppercase tracking-wide">Conversion</p>
+              <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-4 border border-[rgba(255,255,255,0.06)]">
+                <p className="text-white/40 text-xs mb-1">Visitor → Lead Rate</p>
+                <p className="text-2xl font-bold text-[hsl(43,78%,65%)]" data-testid="stat-conversion-rate">{analytics?.conversionRate ?? 0}%</p>
+                <p className="text-white/30 text-xs mt-0.5">Based on page views vs enquiries this month</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* ── Action Required Banner ───────────────────────────────────────────── */}
         {(newPlanningCount > 0 || newLeadsToday.length > 0 || hotLeads.length > 0) && (
