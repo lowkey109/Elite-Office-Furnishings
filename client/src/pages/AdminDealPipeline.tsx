@@ -41,21 +41,26 @@ interface ProspectedLead {
 
 // ─── Stage config ──────────────────────────────────────────────────────────────
 const STAGES = [
-  { key: "Lead Detected",  label: "Lead Detected",  prob: 10,  color: "border-t-white/20", badge: "bg-white/5 text-white/40 border-white/10" },
-  { key: "Contacted",      label: "Contacted",       prob: 25,  color: "border-t-blue-500",   badge: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
-  { key: "Planning",       label: "Planning",         prob: 40,  color: "border-t-violet-500", badge: "bg-violet-500/10 text-violet-400 border-violet-500/20" },
-  { key: "Quoted",         label: "Quoted",           prob: 60,  color: "border-t-amber-500",  badge: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
-  { key: "Negotiation",    label: "Negotiation",      prob: 80,  color: "border-t-orange-500", badge: "bg-orange-500/10 text-orange-400 border-orange-500/20" },
-  { key: "Won",            label: "Won",              prob: 100, color: "border-t-green-500",  badge: "bg-green-500/10 text-green-400 border-green-500/20" },
-  { key: "Lost",           label: "Lost",             prob: 0,   color: "border-t-red-500",    badge: "bg-red-500/10 text-red-400 border-red-500/20" },
+  { key: "Radar Opportunity",  label: "Radar Opportunity",  prob: 10,  color: "border-t-white/20",    badge: "bg-white/5 text-white/40 border-white/10" },
+  { key: "Contact Made",       label: "Contact Made",       prob: 20,  color: "border-t-sky-500",     badge: "bg-sky-500/10 text-sky-400 border-sky-500/20" },
+  { key: "Discovery",          label: "Discovery",          prob: 40,  color: "border-t-violet-500",  badge: "bg-violet-500/10 text-violet-400 border-violet-500/20" },
+  { key: "Workspace Planning", label: "Workspace Planning", prob: 60,  color: "border-t-blue-500",    badge: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
+  { key: "Quote Sent",         label: "Quote Sent",         prob: 75,  color: "border-t-amber-500",   badge: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
+  { key: "Negotiation",        label: "Negotiation",        prob: 90,  color: "border-t-orange-500",  badge: "bg-orange-500/10 text-orange-400 border-orange-500/20" },
+  { key: "Won",                label: "Won",                prob: 100, color: "border-t-green-500",   badge: "bg-green-500/10 text-green-400 border-green-500/20" },
+  { key: "Lost",               label: "Lost",               prob: 0,   color: "border-t-red-500",     badge: "bg-red-500/10 text-red-400 border-red-500/20" },
 ];
 
-// Legacy status mapping to new stages
+// Legacy status mapping to canonical stage names
 const LEGACY_MAP: Record<string, string> = {
-  "New": "Lead Detected",
-  "Responded": "Contacted",
-  "Qualified": "Planning",
-  "Closed": "Won",
+  "Lead Detected": "Radar Opportunity",
+  "New":           "Radar Opportunity",
+  "Contacted":     "Contact Made",
+  "Responded":     "Contact Made",
+  "Planning":      "Discovery",
+  "Qualified":     "Discovery",
+  "Quoted":        "Quote Sent",
+  "Closed":        "Won",
 };
 
 function normaliseStatus(s: string): string {
@@ -261,13 +266,14 @@ export default function AdminDealPipeline() {
     cityFilter === "All" || l.city === cityFilter || l.location?.includes(cityFilter)
   );
 
-  // Live forecasting from current data
+  // Live forecasting from current data — canonical + legacy aliases
   const PROB: Record<string, number> = {
-    "Lead Detected": 10, "New": 10,
-    "Contacted": 25, "Responded": 25,
-    "Planning": 40, "Qualified": 40,
-    "Quoted": 60,
-    "Negotiation": 80,
+    "Radar Opportunity": 10, "Lead Detected": 10, "New": 10,
+    "Contact Made": 20, "Contacted": 20, "Responded": 20,
+    "Discovery": 40, "Planning": 40, "Qualified": 40,
+    "Workspace Planning": 60,
+    "Quote Sent": 75, "Quoted": 75,
+    "Negotiation": 90,
     "Won": 100, "Closed": 100,
     "Lost": 0,
   };

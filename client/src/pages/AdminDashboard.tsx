@@ -102,6 +102,14 @@ export default function AdminDashboard() {
     refetchInterval: 60000,
   });
 
+  interface ForecastOpportunity {
+    id: string;
+    companyName: string;
+    projectValue: number;
+    pipelineStage: string;
+    probabilityScore: number;
+    expectedRevenue: number;
+  }
   interface DealForecast {
     grossPipeline: number;
     weightedRevenue: number;
@@ -112,6 +120,9 @@ export default function AdminDashboard() {
     winRate: number | null;
     totalLeads: number;
     stageCounts: Record<string, { count: number; value: number }>;
+    opportunities: ForecastOpportunity[];
+    closing90Days: ForecastOpportunity[];
+    closing90DaysValue: number;
   }
   const { data: forecast } = useQuery<DealForecast>({
     queryKey: ["/api/admin/deal-forecast"],
@@ -803,61 +814,135 @@ export default function AdminDashboard() {
               )}
             </div>
 
-            {/* Revenue Forecasting Panel */}
+            {/* Revenue Intelligence Panel */}
             <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.15)] rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm flex items-center gap-2">
-                  <TrendingUp className="w-3.5 h-3.5" /> Revenue Forecast
+                  <TrendingUp className="w-3.5 h-3.5" /> Revenue Intelligence
                 </h3>
                 <a href="/admin/deal-pipeline" className="text-white/30 hover:text-white/60 text-xs transition-colors cursor-pointer">
                   Full pipeline →
                 </a>
               </div>
               {forecast ? (
-                <div className="space-y-2.5 text-sm">
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/50">Gross Pipeline</span>
-                    <span className="text-white font-semibold" data-testid="forecast-gross-pipeline">
-                      {forecast.grossPipeline >= 1000000
-                        ? `$${(forecast.grossPipeline / 1000000).toFixed(1)}M`
-                        : forecast.grossPipeline >= 1000
-                        ? `$${(forecast.grossPipeline / 1000).toFixed(0)}k`
-                        : `$${forecast.grossPipeline}`}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/50">Expected Revenue</span>
-                    <span className="text-[hsl(43,78%,65%)] font-bold" data-testid="forecast-expected-revenue">
-                      {forecast.weightedRevenue >= 1000000
-                        ? `$${(forecast.weightedRevenue / 1000000).toFixed(1)}M`
-                        : forecast.weightedRevenue >= 1000
-                        ? `$${(forecast.weightedRevenue / 1000).toFixed(0)}k`
-                        : `$${forecast.weightedRevenue}`}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/50">Probable Deals <span className="text-white/25 text-xs">(≥60%)</span></span>
-                    <span className="text-amber-400 font-semibold" data-testid="forecast-probable-deals">{forecast.probableDealsCount}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/50">Won Revenue</span>
-                    <span className="text-green-400 font-semibold" data-testid="forecast-won-revenue">
-                      {forecast.wonValue >= 1000000
-                        ? `$${(forecast.wonValue / 1000000).toFixed(1)}M`
-                        : forecast.wonValue >= 1000
-                        ? `$${(forecast.wonValue / 1000).toFixed(0)}k`
-                        : forecast.wonValue > 0 ? `$${forecast.wonValue}` : "—"}
-                    </span>
-                  </div>
-                  {forecast.winRate !== null && (
-                    <div className="flex justify-between items-center border-t border-[rgba(255,255,255,0.05)] pt-2 mt-2">
-                      <span className="text-white/50">Win Rate</span>
-                      <span className="text-blue-400 font-semibold" data-testid="forecast-win-rate">{forecast.winRate}%</span>
+                <div className="space-y-4">
+                  {/* ── KPI row ── */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3 text-center">
+                      <div className="text-white/40 text-[10px] uppercase tracking-wider mb-1">Total Pipeline</div>
+                      <div className="text-white font-bold text-sm" data-testid="forecast-gross-pipeline">
+                        {forecast.grossPipeline >= 1000000
+                          ? `$${(forecast.grossPipeline / 1000000).toFixed(1)}M`
+                          : forecast.grossPipeline >= 1000
+                          ? `$${(forecast.grossPipeline / 1000).toFixed(0)}k`
+                          : `$${forecast.grossPipeline}`}
+                      </div>
                     </div>
+                    <div className="bg-[rgba(201,168,76,0.08)] rounded-xl p-3 text-center">
+                      <div className="text-white/40 text-[10px] uppercase tracking-wider mb-1">Expected Revenue</div>
+                      <div className="text-[hsl(43,78%,65%)] font-bold text-sm" data-testid="forecast-expected-revenue">
+                        {forecast.weightedRevenue >= 1000000
+                          ? `$${(forecast.weightedRevenue / 1000000).toFixed(1)}M`
+                          : forecast.weightedRevenue >= 1000
+                          ? `$${(forecast.weightedRevenue / 1000).toFixed(0)}k`
+                          : `$${forecast.weightedRevenue}`}
+                      </div>
+                    </div>
+                    <div className="bg-[rgba(251,191,36,0.06)] rounded-xl p-3 text-center">
+                      <div className="text-white/40 text-[10px] uppercase tracking-wider mb-1">Closing 90d</div>
+                      <div className="text-amber-400 font-bold text-sm" data-testid="forecast-closing-90d">
+                        {forecast.closing90Days?.length ?? 0}
+                        <span className="text-white/30 text-[10px] font-normal ml-1">deals</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── Opportunity table ── */}
+                  {(forecast.opportunities ?? []).length > 0 ? (
+                    <div>
+                      <div className="text-white/30 text-[10px] uppercase tracking-wider mb-2">Opportunities</div>
+                      <div className="rounded-xl overflow-hidden border border-[rgba(255,255,255,0.05)]">
+                        <table className="w-full text-xs" data-testid="revenue-intel-table">
+                          <thead>
+                            <tr className="bg-[rgba(255,255,255,0.03)] border-b border-[rgba(255,255,255,0.05)]">
+                              <th className="text-left text-white/30 font-medium px-3 py-2">Company</th>
+                              <th className="text-right text-white/30 font-medium px-3 py-2">Value</th>
+                              <th className="text-center text-white/30 font-medium px-3 py-2 hidden sm:table-cell">Stage</th>
+                              <th className="text-center text-white/30 font-medium px-3 py-2">Prob</th>
+                              <th className="text-right text-white/30 font-medium px-3 py-2">Expected</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(forecast.opportunities ?? []).slice(0, 8).map((opp, i) => {
+                              const probColor =
+                                opp.probabilityScore >= 75 ? "text-green-400" :
+                                opp.probabilityScore >= 60 ? "text-amber-400" :
+                                opp.probabilityScore >= 40 ? "text-blue-400" :
+                                "text-white/40";
+                              const fmtVal = (n: number) =>
+                                n >= 1000000 ? `$${(n / 1000000).toFixed(1)}M`
+                                : n >= 1000 ? `$${(n / 1000).toFixed(0)}k`
+                                : n > 0 ? `$${n}` : "—";
+                              return (
+                                <tr key={opp.id} className={`border-b border-[rgba(255,255,255,0.03)] ${i % 2 === 0 ? "" : "bg-[rgba(255,255,255,0.01)]"}`} data-testid={`opp-row-${opp.id}`}>
+                                  <td className="px-3 py-2 text-white/80 truncate max-w-[90px]">{opp.companyName}</td>
+                                  <td className="px-3 py-2 text-white/60 text-right whitespace-nowrap">{fmtVal(opp.projectValue)}</td>
+                                  <td className="px-3 py-2 text-white/40 text-center whitespace-nowrap hidden sm:table-cell text-[10px]">{opp.pipelineStage}</td>
+                                  <td className={`px-3 py-2 text-center font-bold ${probColor}`}>{opp.probabilityScore}%</td>
+                                  <td className="px-3 py-2 text-[hsl(43,78%,65%)] font-semibold text-right whitespace-nowrap">{fmtVal(opp.expectedRevenue)}</td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                          {(forecast.opportunities ?? []).length > 0 && (
+                            <tfoot>
+                              <tr className="bg-[rgba(201,168,76,0.05)] border-t border-[rgba(201,168,76,0.15)]">
+                                <td className="px-3 py-2 text-white/50 font-semibold text-xs" colSpan={2}>
+                                  Total ({forecast.opportunities.length} opportunities)
+                                </td>
+                                <td className="hidden sm:table-cell" />
+                                <td className="px-3 py-2 text-center text-white/40 text-xs font-semibold">—</td>
+                                <td className="px-3 py-2 text-right text-[hsl(43,78%,65%)] font-bold text-xs" data-testid="forecast-total-expected">
+                                  {forecast.weightedRevenue >= 1000000
+                                    ? `$${(forecast.weightedRevenue / 1000000).toFixed(1)}M`
+                                    : forecast.weightedRevenue >= 1000
+                                    ? `$${(forecast.weightedRevenue / 1000).toFixed(0)}k`
+                                    : `$${forecast.weightedRevenue}`}
+                                </td>
+                              </tr>
+                            </tfoot>
+                          )}
+                        </table>
+                      </div>
+                      {(forecast.opportunities ?? []).length > 8 && (
+                        <div className="text-center mt-2">
+                          <a href="/admin/deal-pipeline" className="text-white/30 hover:text-white/60 text-xs transition-colors">
+                            +{forecast.opportunities.length - 8} more →
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-white/30 text-xs text-center py-4">No active opportunities — add leads to the pipeline to see forecasts</div>
                   )}
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/30 text-xs">Active prospects</span>
-                    <span className="text-white/50 text-xs">{forecast.totalLeads}</span>
+
+                  {/* ── Secondary stats ── */}
+                  <div className="grid grid-cols-2 gap-2 pt-1 border-t border-[rgba(255,255,255,0.05)]">
+                    <div className="text-xs flex justify-between">
+                      <span className="text-white/40">Won Revenue</span>
+                      <span className="text-green-400 font-semibold" data-testid="forecast-won-revenue">
+                        {forecast.wonValue > 0
+                          ? forecast.wonValue >= 1000000 ? `$${(forecast.wonValue / 1000000).toFixed(1)}M`
+                          : forecast.wonValue >= 1000 ? `$${(forecast.wonValue / 1000).toFixed(0)}k`
+                          : `$${forecast.wonValue}` : "—"}
+                      </span>
+                    </div>
+                    {forecast.winRate !== null && (
+                      <div className="text-xs flex justify-between">
+                        <span className="text-white/40">Win Rate</span>
+                        <span className="text-blue-400 font-semibold" data-testid="forecast-win-rate">{forecast.winRate}%</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (

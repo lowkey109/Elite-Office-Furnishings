@@ -3210,15 +3210,39 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
       if (cached) return res.json(cached);
       const leads = await storage.getProspectedLeads();
 
+      // Canonical stage probabilities — new names first, legacy aliases below
       const STAGE_PROB: Record<string, number> = {
+        // ── New canonical stage names ──────────────────────────
+        "Radar Opportunity": 10,
+        "Contact Made":      20,
+        "Discovery":         40,
+        "Workspace Planning":60,
+        "Quote Sent":        75,
+        "Negotiation":       90,
+        "Won":              100,
+        "Lost":               0,
+        // ── Legacy aliases (backward-compat) ────────────────────
         "Lead Detected": 10, "New": 10,
-        "Contacted": 25, "Responded": 25,
+        "Contacted": 20, "Responded": 20,
         "Planning": 40, "Qualified": 40,
-        "Quoted": 60,
-        "Negotiation": 80,
-        "Won": 100, "Closed": 100,
-        "Lost": 0,
+        "Quoted": 75,
+        "Closed": 100,
       };
+
+      // Normalise a raw DB status string into a canonical stage label
+      const STAGE_ALIAS: Record<string, string> = {
+        "Lead Detected":      "Radar Opportunity",
+        "New":                "Radar Opportunity",
+        "Contacted":          "Contact Made",
+        "Responded":          "Contact Made",
+        "Planning":           "Discovery",
+        "Qualified":          "Discovery",
+        "Quoted":             "Quote Sent",
+        "Closed":             "Won",
+      };
+      function canonicalStage(s: string): string {
+        return STAGE_ALIAS[s] ?? s;
+      }
 
       function parseVal(v: string | null | undefined): number {
         if (!v) return 0;
@@ -3229,9 +3253,10 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
       const active = leads.filter(l => l.status !== "Lost");
       const grossPipeline = active.reduce((s, l) => s + parseVal(l.estimatedProjectValue), 0);
       const weightedRevenue = leads.reduce((s, l) => {
-        const prob = (STAGE_PROB[l.status] ?? 30) / 100;
+        const prob = (STAGE_PROB[l.status] ?? 20) / 100;
         return s + parseVal(l.estimatedProjectValue) * prob;
       }, 0);
+      // Probable = stages at ≥ 60% (Workspace Planning, Quote Sent, Negotiation)
       const probableDeals = leads.filter(l => (STAGE_PROB[l.status] ?? 0) >= 60 && l.status !== "Lost");
       const wonDeals = leads.filter(l => l.status === "Won" || l.status === "Closed");
       const wonValue = wonDeals.reduce((s, l) => s + parseVal(l.estimatedProjectValue), 0);
@@ -3239,12 +3264,35 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
       const totalClosed = wonDeals.length + lostDeals.length;
       const winRate = totalClosed > 0 ? Math.round((wonDeals.length / totalClosed) * 100) : null;
 
+      // Stage counts (canonical names)
       const stageCounts: Record<string, { count: number; value: number }> = {};
       for (const l of leads) {
-        if (!stageCounts[l.status]) stageCounts[l.status] = { count: 0, value: 0 };
-        stageCounts[l.status].count++;
-        stageCounts[l.status].value += parseVal(l.estimatedProjectValue);
+        const stage = canonicalStage(l.status);
+        if (!stageCounts[stage]) stageCounts[stage] = { count: 0, value: 0 };
+        stageCounts[stage].count++;
+        stageCounts[stage].value += parseVal(l.estimatedProjectValue);
       }
+
+      // Per-opportunity breakdown for the Revenue Intelligence table
+      const opportunities = leads
+        .filter(l => l.status !== "Lost")
+        .map(l => {
+          const stage = canonicalStage(l.status);
+          const probabilityScore = STAGE_PROB[l.status] ?? 20;
+          const projectValue = parseVal(l.estimatedProjectValue);
+          return {
+            id: l.id,
+            companyName: l.company || l.name || "Unknown",
+            projectValue,
+            pipelineStage: stage,
+            probabilityScore,
+            expectedRevenue: Math.round(projectValue * probabilityScore / 100),
+          };
+        })
+        .sort((a, b) => b.expectedRevenue - a.expectedRevenue);
+
+      // Deals likely closing within 90 days = probability ≥ 60%
+      const closing90Days = opportunities.filter(o => o.probabilityScore >= 60);
 
       const payload = {
         grossPipeline,
@@ -3256,6 +3304,9 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
         winRate,
         totalLeads: leads.length,
         stageCounts,
+        opportunities,
+        closing90Days,
+        closing90DaysValue: closing90Days.reduce((s, o) => s + o.expectedRevenue, 0),
       };
       setCached("deal-forecast", payload, 30_000);
       res.json(payload);

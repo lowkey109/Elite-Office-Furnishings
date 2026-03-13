@@ -1,0 +1,205 @@
+The Prompt to Build It
+
+(single copy-paste block like you prefer)
+
+SAFE SYSTEM EXTENSION — COMPANY VISITOR IDENTIFICATION
+
+You are extending The Corporate Desk platform.
+
+Do NOT break any existing systems:
+	•	Office Move Radar
+	•	Deal Intelligence Engine
+	•	AI Workspace Design Engine
+	•	Workspace Planner
+	•	Quote Builder
+	•	Supplier Network
+	•	Partner Network
+	•	Command Centre
+	•	Analytics
+	•	WhatsApp AI Assistant (Alex)
+	•	Deal Pipeline
+	•	Admin Dashboard
+
+⸻
+
+OBJECTIVE
+
+Build a Company Visitor Identification system that detects companies visiting the website before they submit a lead.
+
+The system must automatically identify B2B companies based on visitor IP signals and behavioural activity.
+
+⸻
+
+DATA CAPTURE
+
+For every website visitor capture:
+
+visitor_id
+ip_address
+country
+city
+device_type
+browser
+session_duration
+pages_viewed
+timestamp
+
+Store sessions in a visitor_sessions table.
+
+⸻
+
+COMPANY IDENTIFICATION
+
+Use IP enrichment to identify companies.
+
+Match visitor IP against company data sources.
+
+Extract:
+
+company_name
+company_domain
+industry
+estimated_employee_count
+company_location
+
+⸻
+
+ENGAGEMENT SCORING
+
+Calculate engagement score based on behaviour.
+
+Example rules:
+
+Visited product pages → +10
+Visited workspace planner → +25
+Uploaded floor plan → +40
+Visited pricing or quotes → +30
+Session longer than 2 minutes → +10
+
+Total score determines lead quality.
+
+⸻
+
+INTENT DETECTION
+
+Identify likely intent from page activity:
+
+workspace_planning
+office_relocation
+office_expansion
+furniture_purchase
+fitout_project
+
+⸻
+
+OPPORTUNITY CREATION
+
+If engagement score ≥ 40:
+
+Create an opportunity record.
+
+Example fields:
+
+company_name
+city
+pages_viewed
+intent
+engagement_score
+estimated_project_value
+confidence_score
+
+Push opportunity to:
+
+Deal Intelligence Engine
+→ Deal Pipeline
+→ Command Centre dashboard.
+
+⸻
+
+ALEX AI INTEGRATION
+
+Notify Alex (Operations AI).
+
+Alex should:
+
+• generate an outreach draft
+• recommend follow-up strategy
+• assign priority level.
+
+⸻
+
+ADMIN DASHBOARD
+
+Create page:
+
+/admin/company-visitors
+
+Display:
+
+company_name
+city
+pages_viewed
+engagement_score
+intent
+estimated_project_value
+session_time
+
+Allow filtering by:
+
+• city
+• engagement score
+• intent
+• date
+
+⸻
+
+COMMAND CENTRE INTEGRATION
+
+Add widget:
+
+“Active Companies On Site”
+
+Display:
+
+company name
+city
+pages being viewed
+engagement score
+
+Update in near real time.
+
+⸻
+
+PRIVACY RULES
+
+Only identify B2B company traffic.
+
+Do not store personal visitor identities.
+
+Follow Australian privacy compliance.
+
+⸻
+
+TESTING
+
+Verify:
+
+1 visitor sessions record correctly
+2 company identification works
+3 engagement scoring calculates correctly
+4 opportunities generate automatically
+5 pipeline integration works
+6 command centre displays active companies
+
+⸻
+
+RETURN REPORT
+
+Return:
+
+• models created
+• routes created
+• admin pages added
+• IP enrichment method used
+• how visitor → company matching works
+• confirmation system is live
