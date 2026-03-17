@@ -3,9 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, MapPin, Building2, TrendingUp, Filter, Layers, Target, BarChart3, AlertTriangle } from "lucide-react";
+import { ExternalLink, MapPin, Building2, TrendingUp, Filter, Layers, Target, BarChart3, AlertTriangle, Clock, ArrowRight, Network, Activity } from "lucide-react";
 
-type LayerMode = "signals" | "buildings" | "tenants" | "demand" | "building-risk" | "opportunities" | "zones" | "clusters";
+type LayerMode = "signals" | "buildings" | "tenants" | "demand" | "building-risk" | "opportunities" | "zones" | "clusters" | "lease-expiries" | "tenant-movement" | "hierarchy-clusters" | "demand-zones";
 
 interface MapMarker {
   id: string;
@@ -77,6 +77,10 @@ const LAYER_TABS: { id: LayerMode; label: string; icon: typeof Layers }[] = [
   { id: "zones", label: "Zones", icon: Layers },
   { id: "buildings", label: "Buildings", icon: Building2 },
   { id: "clusters", label: "Clusters", icon: MapPin },
+  { id: "lease-expiries", label: "Lease Expiries", icon: Clock },
+  { id: "tenant-movement", label: "Tenant Movement", icon: ArrowRight },
+  { id: "hierarchy-clusters", label: "Corp Hierarchy", icon: Network },
+  { id: "demand-zones", label: "Demand Zones", icon: Activity },
 ];
 
 function fmtVal(n: number) {
@@ -95,6 +99,16 @@ function featureColor(feature: GeoFeature, layer: LayerMode): string {
   if (layer === "tenants") return p.moveProbability && (p.moveProbability as number) > 60 ? "#EF4444" : "#3B82F6";
   if (layer === "buildings") return "#F97316";
   if (layer === "clusters") return "#8B5CF6";
+  if (layer === "lease-expiries") {
+    const tier = p.urgencyTier as string;
+    if (tier === "critical") return "#DC2626";
+    if (tier === "high") return "#F97316";
+    if (tier === "medium") return "#F59E0B";
+    return "#6B7280";
+  }
+  if (layer === "tenant-movement") return "#A855F7";
+  if (layer === "hierarchy-clusters") return "#06B6D4";
+  if (layer === "demand-zones") return TIER_COLORS[(p.demandTier as string)] ?? "#22C55E";
   return "#3B82F6";
 }
 
@@ -106,6 +120,10 @@ function featureRadius(feature: GeoFeature, layer: LayerMode): number {
   if (layer === "building-risk") return Math.max(6, Math.min(18, ((p.vacancyRiskScore as number) ?? 30) / 6));
   if (layer === "zones") return Math.max(6, Math.min(18, ((p.zoneScore as number) ?? 30) / 6));
   if (layer === "clusters") return Math.max(8, Math.min(30, ((p.signalCount as number) ?? 5) * 1.5));
+  if (layer === "lease-expiries") return Math.max(7, Math.min(18, ((p.opportunityScore as number) ?? 50) / 6));
+  if (layer === "tenant-movement") return Math.max(7, Math.min(16, ((p.radarScore as number) ?? 50) / 7));
+  if (layer === "hierarchy-clusters") return Math.max(8, Math.min(28, ((p.companyCount as number) ?? 3) * 2.5));
+  if (layer === "demand-zones") return Math.max(6, Math.min(18, ((p.demandScore as number) ?? 30) / 6));
   return 8;
 }
 
@@ -198,6 +216,60 @@ function FeaturePopup({ feature, layer }: { feature: GeoFeature; layer: LayerMod
         <>
           <div className="font-semibold text-sm text-white mb-1">{p.city as string}</div>
           <div className="text-xs text-white/60">{p.signalCount as number} active signals</div>
+        </>
+      )}
+      {layer === "lease-expiries" && (
+        <>
+          <div className="font-semibold text-sm text-white mb-1">{p.companyName as string}</div>
+          <div className="text-white/50 text-xs mb-3">{p.city as string}</div>
+          <div className="space-y-1.5 text-xs">
+            <div className="flex justify-between"><span className="text-white/40">Expiry</span><span className="text-amber-400 font-semibold">{p.predictedExpiryQuarter as string} {p.predictedExpiryYear as number}</span></div>
+            <div className="flex justify-between"><span className="text-white/40">Relocation Prob.</span><span className="text-red-400">{p.relocationProbability as number}%</span></div>
+            <div className="flex justify-between"><span className="text-white/40">Opp. Score</span><span className="text-white/70">{p.opportunityScore as number}/100</span></div>
+            <div className="flex justify-between"><span className="text-white/40">Urgency</span><Badge className="text-[9px] px-1.5 py-0 bg-red-500/10 text-red-400 border-red-500/20 border">{p.urgencyTier as string}</Badge></div>
+          </div>
+          {(p.estimatedProjectValue as number) > 0 && (
+            <div className="mt-2 text-[10px] text-green-400">{fmtVal(p.estimatedProjectValue as number)} est. project value</div>
+          )}
+        </>
+      )}
+      {layer === "tenant-movement" && (
+        <>
+          <div className="font-semibold text-sm text-white mb-1">{p.companyName as string}</div>
+          <div className="text-white/50 text-xs mb-3">{p.city as string}</div>
+          <div className="space-y-1.5 text-xs">
+            <div className="flex justify-between"><span className="text-white/40">Signal Type</span><span className="text-purple-400">{(p.signalType as string)?.replace(/_/g, " ")}</span></div>
+            <div className="flex justify-between"><span className="text-white/40">Radar Score</span><span className="text-amber-400 font-semibold">{p.radarScore as number}/100</span></div>
+            <div className="flex justify-between"><span className="text-white/40">Confidence</span><span className="text-white/70">{p.confidenceLevel as string}</span></div>
+            <div className="flex justify-between"><span className="text-white/40">Detected</span><span className="text-white/60">{p.dateDetected as string}</span></div>
+          </div>
+        </>
+      )}
+      {layer === "hierarchy-clusters" && (
+        <>
+          <div className="font-semibold text-sm text-white mb-1">{p.city as string}</div>
+          <div className="text-white/50 text-xs mb-3">Corporate Hierarchy Cluster</div>
+          <div className="space-y-1.5 text-xs">
+            <div className="flex justify-between"><span className="text-white/40">Companies</span><span className="text-cyan-400 font-semibold">{p.companyCount as number}</span></div>
+            <div className="flex justify-between"><span className="text-white/40">Total Signals</span><span className="text-white/70">{p.totalSignals as number}</span></div>
+          </div>
+          {(p.topCompanies as string) && (
+            <div className="mt-2 text-[10px] text-white/40 border-t border-white/05 pt-2">{p.topCompanies as string}</div>
+          )}
+        </>
+      )}
+      {layer === "demand-zones" && (
+        <>
+          <div className="font-semibold text-sm text-white mb-1">{p.suburb as string}</div>
+          <div className="text-white/50 text-xs mb-3">{p.city as string}</div>
+          <div className="space-y-1.5 text-xs">
+            <div className="flex justify-between"><span className="text-white/40">Demand Score</span><span className="text-green-400 font-semibold">{Math.round(p.demandScore as number)}/100</span></div>
+            <div className="flex justify-between"><span className="text-white/40">Tier</span><Badge className="text-[9px] px-1.5 py-0 bg-green-500/10 text-green-400 border-green-500/20 border">{p.demandTier as string}</Badge></div>
+            <div className="flex justify-between"><span className="text-white/40">Active Companies</span><span className="text-white/70">{p.activeCompanies as number}</span></div>
+            {(p.growthRate as number) > 0 && (
+              <div className="flex justify-between"><span className="text-white/40">Growth Rate</span><span className="text-green-400">+{Math.round(p.growthRate as number)}%</span></div>
+            )}
+          </div>
         </>
       )}
     </div>

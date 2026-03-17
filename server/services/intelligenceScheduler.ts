@@ -295,6 +295,25 @@ async function registerPgBossWorkers(): Promise<void> {
   await registerWorker(QUEUES.ALERTS_GENERATE, async () => {
     console.log("[Scheduler] Alerts generation job run");
   });
+
+  // UPGRADE: Lease Expiry Engine
+  await registerWorker(QUEUES.LEASE_EXPIRY_SCAN, async () => {
+    const { runLeaseExpiryEngine } = await import("./intelligence/leaseExpiryService");
+    await runLeaseExpiryEngine();
+  });
+
+  // UPGRADE: Company Hierarchy Builder
+  await registerWorker(QUEUES.HIERARCHY_BUILD, async () => {
+    const { buildHierarchyFromExistingData, rollUpSignals } = await import("./intelligence/companyHierarchyService");
+    await buildHierarchyFromExistingData();
+    await rollUpSignals();
+  });
+
+  // UPGRADE: Graph Refresh
+  await registerWorker(QUEUES.GRAPH_REFRESH, async () => {
+    const { runGraphRefresh } = await import("./intelligence/intelligenceGraphService");
+    await runGraphRefresh();
+  });
 }
 
 async function schedulePgBossJobs(): Promise<void> {
@@ -309,6 +328,10 @@ async function schedulePgBossJobs(): Promise<void> {
   await scheduleJob(QUEUES.DEMAND_AGGREGATE, {}, { repeatEvery: "0 1 * * *", singletonKey: "demand-aggregate" });
   await scheduleJob(QUEUES.BUILDING_RISK_REFRESH, {}, { repeatEvery: "0 4 * * *", singletonKey: "building-risk" });
   await scheduleJob(QUEUES.SIGNAL_INGESTION, {}, { repeatEvery: "0 */6 * * *", singletonKey: "signal-ingestion" });
+  // UPGRADE queues
+  await scheduleJob(QUEUES.LEASE_EXPIRY_SCAN, {}, { repeatEvery: "0 5 * * *", singletonKey: "lease-expiry-scan" });
+  await scheduleJob(QUEUES.HIERARCHY_BUILD, {}, { repeatEvery: "0 6 * * *", singletonKey: "hierarchy-build" });
+  await scheduleJob(QUEUES.GRAPH_REFRESH, {}, { repeatEvery: "0 7 * * *", singletonKey: "graph-refresh" });
   console.log("[IntelligenceScheduler] pg-boss recurring jobs scheduled");
 }
 

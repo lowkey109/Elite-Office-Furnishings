@@ -513,7 +513,17 @@ ${FITOUT_CONSTRUCTION_LAYER}`;
 // psychology insights) from /ai/knowledge/ at the time of the AI call.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function buildChatSystemPrompt(sessionContext?: string, pageContext?: string, userProfile?: string): string {
+export function buildChatSystemPrompt(
+  sessionContext?: string,
+  pageContext?: string,
+  userProfile?: string,
+  intelligenceContext?: {
+    topDemandSuburbs?: { suburb: string; city: string; demandScore: number; demandTier: string }[];
+    topOpportunityZones?: { suburb: string; city: string; zoneScore: number; activeCompanies: number }[];
+    leaseExpiryOpportunities?: { companyName: string; city: string; urgencyTier: string; predictedExpiryYear: number | null; opportunityScore: number }[];
+    likelyRelocating?: { companyName: string; city: string; radarScore: number; signalType: string }[];
+  }
+): string {
   const workplaceKnowledge = getWorkplaceDesignKnowledge();
   const salesKnowledge = getSalesFramework();
   const supplierRules = getSupplierRoutingRules();
@@ -532,10 +542,27 @@ export function buildChatSystemPrompt(sessionContext?: string, pageContext?: str
     ? `\n## KNOWN VISITOR PROJECT DATA\nThe following details are already known about this visitor from prior conversation. Reference them naturally and do NOT ask for these again:\n${userProfile}\n`
     : "";
 
+  const intelligenceBlock = intelligenceContext
+    ? `\n## LIVE MARKET INTELLIGENCE (as of today)
+You have access to real-time Australian office market intelligence. Use this data naturally when users ask about market trends, relocation opportunities, or office demand. Do not recite it robotically — weave it into your responses.
+
+${intelligenceContext.topDemandSuburbs?.length ? `**Top Demand Suburbs Right Now:**\n${intelligenceContext.topDemandSuburbs.slice(0, 5).map(s => `- ${s.suburb}, ${s.city}: ${s.demandTier} demand (score ${Math.round(s.demandScore)}/100)`).join("\n")}` : ""}
+
+${intelligenceContext.topOpportunityZones?.length ? `**Highest Opportunity Zones:**\n${intelligenceContext.topOpportunityZones.slice(0, 5).map(z => `- ${z.suburb || z.city}: Zone score ${Math.round(z.zoneScore)}/100 · ${z.activeCompanies} active companies`).join("\n")}` : ""}
+
+${intelligenceContext.leaseExpiryOpportunities?.length ? `**Companies with Expiring Leases (Relocation Opportunities):**\n${intelligenceContext.leaseExpiryOpportunities.slice(0, 5).map(o => `- ${o.companyName} (${o.city}): ${o.urgencyTier} urgency · expiring ${o.predictedExpiryYear ?? "soon"} · opportunity score ${o.opportunityScore}/100`).join("\n")}` : ""}
+
+${intelligenceContext.likelyRelocating?.length ? `**Companies Most Likely to Relocate:**\n${intelligenceContext.likelyRelocating.slice(0, 5).map(r => `- ${r.companyName} (${r.city}): radar score ${r.radarScore}/100 · signal: ${(r.signalType || "").replace(/_/g, " ")}`).join("\n")}` : ""}
+
+When users ask about specific companies, suburbs, or market trends, reference this intelligence naturally. You can also proactively surface relevant opportunities based on what the user is discussing.\n`
+    : `\n## WORKSPACE INTELLIGENCE PLATFORM
+You have access to The Corporate Desk's Workspace Intelligence Platform — a live system that tracks office market signals, company relocation intent, lease expiry predictions, and demand forecasting across Australian cities. When users ask about market trends, relocation opportunities, lease activity, or specific companies/suburbs, let them know you can surface real-time intelligence from this platform. To get the latest data, suggest they visit the Market Intelligence Map (/market-map) or the Admin Command Centre.\n`;
+
   return `${CORPORATE_DESK_SYSTEM_PROMPT}
 ${pageBlock}
 ${profileBlock}
 ${sessionBlock}
+${intelligenceBlock}
 ## STRUCTURED KNOWLEDGE BASE — LOADED AT RUNTIME
 The following structured knowledge has been loaded from the TCD knowledge system.
 Use this to inform every recommendation, layout, and product suggestion.

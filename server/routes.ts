@@ -1206,10 +1206,36 @@ ${allUrls.map(u => `  <url>
 
       // Extract project context from conversation history and inject into system prompt
       const sessionContext = extractSessionContext(formattedMessages);
+
+      // Inject live intelligence context into Alex's system prompt (non-blocking)
+      let intelligenceCtx: Parameters<typeof buildChatSystemPrompt>[3] | undefined;
+      try {
+        const { getTopDemandSuburbs } = await import("./services/intelligence/demandForecastEngine");
+        const { getTopZones } = await import("./services/intelligence/zoneScoringEngine");
+        const { getLeaseExpiryOpportunities } = await import("./services/intelligence/leaseExpiryService");
+        const radarRecords = await storage.getOfficeMovRadarRecords({});
+        const [demandSuburbs, topZones, leaseOpps] = await Promise.all([
+          getTopDemandSuburbs(5),
+          getTopZones(5),
+          getLeaseExpiryOpportunities(5),
+        ]);
+        const likelyRelocating = radarRecords
+          .filter(r => (r.radarScore ?? 0) >= 70)
+          .sort((a, b) => (b.radarScore ?? 0) - (a.radarScore ?? 0))
+          .slice(0, 5);
+        intelligenceCtx = {
+          topDemandSuburbs: demandSuburbs.map(s => ({ suburb: s.suburb ?? "", city: s.city, demandScore: s.demandScore ?? 0, demandTier: s.demandTier ?? "" })),
+          topOpportunityZones: topZones.map(z => ({ suburb: z.suburb ?? "", city: z.city, zoneScore: z.zoneScore, activeCompanies: z.activeCompanies })),
+          leaseExpiryOpportunities: leaseOpps.map(o => ({ companyName: o.companyName, city: o.city, urgencyTier: o.urgencyTier, predictedExpiryYear: o.predictedExpiryYear, opportunityScore: o.opportunityScore })),
+          likelyRelocating: likelyRelocating.map(r => ({ companyName: r.companyName, city: r.city ?? "", radarScore: r.radarScore ?? 0, signalType: r.signalType ?? "" })),
+        };
+      } catch { /* intelligence context is optional — fall back gracefully */ }
+
       const systemPrompt = buildChatSystemPrompt(
         sessionContext || undefined,
         pageContext || undefined,
-        userProfile || undefined
+        userProfile || undefined,
+        intelligenceCtx
       );
 
       if (useStream) {
@@ -5152,6 +5178,213 @@ Rules:
         properties: { city: g.city, signalCount: g.count, clusterRadius: Math.min(50, 10 + g.count * 2) },
       }));
       res.json({ type: "FeatureCollection", features, meta: { total: features.length, layer: "clusters" } });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── UPGRADE 1 & 2: New Map Layers ───────────────────────────────────────────
+
+  app.get("/api/map/layers/lease-expiries", async (_req, res) => {
+    try {
+      const { getLeaseExpiryOpportunities } = await import("./services/intelligence/leaseExpiryService");
+      const opps = await getLeaseExpiryOpportunities(50);
+      const features = opps.map((o) => {
+        const cityKey = Object.keys(AU_CITY_COORDS).find(k =>
+          (o.city || "").toLowerCase().includes(k.toLowerCase()));
+        const coords = cityKey ? AU_CITY_COORDS[cityKey] : null;
+        if (!coords) return null;
+        // Add slight jitter so overlapping city markers are visible
+        const jitter = () => (Math.random() - 0.5) * 0.05;
+        return {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: [coords.lng + jitter(), coords.lat + jitter()] },
+          properties: {
+            companyName: o.companyName, city: o.city,
+            predictedExpiryYear: o.predictedExpiryYear,
+            predictedExpiryQuarter: o.predictedExpiryQuarter,
+            relocationProbability: o.relocationProbability,
+            opportunityScore: o.opportunityScore,
+            urgencyTier: o.urgencyTier,
+            estimatedProjectValue: o.estimatedProjectValue,
+            reasoningSummary: o.reasoningSummary,
+          },
+        };
+      }).filter(Boolean);
+      res.json({ type: "FeatureCollection", features, meta: { total: features.length, layer: "lease-expiries" } });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/map/layers/tenant-movement", async (_req, res) => {
+    try {
+      const radarRecords = await storage.getOfficeMovRadarRecords({});
+      const movementSignals = radarRecords.filter(r =>
+        ["office_relocation", "new_office_signal", "building_move_signal", "sublease", "coworking_exit"].includes(r.signalType ?? "")
+      );
+      const features = movementSignals.map((r) => {
+        const cityKey = Object.keys(AU_CITY_COORDS).find(k =>
+          (r.city || "").toLowerCase().includes(k.toLowerCase()));
+        const coords = cityKey ? AU_CITY_COORDS[cityKey] : null;
+        if (!coords) return null;
+        const jitter = () => (Math.random() - 0.5) * 0.06;
+        return {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: [coords.lng + jitter(), coords.lat + jitter()] },
+          properties: {
+            companyName: r.companyName, city: r.city,
+            signalType: r.signalType,
+            radarScore: r.radarScore,
+            confidenceLevel: r.confidenceLevel,
+            dateDetected: r.dateDetected,
+            estimatedProjectValue: r.estimatedProjectValue,
+          },
+        };
+      }).filter(Boolean);
+      res.json({ type: "FeatureCollection", features, meta: { total: features.length, layer: "tenant-movement" } });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/map/layers/hierarchy-clusters", async (_req, res) => {
+    try {
+      const { getTopHierarchyClusters } = await import("./services/intelligence/companyHierarchyService");
+      const nodes = await getTopHierarchyClusters(50);
+      const cityGroups: Record<string, { count: number; signalSum: number; lat: number; lng: number; city: string; companies: string[] }> = {};
+      for (const n of nodes) {
+        const cityKey = Object.keys(AU_CITY_COORDS).find(k =>
+          (n.city || "").toLowerCase().includes(k.toLowerCase()));
+        if (!cityKey) continue;
+        const coords = AU_CITY_COORDS[cityKey];
+        if (!cityGroups[cityKey]) {
+          cityGroups[cityKey] = { count: 0, signalSum: 0, lat: coords.lat, lng: coords.lng, city: cityKey, companies: [] };
+        }
+        cityGroups[cityKey].count++;
+        cityGroups[cityKey].signalSum += n.aggregatedSignalCount ?? 0;
+        if (cityGroups[cityKey].companies.length < 5) cityGroups[cityKey].companies.push(n.companyName);
+      }
+      const features = Object.values(cityGroups).map((g) => ({
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [g.lng, g.lat] },
+        properties: {
+          city: g.city, companyCount: g.count,
+          totalSignals: g.signalSum,
+          topCompanies: g.companies.join(", "),
+        },
+      }));
+      res.json({ type: "FeatureCollection", features, meta: { total: features.length, layer: "hierarchy-clusters" } });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/map/layers/demand-zones", async (_req, res) => {
+    try {
+      const { getTopDemandSuburbs } = await import("./services/intelligence/demandForecastEngine");
+      const suburbs = await getTopDemandSuburbs(80);
+      const features = suburbs.map((s) => {
+        const cityKey = Object.keys(AU_CITY_COORDS).find(k =>
+          (s.city || "").toLowerCase().includes(k.toLowerCase()));
+        const coords = cityKey ? AU_CITY_COORDS[cityKey] : null;
+        if (!coords) return null;
+        const jitter = () => (Math.random() - 0.5) * 0.08;
+        return {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: [coords.lng + jitter(), coords.lat + jitter()] },
+          properties: {
+            suburb: s.suburb, city: s.city, state: s.state,
+            demandScore: s.demandScore, demandTier: s.demandTier,
+            activeCompanies: s.activeCompanies, growthRate: s.growthRate,
+          },
+        };
+      }).filter(Boolean);
+      res.json({ type: "FeatureCollection", features, meta: { total: features.length, layer: "demand-zones" } });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Upgrade admin routes: trigger scan, source toggle ───────────────────────
+
+  app.post("/api/admin/intelligence/trigger-scan", async (req, res) => {
+    try {
+      const { scanType = "all" } = req.body as { scanType?: string };
+      const results: Record<string, string | null> = {};
+      const { triggerJob, QUEUES } = await import("./services/jobOrchestrator");
+      if (scanType === "all" || scanType === "lease") {
+        results.lease = await triggerJob(QUEUES.LEASE_EXPIRY_SCAN);
+      }
+      if (scanType === "all" || scanType === "hierarchy") {
+        results.hierarchy = await triggerJob(QUEUES.HIERARCHY_BUILD);
+      }
+      if (scanType === "all" || scanType === "graph") {
+        results.graph = await triggerJob(QUEUES.GRAPH_REFRESH);
+      }
+      if (scanType === "all" || scanType === "signals") {
+        results.signals = await triggerJob(QUEUES.SIGNAL_INGESTION);
+      }
+      if (scanType === "all" || scanType === "demand") {
+        results.demand = await triggerJob(QUEUES.DEMAND_AGGREGATE);
+      }
+      res.json({ ok: true, triggered: scanType, results });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.patch("/api/admin/intelligence/source/:id/toggle", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { isActive } = req.body as { isActive: boolean };
+      const { db: dbInstance } = await import("./db");
+      const { intelligenceSources } = await import("@shared/schema");
+      const { eq } = await import("drizzle-orm");
+      await dbInstance
+        .update(intelligenceSources)
+        .set({ isActive: isActive ?? true })
+        .where(eq(intelligenceSources.id, id));
+      res.json({ ok: true, id, isActive });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/intelligence/lease-expiry-opps", async (_req, res) => {
+    try {
+      const { getLeaseExpiryOpportunities } = await import("./services/intelligence/leaseExpiryService");
+      const opps = await getLeaseExpiryOpportunities(20);
+      res.json({ opps, total: opps.length });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/intelligence/graph-stats", async (_req, res) => {
+    try {
+      const { getGraphStats } = await import("./services/intelligence/intelligenceGraphService");
+      const stats = await getGraphStats();
+      res.json(stats);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/chat/intelligence-context", async (_req, res) => {
+    try {
+      const { getTopDemandSuburbs } = await import("./services/intelligence/demandForecastEngine");
+      const { getTopZones } = await import("./services/intelligence/zoneScoringEngine");
+      const { getLeaseExpiryOpportunities } = await import("./services/intelligence/leaseExpiryService");
+      const [demandSuburbs, topZones, leaseOpps, radar] = await Promise.all([
+        getTopDemandSuburbs(5),
+        getTopZones(5),
+        getLeaseExpiryOpportunities(5),
+        storage.getOfficeMovRadarRecords({}),
+      ]);
+      const likelyRelocating = radar
+        .filter(r => (r.radarScore ?? 0) >= 70)
+        .sort((a, b) => (b.radarScore ?? 0) - (a.radarScore ?? 0))
+        .slice(0, 5);
+
+      res.json({
+        topDemandSuburbs: demandSuburbs.map(s => ({
+          suburb: s.suburb, city: s.city, demandScore: s.demandScore, demandTier: s.demandTier,
+        })),
+        topOpportunityZones: topZones.map(z => ({
+          suburb: z.suburb, city: z.city, zoneScore: z.zoneScore, activeCompanies: z.activeCompanies,
+        })),
+        leaseExpiryOpportunities: leaseOpps.map(o => ({
+          companyName: o.companyName, city: o.city, urgencyTier: o.urgencyTier,
+          predictedExpiryYear: o.predictedExpiryYear, opportunityScore: o.opportunityScore,
+        })),
+        likelyRelocating: likelyRelocating.map(r => ({
+          companyName: r.companyName, city: r.city, radarScore: r.radarScore, signalType: r.signalType,
+        })),
+        generatedAt: new Date().toISOString(),
+      });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 

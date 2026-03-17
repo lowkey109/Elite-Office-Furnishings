@@ -409,11 +409,58 @@ export default function AdminCommandCentre() {
     refetchInterval: 180000,
   });
 
-  const { data: sourceHealth } = useQuery<{ sources: { id: string; sourceName: string; sourceType: string; isActive: boolean; lastSuccessfulRun: string | null; errorCount: number }[]; total: number }>({
+  const { data: sourceHealth, refetch: refetchSourceHealth } = useQuery<{ sources: { id: string; sourceName: string; sourceType: string; isActive: boolean; lastSuccessfulRun: string | null; errorCount: number }[]; total: number }>({
     queryKey: ["/api/admin/intelligence/source-health"],
     queryFn: () => fetch("/api/admin/intelligence/source-health").then(r => r.json()),
     enabled: authed,
     staleTime: 300000,
+  });
+
+  const { data: jobQueueStats, refetch: refetchJobQueue } = useQuery<{ initialized: boolean; queues: { name: string; active: number; completed: number; failed: number }[] }>({
+    queryKey: ["/api/admin/intelligence/job-queue"],
+    queryFn: () => fetch("/api/admin/intelligence/job-queue").then(r => r.json()),
+    enabled: authed,
+    refetchInterval: 15000,
+  });
+
+  const { data: graphStats } = useQuery<{ totalEdges: number; edgesByType: Record<string, number>; topConnectedCompanies: { name: string; connections: number }[] }>({
+    queryKey: ["/api/admin/intelligence/graph-stats"],
+    queryFn: () => fetch("/api/admin/intelligence/graph-stats").then(r => r.json()),
+    enabled: authed,
+    staleTime: 60000,
+  });
+
+  const { data: leaseOpps } = useQuery<{ opps: { id: string; companyName: string; city: string; urgencyTier: string; opportunityScore: number; predictedExpiryYear: number | null; estimatedProjectValue: number | null }[]; total: number }>({
+    queryKey: ["/api/admin/intelligence/lease-expiry-opps"],
+    queryFn: () => fetch("/api/admin/intelligence/lease-expiry-opps").then(r => r.json()),
+    enabled: authed,
+    staleTime: 60000,
+  });
+
+  const [triggeringScan, setTriggeringScan] = useState<string | null>(null);
+  const triggerScanMutation = useMutation({
+    mutationFn: async (scanType: string) => {
+      setTriggeringScan(scanType);
+      return await apiRequest("POST", "/api/admin/intelligence/trigger-scan", { scanType });
+    },
+    onSuccess: (_data, scanType) => {
+      toast({ title: `Scan triggered`, description: `${scanType === "all" ? "All scans" : scanType} scan queued successfully.` });
+      setTimeout(() => refetchJobQueue(), 2000);
+      setTriggeringScan(null);
+    },
+    onError: () => {
+      toast({ title: "Scan failed", description: "Could not trigger scan. Try again.", variant: "destructive" });
+      setTriggeringScan(null);
+    },
+  });
+
+  const toggleSourceMutation = useMutation({
+    mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) =>
+      await apiRequest("PATCH", `/api/admin/intelligence/source/${id}/toggle`, { isActive }),
+    onSuccess: () => {
+      refetchSourceHealth();
+      toast({ title: "Source updated", description: "Intelligence source status changed." });
+    },
   });
 
   // ── Score backfill mutation ─────────────────────────────────────────────────
@@ -1819,6 +1866,248 @@ export default function AdminCommandCentre() {
                 })}
               </div>
             )}
+          </div>
+        </div>
+
+        {/* ── UPGRADE: Lease Expiry Opportunities Panel ────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,209,100,0.15)] rounded-2xl overflow-hidden" data-testid="panel-lease-expiry">
+          <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-amber-400" />
+              <h2 className="text-white font-semibold text-sm">Lease Expiry Engine</h2>
+              <span className="text-[10px] text-amber-400/60 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full ml-1">UPGRADE 1</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost" size="sm"
+                className="text-amber-400/60 text-xs hover:text-amber-400 h-7 px-2"
+                onClick={() => triggerScanMutation.mutate("lease")}
+                disabled={triggerScanMutation.isPending}
+                data-testid="btn-trigger-lease-scan"
+              >
+                {triggeringScan === "lease" ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <RefreshCw className="w-3 h-3 mr-1" />}
+                Scan Now
+              </Button>
+              <Link href="/market-map">
+                <button className="text-amber-400/60 text-xs hover:text-amber-400 flex items-center gap-1">Map <ChevronRight className="w-3 h-3" /></button>
+              </Link>
+            </div>
+          </div>
+          <div className="divide-y divide-[rgba(255,255,255,0.04)]">
+            {(leaseOpps?.opps ?? []).slice(0, 8).map((opp, i) => (
+              <div key={opp.id} className="px-5 py-3 flex items-center justify-between gap-3" data-testid={`lease-opp-${i}`}>
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${opp.urgencyTier === "critical" ? "bg-red-500" : opp.urgencyTier === "high" ? "bg-orange-400" : "bg-amber-400"}`} />
+                  <div className="min-w-0">
+                    <div className="text-white text-xs font-medium truncate">{opp.companyName}</div>
+                    <div className="text-white/30 text-[10px]">{opp.city} · expiry {opp.predictedExpiryYear ?? "TBC"}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <Badge className={`text-[9px] border ${opp.urgencyTier === "critical" ? "bg-red-500/10 text-red-400 border-red-500/20" : opp.urgencyTier === "high" ? "bg-orange-500/10 text-orange-400 border-orange-500/20" : "bg-amber-500/10 text-amber-400 border-amber-500/20"}`}>
+                    {opp.urgencyTier}
+                  </Badge>
+                  <span className="text-amber-400 text-xs font-bold">{opp.opportunityScore}/100</span>
+                </div>
+              </div>
+            ))}
+            {(!leaseOpps?.opps || leaseOpps.opps.length === 0) && (
+              <div className="px-5 py-8 text-center text-white/20 text-xs">No lease expiry opportunities yet — trigger a scan to generate predictions</div>
+            )}
+          </div>
+        </div>
+
+        {/* ── UPGRADE: Intelligence Graph + Company Hierarchy Panel ─────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Intelligence Graph Stats */}
+          <div className="bg-[hsl(220,18%,10%)] border border-[rgba(100,180,255,0.15)] rounded-2xl overflow-hidden" data-testid="panel-graph-stats">
+            <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.06)] flex items-center gap-2">
+              <Network className="w-4 h-4 text-cyan-400" />
+              <h2 className="text-white font-semibold text-sm">Intelligence Graph</h2>
+              <span className="text-[10px] text-cyan-400/60 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-full ml-1">UPGRADE 5</span>
+            </div>
+            <div className="p-5 space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-[rgba(6,182,212,0.06)] border border-[rgba(6,182,212,0.15)] rounded-xl p-3 text-center">
+                  <div className="text-2xl font-bold text-cyan-400" data-testid="graph-total-edges">{graphStats?.totalEdges ?? 0}</div>
+                  <div className="text-white/40 text-[10px] mt-0.5">Graph Edges</div>
+                </div>
+                <div className="bg-[rgba(6,182,212,0.06)] border border-[rgba(6,182,212,0.15)] rounded-xl p-3 text-center">
+                  <div className="text-2xl font-bold text-cyan-400" data-testid="graph-edge-types">{Object.keys(graphStats?.edgesByType ?? {}).length}</div>
+                  <div className="text-white/40 text-[10px] mt-0.5">Edge Types</div>
+                </div>
+              </div>
+              {graphStats?.edgesByType && Object.keys(graphStats.edgesByType).length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-white/30 text-[10px] font-semibold uppercase tracking-wider">Edge Distribution</p>
+                  {Object.entries(graphStats.edgesByType).slice(0, 6).map(([type, count]) => (
+                    <div key={type} className="flex items-center justify-between">
+                      <span className="text-white/50 text-xs">{type.replace(/_/g, " ")}</span>
+                      <span className="text-cyan-400 text-xs font-semibold">{count}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {graphStats?.topConnectedCompanies && graphStats.topConnectedCompanies.length > 0 && (
+                <div className="space-y-1.5 border-t border-[rgba(255,255,255,0.04)] pt-3">
+                  <p className="text-white/30 text-[10px] font-semibold uppercase tracking-wider mb-2">Top Connected Companies</p>
+                  {graphStats.topConnectedCompanies.slice(0, 5).map((co, i) => (
+                    <div key={i} className="flex items-center justify-between">
+                      <span className="text-white/60 text-xs truncate">{co.name}</span>
+                      <span className="text-cyan-400 text-xs">{co.connections} connections</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {(!graphStats || graphStats.totalEdges === 0) && (
+                <div className="text-center text-white/20 text-xs py-4">
+                  Graph not yet built — trigger a Graph Refresh scan to build edges
+                </div>
+              )}
+            </div>
+            <div className="px-5 py-3 border-t border-[rgba(255,255,255,0.04)]">
+              <Button
+                variant="ghost" size="sm" className="text-cyan-400/60 text-xs hover:text-cyan-400 h-7 px-2"
+                onClick={() => triggerScanMutation.mutate("graph")}
+                disabled={triggerScanMutation.isPending}
+                data-testid="btn-trigger-graph-refresh"
+              >
+                {triggeringScan === "graph" ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <RefreshCw className="w-3 h-3 mr-1" />}
+                Refresh Graph
+              </Button>
+            </div>
+          </div>
+
+          {/* Job Control Dashboard */}
+          <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl overflow-hidden" data-testid="panel-job-control">
+            <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                <h2 className="text-white font-semibold text-sm">Job Control Dashboard</h2>
+                <div className={`w-2 h-2 rounded-full ${jobQueueStats?.initialized ? "bg-green-400" : "bg-red-500"} ml-1`} />
+              </div>
+              <button
+                className="text-white/30 text-[10px] hover:text-white/60"
+                onClick={() => refetchJobQueue()}
+                data-testid="btn-refresh-jobs"
+              >
+                <RefreshCw className="w-3 h-3" />
+              </button>
+            </div>
+
+            {/* Manual scan triggers */}
+            <div className="px-5 py-3 border-b border-[rgba(255,255,255,0.04)]">
+              <p className="text-white/30 text-[10px] font-semibold uppercase tracking-wider mb-2">Manual Triggers</p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { type: "all", label: "All Scans", color: "text-amber-400 border-amber-500/30 hover:bg-amber-500/10" },
+                  { type: "lease", label: "Lease Expiry", color: "text-orange-400 border-orange-500/30 hover:bg-orange-500/10" },
+                  { type: "hierarchy", label: "Corp Hierarchy", color: "text-cyan-400 border-cyan-500/30 hover:bg-cyan-500/10" },
+                  { type: "graph", label: "Graph", color: "text-purple-400 border-purple-500/30 hover:bg-purple-500/10" },
+                  { type: "signals", label: "Signals", color: "text-blue-400 border-blue-500/30 hover:bg-blue-500/10" },
+                  { type: "demand", label: "Demand", color: "text-green-400 border-green-500/30 hover:bg-green-500/10" },
+                ].map(({ type, label, color }) => (
+                  <button
+                    key={type}
+                    className={`text-[10px] border rounded-lg px-2.5 py-1.5 transition-colors ${color} ${triggeringScan === type ? "opacity-50" : ""}`}
+                    onClick={() => triggerScanMutation.mutate(type)}
+                    disabled={triggerScanMutation.isPending}
+                    data-testid={`btn-trigger-${type}`}
+                  >
+                    {triggeringScan === type ? <Loader2 className="w-2.5 h-2.5 animate-spin inline mr-1" /> : null}
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Queue stats */}
+            <div className="divide-y divide-[rgba(255,255,255,0.03)]">
+              {(jobQueueStats?.queues ?? []).slice(0, 8).map((q) => (
+                <div key={q.name} className="px-5 py-2 flex items-center justify-between" data-testid={`queue-stat-${q.name}`}>
+                  <span className="text-white/50 text-xs font-mono truncate max-w-[140px]">{q.name}</span>
+                  <div className="flex items-center gap-3 text-[10px]">
+                    <span className="text-blue-400">{q.active} active</span>
+                    <span className="text-green-400">{q.completed} done</span>
+                    {q.failed > 0 && <span className="text-red-400">{q.failed} fail</span>}
+                  </div>
+                </div>
+              ))}
+              {!jobQueueStats?.initialized && (
+                <div className="px-5 py-4 text-center text-white/20 text-xs">pg-boss not yet initialized</div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ── UPGRADE: Source Control Panel ────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl overflow-hidden" data-testid="panel-source-control">
+          <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+              <h2 className="text-white font-semibold text-sm">Intelligence Source Control</h2>
+              <span className="text-[10px] text-[hsl(43,78%,52%)]/60 bg-[hsl(43,78%,52%)]/10 border border-[hsl(43,78%,52%)]/20 px-2 py-0.5 rounded-full ml-1">UPGRADE 4</span>
+            </div>
+            <button
+              className="text-white/30 text-[10px] hover:text-white/60"
+              onClick={() => refetchSourceHealth()}
+              data-testid="btn-refresh-sources"
+            >
+              <RefreshCw className="w-3 h-3" />
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-[rgba(255,255,255,0.04)]">
+                  <th className="px-5 py-2.5 text-left text-white/30 text-[10px] font-semibold uppercase tracking-wider">Source</th>
+                  <th className="px-3 py-2.5 text-left text-white/30 text-[10px] font-semibold uppercase tracking-wider">Type</th>
+                  <th className="px-3 py-2.5 text-left text-white/30 text-[10px] font-semibold uppercase tracking-wider">Status</th>
+                  <th className="px-3 py-2.5 text-left text-white/30 text-[10px] font-semibold uppercase tracking-wider">Last Run</th>
+                  <th className="px-3 py-2.5 text-left text-white/30 text-[10px] font-semibold uppercase tracking-wider">Errors</th>
+                  <th className="px-5 py-2.5 text-right text-white/30 text-[10px] font-semibold uppercase tracking-wider">Toggle</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[rgba(255,255,255,0.03)]">
+                {(sourceHealth?.sources ?? []).map((src) => (
+                  <tr key={src.id} className="hover:bg-[rgba(255,255,255,0.02)] transition-colors" data-testid={`source-row-${src.id}`}>
+                    <td className="px-5 py-3">
+                      <span className="text-white text-xs font-medium">{src.sourceName}</span>
+                    </td>
+                    <td className="px-3 py-3">
+                      <span className="text-white/40 text-xs">{src.sourceType}</span>
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="flex items-center gap-1.5">
+                        <div className={`w-1.5 h-1.5 rounded-full ${src.isActive && src.errorCount === 0 ? "bg-green-400" : src.isActive ? "bg-amber-400" : "bg-red-500"}`} />
+                        <span className={`text-xs ${src.isActive ? "text-green-400" : "text-red-400"}`}>{src.isActive ? "Active" : "Inactive"}</span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-3">
+                      <span className="text-white/30 text-xs">{src.lastSuccessfulRun ? new Date(src.lastSuccessfulRun).toLocaleDateString("en-AU", { day: "2-digit", month: "short" }) : "—"}</span>
+                    </td>
+                    <td className="px-3 py-3">
+                      <span className={`text-xs ${src.errorCount > 0 ? "text-red-400" : "text-white/30"}`}>{src.errorCount}</span>
+                    </td>
+                    <td className="px-5 py-3 text-right">
+                      <button
+                        className={`text-[10px] px-2.5 py-1 rounded-lg border transition-colors ${src.isActive ? "border-green-500/30 text-green-400 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30" : "border-white/10 text-white/30 hover:bg-green-500/10 hover:text-green-400 hover:border-green-500/30"}`}
+                        onClick={() => toggleSourceMutation.mutate({ id: src.id, isActive: !src.isActive })}
+                        disabled={toggleSourceMutation.isPending}
+                        data-testid={`btn-toggle-source-${src.id}`}
+                      >
+                        {src.isActive ? "Disable" : "Enable"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {(!sourceHealth?.sources || sourceHealth.sources.length === 0) && (
+                  <tr>
+                    <td colSpan={6} className="px-5 py-8 text-center text-white/20 text-xs">No intelligence sources configured</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 

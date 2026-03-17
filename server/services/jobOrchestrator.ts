@@ -22,6 +22,9 @@ export const QUEUES = {
   CLUSTERS_GENERATE: "clusters.generate",
   ALERTS_GENERATE: "alerts.generate",
   SIGNAL_INGESTION: "signal.ingestion",
+  LEASE_EXPIRY_SCAN: "lease-expiry.scan",
+  HIERARCHY_BUILD: "hierarchy.build",
+  GRAPH_REFRESH: "graph.refresh",
 } as const;
 
 export type QueueName = (typeof QUEUES)[keyof typeof QUEUES];

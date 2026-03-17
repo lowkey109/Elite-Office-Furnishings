@@ -1137,3 +1137,135 @@ export const suburbDemandSnapshots = pgTable("suburb_demand_snapshots", {
 export const insertSuburbDemandSnapshotSchema = createInsertSchema(suburbDemandSnapshots).omit({ id: true, createdAt: true });
 export type InsertSuburbDemandSnapshot = z.infer<typeof insertSuburbDemandSnapshotSchema>;
 export type SuburbDemandSnapshot = typeof suburbDemandSnapshots.$inferSelect;
+
+// ─── UPGRADE 1: Tenant Lease Expiry Engine ────────────────────────────────────
+
+export const leaseRecords = pgTable("lease_records", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyName: text("company_name").notNull(),
+  companyIntelligenceId: varchar("company_intelligence_id"),
+  buildingName: text("building_name"),
+  buildingAddress: text("building_address"),
+  suburb: text("suburb"),
+  city: text("city").notNull(),
+  state: text("state"),
+  leaseStartDate: text("lease_start_date"),
+  leaseExpiryDate: text("lease_expiry_date"),
+  leaseTermYears: integer("lease_term_years"),
+  estimatedSqm: integer("estimated_sqm"),
+  estimatedHeadcount: integer("estimated_headcount"),
+  leaseStatus: text("lease_status").notNull().default("active"), // active|expired|unknown|expiring_soon
+  dataSource: text("data_source").notNull().default("inferred"), // property_feed|manual|inferred|news
+  confidenceScore: integer("confidence_score").notNull().default(50),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxLeaseCompany: index("idx_lease_company_name").on(t.companyName),
+  idxLeaseCity: index("idx_lease_city").on(t.city),
+  idxLeaseExpiry: index("idx_lease_expiry_date").on(t.leaseExpiryDate),
+  idxLeaseStatus: index("idx_lease_status").on(t.leaseStatus),
+}));
+export const insertLeaseRecordSchema = createInsertSchema(leaseRecords).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertLeaseRecord = z.infer<typeof insertLeaseRecordSchema>;
+export type LeaseRecord = typeof leaseRecords.$inferSelect;
+
+export const leaseExpiryPredictions = pgTable("lease_expiry_predictions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  leaseRecordId: varchar("lease_record_id"),
+  companyName: text("company_name").notNull(),
+  city: text("city").notNull(),
+  predictedExpiryYear: integer("predicted_expiry_year"),
+  predictedExpiryQuarter: text("predicted_expiry_quarter"), // Q1|Q2|Q3|Q4
+  relocationProbability: integer("relocation_probability").notNull().default(50),
+  opportunityScore: integer("opportunity_score").notNull().default(50),
+  urgencyTier: text("urgency_tier").notNull().default("medium"), // critical|high|medium|low
+  estimatedProjectValue: integer("estimated_project_value"),
+  signalCount: integer("signal_count").notNull().default(0),
+  reasoningSummary: text("reasoning_summary"),
+  linkedRadarId: varchar("linked_radar_id"),
+  status: text("status").notNull().default("open"), // open|contacted|won|lost|archived
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxLeaseExpiryCompany: index("idx_lease_expiry_company").on(t.companyName),
+  idxLeaseExpiryCity: index("idx_lease_expiry_city").on(t.city),
+  idxLeaseExpiryUrgency: index("idx_lease_expiry_urgency").on(t.urgencyTier),
+}));
+export const insertLeaseExpiryPredictionSchema = createInsertSchema(leaseExpiryPredictions).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertLeaseExpiryPrediction = z.infer<typeof insertLeaseExpiryPredictionSchema>;
+export type LeaseExpiryPrediction = typeof leaseExpiryPredictions.$inferSelect;
+
+// ─── UPGRADE 2: Company Hierarchy System ─────────────────────────────────────
+
+export const companyHierarchyNodes = pgTable("company_hierarchy_nodes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyName: text("company_name").notNull(),
+  normalizedName: text("normalized_name").notNull(), // lowercase, trimmed, for dedup
+  companyIntelligenceId: varchar("company_intelligence_id"),
+  parentId: varchar("parent_id"), // self-referential
+  nodeType: text("node_type").notNull().default("standalone"), // parent|subsidiary|branch|standalone
+  industry: text("industry"),
+  city: text("city"),
+  state: text("state"),
+  country: text("country").notNull().default("Australia"),
+  employeeEstimate: integer("employee_estimate"),
+  aggregatedSignalCount: integer("aggregated_signal_count").notNull().default(0),
+  aggregatedConfidenceScore: integer("aggregated_confidence_score").notNull().default(0),
+  aggregatedOpportunityValue: integer("aggregated_opportunity_value").notNull().default(0),
+  dataSource: text("data_source").notNull().default("inferred"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxHierarchyNormalized: uniqueIndex("idx_hierarchy_normalized_name").on(t.normalizedName),
+  idxHierarchyParent: index("idx_hierarchy_parent_id").on(t.parentId),
+  idxHierarchyType: index("idx_hierarchy_node_type").on(t.nodeType),
+}));
+export const insertCompanyHierarchyNodeSchema = createInsertSchema(companyHierarchyNodes).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertCompanyHierarchyNode = z.infer<typeof insertCompanyHierarchyNodeSchema>;
+export type CompanyHierarchyNode = typeof companyHierarchyNodes.$inferSelect;
+
+export const companyRelationships = pgTable("company_relationships", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  fromEntityType: text("from_entity_type").notNull(), // company|building|suburb
+  fromEntityId: varchar("from_entity_id").notNull(),
+  fromEntityName: text("from_entity_name").notNull(),
+  toEntityType: text("to_entity_type").notNull(), // company|building|suburb|zone
+  toEntityId: varchar("to_entity_id").notNull(),
+  toEntityName: text("to_entity_name").notNull(),
+  relationshipType: text("relationship_type").notNull(), // subsidiary_of|located_in|competes_with|merged_with|acquired
+  strength: integer("strength").notNull().default(50), // 0–100
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (t) => ({
+  idxRelFrom: index("idx_rel_from_entity").on(t.fromEntityId),
+  idxRelTo: index("idx_rel_to_entity").on(t.toEntityId),
+  idxRelType: index("idx_rel_type").on(t.relationshipType),
+}));
+export const insertCompanyRelationshipSchema = createInsertSchema(companyRelationships).omit({ id: true, createdAt: true });
+export type InsertCompanyRelationship = z.infer<typeof insertCompanyRelationshipSchema>;
+export type CompanyRelationship = typeof companyRelationships.$inferSelect;
+
+// ─── UPGRADE 5: Global Intelligence Graph ────────────────────────────────────
+
+export const intelligenceGraphEdges = pgTable("intelligence_graph_edges", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sourceType: text("source_type").notNull(), // company|building|suburb|zone|signal
+  sourceId: varchar("source_id").notNull(),
+  sourceName: text("source_name").notNull(),
+  targetType: text("target_type").notNull(),
+  targetId: varchar("target_id").notNull(),
+  targetName: text("target_name").notNull(),
+  edgeType: text("edge_type").notNull(), // located_in|generates_signal|in_suburb|in_zone|subsidiary_of|competes_with
+  weight: real("weight").notNull().default(1.0),
+  metadata: text("metadata"), // JSON string
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxGraphSource: index("idx_graph_source").on(t.sourceId, t.sourceType),
+  idxGraphTarget: index("idx_graph_target").on(t.targetId, t.targetType),
+  idxGraphEdgeType: index("idx_graph_edge_type").on(t.edgeType),
+}));
+export const insertIntelligenceGraphEdgeSchema = createInsertSchema(intelligenceGraphEdges).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertIntelligenceGraphEdge = z.infer<typeof insertIntelligenceGraphEdgeSchema>;
+export type IntelligenceGraphEdge = typeof intelligenceGraphEdges.$inferSelect;
