@@ -54,6 +54,8 @@ import PartnerDashboard from "@/pages/PartnerDashboard";
 import MarketMap from "@/pages/MarketMap";
 import AdminMarketIntelligence from "@/pages/AdminMarketIntelligence";
 import AdminCompanyVisitors from "@/pages/AdminCompanyVisitors";
+import ProposalEngine from "@/pages/ProposalEngine";
+import BuildingDatabase from "@/pages/BuildingDatabase";
 import { usePageTracking } from "@/lib/usePageTracking";
 
 function Router() {
@@ -116,6 +118,8 @@ function Router() {
       <Route path="/market-map" component={MarketMap} />
       <Route path="/admin/market-intelligence" component={AdminMarketIntelligence} />
       <Route path="/admin/company-visitors" component={AdminCompanyVisitors} />
+      <Route path="/admin/proposal-engine" component={ProposalEngine} />
+      <Route path="/admin/building-database" component={BuildingDatabase} />
       <Route component={NotFound} />
     </Switch>
   );

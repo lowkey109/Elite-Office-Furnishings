@@ -27,6 +27,11 @@ import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } f
 import { generateRelocationSignals, getMarketIntelligence, pushRelocationToPipeline } from "./services/relocationIntelligence";
 import { generateStrategyRecommendation, getLearningInsights } from "./services/workspaceStrategy";
 import { runDealHunterScan, pushDealHunterToRadar, pushDealHunterToPipeline, reviewDealHunterSignal, dismissDealHunterSignal, getDealHunterStats } from "./services/dealHunter";
+import { proposalService } from "./services/dealClosing/proposalService";
+import { dealApprovalService } from "./services/dealClosing/approvalService";
+import { pricingEngine, PRICING_RULES } from "./services/dealClosing/pricingEngine";
+import { commissionService } from "./services/partnerNetwork/commissionService";
+import { buildingIngestionService } from "./services/buildings/buildingIngestionService";
 
 // ─── SAFE_MODE guard (Stage 8) ────────────────────────────────────────────────
 // Set SAFE_MODE=true to suppress all outbound email, Stripe, and CRM side-effects.
@@ -6253,6 +6258,320 @@ Rules:
         properties: { eventType: e.eventType, amount: e.amount, currency: e.currency, isSimulated: e.isSimulated, occurredAt: e.occurredAt },
       }));
       res.json({ type: "FeatureCollection", features, meta: { total: features.length, totalRevenue, layer: "revenue-zones" } });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── DEAL CLOSING SYSTEM ──────────────────────────────────────────────────
+
+  app.post("/api/proposals/generate", async (req, res) => {
+    try {
+      const { quoteId, opportunityId, title } = req.body;
+      if (!quoteId) return res.status(400).json({ error: "quoteId required" });
+      const proposal = await proposalService.generateFromQuote(quoteId, { opportunityId, title });
+      res.json({ success: true, proposal });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/proposals", async (req, res) => {
+    try {
+      const { status, quoteId } = req.query as any;
+      const proposals = await proposalService.listProposals({ status, quoteId });
+      res.json(proposals);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/proposals/stats", async (req, res) => {
+    try {
+      const stats = await proposalService.getProposalStats();
+      res.json(stats);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/proposals/:id/html", async (req, res) => {
+    try {
+      const { db: dbI } = await import("./db");
+      const { proposals: propsTable } = await import("../shared/schema");
+      const { eq: eqI } = await import("drizzle-orm");
+      const [prop] = await dbI.select().from(propsTable).where(eqI(propsTable.id, req.params.id)).limit(1);
+      if (!prop) return res.status(404).json({ error: "Proposal not found" });
+      res.setHeader("Content-Type", "text/html");
+      res.send(prop.htmlContent || "<p>No content</p>");
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.patch("/api/proposals/:id/status", async (req, res) => {
+    try {
+      const { status, rejectionReason } = req.body;
+      const updated = await proposalService.updateStatus(req.params.id, status, { rejectionReason });
+      res.json({ success: true, proposal: updated });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/proposals/pipeline-stages", async (_req, res) => {
+    res.json({ stages: proposalService.getPipelineStages() });
+  });
+
+  // Pricing Engine
+  app.post("/api/pricing/calculate", async (req, res) => {
+    try {
+      const { costPrice, sellPrice, discountPercent } = req.body;
+      if (!costPrice || !sellPrice) return res.status(400).json({ error: "costPrice and sellPrice required" });
+      const result = pricingEngine.calculate({ costPrice, sellPrice, discountPercent });
+      res.json({ success: true, pricing: result, rules: PRICING_RULES });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.patch("/api/quotes/:id/pricing", async (req, res) => {
+    try {
+      const { costPrice, discountPercent } = req.body;
+      const { quotes: quotesT } = await import("../shared/schema");
+      const { eq: eqI } = await import("drizzle-orm");
+      const [existing] = await db.select().from(quotesT).where(eqI(quotesT.id, req.params.id)).limit(1);
+      if (!existing) return res.status(404).json({ error: "Quote not found" });
+      const pricing = pricingEngine.calculate({ costPrice: costPrice ?? existing.costPrice ?? 0, sellPrice: existing.totalIncGst ?? 0, discountPercent: discountPercent ?? existing.discountPercent ?? 0 });
+      const [updated] = await db.update(quotesT).set({ costPrice: pricing.costPrice, marginPercent: pricing.marginPercent, discountPercent: pricing.discountPercent ?? discountPercent ?? 0, updatedAt: new Date() }).where(eqI(quotesT.id, req.params.id)).returning();
+      const approvalCheck = await dealApprovalService.checkAndCreateApproval(req.params.id, existing.opportunityId || undefined);
+      res.json({ success: true, quote: updated, pricing, approvalRequired: approvalCheck.required, approval: approvalCheck.approval });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.patch("/api/quotes/:id/pipeline-stage", async (req, res) => {
+    try {
+      const { stage } = req.body;
+      const validStages = ["lead", "qualified", "meeting_booked", "proposal_sent", "negotiation", "approved", "won", "lost"];
+      if (!validStages.includes(stage)) return res.status(400).json({ error: `Invalid stage. Valid: ${validStages.join(", ")}` });
+      const { quotes: quotesT } = await import("../shared/schema");
+      const { eq: eqI } = await import("drizzle-orm");
+      const [updated] = await db.update(quotesT).set({ pipelineStage: stage, updatedAt: new Date() }).where(eqI(quotesT.id, req.params.id)).returning();
+      res.json({ success: true, quote: updated });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // Deal Approvals
+  app.post("/api/approvals/check", async (req, res) => {
+    try {
+      const { quoteId, opportunityId } = req.body;
+      if (!quoteId) return res.status(400).json({ error: "quoteId required" });
+      const result = await dealApprovalService.checkAndCreateApproval(quoteId, opportunityId);
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/approvals", async (req, res) => {
+    try {
+      const { status } = req.query as any;
+      const list = await dealApprovalService.listApprovals({ status });
+      res.json(list);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/approvals/stats", async (req, res) => {
+    try {
+      const stats = await dealApprovalService.getApprovalStats();
+      res.json(stats);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/approvals/:id/approve", async (req, res) => {
+    try {
+      const { approvedBy } = req.body;
+      const approval = await dealApprovalService.approve(req.params.id, approvedBy || "admin@thecorporatedesk.com.au");
+      res.json({ success: true, approval });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/approvals/:id/reject", async (req, res) => {
+    try {
+      const { approvedBy, note } = req.body;
+      const approval = await dealApprovalService.reject(req.params.id, approvedBy || "admin@thecorporatedesk.com.au", note);
+      res.json({ success: true, approval });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // Admin Deal Closing stats
+  app.get("/api/admin/deal-closing/stats", async (_req, res) => {
+    try {
+      const { quotes: quotesT } = await import("../shared/schema");
+      const allQuotes = await db.select().from(quotesT);
+      const proposalStats = await proposalService.getProposalStats();
+      const approvalStats = await dealApprovalService.getApprovalStats();
+      const now = new Date();
+      const endOfWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      const negotiation = allQuotes.filter(q => q.pipelineStage === "negotiation").length;
+      const closingThisWeek = allQuotes.filter(q => {
+        if (q.pipelineStage !== "approved" && q.pipelineStage !== "negotiation") return false;
+        const updated = q.updatedAt ? new Date(q.updatedAt) : null;
+        return updated && updated <= endOfWeek;
+      }).length;
+      res.json({ proposals: proposalStats, approvals: approvalStats, negotiation, closingThisWeek, totalQuotes: allQuotes.length, pipeline: { lead: allQuotes.filter(q=>q.pipelineStage==="lead").length, qualified: allQuotes.filter(q=>q.pipelineStage==="qualified").length, meeting_booked: allQuotes.filter(q=>q.pipelineStage==="meeting_booked").length, proposal_sent: allQuotes.filter(q=>q.pipelineStage==="proposal_sent").length, negotiation, approved: allQuotes.filter(q=>q.pipelineStage==="approved").length, won: allQuotes.filter(q=>q.pipelineStage==="won").length, lost: allQuotes.filter(q=>q.pipelineStage==="lost").length } });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── PARTNER COMMISSIONS ──────────────────────────────────────────────────
+
+  app.post("/api/commissions", async (req, res) => {
+    try {
+      const { partnerId, dealValue, opportunityId, quoteId, referralId, commissionPercent, notes } = req.body;
+      if (!partnerId || !dealValue) return res.status(400).json({ error: "partnerId and dealValue required" });
+      const commission = await commissionService.createCommission({ partnerId, dealValue, opportunityId, quoteId, referralId, commissionPercent, notes });
+      res.json({ success: true, commission });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/commissions", async (req, res) => {
+    try {
+      const { status, partnerId } = req.query as any;
+      const list = await commissionService.listAll({ status, partnerId });
+      res.json(list);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/commissions/stats", async (_req, res) => {
+    try {
+      const stats = await commissionService.getCommissionStats();
+      res.json(stats);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/commissions/:id/approve", async (req, res) => {
+    try {
+      const commission = await commissionService.approveCommission(req.params.id);
+      res.json({ success: true, commission });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/commissions/:id/mark-paid", async (req, res) => {
+    try {
+      const { invoiceRef } = req.body;
+      const commission = await commissionService.markPaid(req.params.id, invoiceRef);
+      res.json({ success: true, commission });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/commissions/stats", async (_req, res) => {
+    try {
+      const stats = await commissionService.getCommissionStats();
+      res.json(stats);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── BUILDING + TENANT DATABASE ───────────────────────────────────────────
+
+  app.get("/api/admin/buildings", async (req, res) => {
+    try {
+      const { buildings: bT } = await import("../shared/schema");
+      const list = await db.select().from(bT);
+      res.json(list);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/buildings/stats", async (_req, res) => {
+    try {
+      const stats = await buildingIngestionService.getBuildingStats();
+      res.json(stats);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/buildings/seed", async (_req, res) => {
+    try {
+      const result = await buildingIngestionService.seedAustralianBuildings();
+      res.json({ success: true, ...result });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/buildings", async (req, res) => {
+    try {
+      const { buildings: bT } = await import("../shared/schema");
+      const [building] = await db.insert(bT).values({ ...req.body, sourceType: "manual" }).returning();
+      await buildingIngestionService.refreshSuburbEdges();
+      res.json({ success: true, building });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/buildings/:id/tenants", async (req, res) => {
+    try {
+      const { tenants: tT } = await import("../shared/schema");
+      const { eq: eqI } = await import("drizzle-orm");
+      const list = await db.select().from(tT).where(eqI(tT.buildingId, req.params.id));
+      res.json(list);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/tenants", async (req, res) => {
+    try {
+      const tenant = await buildingIngestionService.addTenant(req.body);
+      res.json({ success: true, tenant });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/tenants", async (req, res) => {
+    try {
+      const { tenants: tT } = await import("../shared/schema");
+      const list = await db.select().from(tT);
+      res.json(list);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/leases", async (req, res) => {
+    try {
+      const body = req.body;
+      const lease = await buildingIngestionService.addLease({
+        ...body,
+        startDate: body.startDate ? new Date(body.startDate) : undefined,
+        expiryDate: body.expiryDate ? new Date(body.expiryDate) : undefined,
+      });
+      res.json({ success: true, lease });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/leases", async (req, res) => {
+    try {
+      const { leases: lT } = await import("../shared/schema");
+      const list = await db.select().from(lT);
+      res.json(list);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // Enhanced map layers for structured buildings/tenants
+  app.get("/api/map/layers/buildings-structured", async (_req, res) => {
+    try {
+      const { buildings: bT } = await import("../shared/schema");
+      const list = await db.select().from(bT);
+      const features = list.filter(b => b.lat && b.lng).map(b => ({
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [b.lng!, b.lat!] },
+        properties: {
+          id: b.id, name: b.name, address: b.address, suburb: b.suburb, city: b.city,
+          state: b.state, buildingGrade: b.buildingGrade, floors: b.floors,
+          totalAreaSqm: b.totalAreaSqm, currentVacancyPct: b.currentVacancyPct,
+          currentVacancySqm: b.currentVacancySqm, nabers: b.nabers, yearBuilt: b.yearBuilt,
+        },
+      }));
+      res.json({ type: "FeatureCollection", features, meta: { total: features.length, layer: "buildings-structured" } });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/map/layers/leases-expiry", async (_req, res) => {
+    try {
+      const { leases: lT, buildings: bT } = await import("../shared/schema");
+      const { eq: eqI } = await import("drizzle-orm");
+      const allLeases = await db.select().from(lT);
+      const allBuildings = await db.select().from(bT);
+      const buildingMap = Object.fromEntries(allBuildings.map(b => [b.id, b]));
+      const now = new Date();
+      const in18Months = new Date(now.getTime() + 18 * 30 * 24 * 60 * 60 * 1000);
+      const expiring = allLeases.filter(l => l.expiryDate && new Date(l.expiryDate) <= in18Months && l.status === "active");
+      const features = expiring.map(l => {
+        const building = buildingMap[l.buildingId];
+        if (!building?.lat || !building?.lng) return null;
+        const monthsToExpiry = l.expiryDate ? Math.round((new Date(l.expiryDate).getTime() - now.getTime()) / (30 * 24 * 60 * 60 * 1000)) : null;
+        return {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: [building.lng!, building.lat!] },
+          properties: { id: l.id, companyName: l.companyName, buildingName: building.name, suburb: building.suburb, city: building.city, expiryDate: l.expiryDate, monthsToExpiry, spaceSizeSqm: l.spaceSizeSqm, totalAnnualRent: l.totalAnnualRent, status: l.status },
+        };
+      }).filter(Boolean);
+      res.json({ type: "FeatureCollection", features, meta: { total: features.length, layer: "leases-expiry" } });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 

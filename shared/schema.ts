@@ -417,6 +417,10 @@ export const quotes = pgTable("quotes", {
   stripeCustomerId: text("stripe_customer_id"),
   opportunityId: varchar("opportunity_id"),
   companyId: varchar("company_id"),
+  costPrice: integer("cost_price").default(0),
+  marginPercent: real("margin_percent").default(0),
+  discountPercent: real("discount_percent").default(0),
+  pipelineStage: text("pipeline_stage").default("lead"),
 });
 export const insertQuoteSchema = createInsertSchema(quotes).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertQuote = z.infer<typeof insertQuoteSchema>;
@@ -1590,3 +1594,182 @@ export const auditLogs = pgTable("audit_logs", {
 export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({ id: true, createdAt: true });
 export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
 export type AuditLog = typeof auditLogs.$inferSelect;
+
+// ─── DEAL CLOSING SYSTEM ──────────────────────────────────────────────────────
+
+export const proposals = pgTable("proposals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  opportunityId: varchar("opportunity_id"),
+  quoteId: varchar("quote_id"),
+  version: integer("version").notNull().default(1),
+  title: text("title"),
+  clientName: text("client_name").notNull(),
+  companyName: text("company_name"),
+  email: text("email"),
+  pdfUrl: text("pdf_url"),
+  htmlContent: text("html_content"),
+  contentJson: text("content_json"),
+  status: text("status").notNull().default("draft"),
+  sentAt: timestamp("sent_at"),
+  viewedAt: timestamp("viewed_at"),
+  approvedAt: timestamp("approved_at"),
+  rejectedAt: timestamp("rejected_at"),
+  rejectionReason: text("rejection_reason"),
+  validUntil: timestamp("valid_until"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxProposalQuote: index("idx_proposal_quote_id").on(t.quoteId),
+  idxProposalStatus: index("idx_proposal_status").on(t.status),
+}));
+export const insertProposalSchema = createInsertSchema(proposals).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertProposal = z.infer<typeof insertProposalSchema>;
+export type Proposal = typeof proposals.$inferSelect;
+
+export const approvals = pgTable("approvals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  opportunityId: varchar("opportunity_id"),
+  quoteId: varchar("quote_id"),
+  proposalId: varchar("proposal_id"),
+  requiredRole: text("required_role").notNull().default("admin"),
+  triggerReason: text("trigger_reason"),
+  status: text("status").notNull().default("pending"),
+  approvedBy: text("approved_by"),
+  approvedAt: timestamp("approved_at"),
+  rejectedAt: timestamp("rejected_at"),
+  rejectionNote: text("rejection_note"),
+  marginAtApproval: integer("margin_at_approval"),
+  dealValueAtApproval: integer("deal_value_at_approval"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxApprovalStatus: index("idx_approval_status").on(t.status),
+  idxApprovalQuote: index("idx_approval_quote_id").on(t.quoteId),
+}));
+export const insertApprovalSchema = createInsertSchema(approvals).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertApproval = z.infer<typeof insertApprovalSchema>;
+export type Approval = typeof approvals.$inferSelect;
+
+export const commissions = pgTable("commissions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  partnerId: varchar("partner_id").notNull(),
+  opportunityId: varchar("opportunity_id"),
+  quoteId: varchar("quote_id"),
+  referralId: varchar("referral_id"),
+  dealValue: integer("deal_value").notNull(),
+  commissionPercent: real("commission_percent").notNull().default(5.0),
+  commissionAmount: integer("commission_amount").notNull(),
+  currency: text("currency").notNull().default("aud"),
+  status: text("status").notNull().default("pending"),
+  approvedAt: timestamp("approved_at"),
+  paidAt: timestamp("paid_at"),
+  invoiceRef: text("invoice_ref"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxCommissionPartner: index("idx_commission_partner_id").on(t.partnerId),
+  idxCommissionStatus: index("idx_commission_status").on(t.status),
+}));
+export const insertCommissionSchema = createInsertSchema(commissions).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertCommission = z.infer<typeof insertCommissionSchema>;
+export type Commission = typeof commissions.$inferSelect;
+
+// ─── BUILDING + TENANT DATABASE ───────────────────────────────────────────────
+
+export const buildings = pgTable("buildings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  address: text("address"),
+  city: text("city").notNull(),
+  suburb: text("suburb"),
+  state: text("state"),
+  postcode: text("postcode"),
+  lat: real("lat"),
+  lng: real("lng"),
+  totalAreaSqm: integer("total_area_sqm"),
+  floors: integer("floors"),
+  buildingGrade: text("building_grade"),
+  propertyType: text("property_type").default("commercial_office"),
+  yearBuilt: integer("year_built"),
+  nabers: real("nabers"),
+  currentVacancyPct: real("current_vacancy_pct").default(0),
+  currentVacancySqm: integer("current_vacancy_sqm").default(0),
+  averageRentPerSqm: integer("average_rent_per_sqm"),
+  sourceType: text("source_type").default("manual"),
+  sourceUrl: text("source_url"),
+  dataQuality: text("data_quality").default("estimated"),
+  lastRefreshedAt: timestamp("last_refreshed_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxBuildingCity: index("idx_building_city").on(t.city),
+  idxBuildingSuburb: index("idx_building_suburb").on(t.suburb),
+}));
+export const insertBuildingSchema = createInsertSchema(buildings).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertBuilding = z.infer<typeof insertBuildingSchema>;
+export type Building = typeof buildings.$inferSelect;
+
+export const tenants = pgTable("tenants", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyId: varchar("company_id"),
+  buildingId: varchar("building_id").notNull(),
+  companyName: text("company_name").notNull(),
+  floor: text("floor"),
+  spaceSizeSqm: integer("space_size_sqm"),
+  industry: text("industry"),
+  estimatedHeadcount: integer("estimated_headcount"),
+  tenantStatus: text("tenant_status").notNull().default("active"),
+  sourceType: text("source_type").default("manual"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxTenantBuilding: index("idx_tenant_building_id").on(t.buildingId),
+  idxTenantCompany: index("idx_tenant_company_id").on(t.companyId),
+}));
+export const insertTenantSchema = createInsertSchema(tenants).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertTenant = z.infer<typeof insertTenantSchema>;
+export type Tenant = typeof tenants.$inferSelect;
+
+export const leases = pgTable("leases", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tenantId: varchar("tenant_id").notNull(),
+  buildingId: varchar("building_id").notNull(),
+  companyName: text("company_name"),
+  startDate: timestamp("start_date"),
+  expiryDate: timestamp("expiry_date"),
+  leaseTermYears: real("lease_term_years"),
+  rentPerSqm: integer("rent_per_sqm"),
+  spaceSizeSqm: integer("space_size_sqm"),
+  totalAnnualRent: integer("total_annual_rent"),
+  renewalOptionYears: real("renewal_option_years"),
+  breakClauseDate: timestamp("break_clause_date"),
+  status: text("status").notNull().default("active"),
+  confidenceScore: integer("confidence_score").default(60),
+  sourceType: text("source_type").default("manual"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxNewLeaseTenant: index("idx_new_lease_tenant_id").on(t.tenantId),
+  idxNewLeaseBuilding: index("idx_new_lease_building_id").on(t.buildingId),
+  idxNewLeaseExpiry: index("idx_new_lease_expiry_date").on(t.expiryDate),
+}));
+export const insertLeaseSchema = createInsertSchema(leases).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertLease = z.infer<typeof insertLeaseSchema>;
+export type Lease = typeof leases.$inferSelect;
+
+export const buildingSuburbEdges = pgTable("building_suburb_edges", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  buildingId: varchar("building_id").notNull(),
+  suburb: text("suburb").notNull(),
+  city: text("city").notNull(),
+  demandScore: integer("demand_score").default(50),
+  vacancyRisk: real("vacancy_risk").default(0.3),
+  relocationSignals: integer("relocation_signals").default(0),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertBuildingSuburbEdgeSchema = createInsertSchema(buildingSuburbEdges).omit({ id: true });
+export type InsertBuildingSuburbEdge = z.infer<typeof insertBuildingSuburbEdgeSchema>;
+export type BuildingSuburbEdge = typeof buildingSuburbEdges.$inferSelect;

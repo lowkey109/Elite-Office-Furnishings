@@ -502,6 +502,36 @@ export default function AdminCommandCentre() {
     refetchInterval: 30000,
   });
 
+  const { data: dealClosingStats, refetch: refetchDealClosing } = useQuery<{
+    proposals: { total: number; draft: number; sent: number; viewed: number; approved: number; rejected: number };
+    approvals: { total: number; pending: number; approved: number; rejected: number };
+    negotiation: number;
+    closingThisWeek: number;
+    pipeline: Record<string, number>;
+  }>({
+    queryKey: ["/api/admin/deal-closing/stats"],
+    enabled: authed,
+    refetchInterval: 30000,
+  });
+
+  const { data: commissionStats, refetch: refetchCommissions } = useQuery<{
+    total: number; pending: number; approved: number; paid: number;
+    totalPayableAud: number; totalPaidAud: number;
+  }>({
+    queryKey: ["/api/commissions/stats"],
+    enabled: authed,
+    refetchInterval: 30000,
+  });
+
+  const { data: buildingStats, refetch: refetchBuildings } = useQuery<{
+    totalBuildings: number; totalTenants: number; activeLeases: number;
+    expiringIn12Months: number; cities: number;
+  }>({
+    queryKey: ["/api/admin/buildings/stats"],
+    enabled: authed,
+    refetchInterval: 60000,
+  });
+
   const runContactDiscoveryMutation = useMutation({
     mutationFn: async () => apiRequest("POST", "/api/admin/outreach/run-contact-discovery", {}),
     onSuccess: () => { toast({ title: "Contact discovery started", description: "Discovering contacts for high-value opportunities." }); refetchContactDiscovery(); },
@@ -2596,6 +2626,169 @@ export default function AdminCommandCentre() {
           </div>
         </div>
 
+        {/* ── Deal Closing System ───────────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(100,220,150,0.18)] rounded-2xl overflow-hidden" data-testid="panel-deal-closing">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-2">
+              <Briefcase className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+              <h2 className="text-white font-semibold text-sm">Deal Closing System</h2>
+            </div>
+            <button onClick={() => refetchDealClosing()} className="text-white/30 hover:text-white/60 transition-colors"><RefreshCw className="w-3.5 h-3.5" /></button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[rgba(255,255,255,0.04)]">
+            {[
+              { label: "Proposals Sent", value: dealClosingStats?.proposals?.sent ?? "—", sub: `${dealClosingStats?.proposals?.viewed ?? 0} viewed`, color: "text-blue-400" },
+              { label: "In Negotiation", value: dealClosingStats?.negotiation ?? "—", sub: "Active deals", color: "text-amber-400" },
+              { label: "Awaiting Approval", value: dealClosingStats?.approvals?.pending ?? "—", sub: "Need sign-off", color: "text-orange-400" },
+              { label: "Closing This Week", value: dealClosingStats?.closingThisWeek ?? "—", sub: "Approved + negotiation", color: "text-green-400" },
+            ].map(({ label, value, sub, color }) => (
+              <div key={label} className="bg-[hsl(220,18%,10%)] p-4">
+                <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">{label}</p>
+                <p className={`text-2xl font-bold ${color}`}>{value}</p>
+                <p className="text-white/30 text-[10px] mt-0.5">{sub}</p>
+              </div>
+            ))}
+          </div>
+          <div className="p-4 space-y-2">
+            <p className="text-white/30 text-[10px] uppercase tracking-wider mb-2">Pipeline Stages</p>
+            <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+              {["lead","qualified","meeting_booked","proposal_sent","negotiation","approved","won","lost"].map(stage => (
+                <div key={stage} className="bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)] rounded-lg p-2 text-center">
+                  <p className="text-white/60 text-[9px] capitalize">{stage.replace("_"," ")}</p>
+                  <p className="text-white text-sm font-bold mt-0.5">{dealClosingStats?.pipeline?.[stage] ?? 0}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="px-4 pb-4 flex gap-2">
+            <Link href="/admin/proposal-engine">
+              <button className="flex-1 flex items-center justify-center gap-2 bg-[rgba(100,220,150,0.08)] hover:bg-[rgba(100,220,150,0.14)] border border-[rgba(100,220,150,0.2)] rounded-xl px-4 py-2.5 text-green-400 text-xs font-semibold transition-colors" data-testid="btn-open-proposal-engine">
+                <FileText className="w-3.5 h-3.5" /> Proposal Engine
+              </button>
+            </Link>
+            <button
+              onClick={() => { const id = prompt("Quote ID to generate proposal for:"); if(id) fetch("/api/proposals/generate", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({quoteId:id})}).then(r=>r.json()).then(d=>{ alert(d.error || `Proposal generated: ${d.proposal?.id}`); refetchDealClosing(); }); }}
+              className="flex-1 flex items-center justify-center gap-2 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.06)] rounded-xl px-4 py-2.5 text-white/60 text-xs font-semibold transition-colors"
+              data-testid="btn-generate-proposal"
+            >
+              <Zap className="w-3.5 h-3.5" /> Quick Generate
+            </button>
+          </div>
+        </div>
+
+        {/* ── Partner Commissions ───────────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.18)] rounded-2xl overflow-hidden" data-testid="panel-partner-commissions">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-2">
+              <CreditCard className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+              <h2 className="text-white font-semibold text-sm">Partner Commissions</h2>
+            </div>
+            <button onClick={() => refetchCommissions()} className="text-white/30 hover:text-white/60 transition-colors"><RefreshCw className="w-3.5 h-3.5" /></button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-[rgba(255,255,255,0.04)]">
+            {[
+              { label: "Pending", value: commissionStats?.pending ?? "—", sub: "Awaiting approval", color: "text-amber-400" },
+              { label: "Approved", value: commissionStats?.approved ?? "—", sub: "Ready to pay", color: "text-blue-400" },
+              { label: "Paid", value: commissionStats?.paid ?? "—", sub: "Completed", color: "text-green-400" },
+            ].map(({ label, value, sub, color }) => (
+              <div key={label} className="bg-[hsl(220,18%,10%)] p-4">
+                <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">{label}</p>
+                <p className={`text-2xl font-bold ${color}`}>{value}</p>
+                <p className="text-white/30 text-[10px] mt-0.5">{sub}</p>
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-2 gap-px bg-[rgba(255,255,255,0.04)] mt-px">
+            <div className="bg-[hsl(220,18%,10%)] p-4">
+              <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">Total Payable</p>
+              <p className="text-2xl font-bold text-amber-300">${(commissionStats?.totalPayableAud ?? 0).toLocaleString("en-AU", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+              <p className="text-white/30 text-[10px] mt-0.5">Pending + approved AUD</p>
+            </div>
+            <div className="bg-[hsl(220,18%,10%)] p-4">
+              <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">Total Paid</p>
+              <p className="text-2xl font-bold text-green-400">${(commissionStats?.totalPaidAud ?? 0).toLocaleString("en-AU", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+              <p className="text-white/30 text-[10px] mt-0.5">Completed commissions AUD</p>
+            </div>
+          </div>
+          <div className="p-4 flex gap-2">
+            <button
+              onClick={() => {
+                const id = prompt("Commission ID to approve:");
+                if(id) fetch(`/api/commissions/${id}/approve`, {method:"POST"}).then(r=>r.json()).then(d=>{ alert(d.error || "Commission approved"); refetchCommissions(); });
+              }}
+              className="flex-1 flex items-center justify-center gap-2 bg-[rgba(100,200,120,0.08)] hover:bg-[rgba(100,200,120,0.14)] border border-[rgba(100,200,120,0.2)] rounded-xl px-4 py-2.5 text-green-400 text-xs font-semibold transition-colors"
+              data-testid="btn-approve-commission"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" /> Approve
+            </button>
+            <button
+              onClick={() => {
+                const id = prompt("Commission ID to mark paid:");
+                const ref = prompt("Invoice reference (optional):");
+                if(id) fetch(`/api/commissions/${id}/mark-paid`, {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({invoiceRef:ref})}).then(r=>r.json()).then(d=>{ alert(d.error || "Commission marked paid"); refetchCommissions(); });
+              }}
+              className="flex-1 flex items-center justify-center gap-2 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.06)] rounded-xl px-4 py-2.5 text-white/60 text-xs font-semibold transition-colors"
+              data-testid="btn-mark-commission-paid"
+            >
+              <DollarSign className="w-3.5 h-3.5" /> Mark Paid
+            </button>
+          </div>
+          <Link href="/admin/partner-network">
+            <div className="mx-4 mb-4 flex items-center justify-between bg-[rgba(201,168,76,0.06)] hover:bg-[rgba(201,168,76,0.1)] border border-[rgba(201,168,76,0.15)] rounded-xl px-4 py-2.5 cursor-pointer transition-colors">
+              <span className="text-[hsl(43,78%,52%)] text-xs font-semibold">Partner Network Console</span>
+              <ArrowRight className="w-3.5 h-3.5 text-[hsl(43,78%,52%)]" />
+            </div>
+          </Link>
+        </div>
+
+        {/* ── Building + Tenant Database ────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(180,100,255,0.18)] rounded-2xl overflow-hidden" data-testid="panel-building-database">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+              <h2 className="text-white font-semibold text-sm">Building + Tenant Database</h2>
+            </div>
+            <button onClick={() => refetchBuildings()} className="text-white/30 hover:text-white/60 transition-colors"><RefreshCw className="w-3.5 h-3.5" /></button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-px bg-[rgba(255,255,255,0.04)]">
+            {[
+              { label: "Buildings", value: buildingStats?.totalBuildings ?? "—", sub: `${buildingStats?.cities ?? 0} cities`, color: "text-purple-400" },
+              { label: "Tenants", value: buildingStats?.totalTenants ?? "—", sub: "Tracked occupants", color: "text-blue-400" },
+              { label: "Active Leases", value: buildingStats?.activeLeases ?? "—", sub: "In database", color: "text-green-400" },
+              { label: "Expiring ≤12m", value: buildingStats?.expiringIn12Months ?? "—", sub: "Opportunity window", color: "text-amber-400" },
+              { label: "Cities", value: buildingStats?.cities ?? "—", sub: "AU metro coverage", color: "text-cyan-400" },
+            ].map(({ label, value, sub, color }) => (
+              <div key={label} className="bg-[hsl(220,18%,10%)] p-4">
+                <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">{label}</p>
+                <p className={`text-2xl font-bold ${color}`}>{value}</p>
+                <p className="text-white/30 text-[10px] mt-0.5">{sub}</p>
+              </div>
+            ))}
+          </div>
+          <div className="p-4 flex flex-wrap gap-2">
+            <button
+              onClick={() => fetch("/api/admin/buildings/seed", {method:"POST"}).then(r=>r.json()).then(d=>{ alert(`Seeded: ${d.inserted} buildings, ${d.skipped} skipped`); refetchBuildings(); })}
+              className="flex items-center gap-2 bg-[rgba(180,100,255,0.08)] hover:bg-[rgba(180,100,255,0.14)] border border-[rgba(180,100,255,0.2)] rounded-xl px-4 py-2.5 text-purple-400 text-xs font-semibold transition-colors"
+              data-testid="btn-seed-buildings"
+            >
+              <Layers className="w-3.5 h-3.5" /> Seed AU Buildings
+            </button>
+            <Link href="/admin/building-database">
+              <button className="flex items-center gap-2 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.06)] rounded-xl px-4 py-2.5 text-white/60 text-xs font-semibold transition-colors" data-testid="btn-open-building-database">
+                <Eye className="w-3.5 h-3.5" /> Building Database
+              </button>
+            </Link>
+            <Link href="/admin/market-map">
+              <button className="flex items-center gap-2 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.06)] rounded-xl px-4 py-2.5 text-white/60 text-xs font-semibold transition-colors" data-testid="btn-open-buildings-map">
+                <MapPin className="w-3.5 h-3.5" /> View on Map
+              </button>
+            </Link>
+          </div>
+          <div className="px-5 py-3 bg-[rgba(255,255,255,0.02)] border-t border-[rgba(255,255,255,0.04)]">
+            <p className="text-white/20 text-[10px]">Proprietary building intelligence — feeds lease expiry engine, relocation scoring, and demand forecasting.</p>
+          </div>
+        </div>
+
         {/* ── Admin Navigation shortcuts ────────────────────────────────────── */}
         <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-5">
           <p className="text-white/30 text-xs font-semibold uppercase tracking-wider mb-4">Admin Navigation</p>
@@ -2611,6 +2804,8 @@ export default function AdminCommandCentre() {
               { href: "/admin/relocation-intelligence", icon: Radar, label: "Relocation Intel", sub: "Market relocation signals" },
               { href: "/admin/workspace-strategy", icon: Brain, label: "Workspace Strategy", sub: "AI layout & package optimisation" },
               { href: "/admin/market-map", icon: MapPin, label: "Workspace Intelligence Map", sub: "Signals, demand, risk layers" },
+              { href: "/admin/proposal-engine", icon: FileText, label: "Proposal Engine", sub: `${dealClosingStats?.proposals?.total ?? 0} proposals` },
+              { href: "/admin/building-database", icon: Building2, label: "Building Database", sub: `${buildingStats?.totalBuildings ?? 0} buildings tracked` },
             ].map(({ href, icon: Icon, label, sub }) => (
               <Link key={href} href={href}>
                 <div className="flex items-center gap-3 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.06)] rounded-xl p-3.5 cursor-pointer transition-colors">
