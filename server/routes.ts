@@ -6737,5 +6737,91 @@ Rules:
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
+  // ── Live Alerts API ───────────────────────────────────────────────────────
+  app.get("/api/admin/alerts", async (req, res) => {
+    try {
+      const now = new Date();
+      const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const twentyOneDaysAgo = new Date(now.getTime() - 21 * 24 * 60 * 60 * 1000);
+      const { outreachSequences, dealExecution: dealTable2, outreachThreads } = await import("@shared/schema");
+      const { and, eq, lt } = await import("drizzle-orm");
+
+      const [overdueSeqs, staleDeals, staleThreads] = await Promise.all([
+        db.select({ id: outreachSequences.id, threadId: outreachSequences.threadId, scheduledFor: outreachSequences.scheduledFor })
+          .from(outreachSequences)
+          .where(and(eq(outreachSequences.status, "scheduled"), lt(outreachSequences.scheduledFor, now)))
+          .limit(50),
+        db.select({ id: dealTable2.id, companyName: dealTable2.companyName, stage: dealTable2.stage, updatedAt: dealTable2.updatedAt })
+          .from(dealTable2)
+          .where(and(lt(dealTable2.updatedAt, sevenDaysAgo), eq(dealTable2.status, "active")))
+          .limit(20),
+        db.select({ id: outreachThreads.id, companyName: outreachThreads.companyName, createdAt: outreachThreads.createdAt })
+          .from(outreachThreads)
+          .where(and(eq(outreachThreads.status, "active"), lt(outreachThreads.createdAt, twentyOneDaysAgo)))
+          .limit(20),
+      ]);
+
+      const alerts = [
+        ...overdueSeqs.map(s => ({ type: "overdue_sequence", severity: "warning", message: `Overdue sequence (thread ${s.threadId}) scheduled for ${s.scheduledFor?.toISOString()}`, entityId: s.id })),
+        ...staleDeals.map(d => ({ type: "stale_deal", severity: "warning", message: `Deal for ${d.companyName} not updated in 7+ days (stage: ${d.stage})`, entityId: d.id })),
+        ...staleThreads.map(t => ({ type: "stale_thread", severity: "info", message: `Thread for ${t.companyName} active 21+ days without reply`, entityId: t.id })),
+      ];
+
+      res.json({ total: alerts.length, alerts, generatedAt: now.toISOString() });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ── Deal Lost Learning Loop ───────────────────────────────────────────────
+  app.post("/api/alex/deals/:id/mark-lost", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { lostReason } = req.body as { lostReason?: string };
+      const { dealExecution: dealTable3, workspaceLearningRecords } = await import("@shared/schema");
+      const { eq } = await import("drizzle-orm");
+
+      const [deal] = await db.select().from(dealTable3).where(eq(dealTable3.id, id)).limit(1);
+      if (!deal) return res.status(404).json({ error: "Deal not found" });
+
+      await db.update(dealTable3)
+        .set({ status: "lost", stage: "lost", lostAt: new Date(), lostReason: lostReason ?? "No reason provided", updatedAt: new Date() })
+        .where(eq(dealTable3.id, id));
+
+      // Update workspace learning records for this company (match by company name)
+      if (deal.companyName) {
+        await db.update(workspaceLearningRecords)
+          .set({ conversionResult: "lost", keyInsight: lostReason ? `Lost: ${lostReason}` : "Deal lost — no conversion" })
+          .where(eq(workspaceLearningRecords.clientCompany, deal.companyName));
+      }
+
+      res.json({ success: true, dealId: id, stage: "lost", lostReason });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ── Deal Won Learning Loop ────────────────────────────────────────────────
+  app.post("/api/alex/deals/:id/mark-won", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { dealValueActual } = req.body as { dealValueActual?: number };
+      const { dealExecution: dealTable4, workspaceLearningRecords } = await import("@shared/schema");
+      const { eq } = await import("drizzle-orm");
+
+      const [deal] = await db.select().from(dealTable4).where(eq(dealTable4.id, id)).limit(1);
+      if (!deal) return res.status(404).json({ error: "Deal not found" });
+
+      await db.update(dealTable4)
+        .set({ status: "won", stage: "won", wonAt: new Date(), updatedAt: new Date(), dealValueEstimate: dealValueActual ?? deal.dealValueEstimate })
+        .where(eq(dealTable4.id, id));
+
+      // Update workspace learning records — mark converted
+      if (deal.companyName) {
+        await db.update(workspaceLearningRecords)
+          .set({ conversionResult: "converted", keyInsight: `Won: $${dealValueActual ?? deal.dealValueEstimate ?? 0} deal closed` })
+          .where(eq(workspaceLearningRecords.clientCompany, deal.companyName));
+      }
+
+      res.json({ success: true, dealId: id, stage: "won" });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
   return httpServer;
 }

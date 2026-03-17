@@ -1,0 +1,236 @@
+WORKSPACE INTELLIGENCE PLATFORM
+END-TO-END LOOP COMPLETION PROMPT
+
+ROLE
+
+You are a senior platform engineer, systems integrator, and workflow debugger.
+
+You are working on an EXISTING production platform:
+Workspace Intelligence Platform
+
+Your task is to COMPLETE ALL BROKEN OR PARTIAL LOOPS.
+
+DO NOT add unrelated new features.
+DO NOT replace existing systems.
+DO NOT redesign the UI.
+
+ONLY connect, debug, and complete the operational loops.
+
+------------------------------------------------
+
+PRIMARY OBJECTIVE
+
+Make the full platform run as closed loops, not disconnected modules.
+
+The system must complete these loops automatically:
+
+1. Signal Loop
+2. Opportunity Loop
+3. Outreach Loop
+4. Booking Loop
+5. Proposal + Payment Loop
+6. Revenue Loop
+7. Learning Loop
+8. Command Centre / Alex Loop
+
+------------------------------------------------
+
+STAGE 1 — LOOP AUDIT
+
+Create:
+
+docs/audit/loop-completion-audit.md
+
+For each loop mark:
+
+WORKING
+PARTIAL
+BROKEN
+MISSING_TRIGGER
+MISSING_STATE_UPDATE
+MISSING_WEBHOOK
+STATIC_UI_ONLY
+
+Audit these exact loops:
+
+A. SIGNAL LOOP
+real source
+→ raw_signals
+→ intelligence_signals
+→ scoring
+→ opportunity creation
+
+B. OUTREACH LOOP
+opportunity
+→ contact discovery
+→ outreach generation
+→ send/draft
+→ follow-up schedule
+
+C. BOOKING LOOP
+outreach
+→ booking link
+→ booking event
+→ pipeline stage update
+
+D. PAYMENT LOOP
+proposal
+→ Stripe payment link
+→ webhook
+→ deal WON
+→ revenue event
+
+E. LEARNING LOOP
+won/lost deal
+→ outcome stored
+→ scoring/pricing/Alex updated
+
+F. COMMAND CENTRE LOOP
+system event
+→ dashboard refresh
+→ Alex insight
+→ admin visibility
+
+------------------------------------------------
+
+STAGE 2 — COMPLETE TRIGGERS
+
+For every PARTIAL or BROKEN loop:
+
+identify the missing trigger
+implement the missing trigger
+retest immediately
+
+Examples:
+
+If signal ingestion does not trigger scoring
+→ connect ingestion completion to scoring job
+
+If scoring does not trigger opportunity creation
+→ connect threshold logic to OpportunityEngine
+
+If outreach generation does not trigger follow-up scheduling
+→ connect thread creation to sequence scheduling
+
+If booking success does not update pipeline
+→ connect booking event to stage update
+
+If Stripe webhook does not mark deal WON
+→ connect payment success to deal update + revenue event
+
+------------------------------------------------
+
+STAGE 3 — COMPLETE STATE TRANSITIONS
+
+Verify and fix state progression:
+
+signals:
+raw → classified → scored
+
+opportunities:
+new → qualified → outreach_ready → contacted → engaged → meeting_booked → proposal_sent → negotiation → won/lost
+
+payments:
+pending → deposit_paid → paid → reconciled
+
+sequences:
+draft → scheduled → sent → replied/stopped
+
+If any state transition is missing, inconsistent, or only UI-level:
+fix it in backend logic.
+
+------------------------------------------------
+
+STAGE 4 — COMPLETE WEBHOOKS + JOBS
+
+Verify and fix:
+
+• booking callbacks
+• Stripe webhooks
+• reply detection
+• follow-up jobs
+• scoring jobs
+• dashboard refresh jobs
+
+Do NOT rely on browser-only state.
+Use durable backend jobs/events.
+
+------------------------------------------------
+
+STAGE 5 — COMPLETE DASHBOARD + ALEX LOOP
+
+Ensure real backend events update:
+
+• Command Centre widgets
+• job status
+• revenue stats
+• meetings booked
+• outreach activity
+• high-priority opportunities
+
+Ensure Alex reads live system data and can answer:
+
+• which opportunities are stuck?
+• which follow-ups are due?
+• which deals have payment pending?
+• which booked meetings came from outreach?
+• which loops are broken?
+
+------------------------------------------------
+
+STAGE 6 — END-TO-END TESTS
+
+Run and verify this exact chain:
+
+1. ingest real or test-safe signal
+2. create scored opportunity
+3. trigger contact discovery
+4. generate outreach
+5. create booking link
+6. simulate or complete booking
+7. generate proposal
+8. create Stripe payment link
+9. simulate or receive webhook
+10. mark deal WON
+11. log revenue
+12. update Command Centre
+13. update Alex context
+14. store outcome for learning
+
+If any step fails:
+stop, fix, retest, continue.
+
+------------------------------------------------
+
+STAGE 7 — FINAL LOOP COMPLETION REPORT
+
+Create:
+
+docs/audit/loop-completion-report.md
+
+For each loop provide:
+
+• status
+• trigger path
+• state path
+• blocking issues fixed
+• remaining blockers
+• proof of completion
+
+------------------------------------------------
+
+FINAL GOAL
+
+Transform the platform from disconnected modules into a true closed-loop system where:
+
+Signal
+→ Opportunity
+→ Outreach
+→ Booking
+→ Proposal
+→ Payment
+→ WON
+→ Revenue
+→ Learning
+
+works automatically and reliably.

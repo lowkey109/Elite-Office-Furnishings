@@ -871,3 +871,12 @@ export async function sendFormalQuoteEmail(quote: {
 export function isEmailConfigured(): boolean {
   return !!process.env.RESEND_API_KEY;
 }
+
+export async function sendOutreachEmail(opts: {
+  to: string;
+  subject: string;
+  html: string;
+  companyName: string;
+}): Promise<void> {
+  await sendEmail({ to: opts.to, subject: opts.subject, html: opts.html });
+}

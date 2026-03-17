@@ -9,6 +9,7 @@ import {
   meetingBookingEvents,
   outreachThreads,
   outreachEvents,
+  dealExecution,
 } from "@shared/schema";
 import { eq } from "drizzle-orm";
 
@@ -118,9 +119,30 @@ export async function confirmMeeting(params: {
     })
     .where(eq(meetingBookingEvents.id, params.bookingEventId));
 
+  // Get thread to find companyId for deal_execution update
+  const [thread] = await db.select({ companyId: outreachThreads.companyId, companyName: outreachThreads.companyName })
+    .from(outreachThreads)
+    .where(eq(outreachThreads.id, params.threadId))
+    .limit(1);
+
   await db.update(outreachThreads)
     .set({ status: "booked", bookingStatus: "booked", updatedAt: new Date() })
     .where(eq(outreachThreads.id, params.threadId));
+
+  // Update deal_execution pipeline stage to meeting_booked
+  if (thread?.companyId) {
+    await db.update(dealExecution)
+      .set({
+        stage: "meeting_booked",
+        meetingBooked: true,
+        meetingTime: params.meetingTime,
+        lastAction: "Meeting booked via outreach sequence",
+        nextAction: "Send agenda, prepare proposal",
+        lastContactedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(dealExecution.companyId, thread.companyId));
+  }
 
   await db.insert(outreachEvents).values({
     threadId: params.threadId,
@@ -131,6 +153,8 @@ export async function confirmMeeting(params: {
       isSandbox: SAFE_MODE,
     }),
   });
+
+  console.log(`[BookingService] Meeting confirmed for ${thread?.companyName ?? params.threadId} at ${params.meetingTime.toISOString()}`);
 }
 
 export async function getBookingStats() {

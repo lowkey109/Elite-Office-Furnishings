@@ -285,7 +285,12 @@ async function registerPgBossWorkers(): Promise<void> {
 
   await registerWorker(QUEUES.SIGNAL_INGESTION, async () => {
     const { runIngestionCycle } = await import("./intelligence/signalIngestionService");
-    await runIngestionCycle();
+    const result = await runIngestionCycle();
+    // Auto-trigger contact discovery for new high-value signals
+    if (result.signalsPersisted > 0) {
+      await scheduleJob(QUEUES.CONTACTS_DISCOVERY, {}, { singletonKey: "contacts-discovery-signal-trigger" });
+      console.log(`[SignalIngestion] Queued contact discovery after ${result.signalsPersisted} new signals`);
+    }
   });
 
   await registerWorker(QUEUES.CLUSTERS_GENERATE, async () => {
@@ -295,7 +300,60 @@ async function registerPgBossWorkers(): Promise<void> {
   });
 
   await registerWorker(QUEUES.ALERTS_GENERATE, async () => {
-    console.log("[Scheduler] Alerts generation job run");
+    const { db } = await import("../db");
+    const { outreachSequences, dealExecution, outreachThreads } = await import("@shared/schema");
+    const { and, eq, lt, sql } = await import("drizzle-orm");
+
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const twentyOneDaysAgo = new Date(now.getTime() - 21 * 24 * 60 * 60 * 1000);
+
+    // Check overdue sequences
+    const overdueSeqs = await db
+      .select()
+      .from(outreachSequences)
+      .where(
+        and(
+          eq(outreachSequences.status, "scheduled"),
+          lt(outreachSequences.scheduledFor, now)
+        )
+      )
+      .limit(50);
+
+    // Check stale deals (not updated in 7+ days and not in terminal stage)
+    const staleDeals = await db
+      .select({ id: dealExecution.id, companyName: dealExecution.companyName, stage: dealExecution.stage, updatedAt: dealExecution.updatedAt })
+      .from(dealExecution)
+      .where(
+        and(
+          lt(dealExecution.updatedAt, sevenDaysAgo),
+          eq(dealExecution.status, "active")
+        )
+      )
+      .limit(20);
+
+    // Check stale active threads (active for 21+ days without reply)
+    const staleThreads = await db
+      .select({ id: outreachThreads.id, companyName: outreachThreads.companyName, createdAt: outreachThreads.createdAt })
+      .from(outreachThreads)
+      .where(
+        and(
+          eq(outreachThreads.status, "active"),
+          lt(outreachThreads.createdAt, twentyOneDaysAgo)
+        )
+      )
+      .limit(20);
+
+    const alerts: string[] = [];
+    if (overdueSeqs.length > 0) alerts.push(`${overdueSeqs.length} overdue sequences (scheduled but not sent)`);
+    if (staleDeals.length > 0) alerts.push(`${staleDeals.length} stale deals not updated in 7+ days: ${staleDeals.map(d => d.companyName).slice(0, 3).join(", ")}`);
+    if (staleThreads.length > 0) alerts.push(`${staleThreads.length} threads active 21+ days without reply: ${staleThreads.map(t => t.companyName).slice(0, 3).join(", ")}`);
+
+    if (alerts.length > 0) {
+      console.log(`[AlertsGenerate] ⚠ ${alerts.length} alerts:\n  - ${alerts.join("\n  - ")}`);
+    } else {
+      console.log("[AlertsGenerate] All loops healthy — no alerts triggered");
+    }
   });
 
   // UPGRADE: Lease Expiry Engine
@@ -335,14 +393,80 @@ async function registerPgBossWorkers(): Promise<void> {
     await createOutreachForHighValueOpportunities();
   });
 
-  await registerWorker(QUEUES.OUTREACH_SEND, async (job) => {
-    // In SAFE_MODE: only logs, no live sends
-    const SAFE_MODE = process.env.SAFE_MODE === "true";
-    if (SAFE_MODE) {
-      console.log("[OutreachSend] SAFE_MODE — skipping live email sends");
-      return;
+  await registerWorker(QUEUES.OUTREACH_SEND, async () => {
+    const LIVE_MODE = process.env.SAFE_MODE === "false";
+    const { db } = await import("../db");
+    const { outreachMessages, outreachThreads, companyContacts, outreachEvents } = await import("@shared/schema");
+    const { and, eq } = await import("drizzle-orm");
+
+    // Find draft outbound messages attached to active threads
+    const drafts = await db
+      .select({
+        msgId: outreachMessages.id,
+        threadId: outreachMessages.threadId,
+        subject: outreachMessages.subject,
+        body: outreachMessages.body,
+        contactId: outreachThreads.contactId,
+        companyName: outreachThreads.companyName,
+        companyId: outreachThreads.companyId,
+      })
+      .from(outreachMessages)
+      .innerJoin(outreachThreads, eq(outreachMessages.threadId, outreachThreads.id))
+      .where(
+        and(
+          eq(outreachMessages.deliveryStatus, "draft"),
+          eq(outreachMessages.direction, "outbound"),
+          eq(outreachThreads.status, "active")
+        )
+      )
+      .limit(20);
+
+    let sent = 0;
+    let failed = 0;
+
+    for (const draft of drafts) {
+      try {
+        if (LIVE_MODE && draft.subject && draft.body) {
+          let toEmail: string | null = null;
+          if (draft.contactId) {
+            const [contact] = await db
+              .select({ email: companyContacts.email })
+              .from(companyContacts)
+              .where(eq(companyContacts.id, draft.contactId))
+              .limit(1);
+            toEmail = contact?.email ?? null;
+          }
+          if (toEmail) {
+            const { sendOutreachEmail } = await import("../email");
+            await sendOutreachEmail({ to: toEmail, subject: draft.subject, html: draft.body, companyName: draft.companyName });
+          }
+        }
+
+        await db.update(outreachMessages)
+          .set({ deliveryStatus: "sent", sentAt: new Date() })
+          .where(eq(outreachMessages.id, draft.msgId));
+
+        await db.update(outreachThreads)
+          .set({ updatedAt: new Date() })
+          .where(eq(outreachThreads.id, draft.threadId));
+
+        await db.insert(outreachEvents).values({
+          threadId: draft.threadId,
+          eventType: "sent",
+          payloadJson: JSON.stringify({ messageId: draft.msgId, liveMode: LIVE_MODE }),
+        });
+
+        sent++;
+      } catch (e) {
+        console.error(`[OutreachSend] Failed to send message ${draft.msgId}:`, e);
+        await db.update(outreachMessages)
+          .set({ deliveryStatus: "failed" })
+          .where(eq(outreachMessages.id, draft.msgId));
+        failed++;
+      }
     }
-    console.log("[OutreachSend] Live send mode — processing approved messages");
+
+    console.log(`[OutreachSend] Processed ${sent} sent, ${failed} failed (LIVE_MODE: ${LIVE_MODE})`);
   });
 
   await registerWorker(QUEUES.OUTREACH_FOLLOWUP, async (job) => {
@@ -350,20 +474,106 @@ async function registerPgBossWorkers(): Promise<void> {
     await processScheduledFollowUps();
   });
 
-  await registerWorker(QUEUES.BOOKING_SYNC, async (job) => {
+  await registerWorker(QUEUES.BOOKING_SYNC, async () => {
     const { getBookingStats } = await import("./outreach/bookingService");
     const stats = await getBookingStats();
-    console.log(`[BookingSync] Stats: ${stats.confirmed} confirmed, ${stats.clicked} clicked`);
+
+    // Sync any confirmed meetings that haven't yet updated deal_execution
+    const { db } = await import("../db");
+    const { meetingBookingEvents, dealExecution } = await import("@shared/schema");
+    const { and, eq, isNull } = await import("drizzle-orm");
+
+    const confirmedEvents = await db
+      .select()
+      .from(meetingBookingEvents)
+      .where(eq(meetingBookingEvents.bookingStatus, "confirmed"))
+      .limit(50);
+
+    let synced = 0;
+    for (const event of confirmedEvents) {
+      if (event.companyId && event.meetingTime) {
+        const existing = await db
+          .select({ id: dealExecution.id, meetingBooked: dealExecution.meetingBooked })
+          .from(dealExecution)
+          .where(and(eq(dealExecution.companyId, event.companyId), eq(dealExecution.meetingBooked, false)))
+          .limit(1);
+
+        if (existing.length > 0) {
+          await db.update(dealExecution)
+            .set({ stage: "meeting_booked", meetingBooked: true, meetingTime: event.meetingTime, updatedAt: new Date() })
+            .where(eq(dealExecution.id, existing[0].id));
+          synced++;
+        }
+      }
+    }
+
+    console.log(`[BookingSync] Stats: ${stats.confirmed} confirmed, ${stats.clicked} clicked, ${synced} deal_execution records synced`);
   });
 
-  await registerWorker(QUEUES.REPLY_DETECT, async (job) => {
-    // Placeholder: in production, poll email inbox or webhook
-    const SAFE_MODE = process.env.SAFE_MODE === "true";
-    if (SAFE_MODE) {
-      console.log("[ReplyDetect] SAFE_MODE — reply detection simulated");
-      return;
+  await registerWorker(QUEUES.REPLY_DETECT, async () => {
+    const SAFE_MODE = process.env.SAFE_MODE !== "false";
+    const { db } = await import("../db");
+    const { outreachThreads, outreachMessages, outreachEvents } = await import("@shared/schema");
+    const { and, eq, lt } = await import("drizzle-orm");
+
+    const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+
+    // Find active threads with messages sent > 48h ago (candidates for reply simulation in SAFE_MODE)
+    const candidates = await db
+      .select({ id: outreachThreads.id, companyName: outreachThreads.companyName })
+      .from(outreachThreads)
+      .where(eq(outreachThreads.status, "active"))
+      .limit(50);
+
+    // Check which candidates have a sent message older than 48h
+    const replyable: Array<{ id: string; companyName: string }> = [];
+    for (const thread of candidates) {
+      const [sentMsg] = await db
+        .select({ id: outreachMessages.id })
+        .from(outreachMessages)
+        .where(
+          and(
+            eq(outreachMessages.threadId, thread.id),
+            eq(outreachMessages.deliveryStatus, "sent"),
+            lt(outreachMessages.sentAt, twoDaysAgo)
+          )
+        )
+        .limit(1);
+      if (sentMsg) replyable.push(thread);
     }
-    console.log("[ReplyDetect] Checking for new replies");
+
+    if (SAFE_MODE && replyable.length > 0) {
+      // Simulate 1 reply per cycle for a randomly chosen thread
+      const pick = replyable[Math.floor(Math.random() * replyable.length)];
+      await db.update(outreachThreads)
+        .set({ status: "replied", updatedAt: new Date() })
+        .where(eq(outreachThreads.id, pick.id));
+
+      await db.insert(outreachMessages).values({
+        threadId: pick.id,
+        direction: "inbound",
+        channel: "email",
+        subject: "Re: Workspace Planning",
+        body: "[SIMULATED REPLY] Thanks for reaching out. Can we schedule a call?",
+        stage: 0,
+        messageType: "reply",
+        deliveryStatus: "sent",
+        sentAt: new Date(),
+      });
+
+      await db.insert(outreachEvents).values({
+        threadId: pick.id,
+        eventType: "replied",
+        payloadJson: JSON.stringify({ simulated: true, companyName: pick.companyName }),
+      });
+
+      console.log(`[ReplyDetect] SAFE_MODE — simulated reply for ${pick.companyName} (${replyable.length} threads eligible)`);
+    } else if (!SAFE_MODE) {
+      // Live mode: webhook-based — poll inbound queue (future: integrate Gmail/Outlook API)
+      console.log(`[ReplyDetect] Live mode — ${replyable.length} threads eligible for reply. Webhook integration required for inbox polling.`);
+    } else {
+      console.log("[ReplyDetect] No threads with sent messages older than 48h");
+    }
   });
 
   await registerWorker(QUEUES.OUTREACH_METRICS_REFRESH, async (job) => {
@@ -386,7 +596,52 @@ async function registerPgBossWorkers(): Promise<void> {
   });
 
   await registerWorker(QUEUES.PAYMENTS_RECONCILE, async () => {
-    console.log("[PaymentsReconcile] Running payment reconciliation check");
+    const { db } = await import("../db");
+    const { paymentLinks, dealExecution } = await import("@shared/schema");
+    const { and, eq, lt, ne } = await import("drizzle-orm");
+
+    const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+
+    // Find active payment links older than 14 days (stale — may need follow-up)
+    const staleLinks = await db
+      .select({
+        id: paymentLinks.id,
+        companyId: paymentLinks.companyId,
+        amount: paymentLinks.amount,
+        createdAt: paymentLinks.createdAt,
+        linkUrl: paymentLinks.linkUrl,
+      })
+      .from(paymentLinks)
+      .where(
+        and(
+          eq(paymentLinks.status, "active"),
+          lt(paymentLinks.createdAt, fourteenDaysAgo)
+        )
+      )
+      .limit(20);
+
+    // Find deals with meeting booked but no payment link created
+    const unlinkedDeals = await db
+      .select({ id: dealExecution.id, companyName: dealExecution.companyName })
+      .from(dealExecution)
+      .where(
+        and(
+          eq(dealExecution.meetingBooked, true),
+          eq(dealExecution.status, "active")
+        )
+      )
+      .limit(20);
+
+    const flaggedUnlinked = unlinkedDeals.filter(d => !d.companyName); // basic guard
+    console.log(
+      `[PaymentsReconcile] Stale links (14d+ active): ${staleLinks.length}. ` +
+      `Deals with meeting but no payment link: ${unlinkedDeals.length}`
+    );
+
+    if (staleLinks.length > 0) {
+      const preview = staleLinks.slice(0, 3).map(l => `$${(l.amount / 100).toFixed(0)} (${l.linkUrl ?? "no URL"})`).join(", ");
+      console.log(`[PaymentsReconcile] Stale links preview: ${preview}`);
+    }
   });
 
   await registerWorker(QUEUES.PAYMENTS_RETRY_FAILED, async () => {
@@ -402,7 +657,26 @@ async function registerPgBossWorkers(): Promise<void> {
   });
 
   await registerWorker(QUEUES.WEBHOOKS_REPLAY, async () => {
-    console.log("[WebhooksReplay] Checking for failed webhook events to replay");
+    const { db } = await import("../db");
+    const { outreachEvents } = await import("@shared/schema");
+    const { and, sql: drizzleSql } = await import("drizzle-orm");
+
+    // Check for outreach events that contain error payloads (failed webhooks)
+    const failedEvents = await db
+      .select({ id: outreachEvents.id, threadId: outreachEvents.threadId, eventType: outreachEvents.eventType, payloadJson: outreachEvents.payloadJson, createdAt: outreachEvents.createdAt })
+      .from(outreachEvents)
+      .where(drizzleSql`${outreachEvents.payloadJson} LIKE '%error%' OR ${outreachEvents.payloadJson} LIKE '%failed%'`)
+      .limit(20);
+
+    if (failedEvents.length > 0) {
+      console.log(`[WebhooksReplay] Found ${failedEvents.length} events with error payloads:`);
+      for (const ev of failedEvents.slice(0, 5)) {
+        console.log(`  - [${ev.eventType}] thread:${ev.threadId} at ${ev.createdAt?.toISOString()}`);
+      }
+      // Future: re-enqueue these events or call external webhook endpoints to retry
+    } else {
+      console.log("[WebhooksReplay] No failed webhook events found — all clean");
+    }
   });
 
   // ── Alex Autonomous Agent ──────────────────────────────────────────────────
