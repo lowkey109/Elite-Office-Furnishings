@@ -522,6 +522,13 @@ export function buildChatSystemPrompt(
     topOpportunityZones?: { suburb: string; city: string; zoneScore: number; activeCompanies: number }[];
     leaseExpiryOpportunities?: { companyName: string; city: string; urgencyTier: string; predictedExpiryYear: number | null; opportunityScore: number }[];
     likelyRelocating?: { companyName: string; city: string; radarScore: number; signalType: string }[];
+    // Outreach Engine context
+    outreachReadyCompanies?: { companyName: string; city: string | null; confidenceScore: number | null; moveProbability: number | null }[];
+    activeOutreachThreads?: { companyName: string; status: string; currentStage: number; outreachAngle: string | null }[];
+    followUpsDue?: { companyName: string; stage: number }[];
+    meetingsBooked?: { companyName: string; bookingStatus: string }[];
+    outreachStats?: { drafts: number; sent: number; replied: number; activeThreads: number; bookedThreads: number; replyRate: number; safeMode: boolean };
+    contactDiscoveryStats?: { totalContacts: number; directContacts: number; highConfidenceContacts: number };
   }
 ): string {
   const workplaceKnowledge = getWorkplaceDesignKnowledge();
@@ -553,6 +560,25 @@ ${intelligenceContext.topOpportunityZones?.length ? `**Highest Opportunity Zones
 ${intelligenceContext.leaseExpiryOpportunities?.length ? `**Companies with Expiring Leases (Relocation Opportunities):**\n${intelligenceContext.leaseExpiryOpportunities.slice(0, 5).map(o => `- ${o.companyName} (${o.city}): ${o.urgencyTier} urgency · expiring ${o.predictedExpiryYear ?? "soon"} · opportunity score ${o.opportunityScore}/100`).join("\n")}` : ""}
 
 ${intelligenceContext.likelyRelocating?.length ? `**Companies Most Likely to Relocate:**\n${intelligenceContext.likelyRelocating.slice(0, 5).map(r => `- ${r.companyName} (${r.city}): radar score ${r.radarScore}/100 · signal: ${(r.signalType || "").replace(/_/g, " ")}`).join("\n")}` : ""}
+
+${intelligenceContext.outreachReadyCompanies?.length ? `**Outreach-Ready Companies (high-value, no active outreach yet):**\n${intelligenceContext.outreachReadyCompanies.slice(0, 5).map(c => `- ${c.companyName} (${c.city ?? "Australia"}): opportunity score ${c.confidenceScore ?? 0}/100 · relocation probability ${c.moveProbability ?? 0}%`).join("\n")}` : ""}
+
+${intelligenceContext.activeOutreachThreads?.length ? `**Active Outreach Threads:**\n${intelligenceContext.activeOutreachThreads.slice(0, 5).map(t => `- ${t.companyName}: ${t.status} · stage ${t.currentStage} · angle: ${(t.outreachAngle || "general").replace(/_/g, " ")}`).join("\n")}` : ""}
+
+${intelligenceContext.followUpsDue?.length ? `**Follow-ups Due Today:**\n${intelligenceContext.followUpsDue.slice(0, 5).map(f => `- ${f.companyName}: stage ${f.stage} follow-up due`).join("\n")}` : ""}
+
+${intelligenceContext.meetingsBooked?.length ? `**Recent Meeting Bookings:**\n${intelligenceContext.meetingsBooked.slice(0, 3).map(m => `- ${m.companyName}: ${m.bookingStatus}`).join("\n")}` : ""}
+
+${intelligenceContext.outreachStats ? `**Outreach Engine Status:** ${intelligenceContext.outreachStats.activeThreads} active threads · ${intelligenceContext.outreachStats.sent} sent · reply rate ${intelligenceContext.outreachStats.replyRate}% · ${intelligenceContext.outreachStats.bookedThreads} meetings booked${intelligenceContext.outreachStats.safeMode ? " · [SAFE MODE ACTIVE]" : ""}` : ""}
+
+${intelligenceContext.contactDiscoveryStats ? `**Contact Discovery:** ${intelligenceContext.contactDiscoveryStats.totalContacts} contacts found · ${intelligenceContext.contactDiscoveryStats.directContacts} direct · ${intelligenceContext.contactDiscoveryStats.highConfidenceContacts} high confidence` : ""}
+
+You can answer questions like:
+- "Which companies should I contact first?" → use outreachReadyCompanies
+- "Which follow-ups are due today?" → use followUpsDue  
+- "How many meetings have we booked?" → use outreachStats.bookedThreads
+- "What's the reply rate?" → use outreachStats.replyRate
+- "Which companies have active outreach?" → use activeOutreachThreads
 
 When users ask about specific companies, suburbs, or market trends, reference this intelligence naturally. You can also proactively surface relevant opportunities based on what the user is discussing.\n`
     : `\n## WORKSPACE INTELLIGENCE PLATFORM

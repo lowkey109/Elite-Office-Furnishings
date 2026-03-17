@@ -25,6 +25,14 @@ export const QUEUES = {
   LEASE_EXPIRY_SCAN: "lease-expiry.scan",
   HIERARCHY_BUILD: "hierarchy.build",
   GRAPH_REFRESH: "graph.refresh",
+  // ── Outreach Engine ──────────────────────────────────────────────────────────
+  CONTACTS_DISCOVERY: "contacts.discovery",
+  OUTREACH_GENERATE: "outreach.generate",
+  OUTREACH_SEND: "outreach.send",
+  OUTREACH_FOLLOWUP: "outreach.followup",
+  BOOKING_SYNC: "booking.sync",
+  REPLY_DETECT: "reply.detect",
+  OUTREACH_METRICS_REFRESH: "outreach.metrics.refresh",
 } as const;
 
 export type QueueName = (typeof QUEUES)[keyof typeof QUEUES];

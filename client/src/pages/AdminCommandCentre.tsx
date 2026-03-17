@@ -437,6 +437,63 @@ export default function AdminCommandCentre() {
     staleTime: 60000,
   });
 
+  // ── Outreach Engine queries ────────────────────────────────────────────────
+  const { data: outreachStats, refetch: refetchOutreach } = useQuery<{
+    drafts: number; sent: number; replied: number; failed: number; replyRate: number;
+    activeThreads: number; bookedThreads: number; repliedThreads: number; totalThreads: number;
+    outreachReadyCount: number; followUpsDueCount: number; activeThreadCount: number; safeMode: boolean;
+  }>({
+    queryKey: ["/api/admin/outreach/stats"],
+    queryFn: () => fetch("/api/admin/outreach/stats").then(r => r.json()),
+    enabled: authed,
+    refetchInterval: 30000,
+  });
+
+  const { data: bookingStats, refetch: refetchBookings } = useQuery<{
+    provider: string; isSandbox: boolean; totalLinks: number; clicked: number; confirmed: number; conversionRate: number;
+    byStatus: Record<string, number>; recentMeetings: { companyName: string; meetingTime: string | null; provider: string }[];
+  }>({
+    queryKey: ["/api/admin/bookings/stats"],
+    queryFn: () => fetch("/api/admin/bookings/stats").then(r => r.json()),
+    enabled: authed,
+    refetchInterval: 30000,
+  });
+
+  const { data: contactDiscoveryStats, refetch: refetchContactDiscovery } = useQuery<{
+    totalRuns: number; completedRuns: number; totalContacts: number; directContacts: number;
+    fallbackContacts: number; highConfidenceContacts: number; avgContactsPerRun: number;
+  }>({
+    queryKey: ["/api/admin/contact-discovery/stats"],
+    queryFn: () => fetch("/api/admin/contact-discovery/stats").then(r => r.json()),
+    enabled: authed,
+    refetchInterval: 60000,
+  });
+
+  const { data: outreachThreadsList } = useQuery<{ threads: { id: string; companyName: string; status: string; currentStage: number; outreachAngle: string | null; bookingStatus: string; updatedAt: string | null }[]; total: number }>({
+    queryKey: ["/api/outreach/threads"],
+    queryFn: () => fetch("/api/outreach/threads?limit=20").then(r => r.json()),
+    enabled: authed,
+    refetchInterval: 30000,
+  });
+
+  const runContactDiscoveryMutation = useMutation({
+    mutationFn: async () => apiRequest("POST", "/api/admin/outreach/run-contact-discovery", {}),
+    onSuccess: () => { toast({ title: "Contact discovery started", description: "Discovering contacts for high-value opportunities." }); refetchContactDiscovery(); },
+    onError: () => toast({ title: "Discovery failed", variant: "destructive" }),
+  });
+
+  const generateOutreachMutation = useMutation({
+    mutationFn: async () => apiRequest("POST", "/api/admin/outreach/create-for-top-opportunities", {}),
+    onSuccess: (d: any) => { toast({ title: `Outreach generated`, description: `${d?.created ?? 0} new threads created.` }); refetchOutreach(); },
+    onError: () => toast({ title: "Generation failed", variant: "destructive" }),
+  });
+
+  const processFollowUpsMutation = useMutation({
+    mutationFn: async () => apiRequest("POST", "/api/admin/outreach/process-followups", {}),
+    onSuccess: (d: any) => { toast({ title: "Follow-ups processed", description: `${d?.sent ?? 0} scheduled, ${d?.skipped ?? 0} skipped.` }); refetchOutreach(); },
+    onError: () => toast({ title: "Failed", variant: "destructive" }),
+  });
+
   const [triggeringScan, setTriggeringScan] = useState<string | null>(null);
   const triggerScanMutation = useMutation({
     mutationFn: async (scanType: string) => {
@@ -2108,6 +2165,218 @@ export default function AdminCommandCentre() {
                 )}
               </tbody>
             </table>
+          </div>
+        </div>
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            OUTREACH ENGINE — 4 New Control Panels
+            ══════════════════════════════════════════════════════════════════════ */}
+
+        {/* ── Outreach Control Panel ────────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(100,180,255,0.15)] rounded-2xl overflow-hidden" data-testid="panel-outreach-control">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-2">
+              <h2 className="text-white font-semibold text-sm">Outreach Control</h2>
+              {outreachStats?.safeMode && (
+                <span className="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-semibold">SAFE MODE</span>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => generateOutreachMutation.mutate()}
+                disabled={generateOutreachMutation.isPending}
+                className="text-[10px] bg-[hsl(43,78%,52%)]/10 text-[hsl(43,78%,52%)] border border-[hsl(43,78%,52%)]/20 px-2.5 py-1 rounded-lg hover:bg-[hsl(43,78%,52%)]/20 transition-colors disabled:opacity-40"
+                data-testid="btn-generate-outreach"
+              >
+                {generateOutreachMutation.isPending ? "Generating..." : "Generate Outreach"}
+              </button>
+              <button
+                onClick={() => processFollowUpsMutation.mutate()}
+                disabled={processFollowUpsMutation.isPending}
+                className="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-lg hover:bg-blue-500/20 transition-colors disabled:opacity-40"
+                data-testid="btn-process-followups"
+              >
+                {processFollowUpsMutation.isPending ? "Processing..." : "Process Follow-ups"}
+              </button>
+            </div>
+          </div>
+          <div className="grid grid-cols-4 divide-x divide-[rgba(255,255,255,0.04)]">
+            {[
+              { label: "Outreach Ready", value: outreachStats?.outreachReadyCount ?? 0, color: "text-amber-400" },
+              { label: "Active Threads", value: outreachStats?.activeThreadCount ?? 0, color: "text-blue-400" },
+              { label: "Follow-ups Due", value: outreachStats?.followUpsDueCount ?? 0, color: "text-orange-400" },
+              { label: "Reply Rate", value: `${outreachStats?.replyRate ?? 0}%`, color: "text-green-400" },
+            ].map(({ label, value, color }) => (
+              <div key={label} className="p-4 text-center">
+                <div className={`text-xl font-bold ${color}`}>{value}</div>
+                <div className="text-white/30 text-[10px] mt-0.5">{label}</div>
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-4 divide-x divide-[rgba(255,255,255,0.04)] border-t border-[rgba(255,255,255,0.04)]">
+            {[
+              { label: "Drafts", value: outreachStats?.drafts ?? 0, color: "text-white/50" },
+              { label: "Sent", value: outreachStats?.sent ?? 0, color: "text-blue-300" },
+              { label: "Replied", value: outreachStats?.replied ?? 0, color: "text-green-400" },
+              { label: "Meetings Booked", value: outreachStats?.bookedThreads ?? 0, color: "text-purple-400" },
+            ].map(({ label, value, color }) => (
+              <div key={label} className="p-4 text-center">
+                <div className={`text-lg font-semibold ${color}`}>{value}</div>
+                <div className="text-white/30 text-[10px] mt-0.5">{label}</div>
+              </div>
+            ))}
+          </div>
+          {/* Active threads list */}
+          {outreachThreadsList?.threads && outreachThreadsList.threads.length > 0 && (
+            <div className="border-t border-[rgba(255,255,255,0.04)] p-4">
+              <p className="text-white/30 text-[10px] font-semibold uppercase tracking-wider mb-3">Recent Threads</p>
+              <div className="space-y-2">
+                {outreachThreadsList.threads.slice(0, 5).map(t => (
+                  <div key={t.id} className="flex items-center justify-between bg-[rgba(255,255,255,0.02)] rounded-lg px-3 py-2">
+                    <div>
+                      <div className="text-white text-xs font-semibold">{t.companyName}</div>
+                      <div className="text-white/30 text-[10px]">{t.outreachAngle?.replace(/_/g, " ") ?? "general"}</div>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full border ${
+                        t.status === "active" ? "bg-green-500/10 text-green-400 border-green-500/20" :
+                        t.status === "booked" ? "bg-purple-500/10 text-purple-400 border-purple-500/20" :
+                        t.status === "replied" ? "bg-blue-500/10 text-blue-400 border-blue-500/20" :
+                        "bg-white/5 text-white/30 border-white/10"
+                      }`}>{t.status}</span>
+                      <span className="text-[10px] text-white/30">Stage {t.currentStage}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── Booking Control Panel ─────────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(100,180,255,0.15)] rounded-2xl overflow-hidden" data-testid="panel-booking-control">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-2">
+              <h2 className="text-white font-semibold text-sm">Booking Control</h2>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${
+                bookingStats?.isSandbox ? "bg-amber-500/10 text-amber-400 border-amber-500/20" : "bg-green-500/10 text-green-400 border-green-500/20"
+              }`}>{bookingStats?.isSandbox ? "SANDBOX" : "LIVE"}</span>
+              {bookingStats?.provider && (
+                <span className="text-[10px] bg-[rgba(255,255,255,0.04)] text-white/40 border border-white/10 px-2 py-0.5 rounded-full uppercase">{bookingStats.provider}</span>
+              )}
+            </div>
+            <a href="/admin/market-map" className="text-[10px] text-[hsl(43,78%,52%)] hover:text-[hsl(43,78%,65%)]">View Map Layer →</a>
+          </div>
+          <div className="grid grid-cols-4 divide-x divide-[rgba(255,255,255,0.04)]">
+            {[
+              { label: "Links Created", value: bookingStats?.totalLinks ?? 0, color: "text-white/60" },
+              { label: "Clicked", value: bookingStats?.clicked ?? 0, color: "text-amber-400" },
+              { label: "Meetings Confirmed", value: bookingStats?.confirmed ?? 0, color: "text-green-400" },
+              { label: "Conversion Rate", value: `${bookingStats?.conversionRate ?? 0}%`, color: "text-purple-400" },
+            ].map(({ label, value, color }) => (
+              <div key={label} className="p-4 text-center">
+                <div className={`text-xl font-bold ${color}`}>{value}</div>
+                <div className="text-white/30 text-[10px] mt-0.5">{label}</div>
+              </div>
+            ))}
+          </div>
+          {bookingStats?.recentMeetings && bookingStats.recentMeetings.length > 0 && (
+            <div className="border-t border-[rgba(255,255,255,0.04)] p-4">
+              <p className="text-white/30 text-[10px] font-semibold uppercase tracking-wider mb-3">Recent Meetings</p>
+              <div className="space-y-2">
+                {bookingStats.recentMeetings.map((m, i) => (
+                  <div key={i} className="flex items-center justify-between bg-[rgba(255,255,255,0.02)] rounded-lg px-3 py-2">
+                    <div className="text-white text-xs font-semibold">{m.companyName}</div>
+                    <div className="text-white/30 text-[10px]">{m.meetingTime ? new Date(m.meetingTime).toLocaleDateString() : "Pending"}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {(!bookingStats?.recentMeetings || bookingStats.recentMeetings.length === 0) && (
+            <div className="p-6 text-center text-white/20 text-xs">No confirmed meetings yet — booking links active</div>
+          )}
+        </div>
+
+        {/* ── Contact Discovery Panel ───────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(100,180,255,0.15)] rounded-2xl overflow-hidden" data-testid="panel-contact-discovery">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
+            <h2 className="text-white font-semibold text-sm">Contact Discovery</h2>
+            <button
+              onClick={() => runContactDiscoveryMutation.mutate()}
+              disabled={runContactDiscoveryMutation.isPending}
+              className="text-[10px] bg-[hsl(43,78%,52%)]/10 text-[hsl(43,78%,52%)] border border-[hsl(43,78%,52%)]/20 px-2.5 py-1 rounded-lg hover:bg-[hsl(43,78%,52%)]/20 transition-colors disabled:opacity-40"
+              data-testid="btn-run-contact-discovery"
+            >
+              {runContactDiscoveryMutation.isPending ? "Discovering..." : "Run Discovery"}
+            </button>
+          </div>
+          <div className="grid grid-cols-3 divide-x divide-[rgba(255,255,255,0.04)]">
+            {[
+              { label: "Discovery Runs", value: contactDiscoveryStats?.totalRuns ?? 0, color: "text-white/60" },
+              { label: "Contacts Found", value: contactDiscoveryStats?.totalContacts ?? 0, color: "text-green-400" },
+              { label: "Fallback Contacts", value: contactDiscoveryStats?.fallbackContacts ?? 0, color: "text-amber-400" },
+            ].map(({ label, value, color }) => (
+              <div key={label} className="p-4 text-center">
+                <div className={`text-xl font-bold ${color}`}>{value}</div>
+                <div className="text-white/30 text-[10px] mt-0.5">{label}</div>
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-3 divide-x divide-[rgba(255,255,255,0.04)] border-t border-[rgba(255,255,255,0.04)]">
+            {[
+              { label: "Direct Contacts", value: contactDiscoveryStats?.directContacts ?? 0, color: "text-blue-400" },
+              { label: "High Confidence", value: contactDiscoveryStats?.highConfidenceContacts ?? 0, color: "text-green-400" },
+              { label: "Avg / Run", value: contactDiscoveryStats?.avgContactsPerRun ?? 0, color: "text-white/50" },
+            ].map(({ label, value, color }) => (
+              <div key={label} className="p-4 text-center">
+                <div className={`text-lg font-semibold ${color}`}>{value}</div>
+                <div className="text-white/30 text-[10px] mt-0.5">{label}</div>
+              </div>
+            ))}
+          </div>
+          <div className="px-5 py-3 bg-[rgba(255,255,255,0.02)] border-t border-[rgba(255,255,255,0.04)]">
+            <p className="text-white/20 text-[10px]">Discovery targets: Head of Workplace · Facilities Manager · Operations Director · Office Manager · People & Culture · Procurement</p>
+          </div>
+        </div>
+
+        {/* ── Sequence Control Panel ────────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(100,180,255,0.15)] rounded-2xl overflow-hidden" data-testid="panel-sequence-control">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
+            <h2 className="text-white font-semibold text-sm">Sequence Control</h2>
+            <div className="text-white/30 text-[10px]">Day 0 → 3 → 7 → 14</div>
+          </div>
+          <div className="p-4">
+            <p className="text-white/30 text-[10px] font-semibold uppercase tracking-wider mb-3">Active Sequences</p>
+            {outreachThreadsList?.threads && outreachThreadsList.threads.filter(t => t.status === "active").length > 0 ? (
+              <div className="space-y-2">
+                {outreachThreadsList.threads.filter(t => t.status === "active").slice(0, 8).map(t => (
+                  <div key={t.id} className="flex items-center justify-between bg-[rgba(255,255,255,0.02)] rounded-lg px-3 py-2">
+                    <div>
+                      <div className="text-white text-xs font-semibold">{t.companyName}</div>
+                      <div className="text-white/30 text-[10px]">Stage {t.currentStage} · {t.outreachAngle?.replace(/_/g, " ") ?? "standard"}</div>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <button
+                        onClick={() => fetch("/api/outreach/pause", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ threadId: t.id }) }).then(() => refetchOutreach())}
+                        className="text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded hover:bg-amber-500/20 transition-colors"
+                        data-testid={`btn-pause-thread-${t.id}`}
+                      >Pause</button>
+                      <button
+                        onClick={() => fetch("/api/outreach/stop", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ threadId: t.id }) }).then(() => refetchOutreach())}
+                        className="text-[9px] bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded hover:bg-red-500/20 transition-colors"
+                        data-testid={`btn-stop-thread-${t.id}`}
+                      >Stop</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-6 text-white/20 text-xs">No active sequences — generate outreach to begin</div>
+            )}
+          </div>
+          <div className="border-t border-[rgba(255,255,255,0.04)] px-5 py-3 bg-[rgba(255,255,255,0.02)]">
+            <p className="text-white/20 text-[10px]">Sequences auto-stop on reply, booking, or manual override. SAFE MODE = drafts only.</p>
           </div>
         </div>
 

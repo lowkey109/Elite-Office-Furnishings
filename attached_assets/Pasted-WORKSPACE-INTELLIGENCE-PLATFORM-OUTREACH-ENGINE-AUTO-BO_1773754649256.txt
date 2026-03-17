@@ -1,0 +1,673 @@
+WORKSPACE INTELLIGENCE PLATFORM
+OUTREACH ENGINE + AUTO BOOKING SYSTEM UPGRADE
+
+ROLE
+
+You are a senior full-stack engineer, AI workflow architect, sales automation engineer, and platform integration specialist.
+
+You are working on an EXISTING production platform called:
+
+Workspace Intelligence Platform
+
+The platform already contains:
+
+• Office Move Radar
+• Deal Hunter
+• Workspace Intelligence Map
+• Lease Expiry Engine
+• Tenant Movement Engine
+• Corp Hierarchy layer
+• Demand Zones layer
+• Command Centre
+• Alex AI Assistant
+• Job Control Dashboard
+• SAFE MODE controls
+
+Your task is to ADD and INTEGRATE the following systems:
+
+1. Outreach Engine
+2. Contact Discovery Engine
+3. Auto Booking Engine
+4. Outreach + Calendar widgets in Command Centre
+5. Alex AI outreach recommendations and booking actions
+
+IMPORTANT:
+DO NOT replace or rebuild any existing system.
+DO NOT remove existing modules.
+ONLY extend, connect, and upgrade the current architecture.
+
+------------------------------------------------
+
+CRITICAL RULES
+
+1. Do NOT remove existing intelligence layers or map tabs.
+2. Do NOT replace Alex AI; upgrade Alex by connecting these systems into it.
+3. Do NOT bypass SAFE MODE.
+4. Do NOT send live emails or calendar invites unless SAFE_MODE=false and all required environment variables exist.
+5. All scan buttons and admin actions must enqueue jobs, not execute long-running work directly in-browser.
+6. All outreach actions must be logged and auditable.
+7. All booking actions must be permission-gated and environment-configured.
+
+------------------------------------------------
+
+SYSTEM OBJECTIVE
+
+Convert intelligence into meetings automatically.
+
+Target flow:
+
+Signal detected
+→ opportunity scored
+→ contact discovered
+→ outreach generated
+→ outreach sent
+→ follow-up scheduled
+→ reply detected or booking link clicked
+→ meeting booked
+→ opportunity updated
+→ Command Centre + Alex AI updated
+
+------------------------------------------------
+
+PART 1 — CONTACT DISCOVERY ENGINE
+
+Create a ContactDiscoveryEngine service.
+
+Purpose:
+Find likely decision makers for high-value opportunities.
+
+Priority target roles:
+
+• Head of Workplace
+• Facilities Manager
+• Operations Director
+• Office Manager
+• People & Culture Director
+• Procurement Manager
+• Property Manager
+• Workplace Experience Manager
+
+Fallback roles:
+
+• General Manager
+• CEO / Founder (SME)
+• Reception / Admin / info@ / admin@ / contact form
+
+Required outputs:
+
+contact_id
+company_id
+full_name
+job_title
+department
+email
+linkedin_url
+confidence_score
+contact_type
+source
+verification_status
+
+Recommended verification_status enum:
+
+verified
+high_confidence
+medium_confidence
+generic_fallback
+unverified
+blocked
+
+Add or extend tables if missing:
+
+contacts
+contact_discovery_runs
+contact_verification_logs
+
+Create support fields if missing:
+
+contacts:
+• first_name
+• last_name
+• full_name
+• company_id
+• email
+• phone
+• linkedin_url
+• job_title
+• department
+• confidence_score
+• verification_status
+• is_primary
+• source
+• created_at
+• updated_at
+
+contact_discovery_runs:
+• id
+• company_id
+• opportunity_id
+• run_status
+• contacts_found
+• started_at
+• completed_at
+• error_message
+
+contact_verification_logs:
+• id
+• contact_id
+• check_type
+• result
+• details_json
+• created_at
+
+Rules:
+
+• For high-value opportunities, try direct contact discovery first.
+• If no direct contact exists, generate fallback contact route:
+  - info@
+  - admin@
+  - reception@
+  - website contact form
+• Tag fallback contacts as:
+  generic_fallback
+
+------------------------------------------------
+
+PART 2 — OUTREACH ENGINE
+
+Create an OutreachEngine service.
+
+Purpose:
+Generate, queue, send, and track outreach based on opportunity intelligence.
+
+Inputs:
+
+• opportunity
+• company profile
+• contact
+• signals detected
+• lease expiry data
+• demand zone context
+• recommended action from intelligence engine
+
+Create or extend tables:
+
+outreach_threads
+outreach_messages
+outreach_sequences
+outreach_events
+meeting_booking_events
+
+Suggested schema:
+
+outreach_threads
+• id
+• company_id
+• contact_id
+• opportunity_id
+• status
+• channel
+• current_stage
+• created_at
+• updated_at
+
+outreach_messages
+• id
+• thread_id
+• direction
+• channel
+• subject
+• body
+• delivery_status
+• sent_at
+• opened_at
+• replied_at
+• created_at
+
+outreach_sequences
+• id
+• thread_id
+• sequence_type
+• stage
+• scheduled_for
+• sent_at
+• status
+• stop_reason
+• created_at
+
+outreach_events
+• id
+• thread_id
+• event_type
+• payload_json
+• created_at
+
+meeting_booking_events
+• id
+• company_id
+• contact_id
+• opportunity_id
+• booking_provider
+• booking_status
+• meeting_time
+• created_at
+• updated_at
+
+Supported channels:
+
+• email
+• internal draft
+• future-ready LinkedIn task generation
+• future-ready call task generation
+
+Do not fake LinkedIn sending if platform does not support it yet.
+Instead create tasks for manual execution where needed.
+
+------------------------------------------------
+
+PART 3 — OUTREACH GENERATION LOGIC
+
+Create OutreachGenerationService.
+
+This service must generate personalized outreach using:
+
+• company name
+• city
+• industry
+• detected signals
+• lease expiry timing
+• workspace expansion/move likelihood
+• recommended fit-out angle
+• current demand zone context
+
+Message style requirements:
+
+• short
+• professional
+• personalized
+• signal-based
+• non-spammy
+• commercially useful
+
+Use these outreach types:
+
+1. Intro message
+2. Follow-up 1
+3. Follow-up 2
+4. Final check-in
+5. Fallback forwarding request message
+
+Fallback forwarding request rule:
+
+When outreach is sent to a generic company contact or through a contact form, include:
+
+“I’m trying to reach the person responsible for workplace planning, facilities, operations, property, or office strategy. If that’s not you, would you mind forwarding this to the appropriate person?”
+
+Tag these as:
+forward_request
+
+------------------------------------------------
+
+PART 4 — SEQUENCE LOGIC
+
+Create FollowUpSequenceEngine.
+
+Sequence timing:
+
+Day 0 — Intro
+Day 3 — Follow-up 1
+Day 7 — Follow-up 2
+Day 14 — Final follow-up
+
+Rules:
+
+• Stop sequence if reply received
+• Stop sequence if meeting booked
+• Stop sequence if contact marked blocked
+• Stop sequence if opportunity marked lost
+• Stop sequence if manual override applied
+
+IMPORTANT:
+Fix any cumulative timing bug.
+Sequence timing must be anchored correctly from thread start or prior send event, not compounded incorrectly.
+
+------------------------------------------------
+
+PART 5 — AUTO BOOKING ENGINE
+
+Create AutoBookingEngine.
+
+Purpose:
+Allow contacts to book meetings directly into configured calendars.
+
+Supported provider architecture:
+
+• Google Calendar / Google Meet
+• Calendly-style hosted booking link
+• future-ready Microsoft 365 support
+
+Do not hardcode one provider.
+Use provider abstraction.
+
+Create:
+
+BookingProviderService
+CalendarAvailabilityService
+MeetingCreationService
+
+Required environment variables:
+
+BOOKING_PROVIDER=
+BOOKING_BASE_URL=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REFRESH_TOKEN=
+GOOGLE_CALENDAR_ID=
+CALENDLY_LINK=
+SAFE_MODE=true
+
+Capabilities:
+
+• generate booking link per outreach thread
+• include booking CTA in outreach messages
+• record booking click events
+• create calendar event or hand off to configured provider
+• update opportunity stage when meeting is booked
+• notify Command Centre and Alex AI
+
+Booking CTA examples:
+
+• Book a quick call
+• Pick a time here
+• Schedule a workspace planning chat
+
+------------------------------------------------
+
+PART 6 — SAFE MODE REQUIREMENTS
+
+SAFE MODE must remain the default.
+
+When SAFE_MODE=true:
+
+• outreach may be generated
+• drafts may be created
+• sequences may be simulated
+• booking links may be rendered in test mode
+• no live emails may be sent
+• no live CRM pushes may run
+• no real calendar events may be created unless explicitly configured for sandbox/test
+
+Display visible SAFE MODE indicators in all admin/outreach UIs.
+
+------------------------------------------------
+
+PART 7 — INTELLIGENCE INTEGRATION
+
+Do NOT create a separate intelligence system.
+Reuse the existing intelligence engine and map layers.
+
+Integrate Outreach Engine with:
+
+• Office Move Radar
+• Deal Hunter
+• Lease Expiry Engine
+• Tenant Movement Engine
+• Demand Zones
+• Opportunity Engine
+• Workspace Intelligence Map
+• Corp Hierarchy layer
+
+Rules:
+
+If opportunity_score >= 75
+→ eligible for outreach
+
+If relocation_probability >= 70 AND confidence_score >= 60
+→ create or update outreach candidate
+
+If lease_expiry_probability is high
+→ prefer “lease timing / planning ahead” outreach angle
+
+If tenant_movement_score is high
+→ prefer “move / expansion planning” outreach angle
+
+If suburb_demand_score is high but direct opportunity is weaker
+→ create market development task, not aggressive outreach
+
+------------------------------------------------
+
+PART 8 — MAP INTEGRATION
+
+Upgrade the existing Workspace Intelligence Map.
+
+Do NOT replace it.
+
+Add overlays/tabs or linked views for:
+
+• Outreach-ready opportunities
+• Contact coverage
+• Meeting-booked opportunities
+• Follow-up due items
+
+Create new map endpoints if needed:
+
+/api/map/layers/outreach-ready
+/api/map/layers/contact-coverage
+/api/map/layers/meetings-booked
+/api/map/layers/follow-up-due
+
+Return GeoJSON.
+
+Properties should include:
+
+company
+contact_count
+primary_contact
+opportunity_score
+relocation_probability
+outreach_status
+meeting_status
+recommended_action
+
+------------------------------------------------
+
+PART 9 — COMMAND CENTRE UPGRADE
+
+Upgrade the existing Command Centre.
+
+Do NOT redesign shell or remove current panels.
+
+Add widgets/cards/panels for:
+
+• Outreach Ready
+• Contacts Found
+• Sequences Running
+• Follow-ups Due Today
+• Meetings Booked
+• Booking Conversion Rate
+• Reply Rate
+• Strategic Accounts Awaiting Contact
+
+Each panel must deep-link into:
+• company page
+• opportunity detail
+• outreach thread
+• map layer view
+
+------------------------------------------------
+
+PART 10 — ALEX AI UPGRADE
+
+Do NOT replace Alex.
+
+Upgrade Alex to operate on outreach + booking intelligence.
+
+Add read/query services:
+
+getOutreachReadyCompanies
+getContactsFoundByCompany
+getFollowUpsDue
+getMeetingsBooked
+getBookingConversionStats
+getHighValueUncontactedOpportunities
+getFallbackForwardRequests
+getStrategicAccountsAwaitingOutreach
+
+Alex must be able to answer:
+
+• Which companies should I contact first?
+• Which high-value opportunities still have no outreach?
+• Which contacts were found for Canva / Atlassian / BHP?
+• Which meetings were booked this week?
+• Which follow-ups are due today?
+• Which strategic accounts are stuck?
+
+Alex proactive alert examples:
+
+• High-value opportunity has no contact yet
+• Outreach generated but not approved
+• Follow-up due today
+• Booking completed for strategic account
+• High-score lease expiry account awaiting outreach
+
+------------------------------------------------
+
+PART 11 — ADMIN UPGRADES
+
+Upgrade Admin Command Centre.
+
+Add:
+
+1. Outreach Control Panel
+   • drafts awaiting approval
+   • sent today
+   • failed sends
+   • replies detected
+   • follow-ups due
+
+2. Booking Control Panel
+   • provider status
+   • sandbox/live status
+   • meetings booked
+   • failed booking attempts
+
+3. Contact Discovery Panel
+   • discovery runs
+   • contacts found
+   • fallback contacts
+   • verification confidence
+
+4. Sequence Control
+   • pause/resume sequence
+   • stop sequence
+   • reschedule follow-up
+   • approve/reject outreach
+
+All admin actions must be:
+• server-protected
+• role-protected
+• audit logged
+
+------------------------------------------------
+
+PART 12 — ROUTES / APIS
+
+Add or extend these routes:
+
+GET /api/outreach/threads
+GET /api/outreach/threads/:id
+POST /api/outreach/generate
+POST /api/outreach/send
+POST /api/outreach/approve
+POST /api/outreach/pause
+POST /api/outreach/resume
+POST /api/outreach/stop
+
+GET /api/contacts/discovery/:companyId
+POST /api/contacts/discovery/run
+POST /api/contacts/:id/mark-primary
+
+GET /api/bookings/status
+POST /api/bookings/create-link
+POST /api/bookings/create-event
+POST /api/bookings/webhook
+
+GET /api/admin/outreach/stats
+GET /api/admin/bookings/stats
+GET /api/admin/contact-discovery/stats
+
+Use validation middleware on all write routes.
+
+------------------------------------------------
+
+PART 13 — JOBS / ORCHESTRATION
+
+Use durable jobs only.
+
+Do NOT use browser-triggered long-running work.
+Do NOT rely on in-process setTimeout / setInterval for production orchestration.
+
+Add queues/jobs:
+
+contacts.discovery
+outreach.generate
+outreach.send
+outreach.followup
+booking.sync
+reply.detect
+outreach.metrics.refresh
+
+Required guarantees:
+
+• retries
+• dedupe keys
+• concurrency control
+• auditability
+• safe restart behavior
+
+------------------------------------------------
+
+PART 14 — COMPANY HIERARCHY INTEGRATION
+
+Use the existing or upgraded company hierarchy system.
+
+Rules:
+
+• subsidiary signals may inform parent account prioritization
+• outreach may be coordinated at parent or child account level
+• duplicate outreach across related subsidiaries should be prevented where configured
+• major enterprise hierarchies should surface as strategic account groups in Alex + Command Centre
+
+------------------------------------------------
+
+PART 15 — ACCEPTANCE TESTS
+
+The system is only complete when all tests pass.
+
+Required tests:
+
+1. Contact discovery run creates contacts for a test company
+2. Outreach generation creates personalized draft
+3. SAFE MODE prevents live send
+4. Sequence scheduling creates correct Day 0 / Day 3 / Day 7 / Day 14 events
+5. Booking link is created successfully
+6. Booking event updates opportunity stage
+7. Command Centre widgets reflect outreach + meetings
+8. Alex can query outreach/bookings
+9. Map outreach layer loads without breaking existing tabs
+10. Existing Office Move Radar, Deal Hunter, Lease Expiry, Tenant Movement, Corp Hierarchy, Demand Zones still function
+
+------------------------------------------------
+
+FINAL GOAL
+
+Upgrade the existing Workspace Intelligence Platform so that it not only detects opportunities, but also converts them into booked meetings automatically.
+
+The final system must:
+
+• preserve existing modules
+• extend current intelligence systems
+• connect signals to outreach
+• connect outreach to booking
+• connect booking to opportunity pipeline
+• expose everything through Command Centre, Map, Admin, and Alex AI
+• remain SAFE MODE compliant until production-approved

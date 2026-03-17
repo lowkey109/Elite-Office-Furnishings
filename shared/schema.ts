@@ -918,21 +918,34 @@ export const insertCompanyIntelligenceSchema = createInsertSchema(companyIntelli
 export type InsertCompanyIntelligence = z.infer<typeof insertCompanyIntelligenceSchema>;
 export type CompanyIntelligence = typeof companyIntelligence.$inferSelect;
 
-// ─── Company Contacts (Org-Chart) ─────────────────────────────────────────────
+// ─── Company Contacts (Org-Chart + Contact Discovery) ────────────────────────
 export const companyContacts = pgTable("company_contacts", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   companyIntelligenceId: varchar("company_intelligence_id").notNull(),
   companyName: text("company_name").notNull(),
   contactName: text("contact_name"),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
   role: text("role").notNull(), // Head of Workplace | Facilities Manager | etc.
   department: text("department"),
-  confidenceScore: integer("confidence_score").notNull().default(50),
-  contactSource: text("contact_source").notNull().default("inferred"), // inferred|linkedin|directory
+  email: text("email"),
+  phone: text("phone"),
   linkedinUrl: text("linkedin_url"),
+  confidenceScore: integer("confidence_score").notNull().default(50),
+  verificationStatus: text("verification_status").notNull().default("unverified"), // verified|high_confidence|medium_confidence|generic_fallback|unverified|blocked
+  isPrimary: boolean("is_primary").notNull().default(false),
+  contactSource: text("contact_source").notNull().default("inferred"), // inferred|linkedin|directory|ai_generated
+  contactType: text("contact_type").notNull().default("direct"), // direct|generic_fallback|forward_request
+  isBlocked: boolean("is_blocked").notNull().default(false),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
-});
-export const insertCompanyContactSchema = createInsertSchema(companyContacts).omit({ id: true, createdAt: true });
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxContactCompany: index("idx_contact_company_intel").on(t.companyIntelligenceId),
+  idxContactEmail: index("idx_contact_email").on(t.email),
+  idxContactVerification: index("idx_contact_verification").on(t.verificationStatus),
+}));
+export const insertCompanyContactSchema = createInsertSchema(companyContacts).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertCompanyContact = z.infer<typeof insertCompanyContactSchema>;
 export type CompanyContact = typeof companyContacts.$inferSelect;
 
@@ -1269,3 +1282,150 @@ export const intelligenceGraphEdges = pgTable("intelligence_graph_edges", {
 export const insertIntelligenceGraphEdgeSchema = createInsertSchema(intelligenceGraphEdges).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertIntelligenceGraphEdge = z.infer<typeof insertIntelligenceGraphEdgeSchema>;
 export type IntelligenceGraphEdge = typeof intelligenceGraphEdges.$inferSelect;
+
+// ─── OUTREACH ENGINE: Contact Discovery ──────────────────────────────────────
+
+export const contactDiscoveryRuns = pgTable("contact_discovery_runs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyId: varchar("company_id").notNull(),
+  companyName: text("company_name").notNull(),
+  opportunityId: varchar("opportunity_id"),
+  runStatus: text("run_status").notNull().default("pending"), // pending|running|completed|failed
+  contactsFound: integer("contacts_found").notNull().default(0),
+  fallbackContactsCreated: integer("fallback_contacts_created").notNull().default(0),
+  startedAt: timestamp("started_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+  errorMessage: text("error_message"),
+}, (t) => ({
+  idxDiscoveryCompany: index("idx_discovery_company_id").on(t.companyId),
+  idxDiscoveryStatus: index("idx_discovery_run_status").on(t.runStatus),
+}));
+export const insertContactDiscoveryRunSchema = createInsertSchema(contactDiscoveryRuns).omit({ id: true, startedAt: true });
+export type InsertContactDiscoveryRun = z.infer<typeof insertContactDiscoveryRunSchema>;
+export type ContactDiscoveryRun = typeof contactDiscoveryRuns.$inferSelect;
+
+export const contactVerificationLogs = pgTable("contact_verification_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  contactId: varchar("contact_id").notNull(),
+  checkType: text("check_type").notNull(), // email_format|domain_check|ai_confidence|linkedin_check
+  result: text("result").notNull(), // passed|failed|warning
+  detailsJson: text("details_json"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (t) => ({
+  idxVerifContact: index("idx_verif_contact_id").on(t.contactId),
+}));
+export const insertContactVerificationLogSchema = createInsertSchema(contactVerificationLogs).omit({ id: true, createdAt: true });
+export type InsertContactVerificationLog = z.infer<typeof insertContactVerificationLogSchema>;
+export type ContactVerificationLog = typeof contactVerificationLogs.$inferSelect;
+
+// ─── OUTREACH ENGINE: Threads, Messages, Sequences, Events ───────────────────
+
+export const outreachThreads = pgTable("outreach_threads", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyId: varchar("company_id").notNull(),
+  companyName: text("company_name").notNull(),
+  contactId: varchar("contact_id"),
+  opportunityId: varchar("opportunity_id"),
+  status: text("status").notNull().default("pending"), // pending|active|paused|stopped|completed|replied|booked
+  channel: text("channel").notNull().default("email"), // email|linkedin_task|call_task
+  currentStage: integer("current_stage").notNull().default(0), // 0=intro, 1=followup1, 2=followup2, 3=final
+  outreachAngle: text("outreach_angle"), // lease_timing|move_planning|market_development
+  opportunityScore: integer("opportunity_score"),
+  relocationProbability: integer("relocation_probability"),
+  stopReason: text("stop_reason"),
+  bookingLink: text("booking_link"),
+  bookingStatus: text("booking_status").notNull().default("not_created"), // not_created|link_created|clicked|booked
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxThreadCompany: index("idx_thread_company_id").on(t.companyId),
+  idxThreadStatus: index("idx_thread_status").on(t.status),
+  idxThreadContact: index("idx_thread_contact_id").on(t.contactId),
+}));
+export const insertOutreachThreadSchema = createInsertSchema(outreachThreads).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertOutreachThread = z.infer<typeof insertOutreachThreadSchema>;
+export type OutreachThread = typeof outreachThreads.$inferSelect;
+
+export const outreachMessages = pgTable("outreach_messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  threadId: varchar("thread_id").notNull(),
+  direction: text("direction").notNull().default("outbound"), // outbound|inbound
+  channel: text("channel").notNull().default("email"),
+  subject: text("subject"),
+  body: text("body").notNull(),
+  stage: integer("stage").notNull().default(0),
+  messageType: text("message_type").notNull().default("intro"), // intro|followup|final|forward_request|reply
+  deliveryStatus: text("delivery_status").notNull().default("draft"), // draft|approved|queued|sent|failed|bounced
+  approvedAt: timestamp("approved_at"),
+  sentAt: timestamp("sent_at"),
+  openedAt: timestamp("opened_at"),
+  repliedAt: timestamp("replied_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (t) => ({
+  idxMsgThread: index("idx_msg_thread_id").on(t.threadId),
+  idxMsgStatus: index("idx_msg_delivery_status").on(t.deliveryStatus),
+}));
+export const insertOutreachMessageSchema = createInsertSchema(outreachMessages).omit({ id: true, createdAt: true });
+export type InsertOutreachMessage = z.infer<typeof insertOutreachMessageSchema>;
+export type OutreachMessage = typeof outreachMessages.$inferSelect;
+
+export const outreachSequences = pgTable("outreach_sequences", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  threadId: varchar("thread_id").notNull(),
+  sequenceType: text("sequence_type").notNull().default("standard"), // standard|lease_expiry|tenant_movement
+  stage: integer("stage").notNull().default(0),
+  scheduledFor: timestamp("scheduled_for").notNull(),
+  sentAt: timestamp("sent_at"),
+  status: text("status").notNull().default("scheduled"), // scheduled|sent|skipped|stopped|failed
+  stopReason: text("stop_reason"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (t) => ({
+  idxSeqThread: index("idx_seq_thread_id").on(t.threadId),
+  idxSeqScheduled: index("idx_seq_scheduled_for").on(t.scheduledFor),
+  idxSeqStatus: index("idx_seq_status").on(t.status),
+}));
+export const insertOutreachSequenceSchema = createInsertSchema(outreachSequences).omit({ id: true, createdAt: true });
+export type InsertOutreachSequence = z.infer<typeof insertOutreachSequenceSchema>;
+export type OutreachSequence = typeof outreachSequences.$inferSelect;
+
+export const outreachEvents = pgTable("outreach_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  threadId: varchar("thread_id").notNull(),
+  eventType: text("event_type").notNull(), // created|approved|sent|opened|replied|booking_clicked|meeting_booked|paused|stopped|failed
+  payloadJson: text("payload_json"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (t) => ({
+  idxEventThread: index("idx_event_thread_id").on(t.threadId),
+  idxEventType: index("idx_event_type").on(t.eventType),
+}));
+export const insertOutreachEventSchema = createInsertSchema(outreachEvents).omit({ id: true, createdAt: true });
+export type InsertOutreachEvent = z.infer<typeof insertOutreachEventSchema>;
+export type OutreachEvent = typeof outreachEvents.$inferSelect;
+
+// ─── OUTREACH ENGINE: Meeting Booking ─────────────────────────────────────────
+
+export const meetingBookingEvents = pgTable("meeting_booking_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyId: varchar("company_id").notNull(),
+  companyName: text("company_name").notNull(),
+  contactId: varchar("contact_id"),
+  opportunityId: varchar("opportunity_id"),
+  threadId: varchar("thread_id"),
+  bookingProvider: text("booking_provider").notNull().default("manual"), // google|calendly|manual
+  bookingStatus: text("booking_status").notNull().default("pending"), // pending|link_created|clicked|confirmed|cancelled|failed
+  bookingLink: text("booking_link"),
+  meetingTime: timestamp("meeting_time"),
+  meetingTitle: text("meeting_title"),
+  meetingNotes: text("meeting_notes"),
+  calendarEventId: text("calendar_event_id"),
+  isSandbox: boolean("is_sandbox").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxBookingCompany: index("idx_booking_company_id").on(t.companyId),
+  idxBookingStatus: index("idx_booking_status").on(t.bookingStatus),
+  idxBookingThread: index("idx_booking_thread_id").on(t.threadId),
+}));
+export const insertMeetingBookingEventSchema = createInsertSchema(meetingBookingEvents).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertMeetingBookingEvent = z.infer<typeof insertMeetingBookingEventSchema>;
+export type MeetingBookingEvent = typeof meetingBookingEvents.$inferSelect;

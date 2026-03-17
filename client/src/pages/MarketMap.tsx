@@ -3,9 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, MapPin, Building2, TrendingUp, Filter, Layers, Target, BarChart3, AlertTriangle, Clock, ArrowRight, Network, Activity } from "lucide-react";
+import { ExternalLink, MapPin, Building2, TrendingUp, Filter, Layers, Target, BarChart3, AlertTriangle, Clock, ArrowRight, Network, Activity, Users, Calendar, Bell } from "lucide-react";
 
-type LayerMode = "signals" | "buildings" | "tenants" | "demand" | "building-risk" | "opportunities" | "zones" | "clusters" | "lease-expiries" | "tenant-movement" | "hierarchy-clusters" | "demand-zones";
+type LayerMode = "signals" | "buildings" | "tenants" | "demand" | "building-risk" | "opportunities" | "zones" | "clusters" | "lease-expiries" | "tenant-movement" | "hierarchy-clusters" | "demand-zones" | "outreach-ready" | "contact-coverage" | "meetings-booked" | "follow-up-due";
 
 interface MapMarker {
   id: string;
@@ -81,6 +81,10 @@ const LAYER_TABS: { id: LayerMode; label: string; icon: typeof Layers }[] = [
   { id: "tenant-movement", label: "Tenant Movement", icon: ArrowRight },
   { id: "hierarchy-clusters", label: "Corp Hierarchy", icon: Network },
   { id: "demand-zones", label: "Demand Zones", icon: Activity },
+  { id: "outreach-ready", label: "Outreach Ready", icon: Target },
+  { id: "contact-coverage", label: "Contact Coverage", icon: Users },
+  { id: "meetings-booked", label: "Meetings Booked", icon: Calendar },
+  { id: "follow-up-due", label: "Follow-ups Due", icon: Bell },
 ];
 
 function fmtVal(n: number) {
@@ -109,6 +113,20 @@ function featureColor(feature: GeoFeature, layer: LayerMode): string {
   if (layer === "tenant-movement") return "#A855F7";
   if (layer === "hierarchy-clusters") return "#06B6D4";
   if (layer === "demand-zones") return TIER_COLORS[(p.demandTier as string)] ?? "#22C55E";
+  if (layer === "outreach-ready") {
+    const score = (p.opportunityScore as number) ?? 50;
+    if (score >= 80) return "#EF4444";
+    if (score >= 65) return "#F97316";
+    return "#F59E0B";
+  }
+  if (layer === "contact-coverage") {
+    const count = (p.contact_count as number) ?? 0;
+    if (count >= 3) return "#22C55E";
+    if (count >= 1) return "#F59E0B";
+    return "#EF4444";
+  }
+  if (layer === "meetings-booked") return "#8B5CF6";
+  if (layer === "follow-up-due") return "#F97316";
   return "#3B82F6";
 }
 
@@ -124,6 +142,10 @@ function featureRadius(feature: GeoFeature, layer: LayerMode): number {
   if (layer === "tenant-movement") return Math.max(7, Math.min(16, ((p.radarScore as number) ?? 50) / 7));
   if (layer === "hierarchy-clusters") return Math.max(8, Math.min(28, ((p.companyCount as number) ?? 3) * 2.5));
   if (layer === "demand-zones") return Math.max(6, Math.min(18, ((p.demandScore as number) ?? 30) / 6));
+  if (layer === "outreach-ready") return Math.max(7, Math.min(18, ((p.opportunityScore as number) ?? 50) / 6));
+  if (layer === "contact-coverage") return Math.max(7, Math.min(16, Math.max(1, (p.contact_count as number) ?? 1) * 3));
+  if (layer === "meetings-booked") return 12;
+  if (layer === "follow-up-due") return 10;
   return 8;
 }
 
@@ -269,6 +291,51 @@ function FeaturePopup({ feature, layer }: { feature: GeoFeature; layer: LayerMod
             {(p.growthRate as number) > 0 && (
               <div className="flex justify-between"><span className="text-white/40">Growth Rate</span><span className="text-green-400">+{Math.round(p.growthRate as number)}%</span></div>
             )}
+          </div>
+        </>
+      )}
+      {layer === "outreach-ready" && (
+        <>
+          <div className="font-semibold text-sm text-white mb-1">{p.company as string}</div>
+          <div className="text-white/50 text-xs mb-3">{p.city as string}</div>
+          <div className="space-y-1.5 text-xs">
+            <div className="flex justify-between"><span className="text-white/40">Opp. Score</span><span className="text-amber-400 font-semibold">{p.opportunityScore as number}/100</span></div>
+            <div className="flex justify-between"><span className="text-white/40">Reloc. Prob.</span><span className="text-red-400">{p.relocationProbability as number}%</span></div>
+            <div className="flex justify-between"><span className="text-white/40">Contacts</span><span className="text-white/70">{p.contact_count as number}</span></div>
+            <div className="flex justify-between"><span className="text-white/40">Outreach</span><Badge className="text-[9px] px-1.5 py-0 bg-amber-500/10 text-amber-400 border-amber-500/20 border">{p.outreach_status as string ?? "ready"}</Badge></div>
+          </div>
+          <div className="mt-2 text-[10px] text-amber-400/70">{p.recommended_action as string}</div>
+        </>
+      )}
+      {layer === "contact-coverage" && (
+        <>
+          <div className="font-semibold text-sm text-white mb-1">{p.company as string}</div>
+          <div className="text-white/50 text-xs mb-3">{p.city as string}</div>
+          <div className="space-y-1.5 text-xs">
+            <div className="flex justify-between"><span className="text-white/40">Contacts Found</span><span className="text-green-400 font-semibold">{p.contact_count as number}</span></div>
+            <div className="flex justify-between"><span className="text-white/40">Primary Contact</span><span className="text-white/70">{p.primary_contact as string ?? "None"}</span></div>
+            <div className="flex justify-between"><span className="text-white/40">Opp. Score</span><span className="text-amber-400">{p.opportunityScore as number}/100</span></div>
+          </div>
+        </>
+      )}
+      {layer === "meetings-booked" && (
+        <>
+          <div className="font-semibold text-sm text-white mb-1">{p.company as string}</div>
+          <div className="text-white/50 text-xs mb-3">{p.city as string}</div>
+          <div className="space-y-1.5 text-xs">
+            <div className="flex justify-between"><span className="text-white/40">Meeting Status</span><Badge className="text-[9px] px-1.5 py-0 bg-purple-500/10 text-purple-400 border-purple-500/20 border">{p.meeting_status as string}</Badge></div>
+            <div className="flex justify-between"><span className="text-white/40">Contact</span><span className="text-white/70">{p.primary_contact as string ?? "—"}</span></div>
+          </div>
+        </>
+      )}
+      {layer === "follow-up-due" && (
+        <>
+          <div className="font-semibold text-sm text-white mb-1">{p.company as string}</div>
+          <div className="text-white/50 text-xs mb-3">{p.city as string}</div>
+          <div className="space-y-1.5 text-xs">
+            <div className="flex justify-between"><span className="text-white/40">Stage</span><span className="text-orange-400 font-semibold">Follow-up {(p.currentStage as number) + 1}</span></div>
+            <div className="flex justify-between"><span className="text-white/40">Outreach Status</span><span className="text-white/70">{p.outreach_status as string}</span></div>
+            <div className="flex justify-between"><span className="text-white/40">Opp. Score</span><span className="text-amber-400">{p.opportunityScore as number}/100</span></div>
           </div>
         </>
       )}

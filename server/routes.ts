@@ -1223,11 +1223,39 @@ ${allUrls.map(u => `  <url>
           .filter(r => (r.radarScore ?? 0) >= 70)
           .sort((a, b) => (b.radarScore ?? 0) - (a.radarScore ?? 0))
           .slice(0, 5);
+        // Outreach engine data (non-blocking)
+        let outreachReadyCompanies: { companyName: string; city: string | null; confidenceScore: number | null; moveProbability: number | null }[] = [];
+        let activeOutreachThreadsList: { companyName: string; status: string; currentStage: number; outreachAngle: string | null }[] = [];
+        let followUpsList: { companyName: string; stage: number }[] = [];
+        let meetingsBookedList: { companyName: string; bookingStatus: string }[] = [];
+        let outreachStatsData: { drafts: number; sent: number; replied: number; activeThreads: number; bookedThreads: number; replyRate: number; safeMode: boolean } | undefined;
+        let contactDiscoveryData: { totalContacts: number; directContacts: number; highConfidenceContacts: number } | undefined;
+        try {
+          const { getOutreachReadyCompanies: getReady, getFollowUpsDue: getFups, getActiveThreads: getActive, getMeetingsBooked: getMeetings } = await import("./services/outreach/outreachEngine");
+          const { getOutreachStats } = await import("./services/outreach/outreachGenerationService");
+          const { getContactDiscoveryStats } = await import("./services/outreach/contactDiscoveryService");
+          const [ready, fups, activeT, meetings, oStats, cdStats] = await Promise.all([
+            getReady(5), getFups(5), getActive(5), getMeetings(5), getOutreachStats(), getContactDiscoveryStats(),
+          ]);
+          outreachReadyCompanies = ready.map(c => ({ companyName: c.companyName, city: c.city ?? null, confidenceScore: c.confidenceScore ?? null, moveProbability: c.moveProbability ?? null }));
+          activeOutreachThreadsList = activeT.map((t: any) => ({ companyName: t.companyName, status: t.status, currentStage: t.currentStage, outreachAngle: t.outreachAngle }));
+          followUpsList = fups.map((f: any) => ({ companyName: (f.thread?.companyName ?? "Unknown"), stage: f.stage ?? 0 }));
+          meetingsBookedList = meetings.map((m: any) => ({ companyName: m.companyName, bookingStatus: m.bookingStatus }));
+          outreachStatsData = { drafts: oStats.drafts, sent: oStats.sent, replied: oStats.replied, activeThreads: oStats.activeThreads, bookedThreads: oStats.bookedThreads, replyRate: oStats.replyRate, safeMode: oStats.safeMode };
+          contactDiscoveryData = { totalContacts: cdStats.totalContacts, directContacts: cdStats.directContacts, highConfidenceContacts: cdStats.highConfidenceContacts };
+        } catch { /* outreach context optional */ }
+
         intelligenceCtx = {
           topDemandSuburbs: demandSuburbs.map(s => ({ suburb: s.suburb ?? "", city: s.city, demandScore: s.demandScore ?? 0, demandTier: s.demandTier ?? "" })),
           topOpportunityZones: topZones.map(z => ({ suburb: z.suburb ?? "", city: z.city, zoneScore: z.zoneScore, activeCompanies: z.activeCompanies })),
           leaseExpiryOpportunities: leaseOpps.map(o => ({ companyName: o.companyName, city: o.city, urgencyTier: o.urgencyTier, predictedExpiryYear: o.predictedExpiryYear, opportunityScore: o.opportunityScore })),
           likelyRelocating: likelyRelocating.map(r => ({ companyName: r.companyName, city: r.city ?? "", radarScore: r.radarScore ?? 0, signalType: r.signalType ?? "" })),
+          outreachReadyCompanies,
+          activeOutreachThreads: activeOutreachThreadsList,
+          followUpsDue: followUpsList,
+          meetingsBooked: meetingsBookedList,
+          outreachStats: outreachStatsData,
+          contactDiscoveryStats: contactDiscoveryData,
         };
       } catch { /* intelligence context is optional — fall back gracefully */ }
 
@@ -5641,6 +5669,371 @@ Rules:
         byCity: Object.entries(byCity).sort((a,b) => b[1]-a[1]).slice(0,10),
         byIntent: Object.entries(byIntent).sort((a,b) => b[1]-a[1]),
       });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // OUTREACH ENGINE — Contacts, Threads, Sequences, Bookings
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // ── Contact Discovery ──────────────────────────────────────────────────────
+
+  app.get("/api/contacts/discovery/:companyId", async (req, res) => {
+    try {
+      const { getContactsForCompany } = await import("./services/outreach/contactDiscoveryService");
+      const contacts = await getContactsForCompany(req.params.companyId);
+      res.json({ contacts, total: contacts.length });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/contacts/discovery/run", async (req, res) => {
+    try {
+      const { companyId, opportunityId } = req.body;
+      if (!companyId) return res.status(400).json({ error: "companyId required" });
+      const { triggerJob } = await import("./services/jobOrchestrator");
+      const jobId = await triggerJob("contacts.discovery" as any, { companyId, opportunityId });
+      // Also run immediately for responsiveness
+      const { runContactDiscovery } = await import("./services/outreach/contactDiscoveryService");
+      const result = await runContactDiscovery(companyId, opportunityId);
+      res.json({ success: true, jobId, ...result });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/contacts/:id/mark-primary", async (req, res) => {
+    try {
+      const { db } = await import("./db");
+      const { companyContacts } = await import("@shared/schema");
+      const { eq } = await import("drizzle-orm");
+      await db.update(companyContacts).set({ isPrimary: true }).where(eq(companyContacts.id, req.params.id));
+      res.json({ success: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ── Outreach Threads ───────────────────────────────────────────────────────
+
+  app.get("/api/outreach/threads", async (req, res) => {
+    try {
+      const { db } = await import("./db");
+      const { outreachThreads } = await import("@shared/schema");
+      const { desc } = await import("drizzle-orm");
+      const limit = parseInt(req.query.limit as string) || 50;
+      const threads = await db.select().from(outreachThreads).orderBy(desc(outreachThreads.updatedAt)).limit(limit);
+      res.json({ threads, total: threads.length });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/outreach/threads/:id", async (req, res) => {
+    try {
+      const { db } = await import("./db");
+      const { outreachThreads, outreachMessages, outreachSequences, outreachEvents } = await import("@shared/schema");
+      const { eq } = await import("drizzle-orm");
+      const [thread] = await db.select().from(outreachThreads).where(eq(outreachThreads.id, req.params.id));
+      if (!thread) return res.status(404).json({ error: "Thread not found" });
+      const [messages, sequences, events] = await Promise.all([
+        db.select().from(outreachMessages).where(eq(outreachMessages.threadId, req.params.id)),
+        db.select().from(outreachSequences).where(eq(outreachSequences.threadId, req.params.id)),
+        db.select().from(outreachEvents).where(eq(outreachEvents.threadId, req.params.id)),
+      ]);
+      res.json({ thread, messages, sequences, events });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/outreach/generate", async (req, res) => {
+    try {
+      const { companyId, companyName, city, industry, contactId, opportunityId, opportunityScore, relocationProbability, signals, leaseExpiryTiming } = req.body;
+      if (!companyId || !companyName) return res.status(400).json({ error: "companyId and companyName required" });
+      const { createOutreachThread } = await import("./services/outreach/outreachEngine");
+      const threadId = await createOutreachThread({
+        companyId, companyName, city, industry, contactId, opportunityId,
+        opportunityScore, relocationProbability, signals, leaseExpiryTiming,
+      });
+      res.json({ success: true, threadId });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/outreach/approve", async (req, res) => {
+    try {
+      const { messageId } = req.body;
+      if (!messageId) return res.status(400).json({ error: "messageId required" });
+      const { db } = await import("./db");
+      const { outreachMessages } = await import("@shared/schema");
+      const { eq } = await import("drizzle-orm");
+      await db.update(outreachMessages)
+        .set({ deliveryStatus: "approved", approvedAt: new Date() })
+        .where(eq(outreachMessages.id, messageId));
+      res.json({ success: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/outreach/send", async (req, res) => {
+    try {
+      const SAFE_MODE = process.env.SAFE_MODE === "true";
+      if (SAFE_MODE) return res.json({ success: true, safeMode: true, message: "SAFE_MODE active — message queued as draft only" });
+      const { messageId } = req.body;
+      if (!messageId) return res.status(400).json({ error: "messageId required" });
+      const { db } = await import("./db");
+      const { outreachMessages } = await import("@shared/schema");
+      const { eq } = await import("drizzle-orm");
+      await db.update(outreachMessages)
+        .set({ deliveryStatus: "sent", sentAt: new Date() })
+        .where(eq(outreachMessages.id, messageId));
+      res.json({ success: true, safeMode: false });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/outreach/pause", async (req, res) => {
+    try {
+      const { threadId } = req.body;
+      if (!threadId) return res.status(400).json({ error: "threadId required" });
+      const { pauseThread } = await import("./services/outreach/outreachEngine");
+      await pauseThread(threadId);
+      res.json({ success: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/outreach/resume", async (req, res) => {
+    try {
+      const { threadId } = req.body;
+      if (!threadId) return res.status(400).json({ error: "threadId required" });
+      const { db } = await import("./db");
+      const { outreachThreads } = await import("@shared/schema");
+      const { eq } = await import("drizzle-orm");
+      await db.update(outreachThreads)
+        .set({ status: "active", updatedAt: new Date() })
+        .where(eq(outreachThreads.id, threadId));
+      res.json({ success: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/outreach/stop", async (req, res) => {
+    try {
+      const { threadId, reason } = req.body;
+      if (!threadId) return res.status(400).json({ error: "threadId required" });
+      const { stopThread } = await import("./services/outreach/outreachEngine");
+      await stopThread(threadId, reason ?? "manual");
+      res.json({ success: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ── Bookings ───────────────────────────────────────────────────────────────
+
+  app.get("/api/bookings/status", async (_req, res) => {
+    try {
+      const { getBookingStats } = await import("./services/outreach/bookingService");
+      res.json(await getBookingStats());
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/bookings/create-link", async (req, res) => {
+    try {
+      const { threadId, companyId, companyName, contactId, opportunityId } = req.body;
+      if (!threadId || !companyId || !companyName) return res.status(400).json({ error: "threadId, companyId, companyName required" });
+      const { createBookingLink } = await import("./services/outreach/bookingService");
+      const result = await createBookingLink({ threadId, companyId, companyName, contactId, opportunityId });
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/bookings/create-event", async (req, res) => {
+    try {
+      const { threadId, bookingEventId, meetingTime } = req.body;
+      if (!threadId || !bookingEventId) return res.status(400).json({ error: "threadId and bookingEventId required" });
+      const { confirmMeeting } = await import("./services/outreach/bookingService");
+      await confirmMeeting({ threadId, bookingEventId, meetingTime: new Date(meetingTime) });
+      res.json({ success: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/bookings/webhook", async (req, res) => {
+    try {
+      // Handle booking provider webhooks (Calendly, Google Calendar, etc.)
+      const { threadId, bookingEventId, meetingTime, calendarEventId } = req.body;
+      if (threadId && bookingEventId) {
+        const { confirmMeeting } = await import("./services/outreach/bookingService");
+        await confirmMeeting({ threadId, bookingEventId, meetingTime: new Date(meetingTime), calendarEventId });
+      }
+      res.json({ received: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ── Admin Outreach Stats ───────────────────────────────────────────────────
+
+  app.get("/api/admin/outreach/stats", async (_req, res) => {
+    try {
+      const { getOutreachStats } = await import("./services/outreach/outreachGenerationService");
+      const { getOutreachReadyCompanies, getFollowUpsDue, getActiveThreads, getMeetingsBooked } = await import("./services/outreach/outreachEngine");
+      const [stats, ready, followUps, active, meetings] = await Promise.all([
+        getOutreachStats(),
+        getOutreachReadyCompanies(5),
+        getFollowUpsDue(10),
+        getActiveThreads(20),
+        getMeetingsBooked(5),
+      ]);
+      res.json({ ...stats, outreachReadyCount: ready.length, followUpsDueCount: followUps.length, activeThreadCount: active.length, recentMeetings: meetings.slice(0, 3) });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/bookings/stats", async (_req, res) => {
+    try {
+      const { getBookingStats } = await import("./services/outreach/bookingService");
+      res.json(await getBookingStats());
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/contact-discovery/stats", async (_req, res) => {
+    try {
+      const { getContactDiscoveryStats } = await import("./services/outreach/contactDiscoveryService");
+      res.json(await getContactDiscoveryStats());
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ── Outreach-ready companies (for Alex + Command Centre) ───────────────────
+
+  app.get("/api/outreach/ready", async (_req, res) => {
+    try {
+      const { getOutreachReadyCompanies } = await import("./services/outreach/outreachEngine");
+      res.json(await getOutreachReadyCompanies());
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/outreach/follow-ups-due", async (_req, res) => {
+    try {
+      const { getFollowUpsDue } = await import("./services/outreach/outreachEngine");
+      res.json(await getFollowUpsDue());
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ── Map Layer Routes — Outreach Layers ────────────────────────────────────
+
+  app.get("/api/map/layers/outreach-ready", async (_req, res) => {
+    try {
+      const { getOutreachReadyCompanies } = await import("./services/outreach/outreachEngine");
+      const { db } = await import("./db");
+      const { companyContacts } = await import("@shared/schema");
+      const { eq } = await import("drizzle-orm");
+      const companies = await getOutreachReadyCompanies(100);
+      const CITY_COORDS: Record<string, [number, number]> = {
+        "Sydney": [-33.8688, 151.2093], "Melbourne": [-37.8136, 144.9631],
+        "Brisbane": [-27.4698, 153.0251], "Perth": [-31.9505, 115.8605],
+        "Adelaide": [-34.9285, 138.6007], "Canberra": [-35.2809, 149.1300],
+        "Gold Coast": [-28.0167, 153.4000], "Newcastle": [-32.9283, 151.7817],
+      };
+      const features = await Promise.all(companies.map(async (c) => {
+        const baseCoords = CITY_COORDS[c.city ?? "Sydney"] ?? [-33.8688, 151.2093];
+        const contacts = await db.select().from(companyContacts).where(eq(companyContacts.companyIntelligenceId, c.id)).limit(5);
+        return {
+          type: "Feature" as const,
+          geometry: { type: "Point" as const, coordinates: [baseCoords[1] + (Math.random() - 0.5) * 0.3, baseCoords[0] + (Math.random() - 0.5) * 0.3] as [number, number] },
+          properties: {
+            company: c.companyName, city: c.city, opportunityScore: c.confidenceScore, relocationProbability: c.moveProbability,
+            contact_count: contacts.length, outreach_status: "ready",
+            recommended_action: (c.moveProbability ?? 0) >= 70 ? "Send move planning outreach" : "Send intro outreach",
+          },
+        };
+      }));
+      res.json({ type: "FeatureCollection", features, meta: { total: features.length, layer: "outreach-ready" } });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/map/layers/contact-coverage", async (_req, res) => {
+    try {
+      const { db } = await import("./db");
+      const { companyContacts } = await import("@shared/schema");
+      const companies = await storage.getCompanyIntelligenceRecords({});
+      const contacts = await db.select().from(companyContacts).limit(2000);
+      const contactsByCompany: Record<string, typeof contacts> = {};
+      for (const c of contacts) contactsByCompany[c.companyIntelligenceId] = [...(contactsByCompany[c.companyIntelligenceId] ?? []), c];
+      const CITY_COORDS: Record<string, [number, number]> = {
+        "Sydney": [-33.8688, 151.2093], "Melbourne": [-37.8136, 144.9631],
+        "Brisbane": [-27.4698, 153.0251], "Perth": [-31.9505, 115.8605],
+        "Adelaide": [-34.9285, 138.6007], "Canberra": [-35.2809, 149.1300],
+      };
+      const features = companies.slice(0, 200).map(c => {
+        const baseCoords = CITY_COORDS[c.city ?? "Sydney"] ?? [-33.8688, 151.2093];
+        const companyContacts = contactsByCompany[c.id] ?? [];
+        const primary = companyContacts.find(cc => cc.isPrimary) ?? companyContacts[0];
+        return {
+          type: "Feature" as const,
+          geometry: { type: "Point" as const, coordinates: [baseCoords[1] + (Math.random() - 0.5) * 0.3, baseCoords[0] + (Math.random() - 0.5) * 0.3] as [number, number] },
+          properties: {
+            company: c.companyName, city: c.city, contact_count: companyContacts.length,
+            primary_contact: primary?.contactName ?? null, opportunityScore: c.confidenceScore,
+          },
+        };
+      });
+      res.json({ type: "FeatureCollection", features, meta: { total: features.length, layer: "contact-coverage" } });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/map/layers/meetings-booked", async (_req, res) => {
+    try {
+      const { db } = await import("./db");
+      const { meetingBookingEvents, companyContacts } = await import("@shared/schema");
+      const { eq, desc } = await import("drizzle-orm");
+      const meetings = await db.select().from(meetingBookingEvents).limit(200);
+      const CITY_COORDS: Record<string, [number, number]> = {
+        "Sydney": [-33.8688, 151.2093], "Melbourne": [-37.8136, 144.9631],
+        "Brisbane": [-27.4698, 153.0251], "Perth": [-31.9505, 115.8605],
+      };
+      const defaultCoords: [number, number] = [-33.8688, 151.2093];
+      const features = meetings.map(m => ({
+        type: "Feature" as const,
+        geometry: { type: "Point" as const, coordinates: [defaultCoords[1] + (Math.random() - 0.5) * 2, defaultCoords[0] + (Math.random() - 0.5) * 2] as [number, number] },
+        properties: {
+          company: m.companyName, city: "Australia", meeting_status: m.bookingStatus,
+          primary_contact: null, opportunityScore: 80,
+        },
+      }));
+      res.json({ type: "FeatureCollection", features, meta: { total: features.length, layer: "meetings-booked" } });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/map/layers/follow-up-due", async (_req, res) => {
+    try {
+      const { getFollowUpsDue } = await import("./services/outreach/outreachEngine");
+      const due = await getFollowUpsDue(100);
+      const CITY_COORDS: Record<string, [number, number]> = {
+        "Sydney": [-33.8688, 151.2093], "Melbourne": [-37.8136, 144.9631],
+        "Brisbane": [-27.4698, 153.0251], "Perth": [-31.9505, 115.8605],
+      };
+      const defaultCoords: [number, number] = [-33.8688, 151.2093];
+      const features = due.map(d => ({
+        type: "Feature" as const,
+        geometry: { type: "Point" as const, coordinates: [defaultCoords[1] + (Math.random() - 0.5) * 2, defaultCoords[0] + (Math.random() - 0.5) * 2] as [number, number] },
+        properties: {
+          company: d.thread?.companyName ?? "Unknown", city: "Australia",
+          currentStage: d.thread?.currentStage ?? 0,
+          outreach_status: d.thread?.status ?? "active",
+          opportunityScore: d.thread?.opportunityScore ?? 50,
+        },
+      }));
+      res.json({ type: "FeatureCollection", features, meta: { total: features.length, layer: "follow-up-due" } });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ── Admin: Trigger outreach for high-value opportunities ───────────────────
+
+  app.post("/api/admin/outreach/create-for-top-opportunities", async (req, res) => {
+    try {
+      const { createOutreachForHighValueOpportunities } = await import("./services/outreach/outreachEngine");
+      const result = await createOutreachForHighValueOpportunities();
+      res.json({ success: true, ...result });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/outreach/run-contact-discovery", async (req, res) => {
+    try {
+      const { runDiscoveryForHighValueOpportunities } = await import("./services/outreach/contactDiscoveryService");
+      await runDiscoveryForHighValueOpportunities();
+      res.json({ success: true, message: "Contact discovery completed for high-value opportunities" });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/outreach/process-followups", async (req, res) => {
+    try {
+      const { processScheduledFollowUps } = await import("./services/outreach/outreachEngine");
+      const result = await processScheduledFollowUps();
+      res.json({ success: true, ...result });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 

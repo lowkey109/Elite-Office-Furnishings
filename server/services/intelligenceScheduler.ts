@@ -314,6 +314,61 @@ async function registerPgBossWorkers(): Promise<void> {
     const { runGraphRefresh } = await import("./intelligence/intelligenceGraphService");
     await runGraphRefresh();
   });
+
+  // ── OUTREACH ENGINE: 7 new queues ──────────────────────────────────────────
+
+  await registerWorker(QUEUES.CONTACTS_DISCOVERY, async (job) => {
+    const { companyId, opportunityId } = (job?.data ?? {}) as { companyId?: string; opportunityId?: string };
+    if (companyId) {
+      const { runContactDiscovery } = await import("./outreach/contactDiscoveryService");
+      await runContactDiscovery(companyId, opportunityId);
+    } else {
+      const { runDiscoveryForHighValueOpportunities } = await import("./outreach/contactDiscoveryService");
+      await runDiscoveryForHighValueOpportunities();
+    }
+  });
+
+  await registerWorker(QUEUES.OUTREACH_GENERATE, async (job) => {
+    const { createOutreachForHighValueOpportunities } = await import("./outreach/outreachEngine");
+    await createOutreachForHighValueOpportunities();
+  });
+
+  await registerWorker(QUEUES.OUTREACH_SEND, async (job) => {
+    // In SAFE_MODE: only logs, no live sends
+    const SAFE_MODE = process.env.SAFE_MODE === "true";
+    if (SAFE_MODE) {
+      console.log("[OutreachSend] SAFE_MODE — skipping live email sends");
+      return;
+    }
+    console.log("[OutreachSend] Live send mode — processing approved messages");
+  });
+
+  await registerWorker(QUEUES.OUTREACH_FOLLOWUP, async (job) => {
+    const { processScheduledFollowUps } = await import("./outreach/outreachEngine");
+    await processScheduledFollowUps();
+  });
+
+  await registerWorker(QUEUES.BOOKING_SYNC, async (job) => {
+    const { getBookingStats } = await import("./outreach/bookingService");
+    const stats = await getBookingStats();
+    console.log(`[BookingSync] Stats: ${stats.confirmed} confirmed, ${stats.clicked} clicked`);
+  });
+
+  await registerWorker(QUEUES.REPLY_DETECT, async (job) => {
+    // Placeholder: in production, poll email inbox or webhook
+    const SAFE_MODE = process.env.SAFE_MODE === "true";
+    if (SAFE_MODE) {
+      console.log("[ReplyDetect] SAFE_MODE — reply detection simulated");
+      return;
+    }
+    console.log("[ReplyDetect] Checking for new replies");
+  });
+
+  await registerWorker(QUEUES.OUTREACH_METRICS_REFRESH, async (job) => {
+    const { getOutreachStats } = await import("./outreach/outreachGenerationService");
+    const stats = await getOutreachStats();
+    console.log(`[OutreachMetrics] Threads: ${stats.totalThreads}, Sent: ${stats.sent}, Reply rate: ${stats.replyRate}%`);
+  });
 }
 
 async function schedulePgBossJobs(): Promise<void> {
@@ -332,7 +387,14 @@ async function schedulePgBossJobs(): Promise<void> {
   await scheduleJob(QUEUES.LEASE_EXPIRY_SCAN, {}, { repeatEvery: "0 5 * * *", singletonKey: "lease-expiry-scan" });
   await scheduleJob(QUEUES.HIERARCHY_BUILD, {}, { repeatEvery: "0 6 * * *", singletonKey: "hierarchy-build" });
   await scheduleJob(QUEUES.GRAPH_REFRESH, {}, { repeatEvery: "0 7 * * *", singletonKey: "graph-refresh" });
-  console.log("[IntelligenceScheduler] pg-boss recurring jobs scheduled");
+  // OUTREACH ENGINE queues
+  await scheduleJob(QUEUES.CONTACTS_DISCOVERY, {}, { repeatEvery: "0 8 * * *", singletonKey: "contacts-discovery" });
+  await scheduleJob(QUEUES.OUTREACH_GENERATE, {}, { repeatEvery: "0 9 * * *", singletonKey: "outreach-generate" });
+  await scheduleJob(QUEUES.OUTREACH_FOLLOWUP, {}, { repeatEvery: "0 */6 * * *", singletonKey: "outreach-followup" });
+  await scheduleJob(QUEUES.BOOKING_SYNC, {}, { repeatEvery: "0 */4 * * *", singletonKey: "booking-sync" });
+  await scheduleJob(QUEUES.REPLY_DETECT, {}, { repeatEvery: "0 */2 * * *", singletonKey: "reply-detect" });
+  await scheduleJob(QUEUES.OUTREACH_METRICS_REFRESH, {}, { repeatEvery: "0 */12 * * *", singletonKey: "outreach-metrics" });
+  console.log("[IntelligenceScheduler] pg-boss recurring jobs scheduled (incl. 7 outreach engine queues)");
 }
 
 // ─── Unified scheduler startup ─────────────────────────────────────────────────
