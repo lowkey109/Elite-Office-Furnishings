@@ -1,0 +1,256 @@
+NTELLIGENCE PLATFORM
+SYSTEM IMPLEMENTATION EXECUTION PROMPT
+
+ROLE
+
+You are a senior full-stack engineer and platform architect.
+
+You are working on an existing production platform called:
+
+Workspace Intelligence Platform.
+
+Your task is to implement the architecture upgrades described below WITHOUT breaking existing features.
+
+You must EXTEND the platform, not rebuild it.
+
+------------------------------------------------
+
+CRITICAL RULES
+
+1. Do NOT delete existing modules.
+2. Do NOT rename working routes unless backward compatible aliases exist.
+3. Do NOT remove legacy functions until compatibility wrappers exist.
+4. Do NOT break the current Office Move Radar or Deal Hunter systems.
+5. All new features must integrate into the existing architecture.
+
+------------------------------------------------
+
+STAGE 1 — SYSTEM INSPECTION
+
+Scan the repository and produce the following audit files.
+
+Create folder:
+
+docs/audit/
+
+Generate:
+
+system-architecture-map.md
+module-health-report.md
+route-service-matrix.md
+schema-usage-matrix.md
+scheduler-job-inventory.md
+
+For every module record:
+
+module name
+UI location
+backend service
+database tables
+automation triggers
+API routes
+
+Tag issues using:
+
+UI_ONLY_MODULE
+BACKEND_ONLY_SERVICE
+SCHEMA_WITHOUT_API
+SYNTHETIC_PRODUCTION_PATH
+SECURITY_RISK
+PERFORMANCE_RISK
+DATA_INTEGRITY_RISK
+
+------------------------------------------------
+
+STAGE 2 — DATABASE HARDENING
+
+Use Drizzle ORM.
+
+Do NOT replace Drizzle.
+
+Add indexes:
+
+office_move_radar
+deal_hunter_signals
+intelligence_signals
+opportunities
+buildings
+market_zones
+
+Implement dedupe constraint:
+
+normalized_company_name
+normalized_city
+signal_type
+signal_window_bucket
+
+Add new tables if missing:
+
+intelligence_sources
+raw_signals
+intelligence_signals
+signal_evidence
+job_runs
+job_locks
+company_building_edges
+company_zone_scores
+building_risk_snapshots
+suburb_demand_snapshots
+
+------------------------------------------------
+
+STAGE 3 — SIGNAL INGESTION ENGINE
+
+Create service:
+
+src/services/intelligence/signalIngestionService.ts
+
+Pipeline:
+
+source connector
+→ raw signal capture
+→ dedupe
+→ normalization
+→ classification
+→ confidence scoring
+→ entity matching
+→ persistence
+→ opportunity evaluation
+
+Connectors to support:
+
+RSS/news feeds
+job boards
+commercial property feeds
+sublease listings
+company funding announcements
+visitor intent signals
+
+Synthetic scanners must be downgraded to demo mode.
+
+------------------------------------------------
+
+STAGE 4 — WORKSPACE INTELLIGENCE ENGINE
+
+Create services:
+
+WorkspaceIntelligenceEngine
+SignalClassificationService
+ConfidenceScoringService
+CompanyIntelligenceAggregationService
+BuildingRiskEngine
+DemandForecastEngine
+OpportunityEngine
+ZoneScoringEngine
+
+Canonical score object:
+
+signalStrength
+confidenceScore
+relocationProbability
+tenantMovementScore
+vacancyRiskScore
+suburbDemandScore
+opportunityScore
+zoneScore
+commercialTier
+
+------------------------------------------------
+
+STAGE 5 — JOB ORCHESTRATION
+
+Remove in-process timers.
+
+Replace with durable jobs using pg-boss.
+
+Queues:
+
+scan.news
+scan.jobs
+scan.predictive
+scan.all
+company.sync
+followups.send
+demand.aggregate
+building-risk.refresh
+clusters.generate
+alerts.generate
+
+------------------------------------------------
+
+STAGE 6 — MAP INTELLIGENCE SYSTEM
+
+Implement Global Workspace Intelligence Map.
+
+Stack:
+
+Mapbox GL JS
+
+Create backend routes:
+
+/api/map/layers/buildings
+/api/map/layers/tenants
+/api/map/layers/signals
+/api/map/layers/movements
+/api/map/layers/demand
+/api/map/layers/building-risk
+/api/map/layers/opportunities
+/api/map/layers/zones
+/api/map/layers/clusters
+
+Use viewport query pattern:
+
+bbox
+zoom
+filters
+
+Return GeoJSON.
+
+------------------------------------------------
+
+STAGE 7 — COMMAND CENTRE INTEGRATION
+
+Add widgets:
+
+top opportunity zones
+highest demand suburbs
+buildings at risk
+relocation ready companies
+source health
+job queue status
+alerts
+
+Widgets must deep-link to the map.
+
+------------------------------------------------
+
+STAGE 8 — SAFE MODE
+
+Implement SAFE_MODE environment flag.
+
+When enabled disable:
+
+email sending
+CRM pushes
+supplier messaging
+billing actions
+
+------------------------------------------------
+
+FINAL GOAL
+
+Transform the platform into a global workspace intelligence engine that:
+
+detects expansion signals
+predicts tenant movement
+forecasts office demand
+scores opportunities
+visualizes intelligence on an interactive map
+
+------------------------------------------------
+
+EXECUTE IN STAGES.
+
+Complete one stage before starting the next.
+
+Do not rebuild existing systems.
