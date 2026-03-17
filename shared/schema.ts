@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, integer, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, integer, boolean, real, index, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -442,9 +442,18 @@ export const officeMovRadar = pgTable("office_move_radar", {
   sourceType: text("source_type").default("manual"),
   verificationStatus: text("verification_status").default("unverified"),
   evidenceExcerpt: text("evidence_excerpt"),
+  normalizedCompanyName: text("normalized_company_name"),
+  normalizedCity: text("normalized_city"),
+  signalWindowBucket: text("signal_window_bucket"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (t) => ({
+  idxRadarCompanyCity: index("idx_radar_company_city").on(t.companyName, t.city),
+  idxRadarStatus: index("idx_radar_status").on(t.status),
+  idxRadarSignalType: index("idx_radar_signal_type").on(t.signalType),
+  idxRadarCreatedAt: index("idx_radar_created_at").on(t.createdAt),
+  idxRadarDedupe: uniqueIndex("idx_radar_dedupe").on(t.normalizedCompanyName, t.normalizedCity, t.signalType, t.signalWindowBucket),
+}));
 
 export const insertOfficeMovRadarSchema = createInsertSchema(officeMovRadar).omit({
   id: true, createdAt: true, updatedAt: true,
@@ -707,9 +716,18 @@ export const dealHunterSignals = pgTable("deal_hunter_signals", {
   isDuplicate: boolean("is_duplicate").default(false),
   mergedFromIds: text("merged_from_ids").array().default(sql`'{}'`),
   status: text("status").notNull().default("new"), // new|reviewed|pushed|dismissed|duplicate
+  normalizedCompanyName: text("normalized_company_name"),
+  normalizedCity: text("normalized_city"),
+  signalWindowBucket: text("signal_window_bucket"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (t) => ({
+  idxDealHunterCompanyCity: index("idx_deal_hunter_company_city").on(t.companyName, t.city),
+  idxDealHunterStatus: index("idx_deal_hunter_status").on(t.status),
+  idxDealHunterSignalType: index("idx_deal_hunter_signal_type").on(t.signalType),
+  idxDealHunterCreatedAt: index("idx_deal_hunter_created_at").on(t.createdAt),
+  idxDealHunterDedupe: uniqueIndex("idx_deal_hunter_dedupe").on(t.normalizedCompanyName, t.normalizedCity, t.signalType, t.signalWindowBucket),
+}));
 export const insertDealHunterSignalSchema = createInsertSchema(dealHunterSignals).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertDealHunterSignal = z.infer<typeof insertDealHunterSignalSchema>;
 export type DealHunterSignal = typeof dealHunterSignals.$inferSelect;
@@ -917,3 +935,205 @@ export const companyContacts = pgTable("company_contacts", {
 export const insertCompanyContactSchema = createInsertSchema(companyContacts).omit({ id: true, createdAt: true });
 export type InsertCompanyContact = z.infer<typeof insertCompanyContactSchema>;
 export type CompanyContact = typeof companyContacts.$inferSelect;
+
+// ─── Intelligence Sources ─────────────────────────────────────────────────────
+export const intelligenceSources = pgTable("intelligence_sources", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  type: text("type").notNull(), // rss|job_board|property_feed|sublease|funding|visitor_intent
+  url: text("url"),
+  region: text("region").notNull().default("Australia"),
+  isActive: boolean("is_active").notNull().default(true),
+  lastFetchedAt: timestamp("last_fetched_at"),
+  fetchIntervalMinutes: integer("fetch_interval_minutes").notNull().default(720),
+  totalSignalsIngested: integer("total_signals_ingested").notNull().default(0),
+  lastErrorAt: timestamp("last_error_at"),
+  lastErrorMessage: text("last_error_message"),
+  config: text("config"), // JSON blob of connector config
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxSourceType: index("idx_source_type").on(t.type),
+  idxSourceActive: index("idx_source_active").on(t.isActive),
+}));
+export const insertIntelligenceSourceSchema = createInsertSchema(intelligenceSources).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertIntelligenceSource = z.infer<typeof insertIntelligenceSourceSchema>;
+export type IntelligenceSource = typeof intelligenceSources.$inferSelect;
+
+// ─── Raw Signals ──────────────────────────────────────────────────────────────
+export const rawSignals = pgTable("raw_signals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sourceId: varchar("source_id"),
+  sourceType: text("source_type").notNull(), // rss|job_board|property_feed|manual
+  rawContent: text("raw_content").notNull(),
+  url: text("url"),
+  publishedAt: timestamp("published_at"),
+  fetchedAt: timestamp("fetched_at").defaultNow(),
+  isProcessed: boolean("is_processed").notNull().default(false),
+  processedAt: timestamp("processed_at"),
+  processingError: text("processing_error"),
+  contentHash: text("content_hash"), // SHA256 for dedupe
+  createdAt: timestamp("created_at").defaultNow(),
+}, (t) => ({
+  idxRawSignalHash: uniqueIndex("idx_raw_signal_hash").on(t.contentHash),
+  idxRawSignalProcessed: index("idx_raw_signal_processed").on(t.isProcessed),
+  idxRawSignalFetched: index("idx_raw_signal_fetched").on(t.fetchedAt),
+}));
+export const insertRawSignalSchema = createInsertSchema(rawSignals).omit({ id: true, createdAt: true });
+export type InsertRawSignal = z.infer<typeof insertRawSignalSchema>;
+export type RawSignal = typeof rawSignals.$inferSelect;
+
+// ─── Intelligence Signals ─────────────────────────────────────────────────────
+export const intelligenceSignals = pgTable("intelligence_signals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  rawSignalId: varchar("raw_signal_id"),
+  companyName: text("company_name").notNull(),
+  normalizedCompanyName: text("normalized_company_name").notNull(),
+  city: text("city").notNull(),
+  normalizedCity: text("normalized_city").notNull(),
+  state: text("state"),
+  country: text("country").notNull().default("Australia"),
+  signalType: text("signal_type").notNull(),
+  signalWindowBucket: text("signal_window_bucket").notNull(),
+  signalStrength: real("signal_strength").notNull().default(0),
+  confidenceScore: real("confidence_score").notNull().default(0),
+  relocationProbability: real("relocation_probability").notNull().default(0),
+  tenantMovementScore: real("tenant_movement_score").notNull().default(0),
+  vacancyRiskScore: real("vacancy_risk_score").notNull().default(0),
+  suburbDemandScore: real("suburb_demand_score").notNull().default(0),
+  opportunityScore: real("opportunity_score").notNull().default(0),
+  zoneScore: real("zone_score").notNull().default(0),
+  commercialTier: text("commercial_tier").default("mid"), // premium|upper|mid|entry
+  classification: text("classification"), // office_move|expansion|sublease|new_market|consolidation
+  evidenceSummary: text("evidence_summary"),
+  linkedRadarId: varchar("linked_radar_id"),
+  linkedDealHunterId: varchar("linked_deal_hunter_id"),
+  status: text("status").notNull().default("active"), // active|archived|converted|dismissed
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxIntelSigCompany: index("idx_intel_sig_company").on(t.normalizedCompanyName),
+  idxIntelSigCity: index("idx_intel_sig_city").on(t.normalizedCity),
+  idxIntelSigType: index("idx_intel_sig_type").on(t.signalType),
+  idxIntelSigStatus: index("idx_intel_sig_status").on(t.status),
+  idxIntelSigDedupe: uniqueIndex("idx_intel_sig_dedupe").on(t.normalizedCompanyName, t.normalizedCity, t.signalType, t.signalWindowBucket),
+}));
+export const insertIntelligenceSignalSchema = createInsertSchema(intelligenceSignals).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertIntelligenceSignal = z.infer<typeof insertIntelligenceSignalSchema>;
+export type IntelligenceSignal = typeof intelligenceSignals.$inferSelect;
+
+// ─── Signal Evidence ──────────────────────────────────────────────────────────
+export const signalEvidence = pgTable("signal_evidence", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  intelligenceSignalId: varchar("intelligence_signal_id").notNull(),
+  evidenceType: text("evidence_type").notNull(), // job_posting|news_article|property_listing|funding_announcement|visitor_session
+  title: text("title"),
+  url: text("url"),
+  excerpt: text("excerpt"),
+  publishedAt: timestamp("published_at"),
+  confidenceContribution: real("confidence_contribution").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (t) => ({
+  idxEvidenceSignal: index("idx_evidence_signal").on(t.intelligenceSignalId),
+}));
+export const insertSignalEvidenceSchema = createInsertSchema(signalEvidence).omit({ id: true, createdAt: true });
+export type InsertSignalEvidence = z.infer<typeof insertSignalEvidenceSchema>;
+export type SignalEvidence = typeof signalEvidence.$inferSelect;
+
+// ─── Company Building Edges ───────────────────────────────────────────────────
+export const companyBuildingEdges = pgTable("company_building_edges", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyName: text("company_name").notNull(),
+  normalizedCompanyName: text("normalized_company_name").notNull(),
+  buildingName: text("building_name"),
+  buildingAddress: text("building_address"),
+  suburb: text("suburb"),
+  city: text("city").notNull(),
+  state: text("state"),
+  relationshipType: text("relationship_type").notNull(), // current_tenant|former_tenant|prospect|shortlisted
+  confidenceScore: real("confidence_score").notNull().default(50),
+  evidenceSource: text("evidence_source"),
+  detectedAt: timestamp("detected_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (t) => ({
+  idxEdgeCompany: index("idx_edge_company").on(t.normalizedCompanyName),
+  idxEdgeCity: index("idx_edge_city").on(t.city),
+}));
+export const insertCompanyBuildingEdgeSchema = createInsertSchema(companyBuildingEdges).omit({ id: true, createdAt: true });
+export type InsertCompanyBuildingEdge = z.infer<typeof insertCompanyBuildingEdgeSchema>;
+export type CompanyBuildingEdge = typeof companyBuildingEdges.$inferSelect;
+
+// ─── Company Zone Scores ──────────────────────────────────────────────────────
+export const companyZoneScores = pgTable("company_zone_scores", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyName: text("company_name").notNull(),
+  normalizedCompanyName: text("normalized_company_name").notNull(),
+  suburb: text("suburb").notNull(),
+  city: text("city").notNull(),
+  state: text("state"),
+  zoneScore: real("zone_score").notNull().default(0),
+  demandSignals: integer("demand_signals").notNull().default(0),
+  competitorPresence: integer("competitor_presence").notNull().default(0),
+  amenityScore: real("amenity_score").notNull().default(0),
+  transitScore: real("transit_score").notNull().default(0),
+  computedAt: timestamp("computed_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (t) => ({
+  idxZoneCompany: index("idx_zone_company").on(t.normalizedCompanyName),
+  idxZoneSuburb: index("idx_zone_suburb").on(t.suburb, t.city),
+}));
+export const insertCompanyZoneScoreSchema = createInsertSchema(companyZoneScores).omit({ id: true, createdAt: true });
+export type InsertCompanyZoneScore = z.infer<typeof insertCompanyZoneScoreSchema>;
+export type CompanyZoneScore = typeof companyZoneScores.$inferSelect;
+
+// ─── Building Risk Snapshots ──────────────────────────────────────────────────
+export const buildingRiskSnapshots = pgTable("building_risk_snapshots", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  buildingName: text("building_name").notNull(),
+  buildingAddress: text("building_address"),
+  suburb: text("suburb"),
+  city: text("city").notNull(),
+  state: text("state"),
+  lat: real("lat"),
+  lng: real("lng"),
+  vacancyRiskScore: real("vacancy_risk_score").notNull().default(0),
+  tenantTurnoverRate: real("tenant_turnover_rate").notNull().default(0),
+  activeSignalCount: integer("active_signal_count").notNull().default(0),
+  tenantCount: integer("tenant_count").notNull().default(0),
+  riskTier: text("risk_tier").notNull().default("low"), // critical|high|medium|low
+  snapshotDate: text("snapshot_date").notNull(), // YYYY-MM-DD
+  createdAt: timestamp("created_at").defaultNow(),
+}, (t) => ({
+  idxBuildingRiskCity: index("idx_building_risk_city").on(t.city),
+  idxBuildingRiskDate: index("idx_building_risk_date").on(t.snapshotDate),
+  idxBuildingRiskTier: index("idx_building_risk_tier").on(t.riskTier),
+}));
+export const insertBuildingRiskSnapshotSchema = createInsertSchema(buildingRiskSnapshots).omit({ id: true, createdAt: true });
+export type InsertBuildingRiskSnapshot = z.infer<typeof insertBuildingRiskSnapshotSchema>;
+export type BuildingRiskSnapshot = typeof buildingRiskSnapshots.$inferSelect;
+
+// ─── Suburb Demand Snapshots ──────────────────────────────────────────────────
+export const suburbDemandSnapshots = pgTable("suburb_demand_snapshots", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  suburb: text("suburb").notNull(),
+  city: text("city").notNull(),
+  state: text("state"),
+  lat: real("lat"),
+  lng: real("lng"),
+  demandScore: real("demand_score").notNull().default(0),
+  activeCompanies: integer("active_companies").notNull().default(0),
+  recentSignals: integer("recent_signals").notNull().default(0),
+  relocationInflow: integer("relocation_inflow").notNull().default(0),
+  relocationOutflow: integer("relocation_outflow").notNull().default(0),
+  averageProjectValue: real("average_project_value").notNull().default(0),
+  demandTier: text("demand_tier").notNull().default("low"), // hot|high|medium|low
+  snapshotDate: text("snapshot_date").notNull(), // YYYY-MM-DD
+  createdAt: timestamp("created_at").defaultNow(),
+}, (t) => ({
+  idxSuburbDemandCity: index("idx_suburb_demand_city").on(t.city),
+  idxSuburbDemandDate: index("idx_suburb_demand_date").on(t.snapshotDate),
+  idxSuburbDemandTier: index("idx_suburb_demand_tier").on(t.demandTier),
+}));
+export const insertSuburbDemandSnapshotSchema = createInsertSchema(suburbDemandSnapshots).omit({ id: true, createdAt: true });
+export type InsertSuburbDemandSnapshot = z.infer<typeof insertSuburbDemandSnapshotSchema>;
+export type SuburbDemandSnapshot = typeof suburbDemandSnapshots.$inferSelect;

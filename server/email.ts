@@ -19,7 +19,13 @@ function getResend(): Resend | null {
   return new Resend(key);
 }
 
+const SAFE_MODE = process.env.SAFE_MODE === "true";
+
 async function sendEmail(opts: { to: string | string[]; subject: string; html: string }): Promise<void> {
+  if (SAFE_MODE) {
+    console.log(`[email] SAFE_MODE — suppressed email "${opts.subject}" to ${Array.isArray(opts.to) ? opts.to.join(",") : opts.to}`);
+    return;
+  }
   const resend = getResend();
   if (!resend) { console.log("[email] RESEND_API_KEY not set — skipping email"); return; }
   const { error } = await resend.emails.send({

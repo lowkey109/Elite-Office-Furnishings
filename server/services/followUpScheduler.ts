@@ -11,7 +11,13 @@ function getResend(): Resend | null {
   return new Resend(process.env.RESEND_API_KEY);
 }
 
+const SAFE_MODE = process.env.SAFE_MODE === "true";
+
 async function internalSendEmail(opts: { to: string; subject: string; html: string }): Promise<void> {
+  if (SAFE_MODE) {
+    console.log(`[FollowUp] SAFE_MODE — suppressed follow-up email "${opts.subject}" to ${opts.to}`);
+    return;
+  }
   const resend = getResend();
   if (!resend) {
     console.log(`[FollowUp] Email not sent (no RESEND_API_KEY): ${opts.subject} → ${opts.to}`);

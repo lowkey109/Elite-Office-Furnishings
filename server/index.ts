@@ -102,9 +102,13 @@ app.use((req, res, next) => {
   const { startFollowUpScheduler } = await import("./services/followUpScheduler");
   startFollowUpScheduler();
 
-  // Start autonomous intelligence scheduler
-  const { startIntelligenceScheduler } = await import("./services/intelligenceScheduler");
-  startIntelligenceScheduler();
+  // Start autonomous intelligence scheduler — try pg-boss, fall back to in-process timers
+  const { startIntelligenceScheduler, startSchedulerWithPgBoss } = await import("./services/intelligenceScheduler");
+  const pgBossStarted = await startSchedulerWithPgBoss().catch(() => false);
+  if (!pgBossStarted) {
+    console.log("[Index] pg-boss unavailable — using in-process scheduler fallback");
+    startIntelligenceScheduler();
+  }
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

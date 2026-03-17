@@ -1,0 +1,152 @@
+WORKSPACE INTELLIGENCE PLATFORM
+SYSTEM UPGRADE — DO NOT REPLACE ANY SYSTEMS
+
+ROLE
+
+You are upgrading an existing platform.
+
+The base system has already been built and includes:
+
+Office Move Radar
+Deal Hunter
+Command Centre
+Signal Ingestion Engine
+Workspace Intelligence Engine
+Map Intelligence System
+
+You must NOT rebuild anything.
+
+You must ONLY extend and upgrade.
+
+------------------------------------------------
+
+CRITICAL RULE
+
+DO NOT REMOVE OR REPLACE ANY EXISTING SYSTEM.
+
+ONLY:
+
+UPGRADE
+EXTEND
+CONNECT
+
+------------------------------------------------
+
+UPGRADE 1 — TENANT LEASE EXPIRY ENGINE
+
+Create LeaseExpiryService.
+
+Integrate with:
+
+Office Move Radar
+Opportunity Engine
+Map Layers
+Command Centre
+
+Use existing company + building data.
+
+Add:
+
+lease_records
+lease_expiry_predictions
+
+Generate relocation signals.
+
+------------------------------------------------
+
+UPGRADE 2 — COMPANY HIERARCHY SYSTEM
+
+Create:
+
+company_hierarchy
+company_relationships
+subsidiary_mapping
+
+Map:
+
+Parent company
+Subsidiaries
+Offices
+Buildings
+
+Ensure signals roll up:
+
+Subsidiary → Parent company
+
+------------------------------------------------
+
+UPGRADE 3 — ALEX AI ENHANCEMENT
+
+Do NOT replace Alex.
+
+Upgrade Alex to:
+
+read from intelligence engine
+generate alerts
+summarise opportunities
+recommend actions
+
+Add functions:
+
+getTopDemandSuburbs
+getLikelyRelocatingCompanies
+getLeaseExpiryOpportunities
+getTopOpportunityZones
+
+------------------------------------------------
+
+UPGRADE 4 — ADMIN COMMAND CENTRE
+
+Extend admin system.
+
+Add:
+
+source control panel
+job control dashboard
+scan triggers (job queue only)
+system health monitor
+role-based access control
+
+Remove:
+
+client-only authentication
+
+------------------------------------------------
+
+UPGRADE 5 — GLOBAL INTELLIGENCE GRAPH
+
+Create relationship layer:
+
+company → building
+company → subsidiary
+building → suburb
+suburb → zone
+company → signals
+
+Expose graph queries.
+
+------------------------------------------------
+
+UPGRADE 6 — MAP LAYER EXTENSIONS
+
+Add new layers:
+
+lease-expiries
+tenant-movement
+company-hierarchy clusters
+demand zones
+
+Ensure all layers use existing map system.
+
+------------------------------------------------
+
+FINAL GOAL
+
+Upgrade the existing system into a unified intelligence platform where:
+
+all systems connect
+no systems are replaced
+data flows through one intelligence engine
+map visualises all intelligence
+Alex provides insights
+admin controls everything

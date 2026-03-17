@@ -394,6 +394,28 @@ export default function AdminCommandCentre() {
     staleTime: 30000,
   });
 
+  // ── Workspace Intelligence queries (Stage 7) ─────────────────────────────
+  const { data: intelligenceDashboard } = useQuery<{
+    topOpportunityZones: { suburb: string; city: string; zoneScore: number; demandScore: number; activeCompanies: number; recentSignals: number }[];
+    demandHotspots: { suburb: string; city: string; demandScore: number; demandTier: string; activeCompanies: number; recentSignals: number }[];
+    atRiskBuildings: { buildingName: string; city: string; vacancyRiskScore: number; riskTier: string; tenantTurnoverRate: number }[];
+    relocationReadyCompanies: { companyName: string; city: string; moveProbability: number; confidenceScore: number; industry: string | null; priorityLevel: string }[];
+    systemStats: { totalSignals: number; activeCompanies: number; highPriorityOpps: number; avgConfidence: number };
+  }>({
+    queryKey: ["/api/admin/intelligence/dashboard"],
+    queryFn: () => fetch("/api/admin/intelligence/dashboard").then(r => r.json()),
+    enabled: authed,
+    staleTime: 120000,
+    refetchInterval: 180000,
+  });
+
+  const { data: sourceHealth } = useQuery<{ sources: { id: string; sourceName: string; sourceType: string; isActive: boolean; lastSuccessfulRun: string | null; errorCount: number }[]; total: number }>({
+    queryKey: ["/api/admin/intelligence/source-health"],
+    queryFn: () => fetch("/api/admin/intelligence/source-health").then(r => r.json()),
+    enabled: authed,
+    staleTime: 300000,
+  });
+
   // ── Score backfill mutation ─────────────────────────────────────────────────
   const backfillMutation = useMutation({
     mutationFn: async () => {
@@ -1523,6 +1545,167 @@ export default function AdminCommandCentre() {
           )}
         </div>
 
+        {/* ── Workspace Intelligence Widgets (Stage 7) ─────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(100,180,255,0.15)] rounded-2xl overflow-hidden" data-testid="panel-workspace-intelligence">
+          <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Brain className="w-4 h-4 text-blue-400" />
+              <h2 className="text-white font-semibold text-sm">Workspace Intelligence</h2>
+              <span className="text-[10px] text-blue-400/60 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full ml-1">LIVE</span>
+            </div>
+            <Link href="/market-map">
+              <button className="text-blue-400/70 text-xs hover:text-blue-400 flex items-center gap-1">
+                Open Map <ChevronRight className="w-3 h-3" />
+              </button>
+            </Link>
+          </div>
+
+          {/* System stats row */}
+          {intelligenceDashboard?.systemStats && (
+            <div className="px-5 py-3 border-b border-[rgba(255,255,255,0.04)] grid grid-cols-4 gap-4">
+              {[
+                { label: "Total Signals", value: intelligenceDashboard.systemStats.totalSignals, color: "text-blue-400" },
+                { label: "Active Companies", value: intelligenceDashboard.systemStats.activeCompanies, color: "text-green-400" },
+                { label: "High-Priority Opps", value: intelligenceDashboard.systemStats.highPriorityOpps, color: "text-amber-400" },
+                { label: "Avg Confidence", value: `${Math.round(intelligenceDashboard.systemStats.avgConfidence)}%`, color: "text-purple-400" },
+              ].map(({ label, value, color }) => (
+                <div key={label} className="text-center">
+                  <div className={`text-xl font-bold ${color}`} data-testid={`intel-stat-${label.replace(/\s+/g, "-").toLowerCase()}`}>{value}</div>
+                  <div className="text-white/30 text-[10px] mt-0.5">{label}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-[rgba(255,255,255,0.04)]">
+
+            {/* Top Opportunity Zones */}
+            <div className="p-5">
+              <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                <Target className="w-3.5 h-3.5 text-amber-400" /> Top Opportunity Zones
+              </p>
+              <div className="space-y-2">
+                {(intelligenceDashboard?.topOpportunityZones ?? []).slice(0, 5).map((z, i) => (
+                  <div key={i} className="flex items-center justify-between gap-2" data-testid={`intel-zone-${i}`}>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-5 h-5 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-[10px] font-bold flex-shrink-0">{i + 1}</div>
+                      <div className="min-w-0">
+                        <div className="text-white text-xs font-medium truncate">{z.suburb || z.city}</div>
+                        <div className="text-white/30 text-[10px]">{z.city} · {z.activeCompanies} companies</div>
+                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <div className="text-amber-400 text-xs font-bold">{Math.round(z.zoneScore)}/100</div>
+                      <div className="text-white/20 text-[10px]">{z.recentSignals} signals</div>
+                    </div>
+                  </div>
+                ))}
+                {(!intelligenceDashboard?.topOpportunityZones || intelligenceDashboard.topOpportunityZones.length === 0) && (
+                  <p className="text-white/20 text-xs">No zone data yet — scanner will populate automatically.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Demand Hotspots */}
+            <div className="p-5">
+              <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                <BarChart3 className="w-3.5 h-3.5 text-green-400" /> Demand Hotspots
+              </p>
+              <div className="space-y-2">
+                {(intelligenceDashboard?.demandHotspots ?? []).slice(0, 5).map((d, i) => (
+                  <div key={i} className="flex items-center justify-between gap-2" data-testid={`intel-demand-${i}`}>
+                    <div className="min-w-0">
+                      <div className="text-white text-xs font-medium truncate">{d.suburb || d.city}</div>
+                      <div className="text-white/30 text-[10px]">{d.city} · {d.activeCompanies} active</div>
+                    </div>
+                    <div className="text-right flex-shrink-0 flex items-center gap-2">
+                      <Badge className={`text-[9px] px-1.5 py-0 border ${
+                        d.demandTier === "hot" ? "bg-red-500/10 text-red-400 border-red-500/20" :
+                        d.demandTier === "high" ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
+                        "bg-white/5 text-white/40 border-white/10"
+                      }`}>{d.demandTier}</Badge>
+                      <span className="text-green-400 text-xs font-bold">{Math.round(d.demandScore)}</span>
+                    </div>
+                  </div>
+                ))}
+                {(!intelligenceDashboard?.demandHotspots || intelligenceDashboard.demandHotspots.length === 0) && (
+                  <p className="text-white/20 text-xs">No demand data yet — demand aggregation will populate this.</p>
+                )}
+              </div>
+            </div>
+
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-[rgba(255,255,255,0.04)] border-t border-[rgba(255,255,255,0.04)]">
+
+            {/* At-Risk Buildings */}
+            <div className="p-5">
+              <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                <AlertTriangle className="w-3.5 h-3.5 text-red-400" /> At-Risk Buildings
+              </p>
+              <div className="space-y-2">
+                {(intelligenceDashboard?.atRiskBuildings ?? []).slice(0, 5).map((b, i) => (
+                  <div key={i} className="flex items-center justify-between gap-2" data-testid={`intel-risk-${i}`}>
+                    <div className="min-w-0">
+                      <div className="text-white text-xs font-medium truncate">{b.buildingName}</div>
+                      <div className="text-white/30 text-[10px]">{b.city} · {Math.round(b.tenantTurnoverRate)}% turnover</div>
+                    </div>
+                    <div className="text-right flex-shrink-0 flex items-center gap-2">
+                      <Badge className={`text-[9px] px-1.5 py-0 border ${
+                        b.riskTier === "critical" ? "bg-red-500/10 text-red-400 border-red-500/20" :
+                        b.riskTier === "high" ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
+                        "bg-white/5 text-white/40 border-white/10"
+                      }`}>{b.riskTier}</Badge>
+                      <span className="text-red-400 text-xs font-bold">{Math.round(b.vacancyRiskScore)}</span>
+                    </div>
+                  </div>
+                ))}
+                {(!intelligenceDashboard?.atRiskBuildings || intelligenceDashboard.atRiskBuildings.length === 0) && (
+                  <p className="text-white/20 text-xs">No building risk data yet — risk scanner will populate this.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Relocation-Ready Companies */}
+            <div className="p-5">
+              <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                <TrendingUp className="w-3.5 h-3.5 text-purple-400" /> Relocation-Ready Companies
+              </p>
+              <div className="space-y-2">
+                {(intelligenceDashboard?.relocationReadyCompanies ?? []).slice(0, 5).map((c, i) => (
+                  <div key={i} className="flex items-center justify-between gap-2" data-testid={`intel-reloc-${i}`}>
+                    <div className="min-w-0">
+                      <div className="text-white text-xs font-medium truncate">{c.companyName}</div>
+                      <div className="text-white/30 text-[10px]">{c.city} · {c.industry || "Unknown"}</div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <div className="text-purple-400 text-xs font-bold">{Math.round(c.moveProbability)}% likely</div>
+                      <div className="text-white/20 text-[10px]">Conf. {Math.round(c.confidenceScore)}%</div>
+                    </div>
+                  </div>
+                ))}
+                {(!intelligenceDashboard?.relocationReadyCompanies || intelligenceDashboard.relocationReadyCompanies.length === 0) && (
+                  <p className="text-white/20 text-xs">No relocation data yet — company intelligence sync will populate this.</p>
+                )}
+              </div>
+            </div>
+
+          </div>
+
+          {/* Source health footer */}
+          {sourceHealth && sourceHealth.sources.length > 0 && (
+            <div className="px-5 py-3 border-t border-[rgba(255,255,255,0.04)] flex flex-wrap gap-3">
+              <span className="text-white/30 text-[10px] self-center">Intelligence Sources:</span>
+              {sourceHealth.sources.slice(0, 6).map((s) => (
+                <div key={s.id} className="flex items-center gap-1" data-testid={`source-health-${s.id}`}>
+                  <div className={`w-1.5 h-1.5 rounded-full ${s.isActive && s.errorCount === 0 ? "bg-green-400" : s.isActive ? "bg-amber-400" : "bg-red-500"}`} />
+                  <span className="text-white/40 text-[10px]">{s.sourceName}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* ── Bottom panels: Pipeline Intelligence + Recent Leads ─────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
@@ -1653,6 +1836,7 @@ export default function AdminCommandCentre() {
               { href: "/admin/partner-network", icon: Network, label: "Partner Network", sub: "Broker & partner ecosystem" },
               { href: "/admin/relocation-intelligence", icon: Radar, label: "Relocation Intel", sub: "Market relocation signals" },
               { href: "/admin/workspace-strategy", icon: Brain, label: "Workspace Strategy", sub: "AI layout & package optimisation" },
+              { href: "/admin/market-map", icon: MapPin, label: "Workspace Intelligence Map", sub: "Signals, demand, risk layers" },
             ].map(({ href, icon: Icon, label, sub }) => (
               <Link key={href} href={href}>
                 <div className="flex items-center gap-3 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.06)] rounded-xl p-3.5 cursor-pointer transition-colors">

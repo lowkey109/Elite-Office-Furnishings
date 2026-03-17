@@ -1,8 +1,14 @@
 // ─── Autonomous Intelligence Scheduler ───────────────────────────────────────
 // Runs background intelligence jobs on configurable intervals.
-// Follows the same pattern as followUpScheduler.ts
+// Stage 5 upgrade: durable pg-boss job queue with in-process timer fallback.
 
 import { storage } from "../storage";
+import {
+  initJobOrchestrator,
+  registerWorker,
+  scheduleJob,
+  QUEUES,
+} from "./jobOrchestrator";
 import {
   analyzeSpendingTrends,
   generateSEOBlogArticle,
@@ -240,4 +246,80 @@ export async function triggerJobManually(jobType: string): Promise<{ success: bo
   setImmediate(() => runJob(jobType as JobType, "manual").catch(console.error));
 
   return { success: true, message: `Job "${JOB_LABELS[jobType as JobType]}" triggered manually` };
+}
+
+// ─── pg-boss Worker Registration ─────────────────────────────────────────────
+// Registers pg-boss workers for all job queues. Called after pg-boss starts.
+
+async function registerPgBossWorkers(): Promise<void> {
+  await registerWorker(QUEUES.SCAN_NEWS, async () => {
+    await runJob("news_rss_scan");
+  });
+
+  await registerWorker(QUEUES.SCAN_JOBS, async () => {
+    await runJob("job_signal_scan");
+  });
+
+  await registerWorker(QUEUES.SCAN_PREDICTIVE, async () => {
+    await runJob("predictive_scan");
+  });
+
+  await registerWorker(QUEUES.SCAN_ALL, async (job) => {
+    const jobType = (job.data.jobType as JobType) ?? "radar_scan";
+    await runJob(jobType);
+  });
+
+  await registerWorker(QUEUES.COMPANY_SYNC, async () => {
+    await runJob("company_intel_sync");
+  });
+
+  await registerWorker(QUEUES.DEMAND_AGGREGATE, async () => {
+    const { runDemandAggregation } = await import("./intelligence/demandForecastEngine");
+    await runDemandAggregation();
+  });
+
+  await registerWorker(QUEUES.BUILDING_RISK_REFRESH, async () => {
+    const { refreshBuildingRiskSnapshots } = await import("./intelligence/buildingRiskEngine");
+    await refreshBuildingRiskSnapshots();
+  });
+
+  await registerWorker(QUEUES.SIGNAL_INGESTION, async () => {
+    const { runIngestionCycle } = await import("./intelligence/signalIngestionService");
+    await runIngestionCycle();
+  });
+
+  await registerWorker(QUEUES.CLUSTERS_GENERATE, async () => {
+    console.log("[Scheduler] Cluster generation job run");
+  });
+
+  await registerWorker(QUEUES.ALERTS_GENERATE, async () => {
+    console.log("[Scheduler] Alerts generation job run");
+  });
+}
+
+async function schedulePgBossJobs(): Promise<void> {
+  // pg-boss schedule() requires standard 5-field cron expressions (not interval strings)
+  await scheduleJob(QUEUES.SCAN_NEWS, {}, { repeatEvery: "0 */12 * * *", singletonKey: "scan-news" });
+  await scheduleJob(QUEUES.SCAN_JOBS, {}, { repeatEvery: "0 */12 * * *", singletonKey: "scan-jobs" });
+  await scheduleJob(QUEUES.SCAN_PREDICTIVE, {}, { repeatEvery: "0 */12 * * *", singletonKey: "scan-predictive" });
+  await scheduleJob(QUEUES.SCAN_ALL, { jobType: "radar_scan" }, { repeatEvery: "0 2 * * *", singletonKey: "radar-scan" });
+  await scheduleJob(QUEUES.SCAN_ALL, { jobType: "deal_hunter" }, { repeatEvery: "0 3 * * *", singletonKey: "deal-hunter" });
+  await scheduleJob(QUEUES.SCAN_ALL, { jobType: "system_health" }, { repeatEvery: "0 */12 * * *", singletonKey: "system-health" });
+  await scheduleJob(QUEUES.COMPANY_SYNC, {}, { repeatEvery: "0 */6 * * *", singletonKey: "company-sync" });
+  await scheduleJob(QUEUES.DEMAND_AGGREGATE, {}, { repeatEvery: "0 1 * * *", singletonKey: "demand-aggregate" });
+  await scheduleJob(QUEUES.BUILDING_RISK_REFRESH, {}, { repeatEvery: "0 4 * * *", singletonKey: "building-risk" });
+  await scheduleJob(QUEUES.SIGNAL_INGESTION, {}, { repeatEvery: "0 */6 * * *", singletonKey: "signal-ingestion" });
+  console.log("[IntelligenceScheduler] pg-boss recurring jobs scheduled");
+}
+
+// ─── Unified scheduler startup ─────────────────────────────────────────────────
+
+export async function startSchedulerWithPgBoss(): Promise<boolean> {
+  const pgBossReady = await initJobOrchestrator();
+  if (!pgBossReady) return false;
+
+  await registerPgBossWorkers();
+  await schedulePgBossJobs();
+  console.log("[IntelligenceScheduler] Running on pg-boss durable job queue");
+  return true;
 }
