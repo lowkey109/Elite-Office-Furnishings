@@ -1,0 +1,556 @@
+WORKSPACE INTELLIGENCE PLATFORM
+STRIPE REVENUE ENGINE UPGRADE
+
+ROLE
+
+You are a senior full-stack engineer, payments integration engineer, and revenue systems architect.
+
+You are working on an EXISTING production platform called:
+
+Workspace Intelligence Platform
+
+The platform already contains:
+
+• Command Centre
+• Quote Builder
+• Deal Pipeline
+• Office Move Radar
+• Deal Hunter
+• Workspace Intelligence Map
+• Lease Expiry Engine
+• Tenant Movement Engine
+• Demand Zones
+• Alex AI Assistant
+• Admin Command Centre
+• SAFE MODE controls
+
+Your task is to UPGRADE the existing platform by fully wiring Stripe into the current system.
+
+IMPORTANT:
+DO NOT replace existing modules.
+DO NOT rebuild the quote system.
+DO NOT remove current pipeline or admin panels.
+ONLY extend and integrate Stripe into the existing architecture.
+
+------------------------------------------------
+
+CRITICAL RULES
+
+1. Do NOT remove any existing quote, deal, or admin system.
+2. Do NOT expose raw banking details in the UI or database.
+3. Do NOT process live payments unless SAFE_MODE=false and Stripe env vars are configured.
+4. All payment actions must be audit logged.
+5. All webhook processing must be idempotent and retry-safe.
+6. Quote/payment/deal state must stay synchronized.
+7. Keep backward compatibility with existing quote and deal records.
+
+------------------------------------------------
+
+SYSTEM OBJECTIVE
+
+Turn Stripe from a placeholder integration into a live revenue engine.
+
+Required flow:
+
+Opportunity
+→ Quote Builder
+→ Stripe payment link or invoice session created
+→ Client pays deposit or invoice
+→ Stripe webhook received
+→ Deal stage updated
+→ Revenue recorded
+→ Command Centre updated
+→ Alex AI notified
+
+------------------------------------------------
+
+PART 1 — STRIPE CONFIGURATION LAYER
+
+Create StripeConfigService.
+
+Required environment variables:
+
+STRIPE_SECRET_KEY=
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_CURRENCY=AUD
+STRIPE_MODE=test
+SAFE_MODE=true
+
+Behavior:
+
+• If keys are missing, payment features remain disabled but app does not crash
+• If SAFE_MODE=true, create test-only/simulated payment flow
+• If STRIPE_MODE=test, clearly label all payment actions as TEST MODE
+• If STRIPE_MODE=live and SAFE_MODE=false, allow production payment flows
+
+------------------------------------------------
+
+PART 2 — DATABASE UPGRADES
+
+Create or extend the following tables:
+
+payment_customers
+• id
+• company_id
+• contact_id
+• stripe_customer_id
+• email
+• name
+• created_at
+• updated_at
+
+payment_links
+• id
+• quote_id
+• opportunity_id
+• company_id
+• stripe_payment_link_id
+• stripe_price_id
+• amount
+• currency
+• link_url
+• status
+• created_at
+• updated_at
+
+payment_intents_log
+• id
+• quote_id
+• opportunity_id
+• stripe_payment_intent_id
+• stripe_checkout_session_id
+• amount
+• currency
+• payment_status
+• raw_payload_json
+• created_at
+• updated_at
+
+invoices_log
+• id
+• quote_id
+• opportunity_id
+• stripe_invoice_id
+• stripe_invoice_url
+• stripe_hosted_invoice_url
+• amount_due
+• amount_paid
+• status
+• created_at
+• updated_at
+
+revenue_events
+• id
+• company_id
+• opportunity_id
+• quote_id
+• payment_source
+• event_type
+• amount
+• currency
+• status
+• occurred_at
+• created_at
+
+webhook_events
+• id
+• provider
+• external_event_id
+• event_type
+• processed
+• processed_at
+• payload_json
+• created_at
+
+audit_logs
+• id
+• actor_type
+• actor_id
+• action
+• entity_type
+• entity_id
+• metadata_json
+• created_at
+
+------------------------------------------------
+
+PART 3 — QUOTE BUILDER INTEGRATION
+
+Upgrade the existing Quote Builder.
+
+Do NOT replace it.
+
+Add payment actions to quote detail view:
+
+• Create Stripe Payment Link
+• Create Deposit Payment Link
+• Create Full Payment Link
+• Create Invoice
+• View Payment Status
+• Resend Payment Link
+• Mark Payment Reconciled (admin only if needed)
+
+Rules:
+
+• Quotes can support deposit-based payments
+• Quotes can support full payment requests
+• Amounts must come from the existing quote totals
+• If quote changes after link generation, old links must be marked stale or superseded
+
+Add status mapping to quote records:
+
+draft
+sent
+viewed
+payment_pending
+deposit_paid
+partially_paid
+paid
+expired
+cancelled
+
+------------------------------------------------
+
+PART 4 — DEAL PIPELINE INTEGRATION
+
+Upgrade existing Deal Pipeline.
+
+Do NOT replace stages.
+
+Add Stripe-aware transitions:
+
+If payment link created
+→ set financial status = payment_pending
+
+If deposit paid
+→ set financial status = deposit_paid
+
+If full amount paid
+→ set financial status = paid
+
+If payment succeeded and commercial rules allow
+→ move deal stage to WON or READY_FOR_PROCUREMENT
+
+If payment fails or expires
+→ add alert to Command Centre
+→ keep deal in current stage
+→ notify responsible owner
+
+Add fields to opportunities or deal records if missing:
+
+financial_status
+deposit_required
+deposit_amount
+amount_paid
+amount_due
+last_payment_at
+payment_link_status
+
+------------------------------------------------
+
+PART 5 — PAYMENT LINK ENGINE
+
+Create PaymentLinkService.
+
+Capabilities:
+
+• create Stripe product/price dynamically from quote
+• create Stripe payment link
+• optionally create checkout session
+• support deposit or full payment
+• store generated link in database
+• attach link to quote and opportunity
+
+Rules:
+
+• one quote may have multiple payment links over time
+• only latest active link should be primary
+• store Stripe IDs for auditability
+• stale links must be marked superseded
+
+------------------------------------------------
+
+PART 6 — INVOICE ENGINE
+
+Create InvoiceService.
+
+Capabilities:
+
+• create Stripe invoice for quote
+• attach invoice to customer
+• support hosted invoice URL
+• support due dates if configured
+• store invoice status locally
+• allow admin resend action
+
+Use for:
+• larger B2B transactions
+• enterprise workflows
+• finance-approved payment requests
+
+------------------------------------------------
+
+PART 7 — WEBHOOK ENGINE
+
+Create StripeWebhookService.
+
+Webhook endpoint:
+
+POST /api/payments/stripe/webhook
+
+Must support idempotent processing for events such as:
+
+checkout.session.completed
+payment_intent.succeeded
+payment_intent.payment_failed
+invoice.paid
+invoice.payment_failed
+invoice.finalized
+payment_link.created
+
+Rules:
+
+• verify signature with STRIPE_WEBHOOK_SECRET
+• log every event into webhook_events
+• ignore duplicate event IDs after first successful processing
+• update quote / opportunity / revenue state
+• create audit log entry
+• notify Command Centre widgets
+• notify Alex AI event bus
+
+------------------------------------------------
+
+PART 8 — COMMAND CENTRE UPGRADE
+
+Upgrade existing Command Centre.
+
+Do NOT redesign shell.
+
+Add payment/revenue widgets:
+
+• Payment Links Created Today
+• Deposits Paid
+• Revenue This Week
+• Outstanding Invoices
+• Expired Payment Links
+• Quotes Awaiting Payment
+• Strategic Deals With Deposit Paid
+• Revenue Pipeline
+
+Each widget must deep-link into:
+• quote detail
+• opportunity detail
+• payment detail
+• admin revenue panel
+
+------------------------------------------------
+
+PART 9 — ALEX AI UPGRADE
+
+Do NOT replace Alex.
+
+Upgrade Alex so it can read payment and revenue intelligence.
+
+Add services:
+
+getRevenueThisWeek
+getOutstandingInvoices
+getQuotesAwaitingPayment
+getDepositPaidDeals
+getExpiredPaymentLinks
+getTopRevenueAccounts
+getPaymentStatusForOpportunity
+
+Alex must answer questions like:
+
+• Which quotes are awaiting payment?
+• Which clients paid deposits this week?
+• What revenue has landed today?
+• Which high-value deals are paid and ready for procurement?
+• Which payment links expired without conversion?
+
+Alex proactive alerts:
+
+• Deposit received for strategic deal
+• Invoice overdue for high-value account
+• Payment link expired on active opportunity
+• Full payment received — ready for procurement
+• Revenue milestone reached today
+
+------------------------------------------------
+
+PART 10 — ADMIN REVENUE PANELS
+
+Upgrade Admin Command Centre.
+
+Add:
+
+1. Stripe Status Panel
+   • API configured
+   • test/live mode
+   • webhook health
+   • last webhook received
+   • SAFE MODE status
+
+2. Payment Operations Panel
+   • links created
+   • pending payments
+   • failed payments
+   • invoice failures
+   • deposits received
+
+3. Revenue Monitoring Panel
+   • revenue by day
+   • revenue by week
+   • revenue by deal source
+   • paid vs pending
+   • top paying accounts
+
+4. Payment Controls
+   • resend payment link
+   • regenerate payment link
+   • resend invoice
+   • reconcile payment manually
+   • disable payment actions in SAFE MODE
+
+All admin payment actions must be:
+• server-protected
+• role-protected
+• audit logged
+
+------------------------------------------------
+
+PART 11 — MAP / OPPORTUNITY INTEGRATION
+
+Upgrade existing Workspace Intelligence Map and opportunity records.
+
+Do NOT replace map.
+
+Add payment-aware overlays or filters:
+
+• payment_pending opportunities
+• deposit_paid opportunities
+• paid strategic deals
+• overdue invoices by region
+
+Create endpoints if needed:
+
+/api/map/layers/payments-pending
+/api/map/layers/deposits-paid
+/api/map/layers/revenue-zones
+
+Return GeoJSON with:
+
+company
+city
+suburb
+opportunity_score
+estimated_project_value
+financial_status
+amount_paid
+amount_due
+recommended_action
+
+------------------------------------------------
+
+PART 12 — ROUTES / APIS
+
+Add or extend routes:
+
+GET /api/payments/status
+POST /api/payments/create-link
+POST /api/payments/create-deposit-link
+POST /api/payments/create-invoice
+POST /api/payments/resend-link
+POST /api/payments/resend-invoice
+POST /api/payments/reconcile
+GET /api/payments/quote/:quoteId
+POST /api/payments/stripe/webhook
+
+GET /api/admin/revenue/stats
+GET /api/admin/revenue/payments
+GET /api/admin/revenue/invoices
+GET /api/admin/revenue/webhooks
+
+Use validation middleware on all write routes.
+
+------------------------------------------------
+
+PART 13 — SAFE MODE REQUIREMENTS
+
+SAFE_MODE must remain default.
+
+When SAFE_MODE=true:
+
+• payment links may be generated only in test mode
+• invoices may be simulated or Stripe test-mode only
+• no production live charges
+• all UI must clearly show SAFE MODE / TEST MODE
+• webhook simulation allowed
+• revenue events can be logged as simulated where needed
+
+When SAFE_MODE=false and Stripe is fully configured:
+
+• allow live payment flow
+• allow real invoices
+• allow real revenue updates
+
+------------------------------------------------
+
+PART 14 — JOBS / AUTOMATION
+
+Use durable jobs for async payment processing where needed.
+
+Queues:
+
+payments.sync
+payments.reconcile
+payments.retry-failed
+invoices.refresh
+revenue.metrics.refresh
+webhooks.replay
+
+Guarantees:
+
+• retries
+• dedupe
+• idempotent webhook handling
+• safe restarts
+• admin visibility
+
+------------------------------------------------
+
+PART 15 — ACCEPTANCE TESTS
+
+System is only complete when all tests pass.
+
+Required tests:
+
+1. Stripe config loads correctly from env
+2. Payment link can be created from quote
+3. Deposit link can be created from quote
+4. Invoice can be created from quote
+5. SAFE MODE blocks live production charge behavior
+6. Webhook processing updates quote/payment state correctly
+7. Duplicate webhooks do not double-process revenue
+8. Deal pipeline financial status updates correctly
+9. Command Centre payment widgets load correctly
+10. Alex AI can read payment/revenue data
+11. Existing Quote Builder, Deal Pipeline, Office Move Radar, Deal Hunter, Map, and Admin panels still function
+
+------------------------------------------------
+
+FINAL GOAL
+
+Upgrade the existing Workspace Intelligence Platform so Stripe becomes a fully connected revenue engine.
+
+The final system must:
+
+• preserve existing modules
+• integrate Stripe into Quote Builder
+• integrate payments into Deal Pipeline
+• track deposits and invoices
+• update Command Centre in real time
+• notify Alex AI about revenue events
+• remain SAFE MODE compliant until production-approved

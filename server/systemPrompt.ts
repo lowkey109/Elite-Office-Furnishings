@@ -529,6 +529,21 @@ export function buildChatSystemPrompt(
     meetingsBooked?: { companyName: string; bookingStatus: string }[];
     outreachStats?: { drafts: number; sent: number; replied: number; activeThreads: number; bookedThreads: number; replyRate: number; safeMode: boolean };
     contactDiscoveryStats?: { totalContacts: number; directContacts: number; highConfidenceContacts: number };
+    // Stripe Revenue Engine context
+    revenueStats?: {
+      revenueToday: number;
+      revenueThisWeek: number;
+      depositsReceived: number;
+      fullPaymentsReceived: number;
+      outstandingInvoices: number;
+      expiredLinks: number;
+      quotesAwaitingPayment: number;
+      stripeEnabled: boolean;
+      testMode: boolean;
+      safeMode: boolean;
+    };
+    quotesAwaitingPayment?: { id: string; clientName: string; companyName: string | null; totalIncGst: number | null; financialStatus: string | null }[];
+    depositPaidDeals?: { id: string; clientName: string; companyName: string | null; amountPaid: number | null; amountDue: number | null }[];
   }
 ): string {
   const workplaceKnowledge = getWorkplaceDesignKnowledge();
@@ -573,12 +588,31 @@ ${intelligenceContext.outreachStats ? `**Outreach Engine Status:** ${intelligenc
 
 ${intelligenceContext.contactDiscoveryStats ? `**Contact Discovery:** ${intelligenceContext.contactDiscoveryStats.totalContacts} contacts found · ${intelligenceContext.contactDiscoveryStats.directContacts} direct · ${intelligenceContext.contactDiscoveryStats.highConfidenceContacts} high confidence` : ""}
 
+${intelligenceContext.revenueStats ? `**Revenue Engine Status (${intelligenceContext.revenueStats.safeMode ? "SAFE MODE" : intelligenceContext.revenueStats.testMode ? "TEST MODE" : "LIVE"}):**
+- Revenue today: $${((intelligenceContext.revenueStats.revenueToday || 0) / 100).toLocaleString()} AUD
+- Revenue this week: $${((intelligenceContext.revenueStats.revenueThisWeek || 0) / 100).toLocaleString()} AUD
+- Deposits received (7d): ${intelligenceContext.revenueStats.depositsReceived}
+- Full payments received (7d): ${intelligenceContext.revenueStats.fullPaymentsReceived}
+- Outstanding invoices: $${((intelligenceContext.revenueStats.outstandingInvoices || 0) / 100).toLocaleString()} AUD
+- Quotes awaiting payment: ${intelligenceContext.revenueStats.quotesAwaitingPayment}
+- Expired links (need follow-up): ${intelligenceContext.revenueStats.expiredLinks}
+- Stripe: ${intelligenceContext.revenueStats.stripeEnabled ? "CONFIGURED" : "NOT CONFIGURED"}` : ""}
+
+${intelligenceContext.quotesAwaitingPayment?.length ? `**Quotes Awaiting Payment:**\n${intelligenceContext.quotesAwaitingPayment.slice(0, 5).map(q => `- ${q.companyName || q.clientName}: $${((q.totalIncGst || 0) / 100).toLocaleString()} AUD · status: ${q.financialStatus}`).join("\n")}` : ""}
+
+${intelligenceContext.depositPaidDeals?.length ? `**Deposit-Paid Deals (ready for procurement):**\n${intelligenceContext.depositPaidDeals.slice(0, 5).map(d => `- ${d.companyName || d.clientName}: $${((d.amountPaid || 0) / 100).toLocaleString()} paid · $${((d.amountDue || 0) / 100).toLocaleString()} still due`).join("\n")}` : ""}
+
 You can answer questions like:
 - "Which companies should I contact first?" → use outreachReadyCompanies
 - "Which follow-ups are due today?" → use followUpsDue  
 - "How many meetings have we booked?" → use outreachStats.bookedThreads
 - "What's the reply rate?" → use outreachStats.replyRate
 - "Which companies have active outreach?" → use activeOutreachThreads
+- "Which quotes are awaiting payment?" → use quotesAwaitingPayment
+- "Which clients paid deposits this week?" → use depositPaidDeals + revenueStats
+- "What revenue has landed today/this week?" → use revenueStats.revenueToday/revenueThisWeek
+- "Which payment links expired without conversion?" → use revenueStats.expiredLinks
+- "Which high-value deals are paid and ready for procurement?" → use depositPaidDeals
 
 When users ask about specific companies, suburbs, or market trends, reference this intelligence naturally. You can also proactively surface relevant opportunities based on what the user is discussing.\n`
     : `\n## WORKSPACE INTELLIGENCE PLATFORM

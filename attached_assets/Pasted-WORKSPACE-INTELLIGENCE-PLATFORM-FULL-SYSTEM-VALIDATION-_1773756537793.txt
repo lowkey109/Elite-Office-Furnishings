@@ -1,0 +1,420 @@
+WORKSPACE INTELLIGENCE PLATFORM
+FULL SYSTEM VALIDATION + DEBUG EXECUTION PROMPT
+
+ROLE
+
+You are a senior full-stack engineer, platform reliability engineer, and systems debugger.
+
+You are working on an EXISTING production platform:
+
+Workspace Intelligence Platform
+
+This system already includes:
+
+• Command Centre
+• Workspace Intelligence Map (all layers)
+• Office Move Radar
+• Deal Hunter
+• Lease Expiry Engine
+• Tenant Movement Engine
+• Demand Zones / Market Zones
+• Opportunity Engine
+• Quote Builder
+• Deal Pipeline
+• Outreach Engine
+• Auto Booking Engine
+• Stripe Revenue Engine
+• Alex AI Assistant
+• Admin Command Centre
+• Job Queue System
+• SAFE MODE controls
+
+Your task is NOT to build new features.
+
+Your task is to:
+
+INSPECT
+VERIFY
+DEBUG
+CONNECT
+STABILIZE
+
+------------------------------------------------
+
+CRITICAL RULES
+
+1. DO NOT delete any existing module.
+2. DO NOT redesign the UI.
+3. DO NOT remove working logic.
+4. DO NOT replace systems — only fix and connect them.
+5. DO NOT assume systems are working — verify everything.
+6. DO NOT fabricate data or fake success states.
+7. ALL findings must be evidence-based from actual code.
+
+------------------------------------------------
+
+PRIMARY OBJECTIVE
+
+Ensure the ENTIRE system works end-to-end:
+
+Signal
+→ Opportunity
+→ Outreach
+→ Booking
+→ Quote
+→ Payment
+→ Deal WON
+
+------------------------------------------------
+
+STAGE 1 — SYSTEM INVENTORY
+
+Scan the full repository.
+
+Produce:
+
+docs/audit/system-inventory.md
+
+List:
+
+• all frontend pages
+• all backend routes
+• all services
+• all workers
+• all database tables
+• all integrations
+• all queues/jobs
+
+Mark each as:
+
+CONNECTED
+PARTIALLY_CONNECTED
+NOT_CONNECTED
+UNKNOWN
+
+------------------------------------------------
+
+STAGE 2 — ROUTE + SERVICE VALIDATION
+
+Create:
+
+docs/audit/route-validation.md
+
+For every API route:
+
+• endpoint
+• handler
+• service used
+• database usage
+• auth protection
+• response shape
+
+Flag:
+
+ROUTE_WITHOUT_SERVICE
+SERVICE_WITHOUT_ROUTE
+ROUTE_NOT_REGISTERED
+MISSING_VALIDATION
+
+------------------------------------------------
+
+STAGE 3 — DATABASE VALIDATION
+
+Create:
+
+docs/audit/database-validation.md
+
+For each table:
+
+• primary key
+• foreign keys
+• indexes
+• constraints
+• actual usage
+
+Flag:
+
+UNUSED_TABLE
+MISSING_INDEX
+DUPLICATE_RISK
+BROKEN_RELATION
+STRING_INSTEAD_OF_NUMBER
+
+------------------------------------------------
+
+STAGE 4 — SIGNAL PIPELINE TEST
+
+Verify REAL ingestion:
+
+• RSS
+• jobs
+• company signals
+• property signals
+
+Check:
+
+• connectors running
+• dedupe working
+• normalization working
+• signals stored
+
+Flag:
+
+SYNTHETIC_DATA
+PIPELINE_NOT_TRIGGERING
+FAILED_CONNECTOR
+NO_NEW_SIGNALS
+
+------------------------------------------------
+
+STAGE 5 — OPPORTUNITY ENGINE VALIDATION
+
+Verify:
+
+• signals → opportunity creation
+• scoring logic runs
+• opportunity thresholds
+
+Check:
+
+• opportunity_score calculation
+• relocation_probability
+• zone_score
+
+Flag:
+
+NO_OPPORTUNITY_CREATED
+SCORING_NOT_TRIGGERED
+STATIC_VALUES
+DISCONNECTED_PIPELINE
+
+------------------------------------------------
+
+STAGE 6 — OUTREACH ENGINE VALIDATION
+
+Verify:
+
+• contact discovery works
+• outreach is generated
+• sequences are scheduled
+
+Check:
+
+• Day 0 / 3 / 7 / 14 logic
+• stop conditions
+• message personalization
+
+Flag:
+
+NO_CONTACTS_FOUND
+GENERIC_MESSAGES_ONLY
+SEQUENCE_NOT_SCHEDULED
+FOLLOWUP_BUG
+
+------------------------------------------------
+
+STAGE 7 — AUTO BOOKING VALIDATION
+
+Verify:
+
+• booking link generated
+• booking provider configured
+• booking event recorded
+
+Check:
+
+• booking clicks tracked
+• meeting creation flow
+
+Flag:
+
+NO_BOOKING_LINK
+BOOKING_NOT_TRACKED
+NO_PROVIDER_CONFIG
+
+------------------------------------------------
+
+STAGE 8 — STRIPE REVENUE VALIDATION
+
+Verify FULL payment flow:
+
+• quote → payment link
+• payment link → Stripe
+• Stripe webhook → system update
+
+Check:
+
+• STRIPE env vars
+• webhook endpoint
+• idempotency
+• deal update
+
+Flag:
+
+NO_PAYMENT_LINK
+WEBHOOK_NOT_WORKING
+PAYMENT_NOT_UPDATING_DEAL
+SAFE_MODE_BLOCKING
+
+------------------------------------------------
+
+STAGE 9 — JOB SYSTEM VALIDATION
+
+Verify:
+
+• pg-boss or queue system running
+• jobs enqueued
+• retries working
+
+Check:
+
+• scan jobs
+• outreach jobs
+• payment jobs
+
+Flag:
+
+JOBS_NOT_RUNNING
+NO_RETRY
+DUPLICATE_JOBS
+IN_PROCESS_TIMERS_USED
+
+------------------------------------------------
+
+STAGE 10 — MAP SYSTEM VALIDATION
+
+Verify:
+
+• all layers load
+• endpoints return GeoJSON
+• filters work
+
+Check:
+
+• signals layer
+• opportunities layer
+• demand layer
+• payment layer
+
+Flag:
+
+EMPTY_LAYERS
+BROKEN_ENDPOINT
+FULL_DATA_OVERLOAD
+NO_VIEWPORT_FILTER
+
+------------------------------------------------
+
+STAGE 11 — COMMAND CENTRE VALIDATION
+
+Verify:
+
+• widgets show REAL data
+• stats update
+• deep links work
+
+Flag:
+
+STATIC_DATA
+NO_REFRESH
+BROKEN_LINKS
+
+------------------------------------------------
+
+STAGE 12 — ALEX AI VALIDATION
+
+Verify:
+
+• Alex can query:
+  - opportunities
+  - outreach
+  - payments
+  - demand
+
+Check:
+
+• responses based on real data
+• not hardcoded
+
+Flag:
+
+FAKE_RESPONSES
+NO_DATA_ACCESS
+LIMITED_CONTEXT
+
+------------------------------------------------
+
+STAGE 13 — SAFE MODE VALIDATION
+
+Verify:
+
+SAFE_MODE behavior:
+
+• blocks emails
+• blocks payments (live)
+• allows simulation
+
+Flag:
+
+UNSAFE_ACTIONS_ALLOWED
+NO_SAFE_MODE_CHECKS
+
+------------------------------------------------
+
+STAGE 14 — END-TO-END TEST
+
+Simulate full flow:
+
+1. create signal
+2. generate opportunity
+3. run outreach
+4. generate booking link
+5. simulate booking
+6. create quote
+7. create payment link
+8. simulate payment webhook
+9. verify deal moves to WON
+
+If ANY step fails:
+
+STOP and report exact failure point.
+
+------------------------------------------------
+
+STAGE 15 — SYSTEM HEALTH REPORT
+
+Create:
+
+docs/audit/system-health-report.md
+
+Include:
+
+1. % system operational
+2. working vs broken systems
+3. top 15 issues
+4. revenue blockers
+5. quick fixes
+6. critical fixes
+
+------------------------------------------------
+
+FINAL RULE
+
+You must NOT say the system is complete unless:
+
+ALL stages pass
+AND full flow works end-to-end
+
+------------------------------------------------
+
+FINAL GOAL
+
+Turn this platform into a fully operational:
+
+INTELLIGENCE → CONVERSION → REVENUE ENGINE
+
+NOT a demo
+NOT a mock system
+NOT a partial build
+
+A real working system.

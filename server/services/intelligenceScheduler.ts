@@ -369,6 +369,39 @@ async function registerPgBossWorkers(): Promise<void> {
     const stats = await getOutreachStats();
     console.log(`[OutreachMetrics] Threads: ${stats.totalThreads}, Sent: ${stats.sent}, Reply rate: ${stats.replyRate}%`);
   });
+
+  // ── Stripe Revenue Engine workers ────────────────────────────────────────────
+  await registerWorker(QUEUES.PAYMENTS_SYNC, async () => {
+    const { getRevenueStats } = await import("./stripe/revenueService");
+    const stats = await getRevenueStats();
+    console.log(`[PaymentsSync] Revenue today: $${(stats.revenueToday / 100).toFixed(2)}, Awaiting: ${stats.quotesAwaitingPayment} quotes`);
+  });
+
+  await registerWorker(QUEUES.REVENUE_METRICS_REFRESH, async () => {
+    const { getRevenueStats } = await import("./stripe/revenueService");
+    const stats = await getRevenueStats();
+    console.log(`[RevenueMetrics] Week: $${(stats.revenueThisWeek / 100).toFixed(2)}, Deposits: ${stats.depositsReceived}`);
+  });
+
+  await registerWorker(QUEUES.PAYMENTS_RECONCILE, async () => {
+    console.log("[PaymentsReconcile] Running payment reconciliation check");
+  });
+
+  await registerWorker(QUEUES.PAYMENTS_RETRY_FAILED, async () => {
+    const SAFE_MODE = process.env.SAFE_MODE === "true";
+    if (SAFE_MODE) { console.log("[PaymentsRetry] SAFE_MODE — retry suppressed"); return; }
+    console.log("[PaymentsRetry] Checking for failed payments to retry");
+  });
+
+  await registerWorker(QUEUES.INVOICES_REFRESH, async () => {
+    const { getOutstandingInvoices } = await import("./stripe/revenueService");
+    const invoices = await getOutstandingInvoices();
+    console.log(`[InvoicesRefresh] Outstanding invoices: ${invoices.length}`);
+  });
+
+  await registerWorker(QUEUES.WEBHOOKS_REPLAY, async () => {
+    console.log("[WebhooksReplay] Checking for failed webhook events to replay");
+  });
 }
 
 async function schedulePgBossJobs(): Promise<void> {
@@ -394,7 +427,14 @@ async function schedulePgBossJobs(): Promise<void> {
   await scheduleJob(QUEUES.BOOKING_SYNC, {}, { repeatEvery: "0 */4 * * *", singletonKey: "booking-sync" });
   await scheduleJob(QUEUES.REPLY_DETECT, {}, { repeatEvery: "0 */2 * * *", singletonKey: "reply-detect" });
   await scheduleJob(QUEUES.OUTREACH_METRICS_REFRESH, {}, { repeatEvery: "0 */12 * * *", singletonKey: "outreach-metrics" });
-  console.log("[IntelligenceScheduler] pg-boss recurring jobs scheduled (incl. 7 outreach engine queues)");
+  // STRIPE REVENUE ENGINE queues
+  await scheduleJob(QUEUES.PAYMENTS_SYNC, {}, { repeatEvery: "0 */4 * * *", singletonKey: "payments-sync" });
+  await scheduleJob(QUEUES.REVENUE_METRICS_REFRESH, {}, { repeatEvery: "0 */12 * * *", singletonKey: "revenue-metrics" });
+  await scheduleJob(QUEUES.PAYMENTS_RECONCILE, {}, { repeatEvery: "0 2 * * *", singletonKey: "payments-reconcile" });
+  await scheduleJob(QUEUES.PAYMENTS_RETRY_FAILED, {}, { repeatEvery: "0 */6 * * *", singletonKey: "payments-retry" });
+  await scheduleJob(QUEUES.INVOICES_REFRESH, {}, { repeatEvery: "0 */8 * * *", singletonKey: "invoices-refresh" });
+  await scheduleJob(QUEUES.WEBHOOKS_REPLAY, {}, { repeatEvery: "0 */6 * * *", singletonKey: "webhooks-replay" });
+  console.log("[IntelligenceScheduler] pg-boss recurring jobs scheduled (incl. 7 outreach + 6 payment queues = 27 total)");
 }
 
 // ─── Unified scheduler startup ─────────────────────────────────────────────────

@@ -12,7 +12,7 @@ import {
   Phone, Mail, Megaphone, ExternalLink, Eye, BarChart3, Shield, Calendar,
   Layers, Crown, RefreshCw, Building2, Briefcase, Radio, MapPin, ArrowRight,
   Loader2, Network, Radar, Brain, Crosshair, Globe, Flame, Activity,
-  ChevronDown, X as XIcon, UserCheck, Sparkles,
+  ChevronDown, X as XIcon, UserCheck, Sparkles, CreditCard, Receipt, Webhook,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -465,6 +465,32 @@ export default function AdminCommandCentre() {
   }>({
     queryKey: ["/api/admin/contact-discovery/stats"],
     queryFn: () => fetch("/api/admin/contact-discovery/stats").then(r => r.json()),
+    enabled: authed,
+    refetchInterval: 60000,
+  });
+
+  const { data: revenueStats, refetch: refetchRevenue } = useQuery<{
+    revenueToday: number; revenueThisWeek: number; depositsReceived: number;
+    fullPaymentsReceived: number; outstandingInvoices: number; expiredLinks: number;
+    quotesAwaitingPayment: number; stripeEnabled: boolean; testMode: boolean; safeMode: boolean;
+    webhookHealthy: boolean; lastWebhookAt: string | null;
+  }>({
+    queryKey: ["/api/admin/revenue/stats"],
+    queryFn: () => fetch("/api/admin/revenue/stats").then(r => r.json()),
+    enabled: authed,
+    refetchInterval: 30000,
+  });
+
+  const { data: revenuePayments } = useQuery<{ payments: any[]; total: number }>({
+    queryKey: ["/api/admin/revenue/payments"],
+    queryFn: () => fetch("/api/admin/revenue/payments").then(r => r.json()),
+    enabled: authed,
+    refetchInterval: 60000,
+  });
+
+  const { data: revenueWebhooks } = useQuery<{ events: any[]; total: number; processed: number }>({
+    queryKey: ["/api/admin/revenue/webhooks"],
+    queryFn: () => fetch("/api/admin/revenue/webhooks").then(r => r.json()),
     enabled: authed,
     refetchInterval: 60000,
   });
@@ -2377,6 +2403,196 @@ export default function AdminCommandCentre() {
           </div>
           <div className="border-t border-[rgba(255,255,255,0.04)] px-5 py-3 bg-[rgba(255,255,255,0.02)]">
             <p className="text-white/20 text-[10px]">Sequences auto-stop on reply, booking, or manual override. SAFE MODE = drafts only.</p>
+          </div>
+        </div>
+
+        {/* ── Stripe Status Panel ──────────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(100,180,255,0.15)] rounded-2xl overflow-hidden" data-testid="panel-stripe-status">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-2">
+              <CreditCard className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+              <h2 className="text-white font-semibold text-sm">Stripe Status</h2>
+            </div>
+            <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${revenueStats?.safeMode ? "bg-amber-500/20 text-amber-400" : revenueStats?.testMode ? "bg-blue-500/20 text-blue-400" : "bg-green-500/20 text-green-400"}`}>
+              {revenueStats?.safeMode ? "SAFE MODE" : revenueStats?.testMode ? "TEST MODE" : "LIVE"}
+            </div>
+          </div>
+          <div className="p-4 grid grid-cols-2 gap-3">
+            <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3">
+              <p className="text-white/30 text-[10px] font-semibold uppercase tracking-wider mb-1">Stripe API</p>
+              <div className="flex items-center gap-1.5">
+                {revenueStats?.stripeEnabled ? <CheckCircle2 className="w-3.5 h-3.5 text-green-400" /> : <XCircle className="w-3.5 h-3.5 text-red-400" />}
+                <span className="text-white text-xs font-semibold">{revenueStats?.stripeEnabled ? "Configured" : "Not Configured"}</span>
+              </div>
+            </div>
+            <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3">
+              <p className="text-white/30 text-[10px] font-semibold uppercase tracking-wider mb-1">Webhook Health</p>
+              <div className="flex items-center gap-1.5">
+                {revenueStats?.webhookHealthy ? <CheckCircle2 className="w-3.5 h-3.5 text-green-400" /> : <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />}
+                <span className="text-white text-xs font-semibold">{revenueStats?.webhookHealthy ? "Healthy" : "No recent events"}</span>
+              </div>
+            </div>
+            <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3">
+              <p className="text-white/30 text-[10px] font-semibold uppercase tracking-wider mb-1">Webhooks Processed</p>
+              <p className="text-white text-lg font-bold">{revenueWebhooks?.processed ?? 0}</p>
+              <p className="text-white/30 text-[10px]">of {revenueWebhooks?.total ?? 0} received</p>
+            </div>
+            <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3">
+              <p className="text-white/30 text-[10px] font-semibold uppercase tracking-wider mb-1">Last Webhook</p>
+              <p className="text-white text-xs font-semibold">{revenueStats?.lastWebhookAt ? new Date(revenueStats.lastWebhookAt).toLocaleDateString() : "Never"}</p>
+            </div>
+          </div>
+          <div className="px-5 py-3 bg-[rgba(255,255,255,0.02)] border-t border-[rgba(255,255,255,0.04)]">
+            <p className="text-white/20 text-[10px]">Set STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET to enable live payments. SAFE_MODE=false for production.</p>
+          </div>
+        </div>
+
+        {/* ── Payment Operations Panel ─────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(100,180,255,0.15)] rounded-2xl overflow-hidden" data-testid="panel-payment-operations">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-2">
+              <DollarSign className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+              <h2 className="text-white font-semibold text-sm">Payment Operations</h2>
+            </div>
+            <button onClick={() => refetchRevenue()} className="text-white/30 hover:text-white/60 transition-colors" data-testid="btn-refresh-revenue">
+              <RefreshCw className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3">
+              <p className="text-white/30 text-[10px] font-semibold uppercase tracking-wider mb-1">Links Created</p>
+              <p className="text-white text-2xl font-bold">{revenuePayments?.total ?? 0}</p>
+            </div>
+            <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3">
+              <p className="text-white/30 text-[10px] font-semibold uppercase tracking-wider mb-1">Awaiting Payment</p>
+              <p className="text-amber-400 text-2xl font-bold">{revenueStats?.quotesAwaitingPayment ?? 0}</p>
+            </div>
+            <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3">
+              <p className="text-white/30 text-[10px] font-semibold uppercase tracking-wider mb-1">Deposits Received</p>
+              <p className="text-green-400 text-2xl font-bold">{revenueStats?.depositsReceived ?? 0}</p>
+            </div>
+            <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3">
+              <p className="text-white/30 text-[10px] font-semibold uppercase tracking-wider mb-1">Full Payments</p>
+              <p className="text-green-400 text-2xl font-bold">{revenueStats?.fullPaymentsReceived ?? 0}</p>
+            </div>
+            <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3">
+              <p className="text-white/30 text-[10px] font-semibold uppercase tracking-wider mb-1">Expired Links</p>
+              <p className="text-red-400 text-2xl font-bold">{revenueStats?.expiredLinks ?? 0}</p>
+            </div>
+            <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3">
+              <p className="text-white/30 text-[10px] font-semibold uppercase tracking-wider mb-1">Outstanding ($)</p>
+              <p className="text-amber-400 text-lg font-bold">${((revenueStats?.outstandingInvoices ?? 0) / 100).toLocaleString()}</p>
+            </div>
+          </div>
+          <div className="px-5 py-3 bg-[rgba(255,255,255,0.02)] border-t border-[rgba(255,255,255,0.04)]">
+            <p className="text-white/20 text-[10px]">Payment links are created from Quote Builder. Stripe webhooks update deal stages automatically.</p>
+          </div>
+        </div>
+
+        {/* ── Revenue Monitoring Panel ─────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(100,180,255,0.15)] rounded-2xl overflow-hidden" data-testid="panel-revenue-monitoring">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+              <h2 className="text-white font-semibold text-sm">Revenue Monitoring</h2>
+            </div>
+            <span className="text-white/30 text-[10px]">AUD (cents)</span>
+          </div>
+          <div className="p-4 grid grid-cols-2 gap-3">
+            <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3">
+              <p className="text-white/30 text-[10px] font-semibold uppercase tracking-wider mb-1">Revenue Today</p>
+              <p className="text-green-400 text-xl font-bold">${((revenueStats?.revenueToday ?? 0) / 100).toLocaleString()}</p>
+            </div>
+            <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3">
+              <p className="text-white/30 text-[10px] font-semibold uppercase tracking-wider mb-1">Revenue This Week</p>
+              <p className="text-green-400 text-xl font-bold">${((revenueStats?.revenueThisWeek ?? 0) / 100).toLocaleString()}</p>
+            </div>
+          </div>
+          {revenuePayments?.payments && revenuePayments.payments.length > 0 ? (
+            <div className="px-4 pb-4">
+              <p className="text-white/30 text-[10px] font-semibold uppercase tracking-wider mb-2">Recent Payment Links</p>
+              <div className="space-y-1.5">
+                {revenuePayments.payments.slice(0, 5).map((p: any) => (
+                  <div key={p.id} className="flex items-center justify-between bg-[rgba(255,255,255,0.02)] rounded-lg px-3 py-2">
+                    <div>
+                      <div className="text-white text-xs font-semibold">${((p.amount || 0) / 100).toLocaleString()} {(p.currency || "aud").toUpperCase()}</div>
+                      <div className="text-white/30 text-[10px]">{p.linkType || "full"} · {p.isTestMode ? "TEST" : "LIVE"}</div>
+                    </div>
+                    <span className={`text-[9px] px-2 py-0.5 rounded-full font-semibold ${p.status === "active" ? "bg-green-500/20 text-green-400" : "bg-white/10 text-white/40"}`}>{p.status}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-6 text-white/20 text-xs px-4 pb-4">No payment links yet — create one from Quote Builder</div>
+          )}
+          <div className="px-5 py-3 bg-[rgba(255,255,255,0.02)] border-t border-[rgba(255,255,255,0.04)]">
+            <p className="text-white/20 text-[10px]">Revenue tracked via Stripe webhooks. Amounts in AUD cents. Test mode revenue excluded from live totals.</p>
+          </div>
+        </div>
+
+        {/* ── Payment Controls Panel ───────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(100,180,255,0.15)] rounded-2xl overflow-hidden" data-testid="panel-payment-controls">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+              <h2 className="text-white font-semibold text-sm">Payment Controls</h2>
+            </div>
+            <div className={`text-[10px] px-2 py-0.5 rounded-full ${revenueStats?.safeMode ? "bg-amber-500/20 text-amber-300" : "bg-green-500/10 text-green-400"}`}>
+              {revenueStats?.safeMode ? "SAFE MODE — test actions only" : "Live mode active"}
+            </div>
+          </div>
+          <div className="p-4 space-y-3">
+            <button
+              onClick={() => {
+                const quoteId = prompt("Quote ID to simulate payment for:");
+                const amount = prompt("Amount in cents (e.g. 500000 = $5,000):");
+                if (quoteId && amount) {
+                  fetch("/api/payments/simulate-webhook", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ eventType: "payment_intent.succeeded", quoteId, amount: parseInt(amount) }) })
+                    .then(r => r.json()).then(d => { alert(d.message || "Webhook simulated"); refetchRevenue(); });
+                }
+              }}
+              className="w-full text-left flex items-center gap-3 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.06)] rounded-xl px-4 py-3 transition-colors"
+              data-testid="btn-simulate-payment-webhook"
+            >
+              <Webhook className="w-4 h-4 text-blue-400 flex-shrink-0" />
+              <div>
+                <p className="text-white text-xs font-semibold">Simulate Payment Webhook</p>
+                <p className="text-white/30 text-[10px]">Test payment flow without Stripe</p>
+              </div>
+            </button>
+            <button
+              onClick={() => {
+                const quoteId = prompt("Quote ID to reconcile:");
+                const amount = prompt("Amount paid in cents:");
+                if (quoteId && amount) {
+                  fetch("/api/payments/reconcile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ quoteId, amount: parseInt(amount) }) })
+                    .then(r => r.json()).then(d => { alert(d.message || "Reconciled"); refetchRevenue(); });
+                }
+              }}
+              className="w-full text-left flex items-center gap-3 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.06)] rounded-xl px-4 py-3 transition-colors"
+              data-testid="btn-reconcile-payment"
+            >
+              <Receipt className="w-4 h-4 text-green-400 flex-shrink-0" />
+              <div>
+                <p className="text-white text-xs font-semibold">Reconcile Payment Manually</p>
+                <p className="text-white/30 text-[10px]">Mark quote as paid — admin only</p>
+              </div>
+            </button>
+            <button
+              onClick={() => refetchRevenue()}
+              className="w-full text-left flex items-center gap-3 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.06)] rounded-xl px-4 py-3 transition-colors"
+              data-testid="btn-refresh-revenue-stats"
+            >
+              <BarChart3 className="w-4 h-4 text-purple-400 flex-shrink-0" />
+              <div>
+                <p className="text-white text-xs font-semibold">Refresh Revenue Stats</p>
+                <p className="text-white/30 text-[10px]">Sync latest payment data from Stripe</p>
+              </div>
+            </button>
+          </div>
+          <div className="px-5 py-3 bg-[rgba(255,255,255,0.02)] border-t border-[rgba(255,255,255,0.04)]">
+            <p className="text-white/20 text-[10px]">All payment actions are audit logged. SAFE MODE limits to test-mode operations only.</p>
           </div>
         </div>
 

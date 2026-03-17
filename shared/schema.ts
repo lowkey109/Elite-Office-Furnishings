@@ -404,6 +404,19 @@ export const quotes = pgTable("quotes", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   sentAt: timestamp("sent_at"),
+  financialStatus: text("financial_status").default("draft"),
+  depositRequired: boolean("deposit_required").default(false),
+  depositAmount: integer("deposit_amount").default(0),
+  depositPercent: integer("deposit_percent").default(30),
+  amountPaid: integer("amount_paid").default(0),
+  amountDue: integer("amount_due").default(0),
+  lastPaymentAt: timestamp("last_payment_at"),
+  paymentLinkUrl: text("payment_link_url"),
+  paymentLinkStatus: text("payment_link_status").default("none"),
+  stripePaymentLinkId: text("stripe_payment_link_id"),
+  stripeCustomerId: text("stripe_customer_id"),
+  opportunityId: varchar("opportunity_id"),
+  companyId: varchar("company_id"),
 });
 export const insertQuoteSchema = createInsertSchema(quotes).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertQuote = z.infer<typeof insertQuoteSchema>;
@@ -1429,3 +1442,151 @@ export const meetingBookingEvents = pgTable("meeting_booking_events", {
 export const insertMeetingBookingEventSchema = createInsertSchema(meetingBookingEvents).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertMeetingBookingEvent = z.infer<typeof insertMeetingBookingEventSchema>;
 export type MeetingBookingEvent = typeof meetingBookingEvents.$inferSelect;
+
+// ─── STRIPE REVENUE ENGINE ────────────────────────────────────────────────────
+
+export const paymentCustomers = pgTable("payment_customers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyId: varchar("company_id"),
+  contactId: varchar("contact_id"),
+  stripeCustomerId: text("stripe_customer_id").notNull(),
+  email: text("email").notNull(),
+  name: text("name"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxPayCustStripe: uniqueIndex("idx_pay_cust_stripe_id").on(t.stripeCustomerId),
+  idxPayCustEmail: index("idx_pay_cust_email").on(t.email),
+}));
+export const insertPaymentCustomerSchema = createInsertSchema(paymentCustomers).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertPaymentCustomer = z.infer<typeof insertPaymentCustomerSchema>;
+export type PaymentCustomer = typeof paymentCustomers.$inferSelect;
+
+export const paymentLinks = pgTable("payment_links", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  quoteId: varchar("quote_id"),
+  opportunityId: varchar("opportunity_id"),
+  companyId: varchar("company_id"),
+  stripePaymentLinkId: text("stripe_payment_link_id"),
+  stripePriceId: text("stripe_price_id"),
+  stripeProductId: text("stripe_product_id"),
+  amount: integer("amount").notNull(),
+  currency: text("currency").notNull().default("aud"),
+  linkUrl: text("link_url"),
+  linkType: text("link_type").notNull().default("full"),
+  status: text("status").notNull().default("active"),
+  isTestMode: boolean("is_test_mode").notNull().default(true),
+  isSafeMode: boolean("is_safe_mode").notNull().default(true),
+  supersededAt: timestamp("superseded_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxPayLinkQuote: index("idx_pay_link_quote_id").on(t.quoteId),
+  idxPayLinkStatus: index("idx_pay_link_status").on(t.status),
+}));
+export const insertPaymentLinkSchema = createInsertSchema(paymentLinks).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertPaymentLink = z.infer<typeof insertPaymentLinkSchema>;
+export type PaymentLink = typeof paymentLinks.$inferSelect;
+
+export const paymentIntentsLog = pgTable("payment_intents_log", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  quoteId: varchar("quote_id"),
+  opportunityId: varchar("opportunity_id"),
+  stripePaymentIntentId: text("stripe_payment_intent_id"),
+  stripeCheckoutSessionId: text("stripe_checkout_session_id"),
+  amount: integer("amount").notNull(),
+  currency: text("currency").notNull().default("aud"),
+  paymentStatus: text("payment_status").notNull().default("pending"),
+  rawPayloadJson: text("raw_payload_json"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxPayIntentStripe: index("idx_pay_intent_stripe_id").on(t.stripePaymentIntentId),
+  idxPayIntentQuote: index("idx_pay_intent_quote_id").on(t.quoteId),
+}));
+export const insertPaymentIntentLogSchema = createInsertSchema(paymentIntentsLog).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertPaymentIntentLog = z.infer<typeof insertPaymentIntentLogSchema>;
+export type PaymentIntentLog = typeof paymentIntentsLog.$inferSelect;
+
+export const invoicesLog = pgTable("invoices_log", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  quoteId: varchar("quote_id"),
+  opportunityId: varchar("opportunity_id"),
+  stripeInvoiceId: text("stripe_invoice_id"),
+  stripeInvoiceUrl: text("stripe_invoice_url"),
+  stripeHostedInvoiceUrl: text("stripe_hosted_invoice_url"),
+  stripeCustomerId: text("stripe_customer_id"),
+  amountDue: integer("amount_due").notNull(),
+  amountPaid: integer("amount_paid").default(0),
+  currency: text("currency").notNull().default("aud"),
+  status: text("status").notNull().default("draft"),
+  dueDate: timestamp("due_date"),
+  paidAt: timestamp("paid_at"),
+  isTestMode: boolean("is_test_mode").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxInvoiceStripe: index("idx_invoice_stripe_id").on(t.stripeInvoiceId),
+  idxInvoiceQuote: index("idx_invoice_quote_id").on(t.quoteId),
+}));
+export const insertInvoiceLogSchema = createInsertSchema(invoicesLog).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertInvoiceLog = z.infer<typeof insertInvoiceLogSchema>;
+export type InvoiceLog = typeof invoicesLog.$inferSelect;
+
+export const revenueEvents = pgTable("revenue_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyId: varchar("company_id"),
+  opportunityId: varchar("opportunity_id"),
+  quoteId: varchar("quote_id"),
+  paymentSource: text("payment_source").notNull().default("stripe"),
+  eventType: text("event_type").notNull(),
+  amount: integer("amount").notNull(),
+  currency: text("currency").notNull().default("aud"),
+  status: text("status").notNull().default("recorded"),
+  isSimulated: boolean("is_simulated").notNull().default(false),
+  occurredAt: timestamp("occurred_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (t) => ({
+  idxRevEventType: index("idx_rev_event_type").on(t.eventType),
+  idxRevEventOccurred: index("idx_rev_event_occurred").on(t.occurredAt),
+  idxRevEventCompany: index("idx_rev_event_company").on(t.companyId),
+}));
+export const insertRevenueEventSchema = createInsertSchema(revenueEvents).omit({ id: true, createdAt: true });
+export type InsertRevenueEvent = z.infer<typeof insertRevenueEventSchema>;
+export type RevenueEvent = typeof revenueEvents.$inferSelect;
+
+export const webhookEvents = pgTable("webhook_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  provider: text("provider").notNull().default("stripe"),
+  externalEventId: text("external_event_id").notNull(),
+  eventType: text("event_type").notNull(),
+  processed: boolean("processed").notNull().default(false),
+  processedAt: timestamp("processed_at"),
+  payloadJson: text("payload_json"),
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (t) => ({
+  idxWebhookExtId: uniqueIndex("idx_webhook_ext_id").on(t.provider, t.externalEventId),
+  idxWebhookProcessed: index("idx_webhook_processed").on(t.processed),
+}));
+export const insertWebhookEventSchema = createInsertSchema(webhookEvents).omit({ id: true, createdAt: true });
+export type InsertWebhookEvent = z.infer<typeof insertWebhookEventSchema>;
+export type WebhookEvent = typeof webhookEvents.$inferSelect;
+
+export const auditLogs = pgTable("audit_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  actorType: text("actor_type").notNull().default("system"),
+  actorId: text("actor_id"),
+  action: text("action").notNull(),
+  entityType: text("entity_type").notNull(),
+  entityId: text("entity_id"),
+  metadataJson: text("metadata_json"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (t) => ({
+  idxAuditAction: index("idx_audit_action").on(t.action),
+  idxAuditEntity: index("idx_audit_entity").on(t.entityType, t.entityId),
+  idxAuditCreated: index("idx_audit_created").on(t.createdAt),
+}));
+export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({ id: true, createdAt: true });
+export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
+export type AuditLog = typeof auditLogs.$inferSelect;

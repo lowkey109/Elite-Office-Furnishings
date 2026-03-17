@@ -33,6 +33,13 @@ export const QUEUES = {
   BOOKING_SYNC: "booking.sync",
   REPLY_DETECT: "reply.detect",
   OUTREACH_METRICS_REFRESH: "outreach.metrics.refresh",
+  // ── Stripe Revenue Engine ─────────────────────────────────────────────────
+  PAYMENTS_SYNC: "payments.sync",
+  PAYMENTS_RECONCILE: "payments.reconcile",
+  PAYMENTS_RETRY_FAILED: "payments.retry-failed",
+  INVOICES_REFRESH: "invoices.refresh",
+  REVENUE_METRICS_REFRESH: "revenue.metrics.refresh",
+  WEBHOOKS_REPLAY: "webhooks.replay",
 } as const;
 
 export type QueueName = (typeof QUEUES)[keyof typeof QUEUES];

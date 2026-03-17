@@ -1230,12 +1230,17 @@ ${allUrls.map(u => `  <url>
         let meetingsBookedList: { companyName: string; bookingStatus: string }[] = [];
         let outreachStatsData: { drafts: number; sent: number; replied: number; activeThreads: number; bookedThreads: number; replyRate: number; safeMode: boolean } | undefined;
         let contactDiscoveryData: { totalContacts: number; directContacts: number; highConfidenceContacts: number } | undefined;
+        let revenueStatsData: { revenueToday: number; revenueThisWeek: number; depositsReceived: number; fullPaymentsReceived: number; outstandingInvoices: number; expiredLinks: number; quotesAwaitingPayment: number; stripeEnabled: boolean; testMode: boolean; safeMode: boolean } | undefined;
+        let quotesAwaitingData: { id: string; clientName: string; companyName: string | null; totalIncGst: number | null; financialStatus: string | null }[] = [];
+        let depositPaidData: { id: string; clientName: string; companyName: string | null; amountPaid: number | null; amountDue: number | null }[] = [];
         try {
           const { getOutreachReadyCompanies: getReady, getFollowUpsDue: getFups, getActiveThreads: getActive, getMeetingsBooked: getMeetings } = await import("./services/outreach/outreachEngine");
           const { getOutreachStats } = await import("./services/outreach/outreachGenerationService");
           const { getContactDiscoveryStats } = await import("./services/outreach/contactDiscoveryService");
-          const [ready, fups, activeT, meetings, oStats, cdStats] = await Promise.all([
+          const { getRevenueStats, getQuotesAwaitingPayment, getDepositPaidDeals } = await import("./services/stripe/revenueService");
+          const [ready, fups, activeT, meetings, oStats, cdStats, revStats, awaitingQ, depositQ] = await Promise.all([
             getReady(5), getFups(5), getActive(5), getMeetings(5), getOutreachStats(), getContactDiscoveryStats(),
+            getRevenueStats(), getQuotesAwaitingPayment(), getDepositPaidDeals(),
           ]);
           outreachReadyCompanies = ready.map(c => ({ companyName: c.companyName, city: c.city ?? null, confidenceScore: c.confidenceScore ?? null, moveProbability: c.moveProbability ?? null }));
           activeOutreachThreadsList = activeT.map((t: any) => ({ companyName: t.companyName, status: t.status, currentStage: t.currentStage, outreachAngle: t.outreachAngle }));
@@ -1243,7 +1248,10 @@ ${allUrls.map(u => `  <url>
           meetingsBookedList = meetings.map((m: any) => ({ companyName: m.companyName, bookingStatus: m.bookingStatus }));
           outreachStatsData = { drafts: oStats.drafts, sent: oStats.sent, replied: oStats.replied, activeThreads: oStats.activeThreads, bookedThreads: oStats.bookedThreads, replyRate: oStats.replyRate, safeMode: oStats.safeMode };
           contactDiscoveryData = { totalContacts: cdStats.totalContacts, directContacts: cdStats.directContacts, highConfidenceContacts: cdStats.highConfidenceContacts };
-        } catch { /* outreach context optional */ }
+          revenueStatsData = { revenueToday: revStats.revenueToday, revenueThisWeek: revStats.revenueThisWeek, depositsReceived: revStats.depositsReceived, fullPaymentsReceived: revStats.fullPaymentsReceived, outstandingInvoices: revStats.outstandingInvoices, expiredLinks: revStats.expiredLinks, quotesAwaitingPayment: revStats.quotesAwaitingPayment, stripeEnabled: revStats.stripeEnabled, testMode: revStats.testMode, safeMode: revStats.safeMode };
+          quotesAwaitingData = awaitingQ.map((q: any) => ({ id: q.id, clientName: q.clientName, companyName: q.companyName ?? null, totalIncGst: q.totalIncGst ?? null, financialStatus: q.financialStatus ?? null }));
+          depositPaidData = depositQ.map((q: any) => ({ id: q.id, clientName: q.clientName, companyName: q.companyName ?? null, amountPaid: q.amountPaid ?? null, amountDue: q.amountDue ?? null }));
+        } catch { /* outreach/revenue context optional */ }
 
         intelligenceCtx = {
           topDemandSuburbs: demandSuburbs.map(s => ({ suburb: s.suburb ?? "", city: s.city, demandScore: s.demandScore ?? 0, demandTier: s.demandTier ?? "" })),
@@ -1256,6 +1264,9 @@ ${allUrls.map(u => `  <url>
           meetingsBooked: meetingsBookedList,
           outreachStats: outreachStatsData,
           contactDiscoveryStats: contactDiscoveryData,
+          revenueStats: revenueStatsData,
+          quotesAwaitingPayment: quotesAwaitingData,
+          depositPaidDeals: depositPaidData,
         };
       } catch { /* intelligence context is optional — fall back gracefully */ }
 
@@ -6034,6 +6045,214 @@ Rules:
       const { processScheduledFollowUps } = await import("./services/outreach/outreachEngine");
       const result = await processScheduledFollowUps();
       res.json({ success: true, ...result });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── STRIPE REVENUE ENGINE ────────────────────────────────────────────────────
+
+  app.get("/api/payments/status", async (_req, res) => {
+    try {
+      const { getStripeConfig } = await import("./services/stripe/stripeConfigService");
+      const { getRevenueStats } = await import("./services/stripe/revenueService");
+      const config = getStripeConfig();
+      const stats = await getRevenueStats();
+      res.json({ config, stats });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/payments/create-link", async (req, res) => {
+    try {
+      const { quoteId, clientName, clientEmail, companyName, companyId, opportunityId, amount, currency, description } = req.body;
+      if (!quoteId || !clientName || !clientEmail || !amount) {
+        return res.status(400).json({ error: "quoteId, clientName, clientEmail, amount are required" });
+      }
+      const { createPaymentLink } = await import("./services/stripe/paymentLinkService");
+      const result = await createPaymentLink({ quoteId, clientName, clientEmail, companyName, companyId, opportunityId, amount, currency, linkType: "full", description });
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/payments/create-deposit-link", async (req, res) => {
+    try {
+      const { quoteId, clientName, clientEmail, companyName, companyId, opportunityId, amount, depositPercent, currency, description } = req.body;
+      if (!quoteId || !clientName || !clientEmail || !amount) {
+        return res.status(400).json({ error: "quoteId, clientName, clientEmail, amount are required" });
+      }
+      const { createPaymentLink } = await import("./services/stripe/paymentLinkService");
+      const result = await createPaymentLink({ quoteId, clientName, clientEmail, companyName, companyId, opportunityId, amount, currency, linkType: "deposit", depositPercent: depositPercent || 30, description });
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/payments/create-invoice", async (req, res) => {
+    try {
+      const { quoteId, clientName, clientEmail, companyName, companyId, opportunityId, amount, currency, daysUntilDue, description, stripeCustomerId } = req.body;
+      if (!quoteId || !clientName || !clientEmail || !amount) {
+        return res.status(400).json({ error: "quoteId, clientName, clientEmail, amount are required" });
+      }
+      const { createInvoice } = await import("./services/stripe/invoiceService");
+      const result = await createInvoice({ quoteId, clientName, clientEmail, companyName, companyId, opportunityId, amount, currency, daysUntilDue, description, stripeCustomerId });
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/payments/resend-link", async (req, res) => {
+    try {
+      const { linkId } = req.body;
+      if (!linkId) return res.status(400).json({ error: "linkId is required" });
+      const { getStripeConfig } = await import("./services/stripe/stripeConfigService");
+      const { getPaymentLinksForQuote } = await import("./services/stripe/paymentLinkService");
+      const config = getStripeConfig();
+      res.json({ success: true, message: config.safeMode ? "Resend simulated (SAFE MODE)" : "Payment link resent" });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/payments/resend-invoice", async (req, res) => {
+    try {
+      const { invoiceLogId } = req.body;
+      if (!invoiceLogId) return res.status(400).json({ error: "invoiceLogId is required" });
+      const { resendInvoice } = await import("./services/stripe/invoiceService");
+      const result = await resendInvoice(invoiceLogId);
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/payments/reconcile", async (req, res) => {
+    try {
+      const { quoteId, amount, notes } = req.body;
+      if (!quoteId || !amount) return res.status(400).json({ error: "quoteId and amount are required" });
+      const { recordRevenueEvent } = await import("./services/stripe/revenueService");
+      await recordRevenueEvent({ quoteId, eventType: "manual_reconciliation", amount, isSimulated: false });
+      await storage.updateQuote(quoteId, { financialStatus: "paid", amountPaid: amount, amountDue: 0, lastPaymentAt: new Date() });
+      res.json({ success: true, message: "Payment reconciled manually" });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/payments/quote/:quoteId", async (req, res) => {
+    try {
+      const { quoteId } = req.params;
+      const { getPaymentLinksForQuote } = await import("./services/stripe/paymentLinkService");
+      const { getInvoicesForQuote } = await import("./services/stripe/invoiceService");
+      const links = await getPaymentLinksForQuote(quoteId);
+      const invoices = await getInvoicesForQuote(quoteId);
+      res.json({ quoteId, paymentLinks: links, invoices });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/payments/simulate-webhook", async (req, res) => {
+    try {
+      const { simulateWebhookEvent } = await import("./services/stripe/webhookService");
+      const result = await simulateWebhookEvent(req.body);
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post(
+    "/api/payments/stripe/webhook",
+    express.raw({ type: "application/json" }),
+    async (req, res) => {
+      const sig = req.headers["stripe-signature"] as string | undefined;
+      if (!sig) return res.status(400).json({ error: "Missing stripe-signature header" });
+      try {
+        const { processStripeWebhook } = await import("./services/stripe/webhookService");
+        const result = await processStripeWebhook(req.body as Buffer, sig);
+        if (!result.success && result.message !== "duplicate_skipped") {
+          return res.status(400).json({ error: result.message });
+        }
+        res.json(result);
+      } catch (err: any) {
+        console.error("[PaymentWebhook] Error:", err.message);
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+
+  // ─── ADMIN REVENUE ROUTES ─────────────────────────────────────────────────────
+
+  app.get("/api/admin/revenue/stats", async (_req, res) => {
+    try {
+      const { getRevenueStats } = await import("./services/stripe/revenueService");
+      const stats = await getRevenueStats();
+      res.json(stats);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/revenue/payments", async (_req, res) => {
+    try {
+      const { db } = await import("./db");
+      const { paymentLinks } = await import("../shared/schema");
+      const { desc } = await import("drizzle-orm");
+      const links = await db.select().from(paymentLinks).orderBy(desc(paymentLinks.createdAt)).limit(50);
+      res.json({ payments: links, total: links.length });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/revenue/invoices", async (_req, res) => {
+    try {
+      const { db } = await import("./db");
+      const { invoicesLog } = await import("../shared/schema");
+      const { desc } = await import("drizzle-orm");
+      const invoices = await db.select().from(invoicesLog).orderBy(desc(invoicesLog.createdAt)).limit(50);
+      res.json({ invoices, total: invoices.length });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/revenue/webhooks", async (_req, res) => {
+    try {
+      const { db } = await import("./db");
+      const { webhookEvents } = await import("../shared/schema");
+      const { desc } = await import("drizzle-orm");
+      const events = await db.select().from(webhookEvents).orderBy(desc(webhookEvents.createdAt)).limit(100);
+      res.json({ events, total: events.length, processed: events.filter(e => e.processed).length });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── MAP PAYMENT LAYERS ───────────────────────────────────────────────────────
+
+  app.get("/api/map/layers/payments-pending", async (_req, res) => {
+    try {
+      const { db } = await import("./db");
+      const { quotes } = await import("../shared/schema");
+      const { eq } = await import("drizzle-orm");
+      const pendingQuotes = await db.select().from(quotes).where(eq(quotes.financialStatus, "payment_pending")).limit(200);
+      const features = pendingQuotes.map((q: any) => ({
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [151.2 + Math.random() * 0.2, -33.87 + Math.random() * 0.2] },
+        properties: { company: q.companyName, city: "Sydney", financialStatus: q.financialStatus, amountDue: q.amountDue, quoteId: q.id, recommendedAction: "Send payment reminder" },
+      }));
+      res.json({ type: "FeatureCollection", features, meta: { total: features.length, layer: "payments-pending" } });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/map/layers/deposits-paid", async (_req, res) => {
+    try {
+      const { db } = await import("./db");
+      const { quotes } = await import("../shared/schema");
+      const { eq } = await import("drizzle-orm");
+      const depositQuotes = await db.select().from(quotes).where(eq(quotes.financialStatus, "deposit_paid")).limit(200);
+      const features = depositQuotes.map((q: any) => ({
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [151.2 + Math.random() * 0.2, -33.87 + Math.random() * 0.2] },
+        properties: { company: q.companyName, city: "Sydney", financialStatus: q.financialStatus, amountPaid: q.amountPaid, amountDue: q.amountDue, quoteId: q.id, recommendedAction: "Process final payment" },
+      }));
+      res.json({ type: "FeatureCollection", features, meta: { total: features.length, layer: "deposits-paid" } });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/map/layers/revenue-zones", async (_req, res) => {
+    try {
+      const { db } = await import("./db");
+      const { revenueEvents } = await import("../shared/schema");
+      const { gte } = await import("drizzle-orm");
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const events = await db.select().from(revenueEvents).where(gte(revenueEvents.occurredAt, weekAgo)).limit(200);
+      const totalRevenue = events.reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
+      const features = events.map((e: any) => ({
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [151.2 + Math.random() * 0.3, -33.87 + Math.random() * 0.3] },
+        properties: { eventType: e.eventType, amount: e.amount, currency: e.currency, isSimulated: e.isSimulated, occurredAt: e.occurredAt },
+      }));
+      res.json({ type: "FeatureCollection", features, meta: { total: features.length, totalRevenue, layer: "revenue-zones" } });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
