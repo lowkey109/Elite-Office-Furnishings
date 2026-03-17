@@ -1,0 +1,253 @@
+**Merged Single Prompt (Complete, Self-Contained Production Specification)**
+
+# WORKSPACE INTELLIGENCE PLATFORM  
+GLOBAL INTELLIGENCE GRAPH + ALEX v2 AUTONOMOUS DEAL AGENT (PRODUCTION IMPLEMENTATION)
+
+**ROLE**  
+You are a senior graph systems engineer, data platform architect, backend reliability engineer, intelligence systems builder, AI systems architect, and autonomous systems builder.
+
+You are working on an **EXISTING production platform**:  
+Workspace Intelligence Platform
+
+Your task is to **IMPLEMENT** a fully operational Global Intelligence Graph layer **and** Alex v2 — Autonomous Deal Agent as one unified, production-grade system.
+
+This must be:  
+• real  
+• persistent  
+• queryable  
+• production-safe  
+• fully integrated across **ALL** systems  
+
+------------------------------------------------
+
+**CRITICAL RULES**  
+1. DO NOT delete or replace existing modules  
+2. DO NOT break existing database tables  
+3. DO NOT rename working APIs without backward compatibility  
+4. DO NOT create isolated graph or Alex logic — integrate into **ALL** systems  
+5. DO NOT generate fake/synthetic graph data or production data  
+6. ALL edges must be derived from real system events  
+7. ALL actions must be derived from real signals  
+8. ALL writes must be idempotent and deduplicated  
+9. ALL outbound actions (email, LinkedIn, payments, bookings) must respect SAFE_MODE  
+
+------------------------------------------------
+
+**SYSTEM OBJECTIVE**  
+Create a connected intelligence + execution system that:  
+• detects opportunities automatically  
+• maps relationships across companies, buildings, tenants, signals, opportunities, contacts, partners, industries, suburbs, and deals  
+• predicts movement before competitors  
+• executes outreach, books meetings, and drives revenue autonomously  
+
+The relational graph layer powers movement prediction, hidden opportunity discovery, cluster detection, enterprise account mapping, and demand forecasting.  
+Alex v2 turns the graph into an autonomous revenue engine that finds deals before competitors, maps entire markets, executes outreach automatically, books meetings without manual work, converts opportunities into revenue, and scales without human bottlenecks.
+
+------------------------------------------------
+
+**STAGE 1 — GLOBAL INTELLIGENCE GRAPH (FULL IMPLEMENTATION)**
+
+**1.1 GRAPH DATA MODEL**  
+Use existing PostgreSQL database.  
+
+Create table:  
+`graph_edges`  
+
+Fields:  
+- `id` (uuid primary key)  
+- `from_entity_type` (string)  
+- `from_entity_id` (string)  
+- `to_entity_type` (string)  
+- `to_entity_id` (string)  
+- `relationship_type` (string)  
+- `weight` (float default 1)  
+- `confidence_score` (float 0–100)  
+- `metadata_json` (jsonb)  
+- `created_at` (timestamp)  
+
+**MANDATORY INDEXES**  
+- `idx_graph_from`  
+- `idx_graph_to`  
+- `idx_graph_relationship`  
+- `idx_graph_composite` (from_entity_type, from_entity_id)  
+- `idx_graph_reverse` (to_entity_type, to_entity_id)  
+
+**UNIQUE CONSTRAINT (DEDUP)**  
+`(from_entity_type, from_entity_id, to_entity_type, to_entity_id, relationship_type)`
+
+**RELATIONSHIP TYPES** (must support all)  
+COMPANY_OCCUPIES_BUILDING • COMPANY_HAS_CONTACT • COMPANY_HAS_SIGNAL • COMPANY_HAS_OPPORTUNITY • COMPANY_INDUSTRY • COMPANY_LINKED_TO_PARTNER • BUILDING_IN_SUBURB • BUILDING_HAS_TENANT • TENANT_INDUSTRY_CLUSTER • COMPANY_SUBSIDIARY • COMPANY_PARENT • CLUSTER_MEMBER  
+
+**1.2 GRAPH WRITE ENGINE**  
+Create `GraphWriteService` with:  
+`upsertEdge({ fromEntityType, fromEntityId, toEntityType, toEntityId, relationshipType, weight, confidenceScore, metadata })`  
+
+Must be fully idempotent, prevent duplicates, and update existing edges on conflict.
+
+**1.3 EVENT-DRIVEN GRAPH ENRICHMENT**  
+Hook into existing system events (real-time):  
+- SIGNAL CREATED → COMPANY_HAS_SIGNAL  
+- TENANT CREATED → BUILDING_HAS_TENANT + COMPANY_OCCUPIES_BUILDING  
+- OPPORTUNITY CREATED → COMPANY_HAS_OPPORTUNITY  
+- CONTACT CREATED → COMPANY_HAS_CONTACT  
+- PARTNER LINKED → COMPANY_LINKED_TO_PARTNER  
+- LEASE UPDATED → update COMPANY_OCCUPIES_BUILDING confidence  
+- INDUSTRY ASSIGNED → COMPANY_INDUSTRY  
+
+**1.4 GRAPH QUERY ENGINE**  
+Create `GraphService` with:  
+- `getNeighbors(entityType, entityId, depth=1)`  
+- `getSecondDegreeConnections(entityType, entityId)`  
+- `getCompanyNetwork(companyId)`  
+- `getConnectedOpportunities(companyId)`  
+- `getCompaniesInSameBuilding(buildingId)`  
+- `getCompaniesInSameSuburb(suburb)`  
+- `getCompaniesInSameIndustry(industry)`  
+- `getGraphPaths(entityType, entityId, maxDepth)`  
+
+**1.5 CLUSTER ENGINE** (job-based)  
+Create table:  
+`clusters` (id, type, region, cluster_score, entity_ids jsonb, created_at)  
+
+Identify: growth clusters, relocation clusters, high-risk buildings, industry density clusters.  
+Automatically create CLUSTER_MEMBER edges.
+
+**1.6 JOB ORCHESTRATION**  
+Use existing job system. Add:  
+- graph.enrich  
+- graph.rebuild_partial  
+- clusters.compute  
+- graph.cleanup  
+
+Triggers: after ingestion, after opportunity creation, daily.
+
+**1.7 OPPORTUNITY ENGINE UPGRADE**  
+Add graph-derived weights:  
+clusterScoreWeight • networkSignalWeight • buildingInstabilityWeight • industryDensityWeight  
+
+Update: opportunity_score, relocation_probability, zone_score.
+
+**1.8 MAP INTEGRATION**  
+New endpoints:  
+`/api/map/layers/graph-connections`  
+`/api/map/layers/clusters`  
+`/api/map/layers/industry-density`  
+
+Return GeoJSON with: connection_count, cluster_id, network_strength, risk_score.
+
+**1.9 COMMAND CENTRE**  
+Add panels: Network Opportunities • Cluster Alerts • Graph-Based Building Risk • Strategic Account Networks.
+
+**1.10 ALEX AI INTEGRATION (PREP)**  
+Extend existing Alex with tools: getGraphConnections, getClusterInsights, getNetworkRisk, getAccountNetwork.
+
+**1.11 PERFORMANCE**  
+Pagination on all graph queries • depth limit (default 2) • caching • no full table scans.
+
+**1.12 SAFE MODE**  
+Allow graph creation • block external actions • clearly label simulated data.
+
+**1.13 GRAPH VALIDATION**  
+Edges created only from real events • queries return real data • clusters generated • map layers render • opportunity scoring improved • no existing systems broken.
+
+------------------------------------------------
+
+**STAGE 2 — ALEX v2 CORE SYSTEM**  
+Create `AlexAutonomousAgent` — a decision + execution engine (NOT a chatbot).
+
+Capabilities:  
+1. Detect opportunities automatically  
+2. Decide which leads to act on  
+3. Trigger outreach  
+4. Follow up automatically  
+5. Book meetings  
+6. Track deal progress  
+7. Escalate to humans only when needed
+
+------------------------------------------------
+
+**STAGE 3 — DECISION ENGINE**  
+Create `AlexDecisionEngine`.  
+Inputs: opportunity_score, relocation_probability, graph connections, cluster strength, demand score, company signals, past outcomes.  
+Output: IGNORE | MONITOR | OUTREACH | PRIORITY_OUTREACH | BOOK_MEETING | ESCALATE_TO_HUMAN
+
+------------------------------------------------
+
+**STAGE 4 — OUTREACH ENGINE INTEGRATION**  
+Connect to existing Outreach Engine.  
+Alex personalises and sends emails / LinkedIn messages using signal + graph context.  
+Rules: no duplicates, respect cooldowns, track engagement.
+
+------------------------------------------------
+
+**STAGE 5 — AUTO BOOKING ENGINE**  
+Create `AutoBookingService`.  
+Generate booking links, insert into messages, auto-schedule, sync calendar (placeholder OK).  
+Trigger on high-intent or Alex decision = BOOK_MEETING.
+
+------------------------------------------------
+
+**STAGE 6 — DEAL TRACKING SYSTEM**  
+Create table:  
+`deal_execution` (id, company_id, status, stage, assigned_to (Alex/human), last_action, next_action, last_contacted_at, meeting_booked, deal_value_estimate, created_at)  
+
+Statuses: NEW → CONTACTED → ENGAGED → MEETING_BOOKED → PROPOSAL_SENT → NEGOTIATION → WON → LOST
+
+------------------------------------------------
+
+**STAGE 7 — STRIPE REVENUE INTEGRATION**  
+Extend existing Stripe (do NOT rebuild).  
+Attach payment links, track status, update deal to WON on payment success.
+
+------------------------------------------------
+
+**STAGE 8 — GRAPH + ALEX CONNECTION**  
+Alex **must** use graph data:  
+• prioritise companies in high-growth clusters  
+• target buildings with multiple at-risk tenants  
+• surface second-degree opportunities  
+• leverage partner access paths
+
+------------------------------------------------
+
+**STAGE 9 — COMMAND CENTRE UPGRADE**  
+Add panels: Autonomous Deals Pipeline • Alex Actions Feed • High-Probability Deals • Meetings Booked (Auto) • Revenue Forecast (AI-driven)
+
+------------------------------------------------
+
+**STAGE 10 — ALEX ACTION LOGGING**  
+Create table:  
+`alex_actions` (id, action_type, entity_type, entity_id, decision, reasoning, executed, result, created_at)  
+Critical for debugging and trust.
+
+------------------------------------------------
+
+**STAGE 11 — SAFE MODE (CRITICAL)**  
+When SAFE_MODE = true:  
+• DO NOT send emails or LinkedIn messages  
+• DO NOT charge payments or book real meetings  
+• Simulate decisions + log actions with clear “SIMULATED” label
+
+------------------------------------------------
+
+**STAGE 12 — PERFORMANCE**  
+Batch decision processing • queue-based execution • no blocking calls • log all failures • retry logic
+
+------------------------------------------------
+
+**STAGE 13 — FINAL VALIDATION**  
+System is complete **ONLY** if:  
+1. Graph edges created from real events only  
+2. Alex detects real opportunities and makes decisions  
+3. Outreach, bookings, and deal pipeline function  
+4. Stripe updates deal status on payment  
+5. Graph data directly influences Alex decisions and opportunity scoring  
+6. Map layers and Command Centre panels render correctly  
+7. SAFE_MODE blocks all external actions  
+8. No existing systems are broken  
+9. Clusters form, networks are queryable, revenue is tracked autonomously
+
+**FINAL GOAL**  
+Transform the Workspace Intelligence Platform into a permanent competitive advantage: a living Global Intelligence Graph that maps entire commercial ecosystems + an autonomous Alex v2 revenue engine that finds, engages, books, and closes deals at scale — all driven by real data, real events, and real relationships.
+
+You now have one unified, complete production specification. Proceed with implementation following the exact order and rules above.

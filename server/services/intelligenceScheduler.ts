@@ -289,7 +289,9 @@ async function registerPgBossWorkers(): Promise<void> {
   });
 
   await registerWorker(QUEUES.CLUSTERS_GENERATE, async () => {
-    console.log("[Scheduler] Cluster generation job run");
+    const { computeClusters } = await import("./intelligence/clusterEngine");
+    const result = await computeClusters();
+    console.log(`[Scheduler] Clusters generated: +${result.created} created, ${result.updated} updated, ${result.edges} edges`);
   });
 
   await registerWorker(QUEUES.ALERTS_GENERATE, async () => {
@@ -402,6 +404,13 @@ async function registerPgBossWorkers(): Promise<void> {
   await registerWorker(QUEUES.WEBHOOKS_REPLAY, async () => {
     console.log("[WebhooksReplay] Checking for failed webhook events to replay");
   });
+
+  // ── Alex Autonomous Agent ──────────────────────────────────────────────────
+  await registerWorker(QUEUES.ALEX_CYCLE, async () => {
+    const { runAlexCycle } = await import("./alex/alexAutonomousAgent");
+    const result = await runAlexCycle();
+    console.log(`[AlexAgent] Cycle done: ${result.processed} opps, ${result.outreachTriggered} outreach, ${result.bookingsCreated} bookings, ${result.dealsUpdated} deals`);
+  });
 }
 
 async function schedulePgBossJobs(): Promise<void> {
@@ -434,7 +443,10 @@ async function schedulePgBossJobs(): Promise<void> {
   await scheduleJob(QUEUES.PAYMENTS_RETRY_FAILED, {}, { repeatEvery: "0 */6 * * *", singletonKey: "payments-retry" });
   await scheduleJob(QUEUES.INVOICES_REFRESH, {}, { repeatEvery: "0 */8 * * *", singletonKey: "invoices-refresh" });
   await scheduleJob(QUEUES.WEBHOOKS_REPLAY, {}, { repeatEvery: "0 */6 * * *", singletonKey: "webhooks-replay" });
-  console.log("[IntelligenceScheduler] pg-boss recurring jobs scheduled (incl. 7 outreach + 6 payment queues = 27 total)");
+  // Alex Autonomous Agent + Cluster Engine
+  await scheduleJob(QUEUES.CLUSTERS_GENERATE, {}, { repeatEvery: "0 */6 * * *", singletonKey: "clusters-generate" });
+  await scheduleJob(QUEUES.ALEX_CYCLE, {}, { repeatEvery: "0 */4 * * *", singletonKey: "alex-cycle" });
+  console.log("[IntelligenceScheduler] pg-boss recurring jobs scheduled (incl. 7 outreach + 6 payment + Alex + clusters = 29 total)");
 }
 
 // ─── Unified scheduler startup ─────────────────────────────────────────────────

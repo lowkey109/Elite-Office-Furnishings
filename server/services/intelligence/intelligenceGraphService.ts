@@ -248,3 +248,256 @@ export async function runGraphRefresh(): Promise<void> {
   const stats = await getGraphStats();
   console.log(`[IntelligenceGraph] Refresh complete: ${edges} edges built, ${stats.totalEdges} total in graph`);
 }
+
+// ─── Graph Query Engine (Stage 1.4) ──────────────────────────────────────────
+
+export interface GraphNode {
+  entityType: string;
+  entityId: string;
+  entityName: string;
+  weight: number;
+  edgeType: string;
+}
+
+export async function getNeighbors(
+  entityType: string,
+  entityId: string,
+  depth = 1
+): Promise<GraphNode[]> {
+  const visited = new Set<string>();
+  let frontier: GraphNode[] = [];
+
+  const directEdges = await db
+    .select()
+    .from(intelligenceGraphEdges)
+    .where(
+      and(
+        eq(intelligenceGraphEdges.sourceType, entityType),
+        eq(intelligenceGraphEdges.sourceId, entityId)
+      )
+    )
+    .limit(100);
+
+  frontier = directEdges.map((e) => ({
+    entityType: e.targetType,
+    entityId: e.targetId,
+    entityName: e.targetName,
+    weight: e.weight,
+    edgeType: e.edgeType,
+  }));
+
+  visited.add(`${entityType}:${entityId}`);
+
+  if (depth > 1) {
+    const secondDegree: GraphNode[] = [];
+    for (const node of frontier) {
+      const key = `${node.entityType}:${node.entityId}`;
+      if (visited.has(key)) continue;
+      visited.add(key);
+      const next = await db
+        .select()
+        .from(intelligenceGraphEdges)
+        .where(
+          and(
+            eq(intelligenceGraphEdges.sourceType, node.entityType),
+            eq(intelligenceGraphEdges.sourceId, node.entityId)
+          )
+        )
+        .limit(50);
+      for (const e of next) {
+        const nkey = `${e.targetType}:${e.targetId}`;
+        if (!visited.has(nkey)) {
+          secondDegree.push({
+            entityType: e.targetType,
+            entityId: e.targetId,
+            entityName: e.targetName,
+            weight: e.weight * 0.5,
+            edgeType: e.edgeType,
+          });
+        }
+      }
+    }
+    frontier = [...frontier, ...secondDegree];
+  }
+
+  return frontier;
+}
+
+export async function getSecondDegreeConnections(
+  entityType: string,
+  entityId: string
+): Promise<GraphNode[]> {
+  return getNeighbors(entityType, entityId, 2);
+}
+
+export async function getCompanyNetwork(companyId: string): Promise<{
+  direct: GraphNode[];
+  secondDegree: GraphNode[];
+  connectionCount: number;
+  networkStrength: number;
+}> {
+  const direct = await getNeighbors("company", companyId, 1);
+  const secondDegree = (await getNeighbors("company", companyId, 2)).filter(
+    (n) => !direct.some((d) => d.entityId === n.entityId)
+  );
+  const networkStrength = Math.min(100, direct.length * 10 + secondDegree.length * 3);
+  return { direct, secondDegree, connectionCount: direct.length + secondDegree.length, networkStrength };
+}
+
+export async function getConnectedOpportunities(companyId: string): Promise<GraphNode[]> {
+  const neighbors = await getNeighbors("company", companyId, 2);
+  return neighbors.filter((n) => n.entityType === "opportunity" || n.entityType === "signal");
+}
+
+export async function getCompaniesInSameBuilding(buildingId: string): Promise<GraphNode[]> {
+  const edges = await db
+    .select()
+    .from(intelligenceGraphEdges)
+    .where(
+      and(
+        eq(intelligenceGraphEdges.targetId, buildingId),
+        eq(intelligenceGraphEdges.edgeType, "located_in")
+      )
+    )
+    .limit(100);
+  return edges.map((e) => ({
+    entityType: e.sourceType,
+    entityId: e.sourceId,
+    entityName: e.sourceName,
+    weight: e.weight,
+    edgeType: e.edgeType,
+  }));
+}
+
+export async function getCompaniesInSameSuburb(suburb: string): Promise<GraphNode[]> {
+  const edges = await db
+    .select()
+    .from(intelligenceGraphEdges)
+    .where(
+      and(
+        eq(intelligenceGraphEdges.targetId, `suburb:${suburb}`),
+        eq(intelligenceGraphEdges.edgeType, "in_suburb")
+      )
+    )
+    .limit(100);
+  return edges.map((e) => ({
+    entityType: e.sourceType,
+    entityId: e.sourceId,
+    entityName: e.sourceName,
+    weight: e.weight,
+    edgeType: e.edgeType,
+  }));
+}
+
+export async function getCompaniesInSameIndustry(industry: string): Promise<GraphNode[]> {
+  const edges = await db
+    .select()
+    .from(intelligenceGraphEdges)
+    .where(eq(intelligenceGraphEdges.targetId, `industry:${industry}`))
+    .limit(100);
+  return edges.map((e) => ({
+    entityType: e.sourceType,
+    entityId: e.sourceId,
+    entityName: e.sourceName,
+    weight: e.weight,
+    edgeType: e.edgeType,
+  }));
+}
+
+export async function getGraphPaths(
+  entityType: string,
+  entityId: string,
+  maxDepth = 2
+): Promise<{ path: GraphNode[]; depth: number }[]> {
+  const paths: { path: GraphNode[]; depth: number }[] = [];
+
+  async function traverse(
+    currentType: string,
+    currentId: string,
+    currentPath: GraphNode[],
+    depth: number
+  ) {
+    if (depth >= maxDepth) return;
+    const edges = await db
+      .select()
+      .from(intelligenceGraphEdges)
+      .where(
+        and(
+          eq(intelligenceGraphEdges.sourceType, currentType),
+          eq(intelligenceGraphEdges.sourceId, currentId)
+        )
+      )
+      .limit(20);
+    for (const edge of edges) {
+      const node: GraphNode = {
+        entityType: edge.targetType,
+        entityId: edge.targetId,
+        entityName: edge.targetName,
+        weight: edge.weight,
+        edgeType: edge.edgeType,
+      };
+      const newPath = [...currentPath, node];
+      paths.push({ path: newPath, depth: depth + 1 });
+      if (depth + 1 < maxDepth) {
+        await traverse(edge.targetType, edge.targetId, newPath, depth + 1);
+      }
+    }
+  }
+
+  await traverse(entityType, entityId, [], 0);
+  return paths.slice(0, 100);
+}
+
+// ─── Event Hook: upsert single edge from system events ───────────────────────
+
+export async function onSignalCreated(params: {
+  companyName: string;
+  signalId: string;
+  city?: string;
+}): Promise<void> {
+  await upsertEdge(
+    "company", `company:${params.companyName}`, params.companyName,
+    "signal", params.signalId, "signal",
+    "generates_signal", 0.8, { city: params.city }
+  );
+}
+
+export async function onTenantCreated(params: {
+  companyId: string;
+  companyName: string;
+  buildingId: string;
+  buildingName: string;
+  suburb?: string;
+}): Promise<void> {
+  await upsertEdge(
+    "company", params.companyId, params.companyName,
+    "building", params.buildingId, params.buildingName,
+    "located_in", 0.95, {}
+  );
+  if (params.suburb) {
+    await upsertEdge(
+      "building", params.buildingId, params.buildingName,
+      "suburb", `suburb:${params.suburb}`, params.suburb,
+      "in_suburb", 1.0, {}
+    );
+  }
+}
+
+export async function onOpportunityCreated(params: {
+  companyId: string;
+  companyName: string;
+  opportunityId: string;
+}): Promise<void> {
+  await upsertEdge(
+    "company", params.companyId, params.companyName,
+    "opportunity", params.opportunityId, "opportunity",
+    "generates_signal", 0.9, {}
+  );
+}
+
+// ─── Graph-derived network strength for a company ────────────────────────────
+
+export async function getNetworkStrength(companyId: string): Promise<number> {
+  const { networkStrength } = await getCompanyNetwork(companyId);
+  return networkStrength;
+}

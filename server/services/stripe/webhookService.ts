@@ -1,5 +1,5 @@
 import { db } from "../../db";
-import { webhookEvents, quotes, paymentLinks, paymentIntentsLog, invoicesLog, auditLogs } from "../../../shared/schema";
+import { webhookEvents, quotes, paymentLinks, paymentIntentsLog, invoicesLog, auditLogs, dealExecution } from "../../../shared/schema";
 import { eq, and } from "drizzle-orm";
 import { getStripeClient, getStripeConfig } from "./stripeConfigService";
 import { recordRevenueEvent } from "./revenueService";
@@ -132,6 +132,33 @@ async function handleStripeEvent(event: Stripe.Event, config: ReturnType<typeof 
           currency: intent.currency,
           isSimulated: config.testMode,
         });
+
+        // Stage 7: Update deal_execution → WON on payment success
+        const companyName = intent.metadata?.companyName;
+        if (companyName) {
+          const existingDeals = await db.select().from(dealExecution)
+            .where(eq(dealExecution.companyName, companyName)).limit(1);
+          if (existingDeals.length > 0) {
+            await db.update(dealExecution).set({
+              stage: "won",
+              status: "won",
+              lastAction: `Payment received: $${(intent.amount / 100).toFixed(2)} AUD`,
+              wonAt: new Date(),
+              updatedAt: new Date(),
+            }).where(eq(dealExecution.id, existingDeals[0].id));
+          } else {
+            await db.insert(dealExecution).values({
+              companyName,
+              stage: "won",
+              status: "won",
+              lastAction: `Payment received via Stripe: $${(intent.amount / 100).toFixed(2)} AUD`,
+              nextAction: "Deliver order",
+              assignedTo: "human",
+              stripePaymentLinkId: intent.id,
+              wonAt: new Date(),
+            });
+          }
+        }
       }
       break;
     }

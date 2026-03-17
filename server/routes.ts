@@ -6575,5 +6575,167 @@ Rules:
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
+  // ── Stage 1.8: Graph Connections Map Layer ────────────────────────────────
+  app.get("/api/map/layers/graph-connections", async (_req, res) => {
+    try {
+      const { getGraphStats, getCompaniesInSameSuburb } = await import("./services/intelligence/intelligenceGraphService");
+      const { suburbDemandSnapshots } = await import("../shared/schema");
+      const suburbs = await db.select().from(suburbDemandSnapshots).limit(200);
+      const stats = await getGraphStats();
+      const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
+        Brisbane: { lat: -27.4698, lng: 153.0251 }, Melbourne: { lat: -37.8136, lng: 144.9631 },
+        Sydney: { lat: -33.8688, lng: 151.2093 }, Perth: { lat: -31.9505, lng: 115.8605 },
+        Adelaide: { lat: -34.9285, lng: 138.6007 }, Canberra: { lat: -35.2802, lng: 149.1310 },
+      };
+      const features = suburbs.slice(0, 100).map((s) => {
+        const coord = CITY_COORDS[s.city] ?? CITY_COORDS["Sydney"];
+        const jitter = () => (Math.random() - 0.5) * 0.08;
+        const topCo = stats.topConnectedCompanies.find(c => c.name.toLowerCase().includes(s.city.toLowerCase()));
+        return {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: [coord.lng + jitter(), coord.lat + jitter()] },
+          properties: {
+            city: s.city, suburb: s.suburb ?? s.city,
+            connectionCount: topCo?.connections ?? Math.round((s.demandScore ?? 50) / 10),
+            networkStrength: Math.min(100, (s.demandScore ?? 50) * 1.2),
+            totalGraphEdges: stats.totalEdges,
+          },
+        };
+      });
+      res.json({ type: "FeatureCollection", features, meta: { total: features.length, layer: "graph-connections", totalEdges: stats.totalEdges } });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ── Stage 1.8: Industry Density Map Layer ────────────────────────────────
+  app.get("/api/map/layers/industry-density", async (_req, res) => {
+    try {
+      const { clusters: clusterTable } = await import("../shared/schema");
+      const { desc: dsc, sql: sqlFn, eq: eqFn } = await import("drizzle-orm");
+      const industryClusters = await db.select().from(clusterTable)
+        .where(eqFn(clusterTable.type, "industry_density"))
+        .orderBy(dsc(clusterTable.clusterScore)).limit(50);
+      const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
+        Brisbane: { lat: -27.4698, lng: 153.0251 }, Melbourne: { lat: -37.8136, lng: 144.9631 },
+        Sydney: { lat: -33.8688, lng: 151.2093 }, Perth: { lat: -31.9505, lng: 115.8605 },
+        Adelaide: { lat: -34.9285, lng: 138.6007 }, Canberra: { lat: -35.2802, lng: 149.1310 },
+      };
+      const features = industryClusters.map((c) => {
+        const coord = CITY_COORDS[c.city ?? "Sydney"] ?? CITY_COORDS["Sydney"];
+        const jitter = () => (Math.random() - 0.5) * 0.12;
+        return {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: [coord.lng + jitter(), coord.lat + jitter()] },
+          properties: {
+            industry: c.topIndustry ?? c.region, clusterScore: c.clusterScore, entityCount: c.entityCount,
+            city: c.city, type: c.type,
+          },
+        };
+      });
+      res.json({ type: "FeatureCollection", features, meta: { total: features.length, layer: "industry-density" } });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ── Alex Autonomous Agent API ─────────────────────────────────────────────
+  app.get("/api/alex/stats", async (_req, res) => {
+    try {
+      const { getAlexStats } = await import("./services/alex/alexAutonomousAgent");
+      res.json(await getAlexStats());
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/alex/pipeline", async (_req, res) => {
+    try {
+      const { getDealPipeline } = await import("./services/alex/alexAutonomousAgent");
+      res.json(await getDealPipeline());
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/alex/actions", async (req, res) => {
+    try {
+      const limit = Math.min(100, parseInt(String(req.query.limit ?? "50")));
+      const { alexActions: alexActionsTable } = await import("../shared/schema");
+      const { desc: dsc } = await import("drizzle-orm");
+      const actions = await db.select().from(alexActionsTable).orderBy(dsc(alexActionsTable.createdAt)).limit(limit);
+      res.json({ actions, total: actions.length });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/alex/cycle/trigger", async (_req, res) => {
+    try {
+      const { triggerJob, QUEUES } = await import("./services/jobOrchestrator");
+      const jobId = await triggerJob(QUEUES.ALEX_CYCLE);
+      res.json({ success: true, jobId, message: "Alex cycle triggered" });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/alex/cycle/run-now", async (_req, res) => {
+    try {
+      const { runAlexCycle } = await import("./services/alex/alexAutonomousAgent");
+      const result = await runAlexCycle();
+      res.json({ success: true, ...result });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/alex/deals", async (req, res) => {
+    try {
+      const { dealExecution: dealTable } = await import("../shared/schema");
+      const { desc: dsc } = await import("drizzle-orm");
+      const deals = await db.select().from(dealTable).orderBy(dsc(dealTable.createdAt)).limit(100);
+      res.json({ deals, total: deals.length });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ── Cluster API ───────────────────────────────────────────────────────────
+  app.get("/api/admin/clusters/stats", async (_req, res) => {
+    try {
+      const { getClusterStats } = await import("./services/intelligence/clusterEngine");
+      res.json(await getClusterStats());
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/clusters", async (req, res) => {
+    try {
+      const { clusters: clusterTable } = await import("../shared/schema");
+      const { desc: dsc } = await import("drizzle-orm");
+      const type = req.query.type as string | undefined;
+      const { eq: eqFn } = await import("drizzle-orm");
+      let q = db.select().from(clusterTable).orderBy(dsc(clusterTable.clusterScore)).limit(100);
+      const rows = await q;
+      const filtered = type ? rows.filter((c) => c.type === type) : rows;
+      res.json({ clusters: filtered, total: filtered.length });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/clusters/compute", async (_req, res) => {
+    try {
+      const { computeClusters } = await import("./services/intelligence/clusterEngine");
+      const result = await computeClusters();
+      res.json({ success: true, ...result });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ── Graph Query API ───────────────────────────────────────────────────────
+  app.get("/api/graph/company/:companyId/network", async (req, res) => {
+    try {
+      const { getCompanyNetwork } = await import("./services/intelligence/intelligenceGraphService");
+      res.json(await getCompanyNetwork(req.params.companyId));
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/graph/neighbors/:entityType/:entityId", async (req, res) => {
+    try {
+      const { getNeighbors } = await import("./services/intelligence/intelligenceGraphService");
+      const depth = Math.min(2, parseInt(String(req.query.depth ?? "1")));
+      res.json(await getNeighbors(req.params.entityType, req.params.entityId, depth));
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/graph/building/:buildingId/companies", async (req, res) => {
+    try {
+      const { getCompaniesInSameBuilding } = await import("./services/intelligence/intelligenceGraphService");
+      res.json(await getCompaniesInSameBuilding(req.params.buildingId));
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
   return httpServer;
 }

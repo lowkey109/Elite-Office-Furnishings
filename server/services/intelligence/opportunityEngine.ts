@@ -1,10 +1,57 @@
 // ─── Opportunity Engine ───────────────────────────────────────────────────────
 // Evaluates, ranks, and surfaces high-value workspace opportunities from all
 // intelligence signal sources.
+// Stage 1.7: applies graph-derived weights to opportunity scoring.
 
 import { db } from "../../db";
-import { intelligenceSignals, officeMovRadar, dealHunterSignals } from "@shared/schema";
-import { desc, gte, sql } from "drizzle-orm";
+import { intelligenceSignals, officeMovRadar, dealHunterSignals, clusters } from "@shared/schema";
+import { desc, sql } from "drizzle-orm";
+
+// ── Graph Weight Factors (Stage 1.7) ─────────────────────────────────────────
+// Loaded once per cycle; safe to call concurrently.
+
+async function getGraphWeights(): Promise<{
+  clusterScoreByCity: Record<string, number>;
+  industryDensityByIndustry: Record<string, number>;
+}> {
+  try {
+    const allClusters = await db.select().from(clusters).limit(200);
+    const clusterScoreByCity: Record<string, number> = {};
+    const industryDensityByIndustry: Record<string, number> = {};
+
+    for (const c of allClusters) {
+      if (c.city && c.type !== "industry_density") {
+        clusterScoreByCity[c.city.toLowerCase()] = Math.max(
+          clusterScoreByCity[c.city.toLowerCase()] ?? 0,
+          c.clusterScore ?? 0
+        );
+      }
+      if (c.type === "industry_density" && c.topIndustry) {
+        industryDensityByIndustry[c.topIndustry.toLowerCase()] = Math.max(
+          industryDensityByIndustry[c.topIndustry.toLowerCase()] ?? 0,
+          c.clusterScore ?? 0
+        );
+      }
+    }
+    return { clusterScoreByCity, industryDensityByIndustry };
+  } catch {
+    return { clusterScoreByCity: {}, industryDensityByIndustry: {} };
+  }
+}
+
+function applyGraphBoost(
+  baseScore: number,
+  city: string,
+  industry?: string,
+  weights?: { clusterScoreByCity: Record<string, number>; industryDensityByIndustry: Record<string, number> }
+): number {
+  if (!weights) return baseScore;
+  const clusterBoost = (weights.clusterScoreByCity[city?.toLowerCase()] ?? 0) * 0.1;
+  const industryBoost = industry
+    ? (weights.industryDensityByIndustry[industry?.toLowerCase()] ?? 0) * 0.05
+    : 0;
+  return Math.min(100, baseScore + clusterBoost + industryBoost);
+}
 
 export interface OpportunityRecord {
   id: string;
@@ -23,6 +70,9 @@ export interface OpportunityRecord {
 }
 
 export async function getTopOpportunities(limit = 20): Promise<OpportunityRecord[]> {
+  // Load graph weights (cluster boosts per city/industry)
+  const weights = await getGraphWeights();
+
   const signals = await db
     .select()
     .from(intelligenceSignals)
@@ -51,7 +101,7 @@ export async function getTopOpportunities(limit = 20): Promise<OpportunityRecord
       city: s.city,
       state: s.state ?? undefined,
       signalType: s.signalType,
-      opportunityScore: s.opportunityScore,
+      opportunityScore: applyGraphBoost(s.opportunityScore, s.city, s.industry ?? undefined, weights),
       confidenceScore: s.confidenceScore,
       relocationProbability: s.relocationProbability,
       commercialTier: s.commercialTier ?? "mid",
@@ -66,7 +116,7 @@ export async function getTopOpportunities(limit = 20): Promise<OpportunityRecord
       city: r.city,
       state: r.state ?? undefined,
       signalType: r.signalType,
-      opportunityScore: r.radarScore,
+      opportunityScore: applyGraphBoost(r.radarScore, r.city, r.industry ?? undefined, weights),
       confidenceScore: r.confidenceLevel === "high" ? 80 : r.confidenceLevel === "medium" ? 60 : 40,
       relocationProbability: r.signalType.includes("relocation") ? 75 : 50,
       commercialTier: "mid",
@@ -80,7 +130,7 @@ export async function getTopOpportunities(limit = 20): Promise<OpportunityRecord
       city: d.city,
       state: d.state ?? undefined,
       signalType: d.signalType,
-      opportunityScore: d.signalStrengthScore,
+      opportunityScore: applyGraphBoost(d.signalStrengthScore, d.city, undefined, weights),
       confidenceScore: d.signalConfidence,
       relocationProbability: d.relocationProbability ?? 0,
       commercialTier: "mid",

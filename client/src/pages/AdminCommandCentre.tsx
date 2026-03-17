@@ -532,6 +532,37 @@ export default function AdminCommandCentre() {
     refetchInterval: 60000,
   });
 
+  const { data: alexStats, refetch: refetchAlex } = useQuery<{
+    totalActions: number; outreachTriggered: number; bookingsMade: number;
+    dealsActive: number; dealsWon: number;
+    recentActions: Array<{ id: string; entityName: string; decision: string; reasoning: string; executed: boolean; isSafe: boolean; createdAt: string | null }>;
+  }>({
+    queryKey: ["/api/alex/stats"],
+    enabled: authed,
+    refetchInterval: 30000,
+  });
+
+  const { data: alexPipeline, refetch: refetchPipeline } = useQuery<{
+    byStage: Record<string, number>;
+    highProbability: Array<{ companyName: string; stage: string; score: number; city: string }>;
+    totalPipelineValue: number;
+    wonRevenue: number;
+  }>({
+    queryKey: ["/api/alex/pipeline"],
+    enabled: authed,
+    refetchInterval: 30000,
+  });
+
+  const { data: clusterStats, refetch: refetchClusters } = useQuery<{
+    total: number;
+    byType: Record<string, number>;
+    topClusters: Array<{ id: string; type: string; region: string; score: number; entityCount: number }>;
+  }>({
+    queryKey: ["/api/admin/clusters/stats"],
+    enabled: authed,
+    refetchInterval: 60000,
+  });
+
   const runContactDiscoveryMutation = useMutation({
     mutationFn: async () => apiRequest("POST", "/api/admin/outreach/run-contact-discovery", {}),
     onSuccess: () => { toast({ title: "Contact discovery started", description: "Discovering contacts for high-value opportunities." }); refetchContactDiscovery(); },
@@ -2786,6 +2817,188 @@ export default function AdminCommandCentre() {
           </div>
           <div className="px-5 py-3 bg-[rgba(255,255,255,0.02)] border-t border-[rgba(255,255,255,0.04)]">
             <p className="text-white/20 text-[10px]">Proprietary building intelligence — feeds lease expiry engine, relocation scoring, and demand forecasting.</p>
+          </div>
+        </div>
+
+        {/* ── Autonomous Deals Pipeline ─────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(100,255,200,0.18)] rounded-2xl overflow-hidden" data-testid="panel-autonomous-deals">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-emerald-400" />
+              <h2 className="text-white font-semibold text-sm">Autonomous Deals Pipeline</h2>
+              <span className="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full px-2 py-0.5 font-semibold">ALEX AGENT</span>
+            </div>
+            <button onClick={() => { refetchAlex(); refetchPipeline(); }} className="text-white/30 hover:text-white/60 transition-colors"><RefreshCw className="w-3.5 h-3.5" /></button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-px bg-[rgba(255,255,255,0.04)]">
+            {[
+              { label: "Total Actions", value: alexStats?.totalActions ?? "—", sub: "Alex decisions made", color: "text-white" },
+              { label: "Outreach Sent", value: alexStats?.outreachTriggered ?? "—", sub: "Auto-triggered", color: "text-blue-400" },
+              { label: "Meetings Created", value: alexStats?.bookingsMade ?? "—", sub: "Auto-booked", color: "text-purple-400" },
+              { label: "Active Deals", value: alexStats?.dealsActive ?? "—", sub: "In pipeline", color: "text-amber-400" },
+              { label: "Deals Won", value: alexStats?.dealsWon ?? "—", sub: "Closed by Alex/team", color: "text-emerald-400" },
+            ].map(({ label, value, sub, color }) => (
+              <div key={label} className="bg-[hsl(220,18%,10%)] p-4">
+                <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">{label}</p>
+                <p className={`text-2xl font-bold ${color}`}>{value}</p>
+                <p className="text-white/30 text-[10px] mt-0.5">{sub}</p>
+              </div>
+            ))}
+          </div>
+          <div className="p-4">
+            <p className="text-white/40 text-[10px] uppercase tracking-wider mb-3">Deal Pipeline by Stage</p>
+            <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+              {["new","contacted","engaged","meeting_booked","proposal_sent","negotiation","won","lost"].map((stage) => (
+                <div key={stage} className="bg-[rgba(255,255,255,0.03)] rounded-lg p-2 text-center">
+                  <p className="text-white/30 text-[9px] uppercase tracking-wider mb-1">{stage.replace("_"," ")}</p>
+                  <p className="text-white font-bold text-lg">{alexPipeline?.byStage?.[stage] ?? 0}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2 px-4 pb-4">
+            <button
+              onClick={() => fetch("/api/alex/cycle/run-now", { method: "POST" }).then(r => r.json()).then(d => { alert(`Alex cycle: ${d.processed} opps, ${d.outreachTriggered} outreach, ${d.bookingsCreated} bookings`); refetchAlex(); refetchPipeline(); })}
+              className="flex items-center gap-2 bg-[rgba(100,255,200,0.08)] hover:bg-[rgba(100,255,200,0.14)] border border-[rgba(100,255,200,0.2)] rounded-xl px-4 py-2.5 text-emerald-400 text-xs font-semibold transition-colors"
+              data-testid="btn-run-alex-cycle"
+            >
+              <Zap className="w-3.5 h-3.5" /> Run Alex Cycle Now
+            </button>
+            <Link href="/admin/deal-pipeline">
+              <button className="flex items-center gap-2 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.06)] rounded-xl px-4 py-2.5 text-white/60 text-xs font-semibold transition-colors" data-testid="btn-view-deal-pipeline">
+                <Eye className="w-3.5 h-3.5" /> Deal Pipeline
+              </button>
+            </Link>
+          </div>
+          <div className="px-5 py-3 bg-[rgba(255,255,255,0.02)] border-t border-[rgba(255,255,255,0.04)]">
+            <p className="text-white/20 text-[10px]">Alex autonomously scans opportunities, makes decisions (IGNORE→BOOK_MEETING), and manages the full deal lifecycle. Configure SAFE_MODE env var to enable live outreach.</p>
+          </div>
+        </div>
+
+        {/* ── Alex Actions Feed ─────────────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(100,180,255,0.18)] rounded-2xl overflow-hidden" data-testid="panel-alex-actions">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-2">
+              <Activity className="w-4 h-4 text-blue-400" />
+              <h2 className="text-white font-semibold text-sm">Alex Actions Feed</h2>
+              <span className="text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full px-2 py-0.5 font-semibold">LIVE</span>
+            </div>
+            <button onClick={() => refetchAlex()} className="text-white/30 hover:text-white/60 transition-colors"><RefreshCw className="w-3.5 h-3.5" /></button>
+          </div>
+          <div className="divide-y divide-[rgba(255,255,255,0.04)] max-h-72 overflow-y-auto">
+            {(alexStats?.recentActions ?? []).length === 0 ? (
+              <div className="px-5 py-8 text-center">
+                <p className="text-white/30 text-sm">No Alex actions yet.</p>
+                <p className="text-white/20 text-xs mt-1">Run the Alex cycle to generate decisions.</p>
+              </div>
+            ) : (alexStats?.recentActions ?? []).map((action) => {
+              const DECISION_COLORS: Record<string, string> = {
+                IGNORE: "text-white/30 bg-white/5", MONITOR: "text-yellow-400/80 bg-yellow-500/10",
+                OUTREACH: "text-blue-400 bg-blue-500/10", PRIORITY_OUTREACH: "text-orange-400 bg-orange-500/10",
+                BOOK_MEETING: "text-purple-400 bg-purple-500/10", ESCALATE_TO_HUMAN: "text-red-400 bg-red-500/10",
+              };
+              const dc = DECISION_COLORS[action.decision] ?? "text-white/40 bg-white/5";
+              return (
+                <div key={action.id} className="px-5 py-3 flex items-start gap-3" data-testid={`alex-action-${action.id}`}>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 mt-0.5 ${dc}`}>{action.decision}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-white text-xs font-semibold truncate">{action.entityName}</p>
+                    <p className="text-white/40 text-[10px] truncate">{action.reasoning}</p>
+                  </div>
+                  {action.isSafe && <span className="text-[9px] text-amber-400/60 flex-shrink-0">SAFE</span>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ── High-Probability Deals ────────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,200,50,0.18)] rounded-2xl overflow-hidden" data-testid="panel-high-probability-deals">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-2">
+              <Flame className="w-4 h-4 text-amber-400" />
+              <h2 className="text-white font-semibold text-sm">High-Probability Deals</h2>
+            </div>
+            <button onClick={() => refetchPipeline()} className="text-white/30 hover:text-white/60 transition-colors"><RefreshCw className="w-3.5 h-3.5" /></button>
+          </div>
+          <div className="divide-y divide-[rgba(255,255,255,0.04)]">
+            {(alexPipeline?.highProbability ?? []).length === 0 ? (
+              <div className="px-5 py-8 text-center">
+                <p className="text-white/30 text-sm">No high-probability deals yet.</p>
+                <p className="text-white/20 text-xs mt-1">Run Alex cycle to populate the pipeline.</p>
+              </div>
+            ) : (alexPipeline?.highProbability ?? []).slice(0, 8).map((deal, i) => (
+              <div key={i} className="px-5 py-3 flex items-center gap-3" data-testid={`deal-high-prob-${i}`}>
+                <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+                  <span className="text-amber-400 text-xs font-bold">{deal.score}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white text-xs font-semibold truncate">{deal.companyName}</p>
+                  <p className="text-white/40 text-[10px]">{deal.city} — {deal.stage.replace("_", " ")}</p>
+                </div>
+                <div className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                  deal.stage === "won" ? "text-emerald-400 bg-emerald-500/10" :
+                  deal.stage === "negotiation" ? "text-orange-400 bg-orange-500/10" :
+                  deal.stage === "meeting_booked" ? "text-purple-400 bg-purple-500/10" :
+                  "text-blue-400 bg-blue-500/10"
+                }`}>{deal.stage.replace("_"," ")}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Revenue Forecast ──────────────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(50,220,100,0.18)] rounded-2xl overflow-hidden" data-testid="panel-revenue-forecast">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-green-400" />
+              <h2 className="text-white font-semibold text-sm">Revenue Forecast</h2>
+              <span className="text-[10px] bg-green-500/20 text-green-400 border border-green-500/30 rounded-full px-2 py-0.5 font-semibold">AI-DRIVEN</span>
+            </div>
+            <button onClick={() => { refetchPipeline(); refetchClusters(); }} className="text-white/30 hover:text-white/60 transition-colors"><RefreshCw className="w-3.5 h-3.5" /></button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[rgba(255,255,255,0.04)]">
+            {[
+              { label: "Active Pipeline", value: `$${Math.round((alexPipeline?.totalPipelineValue ?? 0) / 100).toLocaleString("en-AU")}`, sub: "Estimated deal value", color: "text-white" },
+              { label: "Revenue Won", value: `$${Math.round((alexPipeline?.wonRevenue ?? 0) / 100).toLocaleString("en-AU")}`, sub: "Closed & paid", color: "text-emerald-400" },
+              { label: "Intelligence Clusters", value: clusterStats?.total ?? "—", sub: `${clusterStats?.byType?.growth ?? 0} growth clusters`, color: "text-blue-400" },
+              { label: "Market Signals", value: alexStats?.totalActions ?? "—", sub: "Alex decisions logged", color: "text-purple-400" },
+            ].map(({ label, value, sub, color }) => (
+              <div key={label} className="bg-[hsl(220,18%,10%)] p-4">
+                <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">{label}</p>
+                <p className={`text-2xl font-bold ${color}`}>{value}</p>
+                <p className="text-white/30 text-[10px] mt-0.5">{sub}</p>
+              </div>
+            ))}
+          </div>
+          {clusterStats && clusterStats.topClusters.length > 0 && (
+            <div className="p-4">
+              <p className="text-white/40 text-[10px] uppercase tracking-wider mb-3">Top Intelligence Clusters</p>
+              <div className="space-y-2">
+                {clusterStats.topClusters.slice(0, 5).map((c) => (
+                  <div key={c.id} className="flex items-center gap-3 bg-[rgba(255,255,255,0.02)] rounded-lg px-3 py-2">
+                    <div className="w-2 h-2 rounded-full bg-green-400/60 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white text-xs truncate">{c.region}</p>
+                      <p className="text-white/30 text-[10px]">{c.type.replace("_"," ")} — {c.entityCount} entities</p>
+                    </div>
+                    <span className="text-green-400 text-xs font-bold">{Math.round(c.score)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="flex gap-2 px-4 pb-4">
+            <button
+              onClick={() => fetch("/api/admin/clusters/compute", { method: "POST" }).then(r => r.json()).then(d => { alert(`Clusters: ${d.created} created, ${d.updated} updated, ${d.edges} edges`); refetchClusters(); })}
+              className="flex items-center gap-2 bg-[rgba(50,220,100,0.08)] hover:bg-[rgba(50,220,100,0.14)] border border-[rgba(50,220,100,0.2)] rounded-xl px-4 py-2.5 text-green-400 text-xs font-semibold transition-colors"
+              data-testid="btn-compute-clusters"
+            >
+              <Brain className="w-3.5 h-3.5" /> Compute Clusters
+            </button>
+          </div>
+          <div className="px-5 py-3 bg-[rgba(255,255,255,0.02)] border-t border-[rgba(255,255,255,0.04)]">
+            <p className="text-white/20 text-[10px]">Revenue forecast powered by deal pipeline + cluster intelligence. Clusters detect growth hotspots, relocation waves, and industry density in real time.</p>
           </div>
         </div>
 

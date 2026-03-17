@@ -1,0 +1,360 @@
+WORKSPACE INTELLIGENCE PLATFORM
+MONEY MODE ACTIVATION — 3 STAGE EXECUTION (PRODUCTION SAFE BUILD)
+
+ROLE
+
+You are a senior full-stack engineer, data platform architect, graph systems engineer, and revenue systems builder.
+
+You are working on an EXISTING production system:
+
+Workspace Intelligence Platform
+
+The system is approximately 70–80% complete.
+
+Your job is to:
+
+VERIFY → ACTIVATE → SCALE
+
+DO NOT rebuild.
+DO NOT remove working systems.
+ONLY extend, connect, and activate.
+
+------------------------------------------------
+
+CRITICAL RULES
+
+1. DO NOT delete or replace existing modules
+2. DO NOT break current working systems
+3. DO NOT assume previous stages are complete
+4. VERIFY everything before using it
+5. NO fake/synthetic data in production paths
+6. ALL actions must be derived from real signals
+7. ALL writes must be idempotent and deduplicated
+8. SAFE_MODE must block all external actions when enabled
+9. SYSTEM MUST produce real opportunities and real revenue
+
+------------------------------------------------
+
+SYSTEM GOAL
+
+Transform the platform into a:
+
+REAL-TIME DEAL GENERATION + CLOSING ENGINE
+
+End-to-end flow must work:
+
+Signal → Opportunity → Outreach → Meeting → Proposal → Payment → WON
+
+------------------------------------------------
+
+========================
+STAGE 1 — VERIFY + FIX FOUNDATION
+========================
+
+You MUST inspect the actual codebase before building anything.
+
+Create audit:
+
+/docs/money-mode-audit.md
+
+For each system classify:
+
+IMPLEMENTED  
+PARTIAL  
+MISSING  
+BROKEN  
+
+Systems to verify:
+
+• Signal ingestion
+• Graph (edges + updates)
+• Opportunity engine
+• Outreach engine
+• Booking engine
+• Proposal system
+• Stripe integration
+• Alex v2 / v3 decision logic
+• Map layers
+• Database tables
+
+------------------------------------------------
+
+REQUIREMENTS
+
+1. DO NOT assume anything is complete
+2. If PARTIAL or BROKEN → FIX minimally
+3. If MISSING → build only what is required for Stage 2
+4. DO NOT overbuild
+5. DO NOT add new features yet
+
+------------------------------------------------
+
+OUTPUT
+
+System must be:
+
+STABLE  
+CONNECTED  
+READY FOR REAL DATA  
+
+------------------------------------------------
+
+========================
+STAGE 2 — ACTIVATE REAL DATA + REVENUE LOOP
+========================
+
+Now convert system from STATIC → LIVE
+
+------------------------------------------------
+
+2.1 SIGNAL INGESTION (REAL DATA ONLY)
+
+Create/upgrade:
+
+SignalIngestionService
+
+Sources:
+
+• RSS news (business + property)
+• Job boards (Seek, Indeed)
+• Company announcements
+• Commercial property listings
+• Sublease listings
+
+Pipeline:
+
+source → raw_signals → dedupe → classify → score → store → trigger opportunity
+
+Tables:
+
+raw_signals  
+intelligence_signals  
+
+Each signal must include:
+
+• company_name
+• signal_type
+• location
+• confidence_score
+• source_url
+
+------------------------------------------------
+
+2.2 GRAPH ACTIVATION
+
+Graph MUST:
+
+• update from signals
+• update from tenants
+• update from leases
+• update from opportunities
+
+Graph MUST feed:
+
+• opportunity scoring
+• building risk
+• suburb demand
+• Alex decisions
+
+If graph is not used in scoring → FIX IT
+
+------------------------------------------------
+
+2.3 OPPORTUNITY ENGINE
+
+All opportunities MUST come from real signals.
+
+Each opportunity must include:
+
+• company
+• location
+• signal_reason
+• relocation_probability
+• opportunity_score
+• estimated_project_value
+
+Auto-create after signal ingestion.
+
+------------------------------------------------
+
+2.4 OUTREACH ENGINE
+
+Activate:
+
+OutreachEngine
+
+Capabilities:
+
+• send cold email
+• send follow-ups
+• personalise using signals + graph
+• log activity
+
+------------------------------------------------
+
+2.5 BOOKING ENGINE
+
+Activate:
+
+BookingEngine
+
+• send booking links
+• detect meetings
+• update pipeline → meeting_booked
+
+------------------------------------------------
+
+2.6 FULL REVENUE LOOP
+
+System MUST complete:
+
+Signal  
+→ Opportunity  
+→ Outreach  
+→ Meeting  
+→ Proposal  
+→ Payment (Stripe)  
+→ WON  
+
+Fix any broken links.
+
+------------------------------------------------
+
+2.7 STRIPE ACTIVATION
+
+Ensure:
+
+• payment links generated
+• webhook updates deal → WON
+• revenue logged
+• commissions calculated
+
+------------------------------------------------
+
+2.8 ALEX ACTIVATION
+
+Alex must now:
+
+• prioritise opportunities
+• recommend outreach
+• recommend pricing
+• trigger actions
+
+Alex must NOT just display data.
+
+------------------------------------------------
+
+OUTPUT
+
+System must now:
+
+GENERATE REAL OPPORTUNITIES  
+EXECUTE OUTREACH  
+CLOSE DEALS  
+
+------------------------------------------------
+
+========================
+STAGE 3 — SCALE + DOMINATE
+========================
+
+Now scale the system.
+
+------------------------------------------------
+
+3.1 DATA SCALE
+
+Expand from:
+
+10 buildings → 1,000+  
+limited companies → 10,000+  
+
+Use:
+
+• ingestion pipelines
+• batch imports
+• external datasets
+
+------------------------------------------------
+
+3.2 MARKET INTELLIGENCE
+
+Activate:
+
+• suburb demand scoring
+• growth prediction
+• cluster detection
+
+------------------------------------------------
+
+3.3 COMMAND CENTRE
+
+Add live panels:
+
+• Live Signals
+• Opportunities
+• Outreach Activity
+• Meetings Booked
+• Revenue This Week
+• Pipeline Value
+• Hot Suburbs
+
+------------------------------------------------
+
+3.4 MAP ACTIVATION
+
+All layers must show:
+
+• real signals
+• real demand
+• real opportunities
+• real clusters
+
+------------------------------------------------
+
+========================
+FINAL VALIDATION (MANDATORY)
+========================
+
+System is ONLY complete if:
+
+1. Real signals are ingested continuously
+2. Opportunities are auto-created from real data
+3. Outreach is sent
+4. Meetings are booked
+5. Proposals are generated
+6. Payments are processed
+7. Deals move to WON automatically
+8. Revenue is recorded
+9. Graph influences scoring
+10. Alex is making decisions
+11. No system is broken
+
+------------------------------------------------
+
+FINAL RESULT
+
+The platform becomes:
+
+A LIVE DEAL GENERATION MACHINE
+
+That:
+
+• finds companies early
+• contacts them automatically
+• books meetings
+• sends proposals
+• closes deals
+• generates revenue continuously
+
+------------------------------------------------
+
+EXECUTION RULE
+
+Complete Stage 1 fully before Stage 2.
+Complete Stage 2 fully before Stage 3.
+
+DO NOT SKIP.
+DO NOT FAKE COMPLETION.
+
+BUILD FOR REAL REVENUE.

@@ -40,6 +40,8 @@ export const QUEUES = {
   INVOICES_REFRESH: "invoices.refresh",
   REVENUE_METRICS_REFRESH: "revenue.metrics.refresh",
   WEBHOOKS_REPLAY: "webhooks.replay",
+  // ── Alex Autonomous Agent ─────────────────────────────────────────────────
+  ALEX_CYCLE: "alex.cycle",
 } as const;
 
 export type QueueName = (typeof QUEUES)[keyof typeof QUEUES];

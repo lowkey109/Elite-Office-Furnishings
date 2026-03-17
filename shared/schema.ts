@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, integer, boolean, real, index, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, integer, boolean, real, index, uniqueIndex, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -1773,3 +1773,75 @@ export const buildingSuburbEdges = pgTable("building_suburb_edges", {
 export const insertBuildingSuburbEdgeSchema = createInsertSchema(buildingSuburbEdges).omit({ id: true });
 export type InsertBuildingSuburbEdge = z.infer<typeof insertBuildingSuburbEdgeSchema>;
 export type BuildingSuburbEdge = typeof buildingSuburbEdges.$inferSelect;
+
+// ── Deal Execution (Stage 6 — Alex Deal Tracking) ────────────────────────────
+export const dealExecution = pgTable("deal_execution", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyId: varchar("company_id"),
+  companyName: text("company_name").notNull(),
+  status: varchar("status", { length: 32 }).notNull().default("new"),
+  stage: varchar("stage", { length: 64 }).notNull().default("new"),
+  assignedTo: varchar("assigned_to", { length: 32 }).notNull().default("alex"),
+  lastAction: text("last_action"),
+  nextAction: text("next_action"),
+  lastContactedAt: timestamp("last_contacted_at"),
+  meetingBooked: boolean("meeting_booked").default(false),
+  meetingTime: timestamp("meeting_time"),
+  dealValueEstimate: integer("deal_value_estimate"),
+  opportunityScore: integer("opportunity_score"),
+  outreachThreadId: varchar("outreach_thread_id"),
+  proposalId: varchar("proposal_id"),
+  stripePaymentLinkId: varchar("stripe_payment_link_id"),
+  city: text("city"),
+  industry: text("industry"),
+  wonAt: timestamp("won_at"),
+  lostAt: timestamp("lost_at"),
+  lostReason: text("lost_reason"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertDealExecutionSchema = createInsertSchema(dealExecution).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertDealExecution = z.infer<typeof insertDealExecutionSchema>;
+export type DealExecution = typeof dealExecution.$inferSelect;
+
+// ── Alex Actions Log (Stage 10 — Action Logging) ─────────────────────────────
+export const alexActions = pgTable("alex_actions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  actionType: varchar("action_type", { length: 64 }).notNull(),
+  entityType: varchar("entity_type", { length: 64 }),
+  entityId: varchar("entity_id"),
+  entityName: text("entity_name"),
+  decision: varchar("decision", { length: 64 }),
+  reasoning: text("reasoning"),
+  inputScore: integer("input_score"),
+  inputSignals: jsonb("input_signals"),
+  executed: boolean("executed").default(false),
+  result: text("result"),
+  isSafe: boolean("is_safe").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertAlexActionSchema = createInsertSchema(alexActions).omit({ id: true, createdAt: true });
+export type InsertAlexAction = z.infer<typeof insertAlexActionSchema>;
+export type AlexAction = typeof alexActions.$inferSelect;
+
+// ── Intelligence Clusters (Stage 1.5 — Cluster Engine) ───────────────────────
+export const clusters = pgTable("clusters", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  type: varchar("type", { length: 64 }).notNull(),
+  region: text("region").notNull(),
+  city: text("city"),
+  clusterScore: real("cluster_score").default(0),
+  entityCount: integer("entity_count").default(0),
+  entityIds: jsonb("entity_ids").default([]),
+  topIndustry: text("top_industry"),
+  vacancyRisk: real("vacancy_risk").default(0),
+  growthSignals: integer("growth_signals").default(0),
+  relocationsDetected: integer("relocations_detected").default(0),
+  lat: real("lat"),
+  lng: real("lng"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertClusterSchema = createInsertSchema(clusters).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertCluster = z.infer<typeof insertClusterSchema>;
+export type Cluster = typeof clusters.$inferSelect;
