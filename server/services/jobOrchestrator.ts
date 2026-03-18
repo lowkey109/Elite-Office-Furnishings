@@ -46,6 +46,9 @@ export const QUEUES = {
   DAILY_DEAL_ENGINE: "daily.deal.engine",
   DEAD_LOOP_DETECT: "dead.loop.detect",
   PROPOSAL_AUTO_SEND: "proposal.auto.send",
+  // ── Lead Engine ───────────────────────────────────────────────────────────
+  LEAD_SCRAPE_LINKEDIN: "lead.scrape.linkedin",
+  LEAD_SCRAPE_MAPS: "lead.scrape.maps",
 } as const;
 
 export type QueueName = (typeof QUEUES)[keyof typeof QUEUES];

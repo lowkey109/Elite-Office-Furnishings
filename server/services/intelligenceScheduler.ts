@@ -697,6 +697,18 @@ async function registerPgBossWorkers(): Promise<void> {
     console.log(`[AlexAgent] Cycle done: ${result.processed} opps, ${result.outreachTriggered} outreach, ${result.bookingsCreated} bookings, ${result.dealsUpdated} deals`);
   });
 
+  // ── Lead Engine Scrapers ───────────────────────────────────────────────────
+  await registerWorker(QUEUES.LEAD_SCRAPE_LINKEDIN, async () => {
+    const { runLinkedInScraper } = await import("./leadEngine");
+    const result = await runLinkedInScraper();
+    console.log(`[LeadScraper] LinkedIn complete: ${result.added} added, ${result.skipped} skipped`);
+  });
+  await registerWorker(QUEUES.LEAD_SCRAPE_MAPS, async () => {
+    const { runMapsScraper } = await import("./leadEngine");
+    const result = await runMapsScraper();
+    console.log(`[LeadScraper] Maps complete: ${result.added} added, ${result.skipped} skipped`);
+  });
+
   // ── Daily Deal Engine ──────────────────────────────────────────────────────
   // Runs every day: score opportunities → route to partners → trigger outreach
   await registerWorker(QUEUES.DAILY_DEAL_ENGINE, async () => {
@@ -937,7 +949,10 @@ async function schedulePgBossJobs(): Promise<void> {
   await scheduleJob(QUEUES.PROPOSAL_AUTO_SEND, {}, { repeatEvery: "0 10 * * *", singletonKey: "proposal-auto-send" });
   // Outreach retry — every 30 minutes
   await scheduleJob(QUEUES.OUTREACH_FOLLOWUP, {}, { repeatEvery: "*/30 * * * *", singletonKey: "outreach-retry-30m" });
-  console.log("[IntelligenceScheduler] pg-boss recurring jobs scheduled (incl. 7 outreach + 6 payment + Alex + clusters + 3 revenue-loop = 33 total — deal engine: 15min, dead loop: 2h, outreach retry: 30min)");
+  // Lead Engine scrapers — every 6 hours
+  await scheduleJob(QUEUES.LEAD_SCRAPE_LINKEDIN, {}, { repeatEvery: "0 */6 * * *", singletonKey: "lead-scrape-linkedin" });
+  await scheduleJob(QUEUES.LEAD_SCRAPE_MAPS, {}, { repeatEvery: "0 */6 * * *", singletonKey: "lead-scrape-maps" });
+  console.log("[IntelligenceScheduler] pg-boss recurring jobs scheduled (incl. 7 outreach + 6 payment + Alex + clusters + 3 revenue-loop + 2 lead scrapers = 35 total — deal engine: 15min, dead loop: 2h, outreach retry: 30min, scrapers: 6h)");
 }
 
 // ─── Unified scheduler startup ─────────────────────────────────────────────────

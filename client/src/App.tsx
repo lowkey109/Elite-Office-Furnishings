@@ -56,6 +56,8 @@ import AdminMarketIntelligence from "@/pages/AdminMarketIntelligence";
 import AdminCompanyVisitors from "@/pages/AdminCompanyVisitors";
 import ProposalEngine from "@/pages/ProposalEngine";
 import BuildingDatabase from "@/pages/BuildingDatabase";
+import AdminProductCommandCentre from "@/pages/AdminProductCommandCentre";
+import AdminLeadEngine from "@/pages/AdminLeadEngine";
 import { usePageTracking } from "@/lib/usePageTracking";
 
 function Router() {
@@ -120,6 +122,8 @@ function Router() {
       <Route path="/admin/company-visitors" component={AdminCompanyVisitors} />
       <Route path="/admin/proposal-engine" component={ProposalEngine} />
       <Route path="/admin/building-database" component={BuildingDatabase} />
+      <Route path="/admin/products" component={AdminProductCommandCentre} />
+      <Route path="/admin/lead-engine" component={AdminLeadEngine} />
       <Route component={NotFound} />
     </Switch>
   );

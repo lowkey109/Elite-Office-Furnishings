@@ -1,0 +1,198 @@
+BUILD: AI PRODUCT COMMAND CENTRE FOR ADMIN PANEL
+
+You are upgrading the admin system into an AI-powered product management platform for The Corporate Desk.
+
+This should function like a premium AI-driven alternative to WordPress/WooCommerce product management, purpose-built for commercial office furniture.
+
+GOAL
+
+Create a new admin section called:
+
+AI Product Command Centre
+
+This section must allow the business owner to upload new products, process them with AI, review them, and publish them to the website under the correct categories.
+
+CORE REQUIREMENTS
+
+1. ADMIN NAVIGATION
+Add new admin sections:
+- Products AI
+- Categories
+- Upload Queue
+- Draft Review
+- Published Products
+- SEO Manager
+
+2. PRODUCT UPLOAD CENTRE
+Build an upload interface supporting:
+- single image upload
+- multi-image upload
+- folder/batch upload
+- PDF catalog upload
+- CSV/XLSX upload
+
+Display upload cards with:
+- filename
+- preview
+- upload status
+- AI processing status
+- detected SKU if available
+
+3. AI PRODUCT PROCESSING PIPELINE
+When a file is uploaded, automatically run an AI product extraction workflow.
+
+For each uploaded item, attempt to detect:
+- SKU
+- product title
+- product type
+- category
+- subcategory
+- style
+- commercial use case
+- image quality
+- brand fit
+- confidence score
+
+If duplicates or similar products exist, group them.
+
+4. AI CONTENT GENERATION
+For each product, generate:
+- product title
+- short description
+- full description
+- feature bullets
+- tags
+- image alt text
+- SEO meta title
+- SEO meta description
+- category placement
+- publish readiness score
+
+Writing style must be:
+- premium
+- commercial
+- clear
+- Australian English
+- aligned to The Corporate Desk brand
+
+Do not invent hard specs unless verified.
+
+5. MERCHANDISING + SALES SCORING
+Create a weighted AI score for each product using:
+- market appeal
+- commercial relevance
+- visual quality
+- brand fit
+- likely quote value
+- style relevance
+- data confidence
+
+Score bands:
+- 85–100 = Ready to Publish
+- 70–84 = Publish
+- 50–69 = Review
+- below 50 = Hold Back
+
+6. REVIEW WORKFLOW
+Create status lanes:
+- New Uploads
+- AI Processing
+- Ready to Publish
+- Draft Review
+- Needs Data
+- Hold Back
+- Live
+
+Allow the admin to:
+- approve
+- edit
+- reject
+- regenerate copy
+- change category
+- swap featured image
+- publish
+- unpublish
+
+7. PRODUCT EDITOR
+Build a manual editing panel like WooCommerce but cleaner.
+
+Editable fields:
+- title
+- SKU
+- short description
+- full description
+- category
+- tags
+- style label
+- features
+- dimensions
+- materials
+- SEO title
+- SEO description
+- status
+- featured image
+- gallery images
+
+8. CATEGORY MANAGER
+Allow admin to:
+- create categories
+- edit category names
+- set parent/child categories
+- generate category intro text with AI
+- generate SEO metadata
+- assign featured products
+- reorder products in category
+
+9. PUBLISHING ENGINE
+Allow:
+- publish product live
+- save as draft
+- bulk publish
+- bulk update
+- archive product
+
+Products must appear on the website under their correct headings.
+
+10. PRODUCT DATABASE + API
+Create database structure and API routes for:
+- uploaded assets
+- product drafts
+- published products
+- categories
+- SEO fields
+- AI scores
+- review status
+- duplicate groups
+
+11. DASHBOARD INSIDE PRODUCTS AI
+Show:
+- total uploaded
+- processing
+- ready to publish
+- live products
+- held back
+- missing data
+- top categories
+- top AI-ranked products
+
+12. SAFE QUALITY RULES
+Do not auto-publish uncertain products.
+Anything with low confidence should remain in draft/review.
+Do not invent specifications.
+Mark uncertain fields clearly.
+
+13. FUTURE-READY DESIGN
+Build the architecture so later it can support:
+- supplier feeds
+- direct CSV imports
+- automatic image cleanup
+- quote request linking
+- product analytics
+- best seller reporting
+
+OUTPUT REQUIRED
+Return:
+- what new admin pages were created
+- what workflows were added
+- what database tables and APIs were added
+- how product publishing now works from upload to live site

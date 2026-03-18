@@ -1,0 +1,186 @@
+SYSTEM: BUILD REAL LEAD ENGINE (50–200 LEADS/DAY)
+
+You are now implementing a real-world lead ingestion system feeding directly into the revenue loop.
+
+----------------------------------------
+1. CREATE LEAD INGESTION API
+----------------------------------------
+
+POST /api/intelligence/ingest-lead
+
+Body:
+{
+  companyName,
+  contactName,
+  email,
+  phone,
+  city,
+  source,
+  signalType,
+  notes,
+  estimatedValue
+}
+
+Logic:
+- Store in intelligenceSignals table
+- Score immediately (default 50–70 if unknown)
+- Auto-trigger deal engine pipeline
+
+----------------------------------------
+2. LINKEDIN LEAD SCRAPER (HIGH VALUE)
+----------------------------------------
+
+Create service:
+services/linkedinScraper.ts
+
+Function:
+runLinkedInScraper()
+
+Simulate OR integrate with:
+- PhantomBuster OR Apify OR manual CSV upload
+
+Target:
+- Companies hiring:
+  "Office Manager"
+  "Head of Workplace"
+  "Expansion Manager"
+  "Facilities Manager"
+
+For each lead:
+- Extract company + contact
+- Push into /api/intelligence/ingest-lead
+
+----------------------------------------
+3. GOOGLE MAPS SCRAPER (LOCAL GOLD)
+----------------------------------------
+
+Create:
+services/mapsScraper.ts
+
+Function:
+runMapsScraper()
+
+Search queries:
+- "office relocation"
+- "commercial real estate"
+- "construction companies"
+- "growing businesses [city]"
+
+Extract:
+- company name
+- phone
+- location
+
+Push into ingestion API
+
+----------------------------------------
+4. WEBSITE AUTO-CAPTURE (CRITICAL)
+----------------------------------------
+
+Hook into:
+- QuoteBuilder
+- Contact form
+- Floor plan upload
+
+On submit:
+- Create lead
+- Send to ingestion API
+
+----------------------------------------
+5. DAILY IMPORT (CSV UPLOAD OPTION)
+----------------------------------------
+
+Admin endpoint:
+
+POST /api/admin/import-leads
+
+Accept CSV:
+companyName,email,phone,city
+
+Bulk insert → ingestion API
+
+----------------------------------------
+6. AUTO-RUN SCHEDULER
+----------------------------------------
+
+Add jobs:
+
+- LinkedIn scraper → every 6 hours
+- Maps scraper → every 6 hours
+- CSV/manual import → on demand
+
+----------------------------------------
+7. DEDUPLICATION SYSTEM
+----------------------------------------
+
+Before insert:
+- Check email OR companyName+city
+- Skip duplicates
+
+----------------------------------------
+8. LEAD SCORING BOOST
+----------------------------------------
+
+Assign score:
+
+- Hiring signal → 80
+- Real estate → 75
+- Website form → 90
+- Unknown → 60
+
+----------------------------------------
+9. LOGGING
+----------------------------------------
+
+Log:
+- leads added
+- duplicates skipped
+- errors
+
+----------------------------------------
+FINAL OUTPUT REQUIRED
+----------------------------------------
+
+Return:
+- Leads added count
+- Sources breakdown
+- Sample leads
+
+SYSTEM: SEED INITIAL LEADS INTO PIPELINE
+
+Create 25 REALISTIC HIGH-VALUE LEADS and inject them into the system.
+
+Use Australian companies in:
+- Brisbane
+- Sydney
+- Melbourne
+
+Industries:
+- Tech companies
+- Law firms
+- Accounting firms
+- Construction companies
+- Real estate groups
+
+Each lead must include:
+{
+  companyName,
+  contactName,
+  email (realistic format),
+  phone,
+  city,
+  source: "manual_seed",
+  signalType: "expansion",
+  notes: "Office expansion / relocation likely",
+  estimatedValue: 15000–150000
+}
+
+Then:
+- Push each lead through /api/intelligence/ingest-lead
+- Trigger deal engine immediately
+- Log all created deals
+
+RETURN:
+- Total leads injected
+- Deals created
+- First 5 deal IDs

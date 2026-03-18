@@ -7351,5 +7351,342 @@ Rules:
     }
   });
 
+  // ── Lead Engine Routes ───────────────────────────────────────────────────────
+
+  // POST /api/intelligence/ingest-lead
+  app.post("/api/intelligence/ingest-lead", async (req, res) => {
+    try {
+      const { ingestLead } = await import("./services/leadEngine");
+      const { companyName, contactName, email, phone, city, state, source, signalType, notes, estimatedValue } = req.body;
+      if (!companyName || !city) return res.status(400).json({ error: "companyName and city are required" });
+      const result = await ingestLead({ companyName, contactName, email, phone, city, state, source: source ?? "manual", signalType: signalType ?? "expansion", notes, estimatedValue });
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/admin/lead-engine/stats
+  app.get("/api/admin/lead-engine/stats", async (_req, res) => {
+    try {
+      const { getLeadEngineStats } = await import("./services/leadEngine");
+      res.json(await getLeadEngineStats());
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/admin/lead-engine/leads
+  app.get("/api/admin/lead-engine/leads", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { ingestedLeads } = await import("../shared/schema");
+      const { desc, eq } = await import("drizzle-orm");
+      const source = req.query.source as string | undefined;
+      let q = ddb.select().from(ingestedLeads).orderBy(desc(ingestedLeads.createdAt)).$dynamic();
+      if (source) q = q.where(eq(ingestedLeads.source, source));
+      const leads = await q.limit(200);
+      res.json({ leads, total: leads.length });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/admin/lead-engine/seed — seed 25 AU leads
+  app.post("/api/admin/lead-engine/seed", async (_req, res) => {
+    try {
+      const { seedInitialLeads } = await import("./services/leadEngine");
+      const result = await seedInitialLeads();
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/admin/lead-engine/scrape/linkedin
+  app.post("/api/admin/lead-engine/scrape/linkedin", async (_req, res) => {
+    try {
+      const { runLinkedInScraper } = await import("./services/leadEngine");
+      res.json(await runLinkedInScraper());
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/admin/lead-engine/scrape/maps
+  app.post("/api/admin/lead-engine/scrape/maps", async (_req, res) => {
+    try {
+      const { runMapsScraper } = await import("./services/leadEngine");
+      res.json(await runMapsScraper());
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/admin/import-leads — CSV/JSON bulk import
+  app.post("/api/admin/import-leads", async (req, res) => {
+    try {
+      const { bulkImportLeads } = await import("./services/leadEngine");
+      const { rows } = req.body as { rows: Array<{ companyName: string; email?: string; phone?: string; city: string; contactName?: string }> };
+      if (!Array.isArray(rows)) return res.status(400).json({ error: "rows array required" });
+      const result = await bulkImportLeads(rows);
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ── AI Product Command Centre Routes ─────────────────────────────────────────
+
+  // GET /api/admin/products/stats
+  app.get("/api/admin/products/stats", async (_req, res) => {
+    try {
+      const { getProductStats } = await import("./services/productAI");
+      res.json(await getProductStats());
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/admin/products — list all product drafts
+  app.get("/api/admin/products", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { productDrafts: pd } = await import("../shared/schema");
+      const { desc, eq } = await import("drizzle-orm");
+      const status = req.query.status as string | undefined;
+      let q = ddb.select().from(pd).orderBy(desc(pd.updatedAt)).$dynamic();
+      if (status) q = q.where(eq(pd.status, status));
+      res.json(await q.limit(200));
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/admin/products/:id
+  app.get("/api/admin/products/:id", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { productDrafts: pd } = await import("../shared/schema");
+      const { eq } = await import("drizzle-orm");
+      const [product] = await ddb.select().from(pd).where(eq(pd.id, req.params.id));
+      if (!product) return res.status(404).json({ error: "Product not found" });
+      res.json(product);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // PATCH /api/admin/products/:id — edit product
+  app.patch("/api/admin/products/:id", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { productDrafts: pd } = await import("../shared/schema");
+      const { eq } = await import("drizzle-orm");
+      const allowed = ["title","sku","shortDescription","fullDescription","features","tags","categoryId","categoryName","subcategoryName","style","commercialUseCase","productType","brand","dimensions","materials","imageUrl","galleryImages","imageAltText","seoTitle","seoDescription","status","reviewNotes","isLive"];
+      const updates: Record<string, any> = { updatedAt: new Date() };
+      for (const key of allowed) { if (req.body[key] !== undefined) updates[key] = req.body[key]; }
+      const [updated] = await ddb.update(pd).set(updates).where(eq(pd.id, req.params.id)).returning();
+      res.json(updated);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/admin/products/:id/publish — publish a product
+  app.post("/api/admin/products/:id/publish", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { productDrafts: pd } = await import("../shared/schema");
+      const { eq } = await import("drizzle-orm");
+      const [product] = await ddb.update(pd).set({ isLive: true, status: "published", publishedAt: new Date(), updatedAt: new Date() }).where(eq(pd.id, req.params.id)).returning();
+      res.json({ success: true, product });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/admin/products/:id/unpublish
+  app.post("/api/admin/products/:id/unpublish", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { productDrafts: pd } = await import("../shared/schema");
+      const { eq } = await import("drizzle-orm");
+      const [product] = await ddb.update(pd).set({ isLive: false, status: "unpublished", updatedAt: new Date() }).where(eq(pd.id, req.params.id)).returning();
+      res.json({ success: true, product });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/admin/products/:id/approve
+  app.post("/api/admin/products/:id/approve", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { productDrafts: pd } = await import("../shared/schema");
+      const { eq } = await import("drizzle-orm");
+      const [product] = await ddb.update(pd).set({ status: "ready", updatedAt: new Date() }).where(eq(pd.id, req.params.id)).returning();
+      res.json({ success: true, product });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/admin/products/:id/reject
+  app.post("/api/admin/products/:id/reject", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { productDrafts: pd } = await import("../shared/schema");
+      const { eq } = await import("drizzle-orm");
+      const [product] = await ddb.update(pd).set({ status: "rejected", updatedAt: new Date() }).where(eq(pd.id, req.params.id)).returning();
+      res.json({ success: true, product });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/admin/products/:id/regenerate — regenerate AI content
+  app.post("/api/admin/products/:id/regenerate", async (req, res) => {
+    try {
+      const { regenerateProductContent } = await import("./services/productAI");
+      await regenerateProductContent(req.params.id);
+      res.json({ success: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/admin/products/bulk-publish — bulk publish by IDs
+  app.post("/api/admin/products/bulk-publish", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { productDrafts: pd } = await import("../shared/schema");
+      const { inArray } = await import("drizzle-orm");
+      const { ids } = req.body as { ids: string[] };
+      if (!Array.isArray(ids) || ids.length === 0) return res.status(400).json({ error: "ids array required" });
+      await ddb.update(pd).set({ isLive: true, status: "published", publishedAt: new Date(), updatedAt: new Date() }).where(inArray(pd.id, ids));
+      res.json({ success: true, published: ids.length });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/admin/uploads/register — register a new upload and trigger AI processing
+  app.post("/api/admin/uploads/register", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { uploadQueue: uq } = await import("../shared/schema");
+      const { processUploadQueueItem } = await import("./services/productAI");
+      const { filename, originalName, mimeType, sizeBytes, fileUrl, uploadType } = req.body;
+      const [upload] = await ddb.insert(uq).values({
+        filename: filename ?? originalName,
+        originalName: originalName ?? filename,
+        mimeType: mimeType ?? "image/jpeg",
+        sizeBytes: sizeBytes,
+        fileUrl,
+        uploadType: uploadType ?? "image",
+        uploadStatus: "pending",
+        aiStatus: "pending",
+      }).returning({ id: uq.id });
+
+      // Kick off AI processing async
+      setImmediate(async () => {
+        try { await processUploadQueueItem(upload.id); }
+        catch (e: any) { console.error("[UploadRoute] AI processing error:", e.message); }
+      });
+
+      res.json({ success: true, uploadId: upload.id, message: "Upload registered — AI processing started" });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/admin/uploads — list upload queue
+  app.get("/api/admin/uploads", async (_req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { uploadQueue: uq } = await import("../shared/schema");
+      const { desc } = await import("drizzle-orm");
+      const uploads = await ddb.select().from(uq).orderBy(desc(uq.createdAt)).limit(100);
+      res.json(uploads);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/admin/products/create-manual — create a product manually without upload
+  app.post("/api/admin/products/create-manual", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { productDrafts: pd } = await import("../shared/schema");
+      const { generateProductWithAI } = await import("./services/productAI");
+      const { title, categoryName, productType } = req.body;
+      if (!title) return res.status(400).json({ error: "title required" });
+
+      const data = await generateProductWithAI({ filename: title, productHint: title });
+      const [draft] = await ddb.insert(pd).values({
+        title: req.body.title ?? data.title,
+        sku: req.body.sku ?? data.sku,
+        shortDescription: req.body.shortDescription ?? data.shortDescription,
+        fullDescription: req.body.fullDescription ?? data.fullDescription,
+        features: data.features,
+        tags: data.tags,
+        categoryName: req.body.categoryName ?? data.categoryName,
+        productType: req.body.productType ?? data.productType,
+        seoTitle: data.seoTitle,
+        seoDescription: data.seoDescription,
+        imageAltText: data.imageAltText,
+        style: data.style,
+        commercialUseCase: data.commercialUseCase,
+        aiConfidenceScore: data.aiConfidenceScore,
+        marketAppealScore: data.marketAppealScore,
+        commercialRelevanceScore: data.commercialRelevanceScore,
+        visualQualityScore: data.visualQualityScore,
+        brandFitScore: data.brandFitScore,
+        overallAiScore: data.overallAiScore,
+        publishReadiness: data.publishReadiness,
+        status: "ready",
+        aiRaw: data as any,
+      }).returning();
+      res.json({ success: true, draft });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ── Product Categories ────────────────────────────────────────────────────────
+
+  // GET /api/admin/product-categories
+  app.get("/api/admin/product-categories", async (_req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { productCategories: pc } = await import("../shared/schema");
+      const { asc } = await import("drizzle-orm");
+      const { ensureDefaultCategories } = await import("./services/productAI");
+      await ensureDefaultCategories();
+      res.json(await ddb.select().from(pc).orderBy(asc(pc.sortOrder)));
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/admin/product-categories
+  app.post("/api/admin/product-categories", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { productCategories: pc } = await import("../shared/schema");
+      const { name, slug, parentId, description, sortOrder } = req.body;
+      if (!name || !slug) return res.status(400).json({ error: "name and slug required" });
+      const [cat] = await ddb.insert(pc).values({ name, slug, parentId, description, sortOrder: sortOrder ?? 0 }).returning();
+      res.json(cat);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // PATCH /api/admin/product-categories/:id
+  app.patch("/api/admin/product-categories/:id", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { productCategories: pc } = await import("../shared/schema");
+      const { eq } = await import("drizzle-orm");
+      const allowed = ["name","slug","parentId","description","seoTitle","seoDescription","introText","sortOrder","isActive"];
+      const updates: Record<string, any> = { updatedAt: new Date() };
+      for (const key of allowed) { if (req.body[key] !== undefined) updates[key] = req.body[key]; }
+      const [cat] = await ddb.update(pc).set(updates).where(eq(pc.id, req.params.id)).returning();
+      res.json(cat);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/admin/product-categories/:id/generate-seo — AI SEO for category
+  app.post("/api/admin/product-categories/:id/generate-seo", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { productCategories: pc } = await import("../shared/schema");
+      const { eq } = await import("drizzle-orm");
+      const OpenAI = (await import("openai")).default;
+      const oai = new OpenAI({ apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY, baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL });
+      const [cat] = await ddb.select().from(pc).where(eq(pc.id, req.params.id));
+      if (!cat) return res.status(404).json({ error: "Category not found" });
+
+      const resp = await oai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: `Generate SEO metadata for an office furniture category called "${cat.name}" for an Australian commercial furniture company. Return JSON: { "introText": "...", "seoTitle": "...", "seoDescription": "..." }` }],
+        response_format: { type: "json_object" },
+        max_tokens: 400,
+      });
+      const data = JSON.parse(resp.choices[0]?.message?.content ?? "{}");
+      const [updated] = await ddb.update(pc).set({ introText: data.introText, seoTitle: data.seoTitle, seoDescription: data.seoDescription, updatedAt: new Date() }).where(eq(pc.id, req.params.id)).returning();
+      res.json(updated);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // DELETE /api/admin/product-categories/:id
+  app.delete("/api/admin/product-categories/:id", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { productCategories: pc } = await import("../shared/schema");
+      const { eq } = await import("drizzle-orm");
+      await ddb.delete(pc).where(eq(pc.id, req.params.id));
+      res.json({ success: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
   return httpServer;
 }

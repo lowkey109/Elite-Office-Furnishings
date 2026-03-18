@@ -1850,3 +1850,120 @@ export const clusters = pgTable("clusters", {
 export const insertClusterSchema = createInsertSchema(clusters).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertCluster = z.infer<typeof insertClusterSchema>;
 export type Cluster = typeof clusters.$inferSelect;
+
+// ─── AI Product Command Centre ────────────────────────────────────────────────
+
+export const productCategories = pgTable("product_categories", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  parentId: varchar("parent_id"),
+  description: text("description"),
+  seoTitle: text("seo_title"),
+  seoDescription: text("seo_description"),
+  introText: text("intro_text"),
+  featuredProductId: varchar("featured_product_id"),
+  sortOrder: integer("sort_order").default(0),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertProductCategorySchema = createInsertSchema(productCategories).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertProductCategory = z.infer<typeof insertProductCategorySchema>;
+export type ProductCategory = typeof productCategories.$inferSelect;
+
+export const uploadQueue = pgTable("upload_queue", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  filename: text("filename").notNull(),
+  originalName: text("original_name").notNull(),
+  mimeType: text("mime_type").notNull(),
+  sizeBytes: integer("size_bytes"),
+  fileUrl: text("file_url"),
+  uploadType: text("upload_type").notNull().default("image"), // image|pdf|csv|xlsx|folder
+  uploadStatus: text("upload_status").notNull().default("pending"), // pending|processing|done|error
+  aiStatus: text("ai_status").notNull().default("pending"), // pending|running|done|error
+  detectedSku: text("detected_sku"),
+  processingResult: jsonb("processing_result"),
+  errorMessage: text("error_message"),
+  uploadedBy: text("uploaded_by").default("admin"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertUploadQueueSchema = createInsertSchema(uploadQueue).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertUploadQueue = z.infer<typeof insertUploadQueueSchema>;
+export type UploadQueueItem = typeof uploadQueue.$inferSelect;
+
+export const productDrafts = pgTable("product_drafts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  uploadQueueId: varchar("upload_queue_id"),
+  sku: text("sku"),
+  title: text("title").notNull(),
+  shortDescription: text("short_description"),
+  fullDescription: text("full_description"),
+  features: text("features").array().default(sql`'{}'`),
+  tags: text("tags").array().default(sql`'{}'`),
+  categoryId: varchar("category_id"),
+  categoryName: text("category_name"),
+  subcategoryName: text("subcategory_name"),
+  style: text("style"),
+  commercialUseCase: text("commercial_use_case"),
+  productType: text("product_type"),
+  brand: text("brand"),
+  dimensions: text("dimensions"),
+  materials: text("materials"),
+  imageUrl: text("image_url"),
+  galleryImages: text("gallery_images").array().default(sql`'{}'`),
+  imageAltText: text("image_alt_text"),
+  seoTitle: text("seo_title"),
+  seoDescription: text("seo_description"),
+  // AI scoring
+  aiConfidenceScore: real("ai_confidence_score").default(0),
+  marketAppealScore: real("market_appeal_score").default(0),
+  commercialRelevanceScore: real("commercial_relevance_score").default(0),
+  visualQualityScore: real("visual_quality_score").default(0),
+  brandFitScore: real("brand_fit_score").default(0),
+  overallAiScore: real("overall_ai_score").default(0),
+  publishReadiness: text("publish_readiness").notNull().default("hold_back"), // ready|publish|review|hold_back
+  // Status
+  status: text("status").notNull().default("new"), // new|processing|ready|review|needs_data|hold_back|published|unpublished|rejected
+  reviewNotes: text("review_notes"),
+  publishedAt: timestamp("published_at"),
+  isLive: boolean("is_live").default(false),
+  isDuplicate: boolean("is_duplicate").default(false),
+  duplicateGroupId: varchar("duplicate_group_id"),
+  aiRaw: jsonb("ai_raw"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertProductDraftSchema = createInsertSchema(productDrafts).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertProductDraft = z.infer<typeof insertProductDraftSchema>;
+export type ProductDraft = typeof productDrafts.$inferSelect;
+
+// ─── Real Lead Engine ─────────────────────────────────────────────────────────
+
+export const ingestedLeads = pgTable("ingested_leads", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyName: text("company_name").notNull(),
+  contactName: text("contact_name"),
+  email: text("email"),
+  phone: text("phone"),
+  city: text("city").notNull(),
+  state: text("state"),
+  source: text("source").notNull().default("manual"), // linkedin|maps|website_form|csv|manual_seed|manual
+  signalType: text("signal_type").notNull().default("expansion"), // expansion|relocation|hiring|real_estate|website_form
+  notes: text("notes"),
+  estimatedValue: integer("estimated_value"), // AUD
+  score: integer("score").notNull().default(60),
+  status: text("status").notNull().default("new"), // new|contacted|qualified|disqualified
+  dealExecutionId: varchar("deal_execution_id"),
+  intelligenceSignalId: varchar("intelligence_signal_id"),
+  isDuplicate: boolean("is_duplicate").default(false),
+  dedupeKey: text("dedupe_key"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  idxIngestedLeadsDedupe: uniqueIndex("idx_ingested_leads_dedupe").on(t.dedupeKey),
+}));
+export const insertIngestedLeadSchema = createInsertSchema(ingestedLeads).omit({ id: true, createdAt: true, updatedAt: true, isDuplicate: true, dedupeKey: true });
+export type InsertIngestedLead = z.infer<typeof insertIngestedLeadSchema>;
+export type IngestedLead = typeof ingestedLeads.$inferSelect;

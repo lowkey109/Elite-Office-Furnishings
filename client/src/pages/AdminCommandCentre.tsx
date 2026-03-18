@@ -3341,6 +3341,8 @@ export default function AdminCommandCentre() {
               { href: "/admin/market-map", icon: MapPin, label: "Workspace Intelligence Map", sub: "Signals, demand, risk layers" },
               { href: "/admin/proposal-engine", icon: FileText, label: "Proposal Engine", sub: `${dealClosingStats?.proposals?.total ?? 0} proposals` },
               { href: "/admin/building-database", icon: Building2, label: "Building Database", sub: `${buildingStats?.totalBuildings ?? 0} buildings tracked` },
+              { href: "/admin/products", icon: Package, label: "AI Product Command Centre", sub: "Upload, AI process & publish products" },
+              { href: "/admin/lead-engine", icon: TrendingUp, label: "Real Lead Engine", sub: "50–200 leads/day — AI scored & auto-routed" },
             ].map(({ href, icon: Icon, label, sub }) => (
               <Link key={href} href={href}>
                 <div className="flex items-center gap-3 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.06)] rounded-xl p-3.5 cursor-pointer transition-colors">

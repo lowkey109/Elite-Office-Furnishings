@@ -6,6 +6,27 @@ The Corporate Desk (`thecorporatedesk.com.au`) is a luxury office furniture webs
 ## User Preferences
 I prefer iterative development with clear, modular code. Before making any major architectural changes or introducing new external dependencies, please ask for approval. I prefer detailed explanations for complex solutions. Do not make changes to the `server/db.ts` file without explicit instruction. Do not make changes to the `client/src/lib/furnitureCatalogue.ts` file without explicit instruction.
 
+## New Major Features (March 2026)
+
+### AI Product Command Centre (`/admin/products`)
+- Full product management system with 7-tab interface: Dashboard, Upload Centre, AI Queue, Draft Review, Published, Categories, SEO Manager
+- AI pipeline: upload image/PDF/CSV → GPT-4o extracts SKU, title, descriptions, features, tags, SEO metadata, AI scores
+- Weighted AI scoring (market appeal, commercial relevance, visual quality, brand fit) → publish readiness bands (Ready/Publish/Review/Hold Back)
+- Full CRUD: approve, reject, edit, regenerate, publish, unpublish, bulk publish
+- Category manager with AI SEO generation
+- Schema: `product_categories`, `product_drafts`, `upload_queue` tables
+- Routes: `/api/admin/products/*`, `/api/admin/product-categories/*`, `/api/admin/uploads/*`
+
+### Real Lead Engine (`/admin/lead-engine`)
+- Lead ingestion: `POST /api/intelligence/ingest-lead` — deduplication, scoring (hiring: 80, relocation: 85, website form: 90), auto-push to intelligenceSignals + dealExecution
+- LinkedIn scraper (simulated) → extracts expansion/hiring signals
+- Google Maps scraper (simulated) → extracts office relocation signals
+- CSV/bulk import: `POST /api/admin/import-leads`
+- 25 AU seeded leads (Sydney/Melbourne/Brisbane — tech, law, accounting, construction, real estate)
+- Scheduler: LinkedIn + Maps scrapers every 6 hours
+- Dedup via `dedupe_key` unique index (email or company+city)
+- Schema: `ingested_leads` table with `idx_ingested_leads_dedupe` unique index
+
 ## System Architecture
 The application uses a client-server architecture with a luxurious, minimalist UI/UX design, heavily driven by AI functionalities.
 
