@@ -7638,6 +7638,8 @@ Rules:
       const { resolveProspectEmail } = await import("./services/outreach/prospectEmailResolver");
       const { sendOutreachEmail } = await import("./email");
 
+      const { companyContacts: cc } = await import("../shared/schema");
+
       const drafts = await ddb
         .select({
           msgId: om.id,
@@ -7647,9 +7649,11 @@ Rules:
           contactId: ot.contactId,
           companyName: ot.companyName,
           companyId: ot.companyId,
+          firstName: cc.firstName,
         })
         .from(om)
         .innerJoin(ot, eq(om.threadId, ot.id))
+        .leftJoin(cc, eq(cc.id, ot.contactId))
         .where(and(eq(om.deliveryStatus, "draft"), eq(om.direction, "outbound"), eq(ot.status, "active")))
         .orderBy(desc(om.createdAt))
         .limit(limit);
@@ -7679,9 +7683,15 @@ Rules:
           await ddb.update(ot).set({ contactReadiness: "READY_TO_CONTACT", resolvedEmail: toEmail, resolvedEmailSource: resolved.sourceType, updatedAt: new Date() }).where(eq(ot.id, draft.threadId));
 
           if (LIVE_MODE && draft.subject && draft.body) {
-            // Rate limit: 1 email/sec max to stay within Resend's 5 req/sec
+            // Rate limit: stay within Resend's 5 req/sec limit
             await new Promise(resolve => setTimeout(resolve, 250));
-            const sendResult = await sendOutreachEmail({ to: toEmail, subject: draft.subject!, html: draft.body!, companyName: draft.companyName }) as any;
+            const sendResult = await sendOutreachEmail({
+              to: toEmail,
+              subject: draft.subject!,
+              html: draft.body!,
+              companyName: draft.companyName,
+              firstName: draft.firstName ?? null,
+            }) as any;
             resendMsgId = sendResult?.id ?? null;
           }
 
@@ -7698,6 +7708,85 @@ Rules:
       }
 
       res.json({ success: true, liveMode: LIVE_MODE, totalProcessed: drafts.length, sent, blocked, failed, results });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // POST /api/admin/outreach/backfill-templates — enforce templates on all existing draft messages
+  app.post("/api/admin/outreach/backfill-templates", async (_req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { outreachMessages: om, outreachThreads: ot } = await import("../shared/schema");
+      const { companyContacts: cc } = await import("../shared/schema");
+      const { eq, or, and } = await import("drizzle-orm");
+      const { enforceTemplate } = await import("./services/outreach/templateEnforcer");
+
+      // Get all messages that need backfill (draft, failed, blocked)
+      const messages = await ddb
+        .select({
+          msgId: om.id,
+          subject: om.subject,
+          body: om.body,
+          deliveryStatus: om.deliveryStatus,
+          threadId: om.threadId,
+          firstName: cc.firstName,
+        })
+        .from(om)
+        .innerJoin(ot, eq(om.threadId, ot.id))
+        .leftJoin(cc, eq(cc.id, ot.contactId))
+        .where(or(
+          eq(om.deliveryStatus, "draft"),
+          eq(om.deliveryStatus, "failed"),
+          eq(om.deliveryStatus, "blocked"),
+        ))
+        .limit(500);
+
+      let cleaned = 0;
+      let templateErrors = 0;
+      let skipped = 0;
+      const errorDetails: Array<{ msgId: string; reason: string }> = [];
+
+      for (const msg of messages) {
+        if (!msg.subject || !msg.body) { skipped++; continue; }
+
+        const enforcement = enforceTemplate({
+          html: msg.body,
+          subject: msg.subject,
+          firstName: msg.firstName ?? null,
+        });
+
+        if (!enforcement.ok) {
+          // Still save the original — mark as blocked with reason
+          await ddb.update(om)
+            .set({ deliveryStatus: "blocked", blockingReason: enforcement.reason })
+            .where(eq(om.id, msg.msgId));
+          errorDetails.push({ msgId: msg.msgId, reason: enforcement.reason });
+          templateErrors++;
+        } else if (enforcement.wasModified) {
+          // Update with cleaned body + subject
+          const statusUpdate = msg.deliveryStatus === "failed" || msg.deliveryStatus === "blocked"
+            ? { deliveryStatus: "draft", blockingReason: null as string | null }
+            : {};
+
+          await ddb.update(om)
+            .set({ body: enforcement.html, subject: enforcement.subject, ...statusUpdate })
+            .where(eq(om.id, msg.msgId));
+          cleaned++;
+        } else {
+          skipped++;
+        }
+      }
+
+      res.json({
+        success: true,
+        totalProcessed: messages.length,
+        cleaned,
+        templateErrors,
+        skipped,
+        errorDetails: errorDetails.slice(0, 10),
+        message: `Backfill complete — ${cleaned} messages cleaned, ${templateErrors} template errors, ${skipped} already clean`,
+      });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }

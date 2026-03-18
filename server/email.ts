@@ -1017,6 +1017,54 @@ export async function sendOutreachEmail(opts: {
   subject: string;
   html: string;
   companyName: string;
-}): Promise<void> {
-  await sendEmail({ to: opts.to, subject: opts.subject, html: opts.html });
+  firstName?: string | null;
+}): Promise<{ id?: string; provider?: string }> {
+  // ── Final safety net: enforce template before every send ──────────────────
+  // Import here to avoid circular dependency issues
+  const { enforceTemplate } = await import("./services/outreach/templateEnforcer");
+  const { OUTREACH_FROM } = await import("./services/outreach/senderProfile");
+
+  const enforcement = enforceTemplate({
+    html: opts.html,
+    subject: opts.subject,
+    firstName: opts.firstName ?? null,
+  });
+
+  if (!enforcement.ok) {
+    const errMsg = `[OutreachEmail] BLOCKED — ${opts.companyName} | ${enforcement.reason}`;
+    console.error(errMsg);
+    throw new Error(enforcement.reason);
+  }
+
+  // Use outreach-specific FROM (Ben Mumford identity)
+  const resendKey = process.env.RESEND_API_KEY;
+  if (!resendKey) {
+    throw new Error("RESEND_API_KEY not set — outreach email not sent");
+  }
+
+  const toList = opts.to;
+  console.log(`[OutreachEmail] ▶ SEND — to: ${toList} | company: ${opts.companyName} | from: ${OUTREACH_FROM}`);
+
+  if (process.env.SAFE_MODE === "true") {
+    console.log(`[OutreachEmail] ⏸ SAFE_MODE — suppressed send to ${toList}`);
+    return {};
+  }
+
+  const { Resend } = await import("resend");
+  const resend = new Resend(resendKey);
+
+  const result = await resend.emails.send({
+    from: OUTREACH_FROM,
+    to: [opts.to],
+    subject: enforcement.subject,
+    html: enforcement.html,
+  });
+
+  if (result.error) {
+    console.error(`[OutreachEmail] ✗ FAIL — to: ${toList} | error: ${result.error.message}`);
+    throw new Error(`Resend error: ${result.error.message}`);
+  }
+
+  console.log(`[OutreachEmail] ✓ SENT — to: ${toList} | company: ${opts.companyName} | messageId: ${result.data?.id ?? "unknown"}`);
+  return { id: result.data?.id, provider: "resend" };
 }
