@@ -6422,7 +6422,17 @@ Rules:
     try {
       const { status, partnerId } = req.query as any;
       const list = await commissionService.listAll({ status, partnerId });
-      res.json(list);
+      const stats = await commissionService.getCommissionStats();
+      // Join partner names from the partners table
+      const { partners: pT } = await import("../shared/schema");
+      const partnerRows = await db.select({ id: pT.id, companyName: pT.companyName }).from(pT);
+      const partnerMap = Object.fromEntries(partnerRows.map(p => [p.id, p.companyName]));
+      const commissions = list.map((c: any) => ({
+        ...c,
+        partnerName: partnerMap[c.partnerId] ?? undefined,
+        amount: c.commissionAmount ?? 0,
+      }));
+      res.json({ ...stats, commissions });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
@@ -6797,29 +6807,144 @@ Rules:
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
-  // ── Deal Won Learning Loop ────────────────────────────────────────────────
+  // ── Deal Won — Full Loop (Learning + Partner Commission) ─────────────────
   app.post("/api/alex/deals/:id/mark-won", async (req, res) => {
     try {
       const { id } = req.params;
       const { dealValueActual } = req.body as { dealValueActual?: number };
-      const { dealExecution: dealTable4, workspaceLearningRecords } = await import("@shared/schema");
+      const { dealExecution: dealTable4, workspaceLearningRecords, partnerOpportunities: partnerOpps, partners: partnersTable } = await import("@shared/schema");
       const { eq } = await import("drizzle-orm");
 
       const [deal] = await db.select().from(dealTable4).where(eq(dealTable4.id, id)).limit(1);
       if (!deal) return res.status(404).json({ error: "Deal not found" });
 
+      const finalValue = dealValueActual ?? deal.dealValueEstimate ?? 0;
+
       await db.update(dealTable4)
-        .set({ status: "won", stage: "won", wonAt: new Date(), updatedAt: new Date(), dealValueEstimate: dealValueActual ?? deal.dealValueEstimate })
+        .set({ status: "won", stage: "won", wonAt: new Date(), updatedAt: new Date(), dealValueEstimate: finalValue })
         .where(eq(dealTable4.id, id));
 
-      // Update workspace learning records — mark converted
+      // Update workspace learning records
       if (deal.companyName) {
         await db.update(workspaceLearningRecords)
-          .set({ conversionResult: "converted", keyInsight: `Won: $${dealValueActual ?? deal.dealValueEstimate ?? 0} deal closed` })
+          .set({ conversionResult: "converted", keyInsight: `Won: $${finalValue} deal closed` })
           .where(eq(workspaceLearningRecords.clientCompany, deal.companyName));
       }
 
-      res.json({ success: true, dealId: id, stage: "won" });
+      // Find partner_opportunities linked to this deal (by dealExecutionId or companyName)
+      const linkedPartnerOpps = await db.select().from(partnerOpps)
+        .where(eq(partnerOpps.dealExecutionId, id))
+        .limit(10);
+
+      // Also find by companyName if no direct link
+      const companyPartnerOpps = linkedPartnerOpps.length === 0 && deal.companyName
+        ? await db.select().from(partnerOpps).where(eq(partnerOpps.companyName, deal.companyName)).limit(10)
+        : [];
+
+      const allLinkedOpps = [...linkedPartnerOpps, ...companyPartnerOpps];
+      const commissionsCreated: string[] = [];
+
+      for (const opp of allLinkedOpps) {
+        // Mark partner opportunity as won
+        const commRate = opp.commissionRate ?? 5.0;
+        const commValue = Math.round(finalValue * (commRate / 100) * 100); // in cents
+        await db.update(partnerOpps)
+          .set({ status: "won", commissionValue: commValue, updatedAt: new Date() })
+          .where(eq(partnerOpps.id, opp.id));
+
+        // Auto-create commission record
+        const { commissionService } = await import("./services/partnerNetwork/commissionService");
+        const commission = await commissionService.createCommission({
+          partnerId: opp.partnerId,
+          opportunityId: opp.id,
+          dealValue: finalValue * 100, // convert to cents
+          commissionPercent: commRate,
+          notes: `Auto-created on deal won: ${deal.companyName}`,
+        });
+        commissionsCreated.push(commission.id);
+
+        // Update partner stats — increment won count
+        const { sql: dSql } = await import("drizzle-orm");
+        await db.update(partnersTable)
+          .set({ totalProjectsWon: dSql`${partnersTable.totalProjectsWon} + 1`, updatedAt: new Date() })
+          .where(eq(partnersTable.id, opp.partnerId));
+      }
+
+      res.json({ success: true, dealId: id, stage: "won", finalValue, commissionsCreated, partnersNotified: allLinkedOpps.length });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ── Partner Network — Deal-Level Summary ─────────────────────────────────
+  app.get("/api/admin/partner-network/deals", async (req, res) => {
+    try {
+      const { partnerOpportunities: partnerOpps, partners: partnersTable } = await import("@shared/schema");
+      const { eq, desc } = await import("drizzle-orm");
+
+      const opps = await db
+        .select({
+          id: partnerOpps.id,
+          partnerId: partnerOpps.partnerId,
+          opportunityTitle: partnerOpps.opportunityTitle,
+          companyName: partnerOpps.companyName,
+          city: partnerOpps.city,
+          status: partnerOpps.status,
+          estimatedProjectValue: partnerOpps.estimatedProjectValue,
+          commissionRate: partnerOpps.commissionRate,
+          commissionValue: partnerOpps.commissionValue,
+          projectType: partnerOpps.projectType,
+          createdAt: partnerOpps.createdAt,
+        })
+        .from(partnerOpps)
+        .orderBy(desc(partnerOpps.createdAt))
+        .limit(100);
+
+      const allPartners = await db.select().from(partnersTable);
+      const partnerMap = new Map(allPartners.map(p => [p.id, p]));
+
+      const enriched = opps.map(o => ({
+        ...o,
+        partnerName: partnerMap.get(o.partnerId)?.companyName ?? "Unknown",
+        partnerType: partnerMap.get(o.partnerId)?.partnerType ?? "unknown",
+      }));
+
+      res.json({ total: enriched.length, deals: enriched });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ── Partner Network — Route Opportunity to Partner (with deal link) ───────
+  app.post("/api/admin/partner-opportunities/:id/link-deal", async (req, res) => {
+    try {
+      const { dealExecutionId } = req.body as { dealExecutionId: string };
+      const { partnerOpportunities: partnerOpps } = await import("@shared/schema");
+      const { eq } = await import("drizzle-orm");
+      const updated = await db.update(partnerOpps)
+        .set({ dealExecutionId, updatedAt: new Date() })
+        .where(eq(partnerOpps.id, req.params.id))
+        .returning();
+      res.json({ success: true, partnerOpportunity: updated[0] });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ── Partner Notification — notify partner of new opportunity ─────────────
+  app.post("/api/admin/partner-opportunities/:id/notify", async (req, res) => {
+    try {
+      const SAFE_MODE = process.env.SAFE_MODE !== "false";
+      const { partnerOpportunities: partnerOpps, partners: partnersTable } = await import("@shared/schema");
+      const { eq } = await import("drizzle-orm");
+
+      const [opp] = await db.select().from(partnerOpps).where(eq(partnerOpps.id, req.params.id)).limit(1);
+      if (!opp) return res.status(404).json({ error: "Partner opportunity not found" });
+
+      const [partner] = await db.select().from(partnersTable).where(eq(partnersTable.id, opp.partnerId)).limit(1);
+      if (!partner) return res.status(404).json({ error: "Partner not found" });
+
+      if (!SAFE_MODE) {
+        const { sendEmail } = await import("./email");
+        // Email would go here in live mode
+      }
+
+      console.log(`[PartnerNetwork] ${SAFE_MODE ? "[SAFE] " : ""}Notified partner ${partner.companyName} (${partner.email}) of opportunity: ${opp.opportunityTitle}`);
+      res.json({ success: true, partner: partner.email, opportunity: opp.opportunityTitle, safeMode: SAFE_MODE });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 

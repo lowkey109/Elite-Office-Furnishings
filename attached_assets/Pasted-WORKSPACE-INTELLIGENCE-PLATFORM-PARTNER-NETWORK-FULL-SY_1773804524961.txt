@@ -1,0 +1,283 @@
+WORKSPACE INTELLIGENCE PLATFORM
+PARTNER NETWORK + FULL SYSTEM LOOP INTEGRATION PROMPT
+
+ROLE
+
+You are a senior full-stack engineer, systems integrator, and revenue workflow architect.
+
+You are working on an EXISTING production platform:
+Workspace Intelligence Platform
+
+Your task is to:
+
+1. DEBUG and FIX the Partner Network system
+2. CONNECT it into ALL platform loops
+3. ENSURE it participates in the full revenue lifecycle
+
+DO NOT rebuild the platform.
+DO NOT create fake/demo data.
+DO NOT leave disconnected modules.
+
+------------------------------------------------
+
+PRIMARY OBJECTIVE
+
+Turn Partner Network into a fully connected system that participates in:
+
+Signal → Opportunity → Partner Routing → Outreach → Meeting → Proposal → Payment → WON → Commission → Learning
+
+------------------------------------------------
+
+CRITICAL RULES
+
+1. DO NOT break existing systems
+2. DO NOT duplicate logic
+3. ALL partner actions must connect to real opportunities
+4. ALL partner deals must flow through pipeline stages
+5. ALL commissions must be tied to real deals
+6. SAFE_MODE must still be respected for external actions
+
+------------------------------------------------
+
+STAGE 1 — PARTNER NETWORK CORE FIX
+
+Fix and verify:
+
+• partner creation
+• partner listing
+• search + filters
+• onboarding flow
+• route opportunity button
+• UI rendering
+
+Ensure partners are stored in DB and visible immediately.
+
+------------------------------------------------
+
+STAGE 2 — CONNECT PARTNERS TO OPPORTUNITIES
+
+Create or fix:
+
+partner_opportunities table
+
+Fields:
+
+• id
+• partner_id
+• opportunity_id
+• role (broker/designer/etc)
+• commission_rate
+• commission_value
+• status (assigned, active, won, lost)
+• created_at
+
+When routing:
+
+• record must be created
+• UI must update immediately
+
+------------------------------------------------
+
+STAGE 3 — CONNECT TO SIGNAL LOOP
+
+When:
+
+Signal → Opportunity created
+
+System must:
+
+• allow partner routing immediately
+• suggest best partner (if possible)
+• optionally auto-route based on rules
+
+------------------------------------------------
+
+STAGE 4 — CONNECT TO OUTREACH LOOP
+
+When:
+
+Opportunity is assigned to partner
+
+System must:
+
+• log partner involvement
+• optionally notify partner (SAFE_MODE aware)
+• track communication
+
+If outreach exists:
+• link partner to outreach thread
+
+------------------------------------------------
+
+STAGE 5 — CONNECT TO BOOKING LOOP
+
+When:
+
+Meeting is booked
+
+System must:
+
+• update deal_execution.stage = meeting_booked
+• link meeting to:
+  - opportunity
+  - partner
+
+------------------------------------------------
+
+STAGE 6 — CONNECT TO PROPOSAL LOOP
+
+When:
+
+Proposal is created
+
+System must:
+
+• link proposal to partner
+• allow partner visibility (if applicable)
+• include partner attribution in deal
+
+------------------------------------------------
+
+STAGE 7 — CONNECT TO PAYMENT LOOP
+
+When:
+
+Stripe payment succeeds
+
+System must:
+
+• mark deal WON
+• update partner_opportunities.status = won
+• calculate commission_value
+
+------------------------------------------------
+
+STAGE 8 — COMMISSION SYSTEM
+
+Create or fix:
+
+commissions table
+
+Fields:
+
+• id
+• partner_id
+• opportunity_id
+• deal_value
+• commission_rate
+• commission_amount
+• status (pending, approved, paid)
+• created_at
+
+Automatically create commission when deal WON.
+
+------------------------------------------------
+
+STAGE 9 — CONNECT TO COMMAND CENTRE
+
+Expose partner data in:
+
+/admin/command-centre
+
+Add panels:
+
+• partner-driven deals
+• revenue via partners
+• commissions pending
+• top partners
+
+All must use real data.
+
+------------------------------------------------
+
+STAGE 10 — CONNECT TO ALEX
+
+Extend Alex to:
+
+• recommend best partner for opportunity
+• highlight high-performing partners
+• detect partner-driven revenue opportunities
+
+Alex must be able to answer:
+
+• which partners generate most revenue?
+• which opportunities need routing?
+• which partners are underutilised?
+
+------------------------------------------------
+
+STAGE 11 — CONNECT TO GRAPH
+
+Add graph edges:
+
+COMPANY_LINKED_TO_PARTNER  
+OPPORTUNITY_LINKED_TO_PARTNER  
+PARTNER_CLUSTER  
+
+Ensure:
+
+• graph updates on routing
+• graph queries include partner relationships
+
+------------------------------------------------
+
+STAGE 12 — REMOVE EMPTY STATES
+
+If:
+
+• no partners → show onboarding CTA
+• no routed deals → allow quick test routing
+• no commissions → show expected future state
+
+Do NOT leave blank UI.
+
+------------------------------------------------
+
+STAGE 13 — END-TO-END TEST
+
+Run:
+
+1. create partner
+2. create opportunity
+3. route opportunity to partner
+4. confirm partner_opportunities record
+5. simulate outreach
+6. simulate meeting
+7. create proposal
+8. simulate payment
+9. mark deal WON
+10. verify commission created
+11. verify dashboard updates
+
+Fix any break in chain.
+
+------------------------------------------------
+
+STAGE 14 — FINAL REPORT
+
+Create:
+
+docs/audit/partner-loop-integration-report.md
+
+Include:
+
+• partner system status
+• loop integration status
+• routes used
+• DB tables verified
+• remaining gaps
+
+------------------------------------------------
+
+FINAL GOAL
+
+Turn Partner Network into a core revenue multiplier where:
+
+partners receive opportunities  
+partners help close deals  
+partners generate revenue  
+system tracks everything  
+
+and the full loop runs:
+
+Signal → Opportunity → Partner → Deal → Payment → Commission → Growth

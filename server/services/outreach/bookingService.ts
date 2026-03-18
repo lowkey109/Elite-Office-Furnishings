@@ -155,6 +155,25 @@ export async function confirmMeeting(params: {
   });
 
   console.log(`[BookingService] Meeting confirmed for ${thread?.companyName ?? params.threadId} at ${params.meetingTime.toISOString()}`);
+
+  // Update partner_opportunities for this company to 'meeting_booked'
+  if (thread?.companyId) {
+    try {
+      const { partnerOpportunities } = await import("@shared/schema");
+      const { eq: eqFn } = await import("drizzle-orm");
+      await db.update(partnerOpportunities)
+        .set({ status: "meeting_booked", updatedAt: new Date() })
+        .where(eqFn(partnerOpportunities.outreachThreadId, params.threadId));
+      // Also try matching by companyName if outreachThreadId linkage not set
+      if (thread.companyName) {
+        await db.update(partnerOpportunities)
+          .set({ outreachThreadId: params.threadId, updatedAt: new Date() })
+          .where(eqFn(partnerOpportunities.companyName, thread.companyName));
+      }
+    } catch (e) {
+      // Non-critical — partner update failure should not block booking confirmation
+    }
+  }
 }
 
 export async function getBookingStats() {

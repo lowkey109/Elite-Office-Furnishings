@@ -110,6 +110,8 @@ export async function routeOpportunityToPartners(opportunityData: {
       sourceId: opportunityData.sourceId ?? null,
       routingReason: opportunityData.routingReason ?? `Fit score ${score}/100 — ${partner.partnerType} in ${partner.city ?? "AU"}`,
       status: "invited",
+      role: "referral",
+      commissionRate: 5.0,
       notes: null,
     };
     const saved = await storage.createPartnerOpportunity(record);
@@ -117,9 +119,69 @@ export async function routeOpportunityToPartners(opportunityData: {
 
     // Update partner stats
     await storage.incrementPartnerStats(partner.id, "totalOpportunitiesReceived");
+
+    // Create graph edges for partner relationship
+    try {
+      const { onPartnerLinked } = await import("./intelligence/intelligenceGraphService");
+      await onPartnerLinked({
+        companyId: opportunityData.sourceId ?? `company:${opportunityData.companyName ?? "unknown"}`,
+        companyName: opportunityData.companyName ?? "Unknown Company",
+        partnerId: partner.id,
+        partnerName: partner.companyName,
+        partnerType: partner.partnerType,
+        opportunityId: saved.id,
+        opportunityTitle: opportunityData.opportunityTitle,
+      });
+    } catch (e) {
+      // Graph edges are non-critical — don't fail the routing if graph fails
+    }
   }
 
   return { routed: created.length, opportunities: created };
+}
+
+// ─── Auto-Route from High-Score Intelligence Signals ─────────────────────────
+export async function autoRouteHighScoreSignals(): Promise<{ routed: number }> {
+  const { db } = await import("../db");
+  const { intelligenceSignals } = await import("../../shared/schema");
+  const { and, eq, sql: drizzleSql } = await import("drizzle-orm");
+
+  // Find high-confidence signals from the last 24 hours that haven't been routed
+  const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const signals = await db
+    .select()
+    .from(intelligenceSignals)
+    .where(
+      and(
+        drizzleSql`${intelligenceSignals.createdAt} > ${dayAgo}`,
+        drizzleSql`${intelligenceSignals.confidenceScore} >= 70`,
+        drizzleSql`${intelligenceSignals.relocationProbability} >= 60`
+      )
+    )
+    .limit(10);
+
+  let totalRouted = 0;
+  for (const signal of signals) {
+    try {
+      const result = await routeOpportunityToPartners({
+        opportunityTitle: `${signal.companyName} — Intelligence Signal (${signal.signalType})`,
+        companyName: signal.companyName,
+        city: signal.city ?? undefined,
+        industry: signal.industry ?? undefined,
+        projectType: "relocation",
+        estimatedProjectValue: 80000,
+        relocationScore: signal.relocationProbability ?? 60,
+        sourceType: "intelligence_signal",
+        sourceId: signal.id,
+        routingReason: `Auto-routed from intelligence signal — confidence ${signal.confidenceScore}%`,
+      });
+      totalRouted += result.routed;
+    } catch (e) {
+      // Non-critical — continue with next signal
+    }
+  }
+
+  return { routed: totalRouted };
 }
 
 // ─── Auto-Route from Radar Signal ─────────────────────────────────────────────

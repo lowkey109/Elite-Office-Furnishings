@@ -290,6 +290,17 @@ async function registerPgBossWorkers(): Promise<void> {
     if (result.signalsPersisted > 0) {
       await scheduleJob(QUEUES.CONTACTS_DISCOVERY, {}, { singletonKey: "contacts-discovery-signal-trigger" });
       console.log(`[SignalIngestion] Queued contact discovery after ${result.signalsPersisted} new signals`);
+
+      // Auto-route high-confidence signals to partner network
+      try {
+        const { autoRouteHighScoreSignals } = await import("./partnerNetwork");
+        const partnerResult = await autoRouteHighScoreSignals();
+        if (partnerResult.routed > 0) {
+          console.log(`[SignalIngestion] Auto-routed ${partnerResult.routed} signals to partner network`);
+        }
+      } catch (e) {
+        // Non-critical — partner routing failure should not block signal ingestion
+      }
     }
   });
 

@@ -152,7 +152,7 @@ export async function runAlexCycle(): Promise<{
         meetingBooked: false,
       };
 
-      const { decision, reasoning, combinedScore, graphNetworkStrength, clusterBoost } =
+      const { decision, reasoning, combinedScore, graphNetworkStrength, clusterBoost, partnerRecommendation } =
         await makeDecision(input);
 
       const actionId = await logAlexAction({
@@ -281,6 +281,26 @@ export async function runAlexCycle(): Promise<{
         assignedTo: "alex",
       });
       dealsUpdated++;
+
+      // Auto-route to partner network when recommended by decision engine
+      if (partnerRecommendation === "route_to_partners") {
+        try {
+          const { routeOpportunityToPartners } = await import("../partnerNetwork");
+          await routeOpportunityToPartners({
+            opportunityTitle: `${opp.companyName} — ${decision} (Alex Intelligence)`,
+            companyName: opp.companyName,
+            city: opp.city ?? "Sydney",
+            industry: (opp as any).industry,
+            projectType: "relocation",
+            estimatedProjectValue: (opp as any).dealValueEstimate ?? 80000,
+            sourceId: opp.id,
+            sourceType: "alex_intelligence",
+          });
+          console.log(`[AlexAgent] Auto-routed ${opp.companyName} to partner network (score: ${combinedScore.toFixed(0)})`);
+        } catch (partnerErr: any) {
+          // Non-critical — partner routing failure should not block Alex cycle
+        }
+      }
 
     } catch (err: any) {
       console.error(`[AlexAgent] Error processing ${opp.companyName}:`, err.message);

@@ -523,6 +523,27 @@ export default function AdminCommandCentre() {
     refetchInterval: 30000,
   });
 
+  const { data: partnerNetworkSummary, refetch: refetchPartnerNetwork } = useQuery<{
+    totalPartners: number; activePartners: number; pendingPartners: number;
+    totalOpportunitiesRouted: number; totalProjectsWon: number; totalNetworkRevenue: number;
+    conversionRate: number;
+    partnerTypeBreakdown: Record<string, number>;
+    topPerformers: Array<{ id: string; companyName: string; type: string; won: number; revenue: number }>;
+  }>({
+    queryKey: ["/api/admin/partners/summary"],
+    enabled: authed,
+    refetchInterval: 60000,
+  });
+
+  const { data: partnerDeals, refetch: refetchPartnerDeals } = useQuery<{
+    total: number;
+    deals: Array<{ id: string; partnerId: string; partnerName: string; partnerType: string; opportunityTitle: string; companyName?: string; status: string; estimatedProjectValue?: number; commissionRate?: number; commissionValue?: number; createdAt: string }>;
+  }>({
+    queryKey: ["/api/admin/partner-network/deals"],
+    enabled: authed,
+    refetchInterval: 60000,
+  });
+
   const { data: buildingStats, refetch: refetchBuildings } = useQuery<{
     totalBuildings: number; totalTenants: number; activeLeases: number;
     expiringIn12Months: number; cities: number;
@@ -2770,6 +2791,121 @@ export default function AdminCommandCentre() {
               <ArrowRight className="w-3.5 h-3.5 text-[hsl(43,78%,52%)]" />
             </div>
           </Link>
+        </div>
+
+        {/* ── Partner Network Overview ──────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(100,160,255,0.18)] rounded-2xl overflow-hidden" data-testid="panel-partner-network">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-2">
+              <Network className="w-4 h-4 text-blue-400" />
+              <h2 className="text-white font-semibold text-sm">Partner Network</h2>
+            </div>
+            <button onClick={() => refetchPartnerNetwork()} className="text-white/30 hover:text-white/60 transition-colors"><RefreshCw className="w-3.5 h-3.5" /></button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[rgba(255,255,255,0.04)]">
+            {[
+              { label: "Active Partners", value: partnerNetworkSummary?.activePartners ?? "—", sub: "In network", color: "text-blue-400" },
+              { label: "Opps Routed", value: partnerNetworkSummary?.totalOpportunitiesRouted ?? "—", sub: "Total sent", color: "text-violet-400" },
+              { label: "Projects Won", value: partnerNetworkSummary?.totalProjectsWon ?? "—", sub: "Closed via partners", color: "text-green-400" },
+              { label: "Conversion Rate", value: `${partnerNetworkSummary?.conversionRate ?? 0}%`, sub: "Network win rate", color: "text-amber-400" },
+            ].map(({ label, value, sub, color }) => (
+              <div key={label} className="bg-[hsl(220,18%,10%)] p-4">
+                <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">{label}</p>
+                <p className={`text-2xl font-bold ${color}`}>{value}</p>
+                <p className="text-white/30 text-[10px] mt-0.5">{sub}</p>
+              </div>
+            ))}
+          </div>
+          {partnerNetworkSummary && partnerNetworkSummary.topPerformers.length > 0 ? (
+            <div className="px-5 py-3 space-y-2">
+              <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Top Partners</p>
+              {partnerNetworkSummary.topPerformers.slice(0, 3).map(p => (
+                <div key={p.id} className="flex items-center justify-between">
+                  <div>
+                    <span className="text-white/80 text-xs font-medium">{p.companyName}</span>
+                    <span className="text-white/30 text-[10px] ml-2">{p.type}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-green-400 text-xs">{p.won} won</span>
+                    <span className="text-amber-400 text-xs">${(p.revenue / 100).toLocaleString("en-AU", { maximumFractionDigits: 0 })}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="px-5 py-4 text-center">
+              <p className="text-white/30 text-xs">No active partners yet</p>
+              <Link href="/partner-onboarding">
+                <span className="text-blue-400 text-xs underline cursor-pointer">Invite first partner</span>
+              </Link>
+            </div>
+          )}
+          <Link href="/admin/partner-network">
+            <div className="mx-4 mb-4 mt-2 flex items-center justify-between bg-[rgba(100,160,255,0.06)] hover:bg-[rgba(100,160,255,0.1)] border border-[rgba(100,160,255,0.15)] rounded-xl px-4 py-2.5 cursor-pointer transition-colors">
+              <span className="text-blue-400 text-xs font-semibold">Open Partner Console</span>
+              <ArrowRight className="w-3.5 h-3.5 text-blue-400" />
+            </div>
+          </Link>
+        </div>
+
+        {/* ── Partner-Driven Deals ───────────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(100,200,100,0.18)] rounded-2xl overflow-hidden" data-testid="panel-partner-deals">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-2">
+              <Star className="w-4 h-4 text-emerald-400" />
+              <h2 className="text-white font-semibold text-sm">Partner-Driven Deals</h2>
+              {partnerDeals && <span className="text-white/30 text-[10px] ml-1">({partnerDeals.total})</span>}
+            </div>
+            <button onClick={() => refetchPartnerDeals()} className="text-white/30 hover:text-white/60 transition-colors"><RefreshCw className="w-3.5 h-3.5" /></button>
+          </div>
+          {partnerDeals && partnerDeals.deals.length > 0 ? (
+            <div className="divide-y divide-[rgba(255,255,255,0.04)]">
+              {partnerDeals.deals.slice(0, 8).map(deal => (
+                <div key={deal.id} className="px-5 py-3 flex items-center justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white/80 text-xs font-medium truncate">{deal.companyName ?? deal.opportunityTitle}</p>
+                    <p className="text-white/30 text-[10px] truncate">{deal.partnerName} · {deal.partnerType}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {deal.estimatedProjectValue && <span className="text-amber-400 text-[10px]">${(deal.estimatedProjectValue).toLocaleString("en-AU")}</span>}
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium border ${
+                      deal.status === "won" ? "bg-green-500/20 text-green-300 border-green-500/30" :
+                      deal.status === "meeting_booked" ? "bg-blue-500/20 text-blue-300 border-blue-500/30" :
+                      deal.status === "accepted" ? "bg-violet-500/20 text-violet-300 border-violet-500/30" :
+                      "bg-amber-500/20 text-amber-300 border-amber-500/30"
+                    }`}>{deal.status}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="px-5 py-8 text-center">
+              <Network className="w-8 h-8 text-white/10 mx-auto mb-2" />
+              <p className="text-white/30 text-xs">No partner deals yet</p>
+              <p className="text-white/20 text-[10px] mt-1">Route an opportunity to get started</p>
+            </div>
+          )}
+          <div className="p-4">
+            <button
+              onClick={() => {
+                const opp = prompt("Opportunity title:");
+                const company = prompt("Company name:");
+                const city = prompt("City:");
+                const val = prompt("Estimated project value ($):");
+                if (opp && company) {
+                  fetch("/api/admin/partners/route-opportunity", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ opportunityTitle: opp, companyName: company, city: city ?? "Sydney", estimatedProjectValue: val ? parseInt(val) : 80000, projectType: "relocation" }),
+                  }).then(r => r.json()).then(d => { alert(d.error || `Routed to ${d.routed} partner(s)`); refetchPartnerDeals(); refetchPartnerNetwork(); });
+                }
+              }}
+              className="w-full flex items-center justify-center gap-2 bg-[rgba(100,200,100,0.06)] hover:bg-[rgba(100,200,100,0.12)] border border-[rgba(100,200,100,0.15)] rounded-xl px-4 py-2.5 text-emerald-400 text-xs font-semibold transition-colors"
+              data-testid="btn-route-opportunity"
+            >
+              <Network className="w-3.5 h-3.5" /> Route Opportunity to Partners
+            </button>
+          </div>
         </div>
 
         {/* ── Building + Tenant Database ────────────────────────────────────── */}

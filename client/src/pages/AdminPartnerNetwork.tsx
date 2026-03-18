@@ -75,6 +75,7 @@ export default function AdminPartnerNetwork() {
   const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
   const [showRouteModal, setShowRouteModal] = useState(false);
   const [routeForm, setRouteForm] = useState({ opportunityTitle: "", companyName: "", city: "", industry: "", projectType: "relocation", estimatedProjectValue: "" });
+  const [activeTab, setActiveTab] = useState<"partners" | "opportunities" | "commissions">("partners");
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -111,6 +112,31 @@ export default function AdminPartnerNetwork() {
       setShowRouteModal(false);
       toast({ title: `Routed to ${data.routed} partner${data.routed !== 1 ? "s" : ""}` });
     },
+  });
+
+  const { data: commissionList, isLoading: commissionsLoading, refetch: refetchCommissions } = useQuery<{
+    total: number; pending: number; approved: number; paid: number;
+    totalPayableAud: number; totalPaidAud: number;
+    commissions: Array<{
+      id: string; partnerId: string; partnerName?: string; dealId?: string;
+      dealExecutionId?: string; type: string; status: string; amount: number;
+      invoiceRef?: string; notes?: string; createdAt: string;
+    }>;
+  }>({
+    queryKey: ["/api/commissions"],
+    enabled: authed && activeTab === "commissions",
+    refetchInterval: activeTab === "commissions" ? 30000 : false,
+  });
+
+  const approveCommissionMutation = useMutation({
+    mutationFn: (id: string) => apiRequest("POST", `/api/commissions/${id}/approve`),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/commissions"] }); toast({ title: "Commission approved" }); },
+    onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+  const markPaidMutation = useMutation({
+    mutationFn: ({ id, invoiceRef }: { id: string; invoiceRef?: string }) => apiRequest("POST", `/api/commissions/${id}/mark-paid`, { invoiceRef }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/commissions"] }); toast({ title: "Commission marked paid" }); },
+    onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
   if (!authed) {
@@ -181,7 +207,86 @@ export default function AdminPartnerNetwork() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        {/* Tab Navigation */}
+        <div className="flex items-center gap-1 border-b border-zinc-800 pb-0">
+          {(["partners", "opportunities", "commissions"] as const).map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2.5 text-sm font-medium rounded-t-xl transition-colors capitalize ${activeTab === tab ? "bg-zinc-900 text-white border border-b-0 border-zinc-800" : "text-zinc-500 hover:text-white"}`}
+              data-testid={`tab-${tab}`}
+            >
+              {tab === "partners" && <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" />{tab}</span>}
+              {tab === "opportunities" && <span className="flex items-center gap-1.5"><Target className="w-3.5 h-3.5" />{tab}</span>}
+              {tab === "commissions" && <span className="flex items-center gap-1.5"><DollarSign className="w-3.5 h-3.5" />{tab}</span>}
+            </button>
+          ))}
+        </div>
+
+        {/* Commissions Tab */}
+        {activeTab === "commissions" && (
+          <div className="space-y-6">
+            {/* Commission KPI Row */}
+            {commissionList && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: "Pending", value: commissionList.pending, color: "text-amber-400" },
+                  { label: "Approved", value: commissionList.approved, color: "text-blue-400" },
+                  { label: "Paid", value: commissionList.paid, color: "text-green-400" },
+                  { label: "Total Payable", value: `$${(commissionList.totalPayableAud ?? 0).toLocaleString("en-AU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, color: "text-amber-300" },
+                ].map(({ label, value, color }) => (
+                  <div key={label} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
+                    <p className="text-zinc-500 text-xs uppercase tracking-wider mb-1">{label}</p>
+                    <p className={`text-2xl font-bold ${color}`}>{value}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex items-center justify-between">
+              <h3 className="text-white font-medium">All Commissions</h3>
+              <button onClick={() => refetchCommissions()} className="p-2 text-zinc-500 hover:text-white"><RefreshCw className="w-4 h-4" /></button>
+            </div>
+            {commissionsLoading ? (
+              <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="bg-zinc-900 border border-zinc-800 rounded-2xl h-16 animate-pulse" />)}</div>
+            ) : !commissionList?.commissions?.length ? (
+              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-12 text-center">
+                <DollarSign className="w-10 h-10 text-zinc-700 mx-auto mb-3" />
+                <div className="text-zinc-400 font-medium">No commissions yet</div>
+                <div className="text-zinc-600 text-sm mt-1">Commissions are auto-created when deals are marked won</div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {commissionList.commissions.map(c => (
+                  <div key={c.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 flex items-center justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-white text-sm font-medium truncate">{c.partnerName ?? c.partnerId}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${c.status === "paid" ? "bg-green-500/20 text-green-300 border-green-500/30" : c.status === "approved" ? "bg-blue-500/20 text-blue-300 border-blue-500/30" : "bg-amber-500/20 text-amber-300 border-amber-500/30"}`}>{c.status}</span>
+                      </div>
+                      <div className="flex items-center gap-3 mt-0.5">
+                        <span className="text-zinc-500 text-xs">{c.type}</span>
+                        {c.dealId && <span className="text-zinc-600 text-xs">Deal: {c.dealId.slice(0, 8)}</span>}
+                        {c.invoiceRef && <span className="text-zinc-600 text-xs">Ref: {c.invoiceRef}</span>}
+                        <span className="text-zinc-600 text-xs">{new Date(c.createdAt).toLocaleDateString("en-AU")}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className="text-amber-400 font-semibold">${(c.amount / 100).toLocaleString("en-AU", { minimumFractionDigits: 2 })}</span>
+                      {c.status === "pending" && (
+                        <button onClick={() => approveCommissionMutation.mutate(c.id)} disabled={approveCommissionMutation.isPending} className="bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors" data-testid={`button-approve-commission-${c.id}`}>Approve</button>
+                      )}
+                      {c.status === "approved" && (
+                        <button onClick={() => { const ref = prompt("Invoice reference (optional):") ?? undefined; markPaidMutation.mutate({ id: c.id, invoiceRef: ref }); }} disabled={markPaidMutation.isPending} className="bg-green-600/20 hover:bg-green-600/40 text-green-300 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors" data-testid={`button-mark-paid-commission-${c.id}`}>Mark Paid</button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab !== "commissions" && <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           {/* Partner Table */}
           <div className="xl:col-span-2 space-y-4">
             {/* Filters */}
@@ -355,7 +460,7 @@ export default function AdminPartnerNetwork() {
               )
             )}
           </div>
-        </div>
+        </div>}
       </div>
 
       {/* Route Opportunity Modal */}

@@ -610,7 +610,12 @@ export const partnerOpportunities = pgTable("partner_opportunities", {
   sourceType: text("source_type"), // radar|lead|planning_request|manual|relocation_signal
   sourceId: varchar("source_id"),
   routingReason: text("routing_reason"),
-  status: text("status").notNull().default("invited"), // invited|viewed|accepted|declined|won|lost
+  status: text("status").notNull().default("invited"), // invited|viewed|accepted|declined|won|lost|meeting_booked
+  role: text("role").default("referral"), // referral|broker|co-sell|designer|builder
+  commissionRate: real("commission_rate").default(5.0), // default 5% commission
+  commissionValue: integer("commission_value"), // calculated on win (in cents)
+  dealExecutionId: varchar("deal_execution_id"), // links to deal_execution pipeline
+  outreachThreadId: varchar("outreach_thread_id"), // links to outreach thread
   viewedAt: timestamp("viewed_at"),
   respondedAt: timestamp("responded_at"),
   notes: text("notes"),

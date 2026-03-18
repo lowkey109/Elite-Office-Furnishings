@@ -497,6 +497,34 @@ export async function onOpportunityCreated(params: {
 
 // ─── Graph-derived network strength for a company ────────────────────────────
 
+export async function onPartnerLinked(params: {
+  companyId: string;
+  companyName: string;
+  partnerId: string;
+  partnerName: string;
+  partnerType: string;
+  opportunityId?: string;
+  opportunityTitle?: string;
+}): Promise<void> {
+  // Company → Partner edge
+  await upsertEdge(
+    "company", params.companyId, params.companyName,
+    "partner", params.partnerId, params.partnerName,
+    "generates_signal" as EdgeType, 0.85,
+    { partnerType: params.partnerType, role: "partner_routing" }
+  );
+
+  // Opportunity → Partner edge (if opportunityId provided)
+  if (params.opportunityId) {
+    await upsertEdge(
+      "opportunity", params.opportunityId, params.opportunityTitle ?? "opportunity",
+      "partner", params.partnerId, params.partnerName,
+      "generates_signal" as EdgeType, 0.9,
+      { partnerType: params.partnerType }
+    );
+  }
+}
+
 export async function getNetworkStrength(companyId: string): Promise<number> {
   const { networkStrength } = await getCompanyNetwork(companyId);
   return networkStrength;

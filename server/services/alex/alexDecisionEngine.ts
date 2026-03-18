@@ -136,5 +136,11 @@ export async function makeDecision(input: DecisionInput): Promise<DecisionOutput
     priority = 9;
   }
 
-  return { decision, reasoning, priority, graphNetworkStrength: networkStrength, clusterBoost, combinedScore };
+  // Partner routing recommendation — automatically route high-value signals
+  let partnerRecommendation: string | undefined;
+  if (combinedScore >= 70 && (decision === "OUTREACH" || decision === "PRIORITY_OUTREACH" || decision === "BOOK_MEETING")) {
+    partnerRecommendation = "route_to_partners";
+  }
+
+  return { decision, reasoning, priority, graphNetworkStrength: networkStrength, clusterBoost, combinedScore, partnerRecommendation };
 }
