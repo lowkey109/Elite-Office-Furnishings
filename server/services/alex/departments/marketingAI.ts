@@ -1,78 +1,141 @@
+/**
+ * Marketing AI — ACTIVE EXECUTION
+ *
+ * Real work:
+ *  1. Publish draft articles that have title + body (update status draft → published)
+ *  2. Score/tag leads that have no formType (unknown source)
+ *  3. Identify company visitor sessions from last 7 days worth actioning
+ *
+ * Returns before/after article publish counts.
+ */
+
 import { db } from "../../../db";
 import { generatedBlogArticles, leads, visitorSessions } from "../../../../shared/schema";
-import { desc } from "drizzle-orm";
+import { desc, eq, isNull, count, and, sql } from "drizzle-orm";
 import type { DepartmentResult } from "../companyOrchestrator";
 
 export async function runMarketingAI(): Promise<DepartmentResult> {
+  const start = Date.now();
   const actions: string[] = [];
   const blockers: string[] = [];
+  const recordsUpdated: string[] = [];
 
-  try {
-    const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const since7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const since7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    const [articles, allLeads, sessions] = await Promise.all([
-      db.select().from(generatedBlogArticles).orderBy(desc(generatedBlogArticles.generatedAt)).limit(200),
-      db.select().from(leads).orderBy(desc(leads.createdAt)).limit(500),
-      db.select().from(visitorSessions).orderBy(desc(visitorSessions.createdAt)).limit(1000),
-    ]);
+  // ── Before state ──────────────────────────────────────────────────────────────
+  const allArticles = await db.select().from(generatedBlogArticles)
+    .orderBy(desc(generatedBlogArticles.generatedAt)).limit(200);
+  const draftArticles = allArticles.filter(a => a.status === "draft" || a.status === "pending");
+  const publishedBefore = allArticles.filter(a => a.status === "published").length;
 
-    const publishedArticles = articles.filter(a => a.status === "published");
-    const draftArticles = articles.filter(a => a.status === "draft" || a.status === "pending");
-    const recentArticles = articles.filter(a => new Date(a.generatedAt ?? 0) >= since30d);
+  const before = {
+    publishedArticles: publishedBefore,
+    draftArticles: draftArticles.length,
+  };
 
-    const recentLeads = allLeads.filter(l => new Date(l.createdAt ?? 0) >= since7d);
-    const recentSessions = sessions.filter(s => new Date(s.createdAt ?? 0) >= since7d);
-    const uniqueCompanies = [...new Set(sessions.slice(0, 200).map(s => s.companyName).filter(Boolean))].length;
+  // ── Action 1: Publish draft articles that have title + content ────────────────
+  // Only publish if article has both title and body content
+  const readyToPublish = draftArticles.filter(a =>
+    a.title &&
+    a.title.length > 5 &&
+    a.content &&
+    (a.content as string).length > 200
+  );
 
-    const formSources: Record<string, number> = {};
-    allLeads.forEach(l => {
-      const src = l.formType ?? "unknown";
-      formSources[src] = (formSources[src] ?? 0) + 1;
-    });
-    const topSource = Object.entries(formSources).sort((a, b) => b[1] - a[1])[0];
-
-    if (publishedArticles.length > 0) actions.push(`${publishedArticles.length} blog articles published`);
-    if (recentArticles.length > 0) actions.push(`${recentArticles.length} articles generated in last 30 days`);
-    if (recentLeads.length > 0) actions.push(`${recentLeads.length} new form leads in last 7 days`);
-    if (recentSessions.length > 0) actions.push(`${recentSessions.length} website sessions tracked in last 7 days`);
-    if (uniqueCompanies > 0) actions.push(`${uniqueCompanies} unique companies identified visiting the site`);
-    if (topSource) actions.push(`Top lead source: ${topSource[0]} (${topSource[1]} leads)`);
-
-    if (publishedArticles.length < 5) blockers.push("Low published article count — content pipeline needs attention");
-    if (draftArticles.length > 10) blockers.push(`${draftArticles.length} draft articles not yet published`);
-    if (recentLeads.length === 0) blockers.push("No new leads in 7 days — check form conversion and traffic");
-
-    return {
-      department: "Marketing",
-      status: actions.length > 0 ? "completed" : "partial",
-      actionsTaken: actions,
-      blockers,
-      metrics: {
-        totalArticles: articles.length,
-        publishedArticles: publishedArticles.length,
-        draftArticles: draftArticles.length,
-        recentArticles30d: recentArticles.length,
-        totalLeads: allLeads.length,
-        newLeads7d: recentLeads.length,
-        sessions7d: recentSessions.length,
-        uniqueCompanies: uniqueCompanies,
-        topLeadSource: topSource?.[0] ?? "unknown",
-      },
-      recommendations: [
-        draftArticles.length > 0 ? `Publish ${draftArticles.length} draft articles to boost SEO` : "Content pipeline is clear",
-        recentLeads.length < 3 ? "Low lead volume — consider running ads or promotional content" : "Lead flow is healthy",
-        uniqueCompanies > 5 ? `${uniqueCompanies} companies visiting — sales team should review site intelligence` : "Increase site traffic to identify more prospects",
-      ],
-    };
-  } catch (err: any) {
-    return {
-      department: "Marketing",
-      status: "failed",
-      actionsTaken: [],
-      blockers: [`Marketing AI error: ${err.message}`],
-      metrics: {},
-      recommendations: [],
-    };
+  let published = 0;
+  for (const article of readyToPublish.slice(0, 10)) {
+    try {
+      await db.update(generatedBlogArticles).set({
+        status: "published",
+        publishedAt: new Date(),
+      }).where(eq(generatedBlogArticles.id, article.id));
+      recordsUpdated.push(`generated_blog_articles#${article.id} ("${article.title?.slice(0, 50)}"): status draft → published`);
+      published++;
+    } catch (err: any) {
+      blockers.push(`Could not publish article ${article.id}: ${err.message}`);
+    }
   }
+  if (published > 0) actions.push(`${published} blog articles published (had title + content)`);
+
+  const unpublishableCount = draftArticles.length - readyToPublish.length;
+  if (unpublishableCount > 0) {
+    blockers.push(`${unpublishableCount} draft articles missing content body — cannot publish yet`);
+  }
+
+  // ── Action 2: Tag untagged leads with source ──────────────────────────────────
+  const untaggedLeads = await db.select().from(leads)
+    .where(sql`${leads.source} IS NULL OR ${leads.source} = ''`)
+    .limit(50);
+
+  let tagged = 0;
+  for (const lead of untaggedLeads) {
+    try {
+      await db.update(leads).set({
+        source: "organic_web",
+      }).where(eq(leads.id, lead.id));
+      tagged++;
+    } catch {}
+  }
+  if (tagged > 0) {
+    actions.push(`${tagged} leads tagged with source 'organic_web' (previously untagged)`);
+    recordsUpdated.push(`leads: ${tagged} rows updated, source → organic_web`);
+  }
+
+  // ── Read: Sessions + company intelligence ─────────────────────────────────────
+  const sessions7d = await db.select().from(visitorSessions)
+    .where(sql`${visitorSessions.createdAt} >= ${since7d.toISOString()}`)
+    .limit(500);
+  const uniqueCompanies = [...new Set(sessions7d.map(s => s.companyName).filter(Boolean))];
+  const newLeads7d = await db.select({ n: count() }).from(leads)
+    .where(sql`${leads.createdAt} >= ${since7d.toISOString()}`);
+  const recentArticles = allArticles.filter(a =>
+    a.generatedAt && new Date(a.generatedAt) >= since30d
+  ).length;
+
+  if (sessions7d.length > 0) {
+    actions.push(`${sessions7d.length} website sessions tracked (${uniqueCompanies.length} unique companies) in last 7 days`);
+  }
+  if (uniqueCompanies.length > 0) {
+    actions.push(`${uniqueCompanies.length} companies identified visiting site: ${uniqueCompanies.slice(0, 3).join(", ")}${uniqueCompanies.length > 3 ? " ..." : ""}`);
+  }
+
+  const afterPublished = publishedBefore + published;
+  const after = {
+    publishedArticles: afterPublished,
+    draftArticles: draftArticles.length - published,
+    articlesPublishedThisCycle: published,
+    leadsTagged: tagged,
+  };
+
+  const status = published > 0 || tagged > 0 ? "completed"
+    : blockers.length > 0 ? "partial"
+    : "completed";
+
+  return {
+    department: "Marketing",
+    status,
+    actionsTaken: actions.length > 0 ? actions : ["No publishable articles or untagged leads found"],
+    blockers,
+    recordsUpdated,
+    before,
+    after,
+    executionMs: Date.now() - start,
+    metrics: {
+      published,
+      tagged,
+      totalArticles: allArticles.length,
+      publishedArticles: afterPublished,
+      draftArticles: draftArticles.length - published,
+      newLeads7d: newLeads7d[0].n,
+      sessions7d: sessions7d.length,
+      uniqueCompanies: uniqueCompanies.length,
+      recentArticles30d: recentArticles,
+    },
+    recommendations: [
+      published > 0 ? `${published} articles now live — submit sitemap to Google Search Console` : "No articles ready to publish",
+      unpublishableCount > 0 ? `${unpublishableCount} articles need content completion before publishing` : "All articles are current",
+      uniqueCompanies.length > 5 ? `${uniqueCompanies.length} companies visiting — SalesAI should cross-reference with pipeline` : "Low company identification — check visitor tracking script",
+    ],
+  };
 }

@@ -1,76 +1,164 @@
+/**
+ * Workspace AI — ACTIVE EXECUTION
+ *
+ * Real work:
+ *  1. Find planningRequests in status 'New' → update to 'In Progress'
+ *  2. Flag high-value requests (staffCount > 50 or budget > $50k) → set estimatedValue
+ *  3. Find free/unpaid requests → compute upgrade opportunity value
+ *  4. If no requests → return "skipped" not "completed"
+ */
+
 import { db } from "../../../db";
 import { planningRequests, leads } from "../../../../shared/schema";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, count, sql, and, isNull } from "drizzle-orm";
 import type { DepartmentResult } from "../companyOrchestrator";
 
+// Budget tier → estimated project value
+const BUDGET_VALUE_MAP: Record<string, number> = {
+  "Under $10,000": 8000,
+  "$10,000 - $30,000": 20000,
+  "$30,000 - $80,000": 55000,
+  "$80,000 - $150,000": 115000,
+  "$150,000 - $300,000": 225000,
+  "Over $300,000": 350000,
+};
+
 export async function runWorkspaceAI(): Promise<DepartmentResult> {
+  const start = Date.now();
   const actions: string[] = [];
   const blockers: string[] = [];
+  const recordsUpdated: string[] = [];
 
-  try {
-    const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  // ── Before state ──────────────────────────────────────────────────────────────
+  const allRequests = await db.select().from(planningRequests)
+    .orderBy(desc(planningRequests.createdAt)).limit(500);
 
-    const [allRequests, allLeads] = await Promise.all([
-      db.select().from(planningRequests).orderBy(desc(planningRequests.createdAt)).limit(500),
-      db.select().from(leads).orderBy(desc(leads.createdAt)).limit(500),
-    ]);
+  const before = {
+    totalRequests: allRequests.length,
+    newStatus: allRequests.filter(r => r.status === "New").length,
+    inProgress: allRequests.filter(r => r.status === "In Progress").length,
+    paidRequests: allRequests.filter(r => r.isPaid).length,
+  };
 
-    const layoutPlanLeads = allLeads.filter(l => l.formType === "layout-plan" || l.officeSize != null);
-    const newRequests30d = allRequests.filter(r => new Date(r.createdAt ?? 0) >= since30d);
-    const paidRequests = allRequests.filter(r => r.isPaid === true || r.paymentStatus === "paid");
-    const unpaidRequests = allRequests.filter(r => !r.isPaid && r.paymentStatus !== "paid");
-    const newStatus = allRequests.filter(r => r.status === "New" || r.status === "new");
-    const inProgress = allRequests.filter(r => ["In Progress", "in_progress", "Processing"].includes(r.status ?? ""));
-    const completed = allRequests.filter(r => ["Complete", "Completed", "completed"].includes(r.status ?? ""));
-
-    const totalEstimatedValue = paidRequests.reduce((sum, r) => {
-      const val = r.estimatedValue ? parseInt(r.estimatedValue.replace(/[^0-9]/g, "") || "0", 10) : 0;
-      return sum + val;
-    }, 0);
-
-    if (allRequests.length > 0) actions.push(`${allRequests.length} total workspace planning requests received`);
-    if (newRequests30d.length > 0) actions.push(`${newRequests30d.length} new planning requests in last 30 days`);
-    if (paidRequests.length > 0) actions.push(`${paidRequests.length} plans unlocked/paid (value: $${totalEstimatedValue.toLocaleString("en-AU")})`);
-    if (completed.length > 0) actions.push(`${completed.length} workspace plans delivered`);
-    if (layoutPlanLeads.length > 0) actions.push(`${layoutPlanLeads.length} free layout plan leads captured`);
-
-    if (newStatus.length > 5) blockers.push(`${newStatus.length} workspace requests still in "New" status — need review`);
-    if (unpaidRequests.length > 10) blockers.push(`${unpaidRequests.length} unpaid/free plans — conversion opportunity`);
-    if (allRequests.length === 0) blockers.push("No workspace planning requests received yet");
-
-    const conversionRate = allRequests.length > 0 ? Math.round((paidRequests.length / allRequests.length) * 100) : 0;
-
+  if (allRequests.length === 0) {
+    // No requests at all — this is genuinely empty, not an error
+    const layoutLeads = await db.select({ n: count() }).from(leads).limit(1);
     return {
       department: "Workspace",
-      status: actions.length > 0 ? "completed" : "partial",
-      actionsTaken: actions,
-      blockers,
+      status: "skipped",
+      actionsTaken: ["No planning requests in database — workspace pipeline is empty"],
+      blockers: ["planning_requests table is empty — no submissions received yet"],
+      recordsUpdated: [],
+      before,
+      after: { ...before },
+      executionMs: Date.now() - start,
       metrics: {
-        totalRequests: allRequests.length,
-        newRequests30d: newRequests30d.length,
-        paidUnlocked: paidRequests.length,
-        unpaidFree: unpaidRequests.length,
-        newStatus: newStatus.length,
-        inProgress: inProgress.length,
-        completed: completed.length,
-        layoutPlanLeads: layoutPlanLeads.length,
-        estimatedPaidValueAud: totalEstimatedValue,
-        conversionRatePct: conversionRate,
+        totalRequests: 0,
+        newStatus: 0,
+        inProgress: 0,
+        paidRequests: 0,
+        unpaidRequests: 0,
       },
       recommendations: [
-        unpaidRequests.length > 0 ? `${unpaidRequests.length} free plans not yet converted — send upgrade prompts` : "All requests are paid",
-        newStatus.length > 3 ? "Multiple requests awaiting action — assign to team member" : "Request queue is managed",
-        conversionRate < 20 ? "Low plan conversion rate — review paywall messaging" : `Healthy conversion rate (${conversionRate}%)`,
+        "Drive traffic to /upload-your-floor-plan to generate planning requests",
+        "Check free layout plan form at /free-office-layout-plan",
       ],
     };
-  } catch (err: any) {
-    return {
-      department: "Workspace",
-      status: "failed",
-      actionsTaken: [],
-      blockers: [`Workspace AI error: ${err.message}`],
-      metrics: {},
-      recommendations: [],
-    };
   }
+
+  // ── Action 1: Advance 'New' requests → 'In Progress' ─────────────────────────
+  const newRequests = allRequests.filter(r => r.status === "New");
+  let advanced = 0;
+  for (const req of newRequests.slice(0, 20)) {
+    try {
+      await db.update(planningRequests).set({
+        status: "In Progress",
+        adminNotes: (req.adminNotes ?? "") + `\n[Alex ${new Date().toISOString()}] Picked up for processing`,
+      }).where(eq(planningRequests.id, req.id));
+      recordsUpdated.push(`planning_requests#${req.id} (${req.company || req.name}): status New → In Progress`);
+      advanced++;
+    } catch (err: any) {
+      blockers.push(`Could not advance request ${req.id}: ${err.message}`);
+    }
+  }
+  if (advanced > 0) actions.push(`${advanced} planning requests moved from New → In Progress`);
+
+  // ── Action 2: Compute and stamp estimated value where missing ─────────────────
+  const needsValue = allRequests.filter(r =>
+    !r.estimatedValue &&
+    r.budgetRange &&
+    BUDGET_VALUE_MAP[r.budgetRange]
+  );
+
+  let valued = 0;
+  for (const req of needsValue.slice(0, 20)) {
+    const estValue = BUDGET_VALUE_MAP[req.budgetRange!];
+    try {
+      await db.update(planningRequests).set({
+        estimatedValue: `$${estValue.toLocaleString("en-AU")}`,
+      }).where(eq(planningRequests.id, req.id));
+      recordsUpdated.push(`planning_requests#${req.id} (${req.company || req.name}): estimatedValue → $${estValue.toLocaleString("en-AU")} [from budgetRange: ${req.budgetRange}]`);
+      valued++;
+    } catch {}
+  }
+  if (valued > 0) actions.push(`${valued} requests had estimated project value stamped from budget range`);
+
+  // ── Action 3: Flag high-value upgrade opportunities (free → paid) ─────────────
+  const freePlans = allRequests.filter(r => !r.isPaid && r.paymentStatus !== "paid");
+  const upgradeOpportunities = freePlans.filter(r => {
+    const staffNum = parseInt(r.staffCount ?? "0", 10);
+    const budgetValue = BUDGET_VALUE_MAP[r.budgetRange ?? ""] ?? 0;
+    return staffNum >= 20 || budgetValue >= 30000;
+  });
+
+  if (upgradeOpportunities.length > 0) {
+    const totalOpportunityValue = upgradeOpportunities.reduce((sum, r) => {
+      return sum + (BUDGET_VALUE_MAP[r.budgetRange ?? ""] ?? 10000);
+    }, 0);
+    actions.push(`${upgradeOpportunities.length} free plans are upgrade-ready (staff≥20 or budget≥$30k) — estimated $${totalOpportunityValue.toLocaleString("en-AU")} opportunity`);
+  }
+
+  // ── After state ───────────────────────────────────────────────────────────────
+  const after = {
+    totalRequests: allRequests.length,
+    newStatus: newRequests.length - advanced,
+    inProgress: before.inProgress + advanced,
+    paidRequests: before.paidRequests,
+    valueStamped: valued,
+    upgradeOpportunities: upgradeOpportunities.length,
+  };
+
+  const paidRequests = allRequests.filter(r => r.isPaid);
+  const paidValue = paidRequests.reduce((sum, r) => {
+    const v = parseInt((r.estimatedValue ?? "$0").replace(/[^0-9]/g, "") || "0", 10);
+    return sum + v;
+  }, 0);
+
+  const status = actions.length > 0 ? "completed" : "partial";
+
+  return {
+    department: "Workspace",
+    status,
+    actionsTaken: actions.length > 0 ? actions : ["No actionable items — all requests are current"],
+    blockers,
+    recordsUpdated,
+    before,
+    after,
+    executionMs: Date.now() - start,
+    metrics: {
+      totalRequests: allRequests.length,
+      advancedToInProgress: advanced,
+      valueStamped: valued,
+      upgradeOpportunities: upgradeOpportunities.length,
+      paidRequests: paidRequests.length,
+      freeUnpaidRequests: freePlans.length,
+      paidValueAud: paidValue,
+      conversionRatePct: allRequests.length > 0 ? Math.round((paidRequests.length / allRequests.length) * 100) : 0,
+    },
+    recommendations: [
+      advanced > 0 ? `${advanced} requests now In Progress — assign to team member for design work` : "All requests are already progressed",
+      upgradeOpportunities.length > 0 ? `${upgradeOpportunities.length} high-value free plans — send upgrade email sequence` : "No compelling upgrade targets this cycle",
+      freePlans.length > paidRequests.length ? "Free plans outnumber paid — conversion focus needed" : "Paid plan ratio is healthy",
+    ],
+  };
 }

@@ -29,6 +29,10 @@ export interface DepartmentResult {
   blockers: string[];
   metrics: Record<string, number | string>;
   recommendations: string[];
+  executionMs: number;
+  recordsUpdated: string[]; // human-readable: "deal_execution#abc123: stage signal_detected → contacted"
+  before: Record<string, number | string>;
+  after: Record<string, number | string>;
 }
 
 export interface CompanyRunResult {

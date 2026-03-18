@@ -1,91 +1,209 @@
+/**
+ * Outreach AI — ACTIVE EXECUTION
+ *
+ * Real work:
+ *  1. Call createOutreachForHighValueOpportunities() → create new threads + draft messages
+ *  2. Attempt to flush draft queue:
+ *     - LIVE_MODE=true → call sendOutreachEmail for each draft
+ *     - LIVE_MODE=false (domain not verified) → mark as safe_mode_queued, report blocked
+ *  3. Report queue state, reply rate, stale threads
+ *
+ * Never simulates sends — if domain is not verified, status is "blocked".
+ */
+
 import { db } from "../../../db";
-import { outreachThreads, outreachMessages } from "../../../../shared/schema";
-import { desc, eq, sql } from "drizzle-orm";
+import { outreachThreads, outreachMessages, outreachEvents } from "../../../../shared/schema";
+import { desc, eq, and, count, sql } from "drizzle-orm";
 import type { DepartmentResult } from "../companyOrchestrator";
 
+const LIVE_MODE = process.env.RESEND_API_KEY !== undefined && process.env.OUTREACH_DOMAIN_VERIFIED === "true";
+const MAX_FLUSH = 5; // max emails to send per orchestrator cycle (rate safety)
+
 export async function runOutreachAI(): Promise<DepartmentResult> {
+  const start = Date.now();
   const actions: string[] = [];
   const blockers: string[] = [];
+  const recordsUpdated: string[] = [];
 
+  // ── Before state ──────────────────────────────────────────────────────────────
+  const [beforeThreads] = await db.select({ n: count() }).from(outreachThreads);
+  const [beforeDrafts] = await db.select({ n: count() }).from(outreachMessages)
+    .where(and(eq(outreachMessages.deliveryStatus, "draft"), eq(outreachMessages.direction, "outbound")));
+  const [beforeSent] = await db.select({ n: count() }).from(outreachMessages)
+    .where(eq(outreachMessages.deliveryStatus, "sent"));
+
+  const before = {
+    totalThreads: beforeThreads.n,
+    draftMessages: beforeDrafts.n,
+    sentMessages: beforeSent.n,
+  };
+
+  // ── Action 1: Create new outreach threads for high-value companies ─────────────
+  let threadsCreated = 0;
   try {
-    const [threads, messages] = await Promise.all([
-      db.select().from(outreachThreads).orderBy(desc(outreachThreads.updatedAt)).limit(500),
-      db.select().from(outreachMessages).orderBy(desc(outreachMessages.createdAt)).limit(1000),
-    ]);
-
-    const since7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-
-    const draftMessages = messages.filter(m => m.deliveryStatus === "draft" && m.direction === "outbound");
-    const sentMessages = messages.filter(m => m.deliveryStatus === "sent" && m.direction === "outbound");
-    const failedMessages = messages.filter(m => m.deliveryStatus === "failed" && m.direction === "outbound");
-    const templateErrors = messages.filter(m => m.deliveryStatus === "template_error");
-    const recentSent = sentMessages.filter(m => new Date(m.createdAt ?? 0) >= since7d);
-    const inboundReplies = messages.filter(m => m.direction === "inbound");
-
-    const activeThreads = threads.filter(t => t.status === "active");
-    const repliedThreads = threads.filter(t => t.status === "replied");
-    const staleThreads = threads.filter(t => {
-      const updated = new Date(t.updatedAt ?? 0);
-      return t.status === "active" && (Date.now() - updated.getTime()) > 7 * 24 * 60 * 60 * 1000;
-    });
-
-    const domainVerified = process.env.OUTREACH_DOMAIN_VERIFIED === "true";
-
-    if (sentMessages.length > 0) actions.push(`${sentMessages.length} outreach emails delivered total`);
-    if (recentSent.length > 0) actions.push(`${recentSent.length} emails sent in last 7 days`);
-    if (draftMessages.length > 0) actions.push(`${draftMessages.length} messages queued and ready to send`);
-    if (repliedThreads.length > 0) actions.push(`${repliedThreads.length} threads have received replies`);
-    if (inboundReplies.length > 0) actions.push(`${inboundReplies.length} inbound replies received`);
-    if (activeThreads.length > 0) actions.push(`${activeThreads.length} active outreach threads`);
-
-    if (!domainVerified && draftMessages.length > 0) {
-      blockers.push(`${draftMessages.length} emails queued but BLOCKED — domain not verified in Resend. Verify thecorporatedesk.au at resend.com/domains then call POST /api/admin/outreach/flush-send`);
+    const { createOutreachForHighValueOpportunities } = await import("../../outreach/outreachEngine");
+    const result = await createOutreachForHighValueOpportunities();
+    threadsCreated = result.created;
+    if (threadsCreated > 0) {
+      actions.push(`${threadsCreated} new outreach threads created for high-value companies`);
+      recordsUpdated.push(`outreach_threads: +${threadsCreated} new threads inserted (with draft messages)`);
+    } else {
+      actions.push("No new companies ready for outreach (all eligible companies already have active threads)");
     }
-    if (failedMessages.length > 0) {
-      blockers.push(`${failedMessages.length} outreach emails failed delivery`);
-    }
-    if (templateErrors.length > 0) {
-      blockers.push(`${templateErrors.length} messages have template errors — run backfill`);
-    }
-    if (staleThreads.length > 0) {
-      blockers.push(`${staleThreads.length} threads have had no activity in 7+ days`);
-    }
-
-    const replyRate = sentMessages.length > 0 ? Math.round((inboundReplies.length / sentMessages.length) * 100) : 0;
-
-    return {
-      department: "Outreach",
-      status: blockers.length === 0 ? "completed" : draftMessages.length > 0 ? "partial" : "blocked",
-      actionsTaken: actions,
-      blockers,
-      metrics: {
-        totalThreads: threads.length,
-        activeThreads: activeThreads.length,
-        repliedThreads: repliedThreads.length,
-        staleThreads: staleThreads.length,
-        totalSent: sentMessages.length,
-        recentSent7d: recentSent.length,
-        draftQueued: draftMessages.length,
-        failedDelivery: failedMessages.length,
-        templateErrors: templateErrors.length,
-        inboundReplies: inboundReplies.length,
-        replyRatePct: replyRate,
-        domainVerified: domainVerified ? 1 : 0,
-      },
-      recommendations: [
-        draftMessages.length > 0 && !domainVerified ? "Verify domain in Resend to unlock email sends" : draftMessages.length > 0 ? "Flush queued messages via admin panel" : "Outreach queue is empty — generate new messages",
-        staleThreads.length > 3 ? "Several threads gone cold — consider automated follow-up" : "Thread freshness is acceptable",
-        replyRate > 5 ? `Good reply rate (${replyRate}%) — focus on converting replies to meetings` : "Low reply rate — consider refreshing email templates",
-      ],
-    };
   } catch (err: any) {
-    return {
-      department: "Outreach",
-      status: "failed",
-      actionsTaken: [],
-      blockers: [`Outreach AI error: ${err.message}`],
-      metrics: {},
-      recommendations: [],
-    };
+    blockers.push(`Thread creation error: ${err.message}`);
   }
+
+  // ── Action 2: Flush draft queue (send or report blocked) ─────────────────────
+  // Re-read draft count after thread creation (new drafts may have been added)
+  const freshDrafts = await db.select({
+    id: outreachMessages.id,
+    threadId: outreachMessages.threadId,
+    subject: outreachMessages.subject,
+    createdAt: outreachMessages.createdAt,
+  }).from(outreachMessages)
+    .innerJoin(outreachThreads, eq(outreachMessages.threadId, outreachThreads.id))
+    .where(and(
+      eq(outreachMessages.deliveryStatus, "draft"),
+      eq(outreachMessages.direction, "outbound"),
+      eq(outreachThreads.status, "active"),
+    ))
+    .orderBy(desc(outreachMessages.createdAt))
+    .limit(MAX_FLUSH + 50); // read more than MAX_FLUSH so we can report total
+
+  const totalQueued = freshDrafts.length;
+  let flushed = 0;
+  let flushBlocked = false;
+
+  if (!LIVE_MODE) {
+    // Domain not verified — cannot send
+    flushBlocked = true;
+    const domainReason = process.env.RESEND_API_KEY
+      ? "domain thecorporatedesk.au not verified in Resend (set OUTREACH_DOMAIN_VERIFIED=true after verification)"
+      : "RESEND_API_KEY not configured";
+    blockers.push(`${totalQueued} emails queued but BLOCKED — ${domainReason}. Verify at resend.com/domains then call POST /api/admin/outreach/flush-send`);
+  } else {
+    // Domain verified — attempt real sends for up to MAX_FLUSH drafts
+    const { resolveProspectEmail } = await import("../../outreach/prospectEmailResolver");
+    const { sendOutreachEmail } = await import("../../email");
+
+    for (const draft of freshDrafts.slice(0, MAX_FLUSH)) {
+      try {
+        const thread = await db.select().from(outreachThreads).where(eq(outreachThreads.id, draft.threadId)).limit(1);
+        if (!thread[0]) continue;
+
+        const resolved = await resolveProspectEmail({
+          companyId: thread[0].companyId,
+          contactId: thread[0].contactId ?? null,
+        });
+
+        if (!resolved.resolvedEmail || resolved.sourceType === "blocked") {
+          await db.update(outreachMessages).set({
+            deliveryStatus: "blocked",
+            blockingReason: resolved.blockingReason ?? "No external email found",
+          }).where(eq(outreachMessages.id, draft.id));
+          recordsUpdated.push(`outreach_messages#${draft.id}: delivery_status draft → blocked [no email]`);
+          continue;
+        }
+
+        const msgRow = await db.select().from(outreachMessages).where(eq(outreachMessages.id, draft.id)).limit(1);
+        if (!msgRow[0]?.subject || !msgRow[0]?.body) continue;
+
+        await new Promise(resolve => setTimeout(resolve, 250)); // Resend rate limit
+        const sendResult = await (sendOutreachEmail as any)({
+          to: resolved.resolvedEmail,
+          subject: msgRow[0].subject!,
+          html: msgRow[0].body!,
+          companyName: thread[0].companyName,
+          firstName: null,
+        });
+
+        await db.update(outreachMessages).set({
+          deliveryStatus: "sent",
+          sentAt: new Date(),
+          recipientEmail: resolved.resolvedEmail,
+          resendMessageId: (sendResult as any)?.id ?? null,
+        }).where(eq(outreachMessages.id, draft.id));
+
+        await db.insert(outreachEvents).values({
+          threadId: draft.threadId,
+          eventType: "sent",
+          payloadJson: JSON.stringify({ messageId: draft.id, via: "alex_orchestrator", liveMode: true }),
+        });
+
+        recordsUpdated.push(`outreach_messages#${draft.id} (${thread[0].companyName}): delivery_status draft → sent [${resolved.resolvedEmail}]`);
+        flushed++;
+      } catch (err: any) {
+        await db.update(outreachMessages).set({
+          deliveryStatus: "failed",
+          blockingReason: err.message,
+        }).where(eq(outreachMessages.id, draft.id));
+        recordsUpdated.push(`outreach_messages#${draft.id}: delivery_status draft → failed [${err.message}]`);
+        blockers.push(`Send failed for message ${draft.id}: ${err.message}`);
+      }
+    }
+
+    if (flushed > 0) {
+      actions.push(`${flushed} emails dispatched via Resend (LIVE MODE)`);
+    }
+    if (totalQueued > MAX_FLUSH) {
+      actions.push(`${totalQueued - MAX_FLUSH} additional drafts remain queued (flush capped at ${MAX_FLUSH} per cycle)`);
+    }
+  }
+
+  if (totalQueued === 0 && threadsCreated === 0) {
+    actions.push("Outreach queue is empty — all threads are current");
+  }
+
+  // ── After state ───────────────────────────────────────────────────────────────
+  const [afterThreads] = await db.select({ n: count() }).from(outreachThreads);
+  const [afterDrafts] = await db.select({ n: count() }).from(outreachMessages)
+    .where(and(eq(outreachMessages.deliveryStatus, "draft"), eq(outreachMessages.direction, "outbound")));
+  const [afterSent] = await db.select({ n: count() }).from(outreachMessages)
+    .where(eq(outreachMessages.deliveryStatus, "sent"));
+  const [afterReplied] = await db.select({ n: count() }).from(outreachThreads)
+    .where(eq(outreachThreads.status, "replied"));
+  const [afterActive] = await db.select({ n: count() }).from(outreachThreads)
+    .where(eq(outreachThreads.status, "active"));
+
+  const after = {
+    totalThreads: afterThreads.n,
+    draftMessages: afterDrafts.n,
+    sentMessages: afterSent.n,
+    newThreadsCreated: threadsCreated,
+    emailsFlushed: flushed,
+  };
+
+  const replyRate = afterSent.n > 0 ? Math.round((afterReplied.n / afterSent.n) * 100) : 0;
+  const status = flushBlocked && totalQueued > 0 ? "blocked"
+    : blockers.length > 0 ? "partial"
+    : "completed";
+
+  return {
+    department: "Outreach",
+    status,
+    actionsTaken: actions,
+    blockers,
+    recordsUpdated,
+    before,
+    after,
+    executionMs: Date.now() - start,
+    metrics: {
+      threadsCreated,
+      emailsFlushed: flushed,
+      totalQueued,
+      totalThreads: afterThreads.n,
+      activeThreads: afterActive.n,
+      repliedThreads: afterReplied.n,
+      totalSent: afterSent.n,
+      replyRatePct: replyRate,
+      liveMode: LIVE_MODE ? 1 : 0,
+      domainVerified: process.env.OUTREACH_DOMAIN_VERIFIED === "true" ? 1 : 0,
+    },
+    recommendations: [
+      flushBlocked ? "Verify thecorporatedesk.au domain in Resend to unlock sends" : `Live sends enabled (flushed ${flushed} this cycle)`,
+      afterActive.n > 20 ? `${afterActive.n} active threads — check follow-up schedule` : "Thread volume is manageable",
+      replyRate > 0 ? `${replyRate}% reply rate — convert replies to bookings` : "No replies yet — check deliverability after domain verification",
+    ],
+  };
 }

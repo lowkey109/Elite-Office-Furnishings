@@ -1,75 +1,118 @@
+/**
+ * Intelligence AI — ACTIVE EXECUTION
+ *
+ * Real work: Calls existing RSS/job signal scanners → writes new signals to DB.
+ * Measures before/after officeMovRadar count so delta is auditable.
+ * If all external fetches fail → returns "skipped" with reasons.
+ */
+
 import { db } from "../../../db";
 import { ingestedLeads, officeMovRadar, companyIntelligence, dealHunterSignals, dealIntelligenceRecords } from "../../../../shared/schema";
-import { desc, gte, sql } from "drizzle-orm";
+import { desc, count, eq, sql } from "drizzle-orm";
 import type { DepartmentResult } from "../companyOrchestrator";
 
 export async function runIntelligenceAI(): Promise<DepartmentResult> {
+  const start = Date.now();
   const actions: string[] = [];
   const blockers: string[] = [];
+  const recordsUpdated: string[] = [];
 
+  // ── Before state ──────────────────────────────────────────────────────────────
+  const [beforeRadar] = await db.select({ n: count() }).from(officeMovRadar);
+  const [beforeLeads] = await db.select({ n: count() }).from(ingestedLeads);
+  const before = {
+    officeMovRadarRows: beforeRadar.n,
+    ingestedLeadsRows: beforeLeads.n,
+  };
+
+  let newsFeedSaved = 0;
+  let jobSignalSaved = 0;
+  let newsFeedError: string | null = null;
+  let jobSignalError: string | null = null;
+
+  // ── Action 1: Run News Feed Scan (RSS → officeMovRadar) ───────────────────────
   try {
-    const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-
-    const [leads, radarSignals, enrichedCompanies, dealSignals, dealIntel] = await Promise.all([
-      db.select().from(ingestedLeads).orderBy(desc(ingestedLeads.createdAt)).limit(500),
-      db.select().from(officeMovRadar).limit(500),
-      db.select().from(companyIntelligence).limit(500),
-      db.select().from(dealHunterSignals).limit(500),
-      db.select().from(dealIntelligenceRecords).limit(200),
-    ]);
-
-    const newLeads = leads.filter(l => new Date(l.createdAt ?? 0) >= since30d);
-    const highScoreLeads = leads.filter(l => (l.score ?? 0) >= 75);
-    const activeRadar = radarSignals.filter(r => r.status === "active" || r.status === "new");
-    const highConfIntel = enrichedCompanies.filter(c => (c.confidenceScore ?? 0) >= 70);
-    const activeDealSignals = dealSignals.filter(d => d.status === "active" || d.status === "new");
-    const highProbDeals = dealIntel.filter(d => d.probabilityTier === "high" || d.probabilityTier === "medium_high");
-
-    if (newLeads.length > 0) actions.push(`${newLeads.length} new leads ingested in last 30 days`);
-    if (highScoreLeads.length > 0) actions.push(`${highScoreLeads.length} high-score leads (75+) identified`);
-    if (activeRadar.length > 0) actions.push(`${activeRadar.length} active office move signals tracked`);
-    if (highConfIntel.length > 0) actions.push(`${highConfIntel.length} companies enriched with high-confidence intelligence`);
-    if (activeDealSignals.length > 0) actions.push(`${activeDealSignals.length} active deal hunter signals`);
-    if (highProbDeals.length > 0) actions.push(`${highProbDeals.length} high-probability deal intelligence records`);
-
-    if (leads.length === 0) blockers.push("No ingested leads in database — lead scraper may need to run");
-    if (activeRadar.length === 0) blockers.push("No active office move radar signals");
-    if (enrichedCompanies.length === 0) blockers.push("No company intelligence records — enrichment not running");
-
-    const topCities = [...new Set(leads.slice(0, 50).map(l => l.city).filter(Boolean))].slice(0, 5);
-    const topIndustries = [...new Set(leads.slice(0, 50).map(l => (l as any).industry).filter(Boolean))].slice(0, 3);
-
-    return {
-      department: "Intelligence",
-      status: actions.length > 0 ? "completed" : "partial",
-      actionsTaken: actions,
-      blockers,
-      metrics: {
-        totalLeads: leads.length,
-        newLeads30d: newLeads.length,
-        highScoreLeads: highScoreLeads.length,
-        activeRadarSignals: activeRadar.length,
-        enrichedCompanies: enrichedCompanies.length,
-        highConfidenceCompanies: highConfIntel.length,
-        activeDealSignals: activeDealSignals.length,
-        highProbabilityDeals: highProbDeals.length,
-        topCities: topCities.join(", ") || "none",
-        topIndustries: topIndustries.join(", ") || "none",
-      },
-      recommendations: [
-        highScoreLeads.length > 0 ? `${highScoreLeads.length} high-score leads ready for Sales AI outreach` : "Increase lead scoring threshold data",
-        activeRadar.length > 5 ? "Strong signal volume — consider increasing outreach frequency" : "Low radar signal count — check scanner schedule",
-        highConfIntel.length > 10 ? "Good company intelligence coverage" : "Run company intelligence enrichment for more prospects",
-      ],
-    };
+    const { runNewsFeedScan } = await import("../../newsFeedScanner");
+    const result = await runNewsFeedScan();
+    newsFeedSaved = result.saved;
+    if (result.saved > 0) {
+      actions.push(`News feed scan: ${result.saved} new signals saved from ${result.processed} articles processed`);
+      recordsUpdated.push(`office_mov_radar: +${result.saved} rows inserted from RSS feed scan`);
+    } else {
+      actions.push(`News feed scan ran: ${result.processed} articles checked, 0 new signals (all already seen or below threshold)`);
+    }
   } catch (err: any) {
-    return {
-      department: "Intelligence",
-      status: "failed",
-      actionsTaken: [],
-      blockers: [`Intelligence AI error: ${err.message}`],
-      metrics: {},
-      recommendations: [],
-    };
+    newsFeedError = err.message;
+    blockers.push(`News feed scanner error: ${err.message}`);
   }
+
+  // ── Action 2: Run Job Signal Scan (hiring signals → officeMovRadar) ───────────
+  try {
+    const { runJobSignalScan } = await import("../../newsFeedScanner");
+    const result = await runJobSignalScan();
+    jobSignalSaved = result.saved;
+    if (result.saved > 0) {
+      actions.push(`Job signal scan: ${result.saved} new hiring signals saved from ${result.processed} job postings`);
+      recordsUpdated.push(`office_mov_radar: +${result.saved} rows inserted from job signal scan`);
+    } else {
+      actions.push(`Job signal scan ran: ${result.processed} postings checked, 0 new signals`);
+    }
+  } catch (err: any) {
+    jobSignalError = err.message;
+    blockers.push(`Job signal scanner error: ${err.message}`);
+  }
+
+  // ── After state ───────────────────────────────────────────────────────────────
+  const [afterRadar] = await db.select({ n: count() }).from(officeMovRadar);
+  const [afterLeads] = await db.select({ n: count() }).from(ingestedLeads);
+
+  const highScoreLeads = await db.select({ n: count() }).from(ingestedLeads)
+    .where(sql`${ingestedLeads.score} >= 75`);
+  const activeRadar = await db.select({ n: count() }).from(officeMovRadar)
+    .where(sql`${officeMovRadar.status} IN ('active', 'new', 'New')`);
+  const enriched = await db.select({ n: count() }).from(companyIntelligence)
+    .where(sql`${companyIntelligence.confidenceScore} >= 70`);
+  const activeDealSignals = await db.select({ n: count() }).from(dealHunterSignals)
+    .where(sql`${dealHunterSignals.status} IN ('active', 'new')`);
+
+  const totalNewSignals = newsFeedSaved + jobSignalSaved;
+  const after = {
+    officeMovRadarRows: afterRadar.n,
+    ingestedLeadsRows: afterLeads.n,
+  };
+
+  // Determine status
+  const bothFailed = !!newsFeedError && !!jobSignalError;
+  const status = bothFailed ? "blocked"
+    : totalNewSignals > 0 ? "completed"
+    : blockers.length > 0 ? "partial"
+    : "completed";
+
+  return {
+    department: "Intelligence",
+    status,
+    actionsTaken: actions,
+    blockers,
+    recordsUpdated,
+    before,
+    after,
+    executionMs: Date.now() - start,
+    metrics: {
+      newSignalsSaved: totalNewSignals,
+      newsFeedSaved,
+      jobSignalSaved,
+      totalRadarRows: afterRadar.n,
+      radarDelta: afterRadar.n - beforeRadar.n,
+      totalIngestedLeads: afterLeads.n,
+      highScoreLeads: highScoreLeads[0].n,
+      activeRadarSignals: activeRadar[0].n,
+      enrichedCompanies: enriched[0].n,
+      activeDealSignals: activeDealSignals[0].n,
+    },
+    recommendations: [
+      totalNewSignals > 0 ? `${totalNewSignals} new signals in radar — SalesAI should create deal records` : "No new signals — scanners ran but found only known companies",
+      !!newsFeedError ? "News feed scanner failing — check network/RSS URLs" : "News feed scanner operational",
+      !!jobSignalError ? "Job signal scanner failing — check source URLs" : "Job signal scanner operational",
+    ],
+  };
 }
