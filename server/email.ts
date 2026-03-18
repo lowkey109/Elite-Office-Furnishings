@@ -21,20 +21,46 @@ function getResend(): Resend | null {
 
 const SAFE_MODE = process.env.SAFE_MODE === "true";
 
-async function sendEmail(opts: { to: string | string[]; subject: string; html: string }): Promise<void> {
+async function sendEmail(opts: {
+  to: string | string[];
+  subject: string;
+  html: string;
+}): Promise<{ id?: string; provider?: string }> {
+  const toList = Array.isArray(opts.to) ? opts.to.join(", ") : opts.to;
+  console.log(`[Email] ▶ SEND START — to: ${toList} | subject: "${opts.subject}" | from: ${TCD_FROM}`);
+
   if (SAFE_MODE) {
-    console.log(`[email] SAFE_MODE — suppressed email "${opts.subject}" to ${Array.isArray(opts.to) ? opts.to.join(",") : opts.to}`);
-    return;
+    console.log(`[Email] ⏸ SAFE_MODE — suppressed email to ${toList}`);
+    return {};
   }
-  const resend = getResend();
-  if (!resend) { console.log("[email] RESEND_API_KEY not set — skipping email"); return; }
-  const { error } = await resend.emails.send({
-    from: TCD_FROM,
-    to: Array.isArray(opts.to) ? opts.to : [opts.to],
-    subject: opts.subject,
-    html: opts.html,
-  });
-  if (error) throw new Error(`Resend error: ${error.message}`);
+
+  const key = process.env.RESEND_API_KEY;
+  if (!key) {
+    console.error("[Email] ✗ FAIL — RESEND_API_KEY not set — email not sent");
+    return {};
+  }
+
+  const resend = getResend()!;
+
+  try {
+    const result = await resend.emails.send({
+      from: TCD_FROM,
+      to: Array.isArray(opts.to) ? opts.to : [opts.to],
+      subject: opts.subject,
+      html: opts.html,
+    });
+
+    if (result.error) {
+      console.error(`[Email] ✗ FAIL — to: ${toList} | subject: "${opts.subject}" | error: ${result.error.message}`);
+      throw new Error(`Resend error: ${result.error.message}`);
+    }
+
+    console.log(`[Email] ✓ SENT — to: ${toList} | subject: "${opts.subject}" | messageId: ${result.data?.id ?? "unknown"}`);
+    return { id: result.data?.id, provider: "resend" };
+  } catch (err: any) {
+    console.error(`[Email] ✗ EXCEPTION — to: ${toList} | subject: "${opts.subject}" | ${err.message}`);
+    throw err;
+  }
 }
 
 // ─── Admin template (dark luxury) ────────────────────────────────────────────
@@ -870,6 +896,120 @@ export async function sendFormalQuoteEmail(quote: {
 
 export function isEmailConfigured(): boolean {
   return !!process.env.RESEND_API_KEY;
+}
+
+export async function sendTestEmail(): Promise<{
+  success: boolean;
+  messageId?: string;
+  provider?: string;
+  from?: string;
+  to?: string;
+  subject?: string;
+  envStatus: {
+    RESEND_API_KEY: string;
+    SAFE_MODE: string;
+    fromAddress: string;
+    domainVerified: boolean;
+    note: string;
+  };
+  error?: string;
+  domainStatus?: string;
+}> {
+  const PRIMARY_TO = "service@thecorporatedesk.com.au";
+  const FALLBACK_TO = "thecorporatedeskservice@gmail.com";
+  const SUBJECT = "TCD Email Test";
+  const HTML = `<div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:20px">
+    <h2 style="color:#c9a84c">TCD Email Test</h2>
+    <p style="color:#333">If you receive this, email is working.</p>
+    <p style="color:#888;font-size:12px">Sent: ${new Date().toISOString()}</p>
+  </div>`;
+
+  const envStatus = {
+    RESEND_API_KEY: process.env.RESEND_API_KEY ? `SET (length: ${process.env.RESEND_API_KEY.length})` : "NOT SET",
+    SAFE_MODE: process.env.SAFE_MODE ?? "not set (defaults to live)",
+    fromAddress: TCD_FROM,
+    domainVerified: false,
+    note: "Pending test",
+  };
+
+  console.log(`[Email:TestSend] ENV check — RESEND_API_KEY: ${envStatus.RESEND_API_KEY} | SAFE_MODE: ${envStatus.SAFE_MODE}`);
+
+  if (!process.env.RESEND_API_KEY) {
+    console.error("[Email:TestSend] ✗ RESEND_API_KEY not set — cannot send test email");
+    return {
+      success: false,
+      error: "RESEND_API_KEY environment variable is not set. Add it to your Replit Secrets.",
+      envStatus,
+    };
+  }
+
+  // Try primary recipient (service@thecorporatedesk.com.au)
+  console.log(`[Email:TestSend] Attempting send → ${PRIMARY_TO}`);
+  try {
+    const result = await sendEmail({ to: PRIMARY_TO, subject: SUBJECT, html: HTML });
+    envStatus.domainVerified = true;
+    envStatus.note = "Domain thecorporatedesk.com.au is verified in Resend ✓";
+    console.log(`[Email:TestSend] ✓ Primary send succeeded — messageId: ${result.id}`);
+    return {
+      success: true,
+      messageId: result.id,
+      provider: result.provider ?? "resend",
+      from: TCD_FROM,
+      to: PRIMARY_TO,
+      subject: SUBJECT,
+      envStatus,
+      domainStatus: "VERIFIED — domain thecorporatedesk.com.au is active in Resend",
+    };
+  } catch (primaryErr: any) {
+    const isDomainError = primaryErr.message?.includes("verify a domain") ||
+      primaryErr.message?.includes("own email address") ||
+      primaryErr.message?.includes("testing emails");
+
+    console.warn(`[Email:TestSend] Primary recipient failed — ${primaryErr.message}`);
+
+    if (!isDomainError) {
+      // Not a domain issue — real failure
+      return {
+        success: false,
+        error: primaryErr.message,
+        from: TCD_FROM,
+        to: PRIMARY_TO,
+        subject: SUBJECT,
+        envStatus: { ...envStatus, note: "Send failed with unexpected error" },
+      };
+    }
+
+    // Domain not verified — try fallback admin address (always works with Resend test keys)
+    console.log(`[Email:TestSend] Domain not verified — trying fallback: ${FALLBACK_TO}`);
+    try {
+      const fallbackResult = await sendEmail({ to: FALLBACK_TO, subject: `[Fallback] ${SUBJECT}`, html: HTML });
+      envStatus.domainVerified = false;
+      envStatus.note = "Domain thecorporatedesk.com.au NOT verified in Resend. Fallback to thecorporatedeskservice@gmail.com succeeded.";
+      console.log(`[Email:TestSend] ✓ Fallback send succeeded — messageId: ${fallbackResult.id}`);
+      return {
+        success: true,
+        messageId: fallbackResult.id,
+        provider: fallbackResult.provider ?? "resend",
+        from: TCD_FROM,
+        to: FALLBACK_TO,
+        subject: `[Fallback] ${SUBJECT}`,
+        envStatus,
+        domainStatus: "UNVERIFIED — thecorporatedesk.com.au not yet verified at resend.com/domains. Test sent to admin fallback instead. Verify domain to send to any recipient.",
+        error: `Primary send to ${PRIMARY_TO} blocked: ${primaryErr.message}`,
+      };
+    } catch (fallbackErr: any) {
+      console.error(`[Email:TestSend] ✗ Both sends failed — ${fallbackErr.message}`);
+      return {
+        success: false,
+        error: `Primary: ${primaryErr.message} | Fallback: ${fallbackErr.message}`,
+        from: TCD_FROM,
+        to: PRIMARY_TO,
+        subject: SUBJECT,
+        envStatus: { ...envStatus, note: "Both primary and fallback sends failed" },
+        domainStatus: "UNVERIFIED — domain thecorporatedesk.com.au not verified in Resend",
+      };
+    }
+  }
 }
 
 export async function sendOutreachEmail(opts: {

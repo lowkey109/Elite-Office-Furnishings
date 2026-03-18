@@ -11,7 +11,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { registerMarketingRoutes } from "./marketing";
-import { sendLeadNotification, sendSupplierQuoteNotification, sendPlanningRequestNotification, sendPaymentConfirmationNotification, sendPlannerSubmissionCustomerEmail, sendQuoteRequestCustomerEmail, sendStrategyCallCustomerEmail, sendEnquiryCustomerEmail, sendFinanceLeadAdminEmail, sendFinanceLeadPartnerEmail, sendFinanceLeadCustomerEmail, isEmailConfigured } from "./email";
+import { sendLeadNotification, sendSupplierQuoteNotification, sendPlanningRequestNotification, sendPaymentConfirmationNotification, sendPlannerSubmissionCustomerEmail, sendQuoteRequestCustomerEmail, sendStrategyCallCustomerEmail, sendEnquiryCustomerEmail, sendFinanceLeadAdminEmail, sendFinanceLeadPartnerEmail, sendFinanceLeadCustomerEmail, isEmailConfigured, sendTestEmail } from "./email";
 import { scoreOpportunity } from "./services/opportunityScoring";
 import { analyseSignals, extractDomain, type SignalInput, type SourceType } from "./services/leadIntelligence";
 import { CORPORATE_DESK_SYSTEM_PROMPT, ADVISOR_SYSTEM_MESSAGE, buildChatSystemPrompt, buildAdvisorSystemPrompt, extractSessionContext } from "./systemPrompt";
@@ -7170,6 +7170,39 @@ Rules:
       res.json({ success: true, mode: "safe", message: "Safe mode activated — all outbound actions suppressed" });
     } else {
       res.status(400).json({ error: "mode must be 'live' or 'safe'" });
+    }
+  });
+
+  // POST /api/admin/test-email — send a test email and return full diagnostic
+  app.post("/api/admin/test-email", async (_req, res) => {
+    console.log("[TestEmail] POST /api/admin/test-email — initiating test send");
+    try {
+      const result = await sendTestEmail();
+      const statusCode = result.success ? 200 : 500;
+      console.log(`[TestEmail] Result — success: ${result.success} | messageId: ${result.messageId ?? "n/a"} | error: ${result.error ?? "none"}`);
+      res.status(statusCode).json({
+        success: result.success,
+        messageId: result.messageId ?? null,
+        provider: result.provider ?? null,
+        from: result.from ?? null,
+        to: result.to ?? null,
+        subject: result.subject ?? null,
+        envStatus: result.envStatus,
+        error: result.error ?? null,
+        emailServiceLive: result.success,
+      });
+    } catch (err: any) {
+      console.error(`[TestEmail] Unexpected error: ${err.message}`);
+      res.status(500).json({
+        success: false,
+        error: err.message,
+        emailServiceLive: false,
+        envStatus: {
+          RESEND_API_KEY: process.env.RESEND_API_KEY ? `SET (length: ${process.env.RESEND_API_KEY.length})` : "NOT SET",
+          SAFE_MODE: process.env.SAFE_MODE ?? "not set",
+          fromAddress: "The Corporate Desk <onboarding@resend.dev>",
+        },
+      });
     }
   });
 
