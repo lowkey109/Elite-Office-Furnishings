@@ -1,0 +1,80 @@
+ADD BRANDED HTML EMAIL SIGNATURE TO ALL OUTBOUND EMAILS
+
+GOAL:
+Use the uploaded TCD signature image as the default branded email footer/signature for all outbound emails.
+
+ASSET:
+Use the uploaded signature image provided in the project as the source image.
+
+REQUIREMENTS
+
+1. APPLY TO ALL OUTBOUND EMAILS
+Add this branded signature/footer to:
+- outreach emails
+- follow-up emails
+- proposal emails
+- quote emails
+- test emails (optional, clearly marked if needed)
+
+2. HTML EMAIL FOOTER
+Append the signature image at the bottom of every HTML email.
+
+Structure:
+- email body content
+- spacing
+- branded signature image
+- fallback plain-text contact block underneath if image fails
+
+3. IMAGE HANDLING
+Do NOT embed the image as a broken local file path.
+Make sure the image is accessible in sent emails by doing one of these:
+- serve it from a public static URL on the site, OR
+- embed it safely as a CID/base64 if the current email system supports it reliably
+
+Prefer a stable public URL if easiest.
+
+4. SIZE + STYLE
+Display neatly:
+- max-width around 650–800px
+- width: 100%
+- height: auto
+- no distortion
+- clean margin-top above signature
+
+5. PLAIN TEXT FALLBACK
+For non-HTML email fallback, use:
+
+Benjamin Mumford
+Director | Workplace Strategy & Commercial Interiors
+The Corporate Desk Pty Ltd
+10 Primrose Street, Bowen Hills QLD 4006 Australia
+M +61 408 407 166
+E service@thecorporatedesk.com.au
+W thecorporatedesk.com.au
+
+Commercial Office Furniture & Workspace Fit-Out Specialists
+
+Planning a new office or relocating?
+Book a complimentary workspace layout consultation:
+thecorporatedesk.com.au
+
+6. GLOBAL TEMPLATE ENFORCEMENT
+Refactor email generation so all templates use one shared footer/signature builder.
+Do NOT duplicate signature HTML in multiple files if avoidable.
+
+7. SENDER CLEANUP
+Ensure no email ends with:
+- [Your Name]
+- placeholder signatures
+- missing sender block
+
+8. VALIDATION
+Before finishing, confirm:
+- which files were changed
+- how the image is being served
+- which email templates now include the signature
+- that the signature appears in preview/output
+
+IMPORTANT
+Do not only describe the change.
+Implement it in code now.

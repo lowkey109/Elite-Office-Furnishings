@@ -159,31 +159,46 @@ export default function FreeLayoutPlan() {
                 <Lock className="w-7 h-7 text-[hsl(43,78%,65%)]" />
               </div>
               <div>
-                <h2 className="text-2xl font-serif font-bold text-white mb-3">
-                  Unlock Your Full Workspace Plan
+                <h2 className="text-2xl font-serif font-bold text-white mb-2">
+                  Your workspace plan is ready
+                  <span className="block text-[hsl(43,78%,65%)]">(valued at $499)</span>
                 </h2>
-                <p className="text-white/55 text-base max-w-lg mx-auto leading-relaxed">
-                  Your personalised workspace plan — including furniture breakdown, product SKUs, pricing, and downloadable floor plans — is valued at <span className="text-[hsl(43,78%,65%)] font-semibold">$499</span>. Unlock it instantly or receive it free with your furniture order.
+                <p className="text-white/45 text-sm font-medium mt-3 tracking-wide uppercase">
+                  Only 1 free plan per company — unlock full details to proceed
                 </p>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-4 max-w-xl mx-auto">
-                <div className="luxury-card rounded-lg p-5 border border-[rgba(201,168,76,0.2)] text-left space-y-2">
-                  <div className="text-[hsl(43,78%,65%)] font-semibold text-sm">Pay to Unlock</div>
+              <div className="grid sm:grid-cols-2 gap-3 max-w-lg mx-auto text-left">
+                {[
+                  { icon: FileText, label: "Full furniture list with SKUs" },
+                  { icon: ArrowRight, label: "Exact pricing breakdown" },
+                  { icon: Building2, label: "Downloadable layout (PDF + DWG)" },
+                  { icon: Users, label: "Supplier-ready spec sheet" },
+                ].map(({ icon: Icon, label }) => (
+                  <div key={label} className="flex items-center gap-2.5 p-3 rounded-lg bg-white/[0.04] border border-white/[0.07]">
+                    <Icon className="w-4 h-4 text-[hsl(43,78%,52%)] flex-shrink-0" />
+                    <span className="text-white/75 text-sm">{label}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4 max-w-lg mx-auto">
+                <div className="luxury-card rounded-lg p-5 border border-[rgba(201,168,76,0.25)] text-left space-y-1.5">
+                  <div className="text-[hsl(43,78%,65%)] font-semibold text-xs uppercase tracking-wide">Pay to Unlock</div>
                   <div className="text-white text-2xl font-serif font-bold">$499</div>
-                  <div className="text-white/45 text-xs">Instant access to full plan details</div>
+                  <div className="text-white/40 text-xs">Instant access · fee credited to your order</div>
                 </div>
-                <div className="luxury-card rounded-lg p-5 border border-[rgba(99,179,237,0.2)] text-left space-y-2">
-                  <div className="text-blue-300 font-semibold text-sm">Free with Purchase</div>
+                <div className="luxury-card rounded-lg p-5 border border-[rgba(99,179,237,0.2)] text-left space-y-1.5">
+                  <div className="text-blue-300 font-semibold text-xs uppercase tracking-wide">Free with Purchase</div>
                   <div className="text-white text-2xl font-serif font-bold">$0</div>
-                  <div className="text-white/45 text-xs">Purchase furniture and receive full plan free</div>
+                  <div className="text-white/40 text-xs">Order furniture · receive full plan free</div>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-lg mx-auto w-full">
                 <Button
                   data-testid="button-unlock-full-plan"
-                  className="bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[hsl(220,20%,5%)] font-semibold px-8 py-3 h-auto"
+                  className="flex-1 bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[hsl(220,20%,5%)] font-semibold px-6 py-3 h-auto"
                   onClick={() => setLocation("/upload-your-floor-plan")}
                 >
                   <Lock className="w-4 h-4 mr-2" />
@@ -192,21 +207,22 @@ export default function FreeLayoutPlan() {
                 <Button
                   data-testid="button-get-quote"
                   variant="outline"
-                  className="border-white/20 text-white hover:bg-white/5 px-8 py-3 h-auto"
+                  className="flex-1 border-white/20 text-white hover:bg-white/5 px-6 py-3 h-auto"
                   onClick={() => setLocation("/send-us-your-quote")}
                 >
                   <FileText className="w-4 h-4 mr-2" />
-                  Get Quote
+                  Get Quote Instead
                 </Button>
-                <Button
-                  data-testid="button-book-consultation"
-                  variant="outline"
-                  className="border-white/20 text-white hover:bg-white/5 px-8 py-3 h-auto"
-                  onClick={() => window.open("https://calendly.com/thecorporatedesk", "_blank")}
-                >
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Book Consultation
-                </Button>
+              </div>
+
+              <p className="text-white/35 text-xs">
+                Unlock fee is credited toward your furniture order
+              </p>
+
+              <div className="pt-6 border-t border-white/[0.07] text-left">
+                <div className="text-white/70 text-sm font-semibold">Benjamin Mumford</div>
+                <div className="text-white/40 text-xs mt-0.5">Director, Workplace Strategy &amp; Commercial Interiors</div>
+                <div className="text-white/30 text-xs mt-0.5">The Corporate Desk &nbsp;·&nbsp; 0408 407 166 &nbsp;·&nbsp; service@thecorporatedesk.com.au</div>
               </div>
             </div>
           </div>
@@ -299,25 +315,36 @@ export default function FreeLayoutPlan() {
               </div>
 
               <div className="lg:col-span-2 space-y-4">
-                <div className="luxury-card rounded-xl p-6 border border-[rgba(201,168,76,0.2)]">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Lock className="w-4 h-4 text-[hsl(43,78%,65%)]" />
-                    <span className="text-[hsl(43,78%,65%)] font-semibold text-sm">Full Plan — Locked</span>
-                    <span className="ml-auto text-xs text-white/35 line-through">$499 value</span>
+                <div className="luxury-card rounded-xl p-6 border border-[rgba(201,168,76,0.25)] space-y-5">
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Lock className="w-4 h-4 text-[hsl(43,78%,65%)]" />
+                      <span className="text-[hsl(43,78%,65%)] font-semibold text-sm">Full Plan — Locked</span>
+                    </div>
+                    <div className="text-white font-serif font-bold text-lg leading-tight">
+                      Your workspace plan is ready
+                      <span className="block text-[hsl(43,78%,65%)] text-base font-sans font-normal mt-0.5">(valued at $499)</span>
+                    </div>
+                    <p className="text-white/45 text-xs font-medium mt-2 uppercase tracking-wide">
+                      Only 1 free plan per company — unlock full details to proceed
+                    </p>
                   </div>
 
-                  <div className="space-y-3 mb-6">
-                    {active.lockedItems.map((item) => (
-                      <div key={item} className="flex items-start gap-2.5">
-                        <div className="w-4 h-4 rounded bg-white/[0.06] border border-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <Lock className="w-2.5 h-2.5 text-white/30" />
-                        </div>
-                        <span className="text-white/35 text-sm blur-[2px] select-none">{item}</span>
+                  <div className="space-y-2">
+                    {[
+                      { icon: FileText, label: "Full furniture list with SKUs" },
+                      { icon: ArrowRight, label: "Exact pricing breakdown" },
+                      { icon: Building2, label: "Downloadable layout (PDF + DWG)" },
+                      { icon: Users, label: "Supplier-ready spec sheet" },
+                    ].map(({ icon: Icon, label }) => (
+                      <div key={label} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-white/[0.04] border border-white/[0.06]">
+                        <Icon className="w-3.5 h-3.5 text-[hsl(43,78%,52%)] flex-shrink-0" />
+                        <span className="text-white/70 text-xs">{label}</span>
                       </div>
                     ))}
                   </div>
 
-                  <div className="space-y-2.5">
+                  <div className="space-y-2">
                     <Button
                       data-testid="button-unlock-full-plan"
                       className="w-full bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[hsl(220,20%,5%)] font-semibold h-11"
@@ -333,39 +360,18 @@ export default function FreeLayoutPlan() {
                       onClick={() => setLocation("/send-us-your-quote")}
                     >
                       <FileText className="w-4 h-4 mr-2" />
-                      Get Quote
-                    </Button>
-                    <Button
-                      data-testid="button-book-consultation"
-                      variant="outline"
-                      className="w-full border-white/20 text-white hover:bg-white/5 h-11"
-                      onClick={() => window.open("https://calendly.com/thecorporatedesk", "_blank")}
-                    >
-                      <Calendar className="w-4 h-4 mr-2" />
-                      Book Consultation
+                      Get Quote Instead
                     </Button>
                   </div>
-                </div>
 
-                <div className="luxury-card rounded-xl p-5">
-                  <div className="text-sm font-semibold text-white mb-3">What's Locked Inside</div>
-                  {[
-                    { icon: FileText, text: "Full furniture breakdown per zone" },
-                    { icon: Building2, text: "Product SKUs & supplier details" },
-                    { icon: ArrowRight, text: "Itemised pricing & project estimate" },
-                    { icon: Users, text: "Downloadable PDF & DWG floor plan" },
-                  ].map((row) => (
-                    <div key={row.text} className="flex items-center gap-2.5 py-2 border-b border-white/[0.05] last:border-0">
-                      <row.icon className="w-4 h-4 text-white/25 flex-shrink-0" />
-                      <span className="text-white/40 text-sm">{row.text}</span>
-                    </div>
-                  ))}
-                </div>
+                  <p className="text-white/30 text-xs text-center">
+                    Unlock fee is credited toward your furniture order
+                  </p>
 
-                <div className="luxury-card rounded-xl p-5 text-center">
-                  <div className="text-xs text-white/35 mb-1">Free with furniture purchase</div>
-                  <div className="text-[hsl(43,78%,65%)] text-sm font-medium">
-                    Order your furniture and receive the full plan at no cost.
+                  <div className="pt-4 border-t border-white/[0.07]">
+                    <div className="text-white/65 text-xs font-semibold">Benjamin Mumford</div>
+                    <div className="text-white/35 text-xs mt-0.5">Director, Workplace Strategy &amp; Commercial Interiors</div>
+                    <div className="text-white/25 text-xs mt-0.5">The Corporate Desk &nbsp;·&nbsp; 0408 407 166</div>
                   </div>
                 </div>
               </div>
