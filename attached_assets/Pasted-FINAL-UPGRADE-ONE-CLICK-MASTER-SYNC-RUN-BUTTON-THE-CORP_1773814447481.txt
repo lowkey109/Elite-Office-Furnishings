@@ -1,0 +1,345 @@
+FINAL UPGRADE — ONE-CLICK MASTER SYNC + RUN BUTTON
+THE CORPORATE DESK AI PLATFORM
+
+You are upgrading the existing platform so the owner can press ONE BUTTON in admin and safely run/sync the whole operational system in one go.
+
+This is not a cosmetic button.
+This must be a real orchestrator that executes the full system in the correct order, prevents duplicates, shows truthful results, and is easy to use.
+
+GOAL
+
+Create a single admin action called:
+
+SYNC & RUN ALL
+
+This action must trigger the entire system end-to-end from one place and refresh the dashboard with real results.
+
+==================================================
+1. CREATE MASTER ORCHESTRATOR
+==================================================
+
+Create a central orchestration service, for example:
+
+- runFullSystemSync()
+or
+- runMasterOpsSync()
+
+This service must execute the full platform in the correct sequence.
+
+Required orchestration stages:
+
+1. ingest new website leads/requests
+2. ingest admin/manual/CSV leads waiting to process
+3. normalize and deduplicate leads/companies/contacts
+4. resolve contact readiness and prospect email targets
+5. update/create deals and opportunity stages
+6. queue/send outreach where valid
+7. run follow-up scheduler/processor
+8. process meeting-triggered proposal actions
+9. generate payment links where required
+10. sync Stripe/payment/webhook-derived state
+11. update won deals and commissions
+12. process product upload queue
+13. process AI product classification/review queue
+14. sync published products/categories to live website
+15. refresh operational stats/dashboard caches if used
+16. return a complete run summary
+
+==================================================
+2. ADD ONE BUTTON IN ADMIN
+==================================================
+
+Add a clear, premium, easy-to-find button in the admin dashboard home:
+
+SYNC & RUN ALL
+
+UI requirements:
+- prominent but clean
+- mobile-friendly
+- disabled while already running
+- shows progress state
+- shows last run time
+- shows who ran it
+- shows success / partial / failed result honestly
+
+Also add:
+- dry-run mode toggle if useful for safe testing
+- force-refresh toggle only if truly needed
+- otherwise keep UX simple
+
+==================================================
+3. PREVENT DUPLICATE / DANGEROUS RUNS
+==================================================
+
+This is critical.
+
+The one-click master action must be safe.
+
+Requirements:
+- add job locking so only one master sync can run at a time
+- prevent repeated clicks from launching duplicate runs
+- prevent duplicate outreach sends
+- prevent duplicate deal creation
+- prevent duplicate proposal creation
+- prevent duplicate Stripe/payment processing
+- prevent duplicate commission creation
+- make webhook/payment updates idempotent
+- log skipped duplicate actions clearly
+
+If a stage is already running:
+- block the second run
+- return “already in progress” truthfully
+
+==================================================
+4. MAKE IT TRUTHFUL
+==================================================
+
+The system must not pretend success.
+
+For every stage, return:
+- started
+- completed
+- skipped
+- blocked
+- failed
+
+If blocked, include exact reason, such as:
+- no valid prospect email
+- duplicate deal prevented
+- missing payment metadata
+- upload missing required data
+- category publish blocked
+- rate limit applied
+- auth denied
+
+Do not show green success unless the stage actually completed.
+
+==================================================
+5. FULL RUN RESULT PANEL
+==================================================
+
+After pressing the button, show a run summary panel in admin with sections:
+
+A. Leads
+- new leads ingested
+- duplicates skipped
+- leads needing contact
+- leads ready to contact
+
+B. Outreach
+- queued
+- sent
+- blocked
+- bounced
+- replies detected if available
+
+C. Deals
+- new deals created
+- stages updated
+- proposals generated
+- payment links created
+
+D. Revenue
+- payments synced
+- deals marked won
+- commissions created/updated
+- revenue total impact
+
+E. Products
+- uploads processed
+- products classified
+- drafts created
+- products published
+- products held for review
+
+F. Failures / Blockers
+- exact issues needing attention
+
+==================================================
+6. EASY DASHBOARD UX
+==================================================
+
+Simplify the admin dashboard so this one-button control makes sense to use daily.
+
+Dashboard home should include:
+
+- Today Snapshot
+- Pipeline Snapshot
+- Blockers
+- System Health
+- Last Master Sync Result
+- SYNC & RUN ALL button
+
+Make it easy to scan.
+
+No clutter.
+No confusing jargon.
+No fake “all good” indicators.
+
+==================================================
+7. ADD API ENDPOINT FOR MASTER RUN
+==================================================
+
+Create a protected admin endpoint, for example:
+
+POST /api/admin/system/run-all
+
+This endpoint should:
+- require proper server-side admin auth
+- acquire lock
+- run the orchestrator
+- return structured result JSON
+- release lock safely
+- persist run history
+
+Also add:
+
+GET /api/admin/system/run-all/history
+GET /api/admin/system/run-all/status
+
+==================================================
+8. SAVE RUN HISTORY
+==================================================
+
+Store master run history in the database.
+
+Each run should include:
+- run id
+- started at
+- finished at
+- started by
+- overall status
+- per-stage status
+- counts
+- failures
+- blocker summary
+
+Show recent runs in admin.
+
+==================================================
+9. AUTOMATIC + MANUAL MODE
+==================================================
+
+The system must support both:
+
+A. automatic scheduled background operation
+B. manual one-click SYNC & RUN ALL
+
+The manual one-click mode should:
+- immediately execute the same real orchestration path
+- not be a fake shortcut
+- not bypass safety checks
+- not require multiple separate admin actions
+
+==================================================
+10. USE EXISTING SYSTEMS, COMPLETE MISSING ONES
+==================================================
+
+Do not build a fake wrapper around incomplete modules.
+
+Inspect and complete the actual underlying modules so the one-click orchestration really works:
+- lead ingestion
+- contact resolution
+- outreach
+- follow-up
+- proposals
+- payment sync
+- commissions
+- product processing
+- product publishing
+- dashboard refresh
+
+If existing systems are partial, finish them.
+If fake/demo logic exists, remove or downgrade it.
+If internal email fallback exists, remove it for prospect sends.
+
+==================================================
+11. SECURITY HARDENING
+==================================================
+
+Because this is a powerful action, harden it properly.
+
+Requirements:
+- server-side admin auth only
+- no client-only gating
+- audit log for every run
+- rate limit/manual trigger protection
+- CSRF/session safety as appropriate
+- lock to prevent concurrent run-all operations
+- input validation for any options
+- secrets remain server-side
+- no dangerous debug exposure to public routes
+
+==================================================
+12. VALIDATION / PROOF
+==================================================
+
+Run real validation against the live codebase and prove the orchestration works.
+
+Demonstrate in code and report:
+- one-click run processes leads
+- one-click run evaluates contact readiness
+- one-click run sends/queues outreach only when valid
+- one-click run advances proposal/payment flow where triggered
+- one-click run updates revenue/commission state correctly
+- one-click run processes product workflow
+- one-click run updates dashboard result panel
+- duplicate click/run is blocked safely
+
+==================================================
+13. FINAL REQUIRED UX
+==================================================
+
+The owner should be able to:
+
+1. open admin
+2. press SYNC & RUN ALL
+3. wait for one real run
+4. see exactly what happened
+5. know exactly what is blocked
+6. not need to manually trigger 10 different sections separately
+
+That is the requirement.
+
+==================================================
+14. FINAL RESPONSE FORMAT
+==================================================
+
+After implementation, return ONLY:
+
+1. WHAT WAS BUILT
+- master orchestrator
+- admin button
+- result panel
+- history/status endpoints
+- locking/safety
+
+2. WHAT THE BUTTON NOW DOES
+- exact stages run in order
+
+3. SAFETY / SECURITY ADDED
+- auth
+- locking
+- idempotency
+- duplicate prevention
+- audit logging
+
+4. DASHBOARD CHANGES
+- what was simplified
+- where the button lives
+- what the result panel shows
+
+5. VALIDATION PROOF
+- what was tested
+- what passed
+
+6. FILES CHANGED
+- important files updated/added
+
+7. REQUIRED ENV / MIGRATION NOTES
+- only what is necessary
+
+CRITICAL FINAL INSTRUCTION
+
+Do not end with next steps, future work, or recommendations.
+Implement the real one-click full-system sync/run flow now.

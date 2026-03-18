@@ -7455,6 +7455,269 @@ Rules:
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
+  // ── Outreach Debug + Audit Routes ────────────────────────────────────────────
+
+  // GET /api/admin/outreach/debug — last 50 outreach attempts with full target audit
+  app.get("/api/admin/outreach/debug", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { outreachMessages: om, outreachThreads: ot, companyContacts: cc } = await import("../shared/schema");
+      const { desc, eq } = await import("drizzle-orm");
+      const limit = parseInt(req.query.limit as string ?? "50");
+
+      const rows = await ddb
+        .select({
+          msgId: om.id,
+          threadId: om.threadId,
+          deliveryStatus: om.deliveryStatus,
+          recipientEmail: om.recipientEmail,
+          emailSourceType: om.emailSourceType,
+          blockingReason: om.blockingReason,
+          resendMessageId: om.resendMessageId,
+          subject: om.subject,
+          stage: om.stage,
+          messageType: om.messageType,
+          sentAt: om.sentAt,
+          createdAt: om.createdAt,
+          companyName: ot.companyName,
+          companyId: ot.companyId,
+          contactId: ot.contactId,
+          contactReadiness: ot.contactReadiness,
+          resolvedEmail: ot.resolvedEmail,
+          resolvedEmailSource: ot.resolvedEmailSource,
+          threadStatus: ot.status,
+        })
+        .from(om)
+        .innerJoin(ot, eq(om.threadId, ot.id))
+        .orderBy(desc(om.createdAt))
+        .limit(limit);
+
+      // Enrich with contact name where available
+      const enriched = await Promise.all(rows.map(async (r) => {
+        let contactName: string | null = null;
+        let contactEmail: string | null = null;
+        if (r.contactId) {
+          const [c] = await ddb.select({ contactName: cc.contactName, email: cc.email })
+            .from(cc).where(eq(cc.id, r.contactId)).limit(1);
+          contactName = c?.contactName ?? null;
+          contactEmail = c?.email ?? null;
+        }
+        return {
+          ...r,
+          contactName,
+          attachedContactEmail: contactEmail,
+          emailActuallySent: r.deliveryStatus === "sent" && !!r.recipientEmail,
+          wasInternal: r.recipientEmail
+            ? ["thecorporatedeskservice@gmail.com", "service@thecorporatedesk.com.au", "onboarding@resend.dev"].includes(r.recipientEmail)
+            : null,
+        };
+      }));
+
+      // Summary counts
+      const summary = {
+        total: enriched.length,
+        sent: enriched.filter(r => r.deliveryStatus === "sent" && r.emailActuallySent).length,
+        blocked: enriched.filter(r => r.deliveryStatus === "blocked").length,
+        draft: enriched.filter(r => r.deliveryStatus === "draft").length,
+        failed: enriched.filter(r => r.deliveryStatus === "failed").length,
+        withExternalEmail: enriched.filter(r => r.recipientEmail && !r.wasInternal).length,
+        withInternalFallback: enriched.filter(r => r.wasInternal === true).length,
+        noContactAttached: enriched.filter(r => !r.contactId && !r.recipientEmail).length,
+      };
+
+      res.json({ summary, attempts: enriched });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // GET /api/admin/outreach/needs-contact — all threads blocked on missing contact
+  app.get("/api/admin/outreach/needs-contact", async (_req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { outreachThreads: ot } = await import("../shared/schema");
+      const { eq, or } = await import("drizzle-orm");
+
+      const threads = await ddb
+        .select()
+        .from(ot)
+        .where(
+          or(
+            eq(ot.contactReadiness, "NEEDS_CONTACT"),
+            eq(ot.contactReadiness, "BLOCKED_NO_EMAIL"),
+            eq(ot.contactReadiness, "BLOCKED_INTERNAL_EMAIL")
+          )
+        )
+        .limit(200);
+
+      res.json({
+        needsContact: threads.length,
+        threads: threads.map(t => ({
+          threadId: t.id,
+          companyName: t.companyName,
+          contactReadiness: t.contactReadiness,
+          contactId: t.contactId,
+          status: t.status,
+          resolvedEmail: t.resolvedEmail,
+          createdAt: t.createdAt,
+        })),
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // POST /api/admin/outreach/retry/:threadId — re-queue blocked thread for send
+  app.post("/api/admin/outreach/retry/:threadId", async (req, res) => {
+    const { threadId } = req.params;
+    try {
+      const { db: ddb } = await import("./db");
+      const { outreachMessages: om, outreachThreads: ot } = await import("../shared/schema");
+      const { eq, and } = await import("drizzle-orm");
+      const { resolveProspectEmail } = await import("./services/outreach/prospectEmailResolver");
+
+      const [thread] = await ddb.select().from(ot).where(eq(ot.id, threadId)).limit(1);
+      if (!thread) return res.status(404).json({ error: "Thread not found" });
+
+      // Re-resolve email
+      const resolved = await resolveProspectEmail({
+        companyId: thread.companyId,
+        contactId: thread.contactId ?? null,
+      });
+
+      if (!resolved.resolvedEmail) {
+        return res.json({
+          success: false,
+          message: "Still blocked — no valid external email found",
+          blockingReason: resolved.blockingReason,
+        });
+      }
+
+      // Reset blocked messages to draft so they get picked up by scheduler
+      const updated = await ddb
+        .update(om)
+        .set({
+          deliveryStatus: "draft",
+          blockingReason: null,
+          recipientEmail: null,
+          emailSourceType: null,
+        })
+        .where(and(eq(om.threadId, threadId), eq(om.deliveryStatus, "blocked")))
+        .returning({ id: om.id });
+
+      // Update thread readiness
+      await ddb
+        .update(ot)
+        .set({
+          contactReadiness: "READY_TO_CONTACT",
+          resolvedEmail: resolved.resolvedEmail,
+          resolvedEmailSource: resolved.sourceType,
+          updatedAt: new Date(),
+        })
+        .where(eq(ot.id, threadId));
+
+      res.json({
+        success: true,
+        messagesRequeued: updated.length,
+        resolvedEmail: resolved.resolvedEmail,
+        sourceType: resolved.sourceType,
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // POST /api/admin/outreach/flush-send — immediately run outreach send cycle (no pg-boss delay)
+  app.post("/api/admin/outreach/flush-send", async (req, res) => {
+    const LIVE_MODE = process.env.SAFE_MODE === "false";
+    const limit = parseInt((req.query.limit as string) ?? "20");
+    try {
+      const { db: ddb } = await import("./db");
+      const { outreachMessages: om, outreachThreads: ot, outreachEvents: oe } = await import("../shared/schema");
+      const { and, eq, desc } = await import("drizzle-orm");
+      const { resolveProspectEmail } = await import("./services/outreach/prospectEmailResolver");
+      const { sendOutreachEmail } = await import("./email");
+
+      const drafts = await ddb
+        .select({
+          msgId: om.id,
+          threadId: om.threadId,
+          subject: om.subject,
+          body: om.body,
+          contactId: ot.contactId,
+          companyName: ot.companyName,
+          companyId: ot.companyId,
+        })
+        .from(om)
+        .innerJoin(ot, eq(om.threadId, ot.id))
+        .where(and(eq(om.deliveryStatus, "draft"), eq(om.direction, "outbound"), eq(ot.status, "active")))
+        .orderBy(desc(om.createdAt))
+        .limit(limit);
+
+      let sent = 0; let blocked = 0; let failed = 0;
+      const results: Array<{ company: string; status: string; email?: string; reason?: string; msgId: string }> = [];
+
+      for (const draft of drafts) {
+        const resolved = await resolveProspectEmail({ companyId: draft.companyId, contactId: draft.contactId ?? null });
+
+        if (!resolved.resolvedEmail || resolved.sourceType === "blocked") {
+          const reason = resolved.blockingReason ?? "No external email found";
+          await ddb.update(om).set({ deliveryStatus: "blocked", blockingReason: reason, emailSourceType: "blocked" }).where(eq(om.id, draft.msgId));
+          await ddb.update(ot).set({ contactReadiness: "NEEDS_CONTACT", updatedAt: new Date() }).where(eq(ot.id, draft.threadId));
+          await ddb.insert(oe).values({ threadId: draft.threadId, eventType: "blocked", payloadJson: JSON.stringify({ messageId: draft.msgId, reason }) });
+          results.push({ company: draft.companyName, status: "blocked", reason, msgId: draft.msgId });
+          blocked++;
+          continue;
+        }
+
+        try {
+          const toEmail = resolved.resolvedEmail;
+          let resendMsgId: string | null = null;
+
+          // Pre-save recipient email BEFORE attempting send (so audit always shows target)
+          await ddb.update(om).set({ recipientEmail: toEmail, emailSourceType: resolved.sourceType }).where(eq(om.id, draft.msgId));
+          await ddb.update(ot).set({ contactReadiness: "READY_TO_CONTACT", resolvedEmail: toEmail, resolvedEmailSource: resolved.sourceType, updatedAt: new Date() }).where(eq(ot.id, draft.threadId));
+
+          if (LIVE_MODE && draft.subject && draft.body) {
+            // Rate limit: 1 email/sec max to stay within Resend's 5 req/sec
+            await new Promise(resolve => setTimeout(resolve, 250));
+            const sendResult = await sendOutreachEmail({ to: toEmail, subject: draft.subject!, html: draft.body!, companyName: draft.companyName }) as any;
+            resendMsgId = sendResult?.id ?? null;
+          }
+
+          await ddb.update(om).set({ deliveryStatus: "sent", sentAt: new Date(), resendMessageId: resendMsgId, blockingReason: LIVE_MODE ? null : "SAFE_MODE" }).where(eq(om.id, draft.msgId));
+          await ddb.insert(oe).values({ threadId: draft.threadId, eventType: "sent", payloadJson: JSON.stringify({ messageId: draft.msgId, recipientEmail: toEmail, sourceType: resolved.sourceType, liveMode: LIVE_MODE, resendMsgId }) });
+          results.push({ company: draft.companyName, status: LIVE_MODE ? "sent" : "safe_mode", email: toEmail, msgId: draft.msgId });
+          sent++;
+        } catch (sendErr: any) {
+          // Still track the resolved email target even though send failed
+          await ddb.update(om).set({ deliveryStatus: "failed", blockingReason: sendErr.message }).where(eq(om.id, draft.msgId));
+          results.push({ company: draft.companyName, status: "failed", reason: sendErr.message, msgId: draft.msgId });
+          failed++;
+        }
+      }
+
+      res.json({ success: true, liveMode: LIVE_MODE, totalProcessed: drafts.length, sent, blocked, failed, results });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // POST /api/admin/seed-real-leads — seed 20 real AU companies with external emails + outreach
+  app.post("/api/admin/seed-real-leads", async (_req, res) => {
+    try {
+      const { seedRealLeads } = await import("./services/realLeadSeeder");
+      const result = await seedRealLeads();
+      res.json({
+        success: true,
+        ...result,
+        message: `Seeded ${result.companiesCreated} companies, ${result.contactsCreated} contacts with real external emails, ${result.threadsCreated} outreach threads queued`,
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // ── AI Product Command Centre Routes ─────────────────────────────────────────
 
   // GET /api/admin/products/stats

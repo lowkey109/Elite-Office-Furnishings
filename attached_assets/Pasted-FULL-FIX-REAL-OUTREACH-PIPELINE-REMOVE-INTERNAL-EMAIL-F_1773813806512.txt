@@ -1,0 +1,327 @@
+FULL FIX: REAL OUTREACH PIPELINE + REMOVE INTERNAL EMAIL FALLBACK
+
+You are fixing the existing live revenue/outreach system so it sends emails to real prospect companies instead of internal/test inboxes.
+
+This is not a new feature request.
+This is a completion + correction of the existing system.
+
+GOAL
+
+Make the platform behave like a real outbound sales engine:
+
+lead/company -> real contact -> validated email -> outreach queue -> send to prospect -> track reply/status
+
+The system must NEVER silently fallback to internal company emails for prospect outreach.
+
+--------------------------------------------------
+1. AUDIT THE CURRENT OUTREACH FLOW
+--------------------------------------------------
+
+Inspect the current end-to-end path for:
+- lead ingestion
+- deal creation
+- company/contact assignment
+- email target selection
+- outreach send
+- proposal send
+- follow-up send
+
+Return exactly where target emails are currently coming from, including:
+- lead.email
+- contact.email
+- company.email
+- any fallback env/default emails
+- any hardcoded Gmail/internal inboxes
+
+Identify all places where the system falls back to:
+- thecorporatedeskservice@gmail.com
+- service@thecorporatedesk.com.au
+- any internal test inbox
+- onboarding@resend.dev
+- any generic default recipient
+
+--------------------------------------------------
+2. REMOVE INTERNAL FALLBACK FOR PROSPECT EMAILS
+--------------------------------------------------
+
+For any outreach / proposal / follow-up email intended for a prospect:
+
+If no valid external prospect email exists:
+- DO NOT SEND
+- DO NOT fallback to internal email
+- mark the deal/contact as NEEDS_CONTACT
+- add admin-visible reason:
+  "No valid external prospect email attached"
+
+Internal fallback emails may only be used for:
+- admin alerts
+- test-email endpoint
+- internal monitoring
+
+Never use internal fallback for prospect outreach.
+
+--------------------------------------------------
+3. ADD PROPER DATA MODEL FOR OUTREACH CONTACTS
+--------------------------------------------------
+
+Ensure the system has clear structure for:
+
+Company
+- id
+- companyName
+- website
+- industry
+- city
+- phone
+- genericEmail
+- source
+
+Contact
+- id
+- companyId
+- fullName
+- firstName
+- lastName
+- jobTitle
+- email
+- phone
+- linkedinUrl
+- source
+- confidenceScore
+- isPrimary
+- isDecisionMaker
+- emailStatus
+
+Deal / Opportunity
+- id
+- companyId
+- primaryContactId
+- stage
+- outreachStatus
+- contactReadinessStatus
+- estimatedValue
+- source
+
+If tables already exist, upgrade and reuse them.
+Do not duplicate schema unnecessarily.
+
+--------------------------------------------------
+4. TARGET EMAIL RESOLUTION RULES
+--------------------------------------------------
+
+Create one central resolver used by all outreach/proposal sending:
+
+resolveProspectEmailTarget(dealId)
+
+Priority order:
+1. primaryContact.email if valid
+2. best company decision-maker contact email
+3. company.genericEmail if external and valid
+4. no target -> NEEDS_CONTACT
+
+Rules:
+- must be external (not internal TCD email)
+- must pass basic email validation
+- must not be resend/dev/test placeholder
+- must not be gmail fallback unless it is actually the company’s intended public email
+
+Return:
+- resolvedEmail
+- sourceType
+- confidence
+- blockingReason if none found
+
+Use this resolver everywhere:
+- outreach thread creation
+- proposal sending
+- follow-up automation
+- meeting reminders
+- payment/proposal notifications to prospects
+
+--------------------------------------------------
+5. CONTACT READINESS STATUS
+--------------------------------------------------
+
+Add clear statuses:
+- READY_TO_CONTACT
+- NEEDS_CONTACT
+- NEEDS_EMAIL_VALIDATION
+- BLOCKED_INTERNAL_EMAIL
+- BLOCKED_DUPLICATE
+- SENT
+- REPLIED
+- BOUNCED
+
+Show this in admin for every deal.
+
+--------------------------------------------------
+6. ADMIN COMMAND CENTRE UPGRADES
+--------------------------------------------------
+
+Add a Prospect Outreach panel with:
+
+Metrics:
+- total deals
+- ready to contact
+- needs contact
+- outreach queued
+- sent today
+- bounced
+- replied
+
+Table columns:
+- company
+- contact
+- resolved email
+- source of email
+- contact readiness
+- outreach status
+- last email sent
+- next follow-up
+- blocking reason
+
+Filters:
+- Needs Contact
+- Ready
+- Sent
+- Replied
+- Bounced
+
+Actions:
+- add/edit contact
+- override email target
+- mark primary contact
+- retry outreach
+- pause outreach
+- open deal
+
+--------------------------------------------------
+7. CSV IMPORT FOR REAL CONTACTS
+--------------------------------------------------
+
+Create admin import for CSV with columns:
+companyName, website, city, contactName, jobTitle, email, phone, source, estimatedValue
+
+When imported:
+- create/update company
+- create/update contact
+- attach contact to deal/opportunity
+- mark READY_TO_CONTACT if valid email exists
+- queue outreach if enabled
+
+Deduplicate by:
+- email
+- companyName + city
+- website domain
+
+--------------------------------------------------
+8. LEAD INGESTION FIX
+--------------------------------------------------
+
+Upgrade /api/intelligence/ingest-lead so it can accept:
+- companyName
+- website
+- city
+- industry
+- contactName
+- jobTitle
+- email
+- phone
+- source
+- signalType
+- notes
+- estimatedValue
+
+If contact email is provided:
+- create contact
+- attach as primary contact
+- mark READY_TO_CONTACT
+
+If not:
+- create company/deal
+- mark NEEDS_CONTACT
+- do not send outreach yet
+
+--------------------------------------------------
+9. OUTREACH QUEUE RULES
+--------------------------------------------------
+
+Before any email send:
+- resolve target email centrally
+- confirm READY_TO_CONTACT
+- confirm not internal
+- confirm not previously blocked/bounced
+
+If failed:
+- do not send
+- log exact blocking reason
+- expose it in admin
+
+--------------------------------------------------
+10. EMAIL LOGGING + DEBUG
+--------------------------------------------------
+
+For the last 50 outreach/proposal sends, return:
+- timestamp
+- dealId
+- companyName
+- contactName
+- recipient email
+- email source type
+- template type
+- send result
+- provider message id
+- blocked reason if not sent
+
+Create endpoint:
+GET /api/admin/outreach/debug
+
+Create endpoint:
+GET /api/admin/outreach/needs-contact
+
+Create endpoint:
+POST /api/admin/outreach/retry/:dealId
+
+--------------------------------------------------
+11. REAL OUTREACH TEST
+--------------------------------------------------
+
+Seed 10 realistic external test companies with realistic external business emails.
+Do not use any internal TCD inboxes.
+
+Examples of acceptable format:
+- office@[company-domain].com.au
+- admin@[company-domain].com.au
+- hello@[company-domain].com.au
+
+Push them through the real ingestion flow and queue outreach.
+
+Return:
+- companies created
+- contacts created
+- ready to contact count
+- needs contact count
+- first 10 resolved email targets
+- first 10 outreach queue records
+
+--------------------------------------------------
+12. IMPORTANT SAFETY RULES
+--------------------------------------------------
+
+Do not mass-send to unknown scraped emails automatically.
+Do not send to internal fallback inboxes.
+Do not fabricate false send success when target email is missing.
+Do not mark a prospect as contacted unless an actual external target email was used.
+
+--------------------------------------------------
+13. REQUIRED FINAL OUTPUT
+--------------------------------------------------
+
+Return:
+1. every fallback location removed/fixed
+2. the central prospect email resolver added
+3. the admin outreach panel added
+4. the new statuses added
+5. the debug endpoints added
+6. the number of deals currently blocked by missing contact info
+7. whether the platform now sends only to real prospect emails

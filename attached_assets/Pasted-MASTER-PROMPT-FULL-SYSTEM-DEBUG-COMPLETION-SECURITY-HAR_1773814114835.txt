@@ -1,0 +1,526 @@
+MASTER PROMPT — FULL SYSTEM DEBUG + COMPLETION + SECURITY HARDENING + REVENUE READINESS
+THE CORPORATE DESK AI / WORKSPACE INTELLIGENCE / REVENUE LOOP PLATFORM
+
+ROLE
+
+You are a senior staff-level full-stack engineer, platform architect, security engineer, DevSecOps engineer, backend reliability engineer, frontend product engineer, database architect, AI workflow engineer, revenue systems architect, QA lead, and production hardening specialist.
+
+You are working on the EXISTING live Replit codebase for The Corporate Desk.
+
+This is NOT a greenfield build.
+This is a full-system:
+- audit
+- debug
+- repair
+- completion
+- hardening
+- validation
+- production readiness pass
+
+Your task is to inspect the ENTIRE current system, find everything incomplete, fake, fragile, insecure, duplicated, misleading, or partially wired, and then fix it properly.
+
+PRIMARY OBJECTIVE
+
+Bring the ENTIRE system to a genuinely production-ready, secure, end-to-end operational state so it can:
+
+1. ingest real leads and signals
+2. enrich/attach valid company/contact data
+3. score and route opportunities
+4. send outreach only to real external prospects
+5. manage meetings, proposals, and payment flow
+6. track revenue and commissions correctly
+7. manage products/catalogue with AI-assisted workflows
+8. expose truthful admin visibility
+9. survive production use safely
+10. operate without fake demo fallbacks, silent failures, or misleading “success” states
+
+IMPORTANT RULES
+
+- Do NOT give fake completion reports.
+- Do NOT mark something “done” unless it is actually implemented, wired, tested, and visible in the running app.
+- Do NOT leave simulation logic pretending to be live logic.
+- Do NOT silently fallback to internal emails for prospect outreach.
+- Do NOT invent data, fake successful sends, or fabricate real-world results.
+- Do NOT break existing working functionality unless replacing it with a clearly better version.
+- Reuse and upgrade existing architecture where possible.
+- Prefer strong production architecture over quick hacks.
+- Add security hardening everywhere appropriate.
+- Add observability and explicit error visibility everywhere appropriate.
+- Add truthful admin status reporting.
+- Leave the system stronger, safer, cleaner, and more complete than it is now.
+
+==================================================
+PHASE 1 — FULL REPOSITORY AUDIT
+==================================================
+
+Audit the entire codebase, including but not limited to:
+
+- frontend pages
+- admin pages
+- API routes
+- schedulers/workers/jobs
+- product/catalog upload flows
+- lead ingestion flows
+- outreach/email flows
+- proposal/payment flows
+- Stripe/webhook flows
+- contact/company/deal data model
+- AI scoring/sync logic
+- authentication/authorization
+- database schema
+- environment/config handling
+- logging/error handling
+- file upload/storage logic
+- analytics/tracking
+- background job architecture
+- any test/demo/synthetic code
+- any placeholder admin security
+- any hardcoded credentials or fallback inboxes
+- any fragile in-process loops
+- any route mismatches or dead UI buttons
+- any fake/live mode inconsistencies
+
+Return a brutally honest audit of:
+1. what is truly working
+2. what is partially wired
+3. what is fake/demo only
+4. what is broken
+5. what is insecure
+6. what is misleading in admin/UI
+7. what blocks revenue generation
+8. what blocks scale/reliability
+
+==================================================
+PHASE 2 — FIX CORE REVENUE LOOP END TO END
+==================================================
+
+Make the full revenue loop genuinely complete:
+
+SIGNAL / LEAD
+→ COMPANY
+→ CONTACT
+→ DEAL / OPPORTUNITY
+→ OUTREACH
+→ FOLLOW-UP
+→ MEETING
+→ PROPOSAL
+→ PAYMENT
+→ WON
+→ COMMISSION
+→ DASHBOARD / REPORTING
+
+Requirements:
+
+A. LEAD / SIGNAL INGESTION
+- Accept real incoming data from website forms, admin input, CSV import, and future scrapers
+- Normalize inputs into one clean pipeline
+- Ensure every record has explicit source attribution
+- Deduplicate intelligently
+- Reject malformed inputs safely
+- Persist audit trail
+
+B. COMPANY + CONTACT MODEL
+- Ensure companies, contacts, and deals are properly linked
+- Add/upgrade tables and relations as needed
+- Support company generic email + individual contact email
+- Support primary contact and decision-maker priority
+- Support contact confidence and validation status
+
+C. DEAL CREATION
+- Ensure every real lead can become a properly tracked deal/opportunity
+- Add truthful stage management
+- Prevent duplicate/ghost deals
+- Preserve history of stage changes
+
+D. EMAIL TARGET RESOLUTION
+- Build ONE central resolver used everywhere
+- Priority:
+  1. primary contact external email
+  2. best decision-maker external email
+  3. company generic external email
+  4. block send and mark NEEDS_CONTACT
+- NEVER fallback to internal TCD/test inbox for prospect outreach
+- NEVER treat internal test sends as real prospect sends
+
+E. OUTREACH ENGINE
+- Only send to validated external prospect emails
+- Queue, send, retry, pause, and log properly
+- Prevent duplicate concurrent sends
+- Prevent sending when blocked/bounced/unsubscribed/missing contact
+- Support truthful status transitions:
+  NEW
+  READY_TO_CONTACT
+  NEEDS_CONTACT
+  QUEUED
+  SENT
+  DELIVERED
+  OPENED
+  REPLIED
+  BOUNCED
+  PAUSED
+  BLOCKED
+
+F. FOLLOW-UP SYSTEM
+- Fix timing bugs
+- Ensure follow-up schedule is based on correct reference points
+- Avoid cumulative delay drift
+- Track next send time accurately
+- Allow pause/resume/cancel per deal
+- Prevent double-sending across worker restarts
+
+G. MEETING + PROPOSAL FLOW
+- Ensure meeting-confirmed deals can generate proposal correctly
+- Ensure proposal generation is based on real deal/company/contact data
+- Ensure proposal send uses real target resolution
+- Add truthful status and failure reporting
+
+H. STRIPE / PAYMENT FLOW
+- Ensure payment link generation is truly live-aware
+- Ensure metadata properly ties payment back to deal/opportunity
+- Ensure webhook updates deal stage and revenue truthfully
+- Ensure commission creation occurs only on valid payment/won logic
+- Ensure idempotency on webhook processing
+- Ensure duplicate payment events do not double-count revenue
+
+I. REVENUE / COMMISSION DASHBOARDS
+- Ensure all dashboard metrics are derived from real DB truth
+- No synthetic or inflated values
+- Show counts and value by stage
+- Show conversion rates truthfully
+- Show blocked deals and reasons
+- Show outreach health
+- Show payment health
+- Show commission totals and statuses
+
+==================================================
+PHASE 3 — COMPLETE THE PRODUCT / CATALOGUE SYSTEM
+==================================================
+
+Build and/or finish the AI Product Command Centre inside admin so product/catalogue management is production-usable.
+
+Requirements:
+
+A. PRODUCT UPLOAD CENTRE
+- Single image upload
+- Multi-image upload
+- Bulk upload
+- PDF upload
+- CSV/XLSX upload
+- Clear processing statuses
+- Progress handling
+- Safe file validation
+
+B. PRODUCT AI PROCESSING
+- Detect SKU from filename/text where possible
+- Detect category/subcategory/style/use case
+- Group duplicate/near-duplicate products
+- Score image quality
+- Score publish readiness
+- Score brand fit and market appeal
+- Mark uncertainty explicitly
+
+C. PRODUCT REVIEW WORKFLOW
+- New Uploads
+- AI Processing
+- Ready to Publish
+- Draft Review
+- Needs Data
+- Hold Back
+- Live
+
+D. PRODUCT EDITOR
+- Manual override for title, SKU, category, tags, descriptions, SEO, images, specs
+- No invented specs unless verified
+- Strong draft/publish workflow
+
+E. CATEGORY MANAGER
+- Manage hierarchy cleanly
+- Assign products properly
+- Generate category intros/SEO
+- Reorder featured products
+
+F. WEBSITE PUBLISH
+- Ensure approved products actually appear under the correct headings on the live site
+- Ensure categories and product pages render correctly
+- Ensure product image handling is robust
+- Ensure broken links/images are not published
+
+==================================================
+PHASE 4 — COMPLETE THE WHOLE WEBSITE LOOP
+==================================================
+
+Inspect every website entry point and connect it into the real pipeline where appropriate.
+
+This includes:
+- quote builder
+- floor plan upload
+- contact forms
+- planning requests
+- product enquiry forms
+- admin manual lead entry
+- any relevant CTA paths
+
+Requirements:
+- each path should create/attach a lead/opportunity truthfully
+- source should be preserved
+- admin should show where it came from
+- if contact data is incomplete, mark for follow-up rather than pretending it is sales-ready
+- ensure no dead buttons, broken route paths, or fake success screens
+- ensure tracking and state transitions are real
+
+==================================================
+PHASE 5 — SECURITY HARDENING (POWERFULLY STRONG)
+==================================================
+
+Harden the system properly.
+
+A. AUTHENTICATION / AUTHORIZATION
+- Remove any client-only admin auth gates
+- Remove sessionStorage-only protection for admin areas
+- Replace with proper server-side auth/session enforcement
+- Protect all admin APIs
+- Add role-based access where appropriate
+- Enforce least privilege
+
+B. SECRETS / CONFIG
+- Remove hardcoded credentials or admin passwords from frontend/client bundles
+- Ensure all secrets use environment variables
+- Validate config at startup
+- Fail loudly and clearly on missing critical env vars
+
+C. INPUT VALIDATION
+- Add strong validation for all API inputs
+- Sanitize user-submitted content
+- Guard against malformed CSV/PDF/image uploads
+- Guard against injection risks
+- Guard against unsafe file types
+
+D. CSRF / CORS / COOKIE / SESSION SAFETY
+- Review and harden session handling
+- Set secure cookie settings where applicable
+- Lock down CORS to appropriate origins
+- Protect state-changing admin routes appropriately
+
+E. RATE LIMITING / ABUSE CONTROL
+- Add rate limiting to public forms, admin triggers, login/auth endpoints, upload endpoints, scan endpoints, and outbound send endpoints
+- Add anti-spam / anti-bot controls where useful
+- Prevent duplicate job firing from repeated clicks
+
+F. JOB LOCKING / CONCURRENCY CONTROL
+- Replace fragile in-process loop assumptions where needed
+- Add persistent job safety and locking
+- Prevent concurrent scan duplicates
+- Prevent duplicate outreach runs
+- Prevent double proposal/payment actions
+
+G. FILE SECURITY
+- Validate uploads by size/type
+- Prevent unsafe execution
+- Use safe storage paths
+- Block oversized/unexpected files
+- Add virus-safe handling pattern if supported, otherwise isolate and validate strictly
+
+H. DATABASE HARDENING
+- Add needed indexes
+- Add needed uniqueness constraints
+- Add referential integrity where missing
+- Add idempotency keys/guards where useful
+- Protect against duplicate records
+
+I. LOGGING / AUDIT TRAILS
+- Add security-relevant audit logs for admin actions, config changes, sends, retries, imports, and publish operations
+- Make logs useful, not noisy
+
+==================================================
+PHASE 6 — RELIABILITY / OBSERVABILITY / TRUTHFUL STATUS
+==================================================
+
+A. ERROR HANDLING
+- Remove silent failures
+- Surface errors clearly in admin and logs
+- Add structured failure reasons
+
+B. HEALTH / STATUS
+- Add truthful health endpoints/status cards for:
+  - email
+  - stripe
+  - webhooks
+  - scheduler/jobs
+  - database
+  - uploads
+  - product processing
+  - outreach queue
+- Status must reflect real operational state, not just “env var exists”
+
+C. DEBUG ENDPOINTS / ADMIN PANELS
+Add truthful operational visibility for:
+- last 50 outreach attempts
+- blocked deals needing contact
+- bounced emails
+- recent proposal sends
+- recent payment link creation
+- recent webhook events
+- import failures
+- upload processing failures
+- product publish failures
+
+D. ADMIN UX
+- Make the admin honest and useful
+- Show blocking reasons, not vague green ticks
+- Show actionable next steps where the system is stuck
+
+==================================================
+PHASE 7 — PERFORMANCE / CLEANUP / ARCHITECTURE REFACTOR
+==================================================
+
+Clean up and improve architecture where necessary:
+
+- split huge monolithic frontend/admin files into sane components/hooks/modules
+- remove duplicated logic
+- centralize shared business rules
+- centralize status enums/types
+- centralize target resolution logic
+- centralize validation logic
+- centralize config
+- centralize queue/job orchestration
+
+Do not refactor for vanity.
+Refactor where it measurably improves maintainability, correctness, or security.
+
+==================================================
+PHASE 8 — TESTING / VALIDATION / PROOF
+==================================================
+
+Do real validation, not fake checklist theatre.
+
+A. ADD / UPDATE TESTS
+Cover at least:
+- lead ingestion
+- deduplication
+- contact resolution
+- outreach blocking when no external email
+- proposal generation
+- Stripe webhook idempotency
+- commission creation rules
+- upload validation
+- admin authorization
+- product publish workflow
+- critical route protection
+
+B. RUN END-TO-END CHECKS
+Demonstrate with real internal test data:
+- one website lead with valid prospect email flows through outreach
+- one lead with missing contact becomes NEEDS_CONTACT and does not send
+- one proposal creates payment link correctly
+- one payment webhook moves deal to won and creates commission once
+- one product upload flows through AI review into draft/live correctly
+
+C. VERIFY UI WIRES TO API
+- ensure buttons actually work
+- ensure forms persist correctly
+- ensure dashboard reflects actual DB values
+
+==================================================
+PHASE 9 — IMPORTANT KNOWN ISSUES TO FIX IF PRESENT
+==================================================
+
+Specifically inspect for and repair any of the following if they still exist:
+
+- internal email fallback to thecorporatedeskservice@gmail.com or any internal inbox for prospect outreach
+- onboarding@resend.dev or non-branded sender still used in production flows
+- client-side-only admin auth via sessionStorage
+- hardcoded admin credentials in client bundle
+- fragile setTimeout/setInterval schedulers without persistent job safety
+- synthetic/demo scanners being treated as live production intelligence
+- follow-up scheduling drift bug
+- route mismatch issues
+- dead admin actions
+- fake live mode claims
+- misleading success messages
+- missing route/API wiring for existing schema-backed features
+- weak indexes/constraints causing duplicates
+- monolithic admin files harming maintainability
+- any product/category publish flow that does not actually render on live site
+- any upload flow that accepts files but does not process them into usable outputs
+
+==================================================
+PHASE 10 — FINAL OUTPUT FORMAT
+==================================================
+
+Do the work first, then return a precise report with these sections:
+
+1. EXECUTIVE SUMMARY
+- what was fixed
+- what was completed
+- what remains blocked, if anything
+
+2. HONEST AUDIT RESULTS
+- working
+- partially working
+- broken
+- insecure
+- removed fake/demo logic
+
+3. REVENUE LOOP STATUS
+For each stage:
+- implemented?
+- tested?
+- live-ready?
+- blocking issues?
+
+4. SECURITY HARDENING COMPLETED
+- auth
+- API protection
+- secrets
+- validation
+- rate limiting
+- job locking
+- DB hardening
+- upload safety
+
+5. PRODUCT SYSTEM STATUS
+- upload
+- AI processing
+- review
+- publish
+- live site placement
+
+6. ADMIN / WEBSITE STATUS
+- what pages and panels were added or fixed
+- what buttons/routes were repaired
+- what truthful statuses are now visible
+
+7. TEST / VALIDATION PROOF
+- what exact flows were tested
+- what passed
+- what failed
+- what evidence exists in code/logs/UI
+
+8. REMAINING RISKS
+- only if real
+- do not invent
+- do not hide
+
+9. FILES CHANGED
+- important files touched
+- new files added
+- old files removed if applicable
+
+10. DEPLOYMENT / OPERATIONS NOTES
+- any env vars needed
+- migrations needed
+- admin actions required
+- safe launch steps
+
+FINAL INSTRUCTION
+
+This task is not complete until:
+- the live app is materially stronger
+- the revenue loop is truthful and complete
+- the product/admin workflows are usable
+- security is significantly hardened
+- fake fallbacks are removed
+- the report is honest
+
+Do not stop at analysis.
+Inspect, fix, wire, harden, validate, and then report.

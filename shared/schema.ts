@@ -1357,6 +1357,9 @@ export const outreachThreads = pgTable("outreach_threads", {
   stopReason: text("stop_reason"),
   bookingLink: text("booking_link"),
   bookingStatus: text("booking_status").notNull().default("not_created"), // not_created|link_created|clicked|booked
+  contactReadiness: text("contact_readiness").notNull().default("NEEDS_CONTACT"), // READY_TO_CONTACT|NEEDS_CONTACT|BLOCKED_INTERNAL_EMAIL|BLOCKED_NO_EMAIL|BLOCKED_BOUNCED
+  resolvedEmail: text("resolved_email"),        // cached resolved prospect email
+  resolvedEmailSource: text("resolved_email_source"), // contact_direct|company_generic|generic_fallback
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 }, (t) => ({
@@ -1377,7 +1380,11 @@ export const outreachMessages = pgTable("outreach_messages", {
   body: text("body").notNull(),
   stage: integer("stage").notNull().default(0),
   messageType: text("message_type").notNull().default("intro"), // intro|followup|final|forward_request|reply
-  deliveryStatus: text("delivery_status").notNull().default("draft"), // draft|approved|queued|sent|failed|bounced
+  deliveryStatus: text("delivery_status").notNull().default("draft"), // draft|approved|queued|sent|failed|bounced|blocked
+  recipientEmail: text("recipient_email"),          // actual email used — null means not sent
+  emailSourceType: text("email_source_type"),       // contact_direct|company_generic|generic_fallback|blocked
+  blockingReason: text("blocking_reason"),          // why send was blocked (if deliveryStatus=blocked)
+  resendMessageId: text("resend_message_id"),       // Resend provider message ID
   approvedAt: timestamp("approved_at"),
   sentAt: timestamp("sent_at"),
   openedAt: timestamp("opened_at"),
