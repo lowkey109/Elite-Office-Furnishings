@@ -1974,3 +1974,19 @@ export const ingestedLeads = pgTable("ingested_leads", {
 export const insertIngestedLeadSchema = createInsertSchema(ingestedLeads).omit({ id: true, createdAt: true, updatedAt: true, isDuplicate: true, dedupeKey: true });
 export type InsertIngestedLead = z.infer<typeof insertIngestedLeadSchema>;
 export type IngestedLead = typeof ingestedLeads.$inferSelect;
+
+// ─── Alex Company Runs (Orchestrator Run History) ─────────────────────────────
+export const alexCompanyRuns = pgTable("alex_company_runs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  status: text("status").notNull().default("running"), // running|completed|failed
+  startedAt: timestamp("started_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+  durationMs: integer("duration_ms"),
+  summary: text("summary"),
+  departmentResultsJson: text("department_results_json"),
+  totalActionsTaken: integer("total_actions_taken").default(0),
+  totalBlockers: integer("total_blockers").default(0),
+  triggeredBy: text("triggered_by").default("manual"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type AlexCompanyRun = typeof alexCompanyRuns.$inferSelect;

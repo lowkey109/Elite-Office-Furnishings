@@ -1,0 +1,338 @@
+FINAL PRODUCTION MASTER BUILD — TCD AI COMPANY SYSTEM
+(ALEX + FULL SYNC + ONE-BUTTON CONTROL — NO DEMO MODE)
+
+CRITICAL NON-NEGOTIABLE RULES:
+
+- NO demo logic
+- NO fake/simulated data
+- NO placeholder execution
+- NO synthetic generators
+- NO "pretend" runs
+- NO UI-only orchestration
+
+If pressing the button does not run Alex and ALL departments in one real, synchronized cycle using real data, the task is NOT complete.
+
+If ANY system produces fake outputs instead of real execution, the task is NOT complete.
+
+DO NOT OVER-ENGINEER.
+DO NOT REBUILD WORKING SYSTEMS.
+UPGRADE AND SYNC EXISTING SYSTEMS INTO ONE REAL OPERATING LAYER.
+
+==================================================
+GOAL
+==================================================
+
+Transform the platform into a fully operational, production-grade AI company where:
+
+- Alex is the central executive AI (CEO layer)
+- All systems operate as real AI departments
+- The entire system is fully synchronized
+- ONE BUTTON runs the entire company
+- All outputs are based on real data and real execution
+- The dashboard reflects ONE unified, truthful company state
+- The system is safe, idempotent, and production-ready
+
+==================================================
+1. CREATE ALEX (REAL ORCHESTRATOR)
+==================================================
+
+Alex MUST be a real backend orchestrator service (NOT a chat wrapper).
+
+Alex responsibilities:
+- read full company state from DB/services
+- determine execution priorities
+- call department runners in order
+- collect real outputs
+- aggregate blockers + opportunities
+- return one truthful executive summary
+
+Create:
+
+runTcdAiCompany()
+
+This is the ONLY master execution entry point.
+
+==================================================
+2. DEFINE REAL AI DEPARTMENTS
+==================================================
+
+Create REAL, callable department services:
+
+- runIntelligenceAI()
+- runSalesAI()
+- runOutreachAI()
+- runWorkspaceAI()
+- runMarketingAI()
+- runOperationsAI()
+- runFinanceAI()
+
+Each MUST:
+- operate on real data (DB/API/services)
+- NOT generate fake data
+- NOT simulate execution
+- perform actual actions where possible
+- return structured output:
+
+{
+  department: string,
+  status: "completed" | "partial" | "blocked" | "failed" | "skipped",
+  actionsTaken: string[],
+  blockers: string[],
+  metrics: object,
+  recommendations: string[]
+}
+
+==================================================
+3. REMOVE ALL DEMO / SYNTHETIC LOGIC
+==================================================
+
+Search entire codebase and REMOVE or DISABLE:
+
+- synthetic scanners
+- random data generators
+- fake lead generators
+- demo pipelines
+- placeholder outputs
+- hardcoded mock datasets
+
+Examples to eliminate:
+- random sampling signals
+- fake deal hunter profiles
+- demo radar data
+- “example insights”
+
+Replace with:
+- real DB reads
+- real ingestion pipelines
+- real external signals (if available)
+- OR truthful "no data available"
+
+==================================================
+4. SYNC ALL EXISTING SYSTEMS INTO DEPARTMENTS
+==================================================
+
+Map ALL current systems into departments:
+
+- FreeLayoutPlan / planner → workspaceAI
+- Office Move Radar → intelligenceAI (ONLY real signals)
+- Deal Hunter → intelligenceAI (remove fake logic)
+- email / outreach / follow-ups → outreachAI (real send rules only)
+- leads / deals / quotes → salesAI
+- payments / revenue / commissions → financeAI
+- admin / ops flows → operationsAI
+- marketing/content → marketingAI
+
+NO system may operate outside Alex after this.
+
+==================================================
+5. CREATE ONE SHARED COMPANY STATE
+==================================================
+
+Alex must read a unified real state including:
+
+- leads
+- deals
+- planner usage
+- free-plan upgrades
+- outreach status
+- finance updates
+- operations blockers
+- intelligence signals
+
+All departments MUST write into ONE shared result object.
+
+==================================================
+6. BUILD ONE MASTER BUTTON
+==================================================
+
+Add primary admin button:
+
+RUN TCD AI COMPANY
+
+(or)
+
+SYNC & RUN ALL DEPARTMENTS
+
+This MUST trigger:
+
+POST /api/admin/alex/run-company
+
+==================================================
+7. BACKEND ENDPOINTS
+==================================================
+
+Create:
+
+POST /api/admin/alex/run-company  
+GET /api/admin/alex/run-company/status  
+GET /api/admin/alex/run-company/history  
+
+Requirements:
+- server-side admin authentication
+- job locking (no concurrent runs)
+- run history persistence
+- structured JSON response
+
+==================================================
+8. REQUIRED EXECUTION ORDER
+==================================================
+
+1. Alex reads real company state
+2. runIntelligenceAI()
+3. runSalesAI()
+4. runOutreachAI()
+5. runWorkspaceAI()
+6. runMarketingAI()
+7. runOperationsAI()
+8. runFinanceAI()
+9. Alex aggregates outputs
+10. executive summary returned
+11. dashboard refreshes
+
+==================================================
+9. REAL EMAIL + OUTREACH RULES
+==================================================
+
+Outreach MUST:
+
+- only send if:
+  - domain is verified
+  - valid recipient email exists
+- NEVER use fallback sending
+- NEVER send test emails to real prospects
+- block sends if conditions fail
+- log clear reasons for all blocked sends
+
+==================================================
+10. REAL DATA HANDLING
+==================================================
+
+All departments MUST:
+
+- read from database (Prisma/Drizzle)
+- perform safe updates
+- avoid duplicate writes
+- enforce uniqueness where needed
+
+If no data:
+→ return "no data available"
+→ DO NOT fabricate anything
+
+==================================================
+11. DASHBOARD (REAL COMMAND CENTRE)
+==================================================
+
+Dashboard must show REAL synced results:
+
+A. MAIN BUTTON
+- RUN TCD AI COMPANY
+
+B. ALEX EXECUTIVE SUMMARY
+- what happened
+- opportunities
+- blockers
+- actions taken
+
+C. DEPARTMENT STATUS CARDS
+- Intelligence
+- Sales
+- Outreach
+- Workspace
+- Marketing
+- Operations
+- Finance
+
+Each shows:
+- status
+- actions count
+- blockers count
+
+D. COMPANY METRICS
+- leads added
+- outreach sent
+- plans generated
+- upgrades
+- deals progressed
+- revenue updates
+
+E. BLOCKERS PANEL
+- failed emails
+- missing contacts
+- payment issues
+- planner lockouts
+- system errors
+
+F. QUICK ACTIONS
+- open blocked leads
+- open planner upgrades
+- open outreach failures
+- open finance issues
+- open operations issues
+
+==================================================
+12. SAFETY + RELIABILITY
+==================================================
+
+System MUST:
+
+- prevent concurrent runs (locking)
+- prevent duplicate emails
+- prevent duplicate deals
+- prevent duplicate payments/commissions
+- enforce idempotency
+- log all actions
+- return truthful statuses only
+
+If already running:
+→ block new run
+→ return "already in progress"
+
+==================================================
+13. RUN HISTORY (REQUIRED)
+==================================================
+
+Persist:
+
+- run_id
+- started_at
+- completed_at
+- status
+- department outputs
+- blockers
+- summary
+
+==================================================
+14. STRICT VALIDATION
+==================================================
+
+Before finishing, MUST:
+
+- run full system cycle
+- confirm NO synthetic/demo logic remains
+- confirm NO fallback email used
+- confirm real DB reads occurred
+- confirm real actions executed
+- confirm dashboard updated
+- confirm run history saved
+- confirm duplicate run protection works
+
+==================================================
+15. FINAL RESPONSE FORMAT
+==================================================
+
+Return ONLY:
+
+1. what was built
+2. which demo/synthetic systems were removed
+3. departments created + what each does (REAL logic)
+4. what the one button executes (step-by-step)
+5. dashboard updates
+6. safety mechanisms implemented
+7. validation proof (real execution evidence)
+8. files changed
+
+==================================================
+
+FINAL RULE:
+
+If the platform is not fully synced under Alex, controlled by ONE button, and running ONLY real production logic — the task is NOT complete.

@@ -8073,5 +8073,69 @@ Rules:
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
+  // ── TCD AI Company — Alex Orchestrator ────────────────────────────────────────
+
+  // POST /api/admin/alex/run-company
+  app.post("/api/admin/alex/run-company", async (req, res) => {
+    try {
+      const { runTcdAiCompany, isCompanyRunning } = await import("./services/alex/companyOrchestrator");
+      if (isCompanyRunning()) {
+        return res.status(409).json({ error: "A company run is already in progress. Wait for it to complete.", alreadyRunning: true });
+      }
+      const triggeredBy = (req.body?.triggeredBy as string) ?? "manual";
+      // Run async — respond immediately with accepted, result streamed via status
+      res.json({ accepted: true, message: "Company run started. Poll /api/admin/alex/run-company/status for progress." });
+      // Fire the run (don't await so HTTP response returns immediately)
+      runTcdAiCompany(triggeredBy).catch((err: any) => {
+        console.error("[TCD Company] Orchestrator error:", err.message);
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // POST /api/admin/alex/run-company/sync  (blocking — waits for completion)
+  app.post("/api/admin/alex/run-company/sync", async (req, res) => {
+    try {
+      const { runTcdAiCompany, isCompanyRunning } = await import("./services/alex/companyOrchestrator");
+      if (isCompanyRunning()) {
+        return res.status(409).json({ error: "A company run is already in progress.", alreadyRunning: true });
+      }
+      const triggeredBy = (req.body?.triggeredBy as string) ?? "manual";
+      const result = await runTcdAiCompany(triggeredBy);
+      res.json(result);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // GET /api/admin/alex/run-company/status
+  app.get("/api/admin/alex/run-company/status", async (_req, res) => {
+    try {
+      const { isCompanyRunning, getCurrentRunId, getLatestCompanyRun } = await import("./services/alex/companyOrchestrator");
+      const running = isCompanyRunning();
+      const latest = await getLatestCompanyRun();
+      res.json({
+        isRunning: running,
+        currentRunId: getCurrentRunId(),
+        latest: latest ?? null,
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // GET /api/admin/alex/run-company/history
+  app.get("/api/admin/alex/run-company/history", async (req, res) => {
+    try {
+      const { getCompanyRunHistory } = await import("./services/alex/companyOrchestrator");
+      const limit = Math.min(parseInt((req.query.limit as string) ?? "20"), 50);
+      const history = await getCompanyRunHistory(limit);
+      res.json(history);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   return httpServer;
 }

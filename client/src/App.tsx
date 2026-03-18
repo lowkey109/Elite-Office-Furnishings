@@ -58,6 +58,7 @@ import ProposalEngine from "@/pages/ProposalEngine";
 import BuildingDatabase from "@/pages/BuildingDatabase";
 import AdminProductCommandCentre from "@/pages/AdminProductCommandCentre";
 import AdminLeadEngine from "@/pages/AdminLeadEngine";
+import AdminAlexDashboard from "@/pages/AdminAlexDashboard";
 import { usePageTracking } from "@/lib/usePageTracking";
 
 function Router() {
@@ -124,6 +125,7 @@ function Router() {
       <Route path="/admin/building-database" component={BuildingDatabase} />
       <Route path="/admin/products" component={AdminProductCommandCentre} />
       <Route path="/admin/lead-engine" component={AdminLeadEngine} />
+      <Route path="/admin/alex" component={AdminAlexDashboard} />
       <Route component={NotFound} />
     </Switch>
   );
