@@ -133,8 +133,7 @@ Write the email body only:`;
   }
 
   // ── Template enforcement: replace placeholders + append signature ────────────
-  const contactFirstName = context.contactName?.split(" ")[0] ?? null;
-  const enforcement = enforceTemplate({ html: body, subject, firstName: contactFirstName });
+  const enforcement = enforceTemplate({ html: body, subject, firstName: contactFirstName === "there" ? null : contactFirstName });
 
   let finalBody = body;
   let finalSubject = subject;
