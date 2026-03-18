@@ -523,6 +523,18 @@ export default function AdminCommandCentre() {
     refetchInterval: 30000,
   });
 
+  const { data: revenueLoop, refetch: refetchRevenueLoop } = useQuery<{
+    dealsCreatedToday: number; outreachSentToday: number; meetingsBookedToday: number;
+    proposalsSentToday: number; revenueClosedToday: number; revenueValueToday: number;
+    commissionsGeneratedToday: number; commissionValueToday: number;
+    pipelineBreakdown: Record<string, number>; threadsByStatus: Record<string, number>;
+    asOf: string;
+  }>({
+    queryKey: ["/api/admin/revenue-loop/today"],
+    enabled: authed,
+    refetchInterval: 60000,
+  });
+
   const { data: partnerNetworkSummary, refetch: refetchPartnerNetwork } = useQuery<{
     totalPartners: number; activePartners: number; pendingPartners: number;
     totalOpportunitiesRouted: number; totalProjectsWon: number; totalNetworkRevenue: number;
@@ -2675,6 +2687,81 @@ export default function AdminCommandCentre() {
           </div>
           <div className="px-5 py-3 bg-[rgba(255,255,255,0.02)] border-t border-[rgba(255,255,255,0.04)]">
             <p className="text-white/20 text-[10px]">All payment actions are audit logged. SAFE MODE limits to test-mode operations only.</p>
+          </div>
+        </div>
+
+        {/* ── Revenue Loop — Money View ─────────────────────────────────────── */}
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.3)] rounded-2xl overflow-hidden" data-testid="panel-money-view">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-2">
+              <Flame className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+              <h2 className="text-white font-semibold text-sm">Today's Revenue Loop</h2>
+              <span className="text-white/20 text-[10px]">{revenueLoop ? `as of ${new Date(revenueLoop.asOf).toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" })}` : "loading..."}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => fetch("/api/admin/revenue-loop/trigger-engine", { method: "POST" }).then(() => { refetchRevenueLoop(); })}
+                className="text-[10px] px-2.5 py-1 bg-[rgba(201,168,76,0.1)] hover:bg-[rgba(201,168,76,0.2)] border border-[rgba(201,168,76,0.2)] text-[hsl(43,78%,52%)] rounded-lg font-semibold transition-colors"
+                data-testid="btn-trigger-deal-engine"
+              >Run Engine</button>
+              <button onClick={() => refetchRevenueLoop()} className="text-white/30 hover:text-white/60 transition-colors"><RefreshCw className="w-3.5 h-3.5" /></button>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[rgba(255,255,255,0.04)]">
+            {[
+              { label: "Deals Created", value: revenueLoop?.dealsCreatedToday ?? "—", sub: "today", color: "text-blue-400", icon: "📋" },
+              { label: "Outreach Sent", value: revenueLoop?.outreachSentToday ?? "—", sub: "today", color: "text-violet-400", icon: "📧" },
+              { label: "Meetings Booked", value: revenueLoop?.meetingsBookedToday ?? "—", sub: "today", color: "text-amber-400", icon: "📅" },
+              { label: "Proposals Sent", value: revenueLoop?.proposalsSentToday ?? "—", sub: "today", color: "text-orange-400", icon: "📄" },
+            ].map(({ label, value, sub, color, icon }) => (
+              <div key={label} className="bg-[hsl(220,18%,10%)] p-4">
+                <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">{icon} {label}</p>
+                <p className={`text-2xl font-bold ${color}`}>{value}</p>
+                <p className="text-white/30 text-[10px] mt-0.5">{sub}</p>
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-2 gap-px bg-[rgba(255,255,255,0.04)] mt-px">
+            <div className="bg-[hsl(220,18%,10%)] p-4">
+              <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">💰 Revenue Closed Today</p>
+              <p className="text-2xl font-bold text-green-400">{revenueLoop?.revenueClosedToday ?? 0} deals</p>
+              <p className="text-white/50 text-xs mt-0.5">${((revenueLoop?.revenueValueToday ?? 0) / 100).toLocaleString("en-AU", { maximumFractionDigits: 0 })} AUD</p>
+            </div>
+            <div className="bg-[hsl(220,18%,10%)] p-4">
+              <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">🎯 Commissions Generated</p>
+              <p className="text-2xl font-bold text-[hsl(43,78%,52%)]">{revenueLoop?.commissionsGeneratedToday ?? 0}</p>
+              <p className="text-white/50 text-xs mt-0.5">${((revenueLoop?.commissionValueToday ?? 0) / 100).toLocaleString("en-AU", { maximumFractionDigits: 0 })} AUD</p>
+            </div>
+          </div>
+          {/* Pipeline funnel */}
+          {revenueLoop?.pipelineBreakdown && Object.keys(revenueLoop.pipelineBreakdown).length > 0 && (
+            <div className="px-5 py-3 border-t border-[rgba(255,255,255,0.04)]">
+              <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Pipeline Breakdown</p>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(revenueLoop.pipelineBreakdown).sort((a, b) => b[1] - a[1]).map(([stage, count]) => (
+                  <span key={stage} className="flex items-center gap-1 text-[10px] px-2 py-1 bg-[rgba(255,255,255,0.04)] rounded-lg">
+                    <span className="text-white/50">{stage.replace(/_/g, " ")}</span>
+                    <span className="text-white font-bold">{count}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="px-5 py-3 border-t border-[rgba(255,255,255,0.04)] flex gap-2">
+            <button
+              onClick={() => fetch("/api/admin/revenue-loop/simulate", { method: "POST" }).then(r => r.json()).then(d => { alert(`Loop Simulation: ${d.stepsCompleted}/${d.totalSteps} steps OK\n\n${d.steps.map((s: any) => `${s.status === "ok" ? "✓" : s.status === "error" ? "✗" : "○"} ${s.step}: ${s.detail ?? ""}`).join("\n")}`); refetchRevenueLoop(); })}
+              className="flex-1 flex items-center justify-center gap-2 bg-[rgba(201,168,76,0.08)] hover:bg-[rgba(201,168,76,0.14)] border border-[rgba(201,168,76,0.2)] rounded-xl px-4 py-2.5 text-[hsl(43,78%,52%)] text-xs font-semibold transition-colors"
+              data-testid="btn-simulate-loop"
+            >
+              <Zap className="w-3.5 h-3.5" /> Simulate Full Loop
+            </button>
+            <button
+              onClick={() => fetch("/api/admin/revenue-loop/trigger-dead-loop", { method: "POST" }).then(() => { alert("Dead loop detection triggered"); refetchRevenueLoop(); })}
+              className="flex-1 flex items-center justify-center gap-2 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.06)] rounded-xl px-4 py-2.5 text-white/60 text-xs font-semibold transition-colors"
+              data-testid="btn-dead-loop-detect"
+            >
+              <AlertTriangle className="w-3.5 h-3.5" /> Detect Dead Loops
+            </button>
           </div>
         </div>
 

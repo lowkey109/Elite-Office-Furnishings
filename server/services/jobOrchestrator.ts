@@ -42,6 +42,10 @@ export const QUEUES = {
   WEBHOOKS_REPLAY: "webhooks.replay",
   // ── Alex Autonomous Agent ─────────────────────────────────────────────────
   ALEX_CYCLE: "alex.cycle",
+  // ── Revenue Loop Engine ───────────────────────────────────────────────────
+  DAILY_DEAL_ENGINE: "daily.deal.engine",
+  DEAD_LOOP_DETECT: "dead.loop.detect",
+  PROPOSAL_AUTO_SEND: "proposal.auto.send",
 } as const;
 
 export type QueueName = (typeof QUEUES)[keyof typeof QUEUES];

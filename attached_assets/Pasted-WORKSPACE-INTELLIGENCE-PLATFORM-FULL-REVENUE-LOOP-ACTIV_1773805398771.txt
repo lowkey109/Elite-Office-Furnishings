@@ -1,0 +1,234 @@
+WORKSPACE INTELLIGENCE PLATFORM
+FULL REVENUE LOOP ACTIVATION + ENFORCEMENT PROMPT
+
+ROLE
+
+You are a senior AI systems engineer, revenue systems architect, and autonomous workflow engineer.
+
+You are working on an EXISTING platform that already has:
+
+• signals
+• opportunities
+• partner routing
+• outreach system
+• booking system
+• proposal system
+• stripe payments
+• commissions
+
+Your task is NOT to build features.
+
+Your task is to:
+
+ACTIVATE, VERIFY, and ENFORCE the FULL REVENUE LOOP so the system produces real deal flow.
+
+------------------------------------------------
+
+PRIMARY OBJECTIVE
+
+Guarantee this loop runs DAILY without failure:
+
+Signal → Opportunity → Outreach → Meeting → Proposal → Payment → Commission
+
+------------------------------------------------
+
+STAGE 1 — REAL LOOP VALIDATION
+
+Trace ONE opportunity end-to-end:
+
+1. signal created
+2. opportunity created
+3. partner assigned
+4. outreach triggered
+5. meeting booked
+6. proposal generated
+7. payment processed
+8. deal marked WON
+9. commission created
+
+If ANY step fails:
+→ fix immediately
+
+------------------------------------------------
+
+STAGE 2 — ENFORCE LOOP AUTOMATION
+
+Ensure:
+
+EVERY high-quality opportunity MUST trigger:
+
+• outreach OR
+• booking OR
+• partner routing
+
+NO opportunity should sit idle.
+
+------------------------------------------------
+
+STAGE 3 — OUTREACH HARD CHECK
+
+Verify:
+
+• SAFE_MODE behavior
+• LIVE mode sends real emails
+• resend integration working
+• logs confirm delivery
+
+If not:
+
+FIX email sending pipeline
+
+Add:
+
+delivery_status tracking:
+- queued
+- sent
+- delivered
+- failed
+
+------------------------------------------------
+
+STAGE 4 — RESPONSE + BOOKING LINK
+
+Ensure:
+
+outreach → meeting is connected
+
+When:
+
+• reply detected OR
+• booking link clicked
+
+System must:
+
+→ create meeting
+→ update deal stage = meeting_booked
+
+------------------------------------------------
+
+STAGE 5 — PROPOSAL AUTO-GENERATION
+
+When meeting_booked:
+
+→ auto-generate proposal
+
+Ensure:
+
+• pricing engine used
+• partner included
+• stored in DB
+
+------------------------------------------------
+
+STAGE 6 — PAYMENT ENFORCEMENT
+
+When proposal_sent:
+
+System must:
+
+• attach Stripe payment link
+• track payment status
+
+When payment succeeds:
+
+→ mark deal WON
+→ trigger commission creation
+
+------------------------------------------------
+
+STAGE 7 — DAILY DEAL ENGINE
+
+Create a scheduled job:
+
+daily_deal_engine()
+
+Runs every day:
+
+• finds new opportunities
+• scores them
+• routes to partners
+• triggers outreach
+
+Minimum output target:
+
+→ X new opportunities/day
+→ X outreach/day
+
+------------------------------------------------
+
+STAGE 8 — DEAD LOOP DETECTION
+
+Find opportunities stuck in:
+
+• created
+• routed
+• outreach_sent
+
+If stuck > 48h:
+
+→ re-trigger outreach OR escalate
+
+------------------------------------------------
+
+STAGE 9 — COMMAND CENTRE — MONEY VIEW
+
+Add panels:
+
+• deals created today
+• outreach sent today
+• meetings booked today
+• proposals sent today
+• revenue closed
+• commissions generated
+
+REAL DATA ONLY
+
+------------------------------------------------
+
+STAGE 10 — ALEX = EXECUTION ENGINE
+
+Upgrade Alex:
+
+From:
+→ recommendation
+
+To:
+→ execution
+
+Alex must:
+
+• trigger outreach
+• route partners
+• escalate stalled deals
+• prioritise high-value opportunities
+
+------------------------------------------------
+
+STAGE 11 — FINAL TEST
+
+Simulate:
+
+1 signal
+→ verify FULL loop executes automatically
+
+Confirm:
+
+• outreach sent
+• meeting booked (simulate)
+• proposal created
+• payment triggered
+• commission created
+
+------------------------------------------------
+
+FINAL GOAL
+
+The system must:
+
+NOT just show data
+
+BUT
+
+GENERATE DEALS DAILY
+
+WITHOUT MANUAL INPUT

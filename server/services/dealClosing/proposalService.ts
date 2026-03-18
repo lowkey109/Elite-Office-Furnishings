@@ -192,6 +192,33 @@ export class ProposalService {
 
     await db.update(quotes).set({ pipelineStage: "proposal_sent", updatedAt: new Date() }).where(eq(quotes.id, quoteId));
 
+    // T003: Auto-attach Stripe payment link to proposal (SAFE_MODE-aware)
+    try {
+      if (content.totalIncGst && content.totalIncGst > 0) {
+        const { createPaymentLink } = await import("../stripe/paymentLinkService");
+        const paymentResult = await createPaymentLink({
+          quoteId,
+          clientName: content.clientName,
+          clientEmail: content.email || "billing@thecorporatedesk.com.au",
+          companyName: content.companyName,
+          opportunityId: options?.opportunityId,
+          amount: content.totalIncGst,
+          currency: "aud",
+          linkType: "full",
+          description: `Office Workspace — ${content.companyName || content.clientName}`,
+        });
+        // Store payment link on proposal (via quote's stripePaymentLinkId on dealExecution if available)
+        if (paymentResult.linkUrl && options?.opportunityId) {
+          const { dealExecution } = await import("../../../shared/schema");
+          await db.update(dealExecution)
+            .set({ stripePaymentLinkId: paymentResult.linkId, updatedAt: new Date() })
+            .where(eq(dealExecution.companyId, options.opportunityId));
+        }
+      }
+    } catch (_stripeErr) {
+      // Non-critical — Stripe link failure should not block proposal generation
+    }
+
     return newProposal;
   }
 

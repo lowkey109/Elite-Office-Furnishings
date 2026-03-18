@@ -696,6 +696,206 @@ async function registerPgBossWorkers(): Promise<void> {
     const result = await runAlexCycle();
     console.log(`[AlexAgent] Cycle done: ${result.processed} opps, ${result.outreachTriggered} outreach, ${result.bookingsCreated} bookings, ${result.dealsUpdated} deals`);
   });
+
+  // ── Daily Deal Engine ──────────────────────────────────────────────────────
+  // Runs every day: score opportunities → route to partners → trigger outreach
+  await registerWorker(QUEUES.DAILY_DEAL_ENGINE, async () => {
+    console.log("[DailyDealEngine] Starting daily revenue loop cycle...");
+    const { db: ddb } = await import("../db");
+    const { intelligenceSignals, partnerOpportunities, outreachThreads } = await import("@shared/schema");
+    const { sql: dSql, and, gte, eq, ne } = await import("drizzle-orm");
+
+    // 1. Score & pull new high-quality intelligence signals as opportunities
+    const newOpps = await ddb.select().from(intelligenceSignals)
+      .where(
+        and(
+          gte(intelligenceSignals.opportunityScore, 40),
+          gte(intelligenceSignals.relocationProbability, 30),
+          ne(intelligenceSignals.status, "converted"),
+          ne(intelligenceSignals.status, "archived"),
+        )
+      )
+      .limit(50);
+
+    console.log(`[DailyDealEngine] Found ${newOpps.length} scoreable signals`);
+
+    // 2. Route high-score ones to partner network
+    let routed = 0;
+    const { routeOpportunityToPartners } = await import("./partnerNetwork");
+    const highScoreOpps = newOpps.filter(o => (o.opportunityScore ?? 0) >= 70 && (o.relocationProbability ?? 0) >= 60);
+    for (const opp of highScoreOpps.slice(0, 10)) {
+      try {
+        const result = await routeOpportunityToPartners({
+          opportunityTitle: `${opp.companyName} — Daily Engine Routing`,
+          companyName: opp.companyName,
+          city: opp.city ?? "Sydney",
+          estimatedProjectValue: 80000,
+          sourceType: "daily_deal_engine",
+          sourceId: opp.id,
+        });
+        routed += result.routed;
+      } catch (e) { /* non-critical */ }
+    }
+
+    // 3. Trigger outreach for any signal without an existing outreach thread
+    const existingThreads = await ddb.select({ companyId: outreachThreads.companyId }).from(outreachThreads);
+    const threadsWithCompany = new Set(existingThreads.map(t => t.companyId).filter(Boolean));
+    const needsOutreach = newOpps.filter(o => (o.opportunityScore ?? 0) >= 55 && !threadsWithCompany.has(o.id));
+
+    let outreachCreated = 0;
+    const { createOutreachThread } = await import("./outreach/outreachEngine");
+    for (const opp of needsOutreach.slice(0, 15)) {
+      try {
+        await createOutreachThread({
+          companyId: opp.id,
+          companyName: opp.companyName,
+          city: opp.city,
+          opportunityScore: Math.round(opp.opportunityScore ?? 0),
+          relocationProbability: Math.round(opp.relocationProbability ?? 0),
+          signals: [opp.signalType ?? "daily_scan"],
+        });
+        outreachCreated++;
+      } catch (e) { /* non-critical */ }
+    }
+
+    console.log(`[DailyDealEngine] Done — opps: ${newOpps.length}, routed: ${routed}, outreach: ${outreachCreated}`);
+  });
+
+  // ── Dead Loop Detection ────────────────────────────────────────────────────
+  // Finds stalled deals > 48h and re-triggers outreach or escalates
+  await registerWorker(QUEUES.DEAD_LOOP_DETECT, async () => {
+    console.log("[DeadLoopDetect] Scanning for stalled opportunities...");
+    const { db: ddb } = await import("../db");
+    const { dealExecution, outreachThreads } = await import("@shared/schema");
+    const { and, eq, lte, or, isNull } = await import("drizzle-orm");
+    const { sql: dSql } = await import("drizzle-orm");
+
+    const cutoff48h = new Date(Date.now() - 48 * 60 * 60 * 1000);
+
+    // Find deals stuck in early stages for > 48h
+    const stalledDeals = await ddb.select().from(dealExecution)
+      .where(
+        and(
+          or(
+            eq(dealExecution.stage, "new"),
+            eq(dealExecution.stage, "contacted"),
+            eq(dealExecution.stage, "engaged")
+          ),
+          lte(dealExecution.updatedAt, cutoff48h)
+        )
+      )
+      .limit(30);
+
+    console.log(`[DeadLoopDetect] Found ${stalledDeals.length} stalled deals`);
+
+    let reactivated = 0;
+    let escalated = 0;
+
+    for (const deal of stalledDeals) {
+      try {
+        // Update the deal with a re-trigger note
+        await ddb.update(dealExecution)
+          .set({
+            lastAction: `Dead loop detected — re-triggered at ${new Date().toISOString()}`,
+            nextAction: deal.stage === "new" ? "Create outreach thread" : "Send follow-up message",
+            updatedAt: new Date(),
+            status: "re-triggered",
+          })
+          .where(eq(dealExecution.id, deal.id));
+
+        // If deal has an outreach thread — find and trigger a follow-up
+        if (deal.companyId) {
+          const [thread] = await ddb.select().from(outreachThreads)
+            .where(eq(outreachThreads.companyId, deal.companyId))
+            .limit(1);
+
+          if (thread && ["active", "pending"].includes(thread.status)) {
+            // Queue a follow-up by setting thread to active if paused
+            await ddb.update(outreachThreads)
+              .set({ status: "active", updatedAt: new Date() })
+              .where(eq(outreachThreads.id, thread.id));
+            reactivated++;
+          } else if (!thread) {
+            // No thread — escalate to human
+            await ddb.update(dealExecution)
+              .set({
+                assignedTo: "human",
+                lastAction: "Dead loop escalation — no outreach thread found",
+                nextAction: "Human team: create outreach or call direct",
+                updatedAt: new Date(),
+              })
+              .where(eq(dealExecution.id, deal.id));
+            escalated++;
+          }
+        }
+      } catch (e) { /* non-critical per deal */ }
+    }
+
+    console.log(`[DeadLoopDetect] Done — stalled: ${stalledDeals.length}, reactivated: ${reactivated}, escalated: ${escalated}`);
+  });
+
+  // ── Proposal Auto-Send ────────────────────────────────────────────────────
+  // Finds meeting_booked deals without proposals and auto-generates them
+  await registerWorker(QUEUES.PROPOSAL_AUTO_SEND, async () => {
+    console.log("[ProposalAutoSend] Finding meeting_booked deals without proposals...");
+    const { db: ddb } = await import("../db");
+    const { dealExecution, proposals: propsTable, quotes } = await import("@shared/schema");
+    const { eq, and, notExists } = await import("drizzle-orm");
+
+    const meetingBookedDeals = await ddb.select().from(dealExecution)
+      .where(eq(dealExecution.stage, "meeting_booked"))
+      .limit(20);
+
+    let generated = 0;
+    for (const deal of meetingBookedDeals) {
+      try {
+        // Check if a proposal already exists for this deal (by companyName or opportunityId)
+        const { or } = await import("drizzle-orm");
+        const existingProps = await ddb.select({ id: propsTable.id })
+          .from(propsTable)
+          .where(or(
+            deal.companyId ? eq(propsTable.opportunityId, deal.companyId) : undefined,
+            eq(propsTable.companyName, deal.companyName ?? ""),
+          ))
+          .limit(1);
+        if (existingProps.length > 0) continue;
+
+        // Find a matching quote for this company
+        const [quote] = await ddb.select({ id: quotes.id })
+          .from(quotes)
+          .where(eq(quotes.companyName, deal.companyName ?? ""))
+          .limit(1);
+
+        if (quote) {
+          const { proposalService } = await import("../services/dealClosing/proposalService");
+          await proposalService.generateFromQuote(quote.id, {
+            opportunityId: deal.companyId ?? undefined,
+            title: `Proposal — ${deal.companyName}`,
+          });
+          // Advance deal to proposal_sent
+          await ddb.update(dealExecution)
+            .set({
+              stage: "proposal_sent",
+              lastAction: "Auto-proposal generated post-meeting",
+              nextAction: "Follow up on proposal acceptance",
+              updatedAt: new Date(),
+            })
+            .where(eq(dealExecution.id, deal.id));
+          generated++;
+        } else {
+          // No quote found — create a placeholder deal note
+          await ddb.update(dealExecution)
+            .set({
+              lastAction: "Auto-proposal: No quote found — create manually",
+              nextAction: "Create quote, then auto-proposal will run",
+              updatedAt: new Date(),
+            })
+            .where(eq(dealExecution.id, deal.id));
+        }
+      } catch (e) { /* non-critical per deal */ }
+    }
+    console.log(`[ProposalAutoSend] Done — meeting_booked deals: ${meetingBookedDeals.length}, proposals generated: ${generated}`);
+  });
 }
 
 async function schedulePgBossJobs(): Promise<void> {
@@ -731,7 +931,11 @@ async function schedulePgBossJobs(): Promise<void> {
   // Alex Autonomous Agent + Cluster Engine
   await scheduleJob(QUEUES.CLUSTERS_GENERATE, {}, { repeatEvery: "0 */6 * * *", singletonKey: "clusters-generate" });
   await scheduleJob(QUEUES.ALEX_CYCLE, {}, { repeatEvery: "0 */4 * * *", singletonKey: "alex-cycle" });
-  console.log("[IntelligenceScheduler] pg-boss recurring jobs scheduled (incl. 7 outreach + 6 payment + Alex + clusters = 29 total)");
+  // Revenue Loop Engine
+  await scheduleJob(QUEUES.DAILY_DEAL_ENGINE, {}, { repeatEvery: "0 6 * * *", singletonKey: "daily-deal-engine" });
+  await scheduleJob(QUEUES.DEAD_LOOP_DETECT, {}, { repeatEvery: "0 */6 * * *", singletonKey: "dead-loop-detect" });
+  await scheduleJob(QUEUES.PROPOSAL_AUTO_SEND, {}, { repeatEvery: "0 10 * * *", singletonKey: "proposal-auto-send" });
+  console.log("[IntelligenceScheduler] pg-boss recurring jobs scheduled (incl. 7 outreach + 6 payment + Alex + clusters + 3 revenue-loop = 32 total)");
 }
 
 // ─── Unified scheduler startup ─────────────────────────────────────────────────

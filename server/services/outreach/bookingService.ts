@@ -156,6 +156,17 @@ export async function confirmMeeting(params: {
 
   console.log(`[BookingService] Meeting confirmed for ${thread?.companyName ?? params.threadId} at ${params.meetingTime.toISOString()}`);
 
+  // Auto-queue proposal generation for this meeting
+  try {
+    const { scheduleJob, QUEUES } = await import("../jobOrchestrator");
+    await scheduleJob(QUEUES.PROPOSAL_AUTO_SEND, { threadId: params.threadId, companyId: thread?.companyId }, {
+      singletonKey: `proposal-auto-${params.threadId}`,
+    });
+    console.log(`[BookingService] Queued auto-proposal for ${thread?.companyName ?? params.threadId}`);
+  } catch (e) {
+    // Non-critical — proposal queue failure should not block booking confirmation
+  }
+
   // Update partner_opportunities for this company to 'meeting_booked'
   if (thread?.companyId) {
     try {
