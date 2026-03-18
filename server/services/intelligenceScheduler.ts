@@ -931,11 +931,13 @@ async function schedulePgBossJobs(): Promise<void> {
   // Alex Autonomous Agent + Cluster Engine
   await scheduleJob(QUEUES.CLUSTERS_GENERATE, {}, { repeatEvery: "0 */6 * * *", singletonKey: "clusters-generate" });
   await scheduleJob(QUEUES.ALEX_CYCLE, {}, { repeatEvery: "0 */4 * * *", singletonKey: "alex-cycle" });
-  // Revenue Loop Engine
-  await scheduleJob(QUEUES.DAILY_DEAL_ENGINE, {}, { repeatEvery: "0 6 * * *", singletonKey: "daily-deal-engine" });
-  await scheduleJob(QUEUES.DEAD_LOOP_DETECT, {}, { repeatEvery: "0 */6 * * *", singletonKey: "dead-loop-detect" });
+  // Revenue Loop Engine — high-frequency live mode
+  await scheduleJob(QUEUES.DAILY_DEAL_ENGINE, {}, { repeatEvery: "*/15 * * * *", singletonKey: "daily-deal-engine" });
+  await scheduleJob(QUEUES.DEAD_LOOP_DETECT, {}, { repeatEvery: "0 */2 * * *", singletonKey: "dead-loop-detect" });
   await scheduleJob(QUEUES.PROPOSAL_AUTO_SEND, {}, { repeatEvery: "0 10 * * *", singletonKey: "proposal-auto-send" });
-  console.log("[IntelligenceScheduler] pg-boss recurring jobs scheduled (incl. 7 outreach + 6 payment + Alex + clusters + 3 revenue-loop = 32 total)");
+  // Outreach retry — every 30 minutes
+  await scheduleJob(QUEUES.OUTREACH_FOLLOWUP, {}, { repeatEvery: "*/30 * * * *", singletonKey: "outreach-retry-30m" });
+  console.log("[IntelligenceScheduler] pg-boss recurring jobs scheduled (incl. 7 outreach + 6 payment + Alex + clusters + 3 revenue-loop = 33 total — deal engine: 15min, dead loop: 2h, outreach retry: 30min)");
 }
 
 // ─── Unified scheduler startup ─────────────────────────────────────────────────

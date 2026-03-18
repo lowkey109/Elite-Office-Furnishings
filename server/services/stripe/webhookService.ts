@@ -106,6 +106,8 @@ async function handleStripeEvent(event: Stripe.Event, config: ReturnType<typeof 
       const intent = event.data.object as Stripe.PaymentIntent;
       const quoteId = intent.metadata?.quoteId;
 
+      console.log(`[WebhookService] payment_intent.succeeded — id: ${intent.id}, amount: ${intent.amount}, quoteId: ${quoteId}`);
+
       await db.insert(paymentIntentsLog).values({
         quoteId: quoteId || null,
         opportunityId: intent.metadata?.opportunityId || null,
@@ -133,30 +135,64 @@ async function handleStripeEvent(event: Stripe.Event, config: ReturnType<typeof 
           isSimulated: config.testMode,
         });
 
-        // Stage 7: Update deal_execution → WON on payment success
+        // Mark deal_execution → WON on payment success
         const companyName = intent.metadata?.companyName;
         if (companyName) {
           const existingDeals = await db.select().from(dealExecution)
             .where(eq(dealExecution.companyName, companyName)).limit(1);
+
+          let dealId: string | undefined;
           if (existingDeals.length > 0) {
+            dealId = existingDeals[0].id;
             await db.update(dealExecution).set({
               stage: "won",
               status: "won",
+              dealValueEstimate: Math.round(intent.amount / 100),
               lastAction: `Payment received: $${(intent.amount / 100).toFixed(2)} AUD`,
               wonAt: new Date(),
               updatedAt: new Date(),
-            }).where(eq(dealExecution.id, existingDeals[0].id));
+            }).where(eq(dealExecution.id, dealId));
+            console.log(`[WebhookService] Deal ${dealId} marked WON via payment`);
           } else {
-            await db.insert(dealExecution).values({
+            const [newDeal] = await db.insert(dealExecution).values({
               companyName,
               stage: "won",
               status: "won",
+              dealValueEstimate: Math.round(intent.amount / 100),
               lastAction: `Payment received via Stripe: $${(intent.amount / 100).toFixed(2)} AUD`,
               nextAction: "Deliver order",
               assignedTo: "human",
               stripePaymentLinkId: intent.id,
               wonAt: new Date(),
-            });
+            }).returning();
+            dealId = newDeal?.id;
+          }
+
+          // Auto-create partner commissions if this deal has linked partner opportunities
+          if (dealId) {
+            try {
+              const { commissions: commsTable, partnerOpportunities: partnerOpps, partners: partnersTable } = await import("../../../shared/schema");
+              const linkedOpps = await db.select().from(partnerOpps)
+                .where(eq(partnerOpps.dealExecutionId, dealId));
+              for (const opp of linkedOpps) {
+                const [partner] = await db.select().from(partnersTable).where(eq(partnersTable.id, opp.partnerId)).limit(1);
+                if (!partner) continue;
+                const commRate = partner.commissionRate ?? opp.commissionRate ?? 5;
+                const commValue = Math.round((intent.amount / 100) * (commRate / 100) * 100); // in cents
+                await db.insert(commsTable).values({
+                  partnerId: opp.partnerId,
+                  partnerOpportunityId: opp.id,
+                  dealValue: Math.round(intent.amount / 100),
+                  commissionRate: commRate,
+                  commissionAmount: commValue,
+                  status: "pending",
+                  notes: `Auto-created on payment_intent.succeeded — Stripe ID: ${intent.id}`,
+                }).onConflictDoNothing();
+              }
+              if (linkedOpps.length > 0) console.log(`[WebhookService] Created commissions for ${linkedOpps.length} partner(s)`);
+            } catch (commErr: any) {
+              console.error("[WebhookService] Commission creation failed:", commErr.message);
+            }
           }
         }
       }

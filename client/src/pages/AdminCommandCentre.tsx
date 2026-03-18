@@ -528,11 +528,23 @@ export default function AdminCommandCentre() {
     proposalsSentToday: number; revenueClosedToday: number; revenueValueToday: number;
     commissionsGeneratedToday: number; commissionValueToday: number;
     pipelineBreakdown: Record<string, number>; threadsByStatus: Record<string, number>;
+    totalPipelineValue: number;
+    conversionRates: { signalToMeeting: number; meetingToWon: number; overallWinRate: number };
+    modeStatus: { mode: string; stripeConnected: boolean; emailEnabled: boolean };
     asOf: string;
   }>({
     queryKey: ["/api/admin/revenue-loop/today"],
     enabled: authed,
-    refetchInterval: 60000,
+    refetchInterval: 30000,
+  });
+
+  const { data: systemMode, refetch: refetchMode } = useQuery<{
+    mode: string; safeMode: boolean; stripeMode: string; stripeConnected: boolean;
+    webhookConfigured: boolean; emailEnabled: boolean; label: string;
+  }>({
+    queryKey: ["/api/admin/config/mode"],
+    enabled: authed,
+    refetchInterval: 30000,
   });
 
   const { data: partnerNetworkSummary, refetch: refetchPartnerNetwork } = useQuery<{
@@ -2692,21 +2704,56 @@ export default function AdminCommandCentre() {
 
         {/* ── Revenue Loop — Money View ─────────────────────────────────────── */}
         <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.3)] rounded-2xl overflow-hidden" data-testid="panel-money-view">
+          {/* Header with mode badge */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
             <div className="flex items-center gap-2">
               <Flame className="w-4 h-4 text-[hsl(43,78%,52%)]" />
-              <h2 className="text-white font-semibold text-sm">Today's Revenue Loop</h2>
+              <h2 className="text-white font-semibold text-sm">Revenue Loop</h2>
               <span className="text-white/20 text-[10px]">{revenueLoop ? `as of ${new Date(revenueLoop.asOf).toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" })}` : "loading..."}</span>
             </div>
             <div className="flex items-center gap-2">
+              {/* Live / Safe Mode Toggle */}
+              <div className="flex items-center gap-1.5 bg-[rgba(255,255,255,0.04)] rounded-lg p-0.5 border border-[rgba(255,255,255,0.06)]">
+                <button
+                  onClick={() => fetch("/api/admin/config/mode", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: "safe" }) }).then(() => { refetchMode(); refetchRevenueLoop(); })}
+                  className={`text-[9px] px-2 py-1 rounded-md font-bold transition-colors ${systemMode?.mode === "safe" ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" : "text-white/30 hover:text-white/50"}`}
+                  data-testid="btn-safe-mode"
+                >SAFE</button>
+                <button
+                  onClick={() => fetch("/api/admin/config/mode", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: "live" }) }).then(() => { refetchMode(); refetchRevenueLoop(); })}
+                  className={`text-[9px] px-2 py-1 rounded-md font-bold transition-colors ${systemMode?.mode !== "safe" ? "bg-green-500/20 text-green-400 border border-green-500/30" : "text-white/30 hover:text-white/50"}`}
+                  data-testid="btn-live-mode"
+                >LIVE</button>
+              </div>
+              {/* Stripe status dot */}
+              <div className={`w-2 h-2 rounded-full ${systemMode?.stripeConnected ? "bg-green-400" : "bg-red-400"}`} title={systemMode?.stripeConnected ? "Stripe connected" : "Stripe not connected"} />
               <button
                 onClick={() => fetch("/api/admin/revenue-loop/trigger-engine", { method: "POST" }).then(() => { refetchRevenueLoop(); })}
                 className="text-[10px] px-2.5 py-1 bg-[rgba(201,168,76,0.1)] hover:bg-[rgba(201,168,76,0.2)] border border-[rgba(201,168,76,0.2)] text-[hsl(43,78%,52%)] rounded-lg font-semibold transition-colors"
                 data-testid="btn-trigger-deal-engine"
               >Run Engine</button>
-              <button onClick={() => refetchRevenueLoop()} className="text-white/30 hover:text-white/60 transition-colors"><RefreshCw className="w-3.5 h-3.5" /></button>
+              <button onClick={() => { refetchRevenueLoop(); refetchMode(); }} className="text-white/30 hover:text-white/60 transition-colors"><RefreshCw className="w-3.5 h-3.5" /></button>
             </div>
           </div>
+
+          {/* System status bar */}
+          <div className="flex items-center gap-4 px-5 py-2 bg-[rgba(255,255,255,0.02)] border-b border-[rgba(255,255,255,0.04)]">
+            <span className={`flex items-center gap-1.5 text-[10px] font-semibold ${systemMode?.mode !== "safe" ? "text-green-400" : "text-amber-400"}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${systemMode?.mode !== "safe" ? "bg-green-400 animate-pulse" : "bg-amber-400"}`} />
+              {systemMode?.label ?? "Loading..."}
+            </span>
+            <span className={`text-[10px] ${systemMode?.stripeConnected ? "text-green-400/70" : "text-red-400/70"}`}>
+              {systemMode?.stripeConnected ? "✓ Stripe" : "✗ Stripe"}
+            </span>
+            <span className={`text-[10px] ${systemMode?.webhookConfigured ? "text-green-400/70" : "text-red-400/70"}`}>
+              {systemMode?.webhookConfigured ? "✓ Webhook" : "✗ Webhook"}
+            </span>
+            <span className={`text-[10px] ${systemMode?.emailEnabled ? "text-green-400/70" : "text-amber-400/70"}`}>
+              {systemMode?.emailEnabled ? "✓ Email" : "⏸ Email (safe)"}
+            </span>
+          </div>
+
+          {/* Today's KPIs */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[rgba(255,255,255,0.04)]">
             {[
               { label: "Deals Created", value: revenueLoop?.dealsCreatedToday ?? "—", sub: "today", color: "text-blue-400", icon: "📋" },
@@ -2721,18 +2768,48 @@ export default function AdminCommandCentre() {
               </div>
             ))}
           </div>
-          <div className="grid grid-cols-2 gap-px bg-[rgba(255,255,255,0.04)] mt-px">
+
+          {/* Revenue + Commissions + Pipeline Value */}
+          <div className="grid grid-cols-3 gap-px bg-[rgba(255,255,255,0.04)] mt-px">
             <div className="bg-[hsl(220,18%,10%)] p-4">
-              <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">💰 Revenue Closed Today</p>
-              <p className="text-2xl font-bold text-green-400">{revenueLoop?.revenueClosedToday ?? 0} deals</p>
-              <p className="text-white/50 text-xs mt-0.5">${((revenueLoop?.revenueValueToday ?? 0) / 100).toLocaleString("en-AU", { maximumFractionDigits: 0 })} AUD</p>
+              <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">💰 Revenue Closed</p>
+              <p className="text-2xl font-bold text-green-400">{revenueLoop?.revenueClosedToday ?? 0}</p>
+              <p className="text-white/50 text-xs mt-0.5">${((revenueLoop?.revenueValueToday ?? 0) / 100).toLocaleString("en-AU", { maximumFractionDigits: 0 })} AUD today</p>
             </div>
             <div className="bg-[hsl(220,18%,10%)] p-4">
-              <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">🎯 Commissions Generated</p>
+              <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">🎯 Commissions</p>
               <p className="text-2xl font-bold text-[hsl(43,78%,52%)]">{revenueLoop?.commissionsGeneratedToday ?? 0}</p>
-              <p className="text-white/50 text-xs mt-0.5">${((revenueLoop?.commissionValueToday ?? 0) / 100).toLocaleString("en-AU", { maximumFractionDigits: 0 })} AUD</p>
+              <p className="text-white/50 text-xs mt-0.5">${((revenueLoop?.commissionValueToday ?? 0) / 100).toLocaleString("en-AU", { maximumFractionDigits: 0 })} AUD today</p>
+            </div>
+            <div className="bg-[hsl(220,18%,10%)] p-4">
+              <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">📊 Pipeline Value</p>
+              <p className="text-2xl font-bold text-cyan-400">${(revenueLoop?.totalPipelineValue ?? 0).toLocaleString("en-AU", { maximumFractionDigits: 0 })}</p>
+              <p className="text-white/50 text-xs mt-0.5">active deals</p>
             </div>
           </div>
+
+          {/* Conversion Rates */}
+          {revenueLoop?.conversionRates && (
+            <div className="px-5 py-3 border-t border-[rgba(255,255,255,0.04)]">
+              <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Conversion Rates</p>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: "Signal → Meeting", value: revenueLoop.conversionRates.signalToMeeting },
+                  { label: "Meeting → Won", value: revenueLoop.conversionRates.meetingToWon },
+                  { label: "Overall Win Rate", value: revenueLoop.conversionRates.overallWinRate },
+                ].map(({ label, value }) => (
+                  <div key={label} className="text-center">
+                    <div className="text-lg font-bold text-white">{value}%</div>
+                    <div className="text-white/40 text-[9px]">{label}</div>
+                    <div className="h-1 bg-[rgba(255,255,255,0.06)] rounded-full mt-1.5 overflow-hidden">
+                      <div className="h-full bg-[hsl(43,78%,52%)] rounded-full" style={{ width: `${value}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Pipeline funnel */}
           {revenueLoop?.pipelineBreakdown && Object.keys(revenueLoop.pipelineBreakdown).length > 0 && (
             <div className="px-5 py-3 border-t border-[rgba(255,255,255,0.04)]">
@@ -2747,21 +2824,43 @@ export default function AdminCommandCentre() {
               </div>
             </div>
           )}
-          <div className="px-5 py-3 border-t border-[rgba(255,255,255,0.04)] flex gap-2">
+
+          {/* Action buttons */}
+          <div className="px-5 py-3 border-t border-[rgba(255,255,255,0.04)] flex flex-col gap-2">
+            {/* Live loop execution */}
             <button
-              onClick={() => fetch("/api/admin/revenue-loop/simulate", { method: "POST" }).then(r => r.json()).then(d => { alert(`Loop Simulation: ${d.stepsCompleted}/${d.totalSteps} steps OK\n\n${d.steps.map((s: any) => `${s.status === "ok" ? "✓" : s.status === "error" ? "✗" : "○"} ${s.step}: ${s.detail ?? ""}`).join("\n")}`); refetchRevenueLoop(); })}
-              className="flex-1 flex items-center justify-center gap-2 bg-[rgba(201,168,76,0.08)] hover:bg-[rgba(201,168,76,0.14)] border border-[rgba(201,168,76,0.2)] rounded-xl px-4 py-2.5 text-[hsl(43,78%,52%)] text-xs font-semibold transition-colors"
-              data-testid="btn-simulate-loop"
+              onClick={() => {
+                const confirmed = window.confirm("Run LIVE full loop now?\n\nThis will:\n• Create a real signal\n• Start outreach sequence\n• Book a test meeting\n• Generate a proposal\n• Create a REAL Stripe payment link\n\nProceed?");
+                if (!confirmed) return;
+                fetch("/api/admin/revenue-loop/simulate?live=true", { method: "POST", headers: { "Content-Type": "application/json" } })
+                  .then(r => r.json())
+                  .then(d => {
+                    const paymentInfo = d.paymentLinkUrl ? `\n\n💳 Payment Link: ${d.paymentLinkUrl}` : "";
+                    alert(`LIVE Loop: ${d.stepsCompleted}/${d.totalSteps} steps OK${paymentInfo}\n\n${d.steps.map((s: any) => `${s.status === "ok" ? "✓" : s.status === "error" ? "✗" : "○"} ${s.step}: ${s.detail ?? ""}`).join("\n")}`);
+                    refetchRevenueLoop();
+                  });
+              }}
+              className="w-full flex items-center justify-center gap-2 bg-[rgba(34,197,94,0.08)] hover:bg-[rgba(34,197,94,0.14)] border border-[rgba(34,197,94,0.25)] rounded-xl px-4 py-2.5 text-green-400 text-xs font-bold transition-colors"
+              data-testid="btn-live-loop"
             >
-              <Zap className="w-3.5 h-3.5" /> Simulate Full Loop
+              <Zap className="w-3.5 h-3.5" /> Run Full Loop NOW (LIVE)
             </button>
-            <button
-              onClick={() => fetch("/api/admin/revenue-loop/trigger-dead-loop", { method: "POST" }).then(() => { alert("Dead loop detection triggered"); refetchRevenueLoop(); })}
-              className="flex-1 flex items-center justify-center gap-2 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.06)] rounded-xl px-4 py-2.5 text-white/60 text-xs font-semibold transition-colors"
-              data-testid="btn-dead-loop-detect"
-            >
-              <AlertTriangle className="w-3.5 h-3.5" /> Detect Dead Loops
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => fetch("/api/admin/revenue-loop/simulate", { method: "POST" }).then(r => r.json()).then(d => { alert(`Simulation: ${d.stepsCompleted}/${d.totalSteps} steps OK\n\n${d.steps.map((s: any) => `${s.status === "ok" ? "✓" : s.status === "error" ? "✗" : "○"} ${s.step}: ${s.detail ?? ""}`).join("\n")}`); refetchRevenueLoop(); })}
+                className="flex-1 flex items-center justify-center gap-2 bg-[rgba(201,168,76,0.08)] hover:bg-[rgba(201,168,76,0.14)] border border-[rgba(201,168,76,0.2)] rounded-xl px-4 py-2.5 text-[hsl(43,78%,52%)] text-xs font-semibold transition-colors"
+                data-testid="btn-simulate-loop"
+              >
+                <Zap className="w-3 h-3" /> Simulate Full Loop
+              </button>
+              <button
+                onClick={() => fetch("/api/admin/revenue-loop/trigger-dead-loop", { method: "POST" }).then(() => { alert("Dead loop detection triggered"); refetchRevenueLoop(); })}
+                className="flex-1 flex items-center justify-center gap-2 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.06)] rounded-xl px-4 py-2.5 text-white/60 text-xs font-semibold transition-colors"
+                data-testid="btn-dead-loop-detect"
+              >
+                <AlertTriangle className="w-3 h-3" /> Detect Dead Loops
+              </button>
+            </div>
           </div>
         </div>
 

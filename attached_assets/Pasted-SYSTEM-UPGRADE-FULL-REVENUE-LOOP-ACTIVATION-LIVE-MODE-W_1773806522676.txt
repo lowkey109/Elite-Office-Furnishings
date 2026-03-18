@@ -1,0 +1,140 @@
+SYSTEM UPGRADE: FULL REVENUE LOOP ACTIVATION + LIVE MODE + WEBSITE LOOP
+
+You are now switching the platform from SAFE_MODE simulation into FULL LIVE PRODUCTION MODE.
+
+Your tasks are:
+
+----------------------------------------
+1. DISABLE SAFE MODE GLOBALLY
+----------------------------------------
+
+- Locate all SAFE_MODE flags across the system
+- Set SAFE_MODE = false at global config level
+- Ensure all services respect LIVE mode:
+  - proposalService
+  - paymentService
+  - outreach/email service
+  - simulation endpoints
+
+- Remove any logic that skips payment creation when SAFE_MODE is on
+
+----------------------------------------
+2. STRIPE LIVE INTEGRATION (CRITICAL)
+----------------------------------------
+
+- Ensure Stripe is fully wired:
+
+ENV variables required:
+- STRIPE_SECRET_KEY
+- STRIPE_WEBHOOK_SECRET
+
+- In createPaymentLink():
+  - Generate REAL Stripe payment links
+  - Include:
+    - dealId metadata
+    - customer email
+    - amount (AUD)
+    - success/cancel URLs
+
+- Add webhook endpoint:
+POST /api/webhooks/stripe
+
+Handle events:
+- checkout.session.completed
+- payment_intent.succeeded
+
+On success:
+- mark deal as WON
+- trigger commission creation
+- update revenue dashboard
+
+----------------------------------------
+3. FORCE FULL LOOP TEST (REAL)
+----------------------------------------
+
+- Modify /api/admin/revenue-loop/simulate
+
+Add parameter:
+?live=true
+
+When live=true:
+- DO NOT simulate anything
+- Actually:
+  signal → outreach → booking → proposal → payment → won → commission
+
+Return full trace with:
+- dealId
+- email sent status
+- payment link URL
+- payment status
+
+----------------------------------------
+4. WEBSITE-WIDE LOOP INTEGRATION
+----------------------------------------
+
+- Connect all lead entry points:
+
+FOR:
+- Quote Builder
+- Contact forms
+- Upload Floor Plan
+- Admin manual leads
+
+DO:
+- Auto-create deal
+- Push into intelligenceSignals
+- Trigger deal engine
+
+----------------------------------------
+5. AUTO-LOOP CONTINUOUS EXECUTION
+----------------------------------------
+
+Upgrade scheduler:
+
+Instead of only 6am run:
+
+- Run deal engine every 15 minutes
+- Run dead loop detector every 2 hours
+- Run outreach retry worker every 30 minutes
+
+Ensure:
+- No duplicate jobs
+- Add job locking
+
+----------------------------------------
+6. ADMIN COMMAND CENTRE – LIVE CONTROLS
+----------------------------------------
+
+Add controls:
+
+- Toggle LIVE / SAFE mode
+- Run full loop now (LIVE)
+- View:
+  - revenue today
+  - conversion rates
+  - pipeline value
+  - commissions
+
+----------------------------------------
+7. FAILSAFE + LOGGING
+----------------------------------------
+
+- Add logs for:
+  - payment link creation
+  - email send success/fail
+  - webhook events
+  - deal state transitions
+
+----------------------------------------
+FINAL OUTPUT REQUIRED
+----------------------------------------
+
+Return:
+1. Confirmation SAFE_MODE is OFF
+2. Stripe connection status
+3. Example live payment link
+4. Full loop execution result
+5. Revenue dashboard sample
+
+DO NOT SIMULATE.
+THIS MUST BE LIVE.

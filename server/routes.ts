@@ -861,6 +861,55 @@ ${allUrls.map(u => `  <url>
         budget: lead.budget,
       }).catch(err => console.error("[followup] Failed to start sequence:", err));
 
+      // Push into intelligence pipeline + deal execution (non-blocking)
+      if (lead.company) {
+        (async () => {
+          try {
+            const { dealHunterSignals: dhs, dealExecution: de } = await import("@shared/schema");
+            const bucket = `lead-${Date.now()}`;
+            // 1. Push to dealHunterSignals
+            await db.insert(dhs).values({
+              companyName: lead.company ?? "Unknown",
+              normalizedCompanyName: (lead.company ?? "Unknown").toLowerCase().trim(),
+              city: lead.officeLocation ?? "Sydney",
+              normalizedCity: (lead.officeLocation ?? "Sydney").toLowerCase().trim(),
+              state: "NSW",
+              country: "Australia",
+              industry: "Commercial",
+              signalType: "relocation_signal",
+              signalSource: "manual",
+              signalWindowBucket: bucket,
+              signalStrengthScore: opp.opportunityScore ?? 50,
+              signalConfidence: opp.opportunityScore ?? 50,
+              relocationProbability: opp.opportunityScore && opp.opportunityScore > 60 ? 70 : 40,
+              officeChangeProbability: opp.opportunityScore && opp.opportunityScore > 60 ? 65 : 35,
+              probabilityTier: opp.opportunityTier ?? "medium",
+              recommendedAction: opp.nextAction ?? "Follow up",
+            } as any).onConflictDoNothing();
+
+            // 2. Push to deal execution pipeline
+            const existing = await db.select({ id: de.id }).from(de)
+              .where(eq(de.companyName, lead.company ?? "")).limit(1);
+            if (existing.length === 0) {
+              await db.insert(de).values({
+                companyName: lead.company ?? "Unknown",
+                status: "active",
+                stage: "new",
+                assignedTo: "alex",
+                opportunityScore: opp.opportunityScore ?? 50,
+                city: lead.officeLocation ?? "Sydney",
+                industry: "Commercial",
+                lastAction: `New ${lead.type} lead from website`,
+                nextAction: opp.nextAction ?? "Send intro email",
+              });
+            }
+            console.log(`[LeadEngine] ${lead.company} pushed to deal pipeline (score: ${opp.opportunityScore})`);
+          } catch (e: any) {
+            console.error("[LeadEngine] Pipeline push failed:", e.message);
+          }
+        })();
+      }
+
       // Non-blocking customer confirmation email based on lead type
       const lt = (lead.type || "").toLowerCase();
       if (lt === "quote-request" || lt === "quote-builder") {
@@ -3540,6 +3589,42 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
       const seq = String(existing.length + 1).padStart(4, "0");
       const quoteNumber = `TCD-${ym}-${seq}`;
       const created = await storage.createQuote({ ...body, quoteNumber });
+
+      // Push quote into deal execution pipeline (non-blocking)
+      if (created.companyName) {
+        (async () => {
+          try {
+            const { dealExecution: de } = await import("@shared/schema");
+            const existingDeal = await db.select({ id: de.id }).from(de)
+              .where(eq(de.companyName, created.companyName ?? "")).limit(1);
+            if (existingDeal.length > 0) {
+              // Advance existing deal to proposal stage
+              await db.update(de).set({
+                stage: "proposal_sent",
+                dealValueEstimate: created.totalIncGst ? Math.round(created.totalIncGst / 100) : undefined,
+                lastAction: `Quote ${quoteNumber} created`,
+                nextAction: "Send proposal and follow up",
+                updatedAt: new Date(),
+              }).where(eq(de.id, existingDeal[0].id));
+            } else {
+              await db.insert(de).values({
+                companyName: created.companyName ?? "Unknown",
+                status: "active",
+                stage: "proposal_sent",
+                assignedTo: "alex",
+                dealValueEstimate: created.totalIncGst ? Math.round(created.totalIncGst / 100) : undefined,
+                city: "Sydney",
+                lastAction: `Quote ${quoteNumber} created`,
+                nextAction: "Send proposal and follow up",
+              });
+            }
+            console.log(`[QuoteEngine] Quote ${quoteNumber} pushed to deal pipeline for ${created.companyName}`);
+          } catch (e: any) {
+            console.error("[QuoteEngine] Pipeline push failed:", e.message);
+          }
+        })();
+      }
+
       res.json(created);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
@@ -6986,15 +7071,36 @@ Rules:
       const commissionsToday = await ddb.select({ count: dSql<number>`count(*)::int`, totalAmount: dSql<number>`coalesce(sum(commission_amount), 0)::bigint` }).from(commsTable)
         .where(gte(commsTable.createdAt, todayStart));
 
-      // Pipeline stage breakdown
-      const allDeals = await ddb.select({ stage: dealExecution.stage }).from(dealExecution);
+      // Pipeline stage breakdown + total weighted value
+      const allDeals = await ddb.select({ stage: dealExecution.stage, dealValueEstimate: dealExecution.dealValueEstimate }).from(dealExecution);
       const pipeline: Record<string, number> = {};
-      for (const d of allDeals) { pipeline[d.stage] = (pipeline[d.stage] ?? 0) + 1; }
+      let totalPipelineValue = 0;
+      for (const d of allDeals) {
+        pipeline[d.stage] = (pipeline[d.stage] ?? 0) + 1;
+        if (d.stage !== "won" && d.stage !== "lost") totalPipelineValue += (d.dealValueEstimate ?? 0);
+      }
 
       // Outreach threads by status
       const allThreads = await ddb.select({ status: outreachThreads.status }).from(outreachThreads);
       const threadsByStatus: Record<string, number> = {};
       for (const t of allThreads) { threadsByStatus[t.status] = (threadsByStatus[t.status] ?? 0) + 1; }
+
+      // Conversion rates (all-time)
+      const totalDeals = allDeals.length;
+      const wonDeals = allDeals.filter(d => d.stage === "won").length;
+      const meetingDeals = allDeals.filter(d => ["meeting_booked", "proposal_sent", "won"].includes(d.stage)).length;
+      const conversionRates = {
+        signalToMeeting: totalDeals > 0 ? Math.round((meetingDeals / totalDeals) * 100) : 0,
+        meetingToWon: meetingDeals > 0 ? Math.round((wonDeals / meetingDeals) * 100) : 0,
+        overallWinRate: totalDeals > 0 ? Math.round((wonDeals / totalDeals) * 100) : 0,
+      };
+
+      // System mode status
+      const modeStatus = {
+        mode: process.env.SAFE_MODE === "true" ? "safe" : "live",
+        stripeConnected: !!process.env.STRIPE_SECRET_KEY,
+        emailEnabled: process.env.SAFE_MODE !== "true",
+      };
 
       res.json({
         dealsCreatedToday: dealsToday[0]?.count ?? 0,
@@ -7002,11 +7108,14 @@ Rules:
         meetingsBookedToday: meetingsToday[0]?.count ?? 0,
         proposalsSentToday: proposalsToday[0]?.count ?? 0,
         revenueClosedToday: wonToday[0]?.count ?? 0,
-        revenueValueToday: Number(wonToday[0]?.totalValue ?? 0),
+        revenueValueToday: Number(wonToday[0]?.totalValue ?? 0) * 100, // return in cents for consistency
         commissionsGeneratedToday: commissionsToday[0]?.count ?? 0,
         commissionValueToday: Number(commissionsToday[0]?.totalAmount ?? 0),
         pipelineBreakdown: pipeline,
+        totalPipelineValue,
         threadsByStatus,
+        conversionRates,
+        modeStatus,
         asOf: new Date().toISOString(),
       });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
@@ -7030,10 +7139,45 @@ Rules:
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
+  // ── Live Mode Toggle ────────────────────────────────────────────────────────
+  // GET  /api/admin/config/mode — returns current mode
+  // POST /api/admin/config/mode — { mode: "live" | "safe" } to toggle at runtime
+  app.get("/api/admin/config/mode", (_req, res) => {
+    const safeMode = process.env.SAFE_MODE === "true";
+    const stripeMode = process.env.STRIPE_MODE ?? "test";
+    const hasStripeKey = !!process.env.STRIPE_SECRET_KEY;
+    const hasWebhookSecret = !!process.env.STRIPE_WEBHOOK_SECRET;
+    res.json({
+      mode: safeMode ? "safe" : "live",
+      safeMode,
+      stripeMode,
+      stripeConnected: hasStripeKey,
+      webhookConfigured: hasWebhookSecret,
+      emailEnabled: !safeMode,
+      label: safeMode ? "SAFE MODE (simulation)" : stripeMode === "live" ? "LIVE MODE" : "TEST MODE (real Stripe, test key)",
+    });
+  });
+
+  app.post("/api/admin/config/mode", (req, res) => {
+    const { mode } = req.body as { mode?: string };
+    if (mode === "live") {
+      process.env.SAFE_MODE = "false";
+      console.log("[Config] Switched to LIVE MODE");
+      res.json({ success: true, mode: "live", message: "Live mode activated — emails, Stripe, and CRM active" });
+    } else if (mode === "safe") {
+      process.env.SAFE_MODE = "true";
+      console.log("[Config] Switched to SAFE MODE");
+      res.json({ success: true, mode: "safe", message: "Safe mode activated — all outbound actions suppressed" });
+    } else {
+      res.status(400).json({ error: "mode must be 'live' or 'safe'" });
+    }
+  });
+
   // POST /api/admin/revenue-loop/simulate — full loop simulation
   app.post("/api/admin/revenue-loop/simulate", async (req, res) => {
     const steps: Array<{ step: string; status: "ok" | "error" | "skipped"; detail?: string }> = [];
-    const SAFE = process.env.SAFE_MODE !== "false";
+    const liveMode = req.query.live === "true" || req.body?.live === true;
+    const SAFE = !liveMode && process.env.SAFE_MODE !== "false";
 
     try {
       const { db: ddb } = await import("./db");
@@ -7137,8 +7281,26 @@ Rules:
       // Step 6: Check auto-proposal queue
       steps.push({ step: "6. Proposal Auto-Generate", status: "ok", detail: "Queued via PROPOSAL_AUTO_SEND worker" });
 
-      // Step 7: Simulate payment — create Stripe payment link (if not SAFE_MODE)
-      steps.push({ step: "7. Payment Link", status: SAFE ? "skipped" : "ok", detail: SAFE ? "SAFE_MODE — Stripe skipped" : "Would attach Stripe payment link to proposal" });
+      // Step 7: Create Stripe payment link (real when live=true, simulated otherwise)
+      let paymentLinkUrl: string | undefined;
+      try {
+        const { createPaymentLink } = await import("./services/stripe/paymentLinkService");
+        const plResult = await createPaymentLink({
+          quoteId: "loop-sim-quote",
+          clientName: "SimLoop Corp",
+          clientEmail: "billing@simloop.com.au",
+          companyName: "SimLoop Corp (Test)",
+          opportunityId: testOppId,
+          amount: 150000,
+          currency: "aud",
+          linkType: "full",
+          description: "Office Furniture — Loop Test",
+        });
+        paymentLinkUrl = plResult.linkUrl;
+        steps.push({ step: "7. Payment Link", status: "ok", detail: `${plResult.label} — ${plResult.linkUrl}` });
+      } catch (e: any) {
+        steps.push({ step: "7. Payment Link", status: "error", detail: e.message });
+      }
 
       // Step 8: Simulate deal won + commission
       try {
@@ -7174,6 +7336,7 @@ Rules:
       const successCount = steps.filter(s => s.status === "ok").length;
       res.json({
         success: true,
+        liveMode,
         safeMode: SAFE,
         loopComplete: successCount >= 7,
         stepsCompleted: successCount,
@@ -7181,6 +7344,7 @@ Rules:
         steps,
         testOpportunityId: testOppId,
         testThreadId: threadId,
+        paymentLinkUrl,
       });
     } catch (err: any) {
       res.status(500).json({ error: err.message, steps });
