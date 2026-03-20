@@ -1,232 +1,135 @@
-/**
- * TCD AI Company Orchestrator — runTcdAiCompany()
- *
- * The single master entry point that runs all AI departments in sequence,
- * aggregates real outputs, and returns an executive summary.
- *
- * Safety: In-memory lock prevents concurrent runs.
- * Persistence: Every run is written to alex_company_runs table.
- */
+export type DepartmentName =
+  | "finance"
+  | "clientExperience"
+  | "intelligence"
+  | "marketing"
+  | "operations"
+  | "revenueOperations"
+  | "supplier"
+  | "workspace";
 
-import { db } from "../../db";
-import { alexCompanyRuns } from "../../../shared/schema";
-import { desc, eq } from "drizzle-orm";
-
-import { runIntelligenceAI } from "./departments/intelligenceAI";
-import { runSalesAI } from "./departments/salesAI";
-import { runOutreachAI } from "./departments/outreachAI";
-import { runWorkspaceAI } from "./departments/workspaceAI";
-import { runMarketingAI } from "./departments/marketingAI";
-import { runOperationsAI } from "./departments/operationsAI";
-import { runFinanceAI } from "./departments/financeAI";
-
-// ── Shared type exported to all department files ───────────────────────────────
+export interface DepartmentContext {
+  companyName?: string;
+  userRequest?: string;
+  safeMode?: boolean;
+  leadId?: number | string;
+  companyId?: number | string;
+  metadata?: Record<string, unknown>;
+}
 
 export interface DepartmentResult {
-  department: string;
-  status: "completed" | "partial" | "blocked" | "failed" | "skipped";
-  actionsTaken: string[];
-  blockers: string[];
-  metrics: Record<string, number | string>;
-  recommendations: string[];
-  executionMs: number;
-  recordsUpdated: string[]; // human-readable: "deal_execution#abc123: stage signal_detected → contacted"
-  before: Record<string, number | string>;
-  after: Record<string, number | string>;
-}
-
-export interface CompanyRunResult {
-  runId: string;
-  status: "completed" | "partial" | "failed";
-  startedAt: Date;
-  completedAt: Date;
-  durationMs: number;
-  departments: DepartmentResult[];
+  department: DepartmentName;
   summary: string;
-  totalActionsTaken: number;
-  totalBlockers: number;
-  allBlockers: string[];
-  allRecommendations: string[];
-  metrics: Record<string, unknown>;
+  actions: string[];
+  blockers: string[];
+  recordsUpdated: string[];
+  success: boolean;
 }
 
-// ── Global run lock (prevents concurrent runs) ─────────────────────────────────
-
-let _isRunning = false;
-let _currentRunId: string | null = null;
-
-export function isCompanyRunning(): boolean {
-  return _isRunning;
+export interface DepartmentModule {
+  run: (context: DepartmentContext) => Promise<DepartmentResult>;
 }
 
-export function getCurrentRunId(): string | null {
-  return _currentRunId;
-}
+import { runFinanceAI } from "./departments/finance/financeAI.js";
+import { runClientExperienceAI } from "./departments/clientExperience/clientExperienceAI.js";
+import { runIntelligenceAI } from "./departments/intelligence/intelligenceAI.js";
+import { runMarketingAI } from "./departments/marketing/marketingAI.js";
+import { runOperationsAI } from "./departments/operations/operationsAI.js";
+import { runSalesAI } from "./departments/revenueOperations/salesAI.js";
+import { runSupplierAI } from "./departments/supplier/supplierAI.js";
+import { runWorkspaceAI } from "./departments/workspace/workspaceAI.js";
 
-// ── Main Orchestrator ──────────────────────────────────────────────────────────
+const departmentRegistry: Record<DepartmentName, DepartmentModule> = {
+  finance: { run: runFinanceAI },
+  clientExperience: { run: runClientExperienceAI },
+  intelligence: { run: runIntelligenceAI },
+  marketing: { run: runMarketingAI },
+  operations: { run: runOperationsAI },
+  revenueOperations: { run: runSalesAI },
+  supplier: { run: runSupplierAI },
+  workspace: { run: runWorkspaceAI },
+};
 
-export async function runTcdAiCompany(triggeredBy = "manual"): Promise<CompanyRunResult> {
-  if (_isRunning) {
-    throw new Error("A company run is already in progress. Wait for it to complete.");
+export async function runDepartment(
+  department: DepartmentName,
+  context: DepartmentContext = {},
+): Promise<DepartmentResult> {
+  const module = departmentRegistry[department];
+
+  if (!module) {
+    return {
+      department,
+      summary: `Department "${department}" is not registered.`,
+      actions: [],
+      blockers: [`Department "${department}" is missing from the registry.`],
+      recordsUpdated: [],
+      success: false,
+    };
   }
 
-  _isRunning = true;
-  const startedAt = new Date();
+  try {
+    return await module.run(context);
+  } catch (error) {
+    return {
+      department,
+      summary: `Department "${department}" failed during execution.`,
+      actions: [],
+      blockers: [
+        error instanceof Error ? error.message : "Unknown department error",
+      ],
+      recordsUpdated: [],
+      success: false,
+    };
+  }
+}
 
-  // Create run record
-  const [runRow] = await db.insert(alexCompanyRuns).values({
-    status: "running",
-    triggeredBy,
-    startedAt,
-  }).returning();
+export async function runDepartments(
+  departments: DepartmentName[],
+  context: DepartmentContext = {},
+): Promise<DepartmentResult[]> {
+  const uniqueDepartments = [...new Set(departments)];
+  const results: DepartmentResult[] = [];
 
-  _currentRunId = runRow.id;
+  for (const department of uniqueDepartments) {
+    results.push(await runDepartment(department, context));
+  }
 
-  console.log(`[TCD Company] ▶ Run started: ${runRow.id} (triggered by: ${triggeredBy})`);
+  return results;
+}
 
-  const departments: DepartmentResult[] = [];
-
-  const runDept = async (name: string, fn: () => Promise<DepartmentResult>) => {
-    console.log(`[TCD Company] → Running ${name} AI...`);
-    try {
-      const result = await fn();
-      departments.push(result);
-      console.log(`[TCD Company] ✓ ${name}: ${result.status} — ${result.actionsTaken.length} actions, ${result.blockers.length} blockers`);
-    } catch (err: any) {
-      const failed: DepartmentResult = {
-        department: name,
-        status: "failed",
-        actionsTaken: [],
-        blockers: [`Unexpected error: ${err.message}`],
-        metrics: {},
-        recommendations: [],
-      };
-      departments.push(failed);
-      console.error(`[TCD Company] ✗ ${name} failed:`, err.message);
-    }
+export interface CompanyOrchestrationResult {
+  success: boolean;
+  summary: string;
+  departments: DepartmentName[];
+  results: DepartmentResult[];
+  durationMs: number;
+  totals: {
+    total: number;
+    succeeded: number;
+    failed: number;
   };
+}
 
-  // ── Execution order ──────────────────────────────────────────────────────────
-  await runDept("Intelligence", runIntelligenceAI);
-  await runDept("Sales", runSalesAI);
-  await runDept("Outreach", runOutreachAI);
-  await runDept("Workspace", runWorkspaceAI);
-  await runDept("Marketing", runMarketingAI);
-  await runDept("Operations", runOperationsAI);
-  await runDept("Finance", runFinanceAI);
+export async function orchestrateCompany(
+  departments: DepartmentName[],
+  context: DepartmentContext = {},
+): Promise<CompanyOrchestrationResult> {
+  const startedAt = Date.now();
+  const results = await runDepartments(departments, context);
 
-  // ── Aggregate results ────────────────────────────────────────────────────────
-
-  const completedAt = new Date();
-  const durationMs = completedAt.getTime() - startedAt.getTime();
-
-  const totalActionsTaken = departments.reduce((s, d) => s + d.actionsTaken.length, 0);
-  const allBlockers = departments.flatMap(d => d.blockers);
-  const totalBlockers = allBlockers.length;
-  const allRecommendations = departments.flatMap(d => d.recommendations);
-
-  const failedDepts = departments.filter(d => d.status === "failed");
-  const blockedDepts = departments.filter(d => d.status === "blocked");
-  const completedDepts = departments.filter(d => d.status === "completed");
-
-  const overallStatus: CompanyRunResult["status"] =
-    failedDepts.length >= 3 ? "failed" :
-    blockedDepts.length > 0 || failedDepts.length > 0 ? "partial" :
-    "completed";
-
-  // ── Executive summary ────────────────────────────────────────────────────────
-
-  const summary = buildExecutiveSummary(departments, totalActionsTaken, totalBlockers, durationMs);
-
-  // ── Persist aggregated metrics ───────────────────────────────────────────────
-
-  const metricsSnapshot: Record<string, unknown> = {};
-  departments.forEach(d => {
-    Object.entries(d.metrics).forEach(([k, v]) => {
-      metricsSnapshot[`${d.department.toLowerCase()}_${k}`] = v;
-    });
-  });
-
-  await db.update(alexCompanyRuns).set({
-    status: overallStatus,
-    completedAt,
-    durationMs,
-    summary,
-    departmentResultsJson: JSON.stringify(departments),
-    totalActionsTaken,
-    totalBlockers,
-  }).where(eq(alexCompanyRuns.id, runRow.id));
-
-  console.log(`[TCD Company] ■ Run complete: ${runRow.id} — ${overallStatus} in ${(durationMs / 1000).toFixed(1)}s`);
-  console.log(`[TCD Company]   Actions: ${totalActionsTaken}, Blockers: ${totalBlockers}`);
-
-  _isRunning = false;
-  _currentRunId = null;
+  const succeeded = results.filter((r) => r.success).length;
+  const failed = results.length - succeeded;
 
   return {
-    runId: runRow.id,
-    status: overallStatus,
-    startedAt,
-    completedAt,
-    durationMs,
+    success: failed === 0,
+    summary: `Ran ${results.length} department(s): ${succeeded} succeeded, ${failed} failed.`,
     departments,
-    summary,
-    totalActionsTaken,
-    totalBlockers,
-    allBlockers,
-    allRecommendations,
-    metrics: metricsSnapshot,
+    results,
+    durationMs: Date.now() - startedAt,
+    totals: {
+      total: results.length,
+      succeeded,
+      failed,
+    },
   };
-}
-
-function buildExecutiveSummary(
-  departments: DepartmentResult[],
-  totalActions: number,
-  totalBlockers: number,
-  durationMs: number,
-): string {
-  const lines: string[] = [];
-
-  lines.push(`TCD AI Company ran all 7 departments in ${(durationMs / 1000).toFixed(1)}s.`);
-  lines.push(`${totalActions} total actions recorded across the business.`);
-
-  const completedNames = departments.filter(d => d.status === "completed").map(d => d.department);
-  const blockedNames = departments.filter(d => d.status === "blocked" || d.status === "failed").map(d => d.department);
-  const partialNames = departments.filter(d => d.status === "partial").map(d => d.department);
-
-  if (completedNames.length > 0) lines.push(`Departments fully operational: ${completedNames.join(", ")}.`);
-  if (partialNames.length > 0) lines.push(`Partial status (data gaps): ${partialNames.join(", ")}.`);
-  if (blockedNames.length > 0) lines.push(`Blocked/failed: ${blockedNames.join(", ")} — review blockers.`);
-
-  if (totalBlockers === 0) {
-    lines.push("No blockers detected. System is operating cleanly.");
-  } else {
-    lines.push(`${totalBlockers} blockers require attention — see department details.`);
-  }
-
-  // Highlight top insight per department
-  const topInsights = departments
-    .filter(d => d.actionsTaken.length > 0)
-    .map(d => `${d.department}: ${d.actionsTaken[0]}`);
-
-  if (topInsights.length > 0) {
-    lines.push("Key findings: " + topInsights.slice(0, 4).join(" | "));
-  }
-
-  return lines.join(" ");
-}
-
-// ── Run History ────────────────────────────────────────────────────────────────
-
-export async function getCompanyRunHistory(limit = 20): Promise<typeof alexCompanyRuns.$inferSelect[]> {
-  return db.select().from(alexCompanyRuns)
-    .orderBy(desc(alexCompanyRuns.startedAt))
-    .limit(limit);
-}
-
-export async function getLatestCompanyRun(): Promise<typeof alexCompanyRuns.$inferSelect | null> {
-  const [row] = await db.select().from(alexCompanyRuns)
-    .orderBy(desc(alexCompanyRuns.startedAt))
-    .limit(1);
-  return row ?? null;
 }

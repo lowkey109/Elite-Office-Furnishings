@@ -1,0 +1,207 @@
+/**
+ * Workspace AI — Atlas's department
+ *
+ * Real work:
+ *  1. Reads planning requests from DB
+ *  2. Computes pipeline stats (stage counts, value, lead scores)
+ *  3. Identifies high-value unpaid requests
+ *  4. Identifies stale requests needing re-engagement
+ *  5. Returns Atlas-voice recommendations
+ */
+
+import { db } from "../../../db";
+import { planningRequests } from "../../../../shared/schema";
+import { count, sql } from "drizzle-orm";
+import type { DepartmentResult } from "../companyOrchestrator";
+import {
+  buildAtlasPipelineSummary,
+  prioritiseAtlasRequests,
+  buildAtlasRecommendations,
+} from "../atlas";
+
+const STYLE_RATES: Record<string, number> = {
+  "Luxury Executive": 1500,
+  "Corporate Prestige": 1200,
+  "Modern Open Plan": 950,
+  "Warm Timber / Premium": 1100,
+  Minimal: 800,
+  "Mixed / Flexible": 900,
+};
+
+function estimateValue(r: {
+  squareMetres: string | null;
+  stylePreference: string | null;
+  budgetRange: string | null;
+  estimatedValue: string | null;
+}): number {
+  if (r.estimatedValue) {
+    const m = r.estimatedValue.match(/[\d,]+/g);
+    if (m) {
+      const nums = m.map((s) => parseInt(s.replace(/,/g, ""), 10));
+      if (nums.length > 0) return Math.round(nums.reduce((a, b) => a + b, 0) / nums.length);
+    }
+  }
+  const sqm = parseFloat(r.squareMetres ?? "0");
+  const rate = STYLE_RATES[r.stylePreference ?? ""] ?? 900;
+  if (sqm >= 20) return Math.round(sqm * rate);
+  const b = r.budgetRange ?? "";
+  if (b.includes("300")) return 375000;
+  if (b.includes("180")) return 240000;
+  if (b.includes("100")) return 140000;
+  if (b.includes("60")) return 80000;
+  if (b.includes("30")) return 45000;
+  return 0;
+}
+
+export async function runWorkspaceAI(): Promise<DepartmentResult> {
+  const start = Date.now();
+  const actions: string[] = [];
+  const blockers: string[] = [];
+  const recordsUpdated: string[] = [];
+
+  const safeMode = process.env.SAFE_MODE === "true";
+
+  // ── Before state ──────────────────────────────────────────────────────────────
+
+  const [beforeCount] = await db.select({ n: count() }).from(planningRequests);
+  const before = { totalRequests: Number(beforeCount.n) };
+
+  // ── Read planning requests ────────────────────────────────────────────────────
+
+  const requests = await db
+    .select({
+      id: planningRequests.id,
+      company: planningRequests.company,
+      name: planningRequests.name,
+      status: planningRequests.status,
+      leadScore: planningRequests.leadScore,
+      estimatedValue: planningRequests.estimatedValue,
+      squareMetres: planningRequests.squareMetres,
+      staffCount: planningRequests.staffCount,
+      budgetRange: planningRequests.budgetRange,
+      stylePreference: planningRequests.stylePreference,
+      projectType: planningRequests.projectType,
+      isPaid: planningRequests.isPaid,
+      implementationTimeline: planningRequests.implementationTimeline,
+      createdAt: planningRequests.createdAt,
+    })
+    .from(planningRequests)
+    .limit(500);
+
+  // ── Stage counts ──────────────────────────────────────────────────────────────
+
+  const stageCounts: Record<string, number> = {
+    New: 0, "In Review": 0, Quoted: 0, Converted: 0, Archived: 0,
+  };
+  let totalPipelineValue = 0;
+  let highValueCount = 0;
+  let paidCount = 0;
+  let avgScoreSum = 0;
+  let scoredCount = 0;
+
+  for (const r of requests) {
+    if (stageCounts[r.status] !== undefined) stageCounts[r.status]++;
+    const val = estimateValue(r);
+    totalPipelineValue += val;
+    if ((r.leadScore ?? 0) >= 70) highValueCount++;
+    if (r.isPaid) paidCount++;
+    if (r.leadScore !== null) { avgScoreSum += r.leadScore; scoredCount++; }
+  }
+
+  const avgScore = scoredCount > 0 ? Math.round(avgScoreSum / scoredCount) : 0;
+
+  // ── Atlas prioritisation ──────────────────────────────────────────────────────
+
+  const prioritised = prioritiseAtlasRequests(
+    requests.map((r) => ({
+      id: r.id,
+      company: r.company ?? r.name,
+      leadScore: r.leadScore,
+      estimatedValue: r.estimatedValue,
+      status: r.status,
+      createdAt: r.createdAt,
+      isPaid: r.isPaid ?? false,
+    }))
+  );
+
+  const immediateActions = prioritised.filter((p) => p.urgency === "action-now");
+  const staleRequests = prioritised.filter((p) => p.urgency === "follow-up").length;
+  const highValueUnpaid = prioritised.filter(
+    (p) => p.urgency === "action-now" && (p.estimatedValue !== null)
+  ).length;
+
+  // Report immediate actions
+  for (const action of immediateActions.slice(0, 5)) {
+    actions.push(
+      `${action.clientCompany}: ${action.suggestedNextStep} [${action.reasoning}${action.estimatedValue ? ` — est. ${action.estimatedValue}` : ""}]`
+    );
+  }
+
+  if (immediateActions.length === 0 && stageCounts["New"] === 0) {
+    actions.push("Workspace pipeline current — no immediate action required");
+  } else if (stageCounts["New"] > 0) {
+    actions.push(
+      `${stageCounts["New"]} new planning request${stageCounts["New"] > 1 ? "s" : ""} awaiting review`
+    );
+  }
+
+  // ── After state ───────────────────────────────────────────────────────────────
+
+  const after = {
+    totalRequests: requests.length,
+    newRequests: stageCounts["New"],
+    inReview: stageCounts["In Review"],
+    quoted: stageCounts["Quoted"],
+    converted: stageCounts["Converted"],
+    highValueCount,
+    paidCount,
+    avgScore,
+    totalPipelineValue,
+  };
+
+  const status: DepartmentResult["status"] =
+    requests.length === 0 ? "skipped"
+    : immediateActions.length > 0 ? "completed"
+    : "completed";
+
+  const atlasRecs = buildAtlasRecommendations({
+    newRequests: stageCounts["New"],
+    highValueUnpaid,
+    staleRequests,
+    avgScore,
+  });
+
+  const pipelineSummary = buildAtlasPipelineSummary({
+    totalRequests: requests.length,
+    stageCounts,
+    avgScore,
+    totalPipelineValue,
+    highValueCount,
+    paidCount,
+  });
+
+  return {
+    department: "Workspace Strategy",
+    status,
+    actionsTaken: actions.length > 0 ? actions : ["Workspace pipeline reviewed — no immediate escalations"],
+    blockers,
+    recordsUpdated,
+    before,
+    after,
+    executionMs: Date.now() - start,
+    metrics: {
+      safeMode: String(safeMode),
+      totalRequests: requests.length,
+      newRequests: stageCounts["New"],
+      inReview: stageCounts["In Review"],
+      quoted: stageCounts["Quoted"],
+      converted: stageCounts["Converted"],
+      highValueCount,
+      paidCount,
+      avgScore,
+      totalPipelineValue,
+      immediateActionItems: immediateActions.length,
+    },
+    recommendations: [pipelineSummary, ...atlasRecs],
+  };
+}

@@ -1,0 +1,15 @@
+const harper = {
+  name: "Harper",
+  title: "Head of Marketing",
+  mission:
+    "Drive awareness, demand, trust, and positioning for premium workspace solutions.",
+  priorities: [
+    "brand clarity",
+    "lead generation",
+    "channel performance",
+    "content velocity",
+    "offer positioning",
+  ],
+};
+
+export default harper;

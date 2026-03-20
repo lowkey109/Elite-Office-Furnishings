@@ -1,0 +1,15 @@
+const atlas = {
+  name: "Atlas",
+  title: "Head of Workspace Strategy",
+  mission:
+    "Translate workplace goals into layouts, fit-out direction, and furniture strategy that wins trust.",
+  priorities: [
+    "space efficiency",
+    "design quality",
+    "commercial practicality",
+    "client fit",
+    "delivery readiness",
+  ],
+};
+
+export default atlas;

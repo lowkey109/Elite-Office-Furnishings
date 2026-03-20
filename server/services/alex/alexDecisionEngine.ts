@@ -1,146 +1,147 @@
-/**
- * Alex Decision Engine (Stage 3)
- * Classifies each opportunity into a concrete action.
- * Inputs: opportunity_score, relocation_probability, graph connections,
- *         cluster strength, signal count, company signals.
- * Output: IGNORE | MONITOR | OUTREACH | PRIORITY_OUTREACH | BOOK_MEETING | ESCALATE_TO_HUMAN
- */
+import type { DepartmentName } from "./companyOrchestrator";
 
-import { getNetworkStrength } from "../intelligence/intelligenceGraphService";
-import { db } from "../../db";
-import { clusters } from "@shared/schema";
-import { sql, desc } from "drizzle-orm";
-
-export type AlexDecision =
-  | "IGNORE"
-  | "MONITOR"
-  | "OUTREACH"
-  | "PRIORITY_OUTREACH"
-  | "BOOK_MEETING"
-  | "ESCALATE_TO_HUMAN";
-
-export interface DecisionInput {
-  companyId: string;
-  companyName: string;
-  city?: string;
-  industry?: string;
-  opportunityScore: number;
-  relocationProbability: number;
-  confidenceScore: number;
-  signalCount?: number;
-  leaseExpiryMonths?: number | null;
-  dealValueEstimate?: number;
-  existingOutreach?: boolean;
-  meetingBooked?: boolean;
+function hasAny(text: string, keywords: string[]): boolean {
+  return keywords.some((keyword) => text.includes(keyword));
 }
 
-export interface DecisionOutput {
-  decision: AlexDecision;
-  reasoning: string;
-  priority: number;
-  graphNetworkStrength: number;
-  clusterBoost: number;
-  combinedScore: number;
-}
+export function decideDepartments(input: string): DepartmentName[] {
+  const text = input.toLowerCase().trim();
+  const selected = new Set<DepartmentName>();
 
-const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
-  Brisbane: { lat: -27.4698, lng: 153.0251 },
-  Melbourne: { lat: -37.8136, lng: 144.9631 },
-  Sydney: { lat: -33.8688, lng: 151.2093 },
-  Perth: { lat: -31.9505, lng: 115.8605 },
-  Adelaide: { lat: -34.9285, lng: 138.6007 },
-};
-
-async function getClusterBoost(city?: string, industry?: string): Promise<number> {
-  const topClusters = await db
-    .select()
-    .from(clusters)
-    .where(sql`${clusters.clusterScore} >= 40`)
-    .orderBy(desc(clusters.clusterScore))
-    .limit(50);
-
-  let boost = 0;
-  for (const c of topClusters) {
-    if (city && c.city?.toLowerCase() === city.toLowerCase()) {
-      boost = Math.max(boost, (c.clusterScore ?? 0) * 0.2);
-    }
-    if (industry && c.topIndustry?.toLowerCase() === industry.toLowerCase()) {
-      boost = Math.max(boost, (c.clusterScore ?? 0) * 0.15);
-    }
-  }
-  return Math.min(25, boost);
-}
-
-export async function makeDecision(input: DecisionInput): Promise<DecisionOutput> {
-  // Skip already-booked or already-in-outreach if low value
-  if (input.meetingBooked) {
-    return {
-      decision: "ESCALATE_TO_HUMAN",
-      reasoning: "Meeting already booked — hand off to human sales team.",
-      priority: 10,
-      graphNetworkStrength: 0,
-      clusterBoost: 0,
-      combinedScore: input.opportunityScore,
-    };
+  if (
+    hasAny(text, [
+      "invoice",
+      "payment",
+      "finance",
+      "cashflow",
+      "cash flow",
+      "profit",
+      "margin",
+      "budget",
+      "pricing",
+      "quote value",
+      "deposit",
+    ])
+  ) {
+    selected.add("finance");
   }
 
-  const networkStrength = await getNetworkStrength(input.companyId);
-  const clusterBoost = await getClusterBoost(input.city, input.industry);
-
-  // Combined score: weighted composite
-  const leaseUrgency = input.leaseExpiryMonths != null && input.leaseExpiryMonths <= 12 ? 15 : 0;
-  const combinedScore = Math.min(100,
-    input.opportunityScore * 0.45 +
-    input.relocationProbability * 0.25 +
-    input.confidenceScore * 0.15 +
-    networkStrength * 0.1 +
-    clusterBoost +
-    leaseUrgency
-  );
-
-  let decision: AlexDecision;
-  let reasoning: string;
-  let priority: number;
-
-  // Decision thresholds
-  if (combinedScore < 20) {
-    decision = "IGNORE";
-    reasoning = `Combined score ${combinedScore.toFixed(0)} below threshold — insufficient signal strength.`;
-    priority = 0;
-  } else if (combinedScore < 40) {
-    decision = "MONITOR";
-    reasoning = `Score ${combinedScore.toFixed(0)} — watch for stronger signals before acting.`;
-    priority = 1;
-  } else if (combinedScore >= 85 || (input.leaseExpiryMonths != null && input.leaseExpiryMonths <= 6)) {
-    decision = "BOOK_MEETING";
-    reasoning = `Score ${combinedScore.toFixed(0)} — extremely high priority. ${input.leaseExpiryMonths != null ? `Lease expires in ${input.leaseExpiryMonths}mo.` : ""} Book meeting immediately.`;
-    priority = 10;
-  } else if (combinedScore >= 75 || networkStrength >= 60) {
-    decision = "PRIORITY_OUTREACH";
-    reasoning = `Score ${combinedScore.toFixed(0)}, network strength ${networkStrength}. Strong cluster or multi-signal detection — priority contact.`;
-    priority = 8;
-  } else if (combinedScore >= 55) {
-    decision = "OUTREACH";
-    reasoning = `Score ${combinedScore.toFixed(0)} — sufficient evidence for personalised outreach.`;
-    priority = 5;
-  } else {
-    decision = "MONITOR";
-    reasoning = `Score ${combinedScore.toFixed(0)} — monitoring, not yet actionable.`;
-    priority = 2;
+  if (
+    hasAny(text, [
+      "client",
+      "customer",
+      "experience",
+      "onboarding",
+      "service",
+      "support",
+      "handover",
+      "follow up",
+      "follow-up",
+    ])
+  ) {
+    selected.add("clientExperience");
   }
 
-  // High deal value override
-  if (input.dealValueEstimate && input.dealValueEstimate >= 500000 && decision === "OUTREACH") {
-    decision = "PRIORITY_OUTREACH";
-    reasoning += ` High deal value ($${Math.round(input.dealValueEstimate / 100).toLocaleString()}) — upgraded to priority.`;
-    priority = 9;
+  if (
+    hasAny(text, [
+      "intelligence",
+      "signal",
+      "lead source",
+      "office move",
+      "radar",
+      "deal hunter",
+      "company intelligence",
+      "scan",
+      "market signal",
+    ])
+  ) {
+    selected.add("intelligence");
   }
 
-  // Partner routing recommendation — automatically route high-value signals
-  let partnerRecommendation: string | undefined;
-  if (combinedScore >= 70 && (decision === "OUTREACH" || decision === "PRIORITY_OUTREACH" || decision === "BOOK_MEETING")) {
-    partnerRecommendation = "route_to_partners";
+  if (
+    hasAny(text, [
+      "marketing",
+      "linkedin",
+      "seo",
+      "campaign",
+      "content",
+      "brand",
+      "ad",
+      "funnel",
+      "website copy",
+      "post",
+    ])
+  ) {
+    selected.add("marketing");
   }
 
-  return { decision, reasoning, priority, graphNetworkStrength: networkStrength, clusterBoost, combinedScore, partnerRecommendation };
+  if (
+    hasAny(text, [
+      "ops",
+      "operations",
+      "process",
+      "workflow",
+      "delivery",
+      "install",
+      "scheduler",
+      "automation",
+      "system",
+    ])
+  ) {
+    selected.add("operations");
+  }
+
+  if (
+    hasAny(text, [
+      "sales",
+      "deal",
+      "pipeline",
+      "close",
+      "proposal",
+      "quote",
+      "revenue",
+      "lead",
+      "meeting",
+    ])
+  ) {
+    selected.add("revenueOperations");
+  }
+
+  if (
+    hasAny(text, [
+      "supplier",
+      "procurement",
+      "vendor",
+      "catalog",
+      "sku",
+      "stock",
+      "pricing file",
+      "manufacturer",
+    ])
+  ) {
+    selected.add("supplier");
+  }
+
+  if (
+    hasAny(text, [
+      "workspace",
+      "fitout",
+      "fit-out",
+      "layout",
+      "floor plan",
+      "workplace",
+      "office design",
+      "space plan",
+      "furniture plan",
+    ])
+  ) {
+    selected.add("workspace");
+  }
+
+  if (selected.size === 0) {
+    selected.add("operations");
+    selected.add("revenueOperations");
+  }
+
+  return [...selected];
 }

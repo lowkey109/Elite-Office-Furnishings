@@ -1,0 +1,245 @@
+/**
+ * Supplier AI — Mason's department
+ *
+ * Real work:
+ *  1. Reads open supplier threads from supplier_threads table
+ *  2. Identifies threads that are stale or awaiting follow-up
+ *  3. Identifies RFQs that are incomplete
+ *  4. Reports metrics and Mason-voice recommendations
+ *  5. Does NOT send messages — that is done via the supplier conversation routes
+ *     with human approval. This department reports status and surfaces blockers.
+ *
+ * Returns Promise<DepartmentResult>
+ */
+
+import { db } from "../../../db";
+import {
+  supplierThreads,
+  supplierMessages,
+  supplierQuoteExtractions,
+  supplierRfqRequests,
+} from "../../../../shared/schema";
+import { count, eq, and, sql } from "drizzle-orm";
+import type { DepartmentResult } from "../companyOrchestrator";
+import {
+  getMasonVoiceProfile,
+  analyseMasonRfqStatus,
+  buildMasonProcurementRecommendation,
+} from "../mason";
+
+export async function runSupplierAI(): Promise<DepartmentResult> {
+  const start = Date.now();
+  const actions: string[] = [];
+  const blockers: string[] = [];
+  const recordsUpdated: string[] = [];
+
+  const safeMode = process.env.SAFE_MODE === "true";
+
+  // ── Before state ──────────────────────────────────────────────────────────────
+
+  let beforeThreads = 0;
+  let beforeMessages = 0;
+
+  try {
+    const [bt] = await db.select({ n: count() }).from(supplierThreads);
+    const [bm] = await db.select({ n: count() }).from(supplierMessages);
+    beforeThreads = Number(bt.n);
+    beforeMessages = Number(bm.n);
+  } catch (err: any) {
+    blockers.push(`Schema check failed — supplier tables may not exist: ${err.message}`);
+    return {
+      department: "Supplier Procurement",
+      status: "blocked",
+      actionsTaken: [],
+      blockers,
+      recordsUpdated: [],
+      before: {},
+      after: {},
+      executionMs: Date.now() - start,
+      metrics: { safeMode: String(safeMode) },
+      recommendations: [
+        "Run Drizzle migration to add supplier conversation tables — see schema-additions.ts",
+      ],
+    };
+  }
+
+  const before = {
+    totalThreads: beforeThreads,
+    totalMessages: beforeMessages,
+  };
+
+  // ── Read current thread state ────────────────────────────────────────────────
+
+  const allThreads = await db
+    .select()
+    .from(supplierThreads)
+    .limit(200);
+
+  const openThreads = allThreads.filter((t) =>
+    !["complete", "archived"].includes(t.status)
+  );
+
+  const blockedThreads = allThreads.filter((t) => t.status === "blocked");
+
+  const pendingApprovalMessages = await db
+    .select({ id: supplierMessages.id, threadId: supplierMessages.threadId })
+    .from(supplierMessages)
+    .where(eq(supplierMessages.status, "pending_approval"));
+
+  const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+  const staleThreads = openThreads.filter((t) => {
+    if (!t.lastOutboundAt) return false;
+    return new Date(t.lastOutboundAt) < threeDaysAgo && !t.quoteComplete;
+  });
+
+  // ── Read RFQ completion status ────────────────────────────────────────────────
+
+  const allRfqs = await db
+    .select()
+    .from(supplierRfqRequests)
+    .where(eq(supplierRfqRequests.status, "open"));
+
+  const completeQuotes = await db
+    .select({ n: count() })
+    .from(supplierThreads)
+    .where(eq(supplierThreads.quoteComplete, true));
+
+  const completeQuoteCount = Number(completeQuotes[0]?.n ?? 0);
+
+  // ── Action 1: Report stale threads ───────────────────────────────────────────
+
+  if (staleThreads.length > 0) {
+    for (const thread of staleThreads.slice(0, 5)) {
+      actions.push(
+        `Stale thread: ${thread.supplierName} — last outbound ${thread.lastOutboundAt ? new Date(thread.lastOutboundAt).toLocaleDateString("en-AU") : "unknown"}. Follow-up required.`
+      );
+      recordsUpdated.push(
+        `supplier_threads#${thread.id} (${thread.supplierName}): flagged as stale — send follow-up via /api/supplier-conversations/threads/${thread.id}/messages`
+      );
+    }
+  }
+
+  // ── Action 2: Report pending approvals ───────────────────────────────────────
+
+  if (pendingApprovalMessages.length > 0) {
+    actions.push(
+      `${pendingApprovalMessages.length} supplier message${pendingApprovalMessages.length > 1 ? "s" : ""} awaiting human approval — review in Supplier Command Centre`
+    );
+  }
+
+  // ── Action 3: Report blocked threads ─────────────────────────────────────────
+
+  if (blockedThreads.length > 0) {
+    blockers.push(
+      `${blockedThreads.length} thread${blockedThreads.length > 1 ? "s" : ""} blocked — ${blockedThreads.map((t) => t.blockedReason ?? "no reason").join("; ")}`
+    );
+  }
+
+  // ── Action 4: Report incomplete RFQs ─────────────────────────────────────────
+
+  let incompleteRfqCount = 0;
+  for (const rfq of allRfqs) {
+    // Check if we have any extraction for this thread
+    const extractions = await db
+      .select()
+      .from(supplierQuoteExtractions)
+      .where(eq(supplierQuoteExtractions.threadId, rfq.threadId))
+      .limit(10);
+
+    if (extractions.length === 0) {
+      incompleteRfqCount++;
+      continue;
+    }
+
+    // Merge extractions to check completeness
+    const merged = extractions.reduce((acc, e) => {
+      if (e.unitPriceAud || e.unitPriceCny) acc.hasPrice = true;
+      if (e.moq) acc.hasMoq = true;
+      if (e.leadTimeDays) acc.hasLeadTime = true;
+      if (e.freightCostAud || e.freightIncluded) acc.hasFreight = true;
+      if (e.paymentTerms) acc.hasPaymentTerms = true;
+      return acc;
+    }, { hasPrice: false, hasMoq: false, hasLeadTime: false, hasFreight: false, hasPaymentTerms: false });
+
+    const missing = Object.entries(merged)
+      .filter(([, v]) => !v)
+      .map(([k]) => k.replace("has", "").toLowerCase());
+
+    if (missing.length > 0) {
+      incompleteRfqCount++;
+    }
+  }
+
+  if (incompleteRfqCount > 0) {
+    actions.push(
+      `${incompleteRfqCount} incomplete RFQ${incompleteRfqCount > 1 ? "s" : ""} — missing pricing, MOQ, or lead time data. Mason follow-up required.`
+    );
+  }
+
+  if (actions.length === 0 && blockers.length === 0) {
+    actions.push("Supplier procurement pipeline reviewed — no immediate actions required");
+  }
+
+  // ── After state ───────────────────────────────────────────────────────────────
+
+  const after = {
+    totalThreads: allThreads.length,
+    openThreads: openThreads.length,
+    completeQuotes: completeQuoteCount,
+    staleThreads: staleThreads.length,
+    pendingApprovalMessages: pendingApprovalMessages.length,
+    incompleteRfqs: incompleteRfqCount,
+  };
+
+  const status: DepartmentResult["status"] =
+    blockedThreads.length > 0 && openThreads.length === 0 ? "blocked"
+    : staleThreads.length > 0 || incompleteRfqCount > 0 ? "partial"
+    : "completed";
+
+  const procurementSummary = buildMasonProcurementRecommendation({
+    openThreadCount: openThreads.length,
+    completeQuoteCount,
+    blockedThreadCount: blockedThreads.length,
+    pendingApprovalCount: pendingApprovalMessages.length,
+    rfqsInProgress: allRfqs.length,
+  });
+
+  const recommendations: string[] = [procurementSummary];
+
+  if (staleThreads.length > 0) {
+    recommendations.push(
+      `${staleThreads.length} stale thread${staleThreads.length > 1 ? "s" : ""} — send follow-up messages via Supplier Command Centre`
+    );
+  }
+  if (pendingApprovalMessages.length > 0) {
+    recommendations.push(
+      `Approve ${pendingApprovalMessages.length} pending message${pendingApprovalMessages.length > 1 ? "s" : ""} at /admin/supplier-conversations`
+    );
+  }
+  if (!process.env.TWILIO_ACCOUNT_SID) {
+    recommendations.push("Twilio not configured — WhatsApp sends will fail. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER");
+  }
+
+  return {
+    department: "Supplier Procurement",
+    status,
+    actionsTaken: actions,
+    blockers,
+    recordsUpdated,
+    before,
+    after,
+    executionMs: Date.now() - start,
+    metrics: {
+      safeMode: String(safeMode),
+      totalThreads: allThreads.length,
+      openThreads: openThreads.length,
+      staleThreads: staleThreads.length,
+      blockedThreads: blockedThreads.length,
+      completeQuotes: completeQuoteCount,
+      pendingApproval: pendingApprovalMessages.length,
+      incompleteRfqs: incompleteRfqCount,
+      openRfqs: allRfqs.length,
+    },
+    recommendations,
+  };
+}
