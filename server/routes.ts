@@ -28,8 +28,15 @@ import { captureWorkspaceLearning, buildLearningContext } from "./services/works
 import { analyseAllDeals, analyseDeal, prospectsToSignals, planningRequestToSignals, radarToSignals, leadToSignals } from "./services/dealIntelligence";
 import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } from "./services/partnerNetwork";
 import { runNexoraEngine } from "./nexoraOrchestrator";
-
-  res.json(result);
+app.post("/api/nexora/run", async (req, res) => {
+  try {
+    console.log("🚀 Nexora triggered");
+    const result = await runNexoraEngine();
+    res.json(result);
+  } catch (err) {
+    console.error("❌ Nexora error:", err);
+    res.status(500).json({ error: "Nexora failed" });
+  }
 });
 import { generateRelocationSignals, getMarketIntelligence, pushRelocationToPipeline } from "./services/relocationIntelligence";
 import { generateStrategyRecommendation, getLearningInsights } from "./services/workspaceStrategy";
@@ -385,7 +392,22 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  app.post("/api/nexora/run", async (req, res) => {
+    try {
+      console.log("🚀 Nexora triggered");
 
+      const result = await runNexoraEngine();
+
+      res.json(result);
+    } catch (err: any) {
+      console.error("❌ Nexora error:", err);
+
+      res.status(500).json({
+        success: false,
+        error: err?.message || "Nexora failed",
+      });
+    }
+  });
   registerMarketingRoutes(app);
 
   // Serve uploaded files as static

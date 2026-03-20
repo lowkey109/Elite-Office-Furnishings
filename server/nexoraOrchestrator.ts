@@ -1,39 +1,38 @@
-import { runOfficeMoveRadarScan } from "./officeMovRadarService";
-import { runDealHunterScan } from "./dealHunter";
-import { runManufacturerOutreach } from "./aiManufacturerOutreach";
+import { runOfficeMovRadarScan } from "./services/officeMovRadarService";
+import { runDealHunterScan } from "./services/dealHunter";
+import { runManufacturerOutreach } from "./services/aiManufacturerOutreach";
 
 export async function runNexoraEngine() {
   try {
     console.log("🚀 NEXORA STARTED");
 
-    // 1. SIGNALS
-    const radarResults = await runOfficeMoveRadarScan();
-    const dealResults = await runDealHunterScan();
+    const radarResultsRaw = await runOfficeMovRadarScan();
+    const dealResultsRaw = await runDealHunterScan();
 
-    const opportunities = [
-      ...(radarResults || []),
-      ...(dealResults || [])
-    ];
+    const radarResults = Array.isArray(radarResultsRaw) ? radarResultsRaw : [];
+    const dealResults = Array.isArray(dealResultsRaw) ? dealResultsRaw : [];
+
+    const opportunities = [...radarResults, ...dealResults];
 
     console.log(`📡 Signals found: ${opportunities.length}`);
 
-    // 2. PROCESS + DECIDE
+    let outreachRuns = 0;
+
     for (const opp of opportunities) {
       try {
-        // 👇 SIMPLE LOGIC FOR NOW (we upgrade later)
-        if (opp?.type === "company" || opp?.signalType) {
-          console.log(`📨 Outreach triggered for: ${opp.companyName || "Unknown"}`);
+        await runManufacturerOutreach(
+          { body: { opportunity: opp } } as any,
+          {
+            json: () => {},
+            status: () => ({
+              json: () => {},
+            }),
+          } as any
+        );
 
-          await runManufacturerOutreach(
-            { body: {} } as any,
-            {
-              status: () => ({ json: () => {} }),
-              json: () => {}
-            } as any
-          );
-        }
+        outreachRuns += 1;
       } catch (err) {
-        console.error("⚠️ Error processing opportunity:", err);
+        console.error("Outreach failed:", err);
       }
     }
 
@@ -41,15 +40,16 @@ export async function runNexoraEngine() {
 
     return {
       success: true,
-      processed: opportunities.length
+      processed: opportunities.length,
+      outreachRuns,
+      message: `Nexora complete — processed ${opportunities.length} opportunities`,
     };
-
-  } catch (error) {
-    console.error("❌ NEXORA FAILED:", error);
+  } catch (err: any) {
+    console.error("❌ NEXORA FAILED:", err);
 
     return {
       success: false,
-      error: (error as any)?.message
+      error: err?.message || "Nexora failed",
     };
   }
 }
