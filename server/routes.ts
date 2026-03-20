@@ -1,4 +1,5 @@
-import type { Express } from "express";
+import  { runNexoraEngine } from "./nexoraOrchestrator";
+import  type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
@@ -8,6 +9,7 @@ import { insertLeadSchema, insertProductReviewSchema, siteVisits } from "@shared
 import { ZodError } from "zod";
 import OpenAI from "openai";
 import multer from "multer";
+
 import path from "path";
 import fs from "fs";
 import { registerMarketingRoutes } from "./marketing";
@@ -15,7 +17,8 @@ import { sendLeadNotification, sendSupplierQuoteNotification, sendPlanningReques
 import { scoreOpportunity } from "./services/opportunityScoring";
 import { analyseSignals, extractDomain, type SignalInput, type SourceType } from "./services/leadIntelligence";
 import { CORPORATE_DESK_SYSTEM_PROMPT, ADVISOR_SYSTEM_MESSAGE, buildChatSystemPrompt, buildAdvisorSystemPrompt, extractSessionContext } from "./systemPrompt";
-import { getAdaptersMeta } from "./adapters/manualAdapter";
+import { getAdaptersMeta } from "./adapters/manualAdapter";        
+import { runManufacturerOutreach } from "./aiManufacturerOutreach";
 import { generatePackageAndQuote } from "./ai/packageGenerator";
 import { parseFloorPlan, type FloorGeometry } from "./services/floorPlanParser";
 import { sendWhatsAppTextMessage, isWhatsAppConfigured } from "./services/whatsapp";
@@ -24,6 +27,10 @@ import { runLeaseSignalScan, computeProcurementRecommendations } from "./service
 import { captureWorkspaceLearning, buildLearningContext } from "./services/workspaceLearning";
 import { analyseAllDeals, analyseDeal, prospectsToSignals, planningRequestToSignals, radarToSignals, leadToSignals } from "./services/dealIntelligence";
 import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } from "./services/partnerNetwork";
+import { runNexoraEngine } from "./nexoraOrchestrator";
+
+  res.json(result);
+});
 import { generateRelocationSignals, getMarketIntelligence, pushRelocationToPipeline } from "./services/relocationIntelligence";
 import { generateStrategyRecommendation, getLearningInsights } from "./services/workspaceStrategy";
 import { runDealHunterScan, pushDealHunterToRadar, pushDealHunterToPipeline, reviewDealHunterSignal, dismissDealHunterSignal, getDealHunterStats } from "./services/dealHunter";
@@ -32,7 +39,90 @@ import { dealApprovalService } from "./services/dealClosing/approvalService";
 import { pricingEngine, PRICING_RULES } from "./services/dealClosing/pricingEngine";
 import { commissionService } from "./services/partnerNetwork/commissionService";
 import { buildingIngestionService } from "./services/buildings/buildingIngestionService";
+type Role = "system" | "user" | "assistant";
 
+type Message = {
+  role: Role;
+  content: string;
+};
+
+type Conversation = {
+  messages: Message[];
+  intent?: string;
+};
+
+const conversations = new Map<string, Conversation>();
+
+function getConversation(id: string): Conversation {
+  if (!conversations.has(id)) {
+    conversations.set(id, {
+      messages: [],
+    });
+  }
+  return conversations.get(id)!;
+}
+
+function detectIntent(message: string): string {
+  const msg = message.toLowerCase();
+
+  if (msg.includes("quote")) return "supplier_quote";
+  if (msg.includes("stock") || msg.includes("available")) return "stock";
+  if (msg.includes("delivery")) return "delivery";
+  if (msg.includes("install")) return "installation";
+  if (msg.includes("urgent")) return "urgent";
+  return "general";
+}
+
+function escapeXml(unsafe: string) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+async function generateReply(messages: Message[], intent: string) {
+  const OpenAI = (await import("openai")).default;
+
+  const client = new OpenAI({
+    apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+    baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+  });
+
+  const systemPrompt = `
+You are The Corporate Desk operations assistant.
+
+You handle:
+- suppliers
+- logistics
+- delivery coordination
+- stock checks
+- quoting support
+
+Tone:
+- conversational
+- human
+- slightly sharp / witty
+- efficient
+- no fluff
+
+Never sound like a website chatbot.
+
+Intent: ${intent}
+`;
+
+  const completion = await client.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [
+      { role: "system", content: systemPrompt },
+      ...messages,
+    ],
+    max_tokens: 200,
+  });
+
+  return completion.choices[0]?.message?.content || "Got it — let me check that for you.";
+}
 // ─── SAFE_MODE guard (Stage 8) ────────────────────────────────────────────────
 // Set SAFE_MODE=true to suppress all outbound email, Stripe, and CRM side-effects.
 const SAFE_MODE = process.env.SAFE_MODE === "true";
@@ -362,7 +452,7 @@ ${allUrls.map(u => `  <url>
     setCached("products:all", catalog.products, 300_000);
     res.json(catalog.products);
   });
-
+  app.post("/api/ai/manufacturer-outreach", runManufacturerOutreach);
   app.get("/api/products/categories", (_req, res) => {
     const catalog = loadProductCatalog();
     const categories = [...new Set(catalog.products.map((p: any) => p.category))];
@@ -372,7 +462,18 @@ ${allUrls.map(u => `  <url>
     }, {});
     res.json({ categories, byCategory });
   });
+  app.post("/api/nexora/run", async (req, res) => {
+    try {
+      console.log("🚀 Nexora triggered");
 
+      const result = await runNexoraEngine();
+
+      res.json(result);
+    } catch (err) {
+      console.error("❌ Nexora error:", err);
+      res.status(500).json({ error: "Nexora failed" });
+    }
+  });
   app.get("/api/products/search", (req, res) => {
     const catalog = loadProductCatalog();
     const q = (req.query.q as string || "").toLowerCase();
@@ -8136,6 +8237,30 @@ Rules:
       res.status(500).json({ error: err.message });
     }
   });
+  app.post("/webhook/whatsapp", async (req, res) => {
+    const from = req.body?.From || "unknown";
+    const body = (req.body?.Body || "").trim();
 
+    const convo = getConversation(from);
+
+    const intent = detectIntent(body);
+    convo.intent = intent;
+
+    convo.messages.push({ role: "user", content: body });
+
+    console.log("IN:", body, "| intent:", intent);
+
+    const reply = await generateReply(convo.messages, intent);
+
+    convo.messages.push({ role: "assistant", content: reply });
+
+    console.log("OUT:", reply);
+
+    res.set("Content-Type", "text/xml");
+    res.send(`<?xml version="1.0" encoding="UTF-8"?>
+  <Response>
+    <Message>${escapeXml(reply)}</Message>
+  </Response>`);
+  });
   return httpServer;
 }

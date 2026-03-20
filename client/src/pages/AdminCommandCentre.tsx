@@ -1,4 +1,4 @@
-import AdminCommandCentreExample from "../admin/AdminCommandCentreExample";
+import AdminCommandCentreExample from "@/components/admin/AdminCommandCentreExample";
 
 export default function AdminCommandCentre() {
   return <AdminCommandCentreExample />;
