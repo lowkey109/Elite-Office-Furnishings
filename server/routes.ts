@@ -1,33 +1,103 @@
-import  { runNexoraEngine } from "./nexoraOrchestrator";
-import  type { Express } from "express";
 import express from "express";
-import { createServer, type Server } from "http";
-import Stripe from "stripe";
-import { storage } from "./storage";
-import { db } from "./db";
-import { insertLeadSchema, insertProductReviewSchema, siteVisits } from "@shared/schema";
-import { ZodError } from "zod";
-import OpenAI from "openai";
-import multer from "multer";
-
-import path from "path";
-import fs from "fs";
-import { registerMarketingRoutes } from "./marketing";
-import { sendLeadNotification, sendSupplierQuoteNotification, sendPlanningRequestNotification, sendPaymentConfirmationNotification, sendPlannerSubmissionCustomerEmail, sendQuoteRequestCustomerEmail, sendStrategyCallCustomerEmail, sendEnquiryCustomerEmail, sendFinanceLeadAdminEmail, sendFinanceLeadPartnerEmail, sendFinanceLeadCustomerEmail, isEmailConfigured, sendTestEmail } from "./email";
-import { scoreOpportunity } from "./services/opportunityScoring";
-import { analyseSignals, extractDomain, type SignalInput, type SourceType } from "./services/leadIntelligence";
-import { CORPORATE_DESK_SYSTEM_PROMPT, ADVISOR_SYSTEM_MESSAGE, buildChatSystemPrompt, buildAdvisorSystemPrompt, extractSessionContext } from "./systemPrompt";
-import { getAdaptersMeta } from "./adapters/manualAdapter";        
-import { runManufacturerOutreach } from "./aiManufacturerOutreach";
-import { generatePackageAndQuote } from "./ai/packageGenerator";
-import { parseFloorPlan, type FloorGeometry } from "./services/floorPlanParser";
-import { sendWhatsAppTextMessage, isWhatsAppConfigured } from "./services/whatsapp";
-import { startFollowUpForLead } from "./services/followUpScheduler";
-import { runLeaseSignalScan, computeProcurementRecommendations } from "./services/leaseSignalScanner";
-import { captureWorkspaceLearning, buildLearningContext } from "./services/workspaceLearning";
-import { analyseAllDeals, analyseDeal, prospectsToSignals, planningRequestToSignals, radarToSignals, leadToSignals } from "./services/dealIntelligence";
-import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } from "./services/partnerNetwork";
 import { runNexoraEngine } from "./nexoraOrchestrator";
+import { generateRelocationSignals, getMarketIntelligence, pushRelocationToPipeline } from "./services/relocationIntelligence";
+import { generateStrategyRecommendation, getLearningInsights } from "./services/workspaceStrategy";
+import { runDealHunterScan, pushDealHunterToPipeline, getDealHunterStats } from "./services/dealHunter";
+
+import type { Express } from "express";
+      import express from "express";
+      import { createServer, type Server } from "http";
+      import Stripe from "stripe";
+      import { storage } from "./storage";
+      import { db } from "./db";
+      import { insertLeadSchema, insertProductReviewSchema, siteVisits } from "@shared/schema";
+      import { ZodError } from "zod";
+      import OpenAI from "openai";
+      import multer from "multer";
+      import path from "path";
+      import fs from "fs";
+      import { registerMarketingRoutes } from "./marketing";
+      import { sendLeadNotification, sendSupplierQuoteNotification, sendPlanningRequestNotification, sendPaymentConfirmationNotification, sendPlannerSubmissionCustomerEmail, sendQuoteRequestCustomerEmail, sendStrategyCallCustomerEmail, sendEnquiryCustomerEmail, sendFinanceLeadAdminEmail, sendFinanceLeadPartnerEmail, sendFinanceLeadCustomerEmail, isEmailConfigured, sendTestEmail } from "./email";
+      import { scoreOpportunity } from "./services/opportunityScoring";
+      import { analyseSignals, extractDomain, type SignalInput, type SourceType } from "./services/leadIntelligence";
+      import { CORPORATE_DESK_SYSTEM_PROMPT, ADVISOR_SYSTEM_MESSAGE, buildChatSystemPrompt, buildAdvisorSystemPrompt, extractSessionContext } from "./systemPrompt";
+      import { getAdaptersMeta } from "./adapters/manualAdapter";
+      import { runManufacturerOutreach } from "./services/aiManufacturerOutreach";
+      import { generatePackageAndQuote } from "./ai/packageGenerator";
+      import { parseFloorPlan, type FloorGeometry } from "./services/floorPlanParser";
+      import { sendWhatsAppTextMessage, isWhatsAppConfigured } from "./services/whatsapp";
+      import { startFollowUpForLead } from "./services/followUpScheduler";
+      import { runLeaseSignalScan, computeProcurementRecommendations } from "./services/leaseSignalScanner";
+      import { captureWorkspaceLearning, buildLearningContext } from "./services/workspaceLearning";
+      import { analyseAllDeals, analyseDeal, prospectsToSignals, planningRequestToSignals, radarToSignals, leadToSignals } from "./services/dealIntelligence";
+      import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } from "./services/partnerNetwork";
+      import { runNexoraEngine } from "./nexoraOrchestrator";
+
+        export async function registerRoutes(
+          httpServer: Server,
+          app: Express
+        ): Promise<Server> {
+          console.log("registerRoutes arg check", {
+            httpServerType: typeof httpServer,
+            hasListen: typeof (httpServer as any)?.listen,
+            appType: typeof app,
+            hasPost: typeof (app as any)?.post,
+          });
+          app.get("/api/nexora/run", async (_req, res) => {
+            try {
+              console.log("🚀 Nexora triggered via GET");
+              const result = await runNexoraEngine();
+              res.json(result);
+            } catch (err) {
+              console.error("❌ Nexora error:", err);
+              res.status(500).json({
+                error: "Nexora failed",
+              });
+            }
+          });
+                  app.get("/api/test-nexora", (_req, res) => {
+                  res.send(`
+                <!doctype html>
+                <html>
+                  <body style="font-family: sans-serif; padding: 24px;">
+                    <button id="run">Run Nexora</button>
+                    <pre id="out" style="white-space: pre-wrap; margin-top: 16px;"></pre>
+
+                    <script>
+                      document.getElementById("run").onclick = async () => {
+                        const out = <script>
+  document.getElementById("run").onclick = async () => {
+    const out = document.getElementById("out");
+    out.textContent = "Running...";
+
+    try {
+      const r = await fetch("/api/nexora/run", { method: "POST" });
+      const text = await r.text();
+
+      try {
+        const json = JSON.parse(text);
+
+        out.textContent =
+          `✅ SUCCESS: ${json.success}\n\n` +
+          `📊 Processed: ${json.processed}\n` +
+          `📡 Radar Signals: ${json.radarSignals}\n` +
+          `💼 Deal Signals: ${json.dealSignals}\n` +
+          `❌ Errors: ${json.errors?.length || 0}\n\n` +
+          `🧠 Message:\n${json.message}`;
+      } catch {
+        out.textContent = text;
+      }
+
+    } catch (e) {
+      out.textContent = "ERROR: " + (e?.message || e);
+    }
+  };
+</script>
+
+                  </body>
+                </html>
+                  `);
+                });
 app.post("/api/nexora/run", async (req, res) => {
   try {
     console.log("🚀 Nexora triggered");
@@ -35,19 +105,11 @@ app.post("/api/nexora/run", async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error("❌ Nexora error:", err);
-    res.status(500).json({ error: "Nexora failed" });
+    res.status(500).json({
+      error: "Nexora failed",
+    });
   }
 });
-import { generateRelocationSignals, getMarketIntelligence, pushRelocationToPipeline } from "./services/relocationIntelligence";
-import { generateStrategyRecommendation, getLearningInsights } from "./services/workspaceStrategy";
-import { runDealHunterScan, pushDealHunterToRadar, pushDealHunterToPipeline, reviewDealHunterSignal, dismissDealHunterSignal, getDealHunterStats } from "./services/dealHunter";
-import { proposalService } from "./services/dealClosing/proposalService";
-import { dealApprovalService } from "./services/dealClosing/approvalService";
-import { pricingEngine, PRICING_RULES } from "./services/dealClosing/pricingEngine";
-import { commissionService } from "./services/partnerNetwork/commissionService";
-import { buildingIngestionService } from "./services/buildings/buildingIngestionService";
-type Role = "system" | "user" | "assistant";
-
 type Message = {
   role: Role;
   content: string;
@@ -388,83 +450,6 @@ IMPORTANT RULES:
 - keyConsiderations must include at least one acoustic, one ergonomic, and one timeline observation`;
 }
 
-export async function registerRoutes(
-  httpServer: Server,
-  app: Express
-): Promise<Server> {
-  app.post("/api/nexora/run", async (req, res) => {
-    try {
-      console.log("🚀 Nexora triggered");
-
-      const result = await runNexoraEngine();
-
-      res.json(result);
-    } catch (err: any) {
-      console.error("❌ Nexora error:", err);
-
-      res.status(500).json({
-        success: false,
-        error: err?.message || "Nexora failed",
-      });
-    }
-  });
-  registerMarketingRoutes(app);
-
-  // Serve uploaded files as static
-  app.use("/uploads", (_req, res, next) => {
-    res.setHeader("Cache-Control", "private, max-age=86400");
-    next();
-  }, express.static(path.join(process.cwd(), "uploads")));
-
-  // Health check — required for autoscale deployment
-  app.get("/api/health", (_req, res) => {
-    res.json({
-      status: "ok",
-      timestamp: new Date().toISOString(),
-      email: isEmailConfigured(),
-      stripe: !!process.env.STRIPE_SECRET_KEY,
-    });
-  });
-
-  // XML Sitemap — dynamically generated for SEO
-  app.get("/sitemap.xml", (_req, res) => {
-    const catalog = loadProductCatalog();
-    const base = "https://www.thecorporatedesk.com.au";
-    const now = new Date().toISOString().split("T")[0];
-    const staticPages = [
-      { url: "/", priority: "1.0", changefreq: "weekly" },
-      { url: "/products", priority: "0.9", changefreq: "weekly" },
-      { url: "/ai-office-planner", priority: "0.9", changefreq: "monthly" },
-      { url: "/3d-office-walkthrough", priority: "0.8", changefreq: "monthly" },
-      { url: "/blog", priority: "0.8", changefreq: "weekly" },
-      { url: "/quote-builder", priority: "0.8", changefreq: "monthly" },
-      { url: "/send-us-your-quote", priority: "0.7", changefreq: "monthly" },
-      { url: "/workplace-solutions", priority: "0.7", changefreq: "monthly" },
-      { url: "/workplace-strategy", priority: "0.7", changefreq: "monthly" },
-      { url: "/about", priority: "0.6", changefreq: "monthly" },
-      { url: "/contact", priority: "0.6", changefreq: "monthly" },
-      { url: "/case-studies", priority: "0.7", changefreq: "monthly" },
-      { url: "/testimonials", priority: "0.6", changefreq: "monthly" },
-    ];
-    const productUrls = (catalog.products || []).map((p: { sku: string }) => ({
-      url: `/products/${p.sku}`,
-      priority: "0.7",
-      changefreq: "monthly",
-    }));
-    const allUrls = [...staticPages, ...productUrls];
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${allUrls.map(u => `  <url>
-    <loc>${base}${u.url}</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>${u.changefreq}</changefreq>
-    <priority>${u.priority}</priority>
-  </url>`).join("\n")}
-</urlset>`;
-    res.setHeader("Content-Type", "application/xml; charset=utf-8");
-    res.setHeader("Cache-Control", "public, max-age=3600");
-    res.send(xml);
-  });
 
   // Product catalog — supplier products database
   app.get("/api/products", (_req, res) => {
@@ -484,18 +469,7 @@ ${allUrls.map(u => `  <url>
     }, {});
     res.json({ categories, byCategory });
   });
-  app.post("/api/nexora/run", async (req, res) => {
-    try {
-      console.log("🚀 Nexora triggered");
-
-      const result = await runNexoraEngine();
-
-      res.json(result);
-    } catch (err) {
-      console.error("❌ Nexora error:", err);
-      res.status(500).json({ error: "Nexora failed" });
-    }
-  });
+  
   app.get("/api/products/search", (req, res) => {
     const catalog = loadProductCatalog();
     const q = (req.query.q as string || "").toLowerCase();

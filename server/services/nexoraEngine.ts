@@ -1,6 +1,6 @@
-import { runOfficeMovRadarScan } from "./services/officeMovRadarService";
-import { runDealHunterScan } from "./services/dealHunter";
-import { runManufacturerOutreach } from "./services/aiManufacturerOutreach";
+import { runOfficeMovRadarScan } from "./officeMovRadarService";
+import { runDealHunterScan } from "./dealHunter";
+import { runManufacturerOutreach } from "./aiManufacturerOutreach";
 
 export interface NexoraResult {
   success: boolean;
@@ -44,7 +44,7 @@ export async function runNexoraEngine(): Promise<NexoraResult> {
   }
 
   const opportunities = [...radarResults, ...dealResults];
-  console.log(`📊 Total opportunities to process: ${opportunities.length}`);
+  console.log(`📊 Total opportunities: ${opportunities.length}`);
 
   let outreachRuns = 0;
   let outreachFailed = 0;

@@ -14,7 +14,7 @@ export async function runManufacturerOutreach(req: Request, res: Response) {
     const suppliers = [
       {
         name: "Foshan Jinsong Furniture",
-        email: "thecorporatedeskservice@gmail.com", // test target first
+        email: "thecorporatedeskservice@gmail.com",
         country: "China",
       },
     ];
@@ -31,20 +31,16 @@ export async function runManufacturerOutreach(req: Request, res: Response) {
     for (const supplier of suppliers) {
       const prompt = `
 You are a high-level B2B partnership strategist for a premium office furniture company called The Corporate Desk.
-
 Write a concise, confident supplier outreach email.
-
 Target manufacturer:
 - Company: ${supplier.name}
 - Country: ${supplier.country}
-
 Business context:
 - The Corporate Desk is an Australian premium office furniture and fit-out company
 - We want to explore a supplier/distribution relationship
 - We are interested in catalogue access, pricing, minimum order quantities, and onboarding process
 - Tone should be professional, commercially sharp, and warm
 - Keep it short and useful
-
 Return ONLY the email body text, no markdown, no subject line.
 `;
 
@@ -56,28 +52,17 @@ Return ONLY the email body text, no markdown, no subject line.
       const aiContent = completion.choices?.[0]?.message?.content;
       const message =
         (typeof aiContent === "string" ? aiContent.trim() : "") ||
-        `Hi ${supplier.name},
-
-I’m reaching out from The Corporate Desk in Australia. We’d like to explore a supplier relationship and learn more about your catalogue, pricing, MOQs, and onboarding process.
-
-Please let me know the best next step.
-
-Kind regards,
-Ben Mumford
-The Corporate Desk`;
+        `Hi ${supplier.name},\n\nI'm reaching out from The Corporate Desk in Australia. We'd like to explore a supplier relationship and learn more about your catalogue, pricing, MOQs, and onboarding process.\n\nPlease let me know the best next step.\n\nKind regards,\nBen Mumford\nThe Corporate Desk`;
 
       const subject = "Supplier partnership enquiry from The Corporate Desk";
 
       try {
         const sendResult = await resend.emails.send({
-          from:
-            process.env.OUTREACH_FROM_EMAIL ||
-            "The Corporate Desk <onboarding@resend.dev>",
+          from: process.env.OUTREACH_FROM_EMAIL || "The Corporate Desk <onboarding@resend.dev>",
           to: [supplier.email],
           subject,
           text: message,
-          replyTo:
-            process.env.OUTREACH_REPLY_TO || "thecorporatedeskservice@gmail.com",
+          replyTo: process.env.OUTREACH_REPLY_TO || "thecorporatedeskservice@gmail.com",
         });
 
         results.push({
@@ -102,14 +87,13 @@ The Corporate Desk`;
     const failedCount = results.filter((r) => r.status === "failed").length;
 
     return res.status(200).json({
-      message: `Alex finished outreach. Sent: ${sentCount}, Failed: ${failedCount}`,
+      message: `Outreach complete. Sent: ${sentCount}, Failed: ${failedCount}`,
       results,
     });
   } catch (error: any) {
-    console.error("Alex manufacturer outreach error:", error);
-
+    console.error("Manufacturer outreach error:", error);
     return res.status(500).json({
-      message: error?.message || "Alex failed to send outreach",
+      message: error?.message || "Outreach failed",
     });
   }
 }
