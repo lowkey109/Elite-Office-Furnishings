@@ -64,6 +64,7 @@ import AdminPartners from "@/pages/AdminPartners";
 import Partners from "@/pages/Partners";
 import SubmitDeal from "@/pages/SubmitDeal";
 import TradeCustomersPortal from "@/pages/TradeCustomersPortal";
+import Start from "@/pages/Start";
 import { usePageTracking } from "@/lib/usePageTracking";
 
 function Router() {
@@ -142,6 +143,7 @@ function Router() {
       <Route path="/partners" component={Partners} />
       <Route path="/submit-deal" component={SubmitDeal} />
       <Route path="/trade-customers-portal" component={TradeCustomersPortal} />
+      <Route path="/start" component={Start} />
       <Route path="/partner/dashboard" component={PartnerDashboard} />
       <Route path="/partner/login" component={PartnerOnboarding} />
       <Route component={NotFound} />

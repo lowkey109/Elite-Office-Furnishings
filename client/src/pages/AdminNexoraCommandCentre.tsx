@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Zap, Play, Square, RefreshCw, Clock, Activity, CheckCircle2,
-  XCircle, AlertTriangle, Loader2, Settings, History, BarChart3,
+  XCircle, AlertTriangle, Loader2, Settings, History, BarChart3, ShieldCheck,
 } from "lucide-react";
+
+type SystemRunStep = { step: string; status: string; detail?: string; count?: number };
+type SystemRunResult = { ok: boolean; ranAt: string; durationMs: number; steps: SystemRunStep[]; staleLeads: string[]; overdueComs: number; error?: string };
 
 interface LoopStatus {
   enabled: boolean;
@@ -103,6 +106,17 @@ export default function AdminNexoraCommandCentre() {
     onError: (err: any) => toast({ title: "Invalid interval", description: err?.message, variant: "destructive" }),
   });
 
+  const [systemRunResult, setSystemRunResult] = useState<SystemRunResult | null>(null);
+  const systemRunMutation = useMutation({
+    mutationFn: () => apiRequest("POST", "/api/system/run"),
+    onSuccess: (data: SystemRunResult) => {
+      setSystemRunResult(data);
+      toast({ title: "System run complete", description: `${data.steps?.length || 0} checks completed in ${data.durationMs}ms` });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/history"] });
+    },
+    onError: (err: any) => toast({ title: "System run failed", description: err?.message, variant: "destructive" }),
+  });
+
   const statusBadge = () => {
     if (!loopStatus) return <Badge variant="outline" className="text-white/40 border-white/10">Unknown</Badge>;
     if (loopStatus.running) return <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">Running</Badge>;
@@ -125,18 +139,33 @@ export default function AdminNexoraCommandCentre() {
             </div>
             <p className="text-white/40 text-sm">Autonomous intelligence loop — radar scanning, deal hunting, outreach</p>
           </div>
-          <Button
-            onClick={() => runMutation.mutate()}
-            disabled={runMutation.isPending || loopStatus?.running}
-            data-testid="button-nexora-run-now"
-            className="bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-black font-semibold rounded-none"
-          >
-            {runMutation.isPending || loopStatus?.running ? (
-              <><Loader2 className="mr-2 w-4 h-4 animate-spin" /> Running...</>
-            ) : (
-              <><Play className="mr-2 w-4 h-4" /> Run Now</>
-            )}
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              onClick={() => systemRunMutation.mutate()}
+              disabled={systemRunMutation.isPending}
+              data-testid="button-system-run"
+              variant="outline"
+              className="border-[hsl(43,78%,52%)]/30 text-[hsl(43,78%,65%)] hover:bg-[hsl(43,78%,52%)]/5 rounded-none"
+            >
+              {systemRunMutation.isPending ? (
+                <><Loader2 className="mr-2 w-4 h-4 animate-spin" /> Running System...</>
+              ) : (
+                <><ShieldCheck className="mr-2 w-4 h-4" /> Run System</>
+              )}
+            </Button>
+            <Button
+              onClick={() => runMutation.mutate()}
+              disabled={runMutation.isPending || loopStatus?.running}
+              data-testid="button-nexora-run-now"
+              className="bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-black font-semibold rounded-none"
+            >
+              {runMutation.isPending || loopStatus?.running ? (
+                <><Loader2 className="mr-2 w-4 h-4 animate-spin" /> Running...</>
+              ) : (
+                <><Play className="mr-2 w-4 h-4" /> Run Nexora</>
+              )}
+            </Button>
+          </div>
         </div>
 
         {/* Status Cards */}
@@ -240,6 +269,45 @@ export default function AdminNexoraCommandCentre() {
             The pg-boss scheduler independently triggers every 30 minutes regardless of this toggle.
           </p>
         </div>
+
+        {/* System Run Results */}
+        {systemRunResult && (
+          <div className="p-6 border border-[hsl(43,78%,52%)]/15 bg-[hsl(43,78%,52%)]/3 mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="flex items-center gap-2 text-base font-medium text-white">
+                <ShieldCheck className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                System Run Results
+              </h2>
+              <span className="text-xs text-white/30">{systemRunResult.durationMs}ms · {new Date(systemRunResult.ranAt).toLocaleString("en-AU")}</span>
+            </div>
+            <div className="space-y-2">
+              {systemRunResult.steps?.map((step, i) => (
+                <div key={i} className="flex items-center gap-3 text-sm">
+                  {step.status === "ok" ? (
+                    <CheckCircle2 className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
+                  ) : step.status === "warning" ? (
+                    <AlertTriangle className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" />
+                  ) : step.status === "skipped" ? (
+                    <RefreshCw className="w-3.5 h-3.5 text-white/30 flex-shrink-0" />
+                  ) : (
+                    <XCircle className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
+                  )}
+                  <span className="text-white/70 font-medium min-w-[180px]">{step.step}</span>
+                  <span className="text-white/40 text-xs">{step.detail}</span>
+                  {(step.count !== undefined && step.count > 0) && (
+                    <span data-testid={`text-step-count-${i}`} className={`text-xs px-1.5 py-0.5 rounded-sm font-medium ${step.status === "warning" ? "bg-yellow-500/15 text-yellow-300" : "bg-white/10 text-white/50"}`}>{step.count}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+            {systemRunResult.staleLeads?.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-white/8">
+                <p className="text-xs text-yellow-300/70 mb-2 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Stale leads requiring action:</p>
+                <div className="flex flex-wrap gap-2">{systemRunResult.staleLeads.map((l, i) => <span key={i} className="text-xs px-2 py-0.5 bg-yellow-500/10 text-yellow-300/70 border border-yellow-500/20">{l}</span>)}</div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Run History */}
         <div>

@@ -77,6 +77,62 @@ import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } f
             res.json(result);
           });
 
+          // ── Admin: Run System (full reprocessing loop) ─────────────────────────
+          app.post("/api/system/run", async (_req, res) => {
+            const startedAt = Date.now();
+            const steps: { step: string; status: string; detail?: string; count?: number }[] = [];
+            try {
+              const { partnerReferrals: pReferrals, partnerCommissions: pCommissions } = await import("@shared/schema");
+              const { db: ddb } = await import("./db");
+              const { sql: dSql, or, eq, and, lt, isNull } = await import("drizzle-orm");
+
+              // 1. Detect stale leads (submitted > 3 days ago, still in submitted/reviewing)
+              const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+              const staleLeads = await ddb.select({ id: pReferrals.id, clientCompany: pReferrals.clientCompany })
+                .from(pReferrals)
+                .where(and(
+                  or(eq(pReferrals.status, "submitted"), eq(pReferrals.status, "reviewing")),
+                  dSql`${pReferrals.createdAt} < ${threeDaysAgo}`
+                ));
+              steps.push({ step: "Stale lead detection", status: "ok", count: staleLeads.length, detail: `${staleLeads.length} leads stale (3+ days, unactioned)` });
+
+              // 2. Flag high-value opportunities (estimatedValue >= 100000, no aiFitScore)
+              const unscored = await ddb.select({ id: pReferrals.id })
+                .from(pReferrals)
+                .where(and(isNull(pReferrals.aiFitScore), dSql`${pReferrals.estimatedValue} >= 100000`));
+              steps.push({ step: "High-value unscored leads", status: "ok", count: unscored.length, detail: `${unscored.length} leads need AI scoring` });
+
+              // 3. Re-run AI scoring on unscored referrals (up to 5, async)
+              let rescored = 0;
+              if (unscored.length > 0) {
+                const { scorePartnerReferral } = await import("./services/partnerReferralAI");
+                const toScore = unscored.slice(0, 5);
+                for (const { id } of toScore) {
+                  scorePartnerReferral(id).catch(() => {});
+                  rescored++;
+                }
+              }
+              steps.push({ step: "AI rescoring triggered", status: "ok", count: rescored, detail: `${rescored} referrals queued for AI scoring` });
+
+              // 4. Trigger Nexora cycle
+              const nexoraResult = await runNexoraCycle("system-run");
+              steps.push({ step: "Nexora intelligence cycle", status: nexoraResult.skipped ? "skipped" : "ok", detail: nexoraResult.message || (nexoraResult.skipped ? "Already running" : "Cycle complete") });
+
+              // 5. Commission audit (pending commissions older than 7 days)
+              const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+              const overdueComs = await ddb.select({ id: pCommissions.id, amount: pCommissions.commissionAmount })
+                .from(pCommissions)
+                .where(and(eq(pCommissions.paymentStatus, "pending"), dSql`${pCommissions.createdAt} < ${sevenDaysAgo}`));
+              steps.push({ step: "Overdue commission audit", status: overdueComs.length > 0 ? "warning" : "ok", count: overdueComs.length, detail: `${overdueComs.length} commissions pending >7 days` });
+
+              const durationMs = Date.now() - startedAt;
+              res.json({ ok: true, ranAt: new Date().toISOString(), durationMs, steps, staleLeads: staleLeads.map(l => l.clientCompany), overdueComs: overdueComs.length });
+            } catch (err: any) {
+              console.error("[SystemRun] Error:", err.message);
+              res.status(500).json({ ok: false, error: err.message, steps });
+            }
+          });
+
           // ── Nexora Loop Control API (Stage 2) ─────────────────────────────────
 
           app.get("/api/nexora/loop/status", (_req, res) => {
@@ -4631,10 +4687,16 @@ Rules:
   // Partner dashboard — public access by email
   app.get("/api/partner-dashboard/:email", async (req, res) => {
     try {
-      const partner = await storage.getPartnerByEmail(decodeURIComponent(req.params.email));
+      const { partnerReferrals: partnerReferralsTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { or, eq } = await import("drizzle-orm");
+      const partnerEmail = decodeURIComponent(req.params.email);
+      const partner = await storage.getPartnerByEmail(partnerEmail);
       if (!partner) return res.status(404).json({ error: "Partner not found" });
       const opportunities = await storage.getPartnerOpportunities(partner.id);
-      const referrals = await storage.getPartnerReferrals(partner.id);
+      // Fetch referrals by partnerId OR by contact email (submitted without account)
+      const referrals = await ddb.select().from(partnerReferralsTable)
+        .where(or(eq(partnerReferralsTable.partnerId, partner.id), eq(partnerReferralsTable.contactEmail, partnerEmail)));
       res.json({ partner, opportunities, referrals });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
@@ -4682,11 +4744,20 @@ Rules:
 
   app.post("/api/partners/referrals", async (req, res) => {
     try {
-      const { partnerReferrals: partnerReferralsTable, partnerReferralEvents } = await import("@shared/schema");
+      const { partnerReferrals: partnerReferralsTable, partnerReferralEvents, partners: partnersTable } = await import("@shared/schema");
       const { db: ddb } = await import("./db");
+      const { eq } = await import("drizzle-orm");
       const body = req.body || {};
+
+      // Auto-resolve partnerId from referringPartnerEmail if not provided
+      let resolvedPartnerId = body.partnerId || null;
+      if (!resolvedPartnerId && body.referringPartnerEmail) {
+        const [matchedPartner] = await ddb.select({ id: partnersTable.id }).from(partnersTable).where(eq(partnersTable.email, body.referringPartnerEmail)).limit(1);
+        if (matchedPartner) resolvedPartnerId = matchedPartner.id;
+      }
+
       const [newReferral] = await ddb.insert(partnerReferralsTable).values({
-        partnerId: body.partnerId || null,
+        partnerId: resolvedPartnerId,
         clientName: body.clientName || body.contactName || null,
         clientCompany: body.clientCompany || body.companyName || null,
         contactName: body.contactName || null,
@@ -4706,8 +4777,8 @@ Rules:
       await ddb.insert(partnerReferralEvents).values({
         referralId: newReferral.id,
         eventType: "submitted",
-        eventNote: "Referral submitted via partner form",
-        createdBy: body.partnerId || "partner",
+        eventNote: `Referral submitted via partner form${resolvedPartnerId ? ` (partner linked)` : ""}`,
+        createdBy: resolvedPartnerId || "public",
       });
 
       const { scorePartnerReferral } = await import("./services/partnerReferralAI");
@@ -4751,9 +4822,13 @@ Rules:
       const { partnerReferrals: partnerReferralsTable, partnerReferralEvents } = await import("@shared/schema");
       const { db: ddb } = await import("./db");
       const { eq } = await import("drizzle-orm");
-      const { assignedTo } = req.body || {};
-      await ddb.update(partnerReferralsTable).set({ assignedTo, updatedAt: new Date() }).where(eq(partnerReferralsTable.id, req.params.id));
-      await ddb.insert(partnerReferralEvents).values({ referralId: req.params.id, eventType: "assigned", eventNote: `Assigned to ${assignedTo}`, createdBy: "admin" });
+      const { assignedTo, partnerId, assignmentNote } = req.body || {};
+      const updateFields: Record<string, any> = { updatedAt: new Date() };
+      if (assignedTo) updateFields.assignedTo = assignedTo;
+      if (partnerId) { updateFields.partnerId = partnerId; updateFields.assignedAt = new Date(); }
+      await ddb.update(partnerReferralsTable).set(updateFields).where(eq(partnerReferralsTable.id, req.params.id));
+      const note = assignmentNote || (partnerId ? `Linked to partner ${partnerId}` : `Assigned to ${assignedTo}`);
+      await ddb.insert(partnerReferralEvents).values({ referralId: req.params.id, eventType: "assigned", eventNote: note, createdBy: "admin" });
       res.json({ ok: true });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
@@ -4775,31 +4850,40 @@ Rules:
       const { partnerReferrals: partnerReferralsTable, partnerReferralEvents, partnerCommissions: partnerCommissionsTable } = await import("@shared/schema");
       const { db: ddb } = await import("./db");
       const { eq } = await import("drizzle-orm");
-      const { dealValue } = req.body || {};
+      const { dealValue, partnerId: bodyPartnerId, notes } = req.body || {};
       const [referral] = await ddb.select().from(partnerReferralsTable).where(eq(partnerReferralsTable.id, req.params.id)).limit(1);
       if (!referral) return res.status(404).json({ error: "Referral not found" });
 
+      const resolvedPartnerId = referral.partnerId || bodyPartnerId || null;
       const value = Number(dealValue || referral.estimatedValue || referral.projectValue || 0);
       const rate = Number(referral.commissionPercent || 7.5) / 100;
       const commissionAmount = Math.round(value * rate);
 
-      await ddb.update(partnerReferralsTable).set({ status: "won", projectValue: value, updatedAt: new Date() }).where(eq(partnerReferralsTable.id, req.params.id));
+      const updateSet: Record<string, any> = { status: "won", projectValue: value, updatedAt: new Date() };
+      if (resolvedPartnerId && !referral.partnerId) updateSet.partnerId = resolvedPartnerId;
+      await ddb.update(partnerReferralsTable).set(updateSet).where(eq(partnerReferralsTable.id, req.params.id));
 
       let commission = null;
-      if (referral.partnerId && value > 0) {
-        const [comm] = await ddb.insert(partnerCommissionsTable).values({
-          referralId: req.params.id,
-          partnerId: referral.partnerId,
-          commissionRate: rate,
-          dealValue: value,
-          commissionAmount,
-          paymentStatus: "pending",
-        }).returning();
-        commission = comm;
+      if (resolvedPartnerId && value > 0) {
+        // Upsert: avoid duplicate commission if mark-won called twice
+        const existing = await ddb.select().from(partnerCommissionsTable).where(eq(partnerCommissionsTable.referralId, req.params.id)).limit(1);
+        if (existing.length === 0) {
+          const [comm] = await ddb.insert(partnerCommissionsTable).values({
+            referralId: req.params.id,
+            partnerId: resolvedPartnerId,
+            commissionRate: rate,
+            dealValue: value,
+            commissionAmount,
+            paymentStatus: "pending",
+          }).returning();
+          commission = comm;
+        } else {
+          commission = existing[0];
+        }
       }
 
-      await ddb.insert(partnerReferralEvents).values({ referralId: req.params.id, eventType: "won", eventNote: `Deal won at $${value.toLocaleString()}, commission $${commissionAmount.toLocaleString()}`, createdBy: "admin" });
-      if (commission) {
+      await ddb.insert(partnerReferralEvents).values({ referralId: req.params.id, eventType: "won", eventNote: `Deal won at $${value.toLocaleString()}, commission $${commissionAmount.toLocaleString()}${notes ? ` — ${notes}` : ""}`, createdBy: "admin" });
+      if (commission && !commission.paymentStatus) {
         await ddb.insert(partnerReferralEvents).values({ referralId: req.params.id, eventType: "commission_created", eventNote: `Commission of $${commissionAmount.toLocaleString()} created`, createdBy: "admin" });
       }
 

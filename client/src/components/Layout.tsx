@@ -105,8 +105,8 @@ function Header() {
               size="sm"
               className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-semibold tracking-wide border-none min-h-[44px] px-5"
             >
-              <Link href="/workplace-solutions" data-testid="button-get-quote-header">
-                Get a Quote
+              <Link href="/start" data-testid="button-get-quote-header">
+                Get Started
               </Link>
             </Button>
           </div>
@@ -160,8 +160,8 @@ function Header() {
                     className="w-full bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold border-none min-h-[52px] text-base"
                     style={{ touchAction: "manipulation" }}
                   >
-                    <Link href="/workplace-solutions" data-testid="button-mobile-get-quote">
-                      Get a Free Quote
+                    <Link href="/start" data-testid="button-mobile-get-quote">
+                      Get Started
                     </Link>
                   </Button>
 

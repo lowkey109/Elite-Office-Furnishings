@@ -1,0 +1,471 @@
+FINAL ENTERPRISE COMPLETION BUILD — THE CORPORATE DESK PLATFORM
+
+ROLE
+
+You are a senior full-stack engineer, AI systems architect, SaaS product builder, UX strategist, backend reliability engineer, and production hardening specialist.
+
+You are working on The Corporate Desk platform.
+
+This system is already partially built.
+
+Your job is NOT to restart.
+
+Your job is to:
+- inspect what exists
+- preserve what is good
+- upgrade what is weak
+- complete what is missing
+- remove fake/demo logic
+- close all loops
+- harden the system
+- simplify the public experience
+- deliver a true enterprise-grade, production-ready system
+
+==================================================
+MASTER RULE
+==================================================
+
+BUILD IN STAGES.
+
+DO NOT MOVE TO THE NEXT STAGE UNTIL:
+
+- the current stage is fully implemented
+- tested end-to-end
+- no fake logic exists
+- no broken flows exist
+- results are documented
+
+If something is incomplete, you must fix it before continuing.
+
+==================================================
+CORE OBJECTIVE
+==================================================
+
+Transform the platform into a:
+
+SELF-OPERATING, AI-DRIVEN, REFERRAL-POWERED REVENUE ENGINE
+
+Where:
+- users enter through ONE clear pathway
+- all data is captured and processed
+- AI enriches and prioritises
+- admin operates efficiently
+- partners feed opportunities
+- commissions are tracked
+- system continuously improves
+- Nexora acts as an always-available internal AI operator/copilot on the admin side
+
+==================================================
+FRONTEND SIMPLIFICATION (NON-NEGOTIABLE)
+==================================================
+
+The public website must be reduced to ONLY:
+
+1. /
+   Home (brand + trust + CTA)
+
+2. /start
+   The ONLY intake page (core engine)
+
+3. /partners
+   Referral partner page
+
+4. /capability
+   Commercial capability page
+
+REMOVE OR MERGE:
+- duplicate forms
+- scattered enquiry pages
+- redundant routes
+
+ALL CTAs MUST POINT TO:
+👉 /start
+
+NO EXCEPTIONS
+
+==================================================
+STAGE 1 — SYSTEM AUDIT & STRUCTURE VALIDATION
+==================================================
+
+- inspect all routes
+- inspect DB schema
+- inspect AI systems
+- inspect admin
+- inspect forms
+- inspect public pages
+
+OUTPUT:
+- what exists
+- what works
+- what is broken
+- what is fake
+- what is incomplete
+
+SAVE TO:
+docs/system-audit.md
+
+DO NOT CONTINUE until audit is complete
+
+==================================================
+STAGE 2 — WEBSITE CLEANUP & TRUST FIXES
+==================================================
+
+Fix:
+
+- incorrect form labels (e.g. “Plone”)
+- duplicate nav/footer
+- inconsistent branding
+- trade portal misalignment
+- weak free layout page
+
+Upgrade:
+- commercial positioning
+- copy consistency
+- visual hierarchy
+
+Ensure:
+- premium feel
+- clean UX
+- no duplication
+
+==================================================
+STAGE 3 — UNIFIED INTAKE ENGINE (/start)
+==================================================
+
+BUILD OR UPGRADE:
+
+/start must be the CORE SYSTEM ENTRY
+
+It must:
+- handle ALL enquiry types
+- dynamically adapt form
+- support:
+  - furniture
+  - fit-out
+  - relocation
+  - floor plan upload
+  - partner referrals
+
+REQUIREMENTS:
+- one clean UI
+- no clutter
+- real submission
+- no dead ends
+
+==================================================
+STAGE 4 — DATA + BACKEND COMPLETION
+==================================================
+
+Ensure:
+
+- all referral tables exist
+- all lead tables exist
+- relationships are correct
+- indexes added
+- no duplicates allowed
+- migrations clean
+
+Ensure ALL endpoints:
+- exist
+- validate
+- persist real data
+- are secure
+
+==================================================
+STAGE 5 — FULL LOOP IMPLEMENTATION
+==================================================
+
+IMPLEMENT FULL SYSTEM LOOP:
+
+1. user submits
+2. data stored
+3. AI runs
+4. scores generated
+5. lead routed
+6. admin sees it
+7. status updated
+8. commission calculated
+9. partner sees updates
+10. results feed back into system
+
+NO STEP MAY BREAK
+
+==================================================
+STAGE 6 — AI ENGINE (REAL, NOT FAKE)
+==================================================
+
+AI MUST:
+
+- summarise lead
+- score fit
+- score urgency
+- score close likelihood
+- suggest next action
+- tag opportunity
+- flag missing info
+
+REQUIREMENTS:
+- real model call OR real existing pipeline
+- no hardcoded scores
+- re-run on updates
+- retry on failure
+
+==================================================
+STAGE 7 — ADMIN CONTROL LAYER
+==================================================
+
+BUILD/VERIFY:
+
+Admin can:
+- view all referrals
+- filter
+- update status
+- assign leads
+- trigger AI
+- mark won/lost
+- mark paid
+- manage commissions
+
+ADD:
+
+🚀 BUTTON: "Run System"
+
+This must:
+- reprocess all leads
+- rerun AI scoring
+- detect stale leads
+- flag high-priority deals
+- update dashboard
+
+==================================================
+STAGE 8 — PARTNER SYSTEM
+==================================================
+
+Partners must:
+
+- apply
+- submit deals
+- see referrals
+- see status
+- see commission
+- see payment status
+
+NO FAKE DASHBOARDS
+
+ALL DATA MUST BE REAL
+
+==================================================
+STAGE 9 — COMMISSION ENGINE
+==================================================
+
+Implement:
+
+- 7.5% calculation
+- automatic creation on “won”
+- payment tracking
+- audit trail
+- admin override capability
+
+==================================================
+STAGE 10 — NEXORA ADMIN COPILOT
+==================================================
+
+ADD A PERSISTENT NEXORA CHAT BUBBLE ACROSS THE ENTIRE ADMIN SIDE.
+
+This is mandatory.
+
+Nexora must function as a floating admin copilot that stays available from page to page across the admin experience.
+
+REQUIREMENTS:
+
+1. Persistent floating chat bubble
+- visible across all admin pages
+- anchored consistently bottom-right
+- premium styling matching the platform
+- minimized by default or intelligently stateful
+- expands into a chat panel/modal/drawer
+- must persist across route/page changes on the admin side
+
+2. Route-aware context
+Nexora must know what page/admin module the user is on, for example:
+- referrals
+- commissions
+- partners
+- intelligence
+- settings
+- dashboard
+
+It should use current route/page context to give more useful help.
+
+3. Data-aware admin assistant behavior
+Nexora should be able to help with:
+- summarising what is on the current screen
+- explaining referral pipeline status
+- identifying hot opportunities
+- highlighting stale deals
+- summarising partner performance
+- explaining commission states
+- suggesting next best admin action
+- answering questions about current records if the data is available
+
+4. Safe action model
+Nexora may recommend actions, but must not silently mutate critical data without explicit user confirmation.
+For example:
+- OK to suggest "mark this as reviewing"
+- OK to suggest "rerun AI scoring"
+- OK to draft next actions
+- NOT OK to silently mark deals paid/won/lost without explicit confirmation
+
+5. UX requirements
+- premium dark/gold styling matching admin
+- clean, fast, minimal UI
+- conversation history preserved during session
+- does not obstruct primary admin actions
+- mobile/tablet responsive if admin is viewed there
+- supports open/close/minimise
+- smooth transition across route changes
+
+6. Functional requirements
+- chat bubble available on every admin page
+- chat panel receives current page context
+- chat can call or query existing admin/intelligence data where appropriate
+- chat uses real backend data or real available context
+- no fake canned assistant pretending to know data it does not know
+- if data is unavailable, Nexora must say so clearly
+
+7. Suggested capabilities
+- "Summarise this page"
+- "What should I focus on first?"
+- "Which referrals are hottest?"
+- "Which deals are stale?"
+- "Show commission risk areas"
+- "What changed today?"
+- "What should I follow up now?"
+
+8. Implementation rule
+If an existing Nexora/orchestrator/chat system already exists, upgrade and reuse it.
+Do not create a disconnected second assistant if a usable one already exists.
+
+9. Logging and documentation
+Document:
+- how Nexora is mounted globally in admin
+- what context is passed into it
+- what actions it can and cannot take
+- any limitations
+- any future upgrades needed
+
+COMPLETION REQUIREMENTS FOR THIS STAGE:
+- Nexora bubble appears across admin routes
+- it survives page-to-page navigation
+- it receives route context
+- it can answer based on real current data/context
+- it matches premium admin design
+- it is documented fully
+- it does not break admin performance or usability
+
+==================================================
+STAGE 11 — DESIGN (BILLION-DOLLAR STANDARD)
+==================================================
+
+Upgrade ALL UI:
+
+- dark charcoal + gold accent
+- clean spacing
+- premium typography
+- responsive
+- no clutter
+- no template feel
+
+Make it feel:
+- expensive
+- intentional
+- enterprise-grade
+
+This includes:
+- public website pages
+- /start
+- /partners
+- /capability
+- admin dashboard
+- partner dashboard
+- Nexora chat bubble and panel
+- forms
+- status chips
+- tables
+- empty states
+- cards
+- modals
+- drawers
+
+==================================================
+STAGE 12 — HARD TESTING (MANDATORY)
+==================================================
+
+TEST FULL SYSTEM:
+
+- submit lead → works
+- AI runs → works
+- admin sees → works
+- status updates → persist
+- commission → correct
+- partner sees updates
+- no broken routes
+- no fake data
+- Nexora bubble appears across admin
+- Nexora retains context across admin page changes
+- Nexora gives route-aware answers
+- Nexora does not perform unsafe actions without confirmation
+
+FIX EVERYTHING THAT FAILS
+
+==================================================
+STAGE 13 — DOCUMENTATION
+==================================================
+
+UPDATE:
+
+- docs/system-audit.md
+- docs/build-report.md
+- docs/open-issues.md
+
+Include:
+- what was built
+- what was fixed
+- what remains
+- risks
+- improvements
+- how Nexora works
+- where Nexora is mounted
+- what context Nexora receives
+- what actions Nexora can take
+- what actions require confirmation
+
+==================================================
+FINAL RULE
+==================================================
+
+DO NOT STOP UNTIL:
+
+- system loop is fully operational
+- frontend is simplified
+- backend is real
+- AI is working
+- commissions work
+- partners work
+- admin works
+- Nexora works across the full admin side
+- no fake logic exists
+- everything is tested
+- everything is documented
+
+The result must be:
+
+A REAL, PRODUCTION-GRADE, AI-POWERED, REFERRAL-DRIVEN BUSINESS SYSTEM
+
+WITH A PERSISTENT NEXORA ADMIN COPILOT
+
+NOT a demo
+NOT a mock
+NOT a partial build
+
+A REAL SYSTEM.

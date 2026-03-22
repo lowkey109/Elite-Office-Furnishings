@@ -75,3 +75,10 @@
 | Footer missing trade portal link | Added "Trade & Project Procurement" to footer | Mar 2026 |
 | Duplicate admin partner routes | Removed duplicate blocks at lines 4849–4926 | Mar 2026 |
 | EADDRINUSE port conflict | Restarted workflow to clear process | Mar 2026 |
+| Commission `null` on mark-won | Fixed: `mark-won` now accepts `partnerId` from request body as fallback; upsert prevents duplicates | Mar 2026 |
+| `assign` route not setting `partnerId` on referral | Fixed: `POST /api/referrals/:id/assign` now updates `partnerId` + `assignedAt` when `partnerId` is provided | Mar 2026 |
+| Partner dashboard showing 0 referrals despite submission | Fixed: dashboard query now uses `OR` clause matching `partnerId` OR `contactEmail` | Mar 2026 |
+| Referral submit not auto-linking to partner by email | Fixed: `POST /api/partners/referrals` now auto-resolves partnerId from `referringPartnerEmail` | Mar 2026 |
+| Admin Run System button missing | Added `POST /api/system/run` backend route + "Run System" button in Admin Nexora with results panel | Mar 2026 |
+| No unified intake entry point | Created `/start` page with 6 path cards + quick enquiry form; header CTA updated to "Get Started → /start" | Mar 2026 |
+| AI scores not verified as dynamic | Confirmed: ANZ ($435k) scored 95, Small Gym Startup ($8k) scored 65 — scores are real and differentiated | Mar 2026 |
