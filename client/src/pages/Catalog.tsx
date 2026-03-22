@@ -1,93 +1,133 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, X } from "lucide-react";
+import { Search, X, Tag } from "lucide-react";
 import { Layout } from "@/components/Layout";
-import type { CatalogProduct } from "@shared/schema";
 
-// ─── Category display config ─────────────────────────────────────────────────
-const CATEGORY_ORDER: Array<{ key: string; label: string }> = [
-  { key: "all", label: "All" },
-  { key: "executive-desks", label: "Executive Desks" },
-  { key: "manager-desks", label: "Manager Desks" },
-  { key: "workstations", label: "Workstations" },
-  { key: "boardroom-tables", label: "Boardroom Tables" },
-  { key: "reception-desks", label: "Reception Desks" },
-  { key: "office-seating", label: "Office Seating" },
-  { key: "storage-cabinets", label: "Storage & Cabinets" },
-  { key: "office-pods", label: "Office Pods" },
-];
-
-const CATEGORY_LABELS: Record<string, string> = {
-  "executive-desks": "Executive Desks",
-  "manager-desks": "Manager Desks",
-  "workstations": "Workstations",
-  "boardroom-tables": "Boardroom Tables",
-  "reception-desks": "Reception Desks",
-  "office-seating": "Office Seating",
-  "storage-cabinets": "Storage & Cabinets",
-  "office-pods": "Office Pods",
-  "uncategorised": "Uncategorised",
-};
-
-function getCategoryLabel(cat: string): string {
-  return CATEGORY_LABELS[cat] ?? cat.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+// ─── Supplier product type (from /api/products) ────────────────────────────
+interface SupplierProduct {
+  sku: string;
+  name: string;
+  product_name?: string;
+  category: string;
+  series: string | null;
+  supplier?: string;
+  dimensions?: string;
+  materials?: string;
+  colors?: string[];
+  imageUrl: string;
+  imageAlt?: string;
+  image?: string;
+  price_aud?: number | null;
+  price_label?: string | null;
+  description?: string;
 }
 
-// ─── Product Card ─────────────────────────────────────────────────────────────
-function ProductCard({ product }: { product: CatalogProduct }) {
+// ─── Category config ───────────────────────────────────────────────────────
+const CATEGORY_ORDER = [
+  "All",
+  "Executive Desks",
+  "Manager Desks",
+  "Workstations",
+  "Boardroom Tables",
+  "Reception Desks",
+  "Office Seating",
+  "Lounge Seating",
+  "Storage",
+  "Storage & Filing",
+  "Occasional Tables",
+  "Office Pods",
+];
+
+// ─── Product Card ──────────────────────────────────────────────────────────
+function ProductCard({ product }: { product: SupplierProduct }) {
   const [imgErr, setImgErr] = useState(false);
+  const imgSrc = product.imageUrl || product.image || "";
+  const name = product.name || product.product_name || "";
 
   return (
     <article
       data-testid={`card-product-${product.sku}`}
-      className="overflow-hidden rounded-2xl border border-white/10 bg-[#0b0b0c] hover:border-[#b8974a]/40 transition-colors duration-200"
+      className="group overflow-hidden rounded-2xl border border-white/10 bg-[#0b0b0c] hover:border-[#b8974a]/40 transition-all duration-200 flex flex-col"
     >
-      <div className="aspect-[4/5] bg-black flex items-center justify-center p-6">
-        {!imgErr ? (
+      {/* Image */}
+      <div className="aspect-[4/3] bg-black flex items-center justify-center overflow-hidden">
+        {!imgErr && imgSrc ? (
           <img
-            src={product.imageUrl}
-            alt={product.imageAlt ?? `${product.name} — ${product.sku}`}
-            className="h-full w-full object-contain"
+            src={imgSrc}
+            alt={product.imageAlt ?? `${name} — ${product.sku}`}
+            className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
             loading="lazy"
             onError={() => setImgErr(true)}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-white/20 text-xs text-center px-4">
+          <div className="w-full h-full flex items-center justify-center text-white/15 text-xs text-center px-4 font-mono">
             {product.sku}
           </div>
         )}
       </div>
 
-      <div className="space-y-1.5 p-4">
-        <div className="text-[10px] uppercase tracking-[0.2em] text-[#b8974a]/80 font-medium">
-          {getCategoryLabel(product.category)}
-        </div>
-        <div className="text-xs text-white/40 font-mono">{product.sku}</div>
-        <h3 className="text-sm leading-snug text-white font-medium">{product.name}</h3>
-        {(product as any).series ? (
-          <div className="inline-flex rounded-full border border-[#b8974a]/25 px-2.5 py-0.5 text-[10px] text-[#b8974a]/80 tracking-wide">
-            {(product as any).series}
+      {/* Content */}
+      <div className="flex flex-col flex-1 p-4 gap-2">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-[#b8974a]/80 font-medium truncate mb-0.5">
+              {product.category}
+            </div>
+            <div className="text-[10px] text-white/30 font-mono">{product.sku}</div>
           </div>
-        ) : null}
+          {product.series && (
+            <span className="shrink-0 text-[9px] border border-[#b8974a]/25 rounded-full px-2 py-0.5 text-[#b8974a]/70 tracking-wide whitespace-nowrap">
+              {product.series}
+            </span>
+          )}
+        </div>
+
+        <h3 className="text-sm leading-snug text-white font-medium line-clamp-2">{name}</h3>
+
+        {product.dimensions && (
+          <p className="text-[10px] text-white/35 leading-relaxed line-clamp-1">
+            {product.dimensions}
+          </p>
+        )}
+
+        {product.description && (
+          <p className="text-[10px] text-white/45 leading-relaxed line-clamp-2 flex-1">
+            {product.description.split('.').slice(0, 2).join('.') + '.'}
+          </p>
+        )}
+
+        {/* Price */}
+        <div className="mt-auto pt-2 border-t border-white/5 flex items-center justify-between">
+          {product.price_label ? (
+            <span className="flex items-center gap-1 text-[#b8974a] text-xs font-semibold">
+              <Tag className="w-3 h-3" />
+              {product.price_label}
+            </span>
+          ) : (
+            <span className="text-white/30 text-[10px]">Request Quote</span>
+          )}
+          {product.colors && product.colors.length > 0 && (
+            <span className="text-[9px] text-white/30 truncate ml-2">
+              {product.colors.slice(0,2).join(' · ')}
+            </span>
+          )}
+        </div>
       </div>
     </article>
   );
 }
 
-// ─── Category Filter Pill ─────────────────────────────────────────────────────
-function FilterPill({
-  label,
-  active,
-  onClick,
-}: {
+// ─── Filter Pill ───────────────────────────────────────────────────────────
+function FilterPill({ label, active, onClick, count }: {
   label: string;
   active: boolean;
   onClick: () => void;
+  count?: number;
 }) {
   return (
     <button
       onClick={onClick}
-      data-testid={`filter-category-${label.toLowerCase().replace(/\s+/g, "-")}`}
+      data-testid={`filter-category-${label.toLowerCase().replace(/\s+/g, "-").replace(/[&]/g, "and")}`}
       className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm transition-colors duration-150 ${
         active
           ? "border-[#b8974a] bg-[#b8974a]/10 text-[#b8974a]"
@@ -95,130 +135,126 @@ function FilterPill({
       }`}
     >
       {label}
+      {count !== undefined && (
+        <span className={`ml-1.5 text-[10px] ${active ? "text-[#b8974a]/70" : "text-white/30"}`}>
+          {count}
+        </span>
+      )}
     </button>
   );
 }
 
-// ─── Group products by category preserving order ──────────────────────────────
-function groupByCategory(
-  products: CatalogProduct[]
-): Array<{ key: string; label: string; items: CatalogProduct[] }> {
-  const order = CATEGORY_ORDER.filter(c => c.key !== "all").map(c => c.key);
-  const map = new Map<string, CatalogProduct[]>();
-
-  for (const p of products) {
-    if (!map.has(p.category)) map.set(p.category, []);
-    map.get(p.category)!.push(p);
-  }
-
-  const result: Array<{ key: string; label: string; items: CatalogProduct[] }> = [];
-  for (const key of order) {
-    if (map.has(key)) {
-      result.push({ key, label: getCategoryLabel(key), items: map.get(key)! });
-    }
-  }
-  // Any categories not in our ordered list
-  for (const [key, items] of map) {
-    if (!order.includes(key)) {
-      result.push({ key, label: getCategoryLabel(key), items });
-    }
-  }
-  return result;
-}
-
-// ─── Main Catalog Page ────────────────────────────────────────────────────────
+// ─── Main Catalog ──────────────────────────────────────────────────────────
 export default function Catalog() {
-  const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [activeCategory, setActiveCategory] = useState<string>("All");
   const [activeSeries, setActiveSeries] = useState<string>("all");
   const [search, setSearch] = useState("");
 
-  // Fetch all active products once
-  const { data, isLoading } = useQuery<{ products: CatalogProduct[]; total: number }>({
-    queryKey: ["/api/catalog/products"],
+  const { data: rawProducts = [], isLoading } = useQuery<SupplierProduct[]>({
+    queryKey: ["/api/products"],
     queryFn: async () => {
-      const res = await fetch("/api/catalog/products?limit=500");
+      const res = await fetch("/api/products");
       if (!res.ok) throw new Error("Failed to load catalog");
       return res.json();
     },
     staleTime: 5 * 60 * 1000,
   });
 
-  // Fetch series options
-  const { data: seriesOptions = [] } = useQuery<string[]>({
-    queryKey: ["/api/catalog/series"],
-    staleTime: 5 * 60 * 1000,
-  });
+  // Derive series options from the active category
+  const seriesOptions = useMemo(() => {
+    const src = activeCategory === "All" ? rawProducts : rawProducts.filter(p => p.category === activeCategory);
+    const s = [...new Set(src.map(p => p.series).filter(Boolean) as string[])].sort();
+    return s;
+  }, [rawProducts, activeCategory]);
 
-  const allProducts = data?.products ?? [];
+  // Category counts
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { All: rawProducts.length };
+    rawProducts.forEach(p => {
+      counts[p.category] = (counts[p.category] || 0) + 1;
+    });
+    return counts;
+  }, [rawProducts]);
 
-  // Client-side filtering for instant response
+  // Filtered products
   const filtered = useMemo(() => {
-    let products = allProducts;
-    if (activeCategory !== "all") {
+    let products = rawProducts;
+    if (activeCategory !== "All") {
       products = products.filter(p => p.category === activeCategory);
     }
     if (activeSeries !== "all") {
-      products = products.filter(p => (p as any).series === activeSeries);
+      products = products.filter(p => p.series === activeSeries);
     }
     if (search.trim()) {
       const q = search.toLowerCase().trim();
       products = products.filter(p => {
-        const st = (p as any).searchableText ?? "";
+        const n = (p.name || p.product_name || "").toLowerCase();
         return (
-          st.includes(q) ||
+          n.includes(q) ||
           p.sku.toLowerCase().includes(q) ||
-          p.name.toLowerCase().includes(q)
+          (p.series || "").toLowerCase().includes(q) ||
+          (p.category || "").toLowerCase().includes(q) ||
+          (p.materials || "").toLowerCase().includes(q) ||
+          (p.supplier || "").toLowerCase().includes(q)
         );
       });
     }
     return products;
-  }, [allProducts, activeCategory, activeSeries, search]);
+  }, [rawProducts, activeCategory, activeSeries, search]);
 
-  const grouped = useMemo(() => groupByCategory(filtered), [filtered]);
+  // Group by category for "All" view
+  const grouped = useMemo(() => {
+    if (activeCategory !== "All") return [];
+    const map = new Map<string, SupplierProduct[]>();
+    filtered.forEach(p => {
+      if (!map.has(p.category)) map.set(p.category, []);
+      map.get(p.category)!.push(p);
+    });
+    const ordered: Array<{ cat: string; items: SupplierProduct[] }> = [];
+    const orderedCats = CATEGORY_ORDER.filter(c => c !== "All");
+    orderedCats.forEach(cat => {
+      if (map.has(cat)) ordered.push({ cat, items: map.get(cat)! });
+    });
+    map.forEach((items, cat) => {
+      if (!orderedCats.includes(cat)) ordered.push({ cat, items });
+    });
+    return ordered;
+  }, [filtered, activeCategory]);
 
-  // Active category count for tab badges
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: allProducts.length };
-    for (const p of allProducts) {
-      counts[p.category] = (counts[p.category] || 0) + 1;
-    }
-    return counts;
-  }, [allProducts]);
-
-  const handleCategoryChange = (key: string) => {
-    setActiveCategory(key);
+  const handleCategoryChange = (cat: string) => {
+    setActiveCategory(cat);
     setActiveSeries("all");
   };
 
   return (
     <Layout>
       <div className="min-h-screen bg-[#080808] text-white">
-        {/* ── Page Header ── */}
+        {/* Header */}
         <div className="border-b border-white/5 bg-[#080808]">
           <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
             <p className="text-[10px] uppercase tracking-[0.3em] text-[#b8974a]/70 mb-3">
               The Corporate Desk
             </p>
             <h1 className="text-3xl md:text-4xl font-light tracking-wide text-white mb-2">
-              Product Catalog
+              Product Catalogue
             </h1>
             <p className="text-white/40 text-sm">
-              {allProducts.length > 0
-                ? `${allProducts.length} products across ${Object.keys(categoryCounts).length - 1} categories`
-                : "Premium commercial furniture for the modern workplace"}
+              {rawProducts.length > 0
+                ? `${rawProducts.length} products · Feisenzhuo, Gojo, HuaSheng & Aysa collections`
+                : "Premium commercial furniture for the modern Australian workplace"}
             </p>
           </div>
         </div>
 
         <div className="mx-auto max-w-7xl px-4 py-6 md:px-8">
-          {/* ── Search ── */}
+          {/* Search */}
           <div className="mb-5 relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
             <input
               data-testid="input-catalog-search"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Search by SKU, product name, or category…"
+              placeholder="Search by name, SKU, series, or material…"
               className="w-full rounded-xl border border-white/10 bg-white/5 pl-11 pr-10 py-3 text-sm text-white outline-none placeholder:text-white/30 focus:border-[#b8974a]/40 transition-colors"
             />
             {search && (
@@ -232,65 +268,44 @@ export default function Catalog() {
             )}
           </div>
 
-          {/* ── Category Tabs ── */}
-          <div
-            data-testid="filter-category-tabs"
-            className="mb-3 flex gap-2 overflow-x-auto pb-2 scrollbar-none"
-          >
-            {CATEGORY_ORDER.map(item => (
+          {/* Category Tabs */}
+          <div data-testid="filter-category-tabs" className="mb-3 flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+            {CATEGORY_ORDER.map(cat => (
               <FilterPill
-                key={item.key}
-                label={item.label}
-                active={activeCategory === item.key}
-                onClick={() => handleCategoryChange(item.key)}
+                key={cat}
+                label={cat}
+                active={activeCategory === cat}
+                onClick={() => handleCategoryChange(cat)}
+                count={cat === "All" ? undefined : categoryCounts[cat]}
               />
             ))}
           </div>
 
-          {/* ── Series Filter ── */}
-          {seriesOptions.length > 0 && (
-            <div
-              data-testid="filter-series-tabs"
-              className="mb-8 flex gap-2 overflow-x-auto pb-2 scrollbar-none"
-            >
-              <FilterPill
-                label="All Series"
-                active={activeSeries === "all"}
-                onClick={() => setActiveSeries("all")}
-              />
+          {/* Series Filter */}
+          {seriesOptions.length > 1 && (
+            <div data-testid="filter-series-tabs" className="mb-8 flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+              <FilterPill label="All Series" active={activeSeries === "all"} onClick={() => setActiveSeries("all")} />
               {seriesOptions.map(s => (
-                <FilterPill
-                  key={s}
-                  label={s}
-                  active={activeSeries === s}
-                  onClick={() => setActiveSeries(s)}
-                />
+                <FilterPill key={s} label={s} active={activeSeries === s} onClick={() => setActiveSeries(s)} />
               ))}
             </div>
           )}
 
-          {/* ── Loading State ── */}
+          {/* Loading */}
           {isLoading && (
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
               {Array.from({ length: 12 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="rounded-2xl border border-white/5 bg-white/5 animate-pulse aspect-[4/5]"
-                />
+                <div key={i} className="rounded-2xl border border-white/5 bg-white/5 animate-pulse aspect-[4/3]" />
               ))}
             </div>
           )}
 
-          {/* ── Empty State ── */}
+          {/* Empty */}
           {!isLoading && filtered.length === 0 && (
             <div className="rounded-2xl border border-white/10 bg-white/5 p-12 text-center">
               <p className="text-white/40 text-sm">No products found for this filter.</p>
               <button
-                onClick={() => {
-                  setActiveCategory("all");
-                  setActiveSeries("all");
-                  setSearch("");
-                }}
+                onClick={() => { setActiveCategory("All"); setActiveSeries("all"); setSearch(""); }}
                 className="mt-4 text-[#b8974a] text-sm underline underline-offset-2"
               >
                 Clear filters
@@ -298,32 +313,34 @@ export default function Catalog() {
             </div>
           )}
 
-          {/* ── Products ── */}
+          {/* Products */}
           {!isLoading && filtered.length > 0 && (
             <>
-              {activeCategory === "all" ? (
-                /* Grouped view when "All" is selected */
-                grouped.map(group => (
-                  <section key={group.key} className="mb-12" data-testid={`section-${group.key}`}>
+              {activeCategory === "All" ? (
+                grouped.map(({ cat, items }) => (
+                  <section key={cat} className="mb-12" data-testid={`section-${cat.toLowerCase().replace(/\s+/g,"-").replace(/[&]/g,"and")}`}>
                     <div className="flex items-baseline gap-3 mb-5">
-                      <h2 className="text-xl font-light tracking-wide text-white">
-                        {group.label}
-                      </h2>
-                      <span className="text-sm text-white/30">{group.items.length}</span>
+                      <h2 className="text-xl font-light tracking-wide text-white">{cat}</h2>
+                      <span className="text-sm text-white/30">{items.length}</span>
                     </div>
                     <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
-                      {group.items.map(product => (
-                        <ProductCard key={product.id} product={product} />
+                      {items.map(product => (
+                        <ProductCard key={product.sku} product={product} />
                       ))}
                     </div>
                   </section>
                 ))
               ) : (
-                /* Single category view */
-                <section data-testid={`section-${activeCategory}`}>
+                <section data-testid={`section-${activeCategory.toLowerCase().replace(/\s+/g,"-").replace(/[&]/g,"and")}`}>
+                  <div className="mb-5 flex items-baseline justify-between">
+                    <div className="flex items-baseline gap-3">
+                      <h2 className="text-xl font-light tracking-wide text-white">{activeCategory}</h2>
+                      <span className="text-sm text-white/30">{filtered.length} products</span>
+                    </div>
+                  </div>
                   <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
                     {filtered.map(product => (
-                      <ProductCard key={product.id} product={product} />
+                      <ProductCard key={product.sku} product={product} />
                     ))}
                   </div>
                 </section>
