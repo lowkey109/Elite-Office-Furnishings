@@ -1,0 +1,213 @@
+CATALOG READY SWITCH ON — THE CORPORATE DESK
+
+ROLE
+
+You are a senior full-stack engineer, frontend architect, backend engineer, UX designer, image-ingestion systems engineer, and production hardening specialist.
+
+You are working inside the existing The Corporate Desk codebase.
+
+The catalog reset phase is complete.
+The upload pipeline is prepared.
+Now the catalog must be switched from “holding mode” to “live premium catalog mode.”
+
+This is NOT a demo.
+This must use real uploaded products only.
+
+==================================================
+GOAL
+==================================================
+
+Turn the catalog live using the newly uploaded images and structured product records.
+
+You must:
+- activate the real catalog
+- ingest uploaded ZIP/image batches
+- generate clean product records
+- organize products by category
+- remove all old/incorrect legacy catalog images from display
+- render a premium, billion-dollar catalog UI using only real uploaded data
+
+==================================================
+NON-NEGOTIABLE RULES
+==================================================
+
+- NO fake products
+- NO placeholder products
+- NO old catalog images mixed in
+- NO showing half-built categories
+- NO messy filenames exposed in UI
+- NO broken cards
+- NO empty product pages
+- NO rendering products without SKU structure
+- Only real uploaded assets may be shown
+
+==================================================
+STAGE 1 — INGEST AND NORMALIZE ALL UPLOADED CATALOG ASSETS
+==================================================
+
+1. Detect all newly uploaded catalog ZIPs/images
+2. Extract all images
+3. Normalize filenames
+4. Parse SKU from filename where possible
+5. Infer category from folder name / filename / existing mapping rules
+6. Reject duplicates safely
+7. Build clean product records
+
+For each accepted product, create/store:
+
+- id
+- sku
+- name
+- category
+- image_url
+- created_at
+
+If product name cannot be confidently inferred, derive a clean fallback from SKU + category without exposing ugly raw filenames.
+
+==================================================
+STAGE 2 — ORGANIZE PRODUCTS INTO A PREMIUM CATALOG STRUCTURE
+==================================================
+
+Store and organize products in a structured pattern like:
+
+/catalog/{category}/{sku}.jpg
+
+Group products by category, for example:
+- executive-desks
+- workstations
+- task-chairs
+- reception-desks
+- boardroom-tables
+- lounge
+- storage
+- pods
+- accessories
+
+Sort products by:
+1. category
+2. sku
+
+Do not allow random ordering.
+
+==================================================
+STAGE 3 — SWITCH CATALOG FROM HOLDING MODE TO LIVE MODE
+==================================================
+
+If a catalog readiness flag exists, switch it on only when:
+- ingestion completed successfully
+- there are valid product records
+- categories are not empty/broken
+
+Replace the “catalog updating” state with the real catalog.
+
+==================================================
+STAGE 4 — RENDER THE PREMIUM MASTER CATALOG
+==================================================
+
+Build/activate:
+
+- /catalog
+
+Required features:
+- premium hero/header
+- category filter bar
+- SKU search
+- large clean product grid
+- responsive layout
+- real product count
+- smooth transitions
+- lazy-loaded images
+- consistent image ratio
+- no cheap WooCommerce feel
+
+Each product card must show:
+- image
+- sku
+- product name
+- subtle category label
+
+Design direction:
+- premium commercial
+- dark/charcoal / warm white / muted gold accent
+- spacious layout
+- sharp typography
+- soft shadows
+- luxury B2B feel
+
+==================================================
+STAGE 5 — ACTIVATE CATEGORY PAGES
+==================================================
+
+Build/activate:
+
+- /catalog/{category}
+
+Each category page must:
+- show only real products in that category
+- use the same premium card system
+- have clean heading and category context
+- support search/filter behaviour where appropriate
+
+==================================================
+STAGE 6 — PRODUCT DETAIL EXPERIENCE
+==================================================
+
+Create a clean product detail view or modal using real data only.
+
+Minimum display:
+- image
+- sku
+- product name
+- category
+
+Do not invent specs unless real data exists.
+
+If additional metadata is available later, structure code so it can be added cleanly.
+
+==================================================
+STAGE 7 — CLEAN REMOVAL OF LEGACY CATALOG DISPLAY
+==================================================
+
+Ensure old product display sources are disabled from the frontend.
+
+Do not:
+- leave old images visible
+- leave old category cards active
+- leave duplicate catalog routes
+- leave mixed new/old product rendering logic
+
+Preserve reusable code only if clean and compatible.
+
+==================================================
+STAGE 8 — QUALITY CONTROL
+==================================================
+
+Validate:
+- no duplicate SKU cards
+- no broken image links
+- no empty category pages
+- no product pages with missing identity
+- no ugly raw upload names exposed
+- no rendering of categories without valid products
+
+==================================================
+STAGE 9 — DOCUMENT WHAT WAS ACTIVATED
+==================================================
+
+Create/update docs in repo describing:
+- how uploads are ingested
+- how products are normalized
+- how categories are inferred
+- what catalog routes are live
+- what still needs future metadata enrichment
+
+==================================================
+FINAL INSTRUCTION
+==================================================
+
+Use the real uploaded assets.
+Switch the catalog live only when structured correctly.
+Render a premium billion-dollar commercial catalog.
+Preserve what is good.
+Remove what is old or messy.
+Do not fake anything.

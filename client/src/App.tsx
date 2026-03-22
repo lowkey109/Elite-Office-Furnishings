@@ -68,6 +68,7 @@ import TradeCustomersPortal from "@/pages/TradeCustomersPortal";
 import Start from "@/pages/Start";
 import Capability from "@/pages/Capability";
 import AdminCatalogStaging from "@/pages/AdminCatalogStaging";
+import Catalog from "@/pages/Catalog";
 import { usePageTracking } from "@/lib/usePageTracking";
 import { Redirect } from "wouter";
 
@@ -81,9 +82,13 @@ function Router() {
       <Route path="/partners" component={Partners} />
       <Route path="/capability" component={Capability} />
 
-      {/* Catalog — still needed for browsing */}
-      <Route path="/products/:sku" component={ProductDetail} />
-      <Route path="/products" component={Products} />
+      {/* Premium Catalog — new system */}
+      <Route path="/catalog/:category" component={Catalog} />
+      <Route path="/catalog" component={Catalog} />
+
+      {/* Legacy product routes — redirect to new catalog */}
+      <Route path="/products/:sku">{() => <Redirect to="/catalog" />}</Route>
+      <Route path="/products">{() => <Redirect to="/catalog" />}</Route>
 
       {/* Embed routes for WordPress — keep as-is */}
       <Route path="/embed/quote-builder" component={QuoteBuilder} />

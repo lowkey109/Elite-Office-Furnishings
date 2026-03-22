@@ -321,6 +321,63 @@
 
 ---
 
+## Stage 13 — Premium Catalog System (Live)
+
+**Status:** COMPLETE
+
+**What was built:**
+
+**Image Ingestion:**
+- Extracted 3 ZIP batches from attached assets (TCDcatalog, Reception & Seating, Jinying PDFs)
+- 231 product images extracted and organized by category (small files < 10KB skipped)
+- Images stored in `client/public/catalog/{category}/` with SKU-structured filenames
+- Jinying ZIP contained PDFs only — deferred for future PDF-to-image pipeline
+
+**Categories & SKU Structure:**
+| Category | Slug | SKU Format | Count |
+|----------|------|-----------|-------|
+| Modern Office Furniture | office-furniture | TCD-OF-001..076 | 76 |
+| Traditional Executive Series | traditional-series | TCD-TS-001..089 | 89 |
+| Reception & Seating | reception-seating | TCD-RS-001..066 | 66 |
+
+**Schema additions (`shared/schema.ts`):**
+- `catalogProducts` — id, sku (unique), name, category, imageUrl, batchSource, sortOrder, createdAt
+- `catalogConfig` — key/value config store for `catalogReady` flag
+
+**Backend routes (`server/routes.ts`):**
+| Route | Purpose |
+|-------|---------|
+| `GET /api/catalog/config` | Read catalogReady flag and other config |
+| `GET /api/catalog/categories` | List categories with product counts |
+| `GET /api/catalog/products` | List products (?category=, ?search=, ?limit=, ?offset=) |
+| `GET /api/catalog/products/:sku` | Single product detail |
+| `PATCH /api/admin/catalog/config` | Admin — toggle catalogReady flag |
+
+**Frontend (`client/src/pages/Catalog.tsx`):**
+- Premium dark catalog at `/catalog` and `/catalog/:category`
+- "Catalog Updating" holding state when `catalogReady = false`
+- Hero section with live product count
+- Sticky filter bar with category pills + SKU/name search
+- Responsive product grid (2/3/4/5 columns) with lazy-loaded images
+- Hover lift effect, soft zoom, gold accent on hover
+- Product detail modal with enquire CTA → /start
+- Footer CTA section
+- `/products` and `/products/:sku` redirect to `/catalog`
+
+**Navigation:**
+- Header nav updated to: Home, Catalog, Capability, Partners, Get Started
+- Old nav links (Blog, About, Case Studies, etc.) removed from header
+
+**catalogReady flag:** Set to `true` — catalog is live
+
+**E2e tests:** PASSED
+- Catalog page renders with heading, 3 category filters, search input, 10+ product cards
+- Category filter works (TCD-OF- SKUs shown for office-furniture)
+- Product modal opens and closes correctly
+- /products redirects to /catalog
+
+---
+
 ## Overall System Status
 
 | Stage | Status |
@@ -338,3 +395,4 @@
 | Stage 10 — Enterprise Upgrades | ✅ COMPLETE |
 | Stage 11 — Public Site Consolidation | ✅ COMPLETE |
 | Stage 12 — Catalog Staging System | ✅ COMPLETE |
+| Stage 13 — Premium Catalog (Live) | ✅ COMPLETE |

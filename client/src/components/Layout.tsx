@@ -7,29 +7,19 @@ import { ChatBot } from "@/components/ChatBot";
 
 const navLinks = [
   { label: "Home", href: "/" },
-  { label: "Products", href: "/products" },
-  { label: "Workplace Solutions", href: "/workplace-solutions" },
-  { label: "AI Office Planner", href: "/upload-your-floor-plan" },
-  { label: "3D Office Walkthrough", href: "/3d-office-walkthrough" },
-  { label: "Case Studies", href: "/case-studies" },
-  { label: "Blog", href: "/blog" },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
+  { label: "Catalog", href: "/catalog" },
+  { label: "Capability", href: "/capability" },
+  { label: "Partners", href: "/partners" },
+  { label: "Get Started", href: "/start" },
 ];
 
 const mobileNavLinks = [
   { label: "Home", href: "/" },
-  { label: "Products", href: "/products" },
-  { label: "Workplace Solutions", href: "/workplace-solutions" },
-  { label: "AI Office Planner", href: "/upload-your-floor-plan" },
-  { label: "3D Office Walkthrough", href: "/3d-office-walkthrough" },
-  { label: "Case Studies", href: "/case-studies" },
-  { label: "Testimonials", href: "/testimonials" },
-  { label: "Blog", href: "/blog" },
-  { label: "Quote Builder", href: "/quote-builder" },
-  { label: "Finance Your Workspace", href: "/finance-your-workspace" },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
+  { label: "Catalog", href: "/catalog" },
+  { label: "Capability", href: "/capability" },
+  { label: "Partners", href: "/partners" },
+  { label: "Get Started", href: "/start" },
+  { label: "Trade Portal", href: "/trade-customers-portal" },
 ];
 
 function Header() {

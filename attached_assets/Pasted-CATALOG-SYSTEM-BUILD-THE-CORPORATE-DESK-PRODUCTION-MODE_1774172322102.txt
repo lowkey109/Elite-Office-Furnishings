@@ -1,0 +1,200 @@
+CATALOG SYSTEM BUILD — THE CORPORATE DESK (PRODUCTION MODE, CLEAN RESET)
+
+ROLE
+
+You are a senior frontend engineer, backend engineer, UX designer, and product architect.
+
+You are upgrading the existing catalog system for The Corporate Desk.
+
+You are NOT starting from scratch.
+
+You must:
+- remove outdated/low-quality existing catalog images
+- rebuild the catalog UI into a premium system
+- prepare the system to receive structured uploads (ZIP batches)
+- hold rendering until real data is ready
+- ensure everything is scalable and production-grade
+
+NO demo content  
+NO placeholder products  
+NO fake listings  
+NO messy transitions  
+NO mixed old + new catalog  
+
+==================================================
+PHASE 1 — CLEAN RESET (CRITICAL)
+==================================================
+
+1. Remove or disable ALL existing catalog product data that:
+- is incomplete
+- has poor naming
+- is not SKU structured
+- is test/demo content
+
+2. Do NOT delete underlying code structure if reusable
+3. Only clear product display layer and bad data sources
+
+4. Replace catalog pages with a temporary controlled state:
+
+Display message:
+“Catalog is currently being updated with our latest commercial range.”
+
+Optional:
+- subtle loading skeleton
+- premium holding layout (not blank screen)
+
+==================================================
+PHASE 2 — IMAGE INGESTION SYSTEM (ZIP READY)
+==================================================
+
+Build ingestion system that:
+
+1. Accepts:
+- single image uploads
+- ZIP file uploads (bulk)
+
+2. For each image:
+- extract SKU from filename
+- infer category from filename or folder
+- generate product record
+
+3. Store images in structured format:
+
+/catalog/{category}/{sku}.jpg
+
+4. Reject:
+- duplicate SKUs
+- invalid filenames
+
+5. Do NOT display products yet until system is marked “ready”
+
+==================================================
+PHASE 3 — DATA MODEL (SIMPLE + SCALABLE)
+==================================================
+
+Create/ensure product schema:
+
+- id
+- sku
+- name
+- category
+- image_url
+- created_at
+
+Optional (future-ready but not required now):
+- dimensions
+- material
+- price
+
+Ensure:
+- SKU is unique
+- indexed for fast lookup
+
+==================================================
+PHASE 4 — PREMIUM CATALOG UI (BILLION DOLLAR LOOK)
+==================================================
+
+Build a high-end catalog UI.
+
+MASTER PAGE:
+- /catalog
+
+CATEGORY PAGES:
+- /catalog/{category}
+
+GRID DESIGN:
+- large product cards
+- consistent aspect ratio (1:1 or 4:5)
+- strong spacing
+- image-first layout
+
+CARD STYLE:
+- full-bleed product image
+- subtle shadow
+- hover lift effect
+- soft zoom on image
+
+CARD CONTENT:
+- SKU (small, muted)
+- product name (clean, bold)
+- category (minimal label)
+
+INTERACTION:
+- smooth hover transitions
+- click → product detail modal/page
+- no clutter
+
+STYLE DIRECTION:
+- dark/charcoal base
+- off-white text
+- muted gold accents (optional)
+- premium typography
+- no cheap WooCommerce styling
+
+==================================================
+PHASE 5 — CATALOG BEHAVIOUR
+==================================================
+
+MASTER CATALOG:
+- category filters
+- search by SKU
+- clean transitions
+
+CATEGORY PAGE:
+- filtered grid
+- consistent layout
+
+PERFORMANCE:
+- lazy load images
+- no layout shift
+- optimise rendering
+
+==================================================
+PHASE 6 — CONTROLLED RELEASE (IMPORTANT)
+==================================================
+
+Do NOT show catalog until ready.
+
+Implement flag:
+
+catalogReady = false
+
+Behaviour:
+- if false → show “catalog updating” state
+- if true → show full catalog
+
+Only switch to true when:
+- images uploaded
+- products structured
+- no empty categories
+
+==================================================
+PHASE 7 — SCALABILITY
+==================================================
+
+System must handle:
+- 1000+ SKUs
+- fast filtering
+- fast search
+- clean navigation
+
+==================================================
+NON-NEGOTIABLE RULES
+==================================================
+
+- DO NOT show old catalog images
+- DO NOT mix old + new data
+- DO NOT render half-built catalog
+- DO NOT use fake products
+- DO NOT create placeholder UI pretending to work
+- DO NOT break existing routing
+
+==================================================
+FINAL INSTRUCTION
+
+Clean the catalog.
+Prepare the system.
+Wait for real uploads.
+Then render a premium, structured catalog.
+
+Do not rush visual output before data is correct.

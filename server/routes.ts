@@ -9092,5 +9092,81 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
+  // ═══════════════════════════════════════════════════════════
+  // CATALOG — PUBLIC + ADMIN ROUTES
+  // ═══════════════════════════════════════════════════════════
+
+  // GET /api/catalog/config — catalogReady flag
+  app.get("/api/catalog/config", async (_req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { catalogConfig: ccfg } = await import("../shared/schema");
+      const rows = await ddb.select().from(ccfg);
+      const config: Record<string, string> = {};
+      for (const row of rows) config[row.key] = row.value;
+      if (!config.catalogReady) config.catalogReady = "false";
+      res.json(config);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/catalog/categories — distinct categories with product counts
+  app.get("/api/catalog/categories", async (_req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { catalogProducts: cp } = await import("../shared/schema");
+      const rows = await ddb.select({ category: cp.category }).from(cp);
+      const counts: Record<string, number> = {};
+      for (const r of rows) counts[r.category] = (counts[r.category] || 0) + 1;
+      const categories = Object.entries(counts).map(([category, count]) => ({ category, count }))
+        .sort((a, b) => a.category.localeCompare(b.category));
+      res.json(categories);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/catalog/products — list products, optional ?category=&search=&limit=&offset=
+  app.get("/api/catalog/products", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { catalogProducts: cp } = await import("../shared/schema");
+      const { category, search, limit = "200", offset = "0" } = req.query as Record<string, string>;
+      let rows = await ddb.select().from(cp).orderBy(cp.category, cp.sortOrder);
+      if (category) rows = rows.filter(r => r.category === category);
+      if (search) {
+        const q = search.toLowerCase();
+        rows = rows.filter(r => r.sku.toLowerCase().includes(q) || r.name.toLowerCase().includes(q) || r.category.toLowerCase().includes(q));
+      }
+      const total = rows.length;
+      const paginated = rows.slice(Number(offset), Number(offset) + Number(limit));
+      res.json({ products: paginated, total });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/catalog/products/:sku — single product detail
+  app.get("/api/catalog/products/:sku", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { catalogProducts: cp } = await import("../shared/schema");
+      const rows = await ddb.select().from(cp).where(sql`${cp.sku} = ${req.params.sku}`);
+      if (!rows.length) return res.status(404).json({ error: "Product not found" });
+      res.json(rows[0]);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // PATCH /api/admin/catalog/config — update catalogReady flag (admin)
+  app.patch("/api/admin/catalog/config", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { catalogConfig: ccfg } = await import("../shared/schema");
+      const { catalogReady } = req.body;
+      if (typeof catalogReady === "boolean") {
+        await ddb.execute(sql`
+          INSERT INTO catalog_config (key, value) VALUES ('catalogReady', ${String(catalogReady)})
+          ON CONFLICT (key) DO UPDATE SET value = ${String(catalogReady)}, updated_at = NOW()
+        `);
+      }
+      res.json({ ok: true, catalogReady });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
   return httpServer;
 }

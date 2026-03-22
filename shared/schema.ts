@@ -2135,3 +2135,29 @@ export const catalogStagingItems = pgTable("catalog_staging_items", {
 export const insertCatalogStagingItemSchema = createInsertSchema(catalogStagingItems).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertCatalogStagingItem = z.infer<typeof insertCatalogStagingItemSchema>;
 export type CatalogStagingItem = typeof catalogStagingItems.$inferSelect;
+
+// ── Live Catalog Products ──────────────────────────────────────────────────
+export const catalogProducts = pgTable("catalog_products", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sku: text("sku").notNull().unique(),
+  name: text("name").notNull(),
+  category: text("category").notNull(),
+  imageUrl: text("image_url").notNull(),
+  batchSource: text("batch_source"),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  skuIdx: uniqueIndex("catalog_products_sku_idx").on(table.sku),
+  categoryIdx: index("catalog_products_category_idx").on(table.category),
+}));
+export const insertCatalogProductSchema = createInsertSchema(catalogProducts).omit({ id: true, createdAt: true });
+export type InsertCatalogProduct = z.infer<typeof insertCatalogProductSchema>;
+export type CatalogProduct = typeof catalogProducts.$inferSelect;
+
+// ── Catalog Config (readiness flag) ──────────────────────────────────────
+export const catalogConfig = pgTable("catalog_config", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  key: text("key").notNull().unique(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
