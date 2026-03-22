@@ -1,37 +1,49 @@
 import express from "express";
 import { runNexoraEngine } from "./nexoraOrchestrator";
 import { generateRelocationSignals, getMarketIntelligence, pushRelocationToPipeline } from "./services/relocationIntelligence";
+import { desc } from "drizzle-orm";
+import { nexoraRuns } from "@shared/schema";
+import { db } from "./db";
 import { generateStrategyRecommendation, getLearningInsights } from "./services/workspaceStrategy";
 import { runDealHunterScan, pushDealHunterToPipeline, getDealHunterStats } from "./services/dealHunter";
+let nexoraRunning = false;
 
+let nexoraStatus: {
+  status: "idle" | "running" | "success" | "failed";
+  startedAt: st. nring | null;
+  finishedAt: string | null;
+  message: st ;l
+} = {
+  status: "idle",
+  startedAt: null,
+  finishedAt: null,
+  message: "Awaiting first run",
+};
 import type { Express } from "express";
-      import express from "express";
-      import { createServer, type Server } from "http";
-      import Stripe from "stripe";
-      import { storage } from "./storage";
-      import { db } from "./db";
-      import { insertLeadSchema, insertProductReviewSchema, siteVisits } from "@shared/schema";
-      import { ZodError } from "zod";
-      import OpenAI from "openai";
-      import multer from "multer";
-      import path from "path";
-      import fs from "fs";
-      import { registerMarketingRoutes } from "./marketing";
-      import { sendLeadNotification, sendSupplierQuoteNotification, sendPlanningRequestNotification, sendPaymentConfirmationNotification, sendPlannerSubmissionCustomerEmail, sendQuoteRequestCustomerEmail, sendStrategyCallCustomerEmail, sendEnquiryCustomerEmail, sendFinanceLeadAdminEmail, sendFinanceLeadPartnerEmail, sendFinanceLeadCustomerEmail, isEmailConfigured, sendTestEmail } from "./email";
-      import { scoreOpportunity } from "./services/opportunityScoring";
-      import { analyseSignals, extractDomain, type SignalInput, type SourceType } from "./services/leadIntelligence";
-      import { CORPORATE_DESK_SYSTEM_PROMPT, ADVISOR_SYSTEM_MESSAGE, buildChatSystemPrompt, buildAdvisorSystemPrompt, extractSessionContext } from "./systemPrompt";
-      import { getAdaptersMeta } from "./adapters/manualAdapter";
-      import { runManufacturerOutreach } from "./services/aiManufacturerOutreach";
-      import { generatePackageAndQuote } from "./ai/packageGenerator";
-      import { parseFloorPlan, type FloorGeometry } from "./services/floorPlanParser";
-      import { sendWhatsAppTextMessage, isWhatsAppConfigured } from "./services/whatsapp";
-      import { startFollowUpForLead } from "./services/followUpScheduler";
-      import { runLeaseSignalScan, computeProcurementRecommendations } from "./services/leaseSignalScanner";
-      import { captureWorkspaceLearning, buildLearningContext } from "./services/workspaceLearning";
-      import { analyseAllDeals, analyseDeal, prospectsToSignals, planningRequestToSignals, radarToSignals, leadToSignals } from "./services/dealIntelligence";
-      import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } from "./services/partnerNetwork";
-      import { runNexoraEngine } from "./nexoraOrchestrator";
+import { createServer, type Server } from "http";
+import Stripe from "stripe";
+import { storage } from "./storage";
+import { insertLeadSchema, insertProductReviewSchema, siteVisits } from "@shared/schema";
+import { ZodError } from "zod";
+import OpenAI from "openai";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import { registerMarketingRoutes } from "./marketing";
+import { sendLeadNotification, sendSupplierQuoteNotification, sendPlanningRequestNotification, sendPaymentConfirmationNotification, sendPlannerSubmissionCustomerEmail, sendQuoteRequestCustomerEmail, sendStrategyCallCustomerEmail, sendEnquiryCustomerEmail, sendFinanceLeadAdminEmail, sendFinanceLeadPartnerEmail, sendFinanceLeadCustomerEmail, isEmailConfigured, sendTestEmail } from "./email";
+import { scoreOpportunity } from "./services/opportunityScoring";
+import { analyseSignals, extractDomain, type SignalInput, type SourceType } from "./services/leadIntelligence";
+import { CORPORATE_DESK_SYSTEM_PROMPT, ADVISOR_SYSTEM_MESSAGE, buildChatSystemPrompt, buildAdvisorSystemPrompt, extractSessionContext } from "./systemPrompt";
+import { getAdaptersMeta } from "./adapters/manualAdapter";
+import { runManufacturerOutreach } from "./services/aiManufacturerOutreach";
+import { generatePackageAndQuote } from "./ai/packageGenerator";
+import { parseFloorPlan, type FloorGeometry } from "./services/floorPlanParser";
+import { sendWhatsAppTextMessage, isWhatsAppConfigured } from "./services/whatsapp";
+import { startFollowUpForLead } from "./services/followUpScheduler";
+import { runLeaseSignalScan, computeProcurementRecommendations } from "./services/leaseSignalScanner";
+import { captureWorkspaceLearning, buildLearningContext } from "./services/workspaceLearning";
+import { analyseAllDeals, analyseDeal, prospectsToSignals, planningRequestToSignals, radarToSignals, leadToSignals } from "./services/dealIntelligence";
+import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } from "./services/partnerNetwork";
 
         export async function registerRoutes(
           httpServer: Server,
@@ -45,71 +57,169 @@ import type { Express } from "express";
           });
           app.get("/api/nexora/run", async (_req, res) => {
             try {
-              console.log("🚀 Nexora triggered via GET");
+              console.log(" Nexora triggered via GET");
               const result = await runNexoraEngine();
               res.json(result);
             } catch (err) {
-              console.error("❌ Nexora error:", err);
+              console.error(" Nexora error:", err);
               res.status(500).json({
                 error: "Nexora failed",
               });
             }
           });
-                  app.get("/api/test-nexora", (_req, res) => {
-                  res.send(`
-                <!doctype html>
-                <html>
-                  <body style="font-family: sans-serif; padding: 24px;">
-                    <button id="run">Run Nexora</button>
-                    <pre id="out" style="white-space: pre-wrap; margin-top: 16px;"></pre>
-
-                    <script>
-                      document.getElementById("run").onclick = async () => {
-                        const out = <script>
+   app.get("/api/test-nexora", (_req, res) => {
+  res.send(`
+<!doctype html>
+<html>
+  <body style="font-family: sans-serif; padding: 24px;">
+    <button id="run">Run Nexora</button>
+    <pre id="out" style="white is-space: pre-wrap; margin-top: 16px;"></pre>
+<script>
   document.getElementById("run").onclick = async () => {
     const out = document.getElementById("out");
     out.textContent = "Running...";
 
     try {
-      const r = await fetch("/api/nexora/run", { method: "POST" });
+      const url = window.location.origin + "/api/nexora/run";
+      out.textContent = "Calling: " + url;
+
+      const r = await fetch(url, { method: "POST" });
       const text = await r.text();
 
-      try {
-        const json = JSON.parse(text);
-
-        out.textContent =
-          `✅ SUCCESS: ${json.success}\n\n` +
-          `📊 Processed: ${json.processed}\n` +
-          `📡 Radar Signals: ${json.radarSignals}\n` +
-          `💼 Deal Signals: ${json.dealSignals}\n` +
-          `❌ Errors: ${json.errors?.length || 0}\n\n` +
-          `🧠 Message:\n${json.message}`;
-      } catch {
-        out.textContent = text;
-      }
-
+      out.textContent = "HTTP " + r.status + "\n\n" + text;
     } catch (e) {
       out.textContent = "ERROR: " + (e?.message || e);
     }
   };
 </script>
-
-                  </body>
-                </html>
-                  `);
-                });
-app.post("/api/nexora/run", async (req, res) => {
-  try {
-    console.log("🚀 Nexora triggered");
-    const result = await runNexoraEngine();
-    res.json(result);
-  } catch (err) {
-    console.error("❌ Nexora error:", err);
-    res.status(500).json({
-      error: "Nexora failed",
-    });
-  }
+  </body>
+</html>
+  `);
 });
+          app.get("/api/nexora/status", (_req, res) => {
+            res.json({
+              running: nexoraRunning,
+              ...nexoraStatus,
+            });
+          });
+
+          app.get("/api/nexora/last-run", (_req, res) => {
+            res.json({
+              running: nexoraRunning,
+              ...nexoraStatus,
+            });
+          });
+          app.get("/api/nexora/history", async (_req, res) => {
+            try {
+              const runs = await db
+                .select()
+                .from(nexoraRuns)
+                .orderBy(desc(nexoraRuns.createdAt))
+                .limit(10);
+
+              res.json(runs);
+            } catch (err: any) {
+              console.error("Nexora history error:", err);
+              res.status(500).json({
+                error: err?.message || "Failed to load Nexora history",
+              });
+            }
+          });
+          app.post("/api/nexora/run", async (_req, res) => {
+            if (nexoraRunning) {
+              return res.status(409).json({
+                success: false,
+                status: "running",
+                processed: 0,
+                outreachRuns: 0,
+                outreachFailed: 0,
+                radarSignals: 0,
+                dealSignals: 0,
+                errors: ["Nexora is already running"],
+                message: "Nexora is already running",
+                durationMs: 0,
+              });
+            }
+
+            const startedAt = new Date();
+            nexoraRunning = true;
+            nexoraStatus = {
+              status: "running",
+              startedAt: startedAt.toISOString(),
+              finishedAt: null,
+              message: "Nexora is running",
+            };
+
+            try {
+              console.log("Nexora triggered");
+              const result = await runNexoraEngine();
+              const finishedAt = new Date();
+
+              await db.insert(nexoraRuns).values({
+                startedAt,
+                finishedAt,
+                success: !!result?.success,
+                processed: result?.processed ?? 0,
+                outreachRuns: result?.outreachRuns ?? 0,
+                outreachFailed: result?.outreachFailed ?? 0,
+                radarSignals: result?.radarSignals ?? 0,
+                dealSignals: result?.dealSignals ?? 0,
+                errorsJson: Array.isArray(result?.errors) ? result.errors : [],
+                message: result?.message || "Nexora completed",
+                durationMs: result?.durationMs ?? (finishedAt.getTime() - startedAt.getTime()),
+              });
+
+              nexoraStatus = {
+                status: result?.success ? "success" : "failed",
+                startedAt: startedAt.toISOString(),
+                finishedAt: finishedAt.toISOString(),
+                message: result?.message || "Nexora completed",
+              };
+
+              return res.json({
+                success: !!result?.success,
+                status: result?.success ? "success" : "failed",
+                processed: result?.processed ?? 0,
+                outreachRuns: result?.outreachRuns ?? 0,
+                outreachFailed: result?.outreachFailed ?? 0,
+                radarSignals: result?.radarSignals ?? 0,
+                dealSignals: result?.dealSignals ?? 0,
+                errors: Array.isArray(result?.errors) ? result.errors : [],
+                message: result?.message || "Nexora completed",
+                durationMs: result?.durationMs ?? (finishedAt.getTime() - startedAt.getTime()),
+                startedAt: startedAt.toISOString(),
+                finishedAt: finishedAt.toISOString(),
+              });
+            } catch (err: any) {
+              const finishedAt = new Date();
+
+              nexoraStatus = {
+                status: "failed",
+                startedAt: startedAt.toISOString(),
+                finishedAt: finishedAt.toISOString(),
+                message: err?.message || "Nexora failed",
+              };
+
+              console.error("Nexora error:", err);
+
+              return res.status(500).json({
+                success: false,
+                status: "failed",
+                processed: 0,
+                outreachRuns: 0,
+                outreachFailed: 0,
+                radarSignals: 0,
+                dealSignals: 0,
+                errors: [err?.message || "Nexora failed"],
+                message: err?.message || "Nexora failed",
+                durationMs: finishedAt.getTime() - startedAt.getTime(),
+                startedAt: startedAt.toISOString(),
+                finishedAt: finishedAt.toISOString(),
+              });
+            } finally {
+              nexoraRunning = false;
+            }
+          });
 type Message = {
   role: Role;
   content: string;

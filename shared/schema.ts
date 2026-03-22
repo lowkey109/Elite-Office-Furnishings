@@ -122,7 +122,23 @@ export const supplierQuotes = pgTable("supplier_quotes", {
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
 });
-
+export const nexoraRuns = pgTable("nexora_runs", {
+  id: serial("id").primaryKey(),
+  startedAt: timestamp("started_at").notNull().defaultNow(),
+  finishedAt: timestamp("finished_at"),
+  success: boolean("success").notNull().default(false),
+  processed: integer("processed").notNull().default(0),
+  outreachRuns: integer("outreach_runs").notNull().default(0),
+  outreachFailed: integer("outreach_failed").notNull().default(0),
+  radarSignals: integer("radar_signals").notNull().default(0),
+  dealSignals: integer("deal_signals").notNull().default(0),
+  errorsJson: jsonb("errors_json").$type<string[]>().notNull().default([]),
+  message: text("message").notNull().default(""),
+  durationMs: integer("duration_ms").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+export type NexoraRun = typeof nexoraRuns.$inferSelect;
+export type InsertNexoraRun = typeof nexoraRuns.$inferInsert;
 export const referrals = pgTable("referrals", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   referrerName: text("referrer_name").notNull(),
