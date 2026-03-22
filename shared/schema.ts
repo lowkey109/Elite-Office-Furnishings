@@ -2249,3 +2249,25 @@ export const catalogConfig = pgTable("catalog_config", {
   value: text("value").notNull(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+
+// ── Strategy Call Bookings ────────────────────────────────────────────────────
+export const strategyBookings = pgTable("strategy_bookings", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  company: text("company").notNull(),
+  staffCount: text("staff_count"),
+  officeLocation: text("office_location"),
+  budget: text("budget"),
+  moveDate: text("move_date"),
+  message: text("message"),
+  bookingDate: text("booking_date").notNull(),
+  bookingTime: text("booking_time").notNull(),
+  status: text("status").notNull().default("pending"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertStrategyBookingSchema = createInsertSchema(strategyBookings).omit({ id: true, createdAt: true });
+export type InsertStrategyBooking = z.infer<typeof insertStrategyBookingSchema>;
+export type StrategyBooking = typeof strategyBookings.$inferSelect;

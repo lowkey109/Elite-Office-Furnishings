@@ -3,7 +3,8 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/Layout";
-import { ArrowRight, CheckCircle2, Star, Phone, Award, Shield, Truck, Users, Monitor, Sparkles, Box } from "lucide-react";
+import { ArrowRight, CheckCircle2, Star, Phone, Award, Shield, Truck, Users, Monitor, Sparkles, Box, BookOpen, Clock } from "lucide-react";
+import { allPosts } from "@/data/blog/index";
 
 function useSEO(title: string, description: string, schema?: object) {
   useEffect(() => {
@@ -505,6 +506,56 @@ export default function Home() {
               {/* Decorative glow */}
               <div className="absolute -inset-8 bg-[hsl(43,78%,52%)]/4 rounded-3xl blur-3xl -z-10 pointer-events-none" />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Blog Preview ── */}
+      <section className="py-20 sm:py-28 bg-[hsl(220,20%,5%)]" data-testid="section-blog-preview">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="flex items-end justify-between mb-12">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.3em] text-[#b8974a]/70 mb-3">Workplace Intelligence</p>
+              <h2 className="text-3xl md:text-4xl font-serif font-bold text-white">
+                Expert Insights for<br />
+                <span className="gold-text">Australian Businesses</span>
+              </h2>
+            </div>
+            <Link href="/blog" data-testid="link-view-all-articles"
+              className="hidden sm:flex items-center gap-2 text-sm text-[#b8974a] hover:text-[#c8a75a] transition-colors font-medium">
+              View All Articles <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {allPosts.slice(0, 3).map(post => (
+              <Link key={post.id} href={`/blog/${post.slug}`} data-testid={`card-blog-${post.id}`}
+                className="group flex flex-col rounded-2xl border border-white/8 bg-[hsl(220,20%,7%)] hover:border-[#b8974a]/30 transition-all duration-200 overflow-hidden">
+                <div className="p-6 flex flex-col flex-1 gap-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-[#b8974a]/80 font-medium">{post.category}</span>
+                    <span className="text-[10px] text-white/30 flex items-center gap-1">
+                      <Clock className="w-3 h-3" />{post.readTime}
+                    </span>
+                  </div>
+                  <h3 className="text-sm font-semibold text-white leading-snug group-hover:text-[#b8974a] transition-colors line-clamp-3">
+                    {post.title}
+                  </h3>
+                  <p className="text-xs text-white/45 leading-relaxed line-clamp-3 flex-1">{post.excerpt}</p>
+                  <div className="flex items-center gap-1.5 text-[#b8974a] text-xs font-medium">
+                    <BookOpen className="w-3.5 h-3.5" />
+                    Read Article <ArrowRight className="w-3 h-3 ml-auto group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <div className="mt-8 text-center sm:hidden">
+            <Link href="/blog" data-testid="link-view-all-articles-mobile"
+              className="inline-flex items-center gap-2 text-sm text-[#b8974a] font-medium">
+              View All Articles <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </section>

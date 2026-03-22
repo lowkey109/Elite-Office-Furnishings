@@ -10,7 +10,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { storage } from "./storage";
-import { insertLeadSchema, insertProductReviewSchema, siteVisits } from "@shared/schema";
+import { insertLeadSchema, insertProductReviewSchema, siteVisits, strategyBookings, insertStrategyBookingSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import OpenAI from "openai";
 import multer from "multer";
@@ -721,24 +721,37 @@ IMPORTANT RULES:
 
 
   // Product catalog — supplier products database
+  // Normalise raw furnitureCatalogue shape → frontend CatalogProduct shape
+  function normaliseProduct(p: any) {
+    const name = p.name || p.product_name || "";
+    const imageUrl = p.imageUrl || p.image_url || p.image || "";
+    return {
+      ...p,
+      name,
+      imageUrl,
+      imageAlt: `${name} — ${p.sku}`,
+    };
+  }
+
   app.get("/api/products", (_req, res) => {
     const hit = getCached<any[]>("products:all");
     if (hit) return res.json(hit);
     const catalog = loadProductCatalog();
-    setCached("products:all", catalog.products, 300_000);
-    res.json(catalog.products);
+    const normalised = catalog.products.map(normaliseProduct);
+    setCached("products:all", normalised, 300_000);
+    res.json(normalised);
   });
   app.post("/api/ai/manufacturer-outreach", runManufacturerOutreach);
   app.get("/api/products/categories", (_req, res) => {
     const catalog = loadProductCatalog();
     const categories = [...new Set(catalog.products.map((p: any) => p.category))];
     const byCategory = categories.reduce((acc: any, cat: any) => {
-      acc[cat] = catalog.products.filter((p: any) => p.category === cat);
+      acc[cat] = catalog.products.filter((p: any) => p.category === cat).map(normaliseProduct);
       return acc;
     }, {});
     res.json({ categories, byCategory });
   });
-  
+
   app.get("/api/products/search", (req, res) => {
     const catalog = loadProductCatalog();
     const q = (req.query.q as string || "").toLowerCase();
@@ -746,12 +759,12 @@ IMPORTANT RULES:
     let results = catalog.products;
     if (category) results = results.filter((p: any) => p.category === category);
     if (q) results = results.filter((p: any) =>
-      p.product_name.toLowerCase().includes(q) ||
+      (p.product_name || p.name || "").toLowerCase().includes(q) ||
       p.sku.toLowerCase().includes(q) ||
       (p.series || "").toLowerCase().includes(q) ||
       (p.materials || "").toLowerCase().includes(q)
     );
-    res.json(results);
+    res.json(results.map(normaliseProduct));
   });
 
   // Supplier database routes
@@ -785,13 +798,13 @@ IMPORTANT RULES:
       p.sku.toLowerCase() === req.params.sku.toLowerCase()
     );
     if (!product) return res.status(404).json({ error: "Product not found" });
-    // Enrich with gallery and collection name (constants defined later in scope, safe in closure)
+    const norm = normaliseProduct(product);
     const seriesGallery = SERIES_GALLERY[product.series] ?? [];
     const gallery = seriesGallery.length > 0
       ? seriesGallery
-      : product.image ? [product.image] : [];
+      : norm.imageUrl ? [norm.imageUrl] : [];
     res.json({
-      ...product,
+      ...norm,
       gallery,
       collection_name: SUPPLIER_COLLECTION_MAP[product.supplier] ?? "",
       price_from: CATEGORY_PRICE_FROM[product.category] ?? "POA",
@@ -9372,6 +9385,77 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
         `);
       }
       res.json({ ok: true, catalogReady });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Strategy Call Bookings ──────────────────────────────────────────────────
+  const ALL_TIME_SLOTS = [
+    "9:00 AM","9:30 AM","10:00 AM","10:30 AM","11:00 AM","11:30 AM",
+    "12:00 PM","12:30 PM","1:00 PM","1:30 PM","2:00 PM","2:30 PM",
+    "3:00 PM","3:30 PM","4:00 PM","4:30 PM",
+  ];
+
+  // GET /api/strategy-bookings/available?date=YYYY-MM-DD
+  app.get("/api/strategy-bookings/available", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const date = req.query.date as string;
+      if (!date) return res.status(400).json({ error: "date required" });
+      const booked = await ddb.select({ t: strategyBookings.bookingTime })
+        .from(strategyBookings)
+        .where(sql`${strategyBookings.bookingDate} = ${date} AND ${strategyBookings.status} != 'cancelled'`);
+      const bookedTimes = booked.map(r => r.t);
+      const available = ALL_TIME_SLOTS.filter(t => !bookedTimes.includes(t));
+      res.json({ date, available, booked: bookedTimes });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/strategy-bookings
+  app.post("/api/strategy-bookings", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const parsed = insertStrategyBookingSchema.safeParse({ ...req.body, status: "pending" });
+      if (!parsed.success) return res.status(400).json({ error: parsed.error.issues });
+      const data = parsed.data;
+      // Check slot is still available
+      const existing = await ddb.select({ id: strategyBookings.id })
+        .from(strategyBookings)
+        .where(sql`${strategyBookings.bookingDate} = ${data.bookingDate} AND ${strategyBookings.bookingTime} = ${data.bookingTime} AND ${strategyBookings.status} != 'cancelled'`);
+      if (existing.length > 0) return res.status(409).json({ error: "This time slot has just been taken. Please choose another." });
+      const [created] = await ddb.insert(strategyBookings).values(data).returning();
+      // Send confirmation email
+      if (data.email) {
+        sendStrategyCallCustomerEmail({
+          name: data.name,
+          company: data.company,
+          email: data.email,
+          staffCount: data.staffCount,
+          budget: data.budget,
+          timeline: data.moveDate,
+          message: `Booking: ${data.bookingDate} at ${data.bookingTime}\n\n${data.message || ""}`.trim(),
+        }).catch(err => console.error("[email] Strategy booking email failed:", err));
+      }
+      res.status(201).json(created);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/admin/strategy-bookings — admin list
+  app.get("/api/admin/strategy-bookings", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const rows = await ddb.select().from(strategyBookings).orderBy(sql`${strategyBookings.bookingDate} ASC, ${strategyBookings.bookingTime} ASC`);
+      res.json(rows);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // PATCH /api/admin/strategy-bookings/:id — update status
+  app.patch("/api/admin/strategy-bookings/:id", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { status } = req.body;
+      if (!["pending","confirmed","cancelled"].includes(status)) return res.status(400).json({ error: "Invalid status" });
+      await ddb.execute(sql`UPDATE strategy_bookings SET status = ${status} WHERE id = ${Number(req.params.id)}`);
+      res.json({ ok: true });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 

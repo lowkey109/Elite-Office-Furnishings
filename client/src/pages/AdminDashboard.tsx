@@ -174,6 +174,17 @@ export default function AdminDashboard() {
     refetchInterval: 60000,
   });
 
+  interface StrategyBooking {
+    id: number; name: string; email: string; phone: string; company: string;
+    staffCount?: string; officeLocation?: string; budget?: string; moveDate?: string;
+    message?: string; bookingDate: string; bookingTime: string; status: string; createdAt?: string;
+  }
+  const { data: strategyBookings = [], refetch: refetchBookings } = useQuery<StrategyBooking[]>({
+    queryKey: ["/api/admin/strategy-bookings"],
+    enabled: authed,
+    refetchInterval: 60000,
+  });
+
   function handleLogin() {
     if (validateAdminLogin(email, pw)) {
       sessionStorage.setItem("tcd_admin_auth", "true");
@@ -763,6 +774,57 @@ export default function AdminDashboard() {
                           className="h-full bg-[hsl(43,78%,52%)] rounded-full transition-all"
                           style={{ width: `${Math.round((count / totalLeads) * 100)}%` }}
                         />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6">
+              <h2 className="text-white font-semibold mb-4 flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-[hsl(43,78%,52%)]" /> Strategy Bookings
+                <span className="ml-auto text-xs text-white/30 font-normal">{strategyBookings.length} total</span>
+              </h2>
+              {strategyBookings.length === 0 ? (
+                <p className="text-white/30 text-sm text-center py-4">No bookings yet</p>
+              ) : (
+                <div className="space-y-2 max-h-80 overflow-y-auto">
+                  {strategyBookings.map(b => (
+                    <div key={b.id} data-testid={`row-booking-${b.id}`}
+                      className="p-3 rounded-xl border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] text-sm">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <div className="text-white font-medium truncate">{b.name}</div>
+                          <div className="text-white/40 text-xs truncate">{b.company} · {b.email}</div>
+                          <div className="text-[hsl(43,78%,65%)] text-xs mt-1 flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {b.bookingDate} at {b.bookingTime}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${
+                            b.status === "confirmed" ? "border-green-500/30 text-green-400 bg-green-500/10" :
+                            b.status === "cancelled" ? "border-red-500/30 text-red-400 bg-red-500/10" :
+                            "border-yellow-500/30 text-yellow-400 bg-yellow-500/10"
+                          }`}>{b.status}</span>
+                          {b.status === "pending" && (
+                            <button onClick={async () => {
+                              await fetch(`/api/admin/strategy-bookings/${b.id}`, { method:"PATCH", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ status:"confirmed" }) });
+                              refetchBookings();
+                            }} className="text-[10px] text-green-400/70 hover:text-green-400 border border-green-500/20 rounded px-1.5 py-0.5 transition-colors">
+                              Confirm
+                            </button>
+                          )}
+                          {b.status !== "cancelled" && (
+                            <button onClick={async () => {
+                              await fetch(`/api/admin/strategy-bookings/${b.id}`, { method:"PATCH", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ status:"cancelled" }) });
+                              refetchBookings();
+                            }} className="text-[10px] text-red-400/70 hover:text-red-400 border border-red-500/20 rounded px-1.5 py-0.5 transition-colors">
+                              Cancel
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}

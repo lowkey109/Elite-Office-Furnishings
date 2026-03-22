@@ -38,7 +38,9 @@ The visual design features a dark luxury gold theme, using near-black background
 - **Alex WhatsApp AI Persona**: AI for lead qualification, discovery, and automatic lead capture via WhatsApp.
 - **Workspace Learning System**: Auto-captures project intelligence to calibrate future AI recommendations.
 - **Stripe Paywall**: Gated access to premium AI Workspace Planning Reports.
-- **Product Catalogue**: A curated catalogue of parent products across categories from supplier collections, with a premium UI, search, filtering, and product detail modals.
+- **Product Catalogue**: A curated catalogue of 216 active products (database) and 330 supplier products (furnitureCatalogue.ts). API normalisation (`normaliseProduct`) ensures `name`, `imageUrl`, `imageAlt` are consistent across all endpoints. All 216 database products use AI-generated category images at `/catalog-assets/office-furniture/cat-{category}.png` (8 premium images). furnitureCatalogue products use real supplier images from `/uploads/catalog-images/{supplier}/`.
+- **Strategy Call Calendar Booking**: Full 3-step booking flow on `/workplace-strategy` — Step 1: Contact details form, Step 2: Premium calendar with real-time availability from database (Mon-Fri, 9am-4:30pm AEST, 30-min slots), Step 3: Confirmation with email notification. Bookings stored in `strategy_bookings` DB table. Admin can view/confirm/cancel via Admin Dashboard Strategy Bookings section.
+- **Blog Homepage Preview**: 3 latest articles shown in a "Workplace Intelligence" section on the homepage, linking to the full blog. 10 real blog categories with 30+ articles, all with real content, SEO meta tags, and 20 real blog images.
 - **Manufacturer Messaging System**: Admin-only WhatsApp communication with suppliers, supporting AI-drafted messages.
 - **Enterprise Lead Intelligence Platform**: Includes Lease Signal Intelligence, Territory Scanner, Deal Pipeline, and Procurement Engine.
 - **Automated Follow-Up Email Sequences**: A 4-stage personalized email sequence for inbound leads.
