@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import {
   Package, Plus, Trash2, Loader2, BarChart3, Clock, DollarSign,
-  ShieldCheck, MessageSquare, TrendingUp, AlertTriangle, CheckCircle2
+  ShieldCheck, MessageSquare, TrendingUp, AlertTriangle, CheckCircle2,
+  Database, ChevronDown, ChevronUp
 } from "lucide-react";
 
 interface ProcurementLine {
@@ -26,6 +27,23 @@ interface ProcurementResult {
   leadTime: string;
   marginBand: string;
   notes: string;
+}
+
+interface PricingRecord {
+  id: string;
+  supplier_name: string;
+  category: string;
+  product_description: string;
+  series?: string;
+  moq?: number;
+  unit_price_aud_landed: number;
+  lead_time_days?: number;
+  confidence?: string;
+}
+
+interface SupplierPricingData {
+  pricing_records: PricingRecord[];
+  category_benchmarks?: Record<string, { low: number; mid: number; high: number }>;
 }
 
 const CATEGORIES = [
@@ -93,6 +111,15 @@ export default function AdminProcurementEngine() {
     },
     onError: () => toast({ title: "Calculation failed", variant: "destructive" }),
   });
+
+  const [showPricing, setShowPricing] = useState(false);
+
+  const { data: pricingData } = useQuery<SupplierPricingData>({
+    queryKey: ["/api/admin/supplier-pricing"],
+    queryFn: () => fetch("/api/admin/supplier-pricing").then(r => r.json()),
+  });
+
+  const pricingRecords = pricingData?.pricing_records ?? [];
 
   const totalMin = results ? results.reduce((s, r) => s + parseMin(r.totalEstimate), 0) : 0;
   const totalMax = results ? results.reduce((s, r) => {
@@ -300,6 +327,80 @@ export default function AdminProcurementEngine() {
               </>
             )}
           </div>
+        </div>
+
+        {/* Pricing Intelligence Database */}
+        <div className="mt-10">
+          <button
+            className="flex items-center gap-2 w-full text-left mb-4 group"
+            onClick={() => setShowPricing(p => !p)}
+            data-testid="btn-toggle-pricing-db"
+          >
+            <Database className="w-4 h-4 text-[#c9a84c]" />
+            <span className="text-base font-semibold text-gray-900 group-hover:text-gray-700">Landed Price Intelligence Database</span>
+            <Badge variant="secondary" className="ml-1 text-xs">{pricingRecords.length} records</Badge>
+            <span className="ml-auto text-gray-400">
+              {showPricing ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </span>
+          </button>
+          {showPricing && (
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-gray-100 bg-gray-50">
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">ID</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Product</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Supplier</th>
+                        <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">AUD Landed</th>
+                        <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Lead Time</th>
+                        <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">MOQ</th>
+                        <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Confidence</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pricingRecords.map((rec, i) => (
+                        <tr key={rec.id} className={`border-b border-gray-50 hover:bg-gray-50/60 ${i % 2 === 0 ? "" : "bg-gray-50/30"}`} data-testid={`pricing-row-${rec.id}`}>
+                          <td className="px-4 py-3 text-xs text-gray-400 font-mono">{rec.id}</td>
+                          <td className="px-4 py-3">
+                            <span className="text-xs font-medium text-gray-700 bg-gray-100 px-2 py-0.5 rounded">{rec.category}</span>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-700 max-w-[200px] truncate" title={rec.product_description}>{rec.product_description}</td>
+                          <td className="px-4 py-3 text-sm text-gray-600">{rec.supplier_name}</td>
+                          <td className="px-4 py-3 text-right">
+                            <span className="font-semibold text-gray-900">${rec.unit_price_aud_landed.toLocaleString()}</span>
+                          </td>
+                          <td className="px-4 py-3 text-right text-sm text-gray-500">
+                            {rec.lead_time_days ? `${rec.lead_time_days}d` : "—"}
+                          </td>
+                          <td className="px-4 py-3 text-right text-sm text-gray-500">
+                            {rec.moq ?? "—"}
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <Badge
+                              variant="outline"
+                              className={
+                                rec.confidence === "high" ? "border-green-200 text-green-700 text-[10px]" :
+                                rec.confidence === "medium" ? "border-amber-200 text-amber-700 text-[10px]" :
+                                "border-gray-200 text-gray-500 text-[10px]"
+                              }
+                            >
+                              {rec.confidence ?? "indicative"}
+                            </Badge>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {pricingRecords.length === 0 && (
+                  <div className="text-center py-8 text-gray-400 text-sm">No pricing records loaded</div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>

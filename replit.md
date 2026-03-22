@@ -6,6 +6,17 @@ The Corporate Desk (`thecorporatedesk.com.au`) is a luxury office furniture webs
 ## User Preferences
 I prefer iterative development with clear, modular code. Before making any major architectural changes or introducing new external dependencies, please ask for approval. I prefer detailed explanations for complex solutions. Do not make changes to the `server/db.ts` file without explicit instruction. Do not make changes to the `client/src/lib/furnitureCatalogue.ts` file without explicit instruction.
 
+## Session Improvements (March 22, 2026 — AI Workspace Intelligence Platform)
+
+### 17-Phase Spec Progress — This Session
+- **WorkspaceDesignEngine route**: Added `/admin/workspace-design-engine` route in App.tsx — the full 876-line AI planning tool with premium §01-§08 report is now accessible
+- **Premium report §07 Workspace Strategy**: Injects per-zone `productivityNote` from AI output as a data-referenced productivity insight section
+- **Premium report §08 Finance Overlay**: Real amortization formula (3.9% p.a. / 60 months) with ±8% monthly payment range using `FinanceOverlay` component
+- **Procurement pricing — real data**: `computeProcurementRecommendations` in `leaseSignalScanner.ts` now loads actual `supplierPricing.json` landed costs via lazy-cached `loadSupplierPricing()`. Category matching via `getPricingForCategory()` returns min/max/confidence
+- **Procurement UI — Pricing Intelligence Database**: Collapsible "Landed Price Intelligence Database" section in `AdminProcurementEngine` shows all 10 pricing records (ID, category, product, supplier, AUD landed cost, lead time, MOQ, confidence badge)
+- **Admin nav link**: "AI Design Engine" button added to `AdminPlanningRequests` header navigation → links to `/admin/workspace-design-engine`
+- **All routes verified 200**: homepage, /start, /partners, /capability, /admin/procurement-engine, /admin/workspace-design-engine, /api/admin/supplier-pricing, /api/admin/deal-forecast
+
 ## New Major Features (March 2026 — Latest Build)
 
 ### Premium Live Product Catalog (Catalog Activation)

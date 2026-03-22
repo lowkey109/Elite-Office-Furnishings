@@ -131,6 +131,46 @@ function GeometryBadge({ geometry }: { geometry: FloorGeometry | null }) {
   );
 }
 
+function FinanceOverlay({ totalCost }: { totalCost: number }) {
+  const totalIncGst = Math.round(totalCost * 1.1);
+  const r = 0.039 / 12;
+  const n = 60;
+  const factor = r / (1 - Math.pow(1 + r, -n));
+  const monthly = Math.round(totalIncGst * factor);
+  const monthlyLow = Math.round(monthly * 0.92).toLocaleString("en-AU");
+  const monthlyHigh = Math.round(monthly * 1.08).toLocaleString("en-AU");
+  return (
+    <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.18)] rounded-2xl p-6" data-testid="design-engine-finance-overlay">
+      <div className="flex items-center gap-2 mb-4">
+        <span className="text-[10px] font-bold text-[hsl(43,78%,40%)] tracking-widest">§08</span>
+        <DollarSign className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+        <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Finance Your Workspace</h3>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-3">
+        <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-4 border border-[rgba(255,255,255,0.06)]">
+          <p className="text-[10px] text-white/35 uppercase tracking-wider mb-1">Est. Investment</p>
+          <p className="text-white font-bold text-base">${totalIncGst.toLocaleString("en-AU")}</p>
+          <p className="text-white/25 text-xs mt-0.5">Inc. GST</p>
+        </div>
+        <div className="bg-[rgba(201,168,76,0.06)] rounded-xl p-4 border border-[rgba(201,168,76,0.15)]">
+          <p className="text-[10px] text-white/35 uppercase tracking-wider mb-1">Indicative Monthly</p>
+          <p className="text-[hsl(43,78%,65%)] font-bold text-base">${monthlyLow} – ${monthlyHigh}</p>
+          <p className="text-white/25 text-xs mt-0.5">3.9% p.a. / 60 months</p>
+        </div>
+        <div className="col-span-2 sm:col-span-1 bg-[rgba(255,255,255,0.02)] rounded-xl p-4 border border-[rgba(255,255,255,0.05)] flex flex-col justify-between">
+          <p className="text-white/45 text-xs leading-relaxed">Commercial finance available — chattel mortgage, lease-to-own, and rental options. Speak with our team to explore.</p>
+          <Link href="/finance-your-workspace">
+            <span className="text-[hsl(43,78%,52%)] text-xs font-semibold flex items-center gap-1 mt-3" data-testid="link-finance-workspace">
+              Explore finance <ArrowRight className="w-3 h-3" />
+            </span>
+          </Link>
+        </div>
+      </div>
+      <p className="text-white/20 text-[10px]">Finance indicative only. Subject to lender approval, final specification and credit assessment.</p>
+    </div>
+  );
+}
+
 export default function WorkspaceDesignEngine() {
   const [step, setStep] = useState<"form" | "loading" | "result">("form");
   const [result, setResult] = useState<EngineResult | null>(null);
@@ -733,6 +773,33 @@ function ResultView({ result, name, company, sqm, staff }: {
             ))}
           </ul>
         </div>
+      )}
+
+      {/* §07 — Workspace Strategy */}
+      {zones.some(z => z.productivityNote) && (
+        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6" data-testid="design-engine-workspace-strategy">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-[10px] font-bold text-[hsl(43,78%,40%)] tracking-widest">§07</span>
+            <Shield className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+            <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Workspace Strategy</h3>
+          </div>
+          <div className="space-y-3">
+            {zones.filter(z => z.productivityNote).map((z, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <div className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: z.color || "#B8960C" }} />
+                <div>
+                  <p className="text-white/70 font-medium text-sm">{z.zone}</p>
+                  <p className="text-white/45 text-xs leading-relaxed mt-0.5">{z.productivityNote}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* §08 — Finance Overlay */}
+      {cost && cost.total > 0 && (
+        <FinanceOverlay totalCost={cost.total} />
       )}
 
       {/* CTAs */}

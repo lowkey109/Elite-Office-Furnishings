@@ -156,6 +156,7 @@ function Router() {
       <Route path="/admin/partner-network" component={AdminPartnerNetwork} />
       <Route path="/admin/relocation-intelligence" component={AdminRelocationIntelligence} />
       <Route path="/admin/workspace-strategy" component={AdminWorkspaceStrategy} />
+      <Route path="/admin/workspace-design-engine" component={WorkspaceDesignEngine} />
       <Route path="/partner-onboarding" component={PartnerOnboarding} />
       <Route path="/partner-dashboard" component={PartnerDashboard} />
       <Route path="/market-map" component={MarketMap} />

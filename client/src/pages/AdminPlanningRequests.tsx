@@ -1099,6 +1099,9 @@ export default function AdminPlanningRequests() {
             <Button asChild size="sm" variant="ghost" className="text-white/50 hover:text-white min-h-[40px]" data-testid="button-planning-marketing">
               <Link href="/admin/marketing"><Megaphone className="w-4 h-4 mr-1.5" /> Marketing</Link>
             </Button>
+            <Button asChild size="sm" variant="ghost" className="text-[hsl(43,78%,65%)] hover:text-[hsl(43,78%,80%)] min-h-[40px]" data-testid="button-workspace-design-engine">
+              <Link href="/admin/workspace-design-engine"><Zap className="w-4 h-4 mr-1.5" /> AI Design Engine</Link>
+            </Button>
           </div>
         </div>
       </header>

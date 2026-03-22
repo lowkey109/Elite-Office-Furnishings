@@ -1,9 +1,61 @@
 import OpenAI from "openai";
+import { readFileSync } from "fs";
+import path from "path";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
 });
+
+// ─── Supplier pricing loader ─────────────────────────────────────────────────
+
+interface PricingRecord {
+  id: string;
+  supplier_id: string;
+  supplier_name: string;
+  category: string;
+  product_description: string;
+  series?: string;
+  moq?: number;
+  unit_price_cny?: number;
+  unit_price_aud_landed: number;
+  sell_price_aud?: number;
+  gross_margin_pct?: number;
+  lead_time_days?: number;
+  quote_date?: string;
+  confidence?: string;
+  notes?: string;
+  freight_per_cbm_aud?: number;
+}
+
+let _pricingCache: PricingRecord[] | null = null;
+function loadSupplierPricing(): PricingRecord[] {
+  if (_pricingCache) return _pricingCache;
+  try {
+    const filePath = path.join(process.cwd(), "server/data/supplierPricing.json");
+    const data = JSON.parse(readFileSync(filePath, "utf-8"));
+    _pricingCache = data.pricing_records || [];
+  } catch {
+    _pricingCache = [];
+  }
+  return _pricingCache;
+}
+
+function getPricingForCategory(categoryKey: string): { min: number; max: number; leadTimeDays: number; confidence: string } {
+  const records = loadSupplierPricing();
+  const normalised = categoryKey.toLowerCase().trim();
+  const matches = records.filter(r => r.category.toLowerCase().includes(normalised) || normalised.includes(r.category.toLowerCase().split(" ")[0]));
+  if (matches.length === 0) return { min: 500, max: 3000, leadTimeDays: 55, confidence: "indicative" };
+  const prices = matches.map(r => r.unit_price_aud_landed).filter(Boolean);
+  const leadTimes = matches.map(r => r.lead_time_days).filter(Boolean) as number[];
+  const conf = matches.some(r => r.confidence === "high") ? "high" : matches.some(r => r.confidence === "medium") ? "medium" : "indicative";
+  return {
+    min: Math.min(...prices),
+    max: Math.max(...prices),
+    leadTimeDays: leadTimes.length ? Math.round(leadTimes.reduce((a, b) => a + b, 0) / leadTimes.length) : 55,
+    confidence: conf,
+  };
+}
 
 export type SignalType =
   | "new_lease"
@@ -224,22 +276,6 @@ const SUPPLIER_ROUTING: Record<string, { supplier: string; contact: string; lead
   "breakout seating": { supplier: "General Supplier",          contact: "Denny (+86 131 2796 8208)",   leadTime: "40–55 days" },
 };
 
-const UNIT_PRICES: Record<string, [number, number]> = {
-  chairs: [420, 1200],
-  "task chairs": [420, 900],
-  "executive seating": [800, 2200],
-  desks: [650, 1500],
-  workstations: [750, 1800],
-  "meeting tables": [1800, 12000],
-  "reception desks": [2500, 15000],
-  "executive desks": [1200, 4500],
-  "boardroom tables": [3500, 25000],
-  "acoustic pods": [8000, 22000],
-  storage: [400, 1200],
-  lounge: [1200, 4500],
-  "breakout seating": [900, 3500],
-};
-
 export function computeProcurementRecommendations(
   categories: Array<{ category: string; quantity: number }>
 ): ProcurementRecommendation[] {
@@ -250,19 +286,31 @@ export function computeProcurementRecommendations(
       contact: "Denny (+86 131 2796 8208)",
       leadTime: "45–60 days",
     };
-    const [minUnit, maxUnit] = UNIT_PRICES[key] || [500, 2000];
+
+    // Pull real landed costs from supplierPricing.json
+    const realPricing = getPricingForCategory(key);
+    const minUnit = realPricing.min;
+    const maxUnit = realPricing.max;
     const minTotal = quantity * minUnit;
     const maxTotal = quantity * maxUnit;
+
+    // Lead time from real pricing data; fall back to routing string
+    const pricingLeadDays = realPricing.leadTimeDays;
+    const leadTimeStr = pricingLeadDays
+      ? `${pricingLeadDays}–${pricingLeadDays + 15} days`
+      : routing.leadTime;
+
     const marginBand = maxTotal > 50000 ? "28–38%" : maxTotal > 20000 ? "32–42%" : "38–52%";
+    const confidenceSuffix = realPricing.confidence === "high" ? " (verified)" : realPricing.confidence === "medium" ? " (estimated)" : " (indicative)";
 
     return {
-      category: category,
+      category,
       quantity,
-      unitEstimate: `$${minUnit.toLocaleString()}–$${maxUnit.toLocaleString()} AUD landed`,
+      unitEstimate: `$${minUnit.toLocaleString()}–$${maxUnit.toLocaleString()} AUD landed${confidenceSuffix}`,
       totalEstimate: `$${minTotal.toLocaleString()}–$${maxTotal.toLocaleString()} AUD`,
       recommendedSupplier: routing.supplier,
       supplierContact: routing.contact,
-      leadTime: routing.leadTime,
+      leadTime: leadTimeStr,
       marginBand,
       notes: key.includes("boke") || key === "chairs" || key === "task chairs" || key === "executive seating"
         ? "Boke specialises in seating — do not send desk/workstation requests."
