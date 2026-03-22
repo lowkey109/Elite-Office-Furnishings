@@ -1,3 +1,5 @@
+import type { DepartmentContext, DepartmentResult } from "../../../companyOrchestrator";
+
 type Role = "system" | "user" | "assistant";
 
 type ChatMessage = {
@@ -209,4 +211,24 @@ export function toTwimlMessage(message: string): string {
 <Response>
   <Message>${escapeXml(message)}</Message>
 </Response>`;
+}
+
+export async function runSalesAI(
+  context: DepartmentContext = {},
+): Promise<DepartmentResult> {
+  const company = context.companyName ?? "the prospect";
+
+  return {
+    department: "revenueOperations",
+    summary: `Head of Revenue Operations reviewed the sales pipeline and next actions for ${company}.`,
+    actions: [
+      "Review deal stage and velocity",
+      "Identify pipeline gaps and follow-up priorities",
+      "Prepare outreach or quote escalation",
+      "Update deal status and probability",
+    ],
+    blockers: [],
+    recordsUpdated: ["sales_review_prepared"],
+    success: true,
+  };
 }

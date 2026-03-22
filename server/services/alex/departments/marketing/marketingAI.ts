@@ -1,5 +1,6 @@
-import harper from "./harper.js";
 import type { DepartmentContext, DepartmentResult } from "../../companyOrchestrator";
+
+const AGENT_TITLE = "Head of Marketing";
 
 export async function runMarketingAI(
   context: DepartmentContext = {},
@@ -8,7 +9,7 @@ export async function runMarketingAI(
 
   return {
     department: "marketing",
-    summary: `${harper.title} translated the request into a marketing execution angle.`,
+    summary: `${AGENT_TITLE} translated the request into a marketing execution angle.`,
     actions: [
       "Clarify offer positioning",
       "Turn message into campaign-ready language",

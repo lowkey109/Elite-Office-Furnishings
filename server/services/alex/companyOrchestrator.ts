@@ -30,14 +30,14 @@ export interface DepartmentModule {
   run: (context: DepartmentContext) => Promise<DepartmentResult>;
 }
 
-import { runFinanceAI } from "./departments/finance/financeAI.js";
-import { runClientExperienceAI } from "./departments/clientExperience/clientExperienceAI.js";
-import { runIntelligenceAI } from "./departments/intelligence/intelligenceAI.js";
-import { runMarketingAI } from "./departments/marketing/marketingAI.js";
-import { runOperationsAI } from "./departments/operations/operationsAI.js";
-import { runSalesAI } from "./departments/revenueOperations/salesAI.js";
-import { runSupplierAI } from "./departments/supplier/supplierAI.js";
-import { runWorkspaceAI } from "./departments/workspace/workspaceAI.js";
+import { runFinanceAI } from "./departments/finance/financeAI";
+import { runClientExperienceAI } from "./departments/clientExperience/clientExperienceRunner";
+import { runIntelligenceAI } from "./departments/intelligence/intelligenceAI";
+import { runMarketingAI } from "./departments/marketing/marketingAI";
+import { runOperationsAI } from "./departments/operations/revenueOperations/operationsAI";
+import { runSalesAI } from "./departments/operations/revenueOperations/salesAI";
+import { runSupplierAI } from "./departments/supplier/supplierAI";
+import { runWorkspaceAI } from "./departments/workspace/workspaceAI";
 
 const departmentRegistry: Record<DepartmentName, DepartmentModule> = {
   finance: { run: runFinanceAI },

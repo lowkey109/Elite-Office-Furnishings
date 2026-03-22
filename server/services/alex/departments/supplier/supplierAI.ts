@@ -1,12 +1,13 @@
-import mason from "./mason.js";
 import type { DepartmentContext, DepartmentResult } from "../../companyOrchestrator";
+
+const AGENT_TITLE = "Head of Supplier Procurement";
 
 export async function runSupplierAI(
   context: DepartmentContext = {},
 ): Promise<DepartmentResult> {
   return {
     department: "supplier",
-    summary: `${mason.title} reviewed supplier and procurement implications.`,
+    summary: `${AGENT_TITLE} reviewed supplier and procurement implications.`,
     actions: [
       "Check supplier fit for requested outcome",
       "Validate pricing and procurement path",

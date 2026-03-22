@@ -155,4 +155,6 @@ async function generateReply(messages: ChatMessage[], intent: Intent): Promise<s
     return "Thanks — I’ve got your message. I can help with quotes, stock, delivery, installation, or workspace support. What would you like help with?";
   }
 
-  const data = await response.json
+  const data = await response.json();
+  return data?.choices?.[0]?.message?.content?.trim() ?? "Thanks — how can I help you with your office furniture or workspace project?";
+}

@@ -1,9 +1,9 @@
-import { decideDepartments } from "./alexDecisionEngine.js";
+import { decideDepartments } from "./alexDecisionEngine";
 import {
   orchestrateCompany,
   type DepartmentContext,
   type DepartmentName,
-} from "./companyOrchestrator.js";
+} from "./companyOrchestrator";
 
 export interface AlexAgentInput {
   request: string;

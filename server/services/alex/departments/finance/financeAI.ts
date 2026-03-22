@@ -1,5 +1,6 @@
-import nina from "./nina.js";
 import type { DepartmentContext, DepartmentResult } from "../../companyOrchestrator";
+
+const AGENT_TITLE = "Head of Finance";
 
 export async function runFinanceAI(
   context: DepartmentContext = {},
@@ -9,7 +10,7 @@ export async function runFinanceAI(
 
   return {
     department: "finance",
-    summary: `${nina.title} reviewed the request for ${company} and focused on margin, pricing, and cash flow.`,
+    summary: `${AGENT_TITLE} reviewed the request for ${company} and focused on margin, pricing, and cash flow.`,
     actions: [
       "Review quote profitability before issue",
       "Check payment terms and deposit requirements",
