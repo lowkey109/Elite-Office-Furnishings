@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -7,8 +7,17 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
   Users, DollarSign, TrendingUp, Settings, RefreshCw, CheckCircle2,
-  ChevronRight, BarChart3, Loader2, Star, AlertTriangle,
+  ChevronRight, BarChart3, Loader2, Star, AlertTriangle, Zap, Clock,
 } from "lucide-react";
+
+function getUrgency(r: any): { label: string; color: string } | null {
+  if (!r.createdAt) return null;
+  const ageH = (Date.now() - new Date(r.createdAt).getTime()) / (1000 * 60 * 60);
+  if (r.status === "submitted" && ageH >= 48) return { label: "URGENT", color: "bg-red-500/15 text-red-300 border-red-500/25" };
+  if (["submitted", "reviewing"].includes(r.status) && ageH >= 72) return { label: "STALE", color: "bg-yellow-500/15 text-yellow-300 border-yellow-500/25" };
+  if ((r.estimatedValue || 0) >= 200000 && !r.aiFitScore) return { label: "UNSCORED HIGH-VALUE", color: "bg-orange-500/15 text-orange-300 border-orange-500/25" };
+  return null;
+}
 
 type Tab = "partners" | "referrals" | "commissions" | "settings";
 
@@ -55,9 +64,28 @@ export default function AdminPartners() {
 
   const { data: stats } = useQuery<any>({ queryKey: ["/api/admin/partners/stats"] });
   const { data: partners = [], isLoading: partnersLoading } = useQuery<any[]>({ queryKey: ["/api/admin/partners"], enabled: activeTab === "partners" });
-  const { data: referrals = [], isLoading: referralsLoading } = useQuery<any[]>({ queryKey: ["/api/admin/partners/referrals"], enabled: activeTab === "referrals" });
+  const { data: referralsRaw = [], isLoading: referralsLoading } = useQuery<any[]>({ queryKey: ["/api/admin/partners/referrals"], enabled: activeTab === "referrals" });
   const { data: commissions = [], isLoading: commissionsLoading } = useQuery<any[]>({ queryKey: ["/api/admin/partners/commissions"], enabled: activeTab === "commissions" });
   const { data: settings } = useQuery<any>({ queryKey: ["/api/admin/partners/settings"], enabled: activeTab === "settings" });
+
+  // Sort referrals: URGENT first, then by AI score descending, then by creation date
+  const referrals = useMemo(() => {
+    return [...referralsRaw].sort((a, b) => {
+      const urgA = getUrgency(a);
+      const urgB = getUrgency(b);
+      if (urgA?.label === "URGENT" && urgB?.label !== "URGENT") return -1;
+      if (urgB?.label === "URGENT" && urgA?.label !== "URGENT") return 1;
+      if (urgA && !urgB) return -1;
+      if (urgB && !urgA) return 1;
+      const scoreA = a.aiFitScore ?? 0;
+      const scoreB = b.aiFitScore ?? 0;
+      if (scoreB !== scoreA) return scoreB - scoreA;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+  }, [referralsRaw]);
+
+  const urgentCount = useMemo(() => referrals.filter(r => getUrgency(r)?.label === "URGENT").length, [referrals]);
+  const staleCount = useMemo(() => referrals.filter(r => getUrgency(r)?.label === "STALE").length, [referrals]);
 
   const scoreMutation = useMutation({
     mutationFn: (id: string) => apiRequest("POST", `/api/referrals/${id}/score`),
@@ -154,22 +182,40 @@ export default function AdminPartners() {
         {/* ── Referrals Tab ────────────────────────────────────────────── */}
         {activeTab === "referrals" && (
           <div>
+            {/* Urgency alert banner */}
+            {(urgentCount > 0 || staleCount > 0) && (
+              <div className="mb-4 p-3 border border-red-500/20 bg-red-500/5 flex items-center gap-3">
+                <Zap className="w-4 h-4 text-red-400 flex-shrink-0" />
+                <span className="text-sm text-white/70">
+                  {urgentCount > 0 && <><span className="text-red-300 font-semibold">{urgentCount} urgent</span> (submitted &gt;48h){staleCount > 0 && " · "}</>}
+                  {staleCount > 0 && <><span className="text-yellow-300 font-semibold">{staleCount} stale</span> (3+ days unactioned)</>}
+                  {" "}<span className="text-white/35">— prioritised at top, sorted by AI score</span>
+                </span>
+              </div>
+            )}
             {referralsLoading ? (
               <div className="p-8 text-center text-white/30"><Loader2 className="w-5 h-5 animate-spin mx-auto" /></div>
             ) : referrals.length === 0 ? (
               <div className="p-12 text-center border border-white/8 text-white/30">No referrals submitted yet.</div>
             ) : (
               <div className="space-y-3">
-                {referrals.map((r: any) => (
-                  <div key={r.id} data-testid={`card-referral-${r.id}`} className="border border-white/8 bg-white/[0.02] hover:bg-white/5 transition-colors">
+                {referrals.map((r: any) => {
+                  const urgency = getUrgency(r);
+                  return (
+                  <div key={r.id} data-testid={`card-referral-${r.id}`} className={`border bg-white/[0.02] hover:bg-white/[0.04] transition-colors ${urgency?.label === "URGENT" ? "border-red-500/25" : urgency ? "border-yellow-500/20" : "border-white/8"}`}>
                     <div className="p-4 flex items-start gap-4">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-1.5">
+                        <div className="flex items-center gap-2.5 mb-1.5 flex-wrap">
                           <span className="font-medium text-white">{r.clientCompany || r.clientName || "Unknown Company"}</span>
                           <StatusBadge status={r.status} />
                           {r.aiFitScore && (
                             <span className="flex items-center gap-1 text-xs text-[hsl(43,78%,52%)]">
                               <Star className="w-3 h-3" /> {r.aiFitScore}
+                            </span>
+                          )}
+                          {urgency && (
+                            <span className={`text-[10px] px-1.5 py-0.5 border font-semibold tracking-wide ${urgency.color}`}>
+                              {urgency.label}
                             </span>
                           )}
                         </div>
@@ -183,7 +229,7 @@ export default function AdminPartners() {
                           <p className="text-xs text-white/40 mt-2 leading-relaxed line-clamp-2">{r.aiSummary}</p>
                         )}
                         {r.aiNextBestAction && (
-                          <p className="text-xs text-[hsl(43,78%,52%)]/70 mt-1.5">Next: {r.aiNextBestAction}</p>
+                          <p className="text-xs text-[hsl(43,78%,52%)]/70 mt-1.5">↳ {r.aiNextBestAction}</p>
                         )}
                       </div>
                       <div className="flex-shrink-0 flex flex-col gap-2 items-end">
@@ -235,7 +281,8 @@ export default function AdminPartners() {
                       </div>
                     )}
                   </div>
-                ))}
+                );
+                })}
               </div>
             )}
           </div>

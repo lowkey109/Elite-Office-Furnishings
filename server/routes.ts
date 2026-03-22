@@ -214,49 +214,122 @@ Commissions:
             try {
               const { partnerReferrals: pReferrals, partnerCommissions: pCommissions } = await import("@shared/schema");
               const { db: ddb } = await import("./db");
-              const { sql: dSql, or, eq, and, lt, isNull } = await import("drizzle-orm");
+              const { sql: dSql, or, eq, and, desc: dDesc, isNull } = await import("drizzle-orm");
 
-              // 1. Detect stale leads (submitted > 3 days ago, still in submitted/reviewing)
+              const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
               const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
-              const staleLeads = await ddb.select({ id: pReferrals.id, clientCompany: pReferrals.clientCompany })
+              const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+              // 1. Stale lead detection (>3 days, still in submitted/reviewing)
+              const staleLeads = await ddb.select({ id: pReferrals.id, clientCompany: pReferrals.clientCompany, estimatedValue: pReferrals.estimatedValue, status: pReferrals.status })
                 .from(pReferrals)
                 .where(and(
                   or(eq(pReferrals.status, "submitted"), eq(pReferrals.status, "reviewing")),
                   dSql`${pReferrals.createdAt} < ${threeDaysAgo}`
                 ));
-              steps.push({ step: "Stale lead detection", status: "ok", count: staleLeads.length, detail: `${staleLeads.length} leads stale (3+ days, unactioned)` });
+              steps.push({ step: "Stale lead detection", status: staleLeads.length > 0 ? "warning" : "ok", count: staleLeads.length, detail: `${staleLeads.length} leads unactioned for 3+ days` });
 
-              // 2. Flag high-value opportunities (estimatedValue >= 100000, no aiFitScore)
-              const unscored = await ddb.select({ id: pReferrals.id })
+              // 2. Urgency detection (>48h with no status change)
+              const urgentLeads = await ddb.select({ id: pReferrals.id, clientCompany: pReferrals.clientCompany, estimatedValue: pReferrals.estimatedValue, status: pReferrals.status, aiFitScore: pReferrals.aiFitScore })
+                .from(pReferrals)
+                .where(and(
+                  eq(pReferrals.status, "submitted"),
+                  dSql`${pReferrals.createdAt} < ${fortyEightHoursAgo}`
+                ));
+              steps.push({ step: "Urgency detection (>48h)", status: urgentLeads.length > 0 ? "warning" : "ok", count: urgentLeads.length, detail: `${urgentLeads.length} leads need immediate attention` });
+
+              // 3. High-value unscored leads
+              const unscored = await ddb.select({ id: pReferrals.id, clientCompany: pReferrals.clientCompany, estimatedValue: pReferrals.estimatedValue })
                 .from(pReferrals)
                 .where(and(isNull(pReferrals.aiFitScore), dSql`${pReferrals.estimatedValue} >= 100000`));
-              steps.push({ step: "High-value unscored leads", status: "ok", count: unscored.length, detail: `${unscored.length} leads need AI scoring` });
+              steps.push({ step: "High-value unscored leads", status: unscored.length > 0 ? "warning" : "ok", count: unscored.length, detail: `${unscored.length} high-value leads missing AI scores` });
 
-              // 3. Re-run AI scoring on unscored referrals (up to 5, async)
+              // 4. Re-run AI scoring (up to 5)
               let rescored = 0;
               if (unscored.length > 0) {
                 const { scorePartnerReferral } = await import("./services/partnerReferralAI");
-                const toScore = unscored.slice(0, 5);
-                for (const { id } of toScore) {
+                for (const { id } of unscored.slice(0, 5)) {
                   scorePartnerReferral(id).catch(() => {});
                   rescored++;
                 }
               }
-              steps.push({ step: "AI rescoring triggered", status: "ok", count: rescored, detail: `${rescored} referrals queued for AI scoring` });
+              steps.push({ step: "AI rescoring triggered", status: "ok", count: rescored, detail: rescored > 0 ? `${rescored} referrals queued for AI scoring` : "All high-value leads are scored" });
 
-              // 4. Trigger Nexora cycle
-              const nexoraResult = await runNexoraCycle("system-run");
-              steps.push({ step: "Nexora intelligence cycle", status: nexoraResult.skipped ? "skipped" : "ok", detail: nexoraResult.message || (nexoraResult.skipped ? "Already running" : "Cycle complete") });
-
-              // 5. Commission audit (pending commissions older than 7 days)
-              const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+              // 5. Commission audit
               const overdueComs = await ddb.select({ id: pCommissions.id, amount: pCommissions.commissionAmount })
                 .from(pCommissions)
                 .where(and(eq(pCommissions.paymentStatus, "pending"), dSql`${pCommissions.createdAt} < ${sevenDaysAgo}`));
               steps.push({ step: "Overdue commission audit", status: overdueComs.length > 0 ? "warning" : "ok", count: overdueComs.length, detail: `${overdueComs.length} commissions pending >7 days` });
 
+              // 6. Nexora intelligence cycle
+              const nexoraResult = await runNexoraCycle("system-run");
+              steps.push({ step: "Nexora intelligence cycle", status: nexoraResult.skipped ? "skipped" : "ok", detail: nexoraResult.message || (nexoraResult.skipped ? "Already running" : "Cycle complete") });
+
+              // ── Predictive Engine ─────────────────────────────────────────────────
+              const allActive = await ddb.select().from(pReferrals)
+                .where(dSql`${pReferrals.status} NOT IN ('lost', 'cancelled')`)
+                .orderBy(dDesc(pReferrals.aiFitScore));
+
+              const totalPipelineValue = allActive.reduce((s, r) => s + (r.estimatedValue || 0), 0);
+
+              // Top 5 deals to close (scored, quoted/qualified/reviewing)
+              const topDeals = allActive
+                .filter(r => ["quoted", "qualified", "reviewing", "submitted"].includes(r.status) && r.aiFitScore)
+                .sort((a, b) => (b.aiFitScore || 0) - (a.aiFitScore || 0))
+                .slice(0, 5)
+                .map(r => ({
+                  id: r.id,
+                  clientCompany: r.clientCompany || "Unknown",
+                  status: r.status,
+                  estimatedValue: r.estimatedValue || 0,
+                  aiFitScore: r.aiFitScore,
+                  aiNextBestAction: r.aiNextBestAction,
+                }));
+
+              // At-risk deals: stale >48h or high value unscored
+              const atRisk = allActive.filter(r =>
+                (["submitted", "reviewing"].includes(r.status) && new Date(r.createdAt) < fortyEightHoursAgo) ||
+                (!r.aiFitScore && (r.estimatedValue || 0) >= 100000)
+              ).map(r => ({
+                id: r.id,
+                clientCompany: r.clientCompany || "Unknown",
+                status: r.status,
+                estimatedValue: r.estimatedValue || 0,
+                reason: !r.aiFitScore ? "Unscored high-value lead" : "No activity >48h",
+              }));
+
+              // 30/60/90 day revenue predictions (based on pipeline + AI scores as probability proxies)
+              const highConf = allActive.filter(r => (r.aiFitScore || 0) >= 80 && ["quoted", "qualified"].includes(r.status));
+              const medConf = allActive.filter(r => (r.aiFitScore || 0) >= 60 && ["reviewing", "submitted", "quoted", "qualified"].includes(r.status));
+              const all90 = allActive.filter(r => ["reviewing", "submitted", "quoted", "qualified"].includes(r.status));
+
+              const predicted30 = highConf.reduce((s, r) => s + (r.estimatedValue || 0) * 0.7, 0);
+              const predicted60 = medConf.reduce((s, r) => s + (r.estimatedValue || 0) * 0.45, 0);
+              const predicted90 = all90.reduce((s, r) => s + (r.estimatedValue || 0) * 0.3, 0);
+
+              const wonDeals = await ddb.select().from(pReferrals).where(eq(pReferrals.status, "won"));
+              const totalRevenue = wonDeals.reduce((s, r) => s + (r.estimatedValue || 0), 0);
+
               const durationMs = Date.now() - startedAt;
-              res.json({ ok: true, ranAt: new Date().toISOString(), durationMs, steps, staleLeads: staleLeads.map(l => l.clientCompany), overdueComs: overdueComs.length });
+              res.json({
+                ok: true,
+                ranAt: new Date().toISOString(),
+                durationMs,
+                steps,
+                staleLeads: staleLeads.map(l => l.clientCompany),
+                urgentLeads: urgentLeads.map(l => ({ name: l.clientCompany, value: l.estimatedValue, score: l.aiFitScore, status: l.status })),
+                overdueComs: overdueComs.length,
+                predictive: {
+                  totalPipelineValue,
+                  totalRevenue,
+                  predicted30,
+                  predicted60,
+                  predicted90,
+                  topDeals,
+                  atRisk,
+                  totalActive: allActive.length,
+                },
+              });
             } catch (err: any) {
               console.error("[SystemRun] Error:", err.message);
               res.status(500).json({ ok: false, error: err.message, steps });
