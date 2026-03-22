@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
+import { useNexoraSignal } from "@/hooks/useNexoraSignal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/Layout";
@@ -110,6 +111,7 @@ function FinanceInput({ label, value, onChange, type = "text", placeholder = "",
 }
 
 export default function FinanceWorkspace() {
+  const { emit } = useNexoraSignal();
   const [amount, setAmount] = useState("80000");
   const [term, setTerm] = useState(36);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -126,6 +128,7 @@ export default function FinanceWorkspace() {
     document.title = "Finance Your Workspace — Office Furniture Finance | The Corporate Desk";
     const meta = document.querySelector('meta[name="description"]');
     if (meta) meta.setAttribute("content", "Spread the cost of your commercial office fitout with flexible business finance. Preserve cash flow, possible tax benefits, fast approval.");
+    emit("FINANCE_VIEW", { context: "finance-workspace" });
 
     const params = new URLSearchParams(window.location.search);
     const preAmount = params.get("amount");

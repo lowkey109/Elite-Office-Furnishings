@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
+import { useNexoraSignal } from "@/hooks/useNexoraSignal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/Layout";
@@ -517,6 +518,7 @@ function EstimateResultsPage({
 // ─── Main QuoteBuilder Component ──────────────────────────────────────────────
 
 export default function QuoteBuilder() {
+  const { emit } = useNexoraSignal();
   const [step, setStep] = useState(0);
   const [inputs, setInputs] = useState<WorkspaceInputs>({
     projectType: "",
@@ -546,6 +548,8 @@ export default function QuoteBuilder() {
     document.title = "Commercial Workspace Estimator — Office Fitout Budgeting | The Corporate Desk";
     const meta = document.querySelector('meta[name="description"]');
     if (meta) meta.setAttribute("content", "Generate a professional commercial office fitout estimate with AI-powered product recommendations, bill of quantities, and investment summary. Free — no obligation.");
+    emit("QUOTE_START", { context: "quote-builder" });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

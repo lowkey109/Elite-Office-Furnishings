@@ -1009,7 +1009,19 @@ export default function OfficeWalkthrough() {
                   <div className="text-center px-8">
                     <Box className="w-12 h-12 text-[hsl(43,78%,52%)] mx-auto mb-4 opacity-60" />
                     <h3 className="text-white font-semibold mb-2">3D Preview Not Available</h3>
-                    <p className="text-white/40 text-sm max-w-xs">Your browser does not support WebGL required for the 3D walkthrough. Please use Chrome, Firefox or Safari on a desktop device.</p>
+                    <p className="text-white/40 text-sm max-w-xs mb-6">Your device doesn't support the 3D walkthrough. Use our AI planner or speak to a consultant instead.</p>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <Link href="/ai-office-planner">
+                        <Button className="bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[hsl(220,20%,6%)] font-bold px-6 py-2.5 text-sm" data-testid="button-webgl-fallback-planner">
+                          Try AI Office Planner
+                        </Button>
+                      </Link>
+                      <Link href="/request-a-quote">
+                        <Button variant="outline" className="border-[rgba(201,168,76,0.35)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.08)] px-6 py-2.5 text-sm font-semibold" data-testid="button-webgl-fallback-quote">
+                          Request a Quote
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               )}
@@ -1089,7 +1101,7 @@ export default function OfficeWalkthrough() {
                     <span>Zone: <span className="text-white/60">{selectedProduct.zone}</span></span>
                     {selectedProduct.quantity > 1 && <span>Qty: <span className="text-white/60">{selectedProduct.quantity}</span></span>}
                   </div>
-                  <Link href="/products">
+                  <Link href="/catalog">
                     <Button size="sm" className="w-full bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[hsl(220,20%,6%)] font-semibold text-xs">
                       View Product Range <ArrowRight className="w-3 h-3 ml-1" />
                     </Button>

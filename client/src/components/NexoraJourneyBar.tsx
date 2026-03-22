@@ -94,7 +94,7 @@ export function NexoraJourneyBar() {
   };
 
   return (
-    <div className={`fixed bottom-[80px] left-0 right-0 z-40 pointer-events-none px-4 sm:px-6`}>
+    <div className={`fixed bottom-[168px] sm:bottom-[84px] left-0 right-0 z-40 pointer-events-none px-4 sm:px-6`}>
       <div className="max-w-5xl mx-auto pointer-events-auto">
         <div
           className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm backdrop-blur-md shadow-xl transition-all ${urgencyStyle}`}

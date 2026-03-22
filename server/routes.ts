@@ -1372,6 +1372,27 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
     }
   });
 
+  // /api/enquiries — lightweight contact/start-page enquiry alias, maps to leads table
+  app.post("/api/enquiries", async (req, res) => {
+    try {
+      const { name, email, phone, message, source } = req.body;
+      if (!name || !email) {
+        return res.status(400).json({ success: false, message: "Name and email are required" });
+      }
+      const lead = await storage.createLead({
+        name: String(name),
+        email: String(email),
+        phone: phone ? String(phone) : "",
+        message: message ? String(message) : "",
+        type: source ? String(source) : "general-enquiry",
+        sourcePage: source ? String(source) : "start-page",
+      } as any);
+      res.json({ success: true, id: lead.id });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
   app.get("/api/leads", async (req, res) => {
     try {
       const leads = await storage.getLeads();

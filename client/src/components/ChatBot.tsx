@@ -221,8 +221,8 @@ const PAGE_CTAS: Record<string, CTAConfig> = {
     tertiary: { label: "Call Us: 1300 977 607", href: "tel:1300977607" },
   },
   "/partners": {
-    primary: { label: "Apply to Partner Program", href: "/partners" },
-    secondary: { label: "Submit a Referral", href: "/partners" },
+    primary: { label: "Submit a Project Referral", href: "/submit-deal" },
+    secondary: { label: "Request a Quote", href: "/request-a-quote" },
     tertiary: { label: "Call Us: 1300 977 607", href: "tel:1300977607" },
   },
 };

@@ -1,5 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "wouter";
+import { useNexoraSignal } from "@/hooks/useNexoraSignal";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Layout } from "@/components/Layout";
@@ -172,7 +173,13 @@ function FinanceOverlay({ totalCost }: { totalCost: number }) {
 }
 
 export default function WorkspaceDesignEngine() {
+  const { emit } = useNexoraSignal();
   const [step, setStep] = useState<"form" | "loading" | "result">("form");
+
+  useEffect(() => {
+    emit("PLANNER_START", { context: "ai-office-planner" });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [result, setResult] = useState<EngineResult | null>(null);
   const [floorPlanFile, setFloorPlanFile] = useState<File | null>(null);
   const [dragging, setDragging] = useState(false);
