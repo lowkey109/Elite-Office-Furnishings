@@ -1,0 +1,147 @@
+FIX MOBILE NAVIGATION ROUTING + SECTION LINKING
+
+You are fixing a broken navigation system in a React + router-based web app.
+
+CURRENT ISSUE:
+- Clicking menu items (Services links) does NOT navigate to correct pages or sections
+- Instead, it redirects to the onboarding/home flow ("What brings you here?")
+- This indicates incorrect routing, missing anchors, or improper link handling
+
+GOAL:
+Make every navigation item:
+1. Go to the correct page OR
+2. Scroll to the correct section on the page
+
+==================================================
+STEP 1 — IDENTIFY LINK TYPE
+==================================================
+
+For each menu item:
+
+If it is a FULL PAGE:
+→ Use router navigation (e.g. /ai-office-planner)
+
+If it is a SECTION on a page:
+→ Use anchor navigation (e.g. /#services)
+
+DO NOT mix both.
+
+==================================================
+STEP 2 — FIX ROUTES (CRITICAL)
+==================================================
+
+Ensure all pages exist in router:
+
+Example (React Router):
+
+<Route path="/" element={<Home />} />
+<Route path="/workplace-solutions" element={<WorkplaceSolutions />} />
+<Route path="/ai-office-planner" element={<AiOfficePlanner />} />
+<Route path="/walkthrough" element={<Walkthrough />} />
+<Route path="/quote-builder" element={<QuoteBuilder />} />
+<Route path="/request-quote" element={<RequestQuote />} />
+<Route path="/finance" element={<Finance />} />
+<Route path="/procurement" element={<Procurement />} />
+<Route path="/strategy-call" element={<StrategyCall />} />
+
+If route does not exist:
+→ CREATE it OR
+→ update link to correct existing route
+
+==================================================
+STEP 3 — FIX NAV LINKS
+==================================================
+
+Replace broken links like:
+href="#"
+href="/"
+or onClick hacks
+
+WITH proper links:
+
+For pages:
+<Link to="/ai-office-planner">AI Office Planner</Link>
+
+For sections:
+<Link to="/#services">Services</Link>
+
+==================================================
+STEP 4 — ENABLE SMOOTH SCROLL TO SECTIONS
+==================================================
+
+On homepage, ensure sections have IDs:
+
+<section id="services">
+<section id="quote">
+<section id="planner">
+
+Then implement scroll logic:
+
+useEffect(() => {
+  if (location.hash) {
+    const el = document.querySelector(location.hash);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  }
+}, [location]);
+
+==================================================
+STEP 5 — FIX MOBILE MENU BEHAVIOUR
+==================================================
+
+After clicking a menu item:
+
+- Close mobile menu
+- Then navigate
+- Then scroll if needed
+
+Example:
+
+const handleNavClick = (path) => {
+  closeMenu();
+  navigate(path);
+};
+
+==================================================
+STEP 6 — REMOVE FALLBACK REDIRECT BUG
+==================================================
+
+Somewhere in your app you likely have:
+
+navigate("/")
+or a redirect when state is missing
+
+REMOVE or restrict this so it does NOT fire on nav click.
+
+Only redirect when:
+- user first lands
+- OR onboarding is explicitly triggered
+
+==================================================
+STEP 7 — TEST CASES (MANDATORY)
+==================================================
+
+Click each menu item:
+
+- Workplace Solutions → correct page
+- AI Office Planner → correct page
+- 3D Walkthrough → correct page
+- Free Layout Plan → correct section/page
+- Quote Builder → correct page
+- Request a Quote → correct page
+- Finance → correct page
+- Procurement → correct page
+- Strategy Call → correct page
+
+NO link should ever redirect to onboarding unless intentional.
+
+==================================================
+SUCCESS CONDITION
+==================================================
+
+- Navigation works correctly
+- No incorrect redirects
+- Sections scroll properly
+- Mobile menu behaves cleanly
+- No broken links

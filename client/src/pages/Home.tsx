@@ -190,7 +190,7 @@ export default function Home() {
                 data-testid="button-hero-layout-plan"
                 style={{ touchAction: "manipulation" }}
               >
-                <Link href="/upload-your-floor-plan">
+                <Link href="/ai-office-planner">
                   AI Office Planner
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
@@ -203,7 +203,7 @@ export default function Home() {
                 data-testid="button-hero-quote"
                 style={{ touchAction: "manipulation" }}
               >
-                <Link href="/send-us-your-quote">
+                <Link href="/request-a-quote">
                   Request a Quote
                 </Link>
               </Button>
@@ -215,7 +215,7 @@ export default function Home() {
                 data-testid="button-hero-strategy"
                 style={{ touchAction: "manipulation" }}
               >
-                <Link href="/workplace-strategy">
+                <Link href="/strategy-call">
                   Book a Strategy Call
                 </Link>
               </Button>
@@ -351,7 +351,7 @@ export default function Home() {
 
           <div className="text-center mt-12">
             <Button asChild variant="outline" size="lg" className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] font-semibold px-10" data-testid="button-view-all-products">
-              <Link href="/products">View All Products</Link>
+              <Link href="/catalog">View All Products</Link>
             </Button>
           </div>
         </div>
@@ -455,7 +455,7 @@ export default function Home() {
               </ul>
               <div className="flex flex-wrap gap-3">
                 <Button asChild size="lg" className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold border-none" data-testid="button-home-ai-planner">
-                  <Link href="/upload-your-floor-plan"><Sparkles className="w-4 h-4 mr-2" /> Start Free AI Office Planner</Link>
+                  <Link href="/ai-office-planner"><Sparkles className="w-4 h-4 mr-2" /> Start Free AI Office Planner</Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.08)]" data-testid="button-home-view-demo">
                   <Link href="/3d-office-walkthrough"><Monitor className="w-4 h-4 mr-2" /> View 3D Demo</Link>
@@ -531,10 +531,10 @@ export default function Home() {
             </p>
             <div className="flex flex-wrap gap-4">
               <Button asChild size="lg" className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold border-none px-8" data-testid="button-cta-layout-plan">
-                <Link href="/upload-your-floor-plan">AI Office Planner <ArrowRight className="ml-2 w-4 h-4" /></Link>
+                <Link href="/ai-office-planner">AI Office Planner <ArrowRight className="ml-2 w-4 h-4" /></Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-white/30 text-white bg-white/5 px-8" data-testid="button-cta-strategy-call">
-                <Link href="/workplace-strategy">Book a Strategy Call</Link>
+                <Link href="/strategy-call">Book a Strategy Call</Link>
               </Button>
             </div>
             <div className="mt-8 flex items-center gap-3">

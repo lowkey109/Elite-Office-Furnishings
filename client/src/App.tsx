@@ -13,6 +13,7 @@ import WorkplaceSolutions from "@/pages/WorkplaceSolutions";
 import FreeLayoutPlan from "@/pages/FreeLayoutPlan";
 import SendQuote from "@/pages/SendQuote";
 import WorkplaceStrategy from "@/pages/WorkplaceStrategy";
+import TradeProcurement from "@/pages/TradeProcurement";
 import { ThankYouLayoutPlan, ThankYouQuote, ThankYouStrategy } from "@/pages/ThankYou";
 import Contact from "@/pages/Contact";
 import Marketing from "@/pages/Marketing";
@@ -99,30 +100,29 @@ function Router() {
       <Route path="/thank-you-quote" component={ThankYouQuote} />
       <Route path="/thank-you-strategy" component={ThankYouStrategy} />
 
-      {/* ── Redirects — consolidated pages ─────────────── */}
-      <Route path="/about">{() => <Redirect to="/" />}</Route>
-      <Route path="/contact">{() => <Redirect to="/start" />}</Route>
-      <Route path="/case-studies">{() => <Redirect to="/capability" />}</Route>
-      <Route path="/testimonials">{() => <Redirect to="/capability" />}</Route>
-      <Route path="/blog/:slug">{() => <Redirect to="/start" />}</Route>
-      <Route path="/blog">{() => <Redirect to="/start" />}</Route>
-      <Route path="/workplace-solutions">{() => <Redirect to="/capability" />}</Route>
-      <Route path="/workplace-strategy">{() => <Redirect to="/capability" />}</Route>
-      <Route path="/free-office-layout-plan">{() => <Redirect to="/start" />}</Route>
-      <Route path="/free-layout-plan">{() => <Redirect to="/start" />}</Route>
-      <Route path="/send-us-your-quote">{() => <Redirect to="/start" />}</Route>
-      <Route path="/request-a-quote">{() => <Redirect to="/start" />}</Route>
-      <Route path="/upload-your-floor-plan">{() => <Redirect to="/start" />}</Route>
-      <Route path="/ai-office-planner">{() => <Redirect to="/start" />}</Route>
-      <Route path="/ai-workspace-design">{() => <Redirect to="/start" />}</Route>
-      <Route path="/3d-office-walkthrough">{() => <Redirect to="/start" />}</Route>
-      <Route path="/quote-builder">{() => <Redirect to="/start" />}</Route>
-      <Route path="/finance-your-workspace">{() => <Redirect to="/start" />}</Route>
-      <Route path="/trade-project-procurement">{() => <Redirect to="/start" />}</Route>
-      <Route path="/strategy-call">{() => <Redirect to="/start" />}</Route>
-      {/* Embed routes — no header/footer/chatbot, safe for WordPress iframes */}
-      <Route path="/embed/quote-builder" component={QuoteBuilder} />
-      <Route path="/embed/finance-your-workspace" component={FinanceWorkspace} />
+      {/* ── Company pages ────────────────────────────── */}
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/case-studies" component={CaseStudies} />
+      <Route path="/testimonials" component={Testimonials} />
+      <Route path="/blog/:slug" component={BlogPost} />
+      <Route path="/blog" component={Blog} />
+
+      {/* ── Service pages ─────────────────────────────── */}
+      <Route path="/workplace-solutions" component={WorkplaceSolutions} />
+      <Route path="/workplace-strategy" component={WorkplaceStrategy} />
+      <Route path="/strategy-call" component={WorkplaceStrategy} />
+      <Route path="/free-layout-plan" component={FreeLayoutPlan} />
+      <Route path="/free-office-layout-plan" component={FreeLayoutPlan} />
+      <Route path="/request-a-quote" component={SendQuote} />
+      <Route path="/send-us-your-quote" component={SendQuote} />
+      <Route path="/upload-your-floor-plan" component={UploadFloorPlan} />
+      <Route path="/ai-office-planner" component={WorkspaceDesignEngine} />
+      <Route path="/ai-workspace-design" component={WorkspaceDesignEngine} />
+      <Route path="/3d-office-walkthrough" component={OfficeWalkthrough} />
+      <Route path="/quote-builder" component={QuoteBuilder} />
+      <Route path="/finance-your-workspace" component={FinanceWorkspace} />
+      <Route path="/trade-project-procurement" component={TradeProcurement} />
       <Route
         path="/admin"
         component={() => {

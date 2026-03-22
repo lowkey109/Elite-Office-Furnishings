@@ -1,0 +1,439 @@
+FULL FRONTEND ROUTING + NAVIGATION REBUILD
+THE CORPORATE DESK
+PRODUCTION FIX
+NO BROKEN LINKS
+NO WRONG REDIRECTS
+NO FALLBACK TO ONBOARDING
+MOBILE + DESKTOP MUST WORK CORRECTLY
+
+You are doing a full routing and navigation repair across the entire frontend.
+
+CURRENT CRITICAL BUGS:
+- Mobile menu links are not going to the correct destinations
+- Clicking headings/services sends users to the wrong place
+- Some clicks dump users into the onboarding/start flow ("What brings you here?")
+- Section links are not scrolling to the correct section
+- Missing routes or bad fallback logic are causing incorrect redirects
+- Mobile navigation does not behave like a clean production site
+
+GOAL:
+Rebuild routing and navigation so every menu item and CTA:
+1. Goes to the correct page
+2. Scrolls to the correct section if it is a section link
+3. Never incorrectly redirects to onboarding/home
+4. Closes the mobile menu properly after click
+5. Works consistently on mobile and desktop
+6. Has safe fallbacks for unknown routes
+7. Uses a single clean source of truth for navigation
+
+==================================================
+PHASE 1 — AUDIT CURRENT ROUTING
+==================================================
+
+Audit the entire frontend for:
+- router file(s)
+- app shell / layout
+- header / mobile nav / desktop nav
+- onboarding flow
+- CTA buttons
+- footer links
+- services cards
+- any navigate("/") calls
+- any href="/"
+- any href="#"
+- any fallback redirects
+- any logic that auto-sends users to start flow
+- any hash scrolling logic
+- any duplicated route definitions
+- any route mismatch between menu labels and actual pages
+
+Find every broken navigation entry point including:
+- header menu
+- mobile drawer menu
+- services dropdown
+- CTA buttons
+- cards
+- homepage section links
+- footer navigation
+- onboarding buttons
+- quote builder steps
+- any internal cross-links
+
+==================================================
+PHASE 2 — CREATE ONE ROUTE SOURCE OF TRUTH
+==================================================
+
+Create a central route config file for the entire site.
+
+Example structure:
+
+export const routes = {
+  home: "/",
+  workplaceSolutions: "/workplace-solutions",
+  aiOfficePlanner: "/ai-office-planner",
+  officeWalkthrough: "/3d-office-walkthrough",
+  freeLayoutPlan: "/free-layout-plan",
+  quoteBuilder: "/quote-builder",
+  requestQuote: "/request-a-quote",
+  financeWorkspace: "/finance-your-workspace",
+  tradeProcurement: "/trade-project-procurement",
+  strategyCall: "/strategy-call",
+  contact: "/contact",
+  about: "/about",
+  partners: "/partners",
+};
+
+Then create navigation config from that source.
+
+Example:
+
+export const mainNavItems = [
+  { label: "Workplace Solutions", type: "route", to: routes.workplaceSolutions },
+  { label: "AI Office Planner", type: "route", to: routes.aiOfficePlanner },
+  { label: "3D Office Walkthrough", type: "route", to: routes.officeWalkthrough },
+  { label: "Free Layout Plan", type: "route", to: routes.freeLayoutPlan },
+  { label: "Quote Builder", type: "route", to: routes.quoteBuilder },
+  { label: "Request a Quote", type: "route", to: routes.requestQuote },
+  { label: "Finance Your Workspace", type: "route", to: routes.financeWorkspace },
+  { label: "Trade & Project Procurement", type: "route", to: routes.tradeProcurement },
+  { label: "Strategy Call", type: "route", to: routes.strategyCall },
+];
+
+DO NOT hardcode random route strings all over the app anymore.
+
+==================================================
+PHASE 3 — REBUILD ROUTER CLEANLY
+==================================================
+
+Patch the router so every route exists and maps to the correct page component.
+
+Example expected route shape:
+
+<Route path="/" element={<HomePage />} />
+<Route path="/workplace-solutions" element={<WorkplaceSolutionsPage />} />
+<Route path="/ai-office-planner" element={<AiOfficePlannerPage />} />
+<Route path="/3d-office-walkthrough" element={<OfficeWalkthroughPage />} />
+<Route path="/free-layout-plan" element={<FreeLayoutPlanPage />} />
+<Route path="/quote-builder" element={<QuoteBuilderPage />} />
+<Route path="/request-a-quote" element={<RequestQuotePage />} />
+<Route path="/finance-your-workspace" element={<FinanceWorkspacePage />} />
+<Route path="/trade-project-procurement" element={<TradeProcurementPage />} />
+<Route path="/strategy-call" element={<StrategyCallPage />} />
+<Route path="*" element={<NotFoundPage />} />
+
+Rules:
+- Every nav item must point to a real route
+- No nav item should point to placeholder pages
+- No service link should point to "/"
+- No missing route should silently fall back to onboarding
+- Unknown routes should go to a clean 404 page, not dump to the onboarding flow
+
+==================================================
+PHASE 4 — FIX ONBOARDING REDIRECT LEAKAGE
+==================================================
+
+The onboarding flow must not hijack normal navigation.
+
+Find and remove or restrict any logic like:
+- navigate("/")
+- navigate("/start")
+- redirect to onboarding if some local state is missing
+- redirect to onboarding on component mount
+- redirect when query params are absent
+- redirect when session state is undefined
+
+The onboarding/start flow must only appear when:
+- the user explicitly enters that flow
+- or clicks a CTA meant to open onboarding
+
+It must NOT activate just because the user clicked a normal menu link.
+
+Patch logic so onboarding state is isolated and scoped.
+Do not let global layout/header/menu clicks trigger onboarding fallback.
+
+If there is any code like:
+if (!something) return <Navigate to="/" />
+or
+if (!wizardState) navigate("/")
+
+replace it with route-safe handling.
+Use default local component state instead of redirecting users away from the page.
+
+==================================================
+PHASE 5 — FIX MOBILE MENU COMPLETELY
+==================================================
+
+Rebuild the mobile menu interaction so it behaves like a premium production website.
+
+Required behavior:
+- tap burger icon opens menu
+- tap any item closes menu
+- then navigates to correct page
+- no double navigation
+- no stale menu overlay after navigation
+- no forced return to onboarding
+- no weird intermediate state
+- body scroll locks while menu is open
+- body scroll unlocks when menu closes
+- focus/accessibility behavior is stable
+
+Implement a safe click handler pattern:
+
+handleMenuItemClick(item):
+1. close mobile menu immediately
+2. if item.type === "route", navigate(item.to)
+3. if item.type === "hash", navigate to route first if needed, then scroll to target section
+4. ensure navigation occurs only once
+5. clear any open submenu state
+
+Also ensure:
+- clicking outside closes menu
+- escape key closes menu
+- route changes automatically close menu
+
+==================================================
+PHASE 6 — FIX SECTION ANCHOR SCROLLING
+==================================================
+
+If some items are meant to scroll to sections on a page, implement that correctly.
+
+Rules:
+- only use hash links for actual on-page sections
+- every section target must have a real stable id
+- scrolling must work after route navigation
+- sticky header offset must be accounted for
+- no scroll should land underneath the fixed header
+
+Example:
+<section id="services">...</section>
+<section id="planner">...</section>
+<section id="quote-builder">...</section>
+
+Implement route-aware hash scroll handling:
+- when location changes and a hash exists, wait for render
+- locate target element
+- scroll with header offset
+- smooth scroll on user navigation
+- safe no-op if target missing
+
+Do NOT use plain broken href="#" placeholders.
+Do NOT use fake anchors with no matching element ids.
+Do NOT let hash failure bounce user back to page top without explanation.
+
+==================================================
+PHASE 7 — REPLACE ALL BROKEN LINK PATTERNS
+==================================================
+
+Search entire codebase and patch all of these bad patterns:
+
+BAD:
+href="/"
+href="#"
+href="javascript:void(0)"
+onClick={() => navigate("/")}
+onClick={() => window.location.href = "/"}
+placeholder service links
+cards with wrong route targets
+buttons using same default path for every service
+fallback redirect to homepage for missing content
+route mismatch between page slug and menu slug
+
+Replace with:
+- proper Link components
+- proper navigate(item.to)
+- proper hash/section handler
+- correct route slugs
+- central route config usage
+- explicit 404 handling
+
+==================================================
+PHASE 8 — FIX SERVICE MENU ITEM MAPPING
+==================================================
+
+The current service headings/menu items are likely mapped incorrectly.
+
+Fix exact mapping so these go to the intended destinations:
+
+SERVICES MENU:
+- Workplace Solutions -> /workplace-solutions
+- AI Office Planner -> /ai-office-planner
+- 3D Office Walkthrough -> /3d-office-walkthrough
+- Free Layout Plan -> /free-layout-plan
+- Quote Builder -> /quote-builder
+- Request a Quote -> /request-a-quote
+- Finance Your Workspace -> /finance-your-workspace
+- Trade & Project Procurement -> /trade-project-procurement
+- Strategy Call -> /strategy-call
+
+If these pages do not exist yet:
+- create page shells immediately
+- do not point them to "/"
+- do not point them to onboarding
+- do not leave dead ends
+
+Each page shell must at minimum include:
+- hero heading
+- short intro
+- CTA
+- safe layout wrapper
+- correct title/meta
+- path match
+
+==================================================
+PHASE 9 — FIX CTA BUTTONS + CARD NAVIGATION
+==================================================
+
+Audit all cards and CTA buttons.
+
+Common problem:
+Different cards are using the same default navigate("/") handler.
+
+Patch every card/button so it routes intentionally.
+
+Examples:
+- Get Started button should only open onboarding if intended
+- Quote Builder card should go to /quote-builder
+- Planner CTA should go to /ai-office-planner
+- Strategy CTA should go to /strategy-call
+- Request Quote CTA should go to /request-a-quote
+
+No generic catch-all click handler allowed unless it maps from config.
+
+==================================================
+PHASE 10 — ADD ROUTE GUARDS ONLY WHERE APPROPRIATE
+==================================================
+
+If some pages need state or data, do not redirect to home automatically.
+
+Instead:
+- show page-safe default state
+- show empty state
+- show recoverable error state
+- show inline prompt to continue
+
+For example:
+If quote builder has no selected category yet,
+do not redirect to onboarding/home.
+Instead render:
+“Start your quote build” with the correct step controls.
+
+This is critical.
+
+==================================================
+PHASE 11 — HEADER / FOOTER / ACTIVE STATE POLISH
+==================================================
+
+Upgrade navigation UX:
+- active route highlighting
+- correct hover states
+- visible current page in mobile menu
+- close menu on route change
+- no accidental duplicate tap behavior
+- footer links mapped to correct routes
+- desktop and mobile use same source config
+
+Ensure sticky header does not obscure anchor targets.
+Add scroll-margin-top to section targets if needed.
+
+==================================================
+PHASE 12 — IMPLEMENT A CLEAN NOT FOUND PAGE
+==================================================
+
+Create a proper 404 page.
+
+Behavior:
+- unknown routes render 404
+- offer links back to Home, Services, Quote Builder, Contact
+- do not redirect unknown paths to onboarding
+- do not silently dump the user back to the start flow
+
+==================================================
+PHASE 13 — TESTING REQUIREMENTS
+==================================================
+
+Mandatory tests to pass:
+
+TEST 1 — MOBILE SERVICES MENU
+Tap each Services menu item on mobile:
+- user is taken to correct page
+- menu closes
+- no onboarding page appears unless intended
+
+TEST 2 — DESKTOP NAV
+Click each nav item on desktop:
+- correct page opens
+- no broken links
+- no wrong redirects
+
+TEST 3 — CTA BUTTONS
+Click every homepage/service CTA:
+- each goes to intended route
+- no generic default target
+- no wrong step screen
+
+TEST 4 — HASH LINKS
+Click each section link:
+- correct page loads if needed
+- scroll lands on correct section
+- sticky header does not cover title
+
+TEST 5 — INVALID ROUTE
+Enter random URL:
+- show 404 page
+- do not redirect to onboarding/home
+
+TEST 6 — ONBOARDING ISOLATION
+Open onboarding intentionally:
+- flow works
+Navigate away using header/menu:
+- user goes to requested page
+- onboarding does not hijack routing
+
+TEST 7 — ROUTE REFRESH
+Refresh each major route directly:
+- page loads correctly
+- does not collapse back to home/start state
+
+TEST 8 — MENU STATE
+Open mobile menu, navigate, go back:
+- overlay/menu state is clean
+- no frozen body scroll
+- no stale drawer
+
+==================================================
+PHASE 14 — CLEANUP / REFACTOR RULES
+==================================================
+
+After fixing:
+- remove dead routes
+- remove duplicate route declarations
+- remove placeholder href values
+- remove fallback redirect hacks
+- remove hidden navigation bugs
+- centralize route constants
+- centralize nav config
+- centralize section-scroll helper
+- centralize mobile menu close-on-route-change logic
+
+Do not leave partial fixes.
+Do not patch one menu and ignore cards, footer, or CTAs.
+Do not keep old broken fallback code around.
+
+==================================================
+SUCCESS CRITERIA
+==================================================
+
+This task is only complete if:
+
+- Every menu item goes exactly where it should
+- No service heading sends users to the onboarding page by mistake
+- Mobile menu works cleanly and closes correctly
+- Section links scroll to the correct place
+- No placeholder or broken links remain
+- Unknown URLs show a real 404 page
+- Desktop and mobile share one route/navigation source of truth
+- Onboarding is isolated and no longer hijacks normal site navigation
+- Refreshing a page does not dump users back into the wrong flow
+
+FINAL INSTRUCTION:
+Perform a full routing and navigation repair across the application, not a cosmetic patch. Make the site behave like a premium production platform with reliable route mapping, stable mobile navigation, clean fallbacks, and zero incorrect redirects.

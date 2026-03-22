@@ -1,0 +1,679 @@
+THE CORPORATE DESK — FULL FRONTEND ARCHITECTURE LOCK
+AI-FIRST WEBSITE
+NO FRAGMENTED UI LOGIC
+NO BROKEN ROUTING
+NO DEAD-END PAGES
+NO STATIC-ONLY WEBSITE BEHAVIOUR
+EVERYTHING MUST BE LOOPED TOGETHER
+
+You are now acting as the lead platform architect for The Corporate Desk.
+
+Your task is to transform the current website from a disconnected, UI-driven frontend into a tightly structured, AI-first production platform where:
+
+- the frontend is only the presentation layer
+- the backend is the source of truth
+- AI drives routing decisions, flows, recommendations, intake logic, quoting paths, lead handling, and user progression
+- all major sections are connected into one intelligent system
+- no page behaves like an isolated brochure page unless intentionally designed that way
+
+This is not a cosmetic redesign.
+This is a full architectural lock and platform unification.
+
+==================================================
+CORE VISION
+==================================================
+
+The Corporate Desk website must function like an intelligent commercial workspace platform, not just a furniture website.
+
+The site must behave like this:
+
+1. A user lands anywhere on the site
+2. The system understands intent
+3. The platform routes them into the correct journey
+4. AI adapts what they see next
+5. All actions are connected to lead capture, project creation, quoting, planning, design, or conversion
+6. Admin can see the full journey and act on it
+7. No user is dropped into a dead end or generic UI path
+
+The whole website must feel like one integrated AI-powered operating system.
+
+==================================================
+NON-NEGOTIABLE RULES
+==================================================
+
+- NO random route sprawl
+- NO duplicated page logic
+- NO isolated CTA logic
+- NO hardcoded placeholder paths
+- NO pages that do nothing
+- NO multiple conflicting navigation systems
+- NO onboarding flow hijacking normal navigation
+- NO UI-only fake intelligence
+- NO “demo style” intelligence
+- NO fake AI labels with no backend logic
+- NO frontend state as the only source of truth for critical flows
+- NO broken mobile/desktop divergence
+- NO disconnected form submissions
+- NO dead service pages
+
+Everything must be looped together into one coherent system.
+
+==================================================
+PRIMARY OBJECTIVE
+==================================================
+
+Rebuild and lock the full frontend architecture so the website becomes:
+
+- AI-first
+- route-safe
+- flow-driven
+- backend-connected
+- modular
+- scalable
+- consistent across mobile and desktop
+- ready for a true admin command centre
+- ready for real quoting, planning, lead orchestration, and workspace intelligence
+
+==================================================
+PART 1 — FRONTEND ARCHITECTURE LOCK
+==================================================
+
+Create a clean production frontend architecture with strict separation of concerns.
+
+Required app structure:
+
+1. APP SHELL
+- global layout
+- header
+- footer
+- route container
+- overlays/modals
+- global notifications
+- assistant launcher
+- analytics hooks
+- AI session/bootstrap provider
+
+2. ROUTE LAYER
+- central route definitions
+- no scattered string routes
+- page registry
+- fallback route handling
+- guard rules only where genuinely needed
+
+3. EXPERIENCE LAYER
+Each major user journey must be its own structured experience, not a random page pile:
+- Home / Landing
+- Workplace Solutions
+- AI Office Planner
+- 3D Office Walkthrough
+- Free Layout Plan
+- Quote Builder
+- Request a Quote
+- Finance Your Workspace
+- Trade & Project Procurement
+- Strategy Call
+- Partners / Referral Network
+- Contact
+- Case Studies / Capability / About if present
+
+4. AI ORCHESTRATION LAYER
+This is critical.
+Introduce a layer that controls user progression and recommendations:
+- intent detection
+- page-to-flow mapping
+- CTA decision logic
+- journey branching
+- recommendation engine
+- content personalization
+- guided next-step selection
+- assistant-driven routing
+
+5. DOMAIN MODULES
+Split business logic by domain, not by random component size:
+- navigation
+- lead intake
+- planner
+- quote builder
+- project scoping
+- product/catalog logic
+- finance workflow
+- procurement workflow
+- partner workflow
+- admin hooks
+- AI assistant / orchestration
+- analytics / tracking
+- content / CMS bindings if any
+
+6. STATE RULES
+- UI state stays local where possible
+- business state lives in structured stores/services
+- critical journey state persists properly
+- backend is source of truth for leads, quotes, jobs, sessions, AI recommendations, and workflow progression
+
+==================================================
+PART 2 — SINGLE SOURCE OF TRUTH FOR ROUTING + NAVIGATION
+==================================================
+
+Create one central navigation and route system.
+
+Required:
+- central route constants
+- central nav config
+- central CTA mapping
+- central service mapping
+- central journey mapping
+- central section ID map
+- central page metadata map
+
+Do not allow:
+- random inline href values
+- repeated route strings
+- cards pointing to default homepage
+- menu items pointing to wrong flow
+- CTA buttons hardcoded independently all over the site
+
+Every clickable thing on the site must resolve from a controlled mapping layer.
+
+Required routes:
+- /
+- /workplace-solutions
+- /ai-office-planner
+- /3d-office-walkthrough
+- /free-layout-plan
+- /quote-builder
+- /request-a-quote
+- /finance-your-workspace
+- /trade-project-procurement
+- /strategy-call
+- /partners
+- /contact
+- /about
+- /case-studies
+- /capability-statement
+- /admin
+- /not-found or wildcard 404 route
+
+If a page does not exist yet:
+- create a proper shell
+- do not route it to "/"
+- do not dump it into onboarding
+
+==================================================
+PART 3 — WEBSITE MUST BE AI-RUN, NOT JUST UI-RUN
+==================================================
+
+Interpret “run by AI not UI” correctly and implement it properly.
+
+The website still needs a UI because users need something to interact with.
+But the intelligence, decisions, progression, and workflow must be AI-driven.
+
+That means:
+
+A. AI INTENT LAYER
+When a user lands or interacts, detect likely intent:
+- wants office furniture
+- wants layout help
+- wants a quote
+- wants relocation help
+- wants procurement support
+- wants finance options
+- wants strategy consultation
+- wants partner/referral access
+- wants product advice
+- wants to upload a floor plan
+- wants a quick answer before committing
+
+Use:
+- current route
+- CTA clicked
+- form fields
+- uploaded files
+- chat inputs
+- previous session actions
+- referral source / campaign tags
+- browsing behaviour
+- explicit user selections
+
+B. AI JOURNEY ORCHESTRATION
+Based on intent, route users into best next step:
+- direct quote flow
+- planner flow
+- strategy call flow
+- procurement intake flow
+- relocation flow
+- partner flow
+- contact/sales flow
+
+C. AI RECOMMENDATION ENGINE
+On every major page, AI should determine:
+- what CTA should be most prominent
+- what next step to suggest
+- what service is most relevant
+- what case study/product category/workflow fits best
+- whether user needs immediate quote vs strategy help vs planner help
+
+D. AI ASSISTANT AS PLATFORM BRAIN
+Build a site-wide AI assistant that is not just a floating chatbot.
+It must be connected to:
+- route context
+- page context
+- user journey state
+- quote builder state
+- planner state
+- uploaded files
+- lead record
+- admin follow-up triggers
+- CRM/pipeline creation
+- recommendation engine
+- knowledge/content layer
+
+The assistant should:
+- answer
+- guide
+- route
+- prefill
+- summarize
+- recommend
+- escalate to human
+- trigger forms/workflows
+- move user to correct next step
+
+E. AI WORKFLOW CONTROL
+The AI should help drive:
+- intake classification
+- urgency scoring
+- lead quality scoring
+- service fit scoring
+- recommended next action
+- quote complexity scoring
+- whether a user should be prompted for upload, call, quote, walkthrough, or planner
+
+==================================================
+PART 4 — LOOP EVERYTHING TOGETHER
+==================================================
+
+Everything must be connected into one looped ecosystem.
+
+Required loops:
+
+1. NAVIGATION LOOP
+Header, mobile nav, cards, CTA buttons, footer, dropdowns, and assistant suggestions must all point into the same destination map.
+
+2. INTENT LOOP
+Every user interaction should feed intent/context into the AI orchestration layer.
+
+3. LEAD LOOP
+Any meaningful action can become a lead or enrich a lead:
+- quote request
+- planner request
+- floor plan upload
+- strategy call request
+- finance request
+- procurement enquiry
+- assistant conversation
+- contact form
+- partner referral submission
+
+4. SESSION LOOP
+The system should remember where the user is in their journey and continue intelligently.
+
+5. RECOMMENDATION LOOP
+As the user interacts, recommendations improve and next steps adapt.
+
+6. ADMIN LOOP
+All important user actions should become visible to admin systems:
+- intent
+- journey stage
+- AI summary
+- contact details
+- project need
+- urgency
+- recommended follow-up
+- files uploaded
+- selected services
+- route history
+- conversation summary if assistant used
+
+7. CONTENT LOOP
+Pages, services, CTAs, assistant prompts, and recommendations should all pull from structured content definitions, not disconnected hardcoded copy where avoidable.
+
+8. CONVERSION LOOP
+No page should simply end.
+Every page must offer a relevant next action determined by AI + route context.
+
+==================================================
+PART 5 — PAGE SYSTEM REBUILD
+==================================================
+
+Rebuild pages into intelligent experiences.
+
+Every major page must include:
+
+- clear purpose
+- AI-aware context
+- service-specific logic
+- recommended next action
+- lead capture or progression path
+- assistant context binding
+- admin tracking event hooks
+- proper CTA hierarchy
+- no dead ends
+
+Examples:
+
+HOME
+- establish brand + positioning
+- detect likely path
+- present AI-guided entry points
+- route to correct journey
+- surface most relevant CTA dynamically
+
+WORKPLACE SOLUTIONS
+- explain service
+- show options
+- let AI recommend best path
+- push into quote / planner / strategy depending on need
+
+AI OFFICE PLANNER
+- AI-led workspace planning journey
+- accept floor plan / requirements
+- classify needs
+- guide to layout, quote, design help, walkthrough
+
+3D OFFICE WALKTHROUGH
+- position as visualisation / premium planning tool
+- determine if user is suitable
+- route to upload / planning / contact / strategy
+
+FREE LAYOUT PLAN
+- capture enough information for real follow-up
+- use AI to classify seriousness and complexity
+- push qualified users into project workflow
+
+QUOTE BUILDER
+- AI-assisted quote creation
+- not a dumb form
+- guide based on industry, team size, project type, office size, budget, urgency
+- route into product/project recommendations
+
+REQUEST A QUOTE
+- direct commercial quote path
+- capture fast
+- AI enrich + score
+- push into admin lead handling
+
+FINANCE YOUR WORKSPACE
+- identify finance suitability
+- collect the right info
+- route into finance workflow
+
+TRADE & PROJECT PROCUREMENT
+- identify type of buyer
+- collect trade/procurement requirements
+- route to proper commercial handling
+
+STRATEGY CALL
+- premium consult path
+- identify project stage
+- qualify before booking where useful
+
+PARTNERS
+- referral/partner acquisition path
+- AI-guided intake
+- route to submit referral / partner application / partner login
+
+==================================================
+PART 6 — AI ASSISTANT IMPLEMENTATION STANDARD
+==================================================
+
+Implement a real assistant layer across the site.
+
+Required assistant capabilities:
+- aware of current route
+- aware of page section
+- aware of selected service
+- aware of recent user actions
+- aware of forms already filled
+- aware of uploaded files
+- aware of session lead state
+- aware of business offerings
+- able to trigger route changes
+- able to recommend next page
+- able to convert chat into structured lead notes
+- able to produce admin summary
+- able to suggest products/services/workflows
+- able to escalate to direct contact or call booking
+
+Assistant states:
+- proactive suggestion mode
+- reactive Q&A mode
+- guided intake mode
+- quote support mode
+- planner support mode
+- escalation mode
+
+The assistant must not just float on top of the site.
+It must be looped into the actual application state and workflows.
+
+==================================================
+PART 7 — ADMIN + FRONTEND CONNECTION
+==================================================
+
+The frontend must feed the admin command centre.
+
+Every meaningful user journey should generate structured records for admin.
+
+Admin should be able to see:
+- source page
+- route journey
+- AI-inferred intent
+- selected services
+- urgency
+- estimated deal type
+- uploaded file presence
+- preferred contact path
+- summary of what user wants
+- recommended next internal action
+
+Do not make admin rely on raw form dumps only.
+Create normalized payloads and AI summaries.
+
+==================================================
+PART 8 — NO MORE UI-ONLY FEATURES
+==================================================
+
+Audit and remove or refactor anything that is UI-only but pretending to be real.
+
+Examples to eliminate:
+- fake AI buttons with no backend effect
+- cards that just navigate without logic
+- static recommendation blocks with no intelligence
+- forms that submit but are not classified or routed
+- pages that claim planning/AI but only show pretty text
+- assistant launcher not connected to real workflow state
+
+Every “smart” feature must have real logic behind it.
+
+==================================================
+PART 9 — COMPONENT AND MODULE REFACTOR
+==================================================
+
+Break large monolithic files into production modules.
+
+Likely targets:
+- Header / mobile nav
+- route config
+- CTA components
+- journey entry cards
+- AI assistant layer
+- planner flow
+- quote builder flow
+- onboarding / start flow
+- lead capture forms
+- partner intake
+- admin bridge events
+- content blocks
+- page wrappers
+- analytics hooks
+
+Each module must have one responsibility.
+Do not keep giant page files mixing UI, business logic, navigation, AI prompts, and admin concerns together.
+
+==================================================
+PART 10 — ONBOARDING / START FLOW ISOLATION
+==================================================
+
+The current onboarding/start flow must not hijack the entire site.
+
+Rules:
+- only show onboarding when explicitly entered
+- never redirect normal navigation into onboarding by accident
+- no missing state should throw user back to start
+- onboarding should be one journey, not the site’s default trap
+- AI should recommend onboarding only when appropriate
+
+==================================================
+PART 11 — MOBILE-FIRST PRODUCTION BEHAVIOUR
+==================================================
+
+Fix mobile architecture fully.
+
+Required:
+- mobile nav uses same config as desktop
+- menu closes cleanly on route change
+- no broken overlay state
+- no duplicate taps
+- no incorrect redirects
+- section scrolling accounts for sticky header
+- assistant does not obscure critical CTAs
+- cards/buttons route correctly
+- no impossible-to-complete forms
+- no tiny dead-end screens
+
+The mobile site must feel like a premium app, not a broken responsive fallback.
+
+==================================================
+PART 12 — PAGE CREATION RULE
+==================================================
+
+If any service page is missing:
+- create it now as a production-ready shell
+- hook it into the central route system
+- connect it to AI orchestration
+- give it proper next-step logic
+- do not leave empty placeholder pages
+
+==================================================
+PART 13 — DATA FLOW RULES
+==================================================
+
+Create explicit data flow for:
+- page visit
+- CTA click
+- assistant interaction
+- file upload
+- form submit
+- quote creation
+- planner request
+- strategy request
+- finance request
+- partner intake
+- route transition
+
+Each should feed:
+- session context
+- intent model
+- lead enrichment
+- admin visibility
+- AI recommendation updates
+
+==================================================
+PART 14 — TESTING REQUIREMENTS
+==================================================
+
+Mandatory tests:
+
+1. ROUTING
+- every nav item reaches correct destination
+- no service link falls to onboarding
+- unknown routes hit 404
+
+2. MOBILE MENU
+- open/close works
+- tap item closes menu and routes correctly
+- no stale overlays
+
+3. AI ASSISTANT
+- assistant knows current page
+- assistant recommends correct next action
+- assistant can move user into correct journey
+
+4. JOURNEY LOOP
+- user starts on one page and is guided forward intelligently
+- no dead ends
+- lead state persists appropriately
+
+5. FORM + AI LOOP
+- forms submit structured data
+- AI classifies intent
+- admin receives enriched record
+
+6. PAGE SHELLS
+- all routes render real pages
+- no placeholder redirect loops
+
+7. CTA INTEGRITY
+- all CTAs mapped intentionally
+- no generic default click handlers
+
+8. ONBOARDING ISOLATION
+- onboarding works when intentionally entered
+- normal nav never gets hijacked
+
+9. ADMIN VISIBILITY
+- important actions generate usable internal records
+
+10. MOBILE UX
+- no assistant overlap blocking primary interactions
+- no broken tap zones
+- no hidden content under fixed header
+
+==================================================
+PART 15 — IMPLEMENTATION REPORT
+==================================================
+
+After rebuilding, output a full implementation report showing:
+
+1. full route map
+2. navigation map
+3. all pages created or repaired
+4. all broken links fixed
+5. all fallback redirects removed/restricted
+6. all AI orchestration points added
+7. all frontend-to-admin data flows added
+8. all assistant integration points added
+9. all dead-end pages eliminated
+10. all monolithic components split/refactored
+11. all mobile-specific issues fixed
+12. anything still missing for full production completion
+
+==================================================
+SUCCESS CRITERIA
+==================================================
+
+This task is only complete if:
+
+- the site feels like one connected intelligent system
+- routing is stable and locked
+- mobile and desktop use the same architecture
+- AI drives journeys, recommendations, and next actions
+- UI is only the presentation layer, not the brain
+- no dead-end pages remain
+- no broken or placeholder links remain
+- admin receives structured, useful intelligence from user activity
+- the assistant is deeply integrated, not cosmetic
+- onboarding no longer hijacks normal browsing
+- every core service is connected into the same operating flow
+
+FINAL INSTRUCTION:
+Do a full AI-first frontend architecture lock for The Corporate Desk. Rebuild the website so it operates as one connected commercial workspace platform where AI drives the journeys, recommendations, routing decisions, and workflow progression, while the frontend acts as a premium structured interface over a real intelligent system.
