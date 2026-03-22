@@ -264,10 +264,10 @@ function Footer() {
                 { label: "Quote Builder", href: "/quote-builder" },
                 { label: "Request a Quote", href: "/send-us-your-quote" },
                 { label: "Finance Your Workspace", href: "/finance-your-workspace" },
+                { label: "Trade & Project Procurement", href: "/trade-customers-portal" },
                 { label: "Strategy Call", href: "/workplace-strategy" },
                 { label: "Case Studies", href: "/case-studies" },
                 { label: "Blog", href: "/blog" },
-                { label: "Testimonials", href: "/testimonials" },
                 { label: "About Us", href: "/about" },
                 { label: "Contact", href: "/contact" },
               ].map(item => (

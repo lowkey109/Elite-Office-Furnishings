@@ -4840,9 +4840,31 @@ Rules:
       const [referral] = await ddb.select().from(partnerReferralsTable).where(eq(partnerReferralsTable.id, req.params.id)).limit(1);
       if (!referral) return res.status(404).json({ error: "Referral not found" });
       const value = Number(dealValue || referral.estimatedValue || 0);
-      const commissionRate = Number(rate || referral.commissionPercent || 7.5) / 100;
+      const commissionRate = Number(rate || 7.5) / 100;
       const commissionAmount = Math.round(value * commissionRate);
       res.json({ dealValue: value, commissionRate: commissionRate * 100, commissionAmount });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/referrals/:id/commission/pay", async (req, res) => {
+    try {
+      const { partnerCommissions: partnerCommissionsTable, partnerReferralEvents } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq } = await import("drizzle-orm");
+      const { paymentReference, notes } = req.body || {};
+      const [updated] = await ddb
+        .update(partnerCommissionsTable)
+        .set({ paymentStatus: "paid", paidAt: new Date(), notes: notes || null, updatedAt: new Date() })
+        .where(eq(partnerCommissionsTable.referralId, req.params.id))
+        .returning();
+      if (!updated) return res.status(404).json({ error: "Commission record not found" });
+      await ddb.insert(partnerReferralEvents).values({
+        referralId: req.params.id,
+        eventType: "commission_paid",
+        eventNote: paymentReference ? `Paid — ref: ${paymentReference}` : "Commission payment confirmed",
+        createdBy: "admin",
+      });
+      res.json({ ok: true, commission: updated });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
