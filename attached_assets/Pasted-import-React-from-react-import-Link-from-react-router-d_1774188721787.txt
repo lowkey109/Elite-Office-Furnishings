@@ -1,0 +1,123 @@
+import React from "react";
+import { Link } from "react-router-dom";
+
+type MobileMenuItem = {
+  label: string;
+  href: string;
+};
+
+type MobileMenuSection = {
+  title: "Products" | "Services" | "Company";
+  items: MobileMenuItem[];
+};
+
+const mobileMenuSections: MobileMenuSection[] = [
+  {
+    title: "Products",
+    items: [
+      { label: "Executive Desks", href: "/catalog/executive-desks" },
+      { label: "Manager Desks", href: "/catalog/manager-desks" },
+      { label: "Boardroom Tables", href: "/catalog/boardroom-tables" },
+      { label: "Reception Desks", href: "/catalog/reception-desks" },
+      { label: "Office Seating", href: "/catalog/office-seating" },
+      { label: "Workstations", href: "/catalog/workstations" },
+      { label: "Storage & Cabinets", href: "/catalog/storage-cabinets" },
+      { label: "Office Pods", href: "/catalog/office-pods" },
+    ],
+  },
+  {
+    title: "Services",
+    items: [
+      { label: "Workplace Solutions", href: "/workplace-solutions" },
+      { label: "AI Office Planner", href: "/ai-office-planner" },
+      { label: "3D Office Walkthrough", href: "/3d-office-walkthrough" },
+      { label: "Free Layout Plan", href: "/free-layout-plan" },
+      { label: "Quote Builder", href: "/quote-builder" },
+      { label: "Request a Quote", href: "/request-a-quote" },
+      { label: "Finance Your Workspace", href: "/finance-your-workspace" },
+      { label: "Trade & Project Procurement", href: "/trade-project-procurement" },
+      { label: "Strategy Call", href: "/strategy-call" },
+    ],
+  },
+  {
+    title: "Company",
+    items: [
+      { label: "Case Studies", href: "/case-studies" },
+      { label: "Blog", href: "/blog" },
+      { label: "About Us", href: "/about" },
+      { label: "Contact", href: "/contact" },
+    ],
+  },
+];
+
+type MobileMenuProps = {
+  isOpen: boolean;
+  onClose: () => void;
+};
+
+function MenuSection({
+  section,
+  onClose,
+}: {
+  section: MobileMenuSection;
+  onClose: () => void;
+}) {
+  return (
+    <section>
+      <h3 className="mb-5 text-[15px] font-semibold uppercase tracking-[0.16em] text-white">
+        {section.title}
+      </h3>
+
+      <div className="space-y-4">
+        {section.items.map((item) => (
+          <Link
+            key={`${section.title}-${item.href}`}
+            to={item.href}
+            onClick={onClose}
+            className="block text-[17px] leading-[1.35] text-white/72 transition-colors duration-200 hover:text-white"
+          >
+            {item.label}
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+  if (!isOpen) return null;
+
+  const productsSection = mobileMenuSections.find((s) => s.title === "Products");
+  const servicesSection = mobileMenuSections.find((s) => s.title === "Services");
+  const companySection = mobileMenuSections.find((s) => s.title === "Company");
+
+  return (
+    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm">
+      <button
+        aria-label="Close menu"
+        className="absolute inset-0 cursor-default"
+        onClick={onClose}
+      />
+
+      <div className="absolute inset-x-0 top-0 max-h-[100vh] overflow-y-auto border-b border-[#8f6b1c]/30 bg-[#05070b]">
+        <div className="mx-auto w-full max-w-7xl px-5 pb-10 pt-24">
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
+            {productsSection ? (
+              <MenuSection section={productsSection} onClose={onClose} />
+            ) : null}
+
+            <div className="space-y-10">
+              {servicesSection ? (
+                <MenuSection section={servicesSection} onClose={onClose} />
+              ) : null}
+
+              {companySection ? (
+                <MenuSection section={companySection} onClose={onClose} />
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

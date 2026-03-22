@@ -1,0 +1,309 @@
+FULL PRODUCTION FIX — MOBILE MENU ROUTING + LOOPED RENDERING
+THE CORPORATE DESK
+
+ROLE
+
+You are a senior React engineer, TypeScript frontend architect, UI systems engineer, routing specialist, and production bug fixer.
+
+You are fixing the mobile navigation system for The Corporate Desk website.
+
+This is not a styling-only task.
+This is a real navigation logic and component architecture fix.
+
+CRITICAL ISSUE
+
+The mobile menu is currently broken.
+
+The right-hand highlighted section is not routing to the correct destinations.
+Items in the menu are going to the wrong pages, likely because of:
+- incorrect href values
+- copy-paste route mistakes
+- wrong menu config array
+- reused click handlers
+- mixed Services and Company links
+- hardcoded JSX links not matching intended destinations
+
+PRIMARY GOAL
+
+Rebuild the mobile menu so that:
+
+1. every menu item routes to the correct page
+2. menu sections are clearly separated
+3. all links are generated from a single source of truth
+4. all items are rendered through loops/maps
+5. no item can accidentally reuse another item’s route
+6. the Products, Services, and Company sections stay structurally correct
+7. the solution is clean, scalable, and production-safe
+
+NON-NEGOTIABLE RULES
+
+- NO hardcoded repeated menu link JSX
+- NO copy-paste href duplication
+- NO mixed menu arrays
+- NO shared wrong route between multiple items
+- NO manual one-off item rendering where loop rendering should be used
+- NO route placeholders left in production
+- NO section title/content mismatch
+- MUST use a single config-driven source of truth
+- MUST render all sections and all items by looping over arrays
+- MUST verify every menu item points to the intended path
+- MUST keep solution production-ready and easy to maintain
+
+==================================================
+SECTION 1 — REQUIRED MENU STRUCTURE
+==================================================
+
+The final mobile navigation must use this exact logical structure.
+
+Products
+- Executive Desks -> /catalog/executive-desks
+- Manager Desks -> /catalog/manager-desks
+- Boardroom Tables -> /catalog/boardroom-tables
+- Reception Desks -> /catalog/reception-desks
+- Office Seating -> /catalog/office-seating
+- Workstations -> /catalog/workstations
+- Storage & Cabinets -> /catalog/storage-cabinets
+- Office Pods -> /catalog/office-pods
+
+Services
+- Workplace Solutions -> /workplace-solutions
+- AI Office Planner -> /ai-office-planner
+- 3D Office Walkthrough -> /3d-office-walkthrough
+- Free Layout Plan -> /free-layout-plan
+- Quote Builder -> /quote-builder
+- Request a Quote -> /request-a-quote
+- Finance Your Workspace -> /finance-your-workspace
+- Trade & Project Procurement -> /trade-project-procurement
+- Strategy Call -> /strategy-call
+
+Company
+- Case Studies -> /case-studies
+- Blog -> /blog
+- About Us -> /about
+- Contact -> /contact
+
+==================================================
+SECTION 2 — REQUIRED ROOT FIX
+==================================================
+
+The menu must be rebuilt using a config object / array as the single source of truth.
+
+Example required architecture:
+
+const mobileMenuSections = [
+  {
+    title: "Products",
+    items: [
+      { label: "Executive Desks", href: "/catalog/executive-desks" },
+      { label: "Manager Desks", href: "/catalog/manager-desks" },
+      { label: "Boardroom Tables", href: "/catalog/boardroom-tables" },
+      { label: "Reception Desks", href: "/catalog/reception-desks" },
+      { label: "Office Seating", href: "/catalog/office-seating" },
+      { label: "Workstations", href: "/catalog/workstations" },
+      { label: "Storage & Cabinets", href: "/catalog/storage-cabinets" },
+      { label: "Office Pods", href: "/catalog/office-pods" }
+    ]
+  },
+  {
+    title: "Services",
+    items: [
+      { label: "Workplace Solutions", href: "/workplace-solutions" },
+      { label: "AI Office Planner", href: "/ai-office-planner" },
+      { label: "3D Office Walkthrough", href: "/3d-office-walkthrough" },
+      { label: "Free Layout Plan", href: "/free-layout-plan" },
+      { label: "Quote Builder", href: "/quote-builder" },
+      { label: "Request a Quote", href: "/request-a-quote" },
+      { label: "Finance Your Workspace", href: "/finance-your-workspace" },
+      { label: "Trade & Project Procurement", href: "/trade-project-procurement" },
+      { label: "Strategy Call", href: "/strategy-call" }
+    ]
+  },
+  {
+    title: "Company",
+    items: [
+      { label: "Case Studies", href: "/case-studies" },
+      { label: "Blog", href: "/blog" },
+      { label: "About Us", href: "/about" },
+      { label: "Contact", href: "/contact" }
+    ]
+  }
+];
+
+This config must be the only place where labels and hrefs are defined.
+
+==================================================
+SECTION 3 — LOOP / MAP REQUIREMENT
+==================================================
+
+ALL sections and ALL links must be rendered by looping.
+
+Required render approach:
+- loop over sections
+- inside each section, loop over items
+- do not manually hardcode repeated Link elements
+
+Example requirement:
+- section loop
+- item loop
+- optional split layout for two columns on larger menu layout
+- still config-driven
+
+The solution must support:
+- adding a new item by editing only the config
+- changing a route by editing only the config
+- no JSX duplication
+
+==================================================
+SECTION 4 — BUG DIAGNOSIS TASK
+==================================================
+
+Audit the existing mobile menu component and identify:
+
+1. where the menu items are currently defined
+2. whether Services and Company items are mixed in the same wrong array
+3. whether one route is reused across multiple menu items
+4. whether a shared onClick handler is incorrectly forcing navigation
+5. whether wrong slugs were copied into multiple items
+6. whether there are missing route definitions in the router
+7. whether the menu UI and route config are out of sync
+
+If route files/pages do not exist, identify them clearly and provide the route declarations needed.
+
+==================================================
+SECTION 5 — RENDERING REQUIREMENTS
+==================================================
+
+The component must:
+
+- use TypeScript
+- use a strongly typed config structure
+- render from the config only
+- use the correct Link component or navigate logic depending on router
+- close the menu on click after successful navigation if needed
+- keep each link uniquely keyed
+- preserve clean section headings
+- support mobile-first layout
+- prevent mismatched label/href pairs
+
+If using React Router:
+- use Link or NavLink with the correct "to" prop
+
+If using anchor navigation:
+- use href correctly
+
+If using navigate():
+- pass each item.href exactly from the looped config
+
+==================================================
+SECTION 6 — TYPE SAFETY REQUIREMENT
+==================================================
+
+Define a type such as:
+
+type MobileMenuItem = {
+  label: string;
+  href: string;
+};
+
+type MobileMenuSection = {
+  title: "Products" | "Services" | "Company";
+  items: MobileMenuItem[];
+};
+
+Then define:
+
+const mobileMenuSections: MobileMenuSection[] = [...]
+
+This must be used in rendering.
+
+==================================================
+SECTION 7 — LAYOUT REQUIREMENT
+==================================================
+
+Keep the premium dark brand style, but prioritise correctness.
+
+The menu should:
+- clearly separate Products, Services, and Company
+- not visually mix Company items into Services by mistake
+- allow long labels like “Trade & Project Procurement” to wrap cleanly
+- remain readable on mobile
+- avoid brittle hardcoded two-column logic if it breaks routing/data
+
+If keeping columns:
+- left column = Products
+- right column = Services + Company
+- but both must still come from the same config-driven loop structure
+
+If simpler and safer:
+- use a single-column stacked mobile menu with section headings
+
+Correct routing matters more than visual complexity.
+
+==================================================
+SECTION 8 — ROUTER VALIDATION REQUIREMENT
+==================================================
+
+After fixing the menu component, verify that all routes exist in the router.
+
+Check and add routes for:
+- /catalog/executive-desks
+- /catalog/manager-desks
+- /catalog/boardroom-tables
+- /catalog/reception-desks
+- /catalog/office-seating
+- /catalog/workstations
+- /catalog/storage-cabinets
+- /catalog/office-pods
+- /workplace-solutions
+- /ai-office-planner
+- /3d-office-walkthrough
+- /free-layout-plan
+- /quote-builder
+- /request-a-quote
+- /finance-your-workspace
+- /trade-project-procurement
+- /strategy-call
+- /case-studies
+- /blog
+- /about
+- /contact
+
+If any are missing:
+- create route entries
+- or map them to the correct existing page components
+
+==================================================
+SECTION 9 — REQUIRED OUTPUT
+==================================================
+
+Return the work in this exact order:
+
+1. diagnosis summary of what was broken
+2. corrected typed menu config
+3. corrected mobile menu component in React/TSX
+4. corrected looped rendering logic
+5. any router fixes needed
+6. a verification checklist showing each menu label and final route
+7. implementation notes explaining how future items should be added
+
+==================================================
+SECTION 10 — IMPLEMENTATION STANDARDS
+==================================================
+
+The output must be:
+
+- full code, not just explanation
+- production-ready
+- loop-based
+- config-driven
+- easy to paste into existing code
+- safe from future copy-paste link bugs
+- cleanly structured
+- strongly typed
+- maintainable
+
+Do not give vague advice.
+Do not redesign only.
+Do not stop at diagnosis.
+
+Produce the actual fixed code now.

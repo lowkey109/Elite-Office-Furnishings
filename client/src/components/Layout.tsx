@@ -13,13 +13,46 @@ const navLinks = [
   { label: "Get Started", href: "/start" },
 ];
 
-const mobileNavLinks = [
-  { label: "Home", href: "/" },
-  { label: "Catalog", href: "/catalog" },
-  { label: "Capability", href: "/capability" },
-  { label: "Partners", href: "/partners" },
-  { label: "Get Started", href: "/start" },
-  { label: "Trade Portal", href: "/trade-customers-portal" },
+type MobileMenuItem = { label: string; href: string };
+type MobileMenuSection = { title: "Products" | "Services" | "Company"; items: MobileMenuItem[] };
+
+const mobileMenuSections: MobileMenuSection[] = [
+  {
+    title: "Products",
+    items: [
+      { label: "Executive Desks", href: "/catalog/executive-desks" },
+      { label: "Manager Desks", href: "/catalog/manager-desks" },
+      { label: "Boardroom Tables", href: "/catalog/boardroom-tables" },
+      { label: "Reception Desks", href: "/catalog/reception-desks" },
+      { label: "Office Seating", href: "/catalog/office-seating" },
+      { label: "Workstations", href: "/catalog/workstations" },
+      { label: "Storage & Cabinets", href: "/catalog/storage-cabinets" },
+      { label: "Office Pods", href: "/catalog/office-pods" },
+    ],
+  },
+  {
+    title: "Services",
+    items: [
+      { label: "Workplace Solutions", href: "/workplace-solutions" },
+      { label: "AI Office Planner", href: "/ai-office-planner" },
+      { label: "3D Office Walkthrough", href: "/3d-office-walkthrough" },
+      { label: "Free Layout Plan", href: "/free-layout-plan" },
+      { label: "Quote Builder", href: "/quote-builder" },
+      { label: "Request a Quote", href: "/request-a-quote" },
+      { label: "Finance Your Workspace", href: "/finance-your-workspace" },
+      { label: "Trade & Project Procurement", href: "/trade-project-procurement" },
+      { label: "Strategy Call", href: "/strategy-call" },
+    ],
+  },
+  {
+    title: "Company",
+    items: [
+      { label: "Case Studies", href: "/case-studies" },
+      { label: "Blog", href: "/blog" },
+      { label: "About Us", href: "/about" },
+      { label: "Contact", href: "/contact" },
+    ],
+  },
 ];
 
 function Header() {
@@ -126,21 +159,34 @@ function Header() {
                   </div>
                 </div>
 
-                <nav className="flex-1 px-4 py-6 overflow-y-auto">
-                  {mobileNavLinks.map((link) => (
-                    <Link key={link.href} href={link.href}>
-                      <div
-                        data-testid={`link-mobile-nav-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
-                        className={`flex items-center px-4 py-4 rounded-md mb-1 text-base font-medium transition-colors cursor-pointer ${
-                          location === link.href
-                            ? "bg-[rgba(201,168,76,0.12)] text-[hsl(43,78%,65%)]"
-                            : "text-white/80 active:bg-[rgba(255,255,255,0.05)]"
-                        }`}
-                        style={{ touchAction: "manipulation", minHeight: "56px" }}
-                      >
-                        {link.label}
+                <nav className="flex-1 px-6 py-6 overflow-y-auto">
+                  {mobileMenuSections.map((section) => (
+                    <div key={section.title} className="mb-8">
+                      <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-white">
+                        {section.title}
+                      </h3>
+                      <div className="space-y-4">
+                        {section.items.map((item) => (
+                          <Link
+                            key={`${section.title}-${item.href}`}
+                            href={item.href}
+                            onClick={() => setMobileOpen(false)}
+                          >
+                            <span
+                              data-testid={`link-mobile-nav-${item.label.toLowerCase().replace(/[\s&]+/g, "-")}`}
+                              className={`block text-base transition-colors cursor-pointer ${
+                                location === item.href
+                                  ? "text-[hsl(43,78%,65%)]"
+                                  : "text-white/70 hover:text-white"
+                              }`}
+                              style={{ touchAction: "manipulation", minHeight: "28px" }}
+                            >
+                              {item.label}
+                            </span>
+                          </Link>
+                        ))}
                       </div>
-                    </Link>
+                    </div>
                   ))}
                 </nav>
 
@@ -228,14 +274,23 @@ function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-5 tracking-wide text-sm uppercase">Products</h4>
             <ul className="space-y-1">
-              {["Executive Desks", "Manager Desks", "Boardroom Tables", "Reception Desks", "Office Seating", "Workstations", "Storage & Cabinets", "Office Pods"].map(item => (
-                <li key={item}>
-                  <Link href="/products">
+              {[
+                { label: "Executive Desks", href: "/catalog/executive-desks" },
+                { label: "Manager Desks", href: "/catalog/manager-desks" },
+                { label: "Boardroom Tables", href: "/catalog/boardroom-tables" },
+                { label: "Reception Desks", href: "/catalog/reception-desks" },
+                { label: "Office Seating", href: "/catalog/office-seating" },
+                { label: "Workstations", href: "/catalog/workstations" },
+                { label: "Storage & Cabinets", href: "/catalog/storage-cabinets" },
+                { label: "Office Pods", href: "/catalog/office-pods" },
+              ].map(item => (
+                <li key={item.href}>
+                  <Link href={item.href}>
                     <span
                       className="block py-2.5 text-sm text-white/50 active:text-[hsl(43,78%,65%)] transition-colors cursor-pointer"
                       style={{ touchAction: "manipulation" }}
                     >
-                      {item}
+                      {item.label}
                     </span>
                   </Link>
                 </li>
@@ -248,18 +303,14 @@ function Footer() {
             <ul className="space-y-1">
               {[
                 { label: "Workplace Solutions", href: "/workplace-solutions" },
-                { label: "AI Office Planner", href: "/upload-your-floor-plan" },
+                { label: "AI Office Planner", href: "/ai-office-planner" },
                 { label: "3D Office Walkthrough", href: "/3d-office-walkthrough" },
-                { label: "Free Layout Plan", href: "/free-office-layout-plan" },
+                { label: "Free Layout Plan", href: "/free-layout-plan" },
                 { label: "Quote Builder", href: "/quote-builder" },
-                { label: "Request a Quote", href: "/send-us-your-quote" },
+                { label: "Request a Quote", href: "/request-a-quote" },
                 { label: "Finance Your Workspace", href: "/finance-your-workspace" },
-                { label: "Trade & Project Procurement", href: "/trade-customers-portal" },
-                { label: "Strategy Call", href: "/workplace-strategy" },
-                { label: "Case Studies", href: "/case-studies" },
-                { label: "Blog", href: "/blog" },
-                { label: "About Us", href: "/about" },
-                { label: "Contact", href: "/contact" },
+                { label: "Trade & Project Procurement", href: "/trade-project-procurement" },
+                { label: "Strategy Call", href: "/strategy-call" },
               ].map(item => (
                 <li key={item.href}>
                   <Link href={item.href}>
