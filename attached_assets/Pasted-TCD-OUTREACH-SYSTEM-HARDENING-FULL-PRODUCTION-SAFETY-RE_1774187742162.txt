@@ -1,0 +1,567 @@
+TCD OUTREACH SYSTEM HARDENING — FULL PRODUCTION SAFETY REBUILD
+THE CORPORATE DESK
+
+ROLE
+
+You are a senior backend engineer, AI automation architect, email deliverability specialist, workflow reliability engineer, database systems engineer, and production safety auditor.
+
+You are working on the existing The Corporate Desk outreach / supplier / partner / manufacturer email automation system.
+
+This is NOT a cosmetic cleanup.
+This is a full production hardening rebuild.
+
+PRIMARY GOAL
+
+Transform the current outreach engine into a safe, production-grade, idempotent, auditable, rate-limited email system that can NEVER repeatedly spam the same company because of scheduler loops, retries, duplicate triggers, or missing state.
+
+The rebuilt system must protect:
+- supplier relationships
+- email/domain reputation
+- operational trust
+- automation safety
+- future scale
+
+CRITICAL NON-NEGOTIABLE RULES
+
+- NO duplicate outbound emails to the same company/contact for the same campaign unless explicitly approved
+- NO blind retries that resend the same message
+- NO sending without persistent sent-state tracking
+- NO scheduler loop that can resend the same outreach on every run
+- NO multiple triggers causing duplicate sends
+- NO fake/demo send logs
+- NO UI-only protection without backend enforcement
+- NO in-memory only locks as the main protection
+- NO reliance on client-side state for email safety
+- MUST be idempotent
+- MUST be database-backed
+- MUST be auditable
+- MUST be safe under retries, restarts, crashes, and multi-run execution
+
+==================================================
+SECTION 1 — ROOT PROBLEM TO FIX
+==================================================
+
+The current system has already demonstrated a severe production bug:
+the same outreach was sent 22 times to the same company.
+
+This means the current system is missing one or more of these:
+
+1. idempotency protection
+2. sent-state persistence
+3. unique identity locking
+4. scheduler safety
+5. concurrency control
+6. retry safety
+7. per-company suppression logic
+8. outbound rate limiting
+9. approval / safe mode controls
+10. audit visibility
+
+This rebuild must eliminate all of those failure modes.
+
+==================================================
+SECTION 2 — REQUIRED OUTCOME
+==================================================
+
+Build a production-safe outreach engine where:
+
+- each outreach attempt has a unique identity
+- identical outreach cannot be sent twice accidentally
+- every send is persisted before and after execution
+- scheduler restarts cannot duplicate sends
+- retries are safe and idempotent
+- manual and automated triggers cannot collide
+- every outbound email is traceable
+- there is a suppression layer per company and per recipient
+- there is a safe mode / dry run mode
+- there is a manual approval option for high-risk campaigns
+- there is a hard daily and hourly rate limit
+- there is a cooldown window per company/contact/campaign
+- there is an admin view for audit and intervention
+
+==================================================
+SECTION 3 — PRODUCTION DESIGN PRINCIPLES
+==================================================
+
+The system must follow these principles:
+
+1. Idempotency first
+   The same logical email must be treated as one action, even if the code path is triggered multiple times.
+
+2. Database-enforced safety
+   Protection must be enforced in persistent storage, not just in memory.
+
+3. Write-before-send discipline
+   A send attempt must be recorded before or atomically with send execution.
+
+4. Explicit campaign identity
+   Every outreach must belong to a defined campaign or outreach type.
+
+5. Per-recipient suppression
+   The same company/contact must not be recontacted unintentionally.
+
+6. Concurrency safety
+   Two workers/processes/triggers must not be able to send the same email at the same time.
+
+7. Deliverability protection
+   Add rate limiting, cooldowns, and suppression controls.
+
+8. Full auditability
+   Every decision must be visible: queued, blocked, skipped, sent, failed, suppressed.
+
+==================================================
+SECTION 4 — REQUIRED DATA MODEL
+==================================================
+
+Design and implement a production data model with persistent tables/entities for:
+
+1. outreach_contacts
+2. outreach_campaigns
+3. outreach_messages
+4. outreach_send_attempts
+5. outreach_suppressions
+6. outreach_rate_limits
+7. outreach_jobs
+8. outreach_audit_events
+
+REQUIRED MODEL SHAPE
+
+outreach_contacts
+- id
+- company_name
+- contact_name
+- email
+- domain
+- contact_type
+- status
+- created_at
+- updated_at
+
+outreach_campaigns
+- id
+- key
+- name
+- outreach_type
+- enabled
+- cooldown_days
+- max_per_company
+- max_per_contact
+- require_manual_approval
+- created_at
+- updated_at
+
+outreach_messages
+- id
+- contact_id
+- company_name
+- recipient_email
+- campaign_id
+- outreach_type
+- subject
+- body_hash
+- identity_hash
+- status
+- safe_mode
+- suppression_reason
+- queued_at
+- locked_at
+- sent_at
+- failed_at
+- last_error
+- created_at
+- updated_at
+
+outreach_send_attempts
+- id
+- message_id
+- provider
+- provider_message_id
+- attempt_number
+- result
+- error_message
+- attempted_at
+
+outreach_suppressions
+- id
+- suppression_scope
+- company_name
+- recipient_email
+- campaign_id
+- reason
+- active
+- created_at
+- expires_at
+
+outreach_jobs
+- id
+- job_key
+- job_type
+- status
+- started_at
+- completed_at
+- locked_by
+- error_message
+
+outreach_audit_events
+- id
+- entity_type
+- entity_id
+- event_type
+- payload_json
+- created_at
+
+==================================================
+SECTION 5 — IDENTITY / DEDUPLICATION RULES
+==================================================
+
+This is the most critical part.
+
+For every outbound email, generate a strong identity hash based on a stable logical identity, such as:
+
+identity_hash = hash(
+  normalized_company_name +
+  normalized_recipient_email +
+  campaign_key +
+  normalized_subject +
+  body_hash
+)
+
+OR, if body can vary slightly, define a stricter campaign send identity:
+
+identity_hash = hash(
+  normalized_company_name +
+  normalized_recipient_email +
+  campaign_key
+)
+
+Use the stricter form for first-contact suppression.
+
+REQUIRED RULES
+
+- A message with the same identity_hash must not be sent twice unless explicitly overridden by admin
+- Add a unique database constraint on identity_hash where appropriate
+- Also add company + campaign suppression rules
+- Also add recipient + campaign suppression rules
+- Also add cooldown logic
+
+==================================================
+SECTION 6 — STATUS MACHINE
+==================================================
+
+Every outreach message must move through a strict state machine:
+
+draft
+queued
+blocked
+suppressed
+locked
+sending
+sent
+failed
+cancelled
+
+Rules:
+- only queued messages may be locked for sending
+- only locked messages may move to sending
+- only sending messages may move to sent or failed
+- suppressed/blocked messages must never send
+- sent messages must never send again
+- failed messages must not resend automatically unless policy allows and idempotency rules remain intact
+
+==================================================
+SECTION 7 — HARD SAFETY RULES
+==================================================
+
+Implement all of the following:
+
+1. COMPANY SUPPRESSION
+If a company has already received a first-contact outreach for the same campaign, block further first-contact sends.
+
+2. RECIPIENT SUPPRESSION
+If a recipient email has already received outreach for the same campaign, block further sends.
+
+3. COOLDOWN WINDOW
+No re-send to same company/contact for the same campaign within configurable cooldown days.
+
+4. DAILY RATE LIMIT
+Hard cap total sends per day.
+
+5. HOURLY RATE LIMIT
+Hard cap total sends per hour.
+
+6. PER-DOMAIN LIMIT
+Limit messages to same domain within a configured time window.
+
+7. SAFE MODE
+System can queue and audit without sending.
+
+8. MANUAL APPROVAL MODE
+Certain campaigns require explicit approval before send.
+
+9. JOB LOCKING
+Only one job instance may process a given campaign/job key at a time.
+
+10. PROVIDER FAILURE SAFETY
+Provider retry must never bypass idempotency.
+
+==================================================
+SECTION 8 — SCHEDULER / JOB SAFETY
+==================================================
+
+The current system may be using in-process timers or repeated triggers.
+That is not safe enough.
+
+Rebuild job execution with persistent job locking.
+
+Required protections:
+- acquire job lock before processing
+- if lock exists and is fresh, skip run
+- if stale lock exists, mark stale and safely recover
+- record started_at and completed_at
+- record job outcome and errors
+- no overlapping sends for same job type/campaign
+
+If the system still uses a scheduler, it must call a single safe job runner that is idempotent.
+
+==================================================
+SECTION 9 — SEND PIPELINE
+==================================================
+
+Implement the send pipeline in this order:
+
+1. receive intent to send
+2. normalize company/contact/campaign identity
+3. check suppression rules
+4. check dedupe rules
+5. check cooldown
+6. check rate limits
+7. create or fetch existing message by identity_hash
+8. if already sent / suppressed / blocked, exit safely
+9. acquire row-level lock / safe processing lock
+10. move to locked
+11. move to sending
+12. call email provider
+13. persist provider result
+14. move to sent or failed
+15. write audit event
+
+At no point should the system ever "just call sendEmail()" without full gating.
+
+==================================================
+SECTION 10 — DATABASE CONSTRAINTS
+==================================================
+
+Add database-level safety, not just application logic.
+
+Required:
+- unique constraint on outreach_messages.identity_hash
+- indexes on company_name, recipient_email, campaign_id, status
+- indexes on sent_at, created_at
+- indexes on outreach_jobs.job_key + status
+- indexes on outreach_suppressions.company_name / recipient_email / active
+
+Where helpful, enforce:
+- one active suppression per scope combination
+- one active job lock per job_key
+
+==================================================
+SECTION 11 — API / SERVICE LAYER REQUIREMENTS
+==================================================
+
+Implement clean service functions such as:
+
+- normalizeCompanyName()
+- normalizeEmail()
+- hashBody()
+- buildIdentityHash()
+- checkSuppression()
+- checkCooldown()
+- checkRateLimits()
+- acquireJobLock()
+- releaseJobLock()
+- queueOutreachMessage()
+- processQueuedOutreach()
+- sendOutreachMessage()
+- markMessageSent()
+- markMessageFailed()
+- suppressRecipient()
+- suppressCompany()
+- getOutreachAuditReport()
+
+Every function must be typed, defensive, and production-safe.
+
+==================================================
+SECTION 12 — SAFE MODE / DRY RUN
+==================================================
+
+Implement global and campaign-level safe mode.
+
+When safe mode is on:
+- messages may be created/queued
+- audit events are written
+- send provider is NOT called
+- status becomes blocked or queued_for_review depending on design
+- logs clearly state safe mode prevented send
+
+This is mandatory.
+
+==================================================
+SECTION 13 — MANUAL APPROVAL FLOW
+==================================================
+
+Support campaigns that require manual approval.
+
+Flow:
+- campaign marks require_manual_approval = true
+- queue message
+- mark as blocked or pending_approval
+- admin reviews
+- admin approves
+- then message enters queue
+- all normal safety checks still apply before final send
+
+==================================================
+SECTION 14 — RATE LIMITING
+==================================================
+
+Implement configurable hard limits like:
+
+- max 20 emails per day globally
+- max 5 emails per hour globally
+- max 1 first-contact email per company per campaign
+- max 1 send per recipient per campaign per cooldown window
+- max N sends per domain per 24h
+
+If any limit is exceeded:
+- do not send
+- mark blocked or deferred
+- write audit entry
+
+==================================================
+SECTION 15 — AUDIT / ADMIN REQUIREMENTS
+==================================================
+
+Build admin visibility for:
+
+- total queued
+- total sent
+- total failed
+- total suppressed
+- total blocked
+- total safe-mode prevented
+- duplicates prevented
+- top contacted companies
+- recent attempts
+- failed attempts with error reason
+- suppression list
+- manual approval queue
+- job lock status
+- last run per job/campaign
+
+Every message detail page should show:
+- company
+- recipient
+- campaign
+- identity hash
+- subject
+- created time
+- sent time
+- status timeline
+- attempt history
+- suppression reason if blocked
+- provider response if available
+
+==================================================
+SECTION 16 — DAMAGE CONTROL REQUIREMENT
+==================================================
+
+Add a one-time mitigation flow for companies already spammed by accident.
+
+Support:
+- company suppression insertion
+- recipient suppression insertion
+- "incident flagged" audit event
+- note field for incident context
+- optional apology follow-up draft creation, but never auto-send apology without approval
+
+==================================================
+SECTION 17 — IMPLEMENTATION REQUIREMENTS
+==================================================
+
+Generate production-ready TypeScript implementation for:
+
+1. outreach-types.ts
+2. outreach-hashing.ts
+3. outreach-guards.ts
+4. outreach-service.ts
+5. outreach-job-runner.ts
+6. outreach-admin-report.ts
+
+Must include:
+- strict typing
+- comments
+- defensive checks
+- idempotent design
+- clear status transitions
+- no pseudo-only output
+- no fake provider behavior
+- no TODO placeholders
+- no weak in-memory-only protection as primary safety
+
+==================================================
+SECTION 18 — EXISTING SYSTEM MIGRATION
+==================================================
+
+The system already has unsafe automation.
+You must include a migration/hardening plan.
+
+Required:
+- identify old send entrypoints
+- wrap all existing send paths through one safe gateway
+- disable direct provider calls outside the gateway
+- pause existing automation until gateway is active
+- backfill sent-state where possible from logs/history
+- create suppression entries for previously spammed companies
+- add alerting for duplicate prevention events
+
+==================================================
+SECTION 19 — SUCCESS CRITERIA
+==================================================
+
+The task is complete only if:
+
+- the same company cannot receive 22 duplicate outreach emails again
+- identical logical outreach is idempotent
+- retries are safe
+- scheduler overlap is safe
+- multi-trigger collisions are safe
+- safe mode works
+- manual approval works
+- rate limits work
+- suppression works
+- job locks work
+- every send is auditable
+- direct unsafe sending is no longer possible
+- the solution is production-ready and copy-pasteable
+
+==================================================
+SECTION 20 — REQUIRED OUTPUT FORMAT
+==================================================
+
+Return the work in this exact order:
+
+1. diagnosis summary
+2. final architecture
+3. data model
+4. TypeScript code for:
+   - outreach-types.ts
+   - outreach-hashing.ts
+   - outreach-guards.ts
+   - outreach-service.ts
+   - outreach-job-runner.ts
+   - outreach-admin-report.ts
+5. migration plan for the current unsafe system
+6. implementation notes
+7. final production safety checklist
+
+Build the full fix now.

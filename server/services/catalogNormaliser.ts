@@ -1,0 +1,324 @@
+export type ProductCategory =
+  | "executive-desks"
+  | "manager-desks"
+  | "workstations"
+  | "boardroom-tables"
+  | "reception-desks"
+  | "office-seating"
+  | "storage-cabinets"
+  | "office-pods"
+  | "uncategorised";
+
+export interface RawProductInput {
+  sku?: string;
+  name?: string;
+  imageUrl?: string;
+  brand?: string;
+  sourceFile?: string;
+  sourceFolder?: string;
+  description?: string;
+}
+
+export interface NormalisedProduct {
+  sku: string;
+  name: string;
+  slug: string;
+  category: ProductCategory;
+  series?: string;
+  brand: string;
+  imageUrl: string;
+  imageAlt: string;
+  searchableText: string;
+  status: "active" | "hidden" | "invalid";
+  sourceFile?: string;
+  sourceFolder?: string;
+}
+
+export interface NormaliseReport {
+  rawCount: number;
+  activeCount: number;
+  hiddenCount: number;
+  invalidCount: number;
+  duplicateCount: number;
+  byCategory: Record<string, number>;
+}
+
+const CATEGORY_RULES: Array<{ category: ProductCategory; keywords: string[] }> = [
+  {
+    category: "executive-desks",
+    keywords: [
+      "executive desk",
+      "l-shaped desk",
+      "height adjustable desk",
+      "height-adjustable desk",
+      "ceo desk",
+      "director desk",
+      "executive workstation desk",
+      "writing desk",
+      "director's desk",
+      "director boardroom",
+    ],
+  },
+  {
+    category: "manager-desks",
+    keywords: ["manager desk", "managerial desk"],
+  },
+  {
+    category: "workstations",
+    keywords: [
+      "open plan workstation",
+      "open-plan workstation",
+      "back-to-back workstation",
+      "linear workstation",
+      "pod workstation",
+      "ergonomic desk station",
+      "desk station",
+      "hot-desk module",
+      "hot desk module",
+      "screen-partition desk",
+      "screen partition desk",
+      "bench desk",
+      "benching desk",
+      "workstation",
+    ],
+  },
+  {
+    category: "boardroom-tables",
+    keywords: [
+      "boardroom table",
+      "meeting table",
+      "conference table",
+      "conference desk",
+      "board table",
+      "boardroom extension",
+    ],
+  },
+  {
+    category: "reception-desks",
+    keywords: [
+      "reception desk",
+      "reception counter",
+      "curved reception",
+      "front desk",
+      "lobby desk",
+      "welcome desk",
+    ],
+  },
+  {
+    category: "office-seating",
+    keywords: [
+      "task chair",
+      "executive chair",
+      "visitor chair",
+      "lounge chair",
+      "meeting chair",
+      "stool",
+      "chair",
+      "seating",
+      "sofa",
+      "ottoman",
+      "armchair",
+      "bench seat",
+      "lounge",
+      "waiting area",
+      "modular lounge",
+      "commercial sofa",
+      "waiting chair",
+    ],
+  },
+  {
+    category: "storage-cabinets",
+    keywords: [
+      "cabinet",
+      "storage",
+      "credenza",
+      "shelving",
+      "bookshelf",
+      "locker",
+      "pedestal",
+      "side cabinet",
+    ],
+  },
+  {
+    category: "office-pods",
+    keywords: ["office pod", "acoustic pod", "privacy pod", "meeting pod", "booth", "pod"],
+  },
+];
+
+const INVALID_IMAGE_PATTERNS = [
+  "placeholder",
+  "logo",
+  "icon",
+  "globe",
+  "location",
+  "default",
+  "no-image",
+  "dummy",
+  "temp",
+];
+
+export function cleanText(input?: string): string {
+  return (input || "")
+    .replace(/\s+/g, " ")
+    .replace(/[–—]/g, "-")
+    .trim();
+}
+
+export function slugify(input: string): string {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function titleCase(input: string): string {
+  const preserve = ["a", "an", "the", "and", "or", "of", "in", "to", "for", "with"];
+  return input
+    .split(" ")
+    .filter(Boolean)
+    .map((word, i) => {
+      const lower = word.toLowerCase();
+      if (i === 0 || !preserve.includes(lower)) {
+        return word.charAt(0).toUpperCase() + word.slice(1);
+      }
+      return lower;
+    })
+    .join(" ");
+}
+
+export function extractSeries(name: string): string | undefined {
+  const match = name.match(/\bseries\s*(\d+)\b/i);
+  if (match) return `Series ${match[1]}`;
+  const special = name.match(/\btraditional executive series\b/i);
+  if (special) return "Traditional Executive Series";
+  return undefined;
+}
+
+export function stripSeriesFromName(name: string): string {
+  return cleanText(
+    name
+      .replace(/\bseries\s*\d+\b/gi, "")
+      .replace(/\btraditional executive series\b/gi, "")
+      .replace(/\(\d+\)/g, "")
+  );
+}
+
+export function canonicaliseName(rawName: string): string {
+  let name = stripSeriesFromName(rawName);
+  name = name
+    .replace(/\bopen-plan\b/gi, "Open Plan")
+    .replace(/\bback-to-back\b/gi, "Back-to-Back")
+    .replace(/\bhot-desk\b/gi, "Hot-Desk")
+    .replace(/\bscreen-partition\b/gi, "Screen-Partition")
+    .replace(/\bl-shaped\b/gi, "L-Shaped")
+    .replace(/\bheight-adjustable\b/gi, "Height Adjustable");
+  return titleCase(cleanText(name));
+}
+
+export function isInvalidImage(imageUrl?: string): boolean {
+  if (!imageUrl) return true;
+  const lower = imageUrl.toLowerCase();
+  return INVALID_IMAGE_PATTERNS.some((p) => lower.includes(p));
+}
+
+export function classifyCategory(name: string): ProductCategory {
+  const lower = name.toLowerCase();
+  for (const rule of CATEGORY_RULES) {
+    for (const keyword of rule.keywords) {
+      if (lower.includes(keyword)) return rule.category;
+    }
+  }
+  if (lower.includes("executive") && lower.includes("desk")) return "executive-desks";
+  if (lower.includes("manager") && lower.includes("desk")) return "manager-desks";
+  if (lower.includes("workstation") || lower.includes("desk station")) return "workstations";
+  if (lower.includes("boardroom") || lower.includes("conference") || lower.includes("meeting table")) return "boardroom-tables";
+  if (lower.includes("reception") || lower.includes("front desk") || lower.includes("lobby")) return "reception-desks";
+  if (lower.includes("chair") || lower.includes("seating") || lower.includes("stool")) return "office-seating";
+  if (lower.includes("cabinet") || lower.includes("credenza") || lower.includes("storage")) return "storage-cabinets";
+  if (lower.includes("pod") || lower.includes("booth")) return "office-pods";
+  return "uncategorised";
+}
+
+export function buildSearchableText(parts: Array<string | undefined>): string {
+  return parts
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export function normaliseCatalogProducts(rawProducts: RawProductInput[]): {
+  products: NormalisedProduct[];
+  report: NormaliseReport;
+} {
+  const seen = new Set<string>();
+  const products: NormalisedProduct[] = [];
+
+  let invalidCount = 0;
+  let duplicateCount = 0;
+  let hiddenCount = 0;
+
+  for (const raw of rawProducts) {
+    const sku = cleanText(raw.sku);
+    const rawName = cleanText(raw.name);
+    const imageUrl = cleanText(raw.imageUrl);
+    const brand = cleanText(raw.brand) || "The Corporate Desk";
+
+    if (!sku || !rawName || !imageUrl || isInvalidImage(imageUrl)) {
+      invalidCount += 1;
+      continue;
+    }
+
+    const series = extractSeries(rawName);
+    const name = canonicaliseName(rawName);
+    const category = classifyCategory(name);
+    const status: NormalisedProduct["status"] = category === "uncategorised" ? "hidden" : "active";
+    const slug = slugify(`${sku}-${name}`);
+    const dedupeKey = `${sku.toLowerCase()}|${slug}|${imageUrl.toLowerCase()}`;
+
+    if (seen.has(dedupeKey)) {
+      duplicateCount += 1;
+      continue;
+    }
+    seen.add(dedupeKey);
+
+    if (status === "hidden") hiddenCount += 1;
+
+    products.push({
+      sku,
+      name,
+      slug,
+      category,
+      series,
+      brand,
+      imageUrl,
+      imageAlt: `${name} — ${sku}`,
+      searchableText: buildSearchableText([sku, name, category, series, brand, raw.description]),
+      status,
+      sourceFile: raw.sourceFile,
+      sourceFolder: raw.sourceFolder,
+    });
+  }
+
+  products.sort((a, b) => a.sku.localeCompare(b.sku, undefined, { numeric: true }));
+
+  const byCategory: Record<string, number> = {};
+  for (const p of products) {
+    if (p.status !== "active") continue;
+    byCategory[p.category] = (byCategory[p.category] || 0) + 1;
+  }
+
+  return {
+    products,
+    report: {
+      rawCount: rawProducts.length,
+      activeCount: products.filter((p) => p.status === "active").length,
+      hiddenCount,
+      invalidCount,
+      duplicateCount,
+      byCategory,
+    },
+  };
+}

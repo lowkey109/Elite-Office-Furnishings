@@ -9117,31 +9117,60 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
-  // GET /api/catalog/categories — distinct categories with product counts
+  // GET /api/catalog/categories — active categories with counts
   app.get("/api/catalog/categories", async (_req, res) => {
     try {
       const { db: ddb } = await import("./db");
       const { catalogProducts: cp } = await import("../shared/schema");
-      const rows = await ddb.select({ category: cp.category }).from(cp);
+      const rows = await ddb.select({ category: cp.category, status: cp.status }).from(cp);
       const counts: Record<string, number> = {};
-      for (const r of rows) counts[r.category] = (counts[r.category] || 0) + 1;
-      const categories = Object.entries(counts).map(([category, count]) => ({ category, count }))
-        .sort((a, b) => a.category.localeCompare(b.category));
+      for (const r of rows) {
+        if (r.status !== "active") continue;
+        counts[r.category] = (counts[r.category] || 0) + 1;
+      }
+      const CATEGORY_ORDER = ["executive-desks","manager-desks","workstations","boardroom-tables","reception-desks","office-seating","storage-cabinets","office-pods"];
+      const categories = Object.entries(counts)
+        .sort((a, b) => {
+          const ai = CATEGORY_ORDER.indexOf(a[0]);
+          const bi = CATEGORY_ORDER.indexOf(b[0]);
+          return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+        })
+        .map(([category, count]) => ({ category, count }));
       res.json(categories);
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
-  // GET /api/catalog/products — list products, optional ?category=&search=&limit=&offset=
+  // GET /api/catalog/series — distinct series values from active products
+  app.get("/api/catalog/series", async (_req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { catalogProducts: cp } = await import("../shared/schema");
+      const rows = await ddb.select({ series: cp.series, status: cp.status }).from(cp);
+      const seriesSet = new Set<string>();
+      for (const r of rows) {
+        if (r.status === "active" && r.series) seriesSet.add(r.series);
+      }
+      res.json([...seriesSet].sort());
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/catalog/products — list active products, optional ?category=&series=&search=&limit=&offset=
   app.get("/api/catalog/products", async (req, res) => {
     try {
       const { db: ddb } = await import("./db");
       const { catalogProducts: cp } = await import("../shared/schema");
-      const { category, search, limit = "200", offset = "0" } = req.query as Record<string, string>;
-      let rows = await ddb.select().from(cp).orderBy(cp.category, cp.sortOrder);
-      if (category) rows = rows.filter(r => r.category === category);
+      const { category, series, search, limit = "500", offset = "0" } = req.query as Record<string, string>;
+      let rows = await ddb.select().from(cp).orderBy(cp.sku);
+      // Always filter to active only (never show hidden/invalid publicly)
+      rows = rows.filter(r => r.status === "active");
+      if (category && category !== "all") rows = rows.filter(r => r.category === category);
+      if (series && series !== "all") rows = rows.filter(r => r.series === series);
       if (search) {
         const q = search.toLowerCase();
-        rows = rows.filter(r => r.sku.toLowerCase().includes(q) || r.name.toLowerCase().includes(q) || r.category.toLowerCase().includes(q));
+        rows = rows.filter(r => {
+          const st = r.searchableText || "";
+          return st.includes(q) || r.sku.toLowerCase().includes(q) || r.name.toLowerCase().includes(q);
+        });
       }
       const total = rows.length;
       const paginated = rows.slice(Number(offset), Number(offset) + Number(limit));

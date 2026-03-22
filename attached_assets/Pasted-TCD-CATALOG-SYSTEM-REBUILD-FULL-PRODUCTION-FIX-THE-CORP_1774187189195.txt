@@ -1,0 +1,581 @@
+TCD CATALOG SYSTEM REBUILD — FULL PRODUCTION FIX
+THE CORPORATE DESK
+
+ROLE
+
+You are a senior full-stack engineer, product data architect, catalog systems engineer, frontend UX engineer, and production hardening specialist.
+
+You are rebuilding the existing catalog system for The Corporate Desk.
+
+This is NOT a cosmetic patch.
+This is a full structural fix.
+
+PRIMARY GOAL
+
+Transform the current broken catalog into a clean, premium, production-ready commercial furniture catalog system with:
+
+- correct product categorisation
+- clean ingestion logic
+- deduplication
+- image validation
+- proper search
+- correct mobile rendering
+- premium frontend grouping
+- clean menu alignment
+- safe data rules
+- scalable product architecture
+
+CRITICAL NON-NEGOTIABLE RULES
+
+- NO fake/demo/sample products
+- NO placeholder images in production output
+- NO flat dumping of products into one stream
+- NO treating "Series" as a category
+- NO uncategorised products shown publicly
+- NO duplicate SKUs
+- NO duplicate image/name variants rendered as separate products unless intentionally configured
+- NO rendering invalid logo/icon/placeholder assets as products
+- NO mixing workstations, executive desks, storage, boardroom tables, and reception products incorrectly
+- NO patch-only fix
+- MUST rebuild the system properly end-to-end
+
+==================================================
+SECTION 1 — CORE PROBLEM TO FIX
+==================================================
+
+The current catalog is structurally broken because:
+
+1. Products are being ingested without proper validation
+2. Category assignment is incorrect or missing
+3. Series labels are being treated like categories
+4. Dirty/invalid assets are being rendered as live products
+5. Frontend is rendering a flat or badly grouped stream
+6. Navigation/menu hierarchy does not match actual catalog data
+7. Search/filter logic is not aligned with product architecture
+8. Mobile UX is cluttered and misleading
+
+The rebuilt system must fix ALL of this.
+
+==================================================
+SECTION 2 — REQUIRED PRODUCT MODEL
+==================================================
+
+Implement this production data model:
+
+type ProductCategory =
+  | "executive-desks"
+  | "manager-desks"
+  | "workstations"
+  | "boardroom-tables"
+  | "reception-desks"
+  | "office-seating"
+  | "storage-cabinets"
+  | "office-pods"
+  | "uncategorised";
+
+interface RawProductInput {
+  sku?: string;
+  name?: string;
+  imageUrl?: string;
+  brand?: string;
+  sourceFile?: string;
+  sourceFolder?: string;
+  description?: string;
+}
+
+interface CatalogProduct {
+  id: string;
+  sku: string;
+  name: string;
+  slug: string;
+  category: ProductCategory;
+  subcategory?: string;
+  series?: string;
+  brand?: string;
+  imageUrl: string;
+  imageAlt: string;
+  searchableText: string;
+  status: "active" | "hidden" | "invalid";
+  sourceFile?: string;
+  sourceFolder?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+==================================================
+SECTION 3 — HARD CATEGORY RULES
+==================================================
+
+The system must use hard classification rules.
+
+PRIMARY CATEGORIES:
+
+1. Executive Desks
+2. Manager Desks
+3. Workstations
+4. Boardroom Tables
+5. Reception Desks
+6. Office Seating
+7. Storage & Cabinets
+8. Office Pods
+
+SERIES IS SECONDARY ONLY.
+SERIES MUST NEVER BE A PRIMARY CATEGORY.
+
+Correct:
+- category = "workstations"
+- series = "Series 4"
+
+Wrong:
+- category = "Series 4"
+
+CLASSIFICATION KEYWORDS
+
+executive-desks:
+- executive desk
+- l-shaped desk
+- height adjustable desk
+- height-adjustable desk
+- ceo desk
+- director desk
+- executive workstation desk
+
+manager-desks:
+- manager desk
+- managerial desk
+
+workstations:
+- workstation
+- open plan workstation
+- open-plan workstation
+- back-to-back workstation
+- linear workstation
+- pod workstation
+- desk station
+- ergonomic desk station
+- hot-desk module
+- hot desk module
+- screen-partition desk
+- screen partition desk
+- bench desk
+- benching desk
+
+boardroom-tables:
+- boardroom table
+- meeting table
+- conference table
+- conference desk
+- board table
+
+reception-desks:
+- reception desk
+- front desk
+- lobby desk
+- welcome desk
+
+office-seating:
+- chair
+- seating
+- task chair
+- executive chair
+- visitor chair
+- lounge chair
+- stool
+- meeting chair
+
+storage-cabinets:
+- cabinet
+- storage
+- credenza
+- shelving
+- bookshelf
+- locker
+- pedestal
+- side cabinet
+
+office-pods:
+- pod
+- booth
+- acoustic pod
+- privacy pod
+- meeting pod
+- office pod
+
+If nothing matches:
+- category = "uncategorised"
+- status = "hidden"
+- do not render publicly
+
+==================================================
+SECTION 4 — DATA CLEANING RULES
+==================================================
+
+Before a product can exist in the public catalog, it must pass validation.
+
+REQUIRED FIELDS:
+- sku
+- name
+- imageUrl
+
+INVALID PRODUCTS:
+- missing sku
+- missing name
+- missing image
+- placeholder image
+- logo image
+- icon image
+- "globe" icon
+- "location" icon
+- low-value technical placeholder assets
+- duplicate sku/name/image collisions
+- generic dummy cards
+- broken URL assets
+
+INVALID IMAGE PATTERNS TO FILTER:
+- placeholder
+- logo
+- icon
+- globe
+- location
+- default
+- no-image
+- dummy
+- temp
+
+Normalisation rules:
+- trim whitespace
+- collapse repeated spaces
+- normalise dashes
+- title-case final names sensibly
+- extract series values like "Series 4", "Series 5", etc
+- strip series text from canonical display name
+- preserve SKU exactly
+- generate clean slug from sku + canonical name
+
+Examples:
+
+Input:
+"TCD-OF-046"
+"Back-to-Back Workstation Series 4"
+
+Output:
+sku: "TCD-OF-046"
+name: "Back-to-Back Workstation"
+category: "workstations"
+series: "Series 4"
+
+Input:
+"TCD-OF-009"
+"Ergonomic Desk Station"
+
+Output:
+name: "Ergonomic Desk Station"
+category: "workstations"
+
+Input:
+logo/icon/globe placeholder asset
+Output:
+status: "invalid"
+not rendered
+
+==================================================
+SECTION 5 — DEDUPLICATION RULES
+==================================================
+
+Implement strong deduplication.
+
+A product must not be inserted more than once if any of these collide strongly:
+- same sku
+- same sku + same image
+- same canonical name + same image
+- same slug + same image
+
+If exact duplicates exist:
+- keep best valid record only
+- discard the rest
+
+If multiple variants exist intentionally:
+- keep as separate only if SKU is genuinely distinct and image is valid
+
+==================================================
+SECTION 6 — INGESTION PIPELINE
+==================================================
+
+Build a production ingestion pipeline with these steps:
+
+1. Read raw source products
+2. Clean text
+3. Validate required fields
+4. Validate image
+5. Extract series
+6. Create canonical display name
+7. Assign category
+8. Build searchable text
+9. Deduplicate
+10. Hide uncategorised
+11. Save only clean products
+12. Return grouped results for frontend
+
+Required functions:
+
+- cleanText()
+- slugify()
+- extractSeries()
+- stripSeriesFromName()
+- canonicaliseName()
+- classifyCategory()
+- isInvalidImage()
+- buildSearchableText()
+- normaliseCatalogProducts()
+
+==================================================
+SECTION 7 — FRONTEND RENDERING RULES
+==================================================
+
+The frontend must stop rendering a flat mixed stream.
+
+PUBLIC CATALOG RULES:
+- show active products only
+- group by category
+- never show uncategorised
+- never mix categories
+- never use series as the main page grouping
+- use series only as a filter or badge
+- hide invalid products
+- keep mobile experience clean and premium
+
+REQUIRED PUBLIC CATALOG FLOW
+
+Top-level category tabs:
+- All
+- Executive Desks
+- Manager Desks
+- Workstations
+- Boardroom Tables
+- Reception Desks
+- Office Seating
+- Storage & Cabinets
+- Office Pods
+
+Secondary filters:
+- All Series
+- Series 4
+- Series 5
+- Series 6
+- Series 7
+- Traditional Executive Series
+- other true series values only if they exist
+
+Search input:
+- search by SKU
+- search by name
+- search by category
+- search by series
+- search must query searchableText
+
+==================================================
+SECTION 8 — PRODUCT CARD RULES
+==================================================
+
+Current card design is too noisy and inconsistently structured.
+
+Use this cleaner card structure:
+
+IMAGE
+CATEGORY LABEL
+SKU
+PRODUCT NAME
+SERIES BADGE (optional)
+
+Example card:
+
+Workstations
+TCD-OF-046
+Back-to-Back Workstation
+Series 4
+
+NOT:
+
+MODERN OFFICE FURNITURE
+TCD-OF-046
+Back-to-Back Workstation Series 4
+
+Card requirements:
+- consistent aspect ratio
+- strong spacing
+- no accidental overlay text unless intentionally designed
+- no logo/icon cards
+- no broken cropped assets
+- no giant brand filler label taking attention away from product
+- product name must be the visual focus
+- category label must be subtle
+- SKU must be legible but secondary
+
+==================================================
+SECTION 9 — MENU / NAVIGATION RULES
+==================================================
+
+Rebuild mobile navigation hierarchy.
+
+Products
+- Executive Desks
+- Manager Desks
+- Workstations
+- Boardroom Tables
+- Reception Desks
+- Office Seating
+- Storage & Cabinets
+- Office Pods
+
+Solutions
+- Workplace Solutions
+- AI Office Planner
+- 3D Office Walkthrough
+- Free Layout Plan
+
+Services
+- Quote Builder
+- Request a Quote
+- Finance Your Workspace
+- Trade & Project Procurement
+- Strategy Call
+
+Company
+- Case Studies
+- Blog
+- About Us
+- Contact
+
+Mobile menu rules:
+- single-column structure
+- clear section labels
+- no giant two-column wall of links
+- thumb-friendly spacing
+- premium visual hierarchy
+- primary CTA visible
+
+==================================================
+SECTION 10 — MOBILE UX RULES
+==================================================
+
+Mobile experience must be treated as primary.
+
+Fix all of the following:
+- overly dense grids
+- confusing category pills
+- mixed category rendering
+- long duplicate scrolls
+- footer/menu clutter
+- broken visual rhythm
+- oversized repetitive lists
+- unclear grouping
+
+Required mobile behavior:
+- 2-column grid only if cards remain readable
+- otherwise degrade gracefully to 1-column
+- search must stay visible
+- category tabs must be easy to scan
+- series filters should not dominate the screen
+- sticky CTA optional, but should not obstruct content
+- no weird overlay artifacts
+- no malformed spacing near footer
+- maintain premium dark brand style
+
+==================================================
+SECTION 11 — SEARCH AND FILTER ENGINE
+==================================================
+
+Implement:
+
+filterProducts(products, { category, series, search })
+groupProductsByCategory(products)
+
+Rules:
+- category filter first
+- series filter second
+- search works across searchableText
+- hidden/invalid products excluded always
+- group results by category labels
+- return empty states cleanly
+
+==================================================
+SECTION 12 — ADMIN / DEBUG OUTPUT
+==================================================
+
+Add admin diagnostics so the system can be audited.
+
+Required admin stats:
+- total raw products
+- valid active products
+- hidden uncategorised products
+- invalid products removed
+- duplicates removed
+- counts by category
+- counts by series
+- list of hidden products for manual review
+
+Provide a debug review mode:
+- show why a product was hidden
+- show why an image was rejected
+- show category assignment reason
+- show duplicate collision reason
+
+==================================================
+SECTION 13 — IMPLEMENTATION CODE REQUIREMENTS
+==================================================
+
+Generate complete TypeScript implementation for:
+
+1. catalog-types.ts
+2. catalog-normalise.ts
+3. catalog-grouping.ts
+4. sample integration into existing frontend
+5. mobile-friendly catalog page logic
+6. clean category label map
+7. admin debug helper
+
+Must include:
+- proper typing
+- clean functions
+- comments
+- defensive handling
+- no fake data
+- no TODO placeholders
+- no pseudocode only
+- production-quality structure
+
+==================================================
+SECTION 14 — REQUIRED OUTPUT FORMAT
+==================================================
+
+Return the work in this exact order:
+
+1. Diagnosis summary
+2. Final production architecture
+3. Full TypeScript code for:
+   - catalog-types.ts
+   - catalog-normalise.ts
+   - catalog-grouping.ts
+4. Example frontend integration
+5. Example mobile UI structure
+6. Admin debug/reporting helper
+7. Final implementation notes
+
+==================================================
+SECTION 15 — SUCCESS CRITERIA
+==================================================
+
+The task is only complete if:
+
+- products are correctly categorised
+- series are no longer used as categories
+- dirty assets are filtered out
+- duplicates are controlled
+- search works properly
+- mobile rendering is clean
+- menu hierarchy matches the catalog
+- uncategorised items are hidden
+- the catalog feels premium, curated, and structured
+- the solution is fully copy-pasteable and production-ready
+
+Build the full fix now.

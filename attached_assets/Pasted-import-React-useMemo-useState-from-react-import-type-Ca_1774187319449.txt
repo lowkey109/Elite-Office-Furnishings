@@ -1,0 +1,130 @@
+import React, { useMemo, useState } from "react";
+import type { CatalogProduct, ProductCategory } from "./catalog-types";
+import { CATEGORY_LABELS, filterProducts, getAvailableSeries, groupProductsByCategory } from "./catalog-grouping";
+
+const CATEGORY_ORDER: Array<{ key: ProductCategory | "all"; label: string }> = [
+  { key: "all", label: "All" },
+  { key: "executive-desks", label: "Executive Desks" },
+  { key: "manager-desks", label: "Manager Desks" },
+  { key: "workstations", label: "Workstations" },
+  { key: "boardroom-tables", label: "Boardroom Tables" },
+  { key: "reception-desks", label: "Reception Desks" },
+  { key: "office-seating", label: "Office Seating" },
+  { key: "storage-cabinets", label: "Storage & Cabinets" },
+  { key: "office-pods", label: "Office Pods" },
+];
+
+export function CatalogPage({ products }: { products: CatalogProduct[] }) {
+  const [category, setCategory] = useState<ProductCategory | "all">("all");
+  const [series, setSeries] = useState<string | "all">("all");
+  const [search, setSearch] = useState("");
+
+  const visibleProducts = useMemo(
+    () => filterProducts(products, { category, series, search }),
+    [products, category, series, search]
+  );
+
+  const grouped = useMemo(() => groupProductsByCategory(visibleProducts), [visibleProducts]);
+  const seriesOptions = useMemo(() => getAvailableSeries(products), [products]);
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      <div className="mx-auto max-w-7xl px-4 py-6 md:px-6">
+        <div className="mb-4">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by SKU or name..."
+            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-white/40"
+          />
+        </div>
+
+        <div className="mb-3 flex gap-2 overflow-x-auto pb-2">
+          {CATEGORY_ORDER.map((item) => (
+            <button
+              key={item.key}
+              onClick={() => setCategory(item.key)}
+              className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm ${
+                category === item.key
+                  ? "border-yellow-500 bg-yellow-500/10 text-yellow-400"
+                  : "border-white/10 bg-white/5 text-white/70"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="mb-8 flex gap-2 overflow-x-auto pb-2">
+          <button
+            onClick={() => setSeries("all")}
+            className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm ${
+              series === "all"
+                ? "border-yellow-500 bg-yellow-500/10 text-yellow-400"
+                : "border-white/10 bg-white/5 text-white/70"
+            }`}
+          >
+            All Series
+          </button>
+
+          {seriesOptions.map((value) => (
+            <button
+              key={value}
+              onClick={() => setSeries(value)}
+              className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm ${
+                series === value
+                  ? "border-yellow-500 bg-yellow-500/10 text-yellow-400"
+                  : "border-white/10 bg-white/5 text-white/70"
+              }`}
+            >
+              {value}
+            </button>
+          ))}
+        </div>
+
+        {Object.keys(grouped).length === 0 ? (
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-white/60">
+            No products found for this filter.
+          </div>
+        ) : (
+          Object.entries(grouped).map(([label, items]) => (
+            <section key={label} className="mb-10">
+              <h2 className="mb-4 text-2xl font-semibold">{label}</h2>
+
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+                {items.map((product) => (
+                  <article
+                    key={product.id}
+                    className="overflow-hidden rounded-2xl border border-white/10 bg-[#0b0b0c]"
+                  >
+                    <div className="aspect-[4/5] bg-black p-6">
+                      <img
+                        src={product.imageUrl}
+                        alt={product.imageAlt}
+                        className="h-full w-full object-contain"
+                        loading="lazy"
+                      />
+                    </div>
+
+                    <div className="space-y-2 p-4">
+                      <div className="text-xs uppercase tracking-[0.18em] text-yellow-500/80">
+                        {CATEGORY_LABELS[product.category]}
+                      </div>
+                      <div className="text-sm text-white/50">{product.sku}</div>
+                      <h3 className="text-lg leading-tight text-white">{product.name}</h3>
+                      {product.series ? (
+                        <div className="inline-flex rounded-full border border-yellow-500/25 px-3 py-1 text-xs text-yellow-400">
+                          {product.series}
+                        </div>
+                      ) : null}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
