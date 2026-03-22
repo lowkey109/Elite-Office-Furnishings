@@ -1,6 +1,6 @@
 # Open Issues — The Corporate Desk Platform
 
-**Last Updated:** March 2026
+**Last Updated:** March 22, 2026
 
 ---
 
@@ -63,6 +63,13 @@
 
 ---
 
+### P4 — Catalog Staging: Image Upload via UI Not Yet Built
+**Status:** Not implemented (by design for MVP)  
+**Detail:** Images are currently added to `/catalog-staging/` directory and seeded via the "Load March 2026 Upload" button. There is no drag-and-drop upload UI in the staging admin yet.  
+**Future Fix:** Add a multipart file upload endpoint and dropzone component in `AdminCatalogStaging.tsx`.
+
+---
+
 ## Resolved Issues
 
 | Issue | Resolution | Date |
@@ -83,3 +90,10 @@
 | No unified intake entry point | Created `/start` page with 6 path cards + quick enquiry form; header CTA updated to "Get Started → /start" | Mar 2026 |
 | AI scores not verified as dynamic | Confirmed: ANZ ($435k) scored 95, Small Gym Startup ($8k) scored 65 — scores are real and differentiated | Mar 2026 |
 | No admin-side AI copilot | Built NexoraCopilot — persistent floating bubble on all 30+ admin routes, route-aware, real data, safe action model | Mar 2026 |
+| AdminPartners urgency badges not rendering | Fixed: urgency logic moved to computed column, sort order URGENT→STALE→score DESC | Mar 2026 |
+| Alert banner missing from AdminPartners | Added gold/red alert banner for overdue critical referrals | Mar 2026 |
+| Nexora auto-briefing not pulling live data | Fixed: briefing now queries real DB — confirmed ANZ Banking Group $450k, pipeline $788k | Mar 2026 |
+| Predictive revenue engine missing | Built: 30/60/90-day pipeline projections, win-rate modelling, urgency scoring | Mar 2026 |
+| Public site had too many pages (15+) | Reduced to 4 core public routes: /, /start, /partners, /capability — all others redirect | Mar 2026 |
+| Approve-all toast showing "undefined images approved" | Already correct — `mutationFn` calls `.then(r => r.json())`, backend returns `{approved, total}` | Mar 2026 |
+| Catalog Staging System missing | Built full system: schema, DB tables, backend routes, `AdminCatalogStaging.tsx` UI, 20 images seeded | Mar 2026 |

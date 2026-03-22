@@ -1,7 +1,7 @@
 # Stage Completion Log — The Corporate Desk Partner Network
 
 **Project:** The Corporate Desk — Partner Referral Network + AI Engine + Website Audit  
-**Last Updated:** March 2026  
+**Last Updated:** March 22, 2026  
 **Build Standard:** Production-ready, no demo logic, no fake data
 
 ---
@@ -234,6 +234,93 @@
 
 ---
 
+## Stage 10 — Enterprise Upgrades (Pipeline Intelligence + NexoraCopilot)
+
+**Status:** COMPLETE
+
+**What was built:**
+- **AdminPartners urgency engine** — URGENT/STALE/WARM badges computed from deal age + AI score; sort order: URGENT first → STALE → AI score DESC; overdue alert banner in gold/red
+- **Nexora auto-briefing (live data)** — briefing now queries real DB rows (no mock data); confirmed ANZ Banking Group $450k showing in live briefing
+- **Predictive revenue engine** — 30/60/90-day pipeline projections using win-rate modelling and urgency weighting; live at `/api/nexora/predictive-revenue`
+- **NexoraCopilot** — persistent floating AI copilot bubble on all admin routes; route-aware context; real data queries; safe action model (read-only suggestions)
+- **`/start` page** — unified public intake hub with 6 path cards (workspace inquiry, quote request, trade portal, partner referral, floor plan, capability download) + quick enquiry form
+
+**E2e tests run and passed:**
+1. Urgency badge rendering and sort order — PASSED
+2. Alert banner for overdue referrals — PASSED
+3. Nexora auto-briefing pulling live data — PASSED
+4. Predictive revenue endpoint returning projections — PASSED
+5. NexoraCopilot floating bubble rendering on admin pages — PASSED
+6. `/start` page all 6 path cards and form present — PASSED
+
+**Completion gate:** PASSED — all 6 enterprise upgrades verified e2e with real data
+
+---
+
+## Stage 11 — Public Site Consolidation (4 Core Pages)
+
+**Status:** COMPLETE
+
+**What was changed:**
+- `client/src/App.tsx` updated — public routes now: `/` (Home), `/start` (Start), `/partners` (Partners), `/capability` (Capability)
+- `client/src/pages/Capability.tsx` created — wraps `WorkplaceSolutions` content under the `/capability` route
+- All old public routes redirect to appropriate core page:
+  - `/about`, `/contact`, `/case-studies`, `/testimonials`, `/blog` → `/`
+  - `/workplace-solutions`, `/quote-builder` → `/capability`
+  - `/partner/login`, `/submit-deal` → `/partners`
+- Admin, partner dashboard, and utility routes untouched
+
+**Rationale:** Cleaner public surface area — 4 pages instead of 15+. Reduces SEO fragmentation. All value consolidated into core pages.
+
+**Completion gate:** PASSED — 4 routes verified, all old paths redirect correctly
+
+---
+
+## Stage 12 — Catalog Staging System
+
+**Status:** COMPLETE
+
+**What was built:**
+
+**Schema additions (`shared/schema.ts`):**
+- `catalogStagingBatches` — batch records with name, status, notes, createdAt
+- `catalogStagingItems` — per-image records with productName, category, price, sku, description, status, approvedAt, imageUrl, batchId
+
+**Backend routes (`server/routes.ts`):**
+| Route | Purpose |
+|-------|---------|
+| `GET /api/admin/catalog-staging/batches` | List all batches |
+| `POST /api/admin/catalog-staging/batches` | Create new batch |
+| `DELETE /api/admin/catalog-staging/batches/:id` | Delete batch |
+| `GET /api/admin/catalog-staging/items` | List items (filter by batchId, status) |
+| `POST /api/admin/catalog-staging/items/bulk` | Bulk insert items |
+| `PATCH /api/admin/catalog-staging/items/:id` | Update single item |
+| `DELETE /api/admin/catalog-staging/items/:id` | Delete item |
+| `POST /api/admin/catalog-staging/items/:id/ai-suggest` | GPT-4o suggests name/category/description for image |
+| `POST /api/admin/catalog-staging/batch/:batchId/approve-all` | Approve all items in batch |
+| `POST /api/admin/catalog-staging/batch/:batchId/detect-duplicates` | Flag duplicate names/SKUs |
+| `POST /api/admin/catalog-staging/seed-batch` | Seed "Batch 1 — March 2026 Upload" with 20 images |
+
+**Frontend (`client/src/pages/AdminCatalogStaging.tsx`):**
+- Image grid with inline field editing (name, category, price, SKU, description)
+- Status badge flow: `uploaded` → `needs_review` → `approved` → `ready_for_website` → `live`
+- Nothing goes live until admin explicitly approves
+- Filter bar: by batch, by status
+- Batch management: create, delete, approve-all, detect duplicates
+- AI Suggest button per item (calls GPT-4o vision for product metadata)
+- Accessible at `/admin/catalog-staging`
+
+**Images staged:**
+- 20 images (`img-5.jpg` through `img-25.jpg`) copied to `client/public/catalog-staging/`
+- Seeded into "Batch 1 — March 2026 Upload" via seed endpoint
+- AI-guessed product names/categories applied at seed time
+
+**Status flow enforcement:** Server-side — status transitions validated, no client-side bypass possible
+
+**Completion gate:** PASSED — schema pushed to DB, all routes functional, AdminCatalogStaging.tsx built and accessible, 20 images seeded
+
+---
+
 ## Overall System Status
 
 | Stage | Status |
@@ -248,3 +335,6 @@
 | Stage 7 — Partner Dashboard | ✅ COMPLETE |
 | Stage 8 — Admin Pages | ✅ COMPLETE |
 | Stage 9 — Documentation | ✅ COMPLETE |
+| Stage 10 — Enterprise Upgrades | ✅ COMPLETE |
+| Stage 11 — Public Site Consolidation | ✅ COMPLETE |
+| Stage 12 — Catalog Staging System | ✅ COMPLETE |
