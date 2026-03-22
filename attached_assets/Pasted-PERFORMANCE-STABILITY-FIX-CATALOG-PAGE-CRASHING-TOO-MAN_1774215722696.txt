@@ -1,0 +1,140 @@
+PERFORMANCE + STABILITY FIX — CATALOG PAGE CRASHING / TOO MANY IMAGES
+
+The catalog appears to be overloading mobile devices because too many images and too many product cards are being rendered at once.
+
+You must now optimize the catalog for performance and mobile stability.
+
+==================================================
+GOAL
+==================================================
+
+Make the catalog fast, stable, and responsive on mobile and desktop, even with a large product library.
+
+==================================================
+PROBLEMS TO FIX
+==================================================
+
+Current likely issues:
+- too many products rendered on initial page load
+- too many high-resolution images loading at once
+- repeated heavy catalog-page images instead of optimized thumbnails
+- category sections rendering all products immediately
+- memory pressure on iPhone/mobile Safari
+- poor scrolling performance
+- click/tap instability caused by rendering overload
+
+==================================================
+REQUIRED FIXES
+==================================================
+
+1. PAGINATION / LOAD MORE / INFINITE LOADING
+Do NOT render the full catalog at once.
+
+Implement one of these properly:
+- paginated catalog
+- load more button
+- infinite scroll with chunked loading
+
+Initial mobile load should be small and safe.
+Example:
+- first 12 products
+- then load more in batches of 8–12
+
+2. LAZY LOAD IMAGES
+All catalog images must lazy load.
+Do not load offscreen images immediately.
+
+Use:
+- loading="lazy"
+- intersection observer if needed
+- deferred decoding
+- prevent hidden/offscreen images from loading too early
+
+3. THUMBNAIL OPTIMIZATION
+Create small optimized thumbnails for cards.
+
+Requirements:
+- do not use full-size source images in listing cards
+- generate smaller compressed card thumbnails
+- serve appropriate dimensions for mobile
+- use srcset/sizes where useful
+
+4. CATEGORY RENDERING OPTIMIZATION
+If multiple categories are on one long page:
+- do not mount every category’s entire product grid at once
+- collapse categories or progressively render them
+- only render visible sections first
+- optionally use tabs, accordions, or route-per-category
+
+5. LIST VIRTUALIZATION IF NEEDED
+If the product count is large, use virtualization/windowing so only visible rows/cards are mounted.
+
+Examples:
+- react-window
+- react-virtualized
+- lightweight custom windowing
+
+6. IMAGE FALLBACK HANDLING
+Prevent broken images from causing layout thrashing.
+Reserve image space before load.
+Use fixed ratio containers.
+
+7. REDUCE RE-RENDERS
+Audit React rendering:
+- stable keys
+- memoize heavy card components where appropriate
+- avoid unnecessary state updates on scroll
+- avoid remapping huge arrays repeatedly in render
+
+8. MOBILE SAFARI SAFETY
+Optimize specifically for iPhone Safari:
+- reduce simultaneous decoded images
+- reduce memory-heavy blur/shadow effects if needed
+- reduce giant background overlays
+- keep animations subtle
+
+==================================================
+UX REQUIREMENTS
+==================================================
+
+The catalog must still feel premium, but it must no longer feel heavy or broken.
+
+Keep:
+- luxury dark style
+- gold accents
+- elegant cards
+
+Improve:
+- first load speed
+- scrolling smoothness
+- tap response
+- image loading behaviour
+- stability on mobile
+
+==================================================
+ACCEPTANCE TESTS
+==================================================
+
+Task is NOT complete until these pass:
+
+- initial page load is noticeably lighter
+- mobile scroll is smooth
+- page no longer feels like it is freezing/crashing
+- offscreen images do not all load at once
+- products load in batches, not all together
+- card taps still work correctly
+- no layout jumping from image load
+- catalog remains premium visually
+
+==================================================
+REQUIRED REPORT
+==================================================
+
+After fixing, report:
+1. whether the catalog was previously rendering too many products at once
+2. whether full-size images were being used in cards
+3. what loading strategy is now used
+4. whether lazy loading is implemented
+5. whether pagination/load-more/infinite-scroll was implemented
+6. whether virtualization was needed
+7. what was changed for mobile Safari stability

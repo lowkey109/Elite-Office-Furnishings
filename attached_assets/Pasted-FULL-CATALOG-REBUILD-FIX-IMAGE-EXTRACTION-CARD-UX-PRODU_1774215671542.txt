@@ -1,0 +1,334 @@
+FULL CATALOG REBUILD — FIX IMAGE EXTRACTION, CARD UX, PRODUCT DETAIL, AND MOBILE INTERACTION
+
+You are not patching the existing catalog lightly.
+You are rebuilding the catalog presentation layer properly so it behaves like a premium commercial furniture product catalog.
+
+CRITICAL CONTEXT
+
+The current build is wrong because:
+
+1. Many product cards are using the FULL CATALOG PAGE image instead of the SINGLE PRODUCT IMAGE.
+2. Multiple products are showing the SAME repeated image.
+3. Image sizing/cropping is inconsistent and ugly on mobile.
+4. Clicking/tapping product images does nothing.
+5. There is no real product detail view.
+6. The catalog currently feels broken, low-quality, and non-converting.
+
+THIS MUST NOW BE FIXED END-TO-END.
+
+==================================================
+PRIMARY GOAL
+==================================================
+
+Rebuild the catalog so that:
+
+- every SKU uses its correct single-product hero image
+- no product card uses a full catalog page as its main image unless no single image exists
+- images are normalized and fit cleanly in a premium card layout
+- tapping a product opens a real product detail experience
+- each product detail view includes:
+  - product image gallery
+  - title
+  - SKU
+  - dimensions
+  - product description
+  - specifications
+  - finishes/materials
+  - reviews section
+  - enquiry CTA
+- mobile experience is clean, premium, and fully clickable
+
+==================================================
+NON-NEGOTIABLE RULES
+==================================================
+
+- DO NOT keep using full catalog sheet images as the default card image if a single-product image exists
+- DO NOT silently reuse the same image across multiple different SKUs unless the underlying source is truly the same product
+- DO NOT ship placeholder click handlers
+- DO NOT leave cards non-interactive
+- DO NOT keep broken cropping
+- DO NOT use fake reviews
+- DO NOT use mock product detail data where real extracted data exists
+- DO NOT complete the task until mobile tap/click works
+
+==================================================
+PART 1 — FIX THE PRODUCT IMAGE PIPELINE
+==================================================
+
+Audit the current catalog data pipeline and determine exactly why full catalog page images are being used.
+
+Then implement the correct logic:
+
+IMAGE PRIORITY ORDER:
+1. single extracted product image
+2. cleaned cropped product image derived from catalog page
+3. catalog page image only as last-resort fallback
+
+For every product record:
+- inspect the mapped image source
+- detect whether the image is a full sheet/catalog page versus a single product shot
+- if the image is a full catalog sheet and a better single-product image exists, replace it
+- if only a catalog page exists, attempt to create a cleaner crop focused on the target product region
+- preserve original assets, but generate optimized display assets for the catalog UI
+
+Add metadata fields if needed:
+- imageType: "single" | "cropped" | "catalog_page_fallback"
+- primaryImage
+- galleryImages
+- imageFitFocus
+- extractionConfidence
+
+If product-to-image mapping is weak, improve it using:
+- SKU matching
+- filename matching
+- source page region matching
+- title/series matching
+- nearest extracted asset matching
+
+==================================================
+PART 2 — NORMALIZE IMAGES FOR PREMIUM CARD DISPLAY
+==================================================
+
+Create a proper image normalization pipeline for the catalog cards.
+
+Requirements:
+- every card image must render in a consistent aspect ratio
+- use object-fit / cropping rules that preserve the furniture itself
+- avoid showing surrounding catalog layout, tiny thumbnails, or white margins where possible
+- center and frame the product properly
+- support portrait, landscape, and irregular source images
+- generate optimized mobile-friendly thumbnails
+
+Card image rules:
+- fixed visual area for all cards
+- no stretched images
+- no random aspect jumps
+- no obvious clipping of the main product
+- no blurry oversized catalog thumbnails
+
+Implement:
+- thumbnail generation
+- smart crop or focal point logic
+- fallback background handling if needed
+- lazy loading
+- proper srcset/sizing for mobile
+
+==================================================
+PART 3 — MAKE THE ENTIRE CARD CLICKABLE
+==================================================
+
+Currently clicking does nothing. Fix that.
+
+Every product card must be fully interactive:
+- tapping image opens product detail
+- tapping card body opens product detail
+- keyboard accessible on desktop
+- clear hover/tap affordance
+
+Use one consistent route pattern:
+- /catalog/product/:slug
+or
+- /products/:slug
+
+Do not use dead links.
+Do not use "#" anchors.
+Do not use placeholder onClick handlers.
+
+==================================================
+PART 4 — BUILD A REAL PRODUCT DETAIL PAGE
+==================================================
+
+Create a proper product detail page or product detail drawer/modal.
+
+Preferred option:
+- dedicated product detail page route
+
+Required sections:
+
+1. HERO SECTION
+- large product image
+- optional image gallery thumbnails
+- title
+- SKU
+- category
+- series
+- price / “From $X”
+- finish/material badges if available
+
+2. PRODUCT DESCRIPTION
+- clean full description
+- rewritten for premium commercial catalog tone only if source text is messy
+- preserve factual accuracy
+
+3. SPECIFICATIONS
+- dimensions
+- materials
+- finishes/colourways
+- configuration options
+- workstation size / table size / storage size etc where relevant
+
+4. REVIEWS
+- show real reviews only if real review data exists
+- if no real reviews exist, show:
+  “Reviews coming soon” or “Be the first to enquire about this product”
+- do NOT invent ratings or testimonials
+
+5. ENQUIRY CTA
+- prominent “Enquire About This Product” button
+- optional secondary CTA:
+  - “Request Quote”
+  - “Add to Fit-Out Enquiry”
+- enquiry action must pass product context:
+  - product name
+  - sku
+  - series
+  - url
+  - price reference if available
+
+6. RELATED PRODUCTS
+- same series
+- same category
+- similar dimensions or use case
+
+==================================================
+PART 5 — ENQUIRY FLOW MUST ACTUALLY WORK
+==================================================
+
+Build the enquiry flow properly.
+
+When user clicks “Enquire About This Product”:
+- open enquiry modal or route to enquiry page
+- prefill product name
+- prefill SKU
+- prefill product URL
+- prefill category/series if available
+
+Fields:
+- name
+- company
+- email
+- phone
+- message
+
+Message can prefill like:
+“I’m interested in [Product Name] ([SKU]). Please send more information, pricing, lead time, and finish options.”
+
+On submit:
+- validate fields
+- show success state
+- log/store enquiry cleanly
+- preserve product context in backend payload
+
+==================================================
+PART 6 — MOBILE UX REBUILD
+==================================================
+
+This catalog is primarily being judged on mobile right now.
+
+Fix mobile properly:
+
+- consistent 2-column layout if readable
+- automatically degrade to 1-column when card width is too cramped
+- no clipped title areas
+- no dead tap zones
+- no floating widget blocking product CTA or price
+- maintain adequate spacing between cards
+- preserve premium dark luxury look
+
+If necessary:
+- reduce font size slightly
+- tighten metadata spacing
+- shorten description excerpt on cards
+- keep title readable across 2–3 lines max
+
+==================================================
+PART 7 — DATA QUALITY AND DEDUPLICATION
+==================================================
+
+Run a catalog data audit and fix:
+
+- duplicate product cards
+- duplicate image assignments
+- mismatched SKU-to-image mappings
+- missing slugs
+- broken product routes
+- missing descriptions
+- missing dimension formatting
+
+Ensure each product has:
+- stable id
+- slug
+- sku
+- title
+- category
+- series
+- primary image
+- detail route
+
+==================================================
+PART 8 — VISUAL STANDARD
+==================================================
+
+The end result must feel like:
+- premium
+- editorial
+- architectural
+- commercial
+- high-trust
+- not cheap e-commerce
+- not broken import UI
+
+Keep:
+- black/dark luxury theme
+- gold accents
+- elegant typography
+- refined card borders
+
+Improve:
+- image clarity
+- clickability
+- card hierarchy
+- conversion readiness
+
+==================================================
+PART 9 — REQUIRED DEBUG REPORT
+==================================================
+
+After implementation, provide a report with:
+
+1. Root cause of why repeated/full catalog images were showing
+2. What was changed in the image mapping pipeline
+3. How many products were corrected
+4. How many products still only have catalog-page fallback images
+5. What route pattern is now used for product detail pages
+6. How enquiry flow now works
+7. Any products still missing clean source images
+8. Mobile UX changes made
+
+==================================================
+PART 10 — ACCEPTANCE TESTS
+==================================================
+
+Task is NOT complete until all of these pass:
+
+- tapping any product card opens product detail
+- product detail page shows real product info
+- enquiry button works
+- no obvious repeated wrong images across unrelated SKUs
+- product thumbnails are visually normalized
+- mobile layout works cleanly
+- no dead click/tap interactions
+- no fake review content
+- catalog looks premium and intentional
+
+==================================================
+EXECUTE NOW
+==================================================
+
+1. Audit current catalog image mapping
+2. Fix source selection
+3. Rebuild card image rendering
+4. Add working product detail route
+5. Add enquiry flow
+6. Validate on mobile
+7. Return a full debug summary with what was fixed and what remains

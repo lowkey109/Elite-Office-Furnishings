@@ -71,6 +71,7 @@ import Start from "@/pages/Start";
 import Capability from "@/pages/Capability";
 import AdminCatalogStaging from "@/pages/AdminCatalogStaging";
 import Catalog from "@/pages/Catalog";
+import CatalogProductDetail from "@/pages/CatalogProductDetail";
 import { usePageTracking } from "@/lib/usePageTracking";
 import { Redirect } from "wouter";
 
@@ -85,6 +86,7 @@ function Router() {
       <Route path="/capability" component={Capability} />
 
       {/* Premium Catalog — new system */}
+      <Route path="/catalog/product/:sku" component={CatalogProductDetail} />
       <Route path="/catalog/:category" component={Catalog} />
       <Route path="/catalog" component={Catalog} />
 
