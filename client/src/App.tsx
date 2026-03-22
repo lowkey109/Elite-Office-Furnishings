@@ -59,6 +59,10 @@ import BuildingDatabase from "@/pages/BuildingDatabase";
 import AdminProductCommandCentre from "@/pages/AdminProductCommandCentre";
 import AdminLeadEngine from "@/pages/AdminLeadEngine";
 import AdminAlexDashboard from "@/pages/AdminAlexDashboard";
+import AdminNexoraCommandCentre from "@/pages/AdminNexoraCommandCentre";
+import AdminPartners from "@/pages/AdminPartners";
+import Partners from "@/pages/Partners";
+import SubmitDeal from "@/pages/SubmitDeal";
 import { usePageTracking } from "@/lib/usePageTracking";
 
 function Router() {
@@ -132,6 +136,12 @@ function Router() {
       <Route path="/admin/products" component={AdminProductCommandCentre} />
       <Route path="/admin/lead-engine" component={AdminLeadEngine} />
       <Route path="/admin/alex" component={AdminAlexDashboard} />
+      <Route path="/admin/nexora" component={AdminNexoraCommandCentre} />
+      <Route path="/admin/partners" component={AdminPartners} />
+      <Route path="/partners" component={Partners} />
+      <Route path="/submit-deal" component={SubmitDeal} />
+      <Route path="/partner/dashboard" component={PartnerDashboard} />
+      <Route path="/partner/login" component={PartnerOnboarding} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -1,24 +1,11 @@
 import express from "express";
-import { runNexoraEngine } from "./nexoraOrchestrator";
 import { generateRelocationSignals, getMarketIntelligence, pushRelocationToPipeline } from "./services/relocationIntelligence";
 import { desc } from "drizzle-orm";
 import { nexoraRuns } from "@shared/schema";
 import { db } from "./db";
 import { generateStrategyRecommendation, getLearningInsights } from "./services/workspaceStrategy";
 import { runDealHunterScan, pushDealHunterToPipeline, getDealHunterStats } from "./services/dealHunter";
-let nexoraRunning = false;
-
-let nexoraStatus: {
-  status: "idle" | "running" | "success" | "failed";
-  startedAt: st. nring | null;
-  finishedAt: string | null;
-  message: st ;l
-} = {
-  status: "idle",
-  startedAt: null,
-  finishedAt: null,
-  message: "Awaiting first run",
-};
+import { runNexoraCycle, getNexoraLoopState, startNexoraLoop, stopNexoraLoop, setNexoraLoopInterval } from "./services/nexoraLoop";
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
@@ -56,58 +43,17 @@ import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } f
             hasPost: typeof (app as any)?.post,
           });
           app.get("/api/nexora/run", async (_req, res) => {
-            try {
-              console.log(" Nexora triggered via GET");
-              const result = await runNexoraEngine();
-              res.json(result);
-            } catch (err) {
-              console.error(" Nexora error:", err);
-              res.status(500).json({
-                error: "Nexora failed",
-              });
-            }
+            const result = await runNexoraCycle("manual");
+            if (result.skipped) return res.status(409).json(result);
+            res.json(result);
           });
-   app.get("/api/test-nexora", (_req, res) => {
-  res.send(`
-<!doctype html>
-<html>
-  <body style="font-family: sans-serif; padding: 24px;">
-    <button id="run">Run Nexora</button>
-    <pre id="out" style="white is-space: pre-wrap; margin-top: 16px;"></pre>
-<script>
-  document.getElementById("run").onclick = async () => {
-    const out = document.getElementById("out");
-    out.textContent = "Running...";
 
-    try {
-      const url = window.location.origin + "/api/nexora/run";
-      out.textContent = "Calling: " + url;
-
-      const r = await fetch(url, { method: "POST" });
-      const text = await r.text();
-
-      out.textContent = "HTTP " + r.status + "\n\n" + text;
-    } catch (e) {
-      out.textContent = "ERROR: " + (e?.message || e);
-    }
-  };
-</script>
-  </body>
-</html>
-  `);
-});
           app.get("/api/nexora/status", (_req, res) => {
-            res.json({
-              running: nexoraRunning,
-              ...nexoraStatus,
-            });
+            res.json(getNexoraLoopState());
           });
 
           app.get("/api/nexora/last-run", (_req, res) => {
-            res.json({
-              running: nexoraRunning,
-              ...nexoraStatus,
-            });
+            res.json(getNexoraLoopState());
           });
           app.get("/api/nexora/history", async (_req, res) => {
             try {
@@ -126,99 +72,45 @@ import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } f
             }
           });
           app.post("/api/nexora/run", async (_req, res) => {
-            if (nexoraRunning) {
-              return res.status(409).json({
-                success: false,
-                status: "running",
-                processed: 0,
-                outreachRuns: 0,
-                outreachFailed: 0,
-                radarSignals: 0,
-                dealSignals: 0,
-                errors: ["Nexora is already running"],
-                message: "Nexora is already running",
-                durationMs: 0,
-              });
+            const result = await runNexoraCycle("manual");
+            if (result.skipped) return res.status(409).json(result);
+            res.json(result);
+          });
+
+          // ── Nexora Loop Control API (Stage 2) ─────────────────────────────────
+
+          app.get("/api/nexora/loop/status", (_req, res) => {
+            res.json(getNexoraLoopState());
+          });
+
+          app.post("/api/nexora/loop/start", (req, res) => {
+            const intervalMs = req.body?.intervalMs;
+            startNexoraLoop(intervalMs);
+            res.json({ ok: true, ...getNexoraLoopState() });
+          });
+
+          app.post("/api/nexora/loop/stop", (_req, res) => {
+            stopNexoraLoop();
+            res.json({ ok: true, ...getNexoraLoopState() });
+          });
+
+          app.patch("/api/nexora/loop/config", (req, res) => {
+            const { intervalMs } = req.body || {};
+            if (!intervalMs || typeof intervalMs !== "number") {
+              return res.status(400).json({ error: "intervalMs (number, min 60000) required" });
             }
-
-            const startedAt = new Date();
-            nexoraRunning = true;
-            nexoraStatus = {
-              status: "running",
-              startedAt: startedAt.toISOString(),
-              finishedAt: null,
-              message: "Nexora is running",
-            };
-
             try {
-              console.log("Nexora triggered");
-              const result = await runNexoraEngine();
-              const finishedAt = new Date();
-
-              await db.insert(nexoraRuns).values({
-                startedAt,
-                finishedAt,
-                success: !!result?.success,
-                processed: result?.processed ?? 0,
-                outreachRuns: result?.outreachRuns ?? 0,
-                outreachFailed: result?.outreachFailed ?? 0,
-                radarSignals: result?.radarSignals ?? 0,
-                dealSignals: result?.dealSignals ?? 0,
-                errorsJson: Array.isArray(result?.errors) ? result.errors : [],
-                message: result?.message || "Nexora completed",
-                durationMs: result?.durationMs ?? (finishedAt.getTime() - startedAt.getTime()),
-              });
-
-              nexoraStatus = {
-                status: result?.success ? "success" : "failed",
-                startedAt: startedAt.toISOString(),
-                finishedAt: finishedAt.toISOString(),
-                message: result?.message || "Nexora completed",
-              };
-
-              return res.json({
-                success: !!result?.success,
-                status: result?.success ? "success" : "failed",
-                processed: result?.processed ?? 0,
-                outreachRuns: result?.outreachRuns ?? 0,
-                outreachFailed: result?.outreachFailed ?? 0,
-                radarSignals: result?.radarSignals ?? 0,
-                dealSignals: result?.dealSignals ?? 0,
-                errors: Array.isArray(result?.errors) ? result.errors : [],
-                message: result?.message || "Nexora completed",
-                durationMs: result?.durationMs ?? (finishedAt.getTime() - startedAt.getTime()),
-                startedAt: startedAt.toISOString(),
-                finishedAt: finishedAt.toISOString(),
-              });
+              setNexoraLoopInterval(intervalMs);
+              res.json({ ok: true, ...getNexoraLoopState() });
             } catch (err: any) {
-              const finishedAt = new Date();
-
-              nexoraStatus = {
-                status: "failed",
-                startedAt: startedAt.toISOString(),
-                finishedAt: finishedAt.toISOString(),
-                message: err?.message || "Nexora failed",
-              };
-
-              console.error("Nexora error:", err);
-
-              return res.status(500).json({
-                success: false,
-                status: "failed",
-                processed: 0,
-                outreachRuns: 0,
-                outreachFailed: 0,
-                radarSignals: 0,
-                dealSignals: 0,
-                errors: [err?.message || "Nexora failed"],
-                message: err?.message || "Nexora failed",
-                durationMs: finishedAt.getTime() - startedAt.getTime(),
-                startedAt: startedAt.toISOString(),
-                finishedAt: finishedAt.toISOString(),
-              });
-            } finally {
-              nexoraRunning = false;
+              res.status(400).json({ error: err?.message || "Invalid interval" });
             }
+          });
+
+          app.post("/api/nexora/loop/run-now", async (_req, res) => {
+            const result = await runNexoraCycle("manual");
+            if (result.skipped) return res.status(409).json(result);
+            res.json(result);
           });
 type Message = {
   role: Role;
@@ -4586,6 +4478,85 @@ Rules:
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
+  app.get("/api/admin/partners/referrals", async (req, res) => {
+    try {
+      const { partnerReferrals: partnerReferralsTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { desc: dDesc } = await import("drizzle-orm");
+      const list = await ddb.select().from(partnerReferralsTable).orderBy(dDesc(partnerReferralsTable.createdAt)).limit(100);
+      res.json(list);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/partners/commissions", async (req, res) => {
+    try {
+      const { partnerCommissions: partnerCommissionsTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { desc: dDesc } = await import("drizzle-orm");
+      const list = await ddb.select().from(partnerCommissionsTable).orderBy(dDesc(partnerCommissionsTable.createdAt)).limit(100);
+      res.json(list);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/partners/stats", async (req, res) => {
+    try {
+      const { partnerReferrals: partnerReferralsTable, partners: partnersTable, partnerCommissions: partnerCommissionsTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { count: dCount } = await import("drizzle-orm");
+      const [partnerCount] = await ddb.select({ count: dCount() }).from(partnersTable);
+      const [referralCount] = await ddb.select({ count: dCount() }).from(partnerReferralsTable);
+      const commissions = await ddb.select().from(partnerCommissionsTable);
+      const totalCommissionValue = commissions.reduce((s, c) => s + (c.commissionAmount || 0), 0);
+      const paidCommissions = commissions.filter(c => c.paymentStatus === "paid").reduce((s, c) => s + (c.commissionAmount || 0), 0);
+      res.json({
+        totalPartners: partnerCount.count,
+        totalReferrals: referralCount.count,
+        totalCommissionValue,
+        paidCommissions,
+        pendingCommissions: totalCommissionValue - paidCommissions,
+      });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/partners/settings", async (req, res) => {
+    try {
+      const { partnerSettings: partnerSettingsTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const list = await ddb.select().from(partnerSettingsTable).limit(1);
+      if (list.length === 0) {
+        const [defaults] = await ddb.insert(partnerSettingsTable).values({}).returning();
+        return res.json(defaults);
+      }
+      res.json(list[0]);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.patch("/api/admin/partners/settings", async (req, res) => {
+    try {
+      const { partnerSettings: partnerSettingsTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { sql: dSql } = await import("drizzle-orm");
+      const { defaultReferralRate, payoutRuleText, agreementTemplateVersion } = req.body || {};
+      const existing = await ddb.select().from(partnerSettingsTable).limit(1);
+      if (existing.length === 0) {
+        const [created] = await ddb.insert(partnerSettingsTable).values({ defaultReferralRate, payoutRuleText, agreementTemplateVersion, updatedAt: new Date() }).returning();
+        return res.json(created);
+      }
+      const [updated] = await ddb.update(partnerSettingsTable).set({ defaultReferralRate, payoutRuleText, agreementTemplateVersion, updatedAt: new Date() }).where(dSql`id = ${existing[0].id}`).returning();
+      res.json(updated);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/partners/referrals/:id/events", async (req, res) => {
+    try {
+      const { partnerReferralEvents: partnerReferralEventsTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq, asc } = await import("drizzle-orm");
+      const events = await ddb.select().from(partnerReferralEventsTable).where(eq(partnerReferralEventsTable.referralId, req.params.id)).orderBy(asc(partnerReferralEventsTable.createdAt));
+      res.json(events);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
   app.get("/api/admin/partners/:id", async (req, res) => {
     try {
       const partner = await storage.getPartner(req.params.id);
@@ -4677,6 +4648,201 @@ Rules:
         respondedAt: new Date(),
       });
       res.json(updated);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Partner Referral Network (Full Referral System) ─────────────────────────
+
+  app.post("/api/partners/apply", async (req, res) => {
+    try {
+      const { partnerCommissions: _pc, partnerReferralEvents: _pre, partnerDocuments: _pd, partnerSettings: _ps, partnerReferrals: partnerReferralsTable, partners: partnersTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { sql: dSql } = await import("drizzle-orm");
+      const body = req.body || {};
+      const [newPartner] = await ddb.insert(partnersTable).values({
+        companyName: body.companyName || body.company || "Unknown",
+        partnerType: body.partnerType || body.roleType || "broker",
+        contactName: body.contactName || body.fullName || body.name || "Unknown",
+        email: body.email,
+        phone: body.phone || null,
+        website: body.website || null,
+        abn: body.abn || null,
+        linkedinUrl: body.linkedinUrl || null,
+        city: body.city || null,
+        state: body.state || null,
+        bio: body.bio || body.notes || null,
+        onboardingStatus: "lead",
+        agreementStatus: "pending",
+        referralRate: 0.075,
+        activeStatus: "pending",
+      }).returning();
+      res.json({ ok: true, partner: newPartner });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/partners/referrals", async (req, res) => {
+    try {
+      const { partnerReferrals: partnerReferralsTable, partnerReferralEvents } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const body = req.body || {};
+      const [newReferral] = await ddb.insert(partnerReferralsTable).values({
+        partnerId: body.partnerId || null,
+        clientName: body.clientName || body.contactName || null,
+        clientCompany: body.clientCompany || body.companyName || null,
+        contactName: body.contactName || null,
+        contactEmail: body.contactEmail || null,
+        contactPhone: body.contactPhone || null,
+        officeLocation: body.officeLocation || body.city || null,
+        officeSizeSqm: body.officeSizeSqm ? String(body.officeSizeSqm) : null,
+        staffCount: body.staffCount ? String(body.staffCount) : null,
+        projectType: body.projectType || null,
+        projectStage: body.projectStage || "early",
+        estimatedValue: body.estimatedValue ? Number(body.estimatedValue) : null,
+        sourceNotes: body.sourceNotes || body.notes || null,
+        status: "submitted",
+        commissionPercent: 7.5,
+      }).returning();
+
+      await ddb.insert(partnerReferralEvents).values({
+        referralId: newReferral.id,
+        eventType: "submitted",
+        eventNote: "Referral submitted via partner form",
+        createdBy: body.partnerId || "partner",
+      });
+
+      const { scorePartnerReferral } = await import("./services/partnerReferralAI");
+      scorePartnerReferral(newReferral.id).catch((e: any) => console.error("[PartnerReferralAI] async score failed:", e?.message));
+
+      res.json({ ok: true, referral: newReferral });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/partners/:id/referrals", async (req, res) => {
+    try {
+      const { partnerReferrals: partnerReferralsTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq } = await import("drizzle-orm");
+      const list = await ddb.select().from(partnerReferralsTable).where(eq(partnerReferralsTable.partnerId, req.params.id));
+      res.json(list);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/partners/:id/commissions", async (req, res) => {
+    try {
+      const { partnerCommissions: partnerCommissionsTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq } = await import("drizzle-orm");
+      const list = await ddb.select().from(partnerCommissionsTable).where(eq(partnerCommissionsTable.partnerId, req.params.id));
+      res.json(list);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/referrals/:id/score", async (req, res) => {
+    try {
+      const { scorePartnerReferral } = await import("./services/partnerReferralAI");
+      const result = await scorePartnerReferral(req.params.id);
+      if (!result) return res.status(404).json({ error: "Referral not found or scoring failed" });
+      res.json({ ok: true, ...result });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/referrals/:id/assign", async (req, res) => {
+    try {
+      const { partnerReferrals: partnerReferralsTable, partnerReferralEvents } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq } = await import("drizzle-orm");
+      const { assignedTo } = req.body || {};
+      await ddb.update(partnerReferralsTable).set({ assignedTo, updatedAt: new Date() }).where(eq(partnerReferralsTable.id, req.params.id));
+      await ddb.insert(partnerReferralEvents).values({ referralId: req.params.id, eventType: "assigned", eventNote: `Assigned to ${assignedTo}`, createdBy: "admin" });
+      res.json({ ok: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/referrals/:id/status", async (req, res) => {
+    try {
+      const { partnerReferrals: partnerReferralsTable, partnerReferralEvents } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq } = await import("drizzle-orm");
+      const { status, note } = req.body || {};
+      await ddb.update(partnerReferralsTable).set({ status, updatedAt: new Date() }).where(eq(partnerReferralsTable.id, req.params.id));
+      await ddb.insert(partnerReferralEvents).values({ referralId: req.params.id, eventType: status, eventNote: note || `Status updated to ${status}`, createdBy: "admin" });
+      res.json({ ok: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/referrals/:id/mark-won", async (req, res) => {
+    try {
+      const { partnerReferrals: partnerReferralsTable, partnerReferralEvents, partnerCommissions: partnerCommissionsTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq } = await import("drizzle-orm");
+      const { dealValue } = req.body || {};
+      const [referral] = await ddb.select().from(partnerReferralsTable).where(eq(partnerReferralsTable.id, req.params.id)).limit(1);
+      if (!referral) return res.status(404).json({ error: "Referral not found" });
+
+      const value = Number(dealValue || referral.estimatedValue || referral.projectValue || 0);
+      const rate = Number(referral.commissionPercent || 7.5) / 100;
+      const commissionAmount = Math.round(value * rate);
+
+      await ddb.update(partnerReferralsTable).set({ status: "won", projectValue: value, updatedAt: new Date() }).where(eq(partnerReferralsTable.id, req.params.id));
+
+      let commission = null;
+      if (referral.partnerId && value > 0) {
+        const [comm] = await ddb.insert(partnerCommissionsTable).values({
+          referralId: req.params.id,
+          partnerId: referral.partnerId,
+          commissionRate: rate,
+          dealValue: value,
+          commissionAmount,
+          paymentStatus: "pending",
+        }).returning();
+        commission = comm;
+      }
+
+      await ddb.insert(partnerReferralEvents).values({ referralId: req.params.id, eventType: "won", eventNote: `Deal won at $${value.toLocaleString()}, commission $${commissionAmount.toLocaleString()}`, createdBy: "admin" });
+      if (commission) {
+        await ddb.insert(partnerReferralEvents).values({ referralId: req.params.id, eventType: "commission_created", eventNote: `Commission of $${commissionAmount.toLocaleString()} created`, createdBy: "admin" });
+      }
+
+      res.json({ ok: true, dealValue: value, commissionAmount, commission });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/referrals/:id/mark-lost", async (req, res) => {
+    try {
+      const { partnerReferrals: partnerReferralsTable, partnerReferralEvents } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq } = await import("drizzle-orm");
+      const { reason } = req.body || {};
+      await ddb.update(partnerReferralsTable).set({ status: "lost", conversionResult: "lost", updatedAt: new Date() }).where(eq(partnerReferralsTable.id, req.params.id));
+      await ddb.insert(partnerReferralEvents).values({ referralId: req.params.id, eventType: "lost", eventNote: reason || "Deal marked lost", createdBy: "admin" });
+      res.json({ ok: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/referrals/:id/mark-paid", async (req, res) => {
+    try {
+      const { partnerReferrals: partnerReferralsTable, partnerReferralEvents, partnerCommissions: partnerCommissionsTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq } = await import("drizzle-orm");
+      await ddb.update(partnerReferralsTable).set({ status: "paid", updatedAt: new Date() }).where(eq(partnerReferralsTable.id, req.params.id));
+      await ddb.update(partnerCommissionsTable).set({ paymentStatus: "paid", paidAt: new Date(), updatedAt: new Date() }).where(eq(partnerCommissionsTable.referralId, req.params.id));
+      await ddb.insert(partnerReferralEvents).values({ referralId: req.params.id, eventType: "commission_paid", eventNote: "Commission marked as paid", createdBy: "admin" });
+      res.json({ ok: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/referrals/:id/commission/calc", async (req, res) => {
+    try {
+      const { partnerReferrals: partnerReferralsTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq } = await import("drizzle-orm");
+      const { dealValue, rate } = req.body || {};
+      const [referral] = await ddb.select().from(partnerReferralsTable).where(eq(partnerReferralsTable.id, req.params.id)).limit(1);
+      if (!referral) return res.status(404).json({ error: "Referral not found" });
+      const value = Number(dealValue || referral.estimatedValue || 0);
+      const commissionRate = Number(rate || referral.commissionPercent || 7.5) / 100;
+      const commissionAmount = Math.round(value * commissionRate);
+      res.json({ dealValue: value, commissionRate: commissionRate * 100, commissionAmount });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 

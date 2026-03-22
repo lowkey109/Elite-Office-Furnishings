@@ -49,6 +49,8 @@ export const QUEUES = {
   // ── Lead Engine ───────────────────────────────────────────────────────────
   LEAD_SCRAPE_LINKEDIN: "lead.scrape.linkedin",
   LEAD_SCRAPE_MAPS: "lead.scrape.maps",
+  // ── Nexora Autonomous Loop ────────────────────────────────────────────────
+  NEXORA_LOOP: "nexora.loop",
 } as const;
 
 export type QueueName = (typeof QUEUES)[keyof typeof QUEUES];

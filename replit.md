@@ -6,6 +6,28 @@ The Corporate Desk (`thecorporatedesk.com.au`) is a luxury office furniture webs
 ## User Preferences
 I prefer iterative development with clear, modular code. Before making any major architectural changes or introducing new external dependencies, please ask for approval. I prefer detailed explanations for complex solutions. Do not make changes to the `server/db.ts` file without explicit instruction. Do not make changes to the `client/src/lib/furnitureCatalogue.ts` file without explicit instruction.
 
+## New Major Features (March 2026 — Latest Build)
+
+### Nexora Autonomous Loop Engine
+- Single source of truth: `runNexoraCycle(trigger)` in `server/services/nexoraLoop.ts`
+- Two scheduling mechanisms: pg-boss 30-min durable queue + in-memory interval loop
+- Lock guard prevents concurrent execution
+- All runs persisted to `nexoraRuns` table (signals, outreach, duration, success)
+- Admin UI: `/admin/nexora` — run history, loop start/stop/config, real-time status
+- Control API: `GET/POST /api/nexora/loop/*` (status, start, stop, config, run-now)
+- Documentation: `docs/nexora-loop.md`, `docs/nexora-loop-open-issues.md`
+
+### Partner Referral Network (Full Build)
+- **Public pages**: `/partners` (recruitment) + `/submit-deal` (frictionless deal submission)
+- **Admin page**: `/admin/partners` — tabbed: Referrals, Partners, Commissions, Settings
+- **Schema**: Extended `partners` + `partnerReferrals` tables; new `partnerReferralEvents`, `partnerCommissions`, `partnerDocuments`, `partnerSettings` tables
+- **AI scoring**: `server/services/partnerReferralAI.ts` — GPT-4o fit score (0–100), summary, next action, risk flags
+- **Commission flow**: Submit deal → AI score → qualify/quote → mark won (auto-creates commission at 7.5%) → mark paid
+- **Routes**: All specific `/admin/partners/*` routes correctly ordered BEFORE `/:id` route to avoid Express interception
+- Documentation: `docs/partner-network-build-report.md`
+- Commission rate: 7.5% flat (configurable via settings)
+- Contact: Ben Mumford | 0408 407 166 | sales@thecorporatedesk.com.au
+
 ## New Major Features (March 2026)
 
 ### AI Product Command Centre (`/admin/products`)

@@ -758,6 +758,17 @@ async function registerPgBossWorkers(): Promise<void> {
     console.log(`[AlexAgent] Cycle done: ${result.processed} opps, ${result.outreachTriggered} outreach, ${result.bookingsCreated} bookings, ${result.dealsUpdated} deals`);
   });
 
+  // ── Nexora Autonomous Loop ─────────────────────────────────────────────────
+  await registerWorker(QUEUES.NEXORA_LOOP, async () => {
+    const { runNexoraCycle } = await import("./nexoraLoop");
+    const result = await runNexoraCycle("auto");
+    if (result.skipped) {
+      console.log("[NexoraLoop] Scheduled run skipped — already running");
+    } else {
+      console.log(`[NexoraLoop] Scheduled cycle done: ${result.processed} processed, ${result.outreachRuns} outreach`);
+    }
+  });
+
   // ── Lead Engine Scrapers ───────────────────────────────────────────────────
   await registerWorker(QUEUES.LEAD_SCRAPE_LINKEDIN, async () => {
     const { runLinkedInScraper } = await import("./leadEngine");
@@ -1013,7 +1024,9 @@ async function schedulePgBossJobs(): Promise<void> {
   // Lead Engine scrapers — every 6 hours
   await scheduleJob(QUEUES.LEAD_SCRAPE_LINKEDIN, {}, { repeatEvery: "0 */6 * * *", singletonKey: "lead-scrape-linkedin" });
   await scheduleJob(QUEUES.LEAD_SCRAPE_MAPS, {}, { repeatEvery: "0 */6 * * *", singletonKey: "lead-scrape-maps" });
-  console.log("[IntelligenceScheduler] pg-boss recurring jobs scheduled (incl. 7 outreach + 6 payment + Alex + clusters + 3 revenue-loop + 2 lead scrapers = 35 total — deal engine: 15min, dead loop: 2h, outreach retry: 30min, scrapers: 6h)");
+  // Nexora Autonomous Loop — every 30 minutes
+  await scheduleJob(QUEUES.NEXORA_LOOP, {}, { repeatEvery: "*/30 * * * *", singletonKey: "nexora-loop" });
+  console.log("[IntelligenceScheduler] pg-boss recurring jobs scheduled (incl. 7 outreach + 6 payment + Alex + clusters + 3 revenue-loop + 2 lead scrapers + nexora-loop = 36 total — deal engine: 15min, dead loop: 2h, nexora: 30min, scrapers: 6h)");
 }
 
 // ─── Unified scheduler startup ─────────────────────────────────────────────────

@@ -1,0 +1,718 @@
+FINAL PRODUCTION BUILD PROMPT — THE CORPORATE DESK PARTNER NETWORK + WEBSITE AUDIT FIXES + AI REFERRAL ENGINE
+
+ROLE
+
+You are a senior full-stack engineer, product designer, UX strategist, backend architect, AI workflow engineer, database designer, admin systems engineer, conversion strategist, and production hardening specialist.
+
+You are working on The Corporate Desk platform and website.
+
+You are NOT starting from scratch.
+
+You must inspect the existing codebase, preserve all good working systems, document what already exists, then implement the missing partner referral system, connect it to the AI/intelligence layer, upgrade the public website experience, and fix the identified website issues.
+
+This must be built as a REAL, PRODUCTION-GRADE system.
+No demo logic.
+No fake referrals.
+No synthetic scoring without real execution.
+No placeholder pages pretending to work.
+No hardcoded mock dashboards shown as complete.
+No dead-end forms.
+No disconnected UI.
+
+If any part looks finished but is not truly wired end-to-end, it is NOT complete.
+
+==================================================
+CORE BUSINESS OBJECTIVE
+==================================================
+
+Build a premium, enterprise-grade referral partner ecosystem for The Corporate Desk that:
+
+1. Attracts high-value commercial partners
+2. Captures and qualifies referred opportunities
+3. Uses AI to enrich, score, summarize, and route referrals
+4. Tracks referral lifecycle end-to-end
+5. Calculates commission automatically at 7.5%
+6. Gives partners visibility into their opportunities
+7. Gives admin full operational control
+8. Looks “billion-dollar” in public and internal UX
+9. Fixes current website trust, brand, and UX issues
+10. Documents all architecture, decisions, bugs fixed, unfinished items, and implementation notes so nothing is lost
+
+==================================================
+NON-NEGOTIABLE RULES
+==================================================
+
+- Build on the existing stack and architecture
+- Reuse existing auth, DB, admin shell, design system, route patterns, and AI orchestration where possible
+- If a usable intelligence/AI system already exists, connect to it instead of reinventing it
+- If a current page exists and is salvageable, upgrade it rather than replacing blindly
+- Every form must submit to a real backend endpoint
+- Every backend endpoint must validate input and persist data correctly
+- Every status shown in UI must come from real stored state
+- Every referral must have a proper event trail
+- Every commission must be calculated from real deal values, not assumed values
+- Every important action must be documented in code comments and implementation notes
+- All discovered bugs, inconsistencies, unfinished pages, and architectural issues must be recorded clearly in a project audit document
+- The output must feel premium, enterprise, highly trustworthy, and commercially conversion-focused
+
+==================================================
+PRIMARY SYSTEM TO BUILD
+==================================================
+
+SYSTEM NAME:
+The Corporate Desk Partner Network
+
+REQUIRED PUBLIC PAGES:
+- /partners
+- /submit-deal
+
+REQUIRED PARTNER PAGE / APP:
+- /partner/login
+- /partner/dashboard (or equivalent protected route)
+
+REQUIRED ADMIN AREA:
+- /admin/partners
+- /admin/partners/referrals
+- /admin/partners/commissions
+- /admin/partners/settings
+
+==================================================
+REFERRAL MODEL TO IMPLEMENT
+==================================================
+
+This is NOT an affiliate coupon-link program.
+
+This is a structured introducer / referral partner model for:
+- commercial real estate agents
+- tenant reps
+- brokers
+- architects
+- fitout contacts
+- project-side introducers
+- workplace consultants
+- aligned commercial partners
+
+COMMISSION MODEL:
+- flat 7.5% commission across approved, paid deals
+- payout only after invoice/payment milestone or equivalent verified paid stage
+- commission logic must be configurable in admin settings, defaulting to 7.5%
+
+REFERRAL FLOW:
+1. Partner lands on /partners
+2. Partner applies or submits a live opportunity
+3. Backend stores the application/referral
+4. AI enriches and scores the referral
+5. Referral is assigned / reviewed internally
+6. Team qualifies the lead
+7. Quote / layout / proposal is linked
+8. Referral progresses through pipeline
+9. Commission is calculated automatically when deal is marked won and paid
+10. Partner sees status updates in portal
+11. Admin/finance marks payout complete
+
+==================================================
+DATABASE / DATA MODEL
+==================================================
+
+Create or extend the schema with production-grade tables and indexes.
+
+REQUIRED TABLES:
+
+partners
+- id
+- full_name
+- company_name
+- email
+- phone
+- role_type
+- city
+- state
+- abn
+- website
+- linkedin_url
+- onboarding_status           // lead, approved, active, paused, rejected
+- agreement_status            // pending, sent, signed, rejected
+- referral_rate               // decimal, default 0.075
+- notes
+- created_at
+- updated_at
+
+partner_referrals
+- id
+- partner_id
+- company_name
+- contact_name
+- contact_email
+- contact_phone
+- office_location
+- office_size_sqm
+- staff_count
+- project_type                // relocation, expansion, new lease, fitout, refresh, workspace upgrade
+- project_stage               // early, signed_lease, planning, quoting, active, won, lost, paid
+- estimated_value
+- source_notes
+- uploaded_files_json
+- ai_summary
+- ai_fit_score
+- ai_urgency_score
+- ai_close_likelihood_score
+- ai_priority
+- ai_recommended_owner
+- ai_next_best_action
+- ai_tags_json
+- ai_risk_flags_json
+- status                      // submitted, reviewing, qualified, quoted, won, lost, paid
+- assigned_to
+- quote_id                    // nullable
+- crm_lead_id                 // nullable if integrated to another lead/opportunity entity
+- created_at
+- updated_at
+
+partner_referral_events
+- id
+- referral_id
+- event_type                  // submitted, scored, assigned, contacted, qualified, quoted, won, lost, paid, commission_created, commission_paid
+- event_note
+- metadata_json
+- created_by
+- created_at
+
+partner_commissions
+- id
+- referral_id
+- partner_id
+- commission_rate
+- deal_value
+- commission_amount
+- payment_status              // pending, approved, invoiced, paid, cancelled
+- payment_due_at
+- paid_at
+- notes
+- created_at
+- updated_at
+
+partner_documents
+- id
+- partner_id
+- document_type               // agreement, capability_deck, tax_form, other
+- file_url
+- file_name
+- uploaded_at
+
+partner_settings
+- id
+- default_referral_rate
+- payout_rule_text
+- agreement_template_version
+- created_at
+- updated_at
+
+IMPORTANT:
+- Add indexes for common filtering and sorting
+- Add foreign keys and cascade rules where appropriate
+- Add audit-friendly timestamps everywhere
+- Add uniqueness constraints where appropriate, especially on partner email
+- Prevent duplicate referral ingestion where possible using dedupe logic
+
+==================================================
+API / BACKEND TO BUILD
+==================================================
+
+Build or extend production endpoints with validation, auth, permission checks, and audit logging.
+
+REQUIRED ROUTES:
+
+POST   /api/partners/apply
+POST   /api/partners/referrals
+GET    /api/partners/:id
+GET    /api/partners/:id/referrals
+GET    /api/partners/:id/commissions
+POST   /api/partners/:id/agreement/send
+POST   /api/referrals/:id/score
+POST   /api/referrals/:id/assign
+POST   /api/referrals/:id/status
+POST   /api/referrals/:id/link-quote
+POST   /api/referrals/:id/mark-won
+POST   /api/referrals/:id/mark-lost
+POST   /api/referrals/:id/mark-paid
+POST   /api/referrals/:id/commission/calc
+POST   /api/referrals/:id/commission/pay
+GET    /api/admin/partners/stats
+GET    /api/admin/partners/referrals
+GET    /api/admin/partners/commissions
+PATCH  /api/admin/partners/settings
+
+REQUIREMENTS:
+- Use existing auth/session middleware where available
+- Protect admin routes properly
+- Protect partner-only routes properly
+- Validate all payloads
+- Return structured errors
+- Log important workflow transitions
+- Create referral events automatically on status changes
+- No insecure client-side-only admin gating
+- No hardcoded credentials
+- No sessionStorage-only protection for sensitive admin actions
+
+==================================================
+AI / INTELLIGENCE LOOP TO IMPLEMENT
+==================================================
+
+Loop the referral engine into the existing AI system and/or intelligence infrastructure.
+
+Every referral submission must trigger AI enrichment.
+
+AI MUST DO THESE 5 THINGS:
+1. Summarize the referral into a concise executive brief
+2. Score fit, urgency, expected value, and close likelihood
+3. Classify the opportunity by segment and service line
+4. Recommend next-best action for sales/admin
+5. Cross-link referral data against existing intelligence systems where relevant:
+   - office move radar
+   - deal hunter
+   - relocation signals
+   - company intelligence
+   - prior CRM/lead records
+   - visitor/company activity if available
+
+TARGET AI OUTPUT FIELDS:
+- ai_summary
+- ai_fit_score
+- ai_urgency_score
+- ai_close_likelihood_score
+- ai_priority
+- ai_recommended_owner
+- ai_next_best_action
+- ai_tags_json
+- ai_risk_flags_json
+
+AI TRIGGER POINTS:
+- on partner application submitted
+- on referral submitted
+- when files/floor plans are uploaded
+- when quote value changes
+- when referral is stale for 3+ days
+- when a deal is marked won or lost
+- optionally on admin manual re-score
+
+AI REQUIREMENTS:
+- Use real model calls or real existing inference pipeline
+- No fake generated scores hardcoded into UI
+- If model fails, store a graceful fallback state and surface retry ability
+- Log AI run metadata
+- Make AI outputs visible in admin and partner workflows where appropriate
+- Make referral scoring useful for triage, not just decorative
+
+EXAMPLE OUTPUT SHAPE:
+{
+  "summary": "Mid-sized professional services firm relocating Brisbane CBD office in 6-10 weeks. Approx 35 staff. Needs workstations, boardroom, reception, storage, breakout furniture.",
+  "fit_score": 91,
+  "urgency_score": 84,
+  "close_likelihood_score": 73,
+  "estimated_value_band": "$40k-$90k",
+  "recommended_owner": "Ben",
+  "next_best_action": "Call within 2 business hours and request floor plan + lease commencement date.",
+  "service_mix": ["furniture supply", "layout planning", "turnkey fitout coordination"],
+  "risk_flags": ["no floor plan uploaded"],
+  "tags": ["brisbane", "relocation", "professional services", "mid-market"]
+}
+
+==================================================
+PUBLIC WEBSITE PAGES TO BUILD / UPGRADE
+==================================================
+
+--------------------------------------------------
+1) /partners
+--------------------------------------------------
+
+This page must feel premium, enterprise-grade, and highly conversion-focused.
+
+GOAL:
+Acquire referral partners.
+
+VISUAL DIRECTION:
+- dark charcoal / off-white / muted gold accent
+- premium typography
+- high-end whitespace
+- large confident headings
+- subtle motion
+- crisp cards and proof strips
+- no cheap, cluttered WooCommerce feel
+- should feel like premium B2B SaaS meets luxury commercial workspace brand
+
+REQUIRED SECTIONS:
+- Hero:
+  Headline: Earn 7.5% on Qualified Workspace Projects
+  Subheadline: Partner with The Corporate Desk to support office relocations, fit-outs, expansions, and workspace activations across Australia.
+  CTAs:
+    - Become a Partner
+    - Submit a Live Deal
+
+- Proof strip:
+  Fast Quotes • Layout Support • Turnkey Delivery • National Capability
+
+- Who this is for:
+  commercial agents, tenant reps, brokers, fitout professionals, aligned commercial introducers
+
+- How it works:
+  1. Introduce the opportunity
+  2. We handle the workspace solution
+  3. You earn 7.5% when the project is approved and paid
+
+- Ideal referrals:
+  office moves, new leases, expansions, fit-outs, workspace upgrades, relocations
+
+- Why partner with us:
+  fast response
+  layout and quote support
+  premium brand positioning
+  national reach
+  turnkey delivery
+  high-trust commercial handling
+
+- Payout policy:
+  flat 7.5%
+  paid on verified paid deals
+  transparent tracking
+
+- Partner application form:
+  full name
+  company
+  email
+  phone
+  city/state
+  partner type
+  notes
+  optional “I have a live opportunity now”
+
+- Secondary CTA to /submit-deal
+
+--------------------------------------------------
+2) /submit-deal
+--------------------------------------------------
+
+GOAL:
+Convert hot referral opportunities immediately.
+
+REQUIRED SECTIONS:
+- clear hero
+- short explanation
+- fast intake form
+- reassurance copy
+- file upload support if already available in stack
+
+FORM FIELDS:
+- referring partner (linked if logged in)
+- company name
+- contact name
+- contact email
+- contact phone
+- office location
+- office size sqm
+- staff count
+- project type
+- project stage
+- estimated value
+- notes
+- upload files / floor plans / docs
+
+POST-SUBMIT:
+- real confirmation page/state
+- create referral event
+- trigger AI scoring
+- send internal notification
+- send partner confirmation email if email system exists
+
+--------------------------------------------------
+3) /partner/login and partner dashboard
+--------------------------------------------------
+
+GOAL:
+Give partners visibility and trust.
+
+REQUIRED FEATURES:
+- secure authentication path or magic-link style partner access if that is the cleanest fit with existing stack
+- view submitted referrals
+- status chips: Submitted, Reviewing, Qualified, Quoted, Won, Lost, Paid
+- status timeline per referral
+- commission estimates / earned commissions
+- agreement status
+- support contact
+- downloadable docs
+- empty states that still feel premium
+
+IMPORTANT:
+- do not build fake dashboard data
+- do not leave placeholder widgets that do nothing
+- every metric shown must come from real backend data
+
+--------------------------------------------------
+4) /admin/partners
+--------------------------------------------------
+
+GOAL:
+Operational control.
+
+REQUIRED ADMIN FEATURES:
+- partner list
+- referral list
+- filters by stage, status, city, partner, project type
+- AI score views
+- quick actions:
+  assign
+  update status
+  trigger AI re-score
+  link quote
+  mark won
+  mark lost
+  mark paid
+  create commission
+  mark commission paid
+- commission tracking table
+- settings panel for referral rate and payout policy copy
+- event timeline visibility
+- ability to inspect uploaded docs/files metadata
+
+==================================================
+WEBSITE AUDIT FIXES TO IMPLEMENT
+==================================================
+
+Inspect the live/public site code and page templates and fix the identified problems.
+
+PRIORITY ISSUES TO FIX:
+
+1. TRADE PORTAL PAGE BRAND MISMATCH
+Current trade portal content appears to use the wrong business copy and references:
+- Exclusive Home Trade Portal
+- luxury indoor/outdoor furniture
+- premium residential project manager
+- Luxury Home Insights
+
+This is misaligned with The Corporate Desk commercial positioning.
+Rewrite /trade-customers-portal completely to align with commercial office, procurement, fitout, and partner positioning.
+
+2. “PLONE” FIELD LABEL BUG
+Fix the incorrect “Plone” field label appearing in catalogue/contact forms.
+Replace with the correct phone label or proper intended field label everywhere it appears.
+Audit all similar forms for label/config mistakes.
+
+3. DUPLICATED FOOTER / NAV / MENU BLOAT
+Identify and remove repeated footer blocks, duplicated menu items, and repeated “Office Furniture Subscription” links or similar template duplication.
+The footer and nav should be clean, deliberate, and trust-building.
+
+4. BRAND POSITIONING INCONSISTENCY
+Unify copy and messaging across:
+- homepage
+- about page
+- contact page
+- partner-related pages
+
+The central positioning should consistently reflect:
+Premium Commercial Office Furniture
+Turnkey Workspace Solutions
+Office Relocations, Fit-Outs, Expansions
+Delivered Nationally
+
+5. TRADE / PARTNER AUDIENCE CONFUSION
+Separate or clarify audiences so commercial partners are not mixed awkwardly with residential/luxury-home messaging.
+Refactor pages to make partner pathways clear and commercially relevant.
+
+6. FREE OFFICE LAYOUT PLAN PAGE UNDER-POSITIONED
+Upgrade /free-office-layout-plan into a premium service funnel with:
+- stronger headline
+- clearer value proposition
+- better hierarchy
+- trust points
+- how-it-works section
+- examples or use cases if possible
+- stronger CTA framing
+
+7. PARTNERSHIP PATH EXISTS BUT IS NOT FORMALISED
+Build the referral partner system into the site architecture rather than leaving loose partnership language spread across unrelated pages.
+
+==================================================
+PAGES TO FINISH / TIGHTEN
+==================================================
+
+HIGHEST PRIORITY:
+- /partners
+- /submit-deal
+- /partner/login
+- /trade-customers-portal
+- /free-office-layout-plan
+- contact and catalogue forms
+- footer/navigation cleanup
+
+KEEP BUT TIGHTEN:
+- homepage
+- about us
+- office furniture australia
+- solutions for interior decorators & office fitout contractors
+- blog
+
+==================================================
+DESIGN STANDARD
+==================================================
+
+The result should feel like:
+- premium commercial brand
+- enterprise SaaS partner system
+- high-trust national operator
+- sophisticated but conversion-focused
+- modern and expensive
+
+UI SHOULD INCLUDE:
+- polished cards
+- clean icon treatment
+- strong spacing
+- premium typography hierarchy
+- subtle motion
+- excellent mobile responsiveness
+- executive-grade admin views
+- clean status chips
+- restrained color system
+- elegant empty states
+- premium forms
+
+DO NOT:
+- overuse gradients
+- use cheesy crypto/SaaS gimmicks
+- make it look cheap or template-heavy
+- leave any unfinished lorem ipsum
+- leave duplicate sections
+- ship broken routes
+- ship non-functional buttons
+
+==================================================
+EMAIL / NOTIFICATION LOGIC
+==================================================
+
+If email infrastructure already exists, wire notifications for:
+- partner application received
+- referral received
+- referral status changed
+- commission created
+- commission paid
+- agreement sent
+
+If email infrastructure exists but is weak/test-only, upgrade it as far as possible within current architecture and clearly document any remaining production limitations.
+
+==================================================
+DOCUMENTATION / AUDIT REQUIREMENT
+==================================================
+
+Create a clear internal implementation report and audit summary.
+
+REQUIRED OUTPUTS:
+1. Website audit report
+2. Bugs fixed list
+3. Unfinished pages/components list
+4. Referral system architecture summary
+5. AI workflow summary
+6. Route map added/updated
+7. Database/schema changes made
+8. Remaining risks / later upgrades
+9. Any naming inconsistencies found
+10. Any security/auth concerns found and fixed
+
+This documentation must be saved clearly in the repo in an obvious place, such as:
+- /docs/partner-network-build-report.md
+- /docs/website-audit.md
+- /docs/open-issues.md
+
+Do not keep findings only in chat output.
+Persist them into project documentation.
+
+==================================================
+IMPLEMENTATION ORDER
+==================================================
+
+Execute in this order:
+
+PHASE 1 — INSPECT + DOCUMENT
+- inspect current routes, pages, components, forms, auth, DB schema, admin area, AI services
+- identify reusable systems
+- document current state
+- identify exact files to change
+
+PHASE 2 — CLEANUP FIXES
+- fix “Plone”
+- fix duplicated nav/footer/template repetition
+- rewrite /trade-customers-portal
+- unify brand language on homepage/about/contact where needed
+- upgrade /free-office-layout-plan positioning
+
+PHASE 3 — DATA + BACKEND
+- add schema/tables
+- add indexes/constraints
+- add API routes
+- add validation
+- add event logging
+- add commission logic
+
+PHASE 4 — AI LOOP
+- connect referrals into AI scoring/enrichment workflow
+- connect to existing intelligence systems where available
+- add retry/fallback behavior
+- surface AI outputs in admin
+
+PHASE 5 — FRONTEND
+- build /partners
+- build /submit-deal
+- build partner dashboard/login flow
+- build admin partner views
+- make all pages premium and responsive
+
+PHASE 6 — TESTING
+- test forms
+- test auth
+- test referral creation
+- test AI scoring
+- test admin actions
+- test commission calculations
+- test partner visibility
+- test mobile layouts
+- test error states
+
+PHASE 7 — FINAL DOCUMENTATION
+- save audit
+- save implementation report
+- save unresolved issues
+- save recommendations for next upgrades
+
+==================================================
+DEFINITION OF DONE
+==================================================
+
+The task is only complete when:
+
+- /partners is live and production-ready
+- /submit-deal is live and fully wired
+- partner dashboard/login works
+- admin partner system works
+- referrals persist correctly
+- AI scoring runs on real referral submissions
+- statuses update correctly
+- commission tracking works at 7.5%
+- website trust/UX issues above are fixed
+- trade portal is commercially aligned
+- free office layout page is upgraded
+- duplicate nav/footer issues are removed
+- form label bugs are fixed
+- documentation is saved in-repo
+- no major placeholder logic remains
+- the result feels expensive, intentional, and enterprise-grade
+
+==================================================
+FINAL INSTRUCTION
+==================================================
+
+Do the real work inside the existing codebase.
+
+Preserve what is already good.
+Upgrade what is weak.
+Replace what is broken.
+Document everything.
+Make it commercially powerful.
+Make it operationally real.
+Make it look billion-dollar.

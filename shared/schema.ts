@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, integer, boolean, real, index, uniqueIndex, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, integer, boolean, real, index, uniqueIndex, jsonb, serial } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -589,19 +589,24 @@ export const partners = pgTable("partners", {
   email: text("email").notNull(),
   phone: text("phone"),
   website: text("website"),
+  abn: text("abn"),
+  linkedinUrl: text("linkedin_url"),
   city: text("city"),
   state: text("state"),
-  serviceRegions: text("service_regions").array(), // ["Brisbane","Sydney","Melbourne"]
-  industrySpecialties: text("industry_specialties").array(), // ["Technology","Finance","Legal"]
+  serviceRegions: text("service_regions").array(),
+  industrySpecialties: text("industry_specialties").array(),
   servicesOffered: text("services_offered").array(),
-  companySize: text("company_size"), // "1-10"|"10-50"|"50-200"|"200+"
+  companySize: text("company_size"),
   portfolioExamples: text("portfolio_examples"),
   bio: text("bio"),
-  activeStatus: text("active_status").notNull().default("pending"), // pending|active|suspended
-  rating: integer("rating").default(0), // 0-100 internal rating
+  activeStatus: text("active_status").notNull().default("pending"),
+  onboardingStatus: text("onboarding_status").notNull().default("lead"), // lead|approved|active|paused|rejected
+  agreementStatus: text("agreement_status").notNull().default("pending"), // pending|sent|signed|rejected
+  referralRate: real("referral_rate").default(0.075),
+  rating: integer("rating").default(0),
   totalOpportunitiesReceived: integer("total_opportunities_received").default(0),
   totalProjectsWon: integer("total_projects_won").default(0),
-  totalRevenueGenerated: integer("total_revenue_generated").default(0), // in cents
+  totalRevenueGenerated: integer("total_revenue_generated").default(0),
   adminNotes: text("admin_notes"),
   approvedAt: timestamp("approved_at"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -644,15 +649,38 @@ export type PartnerOpportunity = typeof partnerOpportunities.$inferSelect;
 
 export const partnerReferrals = pgTable("partner_referrals", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  partnerId: varchar("partner_id").notNull(),
+  partnerId: varchar("partner_id"),
   opportunityId: varchar("opportunity_id"),
   clientName: text("client_name"),
   clientCompany: text("client_company"),
-  projectValue: integer("project_value"), // in dollars
-  referralFee: integer("referral_fee"), // in dollars
-  commissionPercent: integer("commission_percent").default(5),
-  status: text("status").notNull().default("invited"), // invited|viewed|accepted|declined|won|lost
-  conversionResult: text("conversion_result"), // won|lost|pending
+  contactName: text("contact_name"),
+  contactEmail: text("contact_email"),
+  contactPhone: text("contact_phone"),
+  officeLocation: text("office_location"),
+  officeSizeSqm: text("office_size_sqm"),
+  staffCount: text("staff_count"),
+  projectType: text("project_type"), // relocation|expansion|new_lease|fitout|refresh|workspace_upgrade
+  projectStage: text("project_stage"), // early|signed_lease|planning|quoting|active|won|lost|paid
+  estimatedValue: integer("estimated_value"), // in dollars
+  sourceNotes: text("source_notes"),
+  uploadedFilesJson: jsonb("uploaded_files_json").$type<string[]>().default([]),
+  aiSummary: text("ai_summary"),
+  aiFitScore: integer("ai_fit_score"),
+  aiUrgencyScore: integer("ai_urgency_score"),
+  aiCloseLikelihoodScore: integer("ai_close_likelihood_score"),
+  aiPriority: text("ai_priority"),
+  aiRecommendedOwner: text("ai_recommended_owner"),
+  aiNextBestAction: text("ai_next_best_action"),
+  aiTagsJson: jsonb("ai_tags_json").$type<string[]>().default([]),
+  aiRiskFlagsJson: jsonb("ai_risk_flags_json").$type<string[]>().default([]),
+  projectValue: integer("project_value"),
+  referralFee: integer("referral_fee"),
+  commissionPercent: real("commission_percent").default(7.5),
+  status: text("status").notNull().default("submitted"), // submitted|reviewing|qualified|quoted|won|lost|paid
+  assignedTo: text("assigned_to"),
+  quoteId: varchar("quote_id"),
+  crmLeadId: varchar("crm_lead_id"),
+  conversionResult: text("conversion_result"),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -660,6 +688,58 @@ export const partnerReferrals = pgTable("partner_referrals", {
 export const insertPartnerReferralSchema = createInsertSchema(partnerReferrals).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertPartnerReferral = z.infer<typeof insertPartnerReferralSchema>;
 export type PartnerReferral = typeof partnerReferrals.$inferSelect;
+
+export const partnerReferralEvents = pgTable("partner_referral_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  referralId: varchar("referral_id").notNull(),
+  eventType: text("event_type").notNull(), // submitted|scored|assigned|contacted|qualified|quoted|won|lost|paid|commission_created|commission_paid
+  eventNote: text("event_note"),
+  metadataJson: jsonb("metadata_json"),
+  createdBy: text("created_by"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertPartnerReferralEventSchema = createInsertSchema(partnerReferralEvents).omit({ id: true, createdAt: true });
+export type InsertPartnerReferralEvent = z.infer<typeof insertPartnerReferralEventSchema>;
+export type PartnerReferralEvent = typeof partnerReferralEvents.$inferSelect;
+
+export const partnerCommissions = pgTable("partner_commissions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  referralId: varchar("referral_id").notNull(),
+  partnerId: varchar("partner_id").notNull(),
+  commissionRate: real("commission_rate").notNull().default(0.075),
+  dealValue: integer("deal_value").notNull(), // in dollars
+  commissionAmount: integer("commission_amount").notNull(), // in dollars
+  paymentStatus: text("payment_status").notNull().default("pending"), // pending|approved|invoiced|paid|cancelled
+  paymentDueAt: timestamp("payment_due_at"),
+  paidAt: timestamp("paid_at"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertPartnerCommissionSchema = createInsertSchema(partnerCommissions).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertPartnerCommission = z.infer<typeof insertPartnerCommissionSchema>;
+export type PartnerCommission = typeof partnerCommissions.$inferSelect;
+
+export const partnerDocuments = pgTable("partner_documents", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  partnerId: varchar("partner_id").notNull(),
+  documentType: text("document_type").notNull(), // agreement|capability_deck|tax_form|other
+  fileUrl: text("file_url").notNull(),
+  fileName: text("file_name").notNull(),
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+});
+export const insertPartnerDocumentSchema = createInsertSchema(partnerDocuments).omit({ id: true, uploadedAt: true });
+export type InsertPartnerDocument = z.infer<typeof insertPartnerDocumentSchema>;
+export type PartnerDocument = typeof partnerDocuments.$inferSelect;
+
+export const partnerSettings = pgTable("partner_settings", {
+  id: serial("id").primaryKey(),
+  defaultReferralRate: real("default_referral_rate").notNull().default(0.075),
+  payoutRuleText: text("payout_rule_text").notNull().default("Commission is paid within 30 days of verified client payment, at 7.5% of the approved deal value."),
+  agreementTemplateVersion: text("agreement_template_version").notNull().default("v1"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
 
 export const revenueShareRecords = pgTable("revenue_share_records", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

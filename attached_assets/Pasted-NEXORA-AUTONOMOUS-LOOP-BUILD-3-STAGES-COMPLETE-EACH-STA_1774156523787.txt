@@ -1,0 +1,245 @@
+NEXORA AUTONOMOUS LOOP BUILD — 3 STAGES, COMPLETE EACH STAGE BEFORE NEXT
+
+ROLE
+
+You are a senior full-stack engineer, backend architect, AI workflow engineer, job runner engineer, database designer, admin systems engineer, and production hardening specialist.
+
+You are working inside the existing The Corporate Desk codebase.
+
+You are NOT starting from scratch.
+
+You must preserve what already works, finish Nexora properly, and then make it run by itself in a safe, production-grade loop.
+
+GOAL
+
+Make Nexora fully self-running.
+
+That means:
+- Nexora can still be triggered manually
+- Nexora also runs automatically on a schedule
+- Nexora never double-runs
+- every run is persisted
+- status is queryable
+- the loop can be monitored and controlled
+- the system is safe, real, and production-oriented
+
+NO demo logic.
+NO fake loop states.
+NO mock runs.
+NO placeholder cron labels without real execution.
+NO broken duplicate triggers.
+NO disconnected UI.
+
+If any layer is not truly wired end-to-end, it is NOT complete.
+
+==================================================
+EXECUTION RULE
+==================================================
+
+Work in EXACTLY 3 stages.
+
+You must COMPLETE each stage fully before moving to the next.
+
+Do not jump ahead.
+Do not build UI before backend loop logic is complete.
+Do not leave partial scheduler code while moving into later stages.
+
+==================================================
+STAGE 1 — BUILD THE CORE NEXORA LOOP ENGINE
+==================================================
+
+Create a real reusable Nexora loop service.
+
+REQUIREMENTS:
+1. Create a dedicated loop/orchestrator service, for example:
+   - `server/services/nexoraLoop.ts`
+   or equivalent existing service location
+
+2. Centralize all Nexora execution through one function, such as:
+   - `runNexoraCycle(trigger: "manual" | "auto")`
+
+3. This function must:
+   - prevent concurrent duplicate runs
+   - set running state
+   - capture startedAt and finishedAt
+   - call the existing `runNexoraEngine()`
+   - persist every run to the existing `nexoraRuns` table
+   - store whether the run was manual or automatic if schema supports it
+   - return a stable JSON-safe result
+   - gracefully handle errors
+   - always reset lock state in `finally`
+
+4. Keep or improve existing Nexora memory state:
+   - running
+   - status
+   - lastStartedAt
+   - lastFinishedAt
+   - lastMessage
+
+5. Preserve existing working Nexora endpoints where possible, but route them through the new loop engine instead of ad hoc logic.
+
+6. If needed, extend `nexoraRuns` schema to support:
+   - triggerType ("manual" | "auto")
+   - skipped flag
+   - skippedReason
+   But only if done cleanly and consistently.
+
+7. Ensure all imports are normalized.
+8. Ensure no duplicate route logic remains.
+9. Ensure TypeScript compiles.
+
+STAGE 1 DELIVERABLES:
+- real Nexora loop service
+- single source of truth for Nexora execution
+- manual and auto execution both use the same core function
+- DB persistence for each run
+- stable lock handling
+
+Do not move to Stage 2 until this is complete and compiling.
+
+==================================================
+STAGE 2 — ADD THE SELF-RUNNING SCHEDULER + CONTROL API
+==================================================
+
+Once the core loop engine is complete, add real autonomous scheduling.
+
+REQUIREMENTS:
+1. Add a scheduler that starts Nexora automatically on a configurable interval.
+
+2. Default interval:
+   - 30 minutes
+   unless a better existing platform convention already exists.
+
+3. The loop must:
+   - start on server boot if enabled
+   - not create duplicate timers
+   - respect the run lock
+   - skip if a run is already active
+   - log each scheduled run attempt clearly
+
+4. Create loop control endpoints, for example:
+   - `GET /api/nexora/loop/status`
+   - `POST /api/nexora/loop/start`
+   - `POST /api/nexora/loop/stop`
+   - `PATCH /api/nexora/loop/config`
+   - optional `POST /api/nexora/loop/run-now`
+
+5. `GET /api/nexora/loop/status` must return real state such as:
+   - enabled
+   - running
+   - intervalMs
+   - nextRunAt
+   - lastStartedAt
+   - lastFinishedAt
+   - lastMessage
+   - status
+
+6. If using only in-memory scheduling for now, clearly document that limitation.
+7. Do not fake a persistent scheduler if one does not exist yet.
+8. If an existing persistent job system already exists in the codebase, prefer integrating with it instead of creating a second scheduler.
+9. If the persistent system is not production-ready yet, use a clean in-memory scheduler now and document that it should later move to persistent job locking.
+
+STAGE 2 DELIVERABLES:
+- autonomous scheduler starts Nexora by itself
+- control/status API works
+- no duplicate timers
+- no overlapping runs
+- real state reporting
+
+Do not move to Stage 3 until the scheduler and control API are complete and working.
+
+==================================================
+STAGE 3 — ADMIN VISIBILITY, TESTING, AND DOCUMENTATION
+==================================================
+
+After the loop works autonomously, expose it cleanly and document it.
+
+REQUIREMENTS:
+1. Connect the existing Nexora admin UI or build/upgrade a real Nexora Command Centre so it shows:
+   - current loop status
+   - running state
+   - enabled/disabled state
+   - interval
+   - last run summary
+   - recent run history
+   - manual run trigger
+   - start/stop loop controls if appropriate
+
+2. UI must use real APIs only.
+3. No fake cards or mock control states.
+
+4. Test:
+   - manual run
+   - automatic scheduled run
+   - duplicate run prevention
+   - status endpoint
+   - history endpoint
+   - start/stop controls
+   - restart behavior
+   - error handling
+
+5. Save documentation in repo:
+   - `/docs/nexora-loop.md`
+   - `/docs/nexora-loop-open-issues.md`
+
+6. Documentation must include:
+   - how the loop works
+   - what endpoints exist
+   - what state is in-memory vs persistent
+   - concurrency protections
+   - known limitations
+   - later upgrade recommendations
+
+7. Explicitly state whether the loop is:
+   - fully persistent
+   - or currently process-memory based
+
+STAGE 3 DELIVERABLES:
+- real admin visibility
+- real testing completed
+- docs saved in repo
+- open issues documented
+
+==================================================
+NON-NEGOTIABLE RULES
+==================================================
+
+- Preserve existing working Nexora logic
+- Reuse the existing `runNexoraEngine()`
+- Reuse the existing `nexoraRuns` table and related endpoints where possible
+- Do not create duplicate execution paths
+- Do not hardcode fake run results
+- Do not create fake scheduler state
+- Do not skip DB persistence
+- Do not skip concurrency protection
+- Do not skip documentation
+- Do not move to the next stage until the current stage is truly complete
+
+==================================================
+DEFINITION OF DONE
+==================================================
+
+The task is only complete when:
+- Nexora can still be run manually
+- Nexora runs automatically on a real schedule
+- duplicate runs are prevented
+- each run is persisted
+- loop status can be queried
+- admin can see real loop state
+- documentation is saved in repo
+- known limitations are documented
+- no fake/demo behavior remains in the loop layer
+
+==================================================
+FINAL INSTRUCTION
+
+Do the real work inside the existing codebase.
+
+Preserve what is already good.
+Complete each stage fully before moving to the next.
+Finish Nexora first with no excuses.
+Then build the partner network and website upgrades on top of that stable base.
+Document everything.
+Do not fake completion.
+Do not skip backend layers.
+Do not move to the next stage until the current stage is truly complete.
