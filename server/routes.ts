@@ -77,6 +77,136 @@ import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } f
             res.json(result);
           });
 
+          // ── Nexora Admin Copilot Chat ──────────────────────────────────────────
+          app.post("/api/nexora/copilot", async (req, res) => {
+            try {
+              const { messages = [], route = "/admin/dashboard" } = req.body as {
+                messages: { role: "user" | "assistant"; content: string }[];
+                route: string;
+              };
+
+              // Fetch live admin context data
+              const { partnerReferrals: pReferrals, partnerCommissions: pCommissions, partners: pTable } = await import("@shared/schema");
+              const { db: ddb } = await import("./db");
+              const { desc: dDesc } = await import("drizzle-orm");
+              const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+
+              const [allReferrals, allPartners, allCommissions] = await Promise.all([
+                ddb.select().from(pReferrals).orderBy(dDesc(pReferrals.createdAt)).limit(20),
+                ddb.select().from(pTable).orderBy(dDesc(pTable.createdAt)).limit(10),
+                ddb.select().from(pCommissions).orderBy(dDesc(pCommissions.createdAt)).limit(10),
+              ]);
+
+              const staleReferrals = allReferrals.filter(r =>
+                ["submitted", "reviewing"].includes(r.status) && new Date(r.createdAt) < threeDaysAgo
+              );
+              const highValueReferrals = allReferrals.filter(r => (r.estimatedValue || 0) >= 100000);
+              const pendingCommissions = allCommissions.filter(c => c.paymentStatus === "pending");
+              const paidCommissions = allCommissions.filter(c => c.paymentStatus === "paid");
+              const totalPendingCommissionValue = pendingCommissions.reduce((s, c) => s + (c.commissionAmount || 0), 0);
+
+              const ADMIN_ROUTE_LABELS: Record<string, string> = {
+                "/admin/dashboard": "Admin Dashboard",
+                "/admin/leads": "Lead Management",
+                "/admin/lead-intelligence": "Lead Intelligence",
+                "/admin/deal-pipeline": "Deal Pipeline",
+                "/admin/deal-hunter": "Deal Hunter",
+                "/admin/deal-intelligence": "Deal Intelligence",
+                "/admin/partner-network": "Partner Network",
+                "/admin/partners": "Partner Referral Management",
+                "/admin/nexora": "Nexora Command Centre",
+                "/admin/intelligence-hub": "Intelligence Hub",
+                "/admin/office-move-radar": "Office Move Radar",
+                "/admin/relocation-intelligence": "Relocation Intelligence",
+                "/admin/market-intelligence": "Market Intelligence",
+                "/admin/territory-scanner": "Territory Scanner",
+                "/admin/lease-signals": "Lease Signals",
+                "/admin/quotes": "Quotes Management",
+                "/admin/supplier-quotes": "Supplier Quotes",
+                "/admin/planning-requests": "Planning Requests",
+                "/admin/product-reviews": "Product Reviews",
+                "/admin/follow-up-sequences": "Follow-up Sequences",
+                "/admin/manufacturer-messaging": "Manufacturer Messaging",
+                "/admin/workspace-strategy": "Workspace Strategy",
+                "/admin/workspace-learning": "Workspace Learning",
+                "/admin/command-centre": "Command Centre",
+                "/admin/procurement-engine": "Procurement Engine",
+                "/admin/supplier-intelligence": "Supplier Intelligence",
+                "/admin/profit-engine": "Profit Engine",
+                "/admin/company-visitors": "Company Visitors",
+                "/admin/proposal-engine": "Proposal Engine",
+                "/admin/product-command-centre": "Product Command Centre",
+                "/admin/lead-engine": "Lead Engine",
+                "/admin/alex": "Alex AI Dashboard",
+              };
+              const pageLabel = ADMIN_ROUTE_LABELS[route] || route.replace("/admin/", "").replace(/-/g, " ");
+
+              const systemPrompt = `You are Nexora, the internal AI admin copilot for The Corporate Desk (thecorporatedesk.com.au). You are a senior commercial office intelligence assistant operating exclusively within the admin environment.
+
+CURRENT ADMIN PAGE: ${pageLabel} (${route})
+
+=== LIVE SYSTEM DATA (as of right now) ===
+Partner referrals (last 20):
+${allReferrals.map(r => `- ${r.clientCompany || "Unknown"} | ${r.officeLocation || "?"} | $${(r.estimatedValue || 0).toLocaleString()} | status: ${r.status} | AI score: ${r.aiFitScore ?? "unscored"} | created: ${new Date(r.createdAt).toLocaleDateString("en-AU")}`).join("\n")}
+
+Stale referrals (3+ days, unactioned): ${staleReferrals.length}
+${staleReferrals.map(r => `- ${r.clientCompany} | ${r.status}`).join("\n")}
+
+High-value referrals ($100k+): ${highValueReferrals.length}
+${highValueReferrals.map(r => `- ${r.clientCompany} | $${(r.estimatedValue || 0).toLocaleString()} | score: ${r.aiFitScore ?? "unscored"}`).join("\n")}
+
+Partners in network: ${allPartners.length}
+${allPartners.map(p => `- ${p.companyName} | ${p.partnerType} | status: ${p.activeStatus || p.onboardingStatus}`).join("\n")}
+
+Commissions:
+- Pending: ${pendingCommissions.length} (total: $${totalPendingCommissionValue.toLocaleString()})
+- Paid: ${paidCommissions.length}
+
+=== YOUR ROLE ===
+- Summarise what's happening on the current admin page
+- Identify hot opportunities, stale leads, commission risks
+- Suggest next best admin actions
+- Answer questions about the data above
+- Be direct, commercial, and actionable
+- Never make assumptions — use only the data above
+
+=== SAFE ACTION MODEL (CRITICAL) ===
+- You may SUGGEST actions (e.g. "You should mark this referral as reviewing")
+- You may NOT silently mutate data, mark deals won/lost/paid, or perform any destructive action
+- If the admin wants to take an action, instruct them clearly on which button to click in the interface
+- For AI re-scoring, stale lead follow-up, or commission audits, recommend using the "Run System" button in /admin/nexora
+
+=== TONE & STYLE ===
+- Professional, direct, data-first
+- No filler phrases like "Certainly!" or "Great question!"
+- If you don't know something, say so clearly — do not fabricate data
+- 2–4 sentences per response unless a detailed breakdown is requested`;
+
+              const AI_KEY = process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
+              const AI_BASE = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL;
+              if (!AI_KEY || !AI_BASE) return res.status(503).json({ error: "AI not configured" });
+
+              const OpenAI = (await import("openai")).default;
+              const openai = new OpenAI({ apiKey: AI_KEY, baseURL: AI_BASE });
+
+              const completion = await openai.chat.completions.create({
+                model: "gpt-4o",
+                messages: [
+                  { role: "system", content: systemPrompt },
+                  ...messages.slice(-12), // keep last 12 turns
+                ],
+                temperature: 0.4,
+                max_tokens: 600,
+              });
+
+              const response = completion.choices[0]?.message?.content || "No response generated.";
+              res.json({ response });
+            } catch (err: any) {
+              console.error("[NexoraCopilot] Error:", err.message);
+              res.status(500).json({ error: err.message });
+            }
+          });
+
           // ── Admin: Run System (full reprocessing loop) ─────────────────────────
           app.post("/api/system/run", async (_req, res) => {
             const startedAt = Date.now();

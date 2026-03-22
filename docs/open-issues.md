@@ -82,3 +82,4 @@
 | Admin Run System button missing | Added `POST /api/system/run` backend route + "Run System" button in Admin Nexora with results panel | Mar 2026 |
 | No unified intake entry point | Created `/start` page with 6 path cards + quick enquiry form; header CTA updated to "Get Started → /start" | Mar 2026 |
 | AI scores not verified as dynamic | Confirmed: ANZ ($435k) scored 95, Small Gym Startup ($8k) scored 65 — scores are real and differentiated | Mar 2026 |
+| No admin-side AI copilot | Built NexoraCopilot — persistent floating bubble on all 30+ admin routes, route-aware, real data, safe action model | Mar 2026 |
