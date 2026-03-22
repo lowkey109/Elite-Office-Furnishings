@@ -66,33 +66,50 @@ import Partners from "@/pages/Partners";
 import SubmitDeal from "@/pages/SubmitDeal";
 import TradeCustomersPortal from "@/pages/TradeCustomersPortal";
 import Start from "@/pages/Start";
+import Capability from "@/pages/Capability";
+import AdminCatalogStaging from "@/pages/AdminCatalogStaging";
 import { usePageTracking } from "@/lib/usePageTracking";
+import { Redirect } from "wouter";
 
 function Router() {
   usePageTracking();
   return (
     <Switch>
+      {/* ── 4 Core Public Pages ─────────────────────────── */}
       <Route path="/" component={Home} />
-      <Route path="/about" component={About} />
+      <Route path="/start" component={Start} />
+      <Route path="/partners" component={Partners} />
+      <Route path="/capability" component={Capability} />
+
+      {/* Catalog — still needed for browsing */}
       <Route path="/products/:sku" component={ProductDetail} />
       <Route path="/products" component={Products} />
-      <Route path="/workplace-solutions" component={WorkplaceSolutions} />
-      <Route path="/free-office-layout-plan" component={FreeLayoutPlan} />
-      <Route path="/send-us-your-quote" component={SendQuote} />
-      <Route path="/workplace-strategy" component={WorkplaceStrategy} />
-      <Route path="/quote-builder" component={QuoteBuilder} />
-      <Route path="/finance-your-workspace" component={FinanceWorkspace} />
-      <Route path="/case-studies" component={CaseStudies} />
-      <Route path="/upload-your-floor-plan" component={UploadFloorPlan} />
-      <Route path="/ai-workspace-design" component={WorkspaceDesignEngine} />
-      <Route path="/3d-office-walkthrough" component={OfficeWalkthrough} />
+
+      {/* Embed routes for WordPress — keep as-is */}
+      <Route path="/embed/quote-builder" component={QuoteBuilder} />
+      <Route path="/embed/finance-your-workspace" component={FinanceWorkspace} />
+
+      {/* Thank-you pages */}
       <Route path="/thank-you-layout-plan" component={ThankYouLayoutPlan} />
       <Route path="/thank-you-quote" component={ThankYouQuote} />
       <Route path="/thank-you-strategy" component={ThankYouStrategy} />
-      <Route path="/contact" component={Contact} />
-      <Route path="/testimonials" component={Testimonials} />
-      <Route path="/blog/:slug" component={BlogPost} />
-      <Route path="/blog" component={Blog} />
+
+      {/* ── Redirects — consolidated pages ─────────────── */}
+      <Route path="/about">{() => <Redirect to="/" />}</Route>
+      <Route path="/contact">{() => <Redirect to="/start" />}</Route>
+      <Route path="/case-studies">{() => <Redirect to="/capability" />}</Route>
+      <Route path="/testimonials">{() => <Redirect to="/capability" />}</Route>
+      <Route path="/blog/:slug">{() => <Redirect to="/start" />}</Route>
+      <Route path="/blog">{() => <Redirect to="/start" />}</Route>
+      <Route path="/workplace-solutions">{() => <Redirect to="/capability" />}</Route>
+      <Route path="/workplace-strategy">{() => <Redirect to="/capability" />}</Route>
+      <Route path="/free-office-layout-plan">{() => <Redirect to="/start" />}</Route>
+      <Route path="/send-us-your-quote">{() => <Redirect to="/start" />}</Route>
+      <Route path="/upload-your-floor-plan">{() => <Redirect to="/start" />}</Route>
+      <Route path="/ai-workspace-design">{() => <Redirect to="/start" />}</Route>
+      <Route path="/3d-office-walkthrough">{() => <Redirect to="/start" />}</Route>
+      <Route path="/quote-builder">{() => <Redirect to="/start" />}</Route>
+      <Route path="/finance-your-workspace">{() => <Redirect to="/start" />}</Route>
       {/* Embed routes — no header/footer/chatbot, safe for WordPress iframes */}
       <Route path="/embed/quote-builder" component={QuoteBuilder} />
       <Route path="/embed/finance-your-workspace" component={FinanceWorkspace} />
@@ -141,10 +158,9 @@ function Router() {
       <Route path="/admin/alex" component={AdminAlexDashboard} />
       <Route path="/admin/nexora" component={AdminNexoraCommandCentre} />
       <Route path="/admin/partners" component={AdminPartners} />
-      <Route path="/partners" component={Partners} />
+      <Route path="/admin/catalog-staging" component={AdminCatalogStaging} />
       <Route path="/submit-deal" component={SubmitDeal} />
       <Route path="/trade-customers-portal" component={TradeCustomersPortal} />
-      <Route path="/start" component={Start} />
       <Route path="/partner/dashboard" component={PartnerDashboard} />
       <Route path="/partner/login" component={PartnerOnboarding} />
       <Route component={NotFound} />

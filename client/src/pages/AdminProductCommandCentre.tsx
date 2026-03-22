@@ -225,6 +225,13 @@ export default function AdminProductCommandCentre() {
               <Package className="w-4 h-4 text-[hsl(43,78%,52%)]" /> AI Product Command Centre
             </h1>
           </div>
+          <a
+            href="/admin/catalog-staging"
+            className="ml-3 px-3 py-1 border border-[hsl(43,78%,52%)]/30 text-[hsl(43,78%,52%)]/70 hover:text-[hsl(43,78%,52%)] text-xs flex items-center gap-1.5 whitespace-nowrap"
+            data-testid="link-catalog-staging"
+          >
+            <Upload className="w-3 h-3" /> Catalog Staging
+          </a>
           <div className="flex items-center gap-1 ml-auto overflow-x-auto">
             {TABS.map(tab => {
               const Icon = tab.icon;

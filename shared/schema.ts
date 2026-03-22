@@ -2086,3 +2086,52 @@ export const alexCompanyRuns = pgTable("alex_company_runs", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 export type AlexCompanyRun = typeof alexCompanyRuns.$inferSelect;
+
+// ─── Catalog Staging System ───────────────────────────────────────────────────
+// Safe staging area for catalog image uploads. Nothing goes live until approved.
+
+export const catalogStagingBatches = pgTable("catalog_staging_batches", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  notes: text("notes"),
+  status: text("status").notNull().default("open"), // open|review|approved|closed
+  totalImages: integer("total_images").default(0),
+  approvedImages: integer("approved_images").default(0),
+  liveImages: integer("live_images").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertCatalogStagingBatchSchema = createInsertSchema(catalogStagingBatches).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertCatalogStagingBatch = z.infer<typeof insertCatalogStagingBatchSchema>;
+export type CatalogStagingBatch = typeof catalogStagingBatches.$inferSelect;
+
+export const catalogStagingItems = pgTable("catalog_staging_items", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  batchId: varchar("batch_id").notNull(),
+  filename: text("filename").notNull(),
+  imageUrl: text("image_url").notNull(),
+  // Editable metadata
+  sku: text("sku"),
+  productName: text("product_name"),
+  category: text("category"),
+  subcategory: text("subcategory"),
+  dimensions: text("dimensions"),
+  materials: text("materials"),
+  priceAud: text("price_aud"),
+  notes: text("notes"),
+  adminNotes: text("admin_notes"),
+  isDuplicate: boolean("is_duplicate").default(false),
+  duplicateOf: varchar("duplicate_of"),
+  // Status flow: uploaded → needs_review → approved → ready_for_website → live
+  status: text("status").notNull().default("uploaded"),
+  aiSuggestions: jsonb("ai_suggestions"), // AI-generated name/category/SKU hints
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+  reviewedAt: timestamp("reviewed_at"),
+  approvedAt: timestamp("approved_at"),
+  liveAt: timestamp("live_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertCatalogStagingItemSchema = createInsertSchema(catalogStagingItems).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertCatalogStagingItem = z.infer<typeof insertCatalogStagingItemSchema>;
+export type CatalogStagingItem = typeof catalogStagingItems.$inferSelect;

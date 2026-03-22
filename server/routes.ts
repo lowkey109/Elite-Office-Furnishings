@@ -1,6 +1,6 @@
 import express from "express";
 import { generateRelocationSignals, getMarketIntelligence, pushRelocationToPipeline } from "./services/relocationIntelligence";
-import { desc } from "drizzle-orm";
+import { desc, sql, inArray } from "drizzle-orm";
 import { nexoraRuns } from "@shared/schema";
 import { db } from "./db";
 import { generateStrategyRecommendation, getLearningInsights } from "./services/workspaceStrategy";
@@ -8843,5 +8843,254 @@ Rules:
     <Message>${escapeXml(reply)}</Message>
   </Response>`);
   });
+  // ─── Catalog Staging System ─────────────────────────────────────────────────
+  // Safe image staging before publishing to live catalog.
+  // Status flow: uploaded → needs_review → approved → ready_for_website → live
+
+  app.get("/api/admin/catalog-staging/batches", async (_req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { catalogStagingBatches: csb, catalogStagingItems: csi } = await import("../shared/schema");
+      const batches = await ddb.select().from(csb).orderBy(desc(csb.createdAt));
+      // Enrich each batch with live item counts
+      const enriched = await Promise.all(batches.map(async (b) => {
+        const items = await ddb.select({ status: csi.status }).from(csi).where(sql`${csi.batchId} = ${b.id}`);
+        return {
+          ...b,
+          totalImages: items.length,
+          uploadedCount: items.filter(i => i.status === "uploaded").length,
+          needsReviewCount: items.filter(i => i.status === "needs_review").length,
+          approvedCount: items.filter(i => i.status === "approved").length,
+          readyCount: items.filter(i => i.status === "ready_for_website").length,
+          liveCount: items.filter(i => i.status === "live").length,
+        };
+      }));
+      res.json(enriched);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/catalog-staging/batches", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { catalogStagingBatches: csb } = await import("../shared/schema");
+      const { name, notes } = req.body;
+      if (!name) return res.status(400).json({ error: "name required" });
+      const [batch] = await ddb.insert(csb).values({ name, notes, status: "open" }).returning();
+      res.json(batch);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/catalog-staging/items", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { catalogStagingItems: csi } = await import("../shared/schema");
+      const { batchId, status } = req.query as Record<string, string>;
+      const conditions: any[] = [];
+      if (batchId) conditions.push(sql`${csi.batchId} = ${batchId}`);
+      if (status) conditions.push(sql`${csi.status} = ${status}`);
+      const items = conditions.length
+        ? await ddb.select().from(csi).where(sql`${conditions.map((c: any) => c).reduce((a: any, b: any) => sql`${a} AND ${b}`)}`).orderBy(csi.createdAt)
+        : await ddb.select().from(csi).orderBy(csi.createdAt);
+      res.json(items);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/catalog-staging/items/bulk", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { catalogStagingItems: csi } = await import("../shared/schema");
+      const { items } = req.body as { items: Array<{ batchId: string; filename: string; imageUrl: string; productName?: string; category?: string; sku?: string }> };
+      if (!Array.isArray(items) || items.length === 0) return res.status(400).json({ error: "items array required" });
+      const inserted = await ddb.insert(csi).values(items.map(i => ({
+        batchId: i.batchId,
+        filename: i.filename,
+        imageUrl: i.imageUrl,
+        productName: i.productName,
+        category: i.category,
+        sku: i.sku,
+        status: "uploaded",
+      }))).returning();
+      res.json({ inserted: inserted.length, items: inserted });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.patch("/api/admin/catalog-staging/items/:id", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { catalogStagingItems: csi } = await import("../shared/schema");
+      const { id } = req.params;
+      const { sku, productName, category, subcategory, dimensions, materials, priceAud, notes, adminNotes, status } = req.body;
+      const updates: Record<string, any> = { updatedAt: new Date() };
+      if (sku !== undefined) updates.sku = sku;
+      if (productName !== undefined) updates.productName = productName;
+      if (category !== undefined) updates.category = category;
+      if (subcategory !== undefined) updates.subcategory = subcategory;
+      if (dimensions !== undefined) updates.dimensions = dimensions;
+      if (materials !== undefined) updates.materials = materials;
+      if (priceAud !== undefined) updates.priceAud = priceAud;
+      if (notes !== undefined) updates.notes = notes;
+      if (adminNotes !== undefined) updates.adminNotes = adminNotes;
+      if (status !== undefined) {
+        updates.status = status;
+        if (status === "needs_review") updates.reviewedAt = new Date();
+        if (status === "approved") updates.approvedAt = new Date();
+        if (status === "live") updates.liveAt = new Date();
+      }
+      const [updated] = await ddb.update(csi).set(updates).where(sql`${csi.id} = ${id}`).returning();
+      if (!updated) return res.status(404).json({ error: "Item not found" });
+      res.json(updated);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/catalog-staging/items/:id/status", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { catalogStagingItems: csi } = await import("../shared/schema");
+      const { id } = req.params;
+      const { status } = req.body as { status: string };
+      const validStatuses = ["uploaded", "needs_review", "approved", "ready_for_website", "live"];
+      if (!validStatuses.includes(status)) return res.status(400).json({ error: "Invalid status" });
+      const updates: Record<string, any> = { status, updatedAt: new Date() };
+      if (status === "needs_review") updates.reviewedAt = new Date();
+      if (status === "approved") updates.approvedAt = new Date();
+      if (status === "ready_for_website") updates.approvedAt = new Date();
+      if (status === "live") updates.liveAt = new Date();
+      const [updated] = await ddb.update(csi).set(updates).where(sql`${csi.id} = ${id}`).returning();
+      if (!updated) return res.status(404).json({ error: "Item not found" });
+      res.json(updated);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/catalog-staging/items/:id/ai-suggest", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { catalogStagingItems: csi } = await import("../shared/schema");
+      const { id } = req.params;
+      const [item] = await ddb.select().from(csi).where(sql`${csi.id} = ${id}`).limit(1);
+      if (!item) return res.status(404).json({ error: "Item not found" });
+      const { AI_INTEGRATIONS_OPENAI_API_KEY, AI_INTEGRATIONS_OPENAI_BASE_URL } = process.env;
+      if (!AI_INTEGRATIONS_OPENAI_API_KEY) return res.status(503).json({ error: "AI not configured" });
+      const openai = new OpenAI({ apiKey: AI_INTEGRATIONS_OPENAI_API_KEY, baseURL: AI_INTEGRATIONS_OPENAI_BASE_URL });
+      const prompt = `You are a premium office furniture product cataloguer for The Corporate Desk, an Australian commercial furniture brand.
+Image filename: ${item.filename}
+Existing metadata: name="${item.productName || "unknown"}", category="${item.category || "unknown"}"
+
+Based on the filename pattern and context, suggest:
+1. A premium product name (e.g. "Boardroom Executive Desk — Walnut & Matte Black")
+2. A category from: Executive Desks | L-Shape Desks | Workstations | Chairs | Storage | Meeting Tables | Accessories
+3. A likely SKU code (e.g. TCD-EXEC-2400-WN)
+4. Typical Australian commercial price range (AUD)
+5. Common dimensions for this type of product
+
+Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...", "priceAud": "...", "dimensions": "..." }`;
+      const resp = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+        max_tokens: 300,
+      });
+      const suggestions = JSON.parse(resp.choices[0].message.content || "{}");
+      await ddb.update(csi).set({ aiSuggestions: suggestions, updatedAt: new Date() }).where(sql`${csi.id} = ${id}`);
+      res.json({ suggestions, item: { ...item, aiSuggestions: suggestions } });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/catalog-staging/batch/:batchId/approve-all", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { catalogStagingItems: csi } = await import("../shared/schema");
+      const { batchId } = req.params;
+      await ddb.update(csi).set({ status: "approved", approvedAt: new Date(), updatedAt: new Date() })
+        .where(sql`${csi.batchId} = ${batchId} AND ${csi.status} != 'live'`);
+      const items = await ddb.select().from(csi).where(sql`${csi.batchId} = ${batchId}`);
+      res.json({ approved: items.filter(i => i.status === "approved").length, total: items.length });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/catalog-staging/batch/:batchId/detect-duplicates", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { catalogStagingItems: csi } = await import("../shared/schema");
+      const { batchId } = req.params;
+      const items = await ddb.select().from(csi).where(sql`${csi.batchId} = ${batchId}`);
+      // Simple duplicate detection: same productName (case-insensitive) or same SKU
+      const nameGroups: Record<string, string[]> = {};
+      const skuGroups: Record<string, string[]> = {};
+      for (const item of items) {
+        if (item.productName) {
+          const key = item.productName.toLowerCase().trim();
+          if (!nameGroups[key]) nameGroups[key] = [];
+          nameGroups[key].push(item.id);
+        }
+        if (item.sku) {
+          const key = item.sku.toLowerCase().trim();
+          if (!skuGroups[key]) skuGroups[key] = [];
+          skuGroups[key].push(item.id);
+        }
+      }
+      const duplicates: string[] = [];
+      for (const ids of Object.values(nameGroups)) {
+        if (ids.length > 1) duplicates.push(...ids.slice(1));
+      }
+      for (const ids of Object.values(skuGroups)) {
+        if (ids.length > 1) duplicates.push(...ids.filter(id => !duplicates.includes(id)).slice(1));
+      }
+      if (duplicates.length > 0) {
+        await ddb.update(csi).set({ isDuplicate: true, updatedAt: new Date() })
+          .where(sql`${csi.id} IN (${sql.join(duplicates.map(id => sql`${id}`), sql`, `)})`);
+      }
+      res.json({ duplicatesFound: duplicates.length, duplicateIds: duplicates });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/admin/catalog-staging/seed-batch — seed the uploaded images as a new batch
+  app.post("/api/admin/catalog-staging/seed-batch", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { catalogStagingBatches: csb, catalogStagingItems: csi } = await import("../shared/schema");
+      const { batchName } = req.body;
+      // Check if seed batch already exists
+      const existing = await ddb.select().from(csb).where(sql`${csb.name} = ${batchName || "Batch 1 — March 2026 Upload"}`).limit(1);
+      if (existing.length > 0) return res.json({ alreadyExists: true, batchId: existing[0].id });
+      const [batch] = await ddb.insert(csb).values({
+        name: batchName || "Batch 1 — March 2026 Upload",
+        notes: "Initial catalog image upload. 20 executive desk and office setup images. Awaiting SKU matching, category assignment and final approval before going live.",
+        status: "open",
+      }).returning();
+      const imageData = [
+        { num: 5,  hint: "Executive L-Shape Desk — Dark Walnut with City View", cat: "Executive Desks" },
+        { num: 6,  hint: "Contemporary Director Desk — Light Walnut A-Frame Base", cat: "Executive Desks" },
+        { num: 7,  hint: "Executive L-Shape Workstation — Walnut & Graphite with Credenza", cat: "L-Shape Desks" },
+        { num: 8,  hint: "Executive L-Shape Desk — Warm Walnut with Under-Desk LED", cat: "L-Shape Desks" },
+        { num: 9,  hint: "Director Desk — Natural Walnut with Angled Steel Base", cat: "Executive Desks" },
+        { num: 10, hint: "Executive Boardroom Desk — Walnut with Monolith Legs", cat: "Executive Desks" },
+        { num: 12, hint: "Executive Desk — Walnut with Cylinder Pedestal Base & Amber Chair", cat: "Executive Desks" },
+        { num: 13, hint: "Executive Boardroom Desk — Dark Walnut with Capsule Panels", cat: "Executive Desks" },
+        { num: 14, hint: "Executive Desk — Walnut with X-Cross Steel Frame & iMac", cat: "Executive Desks" },
+        { num: 15, hint: "Executive Desk — Walnut Oval Top with Beige Chair", cat: "Executive Desks" },
+        { num: 16, hint: "Director Desk — Walnut Oval Top with Acrylic Leg & Wood Block", cat: "Executive Desks" },
+        { num: 17, hint: "Executive Desk — Walnut Oval Top with Curved Steel Leg & Charcoal Chair", cat: "Executive Desks" },
+        { num: 18, hint: "Executive Desk — Walnut Oval Top with Open Frame Steel Base & Amber Chair", cat: "Executive Desks" },
+        { num: 19, hint: "Executive Desk — Walnut X-Base with Beige Chair", cat: "Executive Desks" },
+        { num: 20, hint: "Executive Desk — Walnut with Matte Graphite Panels & Charcoal Chair", cat: "Executive Desks" },
+        { num: 21, hint: "Executive Desk — Walnut with Cylinder Black Leg & Amber Chair", cat: "Executive Desks" },
+        { num: 22, hint: "Executive Desk — Walnut with Concrete-Grey Plinth Base & Black Chair", cat: "Executive Desks" },
+        { num: 23, hint: "Executive Desk — Walnut with Matte Black Monolith Legs & City View", cat: "Executive Desks" },
+        { num: 24, hint: "Executive Desk — Walnut Oval Floating Top with Sage Plinth", cat: "Executive Desks" },
+        { num: 25, hint: "Executive Curved Desk — Walnut Semi-Circle with Visitor Seating", cat: "Meeting Tables" },
+      ];
+      const insertRows = imageData.map(d => ({
+        batchId: batch.id,
+        filename: `img-${d.num}.jpg`,
+        imageUrl: `/catalog-staging/img-${d.num}.jpg`,
+        productName: d.hint,
+        category: d.cat,
+        status: "uploaded" as const,
+      }));
+      const inserted = await ddb.insert(csi).values(insertRows).returning();
+      res.json({ batch, inserted: inserted.length });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
   return httpServer;
 }
