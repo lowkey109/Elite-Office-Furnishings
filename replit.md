@@ -8,6 +8,18 @@ I prefer iterative development with clear, modular code. Before making any major
 
 ## New Major Features (March 2026 — Latest Build)
 
+### Premium Live Product Catalog (Catalog Activation)
+- **231 real products** extracted from 3 supplier ZIPs and organized into `catalog-images/` directory
+- **Image pipeline**: `TCDcatalog.zip` → office-furniture (76 images) + traditional-series (89 images); `TCD_Reception.zip` → reception-seating (66 images)
+- **Image storage**: `catalog-images/{category}/{sku}.{ext}` served statically via Express at `/catalog/*`
+- **Database**: `catalog_products` table — 231 products with sku, name, category, image_url; `catalog_config` table — `catalogReady=true`
+- **Product names**: Descriptive category-appropriate names (e.g. "Open Plan Workstation", "Executive Writing Desk", "Reception Counter")
+- **Catalog UI** (`/catalog`): Premium dark-theme page with hero header, sticky category filter bar, search, lazy-loaded product grid (5 cols), product detail modal, enquiry CTA
+- **Category pages**: `/catalog/office-furniture`, `/catalog/traditional-series`, `/catalog/reception-seating`
+- **API**: `GET /api/catalog/products?category=X&search=Y&limit=N`, `GET /api/catalog/categories`, `GET /api/catalog/config`, `GET /api/catalog/products/:sku`
+- **Admin toggle**: `PATCH /api/admin/catalog/config` — switch `catalogReady` on/off
+- **Ingestion**: New ZIPs can be added via `catalog-images/` directory; admin upload pipeline at `/api/admin/catalog/upload` re-seeds from ZIP
+
 ### Nexora Autonomous Loop Engine
 - Single source of truth: `runNexoraCycle(trigger)` in `server/services/nexoraLoop.ts`
 - Two scheduling mechanisms: pg-boss 30-min durable queue + in-memory interval loop

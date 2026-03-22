@@ -105,7 +105,7 @@ function ProductCard({ product, onClick }: ProductCardProps) {
           </p>
           <p className="text-xs font-mono text-zinc-400 mb-1">{product.sku}</p>
           <p className="text-sm text-zinc-200 font-light leading-tight line-clamp-2 group-hover:text-white transition-colors">
-            {product.name.split(" — ")[1] ?? product.name}
+            {product.name}
           </p>
         </div>
       </div>
@@ -174,7 +174,7 @@ function ProductModal({ product, onClose }: ProductModalProps) {
               {meta.label}
             </p>
             <h2 className="text-xl font-light text-white mb-2 leading-snug">
-              {product.name.split(" — ")[1] ?? product.name}
+              {product.name}
             </h2>
             <p className="font-mono text-sm text-zinc-400 mb-6">SKU: {product.sku}</p>
 
