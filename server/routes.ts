@@ -8317,6 +8317,102 @@ Rules:
     }
   });
 
+  // ── OUTREACH SAFETY: Suppression Management ─────────────────────────────────
+
+  // GET /api/admin/outreach/suppressions — list all active suppressions
+  app.get("/api/admin/outreach/suppressions", async (_req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { outreachSuppressions: os } = await import("../shared/schema");
+      const rows = await ddb.select().from(os).orderBy(sql`created_at DESC`).limit(200);
+      res.json(rows);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/admin/outreach/suppressions — add a suppression
+  app.post("/api/admin/outreach/suppressions", async (req, res) => {
+    try {
+      const { suppressCompany, suppressRecipient } = await import("./services/outreach/outreach-guards");
+      const { scope, companyName, recipientEmail, reason, note, campaignKey, expiresInDays } = req.body;
+      const expiresAt = expiresInDays ? new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000) : undefined;
+      if (scope === "company" && companyName) {
+        await suppressCompany({ companyName, reason, note, campaignKey, expiresAt });
+        res.json({ success: true, message: `Company "${companyName}" suppressed` });
+      } else if ((scope === "recipient" || scope === "email") && recipientEmail) {
+        await suppressRecipient({ recipientEmail, companyName, reason, note, campaignKey, expiresAt });
+        res.json({ success: true, message: `Recipient "${recipientEmail}" suppressed` });
+      } else {
+        res.status(400).json({ error: "scope (company|recipient), companyName or recipientEmail, and reason are required" });
+      }
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // DELETE /api/admin/outreach/suppressions/:id — lift a suppression
+  app.delete("/api/admin/outreach/suppressions/:id", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { outreachSuppressions: os } = await import("../shared/schema");
+      const { eq } = await import("drizzle-orm");
+      await ddb.update(os).set({ active: 0 }).where(eq(os.id, req.params.id));
+      res.json({ success: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/admin/outreach/audit — audit event trail
+  app.get("/api/admin/outreach/audit", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { outreachAuditEvents: oae } = await import("../shared/schema");
+      const limit = Math.min(parseInt((req.query.limit as string) ?? "100"), 500);
+      const rows = await ddb.select().from(oae).orderBy(sql`${oae.createdAt} DESC`).limit(limit);
+      res.json(rows);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/admin/outreach/job-locks — view job lock status
+  app.get("/api/admin/outreach/job-locks", async (_req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { outreachJobs: oj } = await import("../shared/schema");
+      const rows = await ddb.select().from(oj).orderBy(sql`updated_at DESC`);
+      res.json(rows);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/admin/outreach/safety-stats — production safety dashboard numbers
+  app.get("/api/admin/outreach/safety-stats", async (_req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { outreachMessages: om, outreachSuppressions: os, outreachAuditEvents: oae } = await import("../shared/schema");
+      const { eq } = await import("drizzle-orm");
+
+      const [messages, suppressions, auditEvents] = await Promise.all([
+        ddb.select({ deliveryStatus: om.deliveryStatus }).from(om),
+        ddb.select({ active: os.active }).from(os),
+        ddb.select({ eventType: oae.eventType }).from(oae),
+      ]);
+
+      const msgStats: Record<string, number> = {};
+      for (const m of messages) msgStats[m.deliveryStatus] = (msgStats[m.deliveryStatus] || 0) + 1;
+
+      const activeSuppressions = suppressions.filter(s => s.active === 1).length;
+
+      const auditStats: Record<string, number> = {};
+      for (const a of auditEvents) auditStats[a.eventType] = (auditStats[a.eventType] || 0) + 1;
+
+      res.json({
+        messages: msgStats,
+        activeSuppressions,
+        auditEventsByType: auditStats,
+        totalAuditEvents: auditEvents.length,
+        deduplicatesPrevented: auditStats["dedup_prevented"] ?? 0,
+        rateLimitBlocks: auditStats["rate_limited"] ?? 0,
+        safeModeBlocks: auditStats["safe_mode_blocked"] ?? 0,
+        cooldownBlocks: auditStats["cooldown_blocked"] ?? 0,
+      });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
   // POST /api/admin/outreach/flush-send — immediately run outreach send cycle (no pg-boss delay)
   app.post("/api/admin/outreach/flush-send", async (req, res) => {
     const LIVE_MODE = process.env.SAFE_MODE === "false";

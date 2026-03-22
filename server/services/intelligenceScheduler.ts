@@ -405,140 +405,120 @@ async function registerPgBossWorkers(): Promise<void> {
   });
 
   await registerWorker(QUEUES.OUTREACH_SEND, async () => {
-    const LIVE_MODE = process.env.SAFE_MODE === "false";
-    const { db } = await import("../db");
-    const { outreachMessages, outreachThreads, outreachEvents } = await import("@shared/schema");
-    const { and, eq } = await import("drizzle-orm");
-    const { resolveProspectEmail } = await import("./outreach/prospectEmailResolver");
+    // ── SAFETY GATE: acquire persistent job lock before processing ──
+    // If a lock is already held by another run, this worker silently exits.
+    // This prevents concurrent scheduler triggers from duplicating sends.
+    const { runLockedJob } = await import("./outreach/outreach-job-runner");
+    await runLockedJob("outreach.send", "send_pipeline", async () => {
+      const { db } = await import("../db");
+      const { outreachMessages, outreachThreads, outreachEvents } = await import("@shared/schema");
+      const { and, eq } = await import("drizzle-orm");
+      const { resolveProspectEmail } = await import("./outreach/prospectEmailResolver");
+      const { sendOutreachSafely } = await import("./outreach/outreach-gateway");
 
-    // Find draft outbound messages attached to active threads
-    const drafts = await db
-      .select({
-        msgId: outreachMessages.id,
-        threadId: outreachMessages.threadId,
-        subject: outreachMessages.subject,
-        body: outreachMessages.body,
-        contactId: outreachThreads.contactId,
-        companyName: outreachThreads.companyName,
-        companyId: outreachThreads.companyId,
-      })
-      .from(outreachMessages)
-      .innerJoin(outreachThreads, eq(outreachMessages.threadId, outreachThreads.id))
-      .where(
-        and(
-          eq(outreachMessages.deliveryStatus, "draft"),
-          eq(outreachMessages.direction, "outbound"),
-          eq(outreachThreads.status, "active")
+      // Find draft outbound messages attached to active threads
+      // Skip any that are already locked/sending/sent — they are mid-flight
+      const drafts = await db
+        .select({
+          msgId: outreachMessages.id,
+          threadId: outreachMessages.threadId,
+          subject: outreachMessages.subject,
+          body: outreachMessages.body,
+          contactId: outreachThreads.contactId,
+          companyName: outreachThreads.companyName,
+          companyId: outreachThreads.companyId,
+        })
+        .from(outreachMessages)
+        .innerJoin(outreachThreads, eq(outreachMessages.threadId, outreachThreads.id))
+        .where(
+          and(
+            eq(outreachMessages.deliveryStatus, "draft"),
+            eq(outreachMessages.direction, "outbound"),
+            eq(outreachThreads.status, "active")
+          )
         )
-      )
-      .limit(20);
+        .limit(5); // conservative batch — gateway has its own rate limiting
 
-    let sent = 0;
-    let blocked = 0;
-    let failed = 0;
+      let sent = 0;
+      let blocked = 0;
+      let failed = 0;
+      let suppressed = 0;
+      let deduplicated = 0;
 
-    for (const draft of drafts) {
-      try {
-        // STEP 1: Resolve prospect email via central resolver — NEVER fallback to internal
-        const resolved = await resolveProspectEmail({
-          companyId: draft.companyId,
-          contactId: draft.contactId ?? null,
-        });
-
-        if (!resolved.resolvedEmail || resolved.sourceType === "blocked") {
-          // NO valid external email — block the send, log the reason
-          const reason = resolved.blockingReason ?? "No valid external prospect email found";
-          console.warn(`[OutreachSend] BLOCKED — ${draft.companyName}: ${reason}`);
-
-          await db.update(outreachMessages)
-            .set({
-              deliveryStatus: "blocked",
-              blockingReason: reason,
-              emailSourceType: "blocked",
-            })
-            .where(eq(outreachMessages.id, draft.msgId));
-
-          await db.update(outreachThreads)
-            .set({ contactReadiness: "NEEDS_CONTACT", updatedAt: new Date() })
-            .where(eq(outreachThreads.id, draft.threadId));
-
-          await db.insert(outreachEvents).values({
-            threadId: draft.threadId,
-            eventType: "blocked",
-            payloadJson: JSON.stringify({ messageId: draft.msgId, reason }),
+      for (const draft of drafts) {
+        try {
+          // STEP 1: Resolve prospect email — NEVER fallback to internal addresses
+          const resolved = await resolveProspectEmail({
+            companyId: draft.companyId,
+            contactId: draft.contactId ?? null,
           });
 
-          blocked++;
-          continue;
-        }
+          if (!resolved.resolvedEmail || resolved.sourceType === "blocked") {
+            const reason = resolved.blockingReason ?? "No valid external prospect email found";
+            console.warn(`[OutreachSend] BLOCKED — ${draft.companyName}: ${reason}`);
 
-        // STEP 2: Valid external email found — send if in LIVE_MODE
-        const toEmail = resolved.resolvedEmail;
+            await db.update(outreachMessages)
+              .set({ deliveryStatus: "blocked", blockingReason: reason, emailSourceType: "blocked", updatedAt: new Date() })
+              .where(eq(outreachMessages.id, draft.msgId));
 
-        if (LIVE_MODE && draft.subject && draft.body) {
-          const { sendOutreachEmail } = await import("../email");
-          const sendResult = await sendOutreachEmail({
-            to: toEmail,
-            subject: draft.subject,
-            html: draft.body,
-            companyName: draft.companyName,
-          });
-          console.log(`[OutreachSend] ✓ SENT to ${toEmail} (${resolved.sourceType}) — ${draft.companyName}`);
+            await db.update(outreachThreads)
+              .set({ contactReadiness: "NEEDS_CONTACT", updatedAt: new Date() })
+              .where(eq(outreachThreads.id, draft.threadId));
 
-          await db.update(outreachMessages)
-            .set({
-              deliveryStatus: "sent",
-              sentAt: new Date(),
-              recipientEmail: toEmail,
-              emailSourceType: resolved.sourceType,
-              resendMessageId: (sendResult as any)?.id ?? null,
-            })
-            .where(eq(outreachMessages.id, draft.msgId));
-        } else {
-          // SAFE_MODE — log but don't send; still track the target
-          console.log(`[OutreachSend] SAFE_MODE — suppressed send to ${toEmail} (${resolved.sourceType}) for ${draft.companyName}`);
-          await db.update(outreachMessages)
-            .set({
-              deliveryStatus: "sent",
-              sentAt: new Date(),
-              recipientEmail: toEmail,
-              emailSourceType: resolved.sourceType,
-              blockingReason: LIVE_MODE ? null : "SAFE_MODE — send suppressed",
-            })
-            .where(eq(outreachMessages.id, draft.msgId));
-        }
+            await db.insert(outreachEvents).values({
+              threadId: draft.threadId,
+              eventType: "blocked",
+              payloadJson: JSON.stringify({ messageId: draft.msgId, reason }),
+            });
 
-        await db.update(outreachThreads)
-          .set({
-            contactReadiness: "READY_TO_CONTACT",
-            resolvedEmail: toEmail,
-            resolvedEmailSource: resolved.sourceType,
-            updatedAt: new Date(),
-          })
-          .where(eq(outreachThreads.id, draft.threadId));
+            blocked++;
+            continue;
+          }
 
-        await db.insert(outreachEvents).values({
-          threadId: draft.threadId,
-          eventType: "sent",
-          payloadJson: JSON.stringify({
+          const toEmail = resolved.resolvedEmail;
+
+          // STEP 2: Route through safety gateway — ALL checks run inside
+          // Gateway handles: suppression, dedup, cooldown, rate limits, safe mode, locking, audit
+          const result = await sendOutreachSafely({
             messageId: draft.msgId,
+            companyName: draft.companyName,
             recipientEmail: toEmail,
-            sourceType: resolved.sourceType,
-            liveMode: LIVE_MODE,
-          }),
-        });
+            subject: draft.subject ?? `Partnership Opportunity — ${draft.companyName}`,
+            html: draft.body,
+            campaignKey: "supplier-outreach",
+            stage: 0,
+          });
 
-        sent++;
-      } catch (e) {
-        console.error(`[OutreachSend] Failed to send message ${draft.msgId}:`, e);
-        await db.update(outreachMessages)
-          .set({ deliveryStatus: "failed", blockingReason: (e as any)?.message ?? "Unknown error" })
-          .where(eq(outreachMessages.id, draft.msgId));
-        failed++;
+          if (result.sent) {
+            await db.update(outreachThreads)
+              .set({ contactReadiness: "READY_TO_CONTACT", resolvedEmail: toEmail, resolvedEmailSource: resolved.sourceType, updatedAt: new Date() })
+              .where(eq(outreachThreads.id, draft.threadId));
+
+            await db.insert(outreachEvents).values({
+              threadId: draft.threadId,
+              eventType: "sent",
+              payloadJson: JSON.stringify({ messageId: draft.msgId, recipientEmail: toEmail, sourceType: resolved.sourceType }),
+            });
+            sent++;
+          } else if (result.suppressed) {
+            suppressed++;
+          } else if (result.deduplicated) {
+            deduplicated++;
+          } else {
+            blocked++;
+          }
+
+        } catch (e) {
+          console.error(`[OutreachSend] Unexpected error for message ${draft.msgId}:`, e);
+          await db.update(outreachMessages)
+            .set({ deliveryStatus: "failed", lastError: (e as any)?.message?.slice(0, 500) ?? "Unknown error", updatedAt: new Date() })
+            .where(eq(outreachMessages.id, draft.msgId));
+          failed++;
+        }
       }
-    }
 
-    console.log(`[OutreachSend] Processed: ${sent} sent, ${blocked} blocked (no contact), ${failed} failed (LIVE_MODE: ${LIVE_MODE})`);
+      console.log(`[OutreachSend] Cycle done — sent:${sent} blocked:${blocked} suppressed:${suppressed} dedup:${deduplicated} failed:${failed}`);
+    });
   });
 
   await registerWorker(QUEUES.OUTREACH_FOLLOWUP, async (job) => {

@@ -1476,23 +1476,93 @@ export const outreachMessages = pgTable("outreach_messages", {
   body: text("body").notNull(),
   stage: integer("stage").notNull().default(0),
   messageType: text("message_type").notNull().default("intro"), // intro|followup|final|forward_request|reply
-  deliveryStatus: text("delivery_status").notNull().default("draft"), // draft|approved|queued|sent|failed|bounced|blocked
+  deliveryStatus: text("delivery_status").notNull().default("draft"), // draft|approved|queued|locked|sending|sent|failed|bounced|blocked|suppressed
+  // Safety fields — deduplication and audit
+  identityHash: text("identity_hash").unique(),     // hash(company+email+campaignKey) — DB-enforced dedup
+  companyName: text("company_name"),                // denormalized for suppression lookups
+  campaignKey: text("campaign_key"),                // campaign identifier
   recipientEmail: text("recipient_email"),          // actual email used — null means not sent
   emailSourceType: text("email_source_type"),       // contact_direct|company_generic|generic_fallback|blocked
   blockingReason: text("blocking_reason"),          // why send was blocked (if deliveryStatus=blocked)
+  suppressionReason: text("suppression_reason"),    // why this message is suppressed
   resendMessageId: text("resend_message_id"),       // Resend provider message ID
+  lastError: text("last_error"),                    // last error message if failed
   approvedAt: timestamp("approved_at"),
+  lockedAt: timestamp("locked_at"),                 // when send lock was acquired
   sentAt: timestamp("sent_at"),
+  failedAt: timestamp("failed_at"),
   openedAt: timestamp("opened_at"),
   repliedAt: timestamp("replied_at"),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 }, (t) => ({
   idxMsgThread: index("idx_msg_thread_id").on(t.threadId),
   idxMsgStatus: index("idx_msg_delivery_status").on(t.deliveryStatus),
+  idxMsgCompany: index("idx_msg_company_name").on(t.companyName),
+  idxMsgIdentity: index("idx_msg_identity_hash").on(t.identityHash),
 }));
-export const insertOutreachMessageSchema = createInsertSchema(outreachMessages).omit({ id: true, createdAt: true });
+export const insertOutreachMessageSchema = createInsertSchema(outreachMessages).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertOutreachMessage = z.infer<typeof insertOutreachMessageSchema>;
 export type OutreachMessage = typeof outreachMessages.$inferSelect;
+
+// ── Outreach Suppressions — persistent suppression list ─────────────────────
+export const outreachSuppressions = pgTable("outreach_suppressions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  suppressionScope: text("suppression_scope").notNull().default("company"), // company|recipient|domain|global
+  companyName: text("company_name"),               // normalised company name
+  recipientEmail: text("recipient_email"),          // normalised email
+  campaignKey: text("campaign_key"),               // null = suppressed from all campaigns
+  reason: text("reason").notNull(),                // why suppressed (spam_incident|bounced|unsubscribed|manual|cooldown)
+  active: integer("active").notNull().default(1),  // 1=active, 0=lifted
+  note: text("note"),                              // admin note
+  createdAt: timestamp("created_at").defaultNow(),
+  expiresAt: timestamp("expires_at"),              // null = permanent
+}, (t) => ({
+  idxSupprCompany: index("idx_suppr_company").on(t.companyName, t.active),
+  idxSupprEmail: index("idx_suppr_email").on(t.recipientEmail, t.active),
+}));
+export const insertOutreachSuppressionSchema = createInsertSchema(outreachSuppressions).omit({ id: true, createdAt: true });
+export type InsertOutreachSuppression = z.infer<typeof insertOutreachSuppressionSchema>;
+export type OutreachSuppression = typeof outreachSuppressions.$inferSelect;
+
+// ── Outreach Jobs — persistent job locking ───────────────────────────────────
+export const outreachJobs = pgTable("outreach_jobs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  jobKey: text("job_key").notNull().unique(),      // e.g. "outreach.send" — one active lock at a time
+  jobType: text("job_type").notNull(),
+  status: text("status").notNull().default("idle"), // idle|running|completed|failed|stale
+  lockedBy: text("locked_by"),                     // process/worker identifier
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  lastRunAt: timestamp("last_run_at"),
+  errorMessage: text("error_message"),
+  runCount: integer("run_count").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertOutreachJobSchema = createInsertSchema(outreachJobs).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertOutreachJob = z.infer<typeof insertOutreachJobSchema>;
+export type OutreachJob = typeof outreachJobs.$inferSelect;
+
+// ── Outreach Audit Events — full decision trail ───────────────────────────────
+export const outreachAuditEvents = pgTable("outreach_audit_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  entityType: text("entity_type").notNull(),        // message|thread|suppression|job
+  entityId: text("entity_id"),
+  eventType: text("event_type").notNull(),          // queued|blocked|suppressed|locked|sent|failed|dedup_prevented|rate_limited|cooldown_blocked
+  companyName: text("company_name"),
+  recipientEmail: text("recipient_email"),
+  campaignKey: text("campaign_key"),
+  details: text("details"),                         // JSON string with full context
+  createdAt: timestamp("created_at").defaultNow(),
+}, (t) => ({
+  idxAuditEntity: index("idx_oa_entity").on(t.entityType, t.entityId),
+  idxAuditType: index("idx_oa_event_type").on(t.eventType),
+  idxAuditCreated: index("idx_oa_created_at").on(t.createdAt),
+}));
+export const insertOutreachAuditEventSchema = createInsertSchema(outreachAuditEvents).omit({ id: true, createdAt: true });
+export type InsertOutreachAuditEvent = z.infer<typeof insertOutreachAuditEventSchema>;
+export type OutreachAuditEvent = typeof outreachAuditEvents.$inferSelect;
 
 export const outreachSequences = pgTable("outreach_sequences", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
