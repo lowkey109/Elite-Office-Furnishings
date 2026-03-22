@@ -1,0 +1,187 @@
+PHASE 2 — CONNECT ROUTING INTO AI SYSTEM (LOOP EVERYTHING)
+
+The routing is now working.
+
+Now upgrade the system so it is NOT just pages — it must become an AI-driven platform where everything is connected.
+
+==================================================
+GOAL
+==================================================
+
+Turn the website into a connected system where:
+
+- navigation → feeds intent
+- intent → drives AI decisions
+- AI decisions → control next steps
+- next steps → generate leads / actions
+- all actions → visible in admin
+
+NO page should act as a dead end.
+
+==================================================
+STEP 1 — CREATE GLOBAL AI CONTEXT
+==================================================
+
+Create a global AI session/context system.
+
+Track:
+- current route
+- previous route
+- user intent (derived)
+- selected service
+- actions taken
+- CTA clicks
+- form inputs
+- uploaded files
+- session id
+
+This must persist across pages.
+
+==================================================
+STEP 2 — INTENT DETECTION
+==================================================
+
+Build a function:
+
+detectUserIntent(context)
+
+Possible outputs:
+- furniture
+- layout
+- relocation
+- procurement
+- finance
+- quote
+- strategy
+- browsing
+
+Update intent when user:
+- clicks nav item
+- clicks CTA
+- opens planner
+- starts quote
+- uploads file
+- interacts with assistant
+
+==================================================
+STEP 3 — NEXT STEP ENGINE
+==================================================
+
+Build:
+
+getNextBestAction(intent, route, state)
+
+Returns:
+- recommended next page
+- recommended CTA
+- recommended workflow
+
+Example:
+- user on homepage + clicks "Workspace & Furniture"
+→ route to quote-builder OR planner depending on behavior
+
+==================================================
+STEP 4 — CONNECT CTAs TO AI (CRITICAL)
+==================================================
+
+Replace static CTA behavior.
+
+Instead of:
+onClick → navigate("/quote-builder")
+
+Use:
+onClick → run AI decision → navigate(result)
+
+This ensures:
+- not all users go same path
+- system adapts
+
+==================================================
+STEP 5 — ASSISTANT INTEGRATION
+==================================================
+
+Your floating AI button must:
+
+- know current page
+- know user intent
+- suggest next steps
+- trigger navigation
+- prefill forms
+- summarize user needs
+
+It must NOT just be a chat bubble.
+
+==================================================
+STEP 6 — LEAD CAPTURE LOOP
+==================================================
+
+Every important action should create/update a lead:
+
+- quote started
+- planner used
+- strategy clicked
+- form submitted
+- assistant used meaningfully
+
+Store:
+- intent
+- service
+- notes
+- page source
+- urgency
+
+==================================================
+STEP 7 — ADMIN LOOP
+==================================================
+
+Ensure backend receives:
+
+- user journey
+- detected intent
+- actions taken
+- recommended next action
+
+Do NOT just store form data.
+
+==================================================
+STEP 8 — REMOVE DEAD ENDS
+==================================================
+
+Audit every page:
+
+If page has no:
+- CTA
+- next step
+- AI suggestion
+
+→ FIX IT
+
+Every page must push forward.
+
+==================================================
+STEP 9 — TEST FLOW (MANDATORY)
+==================================================
+
+Test this journey:
+
+User lands → clicks service → opens planner → asks assistant → starts quote
+
+System must:
+- track everything
+- adapt next steps
+- not reset state
+- not send to wrong page
+
+==================================================
+SUCCESS CRITERIA
+==================================================
+
+System must behave like:
+
+- a guided experience
+- not a static website
+- AI influences decisions
+- pages are connected
+- admin sees full picture
+
+If pages still act independently, task is NOT complete.

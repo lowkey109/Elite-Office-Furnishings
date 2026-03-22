@@ -12,7 +12,7 @@ const solutions = [
     subtitle: "Space planning & design",
     description: "Upload your floor plan and let our specialists design the optimal furniture layout for your space. Includes product recommendations and space utilisation analysis.",
     cta: "Get Your Free Layout Plan",
-    href: "/free-office-layout-plan",
+    href: "/free-layout-plan",
     features: ["Expert space planning", "Furniture recommendations", "3D visualisation option", "Completely free"],
     testId: "card-solution-layout-plan",
     ctaTestId: "button-solution-layout-plan",
@@ -23,7 +23,7 @@ const solutions = [
     subtitle: "Competitive pricing",
     description: "Have specifications or another supplier's quote? Send it to us. We'll match or beat any genuine quote and provide a detailed breakdown of costs.",
     cta: "Submit Your Quote",
-    href: "/send-us-your-quote",
+    href: "/request-a-quote",
     features: ["Quote matching", "Detailed cost breakdown", "Multiple product options", "Fast 24hr response"],
     testId: "card-solution-quote",
     ctaTestId: "button-solution-quote",
@@ -34,7 +34,7 @@ const solutions = [
     subtitle: "Expert consultation",
     description: "Book a 30-minute strategy call with one of our workplace consultants. We'll discuss your vision, timeline, budget, and create a project roadmap.",
     cta: "Book a Strategy Call",
-    href: "/workplace-strategy",
+    href: "/strategy-call",
     features: ["One-on-one consultation", "Project roadmap", "Budget planning", "Timeline management"],
     testId: "card-solution-strategy",
     ctaTestId: "button-solution-strategy",
@@ -114,7 +114,7 @@ export default function WorkplaceSolutions() {
             </div>
             <div className="flex-shrink-0 w-full md:w-auto">
               <Button asChild size="lg" className="w-full md:w-auto bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold border-none px-10 min-h-[56px] text-base whitespace-nowrap" data-testid="button-solutions-ai-planner">
-                <Link href="/upload-your-floor-plan">Start AI Office Planner <ArrowRight className="ml-2 w-4 h-4" /></Link>
+                <Link href="/ai-office-planner">Start AI Office Planner <ArrowRight className="ml-2 w-4 h-4" /></Link>
               </Button>
             </div>
           </div>

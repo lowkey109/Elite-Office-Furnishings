@@ -8,38 +8,54 @@ import { useConcierge, ConversationMessage, UserProfile } from "@/contexts/Conci
 
 const PAGE_LABELS: Record<string, string> = {
   "/": "Homepage",
-  "/products": "Products Catalogue",
+  "/catalog": "Product Catalogue",
   "/workplace-solutions": "Workplace Solutions",
-  "/upload-your-floor-plan": "AI Office Planner",
+  "/ai-office-planner": "AI Office Planner",
+  "/upload-your-floor-plan": "Floor Plan Upload",
+  "/free-layout-plan": "Free Layout Plan",
   "/free-office-layout-plan": "Free Layout Plan",
-  "/send-us-your-quote": "Quote Request",
+  "/3d-office-walkthrough": "3D Office Walkthrough",
   "/quote-builder": "Quote Builder",
-  "/finance-your-workspace": "Finance Options",
-  "/case-studies": "Case Studies",
+  "/request-a-quote": "Request a Quote",
+  "/send-us-your-quote": "Request a Quote",
+  "/finance-your-workspace": "Finance Your Workspace",
+  "/trade-project-procurement": "Trade & Project Procurement",
+  "/strategy-call": "Strategy Consultation",
   "/workplace-strategy": "Strategy Consultation",
+  "/partners": "Partner Network",
   "/about": "About The Corporate Desk",
   "/contact": "Contact Page",
-  "/blog": "Blog & Insights",
-  "/3d-office-walkthrough": "3D Office Walkthrough",
+  "/case-studies": "Case Studies",
   "/testimonials": "Client Testimonials",
+  "/blog": "Blog & Insights",
+  "/start": "Get Started",
+  "/capability": "Capability Statement",
 };
 
 const PAGE_GREETINGS: Record<string, string> = {
-  "/": "Welcome to The Corporate Desk. I'm your AI workspace advisor — here to help scope fitouts, navigate our range, and guide your next step. What are you working on?",
-  "/products": "You're browsing our product range. I can narrow this down to exactly what suits your space, team size, and aesthetic. What type of furniture are you looking for?",
+  "/": "Welcome to The Corporate Desk. I’m your AI workspace advisor — here to help scope fitouts, navigate our range, and guide your next step. What are you working on?",
+  "/catalog": "You’re browsing our product catalogue. I can narrow this down to exactly what suits your space, team size, and aesthetic. What type of furniture are you looking for?",
   "/workplace-solutions": "Looking at fitout options? I can walk you through our process, help scope your project, or give you an indicative budget range. Where are you at with planning?",
-  "/upload-your-floor-plan": "You're at our AI Office Planner — the fastest way to get a professional workspace concept from your floor plan. Any questions before you upload?",
+  "/ai-office-planner": "You’re at our AI Office Planner — upload your floor plan and brief, and our AI returns a full zone layout, SKU package, and cost estimate in minutes. Any questions before you start?",
+  "/upload-your-floor-plan": "Upload your floor plan here and our specialists will create a professional workspace layout tailored to your team. Any questions about the process?",
+  "/free-layout-plan": "Our free layout plan is the most popular starting point for office fitouts — no obligation, just a professional workspace concept designed by our team. How can I help?",
   "/free-office-layout-plan": "Our free layout plan is the most popular starting point for office fitouts — no obligation, just a professional CAD layout. How can I help?",
-  "/send-us-your-quote": "You're ready to get a quote — great. I can help you include the right specifications for an accurate response. What products or scope are you quoting for?",
-  "/quote-builder": "You're in our Quote Builder — I'm your AI quoting advisor. Select your options and I'll guide you toward an accurate budget. What type of project is this for?",
-  "/finance-your-workspace": "Finance can be a smart move for preserving cash flow. I can explain options, give indicative repayment estimates, or help you decide if finance suits your situation.",
-  "/case-studies": "Seeing real results from real projects builds confidence. I can answer questions about any of these fitouts or help you think through how we'd approach yours.",
-  "/workplace-strategy": "A strategy consultation is ideal for complex or large-scale projects. I can answer questions about what to expect. What's the nature of your project?",
-  "/about": "Getting to know the business? I can share more about our certifications, process, product range, or what makes us different. What's most relevant to you?",
-  "/contact": "Happy to help before you reach out — I can often answer faster than a callback. What's on your mind?",
-  "/3d-office-walkthrough": "The 3D walkthrough lets you visualise your space before committing. I can explain how it works or help you get started. What's your project?",
+  "/3d-office-walkthrough": "The 3D walkthrough lets you visualise your workspace before committing a dollar. I can explain how it works or help you get started. What’s your project about?",
+  "/quote-builder": "You’re in our Quote Builder — I’m your AI quoting advisor. Let me guide you toward an accurate budget for your project. What type of workspace are you fitting out?",
+  "/request-a-quote": "You’re ready to request a quote — great. I can help you include the right specifications for an accurate response. What products or scope are you quoting for?",
+  "/send-us-your-quote": "You’re ready to get a quote — great. I can help you include the right specifications for an accurate response. What products or scope are you quoting for?",
+  "/finance-your-workspace": "Finance can be a smart way to preserve cash flow on a large fitout. I can explain options, give indicative repayment estimates, or help you decide if finance suits your situation.",
+  "/trade-project-procurement": "You’re looking at our trade procurement service — built for project managers, interior designers, and commercial property teams. What type of project are you working on?",
+  "/strategy-call": "A strategy consultation is ideal for complex or large-scale projects. I can help answer questions or let you know exactly what to expect. What’s the nature of your project?",
+  "/workplace-strategy": "A workplace strategy session is the right starting point for complex fitouts. I can answer questions about what to prepare and what to expect. What’s your project?",
+  "/partners": "Interested in our referral partner program? I can walk you through commission structures, how to register, and how to submit referrals. What’s your role?",
+  "/about": "Getting to know the business? I can share more about our certifications, process, product range, or what makes us different. What’s most relevant to you?",
+  "/contact": "Happy to help before you reach out — I can often answer faster than a callback. What’s on your mind?",
+  "/case-studies": "Seeing real results from real projects builds confidence. I can answer questions about any of these fitouts or help you think through how we’d approach yours.",
+  "/blog": "Insights and analysis from the world of commercial fit-outs. I can help you find what’s most relevant to your situation.",
+  "/capability": "Looking at our capability statement? I can walk you through our certifications, project history, and what sets us apart from other suppliers.",
+  "/start": "Let’s find the right path for you. Tell me a bit about your project — team size, timeline, budget — and I’ll point you to the best next step.",
 };
-
 const DEFAULT_GREETING =
   "Welcome to The Corporate Desk. I'm your AI workspace advisor — here to help with products, pricing, fitouts, and more. What brings you here today?";
 
@@ -55,23 +71,35 @@ const PAGE_QUICK_REPLIES: Record<string, QuickReply[]> = {
     { label: "Full fitout pricing", value: "What are your pricing ranges for a typical office fitout?" },
     { label: "ISO certifications", value: "What certifications do you hold and what is your warranty?" },
   ],
-  "/products": [
+  "/catalog": [
     { label: "Best range for executives", value: "Which product range suits an executive office best?" },
     { label: "Finance available?", value: "Do you offer finance options on furniture orders?" },
     { label: "Delivery & lead times", value: "What are your typical delivery and lead times?" },
     { label: "Get a quote", value: "How do I get a quote for a specific product?" },
   ],
-  "/upload-your-floor-plan": [
+  "/ai-office-planner": [
     { label: "How does it work?", value: "How does the AI Office Planner work?" },
     { label: "File types accepted?", value: "What file types do you accept for floor plans?" },
-    { label: "What's in the paid report?", value: "What does the $399 paid AI report include?" },
+    { label: "What’s in the paid report?", value: "What does the $399 paid AI report include?" },
     { label: "See example output", value: "Can you show me an example of a planner output?" },
   ],
-  "/free-office-layout-plan": [
-    { label: "What's included?", value: "What does the free office layout plan include?" },
+  "/upload-your-floor-plan": [
+    { label: "How does it work?", value: "How does the floor plan upload work?" },
+    { label: "File types accepted?", value: "What file types do you accept for floor plans?" },
+    { label: "What comes next?", value: "What happens after I upload my floor plan?" },
+    { label: "Who reviews it?", value: "Who reviews my floor plan?" },
+  ],
+  "/free-layout-plan": [
+    { label: "What’s included?", value: "What does the free office layout plan include?" },
     { label: "How long does it take?", value: "How long does it take to receive the free layout plan?" },
     { label: "Unusual floor shapes?", value: "What if my office has an unusual shape or layout?" },
     { label: "Who designs it?", value: "Who designs the layout — AI or a human designer?" },
+  ],
+  "/3d-office-walkthrough": [
+    { label: "How does 3D work?", value: "How does the 3D office walkthrough work?" },
+    { label: "What’s included?", value: "What does the 3D walkthrough package include?" },
+    { label: "Can I customise it?", value: "Can I customise the 3D walkthrough to my space?" },
+    { label: "Pricing?", value: "What does a 3D office walkthrough cost?" },
   ],
   "/finance-your-workspace": [
     { label: "Estimate $150k monthly", value: "What would monthly repayments be for a $150,000 fitout?" },
@@ -82,17 +110,34 @@ const PAGE_QUICK_REPLIES: Record<string, QuickReply[]> = {
   "/quote-builder": [
     { label: "20-person office needs", value: "What furniture do I need for an office of 20 people?" },
     { label: "Acoustic requirements", value: "Help me estimate acoustic and privacy requirements" },
-    { label: "Delivery & install", value: "What's included in delivery and installation?" },
+    { label: "Delivery & install", value: "What’s included in delivery and installation?" },
     { label: "Quote validity", value: "How long is a quote valid for?" },
   ],
-  "/send-us-your-quote": [
+  "/request-a-quote": [
     { label: "What happens next?", value: "What happens after I submit my quote request?" },
     { label: "Response time?", value: "How long does it take to receive a quote response?" },
     { label: "Can we meet first?", value: "Can I meet your team before committing?" },
     { label: "Delivery & install?", value: "Do you handle delivery and installation?" },
   ],
+  "/trade-project-procurement": [
+    { label: "Minimum project size?", value: "What is the minimum project size for trade procurement?" },
+    { label: "Trade pricing available?", value: "Do you offer trade pricing for interior designers?" },
+    { label: "Staged delivery?", value: "Can you manage staged deliveries for large fitouts?" },
+    { label: "Documentation?", value: "What documentation do you provide at project handover?" },
+  ],
+  "/strategy-call": [
+    { label: "What’s covered?", value: "What’s covered in a workplace strategy consultation?" },
+    { label: "How long is the call?", value: "How long is the strategy consultation?" },
+    { label: "Can I bring my designer?", value: "Can I bring my interior designer to the strategy call?" },
+    { label: "Cost?", value: "Is the strategy consultation free?" },
+  ],
+  "/partners": [
+    { label: "Commission structure?", value: "What is the commission structure for partners?" },
+    { label: "Who can join?", value: "Who is eligible to become a referral partner?" },
+    { label: "How to submit referral?", value: "How do I submit a referral as a partner?" },
+    { label: "Payment terms?", value: "When and how are partner commissions paid?" },
+  ],
 };
-
 const DEFAULT_QUICK_REPLIES: QuickReply[] = [
   { label: "Browse products", value: "What products do you carry?" },
   { label: "Fitout pricing", value: "What are your pricing ranges for a typical office fitout?" },
@@ -115,51 +160,75 @@ interface CTAConfig {
 
 const PAGE_CTAS: Record<string, CTAConfig> = {
   "/": {
-    primary: { label: "Upload Your Floor Plan", href: "/upload-your-floor-plan" },
-    secondary: { label: "Request a Quote", href: "/send-us-your-quote" },
-    tertiary: { label: "Book a Strategy Call", href: "/workplace-strategy" },
+    primary: { label: "AI Office Planner", href: "/ai-office-planner" },
+    secondary: { label: "Request a Quote", href: "/request-a-quote" },
+    tertiary: { label: "Book a Strategy Call", href: "/strategy-call" },
   },
-  "/products": {
-    primary: { label: "Request a Quote", href: "/send-us-your-quote" },
-    secondary: { label: "AI Office Planner", href: "/upload-your-floor-plan" },
+  "/catalog": {
+    primary: { label: "Request a Quote", href: "/request-a-quote" },
+    secondary: { label: "AI Office Planner", href: "/ai-office-planner" },
     tertiary: { label: "Finance Options", href: "/finance-your-workspace" },
   },
-  "/upload-your-floor-plan": {
-    primary: { label: "Free Layout Plan Instead", href: "/free-office-layout-plan" },
-    secondary: { label: "Request a Quote", href: "/send-us-your-quote" },
-    tertiary: { label: "Book Strategy Call", href: "/workplace-strategy" },
+  "/workplace-solutions": {
+    primary: { label: "Request a Quote", href: "/request-a-quote" },
+    secondary: { label: "AI Office Planner", href: "/ai-office-planner" },
+    tertiary: { label: "Book Strategy Call", href: "/strategy-call" },
   },
-  "/free-office-layout-plan": {
-    primary: { label: "Try AI Office Planner", href: "/upload-your-floor-plan" },
-    secondary: { label: "Request a Quote", href: "/send-us-your-quote" },
-    tertiary: { label: "Book Strategy Call", href: "/workplace-strategy" },
+  "/ai-office-planner": {
+    primary: { label: "Free Layout Plan Instead", href: "/free-layout-plan" },
+    secondary: { label: "Request a Quote", href: "/request-a-quote" },
+    tertiary: { label: "Book Strategy Call", href: "/strategy-call" },
+  },
+  "/upload-your-floor-plan": {
+    primary: { label: "AI Office Planner", href: "/ai-office-planner" },
+    secondary: { label: "Request a Quote", href: "/request-a-quote" },
+    tertiary: { label: "Book Strategy Call", href: "/strategy-call" },
+  },
+  "/free-layout-plan": {
+    primary: { label: "Try AI Office Planner", href: "/ai-office-planner" },
+    secondary: { label: "Request a Quote", href: "/request-a-quote" },
+    tertiary: { label: "Book Strategy Call", href: "/strategy-call" },
+  },
+  "/3d-office-walkthrough": {
+    primary: { label: "AI Office Planner", href: "/ai-office-planner" },
+    secondary: { label: "Request a Quote", href: "/request-a-quote" },
+    tertiary: { label: "Book Strategy Call", href: "/strategy-call" },
   },
   "/finance-your-workspace": {
-    primary: { label: "Request a Quote", href: "/send-us-your-quote" },
-    secondary: { label: "Book Strategy Call", href: "/workplace-strategy" },
-    tertiary: { label: "AI Office Planner", href: "/upload-your-floor-plan" },
+    primary: { label: "Request a Quote", href: "/request-a-quote" },
+    secondary: { label: "Book Strategy Call", href: "/strategy-call" },
+    tertiary: { label: "AI Office Planner", href: "/ai-office-planner" },
   },
   "/quote-builder": {
-    primary: { label: "Request a Quote", href: "/send-us-your-quote" },
-    secondary: { label: "Book Strategy Call", href: "/workplace-strategy" },
-    tertiary: { label: "Free Layout Plan", href: "/free-office-layout-plan" },
+    primary: { label: "Request a Quote", href: "/request-a-quote" },
+    secondary: { label: "Book Strategy Call", href: "/strategy-call" },
+    tertiary: { label: "Free Layout Plan", href: "/free-layout-plan" },
   },
-  "/send-us-your-quote": {
-    primary: { label: "Book Strategy Call", href: "/workplace-strategy" },
-    secondary: { label: "AI Office Planner", href: "/upload-your-floor-plan" },
+  "/request-a-quote": {
+    primary: { label: "Book Strategy Call", href: "/strategy-call" },
+    secondary: { label: "AI Office Planner", href: "/ai-office-planner" },
     tertiary: { label: "Call Us: 1300 977 607", href: "tel:1300977607" },
   },
-  "/workplace-solutions": {
-    primary: { label: "Request a Quote", href: "/send-us-your-quote" },
-    secondary: { label: "AI Office Planner", href: "/upload-your-floor-plan" },
-    tertiary: { label: "Book Strategy Call", href: "/workplace-strategy" },
+  "/trade-project-procurement": {
+    primary: { label: "Submit Project Brief", href: "/request-a-quote" },
+    secondary: { label: "Book Strategy Call", href: "/strategy-call" },
+    tertiary: { label: "Call Us: 1300 977 607", href: "tel:1300977607" },
+  },
+  "/strategy-call": {
+    primary: { label: "Request a Quote", href: "/request-a-quote" },
+    secondary: { label: "AI Office Planner", href: "/ai-office-planner" },
+    tertiary: { label: "Call Us: 1300 977 607", href: "tel:1300977607" },
+  },
+  "/partners": {
+    primary: { label: "Apply to Partner Program", href: "/partners" },
+    secondary: { label: "Submit a Referral", href: "/partners" },
+    tertiary: { label: "Call Us: 1300 977 607", href: "tel:1300977607" },
   },
 };
-
 const DEFAULT_CTA: CTAConfig = {
-  primary: { label: "Free Layout Plan", href: "/free-office-layout-plan" },
-  secondary: { label: "Request a Quote", href: "/send-us-your-quote" },
-  tertiary: { label: "Book a Strategy Call", href: "/workplace-strategy" },
+  primary: { label: "AI Office Planner", href: "/ai-office-planner" },
+  secondary: { label: "Request a Quote", href: "/request-a-quote" },
+  tertiary: { label: "Book a Strategy Call", href: "/strategy-call" },
 };
 
 // ─── Profile extraction ─────────────────────────────────────────────────────
@@ -476,7 +545,7 @@ export function ChatBot() {
 
   const pageLabel =
     PAGE_LABELS[location] ||
-    (location.startsWith("/products/") ? "Product Detail" : "The Corporate Desk");
+    (location.startsWith("/catalog/") ? "Product Catalogue" : "The Corporate Desk");
   const profileString = buildProfileString(userProfile);
 
   const sendMessage = useCallback(

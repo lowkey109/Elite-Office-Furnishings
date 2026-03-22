@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -39,6 +40,7 @@ interface LeadFormProps {
 
 export function LeadForm({ formType, fields, onSuccess, submitLabel = "Submit" }: LeadFormProps) {
   const { toast } = useToast();
+  const [location] = useLocation();
   const [uploadedFiles, setUploadedFiles] = useState<Record<string, string>>({});
 
   const schema = z.object(
@@ -73,6 +75,7 @@ export function LeadForm({ formType, fields, onSuccess, submitLabel = "Submit" }
       return apiRequest("POST", "/api/leads", {
         ...data,
         type: formType,
+        sourcePage: location,
         message: filesNote ? `${message}\n${filesNote}`.trim() : message,
       });
     },
