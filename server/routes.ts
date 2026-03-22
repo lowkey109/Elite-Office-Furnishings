@@ -50,6 +50,13 @@ import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } f
             app.use("/catalog-assets", express.static(catalogImagesPath, { maxAge: "7d" }));
           }
 
+          // ─── Uploads static serving ────────────────────────────────────────
+          // Serves supplier catalog images at /uploads/catalog-images/{supplier}/
+          const uploadsPath = path.join(process.cwd(), "uploads");
+          if (fs.existsSync(uploadsPath)) {
+            app.use("/uploads", express.static(uploadsPath, { maxAge: "7d" }));
+          }
+
           app.get("/api/nexora/run", async (_req, res) => {
             const result = await runNexoraCycle("manual");
             if (result.skipped) return res.status(409).json(result);
