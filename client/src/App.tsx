@@ -109,12 +109,17 @@ function Router() {
       <Route path="/workplace-solutions">{() => <Redirect to="/capability" />}</Route>
       <Route path="/workplace-strategy">{() => <Redirect to="/capability" />}</Route>
       <Route path="/free-office-layout-plan">{() => <Redirect to="/start" />}</Route>
+      <Route path="/free-layout-plan">{() => <Redirect to="/start" />}</Route>
       <Route path="/send-us-your-quote">{() => <Redirect to="/start" />}</Route>
+      <Route path="/request-a-quote">{() => <Redirect to="/start" />}</Route>
       <Route path="/upload-your-floor-plan">{() => <Redirect to="/start" />}</Route>
+      <Route path="/ai-office-planner">{() => <Redirect to="/start" />}</Route>
       <Route path="/ai-workspace-design">{() => <Redirect to="/start" />}</Route>
       <Route path="/3d-office-walkthrough">{() => <Redirect to="/start" />}</Route>
       <Route path="/quote-builder">{() => <Redirect to="/start" />}</Route>
       <Route path="/finance-your-workspace">{() => <Redirect to="/start" />}</Route>
+      <Route path="/trade-project-procurement">{() => <Redirect to="/start" />}</Route>
+      <Route path="/strategy-call">{() => <Redirect to="/start" />}</Route>
       {/* Embed routes — no header/footer/chatbot, safe for WordPress iframes */}
       <Route path="/embed/quote-builder" component={QuoteBuilder} />
       <Route path="/embed/finance-your-workspace" component={FinanceWorkspace} />
