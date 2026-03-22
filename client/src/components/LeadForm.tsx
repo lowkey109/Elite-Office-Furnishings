@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +18,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { ArrowRight, Loader2, Paperclip, CheckCircle2 } from "lucide-react";
+import { useConcierge } from "@/contexts/ConciergeContext";
+import { useNexoraSignal } from "@/hooks/useNexoraSignal";
 
 type FormField = {
   name: string;
@@ -42,6 +44,11 @@ export function LeadForm({ formType, fields, onSuccess, submitLabel = "Submit" }
   const { toast } = useToast();
   const [location] = useLocation();
   const [uploadedFiles, setUploadedFiles] = useState<Record<string, string>>({});
+  const formStartedRef = useRef(false);
+
+  // Nexora context — capture full session intelligence on submit
+  const { intent, journeyStage, userProfile, lastDecision } = useConcierge();
+  const { emitFormStart, emitFormSubmit, emitFileUpload } = useNexoraSignal();
 
   const schema = z.object(
     fields.reduce((acc, field) => {
@@ -72,14 +79,38 @@ export function LeadForm({ formType, fields, onSuccess, submitLabel = "Submit" }
         .map(([, name]) => `[Attachment: ${name}]`)
         .join(" ");
       const message = (data as any).message || "";
+
+      // Build Nexora context payload from session state
+      const nexoraPayload: Record<string, string | number | undefined> = {
+        nexoraIntent: intent,
+        nexoraJourney: journeyStage,
+      };
+      if (lastDecision) {
+        nexoraPayload.nexoraUrgency = lastDecision.urgency;
+        nexoraPayload.nexoraConfidence = lastDecision.confidence;
+        nexoraPayload.nexoraAdminSummary = lastDecision.adminSummary;
+        nexoraPayload.nexoraNextAction = lastDecision.nextAction.href;
+        if (lastDecision.leadUpdate?.estimatedDealBand) {
+          nexoraPayload.nexoraDealBand = lastDecision.leadUpdate.estimatedDealBand;
+        }
+        nexoraPayload.nexoraEscalation = lastDecision.escalationRequired ? "yes" : "no";
+      }
+
+      // Pages visited from userProfile for message enrichment
+      const visitedNote = userProfile.pagesVisited.length > 1
+        ? `\n[Pages visited: ${userProfile.pagesVisited.join(", ")}]`
+        : "";
+
       return apiRequest("POST", "/api/leads", {
         ...data,
         type: formType,
         sourcePage: location,
-        message: filesNote ? `${message}\n${filesNote}`.trim() : message,
+        message: [message, filesNote, visitedNote].filter(Boolean).join("\n").trim(),
+        ...nexoraPayload,
       });
     },
     onSuccess: () => {
+      emitFormSubmit(formType, fields.length);
       onSuccess();
     },
     onError: () => {
@@ -95,17 +126,32 @@ export function LeadForm({ formType, fields, onSuccess, submitLabel = "Submit" }
     mutation.mutate(data);
   };
 
+  // Emit FORM_START on first interaction
+  const handleFormInteraction = () => {
+    if (!formStartedRef.current) {
+      formStartedRef.current = true;
+      emitFormStart(formType);
+    }
+  };
+
   const handleFileChange = (fieldName: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setUploadedFiles(prev => ({ ...prev, [fieldName]: file.name }));
+      emitFileUpload(file.name, file.type || "unknown");
     }
   };
 
   const inputClass = "bg-[rgba(255,255,255,0.05)] border-[rgba(201,168,76,0.2)] text-white placeholder:text-white/30 focus:border-[rgba(201,168,76,0.5)] focus:ring-0 h-12 text-base rounded-md";
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" noValidate>
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="space-y-5"
+      noValidate
+      onFocus={handleFormInteraction}
+      onClick={handleFormInteraction}
+    >
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
         {fields.map((field) => (
           <div

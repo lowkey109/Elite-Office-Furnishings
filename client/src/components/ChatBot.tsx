@@ -566,6 +566,8 @@ export function ChatBot() {
     hasShownWelcome,
     isOpen,
     previousPage,
+    signalLog,
+    closerMode,
     setIsOpen,
     setMessages,
     setApiHistory,
@@ -577,6 +579,8 @@ export function ChatBot() {
     setIntent,
     setJourneyStage,
     setSelectedService,
+    setLastDecision,
+    emit,
   } = useConcierge();
   const [nexoraDecision, setNexoraDecision] = useState<NexoraDecision | null>(null);
 
@@ -670,6 +674,7 @@ export function ChatBot() {
           currentRoute: location,
           previousRoute: previousPage ?? null,
           pagesVisited: userProfile.pagesVisited,
+          signalLog,
           messageText: content.trim(),
           messageCount,
           userProfile,
@@ -677,6 +682,7 @@ export function ChatBot() {
         };
         const decision = runNexoraEngine(nexoraInput);
         setNexoraDecision(decision);
+        setLastDecision(decision);
         setIntent(decision.intent);
         setJourneyStage(decision.journeyStage);
         if (decision.leadUpdate?.service) setSelectedService(decision.leadUpdate.service);
@@ -687,11 +693,25 @@ export function ChatBot() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              name: userProfile.staff ? `Visitor (${userProfile.staff})` : "Anonymous Visitor",
-              email: "nexora-capture@thecorporatedesk.com.au",
+              name: userProfile.staff ? `AI Session – ${userProfile.staff} staff` : userProfile.company ? `AI Session – ${userProfile.company}` : "AI Session Capture",
+              email: userProfile.email || "nexora-capture@thecorporatedesk.com.au",
+              company: userProfile.company || "",
+              phone: "",
               type: "nexora_session",
               sourcePage: location,
               message: decision.leadUpdate.notes,
+              officeSize: userProfile.sqm,
+              staffCount: userProfile.staff,
+              budget: userProfile.budget,
+              officeLocation: userProfile.location,
+              nexoraIntent: decision.intent,
+              nexoraJourney: decision.journeyStage,
+              nexoraUrgency: decision.urgency,
+              nexoraConfidence: decision.confidence,
+              nexoraAdminSummary: decision.adminSummary,
+              nexoraNextAction: decision.nextAction.href,
+              nexoraDealBand: decision.leadUpdate.estimatedDealBand || undefined,
+              nexoraEscalation: decision.escalationRequired ? "yes" : "no",
             }),
           }).catch(() => {});
         }
@@ -743,6 +763,7 @@ export function ChatBot() {
 
         const finalHistory = [...newHistory, { role: "assistant" as const, content: fullContent }];
         setApiHistory(finalHistory);
+        emit("ASSISTANT_MESSAGE", { length: fullContent.length, closerMode: decision.closerMode ? 1 : 0 });
         setMessages((prev) =>
           prev.map((m) =>
             m.id === assistantId ? { ...m, content: fullContent, isStreaming: false } : m
@@ -787,6 +808,7 @@ export function ChatBot() {
       userProfile,
       messageCount,
       location,
+      signalLog,
       setApiHistory,
       setMessageCount,
       setMessages,
@@ -796,6 +818,8 @@ export function ChatBot() {
       setIntent,
       setJourneyStage,
       setSelectedService,
+      setLastDecision,
+      emit,
     ]
   );
 

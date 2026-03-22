@@ -28,6 +28,15 @@ interface Lead {
   opportunityTier?: string;
   estimatedValueRange?: string;
   estimateJson?: string;
+  sourcePage?: string;
+  nexoraIntent?: string;
+  nexoraJourney?: string;
+  nexoraUrgency?: string;
+  nexoraConfidence?: number;
+  nexoraAdminSummary?: string;
+  nexoraNextAction?: string;
+  nexoraDealBand?: string;
+  nexoraEscalation?: string;
   createdAt?: string;
 }
 
@@ -679,6 +688,43 @@ export default function AdminDashboard() {
                             );
                           } catch { return null; }
                         })()}
+                        {(lead.nexoraAdminSummary || lead.nexoraIntent || lead.sourcePage) && (
+                          <div className="pt-2 border-t border-[rgba(201,168,76,0.15)] space-y-2">
+                            <p className="text-[hsl(43,78%,52%)] text-xs font-semibold flex items-center gap-1.5">
+                              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[hsl(43,78%,52%)]" />
+                              Nexora Intelligence
+                            </p>
+                            {lead.nexoraAdminSummary && (
+                              <p className="text-white/75 text-xs leading-relaxed bg-[rgba(201,168,76,0.05)] border border-[rgba(201,168,76,0.1)] rounded-lg p-2.5">{lead.nexoraAdminSummary}</p>
+                            )}
+                            <div className="grid grid-cols-2 gap-2">
+                              {lead.nexoraIntent && (
+                                <div><p className="text-white/35 text-xs">Intent</p><p className="text-white/70 text-xs font-medium capitalize">{lead.nexoraIntent.replace(/_/g, " ")}</p></div>
+                              )}
+                              {lead.nexoraJourney && (
+                                <div><p className="text-white/35 text-xs">Journey</p><p className="text-white/70 text-xs font-medium capitalize">{lead.nexoraJourney}</p></div>
+                              )}
+                              {lead.nexoraUrgency && (
+                                <div><p className="text-white/35 text-xs">Urgency</p><p className={`text-xs font-bold capitalize ${lead.nexoraUrgency === "critical" ? "text-red-400" : lead.nexoraUrgency === "high" ? "text-orange-400" : lead.nexoraUrgency === "medium" ? "text-yellow-400" : "text-white/50"}`}>{lead.nexoraUrgency}</p></div>
+                              )}
+                              {lead.nexoraConfidence !== undefined && (
+                                <div><p className="text-white/35 text-xs">Confidence</p><p className="text-white/70 text-xs font-medium">{lead.nexoraConfidence}%</p></div>
+                              )}
+                              {lead.nexoraDealBand && (
+                                <div className="col-span-2"><p className="text-white/35 text-xs">Est. Deal Band</p><p className="text-[hsl(43,78%,65%)] text-xs font-bold">{lead.nexoraDealBand}</p></div>
+                              )}
+                              {lead.nexoraNextAction && (
+                                <div className="col-span-2"><p className="text-white/35 text-xs">Recommended Next Action</p><p className="text-white/70 text-xs font-medium font-mono">{lead.nexoraNextAction}</p></div>
+                              )}
+                              {lead.sourcePage && (
+                                <div className="col-span-2"><p className="text-white/35 text-xs">Source Page</p><p className="text-white/60 text-xs">{lead.sourcePage}</p></div>
+                              )}
+                              {lead.nexoraEscalation === "yes" && (
+                                <div className="col-span-2"><p className="text-red-400 text-xs font-bold flex items-center gap-1"><span>⚡</span> Escalation Required — contact this lead immediately</p></div>
+                              )}
+                            </div>
+                          </div>
+                        )}
                         {lead.message && (
                           <div className="pt-2 border-t border-[rgba(255,255,255,0.05)]">
                             <p className="text-white/40 text-xs mb-1">Message</p>

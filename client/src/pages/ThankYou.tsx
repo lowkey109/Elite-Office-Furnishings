@@ -16,7 +16,7 @@ const variants = {
       "We'll schedule a call to walk you through the plan",
     ],
     ctas: [
-      { label: "View Our Products", href: "/products", primary: true },
+      { label: "View Our Products", href: "/catalog", primary: true },
       { label: "Explore Workplace Solutions", href: "/workplace-solutions", primary: false },
     ],
   },
@@ -32,8 +32,8 @@ const variants = {
       "Multiple product options will be presented",
     ],
     ctas: [
-      { label: "View Our Products", href: "/products", primary: true },
-      { label: "Book a Strategy Call", href: "/workplace-strategy", primary: false },
+      { label: "View Our Products", href: "/catalog", primary: true },
+      { label: "Book a Strategy Call", href: "/strategy-call", primary: false },
     ],
   },
   "strategy": {
@@ -48,7 +48,7 @@ const variants = {
       "Our 30-minute consultation will cover your full project scope",
     ],
     ctas: [
-      { label: "Explore Our Products", href: "/products", primary: true },
+      { label: "Explore Our Products", href: "/catalog", primary: true },
       { label: "View Workplace Solutions", href: "/workplace-solutions", primary: false },
     ],
   },

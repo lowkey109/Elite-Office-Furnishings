@@ -1,0 +1,311 @@
+FULL PLATFORM LOOP ARCHITECTURE
+THE CORPORATE DESK
+NEXORA / WEBSITE / ADMIN / WORKFLOWS / LEADS / QUOTES / ASSISTANT
+EVERYTHING MUST BE CONNECTED
+NO ISOLATED PAGES
+NO DEAD-END ACTIONS
+NO DISCONNECTED DATA
+
+You are now enforcing full platform loop architecture across the entire system.
+
+The platform must not behave like separate pages or separate tools.
+It must behave like one connected operating system.
+
+==================================================
+CORE OBJECTIVE
+==================================================
+
+Loop the entire platform together so that:
+
+- navigation connects to journeys
+- journeys connect to AI reasoning
+- AI reasoning connects to next actions
+- next actions connect to lead records
+- lead records connect to admin visibility
+- admin visibility connects to follow-up and operational action
+- user actions continuously enrich the system
+- no major action happens in isolation
+
+Everything must feed everything else in a controlled, structured way.
+
+==================================================
+LOOP RULES
+==================================================
+
+1. ROUTE LOOP
+Every route must be connected into the system.
+No page should exist as an isolated brochure page unless intentionally informational.
+Each page must know:
+- what journey it belongs to
+- what service it represents
+- what next actions are valid
+- what data should be collected
+- what Nexora should infer from activity on that page
+
+2. CTA LOOP
+Every CTA must:
+- have a clear destination
+- update user/session context
+- feed Nexora a signal
+- influence next-step recommendations
+- never act as a dead button or isolated link
+
+3. ASSISTANT LOOP
+The assistant must be connected to:
+- current route
+- previous route
+- session state
+- user intent
+- lead state
+- form state
+- uploaded files
+- selected service
+- Nexora decision outputs
+
+It must not just answer questions.
+It must feed and be fed by the rest of the platform.
+
+4. LEAD LOOP
+Any meaningful commercial action must create or update a lead/session record.
+
+Examples:
+- quote started
+- quote submitted
+- planner opened
+- file uploaded
+- strategy call clicked
+- finance interest shown
+- procurement enquiry made
+- assistant used meaningfully
+- user revisits key commercial pages
+- user abandons a high-intent flow
+
+The lead record must be enriched continuously, not recreated blindly.
+
+5. ADMIN LOOP
+Admin must receive:
+- route journey
+- detected intent
+- selected services
+- urgency signals
+- AI summary
+- recommended next best action
+- blockers
+- uploaded file presence
+- quote/planner progress
+- whether human follow-up is needed
+
+Admin must not just receive raw form dumps.
+
+6. QUOTE LOOP
+Quote Builder must be connected to:
+- Nexora
+- lead records
+- session context
+- planner state if relevant
+- product/service recommendations
+- admin visibility
+- next-step workflows
+
+Starting a quote must affect the rest of the system.
+
+7. PLANNER LOOP
+AI Office Planner must connect to:
+- uploaded files
+- project scope
+- Nexora reasoning
+- quote recommendations
+- walkthrough recommendations
+- strategy recommendations
+- admin notes
+
+It must not operate as a standalone toy.
+
+8. 3D WALKTHROUGH LOOP
+3D Office Walkthrough page must connect to:
+- device capability checks
+- Nexora fallback logic
+- lead capture
+- project scope
+- quote/planner pathways
+- admin visibility
+
+If preview fails, the journey must continue, not die.
+
+9. FORM LOOP
+All forms must:
+- validate
+- save meaningful structured data
+- update lead/session state
+- update Nexora context
+- trigger next-step logic
+- surface data to admin
+- preserve progress where appropriate
+
+10. CONTENT LOOP
+Content, pages, CTAs, recommendations, and assistant prompts should pull from structured definitions where possible.
+Do not hardcode disconnected copy and logic everywhere.
+
+11. STATE LOOP
+Critical state must persist properly across route changes.
+Do not let the platform forget:
+- journey stage
+- intent
+- selected service
+- quote progress
+- planner progress
+- uploads
+- prior recommendations
+- unresolved blockers
+
+12. CONVERSION LOOP
+Every major page must have:
+- a clear CTA
+- a logical next step
+- AI-aware recommendation
+- a path into a commercial workflow
+
+No dead ends allowed.
+
+==================================================
+MANDATORY SYSTEM CONNECTIONS
+==================================================
+
+Ensure all of these are looped together:
+
+- Header nav
+- Mobile nav
+- Footer links
+- Page CTAs
+- Service cards
+- Assistant launcher
+- Nexora context
+- Lead/session records
+- Quote Builder
+- AI Office Planner
+- 3D Walkthrough
+- Request a Quote
+- Finance workflow
+- Procurement workflow
+- Strategy call workflow
+- Partner/referral workflow
+- File upload flow
+- Admin command centre
+- AI summaries / next-best-action logic
+
+==================================================
+STRUCTURED DATA FLOW
+==================================================
+
+For every meaningful user action, build a structured event/update pattern:
+
+Action
+→ session update
+→ Nexora context update
+→ lead enrichment
+→ admin visibility update
+→ next-best-action recalculation
+
+This must happen for:
+- page visit
+- CTA click
+- form input
+- form submit
+- file upload
+- assistant interaction
+- quote progression
+- planner progression
+- service selection
+- route transition
+- fallback event
+- abandonment signal
+
+==================================================
+NO DISCONNECTED FEATURES
+==================================================
+
+Audit and fix anything that currently exists in isolation, including:
+- pages with no next step
+- CTAs with no system update
+- assistant with no context
+- forms with no lead enrichment
+- planner with no quote connection
+- walkthrough with no fallback conversion path
+- admin with no AI summaries
+- routing with no intelligence
+- static recommendation sections with no real logic
+
+==================================================
+TESTING REQUIREMENTS
+==================================================
+
+Verify full-loop behaviour with these journeys:
+
+TEST 1:
+User lands on home
+→ clicks Workplace Solutions
+→ opens assistant
+→ starts Quote Builder
+→ submits enquiry
+
+Confirm:
+- journey tracked
+- intent updated
+- lead enriched
+- admin receives usable summary
+- recommended next action generated
+
+TEST 2:
+User opens AI Office Planner
+→ uploads file
+→ gets guided to walkthrough or quote
+
+Confirm:
+- upload linked to session/lead
+- Nexora updates recommendations
+- admin can see planner activity
+- no lost progress
+
+TEST 3:
+User opens 3D walkthrough on unsupported device
+
+Confirm:
+- fallback triggers
+- user gets alternate CTA
+- lead/session still updated
+- no dead end
+
+TEST 4:
+User browses finance + quote pages
+
+Confirm:
+- high commercial intent is detected
+- closer mode elevates
+- admin sees warm/hot lead indicators
+
+TEST 5:
+User leaves and returns
+
+Confirm:
+- journey state is restored appropriately
+- platform does not forget everything
+- Nexora remains context-aware
+
+==================================================
+SUCCESS CRITERIA
+==================================================
+
+This task is only complete if:
+
+- the website behaves like one connected system
+- no important action happens in isolation
+- Nexora receives and uses platform-wide context
+- lead and session data are enriched continuously
+- admin gets structured intelligence
+- every page has a next step
+- dead ends are eliminated
+- quote, planner, walkthrough, forms, and assistant all connect properly
+- the platform is fully looped, not fragmented
+
+FINAL INSTRUCTION:
+Loop the entire platform together so it behaves like one AI-driven operating system, not a collection of separate pages and features.

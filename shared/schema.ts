@@ -21,9 +21,9 @@ export const leads = pgTable("leads", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   type: text("type").notNull(),
   name: text("name").notNull(),
-  company: text("company").notNull(),
+  company: text("company").notNull().default(""),
   email: text("email").notNull(),
-  phone: text("phone").notNull(),
+  phone: text("phone").notNull().default(""),
   message: text("message"),
   officeSize: text("office_size"),
   staffCount: text("staff_count"),
@@ -37,12 +37,24 @@ export const leads = pgTable("leads", {
   nextAction: text("next_action"),
   estimatedValueRange: text("estimated_value_range"),
   estimateJson: text("estimate_json"),
+  sourcePage: text("source_page"),
+  nexoraIntent: text("nexora_intent"),
+  nexoraJourney: text("nexora_journey"),
+  nexoraUrgency: text("nexora_urgency"),
+  nexoraConfidence: integer("nexora_confidence"),
+  nexoraAdminSummary: text("nexora_admin_summary"),
+  nexoraNextAction: text("nexora_next_action"),
+  nexoraDealBand: text("nexora_deal_band"),
+  nexoraEscalation: text("nexora_escalation"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const insertLeadSchema = createInsertSchema(leads).omit({
   id: true,
   createdAt: true,
+}).partial({
+  company: true,
+  phone: true,
 });
 
 export type InsertLead = z.infer<typeof insertLeadSchema>;

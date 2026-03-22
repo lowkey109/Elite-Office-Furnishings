@@ -1,0 +1,344 @@
+FULL PLATFORM BUG HUNT + FIX
+THE CORPORATE DESK
+NEXORA / WEBSITE / ADMIN / ROUTING / WORKFLOWS
+PRODUCTION MODE
+FIND REAL BUGS
+FIX THEM PROPERLY
+NO COSMETIC PATCHES
+NO DEMO FIXES
+NO FAKE “ALL GOOD” REPORTS
+
+You are performing a full production bug audit and repair across the entire platform.
+
+Your job is to systematically inspect the codebase, identify real bugs, broken logic, unsafe behaviour, regressions, dead ends, incorrect routing, state issues, integration failures, and conversion blockers, then fix them properly.
+
+This is not a surface-level scan.
+This is a full engineering bug hunt, root-cause analysis, repair pass, and validation pass.
+
+==================================================
+CORE OBJECTIVE
+==================================================
+
+Find and fix bugs across:
+
+- frontend
+- routing
+- mobile navigation
+- Nexora intelligence layer
+- assistant integration
+- quote builder
+- AI office planner
+- 3D walkthrough page
+- form flows
+- lead capture
+- admin pages
+- API integration
+- state management
+- session/context persistence
+- CTA mapping
+- fallback handling
+- duplicate logic
+- broken redirects
+- dead-end experiences
+- data submission paths
+- email/outreach related logic if present
+- any monolithic files causing hidden defects
+
+==================================================
+NON-NEGOTIABLE RULES
+==================================================
+
+- DO NOT just report bugs — fix them
+- DO NOT mark task complete if serious bugs remain
+- DO NOT fake test results
+- DO NOT hide broken functionality behind placeholders
+- DO NOT leave “temporary hacks” as final fixes
+- DO NOT create new duplicate logic while patching
+- DO NOT say “works now” without verifying
+- DO NOT silently reroute broken flows to home/start page
+- DO NOT regress Nexora into dumb chatbot mode
+- DO NOT break working routes while fixing others
+
+==================================================
+PHASE 1 — FULL CODEBASE AUDIT
+==================================================
+
+Inspect the entire codebase and identify bugs in these categories:
+
+1. ROUTING BUGS
+- broken routes
+- wrong page mapping
+- fallback redirects to wrong screens
+- onboarding/start flow hijacking navigation
+- bad wildcard handling
+- missing page shells
+- route refresh failures
+
+2. NAVIGATION BUGS
+- wrong menu item destinations
+- mobile menu not closing
+- broken overlay state
+- CTA buttons going to wrong pages
+- cards using wrong click handlers
+- duplicate nav configs
+- desktop/mobile inconsistency
+
+3. AI / NEXORA BUGS
+- assistant behaving like stateless chatbot
+- missing route context
+- missing lead context
+- no persistent AI state
+- wrong recommendations
+- no decision engine calls
+- duplicated orchestration logic
+- dead assistant actions
+- AI UI disconnected from real backend/system state
+
+4. JOURNEY / FLOW BUGS
+- dead-end pages
+- no next steps
+- abandoned state resets
+- broken cross-page progression
+- no persistent session context
+- forms that do not move user forward
+- pages with no conversion logic
+
+5. FORM / DATA BUGS
+- submissions failing
+- incorrect payload shapes
+- missing validation
+- lost data on navigation
+- file uploads not linked to lead/session
+- duplicate lead creation
+- missing backend handling
+- missing success/error states
+
+6. PAGE-SPECIFIC BUGS
+Audit all major pages:
+- home
+- workplace solutions
+- AI office planner
+- 3D office walkthrough
+- free layout plan
+- quote builder
+- request a quote
+- finance your workspace
+- trade & project procurement
+- strategy call
+- partners
+- contact
+- about
+- blog/case studies if present
+- admin pages
+
+Look for:
+- broken components
+- wrong CTAs
+- inconsistent layout/state
+- missing fallbacks
+- unusable mobile behaviour
+- hidden content under sticky header
+- sections without IDs if linked
+- UI claims not backed by logic
+
+7. ADMIN / BACKOFFICE BUGS
+- broken auth gates
+- unsafe client-side only auth
+- broken dashboards
+- missing data rendering
+- failing mutations
+- duplicate action triggers
+- poor loading/error states
+- broken intelligence pages
+- monolithic admin files with conflicting logic
+
+8. EMAIL / OUTREACH / AUTOMATION BUGS
+If present, inspect for:
+- duplicate send risk
+- missing dedupe
+- wrong stage timing
+- missing send logs
+- placeholder sender details
+- broken follow-up timing
+- retries without state
+- unsafe loops
+
+9. STATE / ARCHITECTURE BUGS
+- multiple sources of truth
+- stale state after route change
+- context reset bugs
+- prop drilling causing mismatch
+- giant monolith files causing hidden regressions
+- business logic mixed into presentational components
+- hardcoded route strings everywhere
+- inline duplicate handlers
+
+10. MOBILE UX BUGS
+- broken touch targets
+- impossible nav interactions
+- overflow issues
+- fixed elements covering content
+- assistant blocking CTAs
+- menu drawer rendering wrong
+- cards broken on small screens
+- broken viewport height handling
+
+==================================================
+PHASE 2 — ROOT CAUSE ANALYSIS
+==================================================
+
+For every bug found:
+- identify actual root cause
+- identify affected components/modules
+- identify risk level: critical / high / medium / low
+- identify whether bug is isolated or architectural
+- identify if related bugs are likely elsewhere
+
+Do not apply blind patches without understanding root cause.
+
+==================================================
+PHASE 3 — FIX STRATEGY
+==================================================
+
+Apply production-grade fixes.
+
+Rules:
+- centralize duplicated logic where needed
+- create shared helpers instead of repeated patches
+- replace placeholder routes with real routes
+- isolate onboarding/start flow properly
+- connect Nexora to actual state/context
+- enforce correct CTA mapping
+- make dead pages convert
+- ensure forms persist and submit correctly
+- make fallbacks functional, not dead screens
+- split dangerous monoliths if needed for stability
+- preserve working behaviour while repairing broken behaviour
+
+==================================================
+PHASE 4 — REQUIRED FIXES TO CHECK ESPECIALLY
+==================================================
+
+You must specifically verify and repair all of these:
+
+1. Mobile menu links go to correct pages
+2. No services heading routes to wrong onboarding/start screen
+3. All service pages exist and are real pages
+4. No CTA uses a generic default click target
+5. Quote Builder does not reset or break unexpectedly
+6. Nexora remains connected to route context, lead context, and workflow context
+7. Nexora is not reduced to a dumb chatbot
+8. 3D walkthrough page works even when live preview fails
+9. Every important page has:
+   - CTA
+   - lead capture or progression
+   - next step
+10. Forms create/use structured lead data
+11. Journey state persists across route changes
+12. Admin sees enriched data, not just raw submissions
+13. No hidden redirect to /start, /capability, /, or wrong fallback route
+14. No duplicate routing maps or conflicting click handlers
+15. No broken page refreshes on valid routes
+16. No dead-end experiences on mobile
+17. No duplicate or unsafe outreach logic if outreach code exists
+
+==================================================
+PHASE 5 — VALIDATION / TESTING
+==================================================
+
+After fixing, validate with real checks.
+
+Run and verify:
+
+A. ROUTING TESTS
+- every route loads directly
+- every nav item goes where intended
+- refresh on each major route works
+- invalid route shows proper 404
+
+B. MOBILE TESTS
+- menu opens/closes correctly
+- tapping any item navigates correctly
+- no overlays get stuck
+- no content hidden by sticky header
+- assistant does not block core interactions
+
+C. CTA TESTS
+- every CTA routes intentionally
+- no CTA points to generic fallback
+- no CTA dumps to wrong page
+
+D. PAGE TESTS
+For every major page verify:
+- renders correctly
+- has meaningful action path
+- no dead-end state
+- mobile layout is usable
+- errors/fallbacks are graceful
+
+E. NEXORA TESTS
+- persists across route changes
+- knows page context
+- can recommend next step
+- can influence flow
+- does not respond as dumb stateless chat only
+
+F. FORM TESTS
+- submissions succeed
+- validation works
+- success/error states display
+- data is preserved correctly
+- lead/session linkage works
+
+G. ADMIN TESTS
+- admin pages load
+- key actions work
+- no duplicate triggers
+- data displayed is meaningful
+- broken auth/UI issues are fixed where possible
+
+H. FALLBACK TESTS
+- unsupported features still convert
+- 3D preview fallback still has CTA/lead capture/next step
+- missing data states do not dump user back to home/start
+
+==================================================
+PHASE 6 — IMPLEMENTATION REPORT
+==================================================
+
+After all fixes, output a complete report with:
+
+1. critical bugs found
+2. high/medium bugs found
+3. root cause of each
+4. files/modules changed
+5. architecture improvements made
+6. routes fixed
+7. nav/CTA issues fixed
+8. Nexora issues fixed
+9. page-specific issues fixed
+10. admin issues fixed
+11. mobile issues fixed
+12. remaining risks or technical debt
+13. verification results for each major flow
+
+If something could not be fully fixed, state that clearly and explain why.
+
+==================================================
+SUCCESS CRITERIA
+==================================================
+
+This task is only complete if:
+
+- major bugs are actually fixed
+- routing/navigation is stable
+- Nexora remains intelligent and connected
+- dead-end pages are eliminated
+- core forms and journeys work
+- mobile experience is usable
+- admin is not broken
+- no major regression has been introduced
+- the report reflects real implemented work, not guesses
+
+FINAL INSTRUCTION:
+Perform a full production bug hunt and repair across the platform. Find real bugs, determine root causes, fix them properly, validate the fixes, and deliver a truthful implementation report.

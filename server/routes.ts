@@ -1190,9 +1190,60 @@ IMPORTANT RULES:
         opportunityScore: opp.opportunityScore,
         opportunityTier: opp.opportunityTier,
         signalsJson: JSON.stringify(opp.signals),
-        nextAction: opp.nextAction,
-        estimatedValueRange: opp.estimatedValueRange || null,
+        nextAction: data.nexoraNextAction || opp.nextAction,
+        estimatedValueRange: data.nexoraDealBand || opp.estimatedValueRange || null,
       } as any);
+
+      // Non-blocking Nexora AI enrichment — update lead with AI-generated summary
+      (async () => {
+        try {
+          const OpenAI = (await import("openai")).default;
+          const openai = new OpenAI({
+            apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+            baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+          });
+          const brief = [
+            `Name: ${lead.name}`,
+            lead.company ? `Company: ${lead.company}` : null,
+            lead.email ? `Email: ${lead.email}` : null,
+            lead.staffCount ? `Team: ${lead.staffCount}` : null,
+            lead.officeSize ? `Space: ${lead.officeSize}` : null,
+            lead.budget ? `Budget: ${lead.budget}` : null,
+            lead.timeline ? `Timeline: ${lead.timeline}` : null,
+            lead.officeLocation ? `Location: ${lead.officeLocation}` : null,
+            lead.message ? `Notes: ${lead.message?.substring(0, 300)}` : null,
+            lead.nexoraIntent ? `Intent: ${lead.nexoraIntent}` : null,
+            lead.nexoraJourney ? `Journey: ${lead.nexoraJourney}` : null,
+            lead.nexoraUrgency ? `Urgency: ${lead.nexoraUrgency}` : null,
+            lead.nexoraAdminSummary ? `Engine summary: ${lead.nexoraAdminSummary}` : null,
+            `Source: ${lead.sourcePage || lead.type}`,
+          ].filter(Boolean).join("\n");
+
+          const completion = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+              {
+                role: "system",
+                content: `You are the admin intelligence layer for The Corporate Desk, an Australian premium office furniture company. 
+Write a 2-3 sentence executive briefing for this inbound lead. Include: why this lead matters, what they likely need, and the single best next action for the sales team. Be specific and commercial. Output plain text only.`,
+              },
+              { role: "user", content: brief },
+            ],
+            max_tokens: 150,
+            temperature: 0.4,
+          });
+
+          const aiSummary = completion.choices[0]?.message?.content?.trim();
+          if (aiSummary && lead.id) {
+            const { leads: leadsTable } = await import("@shared/schema");
+            await db.update(leadsTable)
+              .set({ nexoraAdminSummary: aiSummary } as any)
+              .where(sql`${leadsTable.id} = ${lead.id}`);
+          }
+        } catch (err) {
+          console.error("[nexora] AI enrichment failed:", err);
+        }
+      })();
 
       // Non-blocking admin email — enhanced with opportunity intelligence
       sendLeadNotification({
