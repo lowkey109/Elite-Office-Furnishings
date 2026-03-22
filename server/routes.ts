@@ -44,9 +44,10 @@ import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } f
           });
 
           // ─── Catalog image static serving ─────────────────────────────────
+          // Served at /catalog-assets/ to avoid conflicting with the /catalog SPA route
           const catalogImagesPath = path.join(process.cwd(), "catalog-images");
           if (fs.existsSync(catalogImagesPath)) {
-            app.use("/catalog", express.static(catalogImagesPath, { maxAge: "7d" }));
+            app.use("/catalog-assets", express.static(catalogImagesPath, { maxAge: "7d" }));
           }
 
           app.get("/api/nexora/run", async (_req, res) => {
