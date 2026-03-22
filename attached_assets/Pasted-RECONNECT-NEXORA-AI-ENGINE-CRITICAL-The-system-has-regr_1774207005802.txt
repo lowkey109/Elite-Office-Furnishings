@@ -1,0 +1,158 @@
+RECONNECT NEXORA AI ENGINE (CRITICAL)
+
+The system has regressed into a basic chatbot.
+Nexora is no longer controlling the platform.
+
+Fix this immediately.
+
+==================================================
+GOAL
+==================================================
+
+Restore Nexora as the central intelligence layer.
+
+The assistant must NOT behave like a generic chatbot.
+
+It must:
+- understand context
+- control flows
+- influence routing
+- update system state
+- connect to backend logic
+
+==================================================
+STEP 1 — GLOBAL NEXORA CONTEXT
+==================================================
+
+Create a global Nexora context provider.
+
+It must track:
+- current route
+- previous route
+- detected intent
+- active journey
+- selected service
+- user inputs
+- lead state
+- planner/quote state
+
+This must persist across route changes.
+
+==================================================
+STEP 2 — CONNECT ASSISTANT TO CONTEXT
+==================================================
+
+The assistant must receive:
+
+{
+  route,
+  intent,
+  journey,
+  state,
+  history
+}
+
+NOT just user text.
+
+==================================================
+STEP 3 — NEXORA DECISION ENGINE
+==================================================
+
+Create:
+
+runNexoraEngine(context)
+
+Returns:
+- intent
+- next best action
+- recommended route
+- suggested CTA
+- lead updates
+
+==================================================
+STEP 4 — ASSISTANT IS NOT CHAT
+==================================================
+
+Replace basic chat behaviour.
+
+Instead:
+
+User input →
+→ Nexora processes context
+→ Nexora decides action
+→ Assistant responds + triggers system
+
+Example:
+User: “I need desks for 20 staff”
+
+Nexora:
+- detects intent = furniture + quote
+- suggests route = quote-builder
+- updates lead
+- responds with guided action
+
+==================================================
+STEP 5 — CONNECT TO NAVIGATION
+==================================================
+
+Assistant must be able to:
+
+- trigger route changes
+- suggest next pages
+- guide flows
+
+==================================================
+STEP 6 — CONNECT TO LEAD SYSTEM
+==================================================
+
+Every meaningful interaction:
+
+→ updates lead
+
+Store:
+- intent
+- service
+- notes
+- urgency
+
+==================================================
+STEP 7 — REMOVE CHATBOT MODE
+==================================================
+
+Remove:
+- generic chat-only responses
+- stateless AI calls
+- UI-only assistant
+
+Replace with:
+- system-aware assistant
+
+==================================================
+STEP 8 — TEST
+==================================================
+
+Test:
+
+User asks:
+“I need to fit out an office”
+
+System should:
+- detect intent
+- recommend planner or quote
+- offer next step
+- update system state
+
+NOT just reply like ChatGPT.
+
+==================================================
+SUCCESS
+==================================================
+
+Nexora must behave like:
+- a system brain
+- not a chatbot
+- not UI-only
+- not stateless
+
+If assistant behaves like a basic chat again,
+this task is NOT complete.

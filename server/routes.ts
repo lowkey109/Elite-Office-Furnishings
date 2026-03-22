@@ -1608,11 +1608,12 @@ IMPORTANT RULES:
 
   app.post("/api/chat", async (req, res) => {
     try {
-      const { messages, stream: useStream = true, pageContext, userProfile } = req.body as {
+      const { messages, stream: useStream = true, pageContext, userProfile, nexoraContext } = req.body as {
         messages: ChatMessage[];
         stream?: boolean;
         pageContext?: string;
         userProfile?: string;
+        nexoraContext?: string;
       };
 
       if (!messages || !Array.isArray(messages)) {
@@ -1694,7 +1695,8 @@ IMPORTANT RULES:
         sessionContext || undefined,
         pageContext || undefined,
         userProfile || undefined,
-        intelligenceCtx
+        intelligenceCtx,
+        nexoraContext || undefined
       );
 
       if (useStream) {

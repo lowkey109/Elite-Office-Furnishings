@@ -1,0 +1,648 @@
+NEXORA EXECUTIVE OPERATING SYSTEM
+THE CORPORATE DESK
+FULL PLATFORM BRAIN
+DECISION MAKER
+PROBLEM SOLVER
+REVENUE DRIVER
+NO DEMO MODE
+NO CHATBOT MODE
+NO UI-ONLY INTELLIGENCE
+NO FAKE AI
+
+You are rebuilding Nexora into the central executive intelligence system for The Corporate Desk.
+
+Nexora must not behave like a basic assistant, floating chat widget, or reactive text bot.
+
+Nexora must become:
+
+- the decision maker
+- the workflow controller
+- the problem solver
+- the orchestration engine
+- the operating system brain
+- the intelligence layer across the whole platform
+- the system that helps close deals, route leads, solve friction, guide users, and support admin decisions
+
+This is not a cosmetic AI upgrade.
+This is a full executive AI operating system build.
+
+==================================================
+CORE MISSION
+==================================================
+
+Transform Nexora into the master intelligence layer that runs the website, workflows, user journeys, admin actions, lead progression, quoting logic, and operational decisions across the platform.
+
+Nexora must:
+
+1. understand what is happening across the system
+2. decide what should happen next
+3. solve blockers before they become problems
+4. guide users into the best commercial path
+5. help admin prioritize action
+6. increase conversion
+7. reduce friction
+8. prevent dumb behaviour, duplicate behaviour, dead-end behaviour, and disconnected workflows
+9. act like an executive system, not a chatbot
+
+==================================================
+WHAT NEXORA IS
+==================================================
+
+Nexora is:
+
+- an executive AI
+- an orchestration engine
+- a commercial intelligence system
+- a decision-support and action-driving layer
+- a workflow router
+- a problem detection and correction engine
+- a closer
+- a platform controller
+
+Nexora is NOT:
+
+- a generic chat assistant
+- a decorative AI bubble
+- a stateless conversation widget
+- a fake “smart” label on static pages
+- a passive FAQ tool
+- a UI-only helper
+
+==================================================
+PRIMARY OBJECTIVE
+==================================================
+
+Build Nexora so it can run the whole operating system and platform intelligently and reliably.
+
+That includes:
+
+- website intelligence
+- user intent analysis
+- journey routing
+- quote path control
+- planner guidance
+- service recommendation
+- procurement routing
+- finance qualification
+- strategy-call qualification
+- partner/referral handling
+- lead scoring
+- opportunity prioritisation
+- admin summaries
+- next-best-action decisions
+- risk detection
+- blocker handling
+- process correction
+- conversion optimisation
+- operational recommendations
+
+==================================================
+EXECUTIVE CAPABILITIES REQUIRED
+==================================================
+
+Nexora must perform these executive functions:
+
+1. INTERPRET
+Understand:
+- user intent
+- user urgency
+- project type
+- deal potential
+- page context
+- route context
+- form content
+- assistant interaction
+- uploaded file context
+- existing lead context
+- admin context
+- platform state
+
+2. DECIDE
+Determine:
+- best next step
+- best route
+- best CTA
+- best workflow
+- whether user should go to quote, planner, strategy, procurement, finance, or human escalation
+- whether admin should act immediately or later
+- whether opportunity is hot, warm, cold, blocked, incomplete, risky, or high-value
+
+3. ORCHESTRATE
+Control:
+- user progression
+- assistant guidance
+- workflow handoffs
+- lead updates
+- admin visibility
+- escalation logic
+- conversion paths
+- follow-up recommendations
+
+4. SOLVE
+Detect and resolve:
+- dead-end pages
+- broken flows
+- missing data
+- low-confidence leads
+- duplicate actions
+- bad UX bottlenecks
+- blocked conversions
+- wrong routing
+- confused users
+- stalled opportunities
+
+5. CLOSE
+Increase revenue by:
+- steering users into the right path fast
+- qualifying better
+- reducing friction
+- prompting next action
+- surfacing urgency
+- supporting human sales decisions
+- producing better intelligence for follow-up
+
+==================================================
+SYSTEM ARCHITECTURE
+==================================================
+
+Build Nexora as a true system layer with these modules:
+
+1. NEXORA CORE ENGINE
+Central orchestrator that receives context and returns decisions.
+
+2. CONTEXT AGGREGATOR
+Collects:
+- current route
+- previous routes
+- session history
+- clicked CTA
+- selected service
+- device type
+- source/referrer
+- form data
+- uploaded files
+- assistant messages
+- lead state
+- quote state
+- planner state
+- project state
+- admin notes if relevant
+
+3. INTENT ENGINE
+Detects:
+- furniture enquiry
+- layout need
+- relocation/setup need
+- procurement need
+- finance need
+- quote need
+- strategy need
+- browsing/research
+- support issue
+- partner/referral interest
+
+4. DECISION ENGINE
+Computes:
+- next best action
+- recommended route
+- recommended CTA
+- recommended workflow
+- lead score
+- urgency score
+- service fit score
+- escalation recommendation
+- missing info to collect
+
+5. JOURNEY ORCHESTRATOR
+Controls:
+- what user sees next
+- what assistant suggests
+- what flow they enter
+- what state gets persisted
+- how cross-page progression works
+
+6. LEAD INTELLIGENCE ENGINE
+Creates and updates structured lead data with:
+- summary
+- intent
+- priority
+- estimated deal type
+- service mix
+- urgency
+- notes
+- recommended internal action
+
+7. PROBLEM DETECTION ENGINE
+Flags:
+- broken journeys
+- form abandonment
+- conflicting signals
+- repeated confusion
+- duplicate records
+- conversion blockers
+- poor CTA alignment
+- weak route mapping
+- empty or risky states
+
+8. ADMIN DECISION SUPPORT ENGINE
+Gives admin:
+- AI summaries
+- next best internal action
+- who to call first
+- which lead is hottest
+- which user is stalled
+- what is missing
+- how to move deal forward
+
+==================================================
+NEXORA MUST RUN THE PLATFORM — NOT JUST RESPOND
+==================================================
+
+Interpret “run the whole operating system and platform” correctly:
+
+The UI remains the interface.
+Nexora becomes the brain.
+
+That means Nexora must influence or control:
+
+- route recommendations
+- CTA recommendations
+- flow branching
+- assistant outputs
+- form logic
+- page progression
+- lead enrichment
+- admin feed summaries
+- handoffs to human
+- which tasks become urgent
+- what the system does when incomplete info is provided
+- how the platform reacts when friction appears
+
+Nexora must not wait passively for typed messages only.
+
+==================================================
+DECISION-MAKING RULES
+==================================================
+
+Nexora must make decisions using structured logic, not random chat behaviour.
+
+For every meaningful interaction, Nexora should answer:
+
+1. What is happening?
+2. What does the user/admin most likely need?
+3. What is the best next action?
+4. What information is missing?
+5. What commercial opportunity exists here?
+6. What friction or blocker exists?
+7. Should this be automated, guided, escalated, or paused?
+8. What should the platform do next?
+
+Return structured outputs, not just natural-language replies.
+
+Required decision object example:
+
+{
+  intent: "",
+  urgency: "",
+  confidence: 0,
+  recommendedRoute: "",
+  recommendedCTA: "",
+  nextBestAction: "",
+  leadUpdate: {},
+  adminSummary: "",
+  blockers: [],
+  opportunities: [],
+  escalationRequired: false
+}
+
+==================================================
+NEXORA CLOSER MODE
+==================================================
+
+Nexora must include a Closer Mode.
+
+Closer Mode means:
+- guide users quickly toward commitment
+- reduce drop-off
+- suggest the most commercial next step
+- surface urgency
+- identify high-intent buyers
+- convert confusion into action
+- move browsing into quoting/planning/call booking
+- support revenue, not just conversation
+
+Closer Mode should be triggered when signals indicate:
+- user asks for price
+- user asks about fit-out
+- user asks for desks/chairs/tables
+- user has office size/team size
+- user wants fast turnaround
+- user asks about delivery/setup
+- user wants finance or procurement
+- user uploads a floor plan
+- user asks for custom help
+- user revisits multiple commercial pages
+
+In Closer Mode, Nexora should prioritize:
+- quote
+- planner
+- strategy call
+- procurement intake
+- human escalation for high-value projects
+
+==================================================
+PROBLEM SOLVER MODE
+==================================================
+
+Nexora must include a Problem Solver Mode.
+
+When the system detects:
+- user confusion
+- routing mismatch
+- repeated failed actions
+- broken page path
+- missing info
+- incomplete lead
+- low conversion confidence
+- unavailable feature (like 3D preview fallback)
+- friction in mobile UX
+- abandoned quote/planner path
+
+Nexora should:
+- diagnose the issue
+- decide the best alternative path
+- preserve progress
+- give the user a viable next step
+- create an internal note if needed
+- not let the journey die
+
+Example:
+If live 3D cannot render,
+Nexora should shift user to:
+- request walkthrough
+- upload floor plan
+- strategy call
+- quote
+and explain the next best path cleanly.
+
+==================================================
+FULL PLATFORM INTEGRATIONS REQUIRED
+==================================================
+
+Nexora must connect across:
+
+1. FRONTEND
+- all major pages
+- header/nav context
+- CTA clicks
+- cards
+- forms
+- uploads
+- assistant launcher
+- route transitions
+
+2. QUOTE BUILDER
+- intake classification
+- product/project recommendation
+- quote complexity logic
+- next-step recommendation
+- lead creation/update
+
+3. AI OFFICE PLANNER
+- planning intake
+- layout/project classification
+- upload handling
+- service recommendation
+- handoff to quote or walkthrough or strategy
+
+4. 3D OFFICE WALKTHROUGH
+- WebGL fallback recovery
+- qualification
+- alternate path recommendation
+- lead capture
+
+5. FINANCE WORKFLOW
+- suitability screening
+- finance pathway
+- escalation rules
+
+6. PROCUREMENT WORKFLOW
+- buyer-type classification
+- scope capture
+- project routing
+
+7. STRATEGY CALL FLOW
+- qualification
+- value prioritisation
+- call readiness scoring
+
+8. PARTNER / REFERRAL FLOW
+- partner intent detection
+- referral classification
+- routing
+
+9. ADMIN SYSTEM
+- summaries
+- alerts
+- next best action
+- lead prioritisation
+- journey visibility
+- risk flags
+
+==================================================
+PERSISTENT CONTEXT RULES
+==================================================
+
+Nexora must maintain persistent context across route changes.
+
+Track and preserve:
+- session id
+- user journey stage
+- detected intent
+- services viewed
+- actions taken
+- assistant interaction summary
+- files uploaded
+- quote progress
+- planner progress
+- commercial signals
+- recommended next action
+- unresolved blockers
+
+Do not reset Nexora into dumb mode on route change.
+Do not remount it as a stateless widget.
+
+==================================================
+ADMIN COMMAND SUPPORT
+==================================================
+
+Nexora must support internal decision-making too.
+
+For each serious lead or session, produce:
+- concise summary
+- inferred need
+- urgency level
+- opportunity level
+- likely deal value band if inferable
+- next recommended internal action
+- risks or blockers
+- whether human intervention is needed now
+
+Admin should not just see raw submissions.
+Admin should see AI-enriched commercial intelligence.
+
+==================================================
+NO FAKE INTELLIGENCE
+==================================================
+
+Eliminate anything that pretends to be smart but is not connected.
+
+Remove or refactor:
+- generic chatbot responses without context
+- static next-step recommendations
+- fake AI labels
+- UI-only assistant launcher
+- buttons that do not change system state
+- forms that do not enrich lead data
+- routing that ignores intelligence
+- pages with no recommendation logic
+- static dead-end service pages
+
+Every smart claim must have real logic behind it.
+
+==================================================
+BEHAVIOUR EXAMPLES
+==================================================
+
+Example 1:
+User says: “Need 20 desks for a new Brisbane office.”
+
+Nexora should:
+- detect intent = furniture + office setup + quote
+- detect urgency/commercial value
+- recommend quote-builder or direct commercial quote
+- offer strategy/planning if space layout unclear
+- create/update lead
+- summarize for admin
+- not just respond conversationally
+
+Example 2:
+User visits workplace-solutions, finance-your-workspace, then request-a-quote.
+
+Nexora should:
+- infer high commercial intent
+- elevate closer mode
+- prioritise finance + quote pathway
+- mark as warm/hot lead
+- recommend immediate follow-up path
+
+Example 3:
+User opens 3D walkthrough page on unsupported environment.
+
+Nexora should:
+- detect blocked feature
+- switch to alternative conversion path
+- preserve user interest
+- recommend upload floor plan or request walkthrough
+- not let the journey die
+
+Example 4:
+Admin sees multiple new leads.
+
+Nexora should rank:
+- who is hottest
+- who needs immediate human action
+- who is incomplete but promising
+- who should go into follow-up
+- who is low priority
+
+==================================================
+OUTPUT STANDARDS
+==================================================
+
+Nexora outputs must be both:
+1. machine-usable
+2. human-usable
+
+Every major Nexora evaluation should return:
+- structured decision object
+- readable summary
+- actions to take
+- state updates
+
+Do not rely on plain chat text alone.
+
+==================================================
+TESTING REQUIREMENTS
+==================================================
+
+Mandatory tests:
+
+1. CONTEXT PERSISTENCE
+Navigate across pages.
+Nexora must retain journey state and not reset into generic mode.
+
+2. INTENT DETECTION
+Different user actions must produce different intents correctly.
+
+3. DECISION QUALITY
+Nexora must recommend appropriate next actions based on context.
+
+4. CLOSER MODE
+High-intent commercial users must be pushed into converting workflows.
+
+5. PROBLEM SOLVER MODE
+When a flow breaks or a feature is unavailable, Nexora must recover the journey.
+
+6. LEAD ENRICHMENT
+Meaningful user actions must update structured lead records.
+
+7. ADMIN SUPPORT
+Admin must receive usable AI summaries and prioritisation.
+
+8. ROUTE + CTA INTEGRATION
+Nexora must influence route/CTA logic, not just chat responses.
+
+9. NO CHATBOT REGRESSION
+Nexora must not collapse into a generic stateless chat widget.
+
+10. FULL FLOW
+User lands, browses, asks a question, uploads info, starts quote.
+Nexora must guide, decide, persist context, enrich lead, and support conversion.
+
+==================================================
+IMPLEMENTATION REPORT REQUIRED
+==================================================
+
+After implementation, output a full report with:
+
+1. Nexora architecture map
+2. modules added/refactored
+3. context sources connected
+4. route/CTA integrations added
+5. lead intelligence features added
+6. admin decision-support features added
+7. closer mode logic added
+8. problem-solver logic added
+9. pages/workflows integrated
+10. fake AI/UI-only behaviours removed
+11. remaining gaps, if any
+12. proof that Nexora is acting as system intelligence rather than chatbot
+
+==================================================
+SUCCESS CRITERIA
+==================================================
+
+This task is only complete if:
+
+- Nexora acts like the platform brain
+- Nexora makes decisions, not just replies
+- Nexora solves blockers and preserves momentum
+- Nexora drives users toward the best commercial next step
+- Nexora supports admin prioritisation and action
+- Nexora is deeply integrated across routes, workflows, state, and backend
+- Nexora does not regress into a dumb chatbot
+- the platform behaves like an AI-run operating system with a premium frontend shell
+
+FINAL INSTRUCTION:
+Rebuild Nexora into a true executive operating system for The Corporate Desk so it runs the platform intelligently, acts as a decision maker and problem solver, drives commercial outcomes, supports admin action, and controls the user journey across the whole site and operating system.

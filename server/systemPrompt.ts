@@ -544,7 +544,8 @@ export function buildChatSystemPrompt(
     };
     quotesAwaitingPayment?: { id: string; clientName: string; companyName: string | null; totalIncGst: number | null; financialStatus: string | null }[];
     depositPaidDeals?: { id: string; clientName: string; companyName: string | null; amountPaid: number | null; amountDue: number | null }[];
-  }
+  },
+  nexoraContext?: string
 ): string {
   const workplaceKnowledge = getWorkplaceDesignKnowledge();
   const salesKnowledge = getSalesFramework();
@@ -618,7 +619,12 @@ When users ask about specific companies, suburbs, or market trends, reference th
     : `\n## WORKSPACE INTELLIGENCE PLATFORM
 You have access to The Corporate Desk's Workspace Intelligence Platform — a live system that tracks office market signals, company relocation intent, lease expiry predictions, and demand forecasting across Australian cities. When users ask about market trends, relocation opportunities, lease activity, or specific companies/suburbs, let them know you can surface real-time intelligence from this platform. To get the latest data, suggest they visit the Market Intelligence Map (/market-map) or the Admin Command Centre.\n`;
 
+  const nexoraBlock = nexoraContext
+    ? `\n${nexoraContext}\n`
+    : "";
+
   return `${CORPORATE_DESK_SYSTEM_PROMPT}
+${nexoraBlock}
 ${pageBlock}
 ${profileBlock}
 ${sessionBlock}

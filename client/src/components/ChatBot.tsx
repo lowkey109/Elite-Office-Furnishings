@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { X, Send, ChevronDown, ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "wouter";
 import { useConcierge, ConversationMessage, UserProfile } from "@/contexts/ConciergeContext";
+import { runNexoraEngine, NexoraDecision } from "@/lib/nexoraEngine";
 
 // ─── Page Configuration ────────────────────────────────────────────────────────
 
@@ -298,8 +299,18 @@ function TypingIndicator() {
   );
 }
 
+function parseRouteLinks(text: string): { clean: string; links: Array<{ href: string; label: string }> } {
+  const links: Array<{ href: string; label: string }> = [];
+  const clean = text.replace(/\[\[route:([^|\]]+)\|([^\]]+)\]\]/g, (_match, href, label) => {
+    links.push({ href: href.trim(), label: label.trim() });
+    return "";
+  }).trim();
+  return { clean, links };
+}
+
 function MessageBubble({ message }: { message: ConversationMessage }) {
   const isUser = message.role === "user";
+  const { clean, links } = isUser ? { clean: message.content, links: [] } : parseRouteLinks(message.content);
   return (
     <div className={`flex items-end gap-2 mb-4 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
       {!isUser && (
@@ -307,14 +318,34 @@ function MessageBubble({ message }: { message: ConversationMessage }) {
           <Sparkles className="w-3.5 h-3.5 text-[hsl(43,78%,65%)]" />
         </div>
       )}
-      <div
-        className={`max-w-[82%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-          isUser
-            ? "bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] rounded-br-sm font-medium"
-            : "bg-[hsl(220,18%,11%)] border border-[rgba(201,168,76,0.1)] text-white/85 rounded-bl-sm"
-        } ${message.isStreaming ? "after:content-['▋'] after:text-[hsl(43,78%,52%)] after:animate-pulse" : ""}`}
-      >
-        {message.content}
+      <div className="max-w-[82%] flex flex-col gap-2">
+        <div
+          className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+            isUser
+              ? "bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] rounded-br-sm font-medium"
+              : "bg-[hsl(220,18%,11%)] border border-[rgba(201,168,76,0.1)] text-white/85 rounded-bl-sm"
+          } ${message.isStreaming ? "after:content-['▮'] after:text-[hsl(43,78%,52%)] after:animate-pulse" : ""}`}
+        >
+          {clean || message.content}
+        </div>
+        {links.length > 0 && (
+          <div className="flex flex-wrap gap-2 pl-1">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                style={{
+                  background: "linear-gradient(135deg, hsl(43,78%,52%) 0%, hsl(38,62%,42%) 100%)",
+                  color: "hsl(220,20%,6%)",
+                }}
+              >
+                <ArrowRight className="w-3 h-3" />
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -375,6 +406,55 @@ function CTACard({ location }: { location: string }) {
   );
 }
 
+function NexoraActionCard({ decision, onNavigate }: { decision: NexoraDecision; onNavigate: () => void }) {
+  const urgencyColors: Record<string, string> = {
+    high: "rgba(201,168,76,0.18)",
+    medium: "rgba(201,168,76,0.1)",
+    low: "rgba(201,168,76,0.06)",
+  };
+  const stageLabel: Record<string, string> = {
+    exploring: "Exploring",
+    qualifying: "Qualifying",
+    engaged: "Engaged",
+    converting: "Ready to convert",
+  };
+  return (
+    <div
+      className="mx-3 mb-3 rounded-xl px-3 py-2.5 flex items-center gap-3"
+      style={{
+        background: urgencyColors[decision.urgency] || urgencyColors.low,
+        border: "1px solid rgba(201,168,76,0.2)",
+      }}
+      data-testid="nexora-action-card"
+    >
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5 mb-0.5">
+          <span className="text-[hsl(43,78%,62%)]" style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            Nexora recommends
+          </span>
+          <span className="text-white/25" style={{ fontSize: "9px" }}>•</span>
+          <span className="text-white/35" style={{ fontSize: "9px" }}>
+            {stageLabel[decision.journeyStage] ?? decision.journeyStage}
+          </span>
+        </div>
+        <p className="text-white/75 text-xs truncate">{decision.nextAction.label}</p>
+      </div>
+      <Link
+        href={decision.nextAction.href}
+        onClick={onNavigate}
+        className="flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-95"
+        style={{
+          background: "linear-gradient(135deg, hsl(43,78%,52%) 0%, hsl(38,62%,42%) 100%)",
+          color: "hsl(220,20%,6%)",
+        }}
+        data-testid="nexora-action-cta"
+      >
+        Go <ArrowRight className="w-3 h-3" />
+      </Link>
+    </div>
+  );
+}
+
 function OrbTrigger({
   isOpen,
   showBadge,
@@ -399,7 +479,7 @@ function OrbTrigger({
               border: "1px solid rgba(201,168,76,0.22)",
             }}
           >
-            <p className="text-white text-xs font-semibold leading-tight">Workspace Advisor</p>
+            <p className="text-white text-xs font-semibold leading-tight">Nexora</p>
             <p className="text-[hsl(43,78%,62%)] text-[10px] leading-tight mt-0.5">
               The Corporate Desk · AI
             </p>
@@ -485,6 +565,7 @@ export function ChatBot() {
     showQuickReplies,
     hasShownWelcome,
     isOpen,
+    previousPage,
     setIsOpen,
     setMessages,
     setApiHistory,
@@ -493,7 +574,11 @@ export function ChatBot() {
     setShowCTA,
     setShowQuickReplies,
     setHasShownWelcome,
+    setIntent,
+    setJourneyStage,
+    setSelectedService,
   } = useConcierge();
+  const [nexoraDecision, setNexoraDecision] = useState<NexoraDecision | null>(null);
 
   const isLoadingRef = useRef(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -580,6 +665,37 @@ export function ChatBot() {
       ]);
 
       try {
+        // Run Nexora engine — classify intent and compute next action
+        const nexoraInput = {
+          currentRoute: location,
+          previousRoute: previousPage ?? null,
+          pagesVisited: userProfile.pagesVisited,
+          messageText: content.trim(),
+          messageCount,
+          userProfile,
+          conversationHistory: newHistory,
+        };
+        const decision = runNexoraEngine(nexoraInput);
+        setNexoraDecision(decision);
+        setIntent(decision.intent);
+        setJourneyStage(decision.journeyStage);
+        if (decision.leadUpdate?.service) setSelectedService(decision.leadUpdate.service);
+
+        // Fire-and-forget lead update for medium/high urgency
+        if (decision.leadUpdate && decision.urgency !== "low") {
+          fetch("/api/leads", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: userProfile.staff ? `Visitor (${userProfile.staff})` : "Anonymous Visitor",
+              email: "nexora-capture@thecorporatedesk.com.au",
+              type: "nexora_session",
+              sourcePage: location,
+              message: decision.leadUpdate.notes,
+            }),
+          }).catch(() => {});
+        }
+
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -588,6 +704,7 @@ export function ChatBot() {
             stream: true,
             pageContext: pageLabel,
             userProfile: profileString || undefined,
+            nexoraContext: decision.systemContext,
           }),
         });
 
@@ -666,12 +783,19 @@ export function ChatBot() {
       apiHistory,
       pageLabel,
       profileString,
+      previousPage,
+      userProfile,
+      messageCount,
+      location,
       setApiHistory,
       setMessageCount,
       setMessages,
       setShowCTA,
       setShowQuickReplies,
       setUserProfile,
+      setIntent,
+      setJourneyStage,
+      setSelectedService,
     ]
   );
 
@@ -731,10 +855,10 @@ export function ChatBot() {
                 </div>
                 <div>
                   <p className="text-white text-sm font-semibold leading-tight tracking-tight">
-                    Workspace Advisor
+                    Nexora
                   </p>
                   <p className="text-[hsl(43,78%,56%)] text-[11px] leading-tight mt-0.5">
-                    The Corporate Desk · AI Consultant
+                    Workspace Intelligence · The Corporate Desk
                   </p>
                 </div>
               </div>
@@ -816,8 +940,13 @@ export function ChatBot() {
                   </div>
                 )}
 
+                {/* Nexora action card */}
+                {nexoraDecision && nexoraDecision.urgency !== "low" && !isLoading && (
+                  <NexoraActionCard decision={nexoraDecision} onNavigate={() => setIsOpen(false)} />
+                )}
+
                 {/* CTA */}
-                {showCTA && !isLoading && <CTACard location={location} />}
+                {showCTA && !isLoading && !nexoraDecision && <CTACard location={location} />}
 
                 {/* Input */}
                 <form
