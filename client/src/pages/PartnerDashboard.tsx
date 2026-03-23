@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Handshake, XCircle, Building2, MapPin, DollarSign, Calendar,
   TrendingUp, Award, Briefcase, Zap, X, CheckCircle2, Clock,
-  Star, ArrowRight, Target, AlertTriangle,
+  Star, ArrowRight, Target, AlertTriangle, FileText, Lock,
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -16,6 +16,7 @@ type Partner = {
   email: string; phone?: string; city?: string; state?: string;
   activeStatus: string; onboardingStatus?: string; referralRate?: number;
   totalOpportunitiesReceived?: number; totalProjectsWon?: number;
+  agreementStatus?: string; agreementSentAt?: string; agreementSignedAt?: string;
 };
 
 type Opportunity = {
@@ -179,6 +180,87 @@ export default function PartnerDashboard() {
   }
 
   const { partner, opportunities = [], referrals = [] } = data;
+
+  // ── Agreement Gate ──────────────────────────────────────────────────────────
+  if (partner.agreementStatus !== "signed") {
+    return (
+      <div className="min-h-screen bg-[#0f0f0f] text-white">
+        <div className="border-b border-white/8 bg-[#0f0f0f]">
+          <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Link href="/" className="flex flex-col cursor-pointer">
+                <span className="text-sm font-serif font-bold text-white leading-tight">THE CORPORATE</span>
+                <span className="text-[9px] font-serif tracking-[0.3em] text-[hsl(43,78%,52%)] uppercase">DESK</span>
+              </Link>
+              <div className="w-px h-6 bg-white/10 mx-1" />
+              <div className="text-white/50 text-sm">Partner Dashboard</div>
+            </div>
+            <button onClick={() => setEmail("")} className="text-white/30 hover:text-white/70 p-1" data-testid="button-partner-logout">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+        <div className="max-w-lg mx-auto px-6 py-20 text-center">
+          <div className="inline-flex items-center justify-center w-14 h-14 border border-amber-500/20 bg-amber-500/5 mb-6">
+            <Lock className="w-6 h-6 text-amber-400" />
+          </div>
+          <h2 className="text-2xl font-light text-white mb-3">Agreement Required</h2>
+          <p className="text-white/50 leading-relaxed mb-8">
+            Hi {partner.contactName} — your account is approved, but you need to sign your Partner Referral Agreement before accessing your dashboard and submitting referrals.
+          </p>
+
+          {partner.agreementStatus === "sent" && (
+            <div className="border border-[hsl(43,78%,52%)]/20 bg-[hsl(43,78%,52%)]/4 p-5 mb-8 text-left">
+              <div className="flex items-start gap-3">
+                <FileText className="w-4 h-4 text-[hsl(43,78%,52%)] mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm text-white/80 font-medium mb-1">Your agreement is ready to sign</p>
+                  <p className="text-xs text-white/45 leading-relaxed">
+                    Check your inbox at <span className="text-white/65">{partner.email}</span> for the agreement email from The Corporate Desk. The email contains a direct link to review and sign.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {partner.agreementStatus === "pending" && (
+            <div className="border border-white/8 bg-white/[0.02] p-5 mb-8 text-left">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm text-white/80 font-medium mb-1">Agreement not yet sent</p>
+                  <p className="text-xs text-white/45 leading-relaxed">
+                    Your application is under review. Once approved, you will receive an agreement email. Contact us to expedite.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <p className="text-white/30 text-sm mb-6">
+            Need help? Call <span className="text-white/55">1300 977 607</span> or email{" "}
+            <a href="mailto:service@thecorporatedesk.com.au" className="text-[hsl(43,78%,52%)] hover:underline">
+              service@thecorporatedesk.com.au
+            </a>
+          </p>
+
+          <div className="flex gap-3 justify-center">
+            <Button
+              onClick={() => setEmail("")}
+              variant="outline"
+              className="border-white/15 text-white/50 hover:bg-white/5 rounded-none"
+              data-testid="button-agreement-back"
+            >
+              Back
+            </Button>
+            <Button asChild className="bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-black font-semibold rounded-none" data-testid="button-agreement-contact">
+              <a href="mailto:service@thecorporatedesk.com.au?subject=Partner Agreement Request">Contact Us</a>
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   const pendingOpps = opportunities.filter(o => o.status === "invited");
   const activeOpps = opportunities.filter(o => ["viewed", "accepted"].includes(o.status));
   const paidComms = commissions.filter(c => c.paymentStatus === "paid");

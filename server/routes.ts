@@ -4957,6 +4957,173 @@ Rules:
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
+  // ─── Agreement: Send ──────────────────────────────────────────────────────
+  app.post("/api/admin/partners/:id/agreement/send", async (req, res) => {
+    try {
+      const { partners: partnersTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq, sql: dSql } = await import("drizzle-orm");
+      const { sendPartnerAgreementEmail } = await import("./email");
+      const { generateAgreementText } = await import("./services/partnerAgreement");
+
+      const [partner] = await ddb.select().from(partnersTable).where(eq(partnersTable.id, req.params.id)).limit(1);
+      if (!partner) return res.status(404).json({ error: "Partner not found" });
+
+      const token = crypto.randomUUID();
+      await ddb.update(partnersTable).set({
+        agreementStatus: "sent",
+        agreementToken: token,
+        agreementSentAt: new Date(),
+        updatedAt: new Date(),
+      }).where(eq(partnersTable.id, req.params.id));
+
+      const baseUrl = req.headers.origin || `https://${req.headers.host}`;
+      const signingUrl = `${baseUrl}/partner/agreement/${token}`;
+
+      const agreementText = generateAgreementText({
+        contactName: partner.contactName,
+        companyName: partner.companyName,
+        email: partner.email,
+        abn: partner.abn,
+        city: partner.city,
+        state: partner.state,
+      });
+
+      try {
+        await sendPartnerAgreementEmail({
+          partnerEmail: partner.email,
+          partnerName: partner.contactName,
+          companyName: partner.companyName,
+          signingUrl,
+        });
+      } catch (emailErr: any) {
+        console.error("[Agreement] Email send failed:", emailErr?.message);
+      }
+
+      res.json({ ok: true, token, signingUrl, agreementStatus: "sent" });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Agreement: Manual Override ──────────────────────────────────────────
+  app.patch("/api/admin/partners/:id/agreement/override", async (req, res) => {
+    try {
+      const { partners: partnersTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq } = await import("drizzle-orm");
+      const { status, reason } = req.body || {};
+      if (!["pending", "sent", "signed", "rejected"].includes(status)) {
+        return res.status(400).json({ error: "Invalid status. Must be: pending | sent | signed | rejected" });
+      }
+      const updateFields: Record<string, any> = { agreementStatus: status, updatedAt: new Date() };
+      if (status === "signed") {
+        updateFields.agreementSignedAt = new Date();
+        updateFields.agreementSignedByName = req.body.signedByName || "Admin Override";
+      }
+      await ddb.update(partnersTable).set(updateFields).where(eq(partnersTable.id, req.params.id));
+      res.json({ ok: true, agreementStatus: status });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Agreement: Get Signing Page Data (public) ────────────────────────────
+  app.get("/api/partner/agreement/:token", async (req, res) => {
+    try {
+      const { partners: partnersTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq } = await import("drizzle-orm");
+      const { generateAgreementText, getAgreementTemplateVersion } = await import("./services/partnerAgreement");
+
+      const [partner] = await ddb.select({
+        id: partnersTable.id,
+        contactName: partnersTable.contactName,
+        companyName: partnersTable.companyName,
+        email: partnersTable.email,
+        abn: partnersTable.abn,
+        city: partnersTable.city,
+        state: partnersTable.state,
+        agreementStatus: partnersTable.agreementStatus,
+        agreementToken: partnersTable.agreementToken,
+        referralRate: partnersTable.referralRate,
+      }).from(partnersTable).where(eq(partnersTable.agreementToken, req.params.token)).limit(1);
+
+      if (!partner) return res.status(404).json({ error: "Agreement link not found or expired" });
+      if (partner.agreementStatus === "signed") {
+        return res.json({ alreadySigned: true, partnerName: partner.contactName, companyName: partner.companyName });
+      }
+
+      const agreementText = generateAgreementText({
+        contactName: partner.contactName,
+        companyName: partner.companyName,
+        email: partner.email,
+        abn: partner.abn,
+        city: partner.city,
+        state: partner.state,
+      }, getAgreementTemplateVersion());
+
+      res.json({
+        alreadySigned: false,
+        partnerId: partner.id,
+        partnerName: partner.contactName,
+        companyName: partner.companyName,
+        email: partner.email,
+        referralRate: partner.referralRate || 0.075,
+        templateVersion: getAgreementTemplateVersion(),
+        agreementText,
+      });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Agreement: Sign (public) ────────────────────────────────────────────
+  app.post("/api/partner/agreement/:token/sign", async (req, res) => {
+    try {
+      const { partners: partnersTable, partnerAgreements: partnerAgreementsTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq } = await import("drizzle-orm");
+      const { generateAgreementText, getAgreementTemplateVersion } = await import("./services/partnerAgreement");
+
+      const { signedByName } = req.body || {};
+      if (!signedByName || String(signedByName).trim().length < 2) {
+        return res.status(400).json({ error: "Full name is required to sign the agreement" });
+      }
+
+      const [partner] = await ddb.select().from(partnersTable).where(eq(partnersTable.agreementToken, req.params.token)).limit(1);
+      if (!partner) return res.status(404).json({ error: "Agreement link not found or expired" });
+      if (partner.agreementStatus === "signed") {
+        return res.status(409).json({ error: "Agreement already signed" });
+      }
+
+      const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.socket.remoteAddress || null;
+      const signedAt = new Date();
+      const templateVersion = getAgreementTemplateVersion();
+      const agreementText = generateAgreementText({
+        contactName: partner.contactName,
+        companyName: partner.companyName,
+        email: partner.email,
+        abn: partner.abn,
+        city: partner.city,
+        state: partner.state,
+      }, templateVersion);
+
+      await ddb.update(partnersTable).set({
+        agreementStatus: "signed",
+        agreementSignedAt: signedAt,
+        agreementSignedByName: String(signedByName).trim(),
+        agreementSignedByIp: ip,
+        updatedAt: signedAt,
+      }).where(eq(partnersTable.id, partner.id));
+
+      await ddb.insert(partnerAgreementsTable).values({
+        partnerId: partner.id,
+        templateVersion,
+        agreementText,
+        signedByName: String(signedByName).trim(),
+        signedAt,
+        signedByIp: ip,
+      });
+
+      res.json({ ok: true, signedAt: signedAt.toISOString(), partnerName: partner.contactName, companyName: partner.companyName });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
   app.post("/api/admin/partners/route-opportunity", async (req, res) => {
     try {
       const { partnerTypes, ...opportunityData } = req.body as { partnerTypes?: string[] } & Record<string, any>;
@@ -4999,10 +5166,11 @@ Rules:
       const partner = await storage.getPartnerByEmail(partnerEmail);
       if (!partner) return res.status(404).json({ error: "Partner not found" });
       const opportunities = await storage.getPartnerOpportunities(partner.id);
-      // Fetch referrals by partnerId OR by contact email (submitted without account)
       const referrals = await ddb.select().from(partnerReferralsTable)
         .where(or(eq(partnerReferralsTable.partnerId, partner.id), eq(partnerReferralsTable.contactEmail, partnerEmail)));
-      res.json({ partner, opportunities, referrals });
+      // Strip agreementToken from response (signing token — not for dashboard)
+      const { agreementToken: _tok, agreementSignedByIp: _ip, ...safeParter } = partner as any;
+      res.json({ partner: safeParter, opportunities, referrals });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
@@ -5056,9 +5224,19 @@ Rules:
 
       // Auto-resolve partnerId from referringPartnerEmail if not provided
       let resolvedPartnerId = body.partnerId || null;
-      if (!resolvedPartnerId && body.referringPartnerEmail) {
-        const [matchedPartner] = await ddb.select({ id: partnersTable.id }).from(partnersTable).where(eq(partnersTable.email, body.referringPartnerEmail)).limit(1);
-        if (matchedPartner) resolvedPartnerId = matchedPartner.id;
+      if (!resolvedPartnerId && (body.referringPartnerEmail || body.partnerEmail)) {
+        const lookupEmail = body.referringPartnerEmail || body.partnerEmail;
+        const [matchedPartner] = await ddb.select({ id: partnersTable.id, agreementStatus: partnersTable.agreementStatus }).from(partnersTable).where(eq(partnersTable.email, lookupEmail)).limit(1);
+        if (matchedPartner) {
+          if (matchedPartner.agreementStatus !== "signed") {
+            return res.status(403).json({
+              error: "Agreement not signed",
+              message: "Your partner agreement must be signed before submitting referrals. Please check your email for the agreement link, or contact us at service@thecorporatedesk.com.au.",
+              agreementRequired: true,
+            });
+          }
+          resolvedPartnerId = matchedPartner.id;
+        }
       }
 
       const [newReferral] = await ddb.insert(partnerReferralsTable).values({

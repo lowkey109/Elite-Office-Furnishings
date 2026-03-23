@@ -614,6 +614,11 @@ export const partners = pgTable("partners", {
   activeStatus: text("active_status").notNull().default("pending"),
   onboardingStatus: text("onboarding_status").notNull().default("lead"), // lead|approved|active|paused|rejected
   agreementStatus: text("agreement_status").notNull().default("pending"), // pending|sent|signed|rejected
+  agreementToken: varchar("agreement_token"),
+  agreementSentAt: timestamp("agreement_sent_at"),
+  agreementSignedAt: timestamp("agreement_signed_at"),
+  agreementSignedByName: text("agreement_signed_by_name"),
+  agreementSignedByIp: text("agreement_signed_by_ip"),
   referralRate: real("referral_rate").default(0.075),
   rating: integer("rating").default(0),
   totalOpportunitiesReceived: integer("total_opportunities_received").default(0),
@@ -624,7 +629,7 @@ export const partners = pgTable("partners", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
-export const insertPartnerSchema = createInsertSchema(partners).omit({ id: true, createdAt: true, updatedAt: true, approvedAt: true, totalOpportunitiesReceived: true, totalProjectsWon: true, totalRevenueGenerated: true });
+export const insertPartnerSchema = createInsertSchema(partners).omit({ id: true, createdAt: true, updatedAt: true, approvedAt: true, totalOpportunitiesReceived: true, totalProjectsWon: true, totalRevenueGenerated: true, agreementToken: true, agreementSentAt: true, agreementSignedAt: true, agreementSignedByName: true, agreementSignedByIp: true });
 export type InsertPartner = z.infer<typeof insertPartnerSchema>;
 export type Partner = typeof partners.$inferSelect;
 
@@ -752,6 +757,20 @@ export const partnerSettings = pgTable("partner_settings", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+export const partnerAgreements = pgTable("partner_agreements", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  partnerId: varchar("partner_id").notNull(),
+  templateVersion: text("template_version").notNull().default("v1"),
+  agreementText: text("agreement_text").notNull(),
+  signedByName: text("signed_by_name").notNull(),
+  signedAt: timestamp("signed_at").notNull(),
+  signedByIp: text("signed_by_ip"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertPartnerAgreementSchema = createInsertSchema(partnerAgreements).omit({ id: true, createdAt: true });
+export type InsertPartnerAgreement = z.infer<typeof insertPartnerAgreementSchema>;
+export type PartnerAgreement = typeof partnerAgreements.$inferSelect;
 
 export const revenueShareRecords = pgTable("revenue_share_records", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

@@ -1068,3 +1068,71 @@ export async function sendOutreachEmail(opts: {
   console.log(`[OutreachEmail] ✓ SENT — to: ${toList} | company: ${opts.companyName} | messageId: ${result.data?.id ?? "unknown"}`);
   return { id: result.data?.id, provider: "resend" };
 }
+
+export async function sendPartnerAgreementEmail(opts: {
+  partnerEmail: string;
+  partnerName: string;
+  companyName: string;
+  signingUrl: string;
+}): Promise<void> {
+  const subject = `Partner Agreement — The Corporate Desk`;
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#0f0f0f;font-family:'Helvetica Neue',Arial,sans-serif;color:#ffffff;">
+  <div style="max-width:580px;margin:0 auto;padding:48px 32px;">
+
+    <div style="margin-bottom:32px;">
+      <span style="font-family:Georgia,serif;font-weight:bold;font-size:15px;letter-spacing:0.05em;color:#fff;">THE CORPORATE</span>
+      <span style="display:block;font-size:8px;letter-spacing:0.35em;color:#c9a84c;text-transform:uppercase;margin-top:1px;">DESK</span>
+    </div>
+
+    <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:32px;margin-bottom:32px;">
+      <p style="font-size:13px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.1em;margin:0 0 20px;">Partner Agreement</p>
+      <h1 style="font-size:26px;font-weight:300;color:#ffffff;margin:0 0 16px;line-height:1.3;">
+        Welcome to the Partner Network, ${opts.partnerName}
+      </h1>
+      <p style="font-size:15px;color:rgba(255,255,255,0.6);line-height:1.7;margin:0 0 12px;">
+        Your application to the Corporate Desk Partner Referral Network has been approved.
+      </p>
+      <p style="font-size:15px;color:rgba(255,255,255,0.6);line-height:1.7;margin:0 0 28px;">
+        To activate your account and begin submitting referrals, please review and sign your Partner Referral Agreement. This takes under 2 minutes.
+      </p>
+    </div>
+
+    <div style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);padding:24px;margin-bottom:32px;">
+      <p style="font-size:13px;color:rgba(255,255,255,0.5);margin:0 0 6px;">Agreement terms summary:</p>
+      <ul style="font-size:13px;color:rgba(255,255,255,0.7);margin:0;padding-left:20px;line-height:2;">
+        <li>7.5% commission on all approved, paid deals you refer</li>
+        <li>Payment within 30 days of verified client payment</li>
+        <li>Non-exclusive — you are free to work with others</li>
+        <li>Referral / introducer arrangement only (not employment)</li>
+        <li>Governed by Queensland law</li>
+      </ul>
+    </div>
+
+    <div style="text-align:center;margin-bottom:32px;">
+      <a href="${opts.signingUrl}" style="display:inline-block;background:#c9a84c;color:#000000;font-size:14px;font-weight:600;padding:14px 36px;text-decoration:none;letter-spacing:0.03em;">
+        Review &amp; Sign Agreement
+      </a>
+    </div>
+
+    <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:24px;">
+      <p style="font-size:12px;color:rgba(255,255,255,0.25);line-height:1.8;margin:0;">
+        This agreement is between ${opts.companyName} and The Corporate Desk Pty Ltd. If you have questions, contact us at service@thecorporatedesk.com.au or call 1300 977 607.
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>`;
+
+  console.log(`[Email] ▶ Partner Agreement — to: ${opts.partnerEmail} | partner: ${opts.partnerName}`);
+  await sendEmail({ to: opts.partnerEmail, subject, html });
+  await sendEmail({
+    to: TCD_RECIPIENTS,
+    subject: `AGREEMENT SENT — ${opts.companyName} (${opts.partnerName})`,
+    html: `<p style="font-family:Arial,sans-serif;color:#333;">Agreement email sent to partner <strong>${opts.partnerName}</strong> (${opts.companyName}) at ${opts.partnerEmail}.</p><p>Signing URL: <a href="${opts.signingUrl}">${opts.signingUrl}</a></p>`,
+  });
+}

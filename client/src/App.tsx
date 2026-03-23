@@ -54,6 +54,7 @@ import AdminRelocationIntelligence from "@/pages/AdminRelocationIntelligence";
 import AdminWorkspaceStrategy from "@/pages/AdminWorkspaceStrategy";
 import PartnerOnboarding from "@/pages/PartnerOnboarding";
 import PartnerDashboard from "@/pages/PartnerDashboard";
+import PartnerAgreement from "@/pages/PartnerAgreement";
 import MarketMap from "@/pages/MarketMap";
 import AdminMarketIntelligence from "@/pages/AdminMarketIntelligence";
 import AdminCompanyVisitors from "@/pages/AdminCompanyVisitors";
@@ -162,6 +163,7 @@ function Router() {
       <Route path="/admin/workspace-design-engine" component={WorkspaceDesignEngine} />
       <Route path="/partner-onboarding" component={PartnerOnboarding} />
       <Route path="/partner-dashboard" component={PartnerDashboard} />
+      <Route path="/partner/agreement/:token" component={PartnerAgreement} />
       <Route path="/market-map" component={MarketMap} />
       <Route path="/admin/market-intelligence" component={AdminMarketIntelligence} />
       <Route path="/admin/company-visitors" component={AdminCompanyVisitors} />

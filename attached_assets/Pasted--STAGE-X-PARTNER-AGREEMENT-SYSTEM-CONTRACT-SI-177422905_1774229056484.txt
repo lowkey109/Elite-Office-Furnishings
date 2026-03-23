@@ -1,0 +1,162 @@
+==================================================
+STAGE X — PARTNER AGREEMENT SYSTEM (CONTRACT + SIGNING + ENFORCEMENT)
+==================================================
+
+GOAL:
+Implement a fully integrated partner agreement system that:
+- generates legal agreements
+- sends them to partners
+- captures acceptance (digital signature or checkbox + timestamp)
+- stores signed agreements
+- enforces agreement status in the system
+
+This must be part of the workflow, not optional.
+
+--------------------------------------------------
+1. AGREEMENT TEMPLATE SYSTEM
+--------------------------------------------------
+
+Create a structured agreement template for referral partners including:
+
+- parties (The Corporate Desk Pty Ltd + Partner)
+- ABN details
+- services scope (referral / introducer only)
+- commission structure (7.5%)
+- payment terms (only after client payment received)
+- non-exclusivity clause (IMPORTANT)
+- no agency / no authority clause
+- confidentiality clause
+- limitation of liability
+- termination clause
+- governing law (Australia)
+
+Store template version in:
+partner_settings.agreement_template_version
+
+--------------------------------------------------
+2. AGREEMENT GENERATION
+--------------------------------------------------
+
+When a partner is approved:
+
+- generate agreement using template
+- inject partner details dynamically
+- create a document record in partner_documents
+- assign document_type = "agreement"
+
+--------------------------------------------------
+3. SIGNING FLOW
+--------------------------------------------------
+
+Provide either:
+
+Option A (MVP):
+- checkbox agreement:
+  "I agree to the Partner Referral Agreement"
+- capture:
+  - full name
+  - timestamp
+  - IP address (if available)
+
+Option B (upgrade-ready):
+- integrate e-sign provider (DocuSign / similar)
+
+--------------------------------------------------
+4. STATUS ENFORCEMENT (CRITICAL)
+--------------------------------------------------
+
+Add/Use:
+
+partners.agreement_status:
+- pending
+- sent
+- signed
+- rejected
+
+RULES:
+
+- partner cannot:
+  - access dashboard
+  - submit referrals
+  - receive commissions
+
+UNTIL:
+👉 agreement_status = signed
+
+--------------------------------------------------
+5. ADMIN CONTROLS
+--------------------------------------------------
+
+Admin must be able to:
+
+- send agreement
+- resend agreement
+- view agreement
+- see signing status
+- manually override status (if required)
+- view audit trail
+
+--------------------------------------------------
+6. AUDIT + STORAGE
+--------------------------------------------------
+
+Store:
+
+- signed agreement (file or record)
+- timestamp of agreement
+- version used
+- any changes
+
+All agreements must be retrievable per partner.
+
+--------------------------------------------------
+7. EMAIL FLOW
+--------------------------------------------------
+
+When agreement is sent:
+
+- send email:
+  subject: "Partner Agreement — The Corporate Desk"
+  includes:
+    - link to sign
+    - summary of terms
+
+--------------------------------------------------
+8. UX REQUIREMENTS
+--------------------------------------------------
+
+Partner dashboard must show:
+
+- agreement status:
+  - Pending
+  - Sent
+  - Signed
+
+If not signed:
+- block access with clear CTA:
+  "Sign Agreement to Activate Account"
+
+--------------------------------------------------
+9. LEGAL POSITIONING
+--------------------------------------------------
+
+Ensure:
+
+- this is a referral/introducer agreement only
+- partner is NOT an employee or agent
+- no authority to bind the company
+- commission only paid on successful, paid deals
+
+--------------------------------------------------
+COMPLETION GATE
+--------------------------------------------------
+
+Do not mark complete until:
+
+- agreements are generated dynamically
+- signing is captured and stored
+- system blocks unsigned partners
+- admin can manage agreements
+- agreement records are persisted
+- flow is tested end-to-end
+- documentation is updated

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import {
   Users, DollarSign, TrendingUp, Settings, RefreshCw, CheckCircle2,
   ChevronRight, BarChart3, Loader2, Star, AlertTriangle, Zap, Clock,
+  FileText, Send, ShieldCheck, Copy,
 } from "lucide-react";
 
 function getUrgency(r: any): { label: string; color: string } | null {
@@ -124,6 +125,26 @@ export default function AdminPartners() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/partners/stats"] });
     },
     onError: () => toast({ title: "Failed", variant: "destructive" }),
+  });
+
+  const sendAgreementMutation = useMutation({
+    mutationFn: (partnerId: string) => apiRequest("POST", `/api/admin/partners/${partnerId}/agreement/send`),
+    onSuccess: async (res: any) => {
+      const body = await res.json();
+      toast({ title: "Agreement sent", description: `Signing link: ${body.signingUrl}` });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/partners"] });
+    },
+    onError: () => toast({ title: "Failed to send agreement", variant: "destructive" }),
+  });
+
+  const overrideAgreementMutation = useMutation({
+    mutationFn: ({ partnerId, status }: { partnerId: string; status: string }) =>
+      apiRequest("PATCH", `/api/admin/partners/${partnerId}/agreement/override`, { status, signedByName: "Admin Override" }),
+    onSuccess: () => {
+      toast({ title: "Agreement status updated" });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/partners"] });
+    },
+    onError: () => toast({ title: "Override failed", variant: "destructive" }),
   });
 
   const TABS: { id: Tab; label: string; icon: any }[] = [
@@ -305,23 +326,81 @@ export default function AdminPartners() {
                       <th className="text-left py-3 pr-4">Location</th>
                       <th className="text-left py-3 pr-4">Status</th>
                       <th className="text-left py-3 pr-4">Commission</th>
-                      <th className="text-left py-3">Joined</th>
+                      <th className="text-left py-3 pr-4">Agreement</th>
+                      <th className="text-left py-3">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {partners.map((p: any) => (
-                      <tr key={p.id} data-testid={`row-partner-${p.id}`} className="border-b border-white/5 hover:bg-white/5">
-                        <td className="py-3 pr-4">
-                          <div className="text-white font-medium">{p.contactName}</div>
-                          <div className="text-white/40 text-xs">{p.companyName}</div>
-                        </td>
-                        <td className="py-3 pr-4 text-white/50">{p.partnerType}</td>
-                        <td className="py-3 pr-4 text-white/50">{p.city}, {p.state}</td>
-                        <td className="py-3 pr-4"><StatusBadge status={p.onboardingStatus || p.activeStatus} /></td>
-                        <td className="py-3 pr-4 text-white/50">{((p.referralRate || 0.075) * 100).toFixed(1)}%</td>
-                        <td className="py-3 text-white/40 text-xs">{timeAgo(p.createdAt)}</td>
-                      </tr>
-                    ))}
+                    {partners.map((p: any) => {
+                      const agStatus = p.agreementStatus || "pending";
+                      const agColor = agStatus === "signed" ? "text-emerald-400" : agStatus === "sent" ? "text-[hsl(43,78%,52%)]" : agStatus === "rejected" ? "text-red-400" : "text-white/30";
+                      const agIcon = agStatus === "signed" ? <ShieldCheck className="w-3.5 h-3.5" /> : agStatus === "sent" ? <Send className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />;
+                      const isSending = sendAgreementMutation.isPending;
+                      return (
+                        <tr key={p.id} data-testid={`row-partner-${p.id}`} className="border-b border-white/5 hover:bg-white/5">
+                          <td className="py-3 pr-4">
+                            <div className="text-white font-medium">{p.contactName}</div>
+                            <div className="text-white/40 text-xs">{p.companyName} · {p.email}</div>
+                          </td>
+                          <td className="py-3 pr-4 text-white/50 text-xs">{p.partnerType}</td>
+                          <td className="py-3 pr-4 text-white/50 text-xs">{p.city}, {p.state}</td>
+                          <td className="py-3 pr-4"><StatusBadge status={p.onboardingStatus || p.activeStatus} /></td>
+                          <td className="py-3 pr-4 text-white/50 text-xs">{((p.referralRate || 0.075) * 100).toFixed(1)}%</td>
+                          <td className="py-3 pr-4">
+                            <span className={`flex items-center gap-1.5 text-xs font-medium ${agColor}`} data-testid={`status-agreement-${p.id}`}>
+                              {agIcon}
+                              <span className="capitalize">{agStatus}</span>
+                            </span>
+                            {p.agreementSignedAt && (
+                              <div className="text-white/25 text-[10px] mt-0.5">{timeAgo(p.agreementSignedAt)}</div>
+                            )}
+                            {p.agreementSentAt && agStatus === "sent" && (
+                              <div className="text-white/25 text-[10px] mt-0.5">Sent {timeAgo(p.agreementSentAt)}</div>
+                            )}
+                          </td>
+                          <td className="py-3">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              {agStatus !== "signed" && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => sendAgreementMutation.mutate(p.id)}
+                                  disabled={isSending}
+                                  data-testid={`button-send-agreement-${p.id}`}
+                                  className="h-7 px-2.5 text-xs bg-[hsl(43,78%,52%)]/15 hover:bg-[hsl(43,78%,52%)]/25 text-[hsl(43,78%,52%)] border border-[hsl(43,78%,52%)]/20 rounded-none font-normal"
+                                  variant="ghost"
+                                >
+                                  <Send className="w-3 h-3 mr-1" />
+                                  {agStatus === "sent" ? "Resend" : "Send"}
+                                </Button>
+                              )}
+                              {agStatus !== "signed" && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => overrideAgreementMutation.mutate({ partnerId: p.id, status: "signed" })}
+                                  data-testid={`button-override-signed-${p.id}`}
+                                  className="h-7 px-2.5 text-xs bg-white/5 hover:bg-white/10 text-white/40 border border-white/8 rounded-none font-normal"
+                                  variant="ghost"
+                                >
+                                  <ShieldCheck className="w-3 h-3 mr-1" />
+                                  Mark Signed
+                                </Button>
+                              )}
+                              {agStatus === "signed" && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => overrideAgreementMutation.mutate({ partnerId: p.id, status: "pending" })}
+                                  data-testid={`button-override-reset-${p.id}`}
+                                  className="h-7 px-2.5 text-xs bg-white/3 hover:bg-white/8 text-white/25 border border-white/6 rounded-none font-normal"
+                                  variant="ghost"
+                                >
+                                  Reset
+                                </Button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
