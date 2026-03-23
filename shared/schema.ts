@@ -46,6 +46,11 @@ export const leads = pgTable("leads", {
   nexoraNextAction: text("nexora_next_action"),
   nexoraDealBand: text("nexora_deal_band"),
   nexoraEscalation: text("nexora_escalation"),
+  // ── Deal Closing / Pipeline ──
+  leadStatus: text("lead_status").default("new"), // new|contacted|qualified|proposal|negotiating|won|lost
+  nextActionDate: timestamp("next_action_date"),
+  hasFloorplan: boolean("has_floorplan").default(false),
+  budgetRange: text("budget_range"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -624,6 +629,13 @@ export const partners = pgTable("partners", {
   totalOpportunitiesReceived: integer("total_opportunities_received").default(0),
   totalProjectsWon: integer("total_projects_won").default(0),
   totalRevenueGenerated: integer("total_revenue_generated").default(0),
+  // ── Partner Performance Scoring ──
+  partnerScore: integer("partner_score").default(0),
+  partnerTier: text("partner_tier").default("tier1"), // tier1|tier2|tier3
+  referralCount: integer("referral_count").default(0),
+  conversionRate: real("conversion_rate").default(0), // 0-1 decimal
+  lastReferralAt: timestamp("last_referral_at"),
+  lastActivityAt: timestamp("last_activity_at"),
   adminNotes: text("admin_notes"),
   approvedAt: timestamp("approved_at"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -771,6 +783,34 @@ export const partnerAgreements = pgTable("partner_agreements", {
 export const insertPartnerAgreementSchema = createInsertSchema(partnerAgreements).omit({ id: true, createdAt: true });
 export type InsertPartnerAgreement = z.infer<typeof insertPartnerAgreementSchema>;
 export type PartnerAgreement = typeof partnerAgreements.$inferSelect;
+
+// ─── Lead Message Templates ────────────────────────────────────────────────────
+export const leadMessageTemplates = pgTable("lead_message_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  type: text("type").notNull().unique(), // initial_contact|follow_up_1|follow_up_2
+  label: text("label").notNull(),
+  body: text("body").notNull(), // use {{name}} placeholder for dynamic insertion
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertLeadMessageTemplateSchema = createInsertSchema(leadMessageTemplates).omit({ id: true, createdAt: true, updatedAt: true });
+export type LeadMessageTemplate = typeof leadMessageTemplates.$inferSelect;
+
+// ─── Lead Outreach Log ─────────────────────────────────────────────────────────
+export const leadOutreach = pgTable("lead_outreach", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  leadId: varchar("lead_id").notNull(),
+  templateType: text("template_type").notNull(), // initial_contact|follow_up_1|follow_up_2|custom
+  renderedMessage: text("rendered_message").notNull(),
+  leadName: text("lead_name"),
+  adminApproved: boolean("admin_approved").default(false),
+  approvedAt: timestamp("approved_at"),
+  createdBy: text("created_by").default("admin"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertLeadOutreachSchema = createInsertSchema(leadOutreach).omit({ id: true, createdAt: true });
+export type LeadOutreach = typeof leadOutreach.$inferSelect;
 
 export const revenueShareRecords = pgTable("revenue_share_records", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

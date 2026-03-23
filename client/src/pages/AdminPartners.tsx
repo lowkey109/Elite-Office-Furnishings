@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input";
 import {
   Users, DollarSign, TrendingUp, Settings, RefreshCw, CheckCircle2,
   ChevronRight, BarChart3, Loader2, Star, AlertTriangle, Zap, Clock,
-  FileText, Send, ShieldCheck, Copy,
+  FileText, Send, ShieldCheck, Copy, Trophy, Award, ArrowUpRight,
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 function getUrgency(r: any): { label: string; color: string } | null {
   if (!r.createdAt) return null;
@@ -20,7 +21,7 @@ function getUrgency(r: any): { label: string; color: string } | null {
   return null;
 }
 
-type Tab = "partners" | "referrals" | "commissions" | "settings";
+type Tab = "partners" | "referrals" | "commissions" | "settings" | "leaderboard";
 
 const STATUS_COLORS: Record<string, string> = {
   submitted: "bg-blue-500/10 text-blue-300 border-blue-500/20",
@@ -63,11 +64,27 @@ export default function AdminPartners() {
   const [activeTab, setActiveTab] = useState<Tab>("referrals");
   const [selectedReferral, setSelectedReferral] = useState<string | null>(null);
 
+  const [lbTierFilter, setLbTierFilter] = useState<string>("all");
+  const [lbCityFilter, setLbCityFilter] = useState<string>("");
+  const [scoringAll, setScoringAll] = useState(false);
+
   const { data: stats } = useQuery<any>({ queryKey: ["/api/admin/partners/stats"] });
   const { data: partners = [], isLoading: partnersLoading } = useQuery<any[]>({ queryKey: ["/api/admin/partners"], enabled: activeTab === "partners" });
   const { data: referralsRaw = [], isLoading: referralsLoading } = useQuery<any[]>({ queryKey: ["/api/admin/partners/referrals"], enabled: activeTab === "referrals" });
   const { data: commissions = [], isLoading: commissionsLoading } = useQuery<any[]>({ queryKey: ["/api/admin/partners/commissions"], enabled: activeTab === "commissions" });
   const { data: settings } = useQuery<any>({ queryKey: ["/api/admin/partners/settings"], enabled: activeTab === "settings" });
+  const { data: leaderboardRaw = [], isLoading: lbLoading, refetch: refetchLb } = useQuery<any[]>({
+    queryKey: ["/api/admin/partners/leaderboard"],
+    enabled: activeTab === "leaderboard",
+  });
+
+  const leaderboard = useMemo(() => {
+    return leaderboardRaw.filter(({ partner, score }) => {
+      if (lbTierFilter !== "all" && score.tier !== lbTierFilter) return false;
+      if (lbCityFilter && !(partner.city || "").toLowerCase().includes(lbCityFilter.toLowerCase())) return false;
+      return true;
+    });
+  }, [leaderboardRaw, lbTierFilter, lbCityFilter]);
 
   // Sort referrals: URGENT first, then by AI score descending, then by creation date
   const referrals = useMemo(() => {
@@ -147,11 +164,18 @@ export default function AdminPartners() {
     onError: () => toast({ title: "Override failed", variant: "destructive" }),
   });
 
+  const TIER_LABELS: Record<string, { label: string; color: string }> = {
+    tier1: { label: "Tier 1",                color: "text-white/50" },
+    tier2: { label: "Tier 2 — Preferred",    color: "text-[hsl(43,78%,52%)]" },
+    tier3: { label: "Tier 3 — Strategic",    color: "text-emerald-400" },
+  };
+
   const TABS: { id: Tab; label: string; icon: any }[] = [
-    { id: "referrals", label: "Referrals", icon: TrendingUp },
-    { id: "partners", label: "Partners", icon: Users },
+    { id: "referrals",   label: "Referrals",   icon: TrendingUp },
+    { id: "partners",    label: "Partners",    icon: Users },
     { id: "commissions", label: "Commissions", icon: DollarSign },
-    { id: "settings", label: "Settings", icon: Settings },
+    { id: "leaderboard", label: "Leaderboard", icon: Trophy },
+    { id: "settings",    label: "Settings",    icon: Settings },
   ];
 
   return (
@@ -443,6 +467,146 @@ export default function AdminPartners() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Leaderboard Tab ──────────────────────────────────────────── */}
+        {activeTab === "leaderboard" && (
+          <div>
+            {/* Header + Actions */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div>
+                <h2 className="text-white font-light text-lg">Partner Performance Leaderboard</h2>
+                <p className="text-white/35 text-xs mt-0.5">Scored on volume · conversion · revenue · consistency · recency</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  data-testid="button-score-all"
+                  disabled={scoringAll}
+                  className="border-white/10 text-white/60 hover:text-white bg-transparent rounded-none text-xs"
+                  onClick={async () => {
+                    setScoringAll(true);
+                    try {
+                      await apiRequest("POST", "/api/admin/partners/score-all", {});
+                      await refetchLb();
+                      toast({ title: "All partner scores updated" });
+                    } catch { toast({ title: "Score sync failed", variant: "destructive" }); }
+                    finally { setScoringAll(false); }
+                  }}
+                >
+                  {scoringAll ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <RefreshCw className="w-3 h-3 mr-1" />}
+                  Sync All Scores
+                </Button>
+              </div>
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-wrap gap-3 mb-5">
+              <Select value={lbTierFilter} onValueChange={setLbTierFilter}>
+                <SelectTrigger data-testid="select-tier-filter" className="w-48 bg-white/5 border-white/10 text-white/70 rounded-none text-xs h-8">
+                  <SelectValue placeholder="All Tiers" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#1a1a1a] border-white/10">
+                  <SelectItem value="all">All Tiers</SelectItem>
+                  <SelectItem value="tier1">Tier 1 (Default)</SelectItem>
+                  <SelectItem value="tier2">Tier 2 — Preferred</SelectItem>
+                  <SelectItem value="tier3">Tier 3 — Strategic</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                placeholder="Filter by city..."
+                value={lbCityFilter}
+                onChange={e => setLbCityFilter(e.target.value)}
+                data-testid="input-city-filter"
+                className="w-40 h-8 bg-white/5 border-white/10 text-white text-xs rounded-none placeholder:text-white/30"
+              />
+            </div>
+
+            {/* Table */}
+            {lbLoading ? (
+              <div className="flex items-center gap-2 text-white/30 text-sm py-12">
+                <Loader2 className="w-4 h-4 animate-spin" /> Loading leaderboard...
+              </div>
+            ) : leaderboard.length === 0 ? (
+              <div className="py-12 text-center text-white/25 text-sm border border-white/8">
+                No signed partners found. Partners must have a signed agreement to appear.
+              </div>
+            ) : (
+              <div className="border border-white/8">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-white/8 bg-white/[0.02]">
+                      <th className="text-left px-4 py-3 text-xs text-white/35 font-normal w-10">#</th>
+                      <th className="text-left px-4 py-3 text-xs text-white/35 font-normal">Partner</th>
+                      <th className="text-left px-4 py-3 text-xs text-white/35 font-normal">Tier</th>
+                      <th className="text-right px-4 py-3 text-xs text-white/35 font-normal">Score</th>
+                      <th className="text-right px-4 py-3 text-xs text-white/35 font-normal">Referrals</th>
+                      <th className="text-right px-4 py-3 text-xs text-white/35 font-normal">Won</th>
+                      <th className="text-right px-4 py-3 text-xs text-white/35 font-normal">Conv.</th>
+                      <th className="text-right px-4 py-3 text-xs text-white/35 font-normal">Revenue</th>
+                      <th className="text-right px-4 py-3 text-xs text-white/35 font-normal">Recency</th>
+                      <th className="px-4 py-3 text-xs text-white/35 font-normal"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {leaderboard.map(({ partner, score }, idx) => {
+                      const tierInfo = TIER_LABELS[score.tier] || TIER_LABELS.tier1;
+                      const rankBadge = idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `${idx + 1}`;
+                      return (
+                        <tr key={partner.id} data-testid={`leaderboard-row-${partner.id}`} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                          <td className="px-4 py-3 text-white/40 text-xs">{rankBadge}</td>
+                          <td className="px-4 py-3">
+                            <div className="font-medium text-white text-sm">{partner.companyName || "—"}</div>
+                            <div className="text-white/35 text-xs">{partner.contactName}{partner.city ? ` · ${partner.city}` : ""}</div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className={`text-xs ${tierInfo.color}`}>{tierInfo.label}</span>
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <span className="text-[hsl(43,78%,52%)] font-semibold text-sm">{score.rawScore}</span>
+                            <span className="text-white/20 text-xs">/100</span>
+                          </td>
+                          <td className="px-4 py-3 text-right text-white/70 text-xs">{score.referralCount}</td>
+                          <td className="px-4 py-3 text-right text-white/70 text-xs">{score.wonCount}</td>
+                          <td className="px-4 py-3 text-right text-white/50 text-xs">{(score.conversionRate * 100).toFixed(0)}%</td>
+                          <td className="px-4 py-3 text-right text-white/70 text-xs">${(score.totalRevenue || 0).toLocaleString()}</td>
+                          <td className="px-4 py-3 text-right text-white/40 text-xs">
+                            {score.recencyDays >= 999 ? "Never" : score.recencyDays === 0 ? "Today" : `${score.recencyDays}d ago`}
+                          </td>
+                          <td className="px-4 py-3">
+                            <button
+                              data-testid={`button-sync-score-${partner.id}`}
+                              className="text-white/20 hover:text-white/60 transition-colors"
+                              title="Sync score"
+                              onClick={async () => {
+                                try {
+                                  await apiRequest("POST", `/api/admin/partners/${partner.id}/score`, {});
+                                  await refetchLb();
+                                  toast({ title: `Score updated: ${partner.companyName}` });
+                                } catch { toast({ title: "Score sync failed", variant: "destructive" }); }
+                              }}
+                            >
+                              <RefreshCw className="w-3 h-3" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Summary stats */}
+            {leaderboard.length > 0 && (
+              <div className="mt-4 flex gap-6 text-xs text-white/30">
+                <span>{leaderboard.length} partners shown</span>
+                <span>Avg score: {Math.round(leaderboard.reduce((s, r) => s + r.score.rawScore, 0) / leaderboard.length)}/100</span>
+                <span>Tier 3: {leaderboard.filter(r => r.score.tier === "tier3").length} · Tier 2: {leaderboard.filter(r => r.score.tier === "tier2").length} · Tier 1: {leaderboard.filter(r => r.score.tier === "tier1").length}</span>
               </div>
             )}
           </div>

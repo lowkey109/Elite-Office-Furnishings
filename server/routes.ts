@@ -171,7 +171,10 @@ High-value referrals ($100k+): ${highValueReferrals.length}
 ${highValueReferrals.map(r => `- ${r.clientCompany} | $${(r.estimatedValue || 0).toLocaleString()} | score: ${r.aiFitScore ?? "unscored"}`).join("\n")}
 
 Partners in network: ${allPartners.length}
-${allPartners.map(p => `- ${p.companyName} | ${p.partnerType} | status: ${p.activeStatus || p.onboardingStatus}`).join("\n")}
+${allPartners.map(p => `- ${p.companyName} | ${p.partnerType} | tier: ${p.partnerTier || "tier1"} | score: ${p.partnerScore ?? "unscored"} | referrals: ${p.referralCount ?? 0} | status: ${p.activeStatus || p.onboardingStatus}`).join("\n")}
+
+Top performers (by score): ${allPartners.slice(0, 3).map(p => `${p.companyName} (score: ${p.partnerScore ?? 0}, tier: ${p.partnerTier || "tier1"})`).join("; ")}
+Partners not yet scored: ${allPartners.filter(p => !p.partnerScore).length}
 
 Commissions:
 - Pending: ${pendingCommissions.length} (total: $${totalPendingCommissionValue.toLocaleString()})
@@ -1420,6 +1423,150 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
     } catch (error) {
       res.status(500).json({ success: false, message: "Internal server error" });
     }
+  });
+
+  // ─── Deal Pipeline — Lead Status Management ───────────────────────────────
+  app.get("/api/admin/leads/pipeline", async (req, res) => {
+    try {
+      const { leads: leadsTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { desc } = await import("drizzle-orm");
+      const rows = await ddb.select().from(leadsTable).orderBy(desc(leadsTable.createdAt));
+      res.json(rows);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.patch("/api/admin/leads/:id/pipeline", async (req, res) => {
+    try {
+      const { leads: leadsTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq } = await import("drizzle-orm");
+      const allowed = ["leadStatus", "nextAction", "nextActionDate", "hasFloorplan", "budgetRange", "moveDate", "staffCount", "opportunityScore"];
+      const updates: Record<string, any> = {};
+      for (const k of allowed) {
+        if (req.body[k] !== undefined) updates[k] = req.body[k];
+      }
+      if (Object.keys(updates).length === 0) return res.status(400).json({ error: "No valid fields to update" });
+      const [updated] = await ddb.update(leadsTable).set(updates).where(eq(leadsTable.id, req.params.id)).returning();
+      if (!updated) return res.status(404).json({ error: "Lead not found" });
+      res.json({ ok: true, lead: updated });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Message Templates ────────────────────────────────────────────────────
+  app.get("/api/admin/lead-templates", async (req, res) => {
+    try {
+      const { leadMessageTemplates } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const templates = await ddb.select().from(leadMessageTemplates);
+      res.json(templates);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.put("/api/admin/lead-templates/:type", async (req, res) => {
+    try {
+      const { leadMessageTemplates } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq } = await import("drizzle-orm");
+      const { label, body } = req.body || {};
+      if (!body) return res.status(400).json({ error: "body is required" });
+      const [row] = await ddb.insert(leadMessageTemplates).values({
+        type: req.params.type, label: label || req.params.type, body, updatedAt: new Date(),
+      }).onConflictDoUpdate({ target: leadMessageTemplates.type, set: { body, label: label || req.params.type, updatedAt: new Date() } }).returning();
+      res.json({ ok: true, template: row });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Lead Outreach Compose & Approval ────────────────────────────────────
+  app.get("/api/admin/leads/:id/outreach", async (req, res) => {
+    try {
+      const { leadOutreach } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq, desc } = await import("drizzle-orm");
+      const rows = await ddb.select().from(leadOutreach).where(eq(leadOutreach.leadId, req.params.id)).orderBy(desc(leadOutreach.createdAt));
+      res.json(rows);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/leads/:id/outreach/compose", async (req, res) => {
+    try {
+      const { leadOutreach, leads: leadsTable, leadMessageTemplates } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq } = await import("drizzle-orm");
+      const { templateType, customMessage, notes } = req.body || {};
+
+      const [lead] = await ddb.select().from(leadsTable).where(eq(leadsTable.id, req.params.id)).limit(1);
+      if (!lead) return res.status(404).json({ error: "Lead not found" });
+
+      let renderedMessage = customMessage || "";
+      if (!renderedMessage && templateType) {
+        const [tmpl] = await ddb.select().from(leadMessageTemplates).where(eq(leadMessageTemplates.type, templateType)).limit(1);
+        if (!tmpl) return res.status(404).json({ error: "Template not found" });
+        const firstName = (lead.name || "there").split(" ")[0];
+        renderedMessage = tmpl.body.replace(/\{\{name\}\}/g, firstName);
+      }
+
+      if (!renderedMessage.trim()) return res.status(400).json({ error: "Message body required" });
+
+      const [row] = await ddb.insert(leadOutreach).values({
+        leadId: req.params.id,
+        templateType: templateType || "custom",
+        renderedMessage,
+        leadName: lead.name,
+        adminApproved: false,
+        createdBy: "admin",
+        notes: notes || null,
+      }).returning();
+
+      res.json({ ok: true, outreach: row });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.patch("/api/admin/leads/:id/outreach/:outreachId/approve", async (req, res) => {
+    try {
+      const { leadOutreach } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq, and } = await import("drizzle-orm");
+      const [row] = await ddb.update(leadOutreach).set({
+        adminApproved: true,
+        approvedAt: new Date(),
+      }).where(and(eq(leadOutreach.id, req.params.outreachId), eq(leadOutreach.leadId, req.params.id))).returning();
+      if (!row) return res.status(404).json({ error: "Outreach record not found" });
+      res.json({ ok: true, outreach: row });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Nexora: Partner Intelligence Query ──────────────────────────────────
+  app.get("/api/admin/nexora/partner-intelligence", async (req, res) => {
+    try {
+      const { partners: partnersTable, partnerReferrals: pReferrals } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { desc: dDesc, eq } = await import("drizzle-orm");
+
+      const [allPartners, allReferrals] = await Promise.all([
+        ddb.select().from(partnersTable).where(eq(partnersTable.agreementStatus, "signed")).orderBy(dDesc(partnersTable.partnerScore)).limit(50),
+        ddb.select().from(pReferrals).orderBy(dDesc(pReferrals.createdAt)).limit(100),
+      ]);
+
+      const now = Date.now();
+      const MS_14D = 14 * 24 * 60 * 60 * 1000;
+
+      const topPartners = allPartners.slice(0, 5);
+      const inactive = allPartners.filter(p => {
+        const lastRef = allReferrals.find(r => r.partnerId === p.id);
+        const lastAct = lastRef ? new Date(lastRef.createdAt).getTime() : (p.agreementSignedAt ? new Date(p.agreementSignedAt).getTime() : 0);
+        return (now - lastAct) > MS_14D;
+      });
+      const activeSubmitters = allPartners.filter(p => allReferrals.some(r => r.partnerId === p.id && (now - new Date(r.createdAt).getTime()) < MS_14D));
+
+      res.json({
+        totalActivePartners: allPartners.length,
+        topPartners: topPartners.map(p => ({ id: p.id, companyName: p.companyName, contactName: p.contactName, partnerScore: p.partnerScore || 0, partnerTier: p.partnerTier || "tier1", referralCount: p.referralCount || 0, city: p.city })),
+        inactivePartners: inactive.map(p => ({ id: p.id, companyName: p.companyName, contactName: p.contactName, partnerTier: p.partnerTier || "tier1", city: p.city })),
+        activeSubmitters: activeSubmitters.map(p => ({ id: p.id, companyName: p.companyName, referralCount: p.referralCount || 0 })),
+        recentReferrals: allReferrals.slice(0, 10).map(r => ({ clientCompany: r.clientCompany, estimatedValue: r.estimatedValue, status: r.status, createdAt: r.createdAt })),
+      });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
   // ─── Finance Lead ────────────────────────────────────────────────────────────
@@ -4915,6 +5062,49 @@ Rules:
       const { eq, asc } = await import("drizzle-orm");
       const events = await ddb.select().from(partnerReferralEventsTable).where(eq(partnerReferralEventsTable.referralId, req.params.id)).orderBy(asc(partnerReferralEventsTable.createdAt));
       res.json(events);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Partner Leaderboard & Scoring (must be before /:id wildcard) ───────────
+  app.get("/api/admin/partners/leaderboard", async (req, res) => {
+    try {
+      const { getPartnerLeaderboard } = await import("./services/partnerScoring");
+      const { city, tier, minScore } = req.query as Record<string, string>;
+      const results = await getPartnerLeaderboard({
+        city: city || undefined,
+        tier: tier || undefined,
+        minScore: minScore ? Number(minScore) : undefined,
+      });
+      res.json(results);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/partners/score-all", async (req, res) => {
+    try {
+      const { partners: partnersTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq } = await import("drizzle-orm");
+      const { syncPartnerScore } = await import("./services/partnerScoring");
+      const allPartners = await ddb.select({ id: partnersTable.id }).from(partnersTable).where(eq(partnersTable.agreementStatus, "signed"));
+      const results = await Promise.allSettled(allPartners.map(p => syncPartnerScore(p.id)));
+      const ok = results.filter(r => r.status === "fulfilled").length;
+      res.json({ ok: true, scored: ok, total: allPartners.length });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/admin/partners/nudge-targets", async (req, res) => {
+    try {
+      const { detectNudgeTargets } = await import("./services/partnerScoring");
+      const targets = await detectNudgeTargets();
+      res.json(targets);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/admin/partners/:id/score", async (req, res) => {
+    try {
+      const { syncPartnerScore } = await import("./services/partnerScoring");
+      const breakdown = await syncPartnerScore(req.params.id);
+      res.json({ ok: true, breakdown });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 

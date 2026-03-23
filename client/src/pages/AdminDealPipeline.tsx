@@ -1,447 +1,607 @@
-import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { queryClient } from "@/lib/queryClient";
+/**
+ * Admin Deal Pipeline — inbound leads from enquiry form
+ * Covers: pipeline status, qualification, outreach message templates + approval
+ */
+
+import { useState, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  DollarSign, TrendingUp, Target, BarChart3, Trophy,
-  MapPin, Loader2, ChevronDown, Zap, Building2, Sparkles,
+  Loader2, MessageSquare, Check, Copy, RefreshCw,
+  Clock, BarChart3, CheckCircle2, Zap,
 } from "lucide-react";
 
-interface DealIntelLookup {
-  winProbability: number;
-  probabilityTier: string;
-  recommendedNextAction: string | null;
-  recommendedOffer: string | null;
-  estimatedProjectValue: number | null;
-  estimatedGrossProfit: number | null;
-  weightedExpectedRevenue: number | null;
-}
-
-const ADMIN_EMAIL = "admin@thecorporatedesk.com.au";
-const ADMIN_PASS = "Jaymin12!/";
-const AUTH_KEY = "tcd_admin_auth";
-
-interface ProspectedLead {
-  id: string;
-  company: string;
-  location: string;
-  industry: string;
-  estimatedProjectValue: string;
-  score: number;
-  priority: "High" | "Medium" | "Low";
-  status: string;
-  city: string | null;
-  dealProbability: number | null;
-  estimatedOfficeSqm: string | null;
-  estimatedHeadcount: string | null;
-  signalType: string | null;
-  recommendedNextAction: string | null;
-  createdAt: string;
-}
-
-// ─── Stage config ──────────────────────────────────────────────────────────────
-const STAGES = [
-  { key: "Radar Opportunity",  label: "Radar Opportunity",  prob: 10,  color: "border-t-white/20",    badge: "bg-white/5 text-white/40 border-white/10" },
-  { key: "Contact Made",       label: "Contact Made",       prob: 20,  color: "border-t-sky-500",     badge: "bg-sky-500/10 text-sky-400 border-sky-500/20" },
-  { key: "Discovery",          label: "Discovery",          prob: 40,  color: "border-t-violet-500",  badge: "bg-violet-500/10 text-violet-400 border-violet-500/20" },
-  { key: "Workspace Planning", label: "Workspace Planning", prob: 60,  color: "border-t-blue-500",    badge: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
-  { key: "Quote Sent",         label: "Quote Sent",         prob: 75,  color: "border-t-amber-500",   badge: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
-  { key: "Negotiation",        label: "Negotiation",        prob: 90,  color: "border-t-orange-500",  badge: "bg-orange-500/10 text-orange-400 border-orange-500/20" },
-  { key: "Won",                label: "Won",                prob: 100, color: "border-t-green-500",   badge: "bg-green-500/10 text-green-400 border-green-500/20" },
-  { key: "Lost",               label: "Lost",               prob: 0,   color: "border-t-red-500",     badge: "bg-red-500/10 text-red-400 border-red-500/20" },
+const PIPELINE_STATUSES = [
+  { value: "new",          label: "New",         color: "bg-blue-500/10 text-blue-300 border-blue-500/20" },
+  { value: "contacted",    label: "Contacted",   color: "bg-yellow-500/10 text-yellow-300 border-yellow-500/20" },
+  { value: "qualified",    label: "Qualified",   color: "bg-purple-500/10 text-purple-300 border-purple-500/20" },
+  { value: "proposal",     label: "Proposal",    color: "bg-indigo-500/10 text-indigo-300 border-indigo-500/20" },
+  { value: "negotiating",  label: "Negotiating", color: "bg-orange-500/10 text-orange-300 border-orange-500/20" },
+  { value: "won",          label: "Won",         color: "bg-green-500/10 text-green-300 border-green-500/20" },
+  { value: "lost",         label: "Lost",        color: "bg-red-500/10 text-red-300 border-red-500/20" },
 ];
 
-// Legacy status mapping to canonical stage names
-const LEGACY_MAP: Record<string, string> = {
-  "Lead Detected": "Radar Opportunity",
-  "New":           "Radar Opportunity",
-  "Contacted":     "Contact Made",
-  "Responded":     "Contact Made",
-  "Planning":      "Discovery",
-  "Qualified":     "Discovery",
-  "Quoted":        "Quote Sent",
-  "Closed":        "Won",
-};
+const STATUS_MAP = Object.fromEntries(PIPELINE_STATUSES.map(s => [s.value, s]));
 
-function normaliseStatus(s: string): string {
-  return LEGACY_MAP[s] ?? s;
+function StatusBadge({ status }: { status: string }) {
+  const s = STATUS_MAP[status] || { label: status, color: "bg-white/10 text-white/50 border-white/10" };
+  return <Badge className={`${s.color} capitalize`}>{s.label}</Badge>;
 }
 
-function getStageMeta(status: string) {
-  const key = normaliseStatus(status);
-  return STAGES.find(s => s.key === key) ?? STAGES[0];
+function timeAgo(dateStr: string | null) {
+  if (!dateStr) return "—";
+  const diff = Date.now() - new Date(dateStr).getTime();
+  if (diff < 60000) return "Just now";
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  return new Date(dateStr).toLocaleDateString("en-AU", { day: "numeric", month: "short" });
 }
 
-function parseValue(val: string | null | undefined): number {
-  if (!val) return 0;
-  const match = val.match(/\$([\d,]+)/);
-  return match ? parseInt(match[1].replace(/,/g, "")) : 0;
+function getFollowUpFlag(lead: any): { label: string; color: string } | null {
+  const status = lead.leadStatus || "new";
+  if (status === "won" || status === "lost") return null;
+  if (!lead.createdAt) return null;
+  const ageH = (Date.now() - new Date(lead.createdAt).getTime()) / (1000 * 60 * 60);
+  if (ageH >= 72 && status === "new") return { label: "STALE 3d+", color: "bg-red-500/15 text-red-300 border-red-500/25" };
+  if (ageH >= 24 && status === "new") return { label: "FOLLOW UP", color: "bg-yellow-500/15 text-yellow-300 border-yellow-500/25" };
+  return null;
 }
 
-function fmtVal(n: number): string {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}k`;
-  return `$${n}`;
-}
-
-// ─── Stage Card ───────────────────────────────────────────────────────────────
-function LeadCard({
-  lead,
-  onMove,
-  dealIntel,
-}: {
-  lead: ProspectedLead;
-  onMove: (id: string, status: string) => void;
-  dealIntel?: DealIntelLookup;
-}) {
-  const [open, setOpen] = useState(false);
-  const stage = getStageMeta(lead.status);
-  const val = parseValue(lead.estimatedProjectValue);
-
-  const winProb = dealIntel?.winProbability;
-  const winTier = dealIntel?.probabilityTier;
-  const nextAction = dealIntel?.recommendedNextAction || lead.recommendedNextAction;
-
-  return (
-    <div className="bg-[hsl(220,18%,12%)] border border-[rgba(255,255,255,0.06)] rounded-xl p-3.5 space-y-2.5" data-testid={`pipeline-card-${lead.id}`}>
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <p className="text-white font-semibold text-sm truncate">{lead.company}</p>
-          {lead.city && (
-            <p className="text-white/40 text-xs flex items-center gap-1 mt-0.5">
-              <MapPin className="w-2.5 h-2.5 flex-shrink-0" />{lead.city}
-            </p>
-          )}
-        </div>
-        <div className="flex items-center gap-1.5 flex-shrink-0">
-          {winProb !== undefined && (
-            <span className={`text-[10px] font-bold border rounded-full px-2 py-0.5 flex items-center gap-0.5 ${
-              winTier === "high" ? "bg-green-500/10 text-green-400 border-green-500/20"
-              : winTier === "medium" ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
-              : "bg-white/5 text-white/30 border-white/10"
-            }`} data-testid={`badge-win-prob-${lead.id}`}>
-              <Sparkles className="w-2 h-2" />{winProb}%
-            </span>
-          )}
-          <span className={`text-[10px] font-bold border rounded-full px-2 py-0.5 flex-shrink-0 ${stage.badge}`}>
-            {stage.prob}%
-          </span>
-        </div>
-      </div>
-
-      {lead.signalType && (
-        <p className="text-white/30 text-xs leading-relaxed truncate">
-          {lead.signalType.replace(/_/g, " ")}
-        </p>
-      )}
-
-      <div className="flex items-center justify-between">
-        <span className="text-[hsl(43,78%,65%)] font-bold text-sm">{lead.estimatedProjectValue || "TBD"}</span>
-        <span className={`text-xs font-medium border rounded-full px-2 py-0.5 ${
-          lead.score >= 70 ? "bg-green-500/10 text-green-400 border-green-500/20"
-          : lead.score >= 50 ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
-          : "bg-white/5 text-white/30 border-white/10"
-        }`}>
-          {lead.score}
-        </span>
-      </div>
-
-      {nextAction && (
-        <p className="text-amber-400/70 text-[11px] leading-relaxed bg-amber-500/5 border border-amber-500/10 rounded-lg px-2.5 py-1.5">
-          {nextAction}
-        </p>
-      )}
-
-      {/* Move stage */}
-      <div className="relative">
-        <button
-          onClick={() => setOpen(o => !o)}
-          className="w-full flex items-center justify-between text-xs text-white/30 hover:text-white/60 border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.12)] rounded-lg px-2.5 py-1.5 transition-colors"
-          data-testid={`button-move-stage-${lead.id}`}
-        >
-          <span>Move to stage…</span>
-          <ChevronDown className="w-3 h-3" />
-        </button>
-        {open && (
-          <div className="absolute bottom-full left-0 w-full bg-[hsl(220,18%,14%)] border border-[rgba(255,255,255,0.1)] rounded-xl shadow-2xl z-10 overflow-hidden mb-1">
-            {STAGES.map(s => (
-              <button
-                key={s.key}
-                onClick={() => { onMove(lead.id, s.key); setOpen(false); }}
-                className={`w-full text-left px-3 py-2 text-xs hover:bg-white/5 transition-colors flex items-center justify-between ${
-                  normaliseStatus(lead.status) === s.key ? "text-[hsl(43,78%,65%)]" : "text-white/60"
-                }`}
-              >
-                <span>{s.label}</span>
-                <span className="text-white/20">{s.prob}%</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ─── Main Page ────────────────────────────────────────────────────────────────
-import { useEffect } from "react";
-import { Input } from "@/components/ui/input";
+type ActivePanel = "pipeline" | "templates";
 
 export default function AdminDealPipeline() {
-  const [authed, setAuthed] = useState(false);
-  const [authEmail, setAuthEmail] = useState("");
-  const [authPw, setAuthPw] = useState("");
-  const [authErr, setAuthErr] = useState(false);
-  const [cityFilter, setCityFilter] = useState("All");
-
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const stored = sessionStorage.getItem(AUTH_KEY);
-    if (stored === `${ADMIN_EMAIL}:${ADMIN_PASS}` || stored === "true") setAuthed(true);
-  }, []);
+  const [activePanel, setActivePanel] = useState<ActivePanel>("pipeline");
+  const [selectedLead, setSelectedLead] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [searchFilter, setSearchFilter] = useState<string>("");
 
-  const { data: leads = [], isLoading } = useQuery<ProspectedLead[]>({
-    queryKey: ["/api/admin/prospects"],
-    queryFn: () => fetch("/api/admin/prospects").then(r => r.json()),
-    enabled: authed,
+  // ── Data queries ─────────────────────────────────────────────────────────
+  const { data: leads = [], isLoading: leadsLoading } = useQuery<any[]>({
+    queryKey: ["/api/admin/leads/pipeline"],
   });
 
-  const { data: dealIntelRecords = [] } = useQuery<any[]>({
-    queryKey: ["/api/admin/deal-intelligence", "prospect"],
-    queryFn: () => fetch("/api/admin/deal-intelligence?sourceType=prospect").then(r => r.json()),
-    enabled: authed,
-    staleTime: 120000,
+  const { data: templates = [], isLoading: templatesLoading } = useQuery<any[]>({
+    queryKey: ["/api/admin/lead-templates"],
+    enabled: activePanel === "templates",
   });
 
-  const dealIntelMap = new Map<string, DealIntelLookup>(
-    dealIntelRecords.map((r: any) => [r.relatedProspectId, r])
-  );
-
-  const moveMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) =>
-      fetch(`/api/admin/prospects/${id}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      }).then(r => r.json()),
-    onSuccess: (_, vars) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/prospects"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/deal-forecast"] });
-      toast({ title: `Moved to ${vars.status}` });
+  const { data: outreachLog = [], isLoading: outreachLoading } = useQuery<any[]>({
+    queryKey: ["/api/admin/leads", selectedLead, "outreach"],
+    queryFn: async () => {
+      if (!selectedLead) return [];
+      const res = await apiRequest("GET", `/api/admin/leads/${selectedLead}/outreach`);
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
     },
+    enabled: !!selectedLead,
   });
 
-  const handleLogin = () => {
-    if (authEmail === ADMIN_EMAIL && authPw === ADMIN_PASS) {
-      sessionStorage.setItem(AUTH_KEY, `${ADMIN_EMAIL}:${ADMIN_PASS}`);
-      setAuthed(true);
-    } else {
-      setAuthErr(true);
-    }
-  };
+  // ── Filtered leads ────────────────────────────────────────────────────────
+  const filteredLeads = useMemo(() => {
+    return leads.filter((l: any) => {
+      if (statusFilter !== "all" && (l.leadStatus || "new") !== statusFilter) return false;
+      if (searchFilter) {
+        const q = searchFilter.toLowerCase();
+        if (!(l.name || "").toLowerCase().includes(q) && !(l.company || "").toLowerCase().includes(q) && !(l.email || "").toLowerCase().includes(q)) return false;
+      }
+      return true;
+    }).sort((a: any, b: any) => {
+      const flagA = getFollowUpFlag(a);
+      const flagB = getFollowUpFlag(b);
+      if (flagA && !flagB) return -1;
+      if (!flagA && flagB) return 1;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+  }, [leads, statusFilter, searchFilter]);
 
-  if (!authed) {
-    return (
-      <div className="min-h-screen bg-[hsl(220,20%,7%)] flex items-center justify-center p-6">
-        <div className="w-full max-w-sm bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-8">
-          <div className="text-center mb-6">
-            <div className="text-[hsl(43,78%,52%)] text-xs font-bold tracking-widest uppercase mb-2">The Corporate Desk</div>
-            <h1 className="text-white font-serif text-xl font-bold">Admin Access</h1>
-            <p className="text-white/40 text-sm mt-1">Deal Pipeline</p>
-          </div>
-          <div className="space-y-3">
-            <Input value={authEmail} onChange={e => setAuthEmail(e.target.value)} placeholder="Admin email" type="email" className="bg-white/5 border-white/10 text-white placeholder:text-white/30" />
-            <Input value={authPw} onChange={e => setAuthPw(e.target.value)} placeholder="Password" type="password" className="bg-white/5 border-white/10 text-white placeholder:text-white/30" onKeyDown={e => e.key === "Enter" && handleLogin()} />
-            {authErr && <p className="text-red-400 text-xs">Invalid credentials</p>}
-            <button onClick={handleLogin} className="w-full bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[#0f0f13] font-semibold py-2 rounded-lg transition-colors">Sign In</button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const selectedLeadData = leads.find((l: any) => l.id === selectedLead);
 
-  const cities = ["All", "Brisbane", "Sydney", "Melbourne"];
-  const filtered = leads.filter(l =>
-    cityFilter === "All" || l.city === cityFilter || l.location?.includes(cityFilter)
-  );
+  // ── Pipeline update mutation ──────────────────────────────────────────────
+  const pipelineMutation = useMutation({
+    mutationFn: (data: { id: string; fields: Record<string, any> }) =>
+      apiRequest("PATCH", `/api/admin/leads/${data.id}/pipeline`, data.fields),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/leads/pipeline"] });
+      toast({ title: "Lead updated" });
+    },
+    onError: () => toast({ title: "Update failed", variant: "destructive" }),
+  });
 
-  // Live forecasting from current data — canonical + legacy aliases
-  const PROB: Record<string, number> = {
-    "Radar Opportunity": 10, "Lead Detected": 10, "New": 10,
-    "Contact Made": 20, "Contacted": 20, "Responded": 20,
-    "Discovery": 40, "Planning": 40, "Qualified": 40,
-    "Workspace Planning": 60,
-    "Quote Sent": 75, "Quoted": 75,
-    "Negotiation": 90,
-    "Won": 100, "Closed": 100,
-    "Lost": 0,
-  };
+  // ── Compose outreach ──────────────────────────────────────────────────────
+  const [composing, setComposing] = useState(false);
+  const [composeTemplate, setComposeTemplate] = useState("initial_contact");
+  const [customMessage, setCustomMessage] = useState("");
+  const [composeNotes, setComposeNotes] = useState("");
 
-  const grossPipeline = filtered.filter(l => l.status !== "Lost" && l.status !== "Closed").reduce((s, l) => s + parseValue(l.estimatedProjectValue), 0);
-  const weightedRevenue = filtered.reduce((s, l) => s + parseValue(l.estimatedProjectValue) * (PROB[l.status] ?? 30) / 100, 0);
-  const probableDeals = filtered.filter(l => (PROB[l.status] ?? 0) >= 60 && l.status !== "Lost");
-  const wonDeals = filtered.filter(l => l.status === "Won" || l.status === "Closed");
-  const wonValue = wonDeals.reduce((s, l) => s + parseValue(l.estimatedProjectValue), 0);
-  const lostDeals = filtered.filter(l => l.status === "Lost");
-  const totalClosed = wonDeals.length + lostDeals.length;
-  const winRate = totalClosed > 0 ? Math.round(wonDeals.length / totalClosed * 100) : null;
+  const composeMutation = useMutation({
+    mutationFn: (data: { leadId: string; templateType: string; customMessage?: string; notes?: string }) =>
+      apiRequest("POST", `/api/admin/leads/${data.leadId}/outreach/compose`, {
+        templateType: data.templateType,
+        customMessage: data.customMessage || undefined,
+        notes: data.notes || undefined,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/leads", selectedLead, "outreach"] });
+      toast({ title: "Message drafted — awaiting approval" });
+      setComposing(false);
+      setCustomMessage("");
+      setComposeNotes("");
+    },
+    onError: () => toast({ title: "Compose failed", variant: "destructive" }),
+  });
+
+  const approveMutation = useMutation({
+    mutationFn: (data: { leadId: string; outreachId: string }) =>
+      apiRequest("PATCH", `/api/admin/leads/${data.leadId}/outreach/${data.outreachId}/approve`, {}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/leads", selectedLead, "outreach"] });
+      toast({ title: "Message approved ✓" });
+    },
+    onError: () => toast({ title: "Approval failed", variant: "destructive" }),
+  });
+
+  // ── Template edit state ───────────────────────────────────────────────────
+  const [editingTemplate, setEditingTemplate] = useState<string | null>(null);
+  const [templateBody, setTemplateBody] = useState<string>("");
+
+  const templateSaveMutation = useMutation({
+    mutationFn: (data: { type: string; body: string; label: string }) =>
+      apiRequest("PUT", `/api/admin/lead-templates/${data.type}`, { body: data.body, label: data.label }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/lead-templates"] });
+      toast({ title: "Template saved" });
+      setEditingTemplate(null);
+    },
+    onError: () => toast({ title: "Save failed", variant: "destructive" }),
+  });
+
+  // ── Pipeline stats ────────────────────────────────────────────────────────
+  const pipelineStats = useMemo(() => ({
+    total: leads.length,
+    new: leads.filter((l: any) => (l.leadStatus || "new") === "new").length,
+    contacted: leads.filter((l: any) => l.leadStatus === "contacted").length,
+    qualified: leads.filter((l: any) => l.leadStatus === "qualified").length,
+    won: leads.filter((l: any) => l.leadStatus === "won").length,
+    followUp: leads.filter((l: any) => getFollowUpFlag(l)).length,
+  }), [leads]);
 
   return (
-    <div className="min-h-screen bg-[hsl(220,20%,7%)] text-white" data-testid="page-deal-pipeline">
-      {/* Top nav */}
-      <div className="bg-[hsl(220,18%,10%)] border-b border-[rgba(255,255,255,0.06)] px-6 py-3 flex items-center gap-4">
-        <div className="text-[hsl(43,78%,52%)] text-xs font-bold tracking-widest uppercase">TCD Admin</div>
-        <div className="text-white/20">·</div>
-        <a href="/admin/dashboard" className="text-white/40 hover:text-white/70 text-sm transition-colors">Dashboard</a>
-        <div className="text-white/20">·</div>
-        <span className="text-white text-sm font-medium">Deal Pipeline</span>
-        <div className="ml-auto">
-          <a href="/admin/dashboard" className="text-white/40 hover:text-white text-xs border border-[rgba(255,255,255,0.1)] rounded-lg px-3 py-1.5 transition-colors">← Dashboard</a>
-        </div>
-      </div>
+    <div className="min-h-screen bg-[#0f0f0f] text-white p-6">
+      <div className="max-w-7xl mx-auto">
 
-      <div className="px-6 py-8">
         {/* Header */}
-        <div className="flex items-start justify-between mb-8">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-white font-serif text-2xl font-bold flex items-center gap-3">
-              <TrendingUp className="w-6 h-6 text-[hsl(43,78%,52%)]" /> Deal Pipeline
-            </h1>
-            <p className="text-white/40 text-sm mt-1">7-stage revenue forecasting · probability-weighted pipeline</p>
+            <h1 className="text-2xl font-light text-white mb-1">Deal Closing Pipeline</h1>
+            <p className="text-white/40 text-sm">Inbound enquiries · pipeline qualification · outreach management</p>
           </div>
-          <div className="flex gap-1.5">
-            {cities.map(c => (
-              <button
-                key={c}
-                onClick={() => setCityFilter(c)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
-                  cityFilter === c
-                    ? "bg-[rgba(201,168,76,0.15)] border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)]"
-                    : "border-[rgba(255,255,255,0.08)] text-white/40 hover:text-white/70"
-                }`}
-              >{c}</button>
-            ))}
+          <div className="flex gap-1 border-b border-white/8">
+            <button
+              onClick={() => setActivePanel("pipeline")}
+              data-testid="tab-pipeline"
+              className={`px-5 py-3 text-sm border-b-2 transition-colors -mb-px ${activePanel === "pipeline" ? "text-[hsl(43,78%,52%)] border-[hsl(43,78%,52%)]" : "text-white/40 border-transparent hover:text-white/60"}`}
+            >
+              Pipeline
+            </button>
+            <button
+              onClick={() => setActivePanel("templates")}
+              data-testid="tab-templates"
+              className={`px-5 py-3 text-sm border-b-2 transition-colors -mb-px ${activePanel === "templates" ? "text-[hsl(43,78%,52%)] border-[hsl(43,78%,52%)]" : "text-white/40 border-transparent hover:text-white/60"}`}
+            >
+              Message Templates
+            </button>
           </div>
         </div>
 
-        {/* Forecast KPIs */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-          {[
-            { label: "Gross Pipeline", value: fmtVal(grossPipeline), sub: "active opportunities", icon: DollarSign, color: "text-white/80" },
-            { label: "Expected Revenue", value: fmtVal(Math.round(weightedRevenue)), sub: "probability-weighted", icon: BarChart3, color: "text-[hsl(43,78%,65%)]" },
-            { label: "Probable Deals", value: probableDeals.length, sub: "≥60% win probability", icon: Target, color: "text-amber-400" },
-            { label: "Won Revenue", value: fmtVal(wonValue), sub: `${wonDeals.length} closed`, icon: Trophy, color: "text-green-400" },
-            { label: "Win Rate", value: winRate !== null ? `${winRate}%` : "—", sub: `${wonDeals.length}W · ${lostDeals.length}L`, icon: TrendingUp, color: "text-blue-400" },
-          ].map(kpi => {
-            const Icon = kpi.icon;
-            return (
-              <div key={kpi.label} className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Icon className={`w-4 h-4 ${kpi.color}`} />
-                  <p className="text-white/40 text-xs">{kpi.label}</p>
+        {/* ── Pipeline Panel ───────────────────────────────────────────────── */}
+        {activePanel === "pipeline" && (
+          <div>
+            {/* Stats row */}
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
+              {([
+                { label: "Total Leads",    value: pipelineStats.total,     icon: BarChart3 },
+                { label: "New",            value: pipelineStats.new,        icon: Zap },
+                { label: "Contacted",      value: pipelineStats.contacted,  icon: MessageSquare },
+                { label: "Qualified",      value: pipelineStats.qualified,  icon: CheckCircle2 },
+                { label: "Won",            value: pipelineStats.won,        icon: Check },
+                { label: "Need Follow-up", value: pipelineStats.followUp,   icon: Clock },
+              ] as const).map(({ label, value, icon: Icon }) => (
+                <div key={label} className="p-3 border border-white/8 bg-white/[0.02]">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Icon className="w-3 h-3 text-white/30" />
+                    <span className="text-xs text-white/40">{label}</span>
+                  </div>
+                  <div className="text-xl font-light text-white" data-testid={`stat-pipeline-${label.toLowerCase().replace(/ /g, "-")}`}>{value}</div>
                 </div>
-                <p className={`text-xl font-bold font-serif ${kpi.color}`} data-testid={`kpi-${kpi.label.toLowerCase().replace(/\s+/g, "-")}`}>{kpi.value}</p>
-                <p className="text-white/25 text-[11px] mt-0.5">{kpi.sub}</p>
+              ))}
+            </div>
+
+            {/* Follow-up banner */}
+            {pipelineStats.followUp > 0 && (
+              <div className="mb-4 p-3 border border-yellow-500/20 bg-yellow-500/5 flex items-center gap-3">
+                <Clock className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+                <span className="text-sm text-white/70">
+                  <span className="text-yellow-300 font-semibold">{pipelineStats.followUp} lead{pipelineStats.followUp !== 1 ? "s" : ""}</span> need follow-up action — sorted to top
+                </span>
               </div>
-            );
-          })}
-        </div>
+            )}
 
-        {/* Stage probability legend */}
-        <div className="flex items-center gap-3 mb-5 flex-wrap">
-          <span className="text-white/30 text-xs">Stage probability:</span>
-          {STAGES.map(s => (
-            <span key={s.key} className={`text-[10px] font-medium border rounded-full px-2 py-0.5 ${s.badge}`}>
-              {s.label} {s.prob}%
-            </span>
-          ))}
-        </div>
+            {/* Filters */}
+            <div className="flex flex-wrap gap-3 mb-5">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger data-testid="select-status-filter" className="w-44 bg-white/5 border-white/10 text-white/70 rounded-none text-xs h-8">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#1a1a1a] border-white/10">
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  {PIPELINE_STATUSES.map(s => (
+                    <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input
+                placeholder="Search name, company, email..."
+                value={searchFilter}
+                onChange={e => setSearchFilter(e.target.value)}
+                data-testid="input-search-leads"
+                className="w-56 h-8 bg-white/5 border-white/10 text-white text-xs rounded-none placeholder:text-white/30"
+              />
+            </div>
 
-        {/* 7-Stage Kanban */}
-        {isLoading ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 className="w-6 h-6 animate-spin text-[hsl(43,78%,52%)]" />
-          </div>
-        ) : (
-          <div className="overflow-x-auto pb-4">
-            <div className="flex gap-3 min-w-max">
-              {STAGES.map(stage => {
-                const colLeads = filtered.filter(l => normaliseStatus(l.status) === stage.key);
-                const colValue = colLeads.reduce((s, l) => s + parseValue(l.estimatedProjectValue), 0);
-                return (
-                  <div key={stage.key} className="w-[240px] flex-shrink-0" data-testid={`column-${stage.key.toLowerCase().replace(/\s+/g, "-")}`}>
-                    {/* Column header */}
-                    <div className={`rounded-t-xl border-t-4 ${stage.color} bg-[hsl(220,18%,10%)] border-l border-r border-[rgba(255,255,255,0.06)] px-3 py-3 mb-2`}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className={`text-xs font-bold border rounded-full px-2 py-0.5 ${stage.badge}`}>{stage.prob}%</span>
-                          <span className="text-white/70 font-semibold text-sm">{stage.label}</span>
-                        </div>
-                        <span className="text-white/30 text-xs">{colLeads.length}</span>
-                      </div>
-                      {colValue > 0 && (
-                        <p className="text-white/40 text-xs mt-1.5">{fmtVal(colValue)}</p>
-                      )}
-                    </div>
-
-                    {/* Cards */}
-                    <div className="space-y-2">
-                      {colLeads.length === 0 ? (
-                        <div className="border border-dashed border-[rgba(255,255,255,0.07)] rounded-xl p-5 text-center text-white/20 text-xs">
-                          No leads
-                        </div>
-                      ) : colLeads.map(lead => (
-                        <LeadCard
+            {/* Lead list + detail panel */}
+            <div className="flex gap-5">
+              {/* Lead list */}
+              <div className="flex-1 min-w-0">
+                {leadsLoading ? (
+                  <div className="flex items-center gap-2 text-white/30 text-sm py-12">
+                    <Loader2 className="w-4 h-4 animate-spin" /> Loading leads...
+                  </div>
+                ) : filteredLeads.length === 0 ? (
+                  <div className="py-12 text-center text-white/25 text-sm border border-white/8">
+                    No leads found matching your filters.
+                  </div>
+                ) : (
+                  <div className="border border-white/8 divide-y divide-white/5">
+                    {filteredLeads.map((lead: any) => {
+                      const flag = getFollowUpFlag(lead);
+                      const isSelected = selectedLead === lead.id;
+                      return (
+                        <div
                           key={lead.id}
-                          lead={lead}
-                          onMove={(id, status) => moveMutation.mutate({ id, status })}
-                          dealIntel={dealIntelMap.get(lead.id)}
-                        />
-                      ))}
+                          data-testid={`lead-row-${lead.id}`}
+                          className={`p-4 cursor-pointer transition-colors hover:bg-white/[0.025] ${isSelected ? "bg-white/[0.04] border-l-2 border-l-[hsl(43,78%,52%)]" : "border-l-2 border-l-transparent"}`}
+                          onClick={() => setSelectedLead(isSelected ? null : lead.id)}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-medium text-white text-sm">{lead.name || "Unknown"}</span>
+                                {lead.company && <span className="text-white/40 text-xs">· {lead.company}</span>}
+                                {flag && (
+                                  <Badge className={`${flag.color} text-[10px] px-1.5 py-0`}>{flag.label}</Badge>
+                                )}
+                              </div>
+                              <div className="text-white/35 text-xs mt-0.5">{lead.email || "—"}{lead.phone ? ` · ${lead.phone}` : ""}</div>
+                              {lead.message && (
+                                <div className="text-white/30 text-xs mt-1.5 line-clamp-1">{lead.message}</div>
+                              )}
+                            </div>
+                            <div className="flex flex-col items-end gap-1.5 shrink-0">
+                              <StatusBadge status={lead.leadStatus || "new"} />
+                              <span className="text-white/25 text-xs">{timeAgo(lead.createdAt)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Detail panel */}
+              {selectedLeadData && (
+                <div className="w-96 shrink-0 border border-white/8 bg-white/[0.02] p-5 space-y-5 max-h-[80vh] overflow-y-auto">
+                  <div>
+                    <h3 className="font-medium text-white text-base">{selectedLeadData.name || "—"}</h3>
+                    <p className="text-white/40 text-xs mt-0.5">{selectedLeadData.email}{selectedLeadData.phone ? ` · ${selectedLeadData.phone}` : ""}</p>
+                    {selectedLeadData.company && <p className="text-white/50 text-xs mt-1">{selectedLeadData.company}</p>}
+                  </div>
+
+                  {/* Enquiry message */}
+                  {selectedLeadData.message && (
+                    <div>
+                      <div className="text-xs text-white/35 uppercase tracking-wide mb-2">Enquiry</div>
+                      <p className="text-white/60 text-xs leading-relaxed">{selectedLeadData.message}</p>
+                    </div>
+                  )}
+
+                  {/* Pipeline status update */}
+                  <div>
+                    <div className="text-xs text-white/35 uppercase tracking-wide mb-2">Pipeline Status</div>
+                    <Select
+                      value={selectedLeadData.leadStatus || "new"}
+                      onValueChange={val => pipelineMutation.mutate({ id: selectedLeadData.id, fields: { leadStatus: val } })}
+                    >
+                      <SelectTrigger data-testid="select-lead-status" className="w-full bg-white/5 border-white/10 text-white rounded-none text-xs h-8">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#1a1a1a] border-white/10">
+                        {PIPELINE_STATUSES.map(s => (
+                          <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Qualification fields */}
+                  <div className="space-y-3">
+                    <div className="text-xs text-white/35 uppercase tracking-wide">Qualification</div>
+                    <div>
+                      <label className="block text-xs text-white/30 mb-1">Budget Range</label>
+                      <Input
+                        key={`budget-${selectedLeadData.id}`}
+                        defaultValue={selectedLeadData.budgetRange || ""}
+                        placeholder="e.g. $50k–$100k"
+                        data-testid="input-budget-range"
+                        className="bg-white/5 border-white/10 text-white rounded-none text-xs h-7"
+                        onBlur={e => {
+                          if (e.target.value !== (selectedLeadData.budgetRange || "")) {
+                            pipelineMutation.mutate({ id: selectedLeadData.id, fields: { budgetRange: e.target.value } });
+                          }
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-white/30 mb-1">Next Action</label>
+                      <Input
+                        key={`action-${selectedLeadData.id}`}
+                        defaultValue={selectedLeadData.nextAction || ""}
+                        placeholder="e.g. Send quote by Friday"
+                        data-testid="input-next-action"
+                        className="bg-white/5 border-white/10 text-white rounded-none text-xs h-7"
+                        onBlur={e => {
+                          if (e.target.value !== (selectedLeadData.nextAction || "")) {
+                            pipelineMutation.mutate({ id: selectedLeadData.id, fields: { nextAction: e.target.value } });
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <label className="text-xs text-white/30">Has Floorplan?</label>
+                      <input
+                        type="checkbox"
+                        data-testid="checkbox-has-floorplan"
+                        defaultChecked={selectedLeadData.hasFloorplan}
+                        className="accent-[hsl(43,78%,52%)]"
+                        onChange={e => pipelineMutation.mutate({ id: selectedLeadData.id, fields: { hasFloorplan: e.target.checked } })}
+                      />
                     </div>
                   </div>
-                );
-              })}
+
+                  {/* Outreach log */}
+                  <div>
+                    <div className="text-xs text-white/35 uppercase tracking-wide mb-3">Outreach Messages</div>
+
+                    {!composing && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        data-testid="button-compose-message"
+                        className="border-white/10 text-white/60 hover:text-white bg-transparent rounded-none text-xs mb-3 w-full"
+                        onClick={() => setComposing(true)}
+                      >
+                        <MessageSquare className="w-3 h-3 mr-1" /> Compose Message
+                      </Button>
+                    )}
+
+                    {/* Compose panel */}
+                    {composing && (
+                      <div className="mb-4 p-3 border border-white/10 bg-white/[0.02] space-y-3">
+                        <div>
+                          <label className="block text-xs text-white/30 mb-1">Template</label>
+                          <Select value={composeTemplate} onValueChange={setComposeTemplate}>
+                            <SelectTrigger data-testid="select-compose-template" className="bg-white/5 border-white/10 text-white rounded-none text-xs h-7">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-[#1a1a1a] border-white/10">
+                              <SelectItem value="initial_contact">Initial Contact</SelectItem>
+                              <SelectItem value="follow_up_1">Follow-up #1 (24h)</SelectItem>
+                              <SelectItem value="follow_up_2">Follow-up #2 (3 days)</SelectItem>
+                              <SelectItem value="custom">Custom</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        {composeTemplate === "custom" && (
+                          <textarea
+                            value={customMessage}
+                            onChange={e => setCustomMessage(e.target.value)}
+                            data-testid="textarea-custom-message"
+                            placeholder="Write your custom message..."
+                            className="w-full bg-white/5 border border-white/10 text-white rounded-none px-3 py-2 text-xs focus:outline-none h-24 resize-none placeholder:text-white/25"
+                          />
+                        )}
+                        <div>
+                          <label className="block text-xs text-white/30 mb-1">Notes (internal)</label>
+                          <Input
+                            value={composeNotes}
+                            onChange={e => setComposeNotes(e.target.value)}
+                            placeholder="Internal notes..."
+                            data-testid="input-compose-notes"
+                            className="bg-white/5 border-white/10 text-white rounded-none text-xs h-7"
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            data-testid="button-submit-compose"
+                            className="bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-black rounded-none text-xs flex-1"
+                            disabled={composeMutation.isPending || (composeTemplate === "custom" && !customMessage.trim())}
+                            onClick={() => composeMutation.mutate({
+                              leadId: selectedLeadData.id,
+                              templateType: composeTemplate,
+                              customMessage: composeTemplate === "custom" ? customMessage : undefined,
+                              notes: composeNotes || undefined,
+                            })}
+                          >
+                            {composeMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : null}
+                            Draft Message
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            data-testid="button-cancel-compose"
+                            className="border-white/10 text-white/50 bg-transparent rounded-none text-xs"
+                            onClick={() => setComposing(false)}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Outreach history */}
+                    {outreachLoading ? (
+                      <div className="text-white/25 text-xs flex items-center gap-2"><Loader2 className="w-3 h-3 animate-spin" /> Loading...</div>
+                    ) : outreachLog.length === 0 ? (
+                      <div className="text-white/20 text-xs">No outreach messages yet.</div>
+                    ) : (
+                      <div className="space-y-3">
+                        {outreachLog.map((o: any) => (
+                          <div key={o.id} data-testid={`outreach-row-${o.id}`} className="p-3 border border-white/8 bg-white/[0.015]">
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <span className="text-white/50 text-xs capitalize">{(o.templateType || "").replace(/_/g, " ")}</span>
+                              <div className="flex items-center gap-2">
+                                {o.adminApproved ? (
+                                  <Badge className="bg-green-500/10 text-green-300 border-green-500/20 text-[10px]">Approved</Badge>
+                                ) : (
+                                  <Badge className="bg-yellow-500/10 text-yellow-300 border-yellow-500/20 text-[10px]">Pending</Badge>
+                                )}
+                              </div>
+                            </div>
+                            <p className="text-white/60 text-xs leading-relaxed whitespace-pre-wrap mb-2">{o.renderedMessage}</p>
+                            <div className="flex items-center gap-3">
+                              <button
+                                data-testid={`button-copy-${o.id}`}
+                                className="text-white/25 hover:text-white/60 text-xs flex items-center gap-1 transition-colors"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(o.renderedMessage);
+                                  toast({ title: "Copied to clipboard" });
+                                }}
+                              >
+                                <Copy className="w-3 h-3" /> Copy
+                              </button>
+                              {!o.adminApproved && (
+                                <button
+                                  data-testid={`button-approve-${o.id}`}
+                                  className="text-green-400/60 hover:text-green-400 text-xs flex items-center gap-1 transition-colors"
+                                  onClick={() => approveMutation.mutate({ leadId: selectedLeadData.id, outreachId: o.id })}
+                                >
+                                  <Check className="w-3 h-3" /> Approve
+                                </button>
+                              )}
+                            </div>
+                            {o.notes && <p className="text-white/25 text-xs mt-1 italic">{o.notes}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {/* Stage breakdown table */}
-        <div className="mt-8 bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl overflow-hidden">
-          <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
-            <h3 className="text-white font-semibold text-sm">Stage Breakdown</h3>
-          </div>
-          <div className="divide-y divide-[rgba(255,255,255,0.04)]">
-            {STAGES.map(stage => {
-              const colLeads = filtered.filter(l => normaliseStatus(l.status) === stage.key);
-              const colValue = colLeads.reduce((s, l) => s + parseValue(l.estimatedProjectValue), 0);
-              const weighted = Math.round(colValue * stage.prob / 100);
-              if (colLeads.length === 0) return null;
-              return (
-                <div key={stage.key} className="flex items-center px-5 py-3 gap-4">
-                  <div className="w-36 flex-shrink-0">
-                    <span className={`text-xs font-medium border rounded-full px-2.5 py-0.5 ${stage.badge}`}>{stage.label}</span>
+        {/* ── Templates Panel ──────────────────────────────────────────────── */}
+        {activePanel === "templates" && (
+          <div className="max-w-3xl space-y-4">
+            <p className="text-white/40 text-sm mb-6">
+              These templates are auto-personalised with the lead's first name via{" "}
+              <code className="text-white/30 bg-white/5 px-1 py-0.5 rounded">{`{{name}}`}</code>.
+              {" "}Admin must approve each composed message before use.
+            </p>
+
+            {templatesLoading ? (
+              <div className="flex items-center gap-2 text-white/30 text-sm py-8">
+                <Loader2 className="w-4 h-4 animate-spin" /> Loading templates...
+              </div>
+            ) : templates.map((tmpl: any) => (
+              <div key={tmpl.id} data-testid={`template-card-${tmpl.type}`} className="border border-white/8 bg-white/[0.02] p-5">
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div>
+                    <h3 className="text-white font-medium text-sm">{tmpl.label}</h3>
+                    <span className="text-white/30 text-xs font-mono">{tmpl.type}</span>
                   </div>
-                  <div className="flex-1 grid grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <span className="text-white font-semibold">{colLeads.length}</span>
-                      <span className="text-white/30 text-xs ml-1">deal{colLeads.length !== 1 ? "s" : ""}</span>
-                    </div>
-                    <div>
-                      <span className="text-white/70">{fmtVal(colValue)}</span>
-                      <span className="text-white/30 text-xs ml-1">gross</span>
-                    </div>
-                    <div>
-                      <span className="text-[hsl(43,78%,65%)]">{fmtVal(weighted)}</span>
-                      <span className="text-white/30 text-xs ml-1">weighted</span>
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      data-testid={`button-copy-template-${tmpl.type}`}
+                      className="text-white/25 hover:text-white/60 text-xs flex items-center gap-1 transition-colors"
+                      onClick={() => {
+                        navigator.clipboard.writeText(tmpl.body);
+                        toast({ title: "Template copied" });
+                      }}
+                    >
+                      <Copy className="w-3 h-3" /> Copy
+                    </button>
+                    <button
+                      data-testid={`button-edit-template-${tmpl.type}`}
+                      className="text-white/25 hover:text-white/60 text-xs transition-colors"
+                      onClick={() => {
+                        setEditingTemplate(tmpl.type);
+                        setTemplateBody(tmpl.body);
+                      }}
+                    >
+                      Edit
+                    </button>
                   </div>
                 </div>
-              );
-            })}
+
+                {editingTemplate === tmpl.type ? (
+                  <div className="space-y-3">
+                    <textarea
+                      value={templateBody}
+                      onChange={e => setTemplateBody(e.target.value)}
+                      data-testid={`textarea-template-body-${tmpl.type}`}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-none px-3 py-2 text-sm focus:outline-none h-36 resize-none"
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        data-testid={`button-save-template-${tmpl.type}`}
+                        className="bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-black rounded-none text-xs"
+                        disabled={templateSaveMutation.isPending}
+                        onClick={() => templateSaveMutation.mutate({ type: tmpl.type, body: templateBody, label: tmpl.label })}
+                      >
+                        {templateSaveMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : null}
+                        Save Template
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        data-testid={`button-cancel-template-${tmpl.type}`}
+                        className="border-white/10 text-white/50 bg-transparent rounded-none text-xs"
+                        onClick={() => setEditingTemplate(null)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <pre className="text-white/50 text-xs whitespace-pre-wrap font-sans leading-relaxed">{tmpl.body}</pre>
+                )}
+              </div>
+            ))}
           </div>
-        </div>
+        )}
+
       </div>
     </div>
   );
