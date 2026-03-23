@@ -2,11 +2,40 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
+
+declare module "express-session" {
+  interface SessionData {
+    isAdmin: boolean;
+  }
+}
+
+const PgSession = connectPgSimple(session);
 
 const app = express();
 const httpServer = createServer(app);
 
 app.set("trust proxy", 1);
+
+// ── Session middleware (server-side admin auth) ───────────────────────────────
+app.use(session({
+  store: new PgSession({
+    conString: process.env.DATABASE_URL,
+    tableName: "admin_sessions",
+    createTableIfMissing: true,
+  }),
+  secret: process.env.SESSION_SECRET || "tcd-dev-fallback-secret",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    maxAge: 8 * 60 * 60 * 1000, // 8 hours
+    sameSite: "lax",
+  },
+  name: "tcd_session",
+}));
 
 declare module "http" {
   interface IncomingMessage {

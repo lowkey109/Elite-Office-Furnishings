@@ -57,6 +57,54 @@ import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } f
             app.use("/uploads", express.static(uploadsPath, { maxAge: "7d" }));
           }
 
+          // ── Admin auth endpoints ──────────────────────────────────────────────
+          const { rateLimit } = await import("express-rate-limit");
+          const authLimiter = rateLimit({
+            windowMs: 15 * 60 * 1000,
+            max: 10,
+            message: { error: "Too many login attempts — try again in 15 minutes" },
+            standardHeaders: true,
+            legacyHeaders: false,
+          });
+
+          app.post("/api/admin/auth/login", authLimiter, (req: any, res: any) => {
+            const { email, password } = req.body || {};
+            const ADMIN_EMAIL = "admin@thecorporatedesk.com.au";
+            const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Jaymin12!/";
+            const LEGACY_PASSWORD = process.env.ADMIN_PASSWORD_LEGACY || "tcd2024admin";
+            const emailMatch = (typeof email === "string" ? email : "").trim().toLowerCase() === ADMIN_EMAIL;
+            const passwordMatch = password === ADMIN_PASSWORD || password === LEGACY_PASSWORD;
+            if (emailMatch && passwordMatch) {
+              req.session.isAdmin = true;
+              req.session.save((err: any) => {
+                if (err) return res.status(500).json({ error: "Session error" });
+                return res.json({ ok: true });
+              });
+            } else {
+              return res.status(401).json({ error: "Invalid credentials" });
+            }
+          });
+
+          app.get("/api/admin/auth/check", (req: any, res: any) => {
+            res.json({ authenticated: !!req.session?.isAdmin });
+          });
+
+          app.post("/api/admin/auth/logout", (req: any, res: any) => {
+            req.session.destroy((err: any) => {
+              if (err) return res.status(500).json({ error: "Logout error" });
+              res.clearCookie("tcd_session");
+              return res.json({ ok: true });
+            });
+          });
+
+          // ── requireAdmin middleware — protects all /api/admin/* routes ─────────
+          const requireAdmin = (req: any, res: any, next: any) => {
+            if (req.path.startsWith("/auth/")) return next();
+            if (req.session?.isAdmin) return next();
+            return res.status(401).json({ error: "Authentication required" });
+          };
+          app.use("/api/admin", requireAdmin);
+
           app.get("/api/nexora/run", async (_req, res) => {
             const result = await runNexoraCycle("manual");
             if (result.skipped) return res.status(409).json(result);

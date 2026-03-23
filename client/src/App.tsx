@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ConciergeProvider } from "@/contexts/ConciergeContext";
 import { NexoraCopilot } from "@/components/NexoraCopilot";
 import { NexoraJourneyBar } from "@/components/NexoraJourneyBar";
+import { AdminAuthGate } from "@/components/AdminAuthGate";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import About from "@/pages/About";
@@ -77,6 +78,60 @@ import CatalogProductDetail from "@/pages/CatalogProductDetail";
 import { usePageTracking } from "@/lib/usePageTracking";
 import { Redirect } from "wouter";
 
+function AdminRoutes() {
+  return (
+    <AdminAuthGate>
+      <Switch>
+        <Route
+          path="/admin"
+          component={() => {
+            window.location.replace("/admin/dashboard");
+            return null;
+          }}
+        />
+        <Route path="/admin/marketing" component={Marketing} />
+        <Route path="/admin/dashboard" component={AdminDashboard} />
+        <Route path="/admin/leads" component={AdminLeads} />
+        <Route path="/admin/lead-intelligence" component={AdminLeads} />
+        <Route path="/admin/supplier-quotes" component={AdminSupplierQuotes} />
+        <Route path="/admin/planning-requests" component={AdminPlanningRequests} />
+        <Route path="/admin/product-reviews" component={AdminProductReviews} />
+        <Route path="/admin/command-centre" component={AdminCommandCentre} />
+        <Route path="/admin/manufacturer-messaging" component={AdminManufacturerMessaging} />
+        <Route path="/admin/follow-up-sequences" component={AdminFollowUpSequences} />
+        <Route path="/admin/lease-signals" component={AdminLeaseSignals} />
+        <Route path="/admin/deal-pipeline" component={AdminDealPipeline} />
+        <Route path="/admin/territory-scanner" component={AdminTerritoryScanner} />
+        <Route path="/admin/procurement-engine" component={AdminProcurementEngine} />
+        <Route path="/admin/supplier-intelligence" component={AdminSupplierIntelligence} />
+        <Route path="/admin/workspace-learning" component={AdminWorkspaceLearning} />
+        <Route path="/admin/intelligence-hub" component={AdminIntelligenceHub} />
+        <Route path="/admin/profit-engine" component={AdminProfitEngine} />
+        <Route path="/admin/office-move-radar" component={AdminOfficeMovRadar} />
+        <Route path="/admin/deal-intelligence" component={AdminDealIntelligence} />
+        <Route path="/admin/quotes/:id/print" component={QuotePrint} />
+        <Route path="/admin/quotes" component={AdminQuotes} />
+        <Route path="/admin/deal-hunter" component={AdminDealHunter} />
+        <Route path="/admin/partner-network" component={AdminPartnerNetwork} />
+        <Route path="/admin/relocation-intelligence" component={AdminRelocationIntelligence} />
+        <Route path="/admin/workspace-strategy" component={AdminWorkspaceStrategy} />
+        <Route path="/admin/workspace-design-engine" component={WorkspaceDesignEngine} />
+        <Route path="/admin/market-intelligence" component={AdminMarketIntelligence} />
+        <Route path="/admin/company-visitors" component={AdminCompanyVisitors} />
+        <Route path="/admin/proposal-engine" component={ProposalEngine} />
+        <Route path="/admin/building-database" component={BuildingDatabase} />
+        <Route path="/admin/products" component={AdminProductCommandCentre} />
+        <Route path="/admin/lead-engine" component={AdminLeadEngine} />
+        <Route path="/admin/alex" component={AdminAlexDashboard} />
+        <Route path="/admin/nexora" component={AdminNexoraCommandCentre} />
+        <Route path="/admin/partners" component={AdminPartners} />
+        <Route path="/admin/catalog-staging" component={AdminCatalogStaging} />
+        <Route component={NotFound} />
+      </Switch>
+    </AdminAuthGate>
+  );
+}
+
 function Router() {
   usePageTracking();
   return (
@@ -128,59 +183,23 @@ function Router() {
       <Route path="/quote-builder" component={QuoteBuilder} />
       <Route path="/finance-your-workspace" component={FinanceWorkspace} />
       <Route path="/trade-project-procurement" component={TradeProcurement} />
-      <Route
-        path="/admin"
-        component={() => {
-          window.location.replace("/admin/dashboard");
-          return null;
-        }}
-      />
-      <Route path="/admin/marketing" component={Marketing} />
-      <Route path="/admin/dashboard" component={AdminDashboard} />
-      <Route path="/admin/leads" component={AdminLeads} />
-      <Route path="/admin/lead-intelligence" component={AdminLeads} />
-      <Route path="/admin/supplier-quotes" component={AdminSupplierQuotes} />
-      <Route path="/admin/planning-requests" component={AdminPlanningRequests} />
-      <Route path="/admin/product-reviews" component={AdminProductReviews} />
-      <Route path="/admin/command-centre" component={AdminCommandCentre} />
-      <Route path="/admin/manufacturer-messaging" component={AdminManufacturerMessaging} />
-      <Route path="/admin/follow-up-sequences" component={AdminFollowUpSequences} />
-      <Route path="/admin/lease-signals" component={AdminLeaseSignals} />
-      <Route path="/admin/deal-pipeline" component={AdminDealPipeline} />
-      <Route path="/admin/territory-scanner" component={AdminTerritoryScanner} />
-      <Route path="/admin/procurement-engine" component={AdminProcurementEngine} />
-      <Route path="/admin/supplier-intelligence" component={AdminSupplierIntelligence} />
-      <Route path="/admin/workspace-learning" component={AdminWorkspaceLearning} />
-      <Route path="/admin/intelligence-hub" component={AdminIntelligenceHub} />
-      <Route path="/admin/profit-engine" component={AdminProfitEngine} />
-      <Route path="/admin/office-move-radar" component={AdminOfficeMovRadar} />
-      <Route path="/admin/deal-intelligence" component={AdminDealIntelligence} />
-      <Route path="/admin/quotes/:id/print" component={QuotePrint} />
-      <Route path="/admin/quotes" component={AdminQuotes} />
-      <Route path="/admin/deal-hunter" component={AdminDealHunter} />
-      <Route path="/admin/partner-network" component={AdminPartnerNetwork} />
-      <Route path="/admin/relocation-intelligence" component={AdminRelocationIntelligence} />
-      <Route path="/admin/workspace-strategy" component={AdminWorkspaceStrategy} />
-      <Route path="/admin/workspace-design-engine" component={WorkspaceDesignEngine} />
+
+      {/* ── Admin — server-session protected ──────────── */}
+      <Route path="/admin/:rest*" component={AdminRoutes} />
+      <Route path="/admin" component={AdminRoutes} />
+
+      {/* ── Partner routes ─────────────────────────────── */}
       <Route path="/partner-onboarding" component={PartnerOnboarding} />
       <Route path="/partner-dashboard" component={PartnerDashboard} />
       <Route path="/partner/agreement/:token" component={PartnerAgreement} />
       <Route path="/partners/apply" component={PartnerApply} />
-      <Route path="/market-map" component={MarketMap} />
-      <Route path="/admin/market-intelligence" component={AdminMarketIntelligence} />
-      <Route path="/admin/company-visitors" component={AdminCompanyVisitors} />
-      <Route path="/admin/proposal-engine" component={ProposalEngine} />
-      <Route path="/admin/building-database" component={BuildingDatabase} />
-      <Route path="/admin/products" component={AdminProductCommandCentre} />
-      <Route path="/admin/lead-engine" component={AdminLeadEngine} />
-      <Route path="/admin/alex" component={AdminAlexDashboard} />
-      <Route path="/admin/nexora" component={AdminNexoraCommandCentre} />
-      <Route path="/admin/partners" component={AdminPartners} />
-      <Route path="/admin/catalog-staging" component={AdminCatalogStaging} />
-      <Route path="/submit-deal" component={SubmitDeal} />
-      <Route path="/trade-customers-portal" component={TradeCustomersPortal} />
       <Route path="/partner/dashboard" component={PartnerDashboard} />
       <Route path="/partner/login" component={PartnerOnboarding} />
+
+      {/* ── Other pages ────────────────────────────────── */}
+      <Route path="/market-map" component={MarketMap} />
+      <Route path="/submit-deal" component={SubmitDeal} />
+      <Route path="/trade-customers-portal" component={TradeCustomersPortal} />
       <Route component={NotFound} />
     </Switch>
   );
