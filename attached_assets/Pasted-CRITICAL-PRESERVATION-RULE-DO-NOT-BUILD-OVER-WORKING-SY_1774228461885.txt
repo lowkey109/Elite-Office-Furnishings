@@ -1,0 +1,117 @@
+CRITICAL PRESERVATION RULE — DO NOT BUILD OVER WORKING SYSTEMS
+
+You are working on an existing partially built production platform.
+
+You must NOT overwrite, replace, rebuild, remove, or regress anything that is already working well unless there is a clear documented reason.
+
+Before changing any page, route, schema, component, service, workflow, or admin module, you must first inspect it and classify it into one of these categories:
+
+1. KEEP AS-IS
+- already working
+- already production-safe
+- already aligned with the target system
+
+2. UPGRADE IN PLACE
+- structurally usable
+- needs polish, wiring, styling, or extension
+- should be improved without replacing the existing implementation
+
+3. REFACTOR CAREFULLY
+- works partially
+- has technical debt or architectural problems
+- should be improved while preserving behavior and data integrity
+
+4. REPLACE ONLY IF NECESSARY
+- fundamentally broken
+- fake/demo-only
+- unsafe
+- duplicated by a stronger system
+- too poor in quality to extend safely
+
+You must default to:
+PRESERVE → UPGRADE → EXTEND
+
+You must NOT default to:
+DELETE → REBUILD → REPLACE
+
+For every major item reviewed, document:
+- what existed before
+- whether it was kept, upgraded, refactored, or replaced
+- why that decision was made
+- what files/modules were affected
+- whether any previous working behavior was preserved
+
+NO DESTRUCTIVE CHANGES WITHOUT JUSTIFICATION
+
+Do not:
+- rebuild pages that are already good enough to upgrade
+- replace working forms with new forms unless required
+- duplicate routes if a route already exists and can be improved
+- create parallel systems when an existing one can be extended
+- remove existing admin functionality unless it is broken or redundant
+- break current working flows in order to install a cleaner-looking replacement
+- destroy styling/layouts that already work unless the upgrade clearly improves them
+- wipe or ignore existing schema/data if it can be extended safely
+
+If an existing system already does part of the required job:
+- reuse it
+- wire it properly
+- harden it
+- improve it
+- document the upgrade
+
+BACKWARD SAFETY RULE
+
+Any major upgrade must preserve:
+- existing routes unless intentionally redirected and documented
+- existing data unless migrated safely
+- existing useful admin capabilities
+- existing working referral, AI, Nexora, partner, commission, and intake logic
+- existing documentation and audit history
+
+If a replacement is unavoidable:
+- migrate safely
+- keep compatibility where practical
+- document the reason clearly
+- ensure no regression in capability
+
+ANTI-REGRESSION RULE
+
+Never reduce capability just to simplify implementation.
+
+If something already exists and works, the new version must be:
+- equal or better in function
+- equal or better in reliability
+- equal or better in UX
+- equal or better in documentation
+
+Otherwise keep the existing implementation and upgrade around it.
+
+MANDATORY STAGE 0 ADDITION
+
+During Stage 0, produce an “Existing Systems Preservation Map” in docs that includes:
+- pages to keep
+- pages to upgrade
+- pages to merge
+- pages to replace only if necessary
+- backend modules to preserve
+- AI modules to preserve
+- admin modules to preserve
+- risky areas where changes could break current behavior
+
+No later stage may override this without documenting why.
+
+FINAL IMPLEMENTATION PHILOSOPHY
+
+The goal is NOT to start over.
+The goal is to make the existing platform:
+- stronger
+- cleaner
+- more premium
+- more complete
+- more connected
+- more reliable
+
+Preserve what is good.
+Upgrade what is weak.
+Replace only what is truly broken.

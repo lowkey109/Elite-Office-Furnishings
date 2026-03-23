@@ -1,0 +1,737 @@
+STAGED PRODUCTION BUILD PROMPT — THE CORPORATE DESK PARTNER NETWORK + AI REFERRAL ENGINE + WEBSITE AUDIT + COMPLETION GATES
+
+ROLE
+
+You are a senior full-stack engineer, product architect, AI systems engineer, UX strategist, conversion optimizer, database designer, admin systems engineer, and production hardening specialist.
+
+You are working on The Corporate Desk platform and website.
+
+You are NOT starting from scratch.
+
+You must inspect the existing codebase, preserve all strong working systems, upgrade weak or incomplete systems, fix identified website bugs, build the referral partner engine, connect it to AI and existing intelligence layers, and document everything clearly.
+
+This is a REAL production build.
+No demo logic.
+No fake referrals.
+No placeholder dashboards.
+No non-functional forms.
+No cosmetic-only UI pretending to be complete.
+No moving on early.
+No stage is considered complete until all checks for that stage are passed.
+
+==================================================
+MASTER EXECUTION RULE
+==================================================
+
+You must build this in strict stages.
+
+DO NOT move to the next stage until:
+1. the current stage has been fully implemented,
+2. the stage has been tested,
+3. the stage has been documented,
+4. all blocking issues in that stage are resolved,
+5. a short stage completion report has been written into /docs.
+
+If something is incomplete, broken, partially wired, fake, mocked, or unverified, the stage is NOT complete.
+
+At the end of EACH stage, create or update:
+- /docs/partner-network-build-report.md
+- /docs/website-audit.md
+- /docs/open-issues.md
+- /docs/stage-completion-log.md
+
+Each stage log entry must include:
+- what was inspected
+- what was changed
+- what was fixed
+- what was tested
+- what remains open
+- whether the stage is truly complete
+
+==================================================
+CORE GOAL
+==================================================
+
+Build a premium, enterprise-grade referral partner ecosystem for The Corporate Desk that:
+
+- acquires commercial referral partners
+- captures and qualifies live opportunities
+- enriches and scores referrals using AI
+- tracks the full referral lifecycle
+- calculates commissions at 7.5%
+- provides partner visibility and trust
+- gives admin full operational control
+- upgrades the website to a billion-dollar premium commercial feel
+- fixes public website bugs and unfinished pathways
+- documents all architecture, findings, issues, and remaining risks
+
+==================================================
+NON-NEGOTIABLE BUSINESS MODEL
+==================================================
+
+This is NOT a coupon affiliate program.
+
+This is a structured introducer / referral partner model for:
+- commercial real estate agents
+- brokers
+- tenant reps
+- architects
+- fitout partners
+- workplace consultants
+- aligned commercial introducers
+
+REFERRAL MODEL:
+- flat 7.5% commission across approved, paid deals
+- payout only after verified payment milestone
+- admin-configurable default rate, starting at 7.5%
+- full lifecycle tracking from intro to payout
+
+REQUIRED PUBLIC ROUTES:
+- /partners
+- /submit-deal
+
+REQUIRED PARTNER AREA:
+- /partner/login
+- /partner/dashboard
+
+REQUIRED ADMIN AREA:
+- /admin/partners
+- /admin/partners/referrals
+- /admin/partners/commissions
+- /admin/partners/settings
+
+==================================================
+STAGE 0 — INSPECTION, INVENTORY, AND REALITY CHECK
+==================================================
+
+GOAL:
+Understand the current system before changing anything.
+
+REQUIRED ACTIONS:
+- inspect routing structure
+- inspect frontend page structure
+- inspect admin structure
+- inspect auth and permissions
+- inspect DB schema and migrations
+- inspect AI services and orchestration
+- inspect intelligence systems already present
+- inspect forms and submission flows
+- inspect email/notification infrastructure
+- inspect styling/theming/design system
+- inspect public pages related to partners, trade, contact, about, forms, layout plan
+- inspect known naming inconsistencies and incomplete modules if found
+
+REQUIRED OUTPUTS:
+- architecture inventory
+- reusable components/systems list
+- routes inventory
+- DB inventory
+- AI/integration inventory
+- list of pages/components to preserve
+- list of pages/components to replace or heavily upgrade
+- list of discovered bugs, unfinished pages, broken flows, security concerns
+
+COMPLETION GATE FOR STAGE 0:
+Do not move to Stage 1 until:
+- current architecture is documented
+- reusable systems are identified
+- problem list is documented
+- all target files/areas for implementation are mapped
+- stage report is written to /docs/stage-completion-log.md
+
+==================================================
+STAGE 1 — WEBSITE AUDIT FIXES AND BRAND CLEANUP
+==================================================
+
+GOAL:
+Fix trust-damaging website issues before layering the new partner engine.
+
+PRIORITY FIXES:
+1. Rewrite /trade-customers-portal so it aligns with commercial office, procurement, fitout, and partner positioning
+2. Fix incorrect “Plone” field labels and audit all similar form label/config issues
+3. Remove duplicated footer/navigation/menu/template repetition
+4. Unify brand positioning across homepage, about, contact, and partner-adjacent pages
+5. Remove residential/luxury-home confusion from commercial partner pathways
+6. Upgrade /free-office-layout-plan into a premium service funnel
+7. Clarify partnership pathways across the public site
+
+TARGET BRAND POSITIONING:
+- Premium Commercial Office Furniture
+- Turnkey Workspace Solutions
+- Relocations, Fit-Outs, Expansions
+- Delivered Nationally
+- High-trust, premium, commercial, operationally capable
+
+REQUIRED OUTPUTS:
+- cleaned public trust issues
+- fixed forms and labels
+- cleaned footer/nav duplication
+- upgraded copy consistency
+- improved commercial positioning
+- documentation of all fixes made
+
+COMPLETION GATE FOR STAGE 1:
+Do not move to Stage 2 until:
+- all identified public trust bugs above are fixed
+- revised pages render correctly
+- forms display correct labels
+- duplicate nav/footer/template issues are removed
+- /trade-customers-portal is commercially aligned
+- /free-office-layout-plan is visibly upgraded
+- fixes are documented with before/after notes
+
+==================================================
+STAGE 2 — DATA MODEL, SCHEMA, AND BACKEND FOUNDATIONS
+==================================================
+
+GOAL:
+Build the real backend foundation for the partner network.
+
+CREATE OR EXTEND THESE TABLES:
+
+partners
+- id
+- full_name
+- company_name
+- email
+- phone
+- role_type
+- city
+- state
+- abn
+- website
+- linkedin_url
+- onboarding_status
+- agreement_status
+- referral_rate
+- notes
+- created_at
+- updated_at
+
+partner_referrals
+- id
+- partner_id
+- company_name
+- contact_name
+- contact_email
+- contact_phone
+- office_location
+- office_size_sqm
+- staff_count
+- project_type
+- project_stage
+- estimated_value
+- source_notes
+- uploaded_files_json
+- ai_summary
+- ai_fit_score
+- ai_urgency_score
+- ai_close_likelihood_score
+- ai_priority
+- ai_recommended_owner
+- ai_next_best_action
+- ai_tags_json
+- ai_risk_flags_json
+- status
+- assigned_to
+- quote_id
+- crm_lead_id
+- created_at
+- updated_at
+
+partner_referral_events
+- id
+- referral_id
+- event_type
+- event_note
+- metadata_json
+- created_by
+- created_at
+
+partner_commissions
+- id
+- referral_id
+- partner_id
+- commission_rate
+- deal_value
+- commission_amount
+- payment_status
+- payment_due_at
+- paid_at
+- notes
+- created_at
+- updated_at
+
+partner_documents
+- id
+- partner_id
+- document_type
+- file_url
+- file_name
+- uploaded_at
+
+partner_settings
+- id
+- default_referral_rate
+- payout_rule_text
+- agreement_template_version
+- created_at
+- updated_at
+
+REQUIREMENTS:
+- proper indexes
+- foreign keys
+- uniqueness where appropriate
+- duplicate prevention where appropriate
+- safe migrations
+- audit-friendly timestamps
+
+COMPLETION GATE FOR STAGE 2:
+Do not move to Stage 3 until:
+- schema changes are implemented
+- migrations run cleanly
+- constraints and indexes are in place
+- data model is documented
+- no blocking schema issues remain
+
+==================================================
+STAGE 3 — API ROUTES, VALIDATION, EVENTS, AND COMMISSION LOGIC
+==================================================
+
+GOAL:
+Build the real operational backend.
+
+REQUIRED ROUTES:
+
+POST   /api/partners/apply
+POST   /api/partners/referrals
+GET    /api/partners/:id
+GET    /api/partners/:id/referrals
+GET    /api/partners/:id/commissions
+POST   /api/partners/:id/agreement/send
+POST   /api/referrals/:id/score
+POST   /api/referrals/:id/assign
+POST   /api/referrals/:id/status
+POST   /api/referrals/:id/link-quote
+POST   /api/referrals/:id/mark-won
+POST   /api/referrals/:id/mark-lost
+POST   /api/referrals/:id/mark-paid
+POST   /api/referrals/:id/commission/calc
+POST   /api/referrals/:id/commission/pay
+GET    /api/admin/partners/stats
+GET    /api/admin/partners/referrals
+GET    /api/admin/partners/commissions
+PATCH  /api/admin/partners/settings
+
+REQUIREMENTS:
+- real validation
+- real persistence
+- auth/permission enforcement
+- automatic referral event creation
+- real commission calculation at 7.5%
+- configurable default referral rate in settings
+- no insecure client-only protection
+- no hardcoded credentials
+- real structured error handling
+
+COMPLETION GATE FOR STAGE 3:
+Do not move to Stage 4 until:
+- all required endpoints exist
+- inputs validate correctly
+- outputs are usable by frontend
+- referral event trails are created automatically
+- commission logic is correct
+- admin protections are enforced
+- endpoints are tested and documented
+
+==================================================
+STAGE 4 — AI ENRICHMENT LOOP AND INTELLIGENCE LINKING
+==================================================
+
+GOAL:
+Loop the partner engine into AI and existing intelligence systems.
+
+EVERY REFERRAL MUST SUPPORT AI ENRICHMENT THAT:
+1. summarizes the opportunity
+2. scores fit
+3. scores urgency
+4. scores close likelihood
+5. recommends next-best action
+6. tags opportunity type/service mix
+7. flags missing info and risks
+8. cross-links with existing intelligence systems where available:
+   - office move radar
+   - deal hunter
+   - relocation signals
+   - company intelligence
+   - prior CRM/lead records
+   - visitor/company activity if available
+
+AI OUTPUT FIELDS TO POPULATE:
+- ai_summary
+- ai_fit_score
+- ai_urgency_score
+- ai_close_likelihood_score
+- ai_priority
+- ai_recommended_owner
+- ai_next_best_action
+- ai_tags_json
+- ai_risk_flags_json
+
+TRIGGERS:
+- partner application submitted
+- referral submitted
+- file/floor plan uploaded
+- quote value changed
+- stale referral after 3+ days
+- deal marked won/lost
+- optional admin manual rescore
+
+REQUIREMENTS:
+- use real AI/model workflow
+- no fake decorative scores
+- graceful fallback and retry if scoring fails
+- store metadata/logs for AI runs
+- surface AI outputs in admin views
+
+COMPLETION GATE FOR STAGE 4:
+Do not move to Stage 5 until:
+- AI scoring runs on real submissions
+- outputs persist correctly
+- admin can view AI results
+- retry/fallback behavior exists
+- intelligence cross-linking is implemented where possible
+- AI workflow is documented
+
+==================================================
+STAGE 5 — PUBLIC PAGE BUILD: /partners
+==================================================
+
+GOAL:
+Build the premium acquisition page.
+
+VISUAL STANDARD:
+- dark charcoal
+- off-white
+- muted gold accent
+- premium typography
+- strong spacing
+- subtle motion
+- high-end B2B commercial look
+- no cheap clutter
+
+REQUIRED CONTENT STRUCTURE:
+- hero:
+  Earn 7.5% on Qualified Workspace Projects
+  Partner with The Corporate Desk to support office relocations, fit-outs, expansions, and workspace activations across Australia.
+- CTA buttons:
+  Become a Partner
+  Submit a Live Deal
+- proof strip:
+  Fast Quotes • Layout Support • Turnkey Delivery • National Capability
+- who it is for
+- how it works
+- ideal referrals
+- why partner with us
+- payout policy
+- partner apply form
+- secondary CTA to /submit-deal
+
+FORM FIELDS:
+- full name
+- company
+- email
+- phone
+- city/state
+- partner type
+- notes
+- optional “I have a live opportunity now”
+
+COMPLETION GATE FOR STAGE 5:
+Do not move to Stage 6 until:
+- /partners is live
+- form submits real data
+- design is premium and responsive
+- copy is commercially strong
+- no placeholder sections remain
+- route is documented
+
+==================================================
+STAGE 6 — PUBLIC PAGE BUILD: /submit-deal
+==================================================
+
+GOAL:
+Create the hot-lead intake funnel.
+
+REQUIRED FORM:
+- referring partner
+- company name
+- contact name
+- contact email
+- contact phone
+- office location
+- office size sqm
+- staff count
+- project type
+- project stage
+- estimated value
+- notes
+- upload files/floor plans/docs if supported
+
+POST-SUBMIT BEHAVIOR:
+- real confirmation state/page
+- referral record created
+- referral event created
+- AI scoring triggered
+- internal notification sent if infra exists
+- partner confirmation sent if infra exists
+
+COMPLETION GATE FOR STAGE 6:
+Do not move to Stage 7 until:
+- /submit-deal works end-to-end
+- submission persists correctly
+- AI trigger fires
+- upload flow works if present
+- confirmation UX works
+- route is documented
+
+==================================================
+STAGE 7 — PARTNER LOGIN AND DASHBOARD
+==================================================
+
+GOAL:
+Give partners visibility and trust.
+
+REQUIRED FEATURES:
+- secure login or magic-link flow
+- dashboard showing referrals
+- status chips: Submitted, Reviewing, Qualified, Quoted, Won, Lost, Paid
+- referral timelines
+- commission estimates / earned commissions
+- agreement status
+- downloadable docs if available
+- support contact
+- polished empty states
+
+RULE:
+No fake widgets.
+No hardcoded metrics.
+Everything shown must come from real data.
+
+COMPLETION GATE FOR STAGE 7:
+Do not move to Stage 8 until:
+- partner auth works
+- dashboard shows real referrals
+- statuses map correctly
+- commission view is accurate
+- empty states are polished
+- route and behavior are documented
+
+==================================================
+STAGE 8 — ADMIN PARTNER OPERATIONS LAYER
+==================================================
+
+GOAL:
+Give internal ops full control.
+
+REQUIRED ADMIN FEATURES:
+- partner list
+- referral list
+- filters by status, stage, city, partner, type
+- AI score visibility
+- referral detail view
+- quick actions:
+  assign
+  update status
+  trigger AI rescore
+  link quote
+  mark won
+  mark lost
+  mark paid
+  create commission
+  mark commission paid
+- commission tracking table
+- settings view for referral rate and payout policy
+- event timeline visibility
+- uploaded file metadata visibility
+
+COMPLETION GATE FOR STAGE 8:
+Do not move to Stage 9 until:
+- admin can operate the workflow end-to-end
+- permissions are enforced
+- tables and filters work
+- actions update real backend state
+- commission/admin views are accurate
+- admin layer is documented
+
+==================================================
+STAGE 9 — EMAILS, NOTIFICATIONS, AND OPERATIONAL MESSAGING
+==================================================
+
+GOAL:
+Wire operational communications.
+
+IF EMAIL INFRA EXISTS, SUPPORT:
+- partner application received
+- referral received
+- status changed
+- agreement sent
+- commission created
+- commission paid
+
+IF EMAIL INFRA IS WEAK:
+- upgrade as far as current architecture reasonably allows
+- clearly document remaining production limits
+
+COMPLETION GATE FOR STAGE 9:
+Do not move to Stage 10 until:
+- operational email logic is wired where possible
+- events trigger notifications appropriately
+- limitations are documented honestly
+
+==================================================
+STAGE 10 — DESIGN POLISH, RESPONSIVENESS, AND BILLION-DOLLAR FEEL
+==================================================
+
+GOAL:
+Take the system from functional to elite.
+
+APPLY TO:
+- public pages
+- partner dashboard
+- admin views
+- forms
+- cards
+- empty states
+- status chips
+- layout hierarchy
+
+DESIGN TARGET:
+- premium commercial brand
+- enterprise SaaS polish
+- luxury but restrained
+- expensive and intentional
+- excellent mobile responsiveness
+- crisp desktop layout
+- strong UX hierarchy
+- no clutter or template noise
+
+COMPLETION GATE FOR STAGE 10:
+Do not move to Stage 11 until:
+- pages are polished
+- responsive issues are fixed
+- visual hierarchy is strong
+- UX feels premium
+- no obvious rough edges remain
+
+==================================================
+STAGE 11 — TESTING, HARDENING, AND PROOF OF COMPLETION
+==================================================
+
+GOAL:
+Verify everything is real.
+
+MANDATORY TEST CHECKS:
+- every API route works
+- every form submits real data
+- partner apply flow works
+- submit-deal flow works
+- AI scoring actually runs
+- admin can update referral status
+- commission calculation is correct at 7.5%
+- partner dashboard shows real data
+- no fake/demo logic exists
+- no placeholder UI remains
+- public pages are responsive
+- protected pages enforce permissions
+- error states are handled properly
+
+REQUIRED OUTPUTS:
+- explicit test results
+- issues found
+- issues fixed
+- remaining non-blocking issues
+- final readiness assessment
+
+COMPLETION GATE FOR STAGE 11:
+Do not move to Stage 12 until:
+- all critical tests pass
+- no major production blockers remain
+- results are documented clearly
+
+==================================================
+STAGE 12 — FINAL DOCUMENTATION AND OPEN ISSUES REGISTER
+==================================================
+
+GOAL:
+Persist knowledge so nothing gets lost.
+
+MUST UPDATE:
+- /docs/partner-network-build-report.md
+- /docs/website-audit.md
+- /docs/open-issues.md
+- /docs/stage-completion-log.md
+
+FINAL DOCUMENTATION MUST INCLUDE:
+1. what existed before
+2. what was preserved
+3. what was upgraded
+4. what bugs were fixed
+5. what pages were rebuilt
+6. referral architecture summary
+7. AI workflow summary
+8. schema changes
+9. route map added/updated
+10. admin capabilities added
+11. partner capabilities added
+12. unresolved issues
+13. recommended next upgrades
+14. naming inconsistencies found
+15. security/auth concerns found and fixed
+
+COMPLETION GATE FOR STAGE 12:
+The full task is only complete when:
+- documentation is saved in repo
+- open issues are logged
+- nothing critical is left undocumented
+
+==================================================
+DEFINITION OF DONE
+==================================================
+
+The project is only DONE when all of the following are true:
+
+- /partners is live and real
+- /submit-deal is live and real
+- partner login/dashboard works
+- admin partner system works
+- referrals persist correctly
+- AI enrichment runs on real submissions
+- statuses update correctly
+- commission tracking works at 7.5%
+- website trust bugs are fixed
+- /trade-customers-portal is commercially aligned
+- /free-office-layout-plan is upgraded
+- duplicate footer/nav issues are removed
+- bad form labels are fixed
+- docs are saved in repo
+- no major fake/demo logic remains
+- each stage has a completion log
+- the result feels billion-dollar, enterprise-grade, and operationally real
+
+==================================================
+FINAL INSTRUCTION
+==================================================
+
+Execute stage by stage.
+
+Do not skip stages.
+Do not combine stages loosely.
+Do not move ahead early.
+Do not mark a stage complete without proof.
+Fix blockers before progressing.
+Document every stage.
+Preserve what is good.
+Replace what is broken.
+Upgrade what is weak.
+Deliver a real system.
