@@ -81,6 +81,11 @@ import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } f
               { url: "/finance-your-workspace", priority: "0.7", freq: "monthly" },
               { url: "/3d-office-walkthrough", priority: "0.7", freq: "monthly" },
               { url: "/start", priority: "0.6", freq: "monthly" },
+              // City landing pages
+              { url: "/office-furniture-brisbane", priority: "0.9", freq: "monthly" },
+              { url: "/office-furniture-sydney", priority: "0.9", freq: "monthly" },
+              { url: "/office-furniture-melbourne", priority: "0.9", freq: "monthly" },
+              { url: "/office-furniture-canberra", priority: "0.8", freq: "monthly" },
             ];
 
             const blogSlugs = [
@@ -1794,8 +1799,8 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
         stylePreference, city, notes,
       } = req.body;
 
-      if (!name || !email || !phone) {
-        return res.status(400).json({ success: false, message: "Name, email and phone are required." });
+      if (!email) {
+        return res.status(400).json({ success: false, message: "Email address is required to generate your estimate." });
       }
 
       // Build the AI space planning prompt (reuse existing function)
@@ -1942,6 +1947,33 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
     } catch (error) {
       console.error("[Estimate] Endpoint error:", error);
       res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
+  // POST /api/estimate/contact-update — capture phone after estimate reveal
+  app.post("/api/estimate/contact-update", async (req, res) => {
+    try {
+      const { email, phone, name } = req.body as { email?: string; phone?: string; name?: string };
+      if (!email || !phone) return res.status(400).json({ success: false });
+      // Best-effort: find lead by email and update phone if missing
+      try {
+        const { db } = await import("./db");
+        const { partnerReferrals } = await import("../shared/schema");
+        const { eq } = await import("drizzle-orm");
+        const existing = await db.select({ id: partnerReferrals.id })
+          .from(partnerReferrals)
+          .where(eq(partnerReferrals.email, email))
+          .orderBy(partnerReferrals.id)
+          .limit(1);
+        if (existing.length > 0) {
+          await db.update(partnerReferrals)
+            .set({ phone: phone || undefined, clientCompany: name ? undefined : undefined } as any)
+            .where(eq(partnerReferrals.id, existing[0].id));
+        }
+      } catch { /* best-effort update */ }
+      res.json({ success: true });
+    } catch {
+      res.json({ success: true }); // always 200 — non-blocking
     }
   });
 

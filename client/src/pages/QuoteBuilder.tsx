@@ -108,7 +108,7 @@ interface EstimateResult {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const STEPS = ["Project", "Requirements", "Budget & Style", "Your Details"];
+const STEPS = ["Project", "Requirements", "Budget & Style", "Unlock Estimate"];
 
 const PROJECT_TYPES = [
   { id: "full-fitout", label: "Full Office Fitout", desc: "Complete workspace from scratch", icon: Building2 },
@@ -219,6 +219,22 @@ function EstimateResultsPage({
   const { quote, aiSummary, officeType, workspaceZones, estimatedProjectValue, implementationTimeline, styleDirection, keyConsiderations, recommendedNextStep } = result;
   const cs = quote?.costSummary;
   const tier = quote?.packageTier || "Professional";
+  const [phone, setPhone] = useState(contact.phone || "");
+  const [phoneSaved, setPhoneSaved] = useState(!!contact.phone);
+  const { toast } = useToast();
+
+  async function savePhone() {
+    if (!phone.trim()) return toast({ title: "Please enter your phone number", variant: "destructive" });
+    try {
+      await fetch("/api/estimate/contact-update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: contact.email, phone: phone.trim(), name: contact.name }),
+      });
+    } catch { /* best-effort */ }
+    setPhoneSaved(true);
+    toast({ title: "Details saved — we'll be in touch within 24 hours" });
+  }
 
   return (
     <Layout>
@@ -461,6 +477,50 @@ function EstimateResultsPage({
             </div>
           )}
 
+          {/* ── Phone capture panel (shown after estimate when phone not yet provided) ── */}
+          {!phoneSaved && (
+            <section className="mb-10">
+              <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.2)] rounded-2xl p-6 sm:p-8 text-center max-w-xl mx-auto">
+                <div className="w-12 h-12 rounded-full bg-[rgba(201,168,76,0.1)] flex items-center justify-center mx-auto mb-4">
+                  <Phone className="w-5 h-5 text-[hsl(43,78%,52%)]" />
+                </div>
+                <h3 className="text-lg font-serif font-bold text-white mb-2">Get Your Formal Quote in 24 Hours</h3>
+                <p className="text-white/45 text-sm mb-5">Add your phone number and our workspace strategy team will call to confirm your requirements and issue a formal quotation.</p>
+                <div className="flex gap-3">
+                  <input
+                    data-testid="input-phone-capture"
+                    type="tel"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    placeholder="04xx xxx xxx"
+                    className="flex-1 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] focus:border-[hsl(43,78%,52%)] rounded-xl px-4 py-3 text-white placeholder-white/25 text-sm outline-none transition-colors"
+                    onKeyDown={e => e.key === "Enter" && savePhone()}
+                  />
+                  <button
+                    data-testid="button-save-phone"
+                    onClick={savePhone}
+                    className="bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,60%)] text-[hsl(220,20%,6%)] font-bold rounded-xl px-5 py-3 text-sm transition-all whitespace-nowrap flex-shrink-0"
+                  >
+                    Send My Quote
+                  </button>
+                </div>
+                <p className="text-white/20 text-[11px] mt-3">We call within business hours. No obligation.</p>
+              </div>
+            </section>
+          )}
+
+          {phoneSaved && (
+            <section className="mb-10">
+              <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.2)] rounded-2xl p-5 text-center max-w-xl mx-auto flex items-center gap-4">
+                <CheckCircle2 className="w-6 h-6 text-[hsl(43,78%,52%)] flex-shrink-0" />
+                <div className="text-left">
+                  <p className="text-white font-semibold text-sm">Consultation request received</p>
+                  <p className="text-white/45 text-xs mt-0.5">A member of our workspace strategy team will call you within 24 hours.</p>
+                </div>
+              </div>
+            </section>
+          )}
+
           {/* ── CTAs ── */}
           <section className="mb-12">
             <h2 className="text-xl font-serif font-bold text-white mb-2 text-center">Ready to Move Forward?</h2>
@@ -650,8 +710,9 @@ You are an AI Workplace Strategy Advisor for The Corporate Desk. Answer concisel
   // ── Submit ────────────────────────────────────────────────────────────────────
 
   async function handleSubmit() {
-    if (!contact.name || !contact.email || !contact.phone) {
-      return toast({ title: "Please complete required fields", variant: "destructive" });
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!contact.email || !emailRegex.test(contact.email)) {
+      return toast({ title: "Please enter a valid email address", variant: "destructive" });
     }
     setIsGenerating(true);
     try {
@@ -986,31 +1047,75 @@ You are an AI Workplace Strategy Advisor for The Corporate Desk. Answer concisel
                 </div>
               )}
 
-              {/* STEP 3 — Contact Details */}
+              {/* STEP 3 — Email Gate: Unlock Your Estimate */}
               {step === 3 && (
                 <div>
-                  <h2 className="text-xl font-serif font-bold text-white mb-2">Your Details</h2>
-                  <p className="text-white/50 text-sm mb-6">We'll generate your estimate instantly. Our team will also follow up with a formal quotation within 24 hours.</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <GoldInput label="Full Name" value={contact.name} onChange={v => setContact(c => ({ ...c, name: v }))} required testId="input-contact-name" placeholder="Jane Smith" />
-                    <GoldInput label="Company Name" value={contact.company} onChange={v => setContact(c => ({ ...c, company: v }))} testId="input-contact-company" placeholder="Smith & Co." />
-                    <GoldInput label="Email Address" value={contact.email} onChange={v => setContact(c => ({ ...c, email: v }))} type="email" required testId="input-contact-email" placeholder="jane@smithco.com.au" />
-                    <GoldInput label="Phone Number" value={contact.phone} onChange={v => setContact(c => ({ ...c, phone: v }))} type="tel" required testId="input-contact-phone" placeholder="04xx xxx xxx" />
+                  {/* Hero unlock heading */}
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-full bg-[rgba(201,168,76,0.12)] flex items-center justify-center flex-shrink-0">
+                      <Zap className="w-5 h-5 text-[hsl(43,78%,52%)]" />
+                    </div>
+                    <h2 className="text-xl font-serif font-bold text-white">Unlock Your Estimate</h2>
+                  </div>
+                  <p className="text-white/50 text-sm mb-6 ml-[52px]">
+                    Enter your work email to instantly generate your AI-powered commercial estimate — including product recommendations, a bill of quantities, and full investment summary.
+                  </p>
+
+                  {/* What you'll receive preview */}
+                  <div className="grid grid-cols-3 gap-3 mb-6">
+                    {[
+                      { icon: Package, label: "Product BOQ", desc: "Full spec list with SKUs" },
+                      { icon: DollarSign, label: "Investment Summary", desc: "Total cost breakdown ex-GST" },
+                      { icon: FileText, label: "Formal Quote", desc: "Sent within 24 hours" },
+                    ].map(({ icon: Icon, label, desc }) => (
+                      <div key={label} className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-xl p-3 text-center">
+                        <Icon className="w-5 h-5 text-[hsl(43,78%,52%)] mx-auto mb-2" />
+                        <p className="text-white text-xs font-semibold mb-0.5">{label}</p>
+                        <p className="text-white/35 text-[11px]">{desc}</p>
+                      </div>
+                    ))}
                   </div>
 
-                  {/* Estimate summary before submitting */}
-                  <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.15)] rounded-xl p-5 mt-2">
-                    <h4 className="text-[hsl(43,78%,65%)] font-semibold text-sm mb-3">Your Estimate Brief</h4>
+                  {/* Email capture form */}
+                  <div className="space-y-4 mb-5">
+                    <GoldInput
+                      label="Work Email Address *"
+                      value={contact.email}
+                      onChange={v => setContact(c => ({ ...c, email: v }))}
+                      type="email"
+                      required
+                      testId="input-contact-email"
+                      placeholder="jane@smithco.com.au"
+                    />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <GoldInput
+                        label="Full Name"
+                        value={contact.name}
+                        onChange={v => setContact(c => ({ ...c, name: v }))}
+                        testId="input-contact-name"
+                        placeholder="Jane Smith"
+                      />
+                      <GoldInput
+                        label="Company Name"
+                        value={contact.company}
+                        onChange={v => setContact(c => ({ ...c, company: v }))}
+                        testId="input-contact-company"
+                        placeholder="Smith & Co."
+                      />
+                    </div>
+                  </div>
+
+                  {/* Project brief summary */}
+                  <div className="bg-[rgba(201,168,76,0.06)] border border-[rgba(201,168,76,0.12)] rounded-xl p-4">
+                    <h4 className="text-[hsl(43,78%,65%)] font-semibold text-xs uppercase tracking-wider mb-3">Your Estimate Brief</h4>
                     <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
                       {[
                         { label: "Project Type", value: PROJECT_TYPES.find(p => p.id === inputs.projectType)?.label || "—" },
                         { label: "Staff Count", value: inputs.staffCount ? `${inputs.staffCount} people` : "—" },
                         { label: "Office Size", value: inputs.squareMetres ? `${inputs.squareMetres} sqm` : "—" },
                         { label: "City", value: inputs.city || "—" },
-                        { label: "Meeting Rooms", value: `${inputs.meetingRooms}` },
                         { label: "Budget Range", value: inputs.budgetRange || "—" },
                         { label: "Style", value: STYLE_OPTIONS.find(s => s.id === inputs.stylePreference)?.label || "Mixed" },
-                        { label: "Zones", value: [inputs.boardroom && "Boardroom", inputs.reception && "Reception", inputs.breakout && "Breakout", inputs.executiveOffice && "Executive"].filter(Boolean).join(", ") || "Standard" },
                       ].map(item => (
                         <div key={item.label}>
                           <p className="text-white/35">{item.label}</p>
@@ -1019,6 +1124,11 @@ You are an AI Workplace Strategy Advisor for The Corporate Desk. Answer concisel
                       ))}
                     </div>
                   </div>
+
+                  {/* Privacy reassurance */}
+                  <p className="text-white/25 text-[11px] mt-3 text-center">
+                    No spam. No sales pressure. Your details are used only to prepare and send your estimate.
+                  </p>
                 </div>
               )}
 

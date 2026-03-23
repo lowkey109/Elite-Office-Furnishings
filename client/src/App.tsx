@@ -77,6 +77,10 @@ import Catalog from "@/pages/Catalog";
 import CatalogProductDetail from "@/pages/CatalogProductDetail";
 import { usePageTracking } from "@/lib/usePageTracking";
 import { Redirect } from "wouter";
+import { BrisbanePage, SydneyPage, MelbournePage, CanberraPage } from "@/pages/CityLandingPage";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { GoogleReviewsBadge } from "@/components/GoogleReviewsBadge";
+import { TrackingPixels } from "@/components/TrackingPixels";
 
 function AdminRoutes() {
   return (
@@ -168,6 +172,12 @@ function Router() {
       <Route path="/blog/:slug" component={BlogPost} />
       <Route path="/blog" component={Blog} />
 
+      {/* ── City landing pages ─────────────────────────── */}
+      <Route path="/office-furniture-brisbane" component={BrisbanePage} />
+      <Route path="/office-furniture-sydney" component={SydneyPage} />
+      <Route path="/office-furniture-melbourne" component={MelbournePage} />
+      <Route path="/office-furniture-canberra" component={CanberraPage} />
+
       {/* ── Service pages ─────────────────────────────── */}
       <Route path="/workplace-solutions" component={WorkplaceSolutions} />
       <Route path="/workplace-strategy" component={WorkplaceStrategy} />
@@ -211,9 +221,12 @@ function App() {
       <TooltipProvider>
         <ConciergeProvider>
           <Toaster />
+          <TrackingPixels />
           <Router />
           <NexoraJourneyBar />
           <NexoraCopilot />
+          <WhatsAppButton />
+          <GoogleReviewsBadge />
         </ConciergeProvider>
       </TooltipProvider>
     </QueryClientProvider>

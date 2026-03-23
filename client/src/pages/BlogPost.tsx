@@ -94,44 +94,120 @@ export default function BlogPost() {
   const params = useParams<{ slug: string }>();
   const post = getPostBySlug(params.slug);
 
+  // Compute images synchronously — needed both for SEO and rendering
+  const images = post ? getBlogImages(post.id, post.category) : null;
+
+  // ── Comprehensive SEO: meta tags + JSON-LD Article + BreadcrumbList ───────
   useEffect(() => {
     if (!post) return;
-    document.title = `${post.title} | The Corporate Desk Blog`;
     window.scrollTo(0, 0);
-    const metaDesc = document.querySelector('meta[name="description"]') || document.createElement("meta");
-    metaDesc.setAttribute("name", "description");
-    metaDesc.setAttribute("content", (post.excerpt || post.title).slice(0, 160));
-    if (!metaDesc.parentNode) document.head.appendChild(metaDesc);
-    const ogTitle = document.querySelector('meta[property="og:title"]') || document.createElement("meta");
-    ogTitle.setAttribute("property", "og:title");
-    ogTitle.setAttribute("content", `${post.title} | The Corporate Desk`);
-    if (!ogTitle.parentNode) document.head.appendChild(ogTitle);
-    const jsonLd = {
+
+    const BASE = "https://www.thecorporatedesk.com.au";
+    const pageUrl = `${BASE}/blog/${post.slug}`;
+    const heroImg = images?.hero?.src
+      ? (images.hero.src.startsWith("http") ? images.hero.src : `${BASE}${images.hero.src}`)
+      : `${BASE}/images/hero-office.png`;
+    const desc = (post.metaDescription || post.excerpt || post.title).slice(0, 160);
+    const keywords = [post.primaryKeyword, ...(post.secondaryKeywords || []), ...(post.tags || [])].filter(Boolean).join(", ");
+    const wordCount = post.content.replace(/<[^>]+>/g, " ").split(/\s+/).filter(Boolean).length;
+
+    // Document title
+    document.title = `${post.title} | The Corporate Desk Blog`;
+
+    // Helper: upsert a meta tag
+    const setMeta = (attrKey: string, attrVal: string, content: string) => {
+      let el = document.querySelector(`meta[${attrKey}="${attrVal}"]`) as HTMLMetaElement | null;
+      if (!el) { el = document.createElement("meta"); el.setAttribute(attrKey, attrVal); document.head.appendChild(el); }
+      el.content = content;
+    };
+
+    // Standard meta
+    setMeta("name", "description", desc);
+    setMeta("name", "keywords", keywords);
+
+    // Open Graph
+    setMeta("property", "og:type", "article");
+    setMeta("property", "og:title", `${post.title} | The Corporate Desk`);
+    setMeta("property", "og:description", desc);
+    setMeta("property", "og:url", pageUrl);
+    setMeta("property", "og:image", heroImg);
+    setMeta("property", "og:image:alt", post.title);
+    setMeta("property", "og:site_name", "The Corporate Desk");
+    setMeta("property", "og:locale", "en_AU");
+    setMeta("property", "article:section", post.category);
+    if (post.publishDate) setMeta("property", "article:published_time", post.publishDate);
+
+    // Twitter
+    setMeta("name", "twitter:card", "summary_large_image");
+    setMeta("name", "twitter:title", `${post.title} | The Corporate Desk`);
+    setMeta("name", "twitter:description", desc);
+    setMeta("name", "twitter:image", heroImg);
+
+    // Canonical link
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!canonical) { canonical = document.createElement("link"); canonical.rel = "canonical"; document.head.appendChild(canonical); }
+    canonical.href = pageUrl;
+
+    // Article JSON-LD
+    const articleSchema = {
       "@context": "https://schema.org",
       "@type": "BlogPosting",
+      "@id": pageUrl,
       headline: post.title,
-      description: post.excerpt || post.title,
-      author: { "@type": "Organization", name: "The Corporate Desk" },
+      description: desc,
+      keywords,
+      articleSection: post.category,
+      wordCount,
+      timeRequired: post.readTime,
+      ...(post.publishDate ? { datePublished: post.publishDate, dateModified: post.publishDate } : {}),
+      image: { "@type": "ImageObject", url: heroImg, caption: post.title },
+      url: pageUrl,
+      mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
+      author: {
+        "@type": "Organization",
+        name: "The Corporate Desk",
+        url: BASE,
+      },
       publisher: {
         "@type": "Organization",
         name: "The Corporate Desk",
-        logo: { "@type": "ImageObject", url: "https://www.thecorporatedesk.com.au/logo.png" },
+        url: BASE,
+        logo: { "@type": "ImageObject", url: `${BASE}/favicon.png` },
       },
-      url: `https://www.thecorporatedesk.com.au/blog/${post.slug}`,
-      mainEntityOfPage: { "@type": "WebPage", "@id": `https://www.thecorporatedesk.com.au/blog/${post.slug}` },
-      keywords: post.tags ? post.tags.join(", ") : post.category,
-      articleSection: post.category,
-      timeRequired: post.readTime,
+      inLanguage: "en-AU",
+      isPartOf: { "@type": "Blog", name: "The Corporate Desk Blog", url: `${BASE}/blog` },
     };
-    const existing = document.getElementById("blog-jsonld");
-    if (existing) existing.remove();
-    const script = document.createElement("script");
-    script.id = "blog-jsonld";
-    script.type = "application/ld+json";
-    script.textContent = JSON.stringify(jsonLd);
-    document.head.appendChild(script);
-    return () => { document.getElementById("blog-jsonld")?.remove(); };
-  }, [post]);
+
+    // Breadcrumb JSON-LD
+    const breadcrumbSchema = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: BASE },
+        { "@type": "ListItem", position: 2, name: "Blog", item: `${BASE}/blog` },
+        { "@type": "ListItem", position: 3, name: post.title, item: pageUrl },
+      ],
+    };
+
+    const injectSchema = (id: string, schema: object) => {
+      document.getElementById(id)?.remove();
+      const script = document.createElement("script");
+      script.id = id;
+      script.type = "application/ld+json";
+      script.textContent = JSON.stringify(schema);
+      document.head.appendChild(script);
+    };
+    injectSchema("blog-jsonld", articleSchema);
+    injectSchema("blog-breadcrumb-jsonld", breadcrumbSchema);
+
+    return () => {
+      document.getElementById("blog-jsonld")?.remove();
+      document.getElementById("blog-breadcrumb-jsonld")?.remove();
+      canonical?.remove();
+      // Reset og:type back to website when leaving a blog post
+      setMeta("property", "og:type", "website");
+    };
+  }, [post, images]);
 
   if (!post) {
     return (
@@ -152,8 +228,7 @@ export default function BlogPost() {
   }
 
   const related = getRelatedPosts(post, 3);
-  const images = getBlogImages(post.id, post.category);
-  const enrichedContent = injectImagesIntoContent(post.content, images);
+  const enrichedContent = injectImagesIntoContent(post.content, images!);
 
   return (
     <Layout>
