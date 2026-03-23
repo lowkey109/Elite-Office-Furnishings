@@ -57,6 +57,58 @@ import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } f
             app.use("/uploads", express.static(uploadsPath, { maxAge: "7d" }));
           }
 
+          // ── Public sitemap.xml ───────────────────────────────────────────────
+          app.get("/sitemap.xml", (_req, res) => {
+            const BASE = "https://www.thecorporatedesk.com.au";
+            const today = new Date().toISOString().split("T")[0];
+
+            const staticPages = [
+              { url: "/", priority: "1.0", freq: "weekly" },
+              { url: "/catalog", priority: "0.9", freq: "daily" },
+              { url: "/workplace-solutions", priority: "0.9", freq: "monthly" },
+              { url: "/ai-office-planner", priority: "0.9", freq: "monthly" },
+              { url: "/request-a-quote", priority: "0.9", freq: "monthly" },
+              { url: "/quote-builder", priority: "0.8", freq: "monthly" },
+              { url: "/workplace-strategy", priority: "0.8", freq: "monthly" },
+              { url: "/free-layout-plan", priority: "0.8", freq: "monthly" },
+              { url: "/about", priority: "0.7", freq: "monthly" },
+              { url: "/contact", priority: "0.7", freq: "monthly" },
+              { url: "/case-studies", priority: "0.7", freq: "monthly" },
+              { url: "/testimonials", priority: "0.6", freq: "monthly" },
+              { url: "/blog", priority: "0.8", freq: "weekly" },
+              { url: "/partners", priority: "0.6", freq: "monthly" },
+              { url: "/trade-project-procurement", priority: "0.7", freq: "monthly" },
+              { url: "/finance-your-workspace", priority: "0.7", freq: "monthly" },
+              { url: "/3d-office-walkthrough", priority: "0.7", freq: "monthly" },
+              { url: "/start", priority: "0.6", freq: "monthly" },
+            ];
+
+            const blogSlugs = [
+              "accessible-office-design-disability","acoustic-design-open-plan-offices","acoustic-furniture-open-plan-offices","acoustic-office-design-trends","activity-based-working-australia","activity-based-working-implementation","activity-based-working-office-design","anti-fatigue-mat-standing-desk-guide","australian-made-office-furniture-sustainability","back-pain-office-workers-solutions","bamboo-office-furniture-australia","biophilic-design-office-productivity","biophilic-office-design-australia","biophilic-office-design-guide","board-meeting-best-practices","boardroom-acoustic-design-guide","boardroom-av-technology-integration","boardroom-catering-facilities-design","boardroom-chair-selection-guide","boardroom-cost-guide-australia","boardroom-credenza-storage-guide","boardroom-furniture-guide-australia","boardroom-interior-design-trends","boardroom-lighting-design","boardroom-table-material-comparison","boardroom-table-size-guide","brand-identity-reception-design","brisbane-office-fitout-guide","choosing-office-location-australia","circular-economy-office-furniture","collaborative-vs-focus-zones-office","collaborative-workspace-furniture","colour-psychology-office-design","commercial-lease-negotiation-guide","commercial-office-chair-buying-guide-australia","commercial-vs-residential-office-furniture","corporate-headquarters-fitout","coworking-vs-private-office-comparison","creative-industry-office-design","curved-furniture-office-trend","dark-moody-office-interiors","desk-booking-hot-desking-systems","employee-wellbeing-office-design","end-of-trip-facilities-office-design","ergonomic-keyboard-mouse-guide","ergonomic-office-accessories-guide","ergonomic-office-chair-guide","ergonomics-multiple-screens-workstation","ergonomics-pregnancy-office-work","ergonomics-return-to-work-program","ergonomics-standing-sitting-alternation","ergonomics-work-from-home-setup","ergonomic-workstation-setup-guide","executive-office-design-trends","executive-office-furniture-buying-guide","executive-presentation-room-design","eye-strain-screen-fatigue-office","fabric-vs-vinyl-office-chairs","finance-sector-office-fitout","floor-plate-configuration-office-planning","focus-zones-office-design","fsc-certified-furniture-australia","future-of-office-design-australia","gen-z-office-design-preferences","government-office-fitout-compliance","green-office-certification-australia","green-office-relocation-tips","green-star-office-fitout-australia","height-adjustable-desk-buyers-guide","heritage-building-office-fitout","hot-desking-furniture-solutions","hotel-inspired-office-design","hotel-lobby-inspired-office-reception","how-to-compare-office-furniture-quotes","hybrid-work-office-design","hybrid-work-office-fitout-design","it-infrastructure-office-relocation","kitchen-breakout-area-design-office","law-firm-office-fitout-guide","leadership-office-design","legal-office-layout-privacy-collaboration","low-voc-office-furniture-indoor-air-quality","make-good-office-lease-australia","medical-reception-design-guide","meeting-room-design-productivity","meeting-room-furniture-buying-guide","melbourne-office-fitout-guide","modern-slavery-act-office-furniture-procurement","modular-meeting-room-furniture","modular-office-furniture-guide","modular-office-furniture-trends","monitor-arm-benefits-guide","multi-tenancy-office-fitout","nabers-office-fitout-furniture","natural-light-office-design","natural-materials-office-design","neck-shoulder-pain-office-ergonomics","new-office-fitout-budget-planning","office-breakout-space-design","office-chair-buying-guide-tall-short-employees","office-chair-weight-capacity-compliance","office-circulation-design-guide","office-colour-trends-australia","office-design-for-knowledge-economy","office-design-for-wellbeing-WELL-standard","office-design-neurodiversity-inclusion","office-design-trends-australia-2025","office-desk-buying-guide-australia","office-downsize-strategy","office-expansion-planning","office-fitout-approval-process-australia","office-fitout-cost-guide-australia-2025","office-fitout-for-healthcare-practices","office-fitout-for-property-sector","office-fitout-for-remote-first-companies","office-fitout-handover-guide","office-fitout-mistakes-to-avoid","office-fitout-planning-checklist","office-fitout-project-management-guide","office-fitout-project-timeline","office-fitout-roi-business-case","office-fitout-sustainability-green-star","office-fitout-timeline-australia","office-furniture-audit-relocation","office-furniture-budget-planning-guide-australia","office-furniture-carbon-footprint","office-furniture-dimensions-guide","office-furniture-end-of-life-disposal-australia","office-furniture-for-small-spaces","office-furniture-investment-roi","office-furniture-lead-times-australia","office-furniture-productivity-boost","office-furniture-recycled-materials","office-furniture-warranty-guide","office-lighting-productivity","office-move-checklist-australia","office-noise-management-solutions","office-plants-biophilia-air-quality","office-plants-productivity-guide","office-reception-area-design-guide","office-redesign-planning-without-disruption","office-relocation-communication-plan","office-relocation-fitout-combined-guide","office-relocation-planning-guide","office-relocation-project-management","office-space-per-person-australia","office-space-planning-guide-australia","office-storage-solutions-buying-guide","office-storage-solutions-commercial","office-temperature-ventilation-productivity","open-plan-office-design-guide","open-plan-office-furniture-guide","open-plan-vs-private-office-2025","open-plan-vs-private-offices-comparison","post-fitout-review-office","post-pandemic-office-design-lessons","productivity-monitoring-workplace","reception-area-waiting-lounge-design","reception-desk-buying-guide-australia","reception-desk-design-guide","reception-desk-height-guide","reception-desk-materials-guide","reception-furniture-buying-guide","reception-lighting-design-guide","reception-makeover-refresh-guide","reception-security-access-control-design","reception-signage-wayfinding-design","reception-staff-ergonomics-workstation","remote-work-office-collaboration-design","second-hand-office-furniture-australia","second-hand-vs-new-office-furniture","sedentary-work-health-risks-solutions","sit-stand-desk-productivity-benefits","sit-stand-desk-revolution-australia","small-reception-area-design-ideas","staff-commute-office-location-impact","standing-desk-buying-guide-australia","standing-desk-correct-posture-guide","startup-office-fitout-guide","sustainable-office-chair-specification","sustainable-office-fitout-planning","sustainable-office-furniture-australia","sustainable-office-future-australia","sustainable-office-procurement-policy","sustainable-office-upholstery-options","sydney-office-fitout-guide","team-culture-office-design","technology-company-office-fitout","technology-integrated-furniture-office","technology-integration-reception-design","virtual-boardroom-hybrid-meeting-design","wayfinding-signage-commercial-offices","wellness-office-design-australia","what-is-an-office-fitout-guide","workplace-health-safety-office-checklist","workstation-ergonomics-assessment","workstation-setup-productivity-tips","wrist-hand-ergonomics-office",
+            ];
+
+            const catalog = loadProductCatalog();
+            const productSkus: string[] = (catalog.products || []).map((p: any) => p.sku).filter(Boolean);
+
+            const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/'/g, "&apos;").replace(/"/g, "&quot;").replace(/>/g, "&gt;").replace(/</g, "&lt;");
+
+            const urlEntry = (loc: string, priority: string, freq: string, lastmod = today) =>
+              `  <url>\n    <loc>${esc(BASE + loc)}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${freq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+
+            const xml = [
+              `<?xml version="1.0" encoding="UTF-8"?>`,
+              `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
+              ...staticPages.map(p => urlEntry(p.url, p.priority, p.freq)),
+              ...blogSlugs.map(slug => urlEntry(`/blog/${slug}`, "0.7", "monthly")),
+              ...productSkus.map(sku => urlEntry(`/catalog/product/${encodeURIComponent(sku)}`, "0.8", "weekly")),
+              `</urlset>`,
+            ].join("\n");
+
+            res.set("Content-Type", "application/xml");
+            res.set("Cache-Control", "public, max-age=3600");
+            res.send(xml);
+          });
+
           // ── Admin auth endpoints ──────────────────────────────────────────────
           const { rateLimit } = await import("express-rate-limit");
           const authLimiter = rateLimit({

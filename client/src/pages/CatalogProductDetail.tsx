@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Layout } from "@/components/Layout";
@@ -257,6 +257,55 @@ export default function CatalogProductDetail() {
 
   const imgSrc = product ? (product.imageUrl || product.image || "") : "";
   const name = product ? (product.name || product.product_name || "") : "";
+
+  // ── SEO: title + JSON-LD product schema ────────────────────────────────
+  useEffect(() => {
+    if (!product) return;
+    const pName = name || product.sku;
+    document.title = `${pName} | The Corporate Desk`;
+
+    const setMeta = (prop: string, val: string, attr = "name") => {
+      let el = document.querySelector(`meta[${attr}="${prop}"]`) as HTMLMetaElement | null;
+      if (!el) { el = document.createElement("meta"); el.setAttribute(attr, prop); document.head.appendChild(el); }
+      el.content = val;
+    };
+    const desc = product.description
+      ? product.description.slice(0, 160)
+      : `${pName} — premium commercial office furniture by The Corporate Desk. ${product.series ? `Part of the ${product.series} series.` : ""} ISO 9001 certified, 6-year warranty.`;
+    setMeta("description", desc);
+    setMeta("og:title", `${pName} | The Corporate Desk`, "property");
+    setMeta("og:description", desc, "property");
+    setMeta("og:url", `https://www.thecorporatedesk.com.au/catalog/product/${product.sku}`, "property");
+    if (imgSrc) setMeta("og:image", imgSrc.startsWith("http") ? imgSrc : `https://www.thecorporatedesk.com.au${imgSrc}`, "property");
+
+    const schemaId = "product-jsonld";
+    document.getElementById(schemaId)?.remove();
+    const script = document.createElement("script");
+    script.id = schemaId;
+    script.type = "application/ld+json";
+    script.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": pName,
+      "sku": product.sku,
+      "description": desc,
+      "image": imgSrc ? (imgSrc.startsWith("http") ? imgSrc : `https://www.thecorporatedesk.com.au${imgSrc}`) : undefined,
+      "brand": { "@type": "Brand", "name": "The Corporate Desk" },
+      "category": product.category,
+      ...(product.series ? { "productLine": product.series } : {}),
+      "offers": {
+        "@type": "Offer",
+        "url": `https://www.thecorporatedesk.com.au/catalog/product/${product.sku}`,
+        "priceCurrency": "AUD",
+        ...(product.price_aud ? { "price": product.price_aud, "priceValidUntil": new Date(Date.now() + 90 * 86400000).toISOString().split("T")[0] } : { "price": "0" }),
+        "availability": "https://schema.org/InStock",
+        "seller": { "@type": "Organization", "name": "The Corporate Desk", "url": "https://www.thecorporatedesk.com.au" },
+      },
+    });
+    document.head.appendChild(script);
+
+    return () => { document.getElementById(schemaId)?.remove(); };
+  }, [product, name, imgSrc]);
 
   // ── Skeleton while loading ───────────────────────────────────────────────
   if (isLoading) {
