@@ -5190,28 +5190,108 @@ Rules:
 
   app.post("/api/partners/apply", async (req, res) => {
     try {
-      const { partnerCommissions: _pc, partnerReferralEvents: _pre, partnerDocuments: _pd, partnerSettings: _ps, partnerReferrals: partnerReferralsTable, partners: partnersTable } = await import("@shared/schema");
+      const { partners: partnersTable } = await import("@shared/schema");
       const { db: ddb } = await import("./db");
-      const { sql: dSql } = await import("drizzle-orm");
+      const { eq } = await import("drizzle-orm");
+      const { generateAgreementText, getAgreementTemplateVersion } = await import("./services/partnerAgreement");
       const body = req.body || {};
+
+      if (!body.email || !body.contactName || !body.companyName) {
+        return res.status(400).json({ error: "email, contactName, and companyName are required" });
+      }
+
+      // Prevent duplicate applications by email
+      const [existing] = await ddb.select({ id: partnersTable.id, agreementStatus: partnersTable.agreementStatus }).from(partnersTable).where(eq(partnersTable.email, body.email.toLowerCase().trim())).limit(1);
+      if (existing) {
+        if (existing.agreementStatus === "signed") {
+          return res.status(409).json({ error: "already_signed", message: "You already have an active partner account. Please sign in via the partner login.", partnerId: existing.id });
+        }
+        // Return existing partner + agreement text so they can complete signing
+        const [fullPartner] = await ddb.select().from(partnersTable).where(eq(partnersTable.id, existing.id)).limit(1);
+        const templateVersion = getAgreementTemplateVersion();
+        const agreementText = generateAgreementText({ contactName: fullPartner.contactName, companyName: fullPartner.companyName, email: fullPartner.email, abn: fullPartner.abn, city: fullPartner.city, state: fullPartner.state }, templateVersion);
+        return res.json({ ok: true, partnerId: existing.id, agreementText, templateVersion, resuming: true });
+      }
+
       const [newPartner] = await ddb.insert(partnersTable).values({
-        companyName: body.companyName || body.company || "Unknown",
-        partnerType: body.partnerType || body.roleType || "broker",
-        contactName: body.contactName || body.fullName || body.name || "Unknown",
-        email: body.email,
+        companyName: body.companyName.trim(),
+        partnerType: body.partnerType || "broker",
+        contactName: body.contactName.trim(),
+        email: body.email.toLowerCase().trim(),
         phone: body.phone || null,
         website: body.website || null,
         abn: body.abn || null,
         linkedinUrl: body.linkedinUrl || null,
         city: body.city || null,
         state: body.state || null,
-        bio: body.bio || body.notes || null,
+        bio: body.bio || null,
         onboardingStatus: "lead",
         agreementStatus: "pending",
         referralRate: 0.075,
         activeStatus: "pending",
       }).returning();
-      res.json({ ok: true, partner: newPartner });
+
+      const templateVersion = getAgreementTemplateVersion();
+      const agreementText = generateAgreementText({ contactName: newPartner.contactName, companyName: newPartner.companyName, email: newPartner.email, abn: newPartner.abn, city: newPartner.city, state: newPartner.state }, templateVersion);
+
+      res.json({ ok: true, partnerId: newPartner.id, agreementText, templateVersion, resuming: false });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Partners: Inline Sign & Activate (self-serve onboarding) ──────────────
+  app.post("/api/partners/apply/:id/sign", async (req, res) => {
+    try {
+      const { partners: partnersTable, partnerAgreements: partnerAgreementsTable } = await import("@shared/schema");
+      const { db: ddb } = await import("./db");
+      const { eq } = await import("drizzle-orm");
+      const { generateAgreementText, getAgreementTemplateVersion } = await import("./services/partnerAgreement");
+      const { sendPartnerWelcomeEmail } = await import("./email");
+
+      const { signedByName } = req.body || {};
+      if (!signedByName || String(signedByName).trim().length < 2) {
+        return res.status(400).json({ error: "Full name required to sign the agreement" });
+      }
+
+      const [partner] = await ddb.select().from(partnersTable).where(eq(partnersTable.id, req.params.id)).limit(1);
+      if (!partner) return res.status(404).json({ error: "Partner not found" });
+
+      const signedAt = new Date();
+      const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.socket.remoteAddress || null;
+      const templateVersion = getAgreementTemplateVersion();
+      const agreementText = generateAgreementText({ contactName: partner.contactName, companyName: partner.companyName, email: partner.email, abn: partner.abn, city: partner.city, state: partner.state }, templateVersion);
+
+      // Sign + activate partner in one update
+      await ddb.update(partnersTable).set({
+        agreementStatus: "signed",
+        agreementSignedAt: signedAt,
+        agreementSignedByName: String(signedByName).trim(),
+        agreementSignedByIp: ip,
+        onboardingStatus: "active",
+        activeStatus: "active",
+        approvedAt: signedAt,
+        updatedAt: signedAt,
+      }).where(eq(partnersTable.id, partner.id));
+
+      // Persist full signed agreement in audit table
+      await ddb.insert(partnerAgreementsTable).values({
+        partnerId: partner.id,
+        templateVersion,
+        agreementText,
+        signedByName: String(signedByName).trim(),
+        signedAt,
+        signedByIp: ip,
+      });
+
+      // Send welcome email (non-blocking)
+      sendPartnerWelcomeEmail({
+        partnerEmail: partner.email,
+        partnerName: partner.contactName,
+        companyName: partner.companyName,
+        dashboardUrl: `${req.headers.origin || `https://${req.headers.host}`}/partner-dashboard`,
+        submitDealUrl: `${req.headers.origin || `https://${req.headers.host}`}/submit-deal`,
+      }).catch((e: any) => console.error("[WelcomeEmail] Failed:", e?.message));
+
+      res.json({ ok: true, activated: true, signedAt: signedAt.toISOString(), partner: { id: partner.id, contactName: partner.contactName, companyName: partner.companyName, email: partner.email } });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 

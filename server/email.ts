@@ -1069,6 +1069,91 @@ export async function sendOutreachEmail(opts: {
   return { id: result.data?.id, provider: "resend" };
 }
 
+export async function sendPartnerWelcomeEmail(opts: {
+  partnerEmail: string;
+  partnerName: string;
+  companyName: string;
+  dashboardUrl: string;
+  submitDealUrl: string;
+}): Promise<void> {
+  const subject = `You're live — Welcome to The Corporate Desk Partner Network`;
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#0f0f0f;font-family:'Helvetica Neue',Arial,sans-serif;color:#ffffff;">
+  <div style="max-width:580px;margin:0 auto;padding:48px 32px;">
+
+    <div style="margin-bottom:32px;">
+      <span style="font-family:Georgia,serif;font-weight:bold;font-size:15px;letter-spacing:0.05em;color:#fff;">THE CORPORATE</span>
+      <span style="display:block;font-size:8px;letter-spacing:0.35em;color:#c9a84c;text-transform:uppercase;margin-top:1px;">DESK</span>
+    </div>
+
+    <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:32px;margin-bottom:32px;">
+      <div style="display:inline-block;background:rgba(5,150,105,0.12);border:1px solid rgba(5,150,105,0.25);padding:6px 14px;margin-bottom:20px;">
+        <span style="font-size:11px;color:#6ee7b7;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;">Account Activated</span>
+      </div>
+      <h1 style="font-size:26px;font-weight:300;color:#ffffff;margin:0 0 16px;line-height:1.3;">
+        Welcome to the network, ${opts.partnerName}
+      </h1>
+      <p style="font-size:15px;color:rgba(255,255,255,0.6);line-height:1.7;margin:0 0 12px;">
+        Your agreement is signed and your partner account is fully active. You can now access your dashboard and begin submitting client referrals immediately.
+      </p>
+    </div>
+
+    <div style="background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.15);padding:24px;margin-bottom:28px;">
+      <p style="font-size:12px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin:0 0 14px;">What happens next</p>
+      <div style="space-y:12px;">
+        <div style="display:flex;gap:12px;margin-bottom:12px;">
+          <div style="width:24px;height:24px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span style="color:#c9a84c;font-size:11px;font-weight:600;">1</span>
+          </div>
+          <p style="font-size:13px;color:rgba(255,255,255,0.65);margin:0;line-height:1.5;">Submit your first referral — share client details and we take it from there</p>
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:12px;">
+          <div style="width:24px;height:24px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span style="color:#c9a84c;font-size:11px;font-weight:600;">2</span>
+          </div>
+          <p style="font-size:13px;color:rgba(255,255,255,0.65);margin:0;line-height:1.5;">Track all your referrals, status updates, and commission pipeline live in your dashboard</p>
+        </div>
+        <div style="display:flex;gap:12px;">
+          <div style="width:24px;height:24px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span style="color:#c9a84c;font-size:11px;font-weight:600;">3</span>
+          </div>
+          <p style="font-size:13px;color:rgba(255,255,255,0.65);margin:0;line-height:1.5;">Earn 7.5% commission — paid within 30 days of verified client payment</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-bottom:32px;">
+      <a href="${opts.dashboardUrl}" style="flex:1;display:inline-block;background:#c9a84c;color:#000;font-size:13px;font-weight:600;padding:13px 20px;text-decoration:none;text-align:center;letter-spacing:0.02em;">
+        Partner Dashboard
+      </a>
+      <a href="${opts.submitDealUrl}" style="flex:1;display:inline-block;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.8);font-size:13px;font-weight:500;padding:13px 20px;text-decoration:none;text-align:center;">
+        Submit a Referral
+      </a>
+    </div>
+
+    <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:24px;">
+      <p style="font-size:12px;color:rgba(255,255,255,0.25);line-height:1.8;margin:0;">
+        Questions? We're here — service@thecorporatedesk.com.au · 1300 977 607<br>
+        The Corporate Desk Pty Ltd · Brisbane, Queensland
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>`;
+
+  console.log(`[Email] ▶ Partner Welcome — to: ${opts.partnerEmail} | partner: ${opts.partnerName}`);
+  await sendEmail({ to: opts.partnerEmail, subject, html });
+  await sendEmail({
+    to: TCD_RECIPIENTS,
+    subject: `NEW PARTNER ACTIVATED — ${opts.companyName} (${opts.partnerName})`,
+    html: `<p style="font-family:Arial,sans-serif;color:#333;">New partner <strong>${opts.partnerName}</strong> (${opts.companyName}) has self-registered and signed their agreement at ${opts.partnerEmail}.</p>`,
+  });
+}
+
 export async function sendPartnerAgreementEmail(opts: {
   partnerEmail: string;
   partnerName: string;
