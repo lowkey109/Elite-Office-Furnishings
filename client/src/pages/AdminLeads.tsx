@@ -8,13 +8,11 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Search, Zap, Target, TrendingUp, Copy, Trash2, ChevronDown,
   ArrowLeft, Building2, MapPin, Users, DollarSign,
-  Mail, Globe, BarChart3, CheckCircle2, Loader2, ShieldCheck,
+  Mail, Globe, BarChart3, CheckCircle2, Loader2,
   Megaphone, LayoutDashboard, RefreshCw, Star, AlertCircle, Clock,
   Link2, Briefcase, Linkedin, FileText, Newspaper, Layers,
   Play, SkipForward, X, Plus, AlertTriangle, ChevronRight, XCircle,
 } from "lucide-react";
-
-import { validateAdminLogin } from "@/lib/adminAuth";
 
 type LeadStatus = "New" | "Contacted" | "Responded" | "Qualified" | "Closed" | "Lead Detected" | "Planning" | "Quoted" | "Negotiation" | "Won" | "Lost";
 type SourceType = "manual" | "job_ad" | "linkedin" | "hiring_page" | "announcement" | "article" | "website";
@@ -318,10 +316,10 @@ function BatchScanDialog({ onClose, onComplete }: BatchScanDialogProps) {
 }
 
 export default function AdminLeads() {
-  const [authed, setAuthed] = useState(false);
-  const [email, setEmail] = useState("");
-  const [pw, setPw] = useState("");
-  const [pwError, setPwError] = useState(false);
+  const [authed] = useState(() =>
+    sessionStorage.getItem("tcd_admin_auth") === "true" ||
+    localStorage.getItem("tcd_admin_auth") === "true"
+  );
 
   const [activeSourceType, setActiveSourceType] = useState<SourceType>("manual");
   const [sourceText, setSourceText] = useState("");
@@ -343,7 +341,6 @@ export default function AdminLeads() {
 
   useEffect(() => {
     document.title = "Lead Intelligence Engine | The Corporate Desk Admin";
-    if (sessionStorage.getItem("tcd_admin_auth") === "true") setAuthed(true);
   }, []);
 
   const { data: prospects = [], isLoading } = useQuery<ProspectedLead[]>({
@@ -423,16 +420,6 @@ export default function AdminLeads() {
     },
   });
 
-  function handleLogin() {
-    if (validateAdminLogin(email, pw)) {
-      sessionStorage.setItem("tcd_admin_auth", "true");
-      setAuthed(true);
-      setPwError(false);
-    } else {
-      setPwError(true);
-    }
-  }
-
   function copyText(text: string, id: string) {
     navigator.clipboard.writeText(text).then(() => {
       setCopiedId(id);
@@ -489,55 +476,6 @@ export default function AdminLeads() {
   const sourceConfig = SOURCE_TYPE_CONFIG[activeSourceType];
   const SourceIcon = sourceConfig.icon;
   const isPending = analyseMutation.isPending || forceAddMutation.isPending;
-
-  if (!authed) {
-    return (
-      <div className="min-h-screen bg-[hsl(220,20%,6%)] flex items-center justify-center px-4">
-        <div className="w-full max-w-sm">
-          <div className="text-center mb-8">
-            <div className="flex flex-col items-center mb-4">
-              <span className="text-2xl font-serif font-bold text-white">THE CORPORATE</span>
-              <span className="text-sm font-serif tracking-[0.3em] text-[hsl(43,78%,65%)] uppercase -mt-0.5">DESK</span>
-            </div>
-            <h1 className="text-xl font-semibold text-white">Lead Intelligence Engine</h1>
-            <p className="text-white/40 text-sm mt-1">Authorised access only</p>
-          </div>
-          <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.15)] rounded-2xl p-6">
-            <label className="block text-sm text-white/60 mb-2">Admin Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && handleLogin()}
-              placeholder="admin@thecorporatedesk.com.au"
-              data-testid="input-leads-email"
-              className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(201,168,76,0.2)] focus:border-[rgba(201,168,76,0.5)] rounded-md px-4 py-3 text-white placeholder:text-white/30 focus:outline-none text-base mb-4"
-              style={{ minHeight: "48px" }}
-            />
-            <label className="block text-sm text-white/60 mb-2">Password</label>
-            <input
-              type="password"
-              value={pw}
-              onChange={e => setPw(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && handleLogin()}
-              placeholder="Enter password"
-              data-testid="input-leads-password"
-              className={`w-full bg-[rgba(255,255,255,0.04)] border rounded-md px-4 py-3 text-white placeholder:text-white/30 focus:outline-none text-base mb-1 ${pwError ? "border-red-500/50" : "border-[rgba(201,168,76,0.2)] focus:border-[rgba(201,168,76,0.5)]"}`}
-              style={{ minHeight: "48px" }}
-            />
-            {pwError && <p className="text-red-400 text-xs mb-3">Incorrect credentials. Please try again.</p>}
-            <Button
-              onClick={handleLogin}
-              className="w-full bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[48px] mt-3"
-              data-testid="button-leads-login"
-            >
-              <ShieldCheck className="w-4 h-4 mr-2" /> Access Engine
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[hsl(220,20%,6%)]">

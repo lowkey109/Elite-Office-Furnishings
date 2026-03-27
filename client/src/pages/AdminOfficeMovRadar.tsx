@@ -11,10 +11,9 @@ import {
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-const ADMIN_AUTH_KEY = "tcd_admin_auth";
-
 function useAdminAuth() {
-  return sessionStorage.getItem(ADMIN_AUTH_KEY) === "true";
+  return sessionStorage.getItem("tcd_admin_auth") === "true" ||
+    localStorage.getItem("tcd_admin_auth") === "true";
 }
 
 const SIGNAL_TYPES = [

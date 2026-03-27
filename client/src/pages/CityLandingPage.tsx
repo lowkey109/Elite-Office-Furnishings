@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Link } from "wouter";
+import { Link, Redirect } from "wouter";
 import { Layout } from "@/components/Layout";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -248,7 +248,7 @@ export default function CityLandingPage({ cityKey }: { cityKey: string }) {
     };
   }, [data, cityKey]);
 
-  if (!data) return null;
+  if (!data) return <Redirect to="/not-found" />;
 
   return (
     <Layout>

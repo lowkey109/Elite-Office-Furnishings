@@ -10,10 +10,6 @@ import {
   Filter, ArrowUpDown, FileText, MessageSquare,
 } from "lucide-react";
 
-const ADMIN_EMAIL = "admin@thecorporatedesk.com.au";
-const ADMIN_PASS = "Jaymin12!/";
-const AUTH_KEY = "tcd_admin_auth";
-
 interface DealHunterSignal {
   id: string;
   companyName: string;
@@ -86,11 +82,10 @@ function fmtValue(v: number | null) {
 }
 
 export default function AdminDealHunter() {
-  const [authed, setAuthed] = useState(() => {
-    const s = sessionStorage.getItem(AUTH_KEY);
-    return s === `${ADMIN_EMAIL}:${ADMIN_PASS}` || s === "true";
-  });
-  const [pw, setPw] = useState("");
+  const [authed] = useState(() =>
+    sessionStorage.getItem("tcd_admin_auth") === "true" ||
+    localStorage.getItem("tcd_admin_auth") === "true"
+  );
   const [selectedSignal, setSelectedSignal] = useState<DealHunterSignal | null>(null);
   const [search, setSearch] = useState("");
   const [cityFilter, setCityFilter] = useState("");
@@ -175,25 +170,6 @@ export default function AdminDealHunter() {
       toast({ title: "Marked as duplicate" });
     },
   });
-
-  if (!authed) {
-    return (
-      <div className="min-h-screen bg-[hsl(220,20%,6%)] flex items-center justify-center px-4">
-        <div className="w-full max-w-sm bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.15)] rounded-2xl p-8 text-center">
-          <Crosshair className="w-8 h-8 text-[hsl(43,78%,52%)] mx-auto mb-4" />
-          <h1 className="text-white font-bold text-xl mb-1">AI Deal Hunter</h1>
-          <p className="text-zinc-500 text-sm mb-6">Admin access required</p>
-          <input type="password" value={pw} onChange={e => setPw(e.target.value)} placeholder="Admin password"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white text-sm mb-3 outline-none"
-            onKeyDown={e => { if (e.key === "Enter" && pw === ADMIN_PASS) { sessionStorage.setItem(AUTH_KEY, `${ADMIN_EMAIL}:${pw}`); setAuthed(true); } }} />
-          <button onClick={() => { if (pw === ADMIN_PASS) { sessionStorage.setItem(AUTH_KEY, `${ADMIN_EMAIL}:${pw}`); setAuthed(true); } }}
-            className="w-full bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-black rounded-xl py-3 text-sm font-semibold">
-            Access Deal Hunter
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   // Sort and filter signals
   const filtered = signals

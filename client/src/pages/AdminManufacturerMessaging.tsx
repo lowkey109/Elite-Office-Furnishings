@@ -18,10 +18,8 @@ export default function AdminManufacturerMessaging() {
       try {
         const data = JSON.parse(text);
         setStatus(data.message || "Alex ran successfully");
-        console.log("FULL RESPONSE:", data); 
       } catch {
         setStatus("Alex ran (non-JSON response)");
-        console.log("Raw response:", text);
       }
     } catch (error) {
       setStatus("Request failed");

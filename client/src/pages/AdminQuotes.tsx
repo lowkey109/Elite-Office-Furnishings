@@ -13,10 +13,6 @@ import {
 } from "lucide-react";
 import type { Quote } from "@shared/schema";
 
-const ADMIN_EMAIL = "admin@thecorporatedesk.com.au";
-const ADMIN_PASS = "Jaymin12!/";
-const AUTH_KEY = "tcd_admin_auth";
-
 interface QuoteLineItem {
   id: string;
   productName: string;
@@ -588,10 +584,9 @@ function QuoteEditor({
 
 // ─── Quote List ─────────────────────────────────────────────────────────────────
 export default function AdminQuotes() {
-  const [authed, setAuthed] = useState(false);
-  const [authEmail, setAuthEmail] = useState("");
-  const [authPw, setAuthPw] = useState("");
-  const [authErr, setAuthErr] = useState(false);
+  const authed =
+    sessionStorage.getItem("tcd_admin_auth") === "true" ||
+    localStorage.getItem("tcd_admin_auth") === "true";
 
   const [filterStatus, setFilterStatus] = useState("All");
   const [search, setSearch] = useState("");
@@ -599,12 +594,6 @@ export default function AdminQuotes() {
   const [prefillRequest, setPrefillRequest] = useState<any>(null);
 
   const { toast } = useToast();
-
-  // Auth check
-  useEffect(() => {
-    const stored = sessionStorage.getItem(AUTH_KEY);
-    if (stored === `${ADMIN_EMAIL}:${ADMIN_PASS}` || stored === "true") setAuthed(true);
-  }, []);
 
   // Pre-fill from planning request query param
   useEffect(() => {
@@ -654,35 +643,6 @@ export default function AdminQuotes() {
       toast({ title: "Quote deleted" });
     },
   });
-
-  const handleLogin = () => {
-    if (authEmail === ADMIN_EMAIL && authPw === ADMIN_PASS) {
-      sessionStorage.setItem(AUTH_KEY, `${ADMIN_EMAIL}:${ADMIN_PASS}`);
-      setAuthed(true);
-    } else {
-      setAuthErr(true);
-    }
-  };
-
-  if (!authed) {
-    return (
-      <div className="min-h-screen bg-[hsl(220,20%,7%)] flex items-center justify-center p-6">
-        <div className="w-full max-w-sm bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-8">
-          <div className="text-center mb-6">
-            <div className="text-[hsl(43,78%,52%)] text-xs font-bold tracking-widest uppercase mb-2">The Corporate Desk</div>
-            <h1 className="text-white font-serif text-xl font-bold">Admin Access</h1>
-            <p className="text-white/40 text-sm mt-1">Formal Quotes</p>
-          </div>
-          <div className="space-y-3">
-            <Input value={authEmail} onChange={e => setAuthEmail(e.target.value)} placeholder="Admin email" type="email" className="bg-white/5 border-white/10 text-white placeholder:text-white/30" />
-            <Input value={authPw} onChange={e => setAuthPw(e.target.value)} placeholder="Password" type="password" className="bg-white/5 border-white/10 text-white placeholder:text-white/30" onKeyDown={e => e.key === "Enter" && handleLogin()} />
-            {authErr && <p className="text-red-400 text-xs">Invalid credentials</p>}
-            <Button onClick={handleLogin} className="w-full bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[#0f0f13] font-semibold">Sign In</Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Stats
   const total = quotes.length;

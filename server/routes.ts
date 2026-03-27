@@ -162,12 +162,6 @@ import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } f
           };
           app.use("/api/admin", requireAdmin);
 
-          app.get("/api/nexora/run", async (_req, res) => {
-            const result = await runNexoraCycle("manual");
-            if (result.skipped) return res.status(409).json(result);
-            res.json(result);
-          });
-
           app.get("/api/nexora/status", (_req, res) => {
             res.json(getNexoraLoopState());
           });

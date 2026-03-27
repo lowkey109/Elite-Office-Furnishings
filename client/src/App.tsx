@@ -7,6 +7,7 @@ import { ConciergeProvider } from "@/contexts/ConciergeContext";
 import { NexoraCopilot } from "@/components/NexoraCopilot";
 import { NexoraJourneyBar } from "@/components/NexoraJourneyBar";
 import { AdminAuthGate } from "@/components/AdminAuthGate";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import About from "@/pages/About";
@@ -217,19 +218,21 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <ConciergeProvider>
-          <Toaster />
-          <TrackingPixels />
-          <Router />
-          <NexoraJourneyBar />
-          <NexoraCopilot />
-          <WhatsAppButton />
-          <GoogleReviewsBadge />
-        </ConciergeProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <ConciergeProvider>
+            <Toaster />
+            <TrackingPixels />
+            <Router />
+            <NexoraJourneyBar />
+            <NexoraCopilot />
+            <WhatsAppButton />
+            <GoogleReviewsBadge />
+          </ConciergeProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
