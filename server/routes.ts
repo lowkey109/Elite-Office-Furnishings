@@ -633,6 +633,15 @@ const upload = multer({
   },
 });
 
+const visionUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (/\.(png|jpg|jpeg|webp|gif)$/i.test(path.extname(file.originalname))) cb(null, true);
+    else cb(new Error("Only PNG, JPG, JPEG, WEBP, or GIF images allowed"));
+  },
+});
+
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -2120,6 +2129,65 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
         res.end();
       } else {
         res.status(500).json({ error: "Failed to get response" });
+      }
+    }
+  });
+
+  // ─── Vision Chat ─────────────────────────────────────────────────────────────
+
+  app.post("/api/chat/vision", visionUpload.single("image"), async (req, res) => {
+    try {
+      const message = (req.body.message || "").trim();
+      const pageContext = req.body.pageContext || "";
+      const userProfile = req.body.userProfile || "";
+      let history: Array<{ role: "user" | "assistant"; content: string }> = [];
+      try { history = JSON.parse(req.body.history || "[]"); } catch {}
+
+      if (!message && !req.file) {
+        return res.status(400).json({ error: "message or image required" });
+      }
+
+      const userContent: Array<{ type: string; text?: string; image_url?: { url: string; detail: string } }> = [];
+      if (req.file) {
+        const base64 = req.file.buffer.toString("base64");
+        userContent.push({
+          type: "image_url",
+          image_url: { url: `data:${req.file.mimetype};base64,${base64}`, detail: "high" },
+        });
+      }
+      if (message) userContent.push({ type: "text", text: message });
+
+      const systemPrompt = buildChatSystemPrompt(undefined, pageContext || undefined, userProfile || undefined);
+
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache, no-transform");
+      res.setHeader("Connection", "keep-alive");
+      res.setHeader("X-Accel-Buffering", "no");
+
+      const stream = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...history.map(m => ({ role: m.role as "user" | "assistant", content: m.content })),
+          { role: "user", content: userContent as any },
+        ],
+        stream: true,
+        max_tokens: 1500,
+      });
+
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || "";
+        if (content) res.write(`data: ${JSON.stringify({ content })}\n\n`);
+      }
+      res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+      res.end();
+    } catch (error) {
+      console.error("[Vision Chat]", error);
+      if (res.headersSent) {
+        res.write(`data: ${JSON.stringify({ error: "Vision chat failed" })}\n\n`);
+        res.end();
+      } else {
+        res.status(500).json({ error: "Vision chat failed" });
       }
     }
   });

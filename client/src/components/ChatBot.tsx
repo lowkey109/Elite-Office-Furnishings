@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
-import { X, Send, ChevronDown, ArrowRight, Sparkles } from "lucide-react";
+import { X, Send, ChevronDown, ArrowRight, Sparkles, Paperclip } from "lucide-react";
 import { Link } from "wouter";
 import { useConcierge, ConversationMessage, UserProfile } from "@/contexts/ConciergeContext";
 import { runNexoraEngine, NexoraDecision } from "@/lib/nexoraEngine";
@@ -319,6 +319,14 @@ function MessageBubble({ message }: { message: ConversationMessage }) {
         </div>
       )}
       <div className="max-w-[82%] flex flex-col gap-2">
+        {message.imageUrl && isUser && (
+          <img
+            src={message.imageUrl}
+            alt="Attached"
+            className="max-h-36 max-w-full rounded-xl object-cover border border-[rgba(201,168,76,0.2)] self-end"
+          />
+        )}
+        {(clean || message.content) && (
         <div
           className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
             isUser
@@ -328,6 +336,7 @@ function MessageBubble({ message }: { message: ConversationMessage }) {
         >
           {clean || message.content}
         </div>
+        )}
         {links.length > 0 && (
           <div className="flex flex-wrap gap-2 pl-1">
             {links.map((link) => (
@@ -589,8 +598,26 @@ export function ChatBot() {
   const [isMinimized, setIsMinimized] = useState(false);
   const [showBadge, setShowBadge] = useState(false);
   const [inputValue, setInputValue] = useState("");
+  const [imageAttachment, setImageAttachment] = useState<File | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const clearImageAttachment = useCallback(() => {
+    if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+    setImageAttachment(null);
+    setImagePreviewUrl(null);
+  }, [imagePreviewUrl]);
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) return;
+    setImageAttachment(file);
+    setImagePreviewUrl(URL.createObjectURL(file));
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   // Initialize welcome greeting once (first visit, no history)
   useEffect(() => {
@@ -638,22 +665,28 @@ export function ChatBot() {
   const profileString = buildProfileString(userProfile);
 
   const sendMessage = useCallback(
-    async (content: string) => {
-      if (!content.trim() || isLoadingRef.current) return;
+    async (content: string, attachedImage?: File | null) => {
+      if (!content.trim() && !attachedImage) return;
+      if (isLoadingRef.current) return;
 
       isLoadingRef.current = true;
       setIsLoading(true);
+
+      const capturedImage = attachedImage || null;
+      const capturedPreview = capturedImage ? imagePreviewUrl : null;
 
       const userMsg: ConversationMessage = {
         id: `u-${Date.now()}`,
         role: "user",
         content: content.trim(),
+        imageUrl: capturedPreview || undefined,
       };
 
       const newHistory = [...apiHistory, { role: "user" as const, content: content.trim() }];
       setMessages((prev) => [...prev, userMsg]);
       setApiHistory(newHistory);
       setInputValue("");
+      clearImageAttachment();
       setShowQuickReplies(false);
 
       // Extract profile data from user message
@@ -716,17 +749,28 @@ export function ChatBot() {
           }).catch(() => {});
         }
 
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            messages: newHistory,
-            stream: true,
-            pageContext: pageLabel,
-            userProfile: profileString || undefined,
-            nexoraContext: decision.systemContext,
-          }),
-        });
+        let response: Response;
+        if (capturedImage) {
+          const formData = new FormData();
+          formData.append("image", capturedImage);
+          if (content.trim()) formData.append("message", content.trim());
+          formData.append("history", JSON.stringify(newHistory.slice(0, -1)));
+          formData.append("pageContext", pageLabel);
+          if (profileString) formData.append("userProfile", profileString);
+          response = await fetch("/api/chat/vision", { method: "POST", body: formData });
+        } else {
+          response = await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              messages: newHistory,
+              stream: true,
+              pageContext: pageLabel,
+              userProfile: profileString || undefined,
+              nexoraContext: decision.systemContext,
+            }),
+          });
+        }
 
         if (!response.ok) throw new Error("Request failed");
         const reader = response.body?.getReader();
@@ -820,12 +864,14 @@ export function ChatBot() {
       setSelectedService,
       setLastDecision,
       emit,
+      imagePreviewUrl,
+      clearImageAttachment,
     ]
   );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    sendMessage(inputValue);
+    sendMessage(inputValue, imageAttachment);
   };
 
   const quickReplies =
@@ -978,6 +1024,24 @@ export function ChatBot() {
                   className="px-3 pb-3 pt-2 flex-shrink-0"
                   style={{ borderTop: "1px solid rgba(201,168,76,0.08)" }}
                 >
+                  {/* Image preview */}
+                  {imagePreviewUrl && (
+                    <div className="relative inline-flex mb-2 ml-1">
+                      <img
+                        src={imagePreviewUrl}
+                        alt="Attached"
+                        className="h-14 w-auto rounded-lg object-cover border border-[rgba(201,168,76,0.3)]"
+                      />
+                      <button
+                        type="button"
+                        onClick={clearImageAttachment}
+                        className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-400 transition-colors"
+                        data-testid="chatbot-remove-image"
+                      >
+                        <X className="w-2.5 h-2.5 text-white" />
+                      </button>
+                    </div>
+                  )}
                   <div
                     className="flex items-center gap-2 px-3 py-2 rounded-xl transition-colors"
                     style={{
@@ -985,12 +1049,32 @@ export function ChatBot() {
                       border: "1px solid rgba(201,168,76,0.13)",
                     }}
                   >
+                    {/* Paperclip / image attach */}
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isLoading}
+                      className="flex-shrink-0 text-white/30 hover:text-[hsl(43,78%,62%)] transition-colors disabled:opacity-20"
+                      style={{ touchAction: "manipulation" }}
+                      aria-label="Attach image"
+                      data-testid="chatbot-attach"
+                    >
+                      <Paperclip className="w-4 h-4" />
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+                      className="hidden"
+                      onChange={handleImageSelect}
+                      data-testid="chatbot-file-input"
+                    />
                     <input
                       ref={inputRef}
                       type="text"
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
-                      placeholder="Ask about fitouts, products, pricing..."
+                      placeholder={imageAttachment ? "Add a message (optional)…" : "Ask about fitouts, products, pricing..."}
                       className="flex-1 bg-transparent text-white text-sm placeholder-white/25 outline-none min-w-0"
                       style={{ fontSize: "16px" }}
                       disabled={isLoading}
@@ -998,7 +1082,7 @@ export function ChatBot() {
                     />
                     <button
                       type="submit"
-                      disabled={!inputValue.trim() || isLoading}
+                      disabled={(!inputValue.trim() && !imageAttachment) || isLoading}
                       className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 transition-all"
                       style={{
                         background: "hsl(43,78%,52%)",

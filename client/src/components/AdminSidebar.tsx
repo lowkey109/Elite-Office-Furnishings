@@ -28,6 +28,7 @@ const NAV: NavSection[] = [
       { label: "Dashboard",    href: "/admin/dashboard",   icon: LayoutDashboard },
       { label: "Alex AI",      href: "/admin/alex",        icon: Bot },
       { label: "AI Autopilot", href: "/admin/nexora",      icon: Zap },
+      { label: "AI Chat",      href: "/admin/ai-chat",     icon: MessageSquare },
     ],
   },
   {

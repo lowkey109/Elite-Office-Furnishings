@@ -17,6 +17,7 @@ export interface ConversationMessage {
   role: "user" | "assistant";
   content: string;
   isStreaming?: boolean;
+  imageUrl?: string;
 }
 
 export interface UserProfile {
