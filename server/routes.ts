@@ -849,7 +849,12 @@ IMPORTANT RULES:
   // Normalise raw furnitureCatalogue shape → frontend CatalogProduct shape
   function normaliseProduct(p: any) {
     const name = p.name || p.product_name || "";
-    const imageUrl = p.imageUrl || p.image_url || p.image || "";
+    let imageUrl = p.imageUrl || p.image_url || p.image || "";
+    // Fall back to series gallery when image path is a broken /catalog-assets/ reference or missing
+    if (!imageUrl || imageUrl.startsWith("/catalog-assets/")) {
+      const gallery = SERIES_GALLERY[p.series] ?? [];
+      if (gallery.length > 0) imageUrl = gallery[0];
+    }
     return {
       ...p,
       name,
@@ -990,10 +995,10 @@ IMPORTANT RULES:
     "WINA":         [GJO+"lru-executive-desk.jpg", GJO+"hxm-executive-suite.jpg"],
     "WPN":          [GJO+"hxm-executive-suite.jpg", GJO+"lru-executive-desk.jpg"],
     "MZE":          [GJO+"hxm-executive-suite.jpg", GJO+"lru-executive-desk.jpg", GJO+"jn-boardroom-table-2.jpg"],
-    "FU8061 Sofa Collection": [GJO+"jn-credenza.jpg", GJO+"hxm-executive-suite.jpg"],
-    "Accent Chair Collection":[GJO+"jn-executive-desk.jpg", GJO+"hxm-executive-suite.jpg"],
-    "BJ Side Table Collection":[GJO+"jn-credenza.jpg", GJO+"jn-executive-desk.jpg"],
-    "CJ Coffee Table Collection":[GJO+"jn-boardroom-suite.jpg", GJO+"jn-executive-desk.jpg"],
+    "FU8061 Sofa Collection": [GJO+"jn-boardroom-suite.jpg", GJO+"hxm-executive-suite.jpg"],
+    "Accent Chair Collection":[GJO+"hxm-executive-suite.jpg", GJO+"jn-executive-desk.jpg"],
+    "BJ Side Table Collection":[GJO+"jn-executive-desk.jpg", GJO+"hxm-executive-suite.jpg"],
+    "CJ Coffee Table Collection":[GJO+"jn-boardroom-suite.jpg", GJO+"hxm-executive-suite.jpg"],
     "833-1C":       [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
     "848/850":      [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
     "ZC 牛角椅":    [GJO+"gojo-cover.jpg", GJO+"lru-executive-desk.jpg"],
@@ -1018,6 +1023,8 @@ IMPORTANT RULES:
     "G05":          [HSG+"cape-executive.jpg", GJO+"hxm-executive-suite.jpg"],
     "G06":          [HSG+"cape-executive.jpg", GJO+"lru-conference-table.jpg"],
     "G07":          [HSG+"cape-executive.jpg", GJO+"jn-executive-desk.jpg"],
+    // Office pods (Aysa)
+    "HJVS Series":  [HSG+"miller-pod.jpg", HSG+"milan-desk.jpg"],
     // Steel filing — use unused design images
     "Yashang Steel": [FSZ+"design-23.jpg", FSZ+"design-24.jpg"],
     "Yafeng Steel Tank": [FSZ+"design-25.jpg", FSZ+"design-26.jpg"],

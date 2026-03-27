@@ -54,36 +54,42 @@ const ProductCard = ({ product }: { product: SupplierProduct }) => {
     <Link
       href={`/catalog/product/${slug}`}
       data-testid={`card-product-${product.sku}`}
-      className="group block overflow-hidden rounded-2xl border border-white/10 bg-[#0b0b0c] hover:border-[#b8974a]/50 transition-all duration-200 flex flex-col cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#b8974a]"
+      className="group block overflow-hidden rounded-xl border border-white/8 bg-[#111214] hover:border-[#b8974a]/40 hover:shadow-[0_4px_24px_rgba(184,151,74,0.08)] transition-all duration-200 flex flex-col cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#b8974a]"
     >
-      {/* Image */}
-      <div className="relative bg-[#111] overflow-hidden" style={{ aspectRatio: "4/3" }}>
+      {/* Image — light background so product photos read clearly */}
+      <div className="relative bg-[#f2f0ec] overflow-hidden" style={{ aspectRatio: "1/1" }}>
         {!imgErr && imgSrc ? (
           <img
             src={imgSrc}
             alt={product.imageAlt ?? `${name} — ${product.sku}`}
-            className="absolute inset-0 h-full w-full object-contain p-3 group-hover:scale-[1.04] transition-transform duration-300"
+            className="absolute inset-0 h-full w-full object-contain p-2 group-hover:scale-[1.05] transition-transform duration-300"
             loading="lazy"
             decoding="async"
             onError={() => setImgErr(true)}
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-white/15 text-[10px] text-center px-4 font-mono">
-            {product.sku}
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-[#888] text-[10px] text-center px-4">
+            <div className="w-10 h-10 rounded-lg bg-[#e0ddd8] flex items-center justify-center">
+              <Tag className="w-5 h-5 text-[#aaa]" />
+            </div>
+            <span className="font-mono text-[9px] text-[#aaa]">{product.sku}</span>
           </div>
         )}
-        {/* Tap indicator overlay */}
-        <div className="absolute inset-0 bg-[#b8974a]/0 group-hover:bg-[#b8974a]/5 transition-colors duration-200 pointer-events-none" />
+        {/* Category badge */}
+        <div className="absolute top-2 left-2">
+          <span className="text-[8px] uppercase tracking-[0.15em] bg-[#b8974a]/90 text-white px-1.5 py-0.5 rounded font-medium">
+            {product.category}
+          </span>
+        </div>
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-[#b8974a]/0 group-hover:bg-[#b8974a]/4 transition-colors duration-200 pointer-events-none" />
       </div>
 
       {/* Content */}
       <div className="flex flex-col flex-1 p-3 gap-1.5">
         <div className="flex items-start justify-between gap-1.5">
           <div className="flex-1 min-w-0">
-            <div className="text-[9px] uppercase tracking-[0.18em] text-[#b8974a]/75 font-medium truncate mb-0.5">
-              {product.category}
-            </div>
-            <div className="text-[9px] text-white/25 font-mono">{product.sku}</div>
+            <div className="text-[8px] text-white/30 font-mono truncate">{product.sku}</div>
           </div>
           {product.series && (
             <span className="shrink-0 text-[8px] border border-[#b8974a]/20 rounded-full px-1.5 py-0.5 text-[#b8974a]/60 tracking-wide whitespace-nowrap">
@@ -92,7 +98,7 @@ const ProductCard = ({ product }: { product: SupplierProduct }) => {
           )}
         </div>
 
-        <h3 className="text-xs leading-snug text-white font-medium line-clamp-2">{name}</h3>
+        <h3 className="text-[11px] leading-snug text-white font-medium line-clamp-2">{name}</h3>
 
         {product.dimensions && (
           <p className="text-[9px] text-white/30 leading-relaxed line-clamp-1">
@@ -147,12 +153,12 @@ function FilterPill({ label, active, onClick, count }: {
 // ─── Skeleton Card ─────────────────────────────────────────────────────────
 function SkeletonCard() {
   return (
-    <div className="rounded-2xl border border-white/5 bg-white/5 overflow-hidden animate-pulse">
-      <div className="aspect-[4/3] bg-white/5" />
+    <div className="rounded-xl border border-white/5 bg-[#111214] overflow-hidden animate-pulse">
+      <div className="aspect-square bg-[#e8e5e0]" />
       <div className="p-3 space-y-2">
-        <div className="h-2 bg-white/5 rounded w-2/3" />
+        <div className="h-2 bg-white/5 rounded w-1/3" />
         <div className="h-3 bg-white/5 rounded w-full" />
-        <div className="h-2 bg-white/5 rounded w-1/2" />
+        <div className="h-2 bg-white/5 rounded w-3/5" />
       </div>
     </div>
   );

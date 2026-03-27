@@ -207,7 +207,7 @@ function RelatedCard({ product }: { product: SupplierProduct }) {
       data-testid={`card-related-${product.sku}`}
       className="group block rounded-xl border border-white/8 bg-[#0b0b0c] hover:border-[#b8974a]/40 overflow-hidden transition-all"
     >
-      <div className="bg-[#111] aspect-[4/3] overflow-hidden relative">
+      <div className="bg-[#f2f0ec] aspect-square overflow-hidden relative">
         {!imgErr && imgSrc ? (
           <img
             src={imgSrc}
@@ -217,7 +217,7 @@ function RelatedCard({ product }: { product: SupplierProduct }) {
             onError={() => setImgErr(true)}
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-white/10 text-[9px] font-mono">{product.sku}</div>
+          <div className="absolute inset-0 flex items-center justify-center text-[#aaa] text-[9px] font-mono">{product.sku}</div>
         )}
       </div>
       <div className="p-2.5">
@@ -364,18 +364,18 @@ export default function CatalogProductDetail() {
           <div className="grid md:grid-cols-2 gap-8 lg:gap-14 mb-14">
 
             {/* Image */}
-            <div className="rounded-2xl bg-[#111] border border-white/8 overflow-hidden flex items-center justify-center"
+            <div className="rounded-2xl bg-[#f2f0ec] border border-[#e0dbd4] overflow-hidden flex items-center justify-center"
               style={{ aspectRatio: "1/1" }}>
               {imgSrc ? (
                 <img
                   src={imgSrc}
                   alt={`${name} — ${product.sku}`}
                   data-testid="img-product-hero"
-                  className="w-full h-full object-contain p-8"
+                  className="w-full h-full object-contain p-6"
                   loading="eager"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-white/15 text-sm font-mono">{product.sku}</div>
+                <div className="w-full h-full flex items-center justify-center text-[#aaa] text-sm font-mono">{product.sku}</div>
               )}
             </div>
 
