@@ -30,7 +30,10 @@ export default function ProposalEngine() {
 
   const { data: proposals = [], refetch, isLoading } = useQuery<any[]>({
     queryKey: ["/api/proposals"],
-    queryFn: () => fetch(`/api/proposals${filterStatus ? `?status=${filterStatus}` : ""}`).then(r => r.json()),
+    queryFn: () => fetch(`/api/proposals${filterStatus ? `?status=${filterStatus}` : ""}`).then(r => {
+      if (!r.ok) throw new Error("Failed to load proposals");
+      return r.json();
+    }).then(d => Array.isArray(d) ? d : []),
     refetchInterval: 30000,
   });
 
@@ -44,7 +47,10 @@ export default function ProposalEngine() {
 
   const { data: pendingApprovals = [] } = useQuery<any[]>({
     queryKey: ["/api/approvals"],
-    queryFn: () => fetch("/api/approvals?status=pending").then(r => r.json()),
+    queryFn: () => fetch("/api/approvals?status=pending").then(r => {
+      if (!r.ok) throw new Error("Failed to load approvals");
+      return r.json();
+    }).then(d => Array.isArray(d) ? d : []),
   });
 
   const generateMutation = useMutation({

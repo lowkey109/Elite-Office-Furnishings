@@ -31,6 +31,9 @@ import { runLeaseSignalScan, computeProcurementRecommendations } from "./service
 import { captureWorkspaceLearning, buildLearningContext } from "./services/workspaceLearning";
 import { analyseAllDeals, analyseDeal, prospectsToSignals, planningRequestToSignals, radarToSignals, leadToSignals } from "./services/dealIntelligence";
 import { routeOpportunityToPartners, routeRadarToPartners, getNetworkSummary } from "./services/partnerNetwork";
+import { proposalService } from "./services/dealClosing/proposalService";
+import { dealApprovalService } from "./services/dealClosing/approvalService";
+import { buildingIngestionService } from "./services/buildings/buildingIngestionService";
 
         export async function registerRoutes(
           httpServer: Server,
