@@ -3,6 +3,7 @@ import { Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { serverLogin, checkAdminAuth } from "@/lib/adminAuth";
+import { AdminLayout } from "./AdminLayout";
 
 interface Props {
   children: React.ReactNode;
@@ -19,9 +20,11 @@ export function AdminAuthGate({ children }: Props) {
     checkAdminAuth().then(authenticated => {
       if (authenticated) {
         sessionStorage.setItem("tcd_admin_auth", "true");
+        localStorage.setItem("tcd_admin_auth", "true");
         setStatus("authed");
       } else {
         sessionStorage.removeItem("tcd_admin_auth");
+        localStorage.removeItem("tcd_admin_auth");
         setStatus("login");
       }
     });
@@ -34,6 +37,7 @@ export function AdminAuthGate({ children }: Props) {
     const ok = await serverLogin(email, password);
     if (ok) {
       sessionStorage.setItem("tcd_admin_auth", "true");
+      localStorage.setItem("tcd_admin_auth", "true");
       setStatus("authed");
     } else {
       setError("Invalid email or password");
@@ -106,5 +110,5 @@ export function AdminAuthGate({ children }: Props) {
     );
   }
 
-  return <>{children}</>;
+  return <AdminLayout>{children}</AdminLayout>;
 }

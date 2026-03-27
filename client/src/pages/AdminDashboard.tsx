@@ -82,7 +82,10 @@ function formatDate(dateStr?: string) {
 
 export default function AdminDashboard() {
   const [, navigate] = useLocation();
-  const [authed, setAuthed] = useState(false);
+  const [authed, setAuthed] = useState(() =>
+    sessionStorage.getItem("tcd_admin_auth") === "true" ||
+    localStorage.getItem("tcd_admin_auth") === "true"
+  );
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [pwError, setPwError] = useState(false);
@@ -90,7 +93,10 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     document.title = "Admin Dashboard | The Corporate Desk";
-    if (sessionStorage.getItem("tcd_admin_auth") === "true") setAuthed(true);
+    if (sessionStorage.getItem("tcd_admin_auth") === "true" ||
+        localStorage.getItem("tcd_admin_auth") === "true") {
+      setAuthed(true);
+    }
   }, []);
 
   const { data: leads = [], isLoading } = useQuery<Lead[]>({

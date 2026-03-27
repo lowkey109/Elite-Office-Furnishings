@@ -30,6 +30,7 @@ export async function serverLogout(): Promise<void> {
     await fetch("/api/admin/auth/logout", { method: "POST", credentials: "include" });
   } catch { /* ignore */ }
   sessionStorage.removeItem("tcd_admin_auth");
+  localStorage.removeItem("tcd_admin_auth");
 }
 
 // ── Legacy sync stub — kept so existing page code doesn't break ───────────
