@@ -1,4 +1,7 @@
 import * as React from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import {
   AdminPageShell,
   AdminSection,
@@ -19,71 +22,102 @@ import {
   type TableColumn,
 } from "./AdminUiKit";
 
-type LeadRow = {
-  id: string;
-  company: string;
-  city: string;
-  stage: "Hot" | "Warm" | "Cold";
-  source: string;
-  value: string;
-  updatedAt: string;
+type PipelineStats = {
+  total: number;
+  highValueCount: number;
+  mediumCount: number;
+  lowCount: number;
+  paidCount: number;
+  avgScore: number;
+  totalPipelineValue: number;
+  stageCounts: Record<string, number>;
 };
 
-const sampleRows: LeadRow[] = [
-  {
-    id: "1",
-    company: "Acme Advisory",
-    city: "Brisbane",
-    stage: "Hot",
-    source: "Office Move Radar",
-    value: "$85,000",
-    updatedAt: "2h ago",
-  },
-  {
-    id: "2",
-    company: "Vertex Legal",
-    city: "Sydney",
-    stage: "Warm",
-    source: "Deal Hunter",
-    value: "$42,000",
-    updatedAt: "5h ago",
-  },
-  {
-    id: "3",
-    company: "North Grid",
-    city: "Melbourne",
-    stage: "Cold",
-    source: "Manual Intake",
-    value: "$18,000",
-    updatedAt: "1d ago",
-  },
-];
+type LeadRow = {
+  id: string;
+  companyName: string | null;
+  city: string | null;
+  leadStatus: string | null;
+  projectType: string | null;
+  budgetRange: string | null;
+  staffCount: string | null;
+  opportunityScore: number | null;
+  createdAt: string | null;
+  nextAction: string | null;
+};
 
-function stageTone(stage: LeadRow["stage"]) {
-  if (stage === "Hot") return "danger";
-  if (stage === "Warm") return "warning";
-  return "muted";
+function stageFromScore(score: number | null): "Hot" | "Warm" | "Cold" {
+  if (!score) return "Cold";
+  if (score >= 70) return "Hot";
+  if (score >= 45) return "Warm";
+  return "Cold";
+}
+
+function stageTone(stage: "Hot" | "Warm" | "Cold") {
+  if (stage === "Hot") return "danger" as const;
+  if (stage === "Warm") return "warning" as const;
+  return "muted" as const;
+}
+
+function formatValue(v: number): string {
+  if (!v) return "—";
+  if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
+  if (v >= 1_000) return `$${Math.round(v / 1000)}K`;
+  return `$${v.toLocaleString()}`;
+}
+
+function timeAgo(dateStr: string | null): string {
+  if (!dateStr) return "—";
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60_000);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
 }
 
 export default function AdminCommandCentreExample() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [query, setQuery] = React.useState("");
   const [stage, setStage] = React.useState("all");
-  const [selected, setSelected] = React.useState<LeadRow | null>(sampleRows[0]);
+  const [selected, setSelected] = React.useState<LeadRow | null>(null);
+
+  const { data: stats, isLoading: statsLoading } = useQuery<PipelineStats>({
+    queryKey: ["/api/admin/pipeline-stats"],
+    refetchInterval: 60_000,
+  });
+
+  const { data: leadsRaw = [], isLoading: leadsLoading } = useQuery<LeadRow[]>({
+    queryKey: ["/api/admin/leads/pipeline"],
+    refetchInterval: 60_000,
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: Record<string, any> }) =>
+      apiRequest("PATCH", `/api/admin/leads/${id}/pipeline`, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/leads/pipeline"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/pipeline-stats"] });
+      toast({ title: "Lead updated" });
+    },
+    onError: () => toast({ title: "Update failed", variant: "destructive" }),
+  });
 
   const rows = React.useMemo(() => {
-    return sampleRows.filter((row) => {
+    return leadsRaw.filter((row) => {
       const matchesQuery =
         !query ||
-        row.company.toLowerCase().includes(query.toLowerCase()) ||
-        row.city.toLowerCase().includes(query.toLowerCase()) ||
-        row.source.toLowerCase().includes(query.toLowerCase());
+        (row.companyName ?? "").toLowerCase().includes(query.toLowerCase()) ||
+        (row.city ?? "").toLowerCase().includes(query.toLowerCase()) ||
+        (row.projectType ?? "").toLowerCase().includes(query.toLowerCase());
 
-      const matchesStage =
-        stage === "all" || row.stage.toLowerCase() === stage.toLowerCase();
+      const rowStage = stageFromScore(row.opportunityScore).toLowerCase();
+      const matchesStage = stage === "all" || rowStage === stage;
 
       return matchesQuery && matchesStage;
     });
-  }, [query, stage]);
+  }, [leadsRaw, query, stage]);
 
   const columns: TableColumn<LeadRow>[] = [
     {
@@ -94,47 +128,49 @@ export default function AdminCommandCentreExample() {
           type="button"
           className="text-left"
           onClick={() => setSelected(row)}
+          data-testid={`btn-lead-select-${row.id}`}
         >
           <div className="font-medium text-slate-900 dark:text-slate-50">
-            {row.company}
+            {row.companyName ?? "—"}
           </div>
           <div className="text-xs text-slate-500 dark:text-slate-400">
-            {row.city}
+            {row.city ?? ""}
           </div>
         </button>
       ),
     },
     {
-      key: "source",
-      title: "Source",
+      key: "type",
+      title: "Project Type",
       render: (row) => (
         <span className="text-sm text-slate-700 dark:text-slate-300">
-          {row.source}
+          {row.projectType ?? "—"}
         </span>
       ),
     },
     {
       key: "stage",
       title: "Stage",
-      render: (row) => (
-        <StatusBadge tone={stageTone(row.stage)}>{row.stage}</StatusBadge>
-      ),
+      render: (row) => {
+        const s = stageFromScore(row.opportunityScore);
+        return <StatusBadge tone={stageTone(s)}>{s}</StatusBadge>;
+      },
     },
     {
-      key: "value",
-      title: "Project Value",
+      key: "score",
+      title: "Score",
       render: (row) => (
         <span className="font-medium text-slate-900 dark:text-slate-50">
-          {row.value}
+          {row.opportunityScore ?? "—"}
         </span>
       ),
     },
     {
       key: "updatedAt",
-      title: "Updated",
+      title: "Created",
       render: (row) => (
         <span className="text-sm text-slate-500 dark:text-slate-400">
-          {row.updatedAt}
+          {timeAgo(row.createdAt)}
         </span>
       ),
     },
@@ -144,60 +180,82 @@ export default function AdminCommandCentreExample() {
       className: "w-[1%] whitespace-nowrap",
       render: (row) => (
         <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline" onClick={() => setSelected(row)}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setSelected(row)}
+            data-testid={`btn-lead-view-${row.id}`}
+          >
             View
           </Button>
-          <Button size="sm">Open</Button>
         </div>
       ),
     },
   ];
 
+  const isLoading = statsLoading || leadsLoading;
+
   return (
     <AdminPageShell
       title="Admin Command Centre"
-      subtitle="Monitor pipeline, scan high-priority opportunities, and manage next actions in one place."
+      subtitle="Live pipeline data — monitor opportunities, track scores, and manage next actions."
       actions={
         <>
-          <Button variant="outline">Export</Button>
-          <Button variant="secondary">Refresh</Button>
-          <Button>New Action</Button>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              queryClient.invalidateQueries({ queryKey: ["/api/admin/pipeline-stats"] });
+              queryClient.invalidateQueries({ queryKey: ["/api/admin/leads/pipeline"] });
+            }}
+            data-testid="btn-refresh-pipeline"
+          >
+            Refresh
+          </Button>
         </>
       }
     >
       <KpiGrid>
         <StatCard
           label="Pipeline Value"
-          value="$1.82M"
-          hint="Total visible opportunity value"
-          trend={{ label: "+12.4% this week", tone: "success" }}
+          value={statsLoading ? "…" : formatValue(stats?.totalPipelineValue ?? 0)}
+          hint="Total estimated opportunity value"
+          trend={
+            stats
+              ? { label: `${stats.total} total leads`, tone: "info" }
+              : undefined
+          }
         />
         <StatCard
-          label="Hot Opportunities"
-          value="18"
-          hint="Require immediate follow-up"
-          trend={{ label: "5 new today", tone: "danger" }}
+          label="High-Value Leads"
+          value={statsLoading ? "…" : String(stats?.highValueCount ?? 0)}
+          hint="Score ≥ 70 — require immediate follow-up"
+          trend={
+            stats?.highValueCount
+              ? { label: "Prioritise now", tone: "danger" }
+              : { label: "None flagged", tone: "muted" }
+          }
         />
         <StatCard
-          label="Scans Completed"
-          value="42"
-          hint="Across radar and lead systems"
-          trend={{ label: "Healthy", tone: "info" }}
+          label="Average Lead Score"
+          value={statsLoading ? "…" : String(stats?.avgScore ?? 0)}
+          hint="Across all active leads (0–100)"
+          trend={{ label: "AI scored", tone: "info" }}
         />
         <StatCard
-          label="Follow-ups Due"
-          value="27"
-          hint="Need action today"
-          trend={{ label: "Prioritise", tone: "warning" }}
+          label="Paid / Unlocked"
+          value={statsLoading ? "…" : String(stats?.paidCount ?? 0)}
+          hint="Leads with paid plan access"
+          trend={{ label: "Premium leads", tone: "success" }}
         />
       </KpiGrid>
 
       <FilterToolbar>
         <FilterGroup label="Search">
           <SearchInput
-            placeholder="Search company, city, or source..."
+            placeholder="Search company, city, or project type..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            data-testid="input-search-leads"
           />
         </FilterGroup>
 
@@ -205,17 +263,23 @@ export default function AdminCommandCentreExample() {
           <SelectInput
             value={stage}
             onChange={(e) => setStage(e.target.value)}
+            data-testid="select-lead-stage"
           >
             <option value="all">All stages</option>
-            <option value="hot">Hot</option>
-            <option value="warm">Warm</option>
-            <option value="cold">Cold</option>
+            <option value="hot">Hot (score ≥ 70)</option>
+            <option value="warm">Warm (score 45–69)</option>
+            <option value="cold">Cold (score &lt; 45)</option>
           </SelectInput>
         </FilterGroup>
 
         <FilterGroup label="Quick actions" className="xl:ml-auto">
-          <Button variant="outline">Clear Filters</Button>
-          <Button variant="secondary">Run Scan</Button>
+          <Button
+            variant="outline"
+            onClick={() => { setQuery(""); setStage("all"); }}
+            data-testid="btn-clear-filters"
+          >
+            Clear Filters
+          </Button>
         </FilterGroup>
       </FilterToolbar>
 
@@ -223,23 +287,17 @@ export default function AdminCommandCentreExample() {
         secondary={
           <>
             <StatusBadge tone="info">{rows.length} visible records</StatusBadge>
-            <StatusBadge tone="muted">Last sync 3m ago</StatusBadge>
+            {isLoading && <StatusBadge tone="muted">Loading…</StatusBadge>}
           </>
         }
-        primary={
-          <>
-            <Button variant="outline">Bulk Update</Button>
-            <Button variant="outline">Assign Owner</Button>
-            <Button>Push to Pipeline</Button>
-          </>
-        }
+        primary={<></>}
       />
 
       <AdminSplitLayout
         left={
           <AdminSection
             title="Opportunity Queue"
-            subtitle="Review the most important opportunities first."
+            subtitle="Real-time leads ordered by creation date. Click any row to review."
           >
             <AdminTable
               rows={rows}
@@ -256,22 +314,36 @@ export default function AdminCommandCentreExample() {
         }
         right={
           <DetailPanel
-            title={selected?.company ?? "No record selected"}
+            title={selected?.companyName ?? "No record selected"}
             subtitle={
               selected
-                ? `${selected.city} • ${selected.source}`
+                ? `${selected.city ?? "Unknown city"} • ${selected.projectType ?? "Unknown type"}`
                 : "Choose a record to view detail"
             }
             actions={
               selected ? (
                 <>
-                  <Button size="sm" variant="outline">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setSelected(null)}
+                    data-testid="btn-dismiss-lead"
+                  >
                     Dismiss
                   </Button>
-                  <Button size="sm" variant="secondary">
-                    Add Note
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      if (!selected) return;
+                      updateMutation.mutate({
+                        id: selected.id,
+                        updates: { leadStatus: "In Review" },
+                      });
+                    }}
+                    data-testid="btn-mark-in-review"
+                  >
+                    Mark In Review
                   </Button>
-                  <Button size="sm">Open Record</Button>
                 </>
               ) : null
             }
@@ -281,25 +353,30 @@ export default function AdminCommandCentreExample() {
                 <DetailField
                   label="Stage"
                   value={
-                    <StatusBadge tone={stageTone(selected.stage)}>
-                      {selected.stage}
+                    <StatusBadge tone={stageTone(stageFromScore(selected.opportunityScore))}>
+                      {stageFromScore(selected.opportunityScore)}
                     </StatusBadge>
                   }
                 />
-                <DetailField label="Project Value" value={selected.value} />
-                <DetailField label="Source" value={selected.source} />
-                <DetailField label="Last Updated" value={selected.updatedAt} />
+                <DetailField
+                  label="Opportunity Score"
+                  value={selected.opportunityScore != null ? String(selected.opportunityScore) : "Not scored"}
+                />
+                <DetailField label="Budget Range" value={selected.budgetRange ?? "Not specified"} />
+                <DetailField label="Staff Count" value={selected.staffCount ?? "—"} />
+                <DetailField label="Status" value={selected.leadStatus ?? "New"} />
+                <DetailField label="Created" value={timeAgo(selected.createdAt)} />
 
-                <div className="border-t border-slate-200 pt-5 dark:border-slate-800">
-                  <p className="mb-2 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                    Recommended next step
-                  </p>
-                  <p className="text-sm leading-6 text-slate-700 dark:text-slate-300">
-                    Prioritise a same-day outreach touchpoint, qualify timing,
-                    confirm office move scope, and push toward proposal stage if
-                    the opportunity is active.
-                  </p>
-                </div>
+                {selected.nextAction && (
+                  <div className="border-t border-slate-200 pt-5 dark:border-slate-800">
+                    <p className="mb-2 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                      Next action
+                    </p>
+                    <p className="text-sm leading-6 text-slate-700 dark:text-slate-300">
+                      {selected.nextAction}
+                    </p>
+                  </div>
+                )}
               </div>
             ) : (
               <EmptyState

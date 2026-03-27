@@ -216,19 +216,43 @@ export function toTwimlMessage(message: string): string {
 export async function runSalesAI(
   context: DepartmentContext = {},
 ): Promise<DepartmentResult> {
+  const { callAlexDepartmentAI } = await import("../../../alexAiHelper");
   const company = context.companyName ?? "the prospect";
+  const meta = (context.metadata ?? {}) as Record<string, any>;
 
-  return {
-    department: "revenueOperations",
-    summary: `Head of Revenue Operations reviewed the sales pipeline and next actions for ${company}.`,
-    actions: [
+  const result = await callAlexDepartmentAI({
+    department: "Sales",
+    role: "Head of Revenue Operations",
+    systemPrompt: `You are the Head of Revenue Operations at The Corporate Desk, an Australian B2B commercial office furniture company.
+Your job is to review the sales pipeline, deal velocity, and follow-up priorities for a specific company opportunity.
+
+Respond with a JSON object ONLY. No extra text. Use this exact structure:
+{
+  "status": "completed" | "partial" | "blocked",
+  "summary": "One-sentence summary of the sales review for this company.",
+  "actionsTaken": ["action 1", "action 2", "action 3"],
+  "blockers": [],
+  "metrics": { "activeDeals": 0, "pipelineValueAud": 0, "dealsNeedingAction": 0 },
+  "recommendations": ["recommendation 1", "recommendation 2"]
+}`,
+    userMessage: `Company opportunity: ${company}
+Context: ${JSON.stringify(meta)}
+
+Review deal stage and velocity, identify pipeline gaps and follow-up priorities for this company.`,
+    fallbackActions: [
       "Review deal stage and velocity",
       "Identify pipeline gaps and follow-up priorities",
       "Prepare outreach or quote escalation",
-      "Update deal status and probability",
     ],
-    blockers: [],
-    recordsUpdated: ["sales_review_prepared"],
-    success: true,
+    fallbackMetrics: { activeDeals: 0, pipelineValueAud: 0, dealsNeedingAction: 0 },
+  });
+
+  return {
+    department: "revenueOperations",
+    summary: result.summary,
+    actions: result.actionsTaken,
+    blockers: result.blockers,
+    recordsUpdated: ["sales_ai_run"],
+    success: result.status !== "failed",
   };
 }

@@ -106,7 +106,7 @@ export default function AdminAlexDashboard() {
 
   const { data: statusData, refetch: refetchStatus } = useQuery<StatusResponse>({
     queryKey: ["/api/admin/alex/run-company/status"],
-    refetchInterval: statusData?.isRunning ? 3000 : 30000,
+    refetchInterval: (query) => (query.state.data as StatusResponse | undefined)?.isRunning ? 3000 : 30000,
   });
 
   const { data: history, refetch: refetchHistory } = useQuery<RunHistoryItem[]>({
@@ -114,20 +114,13 @@ export default function AdminAlexDashboard() {
     enabled: showHistory,
   });
 
-  // Poll while running
+  // Invalidate status query when a run finishes
   useEffect(() => {
-    if (statusData?.isRunning) {
-      if (!pollRef.current) {
-        pollRef.current = setInterval(() => refetchStatus(), 2500);
-      }
-    } else {
-      if (pollRef.current) {
-        clearInterval(pollRef.current);
-        pollRef.current = null;
-        queryClient.invalidateQueries({ queryKey: ["/api/admin/alex/run-company/status"] });
-      }
+    if (!statusData?.isRunning && pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/alex/run-company/status"] });
     }
-    return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, [statusData?.isRunning]);
 
   // ── Mutations ────────────────────────────────────────────────────────────────
