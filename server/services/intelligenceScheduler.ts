@@ -898,6 +898,13 @@ async function registerPgBossWorkers(): Promise<void> {
     console.log(`[DeadLoopDetect] Done — stalled: ${stalledDeals.length}, reactivated: ${reactivated}, escalated: ${escalated}`);
   });
 
+  // ── Follow-Up Scheduler (durable) ─────────────────────────────────────────
+  // Processes overdue follow-up email sequences through pg-boss (no timers)
+  await registerWorker(QUEUES.FOLLOWUPS_SEND, async () => {
+    const { runFollowUpScheduler } = await import("./followUpScheduler");
+    await runFollowUpScheduler();
+  });
+
   // ── Proposal Auto-Send ────────────────────────────────────────────────────
   // Finds meeting_booked deals without proposals and auto-generates them
   await registerWorker(QUEUES.PROPOSAL_AUTO_SEND, async () => {
@@ -981,6 +988,7 @@ async function schedulePgBossJobs(): Promise<void> {
   // OUTREACH ENGINE queues
   await scheduleJob(QUEUES.CONTACTS_DISCOVERY, {}, { repeatEvery: "0 8 * * *", singletonKey: "contacts-discovery" });
   await scheduleJob(QUEUES.OUTREACH_GENERATE, {}, { repeatEvery: "0 9 * * *", singletonKey: "outreach-generate" });
+  await scheduleJob(QUEUES.FOLLOWUPS_SEND, {}, { repeatEvery: "0 * * * *", singletonKey: "followups-send" });
   await scheduleJob(QUEUES.OUTREACH_FOLLOWUP, {}, { repeatEvery: "0 */6 * * *", singletonKey: "outreach-followup" });
   await scheduleJob(QUEUES.BOOKING_SYNC, {}, { repeatEvery: "0 */4 * * *", singletonKey: "booking-sync" });
   await scheduleJob(QUEUES.REPLY_DETECT, {}, { repeatEvery: "0 */2 * * *", singletonKey: "reply-detect" });

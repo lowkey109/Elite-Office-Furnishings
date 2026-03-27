@@ -1,0 +1,786 @@
+FULL BACKEND ARCHITECTURE + SCHEMA + ENDPOINTS — THE CORPORATE DESK
+PRODUCTION BUILD PROMPT
+
+You are the lead backend architect, systems engineer, database designer, AI orchestration engineer, and QA owner for The Corporate Desk Pty Ltd.
+
+Your job is to turn the current platform into a REAL production-grade autonomous admin and revenue operating system for:
+
+https://thecorporatedesk.au/admin
+
+This is not a mockup task.
+This is not a superficial “AI dashboard” task.
+This is a real backend architecture, schema, job system, endpoint, automation, and orchestration build.
+
+The final result must be:
+- production-safe
+- deterministic where needed
+- AI-assisted where useful
+- non-synthetic
+- deduplicated
+- self-healing where possible
+- fully looped end-to-end
+- able to run with minimal human input
+- secure
+- observable
+- scalable
+
+==================================================
+CORE BUSINESS CONTEXT
+==================================================
+
+The Corporate Desk is a commercial office furniture / fit-out / workspace solutions business.
+Primary revenue goals:
+- close larger office furniture and fit-out deals
+- capture high-intent leads
+- score and prioritise opportunities
+- detect office move signals
+- convert quote requests, planner submissions, referrals, and company-intent signals into pipeline
+- automate follow-up, proposal generation, partner referrals, and internal decision support
+
+Main high-value flows:
+1. Free Office Layout Plan
+2. Send Us Your Quote
+3. Workplace Strategy
+4. Partner referrals
+5. Office Move Radar / company move detection
+6. Quote / supplier / proposal / follow-up automation
+7. Admin command centre for business operations
+
+==================================================
+CRITICAL NON-NEGOTIABLES
+==================================================
+
+1. NO SYNTHETIC PRODUCTION DATA
+Do not use fake/simulated company intelligence, fake office move signals, fake leads, fake pipeline records, or demo-generated revenue data in production paths.
+
+2. REPLACE FRAGILE IN-PROCESS SCHEDULING
+Current timer-based in-process scheduling is not acceptable.
+Do NOT rely on setTimeout / setInterval for production jobs.
+Move all recurring and delayed work to a persistent job system with locking, retries, idempotency, and audit logs.
+
+3. DEDUPLICATION IS MANDATORY
+The system must prevent duplicate:
+- leads
+- emails
+- partner referrals
+- office move signals
+- company intelligence records
+- follow-up sequences
+- outbound actions
+
+4. SECURITY IS MANDATORY
+Client-side admin auth is not acceptable.
+Replace weak sessionStorage-only admin gating with proper server-side authentication, authorization, session handling, and route protection.
+
+5. EVERY ACTION MUST BE VERIFIED
+Before sending, updating, creating, or pushing anything:
+- validate input
+- check dedupe rules
+- verify record state
+- log action
+- enforce permissions
+
+6. HUMAN REVIEW MODE MUST EXIST
+For high-risk actions, support approval mode.
+Examples:
+- sending bulk outreach
+- changing key pricing settings
+- modifying partner payouts
+- auto-pushing high-value deals to live customer workflows
+
+7. ALL MODULES MUST LOOP TOGETHER
+This is one operating system, not disconnected features.
+
+==================================================
+CURRENT KNOWN WEAK POINTS TO FIX
+==================================================
+
+You must explicitly fix these known architecture and implementation issues:
+
+- Replace fragile in-memory or process-local scheduling with persistent job infrastructure
+- Replace synthetic radar / demo intelligence flows with real ingestion pipelines
+- Ensure Office Move Radar uses real-source scanners as primary production ingestion
+- Fix inconsistent naming such as officeMovRadar vs officeMoveRadar and standardise naming across backend, DB, services, and API
+- Fix storage/service mismatches such as createOfficeMovRadar vs createOfficeMovRadarRecord style inconsistencies
+- Fix follow-up email timing logic so stages are scheduled relative to sequence start or correct cadence, not cumulatively delayed from “now”
+- Add database indexes and uniqueness rules for commonly queried and dedupe-sensitive fields
+- Replace placeholder email sender identities with verified branded sender configuration
+- Remove hardcoded internal recipients and move all such settings to environment config
+- Harden admin authentication and authorization server-side
+- Reduce monolithic backend/service logic into clear modules
+- Provide proper observability, audit logs, and failure handling
+- Do not let browser-triggered scan actions create duplicate concurrent jobs
+- Add rate limiting, job locking, and action confirmation where relevant
+
+==================================================
+TARGET SYSTEM ARCHITECTURE
+==================================================
+
+Design and implement a modular backend with these domains:
+
+1. AUTH + ACCESS CONTROL
+2. LEADS
+3. DEALS / PIPELINE
+4. OFFICE MOVE RADAR
+5. COMPANY INTELLIGENCE
+6. PARTNER / REFERRAL ENGINE
+7. FOLLOW-UP / OUTREACH ENGINE
+8. QUOTES / PROPOSALS / ESTIMATES
+9. SUPPLIER + PRODUCT MAPPING
+10. ANALYTICS / REPORTING
+11. JOBS / SCHEDULER / QUEUES
+12. AI ORCHESTRATION / PROMPT RUNNERS
+13. AUDIT / EVENTS / OBSERVABILITY
+14. FILES / UPLOADS / PARSING
+15. ADMIN COMMAND CENTRE API
+16. SYSTEM CONFIG / FEATURE FLAGS
+
+Use a clean architecture approach:
+- routes/controllers
+- services/use-cases
+- repositories/data access
+- validators/schemas
+- jobs/workers
+- providers/integrations
+- policies/permissions
+- event bus/domain events
+- shared utilities
+
+==================================================
+REQUIRED DATABASE DESIGN
+==================================================
+
+Design the full production schema.
+Use normalized structures where appropriate, but preserve practical performance.
+Add indexes, unique constraints, foreign keys, and status enums.
+
+REQUIRED TABLES / ENTITIES
+
+AUTH / USERS
+- users
+- roles
+- permissions
+- user_sessions
+- api_keys
+- audit_actor_context
+
+LEADS
+- leads
+- lead_contacts
+- lead_sources
+- lead_activities
+- lead_scores
+- lead_tags
+- lead_assignments
+- lead_dedupe_keys
+
+DEALS / PIPELINE
+- deals
+- deal_stages
+- deal_stage_history
+- deal_values
+- deal_notes
+- deal_tasks
+- deal_risk_flags
+
+OFFICE MOVE RADAR / SIGNALS
+- office_move_signals
+- signal_sources
+- signal_events
+- signal_company_matches
+- signal_dedupe_keys
+- signal_reviews
+
+COMPANY INTELLIGENCE
+- companies
+- company_locations
+- company_contacts
+- company_intelligence
+- company_growth_signals
+- company_hiring_signals
+- company_change_events
+
+PARTNER SYSTEM
+- partners
+- partner_users
+- partner_referrals
+- partner_referral_status_history
+- partner_commissions
+- partner_payouts
+- partner_agreements
+
+OUTREACH / EMAIL / FOLLOW-UP
+- outbound_messages
+- outbound_message_attempts
+- email_templates
+- follow_up_sequences
+- follow_up_steps
+- follow_up_runs
+- contact_suppression_list
+- communication_preferences
+
+QUOTES / PROPOSALS
+- quote_requests
+- quote_items
+- quote_versions
+- proposal_documents
+- pricing_rules
+- approval_requests
+
+PRODUCT / SUPPLIER / SOLUTION MAPPING
+- products
+- product_variants
+- suppliers
+- supplier_products
+- product_recommendations
+- workspace_solution_maps
+
+PLANNER / FILES
+- uploads
+- floor_plans
+- parsed_floor_plan_data
+- workspace_layouts
+- generated_layout_recommendations
+
+ANALYTICS / EVENTS
+- analytics_events
+- conversion_events
+- page_events
+- experiment_assignments
+- kpi_snapshots
+
+JOBS / SYSTEM
+- jobs
+- job_runs
+- job_locks
+- workflow_runs
+- workflow_steps
+- system_alerts
+- feature_flags
+- integration_states
+- system_configs
+
+AUDIT / OBSERVABILITY
+- audit_logs
+- domain_events
+- error_logs
+- webhook_deliveries
+
+==================================================
+SCHEMA RULES
+==================================================
+
+You must enforce real dedupe and integrity rules such as:
+
+- unique lead identity strategy based on email + company or validated normalized fingerprint
+- unique referral dedupe key
+- unique office move signal dedupe key using source_url and/or normalized company + city + event type + date fingerprint
+- unique follow-up sequence per lead per sequence type where appropriate
+- indexes on:
+  - leads.email
+  - leads.company_name
+  - leads.created_at
+  - deals.stage
+  - office_move_signals.company_name
+  - office_move_signals.detected_at
+  - office_move_signals.status
+  - partner_referrals.partner_id
+  - follow_up_runs.next_send_at
+  - outbound_messages.dedupe_key
+  - analytics_events.event_name
+  - jobs.status
+  - audit_logs.created_at
+
+Also include:
+- created_at / updated_at
+- soft delete strategy where appropriate
+- idempotency tokens for critical actions
+- audit fields for actor, source, reason, request correlation id
+
+==================================================
+REAL JOB / QUEUE / WORKFLOW SYSTEM
+==================================================
+
+Implement a real asynchronous job architecture.
+
+REQUIREMENTS:
+- persistent job table or proper queue backend
+- retry policies
+- backoff strategies
+- dead-letter handling
+- worker locking
+- job uniqueness
+- idempotent handlers
+- scheduled recurring jobs
+- delayed jobs
+- cancellation support
+- job run history
+- operator visibility in admin
+
+JOB TYPES MUST INCLUDE:
+- rss_news_scan
+- job_board_scan
+- company_signal_scan
+- partner_referral_evaluation
+- lead_enrichment
+- lead_scoring
+- proposal_generation
+- follow_up_send
+- email_delivery
+- analytics_rollup
+- stale_lead_reactivation
+- supplier_sync
+- system_health_check
+- broken_link_scan
+- ai_summary_refresh
+
+CONCURRENCY RULES:
+- no duplicate scans for same source + same interval window
+- no duplicate follow-up sends for same lead + step
+- no duplicate partner payout processing
+- no duplicate proposal generation for same version request unless explicitly re-run
+
+==================================================
+AI ORCHESTRATION RULES
+==================================================
+
+AI is an augmentation layer, not the source of truth.
+
+Use AI only for:
+- summarisation
+- scoring assistance
+- proposal drafting
+- message drafting
+- lead intent interpretation
+- signal relevance classification
+- risk notes
+- product recommendation assistance
+- admin insight generation
+
+Do NOT allow AI to:
+- invent source data
+- fabricate companies
+- fabricate move events
+- fabricate pricing
+- send without rule checks
+- mutate state without validation
+- override hard business rules
+
+Every AI-driven decision must be wrapped by:
+- input validation
+- source grounding
+- confidence threshold
+- deterministic policy checks
+- structured output validation
+- fallback on failure
+
+Implement an AI action policy:
+- allow
+- allow with review
+- block
+- log uncertainty
+
+==================================================
+API DESIGN REQUIREMENTS
+==================================================
+
+Design and implement production-ready REST endpoints.
+Use versioned routes, for example /api/v1/...
+
+Include:
+- authentication middleware
+- permission checks
+- request validation
+- response typing
+- pagination
+- filtering
+- sorting
+- idempotency handling for mutation endpoints
+- structured error responses
+- correlation ids
+
+REQUIRED ENDPOINT GROUPS
+
+1. AUTH
+POST   /api/v1/auth/login
+POST   /api/v1/auth/logout
+POST   /api/v1/auth/refresh
+GET    /api/v1/auth/me
+GET    /api/v1/auth/permissions
+
+2. LEADS
+GET    /api/v1/leads
+POST   /api/v1/leads
+GET    /api/v1/leads/:id
+PATCH  /api/v1/leads/:id
+POST   /api/v1/leads/:id/enrich
+POST   /api/v1/leads/:id/score
+POST   /api/v1/leads/:id/assign
+GET    /api/v1/leads/:id/activity
+POST   /api/v1/leads/:id/convert-to-deal
+
+3. DEALS
+GET    /api/v1/deals
+POST   /api/v1/deals
+GET    /api/v1/deals/:id
+PATCH  /api/v1/deals/:id
+POST   /api/v1/deals/:id/stage
+POST   /api/v1/deals/:id/tasks
+GET    /api/v1/deals/:id/history
+
+4. OFFICE MOVE RADAR
+GET    /api/v1/radar/signals
+POST   /api/v1/radar/signals/scan
+GET    /api/v1/radar/signals/:id
+PATCH  /api/v1/radar/signals/:id
+POST   /api/v1/radar/signals/:id/qualify
+POST   /api/v1/radar/signals/:id/push-to-leads
+GET    /api/v1/radar/stats
+
+5. COMPANY INTELLIGENCE
+GET    /api/v1/companies
+POST   /api/v1/companies
+GET    /api/v1/companies/:id
+PATCH  /api/v1/companies/:id
+GET    /api/v1/companies/:id/intelligence
+POST   /api/v1/companies/:id/refresh-intelligence
+
+6. PARTNERS
+GET    /api/v1/partners
+POST   /api/v1/partners
+GET    /api/v1/partners/:id
+PATCH  /api/v1/partners/:id
+POST   /api/v1/partners/:id/referrals
+GET    /api/v1/partners/:id/referrals
+GET    /api/v1/partners/:id/commissions
+POST   /api/v1/partners/referrals/:id/approve
+POST   /api/v1/partners/referrals/:id/reject
+POST   /api/v1/partners/payouts/:id/process
+
+7. QUOTES / PROPOSALS
+GET    /api/v1/quotes
+POST   /api/v1/quotes
+GET    /api/v1/quotes/:id
+PATCH  /api/v1/quotes/:id
+POST   /api/v1/quotes/:id/generate-proposal
+GET    /api/v1/proposals/:id
+POST   /api/v1/proposals/:id/approve
+POST   /api/v1/proposals/:id/send
+
+8. FOLLOW-UP / OUTREACH
+GET    /api/v1/followups
+POST   /api/v1/followups/sequences
+GET    /api/v1/followups/sequences/:id
+PATCH  /api/v1/followups/sequences/:id
+POST   /api/v1/followups/sequences/:id/pause
+POST   /api/v1/followups/sequences/:id/resume
+POST   /api/v1/outbound/email/send
+GET    /api/v1/outbound/messages
+GET    /api/v1/outbound/messages/:id
+
+9. FILES / PLANNER
+POST   /api/v1/uploads
+GET    /api/v1/uploads/:id
+POST   /api/v1/floor-plans/parse
+GET    /api/v1/floor-plans/:id
+POST   /api/v1/workspace-layouts/generate
+GET    /api/v1/workspace-layouts/:id
+
+10. ANALYTICS / KPI
+GET    /api/v1/analytics/kpis
+GET    /api/v1/analytics/pipeline
+GET    /api/v1/analytics/conversions
+GET    /api/v1/analytics/sources
+GET    /api/v1/analytics/experiments
+
+11. JOBS / SYSTEM
+GET    /api/v1/jobs
+POST   /api/v1/jobs/:type/run
+GET    /api/v1/jobs/:id
+GET    /api/v1/job-runs
+POST   /api/v1/system/health-check
+GET    /api/v1/system/alerts
+GET    /api/v1/system/config
+PATCH  /api/v1/system/config
+
+12. ADMIN COMMAND CENTRE
+GET    /api/v1/admin/dashboard
+GET    /api/v1/admin/activity
+GET    /api/v1/admin/revenue-summary
+GET    /api/v1/admin/operator-queue
+POST   /api/v1/admin/actions/retry-failed-job
+POST   /api/v1/admin/actions/rebuild-index
+POST   /api/v1/admin/actions/run-diagnostics
+
+==================================================
+BUSINESS LOGIC RULES
+==================================================
+
+LEAD SCORING
+Create a deterministic scoring framework with optional AI-assist.
+Score dimensions:
+- source quality
+- company size
+- project value estimate
+- urgency
+- planner usage
+- quote intent
+- repeat engagement
+- office move signal strength
+- partner referral credibility
+- email engagement
+
+LEAD ROUTING
+- hot lead -> sales priority queue
+- medium lead -> automated nurture + review bucket
+- low lead -> long nurture or archive
+- strategic enterprise lead -> immediate escalation + human review option
+
+FOLLOW-UP LOGIC
+Fix follow-up scheduling so each stage is relative to the correct sequence anchor.
+Support:
+- day 1
+- day 3
+- day 7
+- day 14
+or configurable rules
+Track:
+- sent_at
+- due_at
+- skipped_at
+- cancelled_at
+- blocked_reason
+
+EMAIL SAFETY
+Must prevent spam and repeats.
+Before sending:
+- confirm sequence active
+- confirm contact not suppressed
+- confirm last sent rules
+- confirm dedupe key unused
+- confirm max send threshold
+- log full attempt result
+
+OFFICE MOVE RADAR
+Only real-signal ingestion.
+Possible sources:
+- RSS
+- job boards
+- public company announcements
+- leasing/move indicators
+- public growth/expansion changes
+
+Every signal needs:
+- source_url
+- source_type
+- detected_at
+- company_name
+- city
+- evidence summary
+- confidence
+- project value estimate
+- next recommended action
+
+PARTNER COMMISSION LOGIC
+- payout only after paid invoice milestone
+- referral attribution must be traceable
+- duplicate referral conflict resolution rules required
+- all payouts auditable
+
+==================================================
+ADMIN DASHBOARD REQUIREMENTS
+==================================================
+
+The /admin backend must power a real admin operating layer with:
+
+- lead queue
+- deal pipeline
+- radar queue
+- partner referrals
+- outbound queue
+- follow-up status
+- proposal generation status
+- failed jobs
+- alerts
+- KPI snapshots
+- audit logs
+- AI recommendation panels
+- approval queue for high-risk actions
+
+Dashboard must be fed from real endpoints, not hardcoded mocks.
+
+==================================================
+OBSERVABILITY + AUDIT
+==================================================
+
+Implement:
+
+- structured logging
+- domain event logging
+- audit logs for all mutating actions
+- failed job logs
+- AI decision trace logs
+- correlation ids across request -> job -> message -> follow-up -> deal
+- operator-facing diagnostics
+- alert generation for:
+  - duplicate detection spikes
+  - email failure spikes
+  - integration outages
+  - queue backlog
+  - low conversion anomalies
+
+==================================================
+MIGRATION / IMPLEMENTATION PLAN
+==================================================
+
+Produce the build in stages.
+
+STAGE 1 — ARCHITECTURE + FILE STRUCTURE
+- define modules
+- define boundaries
+- define service contracts
+- define DTOs
+- define policies
+- define event types
+
+STAGE 2 — DATABASE SCHEMA
+- create full schema
+- constraints
+- indexes
+- enums
+- migration files
+
+STAGE 3 — AUTH + SECURITY
+- server-side auth
+- role-based access
+- protected admin routes
+- session/token handling
+
+STAGE 4 — CORE LEADS + DEALS API
+- leads
+- deals
+- stage history
+- assignments
+- activity tracking
+
+STAGE 5 — JOB SYSTEM
+- persistent jobs
+- workers
+- locking
+- retries
+- monitoring
+
+STAGE 6 — RADAR + INTELLIGENCE
+- real-source ingest
+- dedupe
+- scoring
+- company linking
+
+STAGE 7 — FOLLOW-UP + OUTREACH
+- safe messaging system
+- dedupe
+- throttling
+- scheduling
+- templates
+
+STAGE 8 — PARTNER / REFERRAL ENGINE
+- referral intake
+- attribution
+- status
+- commission tracking
+
+STAGE 9 — QUOTES / PROPOSALS / AI ASSIST
+- proposal generation
+- review modes
+- send workflows
+- approval controls
+
+STAGE 10 — ANALYTICS + ADMIN COMMAND CENTRE
+- KPI endpoints
+- admin dashboard data
+- alerting
+- audit visibility
+
+STAGE 11 — TESTING + HARDENING
+- unit tests
+- integration tests
+- idempotency tests
+- duplicate-prevention tests
+- auth tests
+- job concurrency tests
+- endpoint contract tests
+
+STAGE 12 — DEPLOYMENT + ENV + OPERATIONS
+- environment variable design
+- secrets handling
+- migration strategy
+- queue worker deployment
+- health checks
+- rollback strategy
+
+==================================================
+DELIVERABLE FORMAT
+==================================================
+
+You must output all of the following, in order:
+
+1. FINAL BACKEND ARCHITECTURE OVERVIEW
+2. MODULE / FOLDER STRUCTURE
+3. FULL DATABASE SCHEMA
+4. ALL CORE ENUMS / STATUS MODELS
+5. MIGRATION PLAN
+6. COMPLETE API ENDPOINT SPEC
+7. JOB / WORKFLOW DESIGN
+8. DEDUPLICATION STRATEGY
+9. AUTH / SECURITY MODEL
+10. AI GUARDRAIL MODEL
+11. OBSERVABILITY / AUDIT MODEL
+12. STAGED IMPLEMENTATION PLAN
+13. TEST PLAN
+14. PRODUCTION RISKS + MITIGATIONS
+15. EXACT CODE TO START IMPLEMENTING
+
+==================================================
+IMPLEMENTATION STANDARDS
+==================================================
+
+- no placeholders
+- no fake completed integrations
+- no pretending features exist if they do not
+- state assumptions clearly
+- prefer production-safe patterns over flashy patterns
+- use strongly typed validation
+- separate concerns cleanly
+- do not bury business-critical logic in frontend code
+- server must be source of truth
+- every endpoint must be real, wired, and testable
+- every job must be idempotent
+- every automation must be auditable
+- every major mutation must be permission-checked
+
+==================================================
+SUCCESS CRITERIA
+==================================================
+
+This build is successful only if:
+
+- /admin is powered by real backend infrastructure
+- the platform can ingest, score, route, and act on real data
+- duplicate emails and repeated sends are blocked
+- follow-up timing is correct
+- admin auth is secure server-side
+- synthetic demo systems are removed from production paths
+- queue jobs survive restarts
+- high-risk actions are reviewable
+- KPIs are real
+- all modules are looped together
+- the system can operate with minimal human input and still remain safe
+
+Now begin.
+
+First output:
+1. the production backend architecture overview
+2. the exact recommended folder structure
+3. the database schema blueprint
+
+Then continue through the remaining sections until the entire build plan is complete.

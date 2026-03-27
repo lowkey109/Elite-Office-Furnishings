@@ -379,7 +379,7 @@ Return a JSON array of exactly ${count} objects, each with these fields:
   "signal_type": "one of: ${signalTypes.join(", ")}",
   "signal_subtype": "specific sub-signal description",
   "signal_source": "Source name (e.g. LinkedIn, AFR, CBRE, Commercial Real Estate, JLL)",
-  "source_url": "plausible but placeholder URL",
+  "source_url": null,
   "confidence_level": "high | medium | low",
   "estimated_headcount": "one of: 5–15, 15–30, 30–60, 60–120, 120–250, 250+",
   "notes": "1-2 sentence plain-English description of the signal detected"

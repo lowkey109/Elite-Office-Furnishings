@@ -118,14 +118,13 @@ app.use((req, res, next) => {
 (async () => {
   await registerRoutes(httpServer, app);
 
-  const { startFollowUpScheduler } = await import("./services/followUpScheduler");
-  startFollowUpScheduler();
-
   const { startIntelligenceScheduler, startSchedulerWithPgBoss } = await import("./services/intelligenceScheduler");
   const pgBossStarted = await startSchedulerWithPgBoss().catch(() => false);
   if (!pgBossStarted) {
     console.log("[Index] pg-boss unavailable — using in-process scheduler fallback");
     startIntelligenceScheduler();
+    const { startFollowUpScheduler } = await import("./services/followUpScheduler");
+    startFollowUpScheduler();
   }
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {

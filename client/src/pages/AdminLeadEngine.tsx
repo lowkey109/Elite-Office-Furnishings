@@ -4,10 +4,9 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
   Users, Zap, Upload, RefreshCw, Search, TrendingUp, Globe, Linkedin,
-  MapPin, FileText, CheckCircle, AlertCircle, Filter, Download, Plus
+  MapPin, FileText, CheckCircle, Filter, Download, Plus
 } from "lucide-react";
 
-const AUTH_KEY = "tcd_admin_auth";
 
 const SOURCE_COLORS: Record<string, string> = {
   linkedin: "text-blue-400 bg-blue-400/10 border-blue-400/20",
@@ -29,28 +28,15 @@ const SIGNAL_COLORS: Record<string, string> = {
 export default function AdminLeadEngine() {
   const { toast } = useToast();
   const qc = useQueryClient();
-  const [authed] = useState(() => sessionStorage.getItem(AUTH_KEY) === "true");
   const [sourceFilter, setSourceFilter] = useState<string>("");
   const [csvText, setCsvText] = useState("");
   const [showCsvModal, setShowCsvModal] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  if (!authed) {
-    return (
-      <div className="min-h-screen bg-[hsl(220,18%,7%)] flex items-center justify-center">
-        <div className="text-white/50 text-center">
-          <AlertCircle className="w-8 h-8 mx-auto mb-2" />
-          <p>Admin access required</p>
-          <a href="/admin" className="text-[hsl(43,78%,52%)] text-sm mt-2 block">Go to Admin Login</a>
-        </div>
-      </div>
-    );
-  }
-
   const { data: stats, refetch: refetchStats } = useQuery<{
     total: number; todayCount: number; avgScore: number;
     bySource: Record<string, number>; byStatus: Record<string, number>;
-  }>({ queryKey: ["/api/admin/lead-engine/stats"], enabled: authed, refetchInterval: 30000 });
+  }>({ queryKey: ["/api/admin/lead-engine/stats"], refetchInterval: 30000 });
 
   const { data: leadsData, refetch: refetchLeads, isLoading } = useQuery<{
     leads: Array<{
@@ -61,7 +47,6 @@ export default function AdminLeadEngine() {
   }>({
     queryKey: ["/api/admin/lead-engine/leads", sourceFilter],
     queryFn: () => fetch(`/api/admin/lead-engine/leads${sourceFilter ? `?source=${sourceFilter}` : ""}`).then(r => r.json()),
-    enabled: authed,
   });
 
   const seedMut = useMutation({

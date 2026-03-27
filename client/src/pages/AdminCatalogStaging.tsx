@@ -8,7 +8,6 @@ import {
   Copy, Filter, MoreHorizontal, FolderOpen, Plus
 } from "lucide-react";
 
-const AUTH_KEY = "tcd_admin_auth";
 
 const STATUS_CFG: Record<string, { label: string; color: string; border: string; dot: string }> = {
   uploaded:          { label: "Uploaded",             color: "text-white/50",   border: "border-white/15",    dot: "bg-white/30" },
@@ -246,7 +245,6 @@ function ItemCard({ item, onUpdate, onStatusChange, onAiSuggest }: {
 export default function AdminCatalogStaging() {
   const { toast } = useToast();
   const qc = useQueryClient();
-  const [authed] = useState(() => sessionStorage.getItem(AUTH_KEY) === "true");
   const [activeBatchId, setActiveBatchId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -350,18 +348,6 @@ export default function AdminCatalogStaging() {
       setSeeding(false);
     }
   };
-
-  if (!authed) {
-    return (
-      <div className="min-h-screen bg-[hsl(220,18%,7%)] flex items-center justify-center">
-        <div className="text-white/50 text-center">
-          <AlertCircle className="w-8 h-8 mx-auto mb-2" />
-          <p>Admin access required</p>
-          <a href="/admin" className="text-[hsl(43,78%,52%)] text-sm mt-2 block">Go to Admin Login</a>
-        </div>
-      </div>
-    );
-  }
 
   const activeBatch = batches.find(b => b.id === activeBatchId);
 

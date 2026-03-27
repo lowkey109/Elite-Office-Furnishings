@@ -288,7 +288,11 @@ async function isDeduped(profile: RawSignalProfile): Promise<boolean> {
 
 export async function runDealHunterScan(count = 8): Promise<{ created: number; deduplicated: number; signals: DealHunterSignal[] }> {
   // Shuffle and take a sample
-  const shuffled = [...SIGNAL_PROFILES].sort(() => Math.random() - 0.5).slice(0, count);
+  // Deterministic rotation: cycle through profiles based on current UTC day
+  // so each day runs a different slice without randomness
+  const dayOffset = Math.floor(Date.now() / (24 * 60 * 60 * 1000)) % SIGNAL_PROFILES.length;
+  const rotated = [...SIGNAL_PROFILES.slice(dayOffset), ...SIGNAL_PROFILES.slice(0, dayOffset)];
+  const shuffled = rotated.slice(0, count);
   const created: DealHunterSignal[] = [];
   let deduplicated = 0;
 

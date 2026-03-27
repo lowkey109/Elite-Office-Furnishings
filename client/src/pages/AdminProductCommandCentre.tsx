@@ -8,7 +8,6 @@ import {
   TrendingUp, Tag, Search, Filter, BookOpen, ChevronDown, ChevronUp
 } from "lucide-react";
 
-const AUTH_KEY = "tcd_admin_auth";
 
 type Tab = "dashboard" | "upload" | "queue" | "review" | "published" | "categories" | "seo";
 
@@ -55,7 +54,6 @@ type UploadItem = {
 export default function AdminProductCommandCentre() {
   const { toast } = useToast();
   const qc = useQueryClient();
-  const [authed] = useState(() => sessionStorage.getItem(AUTH_KEY) === "true");
   const [activeTab, setActiveTab] = useState<Tab>("dashboard");
   const [statusFilter, setStatusFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -70,41 +68,27 @@ export default function AdminProductCommandCentre() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadPreviews, setUploadPreviews] = useState<Array<{ name: string; type: string; url?: string }>>([]);
 
-  if (!authed) {
-    return (
-      <div className="min-h-screen bg-[hsl(220,18%,7%)] flex items-center justify-center">
-        <div className="text-white/50 text-center">
-          <AlertCircle className="w-8 h-8 mx-auto mb-2" />
-          <p>Admin access required</p>
-          <a href="/admin" className="text-[hsl(43,78%,52%)] text-sm mt-2 block">Go to Admin Login</a>
-        </div>
-      </div>
-    );
-  }
-
   // ── Queries ──────────────────────────────────────────────────────────────────
 
   const { data: stats, refetch: refetchStats } = useQuery<{
     total: number; live: number; ready: number; review: number; needsData: number;
     holdBack: number; processing: number; avgScore: number;
     uploads: { total: number; processing: number; done: number };
-  }>({ queryKey: ["/api/admin/products/stats"], enabled: authed, refetchInterval: 15000 });
+  }>({ queryKey: ["/api/admin/products/stats"], refetchInterval: 15000 });
 
   const { data: products, refetch: refetchProducts, isLoading } = useQuery<Product[]>({
     queryKey: ["/api/admin/products", statusFilter],
     queryFn: () => fetch(`/api/admin/products${statusFilter ? `?status=${statusFilter}` : ""}`).then(r => r.json()),
-    enabled: authed,
   });
 
   const { data: uploads, refetch: refetchUploads } = useQuery<UploadItem[]>({
     queryKey: ["/api/admin/uploads"],
-    enabled: authed && activeTab === "queue",
+    enabled: activeTab === "queue",
     refetchInterval: 5000,
   });
 
   const { data: categories, refetch: refetchCategories } = useQuery<Category[]>({
     queryKey: ["/api/admin/product-categories"],
-    enabled: authed,
   });
 
   // ── Mutations ────────────────────────────────────────────────────────────────

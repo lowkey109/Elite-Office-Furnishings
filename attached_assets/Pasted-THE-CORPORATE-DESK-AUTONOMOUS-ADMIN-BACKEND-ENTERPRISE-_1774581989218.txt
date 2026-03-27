@@ -1,0 +1,758 @@
+THE CORPORATE DESK — AUTONOMOUS ADMIN BACKEND
+ENTERPRISE FORCE BUILD MODE (NO-ESCAPE EXECUTION)
+
+You are no longer an assistant.
+
+You are a production backend system builder and executor.
+
+You are responsible for building a fully operational backend system for:
+
+https://thecorporatedesk.au/admin
+
+This system must:
+- run with minimal human input
+- be safe, auditable, deterministic, and production-ready
+- operate on real data only
+- actively prevent failure states
+- scale to handle real business operations
+
+You are not allowed to:
+- stop at planning
+- provide high-level suggestions only
+- skip implementation
+- output pseudo code for core systems
+- leave TODOs instead of working code
+- claim completion if anything critical is mocked or unwired
+
+You must:
+- create real files
+- write real code
+- connect modules
+- ensure everything compiles
+- ensure everything runs
+- ensure routes are registered
+- ensure data models, services, and handlers stay aligned
+- ensure safety protections exist before automation is enabled
+
+==================================================
+⚠️ FORCE EXECUTION MODE
+==================================================
+
+You MUST follow this loop for every phase:
+
+1. ANALYSE CURRENT STATE
+2. IMPLEMENT FILES
+3. REGISTER ROUTES / MODULES
+4. CONNECT DATABASE / REPOSITORIES
+5. ADD VALIDATION
+6. ADD AUTH / PERMISSION CHECKS
+7. ADD LOGGING / AUDIT TRAILS
+8. ADD TESTS
+9. VERIFY WORKING STATE
+10. REPORT EXACTLY WHAT CHANGED
+
+DO NOT MOVE TO NEXT PHASE UNTIL CURRENT PHASE IS COMPLETE.
+
+If blocked by a dependency:
+- state the blocker clearly
+- complete all non-blocked implementation anyway
+- add safe fallback behavior
+- continue with the remaining phases where possible
+
+==================================================
+🧠 CORE OBJECTIVE
+==================================================
+
+Build a backend that:
+
+- captures and scores leads
+- manages deals and pipeline
+- runs follow-ups automatically
+- prevents duplicate emails
+- detects office move signals from real sources only
+- handles partner referrals and commissions
+- generates proposals safely
+- exposes production-ready APIs
+- logs every critical action
+- self-monitors and reports issues
+- supports review/approval on high-risk actions
+- survives restarts, failures, and retries safely
+
+==================================================
+🚫 HARD FAIL CONDITIONS (YOU MUST PREVENT)
+==================================================
+
+The build is considered failed if any of the following remain true in production paths:
+
+- duplicate emails can be sent
+- duplicate jobs can execute
+- synthetic/fake/demo data is used in production
+- client-side auth controls admin access
+- setTimeout/setInterval controls production workflows
+- critical mutations are unlogged
+- endpoints are missing validation
+- dedupe protection is missing
+- inconsistent naming remains (officeMovRadar MUST become officeMoveRadar)
+- routes exist but are not registered
+- services exist but are not wired
+- schema and code are mismatched
+- high-risk actions have no protection or audit trail
+
+==================================================
+🔍 PHASE 0 — DEEP AUDIT (MANDATORY FIRST)
+==================================================
+
+Scan the ENTIRE codebase and output all of the following:
+
+- all backend entry points
+- all existing routes
+- all existing services
+- all schedulers and timers
+- all email send logic
+- all follow-up logic
+- all admin auth logic
+- all synthetic/demo data usage
+- all naming inconsistencies
+- all duplicate-risk flows
+- all missing endpoints
+- all monolithic files creating operational risk
+- all env/config weaknesses
+- all hardcoded credentials / sender identities / internal recipients
+- all missing indexes / unique constraints / dedupe keys
+- all current storage/service mismatches
+
+Then output:
+
+PRIORITY FIX LIST
+1. CRITICAL — breaks system, security, or data integrity
+2. HIGH — architecture and reliability issues
+3. MEDIUM — maintainability and cleanup issues
+
+THEN START IMPLEMENTATION IMMEDIATELY.
+
+==================================================
+🏗 PHASE 1 — STRUCTURE REBUILD
+==================================================
+
+Create or refactor into a backend structure like:
+
+/server
+  /api/v1
+    /auth
+    /leads
+    /deals
+    /radar
+    /companies
+    /partners
+    /quotes
+    /proposals
+    /followups
+    /outbound
+    /uploads
+    /workspace
+    /analytics
+    /jobs
+    /system
+    /admin
+  /domains
+    /auth
+    /leads
+    /deals
+    /officeMoveRadar
+    /companies
+    /partners
+    /outbound
+    /followups
+    /quotes
+    /products
+    /uploads
+    /analytics
+    /jobs
+    /audit
+    /ai
+  /db
+    /schema
+    /migrations
+    /repositories
+    /queries
+  /jobs
+    /handlers
+    /workers
+    /policies
+  /core
+    /config
+    /constants
+    /errors
+    /logger
+    /metrics
+    /types
+    /utils
+    /policies
+    /validation
+  /middleware
+  /events
+  /tests
+
+Split ALL monolithic files into:
+- routes/controllers
+- services/use-cases
+- repositories/data access
+- validators/schemas
+- policies/permissions
+- jobs/workers
+- shared utilities
+
+Fix ALL naming:
+- officeMovRadar → officeMoveRadar everywhere
+- standardize storage, service, DTO, route, schema, and repository naming
+- remove mixed legacy naming from live imports and exports
+
+==================================================
+🗄 PHASE 2 — DATABASE (REAL SCHEMA)
+==================================================
+
+Build or refactor a real durable schema for at minimum:
+
+AUTH / ACCESS
+- users
+- roles
+- permissions
+- user_sessions
+- audit_actor_context
+
+LEADS
+- leads
+- lead_contacts
+- lead_sources
+- lead_activities
+- lead_scores
+- lead_tags
+- lead_assignments
+- lead_dedupe_keys
+
+DEALS
+- deals
+- deal_stage_history
+- deal_notes
+- deal_tasks
+- deal_values
+- deal_risk_flags
+
+OFFICE MOVE RADAR / SIGNALS
+- office_move_signals
+- signal_sources
+- signal_events
+- signal_company_matches
+- signal_dedupe_keys
+- signal_reviews
+
+COMPANIES
+- companies
+- company_locations
+- company_contacts
+- company_intelligence
+- company_growth_signals
+- company_hiring_signals
+- company_change_events
+
+PARTNERS
+- partners
+- partner_users
+- partner_referrals
+- partner_referral_status_history
+- partner_commissions
+- partner_payouts
+- partner_agreements
+
+OUTBOUND / FOLLOW-UPS
+- outbound_messages
+- outbound_message_attempts
+- email_templates
+- follow_up_sequences
+- follow_up_steps
+- follow_up_runs
+- communication_preferences
+- contact_suppression_list
+
+QUOTES / PROPOSALS
+- quote_requests
+- quote_items
+- quote_versions
+- proposal_documents
+- pricing_rules
+- approval_requests
+
+PRODUCT / SUPPLIER / SOLUTIONS
+- products
+- product_variants
+- suppliers
+- supplier_products
+- product_recommendations
+- workspace_solution_maps
+
+UPLOADS / PLANNER
+- uploads
+- floor_plans
+- parsed_floor_plan_data
+- workspace_layouts
+- generated_layout_recommendations
+
+ANALYTICS / EVENTS / SYSTEM
+- analytics_events
+- conversion_events
+- page_events
+- experiment_assignments
+- kpi_snapshots
+- jobs
+- job_runs
+- job_locks
+- workflow_runs
+- workflow_steps
+- system_alerts
+- feature_flags
+- integration_states
+- system_configs
+
+AUDIT / OBSERVABILITY
+- audit_logs
+- domain_events
+- error_logs
+- webhook_deliveries
+
+MANDATORY DB RULES:
+- indexes on high-query fields
+- unique constraints on dedupe-sensitive fields
+- dedupe keys
+- created_at / updated_at
+- foreign keys
+- soft delete where appropriate
+- idempotency fields
+- actor_id / reason / correlation_id fields on critical mutations
+
+MANDATORY CONSTRAINT EXAMPLES:
+- unique normalized lead fingerprint
+- unique outbound dedupe key
+- unique follow-up run per lead + step + sequence
+- unique referral dedupe key
+- unique signal dedupe key based on source_url and/or normalized company + city + event type + date
+
+==================================================
+🔐 PHASE 3 — AUTH (CRITICAL FIX)
+==================================================
+
+REMOVE from production security model:
+- sessionStorage auth
+- localStorage auth
+- hidden-route-only protection
+- hardcoded admin credentials
+- client-only permission gates as the source of truth
+
+BUILD:
+- real server-side auth
+- password hashing if local auth exists
+- session-based or token-based secure auth
+- role-based access control
+- permission middleware
+- protected /admin routes and admin APIs
+- audit logs for login/logout/access failure
+- rate limiting for login attempts
+- config/env-based secrets only
+
+HIGH-RISK ACTIONS REQUIRING ELEVATED PERMISSION AND/OR APPROVAL:
+- bulk outreach
+- payout processing
+- force rerun of jobs
+- proposal send at scale
+- system config mutation
+- manual promotion of radar signals into live outreach
+
+==================================================
+⚙️ PHASE 4 — JOB SYSTEM (CORE FIX)
+==================================================
+
+REMOVE from production scheduling:
+- setTimeout
+- setInterval
+- fragile in-memory scheduling
+- restart-sensitive critical automation
+
+BUILD:
+- persistent jobs
+- retries
+- exponential backoff
+- locking
+- job uniqueness
+- job history
+- job cancellation
+- worker execution
+- failed job state
+- admin visibility for jobs
+
+REQUIRED JOB TYPES:
+- lead_scoring
+- lead_enrichment
+- follow_up_send
+- email_delivery
+- radar_scan_rss
+- radar_scan_jobs
+- company_signal_scan
+- partner_referral_evaluation
+- proposal_generation
+- analytics_rollup
+- stale_lead_reactivation
+- system_health_check
+- broken_link_scan
+- ai_summary_refresh
+
+JOB RULES:
+- no duplicate scan jobs for the same source/time window
+- no duplicate follow-up sends for same lead/step/sequence
+- no duplicate payout processing
+- no duplicate proposal generation for same request unless explicitly forced
+
+==================================================
+📧 PHASE 5 — FOLLOW-UP + EMAIL SAFETY (CRITICAL)
+==================================================
+
+Fix:
+- follow-up timing bug must anchor to sequence start, not repeatedly to “now”
+
+Before ANY email send:
+- check dedupe key
+- check last sent
+- check suppression list
+- check max send count
+- check sequence status
+- check contact status
+- log the attempt before and after send
+- store success/failure outcome
+
+Build:
+- outbound message records
+- outbound attempt records
+- follow-up sequences
+- follow-up steps
+- follow-up runs
+- suppression list
+- communication preferences
+- send policy checks
+
+MANDATORY SAFETY RULES:
+- no duplicate outbound messages
+- no send if suppressed
+- no send if sequence paused/cancelled
+- no send above threshold
+- every send must be auditable
+
+==================================================
+📡 PHASE 6 — OFFICE MOVE RADAR
+==================================================
+
+REMOVE from production:
+- fake/demo signal generation
+- synthetic company intelligence
+- random/dummy move records
+
+BUILD:
+- real-source ingestion structure
+- source provider interfaces
+- evidence storage
+- dedupe logic
+- company matching
+- scoring/confidence storage
+- next-action recommendation support
+
+Each signal MUST include:
+- source_url
+- source_type
+- company_name
+- city
+- detected_at
+- evidence_summary
+- raw evidence reference
+- confidence
+- dedupe_fingerprint
+- linked_company_id if matched
+- recommended_action
+
+If external credentials are missing:
+- wire provider interfaces anyway
+- implement safe disabled behavior
+- do not pretend live ingestion is working
+
+==================================================
+🤝 PHASE 7 — PARTNER SYSTEM
+==================================================
+
+Build:
+- partner CRUD
+- referral intake
+- attribution logic
+- referral status history
+- commission tracking
+- payout logic
+- conflict handling for duplicate referral claims
+- audit trails for all payout-related actions
+
+MANDATORY RULE:
+- payout only after valid paid milestone / approved payment condition
+
+==================================================
+📄 PHASE 8 — QUOTES + PROPOSALS
+==================================================
+
+Build:
+- quote request system
+- quote items
+- quote versions
+- proposal generation workflow
+- approval layer for high-risk sends
+- send workflow
+- auditable state transitions
+
+AI may assist with:
+- drafting proposal copy
+- summarizing quote intent
+- recommendation assistance
+
+AI may NOT:
+- fabricate pricing
+- send proposals without policy checks
+- bypass approval gates
+- mutate critical state without validation
+
+==================================================
+📊 PHASE 9 — API SYSTEM
+==================================================
+
+Build ALL required endpoints under /api/v1
+
+AUTH
+- POST /api/v1/auth/login
+- POST /api/v1/auth/logout
+- POST /api/v1/auth/refresh
+- GET /api/v1/auth/me
+- GET /api/v1/auth/permissions
+
+LEADS
+- GET /api/v1/leads
+- POST /api/v1/leads
+- GET /api/v1/leads/:id
+- PATCH /api/v1/leads/:id
+- POST /api/v1/leads/:id/enrich
+- POST /api/v1/leads/:id/score
+- POST /api/v1/leads/:id/assign
+- GET /api/v1/leads/:id/activity
+- POST /api/v1/leads/:id/convert-to-deal
+
+DEALS
+- GET /api/v1/deals
+- POST /api/v1/deals
+- GET /api/v1/deals/:id
+- PATCH /api/v1/deals/:id
+- POST /api/v1/deals/:id/stage
+- POST /api/v1/deals/:id/tasks
+- GET /api/v1/deals/:id/history
+
+RADAR
+- GET /api/v1/radar/signals
+- POST /api/v1/radar/signals/scan
+- GET /api/v1/radar/signals/:id
+- PATCH /api/v1/radar/signals/:id
+- POST /api/v1/radar/signals/:id/qualify
+- POST /api/v1/radar/signals/:id/push-to-leads
+- GET /api/v1/radar/stats
+
+COMPANIES
+- GET /api/v1/companies
+- POST /api/v1/companies
+- GET /api/v1/companies/:id
+- PATCH /api/v1/companies/:id
+- GET /api/v1/companies/:id/intelligence
+- POST /api/v1/companies/:id/refresh-intelligence
+
+PARTNERS
+- GET /api/v1/partners
+- POST /api/v1/partners
+- GET /api/v1/partners/:id
+- PATCH /api/v1/partners/:id
+- POST /api/v1/partners/:id/referrals
+- GET /api/v1/partners/:id/referrals
+- GET /api/v1/partners/:id/commissions
+- POST /api/v1/partners/referrals/:id/approve
+- POST /api/v1/partners/referrals/:id/reject
+- POST /api/v1/partners/payouts/:id/process
+
+QUOTES / PROPOSALS
+- GET /api/v1/quotes
+- POST /api/v1/quotes
+- GET /api/v1/quotes/:id
+- PATCH /api/v1/quotes/:id
+- POST /api/v1/quotes/:id/generate-proposal
+- GET /api/v1/proposals/:id
+- POST /api/v1/proposals/:id/approve
+- POST /api/v1/proposals/:id/send
+
+FOLLOW-UPS / OUTBOUND
+- GET /api/v1/followups
+- POST /api/v1/followups/sequences
+- GET /api/v1/followups/sequences/:id
+- PATCH /api/v1/followups/sequences/:id
+- POST /api/v1/followups/sequences/:id/pause
+- POST /api/v1/followups/sequences/:id/resume
+- POST /api/v1/outbound/email/send
+- GET /api/v1/outbound/messages
+- GET /api/v1/outbound/messages/:id
+
+UPLOADS / WORKSPACE
+- POST /api/v1/uploads
+- GET /api/v1/uploads/:id
+- POST /api/v1/floor-plans/parse
+- GET /api/v1/floor-plans/:id
+- POST /api/v1/workspace-layouts/generate
+- GET /api/v1/workspace-layouts/:id
+
+ANALYTICS
+- GET /api/v1/analytics/kpis
+- GET /api/v1/analytics/pipeline
+- GET /api/v1/analytics/conversions
+- GET /api/v1/analytics/sources
+- GET /api/v1/analytics/experiments
+
+JOBS / SYSTEM
+- GET /api/v1/jobs
+- POST /api/v1/jobs/:type/run
+- GET /api/v1/jobs/:id
+- GET /api/v1/job-runs
+- POST /api/v1/system/health-check
+- GET /api/v1/system/alerts
+- GET /api/v1/system/config
+- PATCH /api/v1/system/config
+
+ADMIN
+- GET /api/v1/admin/dashboard
+- GET /api/v1/admin/activity
+- GET /api/v1/admin/revenue-summary
+- GET /api/v1/admin/operator-queue
+- POST /api/v1/admin/actions/retry-failed-job
+- POST /api/v1/admin/actions/rebuild-index
+- POST /api/v1/admin/actions/run-diagnostics
+
+EVERY endpoint MUST include:
+- validation
+- auth/permission enforcement
+- service-layer calls
+- structured error handling
+- audit logging for mutations
+- typed request/response contracts where stack supports it
+
+==================================================
+🧪 PHASE 10 — TESTING
+==================================================
+
+YOU MUST ADD TESTS FOR:
+- duplicate email prevention
+- job locking
+- auth protection
+- follow-up timing correctness
+- route protection
+- schema uniqueness
+- dedupe behavior
+- key happy-path API flows
+- critical failure-path handling
+
+==================================================
+🧹 PHASE 11 — CLEANUP
+==================================================
+
+REMOVE or isolate:
+- synthetic data paths
+- dead code
+- unused services
+- legacy insecure auth paths
+- old timer-based production paths
+
+MOVE:
+- config into validated env variables
+- secrets into env
+- internal recipients into config/env
+- sender identities into config/env
+
+Ensure startup fails clearly if critical env vars are missing.
+
+==================================================
+📈 PHASE 12 — SELF-MONITORING / OBSERVABILITY
+==================================================
+
+Build:
+- system alerts
+- job failure tracking
+- duplicate detection alerts
+- email failure alerts
+- audit logs
+- domain events
+- correlation ids
+- operator diagnostics
+- admin visibility into failures and queues
+
+==================================================
+📊 OUTPUT FORMAT (STRICT)
+==================================================
+
+For EVERY phase output exactly:
+
+1. WHAT YOU FOUND
+2. WHAT YOU BUILT
+3. FILES CREATED
+4. FILES MODIFIED
+5. MIGRATIONS ADDED
+6. ENDPOINTS ADDED
+7. JOBS ADDED
+8. TESTS ADDED
+9. WHAT IS NOW FIXED
+10. ANY BLOCKERS
+
+At the very end output:
+
+1. COMPLETED CHANGES SUMMARY
+2. FULL FILE TREE OF CREATED/MODIFIED BACKEND FILES
+3. MIGRATIONS ADDED
+4. ENV VARIABLES REQUIRED
+5. ENDPOINTS ADDED/CHANGED
+6. JOBS ADDED/CHANGED
+7. SYNTHETIC PATHS REMOVED OR GATED
+8. SECURITY FIXES IMPLEMENTED
+9. TESTS ADDED
+10. KNOWN EXTERNAL INTEGRATIONS STILL REQUIRING CREDENTIALS
+11. PRODUCTION READINESS CHECKLIST
+12. ANY REMAINING RISKS
+
+==================================================
+🏁 SUCCESS CONDITIONS
+==================================================
+
+System is COMPLETE only if:
+- no duplicate emails possible through production path
+- no timers are used for production-critical flows
+- admin is server-secured
+- no synthetic data is reachable in production
+- all required endpoints are live and wired
+- jobs are persistent and observable
+- follow-ups are anchored correctly
+- system can operate safely with minimal human input
+- critical actions are auditable
+- tests exist for core safety risks
+
+==================================================
+🚀 EXECUTION START
+==================================================
+
+Start now:
+
+1. Run FULL audit
+2. Output findings
+3. Immediately begin Phase 1 implementation
+4. Continue sequentially until ALL phases complete
+5. Do NOT stop
+6. Do NOT switch back to planning mode
+7. Do NOT ask for permission between phases

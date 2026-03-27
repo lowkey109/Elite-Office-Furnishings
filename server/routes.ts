@@ -129,11 +129,15 @@ import { buildingIngestionService } from "./services/buildings/buildingIngestion
 
           app.post("/api/admin/auth/login", authLimiter, (req: any, res: any) => {
             const { email, password } = req.body || {};
-            const ADMIN_EMAIL = "admin@thecorporatedesk.com.au";
-            const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Jaymin12!/";
-            const LEGACY_PASSWORD = process.env.ADMIN_PASSWORD_LEGACY || "tcd2024admin";
-            const emailMatch = (typeof email === "string" ? email : "").trim().toLowerCase() === ADMIN_EMAIL;
-            const passwordMatch = password === ADMIN_PASSWORD || password === LEGACY_PASSWORD;
+            const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@thecorporatedesk.com.au";
+            const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+            const LEGACY_PASSWORD = process.env.ADMIN_PASSWORD_LEGACY;
+            if (!ADMIN_PASSWORD) {
+              console.error("[Auth] ADMIN_PASSWORD env var not set — login rejected");
+              return res.status(503).json({ error: "Auth not configured" });
+            }
+            const emailMatch = (typeof email === "string" ? email : "").trim().toLowerCase() === ADMIN_EMAIL.toLowerCase();
+            const passwordMatch = password === ADMIN_PASSWORD || (LEGACY_PASSWORD && password === LEGACY_PASSWORD);
             if (emailMatch && passwordMatch) {
               req.session.isAdmin = true;
               req.session.save((err: any) => {

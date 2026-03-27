@@ -8,20 +8,6 @@ import {
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-const ADMIN_AUTH_KEY = "tcd_admin_auth";
-const ADMIN_EMAIL = "admin@thecorporatedesk.com.au";
-const ADMIN_PASS = "Jaymin12!/";
-
-function useAdminAuth() {
-  const auth = sessionStorage.getItem(ADMIN_AUTH_KEY);
-  if (!auth) return false;
-  if (auth === "true") return true;
-  if (auth === `${ADMIN_EMAIL}:${ADMIN_PASS}`) return true;
-  try {
-    const { user, pass } = JSON.parse(auth);
-    return user === ADMIN_EMAIL && pass === ADMIN_PASS;
-  } catch { return false; }
-}
 
 function MarginBadge({ pct }: { pct: number }) {
   const status =
@@ -396,22 +382,7 @@ const TABS = [
 ];
 
 export default function AdminProfitEngine() {
-  const isAuth = useAdminAuth();
   const [tab, setTab] = useState("compare");
-
-  if (!isAuth) {
-    return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="text-center">
-          <DollarSign className="w-12 h-12 text-amber-400 mx-auto mb-4" />
-          <p className="text-white text-lg font-semibold mb-2">Admin access required</p>
-          <Link href="/admin">
-            <a className="text-amber-400 hover:text-amber-300 text-sm">Go to Admin Login →</a>
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
@@ -420,10 +391,8 @@ export default function AdminProfitEngine() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Link href="/admin">
-                <a className="text-zinc-500 hover:text-white transition-colors">
-                  <ArrowLeft className="w-4 h-4" />
-                </a>
+              <Link href="/admin" className="text-zinc-500 hover:text-white transition-colors">
+                <ArrowLeft className="w-4 h-4" />
               </Link>
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/20 flex items-center justify-center">
                 <DollarSign className="w-4 h-4 text-emerald-400" />

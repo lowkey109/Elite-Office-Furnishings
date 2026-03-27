@@ -149,12 +149,17 @@ export async function generateRelocationSignals(count: number = 15): Promise<Rel
     usedCompanies.add(company.name);
 
     const signalType = signalTypes[i % signalTypes.length];
-    const jobPostings = ["hiring_surge", "job_growth"].includes(signalType)
-      ? Math.round(Math.random() * 25 + 5) : null;
-    const headcountGrowth = ["headcount_growth", "linkedin_growth"].includes(signalType)
-      ? Math.round(Math.random() * 60 + 10) : null;
 
-    const monthsAhead = Math.round(Math.random() * 18 + 2);
+    // Deterministic seed from company name + index — no Math.random() in production
+    const seed = company.name.split("").reduce((acc, c, idx) => acc + c.charCodeAt(0) * (idx + 1), i * 31) % 100;
+    const seed2 = company.name.split("").reduce((acc, c) => acc + c.charCodeAt(0), i * 17) % 100;
+
+    const jobPostings = ["hiring_surge", "job_growth"].includes(signalType)
+      ? 5 + (seed % 26) : null;
+    const headcountGrowth = ["headcount_growth", "linkedin_growth"].includes(signalType)
+      ? 10 + (seed % 61) : null;
+
+    const monthsAhead = 2 + (seed2 % 19);
     const leaseExpiry = signalType === "lease_expiry"
       ? new Date(Date.now() + monthsAhead * 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
       : null;
@@ -166,7 +171,8 @@ export async function generateRelocationSignals(count: number = 15): Promise<Rel
       leaseExpiryDate: leaseExpiry,
     });
 
-    const sqm = Math.round(company.headcount * 0.12 * (0.7 + Math.random() * 0.6));
+    const sqmVariance = 0.7 + (seed % 60) / 100; // 0.70 – 1.29 range, deterministic
+    const sqm = Math.round(company.headcount * 0.12 * sqmVariance);
     const projectValue = estimateProjectValue(company.headcount, sqm, company.industry);
 
     const detail = signalType === "hiring_surge"

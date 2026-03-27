@@ -630,10 +630,8 @@ function RecordDetailPanel({
               </button>
             )}
             {record.linkedProspectId && (
-              <Link href="/admin/deal-pipeline">
-                <a className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-sm font-medium">
-                  <CheckCircle className="w-4 h-4" />In Pipeline
-                </a>
+              <Link href="/admin/deal-pipeline" className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-sm font-medium">
+                <CheckCircle className="w-4 h-4" />In Pipeline
               </Link>
             )}
             <button
@@ -819,7 +817,7 @@ export default function AdminOfficeMovRadar() {
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
         <div className="text-center">
           <p className="text-zinc-400 mb-4">Admin authentication required.</p>
-          <Link href="/admin/dashboard"><a className="text-amber-400 hover:text-amber-300 text-sm">Go to dashboard</a></Link>
+          <Link href="/admin/dashboard" className="text-amber-400 hover:text-amber-300 text-sm">Go to dashboard</Link>
         </div>
       </div>
     );
@@ -859,10 +857,8 @@ export default function AdminOfficeMovRadar() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center gap-3 mb-8">
-          <Link href="/admin/dashboard">
-            <a className="text-zinc-400 hover:text-white transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-            </a>
+          <Link href="/admin/dashboard" className="text-zinc-400 hover:text-white transition-colors">
+            <ArrowLeft className="w-5 h-5" />
           </Link>
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
