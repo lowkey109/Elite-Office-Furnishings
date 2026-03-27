@@ -8,9 +8,6 @@ import {
   ChevronRight, Loader2, Globe,
 } from "lucide-react";
 
-const ADMIN_EMAIL = "admin@thecorporatedesk.com.au";
-const ADMIN_PASS = "Jaymin12!/";
-const AUTH_KEY = "tcd_admin_auth";
 
 const GRADE_COLORS: Record<string, string> = {
   Premium: "bg-yellow-500/20 text-yellow-300",
@@ -22,12 +19,6 @@ const GRADE_COLORS: Record<string, string> = {
 export default function BuildingDatabase() {
   const { toast } = useToast();
   const qc = useQueryClient();
-  const [authed, setAuthed] = useState(() => {
-    const s = sessionStorage.getItem(AUTH_KEY);
-    return s === "true" || s === `${ADMIN_EMAIL}:${ADMIN_PASS}`;
-  });
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPw, setLoginPw] = useState("");
   const [selectedBuilding, setSelectedBuilding] = useState<any>(null);
   const [filterCity, setFilterCity] = useState("");
   const [showAddBuilding, setShowAddBuilding] = useState(false);
@@ -37,23 +28,19 @@ export default function BuildingDatabase() {
 
   const { data: buildings = [], refetch: refetchBuildings, isLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/buildings"],
-    enabled: authed,
     refetchInterval: 30000,
   });
 
   const { data: stats } = useQuery<any>({
     queryKey: ["/api/admin/buildings/stats"],
-    enabled: authed,
   });
 
   const { data: tenants = [] } = useQuery<any[]>({
     queryKey: ["/api/admin/tenants"],
-    enabled: authed,
   });
 
   const { data: leases = [] } = useQuery<any[]>({
     queryKey: ["/api/admin/leases"],
-    enabled: authed,
   });
 
   const seedMutation = useMutation({
@@ -96,23 +83,6 @@ export default function BuildingDatabase() {
   const buildingLeases = selectedBuilding ? leases.filter((l: any) => l.buildingId === selectedBuilding.id) : [];
   const now = new Date();
   const in12Months = new Date(now.getTime() + 12 * 30 * 24 * 60 * 60 * 1000);
-
-  if (!authed) {
-    return (
-      <div className="min-h-screen bg-[hsl(220,18%,7%)] flex items-center justify-center">
-        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.08)] rounded-2xl p-8 w-full max-w-sm">
-          <div className="flex items-center gap-2 mb-6">
-            <Building2 className="w-5 h-5 text-[hsl(43,78%,52%)]" />
-            <span className="text-white font-bold">Building Database</span>
-          </div>
-          <p className="text-white/40 text-xs mb-4">Admin access required</p>
-          <input type="email" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} placeholder="Admin email" className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-lg px-3 py-2 text-white text-sm mb-3 placeholder-white/20" data-testid="input-login-email" />
-          <input type="password" value={loginPw} onChange={e => setLoginPw(e.target.value)} placeholder="Password" className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-lg px-3 py-2 text-white text-sm mb-4 placeholder-white/20" data-testid="input-login-password" />
-          <button onClick={() => { if (loginEmail === ADMIN_EMAIL && loginPw === ADMIN_PASS) { sessionStorage.setItem(AUTH_KEY, "true"); setAuthed(true); } else { toast({ title: "Incorrect credentials", variant: "destructive" }); } }} className="w-full bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[hsl(220,18%,7%)] font-bold py-2.5 rounded-xl transition-colors" data-testid="btn-admin-login">Sign In</button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[hsl(220,18%,7%)] text-white">

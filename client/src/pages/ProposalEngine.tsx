@@ -8,9 +8,6 @@ import {
   DollarSign, Zap, BarChart3, Edit3,
 } from "lucide-react";
 
-const ADMIN_EMAIL = "admin@thecorporatedesk.com.au";
-const ADMIN_PASS = "Jaymin12!/";
-const AUTH_KEY = "tcd_admin_auth";
 
 const STATUS_COLORS: Record<string, string> = {
   draft: "bg-gray-500/20 text-gray-300",
@@ -25,12 +22,6 @@ const PIPELINE_STAGES = ["lead", "qualified", "meeting_booked", "proposal_sent",
 export default function ProposalEngine() {
   const { toast } = useToast();
   const qc = useQueryClient();
-  const [authed, setAuthed] = useState(() => {
-    const s = sessionStorage.getItem(AUTH_KEY);
-    return s === "true" || s === `${ADMIN_EMAIL}:${ADMIN_PASS}`;
-  });
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPw, setLoginPw] = useState("");
   const [selectedProposal, setSelectedProposal] = useState<any>(null);
   const [filterStatus, setFilterStatus] = useState("");
   const [showPricingCalc, setShowPricingCalc] = useState(false);
@@ -40,24 +31,20 @@ export default function ProposalEngine() {
   const { data: proposals = [], refetch, isLoading } = useQuery<any[]>({
     queryKey: ["/api/proposals"],
     queryFn: () => fetch(`/api/proposals${filterStatus ? `?status=${filterStatus}` : ""}`).then(r => r.json()),
-    enabled: authed,
     refetchInterval: 30000,
   });
 
   const { data: stats } = useQuery<any>({
     queryKey: ["/api/proposals/stats"],
-    enabled: authed,
   });
 
   const { data: quotes = [] } = useQuery<any[]>({
     queryKey: ["/api/quotes"],
-    enabled: authed,
   });
 
   const { data: pendingApprovals = [] } = useQuery<any[]>({
     queryKey: ["/api/approvals"],
     queryFn: () => fetch("/api/approvals?status=pending").then(r => r.json()),
-    enabled: authed,
   });
 
   const generateMutation = useMutation({
@@ -95,23 +82,6 @@ export default function ProposalEngine() {
     const data = await r.json();
     setPricingResult(data.pricing);
   };
-
-  if (!authed) {
-    return (
-      <div className="min-h-screen bg-[hsl(220,18%,7%)] flex items-center justify-center">
-        <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.08)] rounded-2xl p-8 w-full max-w-sm">
-          <div className="flex items-center gap-2 mb-6">
-            <FileText className="w-5 h-5 text-[hsl(43,78%,52%)]" />
-            <span className="text-white font-bold">Proposal Engine</span>
-          </div>
-          <p className="text-white/40 text-xs mb-4">Admin access required</p>
-          <input type="email" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} placeholder="Admin email" className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-lg px-3 py-2 text-white text-sm mb-3 placeholder-white/20" data-testid="input-login-email" />
-          <input type="password" value={loginPw} onChange={e => setLoginPw(e.target.value)} placeholder="Password" className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-lg px-3 py-2 text-white text-sm mb-4 placeholder-white/20" data-testid="input-login-password" />
-          <button onClick={() => { if (loginEmail === ADMIN_EMAIL && loginPw === ADMIN_PASS) { sessionStorage.setItem(AUTH_KEY, "true"); setAuthed(true); } else { toast({ title: "Incorrect credentials", variant: "destructive" }); } }} className="w-full bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[hsl(220,18%,7%)] font-bold py-2.5 rounded-xl transition-colors" data-testid="btn-admin-login">Sign In</button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[hsl(220,18%,7%)] text-white">

@@ -10,9 +10,6 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
-const ADMIN_EMAIL = "admin@thecorporatedesk.com.au";
-const ADMIN_PASS = "Jaymin12!/";
-const AUTH_KEY = "tcd_admin_auth";
 
 interface DealRecord {
   id: string;
@@ -256,20 +253,11 @@ function DealCard({ deal, onMarkOutcome }: { deal: DealRecord; onMarkOutcome: (i
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function AdminDealIntelligence() {
-  const [authed, setAuthed] = useState(false);
-  const [authEmail, setAuthEmail] = useState("");
-  const [authPw, setAuthPw] = useState("");
-  const [authErr, setAuthErr] = useState(false);
   const [tierFilter, setTierFilter] = useState("all");
   const [sourceFilter, setSourceFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"table" | "best">("table");
 
   const { toast } = useToast();
-
-  useEffect(() => {
-    const stored = sessionStorage.getItem(AUTH_KEY);
-    if (stored === `${ADMIN_EMAIL}:${ADMIN_PASS}` || stored === "true") setAuthed(true);
-  }, []);
 
   const { data: deals = [], isLoading: dealsLoading } = useQuery<DealRecord[]>({
     queryKey: ["/api/admin/deal-intelligence", tierFilter, sourceFilter],
@@ -279,13 +267,11 @@ export default function AdminDealIntelligence() {
       if (sourceFilter !== "all") params.set("sourceType", sourceFilter);
       return fetch(`/api/admin/deal-intelligence?${params}`).then(r => r.json());
     },
-    enabled: authed,
   });
 
   const { data: summary, isLoading: summaryLoading } = useQuery<Summary>({
     queryKey: ["/api/admin/deal-intelligence/summary"],
     queryFn: () => fetch("/api/admin/deal-intelligence/summary").then(r => r.json()),
-    enabled: authed,
   });
 
   const analyseAllMutation = useMutation({
@@ -307,35 +293,6 @@ export default function AdminDealIntelligence() {
       toast({ title: "Outcome recorded" });
     },
   });
-
-  const handleLogin = () => {
-    if (authEmail === ADMIN_EMAIL && authPw === ADMIN_PASS) {
-      sessionStorage.setItem(AUTH_KEY, `${ADMIN_EMAIL}:${ADMIN_PASS}`);
-      setAuthed(true);
-    } else {
-      setAuthErr(true);
-    }
-  };
-
-  if (!authed) {
-    return (
-      <div className="min-h-screen bg-[hsl(220,20%,7%)] flex items-center justify-center p-6">
-        <div className="w-full max-w-sm bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-8">
-          <div className="text-center mb-6">
-            <div className="text-[hsl(43,78%,52%)] text-xs font-bold tracking-widest uppercase mb-2">The Corporate Desk</div>
-            <h1 className="text-white font-serif text-xl font-bold">Admin Access</h1>
-            <p className="text-white/40 text-sm mt-1">AI Deal Intelligence</p>
-          </div>
-          <div className="space-y-3">
-            <Input value={authEmail} onChange={e => setAuthEmail(e.target.value)} placeholder="Admin email" type="email" className="bg-white/5 border-white/10 text-white placeholder:text-white/30" />
-            <Input value={authPw} onChange={e => setAuthPw(e.target.value)} placeholder="Password" type="password" className="bg-white/5 border-white/10 text-white placeholder:text-white/30" onKeyDown={e => e.key === "Enter" && handleLogin()} />
-            {authErr && <p className="text-red-400 text-xs">Invalid credentials</p>}
-            <button onClick={handleLogin} className="w-full bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[#0f0f13] font-semibold py-2 rounded-lg transition-colors" data-testid="button-login">Sign In</button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   const activeDeals = deals.filter(d => d.outcomeResult === "pending" || !d.outcomeResult);
   const closedDeals = deals.filter(d => d.outcomeResult && d.outcomeResult !== "pending");

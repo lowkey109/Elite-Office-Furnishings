@@ -10,9 +10,6 @@ import {
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-const ADMIN_EMAIL = "admin@thecorporatedesk.com.au";
-const ADMIN_PASS = "Jaymin12!/";
-const AUTH_KEY = "tcd_admin_auth";
 
 type WorkspaceStrategy = {
   id: string; officeSqm?: number; staffCount?: number; projectType?: string;
@@ -58,11 +55,6 @@ function ConfidenceBar({ score }: { score: number }) {
 }
 
 export default function AdminWorkspaceStrategy() {
-  const [authed, setAuthed] = useState(() => {
-    const s = sessionStorage.getItem(AUTH_KEY);
-    return s === `${ADMIN_EMAIL}:${ADMIN_PASS}` || s === "true";
-  });
-  const [pw, setPw] = useState("");
   const [view, setView] = useState<"generate" | "history" | "insights">("generate");
   const [selectedStrategy, setSelectedStrategy] = useState<WorkspaceStrategy | null>(null);
   const [form, setForm] = useState({
@@ -74,11 +66,10 @@ export default function AdminWorkspaceStrategy() {
 
   const { data: strategies = [], isLoading: strategiesLoading } = useQuery<WorkspaceStrategy[]>({
     queryKey: ["/api/admin/workspace-strategy"],
-    enabled: authed,
   });
   const { data: insights, isLoading: insightsLoading } = useQuery<LearningInsights>({
     queryKey: ["/api/admin/workspace-strategy/learning-insights"],
-    enabled: authed && view === "insights",
+    enabled: view === "insights",
   });
 
   const generateMutation = useMutation({
@@ -98,21 +89,6 @@ export default function AdminWorkspaceStrategy() {
     },
     onError: (err: any) => toast({ title: "Generation failed", description: err.message, variant: "destructive" }),
   });
-
-  if (!authed) {
-    return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 w-full max-w-md">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center"><Brain className="w-5 h-5 text-violet-400" /></div>
-            <div><div className="text-white font-semibold">Workspace Strategy Engine</div><div className="text-zinc-500 text-sm">Admin access required</div></div>
-          </div>
-          <input type="password" value={pw} onChange={e => setPw(e.target.value)} placeholder="Admin password" className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white text-sm mb-3 outline-none" onKeyDown={e => { if (e.key === "Enter" && pw === ADMIN_PASS) { sessionStorage.setItem(AUTH_KEY, `${ADMIN_EMAIL}:${pw}`); setAuthed(true); } }} />
-          <button onClick={() => { if (pw === ADMIN_PASS) { sessionStorage.setItem(AUTH_KEY, `${ADMIN_EMAIL}:${pw}`); setAuthed(true); } }} className="w-full bg-violet-700 hover:bg-violet-600 text-white rounded-xl py-3 text-sm font-medium">Access Strategy Engine</button>
-        </div>
-      </div>
-    );
-  }
 
   const renderZones = (zonesJson?: string | null) => {
     if (!zonesJson) return null;

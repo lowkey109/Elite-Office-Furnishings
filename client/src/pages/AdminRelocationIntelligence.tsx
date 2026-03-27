@@ -11,9 +11,6 @@ import {
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-const ADMIN_EMAIL = "admin@thecorporatedesk.com.au";
-const ADMIN_PASS = "Jaymin12!/";
-const AUTH_KEY = "tcd_admin_auth";
 
 type RelocationSignal = {
   id: string; companyName: string; industry?: string; city: string; state?: string;
@@ -68,11 +65,6 @@ function ProbabilityBar({ value, tier }: { value: number; tier: string }) {
 }
 
 export default function AdminRelocationIntelligence() {
-  const [authed, setAuthed] = useState(() => {
-    const s = sessionStorage.getItem(AUTH_KEY);
-    return s === `${ADMIN_EMAIL}:${ADMIN_PASS}` || s === "true";
-  });
-  const [pw, setPw] = useState("");
   const [tierFilter, setTierFilter] = useState("all");
   const [cityFilter, setCityFilter] = useState("all");
   const [selectedSignal, setSelectedSignal] = useState<RelocationSignal | null>(null);
@@ -89,12 +81,11 @@ export default function AdminRelocationIntelligence() {
       if (cityFilter !== "all") params.set("city", cityFilter);
       return fetch(`/api/admin/relocation-signals?${params}`).then(r => r.json());
     },
-    enabled: authed,
   });
 
   const { data: intel, isLoading: intelLoading } = useQuery<MarketIntelligence>({
     queryKey: ["/api/admin/relocation-signals/market-intelligence"],
-    enabled: authed && view === "intelligence",
+    enabled: view === "intelligence",
   });
 
   const generateMutation = useMutation({
@@ -129,21 +120,6 @@ export default function AdminRelocationIntelligence() {
       setSelectedSignal(null);
     },
   });
-
-  if (!authed) {
-    return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 w-full max-w-md">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center"><Radar className="w-5 h-5 text-red-400" /></div>
-            <div><div className="text-white font-semibold">Relocation Intelligence</div><div className="text-zinc-500 text-sm">Admin access required</div></div>
-          </div>
-          <input type="password" value={pw} onChange={e => setPw(e.target.value)} placeholder="Admin password" className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white text-sm mb-3 outline-none" onKeyDown={e => { if (e.key === "Enter" && pw === ADMIN_PASS) { sessionStorage.setItem(AUTH_KEY, `${ADMIN_EMAIL}:${pw}`); setAuthed(true); } }} />
-          <button onClick={() => { if (pw === ADMIN_PASS) { sessionStorage.setItem(AUTH_KEY, `${ADMIN_EMAIL}:${pw}`); setAuthed(true); } }} className="w-full bg-red-700 hover:bg-red-600 text-white rounded-xl py-3 text-sm font-medium">Access Relocation Intelligence</button>
-        </div>
-      </div>
-    );
-  }
 
   const activeSigs = signals.filter(s => s.status === "active");
   const cities = [...new Set(signals.map(s => s.city))].sort();

@@ -1540,11 +1540,16 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
       const { leads: leadsTable } = await import("@shared/schema");
       const { db: ddb } = await import("./db");
       const { eq } = await import("drizzle-orm");
-      const allowed = ["leadStatus", "nextAction", "nextActionDate", "hasFloorplan", "budgetRange", "moveDate", "staffCount", "opportunityScore"];
-      const updates: Record<string, any> = {};
-      for (const k of allowed) {
-        if (req.body[k] !== undefined) updates[k] = req.body[k];
-      }
+      const b = req.body as Record<string, unknown>;
+      const updates: Record<string, unknown> = {};
+      if (b.leadStatus !== undefined) updates.leadStatus = b.leadStatus;
+      if (b.nextAction !== undefined) updates.nextAction = b.nextAction;
+      if (b.nextActionDate !== undefined) updates.nextActionDate = b.nextActionDate;
+      if (b.hasFloorplan !== undefined) updates.hasFloorplan = b.hasFloorplan;
+      if (b.budgetRange !== undefined) updates.budgetRange = b.budgetRange;
+      if (b.moveDate !== undefined) updates.moveDate = b.moveDate;
+      if (b.staffCount !== undefined) updates.staffCount = b.staffCount;
+      if (b.opportunityScore !== undefined) updates.opportunityScore = b.opportunityScore;
       if (Object.keys(updates).length === 0) return res.status(400).json({ error: "No valid fields to update" });
       const [updated] = await ddb.update(leadsTable).set(updates).where(eq(leadsTable.id, req.params.id)).returning();
       if (!updated) return res.status(404).json({ error: "Lead not found" });
@@ -6114,61 +6119,61 @@ Rules:
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
       const yearStart = new Date(now.getFullYear(), 0, 1).toISOString();
 
-      const visitorQuery = await db.execute(`
+      const visitorQuery = await db.execute(sql`
         SELECT
-          COUNT(*) FILTER (WHERE created_at >= '${todayStart}') AS today,
-          COUNT(*) FILTER (WHERE created_at >= '${weekStart}') AS week,
-          COUNT(*) FILTER (WHERE created_at >= '${monthStart}') AS month,
-          COUNT(*) FILTER (WHERE created_at >= '${yearStart}') AS year,
+          COUNT(*) FILTER (WHERE created_at >= ${todayStart}) AS today,
+          COUNT(*) FILTER (WHERE created_at >= ${weekStart}) AS week,
+          COUNT(*) FILTER (WHERE created_at >= ${monthStart}) AS month,
+          COUNT(*) FILTER (WHERE created_at >= ${yearStart}) AS year,
           COUNT(*) AS total
         FROM site_visits
         WHERE is_bot = false
       `);
 
-      const uniqueVisitorsQuery = await db.execute(`
+      const uniqueVisitorsQuery = await db.execute(sql`
         SELECT
-          COUNT(DISTINCT ip_hash) FILTER (WHERE created_at >= '${todayStart}') AS today,
-          COUNT(DISTINCT ip_hash) FILTER (WHERE created_at >= '${weekStart}') AS week,
-          COUNT(DISTINCT ip_hash) FILTER (WHERE created_at >= '${monthStart}') AS month,
-          COUNT(DISTINCT ip_hash) FILTER (WHERE created_at >= '${yearStart}') AS year
+          COUNT(DISTINCT ip_hash) FILTER (WHERE created_at >= ${todayStart}) AS today,
+          COUNT(DISTINCT ip_hash) FILTER (WHERE created_at >= ${weekStart}) AS week,
+          COUNT(DISTINCT ip_hash) FILTER (WHERE created_at >= ${monthStart}) AS month,
+          COUNT(DISTINCT ip_hash) FILTER (WHERE created_at >= ${yearStart}) AS year
         FROM site_visits
         WHERE is_bot = false AND ip_hash IS NOT NULL
       `);
 
-      const topPagesQuery = await db.execute(`
+      const topPagesQuery = await db.execute(sql`
         SELECT page_path, COUNT(*) as views
         FROM site_visits
-        WHERE is_bot = false AND created_at >= '${monthStart}'
+        WHERE is_bot = false AND created_at >= ${monthStart}
         GROUP BY page_path
         ORDER BY views DESC
         LIMIT 10
       `);
 
-      const referrersQuery = await db.execute(`
+      const referrersQuery = await db.execute(sql`
         SELECT
           COALESCE(referrer, 'Direct') as source,
           COUNT(*) as visits
         FROM site_visits
-        WHERE is_bot = false AND created_at >= '${monthStart}'
+        WHERE is_bot = false AND created_at >= ${monthStart}
         GROUP BY referrer
         ORDER BY visits DESC
         LIMIT 10
       `);
 
-      const leadsQuery = await db.execute(`
+      const leadsQuery = await db.execute(sql`
         SELECT
-          COUNT(*) FILTER (WHERE created_at >= '${todayStart}') AS today,
-          COUNT(*) FILTER (WHERE created_at >= '${weekStart}') AS week,
-          COUNT(*) FILTER (WHERE created_at >= '${monthStart}') AS month,
-          COUNT(*) FILTER (WHERE created_at >= '${yearStart}') AS year,
+          COUNT(*) FILTER (WHERE created_at >= ${todayStart}) AS today,
+          COUNT(*) FILTER (WHERE created_at >= ${weekStart}) AS week,
+          COUNT(*) FILTER (WHERE created_at >= ${monthStart}) AS month,
+          COUNT(*) FILTER (WHERE created_at >= ${yearStart}) AS year,
           COUNT(*) AS total
         FROM leads
       `);
 
-      const leadsBreakdownQuery = await db.execute(`
+      const leadsBreakdownQuery = await db.execute(sql`
         SELECT type, COUNT(*) as count
         FROM leads
-        WHERE created_at >= '${monthStart}'
+        WHERE created_at >= ${monthStart}
         GROUP BY type
         ORDER BY count DESC
       `);

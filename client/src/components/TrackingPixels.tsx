@@ -28,11 +28,17 @@ function inlineScript(code: string, id: string): void {
   document.head.appendChild(script);
 }
 
-function inlineNoScript(html: string, id: string): void {
+function inlineMetaNoScript(pixelId: string, id: string): void {
   if (document.getElementById(id)) return;
   const ns = document.createElement("noscript");
   ns.id = id;
-  ns.innerHTML = html;
+  const img = document.createElement("img");
+  img.setAttribute("height", "1");
+  img.setAttribute("width", "1");
+  img.style.display = "none";
+  img.src = `https://www.facebook.com/tr?id=${encodeURIComponent(pixelId)}&ev=PageView&noscript=1`;
+  img.alt = "";
+  ns.appendChild(img);
   document.body.appendChild(ns);
 }
 
@@ -53,10 +59,7 @@ function initMetaPixel(pixelId: string): void {
     fbq('track', 'PageView');
   `, "meta-pixel-base");
 
-  inlineNoScript(
-    `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1" alt="" />`,
-    "meta-pixel-noscript"
-  );
+  inlineMetaNoScript(pixelId, "meta-pixel-noscript");
 }
 
 function trackMetaPageView(): void {

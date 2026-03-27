@@ -906,7 +906,7 @@ export async function sendTestEmail(): Promise<{
   to?: string;
   subject?: string;
   envStatus: {
-    RESEND_API_KEY: string;
+    emailServiceConfigured: string;
     SAFE_MODE: string;
     fromAddress: string;
     domainVerified: boolean;
@@ -925,14 +925,12 @@ export async function sendTestEmail(): Promise<{
   </div>`;
 
   const envStatus = {
-    RESEND_API_KEY: process.env.RESEND_API_KEY ? `SET (length: ${process.env.RESEND_API_KEY.length})` : "NOT SET",
+    emailServiceConfigured: process.env.RESEND_API_KEY ? "yes" : "no",
     SAFE_MODE: process.env.SAFE_MODE ?? "not set (defaults to live)",
     fromAddress: TCD_FROM,
     domainVerified: false,
     note: "Pending test",
   };
-
-  console.log(`[Email:TestSend] ENV check — RESEND_API_KEY: ${envStatus.RESEND_API_KEY} | SAFE_MODE: ${envStatus.SAFE_MODE}`);
 
   if (!process.env.RESEND_API_KEY) {
     console.error("[Email:TestSend] ✗ RESEND_API_KEY not set — cannot send test email");

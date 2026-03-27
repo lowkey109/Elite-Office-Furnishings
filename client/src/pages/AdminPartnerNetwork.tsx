@@ -11,9 +11,6 @@ import {
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-const ADMIN_EMAIL = "admin@thecorporatedesk.com.au";
-const ADMIN_PASS = "Jaymin12!/";
-const AUTH_KEY = "tcd_admin_auth";
 
 type Partner = {
   id: string; companyName: string; partnerType: string; contactName: string;
@@ -64,11 +61,6 @@ function formatCurrency(v?: number) {
 }
 
 export default function AdminPartnerNetwork() {
-  const [authed, setAuthed] = useState(() => {
-    const stored = sessionStorage.getItem(AUTH_KEY);
-    return stored === `${ADMIN_EMAIL}:${ADMIN_PASS}` || stored === "true";
-  });
-  const [pw, setPw] = useState("");
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -82,11 +74,9 @@ export default function AdminPartnerNetwork() {
 
   const { data: partners = [], isLoading } = useQuery<Partner[]>({
     queryKey: ["/api/admin/partners"],
-    enabled: authed,
   });
   const { data: summary } = useQuery<NetworkSummary>({
     queryKey: ["/api/admin/partners/summary"],
-    enabled: authed,
   });
   const { data: selectedDetail } = useQuery<{ partner: Partner; opportunities: PartnerOpportunity[]; referrals: any[]; revenue: any[] }>({
     queryKey: ["/api/admin/partners", selectedPartner?.id],
@@ -124,7 +114,7 @@ export default function AdminPartnerNetwork() {
     }>;
   }>({
     queryKey: ["/api/commissions"],
-    enabled: authed && activeTab === "commissions",
+    enabled: activeTab === "commissions",
     refetchInterval: activeTab === "commissions" ? 30000 : false,
   });
 
@@ -138,21 +128,6 @@ export default function AdminPartnerNetwork() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/commissions"] }); toast({ title: "Commission marked paid" }); },
     onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
-
-  if (!authed) {
-    return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 w-full max-w-md">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center"><Network className="w-5 h-5 text-blue-400" /></div>
-            <div><div className="text-white font-semibold">Partner Network</div><div className="text-zinc-500 text-sm">Admin access required</div></div>
-          </div>
-          <input type="password" value={pw} onChange={e => setPw(e.target.value)} placeholder="Admin password" className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white text-sm mb-3 outline-none" onKeyDown={e => { if (e.key === "Enter") { if (pw === ADMIN_PASS) { sessionStorage.setItem(AUTH_KEY, `${ADMIN_EMAIL}:${pw}`); setAuthed(true); } } }} />
-          <button onClick={() => { if (pw === ADMIN_PASS) { sessionStorage.setItem(AUTH_KEY, `${ADMIN_EMAIL}:${pw}`); setAuthed(true); } }} className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-3 text-sm font-medium">Access Partner Network</button>
-        </div>
-      </div>
-    );
-  }
 
   const filtered = partners.filter(p => {
     const q = search.toLowerCase();
