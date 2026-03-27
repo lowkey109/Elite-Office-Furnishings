@@ -35,8 +35,8 @@ export async function runNexoraEngine(): Promise<NexoraResult> {
 
   try {
     const raw = await runDealHunterScan();
-    dealResults = Array.isArray(raw) ? raw : [];
-    console.log(`🎯 Deal signals: ${dealResults.length}`);
+    dealResults = Array.isArray(raw) ? raw : (raw?.signals ?? []);
+    console.log(`🎯 Deal signals: ${dealResults.length} (created: ${(raw as any)?.created ?? 0}, deduplicated: ${(raw as any)?.deduplicated ?? 0})`);
   } catch (err: any) {
     const msg = `Deal hunter scan failed: ${err?.message ?? "unknown error"}`;
     console.error("❌", msg);

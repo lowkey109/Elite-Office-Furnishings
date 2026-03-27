@@ -4,7 +4,7 @@ import { desc, sql, inArray } from "drizzle-orm";
 import { nexoraRuns } from "@shared/schema";
 import { db } from "./db";
 import { generateStrategyRecommendation, getLearningInsights } from "./services/workspaceStrategy";
-import { runDealHunterScan, pushDealHunterToPipeline, getDealHunterStats } from "./services/dealHunter";
+import { runDealHunterScan, pushDealHunterToPipeline, pushDealHunterToRadar, reviewDealHunterSignal, dismissDealHunterSignal, getDealHunterStats } from "./services/dealHunter";
 import { runNexoraCycle, getNexoraLoopState, startNexoraLoop, stopNexoraLoop, setNexoraLoopInterval } from "./services/nexoraLoop";
 import type { Express } from "express";
 import { createServer, type Server } from "http";
