@@ -46,8 +46,5 @@ integrations = ["javascript_openai_ai_integrations:2.0.0"]
 
 [userenv.shared]
 STRIPE_PUBLIC_KEY = "pk_live_51T9w96Bewufp70aaqNPzapWXtaGnvjNpevqMvOyGmAWMFlUeTqzYcxLJHeWQiNgidsUkPZAdeVIVhYCbfe9ewcCK004ky4AvII"
-STRIPE_SECRET_KEY = "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"
-STRIPE_WEBHOOK_SECRET = "whsec_WRrxXj5YnnNIlAOiZJjwbhh7ucFqE64r"
-RESEND_API_KEY = "re_iKfJkju5_PQrPqdWjE2KH6A4UVxDXFcem"
 SAFE_MODE = "false"
 STRIPE_MODE = "live"
