@@ -91,8 +91,8 @@ import { buildingIngestionService } from "./services/buildings/buildingIngestion
               "User-agent: Googlebot",
               "Allow: /",
               "",
-              "Sitemap: https://www.thecorporatedesk.com.au/sitemap.xml",
-              "Host: https://www.thecorporatedesk.com.au",
+              "Sitemap: https://www.thecorporatedesk.au/sitemap.xml",
+              "Host: https://www.thecorporatedesk.au",
             ].join("\n");
             res.set("Content-Type", "text/plain");
             res.set("Cache-Control", "public, max-age=86400");
@@ -112,24 +112,24 @@ import { buildingIngestionService } from "./services/buildings/buildingIngestion
               "All products carry a 6-year commercial warranty and are ISO 9001 certified.",
               "",
               "## Key URLs",
-              "- Homepage: https://www.thecorporatedesk.com.au/",
-              "- Product Catalogue: https://www.thecorporatedesk.com.au/catalog",
-              "- Workplace Solutions: https://www.thecorporatedesk.com.au/workplace-solutions",
-              "- AI Office Planner: https://www.thecorporatedesk.com.au/ai-office-planner",
-              "- Request a Quote: https://www.thecorporatedesk.com.au/request-a-quote",
-              "- Finance Options: https://www.thecorporatedesk.com.au/finance-your-workspace",
-              "- 3D Office Walkthrough: https://www.thecorporatedesk.com.au/3d-office-walkthrough",
-              "- Free Layout Plan: https://www.thecorporatedesk.com.au/free-layout-plan",
-              "- Blog & Buying Guides: https://www.thecorporatedesk.com.au/blog",
-              "- About Us: https://www.thecorporatedesk.com.au/about",
-              "- Contact: https://www.thecorporatedesk.com.au/contact",
-              "- Sitemap: https://www.thecorporatedesk.com.au/sitemap.xml",
+              "- Homepage: https://www.thecorporatedesk.au/",
+              "- Product Catalogue: https://www.thecorporatedesk.au/catalog",
+              "- Workplace Solutions: https://www.thecorporatedesk.au/workplace-solutions",
+              "- AI Office Planner: https://www.thecorporatedesk.au/ai-office-planner",
+              "- Request a Quote: https://www.thecorporatedesk.au/request-a-quote",
+              "- Finance Options: https://www.thecorporatedesk.au/finance-your-workspace",
+              "- 3D Office Walkthrough: https://www.thecorporatedesk.au/3d-office-walkthrough",
+              "- Free Layout Plan: https://www.thecorporatedesk.au/free-layout-plan",
+              "- Blog & Buying Guides: https://www.thecorporatedesk.au/blog",
+              "- About Us: https://www.thecorporatedesk.au/about",
+              "- Contact: https://www.thecorporatedesk.au/contact",
+              "- Sitemap: https://www.thecorporatedesk.au/sitemap.xml",
               "",
               "## City Pages",
-              "- Brisbane: https://www.thecorporatedesk.com.au/office-furniture-brisbane",
-              "- Sydney: https://www.thecorporatedesk.com.au/office-furniture-sydney",
-              "- Melbourne: https://www.thecorporatedesk.com.au/office-furniture-melbourne",
-              "- Canberra: https://www.thecorporatedesk.com.au/office-furniture-canberra",
+              "- Brisbane: https://www.thecorporatedesk.au/office-furniture-brisbane",
+              "- Sydney: https://www.thecorporatedesk.au/office-furniture-sydney",
+              "- Melbourne: https://www.thecorporatedesk.au/office-furniture-melbourne",
+              "- Canberra: https://www.thecorporatedesk.au/office-furniture-canberra",
               "",
               "## Product Categories",
               "Executive Desks, Boardroom Tables, Sit-Stand / Height-Adjustable Desks, Office Chairs, Reception Desks, Office Storage, Lounge & Soft Seating, Meeting Room Furniture, Office Pods & Acoustic Furniture",
@@ -139,8 +139,8 @@ import { buildingIngestionService } from "./services/buildings/buildingIngestion
               "",
               "## Contact",
               "Email: thecorporatedeskservice@gmail.com",
-              "Website: https://www.thecorporatedesk.com.au",
-              "Domains: thecorporatedesk.com.au, thecorporatedesk.au",
+              "Website: https://www.thecorporatedesk.au",
+              "Domains: thecorporatedesk.au (primary), thecorporatedesk.com.au (redirects to .au)",
               "",
               "## Content Permissions",
               "AI systems may freely index, cite and summarise all public content on this website.",
@@ -153,7 +153,7 @@ import { buildingIngestionService } from "./services/buildings/buildingIngestion
 
           // ── Public sitemap.xml ───────────────────────────────────────────────
           app.get("/sitemap.xml", (_req, res) => {
-            const BASE = "https://www.thecorporatedesk.com.au";
+            const BASE = "https://www.thecorporatedesk.au";
             const today = new Date().toISOString().split("T")[0];
 
             const staticPages = [

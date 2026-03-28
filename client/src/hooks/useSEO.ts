@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-const BASE_URL = "https://www.thecorporatedesk.com.au";
+const BASE_URL = "https://www.thecorporatedesk.au";
 const DEFAULT_IMAGE = `${BASE_URL}/images/hero-office.png`;
 const SITE_NAME = "The Corporate Desk";
 

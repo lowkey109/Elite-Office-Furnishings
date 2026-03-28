@@ -150,7 +150,7 @@ export default function CityLandingPage({ cityKey }: { cityKey: string }) {
 
   useEffect(() => {
     if (!data) return;
-    const BASE = "https://www.thecorporatedesk.com.au";
+    const BASE = "https://www.thecorporatedesk.au";
     const pageUrl = `${BASE}/${data.slug}`;
     const heroImg = `${BASE}/images/hero-office.png`;
 
@@ -216,7 +216,7 @@ export default function CityLandingPage({ cityKey }: { cityKey: string }) {
       currenciesAccepted: "AUD",
       paymentAccepted: "Bank Transfer, Finance",
       openingHours: "Mo-Fr 08:00-17:30",
-      sameAs: ["https://www.thecorporatedesk.com.au"],
+      sameAs: ["https://www.thecorporatedesk.au", "https://www.thecorporatedesk.com.au"],
     };
 
     const breadcrumbSchema = {

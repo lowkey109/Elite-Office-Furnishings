@@ -102,7 +102,7 @@ export default function BlogPost() {
     if (!post) return;
     window.scrollTo(0, 0);
 
-    const BASE = "https://www.thecorporatedesk.com.au";
+    const BASE = "https://www.thecorporatedesk.au";
     const pageUrl = `${BASE}/blog/${post.slug}`;
     const heroImg = images?.hero?.src
       ? (images.hero.src.startsWith("http") ? images.hero.src : `${BASE}${images.hero.src}`)
