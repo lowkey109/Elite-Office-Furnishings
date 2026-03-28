@@ -1,0 +1,515 @@
+THE CORPORATE DESK — REAL DATA ENGINE UPGRADE PROMPT
+UPGRADE-ONLY MODE — DELETE NOTHING — DEMO TO PRODUCTION CONVERSION
+
+You are now operating as a senior production engineer, platform architect, backend hardening specialist, and data-systems builder for The Corporate Desk.
+
+Your job is NOT to redesign from scratch.
+Your job is NOT to delete working systems.
+Your job is NOT to wipe files, rip out modules, or remove architecture that already exists.
+
+YOUR JOB IS TO UPGRADE THE EXISTING PLATFORM IN PLACE.
+
+==================================================
+CORE NON-NEGOTIABLE RULES
+==================================================
+
+1. DELETE NOTHING
+- Do not delete existing modules, routes, services, pages, tables, schema, admin views, or workflows unless a file is completely unusable and a direct replacement is created in the same pass.
+- Preserve all existing business logic, UI, admin concepts, schemas, and workflows wherever possible.
+- If something is demo/synthetic, do NOT remove it blindly.
+- Instead:
+  - keep it
+  - isolate it
+  - label it clearly as test/demo/dev-only
+  - disable it from production paths
+  - replace production usage with real data pipelines
+
+2. UPGRADE ONLY
+- Convert existing intelligence/demo systems into real-source systems.
+- Reuse current architecture, current naming, current modules, and current admin surfaces as much as possible.
+- Improve and extend what exists instead of rebuilding from zero.
+
+3. NO DEMOS IN PRODUCTION
+- Production-facing data, scans, dashboards, lead generation, opportunity scoring, property feeds, company signals, and community/builder/property intelligence must use REAL DATA ONLY.
+- No fake signals.
+- No hardcoded opportunity generators.
+- No random outputs.
+- No placeholder market records.
+- No synthetic communities.
+- No synthetic builders.
+- No synthetic properties.
+- No synthetic leads.
+
+4. KEEP COMPATIBILITY
+- Maintain backward compatibility where possible.
+- Do not break existing admin pages.
+- Do not break existing schemas without migrations.
+- Do not break current API consumers.
+- If renaming is needed, provide compatibility wrappers/adapters.
+- If a storage function name is wrong or inconsistent, fix it safely without causing regression.
+
+5. FULL TRACEABILITY
+- Every real signal must be traceable to a source.
+- Every stored intelligence record must contain source evidence metadata.
+- Every scan must be auditable.
+- Every automation must be idempotent and logged.
+
+6. NEVER STOP AT PLANNING
+- Analyse
+- Upgrade files
+- Connect real data
+- Harden flows
+- Add migrations
+- Add logs
+- Add tests
+- Verify
+- Report exactly what changed
+
+Do not stop at recommendations.
+Implement.
+
+==================================================
+PRIMARY OBJECTIVE
+==================================================
+
+Convert the existing The Corporate Desk intelligence/admin platform from a mixed demo + real-data state into a REAL DATA ENGINE while preserving all existing systems and upgrading them safely.
+
+The platform already contains foundations that must be preserved and upgraded:
+- admin intelligence concepts
+- Office Move Radar
+- Deal Hunter
+- company intelligence
+- follow-up systems
+- visitor/session tracking
+- quote/planner/admin flows
+- real RSS/news ingestion path
+- existing schema and backend structure
+
+Do NOT destroy these foundations.
+Turn them into production-grade systems.
+
+==================================================
+KNOWN EXISTING REALITY TO RESPECT
+==================================================
+
+The current platform already has important components. Respect these facts:
+
+1. There is already a real ingestion foundation:
+- `newsFeedScanner.ts` is the primary real signal ingestion path
+- it uses RSS -> GPT classification -> scoring -> storage
+- this is a core production foundation and should be expanded, not replaced unnecessarily
+
+2. There are synthetic/demo paths that must be upgraded, not blindly deleted:
+- `runOfficeMovRadarScan()` in `officeMovRadarService.ts` is synthetic/demo and must no longer be the production intelligence source
+- `dealHunter.ts` currently uses hardcoded synthetic `SIGNAL_PROFILES`
+- `runGlobalRadarScan()` in `companyIntelligenceService.ts` is synthetic/demo/global AI-generated intelligence
+- these should be preserved for dev/test mode only if needed, but removed from production execution paths
+
+3. Scheduler infrastructure is fragile:
+- `intelligenceScheduler.ts` currently uses in-process `setTimeout` / `setInterval`
+- `followUpScheduler.ts` also uses in-process timers
+- this must be upgraded to persistent, lock-safe, restart-safe job execution
+
+4. Some naming/storage inconsistencies may exist:
+- for example `runGlobalRadarScan()` may call `storage.createOfficeMovRadar(...)` while storage exposes `createOfficeMovRadarRecord(...)`
+- fix safely
+- preserve compatibility where needed
+
+5. Existing schema and admin UI are valuable:
+- do not rip out admin surfaces
+- do not break dashboards
+- do not remove intelligence concepts just because the data source needs upgrading
+
+==================================================
+MANDATORY EXECUTION MODE
+==================================================
+
+You MUST work in this order:
+
+PHASE 1 — AUDIT CURRENT STATE
+PHASE 2 — IDENTIFY FAKE VS REAL DATA PATHS
+PHASE 3 — UPGRADE PRODUCTION DATA INGESTION
+PHASE 4 — REWIRE SCANNERS TO REAL DATA ONLY
+PHASE 5 — HARDEN STORAGE / DEDUPE / EVIDENCE
+PHASE 6 — REPLACE TIMER-BASED SCHEDULERS WITH PERSISTENT JOBS
+PHASE 7 — PRESERVE AND UPGRADE ADMIN/API SURFACES
+PHASE 8 — ADD TESTS / LOGGING / SAFETY / VERIFICATION
+PHASE 9 — OUTPUT A CHANGE REPORT
+
+Do not skip phases.
+Do not stop midway.
+Do not give generic advice.
+Modify the codebase.
+
+==================================================
+PHASE 1 — AUDIT CURRENT STATE
+==================================================
+
+Perform a deep audit of the existing codebase and classify all modules into these groups:
+
+A. REAL PRODUCTION-CAPABLE
+- real ingestion
+- real admin workflows
+- real storage layers
+- real routes
+- real evidence-based scoring paths
+
+B. SYNTHETIC / DEMO / PLACEHOLDER
+- hardcoded signal generators
+- random data
+- fake records
+- mock intelligence
+- placeholder builders/communities/properties/leads
+
+C. FRAGILE INFRASTRUCTURE
+- in-memory scheduling
+- non-idempotent tasks
+- duplicate-prone automations
+- weak dedupe
+- missing indexes
+- inconsistent storage calls
+
+D. INCOMPLETE BUT VALUABLE
+- good admin pages with fake data inputs
+- routes not fully wired
+- schema not fully used
+- intelligence modules needing real connectors
+
+Produce this classification internally and use it to drive upgrades.
+
+==================================================
+PHASE 2 — IDENTIFY FAKE VS REAL DATA PATHS
+==================================================
+
+Find every place in the codebase where production-visible data comes from:
+- hardcoded arrays
+- random generation
+- `SIGNAL_PROFILES`
+- placeholder records
+- synthetic scan functions
+- fake property feeds
+- fake builder/community listings
+- fake lead generation
+- fake market opportunities
+
+For each one:
+- keep the file/module if useful
+- isolate dev/test/demo behaviour behind explicit environment flags
+- remove it from production execution flow
+- replace the production path with a real data connector or real ingestion pipeline
+
+DO NOT delete the feature itself.
+UPGRADE THE DATA SOURCE.
+
+==================================================
+PHASE 3 — UPGRADE PRODUCTION DATA INGESTION
+==================================================
+
+Use the existing `newsFeedScanner.ts` pattern as the main blueprint for real ingestion.
+
+Expand the ingestion architecture to support real-source pipelines for:
+
+1. NEWS / RSS SIGNALS
+- company growth
+- expansion
+- relocations
+- office openings
+- fit-out announcements
+- funding/growth announcements
+
+2. JOB / HIRING SIGNALS
+- job boards
+- company career pages
+- hiring spikes
+- facilities/operations/workplace roles
+- office manager / project manager / property roles
+- growth signals indicating office needs
+
+3. PROPERTY / LEASE / DEVELOPMENT / PLANNING SIGNALS
+- public listings where lawful
+- planning approvals
+- development applications
+- office leasing signals
+- commercial move indicators
+- property records already intended by the platform must be upgraded to real feeds only
+
+4. TENDER / PROCUREMENT SIGNALS
+- public tender sources
+- procurement notices
+- fit-out/furniture RFQ opportunities
+- office refurbishment opportunities
+
+5. INTERNAL FIRST-PARTY SIGNALS
+- visitor sessions
+- quote activity
+- enquiry behaviour
+- planner submissions
+- product/category intent
+- repeat high-intent journeys
+
+For each ingestion source:
+- fetch real data
+- normalize into a shared structure
+- classify signal type
+- score confidence
+- dedupe
+- store evidence
+- log run metadata
+- prevent duplicate inserts
+
+==================================================
+PHASE 4 — REWIRE SCANNERS TO REAL DATA ONLY
+==================================================
+
+Upgrade these existing concepts without deleting them:
+
+1. OFFICE MOVE RADAR
+- keep the Office Move Radar concept, UI, and data model
+- stop using synthetic/demo generation for production
+- production radar must be built from:
+  - news signals
+  - job signals
+  - property/lease/planning signals
+  - first-party behavioural signals where relevant
+- attach evidence and confidence to every radar record
+
+2. DEAL HUNTER
+- keep Deal Hunter
+- remove hardcoded synthetic `SIGNAL_PROFILES` from production flow
+- replace with real weighted opportunity scoring from real-source signals
+- maintain admin usability while upgrading data truth
+
+3. COMPANY INTELLIGENCE
+- keep company intelligence module
+- replace synthetic global scan logic with real evidence-backed aggregation
+- every company profile should be generated from real collected signals, not fabricated summaries
+
+4. PROPERTY / COMMUNITY / BUILDER DATA
+- if these concepts already exist in the platform, preserve them
+- replace demo records with real data ingestion
+- no fake communities
+- no fake builders
+- no fake properties
+- every listing must be from a real source with evidence metadata
+- if source licensing or legality is uncertain, structure connector interfaces cleanly and use only permitted/public sources
+
+==================================================
+PHASE 5 — HARDEN STORAGE / DEDUPE / EVIDENCE
+==================================================
+
+Upgrade the database/storage model so every intelligence record includes evidence and dedupe fields.
+
+For signals, radar records, leads, properties, builders, communities, and opportunities, add or verify support for fields like:
+
+- canonical_name
+- source_type
+- source_url
+- source_domain
+- source_title
+- source_snippet
+- fetched_at
+- first_seen_at
+- last_seen_at
+- classification_type
+- confidence_score
+- priority_score
+- estimated_value
+- city
+- state
+- country
+- dedupe_key
+- content_hash
+- status
+- pipeline_stage
+- linked_company_id
+- linked_lead_id
+- ingestion_run_id
+
+Implement:
+- unique indexes where appropriate
+- dedupe guards
+- upsert behaviour where safe
+- evidence retention
+- hash-based duplicate prevention
+- normalized company matching
+- storage naming consistency fixes
+
+Pay special attention to known issues like mismatched storage function names.
+
+==================================================
+PHASE 6 — REPLACE TIMER-BASED SCHEDULERS WITH PERSISTENT JOBS
+==================================================
+
+Upgrade:
+- `intelligenceScheduler.ts`
+- `followUpScheduler.ts`
+
+Do NOT just keep `setTimeout` / `setInterval` as the primary engine.
+
+Build or upgrade a persistent job execution model with:
+- database-backed jobs
+- job types
+- schedule metadata
+- last run timestamps
+- next run timestamps
+- lock acquisition
+- retry counts
+- failure logs
+- idempotency keys
+- concurrency protection
+- per-job status tracking
+
+Requirements:
+- restart-safe
+- deploy-safe
+- no duplicate job runs
+- no repeated outreach spam
+- no accidental multiple scans
+- safe in single-instance and future multi-instance deployment
+
+If current code already has scheduler concepts, preserve them and upgrade them behind the same interfaces where possible.
+
+==================================================
+PHASE 7 — PRESERVE AND UPGRADE ADMIN/API SURFACES
+==================================================
+
+Do not break admin.
+
+Instead:
+- keep existing admin pages
+- keep the current intelligence concepts
+- keep current navigation and UX where possible
+- upgrade the underlying data to real data
+- add source evidence visibility in admin
+- add last-seen timestamps
+- add scan-status views
+- add confidence, priority, and traceability fields
+
+Upgrade `server/routes.ts` and related backend wiring so intelligence systems that already exist in schema/services are properly exposed through safe backend routes.
+
+Wire in missing or incomplete API surfaces for:
+- office move radar
+- deal hunter
+- company intelligence
+- properties/builders/communities if present
+- ingestion runs
+- scan status
+- evidence views
+- dedupe/admin review queues
+- follow-up sequence state
+- signal-to-lead linking
+
+Do this without breaking the current basic routes.
+
+==================================================
+PHASE 8 — ADD TESTS / LOGGING / SAFETY / VERIFICATION
+==================================================
+
+Add real production-grade safeguards:
+
+1. LOGGING
+- every scan run logged
+- every ingestion source logged
+- every insert/update counted
+- every dedupe skip counted
+- every failure captured with reason
+- every automation action auditable
+
+2. TESTS
+Add tests for:
+- dedupe logic
+- source normalization
+- scoring logic
+- scheduler/job locking
+- idempotency
+- route responses
+- evidence persistence
+- synthetic paths excluded from production mode
+
+3. SAFETY
+- no spam loops
+- no repeated sends
+- no duplicate lead creation
+- no fake records in production
+- no crashes from missing sources
+- graceful degradation if a feed fails
+
+4. VERIFICATION
+At the end, verify:
+- production paths use real data only
+- demo/synthetic paths are isolated from production
+- admin still works
+- routes still work
+- jobs are persistent
+- evidence is stored
+- duplicates are controlled
+
+==================================================
+PHASE 9 — OUTPUT A CHANGE REPORT
+==================================================
+
+After implementation, output a precise engineering report containing:
+
+1. FILES AUDITED
+2. FILES UPGRADED
+3. FILES PRESERVED AS-IS
+4. SYNTHETIC PATHS DISABLED FROM PRODUCTION
+5. REAL DATA CONNECTORS ADDED
+6. SCHEDULER/JOB SYSTEM CHANGES
+7. DATABASE / SCHEMA / INDEX / MIGRATION CHANGES
+8. ROUTES ADDED OR UPGRADED
+9. TESTS ADDED
+10. RISKS / FOLLOW-UP ITEMS
+11. EXACT VERIFICATION RESULTS
+
+Be concrete.
+No vague summaries.
+No pretending something is finished if it is not.
+
+==================================================
+STRICT IMPLEMENTATION RULES
+==================================================
+
+- No destructive refactors unless absolutely necessary
+- No deleting modules just because they are messy
+- No replacing the whole app
+- No fake data in production
+- No demo logic in live scans
+- No “TODO” placeholders for core production logic
+- No untraceable intelligence records
+- No non-idempotent scheduled automations
+- No UI regressions accepted without immediate repair
+
+==================================================
+SUCCESS DEFINITION
+==================================================
+
+This upgrade is successful only if:
+
+1. Existing platform concepts remain intact
+2. Production intelligence uses real data only
+3. Demo/synthetic systems are preserved safely but not used in production
+4. Scheduler is persistent and restart-safe
+5. Every signal/opportunity/property/community/builder/lead record is evidence-backed
+6. Admin remains functional and improved
+7. API surface is more complete
+8. Duplicates and repeated automations are controlled
+9. The system is more like a real data company and less like a smart demo
+
+==================================================
+FINAL INSTRUCTION
+==================================================
+
+Execute the upgrade now.
+
+Do not ask to start over.
+Do not propose a fresh rebuild.
+Do not delete working business systems.
+
+Preserve the platform.
+Upgrade the platform.
+Convert it into a real data engine.
+Use real data only in production.
+Keep everything valuable.
+Improve everything weak.
+Report every change.
