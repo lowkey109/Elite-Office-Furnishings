@@ -59,8 +59,8 @@ export default function WalkinshawForm() {
       <form onSubmit={onSubmit} className="mt-6 grid gap-4 md:grid-cols-2">
         <Input name="companyName" label="Company name" required />
         <Input name="contactName" label="Contact name" required />
-        <Input name="email" label="Work email" type="email" required />
-        <Input name="phone" label="Phone" />
+        <Input name="email" label="Work email" type="email" autoComplete="email" required />
+        <Input name="phone" label="Phone" type="tel" autoComplete="tel" />
         <Select name="state" label="State" options={STATES} required />
         <Input name="teamSize" label="Team size" />
         <Input name="projectType" label="Project type" placeholder="Relocation / fit-out / upgrade" />

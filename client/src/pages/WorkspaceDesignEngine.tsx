@@ -360,7 +360,7 @@ function FormView(props: {
             </div>
             <div>
               <label className={lbl}>Email <span className="text-[hsl(43,78%,52%)]">*</span></label>
-              <input className={inp} type="email" placeholder="jane@company.com.au" value={props.email} onChange={e => props.setEmail(e.target.value)} required data-testid="input-design-email" />
+              <input className={inp} type="email" autoComplete="email" placeholder="jane@company.com.au" value={props.email} onChange={e => props.setEmail(e.target.value)} required data-testid="input-design-email" />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -370,7 +370,7 @@ function FormView(props: {
             </div>
             <div>
               <label className={lbl}>Phone <span className="text-white/30 text-xs">(optional)</span></label>
-              <input className={inp} type="tel" placeholder="02 9000 0000" value={props.phone} onChange={e => props.setPhone(e.target.value)} data-testid="input-design-phone" />
+              <input className={inp} type="tel" autoComplete="tel" placeholder="02 9000 0000" value={props.phone} onChange={e => props.setPhone(e.target.value)} data-testid="input-design-phone" />
             </div>
           </div>
           <div>

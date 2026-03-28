@@ -133,14 +133,15 @@ function TimeSlots({ date, selected, onSelect }: { date: string; selected: strin
 }
 
 // ── Field helpers ─────────────────────────────────────────────────────────────
-function FieldInput({ label, id, type="text", value, onChange, placeholder, required=true }: {
-  label:string; id:string; type?:string; value:string; onChange:(v:string)=>void; placeholder?:string; required?:boolean;
+function FieldInput({ label, id, type="text", value, onChange, placeholder, required=true, autoComplete }: {
+  label:string; id:string; type?:string; value:string; onChange:(v:string)=>void; placeholder?:string; required?:boolean; autoComplete?:string;
 }) {
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={id} className="text-xs text-white/50 uppercase tracking-wider">{label}{required && " *"}</label>
       <input id={id} type={type} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder}
         data-testid={`input-strategy-${id}`}
+        autoComplete={autoComplete}
         className="bg-white/5 border border-white/10 focus:border-[#b8974a]/50 rounded-lg px-4 py-3 text-white placeholder:text-white/25 focus:outline-none text-sm transition-colors" />
     </div>
   );
@@ -295,8 +296,8 @@ export default function WorkplaceStrategy() {
                   <div className="grid sm:grid-cols-2 gap-4">
                     <FieldInput label="Full Name" id="name" value={form.name} onChange={set("name")} placeholder="Jane Smith" />
                     <FieldInput label="Company Name" id="company" value={form.company} onChange={set("company")} placeholder="Acme Corporation" />
-                    <FieldInput label="Email Address" id="email" type="email" value={form.email} onChange={set("email")} placeholder="jane@company.com.au" />
-                    <FieldInput label="Phone Number" id="phone" type="tel" value={form.phone} onChange={set("phone")} placeholder="02 XXXX XXXX" />
+                    <FieldInput label="Email Address" id="email" type="email" value={form.email} onChange={set("email")} placeholder="jane@company.com.au" autoComplete="email" />
+                    <FieldInput label="Phone Number" id="phone" type="tel" value={form.phone} onChange={set("phone")} placeholder="02 XXXX XXXX" autoComplete="tel" />
                     <FieldSelect label="Number of Staff" id="staffCount" value={form.staffCount} onChange={set("staffCount")}
                       options={["1–10","11–25","26–50","51–100","100–250","250+"]} placeholder="Select staff count" />
                     <FieldSelect label="Office Location" id="officeLocation" value={form.officeLocation} onChange={set("officeLocation")}

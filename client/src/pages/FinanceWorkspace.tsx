@@ -89,9 +89,9 @@ const FINANCE_TYPE_OPTIONS = [
 ];
 const TERM_FORM_OPTIONS = ["24 months", "36 months", "48 months", "60 months"];
 
-function FinanceInput({ label, value, onChange, type = "text", placeholder = "", required = false, testId = "" }: {
+function FinanceInput({ label, value, onChange, type = "text", placeholder = "", required = false, testId = "", autoComplete }: {
   label: string; value: string; onChange: (v: string) => void;
-  type?: string; placeholder?: string; required?: boolean; testId?: string;
+  type?: string; placeholder?: string; required?: boolean; testId?: string; autoComplete?: string;
 }) {
   return (
     <div>
@@ -104,6 +104,7 @@ function FinanceInput({ label, value, onChange, type = "text", placeholder = "",
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         data-testid={testId}
+        autoComplete={autoComplete}
         className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(201,168,76,0.2)] rounded-md px-4 py-3 text-white placeholder:text-white/25 focus:outline-none focus:border-[rgba(201,168,76,0.5)] text-base"
         style={{ minHeight: "48px" }}
       />
@@ -455,8 +456,8 @@ export default function FinanceWorkspace() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <FinanceInput label="Full Name" value={form.name} onChange={setField("name")} required placeholder="Jane Smith" testId="input-finance-name" />
                 <FinanceInput label="Company" value={form.company} onChange={setField("company")} required placeholder="Acme Pty Ltd" testId="input-finance-company" />
-                <FinanceInput label="Email Address" value={form.email} onChange={setField("email")} type="email" required placeholder="jane@company.com.au" testId="input-finance-email" />
-                <FinanceInput label="Phone Number" value={form.phone} onChange={setField("phone")} type="tel" required placeholder="04XX XXX XXX" testId="input-finance-phone" />
+                <FinanceInput label="Email Address" value={form.email} onChange={setField("email")} type="email" required placeholder="jane@company.com.au" testId="input-finance-email" autoComplete="email" />
+                <FinanceInput label="Phone Number" value={form.phone} onChange={setField("phone")} type="tel" required placeholder="04XX XXX XXX" testId="input-finance-phone" autoComplete="tel" />
               </div>
 
               <div>

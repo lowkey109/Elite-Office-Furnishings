@@ -161,12 +161,12 @@ export default function SubmitDeal() {
                   </div>
                   <div>
                     <label className="block text-xs text-white/40 uppercase tracking-wide mb-2">Contact Email *</label>
-                    <Input {...form.register("contactEmail")} type="email" data-testid="input-deal-contact-email" placeholder="client@company.com" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-none" />
+                    <Input {...form.register("contactEmail")} type="email" autoComplete="email" data-testid="input-deal-contact-email" placeholder="client@company.com" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-none" />
                     {form.formState.errors.contactEmail && <p className="text-red-400 text-xs mt-1">{form.formState.errors.contactEmail.message}</p>}
                   </div>
                   <div>
                     <label className="block text-xs text-white/40 uppercase tracking-wide mb-2">Contact Phone *</label>
-                    <Input {...form.register("contactPhone")} type="tel" data-testid="input-deal-contact-phone" placeholder="04XX XXX XXX" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-none" />
+                    <Input {...form.register("contactPhone")} type="tel" autoComplete="tel" data-testid="input-deal-contact-phone" placeholder="04XX XXX XXX" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-none" />
                     {form.formState.errors.contactPhone && <p className="text-red-400 text-xs mt-1">{form.formState.errors.contactPhone.message}</p>}
                   </div>
                 </div>
@@ -234,7 +234,7 @@ export default function SubmitDeal() {
                   </div>
                   <div>
                     <label className="block text-xs text-white/40 uppercase tracking-wide mb-2">Your Email</label>
-                    <Input {...form.register("partnerEmail")} type="email" data-testid="input-deal-partner-email" placeholder="your@email.com" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-none" />
+                    <Input {...form.register("partnerEmail")} type="email" autoComplete="email" data-testid="input-deal-partner-email" placeholder="your@email.com" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-none" />
                   </div>
                 </div>
               </div>

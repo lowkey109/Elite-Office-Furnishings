@@ -299,12 +299,12 @@ export default function Partners() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs text-white/40 uppercase tracking-wide mb-2">Email</label>
-                    <Input {...form.register("email")} type="email" data-testid="input-partner-email" placeholder="work@company.com" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-none" />
+                    <Input {...form.register("email")} type="email" autoComplete="email" data-testid="input-partner-email" placeholder="work@company.com" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-none" />
                     {form.formState.errors.email && <p className="text-red-400 text-xs mt-1">{form.formState.errors.email.message}</p>}
                   </div>
                   <div>
                     <label className="block text-xs text-white/40 uppercase tracking-wide mb-2">Phone</label>
-                    <Input {...form.register("phone")} type="tel" data-testid="input-partner-phone" placeholder="04XX XXX XXX" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-none" />
+                    <Input {...form.register("phone")} type="tel" autoComplete="tel" data-testid="input-partner-phone" placeholder="04XX XXX XXX" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-none" />
                     {form.formState.errors.phone && <p className="text-red-400 text-xs mt-1">{form.formState.errors.phone.message}</p>}
                   </div>
                 </div>

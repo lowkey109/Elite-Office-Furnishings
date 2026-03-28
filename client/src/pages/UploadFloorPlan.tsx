@@ -1131,11 +1131,11 @@ export default function UploadFloorPlan() {
                   </div>
                   <div>
                     <label className={labelClass}>Email <span className="text-[hsl(43,78%,52%)]">*</span></label>
-                    <input data-testid="input-email" type="email" className={inputClass} placeholder="jane@company.com" value={email} onChange={e => setEmail(e.target.value)} style={{ fontSize: "16px" }} />
+                    <input data-testid="input-email" type="email" autoComplete="email" className={inputClass} placeholder="jane@company.com" value={email} onChange={e => setEmail(e.target.value)} style={{ fontSize: "16px" }} />
                   </div>
                   <div>
                     <label className={labelClass}>Phone <span className="text-[hsl(43,78%,52%)]">*</span></label>
-                    <input data-testid="input-phone" type="tel" className={inputClass} placeholder="0400 000 000" value={phone} onChange={e => setPhone(e.target.value)} style={{ fontSize: "16px" }} />
+                    <input data-testid="input-phone" type="tel" autoComplete="tel" className={inputClass} placeholder="0400 000 000" value={phone} onChange={e => setPhone(e.target.value)} style={{ fontSize: "16px" }} />
                   </div>
                   <div className="sm:col-span-2">
                     <label className={labelClass}>City / Location</label>

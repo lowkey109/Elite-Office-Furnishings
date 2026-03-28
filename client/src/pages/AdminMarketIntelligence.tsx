@@ -59,8 +59,8 @@ export default function AdminMarketIntelligence() {
             <p className="text-white/40 text-sm mt-1">Market Intelligence</p>
           </div>
           <div className="space-y-3">
-            <Input value={authEmail} onChange={e => setAuthEmail(e.target.value)} placeholder="Admin email" type="email" className="bg-white/5 border-white/10 text-white placeholder:text-white/30" />
-            <Input value={authPw} onChange={e => setAuthPw(e.target.value)} placeholder="Password" type="password" className="bg-white/5 border-white/10 text-white placeholder:text-white/30" onKeyDown={e => e.key === "Enter" && handleLogin()} />
+            <Input value={authEmail} onChange={e => setAuthEmail(e.target.value)} placeholder="Admin email" type="email" autoComplete="email" className="bg-white/5 border-white/10 text-white placeholder:text-white/30" />
+            <Input value={authPw} onChange={e => setAuthPw(e.target.value)} placeholder="Password" type="password" autoComplete="current-password" className="bg-white/5 border-white/10 text-white placeholder:text-white/30" onKeyDown={e => e.key === "Enter" && handleLogin()} />
             {authErr && <p className="text-red-400 text-xs">Invalid credentials</p>}
             <button onClick={handleLogin} className="w-full bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[#0f0f13] font-semibold py-2 rounded-lg transition-colors">Sign In</button>
           </div>

@@ -76,6 +76,7 @@ export function AdminAuthGate({ children }: Props) {
               data-testid="input-admin-email"
               className="bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-none h-11 focus-visible:ring-0 focus-visible:border-white/30"
               required
+              autoComplete="email"
             />
             <Input
               type="password"
@@ -86,6 +87,7 @@ export function AdminAuthGate({ children }: Props) {
               className="bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-none h-11 focus-visible:ring-0 focus-visible:border-white/30"
               required
               autoFocus
+              autoComplete="current-password"
             />
             {error && (
               <p className="text-red-400/80 text-xs py-1" data-testid="text-admin-error">
