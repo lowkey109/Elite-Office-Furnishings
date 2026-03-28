@@ -18,6 +18,24 @@ const httpServer = createServer(app);
 
 app.set("trust proxy", 1);
 
+// ── Canonical domain redirect (301) ──────────────────────────────────────────
+// Keeps all traffic on www.thecorporatedesk.com.au for SEO consolidation.
+// Covers: thecorporatedesk.au, www.thecorporatedesk.au, thecorporatedesk.com.au
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const host = (req.headers.host ?? "").toLowerCase().replace(/:\d+$/, "");
+  const CANONICAL = "www.thecorporatedesk.com.au";
+  const REDIRECT_HOSTS = [
+    "thecorporatedesk.au",
+    "www.thecorporatedesk.au",
+    "thecorporatedesk.com.au",
+  ];
+  if (REDIRECT_HOSTS.includes(host)) {
+    const target = `https://${CANONICAL}${req.originalUrl}`;
+    return res.redirect(301, target);
+  }
+  next();
+});
+
 // ── Session middleware (server-side admin auth) ───────────────────────────────
 app.use(session({
   store: new PgSession({
@@ -46,6 +64,8 @@ declare module "http" {
 const WORDPRESS_ORIGINS = [
   "https://thecorporatedesk.com.au",
   "https://www.thecorporatedesk.com.au",
+  "https://thecorporatedesk.au",
+  "https://www.thecorporatedesk.au",
 ];
 
 app.use((req, res, next) => {
