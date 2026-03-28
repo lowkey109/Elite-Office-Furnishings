@@ -1,9 +1,9 @@
-import { useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/Layout";
 import { ArrowRight, CheckCircle2, Award, Shield, Globe, Zap } from "lucide-react";
+import { useSEO, buildBreadcrumbSchema } from "@/hooks/useSEO";
 
 const values = [
   {
@@ -37,13 +37,13 @@ const milestones = [
 ];
 
 export default function About() {
-  useEffect(() => {
-    document.title = "About Us — Australian-Owned Commercial Furniture | The Corporate Desk";
-    const meta = document.querySelector('meta[name="description"]') || document.createElement("meta");
-    meta.setAttribute("name", "description");
-    meta.setAttribute("content", "The Corporate Desk is an Australian-owned commercial office furniture supplier. ISO 9001 & ISO 14001 certified, 6-year warranty, serving Brisbane, Sydney, Melbourne and nationally.");
-    if (!meta.parentNode) document.head.appendChild(meta);
-  }, []);
+  useSEO({
+    title: "About Us — Australian-Owned Commercial Furniture | The Corporate Desk",
+    description: "The Corporate Desk is an Australian-owned B2B commercial office furniture supplier. ISO 9001 & ISO 14001 certified. 6-year warranty on all products. Serving Brisbane, Sydney, Melbourne and businesses nationwide.",
+    canonical: "/about",
+    keywords: "about The Corporate Desk, Australian office furniture supplier, ISO 9001 certified office furniture, commercial furniture company Australia",
+    schema: buildBreadcrumbSchema([{ name: "Home", url: "/" }, { name: "About Us", url: "/about" }]),
+  });
 
   return (
     <Layout>

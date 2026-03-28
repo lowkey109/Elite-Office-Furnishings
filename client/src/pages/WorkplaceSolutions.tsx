@@ -1,9 +1,9 @@
-import { useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/Layout";
 import { ArrowRight, CheckCircle2, FileText, Calculator, Phone, Zap } from "lucide-react";
+import { useSEO, buildBreadcrumbSchema } from "@/hooks/useSEO";
 
 const solutions = [
   {
@@ -51,13 +51,13 @@ const processSteps = [
 ];
 
 export default function WorkplaceSolutions() {
-  useEffect(() => {
-    document.title = "Workplace Solutions — Office Fitout & Strategy Services | The Corporate Desk";
-    const meta = document.querySelector('meta[name="description"]') || document.createElement("meta");
-    meta.setAttribute("name", "description");
-    meta.setAttribute("content", "Free office layout plans, custom quotes, workplace strategy consultations, and complete fitout management. Premium commercial office solutions across Australia.");
-    if (!meta.parentNode) document.head.appendChild(meta);
-  }, []);
+  useSEO({
+    title: "Workplace Solutions — Office Fitout & Strategy Services | The Corporate Desk",
+    description: "End-to-end commercial office fitout and workplace strategy services. Free space planning, 3D design, custom quotes and complete project management. Serving Australian businesses nationwide.",
+    canonical: "/workplace-solutions",
+    keywords: "office fitout services Australia, workplace strategy, office space planning, commercial fitout management, office design consultation",
+    schema: buildBreadcrumbSchema([{ name: "Home", url: "/" }, { name: "Workplace Solutions", url: "/workplace-solutions" }]),
+  });
 
   return (
     <Layout>

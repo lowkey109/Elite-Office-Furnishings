@@ -1,30 +1,10 @@
-import { useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/Layout";
 import { ArrowRight, CheckCircle2, Star, Phone, Award, Shield, Truck, Users, Monitor, Sparkles, Box, BookOpen, Clock } from "lucide-react";
 import { allPosts } from "@/data/blog/index";
-
-function useSEO(title: string, description: string, schema?: object) {
-  useEffect(() => {
-    document.title = title;
-    let meta = document.querySelector('meta[name="description"]');
-    if (!meta) { meta = document.createElement("meta"); meta.setAttribute("name", "description"); document.head.appendChild(meta); }
-    meta.setAttribute("content", description);
-    let og = document.querySelector('meta[property="og:title"]');
-    if (!og) { og = document.createElement("meta"); og.setAttribute("property", "og:title"); document.head.appendChild(og); }
-    og.setAttribute("content", title);
-    let ogDesc = document.querySelector('meta[property="og:description"]');
-    if (!ogDesc) { ogDesc = document.createElement("meta"); ogDesc.setAttribute("property", "og:description"); document.head.appendChild(ogDesc); }
-    ogDesc.setAttribute("content", description);
-    if (schema) {
-      let script = document.querySelector('script[data-schema="tcd"]');
-      if (!script) { script = document.createElement("script"); script.setAttribute("type", "application/ld+json"); script.setAttribute("data-schema", "tcd"); document.head.appendChild(script); }
-      script.textContent = JSON.stringify(schema);
-    }
-  }, [title, description]);
-}
+import { useSEO, buildBreadcrumbSchema } from "@/hooks/useSEO";
 
 const productCategories = [
   {
@@ -111,52 +91,13 @@ const testimonials = [
 ];
 
 export default function Home() {
-  useSEO(
-    "Premium Commercial Office Furniture | The Corporate Desk Australia",
-    "Australia's most exclusive commercial office furniture supplier. ISO 9001 certified, 6-year warranty. Executive desks, boardroom tables, reception fitouts. Projects $30K–$300K+.",
-    {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "Organization",
-          "name": "The Corporate Desk",
-          "url": "https://thecorporatedesk.com.au",
-          "logo": "https://thecorporatedesk.com.au/logo.png",
-          "contactPoint": {
-            "@type": "ContactPoint",
-            "telephone": "1300 977 607",
-            "contactType": "sales",
-            "areaServed": "AU",
-          },
-          "sameAs": [
-            "https://facebook.com/thecorporatedesk.com.au",
-            "https://www.instagram.com/thecorporatedesk.au/",
-          ],
-        },
-        {
-          "@type": "LocalBusiness",
-          "name": "The Corporate Desk",
-          "image": "https://thecorporatedesk.com.au/images/hero-bg.jpg",
-          "telephone": "1300 977 607",
-          "email": "service@thecorporatedesk.com.au",
-          "address": {
-            "@type": "PostalAddress",
-            "streetAddress": "10 Primrose Street",
-            "addressLocality": "Bowen Hills",
-            "addressRegion": "QLD",
-            "postalCode": "4006",
-            "addressCountry": "AU",
-          },
-          "openingHoursSpecification": {
-            "@type": "OpeningHoursSpecification",
-            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-            "opens": "09:00",
-            "closes": "17:00",
-          },
-        },
-      ],
-    }
-  );
+  useSEO({
+    title: "Premium Commercial Office Furniture | The Corporate Desk Australia",
+    description: "Australia's leading B2B commercial office furniture supplier. ISO 9001 certified, 6-year warranty. Executive desks, boardroom tables, sit-stand workstations & complete office fitouts. Serving Brisbane, Sydney, Melbourne & nationwide.",
+    canonical: "/",
+    keywords: "office furniture Australia, commercial office furniture, executive desk, boardroom table, office fitout Brisbane Sydney Melbourne, sit stand desk, B2B office furniture",
+    schema: buildBreadcrumbSchema([{ name: "Home", url: "/" }]),
+  });
 
   return (
     <Layout>

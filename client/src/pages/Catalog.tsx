@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Search, X, Tag, ArrowRight, ChevronRight } from "lucide-react";
 import { Layout } from "@/components/Layout";
+import { useSEO, buildBreadcrumbSchema } from "@/hooks/useSEO";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 interface SupplierProduct {
@@ -166,6 +167,14 @@ function SkeletonCard() {
 
 // ─── Main Catalog ──────────────────────────────────────────────────────────
 export default function Catalog() {
+  useSEO({
+    title: "Commercial Office Furniture Catalogue — Desks, Chairs, Storage | The Corporate Desk",
+    description: "Browse Australia's most extensive commercial office furniture catalogue. Executive desks, boardroom tables, sit-stand workstations, office chairs, reception desks, storage and more. ISO 9001 certified. 6-year warranty.",
+    canonical: "/catalog",
+    keywords: "commercial office furniture catalogue, executive desks Australia, office chairs commercial, boardroom tables, sit stand desks, reception desks, office storage",
+    schema: buildBreadcrumbSchema([{ name: "Home", url: "/" }, { name: "Catalogue", url: "/catalog" }]),
+  });
+
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [activeSeries, setActiveSeries] = useState<string>("all");
   const [search, setSearch] = useState("");

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSEO, buildBreadcrumbSchema } from "@/hooks/useSEO";
 import { Link } from "wouter";
 import { useNexoraSignal } from "@/hooks/useNexoraSignal";
 import { Button } from "@/components/ui/button";
@@ -124,10 +125,15 @@ export default function FinanceWorkspace() {
     return (v: string) => setForm(f => ({ ...f, [key]: v }));
   }
 
+  useSEO({
+    title: "Finance Your Workspace — Office Furniture Finance | The Corporate Desk",
+    description: "Spread the cost of your commercial office fitout with flexible business finance options. Preserve cash flow, potential tax benefits, and fast approval for Australian businesses.",
+    canonical: "/finance-your-workspace",
+    keywords: "office furniture finance Australia, commercial fitout finance, office furniture lease, business furniture loan, fitout payment plans",
+    schema: buildBreadcrumbSchema([{ name: "Home", url: "/" }, { name: "Finance Your Workspace", url: "/finance-your-workspace" }]),
+  });
+
   useEffect(() => {
-    document.title = "Finance Your Workspace — Office Furniture Finance | The Corporate Desk";
-    const meta = document.querySelector('meta[name="description"]');
-    if (meta) meta.setAttribute("content", "Spread the cost of your commercial office fitout with flexible business finance. Preserve cash flow, possible tax benefits, fast approval.");
     emit("FINANCE_VIEW", { context: "finance-workspace" });
 
     const params = new URLSearchParams(window.location.search);

@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/Layout";
 import { ArrowRight, Users, MapPin, Clock, TrendingUp, Building2, ChevronRight } from "lucide-react";
+import { useSEO, buildBreadcrumbSchema } from "@/hooks/useSEO";
 
 type Industry = "All" | "Legal" | "Finance" | "Technology" | "Healthcare" | "Property" | "Government";
 
@@ -145,11 +146,13 @@ export default function CaseStudies() {
   const [filter, setFilter] = useState<Industry>("All");
   const [expanded, setExpanded] = useState<number | null>(null);
 
-  useEffect(() => {
-    document.title = "Case Studies — Commercial Office Fitout Projects | The Corporate Desk";
-    const meta = document.querySelector('meta[name="description"]');
-    if (meta) meta.setAttribute("content", "Real results from real businesses. See how The Corporate Desk has transformed law firms, tech companies, healthcare providers and more across Australia.");
-  }, []);
+  useSEO({
+    title: "Case Studies — Commercial Office Fitout Projects | The Corporate Desk",
+    description: "Real fitout results from real businesses. See how The Corporate Desk has transformed law firms, tech companies, healthcare providers and corporate offices across Australia.",
+    canonical: "/case-studies",
+    keywords: "office fitout case studies Australia, commercial furniture projects, law firm fitout, tech company office, corporate fitout results",
+    schema: buildBreadcrumbSchema([{ name: "Home", url: "/" }, { name: "Case Studies", url: "/case-studies" }]),
+  });
 
   const filtered = filter === "All" ? CASE_STUDIES : CASE_STUDIES.filter(cs => cs.industry === filter);
 

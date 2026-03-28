@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
+import { useSEO, buildBreadcrumbSchema } from "@/hooks/useSEO";
 import { Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/Layout";
@@ -146,9 +147,13 @@ export default function Blog() {
   const [category, setCategory] = useState("all");
   const [page, setPage] = useState(1);
 
-  useEffect(() => {
-    document.title = "Office Furniture Blog — Expert Guides & Insights | The Corporate Desk";
-  }, []);
+  useSEO({
+    title: "Office Furniture Blog — Expert Guides & Insights | The Corporate Desk",
+    description: "Expert buying guides, fitout planning tips, ergonomics advice and office design trends for Australian businesses. 200+ articles from The Corporate Desk's commercial furniture specialists.",
+    canonical: "/blog",
+    keywords: "office furniture buying guide, office fitout guide Australia, office design tips, ergonomics office, commercial furniture advice",
+    schema: buildBreadcrumbSchema([{ name: "Home", url: "/" }, { name: "Blog", url: "/blog" }]),
+  });
 
   const filtered = useMemo(() => {
     let posts = allPosts;

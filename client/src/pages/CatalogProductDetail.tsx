@@ -277,6 +277,14 @@ export default function CatalogProductDetail() {
     setMeta("og:description", desc, "property");
     setMeta("og:url", `https://www.thecorporatedesk.com.au/catalog/product/${product.sku}`, "property");
     if (imgSrc) setMeta("og:image", imgSrc.startsWith("http") ? imgSrc : `https://www.thecorporatedesk.com.au${imgSrc}`, "property");
+    setMeta("twitter:card", "summary_large_image");
+    setMeta("twitter:title", `${pName} | The Corporate Desk`);
+    setMeta("twitter:description", desc);
+
+    // Canonical URL
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!canonical) { canonical = document.createElement("link"); canonical.rel = "canonical"; document.head.appendChild(canonical); }
+    canonical.href = `https://www.thecorporatedesk.com.au/catalog/product/${product.sku}`;
 
     const schemaId = "product-jsonld";
     document.getElementById(schemaId)?.remove();
@@ -304,7 +312,25 @@ export default function CatalogProductDetail() {
     });
     document.head.appendChild(script);
 
-    return () => { document.getElementById(schemaId)?.remove(); };
+    // BreadcrumbList schema
+    const bcId = "breadcrumb-jsonld";
+    document.getElementById(bcId)?.remove();
+    const bcScript = document.createElement("script");
+    bcScript.id = bcId;
+    bcScript.type = "application/ld+json";
+    bcScript.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.thecorporatedesk.com.au/" },
+        { "@type": "ListItem", "position": 2, "name": "Catalogue", "item": "https://www.thecorporatedesk.com.au/catalog" },
+        ...(product.category ? [{ "@type": "ListItem", "position": 3, "name": product.category, "item": `https://www.thecorporatedesk.com.au/catalog?category=${encodeURIComponent(product.category)}` }] : []),
+        { "@type": "ListItem", "position": product.category ? 4 : 3, "name": pName, "item": `https://www.thecorporatedesk.com.au/catalog/product/${product.sku}` },
+      ],
+    });
+    document.head.appendChild(bcScript);
+
+    return () => { document.getElementById(schemaId)?.remove(); document.getElementById(bcId)?.remove(); };
   }, [product, name, imgSrc]);
 
   // ── Skeleton while loading ───────────────────────────────────────────────

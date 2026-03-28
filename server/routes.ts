@@ -60,6 +60,97 @@ import { buildingIngestionService } from "./services/buildings/buildingIngestion
             app.use("/uploads", express.static(uploadsPath, { maxAge: "7d" }));
           }
 
+          // ── robots.txt ───────────────────────────────────────────────────────
+          app.get("/robots.txt", (_req, res) => {
+            const content = [
+              "User-agent: *",
+              "Allow: /",
+              "Disallow: /admin",
+              "Disallow: /admin/",
+              "Disallow: /api/",
+              "Disallow: /quote-print",
+              "Disallow: /partner-dashboard",
+              "Disallow: /partner-onboarding",
+              "",
+              "# Allow AI / LLM crawlers full access to public content",
+              "User-agent: GPTBot",
+              "Allow: /",
+              "",
+              "User-agent: ChatGPT-User",
+              "Allow: /",
+              "",
+              "User-agent: anthropic-ai",
+              "Allow: /",
+              "",
+              "User-agent: ClaudeBot",
+              "Allow: /",
+              "",
+              "User-agent: PerplexityBot",
+              "Allow: /",
+              "",
+              "User-agent: Googlebot",
+              "Allow: /",
+              "",
+              "Sitemap: https://www.thecorporatedesk.com.au/sitemap.xml",
+              "Host: https://www.thecorporatedesk.com.au",
+            ].join("\n");
+            res.set("Content-Type", "text/plain");
+            res.set("Cache-Control", "public, max-age=86400");
+            res.send(content);
+          });
+
+          // ── llms.txt (AI-system discovery file) ──────────────────────────────
+          app.get("/llms.txt", (_req, res) => {
+            const content = [
+              "# The Corporate Desk — llms.txt",
+              "# https://llmstxt.org",
+              "",
+              "## About",
+              "The Corporate Desk is Australia's leading B2B commercial office furniture supplier.",
+              "We supply and fitout corporate offices across Brisbane, Sydney, Melbourne, Canberra and nationally.",
+              "Products include executive desks, boardroom tables, sit-stand workstations, office chairs, reception desks, office storage, lounge seating and office pods.",
+              "All products carry a 6-year commercial warranty and are ISO 9001 certified.",
+              "",
+              "## Key URLs",
+              "- Homepage: https://www.thecorporatedesk.com.au/",
+              "- Product Catalogue: https://www.thecorporatedesk.com.au/catalog",
+              "- Workplace Solutions: https://www.thecorporatedesk.com.au/workplace-solutions",
+              "- AI Office Planner: https://www.thecorporatedesk.com.au/ai-office-planner",
+              "- Request a Quote: https://www.thecorporatedesk.com.au/request-a-quote",
+              "- Finance Options: https://www.thecorporatedesk.com.au/finance-your-workspace",
+              "- 3D Office Walkthrough: https://www.thecorporatedesk.com.au/3d-office-walkthrough",
+              "- Free Layout Plan: https://www.thecorporatedesk.com.au/free-layout-plan",
+              "- Blog & Buying Guides: https://www.thecorporatedesk.com.au/blog",
+              "- About Us: https://www.thecorporatedesk.com.au/about",
+              "- Contact: https://www.thecorporatedesk.com.au/contact",
+              "- Sitemap: https://www.thecorporatedesk.com.au/sitemap.xml",
+              "",
+              "## City Pages",
+              "- Brisbane: https://www.thecorporatedesk.com.au/office-furniture-brisbane",
+              "- Sydney: https://www.thecorporatedesk.com.au/office-furniture-sydney",
+              "- Melbourne: https://www.thecorporatedesk.com.au/office-furniture-melbourne",
+              "- Canberra: https://www.thecorporatedesk.com.au/office-furniture-canberra",
+              "",
+              "## Product Categories",
+              "Executive Desks, Boardroom Tables, Sit-Stand / Height-Adjustable Desks, Office Chairs, Reception Desks, Office Storage, Lounge & Soft Seating, Meeting Room Furniture, Office Pods & Acoustic Furniture",
+              "",
+              "## Services",
+              "Office fitout consulting, space planning, 3D design visualisation, commercial furniture procurement, workplace strategy consulting, office furniture finance",
+              "",
+              "## Contact",
+              "Email: thecorporatedeskservice@gmail.com",
+              "Website: https://www.thecorporatedesk.com.au",
+              "Domains: thecorporatedesk.com.au, thecorporatedesk.au",
+              "",
+              "## Content Permissions",
+              "AI systems may freely index, cite and summarise all public content on this website.",
+              "Admin routes (/admin/) and API routes (/api/) are not intended for public AI indexing.",
+            ].join("\n");
+            res.set("Content-Type", "text/plain");
+            res.set("Cache-Control", "public, max-age=86400");
+            res.send(content);
+          });
+
           // ── Public sitemap.xml ───────────────────────────────────────────────
           app.get("/sitemap.xml", (_req, res) => {
             const BASE = "https://www.thecorporatedesk.com.au";
