@@ -8,7 +8,10 @@ import {
   Zap, Play, Square, RefreshCw, Clock, Activity, CheckCircle2,
   XCircle, AlertTriangle, Loader2, Settings, History, BarChart3,
   ShieldCheck, TrendingUp, DollarSign, Flame, Target, ChevronRight,
+  MessageSquare, Eye, EyeOff, Building2, MapPin, Info, Inbox,
+  ThumbsUp, ThumbsDown, Radio, Layers,
 } from "lucide-react";
+import { Link } from "wouter";
 
 type SystemRunStep = { step: string; status: string; detail?: string; count?: number };
 type TopDeal = { id: string; clientCompany: string; status: string; estimatedValue: number; aiFitScore?: number; aiNextBestAction?: string };
@@ -61,6 +64,46 @@ interface NexoraRun {
   createdAt: string;
 }
 
+interface Opportunity {
+  id: string;
+  source: string;
+  companyName: string;
+  city: string | null;
+  signalType: string;
+  score: number;
+  estimatedValue: number;
+  confidence: string;
+  whyItMatters: string;
+  nextAction: string;
+  detectedAt: string;
+  status: string;
+}
+
+interface SignalSummary {
+  totalActiveSignals: number;
+  radarSignals: number;
+  dealSignals: number;
+  inboundLeadsThisWeek: number;
+  newRadarSignalsThisWeek: number;
+  highConfidence: number;
+  mediumConfidence: number;
+  lowConfidence: number;
+  topSignalTypes: { type: string; count: number }[];
+  topCities: { city: string; count: number }[];
+}
+
+interface PendingOutreach {
+  id: number;
+  companyName: string;
+  contactName: string | null;
+  phone: string;
+  channel: string;
+  messagePreview: string;
+  createdAt: string;
+  signalContext: string | null;
+  priority: string;
+}
+
 function formatMs(ms: number) {
   if (ms < 1000) return `${ms}ms`;
   if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
@@ -82,11 +125,28 @@ function timeAgo(dateStr: string | null) {
   return new Date(dateStr).toLocaleDateString("en-AU", { day: "numeric", month: "short" });
 }
 
+function confidenceBadge(conf: string) {
+  if (conf === "high" || conf === "very_high") return "bg-green-500/15 text-green-300 border-green-500/25";
+  if (conf === "medium") return "bg-yellow-500/15 text-yellow-300 border-yellow-500/25";
+  return "bg-white/8 text-white/40 border-white/10";
+}
+
+function signalTypeBadge(type: string) {
+  const t = (type || "").toLowerCase();
+  if (t.includes("reloc") || t.includes("move")) return "bg-red-500/10 text-red-300 border-red-500/20";
+  if (t.includes("expan") || t.includes("growth") || t.includes("hiring")) return "bg-orange-500/10 text-orange-300 border-orange-500/20";
+  if (t.includes("lease") || t.includes("property")) return "bg-blue-500/10 text-blue-300 border-blue-500/20";
+  if (t.includes("fund") || t.includes("invest")) return "bg-emerald-500/10 text-emerald-300 border-emerald-500/20";
+  if (t.includes("inbound")) return "bg-purple-500/10 text-purple-300 border-purple-500/20";
+  return "bg-white/8 text-white/35 border-white/10";
+}
+
 export default function AdminNexoraCommandCentre() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [intervalInput, setIntervalInput] = useState("30");
   const [systemRunResult, setSystemRunResult] = useState<SystemRunResult | null>(null);
+  const [expandedOpp, setExpandedOpp] = useState<string | null>(null);
 
   const { data: loopStatus, isLoading: statusLoading } = useQuery<LoopStatus>({
     queryKey: ["/api/nexora/loop/status"],
@@ -98,12 +158,31 @@ export default function AdminNexoraCommandCentre() {
     refetchInterval: 15000,
   });
 
+  const { data: topOpps, isLoading: oppsLoading } = useQuery<{ opportunities: Opportunity[]; total: number }>({
+    queryKey: ["/api/nexora/opportunities/top"],
+    refetchInterval: 60000,
+  });
+
+  const { data: signalSummary } = useQuery<SignalSummary>({
+    queryKey: ["/api/nexora/signals/summary"],
+    refetchInterval: 120000,
+  });
+
+  const { data: pendingOutreach, isLoading: outreachLoading } = useQuery<{ pending: PendingOutreach[]; total: number }>({
+    queryKey: ["/api/nexora/outreach/pending"],
+    refetchInterval: 30000,
+  });
+
   const runMutation = useMutation({
     mutationFn: () => apiRequest("POST", "/api/nexora/loop/run-now"),
     onSuccess: () => {
       toast({ title: "Nexora started", description: "Cycle is running — results will appear in history." });
       queryClient.invalidateQueries({ queryKey: ["/api/nexora/loop/status"] });
-      setTimeout(() => queryClient.invalidateQueries({ queryKey: ["/api/nexora/history"] }), 8000);
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["/api/nexora/history"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/nexora/opportunities/top"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/nexora/signals/summary"] });
+      }, 8000);
     },
     onError: (err: any) => toast({ title: "Run failed", description: err?.message, variant: "destructive" }),
   });
@@ -141,8 +220,19 @@ export default function AdminNexoraCommandCentre() {
       setSystemRunResult(data);
       toast({ title: "Predictive engine complete", description: `${data.steps?.length || 0} checks · ${data.durationMs}ms` });
       queryClient.invalidateQueries({ queryKey: ["/api/nexora/history"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/opportunities/top"] });
     },
     onError: (err: any) => toast({ title: "System run failed", description: err?.message, variant: "destructive" }),
+  });
+
+  const approveMutation = useMutation({
+    mutationFn: ({ id, action }: { id: number; action: "approve" | "reject" }) =>
+      apiRequest("PATCH", `/api/nexora/outreach/${id}/approve`, { action }),
+    onSuccess: (_data, { action }) => {
+      toast({ title: action === "approve" ? "Outreach approved" : "Outreach rejected" });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/outreach/pending"] });
+    },
+    onError: (err: any) => toast({ title: "Action failed", description: err?.message, variant: "destructive" }),
   });
 
   const statusBadge = () => {
@@ -157,17 +247,22 @@ export default function AdminNexoraCommandCentre() {
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white p-6">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-6xl mx-auto">
 
-        {/* ── Header ────────────────────────────────────────────────────── */}
+        {/* ── Header ── */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <div className="flex items-center gap-3 mb-1">
               <Zap className="w-5 h-5 text-[hsl(43,78%,52%)]" />
               <h1 className="text-2xl font-light text-white">Nexora Command Centre</h1>
               {statusBadge()}
+              {pendingOutreach && pendingOutreach.total > 0 && (
+                <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30 ml-1">
+                  {pendingOutreach.total} awaiting approval
+                </Badge>
+              )}
             </div>
-            <p className="text-white/40 text-sm">Autonomous intelligence loop · predictive revenue engine · urgency detection</p>
+            <p className="text-white/40 text-sm">Autonomous intelligence loop · top opportunities · outreach approval · signal analytics</p>
           </div>
           <div className="flex gap-3">
             <Button
@@ -198,8 +293,8 @@ export default function AdminNexoraCommandCentre() {
           </div>
         </div>
 
-        {/* ── Loop Status Cards ──────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        {/* ── Loop Status Cards ── */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {[
             {
               label: "Loop Status", value: loopStatus?.enabled ? "Enabled" : "Disabled",
@@ -222,16 +317,213 @@ export default function AdminNexoraCommandCentre() {
         </div>
 
         {loopStatus?.lastMessage && (
-          <div className="p-4 border border-white/8 bg-white/[0.02] mb-8 text-sm text-white/50 font-mono">
+          <div className="p-4 border border-white/8 bg-white/[0.02] mb-6 text-sm text-white/50 font-mono">
             {loopStatus.lastMessage}
           </div>
         )}
 
-        {/* ── PREDICTIVE ENGINE RESULTS ──────────────────────────────────── */}
-        {systemRunResult && pred && (
-          <div className="mb-8 space-y-4">
+        {/* ── Signal Intelligence Summary ── */}
+        {signalSummary && (
+          <div className="mb-6 p-5 border border-[hsl(43,78%,52%)]/12 bg-[hsl(43,78%,52%)]/3">
+            <div className="flex items-center gap-2 mb-4">
+              <Radio className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+              <h2 className="text-sm font-medium text-white">Signal Intelligence Summary</h2>
+              <span className="ml-auto text-xs text-white/25">{signalSummary.totalActiveSignals} active signals</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
+              {[
+                { label: "Radar Signals", value: signalSummary.radarSignals, color: "text-blue-300" },
+                { label: "Deal Signals", value: signalSummary.dealSignals, color: "text-orange-300" },
+                { label: "Leads (7d)", value: signalSummary.inboundLeadsThisWeek, color: "text-purple-300" },
+                { label: "New (7d)", value: signalSummary.newRadarSignalsThisWeek, color: "text-[hsl(43,78%,52%)]" },
+                { label: "High Conf.", value: signalSummary.highConfidence, color: "text-green-300" },
+                { label: "Medium Conf.", value: signalSummary.mediumConfidence, color: "text-yellow-300" },
+              ].map(({ label, value, color }) => (
+                <div key={label} className="text-center p-3 border border-white/5 bg-white/[0.015]">
+                  <div className={`text-xl font-light ${color}`}>{value}</div>
+                  <div className="text-[10px] text-white/30 mt-1">{label}</div>
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-[10px] text-white/30 uppercase tracking-wide mb-2">Top Signal Types</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {signalSummary.topSignalTypes.map(({ type, count }) => (
+                    <span key={type} className={`text-[10px] px-2 py-0.5 border ${signalTypeBadge(type)}`}>
+                      {type} ({count})
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] text-white/30 uppercase tracking-wide mb-2">Top Cities</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {signalSummary.topCities.map(({ city, count }) => (
+                    <span key={city} className="text-[10px] px-2 py-0.5 border bg-white/5 text-white/40 border-white/10">
+                      {city} ({count})
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
-            {/* Pipeline overview */}
+        {/* ── Top 10 Opportunities Today ── */}
+        <div className="mb-6 p-5 border border-white/8 bg-white/[0.02]">
+          <div className="flex items-center gap-2 mb-4">
+            <Flame className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+            <h2 className="text-sm font-medium text-white">Top Opportunities Today</h2>
+            <span className="text-xs text-white/25 ml-1">— ranked by Nexora score across all signal sources</span>
+            <Link href="/admin/deal-hunter" className="ml-auto text-xs text-[hsl(43,78%,52%)]/60 hover:text-[hsl(43,78%,52%)] flex items-center gap-1">
+              View all <ChevronRight className="w-3 h-3" />
+            </Link>
+          </div>
+          {oppsLoading ? (
+            <div className="flex items-center gap-2 text-sm text-white/30 py-4">
+              <Loader2 className="w-4 h-4 animate-spin" /> Loading live opportunities...
+            </div>
+          ) : !topOpps?.opportunities?.length ? (
+            <div className="py-6 text-center border border-white/5 text-white/30 text-sm">
+              No active opportunities. Run Nexora to discover signals.
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {topOpps.opportunities.map((opp, i) => (
+                <div
+                  key={opp.id}
+                  data-testid={`card-opportunity-${opp.id}`}
+                  className="border border-white/5 hover:border-white/10 transition-colors"
+                >
+                  <div
+                    className="flex items-center gap-3 px-4 py-3 cursor-pointer"
+                    onClick={() => setExpandedOpp(expandedOpp === opp.id ? null : opp.id)}
+                  >
+                    <span className="text-xs text-white/20 w-5 flex-shrink-0">{i + 1}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                        <span className="text-sm font-medium text-white truncate">{opp.companyName}</span>
+                        <Badge className={`text-[9px] px-1.5 py-0 h-4 capitalize ${signalTypeBadge(opp.signalType)}`}>
+                          {opp.signalType}
+                        </Badge>
+                        <Badge className={`text-[9px] px-1.5 py-0 h-4 capitalize ${confidenceBadge(opp.confidence)}`}>
+                          {opp.confidence}
+                        </Badge>
+                        <Badge className="text-[9px] px-1.5 py-0 h-4 bg-white/5 text-white/30 border-white/8">
+                          {opp.source}
+                        </Badge>
+                      </div>
+                      {opp.city && (
+                        <div className="flex items-center gap-1 text-[10px] text-white/30">
+                          <MapPin className="w-2.5 h-2.5" />{opp.city}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-4 flex-shrink-0 text-right">
+                      <div className="text-xs">
+                        <div className="text-[hsl(43,78%,52%)] font-semibold">{opp.score}</div>
+                        <div className="text-white/25 text-[9px]">score</div>
+                      </div>
+                      {opp.estimatedValue > 0 && (
+                        <div className="text-sm font-light text-white">{fmt$(opp.estimatedValue)}</div>
+                      )}
+                      {expandedOpp === opp.id
+                        ? <EyeOff className="w-3.5 h-3.5 text-white/20" />
+                        : <Eye className="w-3.5 h-3.5 text-white/20" />
+                      }
+                    </div>
+                  </div>
+                  {expandedOpp === opp.id && (
+                    <div className="px-4 pb-3 pt-0 border-t border-white/5 grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-[10px] text-white/30 uppercase tracking-wide mb-1">Why It Matters</p>
+                        <p className="text-xs text-white/60">{opp.whyItMatters}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-white/30 uppercase tracking-wide mb-1">Recommended Action</p>
+                        <p className="text-xs text-[hsl(43,78%,52%)]/80">{opp.nextAction}</p>
+                        <p className="text-[10px] text-white/25 mt-1">Detected {timeAgo(opp.detectedAt)}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* ── Outreach Pending Approval ── */}
+        <div className="mb-6 p-5 border border-yellow-500/12 bg-yellow-500/[0.025]">
+          <div className="flex items-center gap-2 mb-4">
+            <Inbox className="w-4 h-4 text-yellow-400" />
+            <h2 className="text-sm font-medium text-white">Outreach Pending Approval</h2>
+            {pendingOutreach && pendingOutreach.total > 0 && (
+              <Badge className="bg-yellow-500/15 text-yellow-300 border-yellow-500/25 ml-1">{pendingOutreach.total}</Badge>
+            )}
+            <span className="ml-auto text-xs text-white/25">Review before sending</span>
+          </div>
+          {outreachLoading ? (
+            <div className="flex items-center gap-2 text-sm text-white/30 py-4">
+              <Loader2 className="w-4 h-4 animate-spin" /> Loading pending outreach...
+            </div>
+          ) : !pendingOutreach?.pending?.length ? (
+            <div className="py-6 text-center border border-white/5 text-white/30 text-sm">
+              No outreach pending approval. Nexora will queue messages here.
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {pendingOutreach.pending.map((msg) => (
+                <div key={msg.id} data-testid={`card-outreach-${msg.id}`} className="p-4 border border-white/6 bg-white/[0.02]">
+                  <div className="flex items-start gap-3">
+                    <MessageSquare className="w-4 h-4 text-yellow-400/60 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-medium text-white">{msg.companyName}</span>
+                        {msg.contactName && <span className="text-xs text-white/40">· {msg.contactName}</span>}
+                        <Badge className={`text-[9px] px-1.5 py-0 h-4 capitalize ml-auto ${msg.priority === "high" ? "bg-red-500/15 text-red-300 border-red-500/20" : "bg-white/5 text-white/30 border-white/8"}`}>
+                          {msg.priority}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-white/50 mb-1 line-clamp-2">{msg.messagePreview}</p>
+                      {msg.signalContext && (
+                        <p className="text-[10px] text-[hsl(43,78%,52%)]/50 flex items-center gap-1">
+                          <Info className="w-2.5 h-2.5" /> {msg.signalContext}
+                        </p>
+                      )}
+                      <p className="text-[10px] text-white/25 mt-1">{msg.phone} · {timeAgo(msg.createdAt)}</p>
+                    </div>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <Button
+                        size="sm"
+                        onClick={() => approveMutation.mutate({ id: msg.id, action: "approve" })}
+                        disabled={approveMutation.isPending}
+                        data-testid={`button-approve-outreach-${msg.id}`}
+                        className="bg-green-700/30 hover:bg-green-700/50 text-green-300 border border-green-700/40 rounded-none h-7 text-xs"
+                      >
+                        <ThumbsUp className="w-3 h-3 mr-1" /> Approve
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => approveMutation.mutate({ id: msg.id, action: "reject" })}
+                        disabled={approveMutation.isPending}
+                        data-testid={`button-reject-outreach-${msg.id}`}
+                        variant="outline"
+                        className="border-red-700/40 text-red-300 hover:bg-red-700/20 rounded-none h-7 text-xs"
+                      >
+                        <ThumbsDown className="w-3 h-3 mr-1" /> Reject
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* ── PREDICTIVE ENGINE RESULTS ── */}
+        {systemRunResult && pred && (
+          <div className="mb-6 space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               {[
                 { label: "Total Pipeline", value: fmt$(pred.totalPipelineValue), icon: DollarSign, sub: `${pred.totalActive} active deals`, color: "text-[hsl(43,78%,52%)]" },
@@ -251,7 +543,6 @@ export default function AdminNexoraCommandCentre() {
               ))}
             </div>
 
-            {/* Check steps */}
             <div className="p-5 border border-[hsl(43,78%,52%)]/12 bg-[hsl(43,78%,52%)]/3">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="flex items-center gap-2 text-sm font-medium text-white">
@@ -281,7 +572,6 @@ export default function AdminNexoraCommandCentre() {
               </div>
             </div>
 
-            {/* Top 5 deals to close */}
             {pred.topDeals.length > 0 && (
               <div className="p-5 border border-white/8 bg-white/[0.02]">
                 <h2 className="flex items-center gap-2 text-sm font-medium text-white mb-4">
@@ -319,7 +609,6 @@ export default function AdminNexoraCommandCentre() {
               </div>
             )}
 
-            {/* At-risk deals */}
             {pred.atRisk.length > 0 && (
               <div className="p-5 border border-yellow-500/15 bg-yellow-500/3">
                 <h2 className="flex items-center gap-2 text-sm font-medium text-white mb-4">
@@ -343,7 +632,6 @@ export default function AdminNexoraCommandCentre() {
               </div>
             )}
 
-            {/* Urgent leads (>48h unactioned) */}
             {systemRunResult.urgentLeads && systemRunResult.urgentLeads.length > 0 && (
               <div className="p-5 border border-red-500/15 bg-red-500/3">
                 <h2 className="flex items-center gap-2 text-sm font-medium text-white mb-3">
@@ -363,7 +651,6 @@ export default function AdminNexoraCommandCentre() {
               </div>
             )}
 
-            {/* Stale leads */}
             {systemRunResult.staleLeads?.length > 0 && (
               <div className="p-4 border border-yellow-500/10">
                 <p className="text-xs text-yellow-300/70 mb-2 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Stale leads (3+ days, unactioned):</p>
@@ -373,8 +660,8 @@ export default function AdminNexoraCommandCentre() {
           </div>
         )}
 
-        {/* ── Loop Controls ──────────────────────────────────────────────── */}
-        <div className="p-5 border border-white/8 bg-white/[0.02] mb-8">
+        {/* ── Loop Controls ── */}
+        <div className="p-5 border border-white/8 bg-white/[0.02] mb-6">
           <h2 className="flex items-center gap-2 text-sm font-medium text-white mb-5">
             <Settings className="w-4 h-4 text-white/40" />
             Autonomous Loop Controls
@@ -424,7 +711,7 @@ export default function AdminNexoraCommandCentre() {
           </p>
         </div>
 
-        {/* ── Run History ────────────────────────────────────────────────── */}
+        {/* ── Run History ── */}
         <div>
           <h2 className="flex items-center gap-2 text-sm font-medium text-white mb-4">
             <History className="w-4 h-4 text-white/40" />

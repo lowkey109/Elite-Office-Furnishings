@@ -903,6 +903,37 @@ function invalidateCache(key: string): void {
   _cache.delete(key);
 }
 
+// ─── Outreach Channel Recommender ────────────────────────────────────────────
+// Determines the best outreach channel based on signal characteristics.
+// Rules: high-value C-suite leads → email; relocation signals → email;
+// high-growth SMB (< 200 staff) → whatsapp; everything else → email.
+function resolveOutreachChannel(signal: {
+  estimatedProjectValue?: number | null;
+  employeeEstimate?: number | null;
+  signalType?: string | null;
+  relocationProbability?: number | null;
+  probabilityTier?: string | null;
+  industry?: string | null;
+}): { channel: "email" | "whatsapp" | "call"; reason: string } {
+  const value = signal.estimatedProjectValue ?? 0;
+  const employees = signal.employeeEstimate ?? 0;
+  const isRelocation = (signal.relocationProbability ?? 0) >= 60 || signal.signalType === "office_relocation";
+  const isHighValue = value >= 200_000;
+  const isEnterprise = employees >= 200;
+  const tier = signal.probabilityTier ?? "medium";
+
+  if (isHighValue || isEnterprise || isRelocation) {
+    return { channel: "email", reason: isRelocation ? "Relocation signals warrant formal email" : isHighValue ? `High-value opportunity ($${Math.round(value / 1000)}k) — email preferred` : "Enterprise size — email preferred" };
+  }
+  if (tier === "high" && employees > 0 && employees < 200) {
+    return { channel: "whatsapp", reason: "High-confidence SMB — WhatsApp outreach most effective" };
+  }
+  if (tier === "medium" && employees > 0 && employees < 100) {
+    return { channel: "whatsapp", reason: "Mid-tier SMB — WhatsApp for quick engagement" };
+  }
+  return { channel: "email", reason: "Default channel — email for initial contact" };
+}
+
 // ─── Multer file upload setup ─────────────────────────────────────────────────
 const uploadDir = path.join(process.cwd(), "uploads", "planning-requests");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
@@ -1992,6 +2023,205 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
         activeSubmitters: activeSubmitters.map(p => ({ id: p.id, companyName: p.companyName, referralCount: p.referralCount || 0 })),
         recentReferrals: allReferrals.slice(0, 10).map(r => ({ clientCompany: r.clientCompany, estimatedValue: r.estimatedValue, status: r.status, createdAt: r.createdAt })),
       });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Stage 6: Nexora Intelligence Endpoints ──────────────────────────────────
+
+  // Top 10 opportunities today — real DB data, ranked by combined score
+  app.get("/api/nexora/opportunities/top", async (req, res) => {
+    try {
+      const limit = Math.min(Number(req.query.limit) || 10, 50);
+      const { db: ddb } = await import("./db");
+      const { dealHunterSignals, officeMovRadar, leads } = await import("@shared/schema");
+      const { desc: dd, gte: dgte, or, isNotNull, and, ne } = await import("drizzle-orm");
+
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+      const [dealSignals, radarSignals, hotLeads] = await Promise.all([
+        ddb.select().from(dealHunterSignals)
+          .where(and(ne(dealHunterSignals.status, "archived"), dgte(dealHunterSignals.createdAt, thirtyDaysAgo)))
+          .orderBy(dd(dealHunterSignals.nexoraScore))
+          .limit(limit),
+        ddb.select().from(officeMovRadar)
+          .where(and(ne(officeMovRadar.status, "Archived"), dgte(officeMovRadar.dateDetected, thirtyDaysAgo.toISOString().split("T")[0])))
+          .orderBy(dd(officeMovRadar.radarScore))
+          .limit(limit),
+        ddb.select().from(leads)
+          .where(and(dgte(leads.createdAt, thirtyDaysAgo), isNotNull(leads.opportunityScore)))
+          .orderBy(dd(leads.opportunityScore as any))
+          .limit(limit),
+      ]);
+
+      const opportunities = [
+        ...dealSignals.map(d => ({
+          id: `deal-${d.id}`,
+          source: "Deal Signal",
+          companyName: d.companyName,
+          city: d.city,
+          signalType: d.signalType || "expansion",
+          score: d.nexoraScore || 0,
+          estimatedValue: d.estimatedProjectValue ? parseInt(String(d.estimatedProjectValue).replace(/[^0-9]/g, "")) || 0 : 0,
+          confidence: d.confidenceLevel || "medium",
+          whyItMatters: d.whyItMatters || `${d.companyName} showing ${d.signalType || "expansion"} signal`,
+          nextAction: d.recommendedAction || "Review and contact",
+          detectedAt: d.createdAt,
+          status: d.status,
+        })),
+        ...radarSignals.map(r => ({
+          id: `radar-${r.id}`,
+          source: "Radar",
+          companyName: r.companyName,
+          city: r.city,
+          signalType: r.signalType,
+          score: r.radarScore || 0,
+          estimatedValue: r.estimatedProjectValue ? parseInt(String(r.estimatedProjectValue).replace(/[^0-9]/g, "")) || 0 : 0,
+          confidence: r.confidenceLevel || "medium",
+          whyItMatters: `${r.companyName} detected via office radar — ${r.signalType}`,
+          nextAction: "Initiate outreach",
+          detectedAt: r.dateDetected,
+          status: r.status,
+        })),
+        ...hotLeads.map(l => ({
+          id: `lead-${l.id}`,
+          source: "Inbound Lead",
+          companyName: l.company || l.name,
+          city: (l as any).city || null,
+          signalType: l.type || "inbound",
+          score: Number(l.opportunityScore) || 0,
+          estimatedValue: Number((l as any).estimatedValue) || 0,
+          confidence: Number(l.opportunityScore) >= 70 ? "high" : Number(l.opportunityScore) >= 40 ? "medium" : "low",
+          whyItMatters: `Inbound enquiry from ${l.company || l.name} — ${l.type || "general"}`,
+          nextAction: (l as any).followUpDate ? "Follow up due" : "Review and respond",
+          detectedAt: l.createdAt,
+          status: (l as any).status || "new",
+        })),
+      ]
+        .sort((a, b) => b.score - a.score)
+        .slice(0, limit);
+
+      res.json({ opportunities, total: opportunities.length, generatedAt: new Date().toISOString() });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // Signal intelligence summary — counts by type and confidence for admin dashboard
+  app.get("/api/nexora/signals/summary", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { officeMovRadar, dealHunterSignals, leads } = await import("@shared/schema");
+      const { ne } = await import("drizzle-orm");
+      const { sql: rawSql } = await import("drizzle-orm");
+
+      const sevenDaysAgoStr = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+
+      const [radarAll, dealAll, leadsWeekResult, radarWeekResult] = await Promise.all([
+        ddb.select().from(officeMovRadar).where(ne(officeMovRadar.status, "Archived")),
+        ddb.select().from(dealHunterSignals).where(ne(dealHunterSignals.status, "archived")),
+        ddb.execute(rawSql`SELECT COUNT(*) AS cnt FROM leads WHERE created_at >= ${sevenDaysAgoStr}::date`),
+        ddb.execute(rawSql`SELECT COUNT(*) AS cnt FROM office_move_radar WHERE date_detected >= ${sevenDaysAgoStr}`),
+      ]);
+
+      const signalsByType: Record<string, number> = {};
+      const signalsByCity: Record<string, number> = {};
+      let highConfidence = 0, mediumConfidence = 0, lowConfidence = 0;
+
+      for (const s of [...radarAll, ...dealAll]) {
+        const t = (s as any).signalType || "other";
+        signalsByType[t] = (signalsByType[t] || 0) + 1;
+        const c = (s as any).city || "Unknown";
+        signalsByCity[c] = (signalsByCity[c] || 0) + 1;
+        const conf = (s as any).confidenceLevel || "medium";
+        if (conf === "high" || conf === "very_high") highConfidence++;
+        else if (conf === "medium") mediumConfidence++;
+        else lowConfidence++;
+      }
+
+      const topSignalTypes = Object.entries(signalsByType)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 6)
+        .map(([type, count]) => ({ type, count }));
+
+      const topCities = Object.entries(signalsByCity)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([city, count]) => ({ city, count }));
+
+      const leadsWeekCount = Number((leadsWeekResult?.rows?.[0] as any)?.cnt ?? 0);
+      const radarWeekCount = Number((radarWeekResult?.rows?.[0] as any)?.cnt ?? 0);
+
+      res.json({
+        totalActiveSignals: radarAll.length + dealAll.length,
+        radarSignals: radarAll.length,
+        dealSignals: dealAll.length,
+        inboundLeadsThisWeek: leadsWeekCount,
+        newRadarSignalsThisWeek: radarWeekCount,
+        highConfidence,
+        mediumConfidence,
+        lowConfidence,
+        topSignalTypes,
+        topCities,
+        generatedAt: new Date().toISOString(),
+      });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // Outreach pending approval — drafts in outreachMessages awaiting admin sign-off
+  app.get("/api/nexora/outreach/pending", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { outreachMessages } = await import("@shared/schema");
+      const { eq, desc: dd } = await import("drizzle-orm");
+
+      const pending = await ddb.select().from(outreachMessages)
+        .where(eq(outreachMessages.deliveryStatus, "draft"))
+        .orderBy(dd(outreachMessages.createdAt))
+        .limit(50);
+
+      res.json({
+        pending: pending.map(p => ({
+          id: p.id,
+          companyName: p.companyName || "Unknown",
+          contactName: null,
+          phone: p.recipientEmail || "—",
+          channel: p.channel || "email",
+          messagePreview: p.body ? p.body.slice(0, 160) + (p.body.length > 160 ? "..." : "") : "",
+          createdAt: p.createdAt,
+          signalContext: p.campaignKey || null,
+          priority: "normal",
+        })),
+        total: pending.length,
+      });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // Approve/reject pending outreach draft
+  app.patch("/api/nexora/outreach/:id/approve", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { action } = req.body as { action: "approve" | "reject" };
+      if (!["approve", "reject"].includes(action)) return res.status(400).json({ error: "action must be approve or reject" });
+
+      const { db: ddb } = await import("./db");
+      const { outreachMessages } = await import("@shared/schema");
+      const { eq } = await import("drizzle-orm");
+
+      const newStatus = action === "approve" ? "approved" : "suppressed";
+      const suppressionReason = action === "reject" ? "admin_rejected" : null;
+
+      await ddb.update(outreachMessages)
+        .set({
+          deliveryStatus: newStatus,
+          ...(action === "approve" ? { approvedAt: new Date() } : {}),
+          ...(suppressionReason ? { suppressionReason } : {}),
+          updatedAt: new Date(),
+        })
+        .where(eq(outreachMessages.id, id));
+
+      if (action === "approve" && process.env.SAFE_MODE !== "true") {
+        console.log(`[Nexora Outreach] Approved message ${id} — queued for delivery`);
+      }
+
+      res.json({ ok: true, id, action, status: newStatus });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
@@ -6441,6 +6671,62 @@ Rules:
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
+  // Queue outreach draft for admin approval (creates outreachMessages entry)
+  app.post("/api/admin/deal-hunter/signals/:id/queue-outreach", async (req, res) => {
+    try {
+      const signal = await storage.getDealHunterSignal(req.params.id);
+      if (!signal) return res.status(404).json({ error: "Signal not found" });
+      if (!signal.outreachDraft) return res.status(400).json({ error: "No outreach draft on this signal" });
+
+      const { db: ddb } = await import("./db");
+      const { outreachMessages } = await import("@shared/schema");
+      const { eq } = await import("drizzle-orm");
+
+      // Determine recommended channel based on signal characteristics
+      const { channel } = resolveOutreachChannel(signal);
+
+      const threadId = `nexora_${signal.id}_${Date.now()}`;
+      const identityHash = `${signal.companyName}_${signal.id}_nexora_draft`;
+
+      // Check if already queued
+      const existing = await ddb.select({ id: outreachMessages.id })
+        .from(outreachMessages)
+        .where(eq(outreachMessages.campaignKey, `nexora_signal_${signal.id}`))
+        .limit(1);
+
+      if (existing.length > 0) {
+        return res.status(409).json({ error: "Already queued for approval", existingId: existing[0].id });
+      }
+
+      const [created] = await ddb.insert(outreachMessages).values({
+        threadId,
+        direction: "outbound",
+        channel,
+        subject: `Outreach: ${signal.companyName}`,
+        body: signal.outreachDraft,
+        stage: 0,
+        messageType: "intro",
+        deliveryStatus: "draft",
+        companyName: signal.companyName,
+        campaignKey: `nexora_signal_${signal.id}`,
+        recipientEmail: null,
+        identityHash,
+      } as any).returning({ id: outreachMessages.id });
+
+      res.json({ ok: true, outreachMessageId: created?.id, channel });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // Get channel recommendation for a signal
+  app.get("/api/admin/deal-hunter/signals/:id/channel-recommendation", async (req, res) => {
+    try {
+      const signal = await storage.getDealHunterSignal(req.params.id);
+      if (!signal) return res.status(404).json({ error: "Signal not found" });
+      const rec = resolveOutreachChannel(signal);
+      res.json(rec);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
   // ─── WhatsApp Webhook (Twilio) ────────────────────────────────────────────
   app.post("/webhook/whatsapp", async (req, res) => {
     const timestamp = new Date().toISOString();
@@ -7852,15 +8138,17 @@ Rules:
         "Sydney": [-33.8688, 151.2093], "Melbourne": [-37.8136, 144.9631],
         "Brisbane": [-27.4698, 153.0251], "Perth": [-31.9505, 115.8605],
       };
-      const defaultCoords: [number, number] = [-33.8688, 151.2093];
-      const features = meetings.map(m => ({
-        type: "Feature" as const,
-        geometry: { type: "Point" as const, coordinates: [defaultCoords[1] + (Math.random() - 0.5) * 2, defaultCoords[0] + (Math.random() - 0.5) * 2] as [number, number] },
-        properties: {
-          company: m.companyName, city: "Australia", meeting_status: m.bookingStatus,
-          primary_contact: null, opportunityScore: 80,
-        },
-      }));
+      const features = meetings.map(m => {
+        const [lat, lng] = resolveAuCityCoords((m as any).city);
+        return {
+          type: "Feature" as const,
+          geometry: { type: "Point" as const, coordinates: [lng + mapJitter(0.15), lat + mapJitter(0.15)] as [number, number] },
+          properties: {
+            company: m.companyName, city: (m as any).city || "Australia", meeting_status: m.bookingStatus,
+            primary_contact: null, opportunityScore: 80,
+          },
+        };
+      });
       res.json({ type: "FeatureCollection", features, meta: { total: features.length, layer: "meetings-booked" } });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
@@ -7873,17 +8161,19 @@ Rules:
         "Sydney": [-33.8688, 151.2093], "Melbourne": [-37.8136, 144.9631],
         "Brisbane": [-27.4698, 153.0251], "Perth": [-31.9505, 115.8605],
       };
-      const defaultCoords: [number, number] = [-33.8688, 151.2093];
-      const features = due.map(d => ({
-        type: "Feature" as const,
-        geometry: { type: "Point" as const, coordinates: [defaultCoords[1] + (Math.random() - 0.5) * 2, defaultCoords[0] + (Math.random() - 0.5) * 2] as [number, number] },
-        properties: {
-          company: d.thread?.companyName ?? "Unknown", city: "Australia",
-          currentStage: d.thread?.currentStage ?? 0,
-          outreach_status: d.thread?.status ?? "active",
-          opportunityScore: d.thread?.opportunityScore ?? 50,
-        },
-      }));
+      const features = due.map(d => {
+        const [lat, lng] = resolveAuCityCoords((d.thread as any)?.city);
+        return {
+          type: "Feature" as const,
+          geometry: { type: "Point" as const, coordinates: [lng + mapJitter(0.15), lat + mapJitter(0.15)] as [number, number] },
+          properties: {
+            company: d.thread?.companyName ?? "Unknown", city: (d.thread as any)?.city || "Australia",
+            currentStage: d.thread?.currentStage ?? 0,
+            outreach_status: d.thread?.status ?? "active",
+            opportunityScore: d.thread?.opportunityScore ?? 50,
+          },
+        };
+      });
       res.json({ type: "FeatureCollection", features, meta: { total: features.length, layer: "follow-up-due" } });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
@@ -8075,17 +8365,37 @@ Rules:
 
   // ─── MAP PAYMENT LAYERS ───────────────────────────────────────────────────────
 
+  // ── Shared city-to-coord helper for payment/revenue map layers ──────────────
+  function resolveAuCityCoords(city: string | null | undefined): [number, number] {
+    const AU_MAP_COORDS: Record<string, [number, number]> = {
+      "sydney": [-33.8688, 151.2093], "melbourne": [-37.8136, 144.9631],
+      "brisbane": [-27.4698, 153.0251], "perth": [-31.9505, 115.8605],
+      "adelaide": [-34.9285, 138.6007], "canberra": [-35.2802, 149.1310],
+      "gold coast": [-28.0167, 153.4000], "newcastle": [-32.9283, 151.7817],
+      "sunshine coast": [-26.6500, 153.0667], "wollongong": [-34.4278, 150.8931],
+    };
+    const key = (city || "").toLowerCase();
+    for (const [k, v] of Object.entries(AU_MAP_COORDS)) {
+      if (key.includes(k)) return v;
+    }
+    return [-33.8688, 151.2093]; // default Sydney
+  }
+  function mapJitter(scale = 0.04): number { return (Math.random() - 0.5) * scale; }
+
   app.get("/api/map/layers/payments-pending", async (_req, res) => {
     try {
       const { db } = await import("./db");
       const { quotes } = await import("../shared/schema");
       const { eq } = await import("drizzle-orm");
       const pendingQuotes = await db.select().from(quotes).where(eq(quotes.financialStatus, "payment_pending")).limit(200);
-      const features = pendingQuotes.map((q: any) => ({
-        type: "Feature",
-        geometry: { type: "Point", coordinates: [151.2 + Math.random() * 0.2, -33.87 + Math.random() * 0.2] },
-        properties: { company: q.companyName, city: "Sydney", financialStatus: q.financialStatus, amountDue: q.amountDue, quoteId: q.id, recommendedAction: "Send payment reminder" },
-      }));
+      const features = pendingQuotes.map((q: any) => {
+        const [lat, lng] = resolveAuCityCoords(q.city);
+        return {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: [lng + mapJitter(), lat + mapJitter()] },
+          properties: { company: q.companyName, city: q.city || "Unknown", financialStatus: q.financialStatus, amountDue: q.amountDue, quoteId: q.id, recommendedAction: "Send payment reminder" },
+        };
+      });
       res.json({ type: "FeatureCollection", features, meta: { total: features.length, layer: "payments-pending" } });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
@@ -8096,11 +8406,14 @@ Rules:
       const { quotes } = await import("../shared/schema");
       const { eq } = await import("drizzle-orm");
       const depositQuotes = await db.select().from(quotes).where(eq(quotes.financialStatus, "deposit_paid")).limit(200);
-      const features = depositQuotes.map((q: any) => ({
-        type: "Feature",
-        geometry: { type: "Point", coordinates: [151.2 + Math.random() * 0.2, -33.87 + Math.random() * 0.2] },
-        properties: { company: q.companyName, city: "Sydney", financialStatus: q.financialStatus, amountPaid: q.amountPaid, amountDue: q.amountDue, quoteId: q.id, recommendedAction: "Process final payment" },
-      }));
+      const features = depositQuotes.map((q: any) => {
+        const [lat, lng] = resolveAuCityCoords(q.city);
+        return {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: [lng + mapJitter(), lat + mapJitter()] },
+          properties: { company: q.companyName, city: q.city || "Unknown", financialStatus: q.financialStatus, amountPaid: q.amountPaid, amountDue: q.amountDue, quoteId: q.id, recommendedAction: "Process final payment" },
+        };
+      });
       res.json({ type: "FeatureCollection", features, meta: { total: features.length, layer: "deposits-paid" } });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
@@ -8113,11 +8426,15 @@ Rules:
       const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
       const events = await db.select().from(revenueEvents).where(gte(revenueEvents.occurredAt, weekAgo)).limit(200);
       const totalRevenue = events.reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
-      const features = events.map((e: any) => ({
-        type: "Feature",
-        geometry: { type: "Point", coordinates: [151.2 + Math.random() * 0.3, -33.87 + Math.random() * 0.3] },
-        properties: { eventType: e.eventType, amount: e.amount, currency: e.currency, isSimulated: e.isSimulated, occurredAt: e.occurredAt },
-      }));
+      const features = events.map((e: any) => {
+        // Use city from event metadata if available, else default to Sydney area
+        const [lat, lng] = resolveAuCityCoords(e.city || e.metadata?.city);
+        return {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: [lng + mapJitter(0.12), lat + mapJitter(0.12)] },
+          properties: { eventType: e.eventType, amount: e.amount, currency: e.currency, isSimulated: e.isSimulated, occurredAt: e.occurredAt },
+        };
+      });
       res.json({ type: "FeatureCollection", features, meta: { total: features.length, totalRevenue, layer: "revenue-zones" } });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });

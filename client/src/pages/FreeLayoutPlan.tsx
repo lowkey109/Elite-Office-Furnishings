@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,128 @@ import { LeadForm } from "@/components/LeadForm";
 import {
   CheckCircle2, Ruler, Layout as LayoutIcon, Zap, Lock,
   ArrowRight, Calendar, FileText, Building2, Users, Sparkles,
+  TrendingUp, BarChart2, AlertTriangle,
 } from "lucide-react";
+
+// ─── Space Intelligence Calculator ───────────────────────────────────────────
+const SQM_RANGES: Record<string, { min: number; max: number; label: string }> = {
+  "Under 100 sqm": { min: 40, max: 100, label: "40–100 sqm" },
+  "100–200 sqm": { min: 100, max: 200, label: "100–200 sqm" },
+  "200–500 sqm": { min: 200, max: 500, label: "200–500 sqm" },
+  "500–1,000 sqm": { min: 500, max: 1000, label: "500–1,000 sqm" },
+  "1,000+ sqm": { min: 1000, max: 2000, label: "1,000+ sqm" },
+};
+const STAFF_RANGES: Record<string, { min: number; max: number }> = {
+  "1–10": { min: 1, max: 10 },
+  "11–25": { min: 11, max: 25 },
+  "26–50": { min: 26, max: 50 },
+  "51–100": { min: 51, max: 100 },
+  "100–250": { min: 100, max: 250 },
+  "250+": { min: 250, max: 400 },
+};
+
+function SpaceIntelligenceWidget({
+  officeSize,
+  staffCount,
+}: {
+  officeSize: string;
+  staffCount: string;
+}) {
+  const insight = useMemo(() => {
+    const sqmRange = SQM_RANGES[officeSize];
+    const staffRange = STAFF_RANGES[staffCount];
+    if (!sqmRange || !staffRange) return null;
+
+    const avgSqm = (sqmRange.min + sqmRange.max) / 2;
+    const avgStaff = (staffRange.min + staffRange.max) / 2;
+    const sqmPerPerson = avgSqm / avgStaff;
+
+    const desksNeeded = Math.ceil(avgStaff * 0.85);
+    const meetingRoomsNeeded = Math.max(1, Math.ceil(avgStaff / 10));
+    const focusPodsNeeded = Math.max(1, Math.ceil(avgStaff / 15));
+
+    let densityLabel: string;
+    let densityIcon: typeof CheckCircle2;
+    let densityTip: string;
+
+    if (sqmPerPerson < 8) {
+      densityLabel = "High Density";
+      densityIcon = AlertTriangle;
+      densityTip = "Below AU workplace standard (8–12 sqm/person). Acoustic booths & clever zoning essential.";
+    } else if (sqmPerPerson < 12) {
+      densityLabel = "Optimal Density";
+      densityIcon = CheckCircle2;
+      densityTip = "Within the Australian workplace benchmark of 8–12 sqm/person. Great starting point.";
+    } else {
+      densityLabel = "Spacious Layout";
+      densityIcon = TrendingUp;
+      densityTip = "Above benchmark — excellent for premium collaborative zones and executive areas.";
+    }
+
+    return {
+      sqmPerPerson: sqmPerPerson.toFixed(1),
+      desksNeeded,
+      meetingRoomsNeeded,
+      focusPodsNeeded,
+      densityLabel,
+      densityIcon,
+      densityTip,
+    };
+  }, [officeSize, staffCount]);
+
+  if (!insight) {
+    return (
+      <div className="luxury-card p-6 rounded-md border border-white/[0.06]">
+        <div className="flex items-center gap-2 mb-3">
+          <BarChart2 className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+          <span className="text-sm font-semibold text-white">Space Intelligence</span>
+        </div>
+        <p className="text-white/40 text-xs">Select your office size and staff count to see personalised workspace recommendations.</p>
+      </div>
+    );
+  }
+
+  const DensityIcon = insight.densityIcon;
+
+  return (
+    <div className="luxury-card p-6 rounded-md border border-[rgba(201,168,76,0.15)] space-y-4">
+      <div className="flex items-center gap-2">
+        <BarChart2 className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+        <span className="text-sm font-semibold text-white">Space Intelligence</span>
+        <span className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full border ${
+          insight.densityLabel === "High Density" ? "bg-orange-400/10 border-orange-400/20 text-orange-400" :
+          insight.densityLabel === "Optimal Density" ? "bg-green-400/10 border-green-400/20 text-green-400" :
+          "bg-blue-400/10 border-blue-400/20 text-blue-400"
+        }`}>
+          {insight.densityLabel}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        {[
+          { label: "Sqm / Person", value: `${insight.sqmPerPerson} sqm`, highlight: true },
+          { label: "Desks Needed", value: `${insight.desksNeeded} stations`, highlight: false },
+          { label: "Meeting Rooms", value: `${insight.meetingRoomsNeeded} rooms`, highlight: false },
+          { label: "Focus Pods", value: `${insight.focusPodsNeeded} pods`, highlight: false },
+        ].map((item) => (
+          <div key={item.label} className={`rounded-lg p-3 ${item.highlight ? "bg-[rgba(201,168,76,0.08)] border border-[rgba(201,168,76,0.2)]" : "bg-white/[0.04] border border-white/[0.06]"}`}>
+            <div className="text-white/40 text-[10px] uppercase tracking-wide mb-0.5">{item.label}</div>
+            <div className={`font-semibold text-sm ${item.highlight ? "text-[hsl(43,78%,65%)]" : "text-white"}`}>{item.value}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className={`flex items-start gap-2 text-xs rounded-lg p-3 ${
+        insight.densityLabel === "High Density" ? "bg-orange-400/5 border border-orange-400/10 text-orange-300/80" :
+        insight.densityLabel === "Optimal Density" ? "bg-green-400/5 border border-green-400/10 text-green-300/80" :
+        "bg-blue-400/5 border border-blue-400/10 text-blue-300/80"
+      }`}>
+        <DensityIcon className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+        <span>{insight.densityTip}</span>
+      </div>
+    </div>
+  );
+}
 
 const FREE_PLAN_KEY = "tcd_free_plan_used";
 
@@ -120,6 +241,8 @@ export default function FreeLayoutPlan() {
   const [, setLocation] = useLocation();
   const [view, setView] = useState<View>("form");
   const [selectedLayout, setSelectedLayout] = useState<string>("luxury-corporate");
+  const [calcOfficeSize, setCalcOfficeSize] = useState<string>("");
+  const [calcStaffCount, setCalcStaffCount] = useState<string>("");
 
   useEffect(() => {
     if (localStorage.getItem(FREE_PLAN_KEY)) {
@@ -444,6 +567,41 @@ export default function FreeLayoutPlan() {
                 <div className="text-3xl font-serif font-bold text-white">3 Options</div>
                 <div className="text-white/45 text-sm mt-1">Luxury Corporate · Modern Open · High Efficiency</div>
               </div>
+
+              <div className="luxury-card p-5 rounded-md border border-white/[0.06] space-y-3">
+                <div className="text-sm font-semibold text-white mb-1">Quick Space Calculator</div>
+                <p className="text-white/40 text-xs mb-3">Get an instant density score for your space — no signup required.</p>
+                <div>
+                  <label className="block text-xs text-white/50 mb-1">Office Size</label>
+                  <select
+                    value={calcOfficeSize}
+                    onChange={(e) => setCalcOfficeSize(e.target.value)}
+                    data-testid="select-calc-office-size"
+                    className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(201,168,76,0.15)] rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-[rgba(201,168,76,0.4)] appearance-none"
+                  >
+                    <option value="">Select office size…</option>
+                    {Object.keys(SQM_RANGES).map((k) => (
+                      <option key={k} value={k}>{k}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs text-white/50 mb-1">Staff Count</label>
+                  <select
+                    value={calcStaffCount}
+                    onChange={(e) => setCalcStaffCount(e.target.value)}
+                    data-testid="select-calc-staff-count"
+                    className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(201,168,76,0.15)] rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-[rgba(201,168,76,0.4)] appearance-none"
+                  >
+                    <option value="">Select staff count…</option>
+                    {Object.keys(STAFF_RANGES).map((k) => (
+                      <option key={k} value={k}>{k}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <SpaceIntelligenceWidget officeSize={calcOfficeSize} staffCount={calcStaffCount} />
             </div>
 
             <div className="lg:col-span-3">

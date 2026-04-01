@@ -1,8 +1,13 @@
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/Layout";
-import { ArrowRight, CheckCircle2, Star, Phone, Award, Shield, Truck, Users, Monitor, Sparkles, Box, BookOpen, Clock } from "lucide-react";
+import {
+  ArrowRight, CheckCircle2, Star, Phone, Award, Shield, Truck, Users,
+  Monitor, Sparkles, Box, BookOpen, Clock, Building2, TrendingUp,
+  Calendar, FileText, Calculator, Zap, ChevronRight, MapPin,
+} from "lucide-react";
 import { allPosts } from "@/data/blog/index";
 import { useSEO, buildBreadcrumbSchema } from "@/hooks/useSEO";
 
@@ -90,7 +95,58 @@ const testimonials = [
   },
 ];
 
+// Role-based hero content for smart CTA switching
+const buyerRoles = [
+  {
+    key: "facilities",
+    label: "Facilities Manager",
+    icon: Building2,
+    heading: "Where Ambition\nMeets Design",
+    subheading: "Complete fitout management, delivery, and installation — handled for you.",
+    cta1: { label: "Get a Project Quote", href: "/request-a-quote", icon: FileText },
+    cta2: { label: "AI Office Planner", href: "/ai-office-planner", icon: Sparkles },
+    cta3: { label: "Book a Site Consult", href: "/strategy-call", icon: Calendar },
+    trust: ["Single point of contact", "Full install managed", "6-year warranty", "Delivery to 500+ sites"],
+  },
+  {
+    key: "cfo",
+    label: "Finance / CFO",
+    icon: TrendingUp,
+    heading: "Premium Quality.\nControlled Budget.",
+    subheading: "Financing from $30k. Transparent quotes. No surprises on delivery.",
+    cta1: { label: "Finance Options", href: "/finance-workspace", icon: Calculator },
+    cta2: { label: "Get a Fixed Quote", href: "/request-a-quote", icon: FileText },
+    cta3: { label: "Book a Pricing Call", href: "/strategy-call", icon: Phone },
+    trust: ["Financing available", "Fixed price contracts", "No hidden costs", "Budget vs premium comparison"],
+  },
+  {
+    key: "hr",
+    label: "HR / People",
+    icon: Users,
+    heading: "Workplaces People\nActually Love",
+    subheading: "Ergonomic, wellness-focused spaces that improve retention and performance.",
+    cta1: { label: "Start with AI Planner", href: "/ai-office-planner", icon: Sparkles },
+    cta2: { label: "Workplace Strategy", href: "/strategy-call", icon: Calendar },
+    cta3: { label: "View Seating Range", href: "/catalog/office-seating", icon: ArrowRight },
+    trust: ["Ergonomic certified", "Hybrid-work ready", "Staff wellness focus", "Activity-based layouts"],
+  },
+  {
+    key: "relocation",
+    label: "Office Relocation",
+    icon: MapPin,
+    heading: "Moving Office?\nWe Make It Seamless.",
+    subheading: "AI-powered space planning and full fitout from one trusted supplier.",
+    cta1: { label: "Upload Your Floorplan", href: "/free-layout-plan", icon: FileText },
+    cta2: { label: "Get Move Quote", href: "/request-a-quote", icon: FileText },
+    cta3: { label: "Talk to a Specialist", href: "/strategy-call", icon: Phone },
+    trust: ["Floorplan analysis free", "Move-in ready packages", "All cities covered", "Timeline planning included"],
+  },
+];
+
 export default function Home() {
+  const [activeRole, setActiveRole] = useState(0);
+  const [animating, setAnimating] = useState(false);
+
   useSEO({
     title: "Premium Commercial Office Furniture | The Corporate Desk Australia",
     description: "Australia's leading B2B commercial office furniture supplier. ISO 9001 certified, 6-year warranty. Executive desks, boardroom tables, sit-stand workstations & complete office fitouts. Serving Brisbane, Sydney, Melbourne & nationwide.",
@@ -99,77 +155,117 @@ export default function Home() {
     schema: buildBreadcrumbSchema([{ name: "Home", url: "/" }]),
   });
 
+  const role = buyerRoles[activeRole];
+
+  function switchRole(i: number) {
+    if (i === activeRole) return;
+    setAnimating(true);
+    setTimeout(() => {
+      setActiveRole(i);
+      setAnimating(false);
+    }, 200);
+  }
+
   return (
     <Layout>
+      {/* ── Hero Section with Role-Based CTAs ── */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: "url('/images/hero-office.png')" }}
         />
         <div className="hero-overlay absolute inset-0" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[hsl(220,20%,6%)]/80 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[hsl(220,20%,6%)]/85 via-[hsl(220,20%,6%)]/40 to-transparent" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-20">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-20 w-full">
           <div className="max-w-3xl">
+
+            {/* Role selector tabs */}
+            <div className="flex flex-wrap gap-1.5 mb-7" data-testid="role-selector">
+              {buyerRoles.map((r, i) => {
+                const Icon = r.icon;
+                return (
+                  <button
+                    key={r.key}
+                    onClick={() => switchRole(i)}
+                    data-testid={`button-role-${r.key}`}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all duration-200 border ${
+                      i === activeRole
+                        ? "bg-[rgba(201,168,76,0.2)] border-[rgba(201,168,76,0.4)] text-[hsl(43,78%,65%)]"
+                        : "bg-white/5 border-white/12 text-white/40 hover:text-white/60 hover:border-white/20"
+                    }`}
+                  >
+                    <Icon className="w-3 h-3" />
+                    {r.label}
+                  </button>
+                );
+              })}
+            </div>
+
             <Badge className="mb-5 sm:mb-6 bg-[rgba(201,168,76,0.15)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.3)] font-medium tracking-wide">
               Premium Commercial Office Furniture
             </Badge>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-white leading-[1.05] mb-5 sm:mb-6">
-              Where Ambition<br />
-              <span className="gold-text">Meets Design</span>
-            </h1>
-            <p className="text-base sm:text-lg md:text-xl text-white/70 leading-relaxed mb-4 max-w-2xl">
-              Australia's most exclusive commercial office furniture supplier. We deliver complete workplace transformations for companies that refuse to compromise.
-            </p>
-            <p className="text-sm sm:text-base text-[hsl(43,78%,65%)] font-medium mb-8 sm:mb-10">
-              Serving Brisbane, Sydney &amp; Melbourne — Nationally Available
-            </p>
-            <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
-              <Button
-                asChild
-                size="lg"
-                className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold tracking-wide px-8 border-none text-base min-h-[52px] w-full sm:w-auto"
-                data-testid="button-hero-layout-plan"
-                style={{ touchAction: "manipulation" }}
-              >
-                <Link href="/ai-office-planner">
-                  AI Office Planner
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="border-white/30 text-white bg-white/5 backdrop-blur-sm font-semibold tracking-wide px-8 text-base min-h-[52px] w-full sm:w-auto"
-                data-testid="button-hero-quote"
-                style={{ touchAction: "manipulation" }}
-              >
-                <Link href="/request-a-quote">
-                  Request a Quote
-                </Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="border-[rgba(201,168,76,0.35)] text-[hsl(43,78%,65%)] bg-transparent font-semibold tracking-wide px-8 text-base min-h-[52px] w-full sm:w-auto"
-                data-testid="button-hero-strategy"
-                style={{ touchAction: "manipulation" }}
-              >
-                <Link href="/strategy-call">
-                  Book a Strategy Call
-                </Link>
-              </Button>
-            </div>
 
-            <div className="mt-10 sm:mt-14 flex flex-wrap gap-4 sm:gap-6">
-              {["ISO 9001 Certified", "6-Year Warranty", "Australian Owned", "Free Delivery Quote"].map(badge => (
-                <div key={badge} className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[hsl(43,78%,52%)]" />
-                  <span className="text-xs sm:text-sm text-white/60 font-medium">{badge}</span>
-                </div>
-              ))}
+            <div className={`transition-opacity duration-200 ${animating ? "opacity-0" : "opacity-100"}`}>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-white leading-[1.05] mb-5 sm:mb-6 whitespace-pre-line">
+                {role.heading.split("\n")[0]}<br />
+                <span className="gold-text">{role.heading.split("\n")[1]}</span>
+              </h1>
+              <p className="text-base sm:text-lg md:text-xl text-white/70 leading-relaxed mb-4 max-w-2xl">
+                {role.subheading}
+              </p>
+              <p className="text-sm sm:text-base text-[hsl(43,78%,65%)] font-medium mb-8 sm:mb-10">
+                Serving Brisbane, Sydney &amp; Melbourne — Nationally Available
+              </p>
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold tracking-wide px-8 border-none text-base min-h-[52px] w-full sm:w-auto"
+                  data-testid={`button-hero-cta1-${role.key}`}
+                  style={{ touchAction: "manipulation" }}
+                >
+                  <Link href={role.cta1.href}>
+                    <role.cta1.icon className="mr-2 w-4 h-4" />
+                    {role.cta1.label}
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="border-white/30 text-white bg-white/5 backdrop-blur-sm font-semibold tracking-wide px-8 text-base min-h-[52px] w-full sm:w-auto"
+                  data-testid={`button-hero-cta2-${role.key}`}
+                  style={{ touchAction: "manipulation" }}
+                >
+                  <Link href={role.cta2.href}>
+                    <role.cta2.icon className="mr-2 w-4 h-4" />
+                    {role.cta2.label}
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="border-[rgba(201,168,76,0.35)] text-[hsl(43,78%,65%)] bg-transparent font-semibold tracking-wide px-8 text-base min-h-[52px] w-full sm:w-auto"
+                  data-testid={`button-hero-cta3-${role.key}`}
+                  style={{ touchAction: "manipulation" }}
+                >
+                  <Link href={role.cta3.href}>
+                    {role.cta3.label}
+                  </Link>
+                </Button>
+              </div>
+
+              {/* Role-specific trust badges */}
+              <div className="mt-8 sm:mt-10 flex flex-wrap gap-4 sm:gap-5">
+                {role.trust.map(badge => (
+                  <div key={badge} className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                    <span className="text-xs sm:text-sm text-white/60 font-medium">{badge}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -179,7 +275,33 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16 bg-[hsl(220,20%,5%)] border-y border-[rgba(201,168,76,0.1)]">
+      {/* ── Quick-Path Selector ── */}
+      <section className="py-10 bg-[hsl(220,20%,5%)] border-y border-[rgba(201,168,76,0.1)]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <p className="text-center text-white/30 text-xs uppercase tracking-[0.25em] mb-6">What brings you here today?</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { label: "I'm fitting out a new office", href: "/ai-office-planner", icon: Building2, sub: "Start with AI Planner" },
+              { label: "I need a quote for furniture", href: "/request-a-quote", icon: FileText, sub: "Get fixed-price quote" },
+              { label: "We're relocating", href: "/free-layout-plan", icon: MapPin, sub: "Upload floorplan free" },
+              { label: "I want to explore finance", href: "/finance-workspace", icon: TrendingUp, sub: "From $30k · flexible terms" },
+            ].map(({ label, href, icon: Icon, sub }) => (
+              <Link key={label} href={href} data-testid={`button-quickpath-${label.toLowerCase().replace(/[^a-z]+/g, "-")}`}>
+                <div className="p-4 border border-white/8 bg-white/[0.02] hover:border-[rgba(201,168,76,0.25)] hover:bg-[rgba(201,168,76,0.04)] transition-all duration-200 cursor-pointer group h-full">
+                  <Icon className="w-5 h-5 text-[hsl(43,78%,52%)] mb-3 group-hover:scale-110 transition-transform" />
+                  <p className="text-sm text-white font-medium leading-snug mb-1">{label}</p>
+                  <p className="text-xs text-[hsl(43,78%,52%)]/60 flex items-center gap-1">
+                    {sub} <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Stats Bar ── */}
+      <section className="py-14 bg-[hsl(220,20%,5%)]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat) => (
@@ -192,6 +314,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Trusted By ── */}
       <section className="py-12 bg-[hsl(220,20%,4%)] border-b border-[rgba(201,168,76,0.08)]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <p className="text-center text-white/25 text-xs font-semibold tracking-[0.25em] uppercase mb-8">Trusted by leading Australian organisations</p>
@@ -218,6 +341,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Product Collections ── */}
       <section className="py-20 sm:py-28 bg-background">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -299,6 +423,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Why TCD ── */}
       <section className="py-20 sm:py-28 bg-[hsl(220,20%,5%)]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -332,6 +457,32 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Finance Strip ── */}
+      <section className="py-12 bg-[hsl(220,20%,4%)] border-y border-[rgba(201,168,76,0.08)]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-5">
+              <div className="w-10 h-10 rounded-full bg-[rgba(201,168,76,0.1)] border border-[rgba(201,168,76,0.2)] flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="w-5 h-5 text-[hsl(43,78%,52%)]" />
+              </div>
+              <div>
+                <p className="text-white font-semibold text-sm mb-0.5">Finance your fitout from $30,000</p>
+                <p className="text-white/40 text-xs">Flexible terms · Fast approvals · Stratton Finance &amp; QPF available</p>
+              </div>
+            </div>
+            <div className="flex gap-3 flex-shrink-0">
+              <Button asChild size="sm" className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold border-none" data-testid="button-finance-strip">
+                <Link href="/finance-workspace">Explore Finance <ArrowRight className="ml-1.5 w-3.5 h-3.5" /></Link>
+              </Button>
+              <Button asChild size="sm" variant="outline" className="border-white/15 text-white/50" data-testid="button-finance-call">
+                <a href="tel:1300977607">1300 977 607</a>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Testimonials ── */}
       <section className="py-20 sm:py-28 bg-background">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -365,11 +516,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3D Walkthrough showcase */}
+      {/* ── AI Office Planner Showcase ── */}
       <section className="py-20 sm:py-28 bg-[hsl(220,20%,5%)] border-y border-[rgba(201,168,76,0.08)]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left: text */}
             <div>
               <Badge className="mb-5 bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)]">
                 AI Office Planner
@@ -405,10 +555,9 @@ export default function Home() {
               </div>
               <p className="text-white/30 text-xs mt-3">No account required · Free concept · Personalised 3D unlocks after payment</p>
             </div>
-            {/* Right: visual preview card */}
+            {/* Visual preview card */}
             <div className="relative">
               <div className="bg-[hsl(220,18%,8%)] border border-[rgba(201,168,76,0.18)] rounded-2xl overflow-hidden shadow-2xl" data-testid="card-3d-preview">
-                {/* Mock 3D grid */}
                 <div className="relative h-64 bg-[hsl(220,20%,7%)] flex items-center justify-center overflow-hidden">
                   <div className="grid gap-1.5" style={{ gridTemplateColumns: "repeat(4, 1fr)", gridTemplateRows: "repeat(3, 1fr)", width: "88%", height: "82%" }}>
                     {[
@@ -444,7 +593,6 @@ export default function Home() {
                   </Button>
                 </div>
               </div>
-              {/* Decorative glow */}
               <div className="absolute -inset-8 bg-[hsl(43,78%,52%)]/4 rounded-3xl blur-3xl -z-10 pointer-events-none" />
             </div>
           </div>
@@ -501,6 +649,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Final CTA ── */}
       <section className="py-28 relative overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"

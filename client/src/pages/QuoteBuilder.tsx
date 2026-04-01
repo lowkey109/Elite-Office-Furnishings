@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Link } from "wouter";
 import { useNexoraSignal } from "@/hooks/useNexoraSignal";
 import { Button } from "@/components/ui/button";
@@ -11,9 +11,92 @@ import {
   ArrowRight, ArrowLeft, CheckCircle2, Building2, Users,
   LayoutDashboard, DollarSign, MessageSquare, Loader2,
   TrendingUp, Package, MapPin, Clock, Star, Phone, Mail,
-  ChevronRight, Zap, FileText, Calendar, Sofa,
+  ChevronRight, Zap, FileText, Calendar, Sofa, BarChart2,
 } from "lucide-react";
 import { FinancePanel } from "@/components/FinancePanel";
+
+// ─── Quote Confidence Score ───────────────────────────────────────────────────
+function QuoteConfidenceScore({ inputs }: { inputs: WorkspaceInputs }) {
+  const { score, label, color, bgColor, borderColor, factors } = useMemo(() => {
+    let total = 0;
+    const factors: { label: string; scored: boolean }[] = [];
+
+    const check = (condition: boolean, label: string, pts: number) => {
+      factors.push({ label, scored: condition });
+      if (condition) total += pts;
+    };
+
+    check(!!inputs.staffCount, "Staff count provided", 20);
+    check(!!inputs.squareMetres && Number(inputs.squareMetres) > 0, "Office size provided", 20);
+    check(!!inputs.city, "City/location provided", 10);
+    check(!!inputs.budgetRange, "Budget range provided", 20);
+    check(!!inputs.stylePreference, "Style preference selected", 10);
+    check(inputs.meetingRooms > 0, "Meeting room count specified", 10);
+    check(inputs.boardroom || inputs.reception || inputs.breakout || inputs.executiveOffice, "Zone requirements selected", 10);
+
+    let label = "Low Confidence";
+    let color = "text-red-400";
+    let bgColor = "bg-red-400";
+    let borderColor = "border-red-400/20";
+
+    if (total >= 80) {
+      label = "High Confidence";
+      color = "text-green-400";
+      bgColor = "bg-green-400";
+      borderColor = "border-green-400/20";
+    } else if (total >= 60) {
+      label = "Good Confidence";
+      color = "text-[hsl(43,78%,65%)]";
+      bgColor = "bg-[hsl(43,78%,52%)]";
+      borderColor = "border-[rgba(201,168,76,0.2)]";
+    } else if (total >= 40) {
+      label = "Moderate Confidence";
+      color = "text-yellow-400";
+      bgColor = "bg-yellow-400";
+      borderColor = "border-yellow-400/20";
+    }
+
+    return { score: total, label, color, bgColor, borderColor, factors };
+  }, [inputs]);
+
+  return (
+    <div className={`bg-[hsl(220,18%,10%)] border ${borderColor} rounded-xl p-6 mb-10`}>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <BarChart2 className="w-4 h-4 text-white/40" />
+          <h3 className="font-semibold text-white">Quote Confidence Score</h3>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className={`text-2xl font-bold font-serif ${color}`}>{score}</span>
+          <span className="text-white/30 text-sm">/100</span>
+          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${color} bg-white/5 border ${borderColor}`}>{label}</span>
+        </div>
+      </div>
+
+      <div className="w-full bg-white/5 rounded-full h-2 mb-4">
+        <div
+          className={`h-2 rounded-full transition-all duration-700 ${bgColor}`}
+          style={{ width: `${score}%` }}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        {factors.map((f) => (
+          <div key={f.label} className={`flex items-center gap-1.5 text-xs ${f.scored ? "text-white/60" : "text-white/25"}`}>
+            <CheckCircle2 className={`w-3 h-3 flex-shrink-0 ${f.scored ? "text-green-400" : "text-white/15"}`} />
+            {f.label}
+          </div>
+        ))}
+      </div>
+
+      {score < 60 && (
+        <p className="text-white/35 text-xs mt-3 italic">
+          Add more project details above to improve estimate accuracy. Our team will contact you to confirm specifics before issuing a formal quote.
+        </p>
+      )}
+    </div>
+  );
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -520,6 +603,9 @@ function EstimateResultsPage({
               </div>
             </section>
           )}
+
+          {/* ── Quote Confidence Score ── */}
+          <QuoteConfidenceScore inputs={inputs} />
 
           {/* ── CTAs ── */}
           <section className="mb-12">

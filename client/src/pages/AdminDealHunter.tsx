@@ -24,7 +24,69 @@ import {
   Crosshair,
   AlertTriangle,
   Lock,
+  Mail,
+  MessageSquare,
+  Phone,
+  Send,
 } from "lucide-react";
+
+function resolveOutreachChannel(signal: {
+  estimatedProjectValue?: number | null;
+  employeeEstimate?: number | null;
+  signalType?: string | null;
+  relocationProbability?: number | null;
+  probabilityTier?: string | null;
+}): { channel: "email" | "whatsapp" | "call"; reason: string } {
+  const value = signal.estimatedProjectValue ?? 0;
+  const employees = signal.employeeEstimate ?? 0;
+  const isRelocation = (signal.relocationProbability ?? 0) >= 60 || signal.signalType === "office_relocation";
+  const isHighValue = value >= 200_000;
+  const isEnterprise = employees >= 200;
+  const tier = signal.probabilityTier ?? "medium";
+
+  if (isHighValue || isEnterprise || isRelocation) {
+    return {
+      channel: "email",
+      reason: isRelocation
+        ? "Relocation signals warrant formal email"
+        : isHighValue
+        ? `High-value ($${Math.round(value / 1000)}k) — email preferred`
+        : "Enterprise size — email preferred",
+    };
+  }
+  if (tier === "high" && employees > 0 && employees < 200) {
+    return { channel: "whatsapp", reason: "High-confidence SMB — WhatsApp most effective" };
+  }
+  if (tier === "medium" && employees > 0 && employees < 100) {
+    return { channel: "whatsapp", reason: "Mid-tier SMB — WhatsApp for quick engagement" };
+  }
+  return { channel: "email", reason: "Default channel — email for initial contact" };
+}
+
+function ChannelBadge({ channel }: { channel: "email" | "whatsapp" | "call" }) {
+  if (channel === "whatsapp") {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 bg-green-500/15 border border-green-500/25 text-green-400 rounded-lg font-medium">
+        <MessageSquare className="w-3 h-3" />
+        WhatsApp
+      </span>
+    );
+  }
+  if (channel === "call") {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 bg-blue-500/15 border border-blue-500/25 text-blue-400 rounded-lg font-medium">
+        <Phone className="w-3 h-3" />
+        Call
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 bg-[#C9A84C]/15 border border-[#C9A84C]/25 text-[#C9A84C] rounded-lg font-medium">
+      <Mail className="w-3 h-3" />
+      Email
+    </span>
+  );
+}
 
 interface DealHunterSignal {
   id: string;
@@ -194,6 +256,7 @@ export default function AdminDealHunter() {
   const [statusFilter, setStatusFilter] = useState("");
   const [sortBy, setSortBy] = useState<SortBy>("score");
   const [activeActionId, setActiveActionId] = useState<string | null>(null);
+  const [queuedSignalIds, setQueuedSignalIds] = useState<Set<string>>(new Set());
 
   const { toast } = useToast();
   const qc = useQueryClient();
@@ -378,6 +441,31 @@ export default function AdminDealHunter() {
         description: error?.message || "Could not mark duplicate.",
         variant: "destructive",
       });
+    },
+    onSettled: () => setActiveActionId(null),
+  });
+
+  const queueOutreachMutation = useMutation({
+    mutationFn: async (id: string) =>
+      fetchJson<{ ok: boolean; outreachMessageId: string; channel: string }>(
+        `/api/admin/deal-hunter/signals/${id}/queue-outreach`,
+        { method: "POST" }
+      ),
+    onMutate: (id) => setActiveActionId(id),
+    onSuccess: (data, id) => {
+      setQueuedSignalIds((prev) => new Set([...prev, id]));
+      toast({
+        title: "Queued for approval",
+        description: `Outreach draft queued via ${data.channel}. Approve it in Nexora Command Centre.`,
+      });
+    },
+    onError: (error: any) => {
+      const msg = error?.message ?? "";
+      if (msg.includes("Already queued")) {
+        toast({ title: "Already queued", description: "This draft is already in the approval queue." });
+      } else {
+        toast({ title: "Queue failed", description: msg || "Could not queue outreach.", variant: "destructive" });
+      }
     },
     onSettled: () => setActiveActionId(null),
   });
@@ -1001,18 +1089,55 @@ export default function AdminDealHunter() {
                           </div>
                         )}
 
-                        {signal.outreachDraft && (
-                          <div>
-                            <p className="text-zinc-500 text-xs uppercase tracking-wider mb-2 font-medium">
-                              Outreach Draft
-                            </p>
-                            <div className="bg-zinc-900 rounded-xl p-3 border border-zinc-800 max-h-40 overflow-y-auto">
-                              <pre className="text-zinc-300 text-xs leading-relaxed whitespace-pre-wrap font-sans">
-                                {signal.outreachDraft}
-                              </pre>
+                        {signal.outreachDraft && (() => {
+                          const channelRec = resolveOutreachChannel(signal);
+                          const isQueued = queuedSignalIds.has(signal.id);
+                          const isQueueBusy = activeActionId === signal.id && queueOutreachMutation.isPending;
+                          return (
+                            <div>
+                              <div className="flex items-center justify-between mb-2">
+                                <p className="text-zinc-500 text-xs uppercase tracking-wider font-medium">
+                                  Outreach Draft
+                                </p>
+                                <div className="flex items-center gap-2">
+                                  <ChannelBadge channel={channelRec.channel} />
+                                </div>
+                              </div>
+
+                              <p className="text-zinc-600 text-[11px] mb-2 italic">{channelRec.reason}</p>
+
+                              <div className="bg-zinc-900 rounded-xl p-3 border border-zinc-800 max-h-40 overflow-y-auto mb-3">
+                                <pre className="text-zinc-300 text-xs leading-relaxed whitespace-pre-wrap font-sans">
+                                  {signal.outreachDraft}
+                                </pre>
+                              </div>
+
+                              {isQueued ? (
+                                <div className="flex items-center gap-2 text-xs text-green-400 bg-green-500/10 border border-green-500/20 rounded-xl p-2.5">
+                                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
+                                  Queued for approval — review in Nexora Command Centre
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    queueOutreachMutation.mutate(signal.id);
+                                  }}
+                                  disabled={isBusy}
+                                  data-testid={`btn-queue-outreach-${signal.id}`}
+                                  className="w-full flex items-center justify-center gap-2 bg-[#C9A84C]/20 hover:bg-[#C9A84C]/30 border border-[#C9A84C]/30 disabled:opacity-50 text-[#C9A84C] rounded-xl py-2.5 text-sm font-medium transition-colors"
+                                >
+                                  {isQueueBusy ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <Send className="w-4 h-4" />
+                                  )}
+                                  Queue for Approval
+                                </button>
+                              )}
                             </div>
-                          </div>
-                        )}
+                          );
+                        })()}
 
                         <div className="space-y-2 pt-2">
                           {!signal.pushedToPipeline && signal.status !== "dismissed" && (
