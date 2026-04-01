@@ -30,3 +30,9 @@ id = "zjEGJgUBfQuCN1ALl9kgw"
 uri = "file://nexora-fix-summary.md"
 type = "text"
 title = "Nexora Runtime Integration Fix — Summary"
+
+[[outputs]]
+id = "ShshkKfXGg8y66yqHqUCZ"
+uri = "file://SYSTEM_AUDIT.md"
+type = "text"
+title = "Corporate Desk — Full System Audit"
