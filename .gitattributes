@@ -7,3 +7,5 @@ catalogs/huasheng-gaozhuo/catalog-unidentified-large.pdf filter=lfs diff=lfs mer
 catalogs/huasheng-gaozhuo/gojo-executive-furniture-vol1.pdf filter=lfs diff=lfs merge=lfs -text
 attached_assets/TCDcatalog_1774172415380.zip filter=lfs diff=lfs merge=lfs -text
 attached_assets/wetransfer_jinying-office-furniture-catalogs_2026-03-19_1010_1774169918507.zip filter=lfs diff=lfs merge=lfs -text
+project.zip filter=lfs diff=lfs merge=lfs -text
+zin9tXLq filter=lfs diff=lfs merge=lfs -text
