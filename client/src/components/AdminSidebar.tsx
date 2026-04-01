@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import {
-  LayoutDashboard, Bot, Zap, Target, TrendingUp, Users, Crosshair, FileText,
-  Radar, Search, Brain, BarChart3, Map, Eye, Bell, Navigation, Lightbulb,
+  LayoutDashboard, Zap, TrendingUp, Users, Crosshair, FileText,
+  Radar, Search, Map,
   MessageSquare, RefreshCw, Send, Package, ShoppingBag, Star, Layout,
-  PenTool, GraduationCap, Truck, Network, Receipt, DollarSign, Building2,
+  PenTool, GraduationCap, Truck, Network, Receipt, Building2,
   Megaphone, Handshake, UsersRound, ClipboardList, LogOut, ChevronLeft,
   ChevronRight, X,
 } from "lucide-react";
@@ -25,34 +25,26 @@ const NAV: NavSection[] = [
   {
     label: "Overview",
     items: [
-      { label: "Dashboard",    href: "/admin/dashboard",   icon: LayoutDashboard },
-      { label: "Alex AI",      href: "/admin/alex",        icon: Bot },
-      { label: "AI Autopilot", href: "/admin/nexora",      icon: Zap },
-      { label: "AI Chat",      href: "/admin/ai-chat",     icon: MessageSquare },
+      { label: "Dashboard",  href: "/admin/dashboard", icon: LayoutDashboard },
+      { label: "Nexora OS",  href: "/admin/nexora",    icon: Zap },
+      { label: "AI Chat",    href: "/admin/ai-chat",   icon: MessageSquare },
     ],
   },
   {
     label: "Sales",
     items: [
-      { label: "Command Centre", href: "/admin/command-centre", icon: Target },
-      { label: "Deal Pipeline",  href: "/admin/deal-pipeline",  icon: TrendingUp },
-      { label: "Leads",          href: "/admin/leads",          icon: Users },
-      { label: "Lead Engine",    href: "/admin/lead-engine",    icon: Crosshair },
-      { label: "Quotes",         href: "/admin/quotes",         icon: FileText },
+      { label: "Deal Pipeline", href: "/admin/deal-pipeline", icon: TrendingUp },
+      { label: "Leads",         href: "/admin/leads",         icon: Users },
+      { label: "Lead Engine",   href: "/admin/lead-engine",   icon: Crosshair },
+      { label: "Quotes",        href: "/admin/quotes",        icon: FileText },
     ],
   },
   {
     label: "Intelligence",
     items: [
-      { label: "Move Radar",         href: "/admin/office-move-radar",        icon: Radar },
-      { label: "Deal Hunter",        href: "/admin/deal-hunter",              icon: Search },
-      { label: "Intelligence Hub",   href: "/admin/intelligence-hub",         icon: Brain },
-      { label: "Market Intel",       href: "/admin/market-intelligence",      icon: BarChart3 },
-      { label: "Territory Scanner",  href: "/admin/territory-scanner",        icon: Map },
-      { label: "Company Visitors",   href: "/admin/company-visitors",         icon: Eye },
-      { label: "Lease Signals",      href: "/admin/lease-signals",            icon: Bell },
-      { label: "Relocation Intel",   href: "/admin/relocation-intelligence",  icon: Navigation },
-      { label: "Deal Intelligence",  href: "/admin/deal-intelligence",        icon: Lightbulb },
+      { label: "Move Radar",        href: "/admin/office-move-radar",  icon: Radar },
+      { label: "Deal Hunter",       href: "/admin/deal-hunter",        icon: Search },
+      { label: "Territory Scanner", href: "/admin/territory-scanner",  icon: Map },
     ],
   },
   {
@@ -66,9 +58,9 @@ const NAV: NavSection[] = [
   {
     label: "Products",
     items: [
-      { label: "Catalogue Staging", href: "/admin/catalog-staging",   icon: Package },
-      { label: "Products",          href: "/admin/products",           icon: ShoppingBag },
-      { label: "Product Reviews",   href: "/admin/product-reviews",   icon: Star },
+      { label: "Catalogue Staging", href: "/admin/catalog-staging",  icon: Package },
+      { label: "Products",          href: "/admin/products",          icon: ShoppingBag },
+      { label: "Product Reviews",   href: "/admin/product-reviews",  icon: Star },
     ],
   },
   {
@@ -80,7 +72,6 @@ const NAV: NavSection[] = [
       { label: "Supplier Hub",          href: "/admin/procurement-engine",       icon: Truck },
       { label: "Supplier Intelligence", href: "/admin/supplier-intelligence",    icon: Network },
       { label: "Supplier Quotes",       href: "/admin/supplier-quotes",          icon: Receipt },
-      { label: "Profit Engine",         href: "/admin/profit-engine",            icon: DollarSign },
       { label: "Building Database",     href: "/admin/building-database",        icon: Building2 },
     ],
   },
