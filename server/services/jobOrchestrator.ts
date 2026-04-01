@@ -51,6 +51,9 @@ export const QUEUES = {
   LEAD_SCRAPE_MAPS: "lead.scrape.maps",
   // ── Nexora Autonomous Loop ────────────────────────────────────────────────
   NEXORA_LOOP: "nexora.loop",
+  // ── Nexora Push Retry (dead-letter / retry) ───────────────────────────────
+  NEXORA_PUSH_PIPELINE_RETRY: "nexora.push.pipeline.retry",
+  NEXORA_PUSH_RADAR_RETRY: "nexora.push.radar.retry",
 } as const;
 
 export type QueueName = (typeof QUEUES)[keyof typeof QUEUES];

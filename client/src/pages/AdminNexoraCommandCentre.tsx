@@ -9,7 +9,8 @@ import {
   XCircle, AlertTriangle, Loader2, Settings, History, BarChart3,
   ShieldCheck, TrendingUp, DollarSign, Flame, Target, ChevronRight,
   MessageSquare, Eye, EyeOff, Building2, MapPin, Info, Inbox,
-  ThumbsUp, ThumbsDown, Radio, Layers,
+  ThumbsUp, ThumbsDown, Radio, Layers, Brain, BookOpen, Sliders,
+  TrendingDown, Award, Send,
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -104,6 +105,52 @@ interface PendingOutreach {
   priority: string;
 }
 
+interface NexoraDecision {
+  id: string;
+  runId: string;
+  signalId: string;
+  companyName: string | null;
+  signalType: string | null;
+  action: string;
+  priority: string;
+  confidence: number;
+  reasoning: string | null;
+  autoApproved: boolean | null;
+  pushedPipeline: boolean | null;
+  pushedRadar: boolean | null;
+  outreachQueued: boolean | null;
+  anomalyFlagged: boolean | null;
+  createdAt: string;
+}
+
+interface OutcomeStats {
+  total: number;
+  wins: number;
+  losses: number;
+  ignored: number;
+  winRate: number;
+  avgDeal: number;
+  byOutcome: Record<string, number>;
+  recent: Array<{ id: string; signalId: string; companyName: string | null; outcome: string; createdAt: string; dealValue: number | null }>;
+}
+
+interface NexoraThreshold {
+  id: string;
+  version: number;
+  strongMove: number;
+  criticalValue: number;
+  highValue: number;
+  bothMinValue: number;
+  strongPipeline: number;
+  highIntentMin: number;
+  learningRate: number;
+  changeReason: string | null;
+  triggeredByOutcomes: number | null;
+  winRate: number | null;
+  isActive: boolean;
+  createdAt: string;
+}
+
 function formatMs(ms: number) {
   if (ms < 1000) return `${ms}ms`;
   if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
@@ -147,6 +194,8 @@ export default function AdminNexoraCommandCentre() {
   const [intervalInput, setIntervalInput] = useState("30");
   const [systemRunResult, setSystemRunResult] = useState<SystemRunResult | null>(null);
   const [expandedOpp, setExpandedOpp] = useState<string | null>(null);
+  const [showOutcomeForm, setShowOutcomeForm] = useState(false);
+  const [outcomeForm, setOutcomeForm] = useState({ signalId: "", companyName: "", outcome: "won", channel: "email", dealValue: "", notes: "" });
 
   const { data: loopStatus, isLoading: statusLoading } = useQuery<LoopStatus>({
     queryKey: ["/api/nexora/loop/status"],
@@ -156,6 +205,36 @@ export default function AdminNexoraCommandCentre() {
   const { data: history = [], isLoading: historyLoading } = useQuery<NexoraRun[]>({
     queryKey: ["/api/nexora/history"],
     refetchInterval: 15000,
+  });
+
+  const { data: decisions, isLoading: decisionsLoading } = useQuery<{ decisions: NexoraDecision[]; total: number }>({
+    queryKey: ["/api/nexora/decisions"],
+    refetchInterval: 30000,
+  });
+
+  const { data: outcomeStats } = useQuery<OutcomeStats>({
+    queryKey: ["/api/nexora/outcomes/stats"],
+    refetchInterval: 60000,
+  });
+
+  const { data: thresholdsData } = useQuery<{ current: NexoraThreshold | null; history: NexoraThreshold[] }>({
+    queryKey: ["/api/nexora/thresholds/current"],
+    refetchInterval: 300000,
+  });
+
+  const recordOutcomeMutation = useMutation({
+    mutationFn: (data: typeof outcomeForm) => apiRequest("POST", "/api/nexora/outcomes", {
+      ...data,
+      dealValue: data.dealValue ? Number(data.dealValue) : undefined,
+    }),
+    onSuccess: () => {
+      toast({ title: "Outcome recorded", description: "Nexora brain will recalibrate based on this feedback." });
+      setShowOutcomeForm(false);
+      setOutcomeForm({ signalId: "", companyName: "", outcome: "won", channel: "email", dealValue: "", notes: "" });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/outcomes/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/thresholds/current"] });
+    },
+    onError: (err: any) => toast({ title: "Failed to record outcome", description: err?.message, variant: "destructive" }),
   });
 
   const { data: topOpps, isLoading: oppsLoading } = useQuery<{ opportunities: Opportunity[]; total: number }>({
@@ -520,6 +599,263 @@ export default function AdminNexoraCommandCentre() {
             </div>
           )}
         </div>
+
+        {/* ── Outcome Stats + Feedback ── */}
+        <div className="mb-6 p-5 border border-emerald-500/12 bg-emerald-500/[0.02]">
+          <div className="flex items-center gap-2 mb-4">
+            <Award className="w-4 h-4 text-emerald-400" />
+            <h2 className="text-sm font-medium text-white">Outcome Intelligence</h2>
+            <span className="ml-auto text-xs text-white/25">Closed-loop learning</span>
+            <Button
+              size="sm"
+              onClick={() => setShowOutcomeForm(!showOutcomeForm)}
+              data-testid="button-record-outcome"
+              className="ml-2 bg-emerald-700/30 hover:bg-emerald-700/50 text-emerald-300 border border-emerald-700/40 rounded-none h-7 text-xs"
+            >
+              <Send className="w-3 h-3 mr-1" /> Record Outcome
+            </Button>
+          </div>
+
+          {showOutcomeForm && (
+            <div className="mb-4 p-4 border border-emerald-500/20 bg-emerald-900/10 space-y-3">
+              <p className="text-xs text-white/40">Record a sales outcome to train Nexora's adaptive thresholds</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-[10px] text-white/30 uppercase mb-1">Signal ID *</label>
+                  <input
+                    data-testid="input-outcome-signal-id"
+                    className="w-full bg-white/5 border border-white/10 text-white px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500/30"
+                    placeholder="signal id..."
+                    value={outcomeForm.signalId}
+                    onChange={e => setOutcomeForm(f => ({ ...f, signalId: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] text-white/30 uppercase mb-1">Company</label>
+                  <input
+                    data-testid="input-outcome-company"
+                    className="w-full bg-white/5 border border-white/10 text-white px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500/30"
+                    placeholder="company name..."
+                    value={outcomeForm.companyName}
+                    onChange={e => setOutcomeForm(f => ({ ...f, companyName: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] text-white/30 uppercase mb-1">Outcome *</label>
+                  <select
+                    data-testid="select-outcome-type"
+                    className="w-full bg-white/5 border border-white/10 text-white px-2 py-1.5 text-xs focus:outline-none"
+                    value={outcomeForm.outcome}
+                    onChange={e => setOutcomeForm(f => ({ ...f, outcome: e.target.value }))}
+                  >
+                    {["won","lost","replied","ignored","bounced","meeting_booked","no_response"].map(o => (
+                      <option key={o} value={o} className="bg-black">{o}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] text-white/30 uppercase mb-1">Deal Value ($)</label>
+                  <input
+                    data-testid="input-outcome-deal-value"
+                    type="number"
+                    className="w-full bg-white/5 border border-white/10 text-white px-2 py-1.5 text-xs focus:outline-none"
+                    placeholder="e.g. 85000"
+                    value={outcomeForm.dealValue}
+                    onChange={e => setOutcomeForm(f => ({ ...f, dealValue: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] text-white/30 uppercase mb-1">Channel</label>
+                  <select
+                    data-testid="select-outcome-channel"
+                    className="w-full bg-white/5 border border-white/10 text-white px-2 py-1.5 text-xs focus:outline-none"
+                    value={outcomeForm.channel}
+                    onChange={e => setOutcomeForm(f => ({ ...f, channel: e.target.value }))}
+                  >
+                    {["email","whatsapp","phone","in_person"].map(c => (
+                      <option key={c} value={c} className="bg-black">{c}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] text-white/30 uppercase mb-1">Notes</label>
+                  <input
+                    data-testid="input-outcome-notes"
+                    className="w-full bg-white/5 border border-white/10 text-white px-2 py-1.5 text-xs focus:outline-none"
+                    placeholder="optional notes..."
+                    value={outcomeForm.notes}
+                    onChange={e => setOutcomeForm(f => ({ ...f, notes: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  disabled={!outcomeForm.signalId || recordOutcomeMutation.isPending}
+                  onClick={() => recordOutcomeMutation.mutate(outcomeForm)}
+                  data-testid="button-submit-outcome"
+                  className="bg-emerald-600/40 hover:bg-emerald-600/60 text-emerald-200 border border-emerald-600/40 rounded-none h-7 text-xs"
+                >
+                  {recordOutcomeMutation.isPending ? <><Loader2 className="w-3 h-3 animate-spin mr-1" /> Saving...</> : "Submit"}
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setShowOutcomeForm(false)} className="text-white/30 rounded-none h-7 text-xs">
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {outcomeStats ? (
+            <div>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+                {[
+                  { label: "Total Outcomes", value: outcomeStats.total, color: "text-white", icon: BarChart3 },
+                  { label: "Wins", value: outcomeStats.wins, color: "text-emerald-400", icon: CheckCircle2 },
+                  { label: "Losses", value: outcomeStats.losses, color: "text-red-400", icon: XCircle },
+                  { label: "Win Rate", value: `${(outcomeStats.winRate * 100).toFixed(0)}%`, color: outcomeStats.winRate >= 0.5 ? "text-emerald-400" : "text-yellow-400", icon: TrendingUp },
+                  { label: "Avg Deal", value: outcomeStats.avgDeal > 0 ? fmt$(outcomeStats.avgDeal) : "—", color: "text-[hsl(43,78%,52%)]", icon: DollarSign },
+                ].map(({ label, value, color, icon: Icon }) => (
+                  <div key={label} className="p-3 border border-white/5 bg-white/[0.015] text-center" data-testid={`stat-outcome-${label.toLowerCase().replace(/ /g, "-")}`}>
+                    <Icon className="w-3.5 h-3.5 text-white/25 mx-auto mb-1" />
+                    <div className={`text-lg font-light ${color}`}>{value}</div>
+                    <div className="text-[9px] text-white/30 uppercase tracking-wide mt-0.5">{label}</div>
+                  </div>
+                ))}
+              </div>
+              {outcomeStats.recent.length > 0 && (
+                <div>
+                  <p className="text-[10px] text-white/25 uppercase tracking-wide mb-2">Recent Outcomes</p>
+                  <div className="space-y-1">
+                    {outcomeStats.recent.slice(0, 8).map((o) => (
+                      <div key={o.id} className="flex items-center gap-3 text-xs py-1 border-b border-white/5 last:border-0">
+                        <Badge className={`text-[9px] px-1.5 h-4 ${
+                          ["won","meeting_booked","replied"].includes(o.outcome)
+                            ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/25"
+                            : ["lost","bounced"].includes(o.outcome)
+                              ? "bg-red-500/15 text-red-300 border-red-500/25"
+                              : "bg-white/8 text-white/35 border-white/10"
+                        }`}>{o.outcome}</Badge>
+                        <span className="text-white/60 flex-1 truncate">{o.companyName ?? "Unknown"}</span>
+                        {o.dealValue && <span className="text-[hsl(43,78%,52%)] text-[10px]">{fmt$(o.dealValue)}</span>}
+                        <span className="text-white/25 text-[10px]">{timeAgo(o.createdAt)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="py-4 text-center text-white/25 text-sm">
+              No outcomes recorded yet. Use "Record Outcome" above to start training the brain.
+            </div>
+          )}
+        </div>
+
+        {/* ── Brain Decisions (DB-backed) ── */}
+        <div className="mb-6 p-5 border border-violet-500/12 bg-violet-500/[0.02]">
+          <div className="flex items-center gap-2 mb-4">
+            <Brain className="w-4 h-4 text-violet-400" />
+            <h2 className="text-sm font-medium text-white">Brain Decisions</h2>
+            <span className="ml-auto text-xs text-white/25">{decisions?.total ?? 0} recorded</span>
+          </div>
+          {decisionsLoading ? (
+            <div className="flex items-center gap-2 text-sm text-white/30 py-2">
+              <Loader2 className="w-4 h-4 animate-spin" /> Loading decisions...
+            </div>
+          ) : !decisions?.decisions.length ? (
+            <div className="py-4 text-center text-white/25 text-sm border border-white/5">
+              No decisions recorded yet. Run Nexora to generate decisions.
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              {decisions.decisions.slice(0, 15).map((d) => (
+                <div key={d.id} data-testid={`row-decision-${d.id}`} className="flex items-center gap-3 px-3 py-2.5 border border-white/5 hover:border-white/10 text-xs">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-white/80 font-medium truncate">{d.companyName ?? "Unknown"}</span>
+                      {d.signalType && (
+                        <Badge className={`text-[9px] px-1.5 h-4 ${signalTypeBadge(d.signalType)}`}>{d.signalType}</Badge>
+                      )}
+                    </div>
+                    {d.reasoning && <p className="text-[10px] text-white/30 truncate">{d.reasoning}</p>}
+                  </div>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <Badge className={`text-[9px] px-1.5 h-4 capitalize ${
+                      d.action === "both" ? "bg-[hsl(43,78%,52%)]/20 text-[hsl(43,78%,52%)] border-[hsl(43,78%,52%)]/25" :
+                      d.action === "pipeline" ? "bg-blue-500/15 text-blue-300 border-blue-500/25" :
+                      d.action === "radar" ? "bg-purple-500/15 text-purple-300 border-purple-500/25" :
+                      "bg-white/8 text-white/35 border-white/10"
+                    }`}>{d.action}</Badge>
+                    <Badge className={`text-[9px] px-1.5 h-4 capitalize ${
+                      d.priority === "critical" ? "bg-red-500/15 text-red-300 border-red-500/25" :
+                      d.priority === "high" ? "bg-orange-500/15 text-orange-300 border-orange-500/25" :
+                      d.priority === "medium" ? "bg-yellow-500/15 text-yellow-300 border-yellow-500/25" :
+                      "bg-white/8 text-white/35 border-white/10"
+                    }`}>{d.priority}</Badge>
+                    <span className="text-white/25 w-8 text-right">{Math.round((d.confidence ?? 0) * 100)}%</span>
+                    <div className="flex gap-1">
+                      {d.pushedPipeline && <span className="text-[9px] px-1 py-0.5 bg-blue-500/10 text-blue-300 border border-blue-500/20">pipe</span>}
+                      {d.pushedRadar && <span className="text-[9px] px-1 py-0.5 bg-purple-500/10 text-purple-300 border border-purple-500/20">radar</span>}
+                      {d.autoApproved && <span className="text-[9px] px-1 py-0.5 bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">auto</span>}
+                      {d.anomalyFlagged && <span className="text-[9px] px-1 py-0.5 bg-red-500/10 text-red-300 border border-red-500/20">⚠</span>}
+                    </div>
+                    <span className="text-white/20 text-[10px]">{timeAgo(d.createdAt)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* ── Adaptive Thresholds ── */}
+        {thresholdsData && (
+          <div className="mb-6 p-5 border border-white/8 bg-white/[0.02]">
+            <div className="flex items-center gap-2 mb-4">
+              <Sliders className="w-4 h-4 text-white/40" />
+              <h2 className="text-sm font-medium text-white">Adaptive Decision Thresholds</h2>
+              {thresholdsData.current && (
+                <Badge className="ml-1 bg-white/8 text-white/40 border-white/10 text-[9px]">v{thresholdsData.current.version}</Badge>
+              )}
+              {thresholdsData.current?.winRate != null && (
+                <span className="ml-auto text-xs text-white/25">
+                  Win rate: <span className={thresholdsData.current.winRate >= 0.5 ? "text-emerald-400" : "text-yellow-400"}>
+                    {(thresholdsData.current.winRate * 100).toFixed(0)}%
+                  </span>
+                </span>
+              )}
+            </div>
+            {thresholdsData.current ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { label: "Strong Move Score", value: thresholdsData.current.strongMove, suffix: "", color: "text-white" },
+                  { label: "Critical Value", value: thresholdsData.current.criticalValue, suffix: "", fmt: true, color: "text-red-300" },
+                  { label: "High Value", value: thresholdsData.current.highValue, suffix: "", fmt: true, color: "text-orange-300" },
+                  { label: "Pipeline Min", value: Math.round(thresholdsData.current.strongPipeline * 100), suffix: "%", color: "text-blue-300" },
+                  { label: "High Intent Min", value: Math.round(thresholdsData.current.highIntentMin * 100), suffix: "%", color: "text-purple-300" },
+                  { label: "Both Min Value", value: thresholdsData.current.bothMinValue, suffix: "", fmt: true, color: "text-[hsl(43,78%,52%)]" },
+                  { label: "Learning Rate", value: thresholdsData.current.learningRate, suffix: "", color: "text-emerald-300" },
+                  { label: "Outcomes Used", value: thresholdsData.current.triggeredByOutcomes ?? 0, suffix: "", color: "text-white/50" },
+                ].map(({ label, value, suffix, fmt: doFmt, color }) => (
+                  <div key={label} className="p-3 border border-white/5 bg-white/[0.01]">
+                    <div className="text-[9px] text-white/25 uppercase tracking-wide mb-1">{label}</div>
+                    <div className={`text-sm font-light ${color}`}>
+                      {doFmt ? fmt$(value as number) : value}{suffix}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-3 text-sm text-white/25">
+                Using defaults — no threshold calibrations recorded yet. Record outcomes to enable learning.
+              </div>
+            )}
+            {thresholdsData.current?.changeReason && (
+              <p className="mt-3 text-[10px] text-white/25 flex items-center gap-1">
+                <BookOpen className="w-3 h-3" /> Last change: {thresholdsData.current.changeReason}
+              </p>
+            )}
+          </div>
+        )}
 
         {/* ── PREDICTIVE ENGINE RESULTS ── */}
         {systemRunResult && pred && (

@@ -6734,6 +6734,38 @@ Rules:
       const { db: ddb } = await import("./db");
       const { outreachMessages } = await import("@shared/schema");
       const { eq } = await import("drizzle-orm");
+      const { checkSuppression, checkCooldown, checkRateLimits, writeAuditEvent } = await import("./services/outreach/outreach-guards");
+
+      // ─── Layer 11: Suppression + Rate-limit safety gates ────────────────
+      const suppCheck = await checkSuppression({
+        companyName: signal.companyName ?? "",
+        recipientEmail: (signal as any).recipientEmail ?? "",
+      });
+      if (suppCheck.suppressed) {
+        await writeAuditEvent({
+          entityType: "deal_hunter_signal",
+          entityId: signal.id,
+          eventType: "outreach_suppressed",
+          companyName: signal.companyName ?? "",
+          details: { reason: suppCheck.reason, signalId: signal.id },
+        });
+        return res.status(429).json({ error: `Outreach suppressed: ${suppCheck.reason}`, suppressed: true });
+      }
+
+      const coolCheck = await checkCooldown({ companyName: signal.companyName ?? "" });
+      if (coolCheck.inCooldown) {
+        return res.status(429).json({
+          error: `Company in 30-day cooldown. Last sent: ${coolCheck.lastSentAt?.toISOString() ?? "unknown"}`,
+          suppressed: true,
+          lastSentAt: coolCheck.lastSentAt,
+        });
+      }
+
+      const rateCheck = await checkRateLimits();
+      if (rateCheck.exceeded) {
+        return res.status(429).json({ error: rateCheck.reason, rateLimited: true });
+      }
+      // ────────────────────────────────────────────────────────────────────
 
       const { channel } = resolveOutreachChannel(signal);
       const { isHighRisk, justification } = classifyOutreachRisk(signal, channel);
@@ -6777,6 +6809,15 @@ Rules:
         identityHash,
         ...(approvedAt ? { approvedAt } : {}),
       } as any).returning({ id: outreachMessages.id });
+
+      await writeAuditEvent({
+        entityType: "deal_hunter_signal",
+        entityId: signal.id,
+        eventType: isHighRisk ? "outreach_queued_for_review" : "outreach_auto_approved",
+        companyName: signal.companyName ?? "",
+        campaignKey: `nexora_signal_${signal.id}`,
+        details: { channel, riskLevel: isHighRisk ? "high" : "low", justification, outreachMessageId: created?.id },
+      });
 
       console.log(`[Nexora Outreach] Signal ${signal.id} (${signal.companyName}) — channel: ${channel}, risk: ${isHighRisk ? "HIGH" : "LOW"}, status: ${deliveryStatus} — ${justification}`);
 
@@ -10847,6 +10888,168 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
       if (!["pending","confirmed","cancelled"].includes(status)) return res.status(400).json({ error: "Invalid status" });
       await ddb.execute(sql`UPDATE strategy_bookings SET status = ${status} WHERE id = ${Number(req.params.id)}`);
       res.json({ ok: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  /* =========================================================================
+   * NEXORA OBSERVABILITY — Layer 8
+   * GET  /api/nexora/decisions         — recent brain decisions from DB
+   * GET  /api/nexora/thresholds/current — live adaptive thresholds
+   * GET  /api/nexora/outcomes/stats    — outcome win/loss analytics
+   * POST /api/nexora/outcomes          — record a sales outcome (feedback loop)
+   * ========================================================================= */
+
+  // GET /api/nexora/decisions — last 200 decisions from DB
+  app.get("/api/nexora/decisions", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { nexoraDecisions } = await import("@shared/schema");
+      const { desc } = await import("drizzle-orm");
+      const limit = Math.min(200, Number(req.query.limit ?? 50));
+      const rows = await ddb
+        .select()
+        .from(nexoraDecisions)
+        .orderBy(desc(nexoraDecisions.createdAt))
+        .limit(limit);
+      res.json({ decisions: rows, total: rows.length });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/nexora/thresholds/current — active threshold set
+  app.get("/api/nexora/thresholds/current", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { nexoraThresholds } = await import("@shared/schema");
+      const { eq, desc } = await import("drizzle-orm");
+      const rows = await ddb
+        .select()
+        .from(nexoraThresholds)
+        .where(eq(nexoraThresholds.isActive, true))
+        .orderBy(desc(nexoraThresholds.version))
+        .limit(1);
+      const history = await ddb
+        .select()
+        .from(nexoraThresholds)
+        .orderBy(desc(nexoraThresholds.version))
+        .limit(10);
+      res.json({ current: rows[0] ?? null, history });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/nexora/outcomes/stats — win/loss breakdown
+  app.get("/api/nexora/outcomes/stats", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { nexoraOutcomes } = await import("@shared/schema");
+      const { desc } = await import("drizzle-orm");
+      const recent = await ddb
+        .select()
+        .from(nexoraOutcomes)
+        .orderBy(desc(nexoraOutcomes.createdAt))
+        .limit(500);
+
+      const total = recent.length;
+      const wins = recent.filter((r) => ["won", "meeting_booked", "replied"].includes(r.outcome)).length;
+      const losses = recent.filter((r) => ["lost", "bounced"].includes(r.outcome)).length;
+      const ignored = recent.filter((r) => r.outcome === "ignored").length;
+      const winRate = total > 0 ? wins / total : 0;
+      const avgDeal = total > 0
+        ? recent.reduce((sum, r) => sum + (r.dealValue ?? 0), 0) / total
+        : 0;
+
+      const byOutcome: Record<string, number> = {};
+      for (const r of recent) {
+        byOutcome[r.outcome] = (byOutcome[r.outcome] ?? 0) + 1;
+      }
+
+      res.json({
+        total, wins, losses, ignored, winRate: Math.round(winRate * 100) / 100,
+        avgDeal: Math.round(avgDeal),
+        byOutcome,
+        recent: recent.slice(0, 20),
+      });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/nexora/outcomes — record a sales outcome (closes the feedback loop)
+  app.post("/api/nexora/outcomes", async (req, res) => {
+    try {
+      const {
+        signalId, companyName, outcome, channel, responseText,
+        daysToOutcome, dealValue, confidenceAtDecision, priorityAtDecision,
+        decisionId, notes,
+      } = req.body;
+
+      const VALID_OUTCOMES = ["won","lost","ignored","replied","bounced","meeting_booked","no_response"];
+      if (!signalId || !outcome) return res.status(400).json({ error: "signalId and outcome are required" });
+      if (!VALID_OUTCOMES.includes(outcome)) return res.status(400).json({ error: `outcome must be one of: ${VALID_OUTCOMES.join(", ")}` });
+
+      const { db: ddb } = await import("./db");
+      const { nexoraOutcomes } = await import("@shared/schema");
+
+      const [created] = await ddb.insert(nexoraOutcomes).values({
+        signalId,
+        companyName: companyName ?? null,
+        outcome,
+        channel: channel ?? null,
+        responseText: responseText ?? null,
+        daysToOutcome: daysToOutcome ?? null,
+        dealValue: dealValue ?? null,
+        confidenceAtDecision: confidenceAtDecision ?? null,
+        priorityAtDecision: priorityAtDecision ?? null,
+        decisionId: decisionId ?? null,
+        notes: notes ?? null,
+      }).returning({ id: nexoraOutcomes.id });
+
+      // Trigger learning: update knowledge map entry for this company
+      try {
+        const { loadAdaptiveThresholds, computeOutcomeLearningUpdate, saveAdaptiveThresholds, upsertKnowledgeEntry, normalizeCompany } =
+          await import("./services/intelligence/nexora/nexora-support");
+        const companyKey = normalizeCompany(companyName ?? "");
+        const isWin = ["won", "meeting_booked", "replied"].includes(outcome);
+
+        // Update knowledge entry for this company
+        if (companyKey) {
+          const knowledgeKey = `company::${companyKey}`;
+          await upsertKnowledgeEntry(knowledgeKey, {
+            companyKey,
+            successCount: isWin ? 1 : 0,
+            failCount: isWin ? 0 : 1,
+            totalCount: 1,
+            winRate: isWin ? 0.7 : 0.3,
+          } as any);
+        }
+
+        // Recalibrate thresholds if we have recent outcomes
+        const recent = await ddb.select().from(nexoraOutcomes).limit(50);
+        if (recent.length >= 10) {
+          const current = await loadAdaptiveThresholds();
+          const { updated, winRate: wr } = computeOutcomeLearningUpdate(current, recent);
+          if (Math.abs(wr - 0.5) > 0.08) {
+            await saveAdaptiveThresholds(updated, `outcome_feedback_loop:${outcome}`, wr, recent.length);
+            console.log(`[Nexora Learning] Thresholds recalibrated: winRate=${(wr * 100).toFixed(1)}%`);
+          }
+        }
+      } catch (learnErr) {
+        console.error("[Nexora Learning] Non-fatal update error:", learnErr);
+      }
+
+      res.json({ ok: true, outcomeId: created.id, outcome, companyName });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/nexora/knowledge — top knowledge entries for admin
+  app.get("/api/nexora/knowledge", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { nexoraKnowledge } = await import("@shared/schema");
+      const { desc } = await import("drizzle-orm");
+      const rows = await ddb
+        .select()
+        .from(nexoraKnowledge)
+        .orderBy(desc(nexoraKnowledge.lastUpdatedAt))
+        .limit(100);
+      res.json({ entries: rows, total: rows.length });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 

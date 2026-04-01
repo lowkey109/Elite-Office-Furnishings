@@ -168,6 +168,12 @@ app.use((req, res, next) => {
   const { startFollowUpScheduler } = await import("./services/followUpScheduler");
   startFollowUpScheduler(); // bounded email follow-up only — not an orchestration brain
 
+  // ── Runtime hardening: clean up expired DB locks on startup ─────────────
+  // Prevents stale locks from blocking Nexora if the server crashed mid-run.
+  import("./services/intelligence/nexora/nexora-support")
+    .then(({ cleanupExpiredLocks }) => cleanupExpiredLocks())
+    .catch(() => undefined); // non-fatal
+
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
@@ -187,4 +193,45 @@ app.use((req, res, next) => {
   httpServer.listen({ port, host: "0.0.0.0", reusePort: true }, () => {
     log(`serving on port ${port}`);
   });
+
+  // ── Graceful shutdown ─────────────────────────────────────────────────────
+  // On SIGTERM (container stop, deploy, restart) or SIGINT (Ctrl-C):
+  // 1. Stop accepting new connections
+  // 2. Let the current Nexora cycle finish (stopNexoraBackground disables timer)
+  // 3. Drain pg-boss (stopJobOrchestrator)
+  // 4. Exit cleanly so the platform can restart safely
+
+  let shuttingDown = false;
+
+  async function gracefulShutdown(signal: string) {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    log(`Received ${signal} — initiating graceful shutdown...`);
+
+    // Stop new HTTP requests
+    httpServer.close(() => {
+      log("HTTP server closed");
+    });
+
+    // Stop Nexora background timer (running cycle completes naturally)
+    const { stopNexoraBackground } = await import("./services/intelligence/nexoraOrchestrator");
+    stopNexoraBackground();
+    log("Nexora background loop disabled");
+
+    // Drain pg-boss gracefully
+    const { stopJobOrchestrator } = await import("./services/jobOrchestrator");
+    await stopJobOrchestrator().catch(() => undefined);
+    log("pg-boss stopped");
+
+    // Release any held DB run-locks
+    import("./services/intelligence/nexora/nexora-support")
+      .then(({ cleanupExpiredLocks }) => cleanupExpiredLocks())
+      .catch(() => undefined);
+
+    log("Graceful shutdown complete");
+    process.exit(0);
+  }
+
+  process.once("SIGTERM", () => gracefulShutdown("SIGTERM"));
+  process.once("SIGINT", () => gracefulShutdown("SIGINT"));
 })();

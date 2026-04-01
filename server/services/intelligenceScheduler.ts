@@ -293,7 +293,40 @@ export async function startSchedulerWithPgBoss(): Promise<boolean> {
     { repeatEvery: "0 */6 * * *" } // every 6 hours
   );
 
-  console.log("[Scheduler] pg-boss ACTIVE");
+  // ── Nexora push retry workers ──────────────────────────────────────────────
+  // When pushToPipeline or pushToRadar throw, the orchestrator schedules a
+  // pg-boss job (2-min delay) so pg-boss handles retry with exponential backoff
+  // (retryLimit: 3, retryBackoff: true already set in getBoss()).
+
+  await registerWorker(QUEUES.NEXORA_PUSH_PIPELINE_RETRY, async (job) => {
+    const signalId = job.data.signalId as string;
+    const sourceType = (job.data.sourceType as "deal" | "radar") ?? "deal";
+    if (!signalId) return;
+    try {
+      const { pushDealHunterToPipeline } = await import("./intelligence/dealHunter");
+      await pushDealHunterToPipeline(signalId);
+      console.log(`[PushRetry] pipeline push succeeded for ${signalId} (${sourceType})`);
+    } catch (err) {
+      console.error(`[PushRetry] pipeline retry failed for ${signalId}:`, err);
+      throw err; // re-throw so pg-boss triggers its own retryLimit
+    }
+  });
+
+  await registerWorker(QUEUES.NEXORA_PUSH_RADAR_RETRY, async (job) => {
+    const signalId = job.data.signalId as string;
+    const sourceType = (job.data.sourceType as "deal" | "radar") ?? "deal";
+    if (!signalId) return;
+    try {
+      const { pushDealHunterToRadar } = await import("./intelligence/dealHunter");
+      await pushDealHunterToRadar(signalId);
+      console.log(`[PushRetry] radar push succeeded for ${signalId} (${sourceType})`);
+    } catch (err) {
+      console.error(`[PushRetry] radar retry failed for ${signalId}:`, err);
+      throw err; // re-throw so pg-boss triggers its own retryLimit
+    }
+  });
+
+  console.log("[Scheduler] pg-boss ACTIVE — push retry workers registered");
 
   return true;
 }
