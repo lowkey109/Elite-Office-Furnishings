@@ -11,6 +11,7 @@ import {
   MessageSquare, Eye, EyeOff, Building2, MapPin, Info, Inbox,
   ThumbsUp, ThumbsDown, Radio, Layers, Brain, BookOpen, Sliders,
   TrendingDown, Award, Send, Database, Scan, ArrowUpRight,
+  Lock, Unlock, AlertOctagon, RotateCcw, GitBranch, Cpu,
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -177,6 +178,28 @@ interface NexoraRunResult {
   errors: string[];
 }
 
+interface RuntimeState {
+  isLocked: boolean;
+  activeLock: { id: number; lockKey: string; runId: string; acquiredAt: string; expiresAt: string | null } | null;
+  loopEnabled: boolean;
+  loopRunning: boolean;
+  loopIntervalMs: number;
+  loopRunCount: number;
+  loopLastRunAt: string | null;
+  loopLastError: string | null;
+  lastRunResult: { success: boolean; message: string; totals?: { scanned: number; pushedPipeline: number; pushedRadar: number } } | null;
+  bgLastRunId: string | null;
+  bgLastStartedAt: string | null;
+  bgLastFinishedAt: string | null;
+  bgLastError: string | null;
+  failedJobs: { name: string; state: string; retryCount: number; createdOn: string }[];
+  failedJobCount: number;
+  retryJobCount: number;
+  approvalQueueCount: number;
+  latestRunId: string | null;
+  latestRunDecisions: NexoraDecision[];
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function formatMs(ms: number) {
@@ -295,6 +318,11 @@ export default function AdminNexoraCommandCentre() {
     refetchInterval: 120000,
   });
 
+  const { data: runtimeState, isLoading: runtimeLoading } = useQuery<RuntimeState>({
+    queryKey: ["/api/nexora/runtime-state"],
+    refetchInterval: 8000,
+  });
+
   // ── Mutations ──────────────────────────────────────────────────────────────
 
   const runMutation = useMutation({
@@ -311,6 +339,7 @@ export default function AdminNexoraCommandCentre() {
       queryClient.invalidateQueries({ queryKey: ["/api/nexora/opportunities/top"] });
       queryClient.invalidateQueries({ queryKey: ["/api/nexora/signals/summary"] });
       queryClient.invalidateQueries({ queryKey: ["/api/nexora/knowledge"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/runtime-state"] });
     },
     onError: (err: any) => toast({ title: "Run failed", description: err?.message, variant: "destructive" }),
   });
@@ -510,6 +539,182 @@ export default function AdminNexoraCommandCentre() {
               <div className="text-xs text-white/30">{sub}</div>
             </div>
           ))}
+        </div>
+
+        {/* ── Runtime Control State ── */}
+        <div className="mb-6 border border-[hsl(43,78%,52%)]/15 bg-[hsl(43,78%,52%)]/[0.02]">
+          <div className="flex items-center gap-2 px-5 pt-4 pb-3 border-b border-white/5">
+            <Cpu className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+            <h2 className="text-sm font-medium text-white">Runtime Control State</h2>
+            {runtimeLoading && <Loader2 className="w-3 h-3 animate-spin text-white/30 ml-1" />}
+            <span className="ml-auto text-[10px] text-white/20 uppercase tracking-wide">Live · 8s refresh</span>
+          </div>
+
+          {/* ── 5 State Tiles ── */}
+          <div className="grid grid-cols-2 md:grid-cols-5 divide-x divide-white/5">
+
+            {/* Tile 1: Automation Mode */}
+            <div data-testid="tile-automation-mode" className="px-4 py-3">
+              <div className="flex items-center gap-1.5 mb-2">
+                <GitBranch className="w-3 h-3 text-white/30" />
+                <span className="text-[10px] text-white/30 uppercase tracking-wide">Automation Mode</span>
+              </div>
+              <div className={`text-sm font-medium mb-2 ${runtimeState?.loopEnabled ? "text-green-400" : "text-white/50"}`}>
+                {runtimeState?.loopEnabled ? "Auto" : "Manual"}
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {[
+                  { key: "pipeline", label: "Pipeline", enabled: true },
+                  { key: "radar", label: "Radar", enabled: true },
+                  { key: "webhook", label: "Webhook", enabled: true },
+                  { key: "learning", label: "Learning", enabled: true },
+                ].map(({ key, label, enabled }) => (
+                  <span key={key} className={`text-[9px] px-1.5 py-0.5 border ${enabled ? "border-green-500/20 text-green-400/70 bg-green-500/5" : "border-white/10 text-white/25"}`}>
+                    {enabled ? "✓" : "✗"} {label}
+                  </span>
+                ))}
+              </div>
+              {runtimeState?.loopEnabled && (
+                <p className="mt-1.5 text-[10px] text-white/25">
+                  Every {Math.round((runtimeState.loopIntervalMs ?? 1800000) / 60000)}min · {runtimeState.loopRunCount ?? 0} runs
+                </p>
+              )}
+            </div>
+
+            {/* Tile 2: Lock / Run State */}
+            <div data-testid="tile-lock-state" className="px-4 py-3">
+              <div className="flex items-center gap-1.5 mb-2">
+                {runtimeState?.isLocked ? <Lock className="w-3 h-3 text-orange-400" /> : <Unlock className="w-3 h-3 text-white/30" />}
+                <span className="text-[10px] text-white/30 uppercase tracking-wide">Engine Lock</span>
+              </div>
+              {runtimeState?.isLocked ? (
+                <>
+                  <div className="text-sm font-medium text-orange-400 mb-1">Locked</div>
+                  <p className="text-[10px] text-white/40 break-all">{runtimeState.activeLock?.lockKey}</p>
+                  <p className="text-[10px] text-white/25 mt-0.5">Since {timeAgo(runtimeState.activeLock?.acquiredAt ?? null)}</p>
+                </>
+              ) : (
+                <>
+                  <div className="text-sm font-medium text-white/50 mb-1">Idle</div>
+                  <p className="text-[10px] text-white/25">No active lock — engine is free</p>
+                  {(runtimeState?.loopRunning) && (
+                    <Badge className="mt-1 bg-blue-500/15 text-blue-300 border-blue-500/20 text-[9px] animate-pulse">
+                      <Loader2 className="w-2.5 h-2.5 animate-spin mr-1" /> Cycle running
+                    </Badge>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Tile 3: Failed Jobs */}
+            <div data-testid="tile-failed-jobs" className="px-4 py-3">
+              <div className="flex items-center gap-1.5 mb-2">
+                <AlertOctagon className="w-3 h-3 text-white/30" />
+                <span className="text-[10px] text-white/30 uppercase tracking-wide">Failed Jobs</span>
+              </div>
+              {runtimeState ? (
+                <>
+                  <div className={`text-sm font-medium mb-1.5 ${runtimeState.failedJobCount > 0 ? "text-red-400" : "text-white/40"}`}>
+                    {runtimeState.failedJobCount} failed
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] px-1.5 py-0.5 border ${runtimeState.retryJobCount > 0 ? "border-yellow-500/25 text-yellow-400 bg-yellow-500/5" : "border-white/10 text-white/30"}`}>
+                      <RotateCcw className="w-2.5 h-2.5 inline mr-0.5" />{runtimeState.retryJobCount} retry
+                    </span>
+                  </div>
+                  {runtimeState.failedJobs.length > 0 && (
+                    <div className="mt-2 space-y-0.5">
+                      {runtimeState.failedJobs.slice(0, 3).map((j, i) => (
+                        <p key={i} className="text-[9px] text-white/30 truncate">{j.name} · ×{j.retryCount}</p>
+                      ))}
+                    </div>
+                  )}
+                  {runtimeState.failedJobCount === 0 && runtimeState.retryJobCount === 0 && (
+                    <p className="text-[10px] text-white/25">All jobs clean</p>
+                  )}
+                </>
+              ) : (
+                <div className="text-white/25 text-xs">—</div>
+              )}
+            </div>
+
+            {/* Tile 4: Approval Queue */}
+            <div data-testid="tile-approval-queue" className="px-4 py-3">
+              <div className="flex items-center gap-1.5 mb-2">
+                <Inbox className="w-3 h-3 text-white/30" />
+                <span className="text-[10px] text-white/30 uppercase tracking-wide">Approval Queue</span>
+              </div>
+              <div className={`text-sm font-medium mb-1 ${(runtimeState?.approvalQueueCount ?? 0) > 0 ? "text-yellow-400" : "text-white/40"}`}>
+                {runtimeState?.approvalQueueCount ?? "—"} pending
+              </div>
+              {(runtimeState?.approvalQueueCount ?? 0) > 0 ? (
+                <p className="text-[10px] text-yellow-400/60">Outreach awaiting review</p>
+              ) : (
+                <p className="text-[10px] text-white/25">Queue clear</p>
+              )}
+            </div>
+
+            {/* Tile 5: Last Run Result */}
+            <div data-testid="tile-last-run-result" className="px-4 py-3">
+              <div className="flex items-center gap-1.5 mb-2">
+                <Activity className="w-3 h-3 text-white/30" />
+                <span className="text-[10px] text-white/30 uppercase tracking-wide">Last Run Result</span>
+              </div>
+              {runtimeState?.lastRunResult ? (
+                <>
+                  <div className={`text-sm font-medium mb-1 ${runtimeState.lastRunResult.success ? "text-emerald-400" : "text-red-400"}`}>
+                    {runtimeState.lastRunResult.success ? "Success" : "Failed"}
+                  </div>
+                  {runtimeState.lastRunResult.totals && (
+                    <div className="flex flex-wrap gap-2 text-[10px] text-white/40">
+                      <span>{runtimeState.lastRunResult.totals.scanned} scanned</span>
+                      <span className="text-blue-400">{runtimeState.lastRunResult.totals.pushedPipeline} → pipe</span>
+                      <span className="text-purple-400">{runtimeState.lastRunResult.totals.pushedRadar} → radar</span>
+                    </div>
+                  )}
+                  <p className="mt-1 text-[10px] text-white/25">{timeAgo(runtimeState.bgLastFinishedAt ?? runtimeState.loopLastRunAt)}</p>
+                  {(runtimeState.bgLastError || runtimeState.loopLastError) && (
+                    <p className="mt-1 text-[9px] text-red-400/70 truncate">{runtimeState.bgLastError || runtimeState.loopLastError}</p>
+                  )}
+                </>
+              ) : (
+                <div>
+                  <div className="text-sm text-white/30 mb-1">{runtimeState?.bgLastFinishedAt ? "Complete" : "No runs yet"}</div>
+                  <p className="text-[10px] text-white/25">{timeAgo(runtimeState?.bgLastFinishedAt ?? runtimeState?.loopLastRunAt ?? null)}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ── Latest Actions Executed ── */}
+          {runtimeState?.latestRunDecisions && runtimeState.latestRunDecisions.length > 0 && (
+            <div className="border-t border-white/5 px-5 py-3">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[10px] text-white/30 uppercase tracking-wide">Latest Actions Executed</span>
+                {runtimeState.latestRunId && (
+                  <span className="text-[9px] text-white/20 font-mono">run {runtimeState.latestRunId.slice(0, 8)}…</span>
+                )}
+                <span className="ml-auto text-[9px] text-white/20">{runtimeState.latestRunDecisions.length} decisions</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {runtimeState.latestRunDecisions.map((d) => (
+                  <div
+                    key={d.id}
+                    data-testid={`badge-runtime-decision-${d.id}`}
+                    className="flex items-center gap-1.5 px-2 py-1 border border-white/8 bg-white/[0.02] text-xs"
+                  >
+                    <span className="text-white/60 max-w-[120px] truncate">{d.companyName ?? "Unknown"}</span>
+                    <Badge className={`text-[9px] px-1.5 h-4 ${actionBadge(d.action)}`}>{actionLabel(d.action)}</Badge>
+                    <span className={`text-[9px] ${d.confidence >= 0.7 ? "text-emerald-400" : d.confidence >= 0.4 ? "text-yellow-400" : "text-white/30"}`}>
+                      {Math.round(d.confidence * 100)}%
+                    </span>
+                    {d.pushedPipeline && <span className="text-[8px] text-blue-400/60">✓pipe</span>}
+                    {d.pushedRadar && <span className="text-[8px] text-purple-400/60">✓radar</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ── Signal Intelligence Summary ── */}

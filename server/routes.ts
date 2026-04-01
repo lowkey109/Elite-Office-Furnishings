@@ -11054,5 +11054,93 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
+  // GET /api/nexora/runtime-state — live control state: lock, mode, failed jobs, approval queue, latest actions
+  app.get("/api/nexora/runtime-state", async (_req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { nexoraRunLocks, nexoraDecisions, outreachMessages } = await import("@shared/schema");
+      const { eq, desc, sql: drizzleSql } = await import("drizzle-orm");
+      const { getNexoraLoopState } = await import("./services/nexoraLoop");
+      const { getNexoraBackgroundState } = await import("./services/intelligence/nexoraOrchestrator");
+
+      // 1. Active lock state
+      const activeLocks = await ddb
+        .select()
+        .from(nexoraRunLocks)
+        .where(eq(nexoraRunLocks.status, "active"))
+        .orderBy(desc(nexoraRunLocks.acquiredAt))
+        .limit(1);
+
+      // 2. Failed / retry pg-boss jobs for Nexora queues
+      let failedJobs: { name: string; state: string; retryCount: number; createdOn: string }[] = [];
+      try {
+        const pgResult = await ddb.execute(drizzleSql`
+          SELECT name, state, retry_count, created_on::text as created_on
+          FROM pgboss.job
+          WHERE name LIKE 'nexora%' AND state IN ('failed', 'retry')
+          ORDER BY created_on DESC LIMIT 20
+        `);
+        failedJobs = (pgResult.rows as any[]).map((r) => ({
+          name: r.name,
+          state: r.state,
+          retryCount: Number(r.retry_count ?? 0),
+          createdOn: r.created_on,
+        }));
+      } catch { /* pg-boss schema not available — ignore */ }
+
+      // 3. Latest run decisions (top 10 from most recent runId)
+      const latestDecisionRow = await ddb
+        .select({ runId: nexoraDecisions.runId })
+        .from(nexoraDecisions)
+        .orderBy(desc(nexoraDecisions.createdAt))
+        .limit(1);
+
+      let latestRunDecisions: any[] = [];
+      let latestRunId: string | null = null;
+      if (latestDecisionRow.length > 0) {
+        latestRunId = latestDecisionRow[0].runId;
+        latestRunDecisions = await ddb
+          .select()
+          .from(nexoraDecisions)
+          .where(eq(nexoraDecisions.runId, latestRunId!))
+          .orderBy(desc(nexoraDecisions.createdAt))
+          .limit(10);
+      }
+
+      // 4. Approval queue count — pending draft outreach messages
+      const pendingRows = await ddb
+        .select({ id: outreachMessages.id })
+        .from(outreachMessages)
+        .where(eq(outreachMessages.deliveryStatus, "draft"))
+        .limit(500);
+
+      // 5. Loop state + background state
+      const loopState = getNexoraLoopState();
+      const bgState = getNexoraBackgroundState();
+
+      res.json({
+        isLocked: activeLocks.length > 0,
+        activeLock: activeLocks[0] ?? null,
+        loopEnabled: loopState.enabled,
+        loopRunning: loopState.running,
+        loopIntervalMs: loopState.intervalMs,
+        loopRunCount: loopState.runCount,
+        loopLastRunAt: loopState.lastRunAt,
+        loopLastError: loopState.lastError,
+        lastRunResult: loopState.lastResult ?? null,
+        bgLastRunId: bgState.lastRunId,
+        bgLastStartedAt: bgState.lastStartedAt,
+        bgLastFinishedAt: bgState.lastFinishedAt,
+        bgLastError: bgState.lastError,
+        failedJobs,
+        failedJobCount: failedJobs.filter((j) => j.state === "failed").length,
+        retryJobCount: failedJobs.filter((j) => j.state === "retry").length,
+        approvalQueueCount: pendingRows.length,
+        latestRunId,
+        latestRunDecisions,
+      });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
   return httpServer;
 }
