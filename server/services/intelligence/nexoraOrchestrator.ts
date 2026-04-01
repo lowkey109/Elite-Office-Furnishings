@@ -9,6 +9,7 @@ import {
   pushDealHunterToRadar,
   runDealHunterScan,
 } from "../dealHunter";
+import { storage } from "../../storage";
 import { scheduleJob, QUEUES } from "../jobOrchestrator";
 import { nexoraAIAnalysis } from "../nexoraAI";
 import {
@@ -400,28 +401,82 @@ async function collectSignals(
   config: NexoraConfig,
   runId: string,
 ): Promise<ScanBatch> {
-  const [
-    officeRadarSignals,
-    newsSignals,
-    jobSignals,
-    predictiveSignals,
-    dealHunterSignals,
-  ] = await Promise.all([
-    safeArray(runOfficeMovRadarScan?.(), "runOfficeMovRadarScan", runId),
-    safeArray(runNewsFeedScan?.(), "runNewsFeedScan", runId),
-    safeArray(runJobSignalScan?.(), "runJobSignalScan", runId),
-    safeArray(runPredictiveScan?.(), "runPredictiveScan", runId),
-    safeArray(runDealHunterScan?.(), "runDealHunterScan", runId),
+  // Run all scanners in parallel.
+  // NOTE: news/job/predictive scanners save to DB and return {saved, processed}.
+  //       DealHunter saves to DB and returns {signals: DealHunterSignal[], ...}.
+  //       OfficeMovRadar is synthetic and returns an array directly.
+  // We run the scanners first to ensure fresh data is in DB, then query.
+  const [officeRadarResult, , , , dealHunterResult] = await Promise.all([
+    runOfficeMovRadarScan?.().catch((err: unknown) => {
+      console.warn(`[Nexora] runOfficeMovRadarScan failed: ${(err as Error)?.message}`);
+      return [] as RadarSignalLike[];
+    }),
+    runNewsFeedScan?.().catch((err: unknown) => {
+      console.warn(`[Nexora] runNewsFeedScan failed: ${(err as Error)?.message}`);
+    }),
+    runJobSignalScan?.().catch((err: unknown) => {
+      console.warn(`[Nexora] runJobSignalScan failed: ${(err as Error)?.message}`);
+    }),
+    runPredictiveScan?.().catch((err: unknown) => {
+      console.warn(`[Nexora] runPredictiveScan failed: ${(err as Error)?.message}`);
+    }),
+    runDealHunterScan?.().catch((err: unknown) => {
+      console.warn(`[Nexora] runDealHunterScan failed: ${(err as Error)?.message}`);
+      return { signals: [] as DealHunterSignalLike[], created: 0, deduplicated: 0 };
+    }),
   ]);
 
-  const radarSignals: RadarSignalLike[] = [
-    ...officeRadarSignals,
-    ...newsSignals,
-    ...jobSignals,
-    ...predictiveSignals,
-  ];
+  // OfficeMovRadar returns an array of OfficeMovRadar[] (synthetic AI data)
+  const syntheticRadar: RadarSignalLike[] = Array.isArray(officeRadarResult)
+    ? (officeRadarResult as RadarSignalLike[])
+    : [];
 
-  const dealSignals: DealHunterSignalLike[] = [...dealHunterSignals];
+  // DealHunter returns { signals: DealHunterSignal[] }
+  const dealSignalsFromRun: DealHunterSignalLike[] =
+    Array.isArray((dealHunterResult as any)?.signals)
+      ? (dealHunterResult as any).signals
+      : [];
+
+  // Query DB for unpushed deal hunter signals (not yet pushed to pipeline OR radar)
+  let dbDealSignals: DealHunterSignalLike[] = [];
+  try {
+    const allDealSignals = await storage.getDealHunterSignals({
+      status: "new",
+      pushedToPipeline: false,
+    });
+    // Only include signals not yet pushed to radar either
+    const unpushed = allDealSignals.filter((s) => !(s as any).pushedToRadar);
+    // Limit to most recent 30 to avoid overwhelming the run
+    dbDealSignals = unpushed.slice(0, 30);
+  } catch (err: unknown) {
+    console.warn(`[Nexora] DB deal signal query failed: ${(err as Error)?.message}`);
+  }
+
+  // Merge deal signals — prefer DB ones, dedupe by id
+  const seenDealIds = new Set<string>();
+  const dealSignals: DealHunterSignalLike[] = [];
+  for (const s of [...dealSignalsFromRun, ...dbDealSignals]) {
+    const id = (s as any).id ?? (s as any).signalId;
+    if (id && seenDealIds.has(String(id))) continue;
+    if (id) seenDealIds.add(String(id));
+    dealSignals.push(s);
+  }
+
+  // Also query recent office move radar records from DB (non-synthetic if any)
+  let dbRadarSignals: RadarSignalLike[] = [];
+  try {
+    // DB stores status as "New" (capital N), not "new"
+    const allRadar = await storage.getOfficeMovRadarRecords({ status: "New" });
+    dbRadarSignals = allRadar
+      .filter((r) => (r as any).verificationStatus !== "synthetic")
+      .slice(0, 30) as unknown as RadarSignalLike[];
+  } catch (err: unknown) {
+    console.warn(`[Nexora] DB radar signal query failed: ${(err as Error)?.message}`);
+  }
+
+  const radarSignals: RadarSignalLike[] = [...syntheticRadar, ...dbRadarSignals];
+
+  console.log(`[Nexora] collectSignals complete: ${radarSignals.length} radar + ${dealSignals.length} deal signals`);
 
   return {
     radarSignals,
@@ -728,15 +783,10 @@ async function pushToPipeline(
 ): Promise<boolean> {
   try {
     if (sourceType === "deal") {
-      await pushDealHunterToPipeline(signal as DealHunterSignalLike);
+      // pushDealHunterToPipeline expects a string ID, not the signal object
+      await pushDealHunterToPipeline(signal.id);
       return true;
     }
-
-    if (typeof pushDealHunterToPipeline === "function") {
-      await pushDealHunterToPipeline(signal as unknown as DealHunterSignalLike);
-      return true;
-    }
-
     return false;
   } catch (err) {
     console.error(`[Nexora] pushToPipeline failed for signal ${signal.id} — scheduling pg-boss retry:`, err);
@@ -756,15 +806,10 @@ async function pushToRadar(
 ): Promise<boolean> {
   try {
     if (sourceType === "deal") {
-      await pushDealHunterToRadar(signal as DealHunterSignalLike);
+      // pushDealHunterToRadar expects a string ID, not the signal object
+      await pushDealHunterToRadar(signal.id);
       return true;
     }
-
-    if (typeof pushDealHunterToRadar === "function") {
-      await pushDealHunterToRadar(signal as unknown as DealHunterSignalLike);
-      return true;
-    }
-
     return false;
   } catch (err) {
     console.error(`[Nexora] pushToRadar failed for signal ${signal.id} — scheduling pg-boss retry:`, err);

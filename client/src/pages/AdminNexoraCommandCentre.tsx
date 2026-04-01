@@ -10,33 +10,11 @@ import {
   ShieldCheck, TrendingUp, DollarSign, Flame, Target, ChevronRight,
   MessageSquare, Eye, EyeOff, Building2, MapPin, Info, Inbox,
   ThumbsUp, ThumbsDown, Radio, Layers, Brain, BookOpen, Sliders,
-  TrendingDown, Award, Send,
+  TrendingDown, Award, Send, Database, Scan, ArrowUpRight,
 } from "lucide-react";
 import { Link } from "wouter";
 
-type SystemRunStep = { step: string; status: string; detail?: string; count?: number };
-type TopDeal = { id: string; clientCompany: string; status: string; estimatedValue: number; aiFitScore?: number; aiNextBestAction?: string };
-type AtRiskDeal = { id: string; clientCompany: string; status: string; estimatedValue: number; reason: string };
-type UrgentLead = { name: string; value: number; score?: number; status: string };
-type SystemRunResult = {
-  ok: boolean;
-  ranAt: string;
-  durationMs: number;
-  steps: SystemRunStep[];
-  staleLeads: string[];
-  urgentLeads?: UrgentLead[];
-  overdueComs: number;
-  predictive?: {
-    totalPipelineValue: number;
-    totalRevenue: number;
-    predicted30: number;
-    predicted60: number;
-    predicted90: number;
-    topDeals: TopDeal[];
-    atRisk: AtRiskDeal[];
-    totalActive: number;
-  };
-};
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 interface LoopStatus {
   enabled: boolean;
@@ -131,7 +109,10 @@ interface OutcomeStats {
   winRate: number;
   avgDeal: number;
   byOutcome: Record<string, number>;
-  recent: Array<{ id: string; signalId: string; companyName: string | null; outcome: string; createdAt: string; dealValue: number | null }>;
+  recent: Array<{
+    id: string; signalId: string; companyName: string | null;
+    outcome: string; createdAt: string; dealValue: number | null;
+  }>;
 }
 
 interface NexoraThreshold {
@@ -150,6 +131,53 @@ interface NexoraThreshold {
   isActive: boolean;
   createdAt: string;
 }
+
+interface KnowledgeEntry {
+  id: string;
+  entryKey: string;
+  companyName: string;
+  signalType: string;
+  city: string;
+  industry: string;
+  action: string;
+  priority: string;
+  confidence: number;
+  winRate: number;
+  successCount: number;
+  failCount: number;
+  totalCount: number;
+  lastUpdatedAt: string;
+}
+
+interface NexoraRunResult {
+  ok: boolean;
+  runId: string;
+  trigger: string;
+  startedAt: string;
+  finishedAt: string;
+  totals: {
+    scanned: number;
+    valid: number;
+    invalid: number;
+    duplicates: number;
+    aiCallsUsed: number;
+    pushedPipeline: number;
+    pushedRadar: number;
+    webhooksSent: number;
+    whatsappSent: number;
+    vectorsSynced: number;
+    reviewed: number;
+  };
+  learning: {
+    sampleSize: number;
+    avgWinRate: number;
+    appliedDeltaStrongPipeline: number;
+    maxDriftPerRun: number;
+  };
+  errors: string[];
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function formatMs(ms: number) {
   if (ms < 1000) return `${ms}ms`;
@@ -172,9 +200,10 @@ function timeAgo(dateStr: string | null) {
   return new Date(dateStr).toLocaleDateString("en-AU", { day: "numeric", month: "short" });
 }
 
-function confidenceBadge(conf: string) {
-  if (conf === "high" || conf === "very_high") return "bg-green-500/15 text-green-300 border-green-500/25";
-  if (conf === "medium") return "bg-yellow-500/15 text-yellow-300 border-yellow-500/25";
+function confidenceBadge(conf: string | number) {
+  const c = typeof conf === "number" ? (conf >= 70 ? "high" : conf >= 40 ? "medium" : "low") : conf;
+  if (c === "high" || c === "very_high") return "bg-green-500/15 text-green-300 border-green-500/25";
+  if (c === "medium") return "bg-yellow-500/15 text-yellow-300 border-yellow-500/25";
   return "bg-white/8 text-white/40 border-white/10";
 }
 
@@ -188,14 +217,38 @@ function signalTypeBadge(type: string) {
   return "bg-white/8 text-white/35 border-white/10";
 }
 
+function actionBadge(action: string) {
+  if (action === "push_pipeline" || action === "pipeline" || action === "both")
+    return "bg-blue-500/15 text-blue-300 border-blue-500/25";
+  if (action === "push_radar" || action === "radar")
+    return "bg-purple-500/15 text-purple-300 border-purple-500/25";
+  if (action === "review")
+    return "bg-yellow-500/15 text-yellow-300 border-yellow-500/25";
+  return "bg-white/8 text-white/35 border-white/10";
+}
+
+function actionLabel(action: string) {
+  if (action === "push_pipeline") return "pipeline";
+  if (action === "push_radar") return "radar";
+  return action;
+}
+
+// ── Main Component ─────────────────────────────────────────────────────────────
+
 export default function AdminNexoraCommandCentre() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [intervalInput, setIntervalInput] = useState("30");
-  const [systemRunResult, setSystemRunResult] = useState<SystemRunResult | null>(null);
   const [expandedOpp, setExpandedOpp] = useState<string | null>(null);
   const [showOutcomeForm, setShowOutcomeForm] = useState(false);
-  const [outcomeForm, setOutcomeForm] = useState({ signalId: "", companyName: "", outcome: "won", channel: "email", dealValue: "", notes: "" });
+  const [outcomeForm, setOutcomeForm] = useState({
+    signalId: "", companyName: "", outcome: "won",
+    channel: "email", dealValue: "", notes: "",
+  });
+  const [lastRunResult, setLastRunResult] = useState<NexoraRunResult | null>(null);
+  const [scanResult, setScanResult] = useState<{ saved: number; processed: number } | null>(null);
+
+  // ── Queries ────────────────────────────────────────────────────────────────
 
   const { data: loopStatus, isLoading: statusLoading } = useQuery<LoopStatus>({
     queryKey: ["/api/nexora/loop/status"],
@@ -219,22 +272,7 @@ export default function AdminNexoraCommandCentre() {
 
   const { data: thresholdsData } = useQuery<{ current: NexoraThreshold | null; history: NexoraThreshold[] }>({
     queryKey: ["/api/nexora/thresholds/current"],
-    refetchInterval: 300000,
-  });
-
-  const recordOutcomeMutation = useMutation({
-    mutationFn: (data: typeof outcomeForm) => apiRequest("POST", "/api/nexora/outcomes", {
-      ...data,
-      dealValue: data.dealValue ? Number(data.dealValue) : undefined,
-    }),
-    onSuccess: () => {
-      toast({ title: "Outcome recorded", description: "Nexora brain will recalibrate based on this feedback." });
-      setShowOutcomeForm(false);
-      setOutcomeForm({ signalId: "", companyName: "", outcome: "won", channel: "email", dealValue: "", notes: "" });
-      queryClient.invalidateQueries({ queryKey: ["/api/nexora/outcomes/stats"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/nexora/thresholds/current"] });
-    },
-    onError: (err: any) => toast({ title: "Failed to record outcome", description: err?.message, variant: "destructive" }),
+    refetchInterval: 120000,
   });
 
   const { data: topOpps, isLoading: oppsLoading } = useQuery<{ opportunities: Opportunity[]; total: number }>({
@@ -252,18 +290,42 @@ export default function AdminNexoraCommandCentre() {
     refetchInterval: 30000,
   });
 
+  const { data: knowledgeData, isLoading: knowledgeLoading } = useQuery<{ entries: KnowledgeEntry[]; total: number }>({
+    queryKey: ["/api/nexora/knowledge"],
+    refetchInterval: 120000,
+  });
+
+  // ── Mutations ──────────────────────────────────────────────────────────────
+
   const runMutation = useMutation({
-    mutationFn: () => apiRequest("POST", "/api/nexora/loop/run-now"),
-    onSuccess: () => {
-      toast({ title: "Nexora started", description: "Cycle is running — results will appear in history." });
-      queryClient.invalidateQueries({ queryKey: ["/api/nexora/loop/status"] });
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ["/api/nexora/history"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/nexora/opportunities/top"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/nexora/signals/summary"] });
-      }, 8000);
+    mutationFn: () => apiRequest("POST", "/api/nexora/run"),
+    onSuccess: (data: NexoraRunResult) => {
+      setLastRunResult(data);
+      const t = data.totals;
+      toast({
+        title: data.ok ? "Nexora run complete" : "Nexora run finished with errors",
+        description: `Scanned ${t.scanned} · ${t.pushedPipeline} pipeline · ${t.pushedRadar} radar`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/decisions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/history"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/opportunities/top"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/signals/summary"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/knowledge"] });
     },
     onError: (err: any) => toast({ title: "Run failed", description: err?.message, variant: "destructive" }),
+  });
+
+  const scanMutation = useMutation({
+    mutationFn: () => apiRequest("POST", "/api/admin/office-move-radar/scan-all"),
+    onSuccess: (data: any) => {
+      setScanResult({ saved: data.saved ?? 0, processed: data.processed ?? 0 });
+      toast({
+        title: "Scan complete",
+        description: `${data.saved ?? 0} new signals saved from ${data.processed ?? 0} articles`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/signals/summary"] });
+    },
+    onError: (err: any) => toast({ title: "Scan failed", description: err?.message, variant: "destructive" }),
   });
 
   const startLoopMutation = useMutation({
@@ -272,7 +334,6 @@ export default function AdminNexoraCommandCentre() {
       toast({ title: "Autonomous loop started" });
       queryClient.invalidateQueries({ queryKey: ["/api/nexora/loop/status"] });
     },
-    onError: () => toast({ title: "Failed to start loop", variant: "destructive" }),
   });
 
   const stopLoopMutation = useMutation({
@@ -281,7 +342,6 @@ export default function AdminNexoraCommandCentre() {
       toast({ title: "Autonomous loop stopped" });
       queryClient.invalidateQueries({ queryKey: ["/api/nexora/loop/status"] });
     },
-    onError: () => toast({ title: "Failed to stop loop", variant: "destructive" }),
   });
 
   const configMutation = useMutation({
@@ -290,18 +350,21 @@ export default function AdminNexoraCommandCentre() {
       toast({ title: "Interval updated" });
       queryClient.invalidateQueries({ queryKey: ["/api/nexora/loop/status"] });
     },
-    onError: (err: any) => toast({ title: "Invalid interval", description: err?.message, variant: "destructive" }),
   });
 
-  const systemRunMutation = useMutation({
-    mutationFn: () => apiRequest("POST", "/api/system/run"),
-    onSuccess: (data: SystemRunResult) => {
-      setSystemRunResult(data);
-      toast({ title: "Predictive engine complete", description: `${data.steps?.length || 0} checks · ${data.durationMs}ms` });
-      queryClient.invalidateQueries({ queryKey: ["/api/nexora/history"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/nexora/opportunities/top"] });
+  const recordOutcomeMutation = useMutation({
+    mutationFn: (data: typeof outcomeForm) => apiRequest("POST", "/api/nexora/outcomes", {
+      ...data,
+      dealValue: data.dealValue ? Number(data.dealValue) : undefined,
+    }),
+    onSuccess: () => {
+      toast({ title: "Outcome recorded", description: "Nexora brain will recalibrate based on this feedback." });
+      setShowOutcomeForm(false);
+      setOutcomeForm({ signalId: "", companyName: "", outcome: "won", channel: "email", dealValue: "", notes: "" });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/outcomes/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/thresholds/current"] });
     },
-    onError: (err: any) => toast({ title: "System run failed", description: err?.message, variant: "destructive" }),
+    onError: (err: any) => toast({ title: "Failed to record outcome", description: err?.message, variant: "destructive" }),
   });
 
   const approveMutation = useMutation({
@@ -311,18 +374,21 @@ export default function AdminNexoraCommandCentre() {
       toast({ title: action === "approve" ? "Outreach approved" : "Outreach rejected" });
       queryClient.invalidateQueries({ queryKey: ["/api/nexora/outreach/pending"] });
     },
-    onError: (err: any) => toast({ title: "Action failed", description: err?.message, variant: "destructive" }),
   });
 
+  // ── Status badge ──────────────────────────────────────────────────────────
+
   const statusBadge = () => {
+    if (runMutation.isPending || scanMutation.isPending)
+      return <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 animate-pulse">Running</Badge>;
     if (!loopStatus) return <Badge variant="outline" className="text-white/40 border-white/10">Unknown</Badge>;
     if (loopStatus.running) return <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">Running</Badge>;
-    if (loopStatus.status === "success") return <Badge className="bg-green-500/20 text-green-300 border-green-500/30">Success</Badge>;
+    if (loopStatus.status === "success") return <Badge className="bg-green-500/20 text-green-300 border-green-500/30">Ready</Badge>;
     if (loopStatus.status === "failed") return <Badge className="bg-red-500/20 text-red-300 border-red-500/30">Failed</Badge>;
     return <Badge className="bg-white/10 text-white/40 border-white/10">Idle</Badge>;
   };
 
-  const pred = systemRunResult?.predictive;
+  // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white p-6">
@@ -341,38 +407,77 @@ export default function AdminNexoraCommandCentre() {
                 </Badge>
               )}
             </div>
-            <p className="text-white/40 text-sm">Autonomous intelligence loop · top opportunities · outreach approval · signal analytics</p>
+            <p className="text-white/40 text-sm">Autonomous OS · signal → decision → action → outcome → learning</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <Button
-              onClick={() => systemRunMutation.mutate()}
-              disabled={systemRunMutation.isPending}
-              data-testid="button-system-run"
-              className="bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-black font-semibold rounded-none"
-            >
-              {systemRunMutation.isPending ? (
-                <><Loader2 className="mr-2 w-4 h-4 animate-spin" /> Analysing...</>
-              ) : (
-                <><ShieldCheck className="mr-2 w-4 h-4" /> Run Predictive Engine</>
-              )}
-            </Button>
-            <Button
-              onClick={() => runMutation.mutate()}
-              disabled={runMutation.isPending || loopStatus?.running}
-              data-testid="button-nexora-run-now"
+              onClick={() => scanMutation.mutate()}
+              disabled={scanMutation.isPending || runMutation.isPending}
+              data-testid="button-scan-now"
               variant="outline"
               className="border-white/15 text-white/50 hover:bg-white/5 rounded-none"
             >
-              {runMutation.isPending || loopStatus?.running ? (
-                <><Loader2 className="mr-2 w-4 h-4 animate-spin" /> Running...</>
-              ) : (
-                <><Play className="mr-2 w-4 h-4" /> Run Nexora</>
-              )}
+              {scanMutation.isPending
+                ? <><Loader2 className="mr-2 w-4 h-4 animate-spin" /> Scanning...</>
+                : <><Scan className="mr-2 w-4 h-4" /> Scan Signals</>}
+            </Button>
+            <Button
+              onClick={() => runMutation.mutate()}
+              disabled={runMutation.isPending || scanMutation.isPending}
+              data-testid="button-nexora-run"
+              className="bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-black font-semibold rounded-none"
+            >
+              {runMutation.isPending
+                ? <><Loader2 className="mr-2 w-4 h-4 animate-spin" /> Running...</>
+                : <><Play className="mr-2 w-4 h-4" /> Run Nexora</>}
             </Button>
           </div>
         </div>
 
-        {/* ── Loop Status Cards ── */}
+        {/* ── Last Run Result Banner ── */}
+        {lastRunResult && (
+          <div className={`mb-6 p-4 border ${lastRunResult.ok ? "border-[hsl(43,78%,52%)]/20 bg-[hsl(43,78%,52%)]/5" : "border-red-500/20 bg-red-500/5"}`}>
+            <div className="flex items-center gap-3 mb-3">
+              {lastRunResult.ok
+                ? <CheckCircle2 className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+                : <AlertTriangle className="w-4 h-4 text-red-400" />}
+              <span className="text-sm font-medium text-white">
+                Run {lastRunResult.runId} · {new Date(lastRunResult.finishedAt).toLocaleString("en-AU")}
+              </span>
+            </div>
+            <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
+              {[
+                { label: "Scanned", value: lastRunResult.totals.scanned },
+                { label: "Valid", value: lastRunResult.totals.valid },
+                { label: "Duplicates", value: lastRunResult.totals.duplicates },
+                { label: "AI Calls", value: lastRunResult.totals.aiCallsUsed },
+                { label: "→ Pipeline", value: lastRunResult.totals.pushedPipeline, color: "text-blue-300" },
+                { label: "→ Radar", value: lastRunResult.totals.pushedRadar, color: "text-purple-300" },
+                { label: "Webhooks", value: lastRunResult.totals.webhooksSent },
+                { label: "Win Rate", value: `${(lastRunResult.learning.avgWinRate * 100).toFixed(0)}%`, color: "text-emerald-300" },
+              ].map(({ label, value, color }) => (
+                <div key={label} className="text-center">
+                  <div className={`text-base font-light ${color ?? "text-white"}`}>{value}</div>
+                  <div className="text-[9px] text-white/25 uppercase tracking-wide mt-0.5">{label}</div>
+                </div>
+              ))}
+            </div>
+            {lastRunResult.errors.length > 0 && (
+              <div className="mt-3 text-xs text-red-300/70 font-mono">{lastRunResult.errors.slice(0, 3).join(" · ")}</div>
+            )}
+          </div>
+        )}
+
+        {/* Scan result pill */}
+        {scanResult && !scanMutation.isPending && (
+          <div className="mb-6 p-3 border border-blue-500/20 bg-blue-500/5 flex items-center gap-3 text-sm">
+            <Scan className="w-4 h-4 text-blue-400" />
+            <span className="text-white/70">Scan complete: <span className="text-blue-300 font-medium">{scanResult.saved} new signals</span> saved from {scanResult.processed} articles</span>
+            <span className="ml-auto text-[10px] text-white/25">Run Nexora above to process them</span>
+          </div>
+        )}
+
+        {/* ── Status Cards ── */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {[
             {
@@ -380,9 +485,21 @@ export default function AdminNexoraCommandCentre() {
               sub: loopStatus?.enabled ? `Every ${(loopStatus.intervalMs / 60000).toFixed(0)}min` : "Manual only",
               icon: Activity, color: loopStatus?.enabled ? "text-green-400" : "text-white/40",
             },
-            { label: "Last Run", value: timeAgo(loopStatus?.lastFinishedAt || null), sub: loopStatus?.lastTrigger ? `Via ${loopStatus.lastTrigger}` : "No runs yet", icon: Clock, color: "text-white" },
-            { label: "Next Auto Run", value: loopStatus?.nextRunAt ? timeAgo(loopStatus.nextRunAt) : "—", sub: loopStatus?.enabled ? "Scheduled" : "Not scheduled", icon: RefreshCw, color: "text-white" },
-            { label: "Total Runs", value: history.length, sub: `${history.filter(r => r.success).length} successful`, icon: BarChart3, color: "text-white" },
+            {
+              label: "Last Run", value: timeAgo(loopStatus?.lastFinishedAt || null),
+              sub: loopStatus?.lastTrigger ? `Via ${loopStatus.lastTrigger}` : "No runs yet",
+              icon: Clock, color: "text-white",
+            },
+            {
+              label: "Brain Decisions", value: decisions?.total ?? "—",
+              sub: `${decisions?.decisions?.filter(d => d.pushedPipeline).length ?? 0} pushed to pipeline`,
+              icon: Brain, color: "text-violet-300",
+            },
+            {
+              label: "Win Rate", value: outcomeStats ? `${(outcomeStats.winRate * 100).toFixed(0)}%` : "—",
+              sub: outcomeStats ? `${outcomeStats.total} outcomes recorded` : "No outcomes yet",
+              icon: TrendingUp, color: outcomeStats && outcomeStats.winRate >= 0.5 ? "text-emerald-400" : "text-yellow-400",
+            },
           ].map(({ label, value, sub, icon: Icon, color }) => (
             <div key={label} className="p-4 border border-white/8 bg-white/[0.02]">
               <div className="flex items-center gap-2 mb-2">
@@ -395,12 +512,6 @@ export default function AdminNexoraCommandCentre() {
           ))}
         </div>
 
-        {loopStatus?.lastMessage && (
-          <div className="p-4 border border-white/8 bg-white/[0.02] mb-6 text-sm text-white/50 font-mono">
-            {loopStatus.lastMessage}
-          </div>
-        )}
-
         {/* ── Signal Intelligence Summary ── */}
         {signalSummary && (
           <div className="mb-6 p-5 border border-[hsl(43,78%,52%)]/12 bg-[hsl(43,78%,52%)]/3">
@@ -411,8 +522,8 @@ export default function AdminNexoraCommandCentre() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
               {[
-                { label: "Radar Signals", value: signalSummary.radarSignals, color: "text-blue-300" },
-                { label: "Deal Signals", value: signalSummary.dealSignals, color: "text-orange-300" },
+                { label: "Radar", value: signalSummary.radarSignals, color: "text-blue-300" },
+                { label: "Deal", value: signalSummary.dealSignals, color: "text-orange-300" },
                 { label: "Leads (7d)", value: signalSummary.inboundLeadsThisWeek, color: "text-purple-300" },
                 { label: "New (7d)", value: signalSummary.newRadarSignalsThisWeek, color: "text-[hsl(43,78%,52%)]" },
                 { label: "High Conf.", value: signalSummary.highConfidence, color: "text-green-300" },
@@ -449,23 +560,23 @@ export default function AdminNexoraCommandCentre() {
           </div>
         )}
 
-        {/* ── Top 10 Opportunities Today ── */}
+        {/* ── Top Opportunities ── */}
         <div className="mb-6 p-5 border border-white/8 bg-white/[0.02]">
           <div className="flex items-center gap-2 mb-4">
             <Flame className="w-4 h-4 text-[hsl(43,78%,52%)]" />
-            <h2 className="text-sm font-medium text-white">Top Opportunities Today</h2>
-            <span className="text-xs text-white/25 ml-1">— ranked by Nexora score across all signal sources</span>
+            <h2 className="text-sm font-medium text-white">Top Opportunities</h2>
+            <span className="text-xs text-white/25 ml-1">— ranked by Nexora score</span>
             <Link href="/admin/deal-hunter" className="ml-auto text-xs text-[hsl(43,78%,52%)]/60 hover:text-[hsl(43,78%,52%)] flex items-center gap-1">
               View all <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
           {oppsLoading ? (
             <div className="flex items-center gap-2 text-sm text-white/30 py-4">
-              <Loader2 className="w-4 h-4 animate-spin" /> Loading live opportunities...
+              <Loader2 className="w-4 h-4 animate-spin" /> Loading opportunities...
             </div>
           ) : !topOpps?.opportunities?.length ? (
             <div className="py-6 text-center border border-white/5 text-white/30 text-sm">
-              No active opportunities. Run Nexora to discover signals.
+              No active opportunities. Run a signal scan, then run Nexora.
             </div>
           ) : (
             <div className="space-y-2">
@@ -483,15 +594,9 @@ export default function AdminNexoraCommandCentre() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-0.5">
                         <span className="text-sm font-medium text-white truncate">{opp.companyName}</span>
-                        <Badge className={`text-[9px] px-1.5 py-0 h-4 capitalize ${signalTypeBadge(opp.signalType)}`}>
-                          {opp.signalType}
-                        </Badge>
-                        <Badge className={`text-[9px] px-1.5 py-0 h-4 capitalize ${confidenceBadge(opp.confidence)}`}>
-                          {opp.confidence}
-                        </Badge>
-                        <Badge className="text-[9px] px-1.5 py-0 h-4 bg-white/5 text-white/30 border-white/8">
-                          {opp.source}
-                        </Badge>
+                        <Badge className={`text-[9px] px-1.5 py-0 h-4 capitalize ${signalTypeBadge(opp.signalType)}`}>{opp.signalType}</Badge>
+                        <Badge className={`text-[9px] px-1.5 py-0 h-4 capitalize ${confidenceBadge(opp.confidence)}`}>{opp.confidence}</Badge>
+                        <Badge className="text-[9px] px-1.5 py-0 h-4 bg-white/5 text-white/30 border-white/8">{opp.source}</Badge>
                       </div>
                       {opp.city && (
                         <div className="flex items-center gap-1 text-[10px] text-white/30">
@@ -509,8 +614,7 @@ export default function AdminNexoraCommandCentre() {
                       )}
                       {expandedOpp === opp.id
                         ? <EyeOff className="w-3.5 h-3.5 text-white/20" />
-                        : <Eye className="w-3.5 h-3.5 text-white/20" />
-                      }
+                        : <Eye className="w-3.5 h-3.5 text-white/20" />}
                     </div>
                   </div>
                   {expandedOpp === opp.id && (
@@ -547,8 +651,8 @@ export default function AdminNexoraCommandCentre() {
               <Loader2 className="w-4 h-4 animate-spin" /> Loading pending outreach...
             </div>
           ) : !pendingOutreach?.pending?.length ? (
-            <div className="py-6 text-center border border-white/5 text-white/30 text-sm">
-              No outreach pending approval. Nexora will queue messages here.
+            <div className="py-4 text-center border border-white/5 text-white/30 text-sm">
+              No outreach pending. Nexora will queue messages here after processing signals.
             </div>
           ) : (
             <div className="space-y-2">
@@ -600,7 +704,60 @@ export default function AdminNexoraCommandCentre() {
           )}
         </div>
 
-        {/* ── Outcome Stats + Feedback ── */}
+        {/* ── Brain Decisions ── */}
+        <div className="mb-6 p-5 border border-violet-500/12 bg-violet-500/[0.02]">
+          <div className="flex items-center gap-2 mb-4">
+            <Brain className="w-4 h-4 text-violet-400" />
+            <h2 className="text-sm font-medium text-white">Brain Decisions</h2>
+            <Badge className="bg-violet-500/10 text-violet-300 border-violet-500/20 text-[9px] ml-1">{decisions?.total ?? 0} total</Badge>
+            <span className="ml-auto text-xs text-white/25">DB-backed · last 15 shown</span>
+          </div>
+          {decisionsLoading ? (
+            <div className="flex items-center gap-2 text-sm text-white/30 py-2">
+              <Loader2 className="w-4 h-4 animate-spin" /> Loading decisions...
+            </div>
+          ) : !decisions?.decisions.length ? (
+            <div className="py-6 text-center text-white/25 text-sm border border-white/5">
+              No decisions yet. Run Nexora after scanning signals to generate decisions.
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              {decisions.decisions.slice(0, 15).map((d) => (
+                <div key={d.id} data-testid={`row-decision-${d.id}`} className="flex items-center gap-3 px-3 py-2.5 border border-white/5 hover:border-white/10 text-xs">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-white/80 font-medium truncate">{d.companyName ?? "Unknown"}</span>
+                      {d.signalType && (
+                        <Badge className={`text-[9px] px-1.5 h-4 ${signalTypeBadge(d.signalType)}`}>{d.signalType}</Badge>
+                      )}
+                    </div>
+                    {d.reasoning && <p className="text-[10px] text-white/30 truncate">{d.reasoning}</p>}
+                  </div>
+                  <div className="flex items-center gap-2.5 flex-shrink-0">
+                    <Badge className={`text-[9px] px-1.5 h-4 capitalize ${actionBadge(d.action)}`}>
+                      {actionLabel(d.action)}
+                    </Badge>
+                    <Badge className={`text-[9px] px-1.5 h-4 capitalize ${
+                      d.priority === "critical" ? "bg-red-500/15 text-red-300 border-red-500/25" :
+                      d.priority === "high" ? "bg-orange-500/15 text-orange-300 border-orange-500/25" :
+                      d.priority === "medium" ? "bg-yellow-500/15 text-yellow-300 border-yellow-500/25" :
+                      "bg-white/8 text-white/35 border-white/10"
+                    }`}>{d.priority}</Badge>
+                    <span className="text-white/25 w-8 text-right">{Math.round((d.confidence ?? 0) * 100)}%</span>
+                    <div className="flex gap-1">
+                      {d.pushedPipeline && <span className="text-[9px] px-1 py-0.5 bg-blue-500/10 text-blue-300 border border-blue-500/20">pipe</span>}
+                      {d.pushedRadar && <span className="text-[9px] px-1 py-0.5 bg-purple-500/10 text-purple-300 border border-purple-500/20">radar</span>}
+                      {d.anomalyFlagged && <span className="text-[9px] px-1 py-0.5 bg-red-500/10 text-red-300 border border-red-500/20">⚠</span>}
+                    </div>
+                    <span className="text-white/20 text-[10px]">{timeAgo(d.createdAt)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* ── Outcome Intelligence ── */}
         <div className="mb-6 p-5 border border-emerald-500/12 bg-emerald-500/[0.02]">
           <div className="flex items-center gap-2 mb-4">
             <Award className="w-4 h-4 text-emerald-400" />
@@ -705,17 +862,17 @@ export default function AdminNexoraCommandCentre() {
             </div>
           )}
 
-          {outcomeStats ? (
+          {outcomeStats && outcomeStats.total > 0 ? (
             <div>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
                 {[
-                  { label: "Total Outcomes", value: outcomeStats.total, color: "text-white", icon: BarChart3 },
+                  { label: "Total", value: outcomeStats.total, color: "text-white", icon: BarChart3 },
                   { label: "Wins", value: outcomeStats.wins, color: "text-emerald-400", icon: CheckCircle2 },
                   { label: "Losses", value: outcomeStats.losses, color: "text-red-400", icon: XCircle },
                   { label: "Win Rate", value: `${(outcomeStats.winRate * 100).toFixed(0)}%`, color: outcomeStats.winRate >= 0.5 ? "text-emerald-400" : "text-yellow-400", icon: TrendingUp },
                   { label: "Avg Deal", value: outcomeStats.avgDeal > 0 ? fmt$(outcomeStats.avgDeal) : "—", color: "text-[hsl(43,78%,52%)]", icon: DollarSign },
                 ].map(({ label, value, color, icon: Icon }) => (
-                  <div key={label} className="p-3 border border-white/5 bg-white/[0.015] text-center" data-testid={`stat-outcome-${label.toLowerCase().replace(/ /g, "-")}`}>
+                  <div key={label} data-testid={`stat-outcome-${label.toLowerCase().replace(/ /g, "-")}`} className="p-3 border border-white/5 bg-white/[0.015] text-center">
                     <Icon className="w-3.5 h-3.5 text-white/25 mx-auto mb-1" />
                     <div className={`text-lg font-light ${color}`}>{value}</div>
                     <div className="text-[9px] text-white/30 uppercase tracking-wide mt-0.5">{label}</div>
@@ -746,255 +903,133 @@ export default function AdminNexoraCommandCentre() {
             </div>
           ) : (
             <div className="py-4 text-center text-white/25 text-sm">
-              No outcomes recorded yet. Use "Record Outcome" above to start training the brain.
-            </div>
-          )}
-        </div>
-
-        {/* ── Brain Decisions (DB-backed) ── */}
-        <div className="mb-6 p-5 border border-violet-500/12 bg-violet-500/[0.02]">
-          <div className="flex items-center gap-2 mb-4">
-            <Brain className="w-4 h-4 text-violet-400" />
-            <h2 className="text-sm font-medium text-white">Brain Decisions</h2>
-            <span className="ml-auto text-xs text-white/25">{decisions?.total ?? 0} recorded</span>
-          </div>
-          {decisionsLoading ? (
-            <div className="flex items-center gap-2 text-sm text-white/30 py-2">
-              <Loader2 className="w-4 h-4 animate-spin" /> Loading decisions...
-            </div>
-          ) : !decisions?.decisions.length ? (
-            <div className="py-4 text-center text-white/25 text-sm border border-white/5">
-              No decisions recorded yet. Run Nexora to generate decisions.
-            </div>
-          ) : (
-            <div className="space-y-1.5">
-              {decisions.decisions.slice(0, 15).map((d) => (
-                <div key={d.id} data-testid={`row-decision-${d.id}`} className="flex items-center gap-3 px-3 py-2.5 border border-white/5 hover:border-white/10 text-xs">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-white/80 font-medium truncate">{d.companyName ?? "Unknown"}</span>
-                      {d.signalType && (
-                        <Badge className={`text-[9px] px-1.5 h-4 ${signalTypeBadge(d.signalType)}`}>{d.signalType}</Badge>
-                      )}
-                    </div>
-                    {d.reasoning && <p className="text-[10px] text-white/30 truncate">{d.reasoning}</p>}
-                  </div>
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    <Badge className={`text-[9px] px-1.5 h-4 capitalize ${
-                      d.action === "both" ? "bg-[hsl(43,78%,52%)]/20 text-[hsl(43,78%,52%)] border-[hsl(43,78%,52%)]/25" :
-                      d.action === "pipeline" ? "bg-blue-500/15 text-blue-300 border-blue-500/25" :
-                      d.action === "radar" ? "bg-purple-500/15 text-purple-300 border-purple-500/25" :
-                      "bg-white/8 text-white/35 border-white/10"
-                    }`}>{d.action}</Badge>
-                    <Badge className={`text-[9px] px-1.5 h-4 capitalize ${
-                      d.priority === "critical" ? "bg-red-500/15 text-red-300 border-red-500/25" :
-                      d.priority === "high" ? "bg-orange-500/15 text-orange-300 border-orange-500/25" :
-                      d.priority === "medium" ? "bg-yellow-500/15 text-yellow-300 border-yellow-500/25" :
-                      "bg-white/8 text-white/35 border-white/10"
-                    }`}>{d.priority}</Badge>
-                    <span className="text-white/25 w-8 text-right">{Math.round((d.confidence ?? 0) * 100)}%</span>
-                    <div className="flex gap-1">
-                      {d.pushedPipeline && <span className="text-[9px] px-1 py-0.5 bg-blue-500/10 text-blue-300 border border-blue-500/20">pipe</span>}
-                      {d.pushedRadar && <span className="text-[9px] px-1 py-0.5 bg-purple-500/10 text-purple-300 border border-purple-500/20">radar</span>}
-                      {d.autoApproved && <span className="text-[9px] px-1 py-0.5 bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">auto</span>}
-                      {d.anomalyFlagged && <span className="text-[9px] px-1 py-0.5 bg-red-500/10 text-red-300 border border-red-500/20">⚠</span>}
-                    </div>
-                    <span className="text-white/20 text-[10px]">{timeAgo(d.createdAt)}</span>
-                  </div>
-                </div>
-              ))}
+              No outcomes yet. Use "Record Outcome" to start training the brain.
             </div>
           )}
         </div>
 
         {/* ── Adaptive Thresholds ── */}
-        {thresholdsData && (
-          <div className="mb-6 p-5 border border-white/8 bg-white/[0.02]">
-            <div className="flex items-center gap-2 mb-4">
-              <Sliders className="w-4 h-4 text-white/40" />
-              <h2 className="text-sm font-medium text-white">Adaptive Decision Thresholds</h2>
-              {thresholdsData.current && (
-                <Badge className="ml-1 bg-white/8 text-white/40 border-white/10 text-[9px]">v{thresholdsData.current.version}</Badge>
-              )}
-              {thresholdsData.current?.winRate != null && (
-                <span className="ml-auto text-xs text-white/25">
-                  Win rate: <span className={thresholdsData.current.winRate >= 0.5 ? "text-emerald-400" : "text-yellow-400"}>
-                    {(thresholdsData.current.winRate * 100).toFixed(0)}%
-                  </span>
+        <div className="mb-6 p-5 border border-white/8 bg-white/[0.02]">
+          <div className="flex items-center gap-2 mb-4">
+            <Sliders className="w-4 h-4 text-white/40" />
+            <h2 className="text-sm font-medium text-white">Adaptive Decision Thresholds</h2>
+            {thresholdsData?.current && (
+              <Badge className="ml-1 bg-white/8 text-white/40 border-white/10 text-[9px]">v{thresholdsData.current.version}</Badge>
+            )}
+            {thresholdsData?.current?.winRate != null && (
+              <span className="ml-auto text-xs text-white/25">
+                Win rate: <span className={thresholdsData.current.winRate >= 0.5 ? "text-emerald-400" : "text-yellow-400"}>
+                  {(thresholdsData.current.winRate * 100).toFixed(0)}%
                 </span>
-              )}
-            </div>
-            {thresholdsData.current ? (
+              </span>
+            )}
+          </div>
+          {thresholdsData?.current ? (
+            <>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
-                  { label: "Strong Move Score", value: thresholdsData.current.strongMove, suffix: "", color: "text-white" },
-                  { label: "Critical Value", value: thresholdsData.current.criticalValue, suffix: "", fmt: true, color: "text-red-300" },
-                  { label: "High Value", value: thresholdsData.current.highValue, suffix: "", fmt: true, color: "text-orange-300" },
-                  { label: "Pipeline Min", value: Math.round(thresholdsData.current.strongPipeline * 100), suffix: "%", color: "text-blue-300" },
-                  { label: "High Intent Min", value: Math.round(thresholdsData.current.highIntentMin * 100), suffix: "%", color: "text-purple-300" },
-                  { label: "Both Min Value", value: thresholdsData.current.bothMinValue, suffix: "", fmt: true, color: "text-[hsl(43,78%,52%)]" },
-                  { label: "Learning Rate", value: thresholdsData.current.learningRate, suffix: "", color: "text-emerald-300" },
-                  { label: "Outcomes Used", value: thresholdsData.current.triggeredByOutcomes ?? 0, suffix: "", color: "text-white/50" },
-                ].map(({ label, value, suffix, fmt: doFmt, color }) => (
+                  { label: "Strong Move Score", value: thresholdsData.current.strongMove, color: "text-white" },
+                  { label: "Critical Value", value: fmt$(thresholdsData.current.criticalValue), color: "text-red-300" },
+                  { label: "High Value", value: fmt$(thresholdsData.current.highValue), color: "text-orange-300" },
+                  { label: "Pipeline Min Conf.", value: `${Math.round(thresholdsData.current.strongPipeline * 100)}%`, color: "text-blue-300" },
+                  { label: "High Intent Min", value: `${Math.round(thresholdsData.current.highIntentMin * 100)}%`, color: "text-purple-300" },
+                  { label: "Both Min Value", value: fmt$(thresholdsData.current.bothMinValue), color: "text-[hsl(43,78%,52%)]" },
+                  { label: "Learning Rate", value: thresholdsData.current.learningRate, color: "text-emerald-300" },
+                  { label: "Outcomes Used", value: thresholdsData.current.triggeredByOutcomes ?? 0, color: "text-white/50" },
+                ].map(({ label, value, color }) => (
                   <div key={label} className="p-3 border border-white/5 bg-white/[0.01]">
                     <div className="text-[9px] text-white/25 uppercase tracking-wide mb-1">{label}</div>
-                    <div className={`text-sm font-light ${color}`}>
-                      {doFmt ? fmt$(value as number) : value}{suffix}
-                    </div>
+                    <div className={`text-sm font-light ${color}`}>{value}</div>
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="py-3 text-sm text-white/25">
-                Using defaults — no threshold calibrations recorded yet. Record outcomes to enable learning.
-              </div>
-            )}
-            {thresholdsData.current?.changeReason && (
-              <p className="mt-3 text-[10px] text-white/25 flex items-center gap-1">
-                <BookOpen className="w-3 h-3" /> Last change: {thresholdsData.current.changeReason}
-              </p>
-            )}
-          </div>
-        )}
+              {thresholdsData.current.changeReason && (
+                <p className="mt-3 text-[10px] text-white/25 flex items-center gap-1">
+                  <BookOpen className="w-3 h-3" /> Last change: {thresholdsData.current.changeReason}
+                </p>
+              )}
+            </>
+          ) : (
+            <div className="py-3 text-sm text-white/25">
+              Using defaults — no calibrations recorded yet. Record outcomes to enable threshold learning.
+            </div>
+          )}
 
-        {/* ── PREDICTIVE ENGINE RESULTS ── */}
-        {systemRunResult && pred && (
-          <div className="mb-6 space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              {[
-                { label: "Total Pipeline", value: fmt$(pred.totalPipelineValue), icon: DollarSign, sub: `${pred.totalActive} active deals`, color: "text-[hsl(43,78%,52%)]" },
-                { label: "Revenue Won", value: fmt$(pred.totalRevenue), icon: CheckCircle2, sub: "All time", color: "text-green-400" },
-                { label: "30-Day Forecast", value: fmt$(pred.predicted30), icon: TrendingUp, sub: "High-confidence pipeline", color: "text-blue-400" },
-                { label: "60-Day Forecast", value: fmt$(pred.predicted60), icon: TrendingUp, sub: "Medium-confidence", color: "text-indigo-400" },
-                { label: "90-Day Forecast", value: fmt$(pred.predicted90), icon: TrendingUp, sub: "Full pipeline", color: "text-purple-400" },
-              ].map(({ label, value, icon: Icon, sub, color }) => (
-                <div key={label} className="p-4 border border-white/8 bg-white/[0.02]" data-testid={`stat-predictive-${label.toLowerCase().replace(/ /g, "-")}`}>
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <Icon className="w-3.5 h-3.5 text-white/25" />
-                    <span className="text-[10px] text-white/35 uppercase tracking-wide">{label}</span>
+          {/* Threshold history mini-chart */}
+          {thresholdsData?.history && thresholdsData.history.length > 1 && (
+            <div className="mt-4 pt-3 border-t border-white/5">
+              <p className="text-[10px] text-white/25 uppercase tracking-wide mb-2">Version History</p>
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {thresholdsData.history.slice(0, 10).map((h) => (
+                  <div key={h.id} className={`flex-shrink-0 p-2 border text-center min-w-[80px] ${h.isActive ? "border-[hsl(43,78%,52%)]/30 bg-[hsl(43,78%,52%)]/5" : "border-white/5"}`}>
+                    <div className="text-[9px] text-white/25 mb-0.5">v{h.version}</div>
+                    {h.winRate != null && (
+                      <div className={`text-xs font-light ${h.winRate >= 0.5 ? "text-emerald-400" : "text-yellow-400"}`}>
+                        {(h.winRate * 100).toFixed(0)}%
+                      </div>
+                    )}
                   </div>
-                  <div className={`text-lg font-light ${color}`}>{value}</div>
-                  <div className="text-[10px] text-white/25 mt-0.5">{sub}</div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── Knowledge Map ── */}
+        <div className="mb-6 p-5 border border-blue-500/12 bg-blue-500/[0.02]">
+          <div className="flex items-center gap-2 mb-4">
+            <Database className="w-4 h-4 text-blue-400" />
+            <h2 className="text-sm font-medium text-white">Knowledge Map</h2>
+            <Badge className="bg-blue-500/10 text-blue-300 border-blue-500/20 text-[9px] ml-1">
+              {knowledgeData?.total ?? 0} companies
+            </Badge>
+            <span className="ml-auto text-[10px] text-white/25">Company-level learning</span>
+          </div>
+          {knowledgeLoading ? (
+            <div className="flex items-center gap-2 text-sm text-white/30 py-2">
+              <Loader2 className="w-4 h-4 animate-spin" /> Loading knowledge...
+            </div>
+          ) : !knowledgeData?.entries?.length ? (
+            <div className="py-4 text-center text-white/25 text-sm border border-white/5">
+              No knowledge entries yet. Knowledge builds automatically as Nexora processes signals and records outcomes.
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              {knowledgeData.entries.map((e) => (
+                <div key={e.id} data-testid={`row-knowledge-${e.entryKey}`} className="flex items-center gap-3 px-3 py-2.5 border border-white/5 hover:border-white/10 text-xs">
+                  <Building2 className="w-3.5 h-3.5 text-white/20 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-white/80 font-medium truncate capitalize">{e.companyName || e.entryKey}</span>
+                      {e.city && (
+                        <span className="text-[10px] text-white/30 flex items-center gap-0.5">
+                          <MapPin className="w-2.5 h-2.5" />{e.city}
+                        </span>
+                      )}
+                    </div>
+                    {e.signalType && <p className="text-[10px] text-white/25">{e.signalType}</p>}
+                  </div>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <Badge className={`text-[9px] px-1.5 h-4 capitalize ${actionBadge(e.action)}`}>
+                      {actionLabel(e.action)}
+                    </Badge>
+                    <div className="text-center">
+                      <div className={`text-xs font-medium ${e.winRate >= 0.6 ? "text-emerald-400" : e.winRate >= 0.4 ? "text-yellow-400" : "text-white/40"}`}>
+                        {(e.winRate * 100).toFixed(0)}%
+                      </div>
+                      <div className="text-[9px] text-white/20">win rate</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-xs text-white/50">{e.totalCount}</div>
+                      <div className="text-[9px] text-white/20">signals</div>
+                    </div>
+                    <span className="text-[10px] text-white/20">{timeAgo(e.lastUpdatedAt)}</span>
+                  </div>
                 </div>
               ))}
             </div>
-
-            <div className="p-5 border border-[hsl(43,78%,52%)]/12 bg-[hsl(43,78%,52%)]/3">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="flex items-center gap-2 text-sm font-medium text-white">
-                  <ShieldCheck className="w-4 h-4 text-[hsl(43,78%,52%)]" /> System Checks
-                </h2>
-                <span className="text-xs text-white/25">{systemRunResult.durationMs}ms · {new Date(systemRunResult.ranAt).toLocaleString("en-AU")}</span>
-              </div>
-              <div className="space-y-2">
-                {systemRunResult.steps?.map((step, i) => (
-                  <div key={i} className="flex items-center gap-3 text-sm">
-                    {step.status === "ok" ? (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
-                    ) : step.status === "warning" ? (
-                      <AlertTriangle className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" />
-                    ) : step.status === "skipped" ? (
-                      <RefreshCw className="w-3.5 h-3.5 text-white/30 flex-shrink-0" />
-                    ) : (
-                      <XCircle className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
-                    )}
-                    <span className="text-white/70 font-medium min-w-[200px] text-xs">{step.step}</span>
-                    <span className="text-white/35 text-xs">{step.detail}</span>
-                    {(step.count !== undefined && step.count > 0) && (
-                      <span data-testid={`text-step-count-${i}`} className={`text-[10px] px-1.5 py-0.5 font-medium ml-auto ${step.status === "warning" ? "bg-yellow-500/15 text-yellow-300" : "bg-white/8 text-white/40"}`}>{step.count}</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {pred.topDeals.length > 0 && (
-              <div className="p-5 border border-white/8 bg-white/[0.02]">
-                <h2 className="flex items-center gap-2 text-sm font-medium text-white mb-4">
-                  <Flame className="w-4 h-4 text-[hsl(43,78%,52%)]" />
-                  Top Deals to Close
-                  <span className="ml-auto text-xs text-white/25 font-normal">Sorted by AI score</span>
-                </h2>
-                <div className="space-y-2.5">
-                  {pred.topDeals.map((deal, i) => (
-                    <div key={deal.id} data-testid={`card-top-deal-${deal.id}`} className="flex items-center gap-4 py-2.5 border-b border-white/5 last:border-0">
-                      <span className="text-xs text-white/20 w-4">{i + 1}</span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2.5 mb-0.5">
-                          <span className="text-sm font-medium text-white">{deal.clientCompany}</span>
-                          <Badge className={`text-[10px] px-1.5 py-0 h-4 capitalize ${
-                            deal.status === "quoted" ? "bg-indigo-500/10 text-indigo-300 border-indigo-500/20" :
-                            deal.status === "qualified" ? "bg-purple-500/10 text-purple-300 border-purple-500/20" :
-                            "bg-white/8 text-white/40 border-white/10"
-                          }`}>{deal.status}</Badge>
-                        </div>
-                        {deal.aiNextBestAction && <p className="text-xs text-[hsl(43,78%,52%)]/60 truncate">{deal.aiNextBestAction}</p>}
-                      </div>
-                      <div className="flex items-center gap-4 flex-shrink-0 text-right">
-                        {deal.aiFitScore && (
-                          <div className="text-xs">
-                            <div className="text-[hsl(43,78%,52%)] font-semibold">{deal.aiFitScore}</div>
-                            <div className="text-white/25">AI score</div>
-                          </div>
-                        )}
-                        <div className="text-sm font-light text-white">{fmt$(deal.estimatedValue)}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {pred.atRisk.length > 0 && (
-              <div className="p-5 border border-yellow-500/15 bg-yellow-500/3">
-                <h2 className="flex items-center gap-2 text-sm font-medium text-white mb-4">
-                  <AlertTriangle className="w-4 h-4 text-yellow-400" />
-                  Deals At Risk
-                  <Badge className="ml-1 bg-yellow-500/15 text-yellow-300 border-yellow-500/25">{pred.atRisk.length}</Badge>
-                </h2>
-                <div className="space-y-2">
-                  {pred.atRisk.map(deal => (
-                    <div key={deal.id} data-testid={`card-at-risk-${deal.id}`} className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0">
-                      <AlertTriangle className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <span className="text-sm text-white">{deal.clientCompany}</span>
-                        <span className="ml-2 text-xs text-white/35 capitalize">{deal.status}</span>
-                      </div>
-                      <span className="text-xs text-yellow-300/70">{deal.reason}</span>
-                      <span className="text-sm font-light text-white/60">{fmt$(deal.estimatedValue)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {systemRunResult.urgentLeads && systemRunResult.urgentLeads.length > 0 && (
-              <div className="p-5 border border-red-500/15 bg-red-500/3">
-                <h2 className="flex items-center gap-2 text-sm font-medium text-white mb-3">
-                  <Zap className="w-4 h-4 text-red-400" />
-                  Urgent — Submitted &gt;48h Ago
-                  <Badge className="ml-1 bg-red-500/15 text-red-300 border-red-500/25">{systemRunResult.urgentLeads.length}</Badge>
-                </h2>
-                <div className="space-y-1.5">
-                  {systemRunResult.urgentLeads.map((lead, i) => (
-                    <div key={i} className="flex items-center gap-3 text-sm">
-                      <span className="text-red-300 font-medium">{lead.name}</span>
-                      {lead.value > 0 && <span className="text-white/40">{fmt$(lead.value)}</span>}
-                      {lead.score && <span className="text-xs text-[hsl(43,78%,52%)]">score {lead.score}</span>}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {systemRunResult.staleLeads?.length > 0 && (
-              <div className="p-4 border border-yellow-500/10">
-                <p className="text-xs text-yellow-300/70 mb-2 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Stale leads (3+ days, unactioned):</p>
-                <div className="flex flex-wrap gap-2">{systemRunResult.staleLeads.map((l, i) => <span key={i} className="text-xs px-2 py-0.5 bg-yellow-500/10 text-yellow-300/70 border border-yellow-500/20">{l}</span>)}</div>
-              </div>
-            )}
-          </div>
-        )}
+          )}
+        </div>
 
         {/* ── Loop Controls ── */}
         <div className="p-5 border border-white/8 bg-white/[0.02] mb-6">
@@ -1043,12 +1078,12 @@ export default function AdminNexoraCommandCentre() {
             </Button>
           </div>
           <p className="mt-4 text-xs text-white/20">
-            Loop state is process-memory based. pg-boss scheduler runs independently every 30 min.
+            Loop state is process-memory based. pg-boss scheduler runs independently.
           </p>
         </div>
 
         {/* ── Run History ── */}
-        <div>
+        <div className="mb-6">
           <h2 className="flex items-center gap-2 text-sm font-medium text-white mb-4">
             <History className="w-4 h-4 text-white/40" />
             Recent Run History
@@ -1060,7 +1095,7 @@ export default function AdminNexoraCommandCentre() {
             </div>
           ) : history.length === 0 ? (
             <div className="p-8 text-center border border-white/8 text-white/30 text-sm">
-              No runs recorded yet. Trigger a manual run above.
+              No runs recorded yet. Trigger a run above.
             </div>
           ) : (
             <div className="space-y-2">

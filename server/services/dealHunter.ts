@@ -360,8 +360,9 @@ function stripHtml(input: string): string {
 }
 
 function extractTagValue(block: string, tag: string): string {
-  const cdataRegex = new RegExp(`<${tag}[^>]*><!\$begin:math:display$CDATA\\\\\[\(\[\\\\s\\\\S\]\*\?\)\\$end:math:display$\\]><\\/${tag}>`, "i");
-  const plainRegex = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, "i");
+  const escapedTag = tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const cdataRegex = new RegExp(`<${escapedTag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${escapedTag}>`, "i");
+  const plainRegex = new RegExp(`<${escapedTag}[^>]*>([\\s\\S]*?)<\\/${escapedTag}>`, "i");
 
   const cdata = block.match(cdataRegex)?.[1];
   if (cdata) return cleanText(stripHtml(cdata));

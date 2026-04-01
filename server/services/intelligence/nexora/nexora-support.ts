@@ -666,11 +666,17 @@ export async function acquireRunLock(
   try {
     const db = await getDb();
     const { nexoraRunLocks } = await import("../../../../shared/schema");
-    const { eq, lt } = await import("drizzle-orm");
+    const { eq, lt, or } = await import("drizzle-orm");
 
+    // Clean up expired locks AND released locks (safety net for manual updates)
     await db
       .delete(nexoraRunLocks)
-      .where(lt(nexoraRunLocks.expiresAt, new Date()));
+      .where(
+        or(
+          lt(nexoraRunLocks.expiresAt, new Date()),
+          eq(nexoraRunLocks.status, "released"),
+        ),
+      );
 
     const existing = await db
       .select()
