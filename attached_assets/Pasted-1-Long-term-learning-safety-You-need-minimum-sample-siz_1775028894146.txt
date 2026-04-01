@@ -1,0 +1,135 @@
+1. Long-term learning safety
+
+You need:
+	•	minimum sample-size gates
+	•	max drift per run
+	•	rolling-window learning
+	•	confidence calibration
+	•	overfitting protection
+	•	learning freeze / circuit breaker when data is weak
+
+2. Strong duplicate prevention under repeated runs
+
+You need:
+	•	DB uniqueness constraints
+	•	stable signal fingerprinting
+	•	action-level idempotency keys
+	•	outbound dedupe across reruns
+	•	repeat-run validation tests
+	•	no duplicate decisions/actions on same signal set
+
+3. Durable queue + worker layer
+
+You need:
+	•	persistent job queue
+	•	scanner workers
+	•	decision workers
+	•	action workers
+	•	follow-up workers
+	•	outcome workers
+	•	delayed jobs
+	•	retries
+	•	dead-letter jobs
+	•	multi-instance safety
+
+If jobs still rely too much on in-process scheduling, it is not 100%.
+
+4. Production-safe outbound
+
+You need:
+	•	verified sending domain
+	•	suppression lists
+	•	bounce handling
+	•	daily caps
+	•	recent-contact blocking
+	•	do-not-contact logic
+	•	sequence state tracking
+	•	outbound failure logging
+	•	no repeated sends from reruns
+
+5. Full admin control centre
+
+You need a real admin that shows:
+	•	signals
+	•	companies
+	•	opportunities
+	•	decisions
+	•	actions
+	•	approvals
+	•	outcomes
+	•	jobs
+	•	runtime state
+	•	locks
+	•	threshold history
+	•	learning changes
+	•	audit logs
+	•	failures
+	•	system health
+
+And not just visibility — also control:
+	•	pause automation
+	•	retry jobs
+	•	approve/reject actions
+	•	inspect run history
+	•	adjust thresholds safely
+	•	inspect failures
+
+6. Canonical entity model
+
+You need:
+	•	canonical companies
+	•	aliases/domains
+	•	contact resolution
+	•	company merge logic
+	•	source provenance
+	•	opportunity linkage
+	•	signal → company → opportunity → action → outcome chain
+
+7. Full integration readiness
+
+You need all real credentials and working integrations for:
+	•	OpenAI
+	•	Adzuna
+	•	webhook destinations
+	•	WhatsApp provider
+	•	email provider
+	•	CRM/pipeline
+	•	vector DB if still used
+	•	external signal sources
+
+If credentials are missing or rate limits still block flow, not 100%.
+
+8. Monitoring and alerting
+
+You need:
+	•	failed job alerts
+	•	repeated retry alerts
+	•	queue backlog alerts
+	•	runtime crash alerts
+	•	outbound failure alerts
+	•	integration failure alerts
+	•	learning anomaly alerts
+
+9. Policy and safety rules
+
+You need:
+	•	clear auto-run rules
+	•	clear human-review rules
+	•	high-risk action rules
+	•	high-value action rules
+	•	suppression rules
+	•	rollback/kill switch
+	•	module-level pause controls
+
+10. Full production proof
+
+You need to prove it under real conditions:
+	•	multiple repeated runs
+	•	no duplicate records/actions
+	•	restart/recovery works
+	•	jobs survive failure
+	•	learning remains stable over time
+	•	real signals produce real decisions
+	•	real decisions produce real actions
+	•	real actions produce real outcomes
+	•	thresholds improve without becoming unstable
