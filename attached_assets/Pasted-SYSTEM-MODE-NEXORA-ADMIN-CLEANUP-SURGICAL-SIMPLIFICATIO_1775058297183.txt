@@ -1,0 +1,222 @@
+SYSTEM MODE: NEXORA ADMIN CLEANUP — SURGICAL SIMPLIFICATION (PRODUCTION SAFE)
+
+You are NOT redesigning the system.  
+You are NOT touching the Nexora engine logic.  
+You are NOT breaking working execution paths.
+
+You are CLEANING the admin UI so it becomes:
+- simple
+- clear
+- action-driven
+- production-usable
+
+======================================================================
+CORE RULE (NON-NEGOTIABLE)
+======================================================================
+
+The admin must ONLY support this chain:
+
+signal → decision → action → outcome → learning
+
+If any UI element does NOT support this chain:
+→ REMOVE IT
+→ MERGE IT
+→ OR MOVE IT TO ADVANCED
+
+DO NOT KEEP NOISE.
+
+======================================================================
+STEP 1 — REMOVE DEAD / DUPLICATE CONTROLS
+======================================================================
+
+Delete or remove:
+
+- Duplicate /api/nexora/run triggers (keep ONLY one)
+- Any legacy Alex / old automation buttons
+- Any “test”, “demo”, or partial-run buttons in main UI
+- Any scanner-specific buttons in main UI
+- Any buttons calling outdated services or routes
+
+KEEP ONLY:
+- "Run Nexora"
+- "Pause / Resume Automation"
+
+======================================================================
+STEP 2 — REMOVE FAKE / LOW-VALUE METRICS
+======================================================================
+
+Delete ALL KPI cards that:
+- are not sourced from real DB data
+- do not influence decisions
+- are duplicated elsewhere
+- are purely visual/no action
+
+KEEP ONLY:
+- last run status
+- actions executed (pushedRadar / pushedPipeline)
+- failed jobs
+- pending reviews
+- stuck drafts
+- outcomes (won/lost/replied)
+
+======================================================================
+STEP 3 — CONSOLIDATE PAGES INTO CORE MODULES
+======================================================================
+
+Rebuild navigation to ONLY include:
+
+1. Overview
+2. Signals
+3. Decisions
+4. Actions
+5. Reviews
+6. Outcomes
+7. Runtime
+8. Settings
+
+DELETE:
+- duplicate pages
+- overlapping views
+- pages that split the same data unnecessarily
+
+======================================================================
+STEP 4 — REBUILD MAIN DASHBOARD (OVERVIEW)
+======================================================================
+
+Replace AdminCommandCentre with a clean layout:
+
+SECTION 1 — System Status
+- automation ON/OFF
+- last run time
+- last run result
+- locks active?
+- errors?
+
+SECTION 2 — Execution Summary (LIVE)
+- pushedRadar (today)
+- pushedPipeline (today)
+- decisions count
+- actions success vs failed
+
+SECTION 3 — Bottlenecks
+- drafts stuck
+- pending approvals
+- failed jobs
+- retries
+
+SECTION 4 — Alerts
+- zero-actions-in-last-N-runs
+- stale lock
+- high failure rate
+
+NO OTHER CARDS.
+
+======================================================================
+STEP 5 — SIMPLIFY EACH MODULE
+======================================================================
+
+SIGNALS:
+- list signals
+- show validation + dedupe
+- link to decision
+
+DECISIONS:
+- show decision
+- confidence
+- reasons
+- action chosen
+
+ACTIONS:
+- show executed actions
+- status (success/fail)
+- retry button
+
+REVIEWS:
+- approval queue ONLY
+- add "Approve All Low Risk" button
+
+OUTCOMES:
+- won / lost / ignored / replied
+- linked to action + decision
+
+RUNTIME:
+- jobs (pending, running, failed)
+- locks
+- health
+
+SETTINGS:
+- automation toggle
+- thresholds
+- policy rules
+- suppression
+
+======================================================================
+STEP 6 — MOVE EVERYTHING ELSE TO ADVANCED
+======================================================================
+
+Create:
+
+/admin/advanced
+
+Move into it:
+- audit logs
+- idempotency tables
+- raw DB views
+- debug tools
+- test endpoints
+- low-level diagnostics
+
+DO NOT DELETE THESE — just remove from main UI.
+
+======================================================================
+STEP 7 — FIX NAVIGATION + STRUCTURE
+======================================================================
+
+- Remove unused routes
+- Remove dead menu items
+- Ensure each page has ONE purpose only
+- No page > 300 lines of UI logic (split components)
+
+======================================================================
+STEP 8 — ENSURE REAL DATA ONLY
+======================================================================
+
+Every UI component MUST:
+- fetch from real API
+- reflect DB state
+- have loading + error states
+
+NO placeholders  
+NO mock data  
+NO hardcoded values  
+
+======================================================================
+STEP 9 — FINAL VALIDATION
+======================================================================
+
+After cleanup:
+
+- Run Nexora
+- Confirm UI updates live
+- Confirm actions visible in Actions panel
+- Confirm outcomes appear after insert
+- Confirm no duplicate triggers exist
+
+======================================================================
+FINAL OUTPUT
+======================================================================
+
+- Provide FULL updated file:
+  client/src/pages/AdminNexoraCommandCentre.tsx
+
+- Provide any new components created
+
+- Ensure code is COMPLETE and paste-ready
+
+DO NOT output partial snippets.
+DO NOT leave TODOs.
+DO NOT break working Nexora execution.
+
+======================================================================
+END
+======================================================================
