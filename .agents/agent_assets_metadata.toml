@@ -24,3 +24,9 @@ id = "_LasxFBtiWKaRvJQhH0f9"
 uri = "file://TCD_STRESS_TEST_REPORT.md"
 type = "text"
 title = "TCD Stress Test & Performance Report — March 12, 2026"
+
+[[outputs]]
+id = "zjEGJgUBfQuCN1ALl9kgw"
+uri = "file://nexora-fix-summary.md"
+type = "text"
+title = "Nexora Runtime Integration Fix — Summary"
