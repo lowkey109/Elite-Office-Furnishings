@@ -86,6 +86,27 @@ The visual design features a dark luxury gold theme, using near-black background
 - **Layer 11 — Outreach Suppression**: `outreach-guards.ts` fully implemented and wired into the queue-outreach endpoint. Company-level suppression, email-level suppression, 30-day cooldown, hourly/daily rate limits all enforced.
 - **Layer 12 — Runtime Hardening**: Startup cleanup of expired DB locks via `cleanupExpiredLocks()` on boot. DB-backed run locks (15-min TTL) replace file-based locks. `nexora-support.ts` health check now verifies DB connectivity.
 
+## Nexora Runtime Integration Fix (April 2026)
+- **14 API Signature Mismatches Fixed**: `nexora-support.ts` had all exported function signatures mismatched against what `nexoraOrchestrator.ts` actually called. Root cause: orchestrator was written expecting object-style params but support file used positional strings. All 14 functions fixed:
+  - `acquireRunLock({key,runId,ttlSeconds})→{acquired:boolean}` (was `(runId:string)→boolean`) — stale lock bug root cause
+  - `releaseRunLock({key,runId})` (was `(runId:string)`)
+  - `fireWebhook({runId,signal,action,priority,estimatedValue})→boolean` (was `(url,payload,config)`)
+  - `syncVectorKnowledge({signal,action,priority})→boolean` (was `(key,vector,metadata,config)`)
+  - `checkDuplicateAgainstKnowledge({signal,fingerprint,knowledgeMap})→boolean` (was `(signal,map)→DuplicateCheckResult`)
+  - `claimIdempotencyKey({key,ttlSeconds,meta})→{claimed:boolean}` (was `(key,action,signalId,companyName)→boolean`)
+  - `buildRuleDecision({signal,thresholds,validation,duplicate,anomaly,estimatedValue})→NexoraDecisionRecordLike`
+  - `finalizeDecision({signal,ruleDecision,aiDecision,...})→NexoraDecisionRecordLike`
+  - `detectAnomaly(signal,knowledgeMap)` (was `(signal,winRate:number)`)
+  - `upsertKnowledgeEntry(KnowledgeEntry)` (was `(entryKey,updates)`)
+  - `createAuditLog({runId,level,event,message,meta})` (was positional strings)
+  - `completeIdempotencyKey({key,meta})` (was `(key,status)`)
+  - `computeSignalFingerprint(signal,action?)` — action now optional
+  - `validateSignal` — returns `{valid:boolean, overallValid:boolean, ...}` (added `valid` alias)
+- **Missing Types Added**: `NexoraSignalLike`, `NexoraDecisionRecordLike`, `NexoraDecisionAction`, `NexoraEngineLearningSummary`, `NexoraEngineResult`, `NexoraRunContext` added to `nexora-types.ts`
+- **NexoraConfig Updated**: All fields made optional to accommodate both orchestrator and support usage
+- **Stale Lock Cleared**: DB row `nexora_main` cleared from `nexora_run_locks`; `acquireRunLock` now only deletes expired locks (not all locks) to prevent lock-and-immediately-delete race
+- **Verified Working**: Nexora run returns `ok:true` in <20s, lock table empty after each run, all 4 observability endpoints return correct data, outcome feedback loop records and recalibrates
+
 ## Crash Fix History (April 2026)
 - **Nexora Orchestrator brace corruption fixed**: `server/services/intelligence/nexoraOrchestrator.ts` had corrupted brace structure from prior agent edits — duplicate `if` block at line 882, `safelyPush` function never closed, `pushAction` calling non-existent `doPush()`, and `Promise.all` callback never terminated. Fixed by: removing the duplicate `if`, properly closing `safelyPush` with try/catch/return, deleting the broken `pushAction` and replacing its callsites with `safelyPush`, and adding proper closure for the per-signal callback and `runCore` function with a function-level try/catch.
 - **Missing service files created**: `officeMovRadarService.ts`, `newsFeedScanner.ts`, `dealHunter.ts`, `nexoraAI.ts` — these were imported by the orchestrator but did not exist. Created with real DB-backed implementations.

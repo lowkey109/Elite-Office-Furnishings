@@ -1,6 +1,67 @@
 export type NexoraEnvironment = "local" | "staging" | "production";
 export type NexoraPriority = "critical" | "high" | "medium" | "low";
 
+export type NexoraDecisionAction =
+  | "push_pipeline"
+  | "push_radar"
+  | "both"
+  | "hold"
+  | "ignore"
+  | "review";
+
+export interface NexoraDecisionRecordLike {
+  runId?: string;
+  signalId?: string;
+  sourceType?: "deal" | "radar";
+  companyName?: string;
+  fingerprint?: string;
+  estimatedValue?: number;
+  validation?: { valid?: boolean; overallValid?: boolean; [k: string]: unknown };
+  duplicate?: boolean;
+  aiAnalysesUsed?: number;
+  priority: NexoraPriority;
+  action: NexoraDecisionAction;
+  confidence: number;
+  reasons?: string[];
+  pushedPipeline?: boolean;
+  pushedRadar?: boolean;
+  webhookSent?: boolean;
+  whatsappSent?: boolean;
+  vectorSynced?: boolean;
+  reviewed?: boolean;
+  createdAt?: string;
+}
+
+export type NexoraSignalLike = (DealHunterSignalLike | RadarSignalLike) & {
+  __sourceType?: "deal" | "radar";
+  [key: string]: unknown;
+};
+
+export interface NexoraRunContext {
+  trigger: "manual" | "background" | "webhook" | "scheduler" | "api";
+  runId: string;
+  startedAt: string;
+}
+
+export interface NexoraEngineLearningSummary {
+  sampleSize: number;
+  avgWinRate: number;
+  appliedDeltaStrongPipeline: number;
+  maxDriftPerRun: number;
+}
+
+export interface NexoraEngineResult {
+  ok: boolean;
+  runId: string | null;
+  trigger: string;
+  startedAt: string;
+  finishedAt: string;
+  totals: Record<string, number>;
+  learning: NexoraEngineLearningSummary;
+  results: unknown[];
+  errors: string[];
+}
+
 export type NexoraReviewQueueType =
   | "approval_needed"
   | "validation_failed"
@@ -12,22 +73,36 @@ export type NexoraReviewQueueType =
   | "retry_storm";
 
 export interface NexoraConfig {
-  env: NexoraEnvironment;
-  dryRun: boolean;
-  approvalOnly: boolean;
-  autoApproveCritical: boolean;
-  autoPushDisabled: boolean;
-  vectorSyncDisabled: boolean;
-  webhookDisabled: boolean;
-  maxConcurrency: number;
-  maxRetriesPerOperation: number;
-  timeoutMs: {
-    radarScan: number;
-    dealScan: number;
-    aiAnalysis: number;
-    vectorSync: number;
-    webhook: number;
-    pushAction: number;
+  enabled?: boolean;
+  maxSignalsPerRun?: number;
+  maxAiAnalysesPerRun?: number;
+  aiEnsembleMinPriority?: NexoraPriority;
+  maxConcurrentSignalTasks?: number;
+  backgroundIntervalMs?: number;
+  reviewQueueEnabled?: boolean;
+  pipelinePushEnabled?: boolean;
+  radarPushEnabled?: boolean;
+  webhookEnabled?: boolean;
+  whatsappEnabled?: boolean;
+  vectorSyncEnabled?: boolean;
+  anomalyDetectionEnabled?: boolean;
+  learningEnabled?: boolean;
+  env?: NexoraEnvironment;
+  dryRun?: boolean;
+  approvalOnly?: boolean;
+  autoApproveCritical?: boolean;
+  autoPushDisabled?: boolean;
+  vectorSyncDisabled?: boolean;
+  webhookDisabled?: boolean;
+  maxConcurrency?: number;
+  maxRetriesPerOperation?: number;
+  timeoutMs?: {
+    radarScan?: number;
+    dealScan?: number;
+    aiAnalysis?: number;
+    vectorSync?: number;
+    webhook?: number;
+    pushAction?: number;
   };
 }
 

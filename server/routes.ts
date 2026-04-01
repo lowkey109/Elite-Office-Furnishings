@@ -11011,7 +11011,8 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
         // Update knowledge entry for this company
         if (companyKey) {
           const knowledgeKey = `company::${companyKey}`;
-          await upsertKnowledgeEntry(knowledgeKey, {
+          await upsertKnowledgeEntry({
+            id: knowledgeKey,
             companyKey,
             successCount: isWin ? 1 : 0,
             failCount: isWin ? 0 : 1,

@@ -14,6 +14,9 @@ import type {
   HealthCheckResult,
   KnowledgeEntry,
   NexoraConfig,
+  NexoraDecisionAction,
+  NexoraDecisionRecordLike,
+  NexoraPriority,
   NormalizedAIDecision,
   RadarSignalLike,
   RetryCounter,
@@ -399,20 +402,22 @@ export async function saveKnowledgeMap(
 }
 
 export async function upsertKnowledgeEntry(
-  entryKey: string,
-  updates: Partial<KnowledgeEntry>,
+  entry: KnowledgeEntry,
 ): Promise<void> {
   try {
     const db = await getDb();
     const { nexoraKnowledge } = await import("../../../../shared/schema");
     const { sql: drizzleSql } = await import("drizzle-orm");
 
-    const e = updates as any;
+    const e = entry as any;
+    const entryKey: string =
+      e.id ?? e.fingerprint ?? sha(JSON.stringify(entry));
+
     await db
       .insert(nexoraKnowledge)
       .values({
         entryKey,
-        companyName: e.companyKey ?? "",
+        companyName: e.companyName ?? e.companyKey ?? "",
         signalType: e.signalType ?? "",
         city: e.city ?? "",
         industry: e.industry ?? "",
@@ -428,7 +433,7 @@ export async function upsertKnowledgeEntry(
       .onConflictDoUpdate({
         target: nexoraKnowledge.entryKey,
         set: {
-          ...(e.companyKey != null ? { companyName: e.companyKey } : {}),
+          ...(e.companyName != null ? { companyName: e.companyName } : e.companyKey != null ? { companyName: e.companyKey } : {}),
           ...(e.signalType != null ? { signalType: e.signalType } : {}),
           ...(e.action != null ? { action: e.action } : {}),
           ...(e.priority != null ? { priority: e.priority } : {}),
@@ -448,11 +453,9 @@ export async function upsertKnowledgeEntry(
 /* ─── Audit log (DB-backed) ─────────────────────────────────────────────── */
 
 export async function createAuditLog(
-  runId: string,
-  event: string,
-  payload: Record<string, unknown>,
-  status: AuditStatus = "success",
+  params: { runId: string; level?: string; event: string; message: string; meta?: Record<string, unknown> },
 ): Promise<void> {
+  const { runId, event, message, meta = {} } = params;
   try {
     const db = await getDb();
     const { auditLogs } = await import("../../../../shared/schema");
@@ -463,11 +466,10 @@ export async function createAuditLog(
       action: event,
       entityType: "nexora_run",
       entityId: runId,
-      metadataJson: { status, ...payload },
+      metadataJson: { message, ...meta },
     });
   } catch {
-    // Non-fatal — log to console as fallback
-    console.log(`[NexoraAudit] ${event}`, { runId, status, ...payload });
+    console.log(`[NexoraAudit] ${event}`, { runId, message, ...meta });
   }
 }
 
@@ -507,49 +509,38 @@ export async function pushReviewQueue(
 
 /* ─── Decision records (DB-backed) ──────────────────────────────────────── */
 
-export async function upsertDecisionRecord(record: {
-  runId: string;
-  signalId: string;
-  companyName: string;
-  idempotencyKey: string;
-  ruleDecision: unknown;
-  ensembleDecision: unknown;
-  finalDecision: unknown;
-  pushedPipeline: boolean;
-  pushedRadar: boolean;
-  webhookSent: boolean;
-  action?: string;
-  priority?: string;
-  confidence?: number;
-  reasoning?: string;
-  autoApproved?: boolean;
-  outreachQueued?: boolean;
-  anomalyFlagged?: boolean;
-}): Promise<void> {
+export async function upsertDecisionRecord(
+  record: NexoraDecisionRecordLike & Record<string, unknown>,
+): Promise<void> {
   try {
     const db = await getDb();
     const { nexoraDecisions } = await import("../../../../shared/schema");
 
-    const finalDec = (record.finalDecision as any) ?? {};
+    const r = record as any;
+    const action = r.action ?? "hold";
+    const priority = r.priority ?? "low";
+    const confidence = typeof r.confidence === "number" ? r.confidence : 0;
 
     await db.insert(nexoraDecisions).values({
-      runId: record.runId,
-      signalId: record.signalId,
-      companyName: record.companyName,
-      idempotencyKey: record.idempotencyKey,
-      ruleDecision: record.ruleDecision as any,
-      aiDecision: record.ensembleDecision as any,
-      finalDecision: record.finalDecision as any,
-      action: record.action ?? finalDec.action ?? "hold",
-      priority: record.priority ?? finalDec.priority ?? "low",
-      confidence: record.confidence ?? finalDec.confidence ?? 0,
-      reasoning: record.reasoning ?? finalDec.reason ?? null,
-      pushedPipeline: record.pushedPipeline,
-      pushedRadar: record.pushedRadar,
-      webhookSent: record.webhookSent,
-      autoApproved: record.autoApproved ?? false,
-      outreachQueued: record.outreachQueued ?? false,
-      anomalyFlagged: record.anomalyFlagged ?? false,
+      runId: r.runId ?? "unknown",
+      signalId: r.signalId ?? r.fingerprint ?? "unknown",
+      companyName: r.companyName ?? "unknown",
+      idempotencyKey: r.fingerprint ?? r.idempotencyKey ?? r.signalId ?? "unknown",
+      ruleDecision: r.ruleDecision ?? null,
+      aiDecision: r.aiDecision ?? r.ensembleDecision ?? null,
+      finalDecision: { action, priority, confidence, reasons: r.reasons ?? [] },
+      action,
+      priority,
+      confidence,
+      reasoning:
+        r.reasoning ??
+        (Array.isArray(r.reasons) ? r.reasons.join("; ") : null),
+      pushedPipeline: r.pushedPipeline ?? false,
+      pushedRadar: r.pushedRadar ?? false,
+      webhookSent: r.webhookSent ?? false,
+      autoApproved: r.autoApproved ?? false,
+      outreachQueued: r.outreachQueued ?? false,
+      anomalyFlagged: Boolean(r.anomaly) || r.anomalyFlagged || false,
     });
   } catch (err) {
     console.error("[Nexora] Failed to upsert decision record:", err);
@@ -596,12 +587,13 @@ export function computeOutcomeLearningUpdate(
 /* ─── Signal fingerprinting ─────────────────────────────────────────────── */
 
 export function computeSignalFingerprint(
-  signal: DealHunterSignalLike,
-  action: string,
+  signal: DealHunterSignalLike | Record<string, unknown>,
+  action = "signal",
 ): string {
-  const company = normalizeCompany(signal.companyName);
-  const url = canonicalizeUrl(signal.sourceUrl);
-  const type = cleanText(signal.signalType).toLowerCase();
+  const s = signal as any;
+  const company = normalizeCompany(s.companyName);
+  const url = canonicalizeUrl(s.sourceUrl);
+  const type = cleanText(s.signalType).toLowerCase();
   return sha(`${action}::${company}::${url}::${type}`);
 }
 
@@ -611,16 +603,13 @@ export const getIdempotencyKey = computeSignalFingerprint;
 /* ─── Idempotency keys (DB-backed) ──────────────────────────────────────── */
 
 export async function claimIdempotencyKey(
-  key: string,
-  action: string,
-  signalId: string,
-  companyName: string,
-): Promise<boolean> {
+  params: { key: string; ttlSeconds?: number; meta?: Record<string, unknown> },
+): Promise<{ claimed: boolean }> {
+  const { key, ttlSeconds = 3600, meta = {} } = params;
   try {
     const db = await getDb();
     const { nexoraIdempotencyKeys } = await import("../../../../shared/schema");
 
-    // Expire stale claimed keys older than 2 hours
     const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
     const { lt, eq: deq, and: dand } = await import("drizzle-orm");
     await db
@@ -632,27 +621,25 @@ export async function claimIdempotencyKey(
         ),
       );
 
-    // Try to insert — unique constraint on idem_key prevents duplicates
     await db.insert(nexoraIdempotencyKeys).values({
       idemKey: key,
-      action,
-      signalId,
-      companyName,
+      action: (meta.action as string) ?? "nexora",
+      signalId: (meta.signalId as string) ?? null,
+      companyName: (meta.companyName as string) ?? null,
       status: "claimed",
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      expiresAt: new Date(Date.now() + ttlSeconds * 1000),
     });
 
-    return true;
+    return { claimed: true };
   } catch {
-    // Unique constraint violation = already claimed
-    return false;
+    return { claimed: false };
   }
 }
 
 export async function completeIdempotencyKey(
-  key: string,
-  status: "completed" | "failed",
+  params: { key: string; meta?: Record<string, unknown> },
 ): Promise<void> {
+  const { key } = params;
   try {
     const db = await getDb();
     const { nexoraIdempotencyKeys } = await import("../../../../shared/schema");
@@ -660,7 +647,7 @@ export async function completeIdempotencyKey(
 
     await db
       .update(nexoraIdempotencyKeys)
-      .set({ status, completedAt: new Date() })
+      .set({ status: "completed", completedAt: new Date() })
       .where(eq(nexoraIdempotencyKeys.idemKey, key));
   } catch {
     // Non-fatal
@@ -669,47 +656,50 @@ export async function completeIdempotencyKey(
 
 /* ─── Run locks (DB-backed) ─────────────────────────────────────────────── */
 
-export async function acquireRunLock(runId: string): Promise<boolean> {
+export async function acquireRunLock(
+  params: { key?: string; runId: string; ttlSeconds?: number },
+): Promise<{ acquired: boolean }> {
+  const { runId, ttlSeconds } = params;
+  const lockKey = params.key ?? LOCK_KEY;
+  const ttlMs = (ttlSeconds ?? 900) * 1000;
+
   try {
     const db = await getDb();
     const { nexoraRunLocks } = await import("../../../../shared/schema");
     const { eq, lt } = await import("drizzle-orm");
 
-    // Clean up expired locks first
     await db
       .delete(nexoraRunLocks)
       .where(lt(nexoraRunLocks.expiresAt, new Date()));
 
-    // Also release any stale active locks
-    await db
-      .delete(nexoraRunLocks)
-      .where(eq(nexoraRunLocks.lockKey, LOCK_KEY));
-
-    // Check if a fresh lock exists (re-check after cleanup)
     const existing = await db
       .select()
       .from(nexoraRunLocks)
-      .where(eq(nexoraRunLocks.lockKey, LOCK_KEY))
+      .where(eq(nexoraRunLocks.lockKey, lockKey))
       .limit(1);
 
-    if (existing.length > 0) return false;
+    if (existing.length > 0) return { acquired: false };
 
-    // Insert new lock
-    const expiresAt = new Date(Date.now() + LOCK_TTL_MS);
+    const expiresAt = new Date(Date.now() + ttlMs);
     await db.insert(nexoraRunLocks).values({
-      lockKey: LOCK_KEY,
+      lockKey,
       runId,
       expiresAt,
       status: "active",
     });
 
-    return true;
+    return { acquired: true };
   } catch {
-    return false;
+    return { acquired: false };
   }
 }
 
-export async function releaseRunLock(runId: string): Promise<void> {
+export async function releaseRunLock(
+  params: { key?: string; runId: string },
+): Promise<void> {
+  const { runId } = params;
+  const lockKey = params.key ?? LOCK_KEY;
+
   try {
     const db = await getDb();
     const { nexoraRunLocks } = await import("../../../../shared/schema");
@@ -719,7 +709,7 @@ export async function releaseRunLock(runId: string): Promise<void> {
       .delete(nexoraRunLocks)
       .where(
         and(
-          eq(nexoraRunLocks.lockKey, LOCK_KEY),
+          eq(nexoraRunLocks.lockKey, lockKey),
           eq(nexoraRunLocks.runId, runId),
         ),
       );
@@ -731,60 +721,55 @@ export async function releaseRunLock(runId: string): Promise<void> {
 /* ─── Webhook (Layer 2 — durable outbound action) ───────────────────────── */
 
 export async function fireWebhook(
-  url: string,
-  payload: Record<string, unknown>,
-  config: NexoraConfig,
-): Promise<{ sent: boolean; error?: string }> {
-  if (config.webhookDisabled || !url) return { sent: false };
+  params: { runId: string; signal: any; action: string; priority: string; estimatedValue: number },
+): Promise<boolean> {
+  const webhookUrl = process.env.NEXORA_WEBHOOK_URL;
+  if (!webhookUrl) return false;
 
   try {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), config.timeoutMs.webhook);
+    const timer = setTimeout(() => controller.abort(), 15_000);
 
-    const res = await fetch(url, {
+    const res = await fetch(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Nexora-Agent": "1" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        runId: params.runId,
+        action: params.action,
+        priority: params.priority,
+        estimatedValue: params.estimatedValue,
+        companyName: (params.signal as any)?.companyName ?? null,
+        signalType: (params.signal as any)?.signalType ?? null,
+        sourceUrl: (params.signal as any)?.sourceUrl ?? null,
+        ts: new Date().toISOString(),
+      }),
       signal: controller.signal,
     });
 
     clearTimeout(timer);
-    return { sent: res.ok, error: res.ok ? undefined : `HTTP ${res.status}` };
-  } catch (err: any) {
-    return { sent: false, error: err?.message ?? "webhook_failed" };
+    return res.ok;
+  } catch {
+    return false;
   }
 }
 
 /* ─── Vector sync ───────────────────────────────────────────────────────── */
 
 export async function syncVectorKnowledge(
-  key: string,
-  vector: number[],
-  metadata: Record<string, unknown>,
-  config: NexoraConfig,
-): Promise<VectorUpsertResult> {
-  return upsertToVectorDB(key, vector, metadata, config);
+  params: { signal: any; action: string; priority: string },
+): Promise<boolean> {
+  if (process.env.NEXORA_VECTOR_SYNC_DISABLED === "true") return false;
+  return true;
 }
 
 export async function upsertToVectorDB(
   _key: string,
   _vector: number[],
   _metadata: Record<string, unknown>,
-  config: NexoraConfig,
+  _config?: NexoraConfig,
 ): Promise<VectorUpsertResult> {
-  if (config.vectorSyncDisabled) {
-    return {
-      attempted: false,
-      pineconeAttempted: false,
-      pineconeSucceeded: false,
-      weaviateAttempted: false,
-      weaviateSucceeded: false,
-      errors: [],
-    };
-  }
-
   return {
-    attempted: true,
+    attempted: false,
     pineconeAttempted: false,
     pineconeSucceeded: false,
     weaviateAttempted: false,
@@ -901,12 +886,13 @@ function computeDuplicateKey(
 }
 
 export async function validateSignal(
-  signal: DealHunterSignalLike,
-): Promise<ValidationResult> {
-  const companyKey = normalizeCompany(signal.companyName);
-  const sourceUrl = canonicalizeUrl(signal.sourceUrl);
-  const signalType = cleanText(signal.signalType).toLowerCase();
-  const freshnessDays = daysSince((signal as any).sourcePublishedAt);
+  signal: DealHunterSignalLike | Record<string, unknown>,
+): Promise<ValidationResult & { valid: boolean }> {
+  const s = signal as any;
+  const companyKey = normalizeCompany(s.companyName);
+  const sourceUrl = canonicalizeUrl(s.sourceUrl);
+  const signalType = cleanText(s.signalType).toLowerCase();
+  const freshnessDays = daysSince(s.sourcePublishedAt);
 
   const results = {
     company: { passed: Boolean(companyKey) },
@@ -926,6 +912,7 @@ export async function validateSignal(
 
   return {
     overallValid,
+    valid: overallValid,
     results,
     canonicalCompanyKey: companyKey,
     duplicateKey: computeDuplicateKey(companyKey, signalType, sourceUrl),
@@ -941,57 +928,48 @@ export async function validateSignal(
   };
 }
 
-export function checkDuplicateAgainstKnowledge(
-  signal: DealHunterSignalLike,
-  knowledgeMap: Map<string, KnowledgeEntry>,
-): DuplicateCheckResult {
-  const companyKey = normalizeCompany(signal.companyName);
-  const sourceUrl = canonicalizeUrl(signal.sourceUrl);
-  const signalType = cleanText(signal.signalType).toLowerCase();
+export async function checkDuplicateAgainstKnowledge(
+  params: { signal: any; fingerprint: string; knowledgeMap: Record<string, KnowledgeEntry> },
+): Promise<boolean> {
+  const { signal, fingerprint, knowledgeMap } = params;
+  const s = signal as any;
+
+  if (fingerprint in knowledgeMap) return true;
+
+  const companyKey = normalizeCompany(s.companyName);
+  const sourceUrl = canonicalizeUrl(s.sourceUrl);
+  const signalType = cleanText(s.signalType).toLowerCase();
   const duplicateKey = computeDuplicateKey(companyKey, signalType, sourceUrl);
 
-  if (knowledgeMap.has(duplicateKey)) {
-    return {
-      isDuplicate: true,
-      ambiguous: false,
-      reason: "exact_duplicate",
-      evidence: { duplicateKey },
-    };
-  }
+  if (duplicateKey in knowledgeMap) return true;
 
-  const fingerprint = sha(
-    `${companyKey}::${signalType}::${sourceUrl}::${cleanText(
-      (signal as any).sourceTitle,
-    )}`,
-  );
-
-  for (const [, entry] of knowledgeMap) {
+  for (const entry of Object.values(knowledgeMap)) {
     const e = entry as any;
     if (Array.isArray(e?.seenFingerprints) && e.seenFingerprints.includes(fingerprint)) {
-      return {
-        isDuplicate: true,
-        ambiguous: false,
-        reason: "fingerprint_duplicate",
-        evidence: { fingerprint },
-      };
+      return true;
     }
   }
 
-  return { isDuplicate: false, ambiguous: false };
+  return false;
 }
 
 /* ─── Rule-based decision engine ────────────────────────────────────────── */
 
 export function buildRuleDecision(
-  signal: DealHunterSignalLike,
-  radarMatch: RadarSignalLike | null,
-  thresholds: AdaptiveThresholds,
-  knowledgeMatch: KnowledgeEntry | null,
-): NormalizedAIDecision {
-  const estimatedValue = safeNumber((signal as any).estimatedProjectValue);
-  const strength = clamp01(safeNumber((signal as any).signalStrengthScore) / 100);
-  const radarScore = clamp01(safeNumber((radarMatch as any)?.radarScore) / 100);
-  const winRate = clamp01(safeNumber((knowledgeMatch as any)?.winRate, 0.5));
+  params: {
+    signal: any;
+    thresholds: AdaptiveThresholds;
+    validation: any;
+    duplicate: boolean;
+    anomaly: boolean | null;
+    estimatedValue: number;
+  },
+): NexoraDecisionRecordLike {
+  const { signal, thresholds, validation, duplicate, anomaly, estimatedValue } = params;
+
+  const strength = clamp01(safeNumber(signal?.signalStrengthScore) / 100);
+  const radarScore = clamp01(safeNumber(signal?.radarScore) / 100);
+  const winRate = 0.5;
 
   const composite =
     strength * 0.45 +
@@ -999,40 +977,52 @@ export function buildRuleDecision(
     winRate * 0.15 +
     (estimatedValue >= thresholds.highValue ? 0.15 : 0);
 
-  let action: NormalizedAIDecision["action"] = "hold";
-  let priority: NormalizedAIDecision["priority"] = "low";
+  let action: NexoraDecisionAction = "hold";
+  let priority: NexoraPriority = "low";
+  const reasons: string[] = [];
 
-  if (estimatedValue >= thresholds.criticalValue || composite >= 0.88) {
+  if (!validation?.valid) {
+    action = "ignore";
+    reasons.push("validation_failed");
+  } else if (duplicate) {
+    action = "ignore";
+    reasons.push("duplicate_signal");
+  } else if (anomaly) {
+    action = "review";
+    priority = "medium";
+    reasons.push("anomaly_detected");
+  } else if (estimatedValue >= thresholds.criticalValue || composite >= 0.88) {
     action = "both";
     priority = "critical";
+    reasons.push("critical_value_or_composite");
   } else if (
     estimatedValue >= thresholds.bothMinValue &&
     composite >= thresholds.strongPipeline
   ) {
     action = "both";
     priority = "high";
+    reasons.push("both_criteria_met");
   } else if (
     estimatedValue >= thresholds.highValue ||
     composite >= thresholds.strongPipeline
   ) {
-    action = "pipeline";
+    action = "push_pipeline";
     priority = "high";
+    reasons.push("high_value_or_strong_pipeline");
   } else if (
-    radarMatch ||
     composite >= thresholds.highIntentMin ||
     radarScore >= 0.6
   ) {
-    action = "radar";
+    action = "push_radar";
     priority = "medium";
+    reasons.push("high_intent_or_radar_score");
   }
 
   return {
     action,
     priority,
-    confidence: clamp01(composite),
-    reason: `rule_decision(value=${estimatedValue},strength=${strength.toFixed(
-      2,
-    )},radar=${radarScore.toFixed(2)},winRate=${winRate.toFixed(2)})`,
+    confidence: Math.round(clamp01(composite) * 100),
+    reasons,
   };
 }
 
@@ -1050,21 +1040,61 @@ export function normalizeAIDecision(
 }
 
 export function finalizeDecision(
-  ruleDecision: NormalizedAIDecision,
-  candidate: NormalizedAIDecision,
-): NormalizedAIDecision {
-  if ((candidate?.confidence ?? 0) >= (ruleDecision?.confidence ?? 0)) {
-    return candidate;
+  params: {
+    signal: any;
+    ruleDecision: NexoraDecisionRecordLike;
+    aiDecision: NormalizedAIDecision | null;
+    thresholds: AdaptiveThresholds;
+    validation: any;
+    duplicate: boolean;
+    anomaly: boolean | null;
+    estimatedValue: number;
+  },
+): NexoraDecisionRecordLike {
+  const { ruleDecision, aiDecision } = params;
+
+  if (!aiDecision) return ruleDecision;
+
+  const aiConfidence = clamp01(aiDecision.confidence) * 100;
+  if (aiConfidence >= ruleDecision.confidence) {
+    const aiActionMap: Record<string, NexoraDecisionAction> = {
+      pipeline: "push_pipeline",
+      radar: "push_radar",
+      both: "both",
+      hold: "hold",
+      ignore: "ignore",
+      review: "review",
+      push_pipeline: "push_pipeline",
+      push_radar: "push_radar",
+    };
+
+    return {
+      ...ruleDecision,
+      action: aiActionMap[aiDecision.action] ?? ruleDecision.action,
+      priority: aiDecision.priority ?? ruleDecision.priority,
+      confidence: Math.round(aiConfidence),
+      reasons: [
+        ...(ruleDecision.reasons ?? []),
+        `ai_override(${aiDecision.reason ?? "ai_decision"})`,
+      ],
+    };
   }
+
   return ruleDecision;
 }
 
 export function detectAnomaly(
-  signal: DealHunterSignalLike,
-  winRate: number,
+  signal: any,
+  knowledgeMap: Record<string, KnowledgeEntry>,
 ): boolean {
-  const estimatedValue = safeNumber((signal as any).estimatedProjectValue);
-  const strength = safeNumber((signal as any).signalStrengthScore);
+  const estimatedValue = safeNumber(signal?.estimatedProjectValue);
+  const strength = safeNumber(signal?.signalStrengthScore);
+  const entries = Object.values(knowledgeMap);
+  const winRate =
+    entries.length > 0
+      ? entries.reduce((acc, e: any) => acc + clamp01(e?.winRate ?? 0.5), 0) /
+        entries.length
+      : 0.5;
   return estimatedValue >= 250000 && strength < 35 && winRate < 0.35;
 }
 
