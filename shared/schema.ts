@@ -3003,6 +3003,7 @@ export const nexoraDecisions = pgTable(
     idxNexDecisionSignal: index("idx_nexdec_signal_id").on(t.signalId),
     idxNexDecisionCompany: index("idx_nexdec_company").on(t.companyName),
     idxNexDecisionCreated: index("idx_nexdec_created_at").on(t.createdAt),
+    idxNexDecisionIdempotency: index("idx_nexdec_idempotency_key").on(t.idempotencyKey),
   }),
 );
 export const insertNexoraDecisionSchema = createInsertSchema(nexoraDecisions).omit({ id: true, createdAt: true });

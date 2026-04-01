@@ -12,6 +12,7 @@ import {
   ThumbsUp, ThumbsDown, Radio, Layers, Brain, BookOpen, Sliders,
   TrendingDown, Award, Send, Database, Scan, ArrowUpRight,
   Lock, Unlock, AlertOctagon, RotateCcw, GitBranch, Cpu,
+  HeartPulse, ListChecks, CheckCheck,
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -178,6 +179,15 @@ interface NexoraRunResult {
   errors: string[];
 }
 
+interface HealthCheck {
+  healthy: boolean;
+  status: "healthy" | "degraded" | "critical";
+  failCount: number;
+  passCount: number;
+  checkedAt: string;
+  checks: Record<string, { pass: boolean; detail: string }>;
+}
+
 interface RuntimeState {
   isLocked: boolean;
   activeLock: { id: number; lockKey: string; runId: string; acquiredAt: string; expiresAt: string | null } | null;
@@ -323,6 +333,11 @@ export default function AdminNexoraCommandCentre() {
     refetchInterval: 8000,
   });
 
+  const { data: healthData, isLoading: healthLoading, refetch: refetchHealth } = useQuery<HealthCheck>({
+    queryKey: ["/api/nexora/health"],
+    refetchInterval: 30000,
+  });
+
   // ── Mutations ──────────────────────────────────────────────────────────────
 
   const runMutation = useMutation({
@@ -403,6 +418,16 @@ export default function AdminNexoraCommandCentre() {
       toast({ title: action === "approve" ? "Outreach approved" : "Outreach rejected" });
       queryClient.invalidateQueries({ queryKey: ["/api/nexora/outreach/pending"] });
     },
+  });
+
+  const batchApproveMutation = useMutation({
+    mutationFn: () => apiRequest("POST", "/api/nexora/outreach/approve-batch", { riskLevel: "low" }),
+    onSuccess: (data: any) => {
+      toast({ title: `Batch approved ${data.approved} messages`, description: `${data.remaining} still pending.` });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/outreach/pending"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/runtime-state"] });
+    },
+    onError: (err: any) => toast({ title: "Batch approve failed", description: err?.message, variant: "destructive" }),
   });
 
   // ── Status badge ──────────────────────────────────────────────────────────
@@ -715,6 +740,76 @@ export default function AdminNexoraCommandCentre() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* ── System Health Scorecard ── */}
+        <div className="mb-6 border border-white/8 bg-white/[0.02]">
+          <div className="flex items-center gap-2 px-5 py-3 border-b border-white/6">
+            <HeartPulse className="w-4 h-4 text-[hsl(43,78%,52%)]" />
+            <h2 className="text-sm font-medium text-white">System Health Scorecard</h2>
+            {healthData && (
+              <Badge className={`ml-2 text-[10px] px-2 h-5 ${
+                healthData.status === "healthy" ? "bg-green-500/15 text-green-300 border-green-500/25" :
+                healthData.status === "degraded" ? "bg-yellow-500/15 text-yellow-300 border-yellow-500/25" :
+                "bg-red-500/15 text-red-300 border-red-500/25"
+              }`}>
+                {healthData.status.toUpperCase()} — {healthData.passCount}/{healthData.passCount + healthData.failCount} checks pass
+              </Badge>
+            )}
+            <Button
+              onClick={() => refetchHealth()}
+              size="sm"
+              variant="ghost"
+              data-testid="button-health-refresh"
+              className="ml-auto h-7 px-2 text-white/30 hover:text-white/60 hover:bg-white/5"
+            >
+              <RefreshCw className="w-3 h-3" />
+            </Button>
+          </div>
+          {healthLoading ? (
+            <div className="p-6 text-center text-white/30 text-sm flex items-center justify-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin" /> Checking system health…
+            </div>
+          ) : healthData ? (
+            <div className="divide-y divide-white/5">
+              {Object.entries(healthData.checks).map(([key, check]) => (
+                <div key={key} data-testid={`health-check-${key}`} className="flex items-start gap-3 px-5 py-2.5">
+                  {check.pass
+                    ? <CheckCircle2 className="w-3.5 h-3.5 text-green-400 mt-0.5 flex-shrink-0" />
+                    : <XCircle className="w-3.5 h-3.5 text-red-400 mt-0.5 flex-shrink-0" />}
+                  <div className="flex-1 min-w-0">
+                    <span className="text-xs font-mono text-white/50">{key}</span>
+                    <p className="text-[10px] text-white/30 mt-0.5 truncate">{check.detail}</p>
+                  </div>
+                  <span className={`text-[9px] font-medium px-1.5 py-0.5 border flex-shrink-0 ${
+                    check.pass ? "border-green-500/20 text-green-400 bg-green-500/5" : "border-red-500/20 text-red-400 bg-red-500/5"
+                  }`}>{check.pass ? "PASS" : "FAIL"}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="p-6 text-center text-white/25 text-sm">Health data unavailable</div>
+          )}
+          {/* Batch approve row */}
+          <div className="flex items-center gap-3 px-5 py-3 border-t border-white/6 bg-white/[0.01]">
+            <ListChecks className="w-3.5 h-3.5 text-white/30" />
+            <span className="text-xs text-white/40">Outreach Queue</span>
+            <span className="text-xs font-medium text-yellow-300">
+              {runtimeState?.approvalQueueCount ?? "—"} pending approval
+            </span>
+            <Button
+              onClick={() => batchApproveMutation.mutate()}
+              disabled={batchApproveMutation.isPending || (runtimeState?.approvalQueueCount ?? 0) === 0}
+              size="sm"
+              data-testid="button-batch-approve"
+              className="ml-auto h-7 text-[10px] bg-yellow-700/20 hover:bg-yellow-700/35 text-yellow-300 border border-yellow-700/30 rounded-none"
+            >
+              {batchApproveMutation.isPending
+                ? <><Loader2 className="w-3 h-3 animate-spin mr-1" />Approving…</>
+                : <><CheckCheck className="w-3 h-3 mr-1" />Approve Low-Risk Drafts</>
+              }
+            </Button>
+          </div>
         </div>
 
         {/* ── Signal Intelligence Summary ── */}

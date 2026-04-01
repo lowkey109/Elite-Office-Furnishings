@@ -611,13 +611,21 @@ export async function claimIdempotencyKey(
     const { nexoraIdempotencyKeys } = await import("../../../../shared/schema");
 
     const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
-    const { lt, eq: deq, and: dand } = await import("drizzle-orm");
+    const now = new Date();
+    const { lt, eq: deq, and: dand, or: dor } = await import("drizzle-orm");
+    // Purge stale claimed keys AND expired completed keys so signals can be reprocessed
     await db
       .delete(nexoraIdempotencyKeys)
       .where(
-        dand(
-          deq(nexoraIdempotencyKeys.status, "claimed"),
-          lt(nexoraIdempotencyKeys.claimedAt, twoHoursAgo),
+        dor(
+          dand(
+            deq(nexoraIdempotencyKeys.status, "claimed"),
+            lt(nexoraIdempotencyKeys.claimedAt, twoHoursAgo),
+          ),
+          dand(
+            deq(nexoraIdempotencyKeys.status, "completed"),
+            lt(nexoraIdempotencyKeys.expiresAt, now),
+          ),
         ),
       );
 

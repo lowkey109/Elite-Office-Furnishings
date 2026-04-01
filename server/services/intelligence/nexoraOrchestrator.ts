@@ -662,14 +662,18 @@ async function processSignal(params: {
     });
   }
 
-  await completeIdempotencyKey({
-    key: idempotencyKey,
-    meta: {
-      runId,
-      action: finalDecision.action,
-      fingerprint,
-    },
-  }).catch(() => undefined);
+  // Only mark idempotency completed if an action was taken — 
+  // "hold" signals should remain claimable so threshold recalibrations can act on them
+  if (pushedPipeline || pushedRadar || reviewed) {
+    await completeIdempotencyKey({
+      key: idempotencyKey,
+      meta: {
+        runId,
+        action: finalDecision.action,
+        fingerprint,
+      },
+    }).catch(() => undefined);
+  }
 
   return {
     signalId,
@@ -710,8 +714,11 @@ async function applyLearningFromRun(params: {
 
   const sampleSize = eligible.length;
 
-  if (sampleSize === 0) {
-    return emptyLearning();
+  // Learning guard: require minimum 3 actionable results before adjusting thresholds
+  const MIN_LEARNING_SAMPLE = 3;
+  if (sampleSize < MIN_LEARNING_SAMPLE) {
+    console.log(`[Nexora] Learning frozen — sample size ${sampleSize} < minimum ${MIN_LEARNING_SAMPLE}`);
+    return { ...emptyLearning(), sampleSize };
   }
 
   let totalWinRate = 0;
@@ -783,13 +790,35 @@ async function pushToPipeline(
 ): Promise<boolean> {
   try {
     if (sourceType === "deal") {
-      // pushDealHunterToPipeline expects a string ID, not the signal object
       await pushDealHunterToPipeline(signal.id);
+      return true;
+    }
+    // Radar signal → create a pipeline prospect entry (idempotency key prevents duplicate calls)
+    if (sourceType === "radar") {
+      const radarSig = signal as any;
+      const rawValue = radarSig.estimatedProjectValue;
+      const parsedValue = typeof rawValue === "number"
+        ? rawValue
+        : parseInt(String(rawValue ?? "0").replace(/[^0-9]/g, ""), 10) || 0;
+      await storage.createProspectedLead({
+        company: radarSig.companyName ?? "Unknown",
+        domain: null,
+        website: null,
+        location: [radarSig.city, radarSig.state].filter(Boolean).join(", ") || "Australia",
+        industry: radarSig.industry ?? "Unknown",
+        estimatedTeamSize: "Unknown",
+        likelyOfficeNeed: radarSig.signalSubtype ?? radarSig.signalType ?? "Unknown",
+        signalsDetected: [radarSig.signalType ?? "radar"],
+        estimatedProjectValue: parsedValue > 0 ? `$${parsedValue.toLocaleString()}` : "$0",
+        score: radarSig.radarScore ?? 50,
+        priority: radarSig.confidenceLevel === "high" ? "High" : radarSig.confidenceLevel === "low" ? "Low" : "Medium",
+        nexoraSignalId: signal.id ?? null,
+      } as any);
       return true;
     }
     return false;
   } catch (err) {
-    console.error(`[Nexora] pushToPipeline failed for signal ${signal.id} — scheduling pg-boss retry:`, err);
+    console.error(`[Nexora] pushToPipeline failed for signal ${signal.id}:`, err);
     scheduleJob(QUEUES.NEXORA_PUSH_PIPELINE_RETRY, {
       signalId: signal.id,
       companyName: (signal as any).companyName ?? null,
@@ -806,13 +835,32 @@ async function pushToRadar(
 ): Promise<boolean> {
   try {
     if (sourceType === "deal") {
-      // pushDealHunterToRadar expects a string ID, not the signal object
       await pushDealHunterToRadar(signal.id);
       return true;
     }
+    // Radar signal → escalate status to "Qualified" in office_move_radar
+    if (sourceType === "radar" && signal.id) {
+      const { db: ddb } = await import("../../db");
+      const { officeMovRadar } = await import("../../../shared/schema");
+      const { eq } = await import("drizzle-orm");
+      const existing = await ddb
+        .select({ id: officeMovRadar.id, status: officeMovRadar.status })
+        .from(officeMovRadar)
+        .where(eq(officeMovRadar.id, signal.id))
+        .limit(1);
+      if (existing.length > 0) {
+        if (existing[0].status !== "Qualified") {
+          await ddb
+            .update(officeMovRadar)
+            .set({ status: "Qualified" } as any)
+            .where(eq(officeMovRadar.id, signal.id));
+        }
+        return true;
+      }
+    }
     return false;
   } catch (err) {
-    console.error(`[Nexora] pushToRadar failed for signal ${signal.id} — scheduling pg-boss retry:`, err);
+    console.error(`[Nexora] pushToRadar failed for signal ${signal.id}:`, err);
     scheduleJob(QUEUES.NEXORA_PUSH_RADAR_RETRY, {
       signalId: signal.id,
       companyName: (signal as any).companyName ?? null,
@@ -936,10 +984,13 @@ function shouldEscalateToAI(
   return false;
 }
 
+// Pipeline threshold: 50+ confidence on a 0-100 scale (medium-confidence and above)
+const PIPELINE_CONFIDENCE_MIN = 50;
+
 function shouldPushPipeline(finalDecision: NexoraDecisionRecordLike): boolean {
   return (
     finalDecision.action === "push_pipeline" ||
-    (finalDecision.action === "both" && finalDecision.confidence >= 70)
+    (finalDecision.action === "both" && finalDecision.confidence >= PIPELINE_CONFIDENCE_MIN)
   );
 }
 

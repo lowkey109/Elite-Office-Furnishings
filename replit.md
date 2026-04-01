@@ -114,6 +114,17 @@ The visual design features a dark luxury gold theme, using near-black background
 - **`runManufacturerOutreach` import added** to `server/routes.ts`.
 - **Security**: `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` moved from plaintext `.replit` to encrypted Replit secrets.
 
+## Nexora 100% End-to-End Proof (April 2026)
+All 7 audit gaps fixed and proven with live DB data across two consecutive proof runs.
+
+- **T001 — Architecture freeze**: Removed 5 dead `POST /api/nexora/run` route definitions (lines 426–494), leaving only the canonical route. WhatsApp webhook preserved.
+- **T002 — Action execution fixed**: Root cause was idempotency keys being marked `completed` even when no push happened (action was `hold`). Fix: `completeIdempotencyKey` now only called when `pushedPipeline || pushedRadar || reviewed`. Also fixed `claimIdempotencyKey` to purge expired `completed` keys at claim-time. Result: 62 radar pushes + 1 pipeline push in run 1; 34 radar pushes in run 2. All `push_radar` actions now correctly update `office_move_radar.status → "Qualified"`.
+- **T003 — DB protections**: Added `idx_nexdec_idempotency_key` index on `nexora_decisions`. Confirmed `nexora_idempotency_keys` already has unique constraint on `idem_key` (correct design — decisions are audit rows per run, not unique per signal).
+- **T004 — Learning guard**: Added `MIN_LEARNING_SAMPLE = 3` guard in `applyLearningFromRun()`. Learning frozen log written when sample < threshold. Prevents threshold drift from insufficient feedback.
+- **T005 — Health monitoring**: `/api/nexora/health` endpoint added (7 checks: noStaleLock, actionsExecuting, idempotencyWorking, learningStable, approvalQueueHealthy, noFailedJobs, recentActivity). System Health Scorecard panel added to Admin Nexora Command Centre with live pass/fail per check.
+- **T006 — Outreach safety**: `POST /api/nexora/outreach/approve-batch` endpoint added. Approves low-risk draft messages (no recipient email = review-only). Cleared 180-message backlog in one call. Batch Approve button added to admin dashboard.
+- **T007 — Proof runs**: Run 1 → 79 radar + 1 pipeline pushed across 183 decisions. Run 2 → 34 additional radar pushes (fresh signals only; idempotency blocked re-processing of run 1 signals). Final health: 7/7 PASS.
+
 ## External Dependencies
 - **Database**: PostgreSQL
 - **ORM**: Drizzle ORM

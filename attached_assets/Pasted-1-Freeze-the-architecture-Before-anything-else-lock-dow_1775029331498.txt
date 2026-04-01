@@ -1,0 +1,191 @@
+1. Freeze the architecture
+
+Before anything else, lock down:
+	•	one live Nexora entrypoint
+	•	one background runner path
+	•	one admin trigger path
+	•	one decision/action flow
+
+No duplicate engines. No alternate old paths.
+
+⸻
+
+2. Make a proof checklist
+
+Create a checklist and do not call it 100% until every item passes.
+
+Runtime proof
+	•	app boots cleanly
+	•	run starts
+	•	run finishes
+	•	lock is acquired
+	•	lock is released
+	•	second run works
+	•	overlapping run is blocked properly
+	•	restart does not corrupt state
+
+Signal proof
+	•	signals are fetched
+	•	signals are normalized
+	•	invalid signals are rejected
+	•	duplicates are rejected
+	•	valid signals produce decisions
+
+Decision proof
+	•	rule decision works
+	•	AI decision works
+	•	final decision is stored
+	•	reasons are stored
+	•	confidence is stored
+
+Action proof
+	•	pipeline push works
+	•	radar push works
+	•	webhook works
+	•	WhatsApp works
+	•	failures are logged
+	•	retries behave correctly
+	•	duplicate actions are blocked
+
+Outcome proof
+	•	outcomes can be written
+	•	outcomes link back to actions/opportunities
+	•	outcome stats update
+	•	learning updates thresholds safely
+
+Admin proof
+	•	dashboard shows live runs
+	•	dashboard shows live decisions
+	•	dashboard shows live actions
+	•	dashboard shows failures
+	•	dashboard shows threshold history
+	•	dashboard can pause/retry/review safely
+
+⸻
+
+3. Run repeated test cycles
+
+Do not test once.
+
+Run:
+	•	same signal set multiple times
+	•	same action path multiple times
+	•	restart during or after runs
+	•	retry failures
+	•	queue delayed follow-ups
+	•	simulate partial outages
+
+You are looking for:
+	•	duplicate decisions
+	•	duplicate actions
+	•	stuck locks
+	•	missing outcomes
+	•	unstable learning
+	•	silent failures
+
+⸻
+
+4. Add hard database protections
+
+Make duplicates impossible even if code slips.
+
+Add unique constraints for:
+	•	signal fingerprint
+	•	company + signal type + source URL if appropriate
+	•	action idempotency key
+	•	one active lock per runtime
+	•	sequence step uniqueness where needed
+
+That way the DB becomes the final safety net.
+
+⸻
+
+5. Add learning guards
+
+To prove it is safe, stop it from overreacting.
+
+Add:
+	•	minimum sample size before threshold changes
+	•	max drift per run
+	•	rolling outcome window
+	•	calibration reports
+	•	learning freeze if outcome volume is too low
+
+That is how you stop fake “smartness.”
+
+⸻
+
+6. Turn monitoring on
+
+You need proof when it fails.
+
+Set alerts for:
+	•	failed jobs
+	•	stuck jobs
+	•	repeated retries
+	•	run crashes
+	•	outbound failures
+	•	queue backlogs
+	•	abnormal threshold shifts
+
+If you cannot see failures, you cannot prove reliability.
+
+⸻
+
+7. Validate outbound safety
+
+Before calling it 100%, prove:
+	•	no duplicate emails/messages
+	•	suppression rules work
+	•	do-not-contact works
+	•	recent-contact blocking works
+	•	bounce/failure handling works
+	•	rate limits work
+
+This is one of the biggest real-world proof points.
+
+⸻
+
+8. Validate restart and recovery
+
+Shut it down and bring it back up.
+
+Prove:
+	•	no stuck lock remains
+	•	queue resumes safely
+	•	no duplicate actions fire
+	•	delayed jobs still execute
+	•	background runner resumes correctly
+
+A system is not production-ready until restart behavior is proven.
+
+⸻
+
+9. Prove it with real live runs
+
+Not just synthetic tests.
+
+Use live signals and verify:
+	•	signal arrives
+	•	company is resolved
+	•	decision is made
+	•	action is triggered
+	•	outcome is recorded
+	•	learning updates
+
+Do that repeatedly.
+
+⸻
+
+10. Keep a pass/fail scorecard
+
+Make a table with:
+	•	test name
+	•	last run date
+	•	pass/fail
+	•	evidence link
+	•	blocker if failed
+
+Do not rely on memory.
+
+When every critical test is green, then you can start calling it near-100%.
