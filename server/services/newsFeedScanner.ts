@@ -17,9 +17,35 @@ import OpenAI from "openai";
 import { storage } from "../storage";
 import { scoreRadarSignal } from "./officeMovRadarService";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+function makeOpenAI(): OpenAI {
+  return new OpenAI({
+    apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY ?? process.env.OPENAI_API_KEY,
+    baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+  });
+}
+
+let _openai: OpenAI | null = null;
+function getOpenAI(): OpenAI {
+  if (!_openai) _openai = makeOpenAI();
+  return _openai;
+}
+
+let _quotaExhausted = false;
+let _quotaResetAt = 0;
+
+function markQuotaExhausted() {
+  _quotaExhausted = true;
+  _quotaResetAt = Date.now() + 60 * 60 * 1000;
+  console.warn("[NewsFeedScanner] OpenAI quota exhausted — skipping classify for 1 hour");
+}
+
+function isQuotaExhausted(): boolean {
+  if (_quotaExhausted && Date.now() > _quotaResetAt) {
+    _quotaExhausted = false;
+    console.log("[NewsFeedScanner] OpenAI quota cooldown expired — retrying");
+  }
+  return _quotaExhausted;
+}
 
 // ─── Geographic scope — all major Australian cities ──────────────────────────
 
@@ -212,8 +238,13 @@ Rules:
 - city: infer from article text. If only a state is mentioned, use the state capital. If not determinable, set to null
 - Only return the JSON array, nothing else`;
 
+  if (isQuotaExhausted()) {
+    console.warn("[NewsFeedScanner] Skipping classify — quota circuit-breaker active");
+    return [];
+  }
+
   try {
-    const resp = await openai.chat.completions.create({
+    const resp = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: SYSTEM_PROMPTS[mode] },
@@ -246,7 +277,11 @@ Rules:
         itemIndex: Number(x.itemIndex ?? 0),
       }));
   } catch (err: any) {
-    console.error("[NewsFeedScanner] GPT batch classify failed:", err.message);
+    if (err?.status === 429 || err?.message?.includes("429") || err?.message?.includes("quota")) {
+      markQuotaExhausted();
+    } else {
+      console.error("[NewsFeedScanner] GPT batch classify failed:", err.message);
+    }
     return [];
   }
 }

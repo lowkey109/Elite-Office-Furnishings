@@ -2,7 +2,8 @@ import OpenAI from "openai";
 import type { DealHunterSignalLike, NormalizedAIDecision } from "./nexora/nexora-types";
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY ?? process.env.OPENAI_API_KEY,
+  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
 });
 
 type AIAgentType = "value-forecaster" | "risk-analyst" | "intent-detector" | "market-dynamics";
