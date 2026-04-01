@@ -1,5 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
+import { startNexoraBackground } from "./services/intelligence/nexoraOrchestrator";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import session from "express-session";
@@ -14,7 +15,10 @@ declare module "express-session" {
 const PgSession = connectPgSimple(session);
 
 const app = express();
+
 const httpServer = createServer(app);
+
+startNexoraBackground();
 
 app.set("trust proxy", 1);
 

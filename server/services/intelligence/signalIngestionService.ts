@@ -105,7 +105,8 @@ export async function fetchFromSource(source: {
         const xml = await res.text();
         const items = xml.match(/<item>([\s\S]*?)<\/item>/gi) ?? [];
         for (const item of items.slice(0, 20)) {
-          const title = item.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>|<title>(.*?)<\/title>/)?.[1] ?? "";
+          const titleMatch = item.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+          const title = titleMatch ? titleMatch[1].trim() : "";
           const link = item.match(/<link>(.*?)<\/link>/)?.[1] ?? "";
           const pubDate = item.match(/<pubDate>(.*?)<\/pubDate>/)?.[1];
           const description = item.match(/<description><!\[CDATA\[(.*?)\]\]><\/description>|<description>(.*?)<\/description>/)?.[1] ?? "";

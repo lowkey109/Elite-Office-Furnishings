@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Phone, Mail, X } from "lucide-react";
-import { ChatBot } from "@/components/ChatBot";
+import ChatBot from "@/components/ChatBot";
 
 const navLinks = [
   { label: "Home", href: "/" },

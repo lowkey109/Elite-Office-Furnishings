@@ -65,6 +65,13 @@ The visual design features a dark luxury gold theme, using near-black background
 - **7-Department Alex AI Company Orchestrator**: Runs all 7 AI departments (Intelligence, Sales, Outreach, Workspace, Marketing, Operations, Finance) in sequence.
 - **SEO + Conversion Improvements**: Includes technical SEO enhancements (JSON-LD, canonical links), a quote builder email gate, city landing pages for local SEO, trust elements (WhatsApp, Google Reviews), and retargeting infrastructure (Meta, GA4, LinkedIn pixels).
 
+## Crash Fix History (April 2026)
+- **Nexora Orchestrator brace corruption fixed**: `server/services/intelligence/nexoraOrchestrator.ts` had corrupted brace structure from prior agent edits — duplicate `if` block at line 882, `safelyPush` function never closed, `pushAction` calling non-existent `doPush()`, and `Promise.all` callback never terminated. Fixed by: removing the duplicate `if`, properly closing `safelyPush` with try/catch/return, deleting the broken `pushAction` and replacing its callsites with `safelyPush`, and adding proper closure for the per-signal callback and `runCore` function with a function-level try/catch.
+- **Missing service files created**: `officeMovRadarService.ts`, `newsFeedScanner.ts`, `dealHunter.ts`, `nexoraAI.ts` — these were imported by the orchestrator but did not exist. Created with real DB-backed implementations.
+- **`multer` import added** to `server/routes.ts` (was used but not imported).
+- **`runManufacturerOutreach` import added** to `server/routes.ts`.
+- **Security**: `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` moved from plaintext `.replit` to encrypted Replit secrets.
+
 ## External Dependencies
 - **Database**: PostgreSQL
 - **ORM**: Drizzle ORM

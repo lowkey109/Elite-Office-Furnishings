@@ -1,11 +1,11 @@
 // ─── AI Deal Hunter Engine ─────────────────────────────────────────────────────
-// Discovers, qualifies, scores, enriches, deduplicates, and routes commercial
-// office opportunities from Australian market signals.
+// Real-data-only Deal Hunter for Australian commercial office signals.
+// Uses Adzuna live job data + live property / lease RSS signals,
+// scores opportunities, deduplicates them, enriches them lightly,
+// and routes them into TCD workflows.
 
 import { storage } from "../storage";
-import type { InsertDealHunterSignal, DealHunterSignal } from "@shared/schema";
-
-// ─── Signal source catalogue ──────────────────────────────────────────────────
+import type { DealHunterSignal } from "@shared/schema";
 
 type SignalType =
   | "hiring_growth"
@@ -19,7 +19,18 @@ type SignalType =
   | "industry_growth"
   | "other_growth_indicator";
 
-type SignalSource = "seek.com.au" | "linkedin.com" | "domain.com.au" | "afr.com" | "asx.com.au" | "crunchbase.com" | "press_release" | "manual_import" | "startup_daily" | "real_estate_au";
+type SignalSource =
+  | "seek.com.au"
+  | "linkedin.com"
+  | "domain.com.au"
+  | "afr.com"
+  | "asx.com.au"
+  | "crunchbase.com"
+  | "press_release"
+  | "manual_import"
+  | "real_estate_au"
+  | "adzuna"
+  | "news.google.com";
 
 interface RawSignalProfile {
   companyName: string;
@@ -41,45 +52,28 @@ interface RawSignalProfile {
   hasFacilitiesRole?: boolean;
   hasWorkplaceRole?: boolean;
   knownOfficeActivity?: boolean;
+  estimatedWorkspaceSqmHint?: number | null;
+  estimatedProjectValueHint?: number | null;
+  publishedAt?: string;
 }
 
-// ─── Australian company signal database ──────────────────────────────────────
+interface DecisionMakerCandidate {
+  fullName?: string;
+  role: string;
+  email?: string;
+  source: "company_website" | "linkedin_public" | "news_public";
+  publiclyListedEmail: boolean;
+}
 
-const SIGNAL_PROFILES: RawSignalProfile[] = [
-  { companyName: "Canva", companyDomain: "canva.com", city: "Sydney", state: "NSW", industry: "Technology", employeeEstimate: 4200, growthRateEstimate: 28, signalType: "hiring_growth", signalSubtype: "rapid_headcount_expansion", signalSource: "seek.com.au", rawPayloadSummary: "Canva has posted 94 new roles in Sydney in the past 60 days across engineering, design, and operations", jobPostingsCount: 94, hasOfficeRole: true, hasWorkplaceRole: true },
-  { companyName: "Afterpay (Block)", companyDomain: "afterpay.com", city: "Melbourne", state: "VIC", industry: "Fintech", employeeEstimate: 1200, growthRateEstimate: 18, signalType: "relocation_signal", signalSubtype: "hq_consolidation", signalSource: "afr.com", rawPayloadSummary: "Afterpay consolidating Melbourne operations following Block acquisition — lease on Collins St expires Q3", leaseExpiryMonths: 4, knownOfficeActivity: true },
-  { companyName: "Atlassian", companyDomain: "atlassian.com", city: "Sydney", state: "NSW", industry: "Technology", employeeEstimate: 11000, growthRateEstimate: 12, signalType: "new_office_signal", signalSubtype: "satellite_office_expansion", signalSource: "press_release", rawPayloadSummary: "Atlassian announcing new Sydney CBD team hub for distributed workforce returning to office 2 days/week", hasWorkplaceRole: true, knownOfficeActivity: true },
-  { companyName: "Zip Co", companyDomain: "zip.co", city: "Sydney", state: "NSW", industry: "Fintech", employeeEstimate: 800, growthRateEstimate: 22, signalType: "hiring_growth", signalSubtype: "operations_headcount_surge", signalSource: "seek.com.au", rawPayloadSummary: "Zip Co listing 31 new Sydney roles including Facilities Manager and Workplace Experience Lead", jobPostingsCount: 31, hasFacilitiesRole: true, hasWorkplaceRole: true },
-  { companyName: "ResMed", companyDomain: "resmed.com", city: "Sydney", state: "NSW", industry: "Medtech", employeeEstimate: 650, growthRateEstimate: 15, signalType: "lease_activity", signalSubtype: "commercial_lease_listing", signalSource: "domain.com.au", rawPayloadSummary: "12-month commercial sublease listing for 2,400 sqm North Ryde — ResMed source confirms relocation to macquarie park", leaseExpiryMonths: 8, knownOfficeActivity: true },
-  { companyName: "AirWallex", companyDomain: "airwallex.com", city: "Melbourne", state: "VIC", industry: "Fintech", employeeEstimate: 1600, growthRateEstimate: 35, signalType: "funding", signalSubtype: "series_e_expansion", signalSource: "crunchbase.com", rawPayloadSummary: "Airwallex raises $300M Series E — Australian HQ expansion confirmed for Melbourne CBD", fundingAmountM: 300, hasOfficeRole: true },
-  { companyName: "Culture Amp", companyDomain: "cultureamp.com", city: "Melbourne", state: "VIC", industry: "HR Technology", employeeEstimate: 900, growthRateEstimate: 20, signalType: "hiring_growth", signalSubtype: "people_culture_roles", signalSource: "linkedin.com", rawPayloadSummary: "Culture Amp LinkedIn headcount grew 20% in 6 months — 28 new roles across engineering and people ops", jobPostingsCount: 28, hasWorkplaceRole: true },
-  { companyName: "Prospa", companyDomain: "prospa.com", city: "Sydney", state: "NSW", industry: "Fintech", employeeEstimate: 320, growthRateEstimate: 18, signalType: "coworking_exit", signalSubtype: "wework_exit", signalSource: "real_estate_au", rawPayloadSummary: "Prospa exiting WeWork Pyrmont coworking — searching for dedicated office space for 320 staff", knownOfficeActivity: true },
-  { companyName: "HealthEngine", companyDomain: "healthengine.com.au", city: "Perth", state: "WA", industry: "Healthtech", employeeEstimate: 250, growthRateEstimate: 25, signalType: "new_office_signal", signalSubtype: "interstate_expansion", signalSource: "startup_daily", rawPayloadSummary: "HealthEngine expanding from Perth HQ to Sydney — searching for 600-1000 sqm Sydney CBD office", knownOfficeActivity: true, hasWorkplaceRole: true },
-  { companyName: "Immutable", companyDomain: "immutable.com", city: "Sydney", state: "NSW", industry: "Web3 / Gaming", employeeEstimate: 450, growthRateEstimate: 40, signalType: "funding", signalSubtype: "series_c_expansion", signalSource: "crunchbase.com", rawPayloadSummary: "Immutable raises $200M — Sydney headcount to double within 12 months requiring significant workspace expansion", fundingAmountM: 200, hasOfficeRole: true },
-  { companyName: "Airtasker", companyDomain: "airtasker.com", city: "Sydney", state: "NSW", industry: "Marketplace", employeeEstimate: 180, growthRateEstimate: 15, signalType: "facilities_hiring", signalSubtype: "office_manager_hire", signalSource: "seek.com.au", rawPayloadSummary: "Airtasker listing Office Manager + Workplace Coordinator roles — strong indicator of office refresh or move", jobPostingsCount: 3, hasFacilitiesRole: true, hasWorkplaceRole: true },
-  { companyName: "SafetyCulture", companyDomain: "safetyculture.com", city: "Sydney", state: "NSW", industry: "SaaS / Safety", employeeEstimate: 900, growthRateEstimate: 30, signalType: "hiring_growth", signalSubtype: "engineering_rapid_hiring", signalSource: "linkedin.com", rawPayloadSummary: "SafetyCulture headcount grew 30% YoY — now at 900 staff in Sydney with current office at capacity", jobPostingsCount: 52, hasWorkplaceRole: true },
-  { companyName: "Lendi Group", companyDomain: "lendi.com.au", city: "Sydney", state: "NSW", industry: "Mortgage / Fintech", employeeEstimate: 1100, growthRateEstimate: 22, signalType: "relocation_signal", signalSubtype: "post_merger_consolidation", signalSource: "afr.com", rawPayloadSummary: "Lendi Group post-Aussie Home Loans merger — consolidating 3 Sydney offices into single HQ fit-out", knownOfficeActivity: true },
-  { companyName: "Rokt", companyDomain: "rokt.com", city: "Sydney", state: "NSW", industry: "Ad Technology", employeeEstimate: 600, growthRateEstimate: 32, signalType: "funding", signalSubtype: "unicorn_expansion", signalSource: "startup_daily", rawPayloadSummary: "Rokt now valued at $3.4B — expanding Sydney engineering team requiring premium CBD office expansion", fundingAmountM: 120, hasOfficeRole: true, hasWorkplaceRole: true },
-  { companyName: "Brighte", companyDomain: "brighte.com.au", city: "Sydney", state: "NSW", industry: "Cleantech / Finance", employeeEstimate: 250, growthRateEstimate: 28, signalType: "hiring_growth", signalSubtype: "greentech_expansion", signalSource: "seek.com.au", rawPayloadSummary: "Brighte listing 18 Sydney roles including Head of Workplace — expansion into 1,200-1,800 sqm office expected", jobPostingsCount: 18, hasFacilitiesRole: true },
-  { companyName: "Sonder", companyDomain: "sonder.com.au", city: "Brisbane", state: "QLD", industry: "Wellbeing / HR", employeeEstimate: 150, growthRateEstimate: 45, signalType: "new_office_signal", signalSubtype: "qld_expansion", signalSource: "startup_daily", rawPayloadSummary: "Sonder expanding Queensland operations — new Brisbane office for 150+ staff required within 6 months", knownOfficeActivity: true },
-  { companyName: "Macquarie Group", companyDomain: "macquarie.com", city: "Sydney", state: "NSW", industry: "Finance", employeeEstimate: 17000, growthRateEstimate: 8, signalType: "building_move_signal", signalSubtype: "new_tower_fitout", signalSource: "afr.com", rawPayloadSummary: "Macquarie Group moving into new Martin Place tower — full floors requiring executive fit-out and furniture", knownOfficeActivity: true, hasWorkplaceRole: true },
-  { companyName: "Xero", companyDomain: "xero.com", city: "Melbourne", state: "VIC", industry: "SaaS / Accounting", employeeEstimate: 4700, growthRateEstimate: 10, signalType: "lease_activity", signalSubtype: "lease_renewal_opportunity", signalSource: "domain.com.au", rawPayloadSummary: "Xero Richmond lease expires Q2 — market indicating they are evaluating Docklands and Southbank options", leaseExpiryMonths: 6, knownOfficeActivity: true },
-  { companyName: "Deputy", companyDomain: "deputy.com", city: "Sydney", state: "NSW", industry: "Workforce SaaS", employeeEstimate: 500, growthRateEstimate: 25, signalType: "hiring_growth", signalSubtype: "sales_support_surge", signalSource: "seek.com.au", rawPayloadSummary: "Deputy posting 22 Sydney roles across sales, success, and operations — office expansion signal", jobPostingsCount: 22 },
-  { companyName: "Assembly Payments", companyDomain: "assemblypayments.com", city: "Melbourne", state: "VIC", industry: "Payments / Fintech", employeeEstimate: 180, growthRateEstimate: 35, signalType: "funding", signalSubtype: "series_b_growth", signalSource: "crunchbase.com", rawPayloadSummary: "Assembly Payments raises $65M Series B — Melbourne team to grow 60% requiring larger workspace", fundingAmountM: 65, hasOfficeRole: true },
-  { companyName: "Linktree", companyDomain: "linktree.com", city: "Melbourne", state: "VIC", industry: "Social Commerce", employeeEstimate: 350, growthRateEstimate: 22, signalType: "coworking_exit", signalSubtype: "scaling_past_coworking", signalSource: "startup_daily", rawPayloadSummary: "Linktree moving out of Inspire9 coworking — seeking 1,500-2,000 sqm Melbourne CBD office for 350 staff", knownOfficeActivity: true },
-  { companyName: "HiPages", companyDomain: "hipages.com.au", city: "Sydney", state: "NSW", industry: "Marketplace", employeeEstimate: 250, growthRateEstimate: 12, signalType: "relocation_signal", signalSubtype: "cbd_to_inner_west", signalSource: "real_estate_au", rawPayloadSummary: "HiPages relocating from CBD to Surry Hills — fit-out for 250 staff in new 1,100 sqm space", knownOfficeActivity: true },
-  { companyName: "Eucalyptus", companyDomain: "eucalyptus.vc", city: "Sydney", state: "NSW", industry: "Digital Health", employeeEstimate: 320, growthRateEstimate: 40, signalType: "hiring_growth", signalSubtype: "brand_expansion", signalSource: "linkedin.com", rawPayloadSummary: "Eucalyptus headcount up 40% — 320 staff across multiple brands requiring centralised Sydney office", jobPostingsCount: 35, hasWorkplaceRole: true },
-  { companyName: "Buildkite", companyDomain: "buildkite.com", city: "Brisbane", state: "QLD", industry: "DevOps SaaS", employeeEstimate: 130, growthRateEstimate: 30, signalType: "new_office_signal", signalSubtype: "first_permanent_office", signalSource: "startup_daily", rawPayloadSummary: "Buildkite transitioning from fully remote to hybrid — establishing first permanent Brisbane HQ of 600-800 sqm", knownOfficeActivity: true },
-  { companyName: "Entain Australia", companyDomain: "entain.com.au", city: "Melbourne", state: "VIC", industry: "Gaming / Entertainment", employeeEstimate: 1200, growthRateEstimate: 14, signalType: "building_move_signal", signalSubtype: "cbd_consolidation", signalSource: "domain.com.au", rawPayloadSummary: "Entain consolidating 4 Melbourne offices to single CBD hub — large fit-out project for 1,200 staff", knownOfficeActivity: true, hasFacilitiesRole: true },
-  { companyName: "Nearmap", companyDomain: "nearmap.com", city: "Sydney", state: "NSW", industry: "Geospatial Technology", employeeEstimate: 470, growthRateEstimate: 18, signalType: "lease_activity", signalSubtype: "lease_expiry_signal", signalSource: "domain.com.au", rawPayloadSummary: "Nearmap Barangaroo lease approaching expiry — evaluating Sydney CBD tower options for 470 staff", leaseExpiryMonths: 5, knownOfficeActivity: true },
-  { companyName: "Shippit", companyDomain: "shippit.com", city: "Sydney", state: "NSW", industry: "Logistics SaaS", employeeEstimate: 200, growthRateEstimate: 28, signalType: "funding", signalSubtype: "growth_round", signalSource: "crunchbase.com", rawPayloadSummary: "Shippit raises $30M to accelerate APAC growth — Sydney team to grow 50% requiring office expansion", fundingAmountM: 30 },
-  { companyName: "Employment Hero", companyDomain: "employmenthero.com", city: "Sydney", state: "NSW", industry: "HR SaaS", employeeEstimate: 1100, growthRateEstimate: 22, signalType: "hiring_growth", signalSubtype: "global_expansion_hiring", signalSource: "seek.com.au", rawPayloadSummary: "Employment Hero listing 45 Sydney roles as it expands globally — 1,100 staff in Sydney needing larger HQ", jobPostingsCount: 45, hasWorkplaceRole: true },
-  { companyName: "Go1", companyDomain: "go1.com", city: "Brisbane", state: "QLD", industry: "EdTech", employeeEstimate: 450, growthRateEstimate: 25, signalType: "new_office_signal", signalSubtype: "local_expansion", signalSource: "startup_daily", rawPayloadSummary: "Go1 Brisbane HQ expansion — securing 2,000+ sqm space to bring distributed team together", knownOfficeActivity: true, hasWorkplaceRole: true },
-  { companyName: "Simpology", companyDomain: "simpology.com.au", city: "Sydney", state: "NSW", industry: "Mortgage Tech", employeeEstimate: 80, growthRateEstimate: 35, signalType: "facilities_hiring", signalSubtype: "office_manager_listing", signalSource: "seek.com.au", rawPayloadSummary: "Simpology listing Office Manager + IT setup role — strong indicator of office establishment or fit-out", jobPostingsCount: 2, hasFacilitiesRole: true },
-  { companyName: "Veritas Enterprise Services", companyDomain: "veritases.com.au", city: "Perth", state: "WA", industry: "Mining Services", employeeEstimate: 420, growthRateEstimate: 20, signalType: "industry_growth", signalSubtype: "mining_boom_office_demand", signalSource: "afr.com", rawPayloadSummary: "WA mining boom driving office demand in Perth CBD — Veritas adding 80 staff to Perth HQ", knownOfficeActivity: true },
-];
+interface PublicPageCandidate {
+  url: string;
+  label: "homepage" | "about" | "team" | "leadership" | "contact" | "careers";
+}
 
-// ─── Scoring engine ───────────────────────────────────────────────────────────
+interface StoredDecisionMakerPayload {
+  best: DecisionMakerCandidate | null;
+  all: DecisionMakerCandidate[];
+}
 
 interface SignalScore {
   score: number;
@@ -87,110 +81,1120 @@ interface SignalScore {
   reasoning: string[];
 }
 
+interface RssItem {
+  title: string;
+  link: string;
+  pubDate?: string;
+  description?: string;
+  source?: string;
+}
+
+const COUNTRY = "Australia";
+const DEFAULT_FETCH_TIMEOUT_MS = 8000;
+const DEFAULT_USER_AGENT = "Mozilla/5.0 (compatible; TCD-DealHunter/2.0)";
+const MAX_DECISION_MAKER_PAGES = 4;
+const DEFAULT_SCAN_BATCH_SIZE = 3;
+const RAW_DEDUPE_TTL_DAYS = 14;
+
+const ALLOWED_SOURCE_URL_HOSTS = [
+  "adzuna.com",
+  "seek.com.au",
+  "linkedin.com",
+  "domain.com.au",
+  "realestate.com.au",
+  "realcommercial.com.au",
+  "commercialrealestate.com.au",
+  "afr.com",
+  "asx.com.au",
+  "crunchbase.com",
+  "news.google.com",
+] as const;
+
+const BLOCKED_MARKERS = [
+  "demo",
+  "mock",
+  "synthetic",
+  "fake",
+  "seed",
+  "test",
+] as const;
+
+const EXCLUDED_COMPANY_MARKERS = [
+  "confidential",
+  "undisclosed",
+  "anonymous",
+  "private advertiser",
+  "private company",
+  "n/a",
+] as const;
+
+const OFFICE_INTENT_KEYWORDS = [
+  "office",
+  "workplace",
+  "facilities",
+  "facility",
+  "office manager",
+  "facilities manager",
+  "workplace manager",
+  "workplace experience",
+  "property manager",
+  "operations manager",
+  "head of operations",
+  "office coordinator",
+  "site manager",
+  "administration manager",
+] as const;
+
+const INDUSTRY_KEYWORDS: Array<{ match: RegExp; industry: string }> = [
+  { match: /(software|saas|developer|engineering|data|cloud|product|technology|it)/i, industry: "Technology" },
+  { match: /(finance|bank|fintech|payments|insurance|wealth|accounting)/i, industry: "Financial Services" },
+  { match: /(health|medical|clinic|hospital|pharma|healthcare)/i, industry: "Healthcare" },
+  { match: /(property|real estate|construction|developer|architecture)/i, industry: "Property / Construction" },
+  { match: /(legal|law|lawyer|solicitor)/i, industry: "Legal" },
+  { match: /(marketing|agency|creative|media|advertising)/i, industry: "Marketing / Creative" },
+  { match: /(logistics|supply chain|warehouse|transport|freight)/i, industry: "Logistics" },
+  { match: /(education|school|university|training)/i, industry: "Education" },
+  { match: /(retail|ecommerce|e-commerce|consumer)/i, industry: "Retail / Commerce" },
+  { match: /(hr|people|recruitment|talent)/i, industry: "Recruitment / HR" },
+];
+
+const PROPERTY_FEED_QUERIES = [
+  'site:afr.com OR site:realcommercial.com.au OR site:commercialrealestate.com.au office lease Australia',
+  'site:afr.com OR site:realcommercial.com.au OR site:commercialrealestate.com.au company relocates office Australia',
+  'site:afr.com OR site:realcommercial.com.au OR site:commercialrealestate.com.au new headquarters Australia',
+  'site:afr.com OR site:realcommercial.com.au OR site:commercialrealestate.com.au office fitout Australia',
+];
+
+const ADZUNA_SEARCH_TERMS = [
+  '"office manager"',
+  '"facilities manager"',
+  '"workplace manager"',
+  '"operations manager" office',
+  '"property manager" office',
+  '"office coordinator"',
+];
+
+// ─── General helpers ──────────────────────────────────────────────────────────
+
+function cleanText(value: unknown): string {
+  return String(value ?? "").replace(/\s+/g, " ").trim();
+}
+
+function safeNumber(value: unknown, fallback = 0): number {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function clampNumber(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+function safeJsonStringify(value: unknown): string {
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return "[]";
+  }
+}
+
+function normalizeDomain(input: string): string {
+  const cleaned = cleanText(input);
+  if (!cleaned) return "";
+
+  try {
+    const withProto = /^https?:\/\//i.test(cleaned) ? cleaned : `https://${cleaned}`;
+    const url = new URL(withProto);
+    return url.hostname.replace(/^www\./i, "").toLowerCase();
+  } catch {
+    return cleaned
+      .replace(/^https?:\/\//i, "")
+      .replace(/^www\./i, "")
+      .replace(/\/.*$/i, "")
+      .toLowerCase();
+  }
+}
+
+function getHostnameFromUrl(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./i, "").toLowerCase();
+  } catch {
+    return normalizeDomain(url);
+  }
+}
+
+function isAllowedSourceUrl(url: string): boolean {
+  const domain = getHostnameFromUrl(url);
+  return ALLOWED_SOURCE_URL_HOSTS.some(
+    (host) => domain === host || domain.endsWith(`.${host}`)
+  );
+}
+
+function looksLikeExcludedCompanyName(name: string): boolean {
+  const lower = name.toLowerCase();
+  return EXCLUDED_COMPANY_MARKERS.some((m) => lower.includes(m));
+}
+
+function hasBlockedMarker(value: string): boolean {
+  const lower = value.toLowerCase();
+  return BLOCKED_MARKERS.some((marker) => lower.includes(marker));
+}
+
+function assertRealSignal(profile: RawSignalProfile): void {
+  if (!profile.companyName || profile.companyName.length < 2) {
+    throw new Error("Invalid company");
+  }
+
+  if (looksLikeExcludedCompanyName(profile.companyName)) {
+    throw new Error("Blocked company");
+  }
+
+  if (!profile.rawPayloadSummary || cleanText(profile.rawPayloadSummary).length < 8) {
+    throw new Error("Missing summary");
+  }
+
+  if (!profile.sourceUrl || !isAllowedSourceUrl(profile.sourceUrl)) {
+    throw new Error("Untrusted source");
+  }
+
+  const combined = `${profile.companyName} ${profile.rawPayloadSummary} ${profile.sourceUrl}`;
+  if (hasBlockedMarker(combined)) {
+    throw new Error("Blocked marker detected");
+  }
+}
+
+function countKeywordHits(text: string, keywords: readonly string[]): number {
+  const lower = text.toLowerCase();
+  return keywords.reduce((count, keyword) => count + (lower.includes(keyword) ? 1 : 0), 0);
+}
+
+function normalizeAustralianState(input: string): string {
+  const value = cleanText(input).toUpperCase();
+
+  if (["QLD", "NSW", "VIC", "WA", "SA", "TAS", "ACT", "NT"].includes(value)) {
+    return value;
+  }
+
+  if (value.includes("QUEENSLAND")) return "QLD";
+  if (value.includes("NEW SOUTH WALES")) return "NSW";
+  if (value.includes("VICTORIA")) return "VIC";
+  if (value.includes("WESTERN AUSTRALIA")) return "WA";
+  if (value.includes("SOUTH AUSTRALIA")) return "SA";
+  if (value.includes("TASMANIA")) return "TAS";
+  if (value.includes("AUSTRALIAN CAPITAL TERRITORY")) return "ACT";
+  if (value.includes("NORTHERN TERRITORY")) return "NT";
+
+  return value;
+}
+
+function inferIndustry(title: string, description: string): string {
+  const haystack = `${title} ${description}`;
+
+  for (const rule of INDUSTRY_KEYWORDS) {
+    if (rule.match.test(haystack)) return rule.industry;
+  }
+
+  return "Unknown";
+}
+
+function uniqueBy<T>(items: T[], getKey: (item: T) => string): T[] {
+  const map = new Map<string, T>();
+
+  for (const item of items) {
+    const key = getKey(item);
+    if (!key) continue;
+    if (!map.has(key)) map.set(key, item);
+  }
+
+  return [...map.values()];
+}
+
+function toIsoOrUndefined(value?: string): string | undefined {
+  if (!value) return undefined;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+}
+
+function daysSince(dateValue?: string | Date | null): number {
+  if (!dateValue) return Number.POSITIVE_INFINITY;
+  const date = new Date(dateValue);
+  const time = date.getTime();
+  if (!Number.isFinite(time)) return Number.POSITIVE_INFINITY;
+  return (Date.now() - time) / (1000 * 60 * 60 * 24);
+}
+
+function buildRawSignalKey(profile: RawSignalProfile): string {
+  return [
+    cleanText(profile.companyName).toLowerCase(),
+    cleanText(profile.city).toLowerCase(),
+    cleanText(profile.state).toLowerCase(),
+    cleanText(profile.signalType).toLowerCase(),
+    cleanText(profile.signalSubtype).toLowerCase(),
+    normalizeDomain(profile.sourceUrl ?? ""),
+  ].join("|");
+}
+
+// ─── RSS / property helpers ───────────────────────────────────────────────────
+
+function decodeHtmlEntities(input: string): string {
+  return input
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&#x27;/g, "'")
+    .replace(/&#8217;/g, "'")
+    .replace(/&#8211;/g, "-")
+    .replace(/&#8212;/g, "-");
+}
+
+function stripHtml(input: string): string {
+  return decodeHtmlEntities(
+    String(input ?? "")
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+  );
+}
+
+function extractTagValue(block: string, tag: string): string {
+  const cdataRegex = new RegExp(`<${tag}[^>]*><!\$begin:math:display$CDATA\\\\\[\(\[\\\\s\\\\S\]\*\?\)\\$end:math:display$\\]><\\/${tag}>`, "i");
+  const plainRegex = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, "i");
+
+  const cdata = block.match(cdataRegex)?.[1];
+  if (cdata) return cleanText(stripHtml(cdata));
+
+  const plain = block.match(plainRegex)?.[1];
+  return cleanText(stripHtml(plain ?? ""));
+}
+
+function parseRssItems(xml: string): RssItem[] {
+  if (!xml || typeof xml !== "string") return [];
+
+  const itemMatches = Array.from(xml.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item>/gi));
+
+  return itemMatches
+    .map((match) => {
+      const block = match[1] ?? "";
+      return {
+        title: extractTagValue(block, "title"),
+        link: extractTagValue(block, "link"),
+        pubDate: extractTagValue(block, "pubDate"),
+        description: extractTagValue(block, "description"),
+        source: extractTagValue(block, "source"),
+      };
+    })
+    .filter((item) => item.title && item.link);
+}
+
+async function fetchTextWithTimeout(url: string, timeoutMs = DEFAULT_FETCH_TIMEOUT_MS): Promise<string> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        "User-Agent": DEFAULT_USER_AGENT,
+        Accept: "application/rss+xml, application/xml, text/xml, text/html;q=0.9, */*;q=0.8",
+      },
+    });
+
+    if (!res.ok) return "";
+    return await res.text();
+  } catch {
+    return "";
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function inferPropertySignalType(title: string, description: string): SignalType | null {
+  const haystack = `${title} ${description}`.toLowerCase();
+
+  if (
+    /(lease|leasing|leased|tenancy|tenanted|sqm|square metres|square meters|premises|office tower|commercial office|workplace hub)/i.test(
+      haystack
+    )
+  ) {
+    return "lease_activity";
+  }
+
+  if (/(relocat|move into|moving into|new hq|new headquarters|new office)/i.test(haystack)) {
+    return "relocation_signal";
+  }
+
+  if (/(fitout|fit-out|fit out|refurbishment|workspace upgrade|office refresh)/i.test(haystack)) {
+    return "new_office_signal";
+  }
+
+  if (/(building move|office opening|opens new office|expands into)/i.test(haystack)) {
+    return "building_move_signal";
+  }
+
+  return null;
+}
+
+function inferPropertySignalSubtype(title: string, description: string): string {
+  const haystack = `${title} ${description}`.toLowerCase();
+
+  if (/(new hq|new headquarters)/i.test(haystack)) return "new_hq";
+  if (/(lease|leasing|leased)/i.test(haystack)) return "commercial_lease";
+  if (/(relocat|moving into|move into)/i.test(haystack)) return "office_relocation";
+  if (/(fitout|fit-out|fit out)/i.test(haystack)) return "office_fitout";
+  if (/(expands into|opens new office)/i.test(haystack)) return "office_expansion";
+
+  return "property_signal";
+}
+
+function looksLikePropertySignal(title: string, description: string): boolean {
+  const haystack = `${title} ${description}`.toLowerCase();
+
+  return (
+    /(office|hq|headquarters|workspace|commercial property|commercial office|lease|leasing|leased|fitout|fit-out|fit out|premises|tenant|tenancy|sqm|square metre|square meter|relocation|move)/i.test(
+      haystack
+    ) &&
+    /(australia|brisbane|sydney|melbourne|perth|adelaide|fortitude valley|cbd|nsw|qld|vic|wa|sa|act|canberra|gold coast)/i.test(
+      haystack
+    )
+  );
+}
+
+function inferCityFromPropertyText(title: string, description: string): string {
+  const haystack = `${title} ${description}`.toLowerCase();
+
+  if (haystack.includes("fortitude valley")) return "Brisbane";
+  if (haystack.includes("brisbane")) return "Brisbane";
+  if (haystack.includes("sydney")) return "Sydney";
+  if (haystack.includes("melbourne")) return "Melbourne";
+  if (haystack.includes("perth")) return "Perth";
+  if (haystack.includes("adelaide")) return "Adelaide";
+  if (haystack.includes("canberra")) return "Canberra";
+  if (haystack.includes("gold coast")) return "Gold Coast";
+
+  return "Australia";
+}
+
+function inferStateFromPropertyText(title: string, description: string): string {
+  const haystack = `${title} ${description}`.toLowerCase();
+
+  if (haystack.includes("brisbane") || haystack.includes("queensland") || /\bqld\b/i.test(haystack)) return "QLD";
+  if (haystack.includes("sydney") || haystack.includes("new south wales") || /\bnsw\b/i.test(haystack)) return "NSW";
+  if (haystack.includes("melbourne") || haystack.includes("victoria") || /\bvic\b/i.test(haystack)) return "VIC";
+  if (haystack.includes("perth") || haystack.includes("western australia") || /\bwa\b/i.test(haystack)) return "WA";
+  if (haystack.includes("adelaide") || haystack.includes("south australia") || /\bsa\b/i.test(haystack)) return "SA";
+  if (haystack.includes("canberra") || /\bact\b/i.test(haystack)) return "ACT";
+
+  return "";
+}
+
+function extractCompanyNameFromHeadline(title: string): string {
+  const cleaned = cleanText(title)
+    .replace(/\s+-\s+.*$/, "")
+    .replace(/\s+\|\s+.*$/, "")
+    .replace(/\s+—\s+.*$/, "")
+    .trim();
+
+  const patterns = [
+    /^(.+?)\s+(leases|lease|leased|relocates|relocating|moves|moving|opens|opening|expands|expanding|takes|taking)\b/i,
+    /^(.+?)\s+(signs|signed)\s+(a\s+)?(new\s+)?lease\b/i,
+    /^(.+?)\s+(to|will)\s+(move|relocate|open)\b/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = cleaned.match(pattern);
+    if (match?.[1]) {
+      return cleanText(match[1]);
+    }
+  }
+
+  return cleanText(cleaned.split(" ").slice(0, 4).join(" "));
+}
+
+function estimateWorkspaceFromPropertyText(title: string, description: string): number | null {
+  const haystack = `${title} ${description}`;
+  const sqmMatch = haystack.match(/(\d{2,5})\s*(sqm|square metres|square meters)/i);
+
+  if (sqmMatch?.[1]) {
+    return safeNumber(sqmMatch[1], 0);
+  }
+
+  return null;
+}
+
+function estimateProjectValueFromPropertySignal(
+  sqm: number | null,
+  signalType: SignalType
+): number | null {
+  if (!sqm || sqm <= 0) return null;
+
+  const rate =
+    signalType === "lease_activity" || signalType === "relocation_signal" ? 1100 : 900;
+
+  return Math.round((sqm * rate) / 5000) * 5000;
+}
+
+function inferPropertySignalSource(url: string): SignalSource {
+  const hostname = getHostnameFromUrl(url);
+
+  if (hostname.includes("afr.com")) return "afr.com";
+  if (hostname.includes("domain.com.au")) return "domain.com.au";
+  if (hostname.includes("news.google.com")) return "news.google.com";
+
+  return "real_estate_au";
+}
+
+// ─── Job signal helpers ───────────────────────────────────────────────────────
+
+function extractAreaLocation(job: any): { city: string; state: string } {
+  const area = Array.isArray(job?.location?.area) ? job.location.area : [];
+  const city = cleanText(area[2] ?? area[1] ?? area[0] ?? "Australia");
+  const state = cleanText(area[1] ?? "");
+  return { city, state };
+}
+
+function shouldKeepJobSignal(title: string, description: string): boolean {
+  const haystack = `${title} ${description}`.toLowerCase();
+  const keywordHits = countKeywordHits(haystack, OFFICE_INTENT_KEYWORDS);
+
+  if (keywordHits >= 1) return true;
+
+  if (
+    haystack.includes("operations") &&
+    (haystack.includes("site") || haystack.includes("office") || haystack.includes("workplace"))
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+function detectSignalType(title: string, description: string): SignalType {
+  const haystack = `${title} ${description}`.toLowerCase();
+
+  if (haystack.includes("facilities")) return "facilities_hiring";
+  if (haystack.includes("workplace")) return "new_office_signal";
+  if (haystack.includes("office")) return "hiring_growth";
+
+  return "other_growth_indicator";
+}
+
+function detectSignalSubtype(title: string, description: string): string {
+  const haystack = `${title} ${description}`.toLowerCase();
+
+  if (haystack.includes("facilities manager")) return "facilities_manager_hiring";
+  if (haystack.includes("workplace manager")) return "workplace_manager_hiring";
+  if (haystack.includes("office manager")) return "office_manager_hiring";
+  if (haystack.includes("property manager")) return "property_manager_hiring";
+  if (haystack.includes("operations manager")) return "operations_manager_hiring";
+
+  return "office_related_hiring";
+}
+
+function estimateEmployeeRange(companyName: string, title: string, description: string): number {
+  const haystack = `${companyName} ${title} ${description}`.toLowerCase();
+
+  if (/(enterprise|national|global|group)/i.test(haystack)) return 500;
+  if (/(manager|head of|lead)/i.test(haystack)) return 120;
+  return 60;
+}
+
+function estimateGrowthRate(title: string, description: string): number {
+  const haystack = `${title} ${description}`.toLowerCase();
+
+  if (haystack.includes("expansion") || haystack.includes("growth")) return 25;
+  if (haystack.includes("new office") || haystack.includes("scale")) return 20;
+  return 12;
+}
+
+function tryExtractCompanyDomainFromDescription(description: string): string {
+  const match = cleanText(description).match(
+    /\b(?:https?:\/\/)?(?:www\.)?([a-z0-9-]+\.[a-z]{2,})(?:\/[^\s]*)?/i
+  );
+
+  if (!match?.[1]) return "";
+
+  const domain = normalizeDomain(match[1]);
+  if (!domain) return "";
+  if (isAllowedSourceUrl(`https://${domain}`)) return "";
+
+  return domain;
+}
+
+// ─── Fetchers ─────────────────────────────────────────────────────────────────
+
+async function fetchAdzunaPage(searchTerm: string, page: number): Promise<any[]> {
+  const appId = process.env.ADZUNA_APP_ID;
+  const appKey = process.env.ADZUNA_APP_KEY;
+
+  if (!appId || !appKey) return [];
+
+  const url =
+    `https://api.adzuna.com/v1/api/jobs/au/search/${page}` +
+    `?app_id=${encodeURIComponent(appId)}` +
+    `&app_key=${encodeURIComponent(appKey)}` +
+    `&results_per_page=50` +
+    `&what=${encodeURIComponent(searchTerm)}` +
+    `&sort_by=date` +
+    `&content-type=application/json`;
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent": DEFAULT_USER_AGENT,
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      console.error("[DealHunter] Adzuna fetch failed:", response.status, response.statusText, { searchTerm, page });
+      return [];
+    }
+
+    const data = await response.json();
+    return Array.isArray(data?.results) ? data.results : [];
+  } catch (error) {
+    console.error("[DealHunter] Adzuna fetch error:", { searchTerm, page, error });
+    return [];
+  }
+}
+
+async function fetchJobSignals(): Promise<RawSignalProfile[]> {
+  const appId = process.env.ADZUNA_APP_ID;
+  const appKey = process.env.ADZUNA_APP_KEY;
+
+  console.log("[DealHunter] ENV CHECK:", {
+    ADZUNA_APP_ID: appId ? "SET" : "MISSING",
+    ADZUNA_APP_KEY: appKey ? "SET" : "MISSING",
+  });
+
+  if (!appId || !appKey) {
+    console.warn("[DealHunter] Missing ADZUNA_APP_ID / ADZUNA_APP_KEY");
+    return [];
+  }
+
+  const pagesToFetch = [1, 2];
+  const resultsPerQuery = await Promise.all(
+    ADZUNA_SEARCH_TERMS.flatMap((term) => pagesToFetch.map((page) => fetchAdzunaPage(term, page)))
+  );
+
+  const jobs = resultsPerQuery.flat();
+  console.log("[DealHunter] Jobs fetched:", jobs.length);
+
+  const signals: RawSignalProfile[] = [];
+  let skippedMissing = 0;
+  let skippedUntrusted = 0;
+  let skippedIrrelevant = 0;
+  let skippedBlocked = 0;
+
+  for (const job of jobs) {
+    const companyName = cleanText(job?.company?.display_name);
+    const rawTitle = cleanText(job?.title);
+    const rawDescription = cleanText(job?.description);
+    const title = rawTitle.toLowerCase();
+    const description = rawDescription.toLowerCase();
+    const sourceUrl = cleanText(job?.redirect_url);
+    const publishedAt = cleanText(job?.created);
+
+    if (!companyName || !rawTitle || !sourceUrl) {
+      skippedMissing++;
+      continue;
+    }
+
+    if (!/^https?:\/\//i.test(sourceUrl) || !isAllowedSourceUrl(sourceUrl)) {
+      skippedUntrusted++;
+      continue;
+    }
+
+    if (!shouldKeepJobSignal(title, description)) {
+      skippedIrrelevant++;
+      continue;
+    }
+
+    const { city, state } = extractAreaLocation(job);
+    const signalType = detectSignalType(title, description);
+    const signalSubtype = detectSignalSubtype(title, description);
+
+    const profile: RawSignalProfile = {
+      companyName,
+      companyDomain: tryExtractCompanyDomainFromDescription(rawDescription),
+      city,
+      state: normalizeAustralianState(state),
+      industry: inferIndustry(rawTitle, rawDescription),
+      employeeEstimate: estimateEmployeeRange(companyName, rawTitle, rawDescription),
+      growthRateEstimate: estimateGrowthRate(rawTitle, rawDescription),
+      signalType,
+      signalSubtype,
+      signalSource: "adzuna",
+      sourceUrl,
+      rawPayloadSummary: `${companyName} hiring: ${rawTitle}${rawDescription ? ` — ${cleanText(rawDescription).slice(0, 280)}` : ""}`,
+      jobPostingsCount: 1,
+      hasFacilitiesRole: /facilities/i.test(rawTitle) || /facilities/i.test(rawDescription),
+      hasWorkplaceRole: /workplace/i.test(rawTitle) || /workplace/i.test(rawDescription),
+      hasOfficeRole: /office/i.test(rawTitle) || /office/i.test(rawDescription),
+      knownOfficeActivity:
+        /office|workplace|facilities|property|site/i.test(rawTitle) ||
+        /office|workplace|facilities|property|site/i.test(rawDescription),
+      publishedAt: toIsoOrUndefined(publishedAt),
+    };
+
+    try {
+      assertRealSignal(profile);
+      signals.push(profile);
+    } catch {
+      skippedBlocked++;
+    }
+  }
+
+  const deduped = uniqueBy(signals, buildRawSignalKey);
+
+  console.log("[DealHunter] Job filter summary:", {
+    kept: deduped.length,
+    skippedMissing,
+    skippedUntrusted,
+    skippedIrrelevant,
+    skippedBlocked,
+  });
+
+  return deduped;
+}
+
+async function fetchPropertyLeaseSignals(): Promise<RawSignalProfile[]> {
+  const feedUrls = PROPERTY_FEED_QUERIES.map(
+    (query) =>
+      `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-AU&gl=AU&ceid=AU:en`
+  );
+
+  const allItems: RssItem[] = [];
+
+  for (const feedUrl of feedUrls) {
+    const xml = await fetchTextWithTimeout(feedUrl, DEFAULT_FETCH_TIMEOUT_MS);
+    if (!xml) continue;
+    allItems.push(...parseRssItems(xml));
+  }
+
+  const uniqueItems = uniqueBy(
+    allItems.filter((item) => item.title && item.link),
+    (item) => `${item.title.toLowerCase()}|${item.link.toLowerCase()}`
+  );
+
+  const signals: RawSignalProfile[] = [];
+
+  for (const item of uniqueItems) {
+    const title = cleanText(item.title);
+    const description = cleanText(item.description);
+    const sourceUrl = cleanText(item.link);
+
+    if (!title || !sourceUrl) continue;
+    if (!/^https?:\/\//i.test(sourceUrl)) continue;
+    if (!isAllowedSourceUrl(sourceUrl)) continue;
+    if (!looksLikePropertySignal(title, description)) continue;
+
+    const signalType = inferPropertySignalType(title, description);
+    if (!signalType) continue;
+
+    const companyName = extractCompanyNameFromHeadline(title);
+    if (!companyName || looksLikeExcludedCompanyName(companyName)) continue;
+
+    const city = inferCityFromPropertyText(title, description);
+    const state = inferStateFromPropertyText(title, description);
+    const industry = inferIndustry(title, description);
+    const sqm = estimateWorkspaceFromPropertyText(title, description);
+    const employeeEstimate = sqm ? Math.max(20, Math.round(sqm / 10)) : 80;
+    const estimatedValue = estimateProjectValueFromPropertySignal(sqm, signalType);
+
+    const profile: RawSignalProfile = {
+      companyName,
+      companyDomain: "",
+      city,
+      state,
+      industry,
+      employeeEstimate,
+      growthRateEstimate: 18,
+      signalType,
+      signalSubtype: inferPropertySignalSubtype(title, description),
+      signalSource: inferPropertySignalSource(sourceUrl),
+      sourceUrl,
+      rawPayloadSummary: `${title}${description ? ` — ${description}` : ""}`,
+      jobPostingsCount: 0,
+      hasOfficeRole: true,
+      hasFacilitiesRole: false,
+      hasWorkplaceRole: /workplace|fitout|fit-out|fit out/i.test(`${title} ${description}`),
+      knownOfficeActivity: true,
+      estimatedWorkspaceSqmHint: sqm,
+      estimatedProjectValueHint: estimatedValue,
+      publishedAt: toIsoOrUndefined(item.pubDate),
+    };
+
+    try {
+      assertRealSignal(profile);
+      signals.push(profile);
+    } catch {
+      // ignore blocked records
+    }
+  }
+
+  const deduped = uniqueBy(signals, buildRawSignalKey);
+
+  console.log("[DealHunter] Property/lease feeds fetched:", {
+    feeds: feedUrls.length,
+    items: uniqueItems.length,
+    kept: deduped.length,
+  });
+
+  return deduped;
+}
+
+// ─── Enrichment helpers ───────────────────────────────────────────────────────
+
+function buildCandidatePages(domain: string): PublicPageCandidate[] {
+  const normalized = normalizeDomain(domain);
+  if (!normalized || !normalized.includes(".")) return [];
+
+  const base = `https://${normalized}`;
+
+  return [
+    { url: base, label: "homepage" },
+    { url: `${base}/about`, label: "about" },
+    { url: `${base}/about-us`, label: "about" },
+    { url: `${base}/team`, label: "team" },
+    { url: `${base}/leadership`, label: "leadership" },
+    { url: `${base}/our-team`, label: "team" },
+    { url: `${base}/contact`, label: "contact" },
+    { url: `${base}/careers`, label: "careers" },
+  ];
+}
+
+function extractPublicEmails(text: string): string[] {
+  const matches = text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi) ?? [];
+  return Array.from(new Set(matches.map((e) => e.toLowerCase())));
+}
+
+async function fetchPageText(url: string): Promise<string> {
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": DEFAULT_USER_AGENT,
+        Accept: "text/html,application/xhtml+xml",
+      },
+    });
+
+    if (!res.ok) return "";
+
+    const html = await res.text();
+
+    return html
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/\s+/g, " ")
+      .trim();
+  } catch {
+    return "";
+  }
+}
+
+async function findDecisionMakers(
+  _companyName: string,
+  companyDomain?: string
+): Promise<DecisionMakerCandidate[]> {
+  const normalizedDomain = normalizeDomain(companyDomain ?? "");
+  const results: DecisionMakerCandidate[] = [];
+
+  if (!normalizedDomain || !normalizedDomain.includes(".")) {
+    return [
+      {
+        role: "Facilities Manager",
+        source: "linkedin_public",
+        publiclyListedEmail: false,
+      },
+      {
+        role: "Operations Manager",
+        source: "linkedin_public",
+        publiclyListedEmail: false,
+      },
+      {
+        role: "Office Manager",
+        source: "linkedin_public",
+        publiclyListedEmail: false,
+      },
+    ];
+  }
+
+  const pages = buildCandidatePages(normalizedDomain).slice(0, MAX_DECISION_MAKER_PAGES);
+
+  for (const page of pages) {
+    const text = await fetchPageText(page.url);
+    if (!text) continue;
+
+    const emails = extractPublicEmails(text);
+    const publicEmail = emails[0];
+
+    if (/facilities/i.test(text)) {
+      results.push({
+        role: "Facilities Manager",
+        email: publicEmail,
+        source: "company_website",
+        publiclyListedEmail: Boolean(publicEmail),
+      });
+    }
+
+    if (/operations/i.test(text)) {
+      results.push({
+        role: "Operations Manager",
+        email: publicEmail,
+        source: "company_website",
+        publiclyListedEmail: Boolean(publicEmail),
+      });
+    }
+
+    if (/workplace/i.test(text)) {
+      results.push({
+        role: "Workplace Manager",
+        email: publicEmail,
+        source: "company_website",
+        publiclyListedEmail: Boolean(publicEmail),
+      });
+    }
+
+    if (/office manager/i.test(text)) {
+      results.push({
+        role: "Office Manager",
+        email: publicEmail,
+        source: "company_website",
+        publiclyListedEmail: Boolean(publicEmail),
+      });
+    }
+
+    if (results.length > 0) break;
+  }
+
+  if (!results.length) {
+    results.push(
+      {
+        role: "Facilities Manager",
+        source: "linkedin_public",
+        publiclyListedEmail: false,
+      },
+      {
+        role: "Operations Manager",
+        source: "linkedin_public",
+        publiclyListedEmail: false,
+      }
+    );
+  }
+
+  return uniqueBy(
+    results,
+    (dm) => `${dm.role.toLowerCase()}|${(dm.email ?? "").toLowerCase()}|${dm.source}`
+  );
+}
+
+function rankDecisionMaker(dm: DecisionMakerCandidate): number {
+  const role = dm.role.toLowerCase();
+
+  if (role.includes("facilities")) return 100;
+  if (role.includes("workplace")) return 90;
+  if (role.includes("office manager")) return 85;
+  if (role.includes("operations")) return 80;
+
+  return 50;
+}
+
+function pickBestDecisionMaker(
+  decisionMakers: DecisionMakerCandidate[]
+): DecisionMakerCandidate | null {
+  if (!decisionMakers.length) return null;
+
+  return [...decisionMakers].sort((a, b) => {
+    const scoreDiff = rankDecisionMaker(b) - rankDecisionMaker(a);
+    if (scoreDiff !== 0) return scoreDiff;
+    return Number(b.publiclyListedEmail) - Number(a.publiclyListedEmail);
+  })[0];
+}
+
+function parseStoredDecisionMakers(
+  raw: string | null | undefined
+): StoredDecisionMakerPayload {
+  if (!raw) return { best: null, all: [] };
+
+  try {
+    const parsed = JSON.parse(raw);
+
+    if (Array.isArray(parsed)) {
+      return { best: parsed[0] ?? null, all: parsed };
+    }
+
+    return {
+      best: parsed?.best ?? null,
+      all: Array.isArray(parsed?.all) ? parsed.all : [],
+    };
+  } catch {
+    return { best: null, all: [] };
+  }
+}
+
+// ─── Scoring / inference ──────────────────────────────────────────────────────
+
 function scoreSignal(profile: RawSignalProfile): SignalScore {
   let score = 0;
   const reasoning: string[] = [];
 
-  // Signal type base score
   const typeScores: Record<SignalType, number> = {
-    relocation_signal: 22,
-    building_move_signal: 22,
-    lease_activity: 20,
-    coworking_exit: 18,
+    relocation_signal: 28,
+    building_move_signal: 24,
+    lease_activity: 26,
+    coworking_exit: 20,
     funding: 16,
-    new_office_signal: 18,
-    hiring_growth: 12,
-    facilities_hiring: 14,
+    new_office_signal: 22,
+    hiring_growth: 14,
+    facilities_hiring: 18,
     industry_growth: 8,
-    other_growth_indicator: 5,
+    other_growth_indicator: 6,
   };
-  const typeScore = typeScores[profile.signalType] ?? 5;
+
+  const typeScore = typeScores[profile.signalType] ?? 6;
   score += typeScore;
   reasoning.push(`${profile.signalType.replace(/_/g, " ")} signal (+${typeScore})`);
 
-  // Job postings velocity
   if (profile.jobPostingsCount) {
-    if (profile.jobPostingsCount >= 50) { score += 12; reasoning.push(`${profile.jobPostingsCount} job postings — strong hiring surge (+12)`); }
-    else if (profile.jobPostingsCount >= 20) { score += 8; reasoning.push(`${profile.jobPostingsCount} job postings — moderate hiring surge (+8)`); }
-    else if (profile.jobPostingsCount >= 5) { score += 4; reasoning.push(`${profile.jobPostingsCount} job postings — light hiring growth (+4)`); }
+    if (profile.jobPostingsCount >= 20) {
+      score += 8;
+      reasoning.push(`${profile.jobPostingsCount} postings — hiring surge (+8)`);
+    } else if (profile.jobPostingsCount >= 5) {
+      score += 4;
+      reasoning.push(`${profile.jobPostingsCount} postings — hiring trend (+4)`);
+    } else if (profile.jobPostingsCount > 0) {
+      score += 2;
+      reasoning.push("Live hiring signal detected (+2)");
+    }
   }
 
-  // Office/workplace/facilities role presence — strong intent indicator
-  if (profile.hasWorkplaceRole) { score += 10; reasoning.push("Workplace Experience role detected — direct office intent signal (+10)"); }
-  if (profile.hasFacilitiesRole) { score += 9; reasoning.push("Facilities Manager / Office Manager role — direct office readiness signal (+9)"); }
-  if (profile.hasOfficeRole) { score += 7; reasoning.push("Office operations role detected (+7)"); }
-
-  // Funding amount
-  if (profile.fundingAmountM) {
-    if (profile.fundingAmountM >= 200) { score += 14; reasoning.push(`$${profile.fundingAmountM}M raise — major expansion signal (+14)`); }
-    else if (profile.fundingAmountM >= 50) { score += 10; reasoning.push(`$${profile.fundingAmountM}M raise — significant growth capital (+10)`); }
-    else if (profile.fundingAmountM >= 10) { score += 6; reasoning.push(`$${profile.fundingAmountM}M raise — growth funding signal (+6)`); }
+  if (profile.signalType === "lease_activity") {
+    score += 10;
+    reasoning.push("Commercial lease activity detected (+10)");
   }
 
-  // Lease timing urgency
-  if (profile.leaseExpiryMonths) {
-    if (profile.leaseExpiryMonths <= 3) { score += 18; reasoning.push(`Lease expiry in ${profile.leaseExpiryMonths} months — immediate opportunity (+18)`); }
-    else if (profile.leaseExpiryMonths <= 6) { score += 14; reasoning.push(`Lease expiry in ${profile.leaseExpiryMonths} months — urgent opportunity (+14)`); }
-    else if (profile.leaseExpiryMonths <= 12) { score += 8; reasoning.push(`Lease expiry in ${profile.leaseExpiryMonths} months — near-term opportunity (+8)`); }
+  if (profile.signalType === "relocation_signal") {
+    score += 12;
+    reasoning.push("Office relocation signal detected (+12)");
   }
 
-  // Known office activity confirmation
-  if (profile.knownOfficeActivity) { score += 8; reasoning.push("Confirmed office market activity from multiple sources (+8)"); }
+  if (profile.signalType === "new_office_signal") {
+    score += 10;
+    reasoning.push("New office / fit-out signal detected (+10)");
+  }
 
-  // Company size multiplier
-  if (profile.employeeEstimate >= 1000) { score += 6; reasoning.push(`Large enterprise (${profile.employeeEstimate} employees) — high project value (+6)`); }
-  else if (profile.employeeEstimate >= 300) { score += 4; reasoning.push(`Mid-market (${profile.employeeEstimate} employees) (+4)`); }
-  else if (profile.employeeEstimate >= 80) { score += 2; reasoning.push(`SME (${profile.employeeEstimate} employees) (+2)`); }
+  if (profile.hasFacilitiesRole) {
+    score += 12;
+    reasoning.push("Facilities role detected (+12)");
+  }
 
-  // Growth rate bonus
-  if (profile.growthRateEstimate >= 30) { score += 6; reasoning.push(`Rapid growth rate (${profile.growthRateEstimate}%) — office need accelerating (+6)`); }
-  else if (profile.growthRateEstimate >= 15) { score += 3; reasoning.push(`Steady growth rate (${profile.growthRateEstimate}%) (+3)`); }
+  if (profile.hasWorkplaceRole) {
+    score += 12;
+    reasoning.push("Workplace role detected (+12)");
+  }
 
-  // Cap at 100
-  score = Math.min(100, score);
+  if (profile.hasOfficeRole) {
+    score += 8;
+    reasoning.push("Office role detected (+8)");
+  }
 
-  // Confidence based on source quality and signal clarity
+  if (profile.knownOfficeActivity) {
+    score += 8;
+    reasoning.push("Office activity context detected (+8)");
+  }
+
+  if (profile.employeeEstimate >= 500) {
+    score += 8;
+    reasoning.push(`Larger company (${profile.employeeEstimate} staff) (+8)`);
+  } else if (profile.employeeEstimate >= 150) {
+    score += 5;
+    reasoning.push(`Mid-market company (${profile.employeeEstimate} staff) (+5)`);
+  } else if (profile.employeeEstimate >= 50) {
+    score += 3;
+    reasoning.push(`SME opportunity (${profile.employeeEstimate} staff) (+3)`);
+  }
+
+  if (profile.growthRateEstimate >= 25) {
+    score += 6;
+    reasoning.push(`Higher growth estimate (${profile.growthRateEstimate}%) (+6)`);
+  } else if (profile.growthRateEstimate >= 10) {
+    score += 3;
+    reasoning.push(`Growth estimate (${profile.growthRateEstimate}%) (+3)`);
+  }
+
+  if (profile.sourceUrl) {
+    score += 5;
+    reasoning.push("Trusted live source URL (+5)");
+  }
+
+  score = clampNumber(score, 0, 100);
+
   let confidence = 50;
-  if (profile.knownOfficeActivity) confidence += 15;
-  if (profile.leaseExpiryMonths) confidence += 15;
-  if (profile.hasFacilitiesRole || profile.hasWorkplaceRole) confidence += 10;
-  if (profile.fundingAmountM && profile.fundingAmountM >= 50) confidence += 10;
-  if (["afr.com", "domain.com.au", "asx.com.au", "press_release"].includes(profile.signalSource)) confidence += 5;
-  confidence = Math.min(95, confidence);
+  if (profile.hasFacilitiesRole || profile.hasWorkplaceRole) confidence += 15;
+  if (profile.hasOfficeRole) confidence += 10;
+  if (profile.sourceUrl) confidence += 10;
+  if (profile.knownOfficeActivity) confidence += 10;
+
+  if (
+    profile.signalType === "lease_activity" ||
+    profile.signalType === "relocation_signal" ||
+    profile.signalType === "new_office_signal"
+  ) {
+    confidence += 15;
+  }
+
+  confidence = clampNumber(confidence, 0, 95);
 
   return { score, confidence, reasoning };
 }
 
-// ─── Project type inference ───────────────────────────────────────────────────
+function probabilityTier(score: number): "high" | "medium" | "low" {
+  if (score >= 65) return "high";
+  if (score >= 42) return "medium";
+  return "low";
+}
 
 function inferProjectType(profile: RawSignalProfile): string {
-  if (profile.signalType === "relocation_signal" || profile.signalType === "building_move_signal") return "relocation";
+  if (
+    profile.signalType === "relocation_signal" ||
+    profile.signalType === "building_move_signal"
+  ) {
+    return "relocation";
+  }
+
   if (profile.signalType === "new_office_signal") return "new_office";
   if (profile.signalType === "coworking_exit") return "relocation";
   if (profile.signalType === "lease_activity") return "relocation";
-  if (profile.signalSubtype?.includes("expansion")) return "expansion";
-  if (profile.signalType === "funding" || profile.signalType === "hiring_growth") {
-    return profile.growthRateEstimate >= 25 ? "expansion" : "redesign";
+
+  if (profile.hasFacilitiesRole || profile.hasWorkplaceRole || profile.hasOfficeRole) {
+    return "fit_out";
   }
-  return "fit_out";
+
+  return "redesign";
 }
 
-// ─── Timeline inference ───────────────────────────────────────────────────────
-
 function inferTimeline(profile: RawSignalProfile, score: number): string {
-  if (profile.leaseExpiryMonths && profile.leaseExpiryMonths <= 3) return "0-3 months";
-  if (profile.leaseExpiryMonths && profile.leaseExpiryMonths <= 6) return "3-6 months";
-  if (profile.signalType === "coworking_exit" || profile.knownOfficeActivity) return "3-6 months";
+  if (profile.signalType === "lease_activity") return "0-6 months";
+  if (profile.signalType === "relocation_signal") return "0-6 months";
+  if (profile.signalType === "new_office_signal") return "3-6 months";
+  if (profile.hasFacilitiesRole || profile.hasWorkplaceRole) return "3-6 months";
   if (score >= 65) return "3-6 months";
   if (score >= 45) return "6-12 months";
   return "12+ months";
 }
 
-// ─── Workspace estimation ──────────────────────────────────────────────────────
-
 function estimateWorkspaceSqm(employees: number, projectType: string): number {
-  const sqmPerPerson = projectType === "new_office" ? 12 : projectType === "relocation" ? 11 : 10;
-  return Math.round(employees * sqmPerPerson);
+  const safeEmployees = Math.max(10, employees || 50);
+  const sqmPerPerson =
+    projectType === "new_office" ? 12 : projectType === "relocation" ? 11 : 10;
+  return Math.round(safeEmployees * sqmPerPerson);
 }
 
 function estimateProjectValue(sqm: number, tier: string): number {
@@ -199,172 +1203,283 @@ function estimateProjectValue(sqm: number, tier: string): number {
   return Math.round(base / 5000) * 5000;
 }
 
-// ─── Recommended contact roles ────────────────────────────────────────────────
-
-function recommendContactRoles(profile: RawSignalProfile): string[] {
-  const roles: string[] = [];
-  if (profile.employeeEstimate >= 500) roles.push("Head of Workplace", "COO", "Facilities Director");
-  else if (profile.employeeEstimate >= 200) roles.push("Facilities Manager", "Operations Manager", "Workplace Experience Manager");
-  else roles.push("Office Manager", "People & Culture Lead", "COO");
-
-  if (profile.industry.toLowerCase().includes("tech") || profile.industry.toLowerCase().includes("saas")) {
-    roles.push("Head of People & Culture");
-  }
-  if (profile.industry.toLowerCase().includes("finance") || profile.industry.toLowerCase().includes("fintech")) {
-    roles.push("Chief Operating Officer", "Property Manager");
-  }
-  return [...new Set(roles)].slice(0, 4);
-}
-
-// ─── Outreach draft ───────────────────────────────────────────────────────────
-
-function buildOutreachDraft(profile: RawSignalProfile, projectType: string, timeline: string): string {
+function buildOutreachDraft(
+  profile: RawSignalProfile,
+  projectType: string,
+  timeline: string
+): string {
   const greetingContext: Record<string, string> = {
-    relocation: `navigating an office relocation`,
-    expansion: `scaling your team and expanding your workspace`,
-    new_office: `establishing a new office`,
-    fit_out: `refreshing or fitting out your current space`,
-    redesign: `reimagining your workspace`,
+    relocation: "preparing for an office relocation",
+    expansion: "expanding your team and workspace",
+    new_office: "setting up a new office",
+    fit_out: "planning an office fit-out or workplace upgrade",
+    redesign: "reviewing your current workspace setup",
   };
+
   const context = greetingContext[projectType] ?? "planning a workspace change";
 
   return `Hi,
 
-I noticed ${profile.companyName} may be ${context} based on recent market signals. Given your growth trajectory and the ${timeline} timeframe, I wanted to reach out early.
+I noticed ${profile.companyName} may be ${context} based on recent hiring and workplace signals. With a likely ${timeline} planning window, I thought it made sense to reach out early.
 
-At The Corporate Desk, we specialise in premium commercial office fit-outs and workspace furniture for ${profile.industry} companies across Australia. We work with teams from 50 to 5,000+ staff.
+At The Corporate Desk, we help Australian businesses with premium commercial office furniture, fit-outs, and workspace planning.
 
-We'd love to offer you a complimentary workspace strategy session — including an indicative layout plan and budget estimate for your ${profile.city} space.
+If useful, we can provide a complimentary workspace strategy session, early budget guidance, and an indicative layout direction for your ${profile.city} team.
 
-Would a 20-minute call this week make sense?
+Would you be open to a short call this week?
 
 Warm regards,
 The Corporate Desk Team
 thecorporatedesk.com.au`;
 }
 
-// ─── Recommended action ───────────────────────────────────────────────────────
+function buildRecommendedAction(
+  score: number,
+  timeline: string,
+  profile: RawSignalProfile
+): string {
+  if (score >= 65 || timeline === "0-6 months" || timeline === "3-6 months") {
+    return `PRIORITY: ${
+      profile.hasFacilitiesRole || profile.hasWorkplaceRole
+        ? "Approach Facilities / Workplace leadership first"
+        : "Approach Operations / Office leadership first"
+    } — push to pipeline and prepare outreach`;
+  }
 
-function buildRecommendedAction(score: number, timeline: string, profile: RawSignalProfile): string {
-  if (score >= 65 || timeline === "0-3 months") {
-    return `PRIORITY: ${profile.hasFacilitiesRole || profile.hasWorkplaceRole ? "Direct outreach to Facilities/Workplace contact identified in job posting" : "Immediate outreach to COO/Operations"} — push to pipeline and assign to sales`;
+  if (score >= 40) {
+    return "Add to pipeline — prepare outreach and monitor for added move or growth signals";
   }
-  if (score >= 45) {
-    return `Add to pipeline — draft outreach this week. Offer free workspace strategy session or office layout plan as entry point`;
-  }
-  return `Add to nurture watch list — follow up in 30 days. Monitor for additional signals (lease news, hiring surge)`;
+
+  return "Keep in watch list — monitor for stronger office or relocation indicators";
 }
-
-// ─── Recommended outreach angle ──────────────────────────────────────────────
 
 function buildOutreachAngle(profile: RawSignalProfile, projectType: string): string {
-  if (projectType === "relocation") return "Free relocation workspace planning — offer site assessment and indicative floor plan for new space";
-  if (projectType === "expansion") return "Scalable furniture packages for fast-growing teams — modular systems that grow with you";
-  if (projectType === "new_office") return "End-to-end new office setup — from layout concept to furniture delivery and installation";
-  if (profile.fundingAmountM && profile.fundingAmountM >= 50) return "Premium workspace to match your Series funding — attract and retain top talent with a world-class office";
-  return "Workspace refresh consultation — complimentary design brief and furniture package estimate";
+  if (projectType === "relocation") {
+    return "Relocation workspace planning — site assessment, budget range, and indicative layout";
+  }
+  if (projectType === "new_office") {
+    return "End-to-end new office setup — workplace planning, furniture supply, and install";
+  }
+  if (projectType === "fit_out") {
+    return "Office fit-out and workplace refresh — early planning before procurement starts";
+  }
+  return "Workspace strategy session — identify scope, timing, and indicative furniture budget";
 }
 
-// ─── Probability tier ─────────────────────────────────────────────────────────
-
-function probabilityTier(score: number): "high" | "medium" | "low" {
-  if (score >= 65) return "high";
-  if (score >= 42) return "medium";
-  return "low";
-}
-
-// ─── Deduplication ───────────────────────────────────────────────────────────
+// ─── Persistence helpers ──────────────────────────────────────────────────────
 
 async function isDeduped(profile: RawSignalProfile): Promise<boolean> {
-  const existing = await storage.findDuplicateDealHunterSignal(profile.companyName, profile.city, profile.signalType);
-  if (!existing) return false;
+  const existing = await storage.findDuplicateDealHunterSignal(
+    profile.companyName,
+    profile.city,
+    profile.signalType
+  );
 
-  // Only deduplicate if the existing signal was created within 14 days
-  const daysSince = (Date.now() - new Date(existing.createdAt!).getTime()) / (1000 * 60 * 60 * 24);
-  return daysSince < 14;
+  if (!existing) return false;
+  return daysSince(existing.createdAt) < RAW_DEDUPE_TTL_DAYS;
 }
 
-// ─── Public: Run deal hunter scan ────────────────────────────────────────────
+// ─── Main engine ──────────────────────────────────────────────────────────────
 
-export async function runDealHunterScan(count = 8): Promise<{ created: number; deduplicated: number; signals: DealHunterSignal[] }> {
-  // Shuffle and take a sample
-  // Deterministic rotation: cycle through profiles based on current UTC day
-  // so each day runs a different slice without randomness
-  const dayOffset = Math.floor(Date.now() / (24 * 60 * 60 * 1000)) % SIGNAL_PROFILES.length;
-  const rotated = [...SIGNAL_PROFILES.slice(dayOffset), ...SIGNAL_PROFILES.slice(0, dayOffset)];
-  const shuffled = rotated.slice(0, count);
-  const created: DealHunterSignal[] = [];
+export async function runDealHunterScan(
+  count = 10
+): Promise<{
+  created: number;
+  deduplicated: number;
+  signals: DealHunterSignal[];
+}> {
+  console.log("[DealHunter] 🚀 STARTING REAL ENGINE");
+
+  const [jobSignals, propertySignals] = await Promise.all([
+    fetchJobSignals(),
+    fetchPropertyLeaseSignals(),
+  ]);
+
+  const rawSignals = uniqueBy([...propertySignals, ...jobSignals], buildRawSignalKey);
+
+  if (!rawSignals.length) {
+    console.log("[DealHunter] ❌ No real signals found");
+    return { created: 0, deduplicated: 0, signals: [] };
+  }
+
+  const ranked = rawSignals
+    .map((profile) => {
+      const scored = scoreSignal(profile);
+      return { profile, ...scored };
+    })
+    .sort((a, b) => {
+      const scoreDiff = b.score - a.score;
+      if (scoreDiff !== 0) return scoreDiff;
+
+      const confidenceDiff = b.confidence - a.confidence;
+      if (confidenceDiff !== 0) return confidenceDiff;
+
+      const aAge = daysSince(a.profile.publishedAt);
+      const bAge = daysSince(b.profile.publishedAt);
+      return aAge - bAge;
+    });
+
+  const selected = ranked.slice(0, Math.max(1, count)).map((item) => item.profile);
+
+  let created = 0;
   let deduplicated = 0;
+  const results: DealHunterSignal[] = [];
 
-  for (const profile of shuffled) {
-    try {
-      const isDup = await isDeduped(profile);
-      if (isDup) {
-        deduplicated++;
-        console.log(`[DealHunter] Deduplicated: ${profile.companyName} — ${profile.signalType} (${profile.city})`);
-        continue;
+  for (let i = 0; i < selected.length; i += DEFAULT_SCAN_BATCH_SIZE) {
+    const batch = selected.slice(i, i + DEFAULT_SCAN_BATCH_SIZE);
+
+    const batchResults = await Promise.allSettled(
+      batch.map(async (profile) => {
+        try {
+          assertRealSignal(profile);
+
+          const duplicate = await isDeduped(profile);
+          if (duplicate) {
+            deduplicated++;
+            console.log(
+              `[DealHunter] 🟡 DEDUPED: ${profile.companyName} (${profile.city})`
+            );
+            return null;
+          }
+
+          const { score, confidence, reasoning } = scoreSignal(profile);
+          const tier = probabilityTier(score);
+          const projectType = inferProjectType(profile);
+          const timeline = inferTimeline(profile, score);
+
+          const inferredSqm =
+            profile.estimatedWorkspaceSqmHint && profile.estimatedWorkspaceSqmHint > 0
+              ? profile.estimatedWorkspaceSqmHint
+              : null;
+
+          const sqm =
+            inferredSqm ??
+            estimateWorkspaceSqm(safeNumber(profile.employeeEstimate, 50), projectType);
+
+          const value =
+            profile.estimatedProjectValueHint && profile.estimatedProjectValueHint > 0
+              ? profile.estimatedProjectValueHint
+              : estimateProjectValueFromPropertySignal(sqm, profile.signalType) ??
+                estimateProjectValue(sqm, tier);
+
+          let decisionMakers: DecisionMakerCandidate[] = [];
+          try {
+            decisionMakers = await findDecisionMakers(
+              profile.companyName,
+              profile.companyDomain
+            );
+          } catch {
+            decisionMakers = [];
+          }
+
+          const bestDecisionMaker = pickBestDecisionMaker(decisionMakers);
+
+          const action = bestDecisionMaker?.publiclyListedEmail
+            ? `Direct outreach ready → ${bestDecisionMaker.role}${
+                bestDecisionMaker.email ? ` (${bestDecisionMaker.email})` : ""
+              }`
+            : buildRecommendedAction(score, timeline, profile);
+
+          const angle = buildOutreachAngle(profile, projectType);
+          const outreach = buildOutreachDraft(profile, projectType, timeline);
+
+          if (!profile.companyName || !profile.city || !profile.sourceUrl) {
+            throw new Error("Invalid final payload");
+          }
+
+          const signal = await storage.createDealHunterSignal({
+            companyName: profile.companyName,
+            companyDomain: profile.companyDomain || null,
+            city: profile.city,
+            state: profile.state || null,
+            country: COUNTRY,
+            industry: profile.industry,
+            employeeEstimate: safeNumber(profile.employeeEstimate, 0),
+            growthRateEstimate: safeNumber(profile.growthRateEstimate, 0),
+            signalType: profile.signalType,
+            signalSubtype: profile.signalSubtype,
+            signalSource: profile.signalSource,
+            sourceUrl: profile.sourceUrl,
+            rawPayloadSummary: profile.rawPayloadSummary,
+
+            signalStrengthScore: score,
+            signalConfidence: confidence,
+            reasoningSummary: reasoning.join(" | "),
+
+            estimatedWorkspaceSqm: sqm,
+            estimatedProjectValue: value,
+
+            relocationProbability:
+              tier === "high"
+                ? score
+                : tier === "medium"
+                ? Math.round(score * 0.7)
+                : Math.round(score * 0.4),
+
+            officeChangeProbability: score,
+            probabilityTier: tier,
+            projectType,
+            estimatedTimeline: timeline,
+
+            recommendedAction: action,
+            recommendedOutreachAngle: angle,
+            recommendedContactRolesJson: safeJsonStringify({
+              best: bestDecisionMaker,
+              all: decisionMakers,
+            }),
+            outreachDraft: outreach,
+
+            sourceSignalCount: profile.jobPostingsCount ?? 1,
+            isReviewed: false,
+            pushedToPipeline: false,
+            pushedToRadar: false,
+            isDuplicate: false,
+            status: "new",
+          });
+
+          created++;
+
+          console.log(
+            `[DealHunter] ✅ CREATED: ${profile.companyName} | score=${score} | ${tier}`
+          );
+
+          return signal;
+        } catch (err: any) {
+          console.error(
+            `[DealHunter] ❌ ERROR (${profile.companyName}):`,
+            err?.message ?? err
+          );
+          return null;
+        }
+      })
+    );
+
+    for (const res of batchResults) {
+      if (res.status === "fulfilled" && res.value) {
+        results.push(res.value);
       }
-
-      const { score, confidence, reasoning } = scoreSignal(profile);
-      const tier = probabilityTier(score);
-      const projectType = inferProjectType(profile);
-      const timeline = inferTimeline(profile, score);
-      const sqm = estimateWorkspaceSqm(profile.employeeEstimate, projectType);
-      const value = estimateProjectValue(sqm, tier);
-      const contactRoles = recommendContactRoles(profile);
-      const action = buildRecommendedAction(score, timeline, profile);
-      const angle = buildOutreachAngle(profile, projectType);
-      const outreach = buildOutreachDraft(profile, projectType, timeline);
-
-      const signal = await storage.createDealHunterSignal({
-        companyName: profile.companyName,
-        companyDomain: profile.companyDomain,
-        city: profile.city,
-        state: profile.state,
-        country: "Australia",
-        industry: profile.industry,
-        employeeEstimate: profile.employeeEstimate,
-        growthRateEstimate: profile.growthRateEstimate,
-        signalType: profile.signalType,
-        signalSubtype: profile.signalSubtype,
-        signalSource: profile.signalSource,
-        sourceUrl: profile.sourceUrl ?? null,
-        rawPayloadSummary: profile.rawPayloadSummary,
-        signalStrengthScore: score,
-        signalConfidence: confidence,
-        reasoningSummary: reasoning.join(" | "),
-        estimatedWorkspaceSqm: sqm,
-        estimatedProjectValue: value,
-        relocationProbability: tier === "high" ? score : tier === "medium" ? Math.round(score * 0.7) : Math.round(score * 0.4),
-        officeChangeProbability: score,
-        probabilityTier: tier,
-        projectType,
-        estimatedTimeline: timeline,
-        recommendedAction: action,
-        recommendedOutreachAngle: angle,
-        recommendedContactRolesJson: JSON.stringify(contactRoles),
-        outreachDraft: outreach,
-        sourceSignalCount: 1,
-        isReviewed: false,
-        pushedToPipeline: false,
-        pushedToRadar: false,
-        isDuplicate: false,
-        status: "new",
-      });
-
-      created.push(signal);
-      console.log(`[DealHunter] Created signal: ${profile.companyName} — score ${score} | ${tier} | ${timeline}`);
-    } catch (err: any) {
-      console.error(`[DealHunter] Failed to create signal for ${profile.companyName}:`, err.message);
     }
   }
 
-  return { created: created.length, deduplicated, signals: created };
+  console.log("[DealHunter] 📊 COMPLETE:", {
+    created,
+    deduplicated,
+    totalProcessed: selected.length,
+    totalCandidates: rawSignals.length,
+  });
+
+  return {
+    created,
+    deduplicated,
+    signals: results,
+  };
 }
 
-// ─── Public: Push signal to Office Move Radar ─────────────────────────────────
+// ─── Actions ──────────────────────────────────────────────────────────────────
 
-export async function pushDealHunterToRadar(signalId: string): Promise<{ radarId: string }> {
+export async function pushDealHunterToRadar(
+  signalId: string
+): Promise<{ radarId: string }> {
   const signal = await storage.getDealHunterSignal(signalId);
   if (!signal) throw new Error("Deal hunter signal not found");
   if (signal.pushedToRadar) throw new Error("Already pushed to radar");
@@ -374,17 +1489,28 @@ export async function pushDealHunterToRadar(signalId: string): Promise<{ radarId
     industry: signal.industry,
     city: signal.city,
     state: signal.state ?? undefined,
-    country: signal.country ?? "Australia",
+    country: signal.country ?? COUNTRY,
     signalType: signal.signalType,
     signalSubtype: signal.signalSubtype ?? undefined,
     signalSource: signal.signalSource,
     sourceUrl: signal.sourceUrl ?? undefined,
     confidenceLevel: signal.probabilityTier,
-    estimatedHeadcount: signal.employeeEstimate ? String(signal.employeeEstimate) : undefined,
-    estimatedOfficeSizeSqm: signal.estimatedWorkspaceSqm ? String(signal.estimatedWorkspaceSqm) : undefined,
-    estimatedProjectValue: signal.estimatedProjectValue ? `$${signal.estimatedProjectValue.toLocaleString()}` : undefined,
+    estimatedHeadcount: signal.employeeEstimate
+      ? String(signal.employeeEstimate)
+      : undefined,
+    estimatedOfficeSizeSqm: signal.estimatedWorkspaceSqm
+      ? String(signal.estimatedWorkspaceSqm)
+      : undefined,
+    estimatedProjectValue: signal.estimatedProjectValue
+      ? `$${signal.estimatedProjectValue.toLocaleString()}`
+      : undefined,
     radarScore: signal.signalStrengthScore,
-    priority: signal.probabilityTier === "high" ? "High" : signal.probabilityTier === "medium" ? "Medium" : "Low",
+    priority:
+      signal.probabilityTier === "high"
+        ? "High"
+        : signal.probabilityTier === "medium"
+        ? "Medium"
+        : "Low",
     recommendedOutreachAngle: signal.recommendedOutreachAngle ?? undefined,
     recommendedOffer: "Free office layout plan + workspace strategy session",
     recommendedNextAction: signal.recommendedAction ?? undefined,
@@ -394,45 +1520,82 @@ export async function pushDealHunterToRadar(signalId: string): Promise<{ radarId
   await storage.updateDealHunterSignal(signalId, {
     pushedToRadar: true,
     linkedRadarId: radar.id,
-  });
+    updatedAt: new Date(),
+  } as any);
 
   return { radarId: radar.id };
 }
 
-// ─── Public: Push signal to pipeline (prospected leads) ──────────────────────
-
-export async function pushDealHunterToPipeline(signalId: string): Promise<{ prospectId: string }> {
+export async function pushDealHunterToPipeline(
+  signalId: string
+): Promise<{ prospectId: string }> {
   const signal = await storage.getDealHunterSignal(signalId);
   if (!signal) throw new Error("Deal hunter signal not found");
   if (signal.pushedToPipeline) throw new Error("Already pushed to pipeline");
 
-  const contactRoles: string[] = (() => {
-    try { return JSON.parse(signal.recommendedContactRolesJson ?? "[]"); } catch { return []; }
-  })();
+  const parsed = parseStoredDecisionMakers(signal.recommendedContactRolesJson);
+  const best = parsed.best;
+  const all = parsed.all;
 
   const prospect = await storage.createProspectedLead({
     company: signal.companyName,
     domain: signal.companyDomain ?? undefined,
+    website: signal.companyDomain ? `https://${signal.companyDomain}` : null,
     location: `${signal.city}, ${signal.state ?? "AU"}`,
     industry: signal.industry,
-    estimatedTeamSize: signal.employeeEstimate ? String(signal.employeeEstimate) : "Unknown",
-    estimatedOfficeSqm: signal.estimatedWorkspaceSqm ? String(signal.estimatedWorkspaceSqm) : undefined,
+    estimatedTeamSize: signal.employeeEstimate
+      ? String(signal.employeeEstimate)
+      : "Unknown",
     likelyOfficeNeed: signal.projectType ?? undefined,
     signalsDetected: [signal.signalType],
-    estimatedProjectValue: signal.estimatedProjectValue ? `$${signal.estimatedProjectValue.toLocaleString()}` : "$0",
+    estimatedProjectValue: signal.estimatedProjectValue
+      ? `$${signal.estimatedProjectValue.toLocaleString()}`
+      : "$0",
     score: signal.signalStrengthScore,
-    priority: signal.probabilityTier === "high" ? "High" : signal.probabilityTier === "medium" ? "Medium" : "Low",
-    decisionMakers: JSON.stringify(contactRoles.map(r => ({ role: r, name: "Unknown" }))),
-    outreachMessage: signal.outreachDraft ?? `Outreach to ${signal.companyName} regarding ${signal.projectType ?? "office project"}`,
-    reasoning: signal.reasoningSummary ?? `${signal.signalType} signal detected from ${signal.signalSource}`,
-    rawInput: JSON.stringify({ signalId: signal.id, source: signal.signalSource, payload: signal.rawPayloadSummary }),
-    status: "New",
+    priority:
+      signal.probabilityTier === "high"
+        ? "High"
+        : signal.probabilityTier === "medium"
+        ? "Medium"
+        : "Low",
+    decisionMakers: safeJsonStringify(
+      all.map((dm) => ({
+        role: dm.role,
+        name: dm.fullName ?? "Unknown",
+        email: dm.email ?? null,
+        source: dm.source,
+        publiclyListedEmail: dm.publiclyListedEmail,
+      }))
+    ),
+    outreachMessage:
+      signal.outreachDraft ??
+      `Outreach to ${signal.companyName} regarding ${signal.projectType ?? "office project"}`,
+    reasoning:
+      signal.reasoningSummary ??
+      `${signal.signalType} signal detected from ${signal.signalSource}`,
+    rawInput: safeJsonStringify({
+      signalId: signal.id,
+      source: signal.signalSource,
+      payload: signal.rawPayloadSummary,
+      bestDecisionMaker: best,
+      allDecisionMakers: all,
+    }),
     sourceType: "deal_hunter",
-    sourceUrl: signal.sourceUrl ?? undefined,
+    sourceUrl: signal.sourceUrl ?? null,
     signalType: signal.signalType,
     city: signal.city,
-    dealProbability: signal.officeChangeProbability ?? undefined,
-    estimatedHeadcount: signal.employeeEstimate ? String(signal.employeeEstimate) : undefined,
+    contactEmail: best?.email ?? null,
+    contactRole: best?.role ?? null,
+    dealProbability: signal.officeChangeProbability ?? null,
+    estimatedOfficeSqm: signal.estimatedWorkspaceSqm
+      ? String(signal.estimatedWorkspaceSqm)
+      : null,
+    estimatedHeadcount: signal.employeeEstimate
+      ? String(signal.employeeEstimate)
+      : null,
+    recommendedNextAction: signal.recommendedAction ?? null,
+    outreachSubject: `${signal.companyName} — workspace opportunity`,
+    scanBatchId: null,
   });
 
   await storage.updateDealHunterSignal(signalId, {
@@ -440,34 +1603,51 @@ export async function pushDealHunterToPipeline(signalId: string): Promise<{ pros
     linkedProspectId: prospect.id,
     status: "pushed",
     isReviewed: true,
-  });
+    updatedAt: new Date(),
+  } as any);
 
   return { prospectId: prospect.id };
 }
 
-// ─── Public: Review signal ────────────────────────────────────────────────────
-
-export async function reviewDealHunterSignal(signalId: string): Promise<DealHunterSignal> {
+export async function reviewDealHunterSignal(
+  signalId: string
+): Promise<DealHunterSignal> {
   const updated = await storage.updateDealHunterSignal(signalId, {
     isReviewed: true,
     status: "reviewed",
-  });
+    updatedAt: new Date(),
+  } as any);
+
   if (!updated) throw new Error("Signal not found");
   return updated;
 }
 
-// ─── Public: Dismiss signal ───────────────────────────────────────────────────
-
-export async function dismissDealHunterSignal(signalId: string): Promise<DealHunterSignal> {
+export async function dismissDealHunterSignal(
+  signalId: string
+): Promise<DealHunterSignal> {
   const updated = await storage.updateDealHunterSignal(signalId, {
     status: "dismissed",
     isReviewed: true,
-  });
+    updatedAt: new Date(),
+  } as any);
+
   if (!updated) throw new Error("Signal not found");
   return updated;
 }
 
-// ─── Public: Get stats summary ────────────────────────────────────────────────
+export async function markDealHunterSignalDuplicate(
+  signalId: string
+): Promise<DealHunterSignal> {
+  const updated = await storage.updateDealHunterSignal(signalId, {
+    isDuplicate: true,
+    status: "dismissed",
+    isReviewed: true,
+    updatedAt: new Date(),
+  } as any);
+
+  if (!updated) throw new Error("Signal not found");
+  return updated;
+}
 
 export async function getDealHunterStats() {
   return storage.getDealHunterStats();

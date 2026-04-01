@@ -1,17 +1,20 @@
-// ─── Office Move Radar Service ────────────────────────────────────────────────
-// Scoring engine, opportunity estimator, and outreach draft generator.
-// Extends the existing leaseSignalScanner signal types.
-
 import OpenAI from "openai";
 import { storage } from "../storage";
-import type { InsertOfficeMovRadar, OfficeMovRadar } from "@shared/schema";
+import type { OfficeMovRadar } from "@shared/schema";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
 });
 
-// ─── Signal type definitions ──────────────────────────────────────────────────
+function assertSyntheticAllowed(featureName: string) {
+  const allowSynthetic = process.env.ALLOW_SYNTHETIC_INTELLIGENCE === "true";
+  if (!allowSynthetic) {
+    throw new Error(
+      `${featureName} is disabled because synthetic intelligence is not allowed in this environment.`
+    );
+  }
+}
 
 export type RadarSignalType =
   | "office_move"
@@ -35,9 +38,6 @@ export type RadarSignalType =
 export type RadarPriority = "High" | "Medium" | "Low";
 export type RadarConfidence = "high" | "medium" | "low";
 
-// ─── Scoring weights ──────────────────────────────────────────────────────────
-// Each signal type starts with a base score. Modifiers add or subtract.
-
 const SIGNAL_BASE_SCORES: Record<RadarSignalType, number> = {
   office_move: 85,
   new_lease: 80,
@@ -59,34 +59,53 @@ const SIGNAL_BASE_SCORES: Record<RadarSignalType, number> = {
 };
 
 const CONFIDENCE_MODIFIERS: Record<RadarConfidence, number> = {
-  high: +10,
+  high: 10,
   medium: 0,
   low: -10,
 };
 
 const CITY_FIT_SCORES: Record<string, number> = {
-  brisbane: +10,
-  sydney: +8,
-  melbourne: +8,
-  "gold coast": +5,
-  perth: +4,
-  adelaide: +3,
-  canberra: +2,
-  darwin: +1,
+  brisbane: 10,
+  sydney: 8,
+  melbourne: 8,
+  "gold coast": 5,
+  perth: 4,
+  adelaide: 3,
+  canberra: 2,
+  darwin: 1,
 };
 
 const HIGH_VALUE_INDUSTRIES = [
-  "legal", "law", "finance", "banking", "financial services", "consulting",
-  "technology", "tech", "mining", "resources", "engineering", "pharmaceutical",
-  "private equity", "investment", "insurance", "accounting",
+  "legal",
+  "law",
+  "finance",
+  "banking",
+  "financial services",
+  "consulting",
+  "technology",
+  "tech",
+  "mining",
+  "resources",
+  "engineering",
+  "pharmaceutical",
+  "private equity",
+  "investment",
+  "insurance",
+  "accounting",
 ];
 
 const MEDIUM_VALUE_INDUSTRIES = [
-  "real estate", "healthcare", "government", "education", "retail",
-  "construction", "logistics", "media", "marketing", "design",
+  "real estate",
+  "healthcare",
+  "government",
+  "education",
+  "retail",
+  "construction",
+  "logistics",
+  "media",
+  "marketing",
+  "design",
 ];
-
-// ─── Headcount / project estimation ──────────────────────────────────────────
 
 const HEADCOUNT_RANGES: Array<{ label: string; min: number; max: number }> = [
   { label: "5–15", min: 5, max: 15 },
@@ -99,32 +118,35 @@ const HEADCOUNT_RANGES: Array<{ label: string; min: number; max: number }> = [
 
 const SQM_PER_PERSON = 12;
 
-const PROJECT_VALUE_BY_SQM: Array<{ maxSqm: number; label: string; midpoint: number }> = [
-  { maxSqm: 150, label: "$15,000–$35,000", midpoint: 25000 },
-  { maxSqm: 400, label: "$35,000–$80,000", midpoint: 57500 },
-  { maxSqm: 700, label: "$80,000–$160,000", midpoint: 120000 },
-  { maxSqm: 1200, label: "$160,000–$320,000", midpoint: 240000 },
-  { maxSqm: 2500, label: "$320,000–$700,000", midpoint: 510000 },
-  { maxSqm: 99999, label: "$700,000+", midpoint: 900000 },
+const PROJECT_VALUE_BY_SQM: Array<{
+  maxSqm: number;
+  label: string;
+}> = [
+  { maxSqm: 150, label: "$15,000–$35,000" },
+  { maxSqm: 400, label: "$35,000–$80,000" },
+  { maxSqm: 700, label: "$80,000–$160,000" },
+  { maxSqm: 1200, label: "$160,000–$320,000" },
+  { maxSqm: 2500, label: "$320,000–$700,000" },
+  { maxSqm: 99999, label: "$700,000+" },
 ];
 
 function estimateSqm(headcountLabel: string): string {
-  const range = HEADCOUNT_RANGES.find(r => r.label === headcountLabel);
+  const range = HEADCOUNT_RANGES.find((r) => r.label === headcountLabel);
   if (!range) return "200–400 sqm";
   const mid = Math.round((range.min + range.max) / 2);
   const sqm = mid * SQM_PER_PERSON;
-  return `${Math.round(sqm * 0.8).toLocaleString()}–${Math.round(sqm * 1.2).toLocaleString()} sqm`;
+  return `${Math.round(sqm * 0.8).toLocaleString()}–${Math.round(
+    sqm * 1.2
+  ).toLocaleString()} sqm`;
 }
 
 function estimateProjectValue(sqmLabel: string): string {
   const numMatch = sqmLabel.match(/[\d,]+/g);
   if (!numMatch) return "$35,000–$160,000";
   const minSqm = parseInt(numMatch[0].replace(/,/g, ""), 10);
-  const tier = PROJECT_VALUE_BY_SQM.find(t => minSqm <= t.maxSqm);
+  const tier = PROJECT_VALUE_BY_SQM.find((t) => minSqm <= t.maxSqm);
   return tier?.label ?? "$700,000+";
 }
-
-// ─── Core scorer ──────────────────────────────────────────────────────────────
 
 export interface RadarScoringInput {
   signalType: RadarSignalType;
@@ -149,23 +171,24 @@ export interface RadarScoringResult {
 
 export function scoreRadarSignal(input: RadarScoringInput): RadarScoringResult {
   let score = SIGNAL_BASE_SCORES[input.signalType] ?? 30;
-
   score += CONFIDENCE_MODIFIERS[input.confidence] ?? 0;
 
-  const cityKey = input.city.toLowerCase();
-  const cityFit = Object.entries(CITY_FIT_SCORES).find(([k]) => cityKey.includes(k));
+  const cityKey = (input.city ?? "").toLowerCase();
+  const cityFit = Object.entries(CITY_FIT_SCORES).find(([k]) =>
+    cityKey.includes(k)
+  );
   score += cityFit ? cityFit[1] : 0;
 
   if (input.industry) {
     const ind = input.industry.toLowerCase();
-    if (HIGH_VALUE_INDUSTRIES.some(k => ind.includes(k))) score += 12;
-    else if (MEDIUM_VALUE_INDUSTRIES.some(k => ind.includes(k))) score += 5;
+    if (HIGH_VALUE_INDUSTRIES.some((k) => ind.includes(k))) score += 12;
+    else if (MEDIUM_VALUE_INDUSTRIES.some((k) => ind.includes(k))) score += 5;
   }
 
   if (input.multipleSignals) score += 8;
   if (input.hasSourceUrl) score += 4;
 
-  const headcount = input.estimatedHeadcount ?? "30–60";
+  const headcount = normaliseHeadcount(input.estimatedHeadcount ?? "30–60");
   const sqmLabel = estimateSqm(headcount);
   const projectValueLabel = estimateProjectValue(sqmLabel);
 
@@ -179,17 +202,24 @@ export function scoreRadarSignal(input: RadarScoringInput): RadarScoringResult {
 
   const outreachAngles: Record<RadarSignalType, string> = {
     office_move: "Lead with speed — they need furniture fast for the new space",
-    new_lease: "New lease = blank canvas — offer a free layout plan for the new floor",
-    tenant_move_in: "First impression matters — offer reception and entry fitout package",
-    office_expansion: "Growing team? Lead with workspace planning for the expanded headcount",
+    new_lease:
+      "New lease = blank canvas — offer a free layout plan for the new floor",
+    tenant_move_in:
+      "First impression matters — offer reception and entry fitout package",
+    office_expansion:
+      "Growing team? Lead with workspace planning for the expanded headcount",
     refurbishment: "Existing space, fresh look — lead with product upgrade packages",
-    new_office_opening: "First-time setup — offer full workspace design and supply package",
-    startup_expansion: "New city, blank canvas — pitch a full office fitout package for the expansion",
+    new_office_opening:
+      "First-time setup — offer full workspace design and supply package",
+    startup_expansion:
+      "New city, blank canvas — pitch a full office fitout package for the expansion",
     lease_expiry: "Lease approaching expiry — help them plan ahead for next space",
     hiring_surge: "Rapid hiring = desk shortage — lead with fast-delivery workstations",
-    hiring_spike: "Rapid team growth = desk demand — offer fast-delivery workstation package",
+    hiring_spike:
+      "Rapid team growth = desk demand — offer fast-delivery workstation package",
     funding_growth: "Fresh funding = ready to invest — pitch premium workspace package",
-    funding: "Post-funding team growth is coming — get in early with a workspace plan",
+    funding:
+      "Post-funding team growth is coming — get in early with a workspace plan",
     workplace_role: "Hiring a Workplace Manager signals an office upgrade — reach out now",
     growth_news: "Business growth often means more space — engage before they start looking",
     territory_alert: "Active in your target precinct — reach out with local knowledge",
@@ -235,8 +265,6 @@ export function scoreRadarSignal(input: RadarScoringInput): RadarScoringResult {
   };
 }
 
-// ─── Outreach draft generator ─────────────────────────────────────────────────
-
 export interface OutreachDraftInput {
   companyName: string;
   city: string;
@@ -254,7 +282,13 @@ export interface OutreachDraft {
   cta: string;
 }
 
-export async function generateOutreachDraft(input: OutreachDraftInput): Promise<OutreachDraft> {
+// ─────────────────────────────────────────────────────────────────────────────
+// Outreach draft generation
+// ─────────────────────────────────────────────────────────────────────────────
+
+export async function generateOutreachDraft(
+  input: OutreachDraftInput
+): Promise<OutreachDraft> {
   const signalDescriptions: Record<RadarSignalType, string> = {
     office_move: "relocating their office",
     new_lease: "signing a new commercial lease",
@@ -268,14 +302,17 @@ export async function generateOutreachDraft(input: OutreachDraftInput): Promise<
     hiring_spike: "experiencing a rapid hiring spike across their team",
     funding_growth: "recently receiving new funding and planning team growth",
     funding: "recently closing a funding round and expected to grow their team",
-    workplace_role: "actively recruiting for a Workplace or Facilities role indicating office growth",
-    growth_news: "experiencing significant business growth likely requiring more office space",
+    workplace_role:
+      "actively recruiting for a Workplace or Facilities role indicating office growth",
+    growth_news:
+      "experiencing significant business growth likely requiring more office space",
     territory_alert: "occupying space in a monitored building",
     tenant_move_out: "moving out of their current space",
     manual: "being identified as a potential office fitout opportunity",
   };
 
-  const signal = signalDescriptions[input.signalType] ?? "going through a workplace change";
+  const signal =
+    signalDescriptions[input.signalType] ?? "going through a workplace change";
 
   const prompt = `You are writing a brief, human, non-spammy B2B outreach email on behalf of The Corporate Desk — a premium commercial office furniture company in Australia.
 
@@ -302,32 +339,47 @@ Return JSON only, exactly like this:
 }`;
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
-      max_tokens: 600,
-    }, { signal: AbortSignal.timeout(20000) });
+    const completion = await openai.chat.completions.create(
+      {
+        model: "gpt-4o",
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+        max_tokens: 600,
+      },
+      { signal: AbortSignal.timeout(20000) }
+    );
 
     const raw = completion.choices[0]?.message?.content ?? "{}";
-    const parsed = JSON.parse(raw);
+    const parsed = safeJsonParse<Record<string, any>>(raw, {});
+
     return {
-      subject: parsed.subject ?? `Office fitout support for ${input.companyName}`,
-      email: parsed.email ?? `Hi, we noticed ${input.companyName} may be ${signal}. We help companies in ${input.city} set up their offices quickly and cost-effectively. Happy to share some ideas?`,
-      followUp: parsed.followUp ?? `Just following up on my earlier note — happy to put together a quick layout concept for your team if timing works.`,
-      cta: parsed.cta ?? "Free office layout plan",
+      subject: typeof parsed.subject === "string" && parsed.subject.trim()
+        ? parsed.subject.trim()
+        : `Office fitout support for ${input.companyName}`,
+      email: typeof parsed.email === "string" && parsed.email.trim()
+        ? parsed.email.trim()
+        : `Hi, we noticed ${input.companyName} may be ${signal}. We help companies in ${input.city} set up their offices quickly and cost-effectively. Happy to share some ideas?`,
+      followUp: typeof parsed.followUp === "string" && parsed.followUp.trim()
+        ? parsed.followUp.trim()
+        : `Just following up on my earlier note — happy to put together a quick layout concept for your team if timing works.`,
+      cta: typeof parsed.cta === "string" && parsed.cta.trim()
+        ? parsed.cta.trim()
+        : "Free office layout plan",
     };
   } catch {
     return {
       subject: `Workspace planning support — ${input.companyName}`,
-      email: `Hi,\n\nWe noticed ${input.companyName} may be ${signal} in ${input.city}. We help commercial teams plan and furnish their offices quickly — from a free layout concept through to full supply and install.\n\nWould it be useful to have a quick look at your requirements?`,
-      followUp: `Just following up on my earlier note regarding your workspace. Happy to share some ideas or put together a quick layout concept if timing works.`,
+      email: `Hi,
+
+We noticed ${input.companyName} may be ${signal} in ${input.city}. We help commercial teams plan and furnish their offices quickly — from a free layout concept through to full supply and install.
+
+Would it be useful to have a quick look at your requirements?`,
+      followUp:
+        `Just following up on my earlier note regarding your workspace. Happy to share some ideas or put together a quick layout concept if timing works.`,
       cta: "Free office layout plan",
     };
   }
 }
-
-// ─── Scheduled radar scan (AI-powered, extends leaseSignalScanner) ────────────
 
 export interface RadarScanOpts {
   cities?: string[];
@@ -343,70 +395,114 @@ interface ScannedRadarResult {
   signal_type: RadarSignalType;
   signal_subtype: string;
   signal_source: string;
-  source_url: string;
+  source_url: string | null;
   confidence_level: RadarConfidence;
   estimated_headcount: string;
   notes: string;
 }
 
-export async function runOfficeMovRadarScan(opts: RadarScanOpts = {}): Promise<OfficeMovRadar[]> {
-  const cities = opts.cities?.length ? opts.cities : ["Brisbane", "Sydney", "Melbourne"];
-  const signalTypes = opts.signalTypes?.length ? opts.signalTypes
-    : ["office_move", "new_lease", "office_expansion", "hiring_surge", "funding_growth", "new_office_opening"];
-  const count = Math.min(opts.count ?? 5, 8);
+// ─────────────────────────────────────────────────────────────────────────────
+// Radar scan (synthetic) — FIXED: consistent JSON + safer generation
+// ─────────────────────────────────────────────────────────────────────────────
 
-  const prompt = `You are an Australian commercial real estate and business intelligence analyst.
+export async function runOfficeMovRadarScan(
+  opts: RadarScanOpts = {}
+): Promise<OfficeMovRadar[]> {
+  assertSyntheticAllowed("runOfficeMovRadarScan");
 
-Generate ${count} realistic Office Move Radar detections for The Corporate Desk — a premium office furniture company.
+  const cities =
+    opts.cities?.length ? opts.cities : ["Brisbane", "Sydney", "Melbourne"];
 
-These represent companies genuinely likely to need new office furniture, workstations, executive seating, reception furniture, or a full fitout.
+  const signalTypes =
+    opts.signalTypes?.length
+      ? opts.signalTypes
+      : [
+          "office_move",
+          "new_lease",
+          "office_expansion",
+          "hiring_surge",
+          "funding_growth",
+          "new_office_opening",
+        ];
+
+  const count = Math.min(Math.max(opts.count ?? 5, 1), 8);
+
+  // IMPORTANT:
+  // This function stores results as verificationStatus: "synthetic"
+  // So we must NOT claim "REAL companies" here.
+  const prompt = `You are generating synthetic test data for an Australian commercial office fitout radar.
+
+Generate ${count} plausible (FICTIONAL) Office Move Radar detections for The Corporate Desk — a premium office furniture company.
+
+These represent companies likely to need new office furniture, workstations, executive seating, reception furniture, or a full fitout.
 
 TARGET CITIES: ${cities.join(", ")}
 SIGNAL TYPES TO DETECT: ${signalTypes.join(", ")}
 
 Rules:
-- Use REAL Australian companies (technology, finance, legal, consulting, mining, healthcare, engineering, government)
-- Use REAL Australian office precincts and suburbs
-- Each detection must be distinct company + city + signal
-- Make the signal notes specific and realistic
+- Companies must be FICTIONAL but realistic-sounding (do NOT use real company names).
+- Use real Australian precincts / suburbs.
+- Each detection must be distinct company + city + signal.
+- Make the notes specific and realistic.
+- source_url must be null (synthetic).
 
-Return a JSON array of exactly ${count} objects, each with these fields:
+Return JSON as an OBJECT with a "results" array of exactly ${count} objects:
+
 {
-  "company_name": "Actual company name",
-  "industry": "Industry sector",
-  "city": "City",
-  "state": "State abbreviation (QLD, NSW, VIC, WA, SA)",
-  "signal_type": "one of: ${signalTypes.join(", ")}",
-  "signal_subtype": "specific sub-signal description",
-  "signal_source": "Source name (e.g. LinkedIn, AFR, CBRE, Commercial Real Estate, JLL)",
-  "source_url": null,
-  "confidence_level": "high | medium | low",
-  "estimated_headcount": "one of: 5–15, 15–30, 30–60, 60–120, 120–250, 250+",
-  "notes": "1-2 sentence plain-English description of the signal detected"
+  "results": [
+    {
+      "company_name": "Company name",
+      "industry": "Industry sector",
+      "city": "City",
+      "state": "State abbreviation (QLD, NSW, VIC, WA, SA, ACT, NT, TAS)",
+      "signal_type": "one of: ${signalTypes.join(", ")}",
+      "signal_subtype": "specific sub-signal description",
+      "signal_source": "Synthetic radar",
+      "source_url": null,
+      "confidence_level": "high | medium | low",
+      "estimated_headcount": "one of: 5–15, 15–30, 30–60, 60–120, 120–250, 250+",
+      "notes": "1-2 sentence plain-English description of the signal detected"
+    }
+  ]
 }`;
 
   let results: ScannedRadarResult[] = [];
+
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
-      max_tokens: 1800,
-    }, { signal: AbortSignal.timeout(25000) });
+    const completion = await openai.chat.completions.create(
+      {
+        model: "gpt-4o",
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+        max_tokens: 1800,
+      },
+      { signal: AbortSignal.timeout(25000) }
+    );
 
     const raw = completion.choices[0]?.message?.content ?? "{}";
-    const parsed = JSON.parse(raw);
-    results = Array.isArray(parsed) ? parsed : (parsed.results ?? parsed.data ?? []);
+    const parsed = safeJsonParse<Record<string, any>>(raw, {});
+    const candidate = Array.isArray(parsed) ? parsed : parsed.results;
+
+    results = Array.isArray(candidate) ? candidate : [];
   } catch (err: any) {
-    console.error("[OfficeMovRadar] scan failed:", err.message);
+    console.error("[OfficeMovRadar] scan failed:", err?.message || err);
     return [];
   }
 
+  // Normalise + validate each result to reduce save failures
+  const cleaned = results
+    .map((r: any) => normaliseScanResult(r, signalTypes))
+    .filter(Boolean) as ScannedRadarResult[];
+
   const saved: OfficeMovRadar[] = [];
 
-  for (const r of results) {
+  for (const r of cleaned) {
     try {
-      const existing = await storage.findRadarDuplicate(r.company_name, r.city, r.signal_type);
+      const existing = await storage.findRadarDuplicate(
+        r.company_name,
+        r.city,
+        r.signal_type
+      );
       if (existing) continue;
 
       const scoring = scoreRadarSignal({
@@ -439,14 +535,92 @@ Return a JSON array of exactly ${count} objects, each with these fields:
         recommendedNextAction: scoring.recommendedNextAction,
         notes: r.notes,
         status: "New",
+        sourceType: "office_move_radar_synthetic",
+        verificationStatus: "synthetic",
       });
 
       saved.push(record);
     } catch (err: any) {
-      console.error("[OfficeMovRadar] failed to save record:", err.message);
+      console.error("[OfficeMovRadar] failed to save record:", err?.message || err);
     }
   }
 
   console.log(`[OfficeMovRadar] Scan complete — ${saved.length} new records saved`);
   return saved;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers (parsing + normalisation)
+// ─────────────────────────────────────────────────────────────────────────────
+
+function safeJsonParse<T>(raw: string, fallback: T): T {
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    // Sometimes models return fenced JSON. Try strip.
+    const stripped = raw
+      .replace(/^\s*```(?:json)?/i, "")
+      .replace(/```\s*$/i, "")
+      .trim();
+    try {
+      return JSON.parse(stripped) as T;
+    } catch {
+      return fallback;
+    }
+  }
+}
+
+function normaliseConfidence(v: any): RadarConfidence {
+  const s = String(v ?? "").toLowerCase().trim();
+  if (s === "high" || s === "medium" || s === "low") return s;
+  return "medium";
+}
+
+function normaliseSignalType(v: any, allowed: RadarSignalType[]): RadarSignalType {
+  const s = String(v ?? "").trim() as RadarSignalType;
+  return allowed.includes(s) ? s : (allowed[0] ?? "manual");
+}
+
+function normaliseHeadcount(v: any): string {
+  const s = String(v ?? "").trim();
+  const match = HEADCOUNT_RANGES.find((r) => r.label === s);
+  return match ? match.label : "30–60";
+}
+
+function normaliseState(v: any): string {
+  const s = String(v ?? "").toUpperCase().trim();
+  const allowed = new Set(["QLD", "NSW", "VIC", "WA", "SA", "ACT", "NT", "TAS"]);
+  return allowed.has(s) ? s : "QLD";
+}
+
+function toCleanString(v: any, fallback: string): string {
+  const s = typeof v === "string" ? v.trim() : "";
+  return s.length ? s : fallback;
+}
+
+function normaliseScanResult(
+  r: any,
+  allowedSignalTypes: RadarSignalType[]
+): ScannedRadarResult | null {
+  if (!r || typeof r !== "object") return null;
+
+  const company_name = toCleanString(r.company_name, "");
+  const city = toCleanString(r.city, "");
+  if (!company_name || !city) return null;
+
+  const signal_type = normaliseSignalType(r.signal_type, allowedSignalTypes);
+
+  return {
+    company_name,
+    industry: toCleanString(r.industry, "Unknown"),
+    city,
+    state: normaliseState(r.state),
+    signal_type,
+    signal_subtype: toCleanString(r.signal_subtype, "Workplace change signal"),
+    signal_source: toCleanString(r.signal_source, "Synthetic radar"),
+    source_url: null, // force null for synthetic
+    confidence_level: normaliseConfidence(r.confidence_level),
+    estimated_headcount: normaliseHeadcount(r.estimated_headcount),
+    notes: toCleanString(r.notes, "Synthetic signal generated for testing."),
+  };
 }

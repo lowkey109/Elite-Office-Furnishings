@@ -1,11 +1,499 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useLocation } from "wouter";
-import { X, Send, ChevronDown, ArrowRight, Sparkles, Paperclip } from "lucide-react";
-import { Link } from "wouter";
-import { useConcierge, ConversationMessage, UserProfile } from "@/contexts/ConciergeContext";
-import { runNexoraEngine, NexoraDecision } from "@/lib/nexoraEngine";
+// src/components/ChatBot.tsx
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+  type ChangeEvent,
+  type KeyboardEvent,
+} from "react";
+import { Link, useLocation } from "wouter";
+import { ArrowRight, Minimize2, Paperclip, Send, Sparkles, X } from "lucide-react";
+import {
+  useConcierge,
+  type ConversationMessage,
+  type UserProfile,
+} from "@/contexts/ConciergeContext";
 
-// ─── Page Configuration ────────────────────────────────────────────────────────
+/**
+ * Nexora AI Chatbot Component
+ *
+ * - Greets once per route-open session
+ * - Streaming responses (SSE-ish "data: ..." format)
+ * - Image attachment preview (base64)
+ * - Contextual quick replies + CTA cards
+ */
+export default function ChatBot() {
+  const [location] = useLocation();
+
+  const {
+    isOpen,
+    setIsOpen,
+    messages,
+    addMessage,
+    updateLastMessage,
+    userProfile,
+    updateProfile,
+    signalLog,
+    addSignal,
+    previousPage,
+  } = useConcierge();
+
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showCTA, setShowCTA] = useState(false);
+  const [nexoraDecision, setNexoraDecision] = useState<NexoraDecision | null>(null);
+  const [showQuickReplies, setShowQuickReplies] = useState(true);
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  const [attachedImageUrl, setAttachedImageUrl] = useState<string | null>(null);
+  const [isMinimised, setIsMinimised] = useState(false);
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const messageCountRef = useRef(0);
+  const hasGreetedRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    injectStyles();
+  }, []);
+
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const greetingKey = `${location}:${String(isOpen)}`;
+    if (hasGreetedRef.current === greetingKey) return;
+    hasGreetedRef.current = greetingKey;
+
+    if (messages.length === 0) {
+      const greeting = PAGE_GREETINGS[location] ?? DEFAULT_GREETING;
+      addMessage({ role: "assistant", content: greeting });
+    }
+  }, [isOpen, location, messages.length, addMessage]);
+
+  useEffect(() => {
+    if (isOpen && !isMinimised) window.setTimeout(() => inputRef.current?.focus(), 150);
+  }, [isOpen, isMinimised]);
+
+  useEffect(() => {
+    return () => abortControllerRef.current?.abort();
+  }, []);
+
+  const baseQuickReplies = useMemo(() => {
+    return PAGE_QUICK_REPLIES[location] ?? DEFAULT_QUICK_REPLIES;
+  }, [location]);
+
+  const quickRepliesToShow = useMemo(() => {
+    if (messageCountRef.current >= 2) return FOLLOWUP_QUICK_REPLIES;
+    return baseQuickReplies;
+  }, [baseQuickReplies, messages.length]);
+
+  const handleInputChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(e.target.value);
+
+    const el = e.target;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
+  }, []);
+
+  const handleFileAttach = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setAttachedFile(file);
+
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = (ev) => setAttachedImageUrl((ev.target?.result as string) ?? null);
+      reader.readAsDataURL(file);
+    } else {
+      setAttachedImageUrl(null);
+    }
+
+    e.target.value = "";
+  }, []);
+
+  const clearAttachment = useCallback(() => {
+    setAttachedFile(null);
+    setAttachedImageUrl(null);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    abortControllerRef.current?.abort();
+    setIsMinimised(false);
+    setIsOpen(false);
+  }, [setIsOpen]);
+
+  const handleMinimise = useCallback(() => {
+    setIsMinimised((v) => !v);
+  }, []);
+
+  const openFilePicker = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const sendMessage = useCallback(
+    async (messageText: string) => {
+      const trimmed = messageText.trim();
+      if (!trimmed || isLoading) return;
+
+      abortControllerRef.current?.abort();
+      abortControllerRef.current = new AbortController();
+
+      messageCountRef.current += 1;
+      setShowQuickReplies(false);
+      setShowCTA(false);
+
+      const profileUpdates = extractProfileFromText(trimmed);
+      if (Object.keys(profileUpdates).length > 0) updateProfile(profileUpdates);
+
+      const mergedProfile: UserProfile = { ...userProfile, ...profileUpdates };
+
+      const userMsg: ConversationMessage = {
+        role: "user",
+        content: trimmed,
+        ...(attachedImageUrl ? { imageUrl: attachedImageUrl } : {}),
+      };
+
+      addMessage(userMsg);
+      setInput("");
+      clearAttachment();
+
+      if (inputRef.current) inputRef.current.style.height = "auto";
+
+      setIsLoading(true);
+
+      const history = messages.map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.content,
+      }));
+
+      const decision = buildNexoraDecision({
+        message: trimmed,
+        location,
+        previousPage: previousPage ?? null,
+        profile: mergedProfile,
+        history,
+        signalLog,
+        messageCount: messageCountRef.current,
+      });
+
+      setNexoraDecision(decision);
+
+      addSignal({
+        type: "message",
+        intent: decision.intent,
+        stage: decision.journeyStage,
+        urgency: decision.urgency,
+        timestamp: Date.now(),
+      });
+
+      addMessage({ role: "assistant", content: "", isStreaming: true });
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: abortControllerRef.current.signal,
+          body: JSON.stringify({
+            messages: [...history, { role: "user", content: trimmed }],
+            systemContext: decision.systemContext,
+            adminSummary: decision.adminSummary,
+            leadUpdate: decision.leadUpdate,
+          }),
+        });
+
+        if (!res.ok) throw new Error(`API error: ${res.status}`);
+
+        if (res.body) {
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          let accumulated = "";
+          let buffer = "";
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+
+            const lines = buffer.split("\n");
+            buffer = lines.pop() ?? "";
+
+            for (const line of lines) {
+              if (!line) continue;
+
+              if (line.startsWith("data: ")) {
+                const data = line.slice(6).trim();
+                if (!data || data === "[DONE]") continue;
+
+                try {
+                  const parsed = JSON.parse(data);
+                  const delta =
+                    parsed.choices?.[0]?.delta?.content ??
+                    parsed.delta?.text ??
+                    parsed.text ??
+                    "";
+
+                  if (delta) {
+                    accumulated += delta;
+                    updateLastMessage(accumulated, true);
+                  }
+                } catch {
+                  accumulated += data;
+                  updateLastMessage(accumulated, true);
+                }
+              } else if (!line.startsWith(":")) {
+                accumulated += line;
+                updateLastMessage(accumulated, true);
+              }
+            }
+          }
+
+          if (buffer.trim()) {
+            accumulated += buffer;
+          }
+
+          updateLastMessage(accumulated, false);
+        } else {
+          const data = await res.json();
+          const content =
+            data.message ??
+            data.content ??
+            data.reply ??
+            "I'm here to help. What would you like to know?";
+
+          updateLastMessage(content, false);
+        }
+
+        setShowCTA(true);
+        if (messageCountRef.current >= 2) setShowQuickReplies(true);
+      } catch (err: unknown) {
+        if ((err as Error)?.name === "AbortError") {
+          updateLastMessage("", false);
+          return;
+        }
+
+        // eslint-disable-next-line no-console
+        console.error("[ChatBot] API error:", err);
+        updateLastMessage(
+          "I'm having trouble connecting right now. Please try again, or call us on **1300 977 607**.",
+          false
+        );
+        setShowCTA(true);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [
+      isLoading,
+      messages,
+      location,
+      previousPage,
+      userProfile,
+      signalLog,
+      attachedImageUrl,
+      addMessage,
+      updateLastMessage,
+      updateProfile,
+      addSignal,
+      clearAttachment,
+    ]
+  );
+
+  const handleSubmit = useCallback(() => {
+    void sendMessage(input);
+  }, [input, sendMessage]);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        if (!isLoading && input.trim()) void sendMessage(input);
+      }
+    },
+    [input, isLoading, sendMessage]
+  );
+
+  const handleQuickReply = useCallback(
+    (reply: string) => {
+      void sendMessage(reply);
+    },
+    [sendMessage]
+  );
+
+  if (!isOpen) return null;
+
+  const showTyping = isLoading && Boolean(messages[messages.length - 1]?.isStreaming);
+
+  return (
+    <>
+      <div
+        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
+        onClick={handleClose}
+        aria-hidden="true"
+      />
+
+      <div
+        className={[
+          "fixed bottom-4 right-4 z-50 flex flex-col overflow-hidden rounded-2xl shadow-2xl",
+          "w-[calc(100vw-2rem)] max-w-sm md:w-96",
+          "border border-[rgba(201,168,76,0.15)] bg-[hsl(220,20%,8%)]",
+          "transition-all duration-300",
+          isMinimised ? "h-14" : "h-[600px] max-h-[85vh]",
+        ].join(" ")}
+        style={{
+          boxShadow: "0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(201,168,76,0.08)",
+        }}
+      >
+        <div className="flex flex-shrink-0 items-center justify-between border-b border-[rgba(201,168,76,0.1)] bg-[hsl(220,20%,7%)] px-4 py-3">
+          <div className="flex items-center gap-2.5">
+            <div className="relative flex h-8 w-8 items-center justify-center rounded-full border border-[rgba(201,168,76,0.3)] bg-[rgba(201,168,76,0.15)]">
+              <Sparkles className="h-4 w-4 text-[hsl(43,78%,60%)]" />
+              <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-[hsl(220,20%,7%)] bg-emerald-400" />
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold leading-none text-white/90">Nexora</p>
+              <p className="mt-0.5 text-[10px] leading-none text-[hsl(43,78%,55%)]">
+                {PAGE_LABELS[location] ?? "AI Workspace Advisor"}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={handleMinimise}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-white/5 hover:text-white/70"
+              aria-label={isMinimised ? "Expand chat" : "Minimise chat"}
+            >
+              <Minimize2 className="h-3.5 w-3.5" />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleClose}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-white/5 hover:text-white/70"
+              aria-label="Close chat"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        {!isMinimised && (
+          <>
+            <div className="flex-1 overflow-y-auto px-3 py-4 scroll-smooth">
+              {messages.map((msg, i) => (
+                <MessageBubble key={i} message={msg} />
+              ))}
+
+              {showTyping && <TypingIndicator />}
+
+              <div ref={messagesEndRef} />
+            </div>
+
+            {nexoraDecision && showCTA && (
+              <NexoraActionCard decision={nexoraDecision} onNavigate={() => setShowCTA(false)} />
+            )}
+
+            {showCTA && !nexoraDecision && <CTACard location={location} />}
+
+            {showQuickReplies && (
+              <QuickReplies
+                replies={quickRepliesToShow}
+                onSelect={handleQuickReply}
+                disabled={isLoading}
+              />
+            )}
+
+            {attachedFile && (
+              <div className="mx-3 mb-2 flex items-center gap-2 rounded-lg border border-[rgba(201,168,76,0.2)] bg-[rgba(201,168,76,0.06)] px-3 py-2">
+                {attachedImageUrl ? (
+                  <img
+                    src={attachedImageUrl}
+                    alt="Attachment preview"
+                    className="h-8 w-8 rounded object-cover"
+                  />
+                ) : (
+                  <Paperclip className="h-4 w-4 text-[hsl(43,78%,55%)]" />
+                )}
+
+                <span className="flex-1 truncate text-xs text-white/60">{attachedFile.name}</span>
+
+                <button type="button" onClick={clearAttachment} className="text-white/40">
+                  ×
+                </button>
+              </div>
+            )}
+
+            <div className="border-t border-[rgba(201,168,76,0.1)] bg-[hsl(220,20%,7%)] px-3 py-3">
+              <div className="flex items-end gap-2 rounded-xl border border-[rgba(201,168,76,0.15)] bg-[hsl(220,18%,10%)] px-3 py-2">
+                <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileAttach} />
+
+                <button
+                  type="button"
+                  onClick={openFilePicker}
+                  disabled={isLoading}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-white/50 transition-colors hover:bg-white/5 hover:text-white/80 disabled:opacity-40"
+                  aria-label="Attach file"
+                >
+                  <Paperclip className="h-4 w-4" />
+                </button>
+
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Ask Nexora anything..."
+                  className="max-h-32 min-h-[24px] flex-1 resize-none bg-transparent text-sm text-white outline-none placeholder:text-white/30"
+                  rows={1}
+                />
+
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={isLoading || !input.trim()}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-[hsl(43,78%,55%)] text-[hsl(220,20%,8%)] transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+                  aria-label="Send message"
+                >
+                  <Send className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
+ * Page Configuration
+ * ────────────────────────────────────────────────────────────────────────────── */
+
+interface QuickReply {
+  label: string;
+  value: string;
+}
+
+interface CTAConfig {
+  primary: { label: string; href: string };
+  secondary: { label: string; href: string };
+  tertiary: { label: string; href: string };
+}
 
 const PAGE_LABELS: Record<string, string> = {
   "/": "Homepage",
@@ -34,36 +522,32 @@ const PAGE_LABELS: Record<string, string> = {
 };
 
 const PAGE_GREETINGS: Record<string, string> = {
-  "/": "Welcome to The Corporate Desk. I’m your AI workspace advisor — here to help scope fitouts, navigate our range, and guide your next step. What are you working on?",
-  "/catalog": "You’re browsing our product catalogue. I can narrow this down to exactly what suits your space, team size, and aesthetic. What type of furniture are you looking for?",
+  "/": "Welcome to The Corporate Desk. I'm your AI workspace advisor — here to help scope fitouts, navigate our range, and guide your next step. What are you working on?",
+  "/catalog": "You're browsing our product catalogue. I can narrow this down to exactly what suits your space, team size, and aesthetic. What type of furniture are you looking for?",
   "/workplace-solutions": "Looking at fitout options? I can walk you through our process, help scope your project, or give you an indicative budget range. Where are you at with planning?",
-  "/ai-office-planner": "You’re at our AI Office Planner — upload your floor plan and brief, and our AI returns a full zone layout, SKU package, and cost estimate in minutes. Any questions before you start?",
+  "/ai-office-planner": "You're at our AI Office Planner — upload your floor plan and brief, and our AI returns a full zone layout, SKU package, and cost estimate in minutes. Any questions before you start?",
   "/upload-your-floor-plan": "Upload your floor plan here and our specialists will create a professional workspace layout tailored to your team. Any questions about the process?",
   "/free-layout-plan": "Our free layout plan is the most popular starting point for office fitouts — no obligation, just a professional workspace concept designed by our team. How can I help?",
   "/free-office-layout-plan": "Our free layout plan is the most popular starting point for office fitouts — no obligation, just a professional CAD layout. How can I help?",
-  "/3d-office-walkthrough": "The 3D walkthrough lets you visualise your workspace before committing a dollar. I can explain how it works or help you get started. What’s your project about?",
-  "/quote-builder": "You’re in our Quote Builder — I’m your AI quoting advisor. Let me guide you toward an accurate budget for your project. What type of workspace are you fitting out?",
-  "/request-a-quote": "You’re ready to request a quote — great. I can help you include the right specifications for an accurate response. What products or scope are you quoting for?",
-  "/send-us-your-quote": "You’re ready to get a quote — great. I can help you include the right specifications for an accurate response. What products or scope are you quoting for?",
+  "/3d-office-walkthrough": "The 3D walkthrough lets you visualise your workspace before committing a dollar. I can explain how it works or help you get started. What's your project about?",
+  "/quote-builder": "You're in our Quote Builder — I'm your AI quoting advisor. Let me guide you toward an accurate budget for your project. What type of workspace are you fitting out?",
+  "/request-a-quote": "You're ready to request a quote — great. I can help you include the right specifications for an accurate response. What products or scope are you quoting for?",
+  "/send-us-your-quote": "You're ready to get a quote — great. I can help you include the right specifications for an accurate response. What products or scope are you quoting for?",
   "/finance-your-workspace": "Finance can be a smart way to preserve cash flow on a large fitout. I can explain options, give indicative repayment estimates, or help you decide if finance suits your situation.",
-  "/trade-project-procurement": "You’re looking at our trade procurement service — built for project managers, interior designers, and commercial property teams. What type of project are you working on?",
-  "/strategy-call": "A strategy consultation is ideal for complex or large-scale projects. I can help answer questions or let you know exactly what to expect. What’s the nature of your project?",
-  "/workplace-strategy": "A workplace strategy session is the right starting point for complex fitouts. I can answer questions about what to prepare and what to expect. What’s your project?",
-  "/partners": "Interested in our referral partner program? I can walk you through commission structures, how to register, and how to submit referrals. What’s your role?",
-  "/about": "Getting to know the business? I can share more about our certifications, process, product range, or what makes us different. What’s most relevant to you?",
-  "/contact": "Happy to help before you reach out — I can often answer faster than a callback. What’s on your mind?",
-  "/case-studies": "Seeing real results from real projects builds confidence. I can answer questions about any of these fitouts or help you think through how we’d approach yours.",
-  "/blog": "Insights and analysis from the world of commercial fit-outs. I can help you find what’s most relevant to your situation.",
+  "/trade-project-procurement": "You're looking at our trade procurement service — built for project managers, interior designers, and commercial property teams. What type of project are you working on?",
+  "/strategy-call": "A strategy consultation is ideal for complex or large-scale projects. I can help answer questions or let you know exactly what to expect. What's the nature of your project?",
+  "/workplace-strategy": "A workplace strategy session is the right starting point for complex fitouts. I can answer questions about what to prepare and what to expect. What's your project?",
+  "/partners": "Interested in our referral partner program? I can walk you through commission structures, how to register, and how to submit referrals. What's your role?",
+  "/about": "Getting to know the business? I can share more about our certifications, process, product range, or what makes us different. What's most relevant to you?",
+  "/contact": "Happy to help before you reach out — I can often answer faster than a callback. What's on your mind?",
+  "/case-studies": "Seeing real results from real projects builds confidence. I can answer questions about any of these fitouts or help you think through how we'd approach yours.",
+  "/blog": "Insights and analysis from the world of commercial fit-outs. I can help you find what's most relevant to your situation.",
   "/capability": "Looking at our capability statement? I can walk you through our certifications, project history, and what sets us apart from other suppliers.",
-  "/start": "Let’s find the right path for you. Tell me a bit about your project — team size, timeline, budget — and I’ll point you to the best next step.",
+  "/start": "Let's find the right path for you. Tell me a bit about your project — team size, timeline, budget — and I'll point you to the best next step.",
 };
+
 const DEFAULT_GREETING =
   "Welcome to The Corporate Desk. I'm your AI workspace advisor — here to help with products, pricing, fitouts, and more. What brings you here today?";
-
-interface QuickReply {
-  label: string;
-  value: string;
-}
 
 const PAGE_QUICK_REPLIES: Record<string, QuickReply[]> = {
   "/": [
@@ -78,67 +562,8 @@ const PAGE_QUICK_REPLIES: Record<string, QuickReply[]> = {
     { label: "Delivery & lead times", value: "What are your typical delivery and lead times?" },
     { label: "Get a quote", value: "How do I get a quote for a specific product?" },
   ],
-  "/ai-office-planner": [
-    { label: "How does it work?", value: "How does the AI Office Planner work?" },
-    { label: "File types accepted?", value: "What file types do you accept for floor plans?" },
-    { label: "What’s in the paid report?", value: "What does the $399 paid AI report include?" },
-    { label: "See example output", value: "Can you show me an example of a planner output?" },
-  ],
-  "/upload-your-floor-plan": [
-    { label: "How does it work?", value: "How does the floor plan upload work?" },
-    { label: "File types accepted?", value: "What file types do you accept for floor plans?" },
-    { label: "What comes next?", value: "What happens after I upload my floor plan?" },
-    { label: "Who reviews it?", value: "Who reviews my floor plan?" },
-  ],
-  "/free-layout-plan": [
-    { label: "What’s included?", value: "What does the free office layout plan include?" },
-    { label: "How long does it take?", value: "How long does it take to receive the free layout plan?" },
-    { label: "Unusual floor shapes?", value: "What if my office has an unusual shape or layout?" },
-    { label: "Who designs it?", value: "Who designs the layout — AI or a human designer?" },
-  ],
-  "/3d-office-walkthrough": [
-    { label: "How does 3D work?", value: "How does the 3D office walkthrough work?" },
-    { label: "What’s included?", value: "What does the 3D walkthrough package include?" },
-    { label: "Can I customise it?", value: "Can I customise the 3D walkthrough to my space?" },
-    { label: "Pricing?", value: "What does a 3D office walkthrough cost?" },
-  ],
-  "/finance-your-workspace": [
-    { label: "Estimate $150k monthly", value: "What would monthly repayments be for a $150,000 fitout?" },
-    { label: "Which plan suits me?", value: "Which finance plan would suit my situation?" },
-    { label: "Minimum spend?", value: "Is there a minimum spend for finance?" },
-    { label: "Tax implications?", value: "What are the tax implications of leasing furniture?" },
-  ],
-  "/quote-builder": [
-    { label: "20-person office needs", value: "What furniture do I need for an office of 20 people?" },
-    { label: "Acoustic requirements", value: "Help me estimate acoustic and privacy requirements" },
-    { label: "Delivery & install", value: "What’s included in delivery and installation?" },
-    { label: "Quote validity", value: "How long is a quote valid for?" },
-  ],
-  "/request-a-quote": [
-    { label: "What happens next?", value: "What happens after I submit my quote request?" },
-    { label: "Response time?", value: "How long does it take to receive a quote response?" },
-    { label: "Can we meet first?", value: "Can I meet your team before committing?" },
-    { label: "Delivery & install?", value: "Do you handle delivery and installation?" },
-  ],
-  "/trade-project-procurement": [
-    { label: "Minimum project size?", value: "What is the minimum project size for trade procurement?" },
-    { label: "Trade pricing available?", value: "Do you offer trade pricing for interior designers?" },
-    { label: "Staged delivery?", value: "Can you manage staged deliveries for large fitouts?" },
-    { label: "Documentation?", value: "What documentation do you provide at project handover?" },
-  ],
-  "/strategy-call": [
-    { label: "What’s covered?", value: "What’s covered in a workplace strategy consultation?" },
-    { label: "How long is the call?", value: "How long is the strategy consultation?" },
-    { label: "Can I bring my designer?", value: "Can I bring my interior designer to the strategy call?" },
-    { label: "Cost?", value: "Is the strategy consultation free?" },
-  ],
-  "/partners": [
-    { label: "Commission structure?", value: "What is the commission structure for partners?" },
-    { label: "Who can join?", value: "Who is eligible to become a referral partner?" },
-    { label: "How to submit referral?", value: "How do I submit a referral as a partner?" },
-    { label: "Payment terms?", value: "When and how are partner commissions paid?" },
-  ],
 };
+
 const DEFAULT_QUICK_REPLIES: QuickReply[] = [
   { label: "Browse products", value: "What products do you carry?" },
   { label: "Fitout pricing", value: "What are your pricing ranges for a typical office fitout?" },
@@ -153,203 +578,482 @@ const FOLLOWUP_QUICK_REPLIES: QuickReply[] = [
   { label: "Talk to someone", value: "How can I speak to someone on your team?" },
 ];
 
-interface CTAConfig {
-  primary: { label: string; href: string };
-  secondary: { label: string; href: string };
-  tertiary: { label: string; href: string };
-}
-
 const PAGE_CTAS: Record<string, CTAConfig> = {
   "/": {
     primary: { label: "AI Office Planner", href: "/ai-office-planner" },
     secondary: { label: "Request a Quote", href: "/request-a-quote" },
     tertiary: { label: "Book a Strategy Call", href: "/strategy-call" },
   },
-  "/catalog": {
-    primary: { label: "Request a Quote", href: "/request-a-quote" },
-    secondary: { label: "AI Office Planner", href: "/ai-office-planner" },
-    tertiary: { label: "Finance Options", href: "/finance-your-workspace" },
-  },
-  "/workplace-solutions": {
-    primary: { label: "Request a Quote", href: "/request-a-quote" },
-    secondary: { label: "AI Office Planner", href: "/ai-office-planner" },
-    tertiary: { label: "Book Strategy Call", href: "/strategy-call" },
-  },
-  "/ai-office-planner": {
-    primary: { label: "Free Layout Plan Instead", href: "/free-layout-plan" },
-    secondary: { label: "Request a Quote", href: "/request-a-quote" },
-    tertiary: { label: "Book Strategy Call", href: "/strategy-call" },
-  },
-  "/upload-your-floor-plan": {
-    primary: { label: "AI Office Planner", href: "/ai-office-planner" },
-    secondary: { label: "Request a Quote", href: "/request-a-quote" },
-    tertiary: { label: "Book Strategy Call", href: "/strategy-call" },
-  },
-  "/free-layout-plan": {
-    primary: { label: "Try AI Office Planner", href: "/ai-office-planner" },
-    secondary: { label: "Request a Quote", href: "/request-a-quote" },
-    tertiary: { label: "Book Strategy Call", href: "/strategy-call" },
-  },
-  "/3d-office-walkthrough": {
-    primary: { label: "AI Office Planner", href: "/ai-office-planner" },
-    secondary: { label: "Request a Quote", href: "/request-a-quote" },
-    tertiary: { label: "Book Strategy Call", href: "/strategy-call" },
-  },
-  "/finance-your-workspace": {
-    primary: { label: "Request a Quote", href: "/request-a-quote" },
-    secondary: { label: "Book Strategy Call", href: "/strategy-call" },
-    tertiary: { label: "AI Office Planner", href: "/ai-office-planner" },
-  },
-  "/quote-builder": {
-    primary: { label: "Request a Quote", href: "/request-a-quote" },
-    secondary: { label: "Book Strategy Call", href: "/strategy-call" },
-    tertiary: { label: "Free Layout Plan", href: "/free-layout-plan" },
-  },
-  "/request-a-quote": {
-    primary: { label: "Book Strategy Call", href: "/strategy-call" },
-    secondary: { label: "AI Office Planner", href: "/ai-office-planner" },
-    tertiary: { label: "Call Us: 1300 977 607", href: "tel:1300977607" },
-  },
-  "/trade-project-procurement": {
-    primary: { label: "Submit Project Brief", href: "/request-a-quote" },
-    secondary: { label: "Book Strategy Call", href: "/strategy-call" },
-    tertiary: { label: "Call Us: 1300 977 607", href: "tel:1300977607" },
-  },
-  "/strategy-call": {
-    primary: { label: "Request a Quote", href: "/request-a-quote" },
-    secondary: { label: "AI Office Planner", href: "/ai-office-planner" },
-    tertiary: { label: "Call Us: 1300 977 607", href: "tel:1300977607" },
-  },
-  "/partners": {
-    primary: { label: "Submit a Project Referral", href: "/submit-deal" },
-    secondary: { label: "Request a Quote", href: "/request-a-quote" },
-    tertiary: { label: "Call Us: 1300 977 607", href: "tel:1300977607" },
-  },
 };
+
 const DEFAULT_CTA: CTAConfig = {
   primary: { label: "AI Office Planner", href: "/ai-office-planner" },
   secondary: { label: "Request a Quote", href: "/request-a-quote" },
   tertiary: { label: "Book a Strategy Call", href: "/strategy-call" },
 };
 
-// ─── Profile extraction ─────────────────────────────────────────────────────
+/* ──────────────────────────────────────────────────────────────────────────────
+ * Decision Engine
+ * ────────────────────────────────────────────────────────────────────────────── */
+
+type NexoraJourneyStage = "exploring" | "qualifying" | "engaged" | "converting";
+type NexoraUrgency = "low" | "medium" | "high";
+type NexoraIntent =
+  | "general_enquiry"
+  | "product_browse"
+  | "quote_request"
+  | "fitout_project"
+  | "planner_request"
+  | "finance_enquiry"
+  | "strategy_call"
+  | "partner_enquiry"
+  | "sales_contact";
+
+interface NexoraDecision {
+  intent: NexoraIntent;
+  journeyStage: NexoraJourneyStage;
+  urgency: NexoraUrgency;
+  confidence: number;
+  adminSummary: string;
+  systemContext: string;
+  nextAction: { label: string; href: string };
+  escalationRequired: boolean;
+  closerMode: boolean;
+  leadUpdate: {
+    notes: string;
+    estimatedDealBand?: string;
+    service?: string;
+  };
+}
+
+function estimateDealBand(profile: UserProfile, message: string): string | undefined {
+  const text = message.toLowerCase();
+  const sqm = Number(String((profile as any).sqm ?? "").replace(/[^\d]/g, "")) || 0;
+  const staff = Number(String((profile as any).staff ?? "").replace(/[^\d]/g, "")) || 0;
+  const budgetText = String((profile as any).budget ?? "").toLowerCase();
+
+  if (
+    sqm >= 500 ||
+    staff >= 50 ||
+    /\b(enterprise|hq|head office|headquarters|relocation|fitout|fit-out)\b/.test(text) ||
+    /\b(100k|150k|200k|250k|300k)\b/.test(budgetText)
+  ) {
+    return "$100k+";
+  }
+  if (
+    sqm >= 150 ||
+    staff >= 15 ||
+    /\b(quote|procurement|boardroom|executive|reception|strategy)\b/.test(text)
+  ) {
+    return "$25k-$100k";
+  }
+  if (sqm > 0 || staff > 0 || /\b(desk|chair|catalog|product|furniture)\b/.test(text)) {
+    return "$5k-$25k";
+  }
+  return undefined;
+}
+
+function buildNexoraDecision(args: {
+  message: string;
+  location: string;
+  previousPage: string | null;
+  profile: UserProfile;
+  history: Array<{ role: "user" | "assistant"; content: string }>;
+  signalLog: unknown[];
+  messageCount: number;
+}): NexoraDecision {
+  const { message, location, previousPage, profile, history, signalLog, messageCount } = args;
+  const text = message.toLowerCase();
+
+  let intent: NexoraIntent = "general_enquiry";
+  let journeyStage: NexoraJourneyStage = "exploring";
+  let urgency: NexoraUrgency = "low";
+  let confidence = 72;
+  let escalationRequired = false;
+  let closerMode = false;
+
+  if (/\b(partner|referral|commission|refer\s+a\s+(client|lead))\b/.test(text)) {
+    intent = "partner_enquiry";
+    journeyStage = "qualifying";
+    urgency = "medium";
+    confidence = 88;
+  } else if (/\b(finance|lease|leasing|monthly\s+pay(?:ment)?|chattel|rent.to.own)\b/.test(text)) {
+    intent = "finance_enquiry";
+    journeyStage = "qualifying";
+    urgency = "medium";
+    confidence = 86;
+  } else if (/\b(strategy\s+call|consultation|book\s+a?\s+call|schedule\s+a?\s+call)\b/.test(text)) {
+    intent = "strategy_call";
+    journeyStage = "engaged";
+    urgency = "high";
+    confidence = 92;
+    escalationRequired = true;
+    closerMode = true;
+  } else if (/\b(ai\s+office\s+planner|planner|floor\s+plan|layout\s+plan|space\s+plan)\b/.test(text)) {
+    intent = "planner_request";
+    journeyStage = "qualifying";
+    urgency = "medium";
+    confidence = 90;
+  } else if (
+    /\b(fitout|fit.out|full\s+office|workspace|relocation|procurement|project\s+brief|scope)\b/.test(
+      text
+    )
+  ) {
+    intent = "fitout_project";
+    journeyStage = "qualifying";
+    urgency = "medium";
+    confidence = 89;
+  } else if (/\b(quote|pricing|price|cost|budget|how\s+much|estimate|ballpark)\b/.test(text)) {
+    intent = "quote_request";
+    journeyStage = "qualifying";
+    urgency = "medium";
+    confidence = 87;
+  } else if (
+    /\b(product|desk|chair|catalog|range|boardroom|reception|lounge|meeting\s+room|workstation)\b/.test(
+      text
+    )
+  ) {
+    intent = "product_browse";
+    journeyStage = messageCount >= 1 ? "qualifying" : "exploring";
+    urgency = "low";
+    confidence = 80;
+  } else if (/\b(call|phone|speak|talk\s+to\s+(someone|a\s+person|your\s+team)|sales|contact)\b/.test(text)) {
+    intent = "sales_contact";
+    journeyStage = "engaged";
+    urgency = "high";
+    confidence = 90;
+    escalationRequired = true;
+    closerMode = true;
+  }
+
+  if (/\b(urgent|asap|today|this\s+week|right\s+now|immediately|deadline|move.in)\b/.test(text)) {
+    urgency = "high";
+    confidence = Math.max(confidence, 90);
+    escalationRequired = true;
+    closerMode = true;
+  }
+
+  if (messageCount >= 4 && journeyStage === "qualifying") journeyStage = "engaged";
+  if (messageCount >= 6 && journeyStage === "engaged") journeyStage = "converting";
+
+  const profileFields = [
+    (profile as any).sqm,
+    (profile as any).staff,
+    (profile as any).budget,
+    (profile as any).location,
+    (profile as any).industry,
+  ].filter(Boolean);
+  if (profileFields.length >= 3) confidence = Math.min(confidence + 8, 98);
+
+  const service =
+    intent === "planner_request"
+      ? "AI Office Planner"
+      : intent === "strategy_call"
+        ? "Strategy Consultation"
+        : intent === "quote_request"
+          ? "Request a Quote"
+          : intent === "fitout_project"
+            ? "Workplace Solutions"
+            : undefined;
+
+  const nextAction =
+    intent === "planner_request"
+      ? { label: "Start AI Office Planner", href: "/ai-office-planner" }
+      : intent === "strategy_call"
+        ? { label: "Book Strategy Call", href: "/strategy-call" }
+        : intent === "quote_request"
+          ? { label: "Request a Quote", href: "/request-a-quote" }
+          : intent === "finance_enquiry"
+            ? { label: "View Finance Options", href: "/finance-your-workspace" }
+            : intent === "partner_enquiry"
+              ? { label: "View Partner Program", href: "/partners" }
+              : intent === "fitout_project"
+                ? { label: "Book Strategy Call", href: "/strategy-call" }
+                : PAGE_CTAS[location]?.primary ?? DEFAULT_CTA.primary;
+
+  const estimatedDealBand = estimateDealBand(profile, message);
+
+  const adminSummary =
+    `Intent=${intent} | Stage=${journeyStage} | Urgency=${urgency} | ` +
+    `Route=${location} | Previous=${previousPage ?? "none"} | ` +
+    `Messages=${history.length} | Signals=${signalLog.length} | Confidence=${confidence}%`;
+
+  const systemContext =
+    `You are Nexora, The Corporate Desk's on-site AI workspace advisor. ` +
+    `Current route: ${location}. Previous route: ${previousPage ?? "none"}. ` +
+    `Detected intent: ${intent}. Journey stage: ${journeyStage}. ` +
+    `Urgency: ${urgency}. Confidence: ${confidence}. ` +
+    `Recommended next action: ${nextAction.label} (${nextAction.href}). ` +
+    `User profile: ${buildProfileString(profile) || "unknown"}. ` +
+    `When mentioning internal page links, format them as [[route:/path|Label Text]]. ` +
+    `Respond as a premium commercial workspace advisor. Be concise, practical, and conversion-aware. ` +
+    `Use markdown formatting: **bold** for key terms, bullet lists where helpful, and clear structure.`;
+
+  const notes =
+    `Visitor intent: ${intent}. Stage: ${journeyStage}. Urgency: ${urgency}. ` +
+    `Recommended route: ${nextAction.href}. Profile: ${buildProfileString(profile) || "unknown"}.`;
+
+  return {
+    intent,
+    journeyStage,
+    urgency,
+    confidence,
+    adminSummary,
+    systemContext,
+    nextAction,
+    escalationRequired,
+    closerMode,
+    leadUpdate: { notes, estimatedDealBand, service },
+  };
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
+ * Profile Extraction + Rendering
+ * ────────────────────────────────────────────────────────────────────────────── */
 
 function extractProfileFromText(text: string): Partial<UserProfile> {
   const lower = text.toLowerCase();
-  const updates: Partial<UserProfile> = {};
+  const updates: Record<string, any> = {};
 
-  const sqmMatch = lower.match(/(\d{2,5})\s*(?:sqm|square\s*met(?:re|er)|m2|sq\.?\s*m)/);
+  const sqmMatch = lower.match(/(\d{2,5})\s*(?:sqm|square\s*met(?:re|er)s?|m2|sq\.?\s*m)/);
   if (sqmMatch) updates.sqm = `${sqmMatch[1]} sqm`;
 
-  const staffMatch = lower.match(/(\d{1,4})\s*(?:staff|people|person|employee|desk|workstation|seat)/);
+  const staffMatch = lower.match(
+    /(\d{1,4})\s*(?:staff|people|person|employees?|desks?|workstations?|seats?|heads?)/
+  );
   if (staffMatch) updates.staff = `${staffMatch[1]} people`;
 
-  const budgetMatch = lower.match(/\$\s*([\d,]+(?:\.\d+)?(?:k|,000|m)?)/i);
-  if (budgetMatch) updates.budget = `$${budgetMatch[1]}`;
+  const writtenNumbers: Record<string, number> = {
+    ten: 10,
+    fifteen: 15,
+    twenty: 20,
+    thirty: 30,
+    forty: 40,
+    fifty: 50,
+    sixty: 60,
+    seventy: 70,
+    eighty: 80,
+    ninety: 90,
+    hundred: 100,
+  };
 
-  if (/executive|luxury|prestige/i.test(lower)) updates.style = "executive / luxury";
-  else if (/premium|high.end|upscale/i.test(lower)) updates.style = "premium";
-  else if (/modern|contemporary|sleek/i.test(lower)) updates.style = "modern / contemporary";
-  else if (/minimalist|clean|simple/i.test(lower)) updates.style = "minimalist";
+  for (const [word, num] of Object.entries(writtenNumbers)) {
+    const regex = new RegExp(`\\b${word}\\b.*?(?:staff|people|person|employees?|desks?)`, "i");
+    if (regex.test(lower) && !updates.staff) updates.staff = `${num} people`;
+  }
 
-  const locationMatch = lower.match(/(sydney|melbourne|brisbane|perth|adelaide|canberra|darwin|hobart)/);
-  if (locationMatch)
-    updates.location = locationMatch[1].charAt(0).toUpperCase() + locationMatch[1].slice(1);
+  const budgetMatch = lower.match(/\$\s*([\d,]+(?:\.\d+)?)\s*(k|m|thousand|million)?/i);
+  if (budgetMatch) {
+    const amount = Number.parseFloat(budgetMatch[1].replace(/,/g, ""));
+    const mult = budgetMatch[2]?.toLowerCase();
+    const value =
+      mult === "k" || mult === "thousand"
+        ? amount * 1000
+        : mult === "m" || mult === "million"
+          ? amount * 1000000
+          : amount;
 
-  if (/law\s*firm|legal/i.test(lower)) updates.industry = "legal";
-  else if (/tech|software|startup/i.test(lower)) updates.industry = "technology";
-  else if (/finance|bank|insurance/i.test(lower)) updates.industry = "financial services";
-  else if (/health|medical|clinic/i.test(lower)) updates.industry = "healthcare";
+    updates.budget = `$${value >= 1000 ? `${Math.round(value / 1000)}k` : value}`;
+  }
 
-  if (/finance|lease|rental|monthly\s*payment/i.test(lower)) updates.financeInterest = true;
-  if (/sit.stand|height.adjust|standing\s*desk/i.test(lower)) updates.sitStandInterest = true;
+  if (/\b(executive|luxury|prestige|high.end|premium)\b/i.test(lower)) updates.style = "executive / luxury";
+  else if (/\b(modern|contemporary|sleek|current)\b/i.test(lower)) updates.style = "modern / contemporary";
+  else if (/\b(minimalist|clean|simple|pared.back)\b/i.test(lower)) updates.style = "minimalist";
+  else if (/\b(biophilic|natural|organic|warm)\b/i.test(lower)) updates.style = "biophilic / natural";
+  else if (/\b(industrial|raw|exposed|warehouse)\b/i.test(lower)) updates.style = "industrial";
 
-  return updates;
+  const locationMatch = lower.match(
+    /\b(sydney|melbourne|brisbane|perth|adelaide|canberra|darwin|hobart|gold\s*coast|newcastle|geelong|wollongong)\b/
+  );
+  if (locationMatch) {
+    updates.location = locationMatch[1]
+      .split(" ")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+  }
+
+  if (/\b(law\s*firm|legal|solicitor|barrister)\b/i.test(lower)) updates.industry = "legal";
+  else if (/\b(tech|software|startup|saas|developer)\b/i.test(lower)) updates.industry = "technology";
+  else if (/\b(finance|bank|insurance|accounting|financial)\b/i.test(lower))
+    updates.industry = "financial services";
+  else if (/\b(health|medical|clinic|hospital|dental)\b/i.test(lower)) updates.industry = "healthcare";
+  else if (/\b(architect|design|studio|creative)\b/i.test(lower)) updates.industry = "architecture / design";
+  else if (/\b(real\s*estate|property|agency)\b/i.test(lower)) updates.industry = "real estate";
+  else if (/\b(government|council|public\s*sector)\b/i.test(lower)) updates.industry = "government";
+  else if (/\b(education|university|school|college|tafe)\b/i.test(lower)) updates.industry = "education";
+
+  if (/\b(finance|lease|rental|monthly\s*pay)\b/i.test(lower)) updates.financeInterest = true;
+  if (/\b(sit.stand|height.adjust|standing\s*desk|ergonomic)\b/i.test(lower)) updates.sitStandInterest = true;
+
+  return updates as Partial<UserProfile>;
 }
 
 function buildProfileString(profile: UserProfile): string {
+  const p = profile as any;
   const parts: string[] = [];
-  if (profile.sqm) parts.push(`Office: ${profile.sqm}`);
-  if (profile.staff) parts.push(`${profile.staff} staff`);
-  if (profile.budget) parts.push(`Budget: ${profile.budget}`);
-  if (profile.style) parts.push(`Style: ${profile.style}`);
-  if (profile.location) parts.push(`Location: ${profile.location}`);
-  if (profile.industry) parts.push(`Industry: ${profile.industry}`);
-  if (profile.financeInterest) parts.push("Finance interest: yes");
-  if (profile.sitStandInterest) parts.push("Sit-stand interest: yes");
+
+  if (p.sqm) parts.push(`Office: ${p.sqm}`);
+  if (p.staff) parts.push(`${p.staff} staff`);
+  if (p.budget) parts.push(`Budget: ${p.budget}`);
+  if (p.style) parts.push(`Style: ${p.style}`);
+  if (p.location) parts.push(`Location: ${p.location}`);
+  if (p.industry) parts.push(`Industry: ${p.industry}`);
+  if (p.financeInterest) parts.push("Finance interest: yes");
+  if (p.sitStandInterest) parts.push("Sit-stand interest: yes");
+
   return parts.join(" · ");
 }
 
-// ─── Sub-components ─────────────────────────────────────────────────────────
+function renderMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    .replace(/`(.+?)`/g, '<code class="nx-code">$1</code>')
+    .replace(/^(-\s.+)(\n-\s.+)*/gm, (match) => {
+      const items = match
+        .split("\n")
+        .filter(Boolean)
+        .map((line) => `<li>${line.replace(/^-\s/, "")}</li>`)
+        .join("");
+      return `<ul class="nx-list">${items}</ul>`;
+    })
+    .replace(/^\d+\.\s(.+)$/gm, "<li>$1</li>")
+    .replace(/\n{2,}/g, "</p><p>")
+    .replace(/\n/g, "<br />");
+}
+
+function parseRouteLinks(text: string): {
+  clean: string;
+  links: Array<{ href: string; label: string }>;
+} {
+  const links: Array<{ href: string; label: string }> = [];
+
+  const clean = text
+    .replace(/\[\[route:([^|\]]+)\|([^\]]+)\]\]/g, (_match, href, label) => {
+      links.push({ href: String(href).trim(), label: String(label).trim() });
+      return "";
+    })
+    .trim();
+
+  return { clean, links };
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
+ * Styles
+ * ────────────────────────────────────────────────────────────────────────────── */
+
+const CHATBOT_STYLES = `
+  .nx-prose ul.nx-list { margin: 0.4em 0 0.4em 1.1em; padding: 0; list-style: disc; }
+  .nx-prose ul.nx-list li { margin: 0.15em 0; }
+  .nx-prose p { margin: 0.35em 0; }
+  .nx-prose strong { font-weight: 700; color: hsl(43,78%,70%); }
+  .nx-prose em { font-style: italic; opacity: 0.85; }
+  .nx-prose code.nx-code {
+    font-family: monospace;
+    font-size: 0.85em;
+    background: rgba(201,168,76,0.12);
+    border-radius: 3px;
+    padding: 0.1em 0.35em;
+  }
+`;
+
+function injectStyles() {
+  if (typeof document === "undefined") return;
+  if (document.getElementById("nexora-chatbot-styles")) return;
+
+  const el = document.createElement("style");
+  el.id = "nexora-chatbot-styles";
+  el.textContent = CHATBOT_STYLES;
+  document.head.appendChild(el);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
+ * Subcomponents
+ * ────────────────────────────────────────────────────────────────────────────── */
 
 function TypingIndicator() {
   return (
-    <div className="flex items-end gap-2 mb-4">
-      <div className="w-7 h-7 rounded-full bg-[rgba(201,168,76,0.15)] border border-[rgba(201,168,76,0.25)] flex items-center justify-center flex-shrink-0">
-        <Sparkles className="w-3.5 h-3.5 text-[hsl(43,78%,65%)]" />
+    <div className="mb-4 flex items-end gap-2">
+      <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border border-[rgba(201,168,76,0.25)] bg-[rgba(201,168,76,0.15)]">
+        <Sparkles className="h-3.5 w-3.5 text-[hsl(43,78%,65%)]" />
       </div>
-      <div className="bg-[hsl(220,18%,11%)] border border-[rgba(201,168,76,0.1)] rounded-2xl rounded-bl-sm px-4 py-3">
-        <div className="flex gap-1 items-center h-4">
-          <span className="w-1.5 h-1.5 rounded-full bg-[hsl(43,78%,52%)] animate-bounce" style={{ animationDelay: "0ms" }} />
-          <span className="w-1.5 h-1.5 rounded-full bg-[hsl(43,78%,52%)] animate-bounce" style={{ animationDelay: "150ms" }} />
-          <span className="w-1.5 h-1.5 rounded-full bg-[hsl(43,78%,52%)] animate-bounce" style={{ animationDelay: "300ms" }} />
+      <div className="rounded-2xl rounded-bl-sm border border-[rgba(201,168,76,0.1)] bg-[hsl(220,18%,11%)] px-4 py-3">
+        <div className="flex h-4 items-center gap-1">
+          {[0, 150, 300].map((delay) => (
+            <span
+              key={delay}
+              className="h-1.5 w-1.5 animate-bounce rounded-full bg-[hsl(43,78%,52%)]"
+              style={{ animationDelay: `${delay}ms` }}
+            />
+          ))}
         </div>
       </div>
     </div>
   );
 }
 
-function parseRouteLinks(text: string): { clean: string; links: Array<{ href: string; label: string }> } {
-  const links: Array<{ href: string; label: string }> = [];
-  const clean = text.replace(/\[\[route:([^|\]]+)\|([^\]]+)\]\]/g, (_match, href, label) => {
-    links.push({ href: href.trim(), label: label.trim() });
-    return "";
-  }).trim();
-  return { clean, links };
-}
-
 function MessageBubble({ message }: { message: ConversationMessage }) {
   const isUser = message.role === "user";
-  const { clean, links } = isUser ? { clean: message.content, links: [] } : parseRouteLinks(message.content);
+  const { clean, links } = isUser
+    ? { clean: message.content, links: [] as Array<{ href: string; label: string }> }
+    : parseRouteLinks(message.content);
+
   return (
-    <div className={`flex items-end gap-2 mb-4 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+    <div className={`mb-4 flex items-end gap-2 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
       {!isUser && (
-        <div className="w-7 h-7 rounded-full bg-[rgba(201,168,76,0.15)] border border-[rgba(201,168,76,0.25)] flex items-center justify-center flex-shrink-0 mb-0.5">
-          <Sparkles className="w-3.5 h-3.5 text-[hsl(43,78%,65%)]" />
+        <div className="mb-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border border-[rgba(201,168,76,0.25)] bg-[rgba(201,168,76,0.15)]">
+          <Sparkles className="h-3.5 w-3.5 text-[hsl(43,78%,65%)]" />
         </div>
       )}
-      <div className="max-w-[82%] flex flex-col gap-2">
-        {message.imageUrl && isUser && (
+
+      <div className="flex max-w-[82%] flex-col gap-2">
+        {Boolean((message as any).imageUrl) && isUser && (
           <img
-            src={message.imageUrl}
+            src={(message as any).imageUrl as string}
             alt="Attached"
-            className="max-h-36 max-w-full rounded-xl object-cover border border-[rgba(201,168,76,0.2)] self-end"
+            className="max-h-36 max-w-full self-end rounded-xl border border-[rgba(201,168,76,0.2)] object-cover"
           />
         )}
+
         {(clean || message.content) && (
-        <div
-          className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-            isUser
-              ? "bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] rounded-br-sm font-medium"
-              : "bg-[hsl(220,18%,11%)] border border-[rgba(201,168,76,0.1)] text-white/85 rounded-bl-sm"
-          } ${message.isStreaming ? "after:content-['▮'] after:text-[hsl(43,78%,52%)] after:animate-pulse" : ""}`}
-        >
-          {clean || message.content}
-        </div>
+          <div
+            className={[
+              "rounded-2xl px-4 py-3 text-sm leading-relaxed",
+              isUser
+                ? "rounded-br-sm bg-[hsl(43,78%,52%)] font-medium text-[hsl(220,20%,6%)]"
+                : "rounded-bl-sm border border-[rgba(201,168,76,0.1)] bg-[hsl(220,18%,11%)] text-white/85",
+              (message as any).isStreaming
+                ? "after:content-['▮'] after:animate-pulse after:ml-0.5 after:text-[hsl(43,78%,52%)]"
+                : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+          >
+            {isUser ? (
+              clean || message.content
+            ) : (
+              <span
+                className="nx-prose"
+                dangerouslySetInnerHTML={{ __html: renderMarkdown(clean || message.content) }}
+              />
+            )}
+          </div>
         )}
+
         {links.length > 0 && (
           <div className="flex flex-wrap gap-2 pl-1">
             {links.map((link) => (
               <Link
-                key={link.href}
+                key={`${link.href}-${link.label}`}
                 href={link.href}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all hover:opacity-80"
                 style={{
-                  background: "linear-gradient(135deg, hsl(43,78%,52%) 0%, hsl(38,62%,42%) 100%)",
+                  background:
+                    "linear-gradient(135deg, hsl(43,78%,52%) 0%, hsl(38,62%,42%) 100%)",
                   color: "hsl(220,20%,6%)",
                 }}
               >
-                <ArrowRight className="w-3 h-3" />
+                <ArrowRight className="h-3 w-3" />
                 {link.label}
               </Link>
             ))}
@@ -361,52 +1065,56 @@ function MessageBubble({ message }: { message: ConversationMessage }) {
 }
 
 function CTACard({ location }: { location: string }) {
-  const cta = PAGE_CTAS[location] || DEFAULT_CTA;
+  const cta = PAGE_CTAS[location] ?? DEFAULT_CTA;
   const isPhone = cta.tertiary.href.startsWith("tel:");
 
   return (
     <div className="mx-2 mb-3 rounded-xl border border-[rgba(201,168,76,0.18)] bg-[rgba(201,168,76,0.04)] p-3">
-      <p className="text-[10px] text-white/35 mb-2 font-medium uppercase tracking-wider">Suggested Next Step</p>
+      <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-white/35">
+        Suggested Next Step
+      </p>
+
       <div className="grid grid-cols-1 gap-1.5">
         <Link href={cta.primary.href}>
           <div
-            className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-[hsl(43,78%,52%)] cursor-pointer active:opacity-80"
+            className="flex cursor-pointer items-center justify-between rounded-lg bg-[hsl(43,78%,52%)] px-3 py-2.5 transition-opacity active:opacity-80"
             style={{ touchAction: "manipulation" }}
-            data-testid="chatbot-cta-primary"
           >
-            <span className="text-[hsl(220,20%,6%)] text-xs font-bold">{cta.primary.label}</span>
-            <ArrowRight className="w-3.5 h-3.5 text-[hsl(220,20%,6%)]" />
+            <span className="text-xs font-bold text-[hsl(220,20%,6%)]">{cta.primary.label}</span>
+            <ArrowRight className="h-3.5 w-3.5 text-[hsl(220,20%,6%)]" />
           </div>
         </Link>
+
         <Link href={cta.secondary.href}>
           <div
-            className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-[rgba(201,168,76,0.25)] cursor-pointer active:opacity-80"
+            className="flex cursor-pointer items-center justify-between rounded-lg border border-[rgba(201,168,76,0.25)] px-3 py-2.5 transition-opacity active:opacity-80"
             style={{ touchAction: "manipulation" }}
-            data-testid="chatbot-cta-secondary"
           >
-            <span className="text-[hsl(43,78%,65%)] text-xs font-semibold">{cta.secondary.label}</span>
-            <ArrowRight className="w-3.5 h-3.5 text-[hsl(43,78%,65%)]" />
+            <span className="text-xs font-semibold text-[hsl(43,78%,65%)]">
+              {cta.secondary.label}
+            </span>
+            <ArrowRight className="h-3.5 w-3.5 text-[hsl(43,78%,65%)]" />
           </div>
         </Link>
+
         {isPhone ? (
-          <a href={cta.tertiary.href} data-testid="chatbot-cta-tertiary">
+          <a href={cta.tertiary.href}>
             <div
-              className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-[rgba(255,255,255,0.08)] cursor-pointer active:opacity-80"
+              className="flex cursor-pointer items-center justify-between rounded-lg border border-[rgba(255,255,255,0.08)] px-3 py-2.5 transition-opacity active:opacity-80"
               style={{ touchAction: "manipulation" }}
             >
-              <span className="text-white/55 text-xs font-semibold">{cta.tertiary.label}</span>
-              <ArrowRight className="w-3.5 h-3.5 text-white/35" />
+              <span className="text-xs font-semibold text-white/55">{cta.tertiary.label}</span>
+              <ArrowRight className="h-3.5 w-3.5 text-white/35" />
             </div>
           </a>
         ) : (
           <Link href={cta.tertiary.href}>
             <div
-              className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-[rgba(255,255,255,0.08)] cursor-pointer active:opacity-80"
+              className="flex cursor-pointer items-center justify-between rounded-lg border border-[rgba(255,255,255,0.08)] px-3 py-2.5 transition-opacity active:opacity-80"
               style={{ touchAction: "manipulation" }}
-              data-testid="chatbot-cta-tertiary"
             >
-              <span className="text-white/55 text-xs font-semibold">{cta.tertiary.label}</span>
-              <ArrowRight className="w-3.5 h-3.5 text-white/35" />
+              <span className="text-xs font-semibold text-white/55">{cta.tertiary.label}</span>
+              <ArrowRight className="h-3.5 w-3.5 text-white/35" />
             </div>
           </Link>
         )}
@@ -415,705 +1123,81 @@ function CTACard({ location }: { location: string }) {
   );
 }
 
-function NexoraActionCard({ decision, onNavigate }: { decision: NexoraDecision; onNavigate: () => void }) {
-  const urgencyColors: Record<string, string> = {
+function NexoraActionCard({
+  decision,
+  onNavigate,
+}: {
+  decision: NexoraDecision;
+  onNavigate: () => void;
+}) {
+  const urgencyColors: Record<NexoraUrgency, string> = {
     high: "rgba(201,168,76,0.18)",
     medium: "rgba(201,168,76,0.1)",
     low: "rgba(201,168,76,0.06)",
   };
-  const stageLabel: Record<string, string> = {
+
+  const stageLabel: Record<NexoraJourneyStage, string> = {
     exploring: "Exploring",
     qualifying: "Qualifying",
     engaged: "Engaged",
     converting: "Ready to convert",
   };
+
   return (
     <div
-      className="mx-3 mb-3 rounded-xl px-3 py-2.5 flex items-center gap-3"
-      style={{
-        background: urgencyColors[decision.urgency] || urgencyColors.low,
-        border: "1px solid rgba(201,168,76,0.2)",
-      }}
-      data-testid="nexora-action-card"
+      className="mx-2 mb-3 rounded-xl border border-[rgba(201,168,76,0.18)] p-3"
+      style={{ background: urgencyColors[decision.urgency] }}
     >
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5 mb-0.5">
-          <span className="text-[hsl(43,78%,62%)]" style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-            Nexora recommends
-          </span>
-          <span className="text-white/25" style={{ fontSize: "9px" }}>•</span>
-          <span className="text-white/35" style={{ fontSize: "9px" }}>
-            {stageLabel[decision.journeyStage] ?? decision.journeyStage}
-          </span>
-        </div>
-        <p className="text-white/75 text-xs truncate">{decision.nextAction.label}</p>
+      <div className="mb-2 flex items-center justify-between">
+        <p className="text-[10px] font-medium uppercase tracking-wider text-white/35">
+          Nexora Intelligence
+        </p>
+
+        <span
+          className="rounded-full px-2 py-0.5 text-[10px] font-semibold text-[hsl(43,78%,65%)]"
+          style={{ background: "rgba(201,168,76,0.12)" }}
+        >
+          {stageLabel[decision.journeyStage]}
+        </span>
       </div>
-      <Link
-        href={decision.nextAction.href}
-        onClick={onNavigate}
-        className="flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-95"
-        style={{
-          background: "linear-gradient(135deg, hsl(43,78%,52%) 0%, hsl(38,62%,42%) 100%)",
-          color: "hsl(220,20%,6%)",
-        }}
-        data-testid="nexora-action-cta"
-      >
-        Go <ArrowRight className="w-3 h-3" />
+
+      <p className="mb-2.5 text-xs text-white/60">
+        {decision.leadUpdate.estimatedDealBand
+          ? `Estimated deal: ${decision.leadUpdate.estimatedDealBand}`
+          : "Analysing opportunity…"}
+      </p>
+
+      <Link href={decision.nextAction.href} onClick={onNavigate}>
+        <div className="flex cursor-pointer items-center justify-between rounded-lg bg-[hsl(43,78%,52%)] px-3 py-2.5 transition-opacity active:opacity-80">
+          <span className="text-xs font-bold text-[hsl(220,20%,6%)]">{decision.nextAction.label}</span>
+          <ArrowRight className="h-3.5 w-3.5 text-[hsl(220,20%,6%)]" />
+        </div>
       </Link>
     </div>
   );
 }
 
-function OrbTrigger({
-  isOpen,
-  showBadge,
-  onClick,
+function QuickReplies({
+  replies,
+  onSelect,
+  disabled,
 }: {
-  isOpen: boolean;
-  showBadge: boolean;
-  onClick: () => void;
+  replies: QuickReply[];
+  onSelect: (value: string) => void;
+  disabled: boolean;
 }) {
   return (
-    <div className="relative group">
-      {/* Hover tooltip */}
-      {!isOpen && (
-        <div
-          className="absolute bottom-full right-0 mb-3 opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 translate-y-1 group-hover:translate-y-0"
-          style={{ whiteSpace: "nowrap" }}
+    <div className="flex flex-wrap gap-1.5 px-3 pb-2">
+      {replies.map((reply) => (
+        <button
+          key={reply.value}
+          disabled={disabled}
+          onClick={() => onSelect(reply.value)}
+          className="rounded-full border border-[rgba(201,168,76,0.25)] px-3 py-1.5 text-xs font-medium text-[hsl(43,78%,65%)] transition-all hover:border-[rgba(201,168,76,0.5)] hover:bg-[rgba(201,168,76,0.08)] disabled:pointer-events-none disabled:opacity-40"
         >
-          <div
-            className="rounded-xl px-3 py-2 shadow-xl"
-            style={{
-              background: "hsl(220,18%,10%)",
-              border: "1px solid rgba(201,168,76,0.22)",
-            }}
-          >
-            <p className="text-white text-xs font-semibold leading-tight">Nexora</p>
-            <p className="text-[hsl(43,78%,62%)] text-[10px] leading-tight mt-0.5">
-              The Corporate Desk · AI
-            </p>
-          </div>
-          <div
-            className="absolute right-5 top-full w-0 h-0"
-            style={{
-              borderLeft: "5px solid transparent",
-              borderRight: "5px solid transparent",
-              borderTop: "5px solid rgba(201,168,76,0.22)",
-            }}
-          />
-        </div>
-      )}
-
-      {/* Ambient pulse ring */}
-      {!isOpen && (
-        <span
-          className="absolute inset-0 rounded-full animate-ping pointer-events-none"
-          style={{
-            background: "rgba(201,168,76,0.18)",
-            animationDuration: "3s",
-          }}
-        />
-      )}
-
-      {/* Orb */}
-      <button
-        onClick={onClick}
-        className="relative z-10 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 active:scale-95"
-        style={{
-          background: isOpen
-            ? "hsl(220,18%,13%)"
-            : "linear-gradient(135deg, hsl(43,78%,56%) 0%, hsl(38,62%,39%) 100%)",
-          border: isOpen
-            ? "1px solid rgba(201,168,76,0.3)"
-            : "1px solid rgba(201,168,76,0.12)",
-          boxShadow: isOpen
-            ? "0 4px 24px rgba(0,0,0,0.5)"
-            : "0 0 0 1px rgba(201,168,76,0.08), 0 4px 24px rgba(201,168,76,0.42), 0 2px 8px rgba(0,0,0,0.5)",
-          touchAction: "manipulation",
-        }}
-        aria-label={isOpen ? "Close workspace advisor" : "Open workspace advisor"}
-        data-testid="chatbot-toggle"
-      >
-        <span
-          className="transition-transform duration-300"
-          style={{ transform: isOpen ? "rotate(90deg) scale(0.9)" : "rotate(0deg) scale(1)" }}
-        >
-          {isOpen ? (
-            <X className="w-5 h-5 text-white" />
-          ) : (
-            <Sparkles className="w-5 h-5 text-[hsl(220,20%,6%)]" />
-          )}
-        </span>
-
-        {/* Online dot */}
-        {!isOpen && (
-          <span className="absolute -top-0.5 -right-0.5 z-20 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-[hsl(220,20%,6%)] shadow" />
-        )}
-
-        {/* Notification badge */}
-        {showBadge && !isOpen && (
-          <span className="absolute -top-1 -right-1 z-30 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-md animate-pulse">
-            1
-          </span>
-        )}
-      </button>
+          {reply.label}
+        </button>
+      ))}
     </div>
-  );
-}
-
-// ─── Main component ──────────────────────────────────────────────────────────
-
-export function ChatBot() {
-  const [location] = useLocation();
-  const {
-    messages,
-    apiHistory,
-    userProfile,
-    messageCount,
-    showCTA,
-    showQuickReplies,
-    hasShownWelcome,
-    isOpen,
-    previousPage,
-    signalLog,
-    closerMode,
-    setIsOpen,
-    setMessages,
-    setApiHistory,
-    setUserProfile,
-    setMessageCount,
-    setShowCTA,
-    setShowQuickReplies,
-    setHasShownWelcome,
-    setIntent,
-    setJourneyStage,
-    setSelectedService,
-    setLastDecision,
-    emit,
-  } = useConcierge();
-  const [nexoraDecision, setNexoraDecision] = useState<NexoraDecision | null>(null);
-
-  const isLoadingRef = useRef(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [showBadge, setShowBadge] = useState(false);
-  const [inputValue, setInputValue] = useState("");
-  const [imageAttachment, setImageAttachment] = useState<File | null>(null);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const clearImageAttachment = useCallback(() => {
-    if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
-    setImageAttachment(null);
-    setImagePreviewUrl(null);
-  }, [imagePreviewUrl]);
-
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 10 * 1024 * 1024) return;
-    setImageAttachment(file);
-    setImagePreviewUrl(URL.createObjectURL(file));
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
-  // Initialize welcome greeting once (first visit, no history)
-  useEffect(() => {
-    if (!hasShownWelcome && messages.length === 0) {
-      const greeting = PAGE_GREETINGS[location] || DEFAULT_GREETING;
-      const welcomeMsg: ConversationMessage = {
-        id: "greeting-0",
-        role: "assistant",
-        content: greeting,
-      };
-      setMessages([welcomeMsg]);
-      setApiHistory([{ role: "assistant", content: greeting }]);
-      setHasShownWelcome(true);
-    }
-  }, []); // intentionally run once on mount
-
-  // Badge timer
-  useEffect(() => {
-    const t = setTimeout(() => {
-      if (!isOpen) setShowBadge(true);
-    }, 10000);
-    return () => clearTimeout(t);
-  }, []); // intentionally run once
-
-  // Scroll to bottom when messages update
-  useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 80);
-    }
-  }, [messages, isOpen]);
-
-  // Focus input and clear badge when opened
-  useEffect(() => {
-    if (isOpen) {
-      setShowBadge(false);
-      setTimeout(() => inputRef.current?.focus(), 150);
-    }
-  }, [isOpen]);
-
-  const pageLabel =
-    PAGE_LABELS[location] ||
-    (location.startsWith("/catalog/") ? "Product Catalogue" : "The Corporate Desk");
-  const profileString = buildProfileString(userProfile);
-
-  const sendMessage = useCallback(
-    async (content: string, attachedImage?: File | null) => {
-      if (!content.trim() && !attachedImage) return;
-      if (isLoadingRef.current) return;
-
-      isLoadingRef.current = true;
-      setIsLoading(true);
-
-      const capturedImage = attachedImage || null;
-      const capturedPreview = capturedImage ? imagePreviewUrl : null;
-
-      const userMsg: ConversationMessage = {
-        id: `u-${Date.now()}`,
-        role: "user",
-        content: content.trim(),
-        imageUrl: capturedPreview || undefined,
-      };
-
-      const newHistory = [...apiHistory, { role: "user" as const, content: content.trim() }];
-      setMessages((prev) => [...prev, userMsg]);
-      setApiHistory(newHistory);
-      setInputValue("");
-      clearImageAttachment();
-      setShowQuickReplies(false);
-
-      // Extract profile data from user message
-      const extracted = extractProfileFromText(content);
-      if (Object.keys(extracted).length > 0) {
-        setUserProfile((prev) => ({ ...prev, ...extracted }));
-      }
-
-      const assistantId = `a-${Date.now()}`;
-      setMessages((prev) => [
-        ...prev,
-        { id: assistantId, role: "assistant", content: "", isStreaming: true },
-      ]);
-
-      try {
-        // Run Nexora engine — classify intent and compute next action
-        const nexoraInput = {
-          currentRoute: location,
-          previousRoute: previousPage ?? null,
-          pagesVisited: userProfile.pagesVisited,
-          signalLog,
-          messageText: content.trim(),
-          messageCount,
-          userProfile,
-          conversationHistory: newHistory,
-        };
-        const decision = runNexoraEngine(nexoraInput);
-        setNexoraDecision(decision);
-        setLastDecision(decision);
-        setIntent(decision.intent);
-        setJourneyStage(decision.journeyStage);
-        if (decision.leadUpdate?.service) setSelectedService(decision.leadUpdate.service);
-
-        // Fire-and-forget lead update for medium/high urgency
-        if (decision.leadUpdate && decision.urgency !== "low") {
-          fetch("/api/leads", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: userProfile.staff ? `AI Session – ${userProfile.staff} staff` : userProfile.company ? `AI Session – ${userProfile.company}` : "AI Session Capture",
-              email: userProfile.email || "nexora-capture@thecorporatedesk.com.au",
-              company: userProfile.company || "",
-              phone: "",
-              type: "nexora_session",
-              sourcePage: location,
-              message: decision.leadUpdate.notes,
-              officeSize: userProfile.sqm,
-              staffCount: userProfile.staff,
-              budget: userProfile.budget,
-              officeLocation: userProfile.location,
-              nexoraIntent: decision.intent,
-              nexoraJourney: decision.journeyStage,
-              nexoraUrgency: decision.urgency,
-              nexoraConfidence: decision.confidence,
-              nexoraAdminSummary: decision.adminSummary,
-              nexoraNextAction: decision.nextAction.href,
-              nexoraDealBand: decision.leadUpdate.estimatedDealBand || undefined,
-              nexoraEscalation: decision.escalationRequired ? "yes" : "no",
-            }),
-          }).catch(() => {});
-        }
-
-        let response: Response;
-        if (capturedImage) {
-          const formData = new FormData();
-          formData.append("image", capturedImage);
-          if (content.trim()) formData.append("message", content.trim());
-          formData.append("history", JSON.stringify(newHistory.slice(0, -1)));
-          formData.append("pageContext", pageLabel);
-          if (profileString) formData.append("userProfile", profileString);
-          response = await fetch("/api/chat/vision", { method: "POST", body: formData });
-        } else {
-          response = await fetch("/api/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              messages: newHistory,
-              stream: true,
-              pageContext: pageLabel,
-              userProfile: profileString || undefined,
-              nexoraContext: decision.systemContext,
-            }),
-          });
-        }
-
-        if (!response.ok) throw new Error("Request failed");
-        const reader = response.body?.getReader();
-        if (!reader) throw new Error("No response body");
-
-        const decoder = new TextDecoder();
-        let buffer = "";
-        let fullContent = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() || "";
-
-          for (const line of lines) {
-            if (!line.startsWith("data: ")) continue;
-            try {
-              const data = JSON.parse(line.slice(6));
-              if (data.done) break;
-              if (data.error) throw new Error(data.error);
-              if (data.content) {
-                fullContent += data.content;
-                setMessages((prev) =>
-                  prev.map((m) =>
-                    m.id === assistantId ? { ...m, content: fullContent, isStreaming: true } : m
-                  )
-                );
-              }
-            } catch (_) {}
-          }
-        }
-
-        const finalHistory = [...newHistory, { role: "assistant" as const, content: fullContent }];
-        setApiHistory(finalHistory);
-        emit("ASSISTANT_MESSAGE", { length: fullContent.length, closerMode: decision.closerMode ? 1 : 0 });
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === assistantId ? { ...m, content: fullContent, isStreaming: false } : m
-          )
-        );
-
-        // Also extract profile from AI reply
-        const extractedReply = extractProfileFromText(fullContent);
-        if (Object.keys(extractedReply).length > 0) {
-          setUserProfile((prev) => ({ ...prev, ...extractedReply }));
-        }
-
-        setMessageCount((prev) => {
-          const next = prev + 1;
-          if (next >= 2) setShowCTA(true);
-          if (next >= 3) setShowQuickReplies(true);
-          return next;
-        });
-      } catch {
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === assistantId
-              ? {
-                  ...m,
-                  content:
-                    "I'm having trouble connecting right now. Please call us on 1300 977 607 or email service@thecorporatedesk.com.au",
-                  isStreaming: false,
-                }
-              : m
-          )
-        );
-      } finally {
-        isLoadingRef.current = false;
-        setIsLoading(false);
-      }
-    },
-    [
-      apiHistory,
-      pageLabel,
-      profileString,
-      previousPage,
-      userProfile,
-      messageCount,
-      location,
-      signalLog,
-      setApiHistory,
-      setMessageCount,
-      setMessages,
-      setShowCTA,
-      setShowQuickReplies,
-      setUserProfile,
-      setIntent,
-      setJourneyStage,
-      setSelectedService,
-      setLastDecision,
-      emit,
-      imagePreviewUrl,
-      clearImageAttachment,
-    ]
-  );
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    sendMessage(inputValue, imageAttachment);
-  };
-
-  const quickReplies =
-    messageCount === 0
-      ? PAGE_QUICK_REPLIES[location] || DEFAULT_QUICK_REPLIES
-      : FOLLOWUP_QUICK_REPLIES;
-
-  const currentPageLabel = PAGE_LABELS[location] || pageLabel;
-
-  return (
-    <>
-      {isOpen && (
-        <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} aria-hidden="true" />
-      )}
-
-      <div className="fixed bottom-28 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-3">
-        {isOpen && (
-          <div
-            className="w-[min(385px,calc(100vw-24px))] flex flex-col overflow-hidden rounded-2xl"
-            style={{
-              height: isMinimized ? "auto" : "min(560px, calc(100dvh - 100px))",
-              background: "hsl(220,18%,8%)",
-              border: "1px solid rgba(201,168,76,0.18)",
-              boxShadow:
-                "0 0 0 1px rgba(201,168,76,0.06), 0 32px 64px rgba(0,0,0,0.72), 0 8px 24px rgba(0,0,0,0.4)",
-            }}
-            onClick={(e) => e.stopPropagation()}
-            data-testid="chatbot-window"
-          >
-            {/* Header */}
-            <div
-              className="flex items-center justify-between px-4 py-3 flex-shrink-0"
-              style={{
-                background: "hsl(220,18%,7%)",
-                borderBottom: "1px solid rgba(201,168,76,0.1)",
-              }}
-            >
-              <div className="flex items-center gap-3">
-                <div className="relative flex-shrink-0">
-                  <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, rgba(201,168,76,0.2) 0%, rgba(201,168,76,0.06) 100%)",
-                      border: "1px solid rgba(201,168,76,0.32)",
-                    }}
-                  >
-                    <Sparkles className="w-4 h-4 text-[hsl(43,78%,62%)]" />
-                  </div>
-                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-[hsl(220,18%,7%)]" />
-                </div>
-                <div>
-                  <p className="text-white text-sm font-semibold leading-tight tracking-tight">
-                    Nexora
-                  </p>
-                  <p className="text-[hsl(43,78%,56%)] text-[11px] leading-tight mt-0.5">
-                    Workspace Intelligence · The Corporate Desk
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5">
-                {/* Page context badge */}
-                <div
-                  className="hidden sm:flex items-center px-2 py-1 rounded-md mr-0.5"
-                  style={{
-                    background: "rgba(201,168,76,0.07)",
-                    border: "1px solid rgba(201,168,76,0.14)",
-                  }}
-                >
-                  <span
-                    className="text-[hsl(43,78%,55%)] font-medium truncate"
-                    style={{ fontSize: "10px", maxWidth: "90px" }}
-                  >
-                    {currentPageLabel}
-                  </span>
-                </div>
-                <button
-                  onClick={() => setIsMinimized(!isMinimized)}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors"
-                  style={{ touchAction: "manipulation" }}
-                  aria-label="Minimize"
-                  data-testid="chatbot-minimize"
-                >
-                  <ChevronDown
-                    className={`w-4 h-4 transition-transform duration-200 ${
-                      isMinimized ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors"
-                  style={{ touchAction: "manipulation" }}
-                  aria-label="Close"
-                  data-testid="chatbot-close"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {!isMinimized && (
-              <>
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto px-4 pt-4 pb-2 overscroll-contain">
-                  {messages.map((msg) => (
-                    <MessageBubble key={msg.id} message={msg} />
-                  ))}
-                  {isLoading && messages[messages.length - 1]?.isStreaming === false && (
-                    <TypingIndicator />
-                  )}
-                  <div ref={messagesEndRef} />
-                </div>
-
-                {/* Quick replies */}
-                {showQuickReplies && !isLoading && (
-                  <div className="px-3 py-2 flex gap-2 overflow-x-auto flex-shrink-0 scrollbar-hide">
-                    {quickReplies.map((reply) => (
-                      <button
-                        key={reply.value}
-                        onClick={() => sendMessage(reply.value)}
-                        className="flex-shrink-0 px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-colors"
-                        style={{
-                          border: "1px solid rgba(201,168,76,0.22)",
-                          color: "hsl(43,78%,62%)",
-                          touchAction: "manipulation",
-                          minHeight: "36px",
-                        }}
-                        data-testid={`chatbot-quick-reply-${reply.label
-                          .toLowerCase()
-                          .replace(/\s+/g, "-")}`}
-                      >
-                        {reply.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {/* Nexora action card */}
-                {nexoraDecision && nexoraDecision.urgency !== "low" && !isLoading && (
-                  <NexoraActionCard decision={nexoraDecision} onNavigate={() => setIsOpen(false)} />
-                )}
-
-                {/* CTA */}
-                {showCTA && !isLoading && !nexoraDecision && <CTACard location={location} />}
-
-                {/* Input */}
-                <form
-                  onSubmit={handleSubmit}
-                  className="px-3 pb-3 pt-2 flex-shrink-0"
-                  style={{ borderTop: "1px solid rgba(201,168,76,0.08)" }}
-                >
-                  {/* Image preview */}
-                  {imagePreviewUrl && (
-                    <div className="relative inline-flex mb-2 ml-1">
-                      <img
-                        src={imagePreviewUrl}
-                        alt="Attached"
-                        className="h-14 w-auto rounded-lg object-cover border border-[rgba(201,168,76,0.3)]"
-                      />
-                      <button
-                        type="button"
-                        onClick={clearImageAttachment}
-                        className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-400 transition-colors"
-                        data-testid="chatbot-remove-image"
-                      >
-                        <X className="w-2.5 h-2.5 text-white" />
-                      </button>
-                    </div>
-                  )}
-                  <div
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl transition-colors"
-                    style={{
-                      background: "hsl(220,18%,11%)",
-                      border: "1px solid rgba(201,168,76,0.13)",
-                    }}
-                  >
-                    {/* Paperclip / image attach */}
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={isLoading}
-                      className="flex-shrink-0 text-white/30 hover:text-[hsl(43,78%,62%)] transition-colors disabled:opacity-20"
-                      style={{ touchAction: "manipulation" }}
-                      aria-label="Attach image"
-                      data-testid="chatbot-attach"
-                    >
-                      <Paperclip className="w-4 h-4" />
-                    </button>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
-                      className="hidden"
-                      onChange={handleImageSelect}
-                      data-testid="chatbot-file-input"
-                    />
-                    <input
-                      ref={inputRef}
-                      type="text"
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      placeholder={imageAttachment ? "Add a message (optional)…" : "Ask about fitouts, products, pricing..."}
-                      className="flex-1 bg-transparent text-white text-sm placeholder-white/25 outline-none min-w-0"
-                      style={{ fontSize: "16px" }}
-                      disabled={isLoading}
-                      data-testid="chatbot-input"
-                    />
-                    <button
-                      type="submit"
-                      disabled={(!inputValue.trim() && !imageAttachment) || isLoading}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 transition-all"
-                      style={{
-                        background: "hsl(43,78%,52%)",
-                        touchAction: "manipulation",
-                      }}
-                      data-testid="chatbot-send"
-                    >
-                      <Send className="w-3.5 h-3.5 text-[hsl(220,20%,6%)]" />
-                    </button>
-                  </div>
-                  <p
-                    className="text-center mt-1.5"
-                    style={{ fontSize: "10px", color: "rgba(255,255,255,0.15)" }}
-                  >
-                    AI Workspace Intelligence · The Corporate Desk
-                  </p>
-                </form>
-              </>
-            )}
-          </div>
-        )}
-
-        <OrbTrigger
-          isOpen={isOpen}
-          showBadge={showBadge}
-          onClick={() => {
-            setIsOpen(!isOpen);
-            setShowBadge(false);
-          }}
-        />
-      </div>
-    </>
   );
 }

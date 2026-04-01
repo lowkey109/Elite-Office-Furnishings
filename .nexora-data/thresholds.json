@@ -1,0 +1,9 @@
+{
+  "strongMove": 72,
+  "criticalValue": 150000,
+  "highValue": 60000,
+  "bothMinValue": 120000,
+  "strongPipeline": 0.72,
+  "highIntentMin": 0.68,
+  "learningRate": 0.15
+}

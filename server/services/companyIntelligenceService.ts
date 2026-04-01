@@ -10,6 +10,12 @@ const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
 });
+function assertSyntheticAllowed(featureName: string) {
+  const allowSynthetic = process.env.ALLOW_SYNTHETIC_INTELLIGENCE === "true";
+  if (!allowSynthetic) {
+    throw new Error(`${featureName} is disabled because synthetic intelligence is not allowed in this environment.`);
+  }
+}
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -291,8 +297,9 @@ Return ONLY valid JSON array. No markdown, no explanation.`;
 
 // ─── Global Radar Scan ────────────────────────────────────────────────────────
 
-export async function runGlobalRadarScan(count: number = 12): Promise<{ saved: number }> {
-  console.log("[GlobalRadar] Starting global radar scan...");
+  export async function runGlobalRadarScan(count: number = 12): Promise<{ saved: number }> {
+    assertSyntheticAllowed("runGlobalRadarScan");
+    console.log("[GlobalRadar] Starting global radar scan...");
 
   // Focus on international cities (non-Australian ones for global expansion)
   const intlCities = GLOBAL_CITIES.filter(c => c.country !== "Australia");
@@ -372,8 +379,8 @@ Return ONLY a valid JSON array of ${count} objects. No markdown.`;
         recommendedOffer: rec.recommendedOffer || null,
         recommendedNextAction: rec.recommendedNextAction || null,
         status: "New",
-        sourceType: "global_radar",
-        verificationStatus: "unverified",
+        sourceType: "global_radar_synthetic",
+        verificationStatus: "synthetic",
         dateDetected: new Date(),
       } as any);
       saved++;

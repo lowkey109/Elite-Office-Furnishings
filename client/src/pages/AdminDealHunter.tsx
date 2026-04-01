@@ -1,13 +1,29 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Search, RefreshCw, Zap, Building2, TrendingUp, Target, LayoutDashboard,
-  ChevronRight, Eye, Radio, GitMerge, X, MapPin, Users, DollarSign,
-  Clock, AlertTriangle, CheckCircle2, Loader2, ExternalLink, Crosshair,
-  Filter, ArrowUpDown, FileText, MessageSquare,
+  Search,
+  RefreshCw,
+  Zap,
+  Building2,
+  TrendingUp,
+  Target,
+  LayoutDashboard,
+  ChevronRight,
+  Eye,
+  Radio,
+  GitMerge,
+  X,
+  MapPin,
+  Users,
+  DollarSign,
+  Clock,
+  CheckCircle2,
+  Loader2,
+  Crosshair,
+  AlertTriangle,
+  Lock,
 } from "lucide-react";
 
 interface DealHunterSignal {
@@ -58,6 +74,63 @@ interface Stats {
   totalPipelineValue: number;
 }
 
+interface RunResult {
+  success?: boolean;
+  created?: number;
+  deduplicated?: number;
+  signals?: DealHunterSignal[];
+  error?: string;
+  message?: string;
+}
+
+interface AuthCheckResponse {
+  authenticated: boolean;
+}
+
+interface RecommendedRolesPayload {
+  best?: {
+    role?: string;
+    fullName?: string;
+    email?: string;
+    source?: string;
+    publiclyListedEmail?: boolean;
+  } | null;
+  all?: Array<{
+    role?: string;
+    fullName?: string;
+    email?: string;
+    source?: string;
+    publiclyListedEmail?: boolean;
+  }>;
+}
+
+type SortBy = "score" | "value" | "recency" | "confidence";
+
+async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(url, {
+    credentials: "include",
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...(init?.headers ?? {}),
+    },
+  });
+
+  let data: any = null;
+
+  try {
+    data = await res.json();
+  } catch {
+    data = null;
+  }
+
+  if (!res.ok) {
+    throw new Error(data?.error || data?.message || `Request failed: ${res.status}`);
+  }
+
+  return data as T;
+}
+
 function tierColor(tier: string) {
   if (tier === "high") return "text-green-400 bg-green-400/10 border-green-400/20";
   if (tier === "medium") return "text-yellow-400 bg-yellow-400/10 border-yellow-400/20";
@@ -70,208 +143,496 @@ function tierDot(tier: string) {
   return "bg-zinc-500";
 }
 
-function signalTypeLabel(t: string) {
-  return t.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+function signalTypeLabel(value: string) {
+  return value.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function fmtValue(v: number | null) {
-  if (!v) return "—";
-  if (v >= 1000000) return `$${(v / 1000000).toFixed(1)}M`;
-  if (v >= 1000) return `$${(v / 1000).toFixed(0)}k`;
+  if (!v || v <= 0) return "—";
+  if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
+  if (v >= 1_000) return `$${Math.round(v / 1_000)}k`;
   return `$${v}`;
 }
 
+function parseRecommendedRoles(raw: string | null): string[] {
+  if (!raw) return [];
+
+  try {
+    const parsed = JSON.parse(raw) as RecommendedRolesPayload | string[];
+
+    if (Array.isArray(parsed)) {
+      return parsed.filter((item): item is string => Boolean(item && typeof item === "string"));
+    }
+
+    const roles = new Set<string>();
+
+    if (parsed?.best?.role) roles.add(parsed.best.role);
+
+    for (const item of parsed?.all ?? []) {
+      if (item?.role) roles.add(item.role);
+    }
+
+    return Array.from(roles);
+  } catch {
+    return [];
+  }
+}
+
+function compactText(value: string | null | undefined, max = 140) {
+  const text = String(value ?? "").trim();
+  if (!text) return "";
+  return text.length > max ? `${text.slice(0, max)}…` : text;
+}
+
 export default function AdminDealHunter() {
-  const [authed] = useState(() =>
-    sessionStorage.getItem("tcd_admin_auth") === "true" ||
-    localStorage.getItem("tcd_admin_auth") === "true"
-  );
-  const [selectedSignal, setSelectedSignal] = useState<DealHunterSignal | null>(null);
+  const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [cityFilter, setCityFilter] = useState("");
   const [industryFilter, setIndustryFilter] = useState("");
   const [tierFilter, setTierFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [sortBy, setSortBy] = useState<"score" | "value" | "recency" | "confidence">("score");
+  const [sortBy, setSortBy] = useState<SortBy>("score");
+  const [activeActionId, setActiveActionId] = useState<string | null>(null);
+
   const { toast } = useToast();
   const qc = useQueryClient();
 
-  const { data: stats } = useQuery<Stats>({ queryKey: ["/api/admin/deal-hunter/stats"], enabled: authed });
+  useEffect(() => {
+    document.title = "AI Deal Hunter | The Corporate Desk Admin";
+  }, []);
 
-  const { data: signals = [], isLoading: signalsLoading } = useQuery<DealHunterSignal[]>({
-    queryKey: ["/api/admin/deal-hunter/signals", cityFilter, industryFilter, tierFilter, typeFilter, statusFilter],
+  const authQuery = useQuery<AuthCheckResponse>({
+    queryKey: ["/api/admin/auth/check"],
+    queryFn: () => fetchJson<AuthCheckResponse>("/api/admin/auth/check"),
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
+
+  const isAuthed = authQuery.data?.authenticated === true;
+
+  const statsQuery = useQuery<Stats>({
+    queryKey: ["/api/admin/deal-hunter/stats"],
+    queryFn: () => fetchJson<Stats>("/api/admin/deal-hunter/stats"),
+    enabled: isAuthed,
+    refetchOnWindowFocus: false,
+  });
+
+  const signalsQuery = useQuery<DealHunterSignal[]>({
+    queryKey: [
+      "/api/admin/deal-hunter/signals",
+      cityFilter,
+      industryFilter,
+      tierFilter,
+      typeFilter,
+      statusFilter,
+    ],
     queryFn: () => {
       const params = new URLSearchParams();
+
       if (cityFilter) params.set("city", cityFilter);
       if (industryFilter) params.set("industry", industryFilter);
       if (tierFilter) params.set("probabilityTier", tierFilter);
       if (typeFilter) params.set("signalType", typeFilter);
       if (statusFilter) params.set("status", statusFilter);
-      return fetch(`/api/admin/deal-hunter/signals?${params}`).then(r => r.json());
+
+      const suffix = params.toString() ? `?${params.toString()}` : "";
+      return fetchJson<DealHunterSignal[]>(`/api/admin/deal-hunter/signals${suffix}`);
     },
-    enabled: authed,
+    enabled: isAuthed,
+    refetchOnWindowFocus: false,
   });
 
+  const stats = statsQuery.data;
+  const signals = signalsQuery.data ?? [];
+
+  const refreshAll = async () => {
+    await qc.invalidateQueries({ queryKey: ["/api/admin/deal-hunter/signals"] });
+    await qc.invalidateQueries({ queryKey: ["/api/admin/deal-hunter/stats"] });
+    await signalsQuery.refetch();
+    await statsQuery.refetch();
+  };
+
   const runScanMutation = useMutation({
-    mutationFn: (count: number) => apiRequest("POST", "/api/admin/deal-hunter/run", { count }),
-    onSuccess: (data: any) => {
-      qc.invalidateQueries({ queryKey: ["/api/admin/deal-hunter/signals"] });
-      qc.invalidateQueries({ queryKey: ["/api/admin/deal-hunter/stats"] });
-      toast({ title: `Deal Hunter complete — ${data.created} signals discovered, ${data.deduplicated} deduplicated` });
+    mutationFn: async (count: number) =>
+      fetchJson<RunResult>("/api/admin/deal-hunter/run", {
+        method: "POST",
+        body: JSON.stringify({ count }),
+      }),
+    onSuccess: async (data) => {
+      await refreshAll();
+
+      toast({
+        title: "Deal Hunter complete",
+        description:
+          data.error ||
+          `${data.created ?? 0} signals discovered, ${data.deduplicated ?? 0} deduplicated`,
+      });
     },
-    onError: (e: any) => toast({ title: "Scan failed", description: e.message, variant: "destructive" }),
+    onError: (error: any) => {
+      toast({
+        title: "Scan failed",
+        description: error?.message || "Could not run Deal Hunter.",
+        variant: "destructive",
+      });
+    },
   });
 
   const pushPipelineMutation = useMutation({
-    mutationFn: (id: string) => apiRequest("POST", `/api/admin/deal-hunter/signals/${id}/push-to-pipeline`),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["/api/admin/deal-hunter/signals"] });
-      qc.invalidateQueries({ queryKey: ["/api/admin/deal-hunter/stats"] });
-      setSelectedSignal(null);
+    mutationFn: async (id: string) =>
+      fetchJson(`/api/admin/deal-hunter/signals/${id}/push-to-pipeline`, {
+        method: "POST",
+      }),
+    onMutate: (id) => setActiveActionId(id),
+    onSuccess: async () => {
+      setSelectedSignalId(null);
+      await refreshAll();
       toast({ title: "Pushed to pipeline" });
     },
-    onError: (e: any) => toast({ title: "Push failed", description: e.message, variant: "destructive" }),
+    onError: (error: any) => {
+      toast({
+        title: "Push failed",
+        description: error?.message || "Could not push to pipeline.",
+        variant: "destructive",
+      });
+    },
+    onSettled: () => setActiveActionId(null),
   });
 
   const pushRadarMutation = useMutation({
-    mutationFn: (id: string) => apiRequest("POST", `/api/admin/deal-hunter/signals/${id}/push-to-radar`),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["/api/admin/deal-hunter/signals"] });
-      setSelectedSignal(null);
+    mutationFn: async (id: string) =>
+      fetchJson(`/api/admin/deal-hunter/signals/${id}/push-to-radar`, {
+        method: "POST",
+      }),
+    onMutate: (id) => setActiveActionId(id),
+    onSuccess: async () => {
+      setSelectedSignalId(null);
+      await refreshAll();
       toast({ title: "Pushed to Office Move Radar" });
     },
-    onError: (e: any) => toast({ title: "Failed", description: e.message, variant: "destructive" }),
+    onError: (error: any) => {
+      toast({
+        title: "Push failed",
+        description: error?.message || "Could not push to radar.",
+        variant: "destructive",
+      });
+    },
+    onSettled: () => setActiveActionId(null),
   });
 
   const reviewMutation = useMutation({
-    mutationFn: (id: string) => apiRequest("POST", `/api/admin/deal-hunter/signals/${id}/review`),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["/api/admin/deal-hunter/signals"] });
+    mutationFn: async (id: string) =>
+      fetchJson(`/api/admin/deal-hunter/signals/${id}/review`, {
+        method: "POST",
+      }),
+    onMutate: (id) => setActiveActionId(id),
+    onSuccess: async () => {
+      await refreshAll();
       toast({ title: "Marked as reviewed" });
     },
+    onError: (error: any) => {
+      toast({
+        title: "Review failed",
+        description: error?.message || "Could not mark as reviewed.",
+        variant: "destructive",
+      });
+    },
+    onSettled: () => setActiveActionId(null),
   });
 
   const dismissMutation = useMutation({
-    mutationFn: (id: string) => apiRequest("POST", `/api/admin/deal-hunter/signals/${id}/dismiss`),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["/api/admin/deal-hunter/signals"] });
-      qc.invalidateQueries({ queryKey: ["/api/admin/deal-hunter/stats"] });
-      setSelectedSignal(null);
+    mutationFn: async (id: string) =>
+      fetchJson(`/api/admin/deal-hunter/signals/${id}/dismiss`, {
+        method: "POST",
+      }),
+    onMutate: (id) => setActiveActionId(id),
+    onSuccess: async () => {
+      setSelectedSignalId(null);
+      await refreshAll();
       toast({ title: "Signal dismissed" });
     },
+    onError: (error: any) => {
+      toast({
+        title: "Dismiss failed",
+        description: error?.message || "Could not dismiss signal.",
+        variant: "destructive",
+      });
+    },
+    onSettled: () => setActiveActionId(null),
   });
 
   const dupeMutation = useMutation({
-    mutationFn: (id: string) => apiRequest("PATCH", `/api/admin/deal-hunter/signals/${id}/mark-duplicate`),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["/api/admin/deal-hunter/signals"] });
-      setSelectedSignal(null);
+    mutationFn: async (id: string) =>
+      fetchJson(`/api/admin/deal-hunter/signals/${id}/mark-duplicate`, {
+        method: "PATCH",
+      }),
+    onMutate: (id) => setActiveActionId(id),
+    onSuccess: async () => {
+      setSelectedSignalId(null);
+      await refreshAll();
       toast({ title: "Marked as duplicate" });
     },
+    onError: (error: any) => {
+      toast({
+        title: "Duplicate mark failed",
+        description: error?.message || "Could not mark duplicate.",
+        variant: "destructive",
+      });
+    },
+    onSettled: () => setActiveActionId(null),
   });
 
-  // Sort and filter signals
-  const filtered = signals
-    .filter(s => !search || s.companyName.toLowerCase().includes(search.toLowerCase()) || s.city.toLowerCase().includes(search.toLowerCase()) || s.industry.toLowerCase().includes(search.toLowerCase()))
-    .sort((a, b) => {
-      if (sortBy === "score") return b.signalStrengthScore - a.signalStrengthScore;
-      if (sortBy === "value") return (b.estimatedProjectValue ?? 0) - (a.estimatedProjectValue ?? 0);
-      if (sortBy === "confidence") return b.signalConfidence - a.signalConfidence;
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+
+    return [...signals]
+      .filter((signal) => {
+        if (!q) return true;
+
+        return (
+          signal.companyName.toLowerCase().includes(q) ||
+          signal.city.toLowerCase().includes(q) ||
+          signal.industry.toLowerCase().includes(q) ||
+          String(signal.signalSource ?? "").toLowerCase().includes(q) ||
+          String(signal.rawPayloadSummary ?? "").toLowerCase().includes(q)
+        );
+      })
+      .sort((a, b) => {
+        if (sortBy === "score") return b.signalStrengthScore - a.signalStrengthScore;
+        if (sortBy === "value") return (b.estimatedProjectValue ?? 0) - (a.estimatedProjectValue ?? 0);
+        if (sortBy === "confidence") return b.signalConfidence - a.signalConfidence;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+  }, [signals, search, sortBy]);
+
+  const selectedSignal =
+    filtered.find((signal) => signal.id === selectedSignalId) ??
+    signals.find((signal) => signal.id === selectedSignalId) ??
+    null;
 
   const kpiTiles = [
-    { label: "Total Signals", value: stats?.total ?? 0, icon: Target, color: "text-blue-400", sub: `${stats?.newCount ?? 0} unreviewed` },
-    { label: "High Probability", value: stats?.highCount ?? 0, icon: TrendingUp, color: "text-green-400", sub: "Priority opportunities" },
-    { label: "Medium Probability", value: stats?.mediumCount ?? 0, icon: Zap, color: "text-yellow-400", sub: "Nurture pipeline" },
-    { label: "Pushed to Pipeline", value: stats?.pushedCount ?? 0, icon: CheckCircle2, color: "text-violet-400", sub: `${stats?.dismissedCount ?? 0} dismissed` },
-    { label: "Total Pipeline Value", value: fmtValue(stats?.totalPipelineValue ?? null), icon: DollarSign, color: "text-[hsl(43,78%,52%)]", sub: "From discovered signals", raw: true },
+    {
+      label: "Total Signals",
+      value: stats?.total ?? 0,
+      icon: Target,
+      color: "text-blue-400",
+      sub: `${stats?.newCount ?? 0} unreviewed`,
+    },
+    {
+      label: "High Probability",
+      value: stats?.highCount ?? 0,
+      icon: TrendingUp,
+      color: "text-green-400",
+      sub: "Priority opportunities",
+    },
+    {
+      label: "Medium Probability",
+      value: stats?.mediumCount ?? 0,
+      icon: Zap,
+      color: "text-yellow-400",
+      sub: "Nurture pipeline",
+    },
+    {
+      label: "Pushed to Pipeline",
+      value: stats?.pushedCount ?? 0,
+      icon: CheckCircle2,
+      color: "text-violet-400",
+      sub: `${stats?.dismissedCount ?? 0} dismissed`,
+    },
+    {
+      label: "Total Pipeline Value",
+      value: fmtValue(stats?.totalPipelineValue ?? null),
+      icon: DollarSign,
+      color: "text-[hsl(43,78%,52%)]",
+      sub: "From discovered signals",
+    },
   ];
 
-  const allCities = [...new Set(signals.map(s => s.city))].sort();
-  const allIndustries = [...new Set(signals.map(s => s.industry))].sort();
-  const allTypes = [...new Set(signals.map(s => s.signalType))].sort();
+  const allCities = useMemo(() => [...new Set(signals.map((s) => s.city))].sort(), [signals]);
+  const allIndustries = useMemo(() => [...new Set(signals.map((s) => s.industry))].sort(), [signals]);
+  const allTypes = useMemo(() => [...new Set(signals.map((s) => s.signalType))].sort(), [signals]);
+
+  const isBusy =
+    runScanMutation.isPending ||
+    pushPipelineMutation.isPending ||
+    pushRadarMutation.isPending ||
+    reviewMutation.isPending ||
+    dismissMutation.isPending ||
+    dupeMutation.isPending;
+
+  if (authQuery.isLoading) {
+    return (
+      <div className="min-h-screen bg-[hsl(220,20%,6%)] text-white flex items-center justify-center">
+        <div className="flex items-center gap-3 text-zinc-400">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          Checking admin access...
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthed) {
+    return (
+      <div className="min-h-screen bg-[hsl(220,20%,6%)] text-white flex items-center justify-center px-6">
+        <div className="max-w-md w-full bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6 text-center">
+          <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-5 h-5 text-[hsl(43,78%,52%)]" />
+          </div>
+          <h1 className="text-xl font-semibold mb-2">Admin authentication required</h1>
+          <p className="text-zinc-400 text-sm mb-5">
+            You are not currently authenticated for this admin area, so the Deal Hunter API is returning 401.
+          </p>
+          <Link href="/admin/dashboard">
+            <button className="inline-flex items-center gap-2 bg-[hsl(43,78%,52%)] text-black px-4 py-2 rounded-xl font-semibold">
+              <LayoutDashboard className="w-4 h-4" />
+              Go to Admin Dashboard
+            </button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[hsl(220,20%,6%)] text-white">
-      {/* Header */}
       <div className="border-b border-[rgba(255,255,255,0.06)] px-6 py-4">
-        <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Link href="/admin/dashboard"><div className="flex items-center gap-2 text-zinc-500 hover:text-white text-sm cursor-pointer"><LayoutDashboard className="w-4 h-4" /> Dashboard</div></Link>
+        <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3 min-w-0">
+            <Link href="/admin/dashboard">
+              <div className="flex items-center gap-2 text-zinc-500 hover:text-white text-sm cursor-pointer">
+                <LayoutDashboard className="w-4 h-4" />
+                Dashboard
+              </div>
+            </Link>
+
             <ChevronRight className="w-3 h-3 text-zinc-700" />
-            <div className="flex items-center gap-2">
+
+            <div className="flex items-center gap-2 min-w-0">
               <Crosshair className="w-4 h-4 text-[hsl(43,78%,52%)]" />
               <span className="text-white font-semibold text-sm">AI Deal Hunter</span>
             </div>
           </div>
+
           <div className="flex items-center gap-2">
-            <button onClick={() => { qc.invalidateQueries({ queryKey: ["/api/admin/deal-hunter/signals"] }); qc.invalidateQueries({ queryKey: ["/api/admin/deal-hunter/stats"] }); }}
-              className="p-2 bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-400 hover:text-white transition-colors" data-testid="button-refresh">
-              <RefreshCw className="w-4 h-4" />
+            <button
+              onClick={refreshAll}
+              disabled={statsQuery.isFetching || signalsQuery.isFetching}
+              className="p-2 bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-400 hover:text-white transition-colors disabled:opacity-50"
+              data-testid="button-refresh"
+            >
+              <RefreshCw
+                className={`w-4 h-4 ${
+                  statsQuery.isFetching || signalsQuery.isFetching ? "animate-spin" : ""
+                }`}
+              />
             </button>
-            <button onClick={() => runScanMutation.mutate(10)} disabled={runScanMutation.isPending}
+
+            <button
+              onClick={() => runScanMutation.mutate(10)}
+              disabled={runScanMutation.isPending}
               className="flex items-center gap-2 bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] disabled:opacity-50 text-black px-4 py-2 rounded-xl text-sm font-semibold transition-colors"
-              data-testid="button-run-deal-hunter">
-              {runScanMutation.isPending ? <><Loader2 className="w-4 h-4 animate-spin" /> Hunting...</> : <><Crosshair className="w-4 h-4" /> Run Deal Hunter</>}
+              data-testid="button-run-deal-hunter"
+            >
+              {runScanMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Hunting...
+                </>
+              ) : (
+                <>
+                  <Crosshair className="w-4 h-4" />
+                  Run Deal Hunter
+                </>
+              )}
             </button>
           </div>
         </div>
       </div>
 
       <div className="max-w-[1400px] mx-auto px-6 py-8">
-        {/* KPI tiles */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-          {kpiTiles.map(tile => (
-            <div key={tile.label} className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-4" data-testid={`kpi-${tile.label.toLowerCase().replace(/\s+/g, "-")}`}>
+          {kpiTiles.map((tile) => (
+            <div
+              key={tile.label}
+              className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-4"
+            >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-zinc-500 text-xs font-medium">{tile.label}</span>
                 <tile.icon className={`w-4 h-4 ${tile.color}`} />
               </div>
-              <p className={`text-2xl font-bold ${tile.color}`}>{tile.raw ? tile.value : tile.value}</p>
+              <p className={`text-2xl font-bold ${tile.color}`}>{tile.value}</p>
               <p className="text-zinc-600 text-xs mt-1">{tile.sub}</p>
             </div>
           ))}
         </div>
 
-        {/* Filters + Search + Sort */}
         <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-4 mb-6">
           <div className="flex flex-wrap gap-3 items-center">
-            <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 flex-1 min-w-[200px]">
+            <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 flex-1 min-w-[220px]">
               <Search className="w-4 h-4 text-zinc-500" />
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search company, city, industry…"
-                className="bg-transparent text-white text-sm outline-none flex-1 placeholder:text-zinc-600" data-testid="input-search" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search company, city, industry, source..."
+                className="bg-transparent text-white text-sm outline-none flex-1 placeholder:text-zinc-600"
+              />
             </div>
 
-            <select value={cityFilter} onChange={e => setCityFilter(e.target.value)}
-              className="bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white outline-none" data-testid="select-city">
+            <select
+              value={cityFilter}
+              onChange={(e) => setCityFilter(e.target.value)}
+              className="bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white outline-none"
+            >
               <option value="">All Cities</option>
-              {allCities.map(c => <option key={c} value={c}>{c}</option>)}
+              {allCities.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
             </select>
 
-            <select value={industryFilter} onChange={e => setIndustryFilter(e.target.value)}
-              className="bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white outline-none" data-testid="select-industry">
+            <select
+              value={industryFilter}
+              onChange={(e) => setIndustryFilter(e.target.value)}
+              className="bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white outline-none"
+            >
               <option value="">All Industries</option>
-              {allIndustries.map(i => <option key={i} value={i}>{i}</option>)}
+              {allIndustries.map((industry) => (
+                <option key={industry} value={industry}>
+                  {industry}
+                </option>
+              ))}
             </select>
 
-            <select value={tierFilter} onChange={e => setTierFilter(e.target.value)}
-              className="bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white outline-none" data-testid="select-tier">
+            <select
+              value={tierFilter}
+              onChange={(e) => setTierFilter(e.target.value)}
+              className="bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white outline-none"
+            >
               <option value="">All Tiers</option>
               <option value="high">High Probability</option>
               <option value="medium">Medium Probability</option>
               <option value="low">Low Probability</option>
             </select>
 
-            <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
-              className="bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white outline-none" data-testid="select-type">
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white outline-none"
+            >
               <option value="">All Signal Types</option>
-              {allTypes.map(t => <option key={t} value={t}>{signalTypeLabel(t)}</option>)}
+              {allTypes.map((type) => (
+                <option key={type} value={type}>
+                  {signalTypeLabel(type)}
+                </option>
+              ))}
             </select>
 
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-              className="bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white outline-none" data-testid="select-status">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white outline-none"
+            >
               <option value="">All Status</option>
               <option value="new">New</option>
               <option value="reviewed">Reviewed</option>
@@ -280,238 +641,491 @@ export default function AdminDealHunter() {
             </select>
 
             <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 rounded-xl p-1">
-              {(["score", "value", "recency", "confidence"] as const).map(s => (
-                <button key={s} onClick={() => setSortBy(s)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${sortBy === s ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-white"}`}>
-                  {s === "score" ? "Score" : s === "value" ? "Value" : s === "recency" ? "Recent" : "Confidence"}
+              {(["score", "value", "recency", "confidence"] as const).map((option) => (
+                <button
+                  key={option}
+                  onClick={() => setSortBy(option)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    sortBy === option ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-white"
+                  }`}
+                >
+                  {option === "score"
+                    ? "Score"
+                    : option === "value"
+                    ? "Value"
+                    : option === "recency"
+                    ? "Recent"
+                    : "Confidence"}
                 </button>
               ))}
             </div>
 
             {(cityFilter || industryFilter || tierFilter || typeFilter || statusFilter || search) && (
-              <button onClick={() => { setCityFilter(""); setIndustryFilter(""); setTierFilter(""); setTypeFilter(""); setStatusFilter(""); setSearch(""); }}
-                className="flex items-center gap-1 text-zinc-500 hover:text-white text-xs">
-                <X className="w-3 h-3" /> Clear
+              <button
+                onClick={() => {
+                  setCityFilter("");
+                  setIndustryFilter("");
+                  setTierFilter("");
+                  setTypeFilter("");
+                  setStatusFilter("");
+                  setSearch("");
+                }}
+                className="flex items-center gap-1 text-zinc-500 hover:text-white text-xs"
+              >
+                <X className="w-3 h-3" />
+                Clear
               </button>
             )}
           </div>
-          <p className="text-zinc-600 text-xs mt-3">{filtered.length} signal{filtered.length !== 1 ? "s" : ""} shown</p>
+
+          <p className="text-zinc-600 text-xs mt-3">
+            {filtered.length} signal{filtered.length !== 1 ? "s" : ""} shown
+          </p>
         </div>
 
-        {/* Signal Feed */}
-        {signalsLoading ? (
-          <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-zinc-500" /></div>
+        {signalsQuery.isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-6 h-6 animate-spin text-zinc-500" />
+          </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-20">
             <Crosshair className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
             <p className="text-zinc-500 text-lg font-medium">No signals found</p>
-            <p className="text-zinc-700 text-sm mt-1">Run the Deal Hunter to discover opportunities</p>
-            <button onClick={() => runScanMutation.mutate(10)} disabled={runScanMutation.isPending}
-              className="mt-6 flex items-center gap-2 bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-black px-6 py-3 rounded-xl text-sm font-semibold mx-auto">
-              <Crosshair className="w-4 h-4" /> Run Deal Hunter
+            <p className="text-zinc-700 text-sm mt-1">
+              Run the Deal Hunter to discover opportunities
+            </p>
+            <button
+              onClick={() => runScanMutation.mutate(10)}
+              disabled={runScanMutation.isPending}
+              className="mt-6 flex items-center gap-2 bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-black px-6 py-3 rounded-xl text-sm font-semibold mx-auto"
+            >
+              <Crosshair className="w-4 h-4" />
+              Run Deal Hunter
             </button>
           </div>
         ) : (
-          <div className="space-y-3" data-testid="signal-feed">
-            {filtered.map(signal => (
-              <div key={signal.id}
-                className={`bg-[hsl(220,18%,10%)] border rounded-2xl p-5 cursor-pointer hover:border-[rgba(201,168,76,0.25)] transition-all ${selectedSignal?.id === signal.id ? "border-[rgba(201,168,76,0.4)]" : "border-[rgba(255,255,255,0.06)]"}`}
-                onClick={() => setSelectedSignal(selectedSignal?.id === signal.id ? null : signal)}
-                data-testid={`signal-row-${signal.id}`}>
-                <div className="flex items-start gap-4">
-                  {/* Score ring */}
-                  <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 flex flex-col items-center justify-center">
-                    <span className="text-xl font-bold text-white leading-none">{signal.signalStrengthScore}</span>
-                    <span className="text-zinc-600 text-[10px]">score</span>
-                  </div>
+          <div className="space-y-3">
+            {filtered.map((signal) => {
+              const parsedRoles = parseRecommendedRoles(signal.recommendedContactRolesJson);
+              const isExpanded = selectedSignal?.id === signal.id;
+              const isRowBusy = activeActionId === signal.id;
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <span className="text-white font-bold text-base">{signal.companyName}</span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${tierColor(signal.probabilityTier)}`}>
-                        <span className={`inline-block w-1.5 h-1.5 rounded-full mr-1 ${tierDot(signal.probabilityTier)}`} />
-                        {signal.probabilityTier} probability
+              return (
+                <div
+                  key={signal.id}
+                  className={`bg-[hsl(220,18%,10%)] border rounded-2xl p-5 cursor-pointer hover:border-[rgba(201,168,76,0.25)] transition-all ${
+                    isExpanded
+                      ? "border-[rgba(201,168,76,0.4)]"
+                      : "border-[rgba(255,255,255,0.06)]"
+                  }`}
+                  onClick={() => setSelectedSignalId(isExpanded ? null : signal.id)}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 flex flex-col items-center justify-center">
+                      <span className="text-xl font-bold text-white leading-none">
+                        {signal.signalStrengthScore}
                       </span>
-                      {signal.pushedToPipeline && <span className="text-xs px-2 py-0.5 bg-violet-500/10 border border-violet-500/20 text-violet-400 rounded-full">In Pipeline</span>}
-                      {signal.pushedToRadar && <span className="text-xs px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-full">In Radar</span>}
-                      {signal.isReviewed && !signal.pushedToPipeline && <span className="text-xs px-2 py-0.5 bg-zinc-500/10 border border-zinc-500/20 text-zinc-400 rounded-full">Reviewed</span>}
-                      {signal.status === "dismissed" && <span className="text-xs px-2 py-0.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-full">Dismissed</span>}
+                      <span className="text-zinc-600 text-[10px]">score</span>
                     </div>
 
-                    <div className="flex items-center gap-4 text-zinc-500 text-xs mb-2 flex-wrap">
-                      <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{signal.city}{signal.state ? `, ${signal.state}` : ""}</span>
-                      <span className="flex items-center gap-1"><Building2 className="w-3 h-3" />{signal.industry}</span>
-                      {signal.employeeEstimate && <span className="flex items-center gap-1"><Users className="w-3 h-3" />{signal.employeeEstimate.toLocaleString()} staff</span>}
-                      {signal.estimatedProjectValue && <span className="flex items-center gap-1"><DollarSign className="w-3 h-3" />{fmtValue(signal.estimatedProjectValue)}</span>}
-                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{signal.estimatedTimeline ?? "—"}</span>
-                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <span className="text-white font-bold text-base">{signal.companyName}</span>
 
-                    <div className="flex items-center gap-2 flex-wrap mb-2">
-                      <span className="text-xs px-2 py-0.5 bg-zinc-800 text-zinc-400 rounded-lg">{signalTypeLabel(signal.signalType)}</span>
-                      <span className="text-xs text-zinc-600">via {signal.signalSource}</span>
-                    </div>
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-full border font-medium ${tierColor(
+                            signal.probabilityTier
+                          )}`}
+                        >
+                          <span
+                            className={`inline-block w-1.5 h-1.5 rounded-full mr-1 ${tierDot(
+                              signal.probabilityTier
+                            )}`}
+                          />
+                          {signal.probabilityTier} probability
+                        </span>
 
-                    {signal.rawPayloadSummary && (
-                      <p className="text-zinc-400 text-xs line-clamp-2">{signal.rawPayloadSummary}</p>
-                    )}
-                  </div>
+                        {signal.pushedToPipeline && (
+                          <span className="text-xs px-2 py-0.5 bg-violet-500/10 border border-violet-500/20 text-violet-400 rounded-full">
+                            In Pipeline
+                          </span>
+                        )}
 
-                  {/* Quick actions */}
-                  <div className="flex-shrink-0 flex flex-col gap-2 items-end">
-                    {!signal.pushedToPipeline && signal.status !== "dismissed" && (
-                      <button onClick={e => { e.stopPropagation(); pushPipelineMutation.mutate(signal.id); }}
-                        disabled={pushPipelineMutation.isPending}
-                        className="text-xs px-3 py-1.5 bg-violet-700 hover:bg-violet-600 disabled:opacity-50 text-white rounded-lg font-medium"
-                        data-testid={`button-push-pipeline-${signal.id}`}>
-                        → Pipeline
-                      </button>
-                    )}
-                    {!signal.pushedToRadar && signal.status !== "dismissed" && (
-                      <button onClick={e => { e.stopPropagation(); pushRadarMutation.mutate(signal.id); }}
-                        disabled={pushRadarMutation.isPending}
-                        className="text-xs px-3 py-1.5 bg-blue-700 hover:bg-blue-600 disabled:opacity-50 text-white rounded-lg font-medium">
-                        → Radar
-                      </button>
-                    )}
-                    {!signal.isReviewed && (
-                      <button onClick={e => { e.stopPropagation(); reviewMutation.mutate(signal.id); }}
-                        className="text-xs px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg">
-                        Mark Reviewed
-                      </button>
-                    )}
-                  </div>
-                </div>
+                        {signal.pushedToRadar && (
+                          <span className="text-xs px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-full">
+                            In Radar
+                          </span>
+                        )}
 
-                {/* Expanded detail */}
-                {selectedSignal?.id === signal.id && (
-                  <div className="mt-5 pt-5 border-t border-[rgba(255,255,255,0.06)] grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div>
-                        <p className="text-zinc-500 text-xs uppercase tracking-wider mb-2 font-medium">Signal Intelligence</p>
-                        <div className="space-y-1.5">
-                          {signal.reasoningSummary?.split(" | ").map((r, i) => (
-                            <div key={i} className="flex items-start gap-2 text-xs">
-                              <span className="text-green-400 mt-0.5">+</span>
-                              <span className="text-zinc-300">{r}</span>
-                            </div>
-                          ))}
-                        </div>
+                        {signal.isReviewed && !signal.pushedToPipeline && signal.status !== "dismissed" && (
+                          <span className="text-xs px-2 py-0.5 bg-zinc-500/10 border border-zinc-500/20 text-zinc-400 rounded-full">
+                            Reviewed
+                          </span>
+                        )}
+
+                        {signal.status === "dismissed" && (
+                          <span className="text-xs px-2 py-0.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-full">
+                            Dismissed
+                          </span>
+                        )}
+
+                        {signal.isDuplicate && (
+                          <span className="text-xs px-2 py-0.5 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-full">
+                            Duplicate
+                          </span>
+                        )}
                       </div>
 
-                      <div>
-                        <p className="text-zinc-500 text-xs uppercase tracking-wider mb-2 font-medium">Opportunity Summary</p>
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                          {[
-                            { label: "Project Type", value: signal.projectType?.replace(/_/g, " ") ?? "—" },
-                            { label: "Office Size", value: signal.estimatedWorkspaceSqm ? `${signal.estimatedWorkspaceSqm} sqm` : "—" },
-                            { label: "Timeline", value: signal.estimatedTimeline ?? "—" },
-                            { label: "Est. Value", value: fmtValue(signal.estimatedProjectValue) },
-                            { label: "Relocation Prob.", value: signal.relocationProbability ? `${signal.relocationProbability}%` : "—" },
-                            { label: "Change Prob.", value: signal.officeChangeProbability ? `${signal.officeChangeProbability}%` : "—" },
-                            { label: "Confidence", value: `${signal.signalConfidence}%` },
-                            { label: "Growth Rate", value: signal.growthRateEstimate ? `+${signal.growthRateEstimate}%` : "—" },
-                          ].map(item => (
-                            <div key={item.label} className="bg-zinc-900 rounded-xl p-2.5">
-                              <p className="text-zinc-600 text-[10px] mb-0.5">{item.label}</p>
-                              <p className="text-white font-medium">{item.value}</p>
-                            </div>
-                          ))}
-                        </div>
+                      <div className="flex items-center gap-4 text-zinc-500 text-xs mb-2 flex-wrap">
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {signal.city}
+                          {signal.state ? `, ${signal.state}` : ""}
+                        </span>
+
+                        <span className="flex items-center gap-1">
+                          <Building2 className="w-3 h-3" />
+                          {signal.industry}
+                        </span>
+
+                        {signal.employeeEstimate ? (
+                          <span className="flex items-center gap-1">
+                            <Users className="w-3 h-3" />
+                            {signal.employeeEstimate.toLocaleString()} staff
+                          </span>
+                        ) : null}
+
+                        {signal.estimatedProjectValue ? (
+                          <span className="flex items-center gap-1">
+                            <DollarSign className="w-3 h-3" />
+                            {fmtValue(signal.estimatedProjectValue)}
+                          </span>
+                        ) : null}
+
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {signal.estimatedTimeline ?? "—"}
+                        </span>
                       </div>
 
-                      {signal.recommendedContactRolesJson && (() => {
-                        try {
-                          const roles: string[] = JSON.parse(signal.recommendedContactRolesJson);
-                          return (
-                            <div>
-                              <p className="text-zinc-500 text-xs uppercase tracking-wider mb-2 font-medium">Recommended Contact Roles</p>
-                              <div className="flex flex-wrap gap-2">
-                                {roles.map(r => (
-                                  <span key={r} className="text-xs px-2.5 py-1 bg-zinc-900 border border-zinc-800 text-zinc-300 rounded-lg">{r}</span>
-                                ))}
+                      <div className="flex items-center gap-2 flex-wrap mb-2">
+                        <span className="text-xs px-2 py-0.5 bg-zinc-800 text-zinc-400 rounded-lg">
+                          {signalTypeLabel(signal.signalType)}
+                        </span>
+                        <span className="text-xs text-zinc-600">via {signal.signalSource}</span>
+                      </div>
+
+                      {signal.rawPayloadSummary && (
+                        <p className="text-zinc-400 text-xs line-clamp-2">
+                          {compactText(signal.rawPayloadSummary, 160)}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex-shrink-0 flex flex-col gap-2 items-end">
+                      {!signal.pushedToPipeline && signal.status !== "dismissed" && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            pushPipelineMutation.mutate(signal.id);
+                          }}
+                          disabled={isBusy}
+                          className="text-xs px-3 py-1.5 bg-violet-700 hover:bg-violet-600 disabled:opacity-50 text-white rounded-lg font-medium min-w-[100px]"
+                        >
+                          {isRowBusy && pushPipelineMutation.isPending ? "Working..." : "→ Pipeline"}
+                        </button>
+                      )}
+
+                      {!signal.pushedToRadar && signal.status !== "dismissed" && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            pushRadarMutation.mutate(signal.id);
+                          }}
+                          disabled={isBusy}
+                          className="text-xs px-3 py-1.5 bg-blue-700 hover:bg-blue-600 disabled:opacity-50 text-white rounded-lg font-medium min-w-[100px]"
+                        >
+                          {isRowBusy && pushRadarMutation.isPending ? "Working..." : "→ Radar"}
+                        </button>
+                      )}
+
+                      {!signal.isReviewed && signal.status !== "dismissed" && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            reviewMutation.mutate(signal.id);
+                          }}
+                          disabled={isBusy}
+                          className="text-xs px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-zinc-300 rounded-lg min-w-[100px]"
+                        >
+                          {isRowBusy && reviewMutation.isPending ? "Working..." : "Mark Reviewed"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {isExpanded && (
+                    <div className="mt-5 pt-5 border-t border-[rgba(255,255,255,0.06)] grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div>
+                          <p className="text-zinc-500 text-xs uppercase tracking-wider mb-2 font-medium">
+                            Signal Intelligence
+                          </p>
+
+                          <div className="space-y-1.5">
+                            {(signal.reasoningSummary?.split(" | ") ?? []).filter(Boolean).map((reason, i) => (
+                              <div key={i} className="flex items-start gap-2 text-xs">
+                                <span className="text-green-400 mt-0.5">+</span>
+                                <span className="text-zinc-300">{reason}</span>
                               </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className="text-zinc-500 text-xs uppercase tracking-wider mb-2 font-medium">
+                            Opportunity Summary
+                          </p>
+
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            {[
+                              {
+                                label: "Project Type",
+                                value: signal.projectType?.replace(/_/g, " ") ?? "—",
+                              },
+                              {
+                                label: "Office Size",
+                                value: signal.estimatedWorkspaceSqm
+                                  ? `${signal.estimatedWorkspaceSqm} sqm`
+                                  : "—",
+                              },
+                              {
+                                label: "Timeline",
+                                value: signal.estimatedTimeline ?? "—",
+                              },
+                              {
+                                label: "Est. Value",
+                                value: fmtValue(signal.estimatedProjectValue),
+                              },
+                              {
+                                label: "Relocation Prob.",
+                                value: signal.relocationProbability != null
+                                  ? `${signal.relocationProbability}%`
+                                  : "—",
+                              },
+                              {
+                                label: "Change Prob.",
+                                value: signal.officeChangeProbability != null
+                                  ? `${signal.officeChangeProbability}%`
+                                  : "—",
+                              },
+                              {
+                                label: "Confidence",
+                                value: `${signal.signalConfidence}%`,
+                              },
+                              {
+                                label: "Growth Rate",
+                                value: signal.growthRateEstimate != null
+                                  ? `+${signal.growthRateEstimate}%`
+                                  : "—",
+                              },
+                            ].map((item) => (
+                              <div key={item.label} className="bg-zinc-900 rounded-xl p-2.5">
+                                <p className="text-zinc-600 text-[10px] mb-0.5">{item.label}</p>
+                                <p className="text-white font-medium">{item.value}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {parsedRoles.length > 0 && (
+                          <div>
+                            <p className="text-zinc-500 text-xs uppercase tracking-wider mb-2 font-medium">
+                              Recommended Contact Roles
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {parsedRoles.map((role) => (
+                                <span
+                                  key={role}
+                                  className="text-xs px-2.5 py-1 bg-zinc-900 border border-zinc-800 text-zinc-300 rounded-lg"
+                                >
+                                  {role}
+                                </span>
+                              ))}
                             </div>
-                          );
-                        } catch { return null; }
-                      })()}
-                    </div>
-
-                    <div className="space-y-4">
-                      {signal.recommendedAction && (
-                        <div>
-                          <p className="text-zinc-500 text-xs uppercase tracking-wider mb-2 font-medium">Recommended Action</p>
-                          <div className="bg-zinc-900 rounded-xl p-3 border border-zinc-800">
-                            <p className="text-zinc-200 text-xs leading-relaxed">{signal.recommendedAction}</p>
                           </div>
-                        </div>
-                      )}
-
-                      {signal.recommendedOutreachAngle && (
-                        <div>
-                          <p className="text-zinc-500 text-xs uppercase tracking-wider mb-2 font-medium">Outreach Angle</p>
-                          <div className="bg-zinc-900 rounded-xl p-3 border border-zinc-800">
-                            <p className="text-zinc-200 text-xs leading-relaxed">{signal.recommendedOutreachAngle}</p>
-                          </div>
-                        </div>
-                      )}
-
-                      {signal.outreachDraft && (
-                        <div>
-                          <p className="text-zinc-500 text-xs uppercase tracking-wider mb-2 font-medium">Outreach Draft</p>
-                          <div className="bg-zinc-900 rounded-xl p-3 border border-zinc-800 max-h-40 overflow-y-auto">
-                            <pre className="text-zinc-300 text-xs leading-relaxed whitespace-pre-wrap font-sans">{signal.outreachDraft}</pre>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Action buttons */}
-                      <div className="space-y-2 pt-2">
-                        {!signal.pushedToPipeline && signal.status !== "dismissed" && (
-                          <button onClick={() => pushPipelineMutation.mutate(signal.id)} disabled={pushPipelineMutation.isPending}
-                            className="w-full flex items-center justify-center gap-2 bg-violet-700 hover:bg-violet-600 disabled:opacity-50 text-white rounded-xl py-2.5 text-sm font-medium"
-                            data-testid={`button-push-pipeline-detail-${signal.id}`}>
-                            {pushPipelineMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Target className="w-4 h-4" />}
-                            Push to Pipeline
-                          </button>
                         )}
-                        {!signal.pushedToRadar && signal.status !== "dismissed" && (
-                          <button onClick={() => pushRadarMutation.mutate(signal.id)} disabled={pushRadarMutation.isPending}
-                            className="w-full flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-600 disabled:opacity-50 text-white rounded-xl py-2.5 text-sm font-medium">
-                            <Radio className="w-4 h-4" /> Push to Office Move Radar
-                          </button>
+
+                        {signal.sourceUrl && (
+                          <div>
+                            <p className="text-zinc-500 text-xs uppercase tracking-wider mb-2 font-medium">
+                              Source URL
+                            </p>
+                            <a
+                              href={signal.sourceUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-xs text-blue-400 hover:text-blue-300 break-all"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {signal.sourceUrl}
+                            </a>
+                          </div>
                         )}
-                        <div className="grid grid-cols-3 gap-2">
-                          {signal.pushedToPipeline && (
-                            <Link href="/admin/leads">
-                              <button className="w-full flex items-center justify-center gap-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl py-2 text-xs font-medium">
-                                <Eye className="w-3.5 h-3.5" /> View Lead
-                              </button>
-                            </Link>
-                          )}
-                          {signal.pushedToRadar && (
-                            <Link href="/admin/office-move-radar">
-                              <button className="w-full flex items-center justify-center gap-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl py-2 text-xs font-medium">
-                                <Radio className="w-3.5 h-3.5" /> View Radar
-                              </button>
-                            </Link>
-                          )}
-                          {signal.status !== "dismissed" && (
-                            <button onClick={() => dismissMutation.mutate(signal.id)}
-                              className="flex items-center justify-center gap-1 bg-red-900/30 hover:bg-red-900/50 text-red-400 rounded-xl py-2 text-xs font-medium">
-                              <X className="w-3.5 h-3.5" /> Dismiss
+                      </div>
+
+                      <div className="space-y-4">
+                        {signal.recommendedAction && (
+                          <div>
+                            <p className="text-zinc-500 text-xs uppercase tracking-wider mb-2 font-medium">
+                              Recommended Action
+                            </p>
+                            <div className="bg-zinc-900 rounded-xl p-3 border border-zinc-800">
+                              <p className="text-zinc-200 text-xs leading-relaxed">
+                                {signal.recommendedAction}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {signal.recommendedOutreachAngle && (
+                          <div>
+                            <p className="text-zinc-500 text-xs uppercase tracking-wider mb-2 font-medium">
+                              Outreach Angle
+                            </p>
+                            <div className="bg-zinc-900 rounded-xl p-3 border border-zinc-800">
+                              <p className="text-zinc-200 text-xs leading-relaxed">
+                                {signal.recommendedOutreachAngle}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {signal.outreachDraft && (
+                          <div>
+                            <p className="text-zinc-500 text-xs uppercase tracking-wider mb-2 font-medium">
+                              Outreach Draft
+                            </p>
+                            <div className="bg-zinc-900 rounded-xl p-3 border border-zinc-800 max-h-40 overflow-y-auto">
+                              <pre className="text-zinc-300 text-xs leading-relaxed whitespace-pre-wrap font-sans">
+                                {signal.outreachDraft}
+                              </pre>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="space-y-2 pt-2">
+                          {!signal.pushedToPipeline && signal.status !== "dismissed" && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                pushPipelineMutation.mutate(signal.id);
+                              }}
+                              disabled={isBusy}
+                              className="w-full flex items-center justify-center gap-2 bg-violet-700 hover:bg-violet-600 disabled:opacity-50 text-white rounded-xl py-2.5 text-sm font-medium"
+                            >
+                              {isRowBusy && pushPipelineMutation.isPending ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Target className="w-4 h-4" />
+                              )}
+                              Push to Pipeline
                             </button>
                           )}
-                          <button onClick={() => dupeMutation.mutate(signal.id)}
-                            className="flex items-center justify-center gap-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 rounded-xl py-2 text-xs font-medium">
-                            <GitMerge className="w-3.5 h-3.5" /> Duplicate
-                          </button>
+
+                          {!signal.pushedToRadar && signal.status !== "dismissed" && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                pushRadarMutation.mutate(signal.id);
+                              }}
+                              disabled={isBusy}
+                              className="w-full flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-600 disabled:opacity-50 text-white rounded-xl py-2.5 text-sm font-medium"
+                            >
+                              {isRowBusy && pushRadarMutation.isPending ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Radio className="w-4 h-4" />
+                              )}
+                              Push to Office Move Radar
+                            </button>
+                          )}
+
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            {signal.pushedToPipeline && (
+                              <Link href="/admin/leads">
+                                <button
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="w-full flex items-center justify-center gap-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl py-2 text-xs font-medium"
+                                >
+                                  <Eye className="w-3.5 h-3.5" />
+                                  View Lead
+                                </button>
+                              </Link>
+                            )}
+
+                            {signal.pushedToRadar && (
+                              <Link href="/admin/office-move-radar">
+                                <button
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="w-full flex items-center justify-center gap-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl py-2 text-xs font-medium"
+                                >
+                                  <Radio className="w-3.5 h-3.5" />
+                                  View Radar
+                                </button>
+                              </Link>
+                            )}
+
+                            {signal.status !== "dismissed" && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  dismissMutation.mutate(signal.id);
+                                }}
+                                disabled={isBusy}
+                                className="flex items-center justify-center gap-1 bg-red-900/30 hover:bg-red-900/50 disabled:opacity-50 text-red-400 rounded-xl py-2 text-xs font-medium"
+                              >
+                                {isRowBusy && dismissMutation.isPending ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <X className="w-3.5 h-3.5" />
+                                )}
+                                Dismiss
+                              </button>
+                            )}
+
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                dupeMutation.mutate(signal.id);
+                              }}
+                              disabled={isBusy}
+                              className="flex items-center justify-center gap-1 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-zinc-400 rounded-xl py-2 text-xs font-medium"
+                            >
+                              {isRowBusy && dupeMutation.isPending ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <GitMerge className="w-3.5 h-3.5" />
+                              )}
+                              Duplicate
+                            </button>
+                          </div>
+
+                          {signal.signalConfidence < 60 && (
+                            <div className="flex items-start gap-2 text-xs text-yellow-300 bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3">
+                              <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                              <span>
+                                Lower-confidence signal. Verify the source before sales action.
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            ))}
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

@@ -18,8 +18,7 @@ import { storage } from "../storage";
 import { scoreRadarSignal } from "./officeMovRadarService";
 
 const openai = new OpenAI({
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 // ─── Geographic scope — all major Australian cities ──────────────────────────
@@ -68,11 +67,16 @@ function parseRSSFeed(xml: string, feedLabel: string): RSSItem[] {
   const itemMatches = xml.matchAll(/<item>([\s\S]*?)<\/item>/g);
   for (const match of itemMatches) {
     const content = match[1];
-    const title =
-      (content.match(/<title><!\[CDATA\[([\s\S]*?)\]\]>/) ||
-        content.match(/<title>([\s\S]*?)<\/title>/))?.[1]
-        ?.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
-        .replace(/&#\d+;/g, "").trim() ?? "";
+    const titleMatch = content.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+
+    const title = titleMatch?.[1]
+      ?.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+      ?.replace(/<[^>]+>/g, "")
+      ?.replace(/&amp;/g, "&")
+      ?.replace(/&lt;/g, "<")
+      ?.replace(/&gt;/g, ">")
+      ?.replace(/&#\d+;/g, "")
+      ?.trim() ?? "";
     const link =
       (content.match(/<link>([\s\S]*?)<\/link>/) ||
         content.match(/<guid[^>]*>([\s\S]*?)<\/guid>/))?.[1]?.trim() ?? "";
