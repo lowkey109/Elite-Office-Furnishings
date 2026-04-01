@@ -142,14 +142,31 @@ app.use((req, res, next) => {
 (async () => {
   await registerRoutes(httpServer, app);
 
+  // ── Single orchestration brain: NexoraOrchestrator ───────────────────────
+  // startNexoraBackground() is called at the top of this file (line 21).
+  // It is the SOLE entry point for all business intelligence, signal
+  // processing, outreach decisions, and pipeline actions.
+  //
+  // pg-boss is started as a durable job persistence layer, subordinate
+  // to Nexora. It does not run its own logic — it only re-triggers jobs
+  // that Nexora has already scheduled via runIntelligenceSubTasks().
+  //
+  // startIntelligenceScheduler() is called for backward compatibility
+  // (it is now a no-op — all independent timers have been removed from it).
+  //
+  // startFollowUpScheduler() runs follow-up email sequences. This is a
+  // narrow, bounded email task that is explicitly not an orchestration brain.
+  // It does not make business decisions; it only advances pre-created
+  // follow-up sequences in the DB.
+
   const { startIntelligenceScheduler, startSchedulerWithPgBoss } = await import("./services/intelligenceScheduler");
-  const pgBossStarted = await startSchedulerWithPgBoss().catch(() => false);
-  if (!pgBossStarted) {
-    console.log("[Index] pg-boss unavailable — using in-process scheduler fallback");
-    startIntelligenceScheduler();
-    const { startFollowUpScheduler } = await import("./services/followUpScheduler");
-    startFollowUpScheduler();
-  }
+  await startSchedulerWithPgBoss().catch((err) => {
+    console.log("[Index] pg-boss unavailable — Nexora will coordinate sub-tasks directly:", err?.message);
+  });
+  startIntelligenceScheduler(); // no-op; kept for compatibility
+
+  const { startFollowUpScheduler } = await import("./services/followUpScheduler");
+  startFollowUpScheduler(); // bounded email follow-up only — not an orchestration brain
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

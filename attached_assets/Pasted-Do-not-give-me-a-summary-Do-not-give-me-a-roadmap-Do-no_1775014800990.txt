@@ -1,0 +1,117 @@
+Do not give me a summary.
+Do not give me a roadmap.
+Do not stop at analysis.
+
+You must audit the CURRENT codebase and then immediately implement the missing autonomy conversion.
+
+MISSION:
+Convert the platform from “stable with partial automation” into a Nexora-controlled autonomous operating system with minimal human dependency.
+
+CRITICAL TRUTH:
+The previous pass stabilised and upgraded parts of the system, but it did NOT fully achieve the target state.
+
+The remaining contradictions must now be resolved.
+
+NON-NEGOTIABLE TARGET STATE:
+1. NexoraOrchestrator + runNexoraEngine is the single operating brain.
+2. Normal business operation must not depend on internal admin UI.
+3. Standard low-risk outreach must not require manual approval.
+4. Human approval may remain ONLY for explicitly high-risk actions and must be justified in code.
+5. Any scheduler, loop, background worker, or automation path that bypasses Nexora must be rewired or removed.
+6. Public/customer-facing UI may remain only as a thin interaction layer.
+7. Internal/admin UI must not be required for routine operation.
+8. Real-data-only live execution remains mandatory.
+9. No demo, synthetic, mock, placeholder, or fake production logic may remain in live execution.
+10. Do not break working lead capture, quote, upload, or revenue flows.
+
+YOUR JOB:
+Audit the real codebase against these exact requirements and then implement the missing fixes now.
+
+MANDATORY AUDIT TASKS:
+Find the exact current files and code paths where:
+- admin is still required for normal operation
+- outreach is still manually gated
+- duplicate orchestration exists
+- scheduler logic exists outside Nexora
+- loops/background jobs bypass Nexora
+- logic still depends on UI instead of automation
+- fake/demo/synthetic production paths still exist
+- high-risk vs low-risk action rules are missing or unclear
+- approval rules are too broad and blocking normal automation
+- external action flows are not fully auditable
+- learning/memory is not connected to outcomes
+
+MANDATORY CLASSIFICATION:
+For every file involved, classify it as one of:
+- KEEP
+- KEEP + UPGRADE
+- REWIRE INTO NEXORA
+- DISABLE
+- DELETE
+- REPLACE
+
+MANDATORY IMPLEMENTATION RULES:
+- Do not stop after audit.
+- After audit, immediately implement the fixes.
+- Output full final files for every file you modify.
+- Do not output snippets.
+- Do not output patches.
+- Do not leave “recommended next step” instead of doing the work.
+- Preserve valid working architecture where it already helps the mission.
+- Do not create a second brain.
+- Do not create a parallel automation system.
+- Upgrade the existing Nexora system.
+
+AUTONOMY CONVERSION RULES:
+1. Remove internal admin dependency for normal operations.
+   - If admin is still needed for day-to-day operation, change that.
+   - Admin/review surfaces may remain only as optional review/override layers, not operational dependencies.
+
+2. Rework outreach approvals.
+   - Standard low-risk outreach must be allowed to auto-send.
+   - High-risk outreach may remain gated, but only if explicitly justified with rules in code.
+   - Approval logic must be narrowed, not blanket-applied.
+   - Make the criteria visible and auditable.
+
+3. Enforce single-brain orchestration.
+   - Any background loop, scheduler, worker, scan trigger, or automation path must route through NexoraOrchestrator/runNexoraEngine or be clearly subordinate to it.
+   - Remove or rewire any competing orchestration logic.
+
+4. Preserve auditability and safety.
+   - Every autonomous action must still be logged.
+   - Every decision must still be traceable.
+   - Every external action must still be tied to a run/decision context.
+   - Approval gates may not disappear silently; they must be intentionally narrowed.
+
+5. Preserve real-data-only live execution.
+   - Remove or isolate any remaining fake/demo/synthetic live paths.
+
+6. Keep the public site thin.
+   - The public site may remain for inbound capture, uploads, chatbot interaction, trust, and conversion.
+   - Do not let public UI contain business decision logic.
+
+MANDATORY OUTPUT STRUCTURE:
+1. Exact files where admin is still required
+2. Exact files where outreach is still manually gated
+3. Exact files where duplicate orchestration exists
+4. Exact files where logic still bypasses Nexora
+5. Exact files where fake/demo/synthetic live logic still exists
+6. File-by-file classification
+7. Exact implementation performed
+8. Full final files for every changed file
+9. Exact statement of:
+   - what still requires human approval
+   - what no longer requires human approval
+   - whether admin is now optional or still required
+   - whether Nexora is now the sole orchestration brain
+
+CRITICAL FAILURE RULE:
+If you only report findings and do not implement them, you have failed.
+If you leave standard outreach manually gated without explicit risk-based justification, you have failed.
+If admin remains necessary for normal operation, you have failed.
+If duplicate orchestration remains, you have failed.
+
+BEGIN NOW.
+Audit first.
+Then implement immediately.
+Do not stop early.

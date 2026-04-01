@@ -185,20 +185,64 @@ async function runJob(
 // START SCHEDULER
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ─── SELF-SCHEDULING DISABLED ────────────────────────────────────────────────
+// startIntelligenceScheduler() previously ran its own setInterval timers for
+// deal_hunter and system_health, creating a parallel orchestration path that
+// bypassed NexoraOrchestrator. Those timers are removed.
+// Jobs are now triggered only by:
+//   1. NexoraOrchestrator (via runIntelligenceSubTasks) — primary path
+//   2. pg-boss (startSchedulerWithPgBoss) — durable backup
+//   3. Manual admin trigger (triggerJobManually) — explicit override
+// This function is kept as a no-op for backward compatibility only.
 let _started = false;
 
 export function startIntelligenceScheduler(): void {
   if (_started) return;
   _started = true;
+  console.log("[Scheduler] Intelligence scheduler subordinated to NexoraOrchestrator — no independent timers started");
+}
 
-  console.log("[Scheduler] STARTED");
+// ─── NEXORA SUB-TASK RUNNER ───────────────────────────────────────────────────
+// Called by NexoraOrchestrator as part of each engine run to execute
+// intelligence scanning jobs. This is the authorised path for job execution.
 
-  // staggered execution
-  setTimeout(() => runJob("system_health"), 30_000);
-  setTimeout(() => runJob("deal_hunter"), 60_000);
+const _lastRunAt: Partial<Record<JobType, number>> = {};
 
-  setInterval(() => runJob("system_health"), 12 * 60 * 60 * 1000);
-  setInterval(() => runJob("deal_hunter"), 24 * 60 * 60 * 1000);
+export async function runIntelligenceSubTasks(opts: {
+  dealHunterMinIntervalMs?: number;
+  systemHealthMinIntervalMs?: number;
+  radarMinIntervalMs?: number;
+} = {}): Promise<{ triggered: string[] }> {
+  const now = Date.now();
+  const triggered: string[] = [];
+
+  const dealHunterInterval = opts.dealHunterMinIntervalMs ?? 6 * 60 * 60 * 1000; // 6h
+  const systemHealthInterval = opts.systemHealthMinIntervalMs ?? 12 * 60 * 60 * 1000; // 12h
+  const radarInterval = opts.radarMinIntervalMs ?? 4 * 60 * 60 * 1000; // 4h
+
+  if (!_lastRunAt.deal_hunter || now - _lastRunAt.deal_hunter > dealHunterInterval) {
+    _lastRunAt.deal_hunter = now;
+    setImmediate(() => runJob("deal_hunter"));
+    triggered.push("deal_hunter");
+  }
+
+  if (!_lastRunAt.system_health || now - _lastRunAt.system_health > systemHealthInterval) {
+    _lastRunAt.system_health = now;
+    setImmediate(() => runJob("system_health"));
+    triggered.push("system_health");
+  }
+
+  if (!_lastRunAt.radar_scan || now - _lastRunAt.radar_scan > radarInterval) {
+    _lastRunAt.radar_scan = now;
+    setImmediate(() => runJob("radar_scan"));
+    triggered.push("radar_scan");
+  }
+
+  if (triggered.length > 0) {
+    console.log(`[Scheduler] NexoraOrchestrator triggered sub-tasks: ${triggered.join(", ")}`);
+  }
+
+  return { triggered };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

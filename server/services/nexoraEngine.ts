@@ -644,20 +644,26 @@ function generateSelfDiagnostic(decisions: any[], kbSize: number) {
   return { healthScore, report };
 }
 
-export function startNexoraBackground(intervalMs = 1800000) {
+// ─── PARALLEL BRAIN DISABLED ─────────────────────────────────────────────────
+// This engine's background timer has been permanently disabled.
+// NexoraOrchestrator (server/services/intelligence/nexoraOrchestrator.ts) is
+// the SOLE orchestration brain. Duplicate background runners violate the
+// single-brain rule. This function is intentionally NOT exported.
+// If evolution logic is needed, route it through runNexoraEngine().
+function _disabledLegacyEvolutionTimer(intervalMs = 1800000) {
   if (backgroundInterval) clearInterval(backgroundInterval);
   backgroundInterval = setInterval(async () => {
     try {
-      console.log("🌌 NEXORA BACKGROUND OMNISCIENCE CYCLE");
       await performAutonomousEvolution([]);
     } catch (e) {
-      console.error("❌ Background evolution failed:", e);
+      console.error("Legacy evolution failed:", e);
     }
   }, intervalMs);
   return () => {
     if (backgroundInterval) clearInterval(backgroundInterval);
   };
 }
+void _disabledLegacyEvolutionTimer; // suppress unused warning
 
 async function performAutonomousEvolution(decisions: any[]) {
   try {

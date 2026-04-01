@@ -447,24 +447,39 @@ export default function AdminDealHunter() {
 
   const queueOutreachMutation = useMutation({
     mutationFn: async (id: string) =>
-      fetchJson<{ ok: boolean; outreachMessageId: string; channel: string }>(
+      fetchJson<{
+        ok: boolean;
+        outreachMessageId: string;
+        channel: string;
+        autoApproved: boolean;
+        riskLevel: "low" | "high";
+        riskJustification: string;
+        deliveryStatus: string;
+      }>(
         `/api/admin/deal-hunter/signals/${id}/queue-outreach`,
         { method: "POST" }
       ),
     onMutate: (id) => setActiveActionId(id),
     onSuccess: (data, id) => {
       setQueuedSignalIds((prev) => new Set([...prev, id]));
-      toast({
-        title: "Queued for approval",
-        description: `Outreach draft queued via ${data.channel}. Approve it in Nexora Command Centre.`,
-      });
+      if (data.autoApproved) {
+        toast({
+          title: "Outreach auto-approved",
+          description: `Nexora approved and queued ${data.channel} outreach automatically. Low-risk signal — no human review needed.`,
+        });
+      } else {
+        toast({
+          title: "Submitted for review",
+          description: `High-risk outreach (${data.channel}) queued in Nexora Command Centre for human approval.`,
+        });
+      }
     },
     onError: (error: any) => {
       const msg = error?.message ?? "";
-      if (msg.includes("Already queued")) {
-        toast({ title: "Already queued", description: "This draft is already in the approval queue." });
+      if (msg.includes("Already auto-approved") || msg.includes("Already queued")) {
+        toast({ title: "Already processed", description: "This outreach was already submitted." });
       } else {
-        toast({ title: "Queue failed", description: msg || "Could not queue outreach.", variant: "destructive" });
+        toast({ title: "Outreach failed", description: msg || "Could not submit outreach.", variant: "destructive" });
       }
     },
     onSettled: () => setActiveActionId(null),
@@ -1093,6 +1108,14 @@ export default function AdminDealHunter() {
                           const channelRec = resolveOutreachChannel(signal);
                           const isQueued = queuedSignalIds.has(signal.id);
                           const isQueueBusy = activeActionId === signal.id && queueOutreachMutation.isPending;
+
+                          // Client-side risk pre-classification (mirrors server-side classifyOutreachRisk).
+                          // This determines the button label before the server responds.
+                          const value = signal.estimatedProjectValue ?? 0;
+                          const isHighRiskChannel = channelRec.channel === "whatsapp" || channelRec.channel === "call";
+                          const isHighRiskValue = value >= 500_000;
+                          const isHighRisk = isHighRiskChannel || isHighRiskValue || !signal.companyName;
+
                           return (
                             <div>
                               <div className="flex items-center justify-between mb-2">
@@ -1100,6 +1123,17 @@ export default function AdminDealHunter() {
                                   Outreach Draft
                                 </p>
                                 <div className="flex items-center gap-2">
+                                  {isHighRisk ? (
+                                    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 bg-amber-500/15 border border-amber-500/25 text-amber-400 rounded-lg font-medium">
+                                      <Lock className="w-3 h-3" />
+                                      Review Required
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 rounded-lg font-medium">
+                                      <Zap className="w-3 h-3" />
+                                      Auto-Approved
+                                    </span>
+                                  )}
                                   <ChannelBadge channel={channelRec.channel} />
                                 </div>
                               </div>
@@ -1115,7 +1149,9 @@ export default function AdminDealHunter() {
                               {isQueued ? (
                                 <div className="flex items-center gap-2 text-xs text-green-400 bg-green-500/10 border border-green-500/20 rounded-xl p-2.5">
                                   <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
-                                  Queued for approval — review in Nexora Command Centre
+                                  {isHighRisk
+                                    ? "Submitted for human review — check Nexora Command Centre"
+                                    : "Auto-approved by Nexora — outreach queued for delivery"}
                                 </div>
                               ) : (
                                 <button
@@ -1125,14 +1161,20 @@ export default function AdminDealHunter() {
                                   }}
                                   disabled={isBusy}
                                   data-testid={`btn-queue-outreach-${signal.id}`}
-                                  className="w-full flex items-center justify-center gap-2 bg-[#C9A84C]/20 hover:bg-[#C9A84C]/30 border border-[#C9A84C]/30 disabled:opacity-50 text-[#C9A84C] rounded-xl py-2.5 text-sm font-medium transition-colors"
+                                  className={`w-full flex items-center justify-center gap-2 border disabled:opacity-50 rounded-xl py-2.5 text-sm font-medium transition-colors ${
+                                    isHighRisk
+                                      ? "bg-amber-500/15 hover:bg-amber-500/25 border-amber-500/30 text-amber-400"
+                                      : "bg-emerald-500/15 hover:bg-emerald-500/25 border-emerald-500/30 text-emerald-400"
+                                  }`}
                                 >
                                   {isQueueBusy ? (
                                     <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : isHighRisk ? (
+                                    <Lock className="w-4 h-4" />
                                   ) : (
                                     <Send className="w-4 h-4" />
                                   )}
-                                  Queue for Approval
+                                  {isHighRisk ? "Submit for Review" : "Send Now (Auto-Approved)"}
                                 </button>
                               )}
                             </div>

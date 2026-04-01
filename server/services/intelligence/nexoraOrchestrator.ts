@@ -350,8 +350,27 @@ export function startNexoraBackground(intervalMs = 30 * 60_000): () => void {
   backgroundState.enabled = true;
   backgroundState.intervalMs = intervalMs;
 
+  // ── On boot: trigger first intelligence scan run immediately (after 30s delay) ──
+  // This ensures deal signals are populated before the first full Nexora cycle runs.
+  setTimeout(async () => {
+    try {
+      const { runIntelligenceSubTasks } = await import("../intelligenceScheduler");
+      await runIntelligenceSubTasks({ dealHunterMinIntervalMs: 0, radarMinIntervalMs: 0 });
+    } catch (e) {
+      console.error("[Nexora] Boot-time sub-task trigger failed:", e);
+    }
+  }, 30_000);
+
   backgroundTimer = setInterval(async () => {
     try {
+      // Step 1: Trigger intelligence sub-tasks (deal discovery, radar scans).
+      // runIntelligenceSubTasks() uses its own interval tracking — it only
+      // executes a job if sufficient time has passed since the last run.
+      // This keeps Nexora as the sole coordinator without duplicating work.
+      const { runIntelligenceSubTasks } = await import("../intelligenceScheduler");
+      await runIntelligenceSubTasks();
+
+      // Step 2: Process discovered signals with the full Nexora decision engine.
       const result = await runNexoraCycle("background");
       backgroundState.lastRunAt = new Date().toISOString();
       backgroundState.lastResult = {
