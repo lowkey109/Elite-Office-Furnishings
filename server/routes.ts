@@ -6,10 +6,11 @@
 
 import { whatsappWebhookHandler } from "./services/intelligence/communications/whatsappService";
 import { runManufacturerOutreach } from "./services/aiManufacturerOutreach";
+import { storage } from "./storage";
 
             import { desc } from "drizzle-orm";
             import { db } from "./db";
-            import { nexoraRuns } from "@shared/schema";
+            import { nexoraRuns, siteVisits } from "@shared/schema";
 
             import dealHunterRoutes from "./routes/dealHunter";
 
@@ -155,95 +156,6 @@ import { runManufacturerOutreach } from "./services/aiManufacturerOutreach";
             }
 
             // ─────────────────────────────────────────────────────────────────────────────
-            // Nexora Router (deduped)
-            // ─────────────────────────────────────────────────────────────────────────────
-
-            function buildNexoraRouter() {
-              const router = express.Router();
-
-              router.get("/background-status", (_req, res) => {
-                try {
-                  res.json(getNexoraBackgroundState());
-                } catch (err: any) {
-                  console.error("Nexora background status error:", err);
-                  res.status(500).json({ error: err?.message || "Failed to get background status" });
-                }
-              });
-
-              router.get("/history", async (_req, res) => {
-                try {
-                  const runs = await db
-                    .select()
-                    .from(nexoraRuns)
-                    .orderBy(desc(nexoraRuns.createdAt))
-                    .limit(10);
-
-                  res.json(runs);
-                } catch (err: any) {
-                  console.error("Nexora history error:", err);
-                  res.status(500).json({ error: err?.message || "Failed to load Nexora history" });
-                }
-              });
-
-              router.post("/run-now", async (_req, res) => {
-                try {
-                  const result = await runNexoraCycle("manual-run-now", false);
-                  if ((result as any)?.skipped) return res.status(409).json(result);
-                  res.json(result);
-                } catch (err: any) {
-                  console.error("Nexora run-now error:", err);
-                  res.status(500).json({ error: err?.message || "Nexora run-now failed" });
-                }
-              });
-
-              router.post("/run", async (_req, res) => {
-                try {
-                  const result = await runNexoraCycle("manual");
-                  if ((result as any)?.skipped) return res.status(409).json(result);
-                  res.json(result);
-                } catch (err: any) {
-                  console.error("Nexora run error:", err);
-                  res.status(500).json({ error: err?.message || "Failed to run Nexora" });
-                }
-              });
-
-              // Nexora loop control
-              router.get("/loop/status", (_req, res) => res.json(getNexoraLoopState()));
-
-              router.post("/loop/start", (req, res) => {
-                const intervalMs = req.body?.intervalMs;
-                startNexoraLoop(intervalMs);
-                res.json({ ok: true, ...getNexoraLoopState() });
-              });
-
-              router.post("/loop/stop", (_req, res) => {
-                stopNexoraLoop();
-                res.json({ ok: true, ...getNexoraLoopState() });
-              });
-
-              router.patch("/loop/config", (req, res) => {
-                const { intervalMs } = req.body || {};
-                if (!intervalMs || typeof intervalMs !== "number") {
-                  return res.status(400).json({ error: "intervalMs (number, min 60000) required" });
-                }
-                try {
-                  setNexoraLoopInterval(intervalMs);
-                  res.json({ ok: true, ...getNexoraLoopState() });
-                } catch (err: any) {
-                  res.status(400).json({ error: err?.message || "Invalid interval" });
-                }
-              });
-
-              router.post("/loop/run-now", async (_req, res) => {
-                const result = await runNexoraCycle("manual");
-                if ((result as any)?.skipped) return res.status(409).json(result);
-                res.json(result);
-              });
-
-              return router;
-            }
-
-            // ─────────────────────────────────────────────────────────────────────────────
             // Main Routes Registration
             // ─────────────────────────────────────────────────────────────────────────────
 
@@ -338,26 +250,9 @@ import { runManufacturerOutreach } from "./services/aiManufacturerOutreach";
           app.use("/api/admin", requireAdmin);
 
           app.use("/api/deal-hunter", dealHunterRoutes);
-                  app.get("/api/nexora/background-status", (_req, res) => {
-                    res.json(getNexoraBackgroundState());
-                  });
-
-                  app.post("/api/nexora/run-now", async (_req, res) => {
-                    try {
-                      const result = await runNexoraCycle("manual-run-now", false);
-                      if ((result as any)?.skipped) {
-                        return res.status(409).json(result);
-                      }
-                      res.json(result);
-                    } catch (err: any) {
-                      res.status(500).json({
-                        error: err?.message ?? "Nexora run failed",
-                      });
-                    }
-                  });
 
           // ─────────────────────────────────────────────────────────────
-          // NEXORA ROUTES (CLEAN + FIXED)
+          // NEXORA ROUTES
           // ─────────────────────────────────────────────────────────────
 
           app.get("/api/nexora/background-status", (_req, res) => {
@@ -384,23 +279,6 @@ import { runManufacturerOutreach } from "./services/aiManufacturerOutreach";
               console.error("Nexora history error:", err);
               res.status(500).json({
                 error: err?.message || "Failed to load Nexora history",
-              });
-            }
-          });
-
-          app.post("/api/nexora/run-now", async (_req, res) => {
-            try {
-              const result = await runNexoraCycle("manual-run-now", false);
-
-              if ((result as any)?.skipped) {
-                return res.status(409).json(result);
-              }
-
-              return res.json(result);
-            } catch (err: any) {
-              console.error("Nexora run-now error:", err);
-              return res.status(500).json({
-                error: err?.message || "Nexora run-now failed",
               });
             }
           });
@@ -484,7 +362,6 @@ import { runManufacturerOutreach } from "./services/aiManufacturerOutreach";
                 "/admin/proposal-engine": "Proposal Engine",
                 "/admin/product-command-centre": "Product Command Centre",
                 "/admin/lead-engine": "Lead Engine",
-                "/admin/alex": "Alex AI Dashboard",
               };
               const pageLabel = ADMIN_ROUTE_LABELS[route] || route.replace("/admin/", "").replace(/-/g, " ");
 
@@ -716,11 +593,6 @@ Commissions:
             }
           });
 
-          app.post("/api/nexora/loop/run-now", async (_req, res) => {
-            const result = await runNexoraCycle("manual");
-            if (result.skipped) return res.status(409).json(result);
-            res.json(result);
-          });
 type Message = {
   role: Role;
   content: string;
@@ -2082,6 +1954,184 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
         .slice(0, limit);
 
       res.json({ opportunities, total: opportunities.length, generatedAt: new Date().toISOString() });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Opportunities CRUD (Nexora pipeline records) ─────────────────────────
+
+  app.get("/api/nexora/pipeline", async (req, res) => {
+    try {
+      const stage = typeof req.query.stage === "string" ? req.query.stage : undefined;
+      const status = typeof req.query.status === "string" ? req.query.status : undefined;
+      const limit = Math.min(Number(req.query.limit) || 100, 500);
+      const opps = await storage.getOpportunities({ stage, status, limit });
+      res.json({ opportunities: opps, total: opps.length });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/nexora/pipeline/:id", async (req, res) => {
+    try {
+      const opp = await storage.getOpportunity(req.params.id);
+      if (!opp) return res.status(404).json({ error: "Opportunity not found" });
+      res.json(opp);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.patch("/api/nexora/pipeline/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const body = req.body as Record<string, unknown>;
+      const opp = await storage.updateOpportunity(id, body as any);
+      if (!opp) return res.status(404).json({ error: "Opportunity not found" });
+
+      // Stage 11: Auto-create outcome when stage moves to won or lost
+      if (body.stage === "won" || body.stage === "lost") {
+        const signalId = String(opp.sourceId ?? opp.id);
+        await storage.createNexoraOutcome({
+          signalId,
+          companyName: opp.companyName,
+          outcome: body.stage === "won" ? "win" : "loss",
+          channel: "nexora-pipeline",
+          dealValue: body.stage === "won" && opp.estimatedValue ? Number(opp.estimatedValue) : undefined,
+          notes: `Auto-recorded from opportunity stage change to ${body.stage}`,
+        }).catch((e: any) => console.warn("[Nexora] Auto-outcome failed:", e?.message));
+      }
+
+      res.json(opp);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.delete("/api/nexora/pipeline/:id", async (req, res) => {
+    try {
+      await storage.deleteOpportunity(req.params.id);
+      res.json({ success: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // Stage 9: Auto-draft a quote from a Nexora opportunity
+  app.post("/api/nexora/pipeline/:id/auto-quote", async (req, res) => {
+    try {
+      const opp = await storage.getOpportunity(req.params.id);
+      if (!opp) return res.status(404).json({ error: "Opportunity not found" });
+
+      const now = new Date();
+      const ym = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}`;
+      const existing = await storage.getQuotes();
+      const seq = String(existing.length + 1).padStart(4, "0");
+      const quoteNumber = `TCD-${ym}-${seq}`;
+
+      const estimatedValue = opp.estimatedValue ? Number(opp.estimatedValue) : 0;
+      const subtotal = estimatedValue;
+      const gst = Math.round(subtotal * 0.1);
+      const totalIncGst = subtotal + gst;
+
+      const quote = await storage.createQuote({
+        quoteNumber,
+        status: "Draft",
+        clientName: opp.contactName ?? opp.companyName,
+        companyName: opp.companyName,
+        email: opp.contactEmail ?? "tbc@placeholder.com",
+        phone: opp.contactPhone ?? null,
+        opportunityId: opp.id,
+        projectSummary: opp.reasoningSummary ?? `Auto-drafted from Nexora opportunity — ${opp.projectType ?? opp.industry ?? "fitout"}`,
+        subtotal,
+        gst,
+        total: subtotal,
+        totalIncGst,
+        pipelineStage: "lead",
+        validityDays: 30,
+        preparedBy: "The Corporate Desk (Nexora Auto-Draft)",
+        notes: `Auto-generated from Nexora opportunity ${opp.id}. Company: ${opp.companyName}. Signal: ${opp.projectType ?? "N/A"}. Review and update line items before sending.`,
+      });
+
+      // Mark opportunity as having a quote drafted
+      await storage.updateOpportunity(opp.id, { stage: "quoted" } as any).catch(() => undefined);
+
+      res.status(201).json({ quote, opportunityId: opp.id });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Nexora Outcomes ──────────────────────────────────────────────────────
+
+  app.get("/api/nexora/outcomes", async (req, res) => {
+    try {
+      const outcome = typeof req.query.outcome === "string" ? req.query.outcome : undefined;
+      const limit = Math.min(Number(req.query.limit) || 100, 500);
+      const results = await storage.getNexoraOutcomes({ outcome, limit });
+      res.json({ outcomes: results, total: results.length });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/nexora/outcomes", async (req, res) => {
+    try {
+      const body = req.body;
+      if (!body.signalId || !body.outcome) {
+        return res.status(400).json({ error: "signalId and outcome are required" });
+      }
+      const outcome = await storage.createNexoraOutcome(body);
+      res.status(201).json(outcome);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Stage 16: Financial Intelligence Summary ─────────────────────────────
+
+  app.get("/api/nexora/financial-summary", async (_req, res) => {
+    try {
+      const [allOpps, allOutcomes, allQuotes] = await Promise.all([
+        storage.getOpportunities({ limit: 500 }),
+        storage.getNexoraOutcomes({ limit: 500 }),
+        storage.getQuotes(),
+      ]);
+
+      const openOpps = allOpps.filter(o => o.status === "open" || o.status === "active");
+      const wonOpps = allOpps.filter(o => o.stage === "won");
+      const totalPipelineValue = openOpps.reduce((s, o) => s + (o.estimatedValue ?? 0), 0);
+      const wonValue = wonOpps.reduce((s, o) => s + (o.estimatedValue ?? 0), 0);
+
+      const wins = allOutcomes.filter(o => o.outcome === "win").length;
+      const losses = allOutcomes.filter(o => o.outcome === "loss").length;
+      const winRate = wins + losses > 0 ? Math.round((wins / (wins + losses)) * 100) : 0;
+      const avgDealValue = wins > 0
+        ? Math.round(allOutcomes.filter(o => o.outcome === "win" && o.dealValue).reduce((s, o) => s + (o.dealValue ?? 0), 0) / wins)
+        : 0;
+
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const recentWins = allOutcomes.filter(o => o.outcome === "win" && o.recordedAt && new Date(o.recordedAt) > thirtyDaysAgo);
+      const revenueThisMonth = recentWins.reduce((s, o) => s + (o.dealValue ?? 0), 0);
+
+      const draftQuotes = allQuotes.filter(q => q.status === "Draft");
+      const sentQuotes = allQuotes.filter(q => q.status === "Sent");
+      const quotesPipelineValue = sentQuotes.reduce((s, q) => s + (q.totalIncGst ?? 0), 0);
+
+      const topOpportunities = openOpps
+        .sort((a, b) => (b.estimatedValue ?? 0) - (a.estimatedValue ?? 0))
+        .slice(0, 5)
+        .map(o => ({ id: o.id, company: o.companyName, value: o.estimatedValue, score: o.opportunityScore, stage: o.stage }));
+
+      res.json({
+        generatedAt: new Date().toISOString(),
+        pipeline: {
+          totalOpportunities: allOpps.length,
+          openOpportunities: openOpps.length,
+          wonOpportunities: wonOpps.length,
+          totalPipelineValue,
+          wonValue,
+          topOpportunities,
+        },
+        outcomes: {
+          totalWins: wins,
+          totalLosses: losses,
+          winRate,
+          avgDealValue,
+          revenueThisMonth,
+        },
+        quotes: {
+          totalQuotes: allQuotes.length,
+          draftQuotes: draftQuotes.length,
+          sentQuotes: sentQuotes.length,
+          quotesPipelineValue,
+        },
+      });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
@@ -4685,9 +4735,23 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
 
   app.get("/api/admin/intelligence/health", async (_req, res) => {
     try {
-      const { runSystemHealthCheck } = await import("./services/intelligenceEngine");
-      const report = await runSystemHealthCheck();
-      res.json(report);
+      const [signals, outcomes, prospects, decisions] = await Promise.all([
+        storage.getDealHunterSignals().catch(() => []),
+        storage.getNexoraOutcomes({ limit: 100 }).catch(() => []),
+        storage.getProspectedLeads().catch(() => []),
+        storage.getOpportunities({ limit: 100 }).catch(() => []),
+      ]);
+      res.json({
+        status: "healthy",
+        generatedAt: new Date().toISOString(),
+        totals: {
+          dealSignals: signals.length,
+          outcomes: outcomes.length,
+          prospects: prospects.length,
+          opportunities: decisions.length,
+        },
+        engine: "nexora-orchestrator-v2",
+      });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }
@@ -8870,56 +8934,6 @@ Rules:
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
-  // ── Alex Autonomous Agent API ─────────────────────────────────────────────
-  app.get("/api/alex/stats", async (_req, res) => {
-    try {
-      const { getAlexStats } = await import("./services/alex/alexAutonomousAgent");
-      res.json(await getAlexStats());
-    } catch (err: any) { res.status(500).json({ error: err.message }); }
-  });
-
-  app.get("/api/alex/pipeline", async (_req, res) => {
-    try {
-      const { getDealPipeline } = await import("./services/alex/alexAutonomousAgent");
-      res.json(await getDealPipeline());
-    } catch (err: any) { res.status(500).json({ error: err.message }); }
-  });
-
-  app.get("/api/alex/actions", async (req, res) => {
-    try {
-      const limit = Math.min(100, parseInt(String(req.query.limit ?? "50")));
-      const { alexActions: alexActionsTable } = await import("../shared/schema");
-      const { desc: dsc } = await import("drizzle-orm");
-      const actions = await db.select().from(alexActionsTable).orderBy(dsc(alexActionsTable.createdAt)).limit(limit);
-      res.json({ actions, total: actions.length });
-    } catch (err: any) { res.status(500).json({ error: err.message }); }
-  });
-
-  app.post("/api/alex/cycle/trigger", async (_req, res) => {
-    try {
-      const { triggerJob, QUEUES } = await import("./services/jobOrchestrator");
-      const jobId = await triggerJob(QUEUES.ALEX_CYCLE);
-      res.json({ success: true, jobId, message: "Alex cycle triggered" });
-    } catch (err: any) { res.status(500).json({ error: err.message }); }
-  });
-
-  app.post("/api/alex/cycle/run-now", async (_req, res) => {
-    try {
-      const { runAlexCycle } = await import("./services/alex/alexAutonomousAgent");
-      const result = await runAlexCycle();
-      res.json({ success: true, ...result });
-    } catch (err: any) { res.status(500).json({ error: err.message }); }
-  });
-
-  app.get("/api/alex/deals", async (req, res) => {
-    try {
-      const { dealExecution: dealTable } = await import("../shared/schema");
-      const { desc: dsc } = await import("drizzle-orm");
-      const deals = await db.select().from(dealTable).orderBy(dsc(dealTable.createdAt)).limit(100);
-      res.json({ deals, total: deals.length });
-    } catch (err: any) { res.status(500).json({ error: err.message }); }
-  });
-
   // ── Cluster API ───────────────────────────────────────────────────────────
   app.get("/api/admin/clusters/stats", async (_req, res) => {
     try {
@@ -9003,99 +9017,6 @@ Rules:
       ];
 
       res.json({ total: alerts.length, alerts, generatedAt: now.toISOString() });
-    } catch (err: any) { res.status(500).json({ error: err.message }); }
-  });
-
-  // ── Deal Lost Learning Loop ───────────────────────────────────────────────
-  app.post("/api/alex/deals/:id/mark-lost", async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { lostReason } = req.body as { lostReason?: string };
-      const { dealExecution: dealTable3, workspaceLearningRecords } = await import("@shared/schema");
-      const { eq } = await import("drizzle-orm");
-
-      const [deal] = await db.select().from(dealTable3).where(eq(dealTable3.id, id)).limit(1);
-      if (!deal) return res.status(404).json({ error: "Deal not found" });
-
-      await db.update(dealTable3)
-        .set({ status: "lost", stage: "lost", lostAt: new Date(), lostReason: lostReason ?? "No reason provided", updatedAt: new Date() })
-        .where(eq(dealTable3.id, id));
-
-      // Update workspace learning records for this company (match by company name)
-      if (deal.companyName) {
-        await db.update(workspaceLearningRecords)
-          .set({ conversionResult: "lost", keyInsight: lostReason ? `Lost: ${lostReason}` : "Deal lost — no conversion" })
-          .where(eq(workspaceLearningRecords.clientCompany, deal.companyName));
-      }
-
-      res.json({ success: true, dealId: id, stage: "lost", lostReason });
-    } catch (err: any) { res.status(500).json({ error: err.message }); }
-  });
-
-  // ── Deal Won — Full Loop (Learning + Partner Commission) ─────────────────
-  app.post("/api/alex/deals/:id/mark-won", async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { dealValueActual } = req.body as { dealValueActual?: number };
-      const { dealExecution: dealTable4, workspaceLearningRecords, partnerOpportunities: partnerOpps, partners: partnersTable } = await import("@shared/schema");
-      const { eq } = await import("drizzle-orm");
-
-      const [deal] = await db.select().from(dealTable4).where(eq(dealTable4.id, id)).limit(1);
-      if (!deal) return res.status(404).json({ error: "Deal not found" });
-
-      const finalValue = dealValueActual ?? deal.dealValueEstimate ?? 0;
-
-      await db.update(dealTable4)
-        .set({ status: "won", stage: "won", wonAt: new Date(), updatedAt: new Date(), dealValueEstimate: finalValue })
-        .where(eq(dealTable4.id, id));
-
-      // Update workspace learning records
-      if (deal.companyName) {
-        await db.update(workspaceLearningRecords)
-          .set({ conversionResult: "converted", keyInsight: `Won: $${finalValue} deal closed` })
-          .where(eq(workspaceLearningRecords.clientCompany, deal.companyName));
-      }
-
-      // Find partner_opportunities linked to this deal (by dealExecutionId or companyName)
-      const linkedPartnerOpps = await db.select().from(partnerOpps)
-        .where(eq(partnerOpps.dealExecutionId, id))
-        .limit(10);
-
-      // Also find by companyName if no direct link
-      const companyPartnerOpps = linkedPartnerOpps.length === 0 && deal.companyName
-        ? await db.select().from(partnerOpps).where(eq(partnerOpps.companyName, deal.companyName)).limit(10)
-        : [];
-
-      const allLinkedOpps = [...linkedPartnerOpps, ...companyPartnerOpps];
-      const commissionsCreated: string[] = [];
-
-      for (const opp of allLinkedOpps) {
-        // Mark partner opportunity as won
-        const commRate = opp.commissionRate ?? 5.0;
-        const commValue = Math.round(finalValue * (commRate / 100) * 100); // in cents
-        await db.update(partnerOpps)
-          .set({ status: "won", commissionValue: commValue, updatedAt: new Date() })
-          .where(eq(partnerOpps.id, opp.id));
-
-        // Auto-create commission record
-        const { commissionService } = await import("./services/partnerNetwork/commissionService");
-        const commission = await commissionService.createCommission({
-          partnerId: opp.partnerId,
-          opportunityId: opp.id,
-          dealValue: finalValue * 100, // convert to cents
-          commissionPercent: commRate,
-          notes: `Auto-created on deal won: ${deal.companyName}`,
-        });
-        commissionsCreated.push(commission.id);
-
-        // Update partner stats — increment won count
-        const { sql: dSql } = await import("drizzle-orm");
-        await db.update(partnersTable)
-          .set({ totalProjectsWon: dSql`${partnersTable.totalProjectsWon} + 1`, updatedAt: new Date() })
-          .where(eq(partnersTable.id, opp.partnerId));
-      }
-
-      res.json({ success: true, dealId: id, stage: "won", finalValue, commissionsCreated, partnersNotified: allLinkedOpps.length });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
@@ -10028,19 +9949,12 @@ Rules:
     }
   });
 
-  // POST /api/admin/seed-real-leads — seed 20 real AU companies with external emails + outreach
+  // POST /api/admin/seed-real-leads — deprecated, use Nexora signal ingestion instead
   app.post("/api/admin/seed-real-leads", async (_req, res) => {
-    try {
-      const { seedRealLeads } = await import("./services/realLeadSeeder");
-      const result = await seedRealLeads();
-      res.json({
-        success: true,
-        ...result,
-        message: `Seeded ${result.companiesCreated} companies, ${result.contactsCreated} contacts with real external emails, ${result.threadsCreated} outreach threads queued`,
-      });
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
-    }
+    res.status(410).json({
+      success: false,
+      message: "Real lead seeding has been superseded by the Nexora autonomous signal pipeline. Use POST /api/nexora/run to trigger a fresh scan.",
+    });
   });
 
   // ── AI Product Command Centre Routes ─────────────────────────────────────────

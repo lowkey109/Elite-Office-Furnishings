@@ -34,38 +34,29 @@ import Blog from "@/pages/Blog";
 import BlogPost from "@/pages/BlogPost";
 import ProductDetail from "@/pages/ProductDetail";
 import AdminProductReviews from "@/pages/AdminProductReviews";
-import AdminCommandCentre from "@/pages/AdminCommandCentre";
 import AdminManufacturerMessaging from "@/pages/AdminManufacturerMessaging";
 import AdminFollowUpSequences from "@/pages/AdminFollowUpSequences";
-import AdminLeaseSignals from "@/pages/AdminLeaseSignals";
 import AdminDealPipeline from "@/pages/AdminDealPipeline";
 import AdminTerritoryScanner from "@/pages/AdminTerritoryScanner";
 import AdminProcurementEngine from "@/pages/AdminProcurementEngine";
 import AdminSupplierIntelligence from "@/pages/AdminSupplierIntelligence";
 import AdminWorkspaceLearning from "@/pages/AdminWorkspaceLearning";
-import AdminIntelligenceHub from "@/pages/AdminIntelligenceHub";
-import AdminProfitEngine from "@/pages/AdminProfitEngine";
 import AdminQuotes from "@/pages/AdminQuotes";
 import QuotePrint from "@/pages/QuotePrint";
 import AdminOfficeMovRadar from "@/pages/AdminOfficeMovRadar";
 import WorkspaceDesignEngine from "@/pages/WorkspaceDesignEngine";
-import AdminDealIntelligence from "@/pages/AdminDealIntelligence";
 import AdminPartnerNetwork from "@/pages/AdminPartnerNetwork";
 import AdminDealHunter from "@/pages/AdminDealHunter";
-import AdminRelocationIntelligence from "@/pages/AdminRelocationIntelligence";
 import AdminWorkspaceStrategy from "@/pages/AdminWorkspaceStrategy";
 import PartnerOnboarding from "@/pages/PartnerOnboarding";
 import PartnerDashboard from "@/pages/PartnerDashboard";
 import PartnerAgreement from "@/pages/PartnerAgreement";
 import PartnerApply from "@/pages/PartnerApply";
 import MarketMap from "@/pages/MarketMap";
-import AdminMarketIntelligence from "@/pages/AdminMarketIntelligence";
-import AdminCompanyVisitors from "@/pages/AdminCompanyVisitors";
 import ProposalEngine from "@/pages/ProposalEngine";
 import BuildingDatabase from "@/pages/BuildingDatabase";
 import AdminProductCommandCentre from "@/pages/AdminProductCommandCentre";
 import AdminLeadEngine from "@/pages/AdminLeadEngine";
-import AdminAlexDashboard from "@/pages/AdminAlexDashboard";
 import AdminNexoraCommandCentre from "@/pages/AdminNexoraCommandCentre";
 import AdminNexoraAdvanced from "@/pages/AdminNexoraAdvanced";
 import AdminAIChat from "@/pages/AdminAIChat";
@@ -103,33 +94,32 @@ function AdminRoutes() {
         <Route path="/admin/supplier-quotes" component={AdminSupplierQuotes} />
         <Route path="/admin/planning-requests" component={AdminPlanningRequests} />
         <Route path="/admin/product-reviews" component={AdminProductReviews} />
-        <Route path="/admin/command-centre" component={AdminCommandCentre} />
+        <Route path="/admin/command-centre" component={() => <Redirect to="/admin/nexora" />} />
         <Route path="/admin/manufacturer-messaging" component={AdminManufacturerMessaging} />
         <Route path="/admin/follow-up-sequences" component={AdminFollowUpSequences} />
-        <Route path="/admin/lease-signals" component={AdminLeaseSignals} />
+        <Route path="/admin/lease-signals" component={() => <Redirect to="/admin/nexora" />} />
         <Route path="/admin/deal-pipeline" component={AdminDealPipeline} />
         <Route path="/admin/territory-scanner" component={AdminTerritoryScanner} />
         <Route path="/admin/procurement-engine" component={AdminProcurementEngine} />
         <Route path="/admin/supplier-intelligence" component={AdminSupplierIntelligence} />
         <Route path="/admin/workspace-learning" component={AdminWorkspaceLearning} />
-        <Route path="/admin/intelligence-hub" component={AdminIntelligenceHub} />
-        <Route path="/admin/profit-engine" component={AdminProfitEngine} />
+        <Route path="/admin/intelligence-hub" component={() => <Redirect to="/admin/nexora" />} />
+        <Route path="/admin/profit-engine" component={() => <Redirect to="/admin/nexora" />} />
         <Route path="/admin/office-move-radar" component={AdminOfficeMovRadar} />
-        <Route path="/admin/deal-intelligence" component={AdminDealIntelligence} />
+        <Route path="/admin/deal-intelligence" component={() => <Redirect to="/admin/nexora" />} />
         <Route path="/admin/quotes/:id/print" component={QuotePrint} />
         <Route path="/admin/quotes" component={AdminQuotes} />
         <Route path="/admin/deal-hunter" component={AdminDealHunter} />
         <Route path="/admin/partner-network" component={AdminPartnerNetwork} />
-        <Route path="/admin/relocation-intelligence" component={AdminRelocationIntelligence} />
+        <Route path="/admin/relocation-intelligence" component={() => <Redirect to="/admin/nexora" />} />
         <Route path="/admin/workspace-strategy" component={AdminWorkspaceStrategy} />
         <Route path="/admin/workspace-design-engine" component={WorkspaceDesignEngine} />
-        <Route path="/admin/market-intelligence" component={AdminMarketIntelligence} />
-        <Route path="/admin/company-visitors" component={AdminCompanyVisitors} />
+        <Route path="/admin/market-intelligence" component={() => <Redirect to="/admin/nexora" />} />
+        <Route path="/admin/company-visitors" component={() => <Redirect to="/admin/nexora" />} />
         <Route path="/admin/proposal-engine" component={ProposalEngine} />
         <Route path="/admin/building-database" component={BuildingDatabase} />
         <Route path="/admin/products" component={AdminProductCommandCentre} />
         <Route path="/admin/lead-engine" component={AdminLeadEngine} />
-        <Route path="/admin/alex" component={AdminAlexDashboard} />
         <Route path="/admin/nexora/advanced" component={AdminNexoraAdvanced} />
         <Route path="/admin/nexora" component={AdminNexoraCommandCentre} />
         <Route path="/admin/ai-chat" component={AdminAIChat} />

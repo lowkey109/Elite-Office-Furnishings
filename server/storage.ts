@@ -9,6 +9,9 @@ import {
   relocationSignals, workspaceStrategyRecommendations, dealHunterSignals,
   supplierProfiles, rfqProjects, rfqResponses, visitorSessions,
   companyIntelligence, companyContacts,
+  nexoraOutcomes, opportunities,
+  type NexoraOutcome, type InsertNexoraOutcome,
+  type Opportunity, type InsertOpportunity,
   type User, type InsertUser, type Lead, type InsertLead, type PlanningRequest,
   type ProductReview, type InsertProductReview,
   type ManufacturerMessage, type InsertManufacturerMessage,
@@ -326,6 +329,17 @@ export interface IStorage {
   createCompanyContact(data: InsertCompanyContact): Promise<CompanyContact>;
   getCompanyContacts(companyIntelligenceId: string): Promise<CompanyContact[]>;
   deleteCompanyContacts(companyIntelligenceId: string): Promise<void>;
+
+  // Nexora Outcomes
+  createNexoraOutcome(data: InsertNexoraOutcome): Promise<NexoraOutcome>;
+  getNexoraOutcomes(filters?: { outcome?: string; signalId?: string; limit?: number }): Promise<NexoraOutcome[]>;
+
+  // Opportunities (Nexora pipeline)
+  createOpportunity(data: InsertOpportunity): Promise<Opportunity>;
+  getOpportunities(filters?: { stage?: string; status?: string; limit?: number }): Promise<Opportunity[]>;
+  getOpportunity(id: string): Promise<Opportunity | undefined>;
+  updateOpportunity(id: string, data: Partial<Opportunity>): Promise<Opportunity | undefined>;
+  deleteOpportunity(id: string): Promise<void>;
 }
 
 function rowToProspectedLead(row: typeof prospectedLeads.$inferSelect): ProspectedLead {
@@ -1554,6 +1568,52 @@ export class DrizzleStorage implements IStorage {
 
   async deleteCompanyContacts(companyIntelligenceId: string): Promise<void> {
     await db.delete(companyContacts).where(eq(companyContacts.companyIntelligenceId, companyIntelligenceId));
+  }
+
+  // ─── Nexora Outcomes ─────────────────────────────────────────────────────
+
+  async createNexoraOutcome(data: InsertNexoraOutcome): Promise<NexoraOutcome> {
+    const [row] = await db.insert(nexoraOutcomes).values(data as any).returning();
+    return row;
+  }
+
+  async getNexoraOutcomes(filters?: { outcome?: string; signalId?: string; limit?: number }): Promise<NexoraOutcome[]> {
+    const conditions: any[] = [];
+    if (filters?.outcome) conditions.push(eq(nexoraOutcomes.outcome, filters.outcome));
+    if (filters?.signalId) conditions.push(eq(nexoraOutcomes.signalId, filters.signalId));
+    const q = db.select().from(nexoraOutcomes);
+    const withWhere = conditions.length ? (q as any).where(and(...conditions)) : q;
+    return withWhere.orderBy(desc(nexoraOutcomes.recordedAt)).limit(filters?.limit ?? 200);
+  }
+
+  // ─── Opportunities (Nexora Pipeline) ─────────────────────────────────────
+
+  async createOpportunity(data: InsertOpportunity): Promise<Opportunity> {
+    const [row] = await db.insert(opportunities).values(data as any).returning();
+    return row;
+  }
+
+  async getOpportunities(filters?: { stage?: string; status?: string; limit?: number }): Promise<Opportunity[]> {
+    const conditions: any[] = [];
+    if (filters?.stage) conditions.push(eq(opportunities.stage, filters.stage));
+    if (filters?.status) conditions.push(eq(opportunities.status, filters.status));
+    const q = db.select().from(opportunities);
+    const withWhere = conditions.length ? (q as any).where(and(...conditions)) : q;
+    return withWhere.orderBy(desc(opportunities.opportunityScore), desc(opportunities.lastActivityAt)).limit(filters?.limit ?? 200);
+  }
+
+  async getOpportunity(id: string): Promise<Opportunity | undefined> {
+    const [row] = await db.select().from(opportunities).where(eq(opportunities.id, id)).limit(1);
+    return row ?? undefined;
+  }
+
+  async updateOpportunity(id: string, data: Partial<Opportunity>): Promise<Opportunity | undefined> {
+    const [row] = await db.update(opportunities).set({ ...data, lastActivityAt: new Date() } as any).where(eq(opportunities.id, id)).returning();
+    return row ?? undefined;
+  }
+
+  async deleteOpportunity(id: string): Promise<void> {
+    await db.delete(opportunities).where(eq(opportunities.id, id));
   }
 }
 

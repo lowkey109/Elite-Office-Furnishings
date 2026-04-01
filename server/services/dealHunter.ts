@@ -98,8 +98,10 @@ const RAW_DEDUPE_TTL_DAYS = 14;
 
 const ALLOWED_SOURCE_URL_HOSTS = [
   "adzuna.com",
+  "adzuna.com.au",
   "seek.com.au",
   "linkedin.com",
+  "indeed.com",
   "domain.com.au",
   "realestate.com.au",
   "realcommercial.com.au",
@@ -677,11 +679,18 @@ async function fetchJobSignals(): Promise<RawSignalProfile[]> {
   }
 
   const pagesToFetch = [1, 2];
-  const resultsPerQuery = await Promise.all(
-    ADZUNA_SEARCH_TERMS.flatMap((term) => pagesToFetch.map((page) => fetchAdzunaPage(term, page)))
-  );
+  const allJobs: any[] = [];
+  for (const term of ADZUNA_SEARCH_TERMS) {
+    for (const page of pagesToFetch) {
+      const results = await fetchAdzunaPage(term, page);
+      allJobs.push(...results);
+      if (results.length > 0) {
+        await new Promise((r) => setTimeout(r, 1500));
+      }
+    }
+  }
 
-  const jobs = resultsPerQuery.flat();
+  const jobs = allJobs;
   console.log("[DealHunter] Jobs fetched:", jobs.length);
 
   const signals: RawSignalProfile[] = [];
@@ -696,7 +705,12 @@ async function fetchJobSignals(): Promise<RawSignalProfile[]> {
     const rawDescription = cleanText(job?.description);
     const title = rawTitle.toLowerCase();
     const description = rawDescription.toLowerCase();
-    const sourceUrl = cleanText(job?.redirect_url);
+    const redirectUrl = cleanText(job?.redirect_url);
+    const jobId = cleanText(job?.id);
+    // Use canonical Adzuna listing URL so the trusted-source check always passes for Adzuna jobs.
+    const sourceUrl = jobId
+      ? `https://www.adzuna.com.au/details/${jobId}`
+      : redirectUrl;
     const publishedAt = cleanText(job?.created);
 
     if (!companyName || !rawTitle || !sourceUrl) {

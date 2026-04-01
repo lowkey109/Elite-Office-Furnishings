@@ -784,6 +784,61 @@ async function applyLearningFromRun(params: {
  * Actions
  * ===================================================================================== */
 
+async function autoCreateOpportunity(
+  signal: NexoraSignalLike,
+  sourceType: "radar" | "deal",
+): Promise<void> {
+  try {
+    const sig = signal as any;
+    const { db: ddb } = await import("../../db");
+    const { opportunities } = await import("../../../shared/schema");
+    const { eq, and } = await import("drizzle-orm");
+
+    const companyName = sig.companyName ?? sig.company ?? "Unknown";
+    const normalizedName = String(companyName).toLowerCase().replace(/[^a-z0-9]/g, "");
+    const sourceId = String(signal.id ?? "");
+
+    // Idempotency: skip if opportunity already exists for this signal
+    const existing = await ddb
+      .select({ id: opportunities.id })
+      .from(opportunities)
+      .where(and(eq(opportunities.sourceType, "nexora"), eq(opportunities.sourceId, sourceId)))
+      .limit(1);
+    if (existing.length > 0) return;
+
+    const rawValue = sig.estimatedProjectValue ?? sig.value ?? 0;
+    const estimatedValue = typeof rawValue === "number"
+      ? rawValue
+      : parseInt(String(rawValue ?? "0").replace(/[^0-9]/g, ""), 10) || 0;
+    const confidenceLevel = sig.confidenceLevel ?? "medium";
+    const confidenceScore = confidenceLevel === "high" ? 80 : confidenceLevel === "low" ? 30 : 55;
+    const opportunityScore = sig.radarScore ?? sig.opportunityScore ?? 60;
+
+    await ddb.insert(opportunities).values({
+      sourceType: "nexora",
+      sourceId,
+      companyName,
+      normalizedCompanyName: normalizedName,
+      city: sig.city ?? null,
+      state: sig.state ?? null,
+      industry: sig.industry ?? null,
+      projectType: sig.signalSubtype ?? sig.signalType ?? null,
+      stage: "new",
+      status: "open",
+      opportunityScore,
+      confidenceScore,
+      urgencyScore: sig.urgencyScore ?? 0,
+      estimatedValue: estimatedValue > 0 ? estimatedValue : null,
+      reasoningSummary: sig.summaryReasoning ?? sig.aiSummary ?? `Nexora ${sourceType} push — ${sig.signalType ?? "signal"}`,
+      lastActivityAt: new Date(),
+    } as any);
+
+    console.log(`[Nexora] Auto-created opportunity for ${companyName} (signal ${sourceId})`);
+  } catch (err: any) {
+    console.warn(`[Nexora] autoCreateOpportunity failed (non-critical):`, err?.message);
+  }
+}
+
 async function pushToPipeline(
   signal: NexoraSignalLike,
   sourceType: "radar" | "deal",
@@ -791,6 +846,7 @@ async function pushToPipeline(
   try {
     if (sourceType === "deal") {
       await pushDealHunterToPipeline(signal.id);
+      await autoCreateOpportunity(signal, sourceType);
       return true;
     }
     // Radar signal → create a pipeline prospect entry (idempotency key prevents duplicate calls)
@@ -814,6 +870,7 @@ async function pushToPipeline(
         priority: radarSig.confidenceLevel === "high" ? "High" : radarSig.confidenceLevel === "low" ? "Low" : "Medium",
         nexoraSignalId: signal.id ?? null,
       } as any);
+      await autoCreateOpportunity(signal, sourceType);
       return true;
     }
     return false;

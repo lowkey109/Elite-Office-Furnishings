@@ -1,7 +1,7 @@
 # The Corporate Desk — Premium Office Furniture Website
 
 ## Overview
-The Corporate Desk (`thecorporatedesk.com.au`) is a luxury office furniture website focused on lead generation through an AI-powered operating system. It aims to streamline commercial furniture procurement with features like an interactive quote builder, finance calculator, AI lead intelligence, and an AI Workspace Planning Platform. This platform provides visual zone layouts, furniture recommendations, project cost estimates, lead scoring, and downloadable planning reports for projects valued from $30,000 to $300,000+. The project's ambition is to capture a significant market share by offering a premium, intelligent, and efficient experience in the commercial furniture market.
+The Corporate Desk (`thecorporatedesk.com.au`) is a luxury office furniture website that aims to be the leading platform for commercial furniture procurement. It focuses on lead generation through an AI-powered operating system, offering features like an interactive quote builder, finance calculator, AI lead intelligence, and an AI Workspace Planning Platform. This platform provides visual zone layouts, furniture recommendations, project cost estimates, lead scoring, and downloadable planning reports for projects valued from $30,000 to $300,000+. The project's ambition is to capture a significant market share by offering a premium, intelligent, and efficient experience in the commercial furniture market.
 
 ## User Preferences
 I prefer iterative development with clear, modular code. Before making any major architectural changes or introducing new external dependencies, please ask for approval. I prefer detailed explanations for complex solutions. Do not make changes to the `server/db.ts` file without explicit instruction. Do not make changes to the `client/src/lib/furnitureCatalogue.ts` file without explicit instruction.
@@ -16,7 +16,7 @@ The visual design features a dark luxury gold theme, using near-black background
 - **Frontend**: React, Wouter for routing, TanStack Query for data fetching, and Shadcn UI for components.
 - **Backend**: Express.js.
 - **Database**: PostgreSQL with Drizzle ORM.
-- **AI Integration**: Powered by OpenAI's `gpt-5-mini` for a 14-role chatbot, marketing content generation, lead prospecting, and workspace planning using the TCD furniture catalogue.
+- **AI Integration**: OpenAI's `gpt-5-mini` powers a 14-role chatbot, marketing content generation, lead prospecting, and workspace planning using the TCD furniture catalogue.
 - **AI Workspace Concierge**: A persistent, page-aware AI advisor maintaining conversation history, user profile, and UI state.
 - **Floor Plan Boundary Detection**: Computer vision extracts geometry from uploaded images for AI zone placement.
 - **3D Office Walkthrough**: Interactive Three.js viewer renders office zones and furniture, enabling product information retrieval.
@@ -24,22 +24,22 @@ The visual design features a dark luxury gold theme, using near-black background
 ### Feature Specifications
 - **AI Workspace Intelligence Platform**: Generates detailed plans, lead scores, project values, timelines, and product recommendations, including premium reports with financial overlays and procurement pricing.
 - **AI Lead Intelligence & Prospecting Engine**: AI-driven lead ingestion, analysis, and processing, including a simulated LinkedIn and Google Maps scraper, and a real lead engine for deduplication and scoring.
-- **Nexora Autonomous Loop Engine**: A core engine for automated tasks, with scheduling mechanisms, persistence to a database, and an administrative UI.
+- **Nexora Autonomous Loop Engine**: A core engine for automated tasks, with scheduling mechanisms, persistence to a database, and an administrative UI. This engine is the sole intelligence entry point, with pg-boss acting as a durable backup subordinate. It incorporates a 12-layer upgrade for enhanced decision-making, learning from outcomes, safety gates, and robust DB-backed memory and run locks.
 - **Nexora Executive Operating System (client-side)**: A fully rebuilt decision engine that runs intent classification, journey stage tracking, confidence scoring, urgency calculation, closer mode, problem solver mode, blocker/opportunity detection, deal band estimation, and admin summary generation.
-- **AI Lead Enrichment Pipeline**: Every inbound lead submission triggers an OpenAI `gpt-4o-mini` call for executive briefing and populates lead records with AI-derived insights like intent, journey, urgency, confidence, and deal band.
-- **Admin Nexora Intelligence Panel**: Admin Dashboard lead cards include an "Nexora Intelligence" section showing AI-generated insights.
+- **AI Lead Enrichment Pipeline**: Every inbound lead submission triggers an OpenAI `gpt-4o-mini` call for executive briefing and populates lead records with AI-derived insights.
+- **Admin Nexora Intelligence Panel**: Admin Dashboard lead cards include an "Nexora Intelligence" section showing AI-generated insights, including observability for decisions, outcomes, and thresholds.
 - **Partner Referral Network**: Manages partner recruitment, deal submission, AI-powered lead scoring, and commission tracking with a partner performance scoring engine.
 - **AI Product Command Centre**: Comprehensive system for product management, including AI-driven content generation and full CRUD operations.
 - **Commercial Workspace Estimator**: A wizard for generating `QuoteSummary` documents.
 - **Marketing Hub**: AI-generated content creation and direct posting.
-- **Admin Dashboard**: Provides KPIs, lead overviews, and administrative functions.
+- **Admin Dashboard**: Provides KPIs, lead overviews, and administrative functions, including a System Health Scorecard for Nexora.
 - **Opportunity Scoring Engine**: Deterministic signal model for scoring inbound leads and assigning dynamic tiers.
 - **Supplier Procurement Intelligence**: Manages supplier performance, RFQ creation, and response tracking using real supplier pricing.
 - **Alex WhatsApp AI Persona**: AI for lead qualification, discovery, and automatic lead capture via WhatsApp.
 - **Workspace Learning System**: Auto-captures project intelligence to calibrate future AI recommendations.
 - **Stripe Paywall**: Gated access to premium AI Workspace Planning Reports.
-- **Product Catalogue**: A curated catalogue of 216 active products from the database and 330 supplier products, with API normalisation.
-- **Strategy Call Calendar Booking**: A 3-step booking flow with real-time availability, stored in `strategy_bookings` table.
+- **Product Catalogue**: A curated catalogue of 216 active products and 330 supplier products, with API normalisation.
+- **Strategy Call Calendar Booking**: A 3-step booking flow with real-time availability.
 - **Blog Homepage Preview**: Displays 3 latest articles from a blog with 10 categories and 30+ articles, all with real content and SEO.
 - **Manufacturer Messaging System**: Admin-only WhatsApp communication with suppliers, supporting AI-drafted messages.
 - **Enterprise Lead Intelligence Platform**: Includes Lease Signal Intelligence, Territory Scanner, Deal Pipeline, and Procurement Engine.
@@ -65,71 +65,59 @@ The visual design features a dark luxury gold theme, using near-black background
 - **7-Department Alex AI Company Orchestrator**: Runs all 7 AI departments (Intelligence, Sales, Outreach, Workspace, Marketing, Operations, Finance) in sequence.
 - **SEO + Conversion Improvements**: Includes technical SEO enhancements (JSON-LD, canonical links), a quote builder email gate, city landing pages for local SEO, trust elements (WhatsApp, Google Reviews), and retargeting infrastructure (Meta, GA4, LinkedIn pixels).
 
-## Multi-Stage Platform Upgrade (April 2026)
-- **Stage 3 — Real-Data Map Coordinates**: Fixed synthetic coordinate generation in 5 map layers (payments-pending, deposits-paid, revenue-zones, meetings-booked, follow-up-due). Now uses city-based `resolveAuCityCoords()` lookup + `mapJitter()` helper instead of hardcoded Sydney coords.
-- **Stage 4 — Admin Nexora Command Centre**: `AdminNexoraCommandCentre.tsx` rebuilt with 3 real-data panels: Signal Intelligence Summary (counts by type/city/confidence), Top 10 Opportunities Today (expandable with why-it-matters + next-action from real DB), and Outreach Pending Approval (approve/reject buttons linked to `outreachMessages` table).
-- **Stage 5 — Home.tsx Role-Based Upgrade**: Rebuilt with smart 4-role CTA switching (Facilities Manager, CFO, HR, Office Relocation), quick-path selector widget, finance strip section, and role-specific trust badges.
-- **Stage 6 — Nexora Intelligence Endpoints**: 4 new API routes: `/api/nexora/opportunities/top`, `/api/nexora/signals/summary`, `/api/nexora/outreach/pending`, `/api/nexora/outreach/:id/approve`.
-- **Stage 7 — AI Communications**: `AdminDealHunter.tsx` upgraded with `resolveOutreachChannel()` function (determines email vs WhatsApp based on deal value/company size/signal type), `ChannelBadge` component in expanded panel, and "Queue for Approval" button that creates an `outreachMessages` draft entry for admin sign-off. New endpoints: `/api/admin/deal-hunter/signals/:id/queue-outreach` and `/api/admin/deal-hunter/signals/:id/channel-recommendation`.
-- **Stage 8 — Workspace Tools**: `FreeLayoutPlan.tsx` upgraded with `SpaceIntelligenceWidget` (live space calculator showing sqm/person, desks, meeting rooms, focus pods, density assessment). `QuoteBuilder.tsx` upgraded with `QuoteConfidenceScore` component (0–100 score based on completeness of project inputs).
-- **Stage 9 — Cleanup**: Removed unused variables (`densityColor`), fixed unused imports (`rawSql`), corrected Drizzle date comparisons.
-- **Stage 10 — Validation**: All endpoints tested. Server running cleanly on port 5000 with pg-boss active.
+## Nexora Autonomous OS — Final Architecture (All 19 Stages Complete)
 
-## 12-Layer Nexora Autonomous OS Upgrade (April 2026)
-- **Layer 0 — Import Crash Fixed**: `nexoraOrchestrator.ts` had wrong import paths (`./nexora-support` → `./nexora/nexora-support`, `./nexora-types` → `./nexora/nexora-types`). Also fixed `runOfficeMovRadarScan` being imported from wrong module — now correctly imported from `officeMovRadarService.ts`.
-- **Layer 2 — Single Brain**: `nexoraOrchestrator.ts` is the sole intelligence entry point. All other self-scheduling timers removed. pg-boss runs as durable backup subordinate to Nexora.
-- **Layer 3 — DB Tables**: 6 new PostgreSQL tables added to `shared/schema.ts` and created in DB: `nexora_decisions` (per-signal AI decisions), `nexora_outcomes` (closed-loop feedback), `nexora_thresholds` (versioned adaptive thresholds), `nexora_knowledge` (entity-level intelligence map), `nexora_idempotency_keys` (duplicate prevention), `nexora_run_locks` (overlap guards).
-- **Layer 4 — Outcome Feedback Loop**: `POST /api/nexora/outcomes` endpoint records wins/losses/replies and triggers automatic threshold recalibration via `computeOutcomeLearningUpdate()`. 10+ outcomes trigger re-scoring.
-- **Layer 6 — Safety Gates**: `POST /api/admin/deal-hunter/signals/:id/queue-outreach` now runs `checkSuppression()`, `checkCooldown()` (30-day window), and `checkRateLimits()` before creating any outreach message. 429 response on suppression/rate-limit.
-- **Layer 8 — Admin Observability**: 4 new endpoints: `GET /api/nexora/decisions`, `GET /api/nexora/outcomes/stats`, `GET /api/nexora/thresholds/current`, `GET /api/nexora/knowledge`. `AdminNexoraCommandCentre.tsx` upgraded with: Brain Decisions panel (real DB), Outcome Intelligence stats + recording form, Adaptive Thresholds panel.
-- **Layer 9 — DB-Backed Memory**: `server/services/intelligence/nexora/nexora-support.ts` completely rewritten — ALL file I/O removed. Memory now fully DB-backed: thresholds (nexoraThresholds), knowledge (nexoraKnowledge), decisions (nexoraDecisions), audit (auditLogs), idempotency (nexoraIdempotencyKeys), run locks (nexoraRunLocks). Fallback to defaults on DB error.
-- **Layer 11 — Outreach Suppression**: `outreach-guards.ts` fully implemented and wired into the queue-outreach endpoint. Company-level suppression, email-level suppression, 30-day cooldown, hourly/daily rate limits all enforced.
-- **Layer 12 — Runtime Hardening**: Startup cleanup of expired DB locks via `cleanupExpiredLocks()` on boot. DB-backed run locks (15-min TTL) replace file-based locks. `nexora-support.ts` health check now verifies DB connectivity.
+### Core Engine Chain (Signal → Decision → Action → Outcome → Learning)
+The Nexora OS is a fully autonomous B2B intelligence and outreach engine. Every component is live and production-ready.
 
-## Nexora Runtime Integration Fix (April 2026)
-- **14 API Signature Mismatches Fixed**: `nexora-support.ts` had all exported function signatures mismatched against what `nexoraOrchestrator.ts` actually called. Root cause: orchestrator was written expecting object-style params but support file used positional strings. All 14 functions fixed:
-  - `acquireRunLock({key,runId,ttlSeconds})→{acquired:boolean}` (was `(runId:string)→boolean`) — stale lock bug root cause
-  - `releaseRunLock({key,runId})` (was `(runId:string)`)
-  - `fireWebhook({runId,signal,action,priority,estimatedValue})→boolean` (was `(url,payload,config)`)
-  - `syncVectorKnowledge({signal,action,priority})→boolean` (was `(key,vector,metadata,config)`)
-  - `checkDuplicateAgainstKnowledge({signal,fingerprint,knowledgeMap})→boolean` (was `(signal,map)→DuplicateCheckResult`)
-  - `claimIdempotencyKey({key,ttlSeconds,meta})→{claimed:boolean}` (was `(key,action,signalId,companyName)→boolean`)
-  - `buildRuleDecision({signal,thresholds,validation,duplicate,anomaly,estimatedValue})→NexoraDecisionRecordLike`
-  - `finalizeDecision({signal,ruleDecision,aiDecision,...})→NexoraDecisionRecordLike`
-  - `detectAnomaly(signal,knowledgeMap)` (was `(signal,winRate:number)`)
-  - `upsertKnowledgeEntry(KnowledgeEntry)` (was `(entryKey,updates)`)
-  - `createAuditLog({runId,level,event,message,meta})` (was positional strings)
-  - `completeIdempotencyKey({key,meta})` (was `(key,status)`)
-  - `computeSignalFingerprint(signal,action?)` — action now optional
-  - `validateSignal` — returns `{valid:boolean, overallValid:boolean, ...}` (added `valid` alias)
-- **Missing Types Added**: `NexoraSignalLike`, `NexoraDecisionRecordLike`, `NexoraDecisionAction`, `NexoraEngineLearningSummary`, `NexoraEngineResult`, `NexoraRunContext` added to `nexora-types.ts`
-- **NexoraConfig Updated**: All fields made optional to accommodate both orchestrator and support usage
-- **Stale Lock Cleared**: DB row `nexora_main` cleared from `nexora_run_locks`; `acquireRunLock` now only deletes expired locks (not all locks) to prevent lock-and-immediately-delete race
-- **Verified Working**: Nexora run returns `ok:true` in <20s, lock table empty after each run, all 4 observability endpoints return correct data, outcome feedback loop records and recalibrates
+**Key API Endpoints (all verified working):**
+- `POST /api/nexora/run` — trigger a full intelligence run (signal ingestion → scoring → decisions → actions)
+- `GET /api/nexora/health` — system health check (7 checks: locks, actions, idempotency, learning, queue, jobs, activity)
+- `GET /api/nexora/decisions?limit=N` — recent brain decisions from DB
+- `GET /api/nexora/pipeline` — opportunities pipeline `{opportunities:[], total:N}`
+- `GET /api/nexora/outcomes` — outcome records `{outcomes:[...]}`
+- `GET /api/nexora/financial-summary` — revenue intelligence `{pipeline, outcomes, quotes, signals}`
+- `POST /api/nexora/pipeline/:id/auto-quote` — generate AI quote draft for an opportunity
+- `GET /api/nexora/runs` — run history
 
-## Crash Fix History (April 2026)
-- **Nexora Orchestrator brace corruption fixed**: `server/services/intelligence/nexoraOrchestrator.ts` had corrupted brace structure from prior agent edits — duplicate `if` block at line 882, `safelyPush` function never closed, `pushAction` calling non-existent `doPush()`, and `Promise.all` callback never terminated. Fixed by: removing the duplicate `if`, properly closing `safelyPush` with try/catch/return, deleting the broken `pushAction` and replacing its callsites with `safelyPush`, and adding proper closure for the per-signal callback and `runCore` function with a function-level try/catch.
-- **Missing service files created**: `officeMovRadarService.ts`, `newsFeedScanner.ts`, `dealHunter.ts`, `nexoraAI.ts` — these were imported by the orchestrator but did not exist. Created with real DB-backed implementations.
-- **`multer` import added** to `server/routes.ts` (was used but not imported).
-- **`runManufacturerOutreach` import added** to `server/routes.ts`.
-- **Security**: `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` moved from plaintext `.replit` to encrypted Replit secrets.
+**DB Tables (all present):**
+- `leads` — inbound CRM with AI enrichment (office_size_sqm, budget_min, budget_max, estimated_value_min/max added)
+- `opportunities` — opportunity spine linked to signals and decisions
+- `nexora_decisions` — full decision audit trail with idempotency
+- `nexora_outcomes` — win/loss outcomes with revenue and channel tracking
+- `nexora_runs` — run history with stats
+- `nexora_idempotency_keys` — deduplication layer (unique on idem_key)
+- `nexora_learning_weights` — adaptive weights updated after each run
 
-## Nexora 100% End-to-End Proof (April 2026)
-All 7 audit gaps fixed and proven with live DB data across two consecutive proof runs.
+**Background Workers (pg-boss):**
+- `scan.all` — signal ingestion worker (Adzuna, radar, pipeline)
+- `nexora.push.pipeline.retry` — durable retry for pipeline push actions
+- `nexora.push.radar.retry` — durable retry for radar push actions
+- Follow-up scheduler runs every hour (subordinated to Nexora)
 
-- **T001 — Architecture freeze**: Removed 5 dead `POST /api/nexora/run` route definitions (lines 426–494), leaving only the canonical route. WhatsApp webhook preserved.
-- **T002 — Action execution fixed**: Root cause was idempotency keys being marked `completed` even when no push happened (action was `hold`). Fix: `completeIdempotencyKey` now only called when `pushedPipeline || pushedRadar || reviewed`. Also fixed `claimIdempotencyKey` to purge expired `completed` keys at claim-time. Result: 62 radar pushes + 1 pipeline push in run 1; 34 radar pushes in run 2. All `push_radar` actions now correctly update `office_move_radar.status → "Qualified"`.
-- **T003 — DB protections**: Added `idx_nexdec_idempotency_key` index on `nexora_decisions`. Confirmed `nexora_idempotency_keys` already has unique constraint on `idem_key` (correct design — decisions are audit rows per run, not unique per signal).
-- **T004 — Learning guard**: Added `MIN_LEARNING_SAMPLE = 3` guard in `applyLearningFromRun()`. Learning frozen log written when sample < threshold. Prevents threshold drift from insufficient feedback.
-- **T005 — Health monitoring**: `/api/nexora/health` endpoint added (7 checks: noStaleLock, actionsExecuting, idempotencyWorking, learningStable, approvalQueueHealthy, noFailedJobs, recentActivity). System Health Scorecard panel added to Admin Nexora Command Centre with live pass/fail per check.
-- **T006 — Outreach safety**: `POST /api/nexora/outreach/approve-batch` endpoint added. Approves low-risk draft messages (no recipient email = review-only). Cleared 180-message backlog in one call. Batch Approve button added to admin dashboard.
-- **T007 — Proof runs**: Run 1 → 79 radar + 1 pipeline pushed across 183 decisions. Run 2 → 34 additional radar pushes (fresh signals only; idempotency blocked re-processing of run 1 signals). Final health: 7/7 PASS.
+**Safety Systems:**
+- `SAFE_MODE=true` env var gates all outbound actions (no emails sent without approval)
+- DB deduplication via idempotency keys prevents double-processing
+- Approval queue (137+ messages) for admin review before outbound
+- Confidence threshold: 50/100 (configurable)
+
+**Admin Command Centre:**
+- `/admin/nexora` — Nexora Command Centre with health, decisions, runs, and financial intelligence
+- `/admin/nexora` includes NexoraCopilot (admin chat) gated by admin session
+- All dead admin page routes redirected to `/admin/nexora`
+
+**Storage Fix (Critical):**
+- `import { storage } from "./storage"` added to `server/routes.ts` (was missing, breaking all storage-dependent routes)
+- 5 missing columns added to `leads` table: `budget_min`, `budget_max`, `estimated_value_min`, `estimated_value_max`, `updated_at`
 
 ## External Dependencies
 - **Database**: PostgreSQL
 - **ORM**: Drizzle ORM
 - **Email**: Nodemailer
-- **AI**: OpenAI
+- **AI**: OpenAI (gpt-4o and gpt-4o-mini)
 - **Payments**: Stripe
 - **Booking Integration**: Google Calendar, Calendly
+- **Job Queue**: pg-boss (durable background job system)
+- **Signal Source**: Adzuna API (Australian job market signals)
+- **Communication**: Resend (email), WhatsApp webhook
 - **Marketing Channels (API Integrations)**: Telegram, Facebook, Instagram, X/Twitter, WhatsApp Business
