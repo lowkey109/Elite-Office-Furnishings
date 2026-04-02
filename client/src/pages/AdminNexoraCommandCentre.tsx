@@ -1163,18 +1163,23 @@ export default function AdminNexoraCommandCentre() {
               <div className="flex items-center gap-2 text-sm text-white/30 py-8 justify-center">
                 <Loader2 className="w-4 h-4 animate-spin" /> Loading financial intelligence...
               </div>
-            ) : !financialSummary ? (
+            ) : !financialSummary || !financialSummary.pipeline || !financialSummary.outcomes || !financialSummary.quotes || !financialSummary.signals ? (
               <div className="py-8 text-center text-white/25 text-sm">Financial summary unavailable.</div>
             ) : (
               <>
                 {/* Top KPI row */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border border-white/8">
-                  {[
-                    { label: "Pipeline Value", value: fmt$(financialSummary.pipeline.totalPipelineValue), sub: `${financialSummary.pipeline.totalOpportunities} opportunities`, color: "text-[hsl(43,78%,52%)]" },
-                    { label: "Revenue Won", value: fmt$(financialSummary.pipeline.wonValue), sub: `${financialSummary.pipeline.wonOpportunities} closed`, color: "text-emerald-400" },
-                    { label: "Win Rate", value: `${financialSummary.outcomes.winRate.toFixed(1)}%`, sub: `${financialSummary.outcomes.totalWins}W / ${financialSummary.outcomes.totalLosses}L`, color: financialSummary.outcomes.winRate >= 50 ? "text-emerald-400" : "text-yellow-400" },
-                    { label: "Avg Deal Size", value: fmt$(financialSummary.outcomes.avgDealValue), sub: "from closed outcomes", color: "text-white/70" },
-                  ].map((kpi, i) => (
+                  {(() => {
+                    const p = financialSummary.pipeline;
+                    const o = financialSummary.outcomes;
+                    const winRate = typeof o.winRate === "number" ? o.winRate : 0;
+                    return [
+                      { label: "Pipeline Value", value: fmt$(p.totalPipelineValue ?? 0), sub: `${p.totalOpportunities ?? 0} opportunities`, color: "text-[hsl(43,78%,52%)]" },
+                      { label: "Revenue Won", value: fmt$(p.wonValue ?? 0), sub: `${p.wonOpportunities ?? 0} closed`, color: "text-emerald-400" },
+                      { label: "Win Rate", value: `${winRate.toFixed(1)}%`, sub: `${o.totalWins ?? 0}W / ${o.totalLosses ?? 0}L`, color: winRate >= 50 ? "text-emerald-400" : "text-yellow-400" },
+                      { label: "Avg Deal Size", value: fmt$(o.avgDealValue ?? 0), sub: "from closed outcomes", color: "text-white/70" },
+                    ];
+                  })().map((kpi, i) => (
                     <div key={i} className={`px-5 py-4 bg-white/[0.02] ${i < 3 ? "border-r border-white/5" : ""}`}>
                       <div className="text-[10px] text-white/30 uppercase tracking-wide mb-1.5">{kpi.label}</div>
                       <div className={`text-xl font-light mb-1 ${kpi.color}`} data-testid={`stat-finance-${kpi.label.toLowerCase().replace(/\s+/g, "-")}`}>{kpi.value}</div>
@@ -1185,78 +1190,86 @@ export default function AdminNexoraCommandCentre() {
 
                 {/* Quotes + Signals row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {/* Quotes */}
                   <div className="border border-white/8 bg-white/[0.02]">
                     <div className="px-5 py-3 border-b border-white/5 flex items-center gap-2">
                       <FileText className="w-3.5 h-3.5 text-[hsl(43,78%,52%)]" />
                       <span className="text-sm font-medium text-white">Quotes</span>
                     </div>
-                    <div className="grid grid-cols-2 divide-x divide-white/5">
-                      <div className="px-5 py-4">
-                        <div className="text-[10px] text-white/30 uppercase tracking-wide mb-1.5">Total Quotes</div>
-                        <div className="text-2xl font-light text-white mb-1" data-testid="stat-finance-total-quotes">{financialSummary.quotes.totalQuotes}</div>
-                        <div className="text-[10px] text-white/25">{financialSummary.quotes.acceptedQuotes} accepted</div>
+                    {!financialSummary.quotes ? (
+                      <div className="px-5 py-6 text-xs text-white/25">Quotes data unavailable.</div>
+                    ) : (
+                      <div className="grid grid-cols-2 divide-x divide-white/5">
+                        <div className="px-5 py-4">
+                          <div className="text-[10px] text-white/30 uppercase tracking-wide mb-1.5">Total Quotes</div>
+                          <div className="text-2xl font-light text-white mb-1" data-testid="stat-finance-total-quotes">{financialSummary.quotes.totalQuotes ?? 0}</div>
+                          <div className="text-[10px] text-white/25">{financialSummary.quotes.acceptedQuotes ?? 0} accepted</div>
+                        </div>
+                        <div className="px-5 py-4">
+                          <div className="text-[10px] text-white/30 uppercase tracking-wide mb-1.5">Total Quote Value</div>
+                          <div className="text-2xl font-light text-[hsl(43,78%,52%)] mb-1" data-testid="stat-finance-quote-value">{fmt$(financialSummary.quotes.totalQuoteValue ?? 0)}</div>
+                          <div className="text-[10px] text-white/25">avg {fmt$(financialSummary.quotes.avgQuoteValue ?? 0)}</div>
+                        </div>
                       </div>
-                      <div className="px-5 py-4">
-                        <div className="text-[10px] text-white/30 uppercase tracking-wide mb-1.5">Total Quote Value</div>
-                        <div className="text-2xl font-light text-[hsl(43,78%,52%)] mb-1" data-testid="stat-finance-quote-value">{fmt$(financialSummary.quotes.totalQuoteValue)}</div>
-                        <div className="text-[10px] text-white/25">avg {fmt$(financialSummary.quotes.avgQuoteValue)}</div>
-                      </div>
-                    </div>
+                    )}
                   </div>
 
+                  {/* Signals */}
                   <div className="border border-white/8 bg-white/[0.02]">
                     <div className="px-5 py-3 border-b border-white/5 flex items-center gap-2">
                       <Activity className="w-3.5 h-3.5 text-purple-400" />
                       <span className="text-sm font-medium text-white">Signals Processed</span>
                     </div>
-                    <div className="grid grid-cols-3 divide-x divide-white/5">
-                      <div className="px-4 py-4">
-                        <div className="text-[10px] text-white/30 uppercase tracking-wide mb-1.5">Total</div>
-                        <div className="text-2xl font-light text-white" data-testid="stat-finance-signals-total">{financialSummary.signals.total}</div>
+                    {!financialSummary.signals ? (
+                      <div className="px-5 py-6 text-xs text-white/25">Signals data unavailable.</div>
+                    ) : (
+                      <div className="grid grid-cols-3 divide-x divide-white/5">
+                        <div className="px-4 py-4">
+                          <div className="text-[10px] text-white/30 uppercase tracking-wide mb-1.5">Total</div>
+                          <div className="text-2xl font-light text-white" data-testid="stat-finance-signals-total">{financialSummary.signals.total ?? 0}</div>
+                        </div>
+                        <div className="px-4 py-4">
+                          <div className="text-[10px] text-white/30 uppercase tracking-wide mb-1.5">Today</div>
+                          <div className="text-2xl font-light text-white/70" data-testid="stat-finance-signals-today">{financialSummary.signals.todayCount ?? 0}</div>
+                        </div>
+                        <div className="px-4 py-4">
+                          <div className="text-[10px] text-white/30 uppercase tracking-wide mb-1.5">This Week</div>
+                          <div className="text-2xl font-light text-white/70" data-testid="stat-finance-signals-week">{financialSummary.signals.thisWeekCount ?? 0}</div>
+                        </div>
                       </div>
-                      <div className="px-4 py-4">
-                        <div className="text-[10px] text-white/30 uppercase tracking-wide mb-1.5">Today</div>
-                        <div className="text-2xl font-light text-white/70">{financialSummary.signals.todayCount}</div>
-                      </div>
-                      <div className="px-4 py-4">
-                        <div className="text-[10px] text-white/30 uppercase tracking-wide mb-1.5">This Week</div>
-                        <div className="text-2xl font-light text-white/70">{financialSummary.signals.thisWeekCount}</div>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 </div>
 
                 {/* Top Opportunities */}
-                {financialSummary.pipeline.topOpportunities.length > 0 && (
+                {(financialSummary.pipeline.topOpportunities ?? []).length > 0 ? (
                   <div className="border border-white/8 bg-white/[0.02]">
                     <div className="px-5 py-3 border-b border-white/5 flex items-center gap-2">
                       <TrendingUp className="w-3.5 h-3.5 text-blue-400" />
                       <span className="text-sm font-medium text-white">Top Pipeline Opportunities</span>
                     </div>
                     <div className="divide-y divide-white/5">
-                      {financialSummary.pipeline.topOpportunities.map((opp) => (
+                      {(financialSummary.pipeline.topOpportunities ?? []).map((opp) => (
                         <div key={opp.id} className="flex items-center gap-4 px-5 py-3 text-xs hover:bg-white/[0.02]" data-testid={`row-opp-${opp.id}`}>
                           <Building2 className="w-3.5 h-3.5 text-white/20 flex-shrink-0" />
                           <div className="flex-1 min-w-0">
                             <div className="text-white/80 font-medium truncate">{opp.companyName || "Unknown"}</div>
-                            <div className="text-white/30 text-[10px]">{timeAgo(opp.createdAt)}</div>
+                            <div className="text-white/30 text-[10px]">{timeAgo(opp.createdAt ?? null)}</div>
                           </div>
-                          <Badge className="text-[9px] px-2 bg-blue-500/10 text-blue-300 border-blue-500/20 capitalize">{opp.stage}</Badge>
-                          <div className="text-[hsl(43,78%,52%)] font-medium">{fmt$(opp.estimatedValue)}</div>
+                          <Badge className="text-[9px] px-2 bg-blue-500/10 text-blue-300 border-blue-500/20 capitalize">{opp.stage ?? "new"}</Badge>
+                          <div className="text-[hsl(43,78%,52%)] font-medium">{fmt$(opp.estimatedValue ?? 0)}</div>
                         </div>
                       ))}
                     </div>
                   </div>
-                )}
-
-                {financialSummary.pipeline.topOpportunities.length === 0 && (
+                ) : (
                   <div className="border border-white/8 bg-white/[0.02] px-5 py-8 text-center text-white/25 text-sm">
                     No pipeline opportunities yet. Run Nexora to start pushing signals into the pipeline.
                   </div>
                 )}
 
                 <div className="text-[10px] text-white/20 text-right">
-                  Generated {timeAgo(financialSummary.generatedAt)}
+                  Generated {timeAgo(financialSummary.generatedAt ?? null)}
                 </div>
               </>
             )}

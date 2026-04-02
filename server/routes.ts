@@ -2133,7 +2133,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
         db.execute(rawSql`SELECT COUNT(*)::int AS cnt FROM nexora_decisions WHERE created_at >= ${weekStart}`),
       ]);
 
-      res.json({
+      const payload = {
         generatedAt: new Date().toISOString(),
         pipeline: {
           totalOpportunities: allOpps.length,
@@ -2161,7 +2161,30 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
           todayCount: Number((todayRes.rows?.[0] as any)?.cnt ?? 0),
           thisWeekCount: Number((weekRes.rows?.[0] as any)?.cnt ?? 0),
         },
-      });
+      };
+
+      console.log("[financial-summary] shape:", JSON.stringify({
+        keys: Object.keys(payload),
+        pipeline_keys: Object.keys(payload.pipeline),
+        outcomes_keys: Object.keys(payload.outcomes),
+        quotes_keys: Object.keys(payload.quotes),
+        signals_keys: Object.keys(payload.signals),
+        sample: {
+          totalPipelineValue: payload.pipeline.totalPipelineValue,
+          winRate: payload.outcomes.winRate,
+          totalQuotes: payload.quotes.totalQuotes,
+          acceptedQuotes: payload.quotes.acceptedQuotes,
+          totalQuoteValue: payload.quotes.totalQuoteValue,
+          avgQuoteValue: payload.quotes.avgQuoteValue,
+          signals_total: payload.signals.total,
+          signals_todayCount: payload.signals.todayCount,
+          signals_thisWeekCount: payload.signals.thisWeekCount,
+          topOpportunities_count: payload.pipeline.topOpportunities.length,
+          topOpp_fields: payload.pipeline.topOpportunities[0] ? Object.keys(payload.pipeline.topOpportunities[0]) : [],
+        },
+      }));
+
+      res.json(payload);
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
