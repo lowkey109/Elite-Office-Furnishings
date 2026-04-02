@@ -2089,6 +2089,8 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
 
   app.get("/api/nexora/financial-summary", async (_req, res) => {
     try {
+      const { sql: rawSql } = await import("drizzle-orm");
+
       const [allOpps, allOutcomes, allQuotes] = await Promise.all([
         storage.getOpportunities({ limit: 500 }),
         storage.getNexoraOutcomes({ limit: 500 }),
@@ -2100,25 +2102,36 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
       const totalPipelineValue = openOpps.reduce((s, o) => s + (o.estimatedValue ?? 0), 0);
       const wonValue = wonOpps.reduce((s, o) => s + (o.estimatedValue ?? 0), 0);
 
-      const wins = allOutcomes.filter(o => o.outcome === "win").length;
-      const losses = allOutcomes.filter(o => o.outcome === "loss").length;
+      const wins = allOutcomes.filter(o => o.outcome === "won" || o.outcome === "win").length;
+      const losses = allOutcomes.filter(o => o.outcome === "lost" || o.outcome === "loss").length;
       const winRate = wins + losses > 0 ? Math.round((wins / (wins + losses)) * 100) : 0;
-      const avgDealValue = wins > 0
-        ? Math.round(allOutcomes.filter(o => o.outcome === "win" && o.dealValue).reduce((s, o) => s + (o.dealValue ?? 0), 0) / wins)
+      const winOutcomes = allOutcomes.filter(o => (o.outcome === "won" || o.outcome === "win") && o.dealValue);
+      const avgDealValue = winOutcomes.length > 0
+        ? Math.round(winOutcomes.reduce((s, o) => s + (o.dealValue ?? 0), 0) / winOutcomes.length)
         : 0;
 
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-      const recentWins = allOutcomes.filter(o => o.outcome === "win" && o.recordedAt && new Date(o.recordedAt) > thirtyDaysAgo);
+      const recentWins = allOutcomes.filter(o => (o.outcome === "won" || o.outcome === "win") && o.recordedAt && new Date(o.recordedAt) > thirtyDaysAgo);
       const revenueThisMonth = recentWins.reduce((s, o) => s + (o.dealValue ?? 0), 0);
 
-      const draftQuotes = allQuotes.filter(q => q.status === "Draft");
-      const sentQuotes = allQuotes.filter(q => q.status === "Sent");
-      const quotesPipelineValue = sentQuotes.reduce((s, q) => s + (q.totalIncGst ?? 0), 0);
+      const acceptedQuotes = allQuotes.filter(q => q.status === "Accepted" || q.status === "Sent");
+      const totalQuoteValue = allQuotes.reduce((s, q) => s + (q.totalIncGst ?? 0), 0);
+      const avgQuoteValue = allQuotes.length > 0 ? Math.round(totalQuoteValue / allQuotes.length) : 0;
 
       const topOpportunities = openOpps
         .sort((a, b) => (b.estimatedValue ?? 0) - (a.estimatedValue ?? 0))
         .slice(0, 5)
-        .map(o => ({ id: o.id, company: o.companyName, value: o.estimatedValue, score: o.opportunityScore, stage: o.stage }));
+        .map(o => ({ id: o.id, companyName: o.companyName, estimatedValue: o.estimatedValue ?? 0, stage: o.stage ?? "new", createdAt: o.createdAt }));
+
+      // Signal counts from decisions table
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+      const weekStart = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const [totalSignalsRes, todayRes, weekRes] = await Promise.all([
+        db.execute(rawSql`SELECT COUNT(*)::int AS cnt FROM nexora_decisions`),
+        db.execute(rawSql`SELECT COUNT(*)::int AS cnt FROM nexora_decisions WHERE created_at >= ${todayStart}`),
+        db.execute(rawSql`SELECT COUNT(*)::int AS cnt FROM nexora_decisions WHERE created_at >= ${weekStart}`),
+      ]);
 
       res.json({
         generatedAt: new Date().toISOString(),
@@ -2139,9 +2152,14 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
         },
         quotes: {
           totalQuotes: allQuotes.length,
-          draftQuotes: draftQuotes.length,
-          sentQuotes: sentQuotes.length,
-          quotesPipelineValue,
+          acceptedQuotes: acceptedQuotes.length,
+          totalQuoteValue,
+          avgQuoteValue,
+        },
+        signals: {
+          total: Number((totalSignalsRes.rows?.[0] as any)?.cnt ?? 0),
+          todayCount: Number((todayRes.rows?.[0] as any)?.cnt ?? 0),
+          thisWeekCount: Number((weekRes.rows?.[0] as any)?.cnt ?? 0),
         },
       });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
