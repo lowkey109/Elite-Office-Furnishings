@@ -9558,13 +9558,46 @@ Rules:
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
-  // POST /api/admin/import-leads — CSV/JSON bulk import
+  // POST /api/admin/import-leads — CSV/JSON bulk import (legacy)
   app.post("/api/admin/import-leads", async (req, res) => {
     try {
       const { bulkImportLeads } = await import("./services/leadEngine");
       const { rows } = req.body as { rows: Array<{ companyName: string; email?: string; phone?: string; city: string; contactName?: string }> };
       if (!Array.isArray(rows)) return res.status(400).json({ error: "rows array required" });
       const result = await bulkImportLeads(rows);
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ── CSV Import (schema-safe) ─────────────────────────────────────────────────
+
+  // POST /api/leads/preview-csv — parse and validate CSV without committing
+  app.post("/api/leads/preview-csv", async (req, res) => {
+    try {
+      const { csv } = req.body as { csv: string };
+      if (!csv || typeof csv !== "string") return res.status(400).json({ error: "csv string required" });
+      const { previewCSV } = await import("./services/leadCsvImportService");
+      const result = await previewCSV(
+        csv,
+        (email) => storage.findLeadByEmail(email),
+        (company, location) => storage.findLeadByCompanyLocation(company, location),
+      );
+      res.json(result);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/leads/import-csv — commit valid rows to the leads table
+  app.post("/api/leads/import-csv", async (req, res) => {
+    try {
+      const { csv } = req.body as { csv: string };
+      if (!csv || typeof csv !== "string") return res.status(400).json({ error: "csv string required" });
+      const { importCSV } = await import("./services/leadCsvImportService");
+      const result = await importCSV(
+        csv,
+        (email) => storage.findLeadByEmail(email),
+        (company, location) => storage.findLeadByCompanyLocation(company, location),
+        (lead) => storage.createLead(lead),
+      );
       res.json(result);
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });

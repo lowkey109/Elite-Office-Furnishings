@@ -4,8 +4,22 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
   Users, Zap, Upload, RefreshCw, Search, TrendingUp, Globe, Linkedin,
-  MapPin, FileText, CheckCircle, Filter, Download, Plus
+  MapPin, FileText, CheckCircle, Filter, Download, Plus, AlertCircle, XCircle, Loader2
 } from "lucide-react";
+
+type PreviewRow = {
+  row: number;
+  data: Record<string, unknown>;
+  status: "valid" | "invalid" | "duplicate";
+  reason?: string;
+};
+
+type PreviewResult = {
+  valid: PreviewRow[];
+  invalid: PreviewRow[];
+  duplicates: PreviewRow[];
+  totalRows: number;
+};
 
 
 const SOURCE_COLORS: Record<string, string> = {
@@ -31,7 +45,45 @@ export default function AdminLeadEngine() {
   const [sourceFilter, setSourceFilter] = useState<string>("");
   const [csvText, setCsvText] = useState("");
   const [showCsvModal, setShowCsvModal] = useState(false);
+  const [previewData, setPreviewData] = useState<PreviewResult | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  function closeCsvModal() {
+    setShowCsvModal(false);
+    setCsvText("");
+    setPreviewData(null);
+  }
+
+  async function handlePreview() {
+    if (!csvText.trim()) return;
+    setPreviewLoading(true);
+    try {
+      const res = await fetch("/api/leads/preview-csv", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ csv: csvText }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Preview failed");
+      setPreviewData(data);
+    } catch (e: any) {
+      toast({ title: "Preview failed", description: e.message, variant: "destructive" });
+    } finally {
+      setPreviewLoading(false);
+    }
+  }
+
+  function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setCsvText(ev.target?.result as string ?? "");
+      setPreviewData(null);
+    };
+    reader.readAsText(file);
+  }
 
   const { data: stats, refetch: refetchStats } = useQuery<{
     total: number; todayCount: number; avgScore: number;
@@ -77,25 +129,14 @@ export default function AdminLeadEngine() {
   });
 
   const csvMut = useMutation({
-    mutationFn: (rows: any[]) => apiRequest("/api/admin/import-leads", { method: "POST", body: JSON.stringify({ rows }) }),
+    mutationFn: () => apiRequest("/api/leads/import-csv", { method: "POST", body: JSON.stringify({ csv: csvText }) }),
     onSuccess: (d: any) => {
-      toast({ title: `CSV Import: ${d.added} added`, description: `${d.skipped} skipped, ${d.errors} errors` });
-      setShowCsvModal(false); setCsvText("");
+      toast({ title: `CSV Import: ${d.imported} imported`, description: `${d.duplicates} duplicates skipped, ${d.invalid} invalid` });
+      closeCsvModal();
       qc.invalidateQueries({ queryKey: ["/api/admin/lead-engine"] });
     },
     onError: (e: any) => toast({ title: "Import error", description: e.message, variant: "destructive" }),
   });
-
-  function parseCsv(text: string) {
-    const lines = text.trim().split("\n");
-    const headers = lines[0].split(",").map(h => h.trim().toLowerCase());
-    return lines.slice(1).map(line => {
-      const vals = line.split(",").map(v => v.trim().replace(/^"|"$/g, ""));
-      const obj: Record<string, string> = {};
-      headers.forEach((h, i) => { obj[h] = vals[i] ?? ""; });
-      return { companyName: obj["companyname"] || obj["company"] || "", email: obj["email"], phone: obj["phone"], city: obj["city"] || "Sydney", contactName: obj["contactname"] || obj["contact"] };
-    }).filter(r => r.companyName);
-  }
 
   const leads = leadsData?.leads ?? [];
 
@@ -197,25 +238,146 @@ export default function AdminLeadEngine() {
 
       {/* CSV Import Modal */}
       {showCsvModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-[hsl(220,18%,12%)] border border-[rgba(255,255,255,0.1)] rounded-2xl p-6 w-full max-w-lg">
-            <h3 className="text-white font-semibold mb-2">CSV Import</h3>
-            <p className="text-white/40 text-xs mb-3">Format: companyName, email, phone, city, contactName (first row = headers)</p>
-            <textarea
-              value={csvText}
-              onChange={e => setCsvText(e.target.value)}
-              className="w-full h-40 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-lg p-3 text-white text-xs font-mono resize-none outline-none focus:border-[rgba(201,168,76,0.4)]"
-              placeholder={"companyName,email,phone,city\nAcme Corp,info@acme.com.au,02 9100 1000,Sydney\nBeta Ltd,hello@beta.com.au,03 8100 2000,Melbourne"}
-              data-testid="input-csv"
-            />
-            <div className="flex gap-2 mt-3">
-              <button
-                onClick={() => { const rows = parseCsv(csvText); if (rows.length) csvMut.mutate(rows); else toast({ title: "No valid rows", variant: "destructive" }); }}
-                disabled={csvMut.isPending}
-                className="flex-1 bg-[rgba(201,168,76,0.1)] hover:bg-[rgba(201,168,76,0.2)] border border-[rgba(201,168,76,0.2)] rounded-lg py-2 text-[hsl(43,78%,52%)] text-sm font-semibold transition-colors disabled:opacity-50"
-                data-testid="btn-csv-submit"
-              >{csvMut.isPending ? "Importing..." : "Import"}</button>
-              <button onClick={() => setShowCsvModal(false)} className="px-4 py-2 text-white/50 hover:text-white/80 text-sm transition-colors">Cancel</button>
+        <div className="fixed inset-0 bg-black/75 flex items-start justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-[hsl(220,18%,11%)] border border-[rgba(255,255,255,0.1)] rounded-2xl w-full max-w-2xl my-10">
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[rgba(255,255,255,0.07)]">
+              <div>
+                <h3 className="text-white font-semibold flex items-center gap-2">
+                  <Upload className="w-4 h-4 text-orange-400" /> CSV Import
+                </h3>
+                <p className="text-white/35 text-xs mt-0.5">Paste CSV or upload a file — preview before committing</p>
+              </div>
+              <button onClick={closeCsvModal} className="text-white/30 hover:text-white/60 transition-colors" data-testid="btn-csv-close">
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {/* Supported columns */}
+              <div className="bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] rounded-lg px-4 py-3">
+                <p className="text-white/30 text-[10px] uppercase tracking-wider mb-1.5">Supported CSV columns</p>
+                <p className="text-white/50 text-xs font-mono">companyName, contactName, email, phone, city, notes, staffCount, budgetMin, budgetMax, estimatedValue, source</p>
+                <p className="text-white/25 text-[10px] mt-1">Required: email. Recommended: companyName + contactName. First row must be headers.</p>
+              </div>
+
+              {/* File upload + textarea */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-white/50 text-xs">Paste CSV data</label>
+                  <button
+                    onClick={() => fileRef.current?.click()}
+                    className="text-[10px] text-orange-400/80 hover:text-orange-400 border border-orange-400/20 hover:border-orange-400/40 px-2.5 py-1 rounded transition-colors"
+                    data-testid="btn-upload-file"
+                  >
+                    Upload .csv file
+                  </button>
+                  <input ref={fileRef} type="file" accept=".csv,text/csv" className="hidden" onChange={handleFileUpload} data-testid="input-file-upload" />
+                </div>
+                <textarea
+                  value={csvText}
+                  onChange={e => { setCsvText(e.target.value); setPreviewData(null); }}
+                  className="w-full h-36 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-lg p-3 text-white text-xs font-mono resize-none outline-none focus:border-[rgba(201,168,76,0.35)] transition-colors"
+                  placeholder={"companyName,contactName,email,phone,city\nAcme Corp,Jane Smith,jane@acme.com.au,02 9100 1000,Sydney\nBeta Ltd,Mark Jones,mark@beta.com.au,03 8100 2000,Melbourne"}
+                  data-testid="input-csv"
+                />
+              </div>
+
+              {/* Preview results */}
+              {previewData && (
+                <div className="space-y-2">
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg px-4 py-3 text-center">
+                      <div className="text-2xl font-light text-emerald-400" data-testid="stat-preview-valid">{previewData.valid.length}</div>
+                      <div className="text-[10px] text-emerald-400/60 uppercase tracking-wide mt-0.5">Valid</div>
+                    </div>
+                    <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-lg px-4 py-3 text-center">
+                      <div className="text-2xl font-light text-yellow-400" data-testid="stat-preview-duplicates">{previewData.duplicates.length}</div>
+                      <div className="text-[10px] text-yellow-400/60 uppercase tracking-wide mt-0.5">Duplicates</div>
+                    </div>
+                    <div className="bg-red-500/5 border border-red-500/20 rounded-lg px-4 py-3 text-center">
+                      <div className="text-2xl font-light text-red-400" data-testid="stat-preview-invalid">{previewData.invalid.length}</div>
+                      <div className="text-[10px] text-red-400/60 uppercase tracking-wide mt-0.5">Invalid</div>
+                    </div>
+                  </div>
+
+                  {/* Row-level detail for invalid rows */}
+                  {previewData.invalid.length > 0 && (
+                    <div className="bg-red-500/5 border border-red-500/15 rounded-lg p-3">
+                      <p className="text-red-400/70 text-[10px] uppercase tracking-wide mb-2 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" /> Invalid rows (will be skipped)
+                      </p>
+                      <div className="space-y-1 max-h-28 overflow-y-auto">
+                        {previewData.invalid.map(r => (
+                          <div key={r.row} className="flex gap-2 text-[10px]">
+                            <span className="text-red-400/50 font-mono w-12 shrink-0">row {r.row}</span>
+                            <span className="text-red-400/60">{r.reason}</span>
+                            <span className="text-white/25 truncate">{String(r.data.email ?? r.data.company ?? "")}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Row-level detail for duplicates */}
+                  {previewData.duplicates.length > 0 && (
+                    <div className="bg-yellow-500/5 border border-yellow-500/15 rounded-lg p-3">
+                      <p className="text-yellow-400/70 text-[10px] uppercase tracking-wide mb-2">Duplicates (will be skipped)</p>
+                      <div className="space-y-1 max-h-20 overflow-y-auto">
+                        {previewData.duplicates.map(r => (
+                          <div key={r.row} className="flex gap-2 text-[10px]">
+                            <span className="text-yellow-400/50 font-mono w-12 shrink-0">row {r.row}</span>
+                            <span className="text-yellow-400/60">{r.reason}</span>
+                            <span className="text-white/25 truncate">{String(r.data.email ?? r.data.company ?? "")}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {previewData.valid.length === 0 && (
+                    <p className="text-white/30 text-xs text-center py-2">No valid rows to import.</p>
+                  )}
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-2 pt-1">
+                {!previewData ? (
+                  <button
+                    onClick={handlePreview}
+                    disabled={previewLoading || !csvText.trim()}
+                    className="flex-1 flex items-center justify-center gap-2 bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.1)] rounded-lg py-2.5 text-white/70 text-sm font-medium transition-colors disabled:opacity-40"
+                    data-testid="btn-csv-preview"
+                  >
+                    {previewLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                    {previewLoading ? "Analysing..." : "Preview Import"}
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setPreviewData(null)}
+                      className="px-4 py-2.5 text-white/40 hover:text-white/70 text-sm border border-[rgba(255,255,255,0.07)] rounded-lg transition-colors"
+                      data-testid="btn-csv-back"
+                    >
+                      ← Edit
+                    </button>
+                    <button
+                      onClick={() => csvMut.mutate()}
+                      disabled={csvMut.isPending || previewData.valid.length === 0}
+                      className="flex-1 flex items-center justify-center gap-2 bg-[rgba(201,168,76,0.1)] hover:bg-[rgba(201,168,76,0.18)] border border-[rgba(201,168,76,0.25)] rounded-lg py-2.5 text-[hsl(43,78%,52%)] text-sm font-semibold transition-colors disabled:opacity-40"
+                      data-testid="btn-csv-submit"
+                    >
+                      {csvMut.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                      {csvMut.isPending ? "Importing..." : `Import ${previewData.valid.length} lead${previewData.valid.length !== 1 ? "s" : ""}`}
+                    </button>
+                  </>
+                )}
+                <button onClick={closeCsvModal} className="px-4 py-2.5 text-white/40 hover:text-white/70 text-sm transition-colors" data-testid="btn-csv-cancel">
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>

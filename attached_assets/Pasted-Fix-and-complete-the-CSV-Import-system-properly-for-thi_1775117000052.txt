@@ -1,0 +1,170 @@
+Fix and complete the CSV Import system properly for this codebase.
+
+IMPORTANT:
+- Do not build a fake/demo importer
+- Do not use guessed field names
+- Do not leave placeholders
+- Do not stop at analysis
+- Make the real importer work with the EXISTING schema and EXISTING lead flow
+
+Context:
+The current zip/importer is too basic and not correctly wired to the real schema.
+The real `leads` table requires:
+- type (required)
+- name (required)
+- email (required)
+
+The real schema also supports:
+- company
+- phone
+- message
+- officeLocation
+- staffCount
+- budgetMin
+- budgetMax
+- estimatedValueMin
+- estimatedValueMax
+- sourcePage
+- leadStatus
+
+Goal:
+Build a production-safe CSV import flow for the Lead Engine.
+
+==================================================
+REQUIRED OUTPUT
+==================================================
+
+Create or fix these parts:
+
+1. Frontend modal
+- real CSV import modal
+- paste CSV textarea
+- optional file upload
+- preview before import
+- clear validation results
+- import confirmation
+- loading, success, and error states
+- match the existing admin style
+
+2. Backend preview endpoint
+- parse CSV safely
+- map fields correctly to the real leads schema
+- validate rows
+- detect duplicates
+- return:
+  - valid rows
+  - duplicate rows
+  - invalid rows
+  - row-level reasons
+
+3. Backend import endpoint
+- only import rows confirmed valid
+- insert into the real `leads` table
+- use correct field mapping
+- set:
+  - type = "csv_import"
+  - sourcePage = "csv_import"
+  - leadStatus = "new"
+- do NOT use wrong fields like:
+  - location
+  - source
+  - status
+  unless those are truly part of the real live storage path
+
+4. Deduplication
+- email first
+- if no email, use company + officeLocation
+- do not import duplicates
+- return counts:
+  - imported
+  - duplicates
+  - invalid
+
+5. Lead Engine wiring
+- connect the modal to the real Lead Engine page/button
+- refresh the live list after successful import
+
+==================================================
+REAL FIELD MAPPING
+==================================================
+
+Use this exact mapping unless code inspection proves a better real path:
+
+CSV columns:
+- companyName -> company
+- contactName -> name
+- email -> email
+- phone -> phone
+- city -> officeLocation
+- notes -> message
+- source -> sourcePage
+- staffCount -> staffCount
+- budgetMin -> budgetMin
+- budgetMax -> budgetMax
+- estimatedValue -> estimatedValueMin and estimatedValueMax
+
+Defaults:
+- type = "csv_import"
+- leadStatus = "new"
+- sourcePage = "csv_import" if source not supplied
+
+Reject rows with:
+- no email and no companyName
+- invalid email format when email exists
+- missing required minimum fields for a valid lead
+
+==================================================
+IMPLEMENTATION RULES
+==================================================
+
+- Inspect the actual schema and storage functions first
+- Use the real storage layer
+- If `storage.findLeadByEmail` does not exist, add the correct real lookup function
+- If preview/import routes do not exist, add them
+- If the current modal exists, upgrade it instead of duplicating it
+- Keep changes minimal but real
+- Make sure routes are mounted correctly
+- Verify the imported leads actually appear in the live Lead Engine list
+
+==================================================
+FILES TO INSPECT/FIX
+==================================================
+
+Inspect and update the real relevant files, likely including:
+- shared/schema.ts
+- server/storage.ts
+- server/routes.ts
+- Lead Engine page/component
+- any current CSV import modal/component
+- any existing lead import service or utility
+
+Likely create/fix:
+- client/src/components/admin/CSVImportModal.tsx
+- server/services/leadCsvImportService.ts
+- preview/import route handlers
+
+==================================================
+DEFINITION OF DONE
+==================================================
+
+Only consider this done when all are true:
+
+1. I can open the modal from the Lead Engine
+2. I can paste or upload CSV
+3. I can preview:
+   - valid
+   - duplicate
+   - invalid rows
+4. Import writes to the real `leads` table using the correct schema
+5. No wrong fields are used
+6. Imported leads appear in the live UI after refresh
+7. Duplicate rows are skipped
+8. Errors are shown clearly
+9. The system compiles and runs
+
+At the end, report:
+- exact files changed
+- exact routes added/updated
+- exact storage methods used
+- exact final CSV columns supported
+- whether preview + import were verified working

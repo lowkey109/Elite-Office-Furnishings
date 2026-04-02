@@ -1,0 +1,136 @@
+# Retry with a different filename/path that should be writable
+
+import zipfile, os
+
+base_path = "/mnt/data/csv_import_build_v2"
+os.makedirs(base_path + "/client/src/components/admin", exist_ok=True)
+os.makedirs(base_path + "/server/services", exist_ok=True)
+os.makedirs(base_path + "/server/routes", exist_ok=True)
+
+frontend_code = """import React, { useState } from "react";
+
+export default function CSVImportModal({ onClose, onSuccess }: any) {
+  const [csvText, setCsvText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleImport = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/leads/import-csv", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ csv: csvText }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || "Import failed");
+
+      alert(`Imported ${data.imported}, skipped ${data.duplicates}, rejected ${data.invalid}`);
+      onSuccess?.();
+      onClose();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.7)"}}>
+      <div style={{maxWidth:600,margin:"80px auto",background:"#111",padding:20,borderRadius:12,color:"#fff"}}>
+        <h2>CSV Import</h2>
+        <p>Format: companyName, email, phone, city, contactName</p>
+
+        <textarea
+          value={csvText}
+          onChange={(e) => setCsvText(e.target.value)}
+          rows={10}
+          style={{width:"100%",background:"#222",color:"#fff"}}
+        />
+
+        {error && <div style={{color:"red"}}>{error}</div>}
+
+        <div style={{marginTop:10}}>
+          <button onClick={handleImport} disabled={loading}>
+            {loading ? "Importing..." : "Import"}
+          </button>
+          <button onClick={onClose} style={{marginLeft:10}}>Cancel</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+"""
+open(base_path + "/client/src/components/admin/CSVImportModal.tsx","w").write(frontend_code)
+
+backend_service = """export async function importLeadsFromCSV(csv: string, storage: any) {
+  const rows = csv.split("\\n").map(r => r.trim()).filter(Boolean);
+  const headers = rows.shift()?.split(",").map(h => h.trim()) || [];
+
+  let imported = 0, duplicates = 0, invalid = 0;
+
+  for (const row of rows) {
+    const values = row.split(",");
+    const obj: any = {};
+    headers.forEach((h, i) => obj[h] = values[i]?.trim());
+
+    if (!obj.companyName && !obj.email) {
+      invalid++;
+      continue;
+    }
+
+    const exists = await storage.findLeadByEmail?.(obj.email);
+    if (exists) {
+      duplicates++;
+      continue;
+    }
+
+    await storage.createLead({
+      company: obj.companyName,
+      email: obj.email,
+      phone: obj.phone,
+      location: obj.city,
+      name: obj.contactName,
+      source: "csv_import",
+      status: "new"
+    });
+
+    imported++;
+  }
+
+  return { imported, duplicates, invalid };
+}
+"""
+open(base_path + "/server/services/leadCsvImportService.ts","w").write(backend_service)
+
+route_code = """import express from "express";
+import { importLeadsFromCSV } from "../services/leadCsvImportService";
+
+export const csvImportRouter = express.Router();
+
+csvImportRouter.post("/import-csv", async (req, res) => {
+  try {
+    const { csv } = req.body;
+    const result = await importLeadsFromCSV(csv, req.app.locals.storage);
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: "Import failed" });
+  }
+});
+"""
+open(base_path + "/server/routes/leadCsvImportRoute.ts","w").write(route_code)
+
+open(base_path + "/README.md","w").write("CSV Import Build - Ready to plug into your system")
+
+zip_path = "/mnt/data/csv_import_build_v2.zip"
+with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as z:
+    for root, dirs, files in os.walk(base_path):
+        for f in files:
+            full = os.path.join(root,f)
+            z.write(full, full.replace(base_path + "/", ""))
+
+zip_path

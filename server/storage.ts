@@ -172,6 +172,8 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   createLead(lead: InsertLead): Promise<Lead>;
   getLeads(): Promise<Lead[]>;
+  findLeadByEmail(email: string): Promise<Lead | undefined>;
+  findLeadByCompanyLocation(company: string, location: string): Promise<Lead | undefined>;
   createProspectedLead(data: Omit<ProspectedLead, "id" | "createdAt" | "status">): Promise<ProspectedLead>;
   getProspectedLeads(): Promise<ProspectedLead[]>;
   findProspectDuplicate(company: string, domain: string | null, sourceUrl: string | null): Promise<ProspectedLead | null>;
@@ -442,6 +444,18 @@ export class DrizzleStorage implements IStorage {
 
   async getLeads(): Promise<Lead[]> {
     return db.select().from(leads).orderBy(desc(leads.createdAt));
+  }
+
+  async findLeadByEmail(email: string): Promise<Lead | undefined> {
+    const [lead] = await db.select().from(leads).where(eq(leads.email, email.toLowerCase().trim())).limit(1);
+    return lead ?? undefined;
+  }
+
+  async findLeadByCompanyLocation(company: string, location: string): Promise<Lead | undefined> {
+    const [lead] = await db.select().from(leads)
+      .where(eq(leads.company, company.trim()))
+      .limit(1);
+    return lead ?? undefined;
   }
 
   async updateLeadScore(id: string, data: { opportunityScore: number; opportunityTier: string; signalsJson: string; nextAction: string; estimatedValueRange: string }): Promise<void> {

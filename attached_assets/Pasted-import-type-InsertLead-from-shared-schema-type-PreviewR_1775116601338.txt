@@ -1,0 +1,98 @@
+import type { InsertLead } from "@shared/schema";
+
+type PreviewRow = {
+  row: number;
+  data: Partial<InsertLead>;
+  status: "valid" | "invalid" | "duplicate";
+  reason?: string;
+};
+
+type PreviewResult = {
+  valid: PreviewRow[];
+  invalid: PreviewRow[];
+  duplicates: PreviewRow[];
+};
+
+function parseCSV(csv: string) {
+  const rows = csv.split("\n").map(r => r.trim()).filter(Boolean);
+  const headers = rows.shift()?.split(",").map(h => h.trim()) || [];
+
+  return rows.map((row, i) => {
+    const values = row.split(",");
+    const obj: any = {};
+    headers.forEach((h, idx) => obj[h] = values[idx]?.trim());
+    return { row: i + 1, obj };
+  });
+}
+
+function mapToLead(obj: any): Partial<InsertLead> {
+  return {
+    type: "csv_import",
+    name: obj.contactName || "Unknown",
+    email: obj.email,
+    company: obj.companyName || "",
+    phone: obj.phone || "",
+    officeLocation: obj.city || "",
+    message: obj.notes || "",
+    sourcePage: "csv_import",
+    leadStatus: "new",
+
+    staffCount: obj.staffCount ? parseInt(obj.staffCount) : undefined,
+    budgetMin: obj.budgetMin ? parseInt(obj.budgetMin) : undefined,
+    budgetMax: obj.budgetMax ? parseInt(obj.budgetMax) : undefined,
+    estimatedValueMin: obj.estimatedValue ? parseInt(obj.estimatedValue) : undefined,
+    estimatedValueMax: obj.estimatedValue ? parseInt(obj.estimatedValue) : undefined,
+  };
+}
+
+export async function previewCSV(csv: string, storage: any): Promise<PreviewResult> {
+  const parsed = parseCSV(csv);
+
+  const result: PreviewResult = {
+    valid: [],
+    invalid: [],
+    duplicates: [],
+  };
+
+  for (const { row, obj } of parsed) {
+    const lead = mapToLead(obj);
+
+    if (!lead.email || !lead.name) {
+      result.invalid.push({ row, data: lead, status: "invalid", reason: "Missing name/email" });
+      continue;
+    }
+
+    if (!lead.email.includes("@")) {
+      result.invalid.push({ row, data: lead, status: "invalid", reason: "Invalid email" });
+      continue;
+    }
+
+    const exists = await storage.findLeadByEmail?.(lead.email);
+
+    if (exists) {
+      result.duplicates.push({ row, data: lead, status: "duplicate" });
+      continue;
+    }
+
+    result.valid.push({ row, data: lead, status: "valid" });
+  }
+
+  return result;
+}
+
+export async function importCSV(csv: string, storage: any) {
+  const preview = await previewCSV(csv, storage);
+
+  let imported = 0;
+
+  for (const row of preview.valid) {
+    await storage.createLead(row.data);
+    imported++;
+  }
+
+  return {
+    imported,
+    duplicates: preview.duplicates.length,
+    invalid: preview.invalid.length,
+  };
+}
