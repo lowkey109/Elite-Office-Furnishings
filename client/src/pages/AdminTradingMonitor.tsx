@@ -309,11 +309,17 @@ export default function AdminTradingMonitor() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight" style={{ fontFamily: "'Playfair Display', serif" }} data-testid="trading-monitor-heading">Trading AI Monitor</h1>
-          <p className="text-white/40 text-sm mt-1">Paper trading · Real market data · Read-only observation</p>
+          <p className="text-white/40 text-sm mt-1">Paper trading · Deterministic demo data · Read-only observation</p>
         </div>
-        <div className="flex items-center gap-2" data-testid="trading-mode-badge">
-          <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-          <span className="text-xs text-amber-400 font-mono uppercase">PAPER MODE</span>
+        <div className="flex items-center gap-3" data-testid="trading-mode-badge">
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-orange-500/40 bg-orange-500/10" data-testid="simulation-label">
+            <div className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
+            <span className="text-xs text-orange-400 font-mono uppercase font-semibold tracking-wider">SIMULATION</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            <span className="text-xs text-amber-400 font-mono uppercase">PAPER MODE</span>
+          </div>
         </div>
       </div>
 

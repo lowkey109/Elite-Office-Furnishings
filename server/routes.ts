@@ -11257,7 +11257,7 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
   // GET /api/admin/trading/monitor — separate AI trading monitor (paper mode, admin-protected)
   app.get("/api/admin/trading/monitor", async (_req, res) => {
     try {
-      const { getTradingMonitorData } = await import("./services/tradingMonitor");
+      const { getTradingMonitorData } = await import("./services/trading");
       const data = getTradingMonitorData();
       res.json(data);
     } catch (err: any) {
