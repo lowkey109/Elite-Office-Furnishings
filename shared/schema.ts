@@ -3202,6 +3202,7 @@ export const paperPositions = pgTable(
   (t) => ({
     idxPpSymbol: index("idx_pp_symbol").on(t.symbol),
     idxPpStatus: index("idx_pp_status").on(t.status),
+    idxPpUniqueDecision: uniqueIndex("idx_pp_unique_decision").on(t.linkedDecisionId),
   }),
 );
 export const insertPaperPositionSchema = createInsertSchema(paperPositions).omit({ id: true, createdAt: true, updatedAt: true });
@@ -3232,6 +3233,7 @@ export const paperTradeOutcomes = pgTable(
     idxPtoSymbol: index("idx_pto_symbol").on(t.symbol),
     idxPtoOutcome: index("idx_pto_outcome").on(t.outcome),
     idxPtoCreatedAt: index("idx_pto_created_at").on(t.createdAt),
+    idxPtoUniquePosition: uniqueIndex("idx_pto_unique_position").on(t.linkedPositionId),
   }),
 );
 export const insertPaperTradeOutcomeSchema = createInsertSchema(paperTradeOutcomes).omit({ id: true, createdAt: true, updatedAt: true });

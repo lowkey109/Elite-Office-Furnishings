@@ -1,0 +1,237 @@
+T003 objective
+
+Upgrade the trading monitor from:
+	•	DB-backed paper positions with no real resolution
+
+into:
+	•	real-market paper trading
+	•	live price-fed mark-to-market
+	•	auto exits from actual price movement
+	•	real outcomes
+	•	real performance
+
+T003 in one line
+
+Live price feeds → market snapshots → open-position marking → exit evaluator → outcome writer → monitor updates
+
+Build order for T003
+
+1. Market data adapter layer
+
+Create clean adapters for:
+	•	BTC/USD
+	•	ETH/USD
+	•	SOL/USD
+	•	XAUUSD / gold if a real feed is available
+
+Do crypto first.
+If gold feed is not available yet, show unavailable rather than faking it.
+
+Each adapter should expose:
+	•	latest price
+	•	bid/ask if available
+	•	candle data if available
+	•	timestamp
+	•	source name
+	•	freshness status
+
+2. Market snapshot storage
+
+Add a table for real market snapshots.
+
+Suggested table:
+
+market_snapshots
+	•	id
+	•	symbol
+	•	source
+	•	price
+	•	bid
+	•	ask
+	•	high24h
+	•	low24h
+	•	volume24h
+	•	regime
+	•	fetchedAt
+	•	isStale
+	•	rawPayloadJson
+
+Purpose:
+	•	decisions can reference the exact market state they used
+	•	positions can mark against real snapshots
+	•	exits become auditable
+
+3. Live price polling / update loop
+
+Add a backend loop that:
+	•	fetches latest prices on a schedule
+	•	writes or updates market snapshots
+	•	flags stale data if feed is delayed
+	•	never fabricates missing prices
+
+Suggested cadence:
+	•	price/ticker: every 5–15 seconds
+	•	richer context/candles: every 30–60 seconds
+
+Keep fast market cache separate from slower reference data.
+
+4. Position marking service
+
+Every open paper position should be re-marked against real market price.
+
+For each open position:
+	•	load latest real price for symbol
+	•	update current price
+	•	calculate unrealized PnL
+	•	calculate duration
+	•	store last marked timestamp
+
+Suggested helper:
+	•	markOpenPaperPositions()
+
+5. Exit evaluator
+
+This is the heart of T003.
+
+For every open position, evaluate against real price:
+
+Exit rules
+	•	stop hit
+	•	target hit
+	•	invalidation rule triggered
+	•	max hold time exceeded
+	•	stale feed safety rule
+	•	manual strategy rule if implemented later
+
+Suggested helper:
+	•	evaluateOpenPaperPositions()
+
+If exit condition is met:
+	•	close the position
+	•	write outcome
+	•	update performance inputs
+
+6. Outcome writer
+
+When a real exit happens:
+	•	create one trade_outcome
+	•	link it to paper_position
+	•	link it to original trading_decision
+	•	store exit reason
+	•	store realized PnL
+	•	store slippage assumption if used
+	•	store duration
+
+No duplicate writes.
+
+7. Performance engine
+
+Now performance becomes real.
+
+Calculate from trade_outcomes only:
+	•	win rate
+	•	avg win
+	•	avg loss
+	•	expectancy
+	•	drawdown
+	•	PnL trend
+	•	best strategy
+
+No seeded metrics.
+No preserved demo Sharpe.
+No fake profit factor.
+
+New / updated DB pieces for T003
+
+Alongside T002’s tables, add:
+
+market_snapshots
+
+For real price state.
+
+Optional: position_marks
+
+Only if you want a history of mark-to-market updates.
+
+Fields:
+	•	id
+	•	positionId
+	•	symbol
+	•	price
+	•	unrealizedPnl
+	•	markedAt
+
+Helpful, but optional for V1.
+
+Auto-exit rules you should enforce
+
+For V1, keep it simple and real.
+
+Long position exits
+	•	current price <= stop price
+	•	current price >= target price
+	•	max hold time exceeded
+	•	market feed stale too long
+
+Short position exits
+	•	current price >= stop price
+	•	current price <= target price
+	•	max hold time exceeded
+	•	market feed stale too long
+
+Safety rule
+
+If latest price is stale:
+	•	do not invent an exit
+	•	do not update performance
+	•	mark feed status as stale in monitor
+
+What the monitor should show after T003
+
+Once real feeds are connected, the trading monitor should start showing:
+	•	current real market prices
+	•	open positions updating in real time
+	•	unrealized PnL changing
+	•	some positions closing naturally
+	•	real recent outcomes
+	•	performance metrics starting from actual outcomes
+
+If there are no exits yet:
+	•	outcomes can still be empty
+	•	performance can still be mostly zero
+
+That is fine.
+
+Recommended T003 file/service structure
+
+Backend
+	•	server/services/trading/marketDataAdapter.ts
+	•	server/services/trading/marketSnapshots.ts
+	•	server/services/trading/positionMarker.ts
+	•	server/services/trading/exitEvaluator.ts
+	•	server/services/trading/outcomeWriter.ts
+	•	server/services/trading/performance.ts
+	•	server/services/trading/index.ts
+
+Scheduler / loop
+
+Add a loop like:
+	•	fetch market data
+	•	update snapshots
+	•	mark positions
+	•	evaluate exits
+	•	write outcomes
+	•	refresh monitor payload
+
+Acceptance criteria for T003
+
+T003 is done only if all of this is true:
+	1.	Market context uses real prices
+	2.	Open positions mark against real prices
+	3.	Positions can auto-close from real price movement
+	4.	Outcomes are written only from real exits
+	5.	Performance uses DB outcomes only
+	6.	Stale feeds are detected and surfaced
+	7.	No fake prices, fake exits, or fake PnL remain
+
+Exact prompt to send Replit for T003

@@ -1,0 +1,69 @@
+Proceed with T003 — Live Market Price Feeds + Auto Exits.
+
+Objective:
+Upgrade the paper-trading engine so open paper positions are driven by real market prices and can auto-exit from actual price movement.
+
+IMPORTANT:
+- No fake prices
+- No random walks
+- No fake exits
+- No fake PnL
+- No seeded performance
+- Use real market data only
+- If a symbol feed is unavailable, mark it unavailable/stale — do not fabricate values
+
+Build these parts:
+
+1. Market data adapter layer
+- Add real price feed adapters for BTC/USD, ETH/USD, SOL/USD
+- Add XAUUSD/gold only if a real feed is available through the current stack or a clean adapter
+- Return source name, fetched timestamp, and stale/fresh status
+
+2. Market snapshot storage
+- Add a market_snapshots table or equivalent persistence layer
+- Store real fetched price state with timestamps
+- Make decisions and position marking auditable against real market snapshots
+
+3. Price polling/update loop
+- Poll and refresh live market prices on a sensible cadence
+- Separate fast price cache from slower reference data
+- Detect stale feeds and surface stale state
+
+4. Position marking
+- For every open paper position, update current price and unrealized PnL from latest real market snapshot
+
+5. Auto exit evaluator
+- Exit long positions on stop hit / target hit / max hold / invalidation if implemented
+- Exit short positions on stop hit / target hit / max hold / invalidation if implemented
+- Never exit from fake price movement
+
+6. Outcome writing
+- Write trade_outcomes only when real exit conditions are met
+- Link outcomes to paper_positions and trading_decisions
+- Enforce idempotency: no duplicate exits, no duplicate outcome writes
+
+7. Performance
+- Calculate monitor performance from actual DB trade_outcomes only
+- Remove any remaining seeded/demo performance from monitor-backed state
+
+8. Frontend monitor updates
+- Show real current prices in market context
+- Show stale/unavailable state clearly if feeds fail
+- Show open positions updating from real mark-to-market
+- Show real recent outcomes once exits occur
+
+Rules:
+- Keep this separate from Corporate Desk B2B Nexora logic
+- Keep the page read-only
+- Do not add trading controls
+- Do not use fake values to make the UI look busy
+
+Output only:
+1. exact files changed
+2. market adapters added
+3. schema/storage added
+4. how open positions are marked from real prices
+5. how auto exits are triggered
+6. how stale feed handling works
+7. tests/checks run
+8. blockers

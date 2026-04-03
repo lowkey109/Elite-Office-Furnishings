@@ -1,54 +1,50 @@
-import type { TradingMonitorResponse, TradingMonitorState } from "./types";
+import type { TradingMonitorResponse } from "./types";
 import { buildStrategies } from "./strategies";
 import { buildMarketContext } from "./marketContext";
 import { buildNews } from "./news";
-import { buildDecisions } from "./decisions";
-import { buildPositions } from "./positions";
-import { buildOutcomes } from "./outcomes";
-import { buildPerformance } from "./performance";
+import {
+  getMonitorState,
+  getRecentDecisions,
+  getOpenPositions,
+  getRecentOutcomes,
+  calculatePerformanceFromDB,
+} from "./paperEngine";
 
 export type { TradingMonitorResponse } from "./types";
 
-let cachedData: TradingMonitorResponse | null = null;
-let cacheTimestamp = 0;
-const CACHE_TTL = 30000;
+export {
+  createDecision,
+  openPaperPosition,
+  closePaperPosition,
+  evaluateOpenPositions,
+  updatePositionPrice,
+  getOrCreateState,
+} from "./paperEngine";
 
-export function getTradingMonitorData(): TradingMonitorResponse {
+let strategiesCache: ReturnType<typeof buildStrategies> | null = null;
+let strategiesCacheTime = 0;
+const STRATEGIES_TTL = 60000;
+
+export async function getTradingMonitorData(): Promise<TradingMonitorResponse> {
   const now = Date.now();
-  if (cachedData && (now - cacheTimestamp) < CACHE_TTL) {
-    return cachedData;
+
+  if (!strategiesCache || (now - strategiesCacheTime) > STRATEGIES_TTL) {
+    strategiesCache = buildStrategies();
+    strategiesCacheTime = now;
   }
 
-  const decisions = buildDecisions();
-  const positions = buildPositions();
-  const outcomes = buildOutcomes();
-  const performance = buildPerformance(outcomes);
-  const news = buildNews();
+  const [state, decisions, positions, outcomes, performance] = await Promise.all([
+    getMonitorState(),
+    getRecentDecisions(30),
+    getOpenPositions(),
+    getRecentOutcomes(50),
+    calculatePerformanceFromDB(),
+  ]);
+
   const marketContext = buildMarketContext();
-  const strategies = buildStrategies();
+  const news = buildNews();
 
-  const wins = outcomes.filter(o => o.outcome === "win").length;
-  const winRate = outcomes.length > 0 ? Math.round((wins / outcomes.length) * 100) : 0;
-
-  const bestStrategyCounts: Record<string, number> = {};
-  for (const o of outcomes.filter(oo => oo.outcome === "win")) {
-    bestStrategyCounts[o.strategy] = (bestStrategyCounts[o.strategy] || 0) + 1;
-  }
-  const bestStrategy = Object.entries(bestStrategyCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "";
-
-  const state: TradingMonitorState = {
-    mode: "paper",
-    currentRegime: "trending",
-    lastDecisionTime: decisions[0]?.timestamp || "",
-    totalTrades: outcomes.length,
-    winRate,
-    currentDrawdown: performance.maxDrawdown,
-    openPositionsCount: positions.length,
-    bestStrategy: bestStrategy.replace(/_/g, " "),
-    dataQualityScore: 0.94,
-  };
-
-  cachedData = {
+  return {
     state,
     decisions,
     positions,
@@ -56,11 +52,8 @@ export function getTradingMonitorData(): TradingMonitorResponse {
     performance,
     news,
     marketContext,
-    strategies,
-    dataMode: "simulation",
+    strategies: strategiesCache,
+    dataMode: "paper",
     lastRefreshed: new Date().toISOString(),
   };
-  cacheTimestamp = now;
-
-  return cachedData;
 }

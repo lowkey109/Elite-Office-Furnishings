@@ -11258,7 +11258,7 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
   app.get("/api/admin/trading/monitor", async (_req, res) => {
     try {
       const { getTradingMonitorData } = await import("./services/trading");
-      const data = getTradingMonitorData();
+      const data = await getTradingMonitorData();
       res.json(data);
     } catch (err: any) {
       res.status(500).json({ error: err.message });

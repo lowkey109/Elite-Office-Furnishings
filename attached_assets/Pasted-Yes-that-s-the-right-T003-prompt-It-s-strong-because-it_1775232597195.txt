@@ -1,0 +1,123 @@
+Yes — that’s the right T003 prompt.
+
+It’s strong because it does 3 important things:
+	1.	forces real feeds
+	2.	forces real exit logic
+	3.	blocks fake PnL / fake performance
+
+A couple of small upgrades will make it even harder for Replit to dodge.
+
+Add these 5 lines under IMPORTANT
+
+- Do not leave existing seeded market context wired into the monitor
+- Remove or disconnect any seeded outcomes/performance still backing the trading monitor
+- If BTC/ETH/SOL feeds work but XAUUSD does not, ship crypto first and mark gold unavailable
+- Do not block completion of T003 on gold feed support
+- Use real empty states instead of fallback demo data
+
+Add this under Position marking
+
+- Persist lastMarkedAt on each open paper position
+- Do not mark positions from stale snapshots
+
+Add this under Auto exit evaluator
+
+- Exit decisions must be auditable against a specific market snapshot id
+- Store exitReason and exitSnapshotId on outcome/position close
+
+Add this under Performance
+
+- If there are no real closed outcomes yet, performance must show truthful zero/empty values
+- Do not preserve historical demo Sharpe, profit factor, drawdown, or total PnL
+
+Add this under Output only
+
+9. proof that seeded/demo monitor performance is no longer being used
+10. which assets are live now vs unavailable
+
+Best final version to paste
+
+Proceed with T003 — Live Market Price Feeds + Auto Exits.
+
+Objective:
+Upgrade the paper-trading engine so open paper positions are driven by real market prices and can auto-exit from actual price movement.
+
+IMPORTANT:
+- No fake prices
+- No random walks
+- No fake exits
+- No fake PnL
+- No seeded performance
+- Use real market data only
+- If a symbol feed is unavailable, mark it unavailable/stale — do not fabricate values
+- Do not leave existing seeded market context wired into the monitor
+- Remove or disconnect any seeded outcomes/performance still backing the trading monitor
+- If BTC/ETH/SOL feeds work but XAUUSD does not, ship crypto first and mark gold unavailable
+- Do not block completion of T003 on gold feed support
+- Use real empty states instead of fallback demo data
+
+Build these parts:
+
+1. Market data adapter layer
+- Add real price feed adapters for BTC/USD, ETH/USD, SOL/USD
+- Add XAUUSD/gold only if a real feed is available through the current stack or a clean adapter
+- Return source name, fetched timestamp, and stale/fresh status
+
+2. Market snapshot storage
+- Add a market_snapshots table or equivalent persistence layer
+- Store real fetched price state with timestamps
+- Make decisions and position marking auditable against real market snapshots
+
+3. Price polling/update loop
+- Poll and refresh live market prices on a sensible cadence
+- Separate fast price cache from slower reference data
+- Detect stale feeds and surface stale state
+
+4. Position marking
+- For every open paper position, update current price and unrealized PnL from latest real market snapshot
+- Persist lastMarkedAt on each open paper position
+- Do not mark positions from stale snapshots
+
+5. Auto exit evaluator
+- Exit long positions on stop hit / target hit / max hold / invalidation if implemented
+- Exit short positions on stop hit / target hit / max hold / invalidation if implemented
+- Never exit from fake price movement
+- Exit decisions must be auditable against a specific market snapshot id
+- Store exitReason and exitSnapshotId on outcome/position close
+
+6. Outcome writing
+- Write trade_outcomes only when real exit conditions are met
+- Link outcomes to paper_positions and trading_decisions
+- Enforce idempotency: no duplicate exits, no duplicate outcome writes
+
+7. Performance
+- Calculate monitor performance from actual DB trade_outcomes only
+- Remove any remaining seeded/demo performance from monitor-backed state
+- If there are no real closed outcomes yet, performance must show truthful zero/empty values
+- Do not preserve historical demo Sharpe, profit factor, drawdown, or total PnL
+
+8. Frontend monitor updates
+- Show real current prices in market context
+- Show stale/unavailable state clearly if feeds fail
+- Show open positions updating from real mark-to-market
+- Show real recent outcomes once exits occur
+
+Rules:
+- Keep this separate from Corporate Desk B2B Nexora logic
+- Keep the page read-only
+- Do not add trading controls
+- Do not use fake values to make the UI look busy
+
+Output only:
+1. exact files changed
+2. market adapters added
+3. schema/storage added
+4. how open positions are marked from real prices
+5. how auto exits are triggered
+6. how stale feed handling works
+7. tests/checks run
+8. blockers
+9. proof that seeded/demo monitor performance is no longer being used
+10. which assets are live now vs unavailable
+
+That version is tighter and less likely to let the agent sneak demo behavior back in.

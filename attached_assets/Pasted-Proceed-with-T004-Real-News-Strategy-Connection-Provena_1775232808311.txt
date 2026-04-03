@@ -1,0 +1,190 @@
+Proceed with T004 — Real News + Strategy Connection + Provenance.
+
+Objective:
+Upgrade the trading monitor so decisions are no longer just market-state driven, but are connected to:
+- real news inputs
+- real strategy rule metadata
+- real provenance on every decision
+- traceable reasons for why a decision exists
+
+IMPORTANT:
+- No fake news
+- No seeded news for live monitor-backed state
+- No fake source URLs
+- No fake provenance
+- No strategy descriptions disconnected from actual execution logic
+- If real news ingestion is not available yet, build the real adapter/service boundaries and return truthful empty news sections instead of demo content
+
+==================================================
+GOAL
+==================================================
+
+T004 is complete only when:
+
+1. News items shown in the trading monitor come from real source ingestion or truthful empty state
+2. Every trading decision can show provenance:
+   - sourceMarketSnapshotId
+   - sourceNewsIds
+   - strategyVersion
+   - decisionGeneratedAt
+3. Strategy profiles shown in the monitor are connected to actual rule/execution metadata, not just static marketing copy
+4. Decision detail panel shows traceable evidence for why the decision exists
+5. No seeded/demo news or fake provenance remains in monitor-backed trading state
+
+==================================================
+BUILD THESE PARTS
+==================================================
+
+1. News adapter layer
+- Add real news feed adapters for market-relevant sources if feasible in the current stack
+- News should support at minimum:
+  - id
+  - headline
+  - source
+  - sourceUrl
+  - timestamp
+  - summary
+  - sentiment
+  - impact
+  - markets / symbols tags
+  - relevance score
+- If no real source is available yet, build the real adapter/service boundary and return empty arrays truthfully
+- Do not fabricate news items
+
+2. News persistence / provenance
+- Add a table or equivalent persistence for trading news items if needed
+- Add linkage between news items and decisions
+- Every decision should be able to reference zero or more sourceNewsIds
+- Store real source URLs and timestamps
+
+3. Strategy metadata connection
+- Strategy profiles in the UI must connect to real execution/rule definitions
+- Add strategyVersion to decisions
+- Add strategy source metadata so it is clear which rule set created the decision
+- Do not leave strategy cards as disconnected documentation if real rules now exist
+
+4. Decision provenance
+For each decision, persist and expose:
+- sourceMarketSnapshotId
+- sourceNewsIds
+- strategyVersion
+- decisionGeneratedAt
+- decisionSource
+- executionStatus if applicable
+- paperPositionId if opened
+- linkedOutcomeId if closed
+
+5. Decision detail panel upgrades
+Update the trading monitor expanded decision view to show:
+- strategyVersion
+- sourceMarketSnapshotId
+- linked sourceNewsIds
+- source URLs if available
+- decisionGeneratedAt
+- executionStatus
+- paperPositionId
+- linkedOutcomeId
+- clearer evidence/provenance section
+
+6. Monitor news panel
+- Replace seeded/demo news with real news-backed data or truthful empty state
+- Keep clean loading/error/empty states
+- If real ingestion is partially available, show only real available items
+- Do not preserve seeded headlines to make the UI look busy
+
+7. Strategy knowledge base
+- Keep the section, but make it honest:
+  - source from actual strategy definitions if available
+  - include strategyVersion
+  - include whether strategy is active
+  - include whether it currently powers decision generation
+- Remove or downgrade any static copy that no longer matches real engine rules
+
+==================================================
+SCHEMA / DATA REQUIREMENTS
+==================================================
+
+Add or extend fields/tables as needed so the system can truthfully persist:
+
+Decision provenance fields:
+- sourceMarketSnapshotId
+- sourceNewsIds
+- strategyVersion
+- decisionGeneratedAt
+- decisionSource
+- executionStatus
+- paperPositionId
+- linkedOutcomeId
+
+News fields:
+- id
+- headline
+- source
+- sourceUrl
+- timestamp
+- summary
+- sentiment
+- impact
+- markets
+- relevanceScore
+- rawPayloadJson if useful
+
+If there is already a suitable schema location, use it.
+Do not create duplicate conceptual tables if equivalent ones already exist.
+
+==================================================
+FRONTEND REQUIREMENTS
+==================================================
+
+Update /admin/trading-monitor so that:
+
+1. News section uses real-backed news data only
+2. Expanded decision rows show provenance cleanly
+3. Strategy cards show:
+- strategyVersion
+- active/inactive state if available
+- connected rule metadata if available
+4. Empty states are graceful if no real news/provenance exists yet
+5. No fake seeded content remains in monitor-backed state
+
+==================================================
+RULES
+==================================================
+
+- Keep this fully separate from Corporate Desk B2B Nexora logic
+- Keep the page read-only
+- Do not add controls
+- Do not fabricate source URLs
+- Do not fabricate market/news provenance
+- Do not preserve seeded news or seeded strategy marketing content in the live monitor-backed path
+- If some real inputs are not available yet, return truthful empty state and report blockers
+
+==================================================
+TESTING REQUIREMENTS
+==================================================
+
+Actually test the build.
+
+At minimum:
+- verify trading monitor still renders
+- verify decision feed still loads
+- verify expanded decision provenance fields render safely
+- verify news section handles empty data cleanly
+- verify source URLs do not crash UI when absent
+- verify no existing Corporate Desk monitor routes/pages were broken
+- verify backend endpoint returns the new provenance fields correctly
+- verify no seeded/demo news remains in active monitor-backed response
+
+==================================================
+OUTPUT ONLY
+==================================================
+
+After implementing, show only:
+1. exact files changed
+2. news adapters/services added
+3. schema/storage added or updated
+4. provenance fields added to decisions
+5. strategy metadata connection completed
+6. what seeded/demo news/provenance content was removed
+7. tests/checks run
+8. blockers

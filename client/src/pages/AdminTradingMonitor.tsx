@@ -72,7 +72,17 @@ function PnlMiniChart({ series }: { series: { date: string; value: number }[] })
   );
 }
 
-function TradingDecisionRow({ decision, index, isExpanded, onToggle }: { decision: any; index: number; isExpanded: boolean; onToggle: () => void }) {
+interface TradingMonitorState { mode: string; currentRegime: string; lastDecisionTime: string; totalTrades: number; winRate: number; currentDrawdown: number; openPositionsCount: number; bestStrategy: string; dataQualityScore: number; }
+interface TDec { id: string; timestamp: string; market: string; strategy: string; direction: "long"|"short"; confidence: number; thesis: string; regime: string; volumeRatio: number|null; reasonCode: string; status: string; expectedMove: number|null; expectedCost: number|null; invalidationRule: string; riskBucket: string; dataQualityScore: number; slippageEstimate: number|null; modelVersion: string; fullPayload: Record<string, any>; createdAt: string; updatedAt: string; decisionSource: string; executionStatus: string; confidenceThreshold: number; riskAmount: number|null; paperCapitalImpact: number|null; linkedPositionId: string|null; sourceMarketSnapshotId: string|null; sourceNewsIds: string[]; strategyVersion: string; decisionGeneratedAt: string; }
+interface OPos { id: string; symbol: string; side: "long"|"short"; entryPrice: number; currentPrice: number; unrealizedPnl: number; stopPrice: number; duration: string; status: string; linkedDecisionId: string; paperCapitalAllocated: number; entryTimestamp: string; targetPrice: number|null; }
+interface TOut { id: string; symbol: string; strategy: string; direction: "long"|"short"; entryPrice: number; exitPrice: number; realizedPnl: number; duration: string; slippage: number; outcome: "win"|"loss"; timestamp: string; linkedDecisionId: string; linkedPositionId: string; exitReason: string; paperCapitalReturned: number; fees: number; }
+interface TPerf { avgWin: number; avgLoss: number; expectancy: number; consecutiveWins: number; consecutiveLosses: number; sharpeRatio: number; profitFactor: number; maxDrawdown: number; totalPnl: number; pnlSeries: { date: string; value: number }[]; }
+interface NItem { id: string; timestamp: string; headline: string; source: string; sentiment: "bullish"|"bearish"|"neutral"; relevance: number; markets: string[]; summary: string; impact: "high"|"medium"|"low"; sourceUrl: string|null; linkedDecisionIds: string[]; }
+interface MCtx { symbol: string; price: number; change24h: number; changePct24h: number; volume24h: number; high24h: number; low24h: number; regime: string; dominantTrend: string; volatilityLevel: string; keyLevels: { support: number[]; resistance: number[] }; technicals: { rsi14: number; macd: { value: number; signal: number; histogram: number }; ema20: number; ema50: number; ema200: number; bbUpper: number; bbLower: number; bbWidth: number; atr14: number; adx: number; obv: string; vwap: number; stochRsi: number; williamsR: number; cci: number; mfi: number; }; fundingRate: number|null; openInterest: number|null; fearGreedIndex: number|null; snapshotId: string; lastUpdated: string; dataSource: string; isStale: boolean; }
+interface SProf { name: string; description: string; edge: string; idealRegime: string; winRate: number; avgRR: number; avgHoldTime: string; riskPerTrade: string; entryRules: string[]; exitRules: string[]; invalidationRules: string[]; strengths: string[]; weaknesses: string[]; version: string; isActive: boolean; }
+interface TradingMonitorResponse { state: TradingMonitorState; decisions: TDec[]; positions: OPos[]; recent_outcomes: TOut[]; performance: TPerf; news: NItem[]; marketContext: MCtx[]; strategies: SProf[]; dataMode: "simulation"|"paper"|"live"; lastRefreshed: string; }
+
+function TradingDecisionRow({ decision, index, isExpanded, onToggle }: { decision: TDec; index: number; isExpanded: boolean; onToggle: () => void }) {
   const dirColor = decision.direction === "long" ? "text-emerald-400" : "text-red-400";
   const dirBg = decision.direction === "long" ? "bg-emerald-500/10" : "bg-red-500/10";
   const statusColor: Record<string, string> = {
@@ -135,7 +145,7 @@ function TradingDecisionRow({ decision, index, isExpanded, onToggle }: { decisio
   );
 }
 
-function PositionRow({ position }: { position: any }) {
+function PositionRow({ position }: { position: OPos }) {
   const isProfit = position.unrealizedPnl >= 0;
   return (
     <div className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border ${isProfit ? "border-emerald-500/20 bg-emerald-500/5" : "border-red-500/20 bg-red-500/5"}`} data-testid={`position-row-${position.id}`}>
@@ -164,7 +174,7 @@ function PositionRow({ position }: { position: any }) {
   );
 }
 
-function OutcomeRow({ outcome }: { outcome: any }) {
+function OutcomeRow({ outcome }: { outcome: TOut }) {
   const isWin = outcome.outcome === "win";
   return (
     <div className={`flex items-center gap-3 px-4 py-2 rounded-lg border ${isWin ? "border-emerald-500/15 bg-emerald-500/[0.03]" : "border-red-500/15 bg-red-500/[0.03]"}`} data-testid={`trading-outcome-row-${outcome.id}`}>
@@ -192,7 +202,7 @@ function OutcomeRow({ outcome }: { outcome: any }) {
   );
 }
 
-function NewsRow({ item }: { item: any }) {
+function NewsRow({ item }: { item: NItem }) {
   const sentimentColor = { bullish: "text-emerald-400 bg-emerald-500/10", bearish: "text-red-400 bg-red-500/10", neutral: "text-white/40 bg-white/5" };
   const impactColor = { high: "text-red-400", medium: "text-amber-400", low: "text-white/30" };
   return (
@@ -218,7 +228,7 @@ function NewsRow({ item }: { item: any }) {
   );
 }
 
-function MarketContextCard({ ctx }: { ctx: any }) {
+function MarketContextCard({ ctx }: { ctx: MCtx }) {
   const isUp = ctx.changePct24h >= 0;
   return (
     <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3 space-y-2" data-testid={`market-ctx-${ctx.symbol}`}>
@@ -249,7 +259,7 @@ function MarketContextCard({ ctx }: { ctx: any }) {
   );
 }
 
-function StateCard({ label, value, icon: Icon, color, sub }: { label: string; value: string; icon: any; color: string; sub?: string }) {
+function StateCard({ label, value, icon: Icon, color, sub }: { label: string; value: string; icon: React.ComponentType<{ className?: string }>; color: string; sub?: string }) {
   return (
     <div className="bg-white/[0.02] border border-white/5 rounded-lg px-3 py-2.5" data-testid={`trading-state-card-${label.toLowerCase().replace(/\s/g, "-")}`}>
       <div className="flex items-center gap-1.5 mb-1">
@@ -275,12 +285,15 @@ export default function AdminTradingMonitor() {
     forceUpdate(n => n + 1);
   }, []);
 
-  const { data, isLoading, error } = useQuery<any>({
+  const { data, isLoading, error, dataUpdatedAt, isRefetchError } = useQuery<TradingMonitorResponse>({
     queryKey: ["/api/admin/trading/monitor"],
     refetchInterval: 5000,
+    retry: 2,
+    retryDelay: 2000,
+    refetchOnWindowFocus: false,
   });
 
-  if (isLoading) {
+  if (isLoading && !data) {
     return (
       <div className="flex items-center justify-center h-[70vh]" data-testid="trading-monitor-loading">
         <div className="flex flex-col items-center gap-3">
@@ -291,7 +304,7 @@ export default function AdminTradingMonitor() {
     );
   }
 
-  if (error) {
+  if (error && !data) {
     return (
       <div className="flex items-center justify-center h-[70vh]" data-testid="trading-monitor-error">
         <div className="flex flex-col items-center gap-3">
@@ -302,24 +315,40 @@ export default function AdminTradingMonitor() {
     );
   }
 
-  const { state, decisions, positions, recent_outcomes, performance, news, marketContext, strategies } = data ?? {};
+  const feedDelayed = isRefetchError && !!data;
+  const state = data?.state;
+  const decisions = data?.decisions ?? [];
+  const positions = data?.positions ?? [];
+  const recent_outcomes = data?.recent_outcomes ?? [];
+  const performance = data?.performance;
+  const news = data?.news ?? [];
+  const marketContext = data?.marketContext ?? [];
+  const strategies = data?.strategies ?? [];
+  const dataMode = data?.dataMode ?? "paper";
 
   return (
     <div className="space-y-6 pb-12" data-testid="trading-monitor-page">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight" style={{ fontFamily: "'Playfair Display', serif" }} data-testid="trading-monitor-heading">Trading AI Monitor</h1>
-          <p className="text-white/40 text-sm mt-1">Paper trading · Deterministic demo data · Read-only observation</p>
+          <p className="text-white/40 text-sm mt-1">Paper trading engine · DB-backed lifecycle · Read-only observation</p>
         </div>
         <div className="flex items-center gap-3" data-testid="trading-mode-badge">
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-orange-500/40 bg-orange-500/10" data-testid="simulation-label">
-            <div className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
-            <span className="text-xs text-orange-400 font-mono uppercase font-semibold tracking-wider">SIMULATION</span>
+          {feedDelayed && (
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-red-500/40 bg-red-500/10" data-testid="feed-delayed-badge">
+              <AlertTriangle className="w-3 h-3 text-red-400" />
+              <span className="text-[10px] text-red-400 font-mono uppercase">FEED DELAYED</span>
+            </div>
+          )}
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-amber-500/40 bg-amber-500/10" data-testid="data-mode-label">
+            <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+            <span className="text-xs text-amber-400 font-mono uppercase font-semibold tracking-wider">{dataMode === "paper" ? "PAPER ENGINE" : dataMode === "simulation" ? "SIMULATION" : "LIVE"}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-            <span className="text-xs text-amber-400 font-mono uppercase">PAPER MODE</span>
-          </div>
+          {(decisions.length === 0 && recent_outcomes.length === 0) && (
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-blue-500/30 bg-blue-500/10" data-testid="awaiting-feeds-badge">
+              <span className="text-[10px] text-blue-400 font-mono uppercase">AWAITING FEEDS</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -342,7 +371,7 @@ export default function AdminTradingMonitor() {
             Market Context
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3" data-testid="trading-market-context">
-            {marketContext.map((ctx: any) => <MarketContextCard key={ctx.symbol} ctx={ctx} />)}
+            {marketContext.map((ctx) => <MarketContextCard key={ctx.symbol} ctx={ctx} />)}
           </div>
         </div>
       )}
@@ -358,7 +387,7 @@ export default function AdminTradingMonitor() {
           </div>
           <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1 custom-scrollbar" data-testid="trading-decision-feed">
             {decisions?.length > 0 ? (
-              decisions.map((d: any, i: number) => (
+              decisions.map((d, i) => (
                 <TradingDecisionRow
                   key={d.id}
                   decision={d}
@@ -380,7 +409,7 @@ export default function AdminTradingMonitor() {
               Open Positions
             </h2>
             <div className="space-y-2" data-testid="trading-positions-panel">
-              {positions?.length > 0 ? positions.map((p: any) => <PositionRow key={p.id} position={p} />) : <div className="text-center py-8 text-white/20 text-sm">No open positions</div>}
+              {positions.length > 0 ? positions.map((p) => <PositionRow key={p.id} position={p} />) : <div className="text-center py-8 text-white/20 text-sm">No open positions</div>}
             </div>
           </div>
 
@@ -416,7 +445,7 @@ export default function AdminTradingMonitor() {
             <span className="text-[11px] text-white/20 font-mono">{recent_outcomes?.length ?? 0} trades</span>
           </div>
           <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1 custom-scrollbar" data-testid="trading-outcomes-panel">
-            {recent_outcomes?.length > 0 ? recent_outcomes.map((o: any) => <OutcomeRow key={o.id} outcome={o} />) : <div className="text-center py-8 text-white/20 text-sm">No completed trades yet</div>}
+            {recent_outcomes.length > 0 ? recent_outcomes.map((o) => <OutcomeRow key={o.id} outcome={o} />) : <div className="text-center py-8 text-white/20 text-sm">No completed trades yet</div>}
           </div>
         </div>
 
@@ -429,7 +458,7 @@ export default function AdminTradingMonitor() {
             <span className="text-[11px] text-white/20 font-mono">{news?.length ?? 0} items</span>
           </div>
           <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1 custom-scrollbar" data-testid="trading-news-feed">
-            {news?.length > 0 ? news.map((n: any) => <NewsRow key={n.id} item={n} />) : <div className="text-center py-8 text-white/20 text-sm">No news available</div>}
+            {news.length > 0 ? news.map((n) => <NewsRow key={n.id} item={n} />) : <div className="text-center py-8 text-white/20 text-sm">No news available</div>}
           </div>
         </div>
       </div>
@@ -441,7 +470,7 @@ export default function AdminTradingMonitor() {
             Strategy Knowledge Base
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3" data-testid="trading-strategy-profiles">
-            {strategies.map((s: any) => (
+            {strategies.map((s) => (
               <div key={s.name} className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-2" data-testid={`strategy-profile-${s.name}`}>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-semibold text-white">{s.name.replace(/_/g, " ")}</span>
