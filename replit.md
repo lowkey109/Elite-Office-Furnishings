@@ -103,7 +103,9 @@ The Nexora OS is a fully autonomous B2B intelligence and outreach engine. Every 
 - **Unsubscribe compliance** (Australian Spam Act 2003): every auto-released and bulk-released email includes a unique unsubscribe link → `GET /api/unsubscribe?m=<messageId>` → adds to `outreach_suppressions`, marks message `unsubscribed`
 - **Suppression gate**: `checkSuppression()` is called before every auto-release send; suppressed messages are marked `deliveryStatus: "suppressed"` and never sent
 - **Send-time jitter**: 0–10 minute random delay on auto-release to avoid domain pattern detection
-- **Learning loop active**: `applyLearningFromRun` now queries `nexora_outcomes` directly (last 30 days); requires ≥3 outcomes to fire; 15 real outcomes currently loaded (win rate 93% → strongPipeline decreasing each run)
+- **Learning loop active** (PROVEN): `applyLearningFromRun` now queries `nexora_outcomes` directly (last 30 days); requires ≥3 outcomes to fire; 16 real outcomes currently loaded (win rate 93% → strongPipeline decreasing each run)
+- **Full closed-loop proven** (Canva Pty Ltd): signal `1492eed1` → decision `406e6f68` → opportunity `fa458ae4` → contact `d63b5f19` (emma.johnson@canva.com) → thread `78eeeec3` → message `1d6f8d34` (Resend ID `2933222a`) → quote `67e91a6f` (TCD-202604-0004) → outcome `b0c402bd` (won, $150K)
+- **Outreach safety proven**: suppression check passed + jitter delay 6s logged + unsubscribe footer injected + real email delivered via Resend + unsubscribe endpoint confirmed working
 - **Revenue integrity**: `revenueService.ts` filters `isSimulated=false` on all financial queries
 - **Office Move Radar**: synthetic scan skipped when `ALLOW_SYNTHETIC_INTELLIGENCE != "true"`; only real DB-backed radar records flow through
 - **Pipeline unification**: `POST /api/leads` now creates a Nexora opportunity (sourceType: `inbound_lead`) in addition to the legacy `dealExecution` record

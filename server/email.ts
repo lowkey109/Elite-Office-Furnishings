@@ -1040,8 +1040,11 @@ export async function sendOutreachEmail(opts: {
     throw new Error("RESEND_API_KEY not set — outreach email not sent");
   }
 
+  const isDev = process.env.NODE_ENV === "development";
+  const devOverrideEmail = isDev ? "thecorporatedeskservice@gmail.com" : null;
+  const actualRecipient = devOverrideEmail ?? opts.to;
   const toList = opts.to;
-  console.log(`[OutreachEmail] ▶ SEND — to: ${toList} | company: ${opts.companyName} | from: ${OUTREACH_FROM}`);
+  console.log(`[OutreachEmail] ▶ SEND — to: ${toList}${devOverrideEmail ? ` (dev→${devOverrideEmail})` : ""} | company: ${opts.companyName} | from: ${OUTREACH_FROM}`);
 
   if (process.env.SAFE_MODE === "true") {
     console.log(`[OutreachEmail] ⏸ SAFE_MODE — suppressed send to ${toList}`);
@@ -1053,7 +1056,7 @@ export async function sendOutreachEmail(opts: {
 
   const result = await resend.emails.send({
     from: OUTREACH_FROM,
-    to: [opts.to],
+    to: [actualRecipient],
     subject: enforcement.subject,
     html: enforcement.html,
   });

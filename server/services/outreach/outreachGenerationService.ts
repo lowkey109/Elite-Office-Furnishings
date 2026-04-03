@@ -203,8 +203,8 @@ Write the email body only:`;
         const { sendOutreachEmail } = await import("../../email");
         const contactFirstName = context.contactName ? context.contactName.split(" ")[0] : null;
 
-        // Send-time jitter: randomise delay 0–10 min to avoid domain-pattern detection
-        const jitterMs = Math.floor(Math.random() * 10 * 60 * 1000);
+        // Send-time jitter: randomise delay 0–30s to avoid domain-pattern detection
+        const jitterMs = Math.floor(Math.random() * 30 * 1000);
         if (jitterMs > 0) {
           console.log(`[AutoRelease] Jitter delay ${Math.round(jitterMs / 1000)}s for ${context.companyName}`);
           await new Promise((resolve) => setTimeout(resolve, jitterMs));

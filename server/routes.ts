@@ -10143,9 +10143,25 @@ Rules:
           await ddb.update(om).set({ recipientEmail: toEmail, emailSourceType: resolved.sourceType }).where(eq(om.id, draft.msgId));
           await ddb.update(ot).set({ contactReadiness: "READY_TO_CONTACT", resolvedEmail: toEmail, resolvedEmailSource: resolved.sourceType, updatedAt: new Date() }).where(eq(ot.id, draft.threadId));
 
+          // Suppression gate: block if company or recipient is suppressed
+          const { checkSuppression } = await import("./services/outreach/outreach-guards");
+          const suppression = await checkSuppression({ companyName: draft.companyName, recipientEmail: toEmail }).catch(() => ({ suppressed: false, reason: undefined }));
+          if ((suppression as any).suppressed) {
+            console.log(`[FlushSend] Suppressed — ${draft.companyName} (${toEmail}): ${(suppression as any).reason}`);
+            await ddb.update(om).set({ deliveryStatus: "suppressed", suppressionReason: (suppression as any).reason ?? "suppressed", updatedAt: new Date() } as any).where(eq(om.id, draft.msgId));
+            results.push({ company: draft.companyName, status: "suppressed", reason: (suppression as any).reason, msgId: draft.msgId });
+            blocked++;
+            continue;
+          }
+          console.log(`[FlushSend] Suppression check passed for ${draft.companyName} (${toEmail})`);
+
           if (LIVE_MODE && draft.subject && draft.body) {
-            // Rate limit: stay within Resend's 5 req/sec limit
-            await new Promise(resolve => setTimeout(resolve, 250));
+            // Send-time jitter: randomise delay 0–30s for flush-send path
+            const jitterMs = Math.floor(Math.random() * 30 * 1000);
+            if (jitterMs > 0) {
+              console.log(`[FlushSend] Jitter delay ${Math.round(jitterMs / 1000)}s for ${draft.companyName}`);
+              await new Promise(resolve => setTimeout(resolve, jitterMs));
+            }
             // Inject unsubscribe footer if not already present
             const baseUrlForUnsub = process.env.PUBLIC_URL || `https://${process.env.REPLIT_DOMAINS?.split(",")[0] ?? "localhost:5000"}`;
             const unsubUrl = `${baseUrlForUnsub}/api/unsubscribe?m=${encodeURIComponent(draft.msgId)}`;
