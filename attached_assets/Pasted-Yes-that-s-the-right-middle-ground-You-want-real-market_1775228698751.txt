@@ -1,0 +1,418 @@
+Yes — that’s the right middle ground.
+
+You want:
+	•	real market data
+	•	real AI logic
+	•	real decision flow
+	•	demo/paper money only
+
+That is the best version to build first.
+
+Call it:
+
+👉 paper trading with live market data
+
+Not fake prices, not fake logic — only fake capital.
+
+⸻
+
+What to tell Replit
+
+Paste this exactly:
+
+BUILD MODE: SEPARATE AI TRADING MONITOR + PAPER TRADING WITH REAL MARKET DATA
+
+PROJECT:
+Corporate Desk Admin → Separate Trading Intelligence Module
+
+GOAL:
+Build a completely separate AI trading monitoring system for crypto + gold that uses:
+
+- real live market data
+- real AI decision logic
+- real paper trade lifecycle
+- demo/paper money only
+
+IMPORTANT:
+This is NOT the existing Corporate Desk Nexora B2B system.
+Do NOT mix this with:
+- company signals
+- outreach
+- opportunities
+- pipeline
+- deal flow
+- office move intelligence
+
+This is a separate module for:
+- crypto market monitoring
+- gold market monitoring
+- AI decision observation
+- paper trading with real market feeds
+- strategy evaluation
+- performance monitoring
+
+Do NOT overwrite or break existing /admin/ai-monitor.
+Build this as a separate module.
+
+==================================================
+MASTER OBJECTIVE
+==================================================
+
+Create a separate trading intelligence architecture inside the existing admin app with:
+
+1. A read-only admin page:
+- /admin/trading-monitor
+
+2. A separate backend monitoring endpoint:
+- GET /api/admin/trading/monitor
+
+3. A real paper trading architecture that uses:
+- live market prices
+- live candles / ticker / regime inputs
+- AI-generated paper decisions
+- simulated paper entries and exits
+- paper PnL only
+- no live order execution
+
+This build must be modular, observable, safe, and clearly separated from the Corporate Desk business intelligence system.
+
+==================================================
+NON-NEGOTIABLE RULES
+==================================================
+
+- Read-only monitor page only
+- No live trade execution
+- No buy/sell buttons
+- No trading controls
+- No pause/resume/kill switch UI
+- No live broker order placement
+- No mixing with B2B Nexora data
+- Real market data allowed
+- Demo/paper money only
+- No fake price feeds
+- No fake market conditions
+- If some real market adapter is missing, build the adapter boundary and clearly report the blocker
+
+==================================================
+BUILD SCOPE
+==================================================
+
+Build this in stages.
+
+##################################################
+STAGE 1 — SEPARATE TRADING MONITOR FOUNDATION
+##################################################
+
+Create:
+- frontend route: /admin/trading-monitor
+- backend endpoint: /api/admin/trading/monitor
+- separate trading monitor page/component
+- separate trading monitor service
+- route protected by existing admin auth middleware
+
+This must be completely isolated from /admin/ai-monitor.
+
+##################################################
+STAGE 2 — DOMAIN MODELS
+##################################################
+
+Define consistent backend/frontend types for:
+
+1. TradingMonitorState
+- mode
+- currentRegime
+- lastDecisionTime
+- totalTrades
+- winRate
+- currentDrawdown
+- openPositionsCount
+- bestStrategy
+- dataQualityScore
+
+2. TradingDecision
+- id
+- timestamp
+- market
+- strategy
+- direction
+- confidence
+- thesis
+- regime
+- volumeRatio
+- reasonCode
+- status
+- expectedMove
+- expectedCost
+- invalidationRule
+- riskBucket
+- dataQualityScore
+- slippageEstimate
+- modelVersion
+- fullPayload
+
+3. OpenPosition
+- id
+- symbol
+- side
+- entryPrice
+- currentPrice
+- unrealizedPnl
+- stopPrice
+- duration
+- status
+
+4. TradeOutcome
+- id
+- symbol
+- strategy
+- entryPrice
+- exitPrice
+- realizedPnl
+- duration
+- slippage
+- outcome
+- timestamp
+
+5. TradingPerformance
+- avgWin
+- avgLoss
+- expectancy
+- consecutiveWins
+- consecutiveLosses
+- pnlSeries or pnlTrend
+
+##################################################
+STAGE 3 — REAL MARKET DATA + PAPER DECISION FLOW
+##################################################
+
+Use real market data for:
+- crypto pairs such as BTC and ETH
+- gold / XAUUSD if available through the project’s existing stack or a real adapter boundary
+
+Build real service boundaries for:
+- market data adapter
+- ai decision adapter
+- paper execution adapter
+- performance analytics adapter
+
+Use real market prices/candles/ticker data if the repo already supports this or can connect to a real market feed safely.
+
+Paper trading rules:
+- simulate entries/exits only
+- track positions only in paper mode
+- compute paper PnL only
+- never place real orders
+- never require live brokerage controls in the UI
+
+##################################################
+STAGE 4 — MONITOR PAGE UI
+##################################################
+
+Build the page with these sections:
+
+SECTION A — TOP STATE CARDS
+Show:
+- System Mode (PAPER ONLY)
+- Current Regime
+- Last Decision Time
+- Total Trades
+- Win Rate
+- Current Drawdown
+- Open Positions Count
+- Best Performing Strategy
+- Latest Data Quality Score
+
+SECTION B — LIVE DECISION FEED
+Latest first, scrollable, auto-refresh every 5 seconds.
+
+Each row must show:
+- timestamp
+- market
+- strategy
+- direction
+- confidence %
+- confidence bar
+- thesis
+- regime
+- volume ratio if available
+- reason code
+- status
+
+Each row must be expandable.
+
+Expanded row must show:
+- expected move
+- expected cost
+- invalidation rule
+- risk bucket
+- data quality score
+- slippage estimate
+- model version
+- full pretty JSON payload
+
+SECTION C — OPEN POSITIONS PANEL
+Show:
+- symbol
+- side
+- entry price
+- current price
+- unrealized PnL
+- stop price
+- duration
+- status
+
+SECTION D — RECENT OUTCOMES PANEL
+Show last 20 completed paper trades:
+- symbol
+- strategy
+- entry price
+- exit price
+- realized PnL
+- duration
+- slippage
+- outcome
+- timestamp
+
+Use green for wins/profit and red for losses.
+
+SECTION E — PERFORMANCE PANEL
+Show:
+- avg win
+- avg loss
+- expectancy
+- consecutive wins
+- consecutive losses
+- pnl trend if the existing stack supports charts cleanly
+
+##################################################
+STAGE 5 — BACKEND MONITOR SERVICE
+##################################################
+
+Create:
+GET /api/admin/trading/monitor
+
+Return JSON like:
+
+{
+  "state": {
+    "mode": "paper",
+    "currentRegime": "trend",
+    "lastDecisionTime": "",
+    "totalTrades": 0,
+    "winRate": 0,
+    "currentDrawdown": 0,
+    "openPositionsCount": 0,
+    "bestStrategy": "",
+    "dataQualityScore": 0
+  },
+  "decisions": [],
+  "positions": [],
+  "recent_outcomes": [],
+  "performance": {}
+}
+
+Rules:
+- Use real market-fed paper trading data where available
+- If a market adapter is implemented but no paper trades exist yet, return truthful empty arrays
+- Do not invent fake trades
+- Demo money only, but real market feed
+
+==================================================
+UI / UX RULES
+==================================================
+
+- Dark mode preferred
+- Same admin design system
+- Clean, premium, minimal
+- Read-only only
+- Auto-refresh every 5 seconds
+- Good loading, empty, and error states
+- Preserve expanded rows during refresh where practical
+
+==================================================
+STRICT SEPARATION RULES
+==================================================
+
+Do NOT:
+- rename the existing Corporate Desk AI monitor
+- merge this into /admin/ai-monitor
+- reuse B2B labels like opportunities/outreach/pipeline
+- describe company intelligence as trading intelligence
+
+This must feel like a totally separate subsystem.
+
+==================================================
+TESTING REQUIREMENTS
+==================================================
+
+Actually test the build.
+
+At minimum:
+- verify frontend route renders
+- verify backend endpoint responds
+- verify admin auth still protects the endpoint
+- verify page handles empty data cleanly
+- verify refresh does not crash page
+- verify expanded rows still work
+- verify no existing Corporate Desk monitor pages/routes were broken
+
+If there are existing tests, update or add relevant tests.
+If not, still run real checks and report the commands used.
+
+==================================================
+OUTPUT FORMAT
+==================================================
+
+After implementing, output ONLY:
+
+1. Exact files changed
+2. What was completed
+3. Exact blockers preventing any remaining real-market paper-trading pieces
+4. Exact tests/checks run
+
+Do not give a plan first.
+Do not summarize intentions.
+Implement the build now.
+
+
+⸻
+
+What this means in plain English
+
+This tells Replit to build:
+	•	a real trading monitor
+	•	using real market feeds
+	•	with paper positions only
+	•	and no live money risk
+
+So the AI can:
+	•	watch BTC / ETH / gold
+	•	make paper decisions
+	•	open and close paper trades
+	•	track paper PnL
+	•	learn from real price movement
+
+⸻
+
+Best naming for it
+
+Tell Replit to treat it as:
+
+“live-market paper trading monitor”
+
+That phrase usually prevents it from building fake/demo garbage.
+
+⸻
+
+Important boundary
+
+This is still not live trading.
+
+It is:
+	•	real market conditions
+	•	fake capital
+	•	real strategy evaluation
+
+That’s exactly what you want first.
+
+If you want, I can also give you a shorter harder-to-misread Replit prompt version.

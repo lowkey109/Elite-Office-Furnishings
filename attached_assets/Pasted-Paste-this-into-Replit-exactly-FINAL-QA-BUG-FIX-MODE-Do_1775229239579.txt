@@ -1,0 +1,127 @@
+Paste this into Replit exactly:
+
+FINAL QA + BUG-FIX MODE
+
+Do not summarize.
+Do not stop at analysis.
+Do not just list possible issues.
+Actually run a full bug sweep, fix problems, and verify the system runs smoothly.
+
+TARGET:
+The separate trading monitor system and its related backend/frontend wiring.
+
+GOAL:
+Find and fix bugs so the system is stable, clean, and runnable.
+
+==================================================
+TASKS
+==================================================
+
+1. Run a full code-level bug check on everything related to:
+- /admin/trading-monitor
+- /api/admin/trading/monitor
+- trading monitor services
+- trading types/models
+- route wiring
+- admin auth protection
+- refresh/polling logic
+- expandable decision rows
+- empty/loading/error states
+
+2. Check for and fix:
+- import errors
+- type errors
+- undefined variables
+- wrong file paths
+- route mismatches
+- frontend crashes
+- backend endpoint errors
+- JSON shape mismatches
+- polling refresh bugs
+- state reset bugs
+- expanded row collapse bugs on refresh
+- auth middleware issues
+- styling/layout breakage
+- duplicate key/react rendering issues
+- null/undefined data crashes
+- sorting or timestamp issues
+- broken formatting
+- stale state bugs
+- console errors
+- build errors
+
+3. Verify the backend endpoint:
+GET /api/admin/trading/monitor
+
+Make sure it:
+- returns the correct shape
+- does not crash on empty data
+- stays separate from Corporate Desk B2B Nexora data
+- is protected correctly by admin auth
+- uses real market-fed paper trading data if implemented
+- otherwise returns truthful empty sections without fake values
+
+4. Verify the frontend route:
+- /admin/trading-monitor
+
+Make sure it:
+- renders successfully
+- loads data correctly
+- handles loading cleanly
+- handles empty data cleanly
+- handles backend errors cleanly
+- auto-refreshes every 5 seconds without UI instability
+- preserves expanded rows where practical
+- does not break any existing admin pages
+
+5. Run real checks:
+- build
+- type check if available
+- lint if available
+- route render check
+- endpoint response check
+
+6. Fix every issue you can find, then re-run checks.
+
+==================================================
+STRICT RULES
+==================================================
+
+- Do not give me a plan first
+- Do not stop after finding bugs
+- Fix them
+- Do not use fake/demo values just to hide bugs
+- Do not break existing /admin/ai-monitor
+- Do not merge trading monitor with B2B Nexora system
+- Keep the page read-only
+- Keep everything stable and minimal
+
+==================================================
+OUTPUT FORMAT
+==================================================
+
+After finishing, show ONLY:
+
+1. Exact files changed
+2. Exact bugs found
+3. Exact fixes made
+4. Exact checks/tests run
+5. Any blockers still remaining
+
+Do not give me a summary of intentions.
+Do the bug sweep and fixes now.
+
+That prompt is for Replit to do the bug sweep and cleanup.
+If you want the stronger version, use this right after if it still talks instead of fixing:
+
+You are still summarizing instead of fixing.
+
+Run the checks now, fix the errors now, and re-run verification.
+Do not respond until you have made the code changes.
+
+Show only:
+1. files changed
+2. bugs found
+3. fixes made
+4. tests/checks run
+5. blockers

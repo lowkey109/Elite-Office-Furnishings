@@ -11254,6 +11254,17 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
+  // GET /api/admin/trading/monitor — separate AI trading monitor (paper mode, admin-protected)
+  app.get("/api/admin/trading/monitor", async (_req, res) => {
+    try {
+      const { getTradingMonitorData } = await import("./services/tradingMonitor");
+      const data = getTradingMonitorData();
+      res.json(data);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // GET /api/admin/nexora/monitor — aggregated real-time AI observation feed (admin-protected)
   app.get("/api/admin/nexora/monitor", async (_req, res) => {
     try {

@@ -28,6 +28,7 @@ const NAV: NavSection[] = [
       { label: "Dashboard",  href: "/admin/dashboard", icon: LayoutDashboard },
       { label: "Nexora OS",  href: "/admin/nexora",    icon: Zap },
       { label: "AI Monitor", href: "/admin/ai-monitor", icon: Activity },
+      { label: "Trading Monitor", href: "/admin/trading-monitor", icon: TrendingUp },
       { label: "AI Chat",    href: "/admin/ai-chat",   icon: MessageSquare },
     ],
   },

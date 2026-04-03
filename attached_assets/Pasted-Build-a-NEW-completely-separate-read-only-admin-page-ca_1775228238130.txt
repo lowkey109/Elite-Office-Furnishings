@@ -1,0 +1,181 @@
+Build a NEW, completely separate, read-only admin page called:
+
+/admin/trading-monitor
+
+This page must be isolated from the existing Corporate Desk Nexora monitor.
+Do not modify /admin/ai-monitor.
+Do not mix B2B opportunity/outreach/pipeline data with trading data.
+
+IMPORTANT:
+This page is for a separate AI trading monitor for:
+- crypto
+- gold
+- paper trading first
+- future live monitoring later
+
+This page must be 100% read-only.
+No buttons.
+No controls.
+No forms.
+No trading actions.
+No execution controls.
+
+GOAL:
+Show exactly what the trading AI is seeing, deciding, and doing in real time.
+
+==================================================
+ROUTE
+==================================================
+
+Frontend route:
+- /admin/trading-monitor
+
+Backend endpoint:
+- GET /api/admin/trading/monitor
+
+Protect endpoint with existing admin auth middleware.
+
+==================================================
+PAGE SECTIONS
+==================================================
+
+1. TOP STATE CARDS
+Show:
+- System Mode (PAPER ONLY)
+- Current Regime
+- Last Decision Time
+- Total Trades
+- Win Rate
+- Current Drawdown
+- Open Positions Count
+- Best Performing Strategy
+- Latest Data Quality Score
+
+2. LIVE DECISION FEED
+Latest first, scrollable.
+
+Each row must show:
+- timestamp
+- market (BTC, ETH, XAUUSD/gold, etc.)
+- strategy
+- direction (long/short)
+- confidence %
+- confidence bar
+- thesis
+- regime
+- volume ratio if available
+- reason code
+- status
+
+Each row must be expandable.
+
+Expanded view must show:
+- expected move
+- expected cost
+- invalidation rule
+- risk bucket
+- data quality score
+- slippage estimate
+- full JSON payload
+- model version
+- created at / updated at
+
+3. OPEN POSITIONS PANEL
+Show:
+- symbol
+- side
+- entry price
+- current price
+- unrealized PnL
+- stop price
+- duration
+- status
+
+4. RECENT OUTCOMES PANEL
+Show last 20 completed paper trades:
+- symbol
+- strategy
+- entry price
+- exit price
+- realized PnL
+- duration
+- slippage
+- outcome (win/loss)
+
+Green for profit, red for loss.
+
+5. PERFORMANCE PANEL
+Show:
+- equity curve placeholder or simple PnL trend
+- avg win
+- avg loss
+- expectancy
+- consecutive wins
+- consecutive losses
+
+==================================================
+BACKEND RESPONSE SHAPE
+==================================================
+
+Return JSON like:
+
+{
+  "state": {
+    "mode": "paper",
+    "currentRegime": "trend",
+    "lastDecisionTime": "",
+    "totalTrades": 0,
+    "winRate": 0,
+    "currentDrawdown": 0,
+    "openPositionsCount": 0,
+    "bestStrategy": "",
+    "dataQualityScore": 0
+  },
+  "decisions": [],
+  "positions": [],
+  "recent_outcomes": [],
+  "performance": {}
+}
+
+==================================================
+DATA RULES
+==================================================
+
+- Use separate trading monitor data only
+- Do not reuse Corporate Desk company/opportunity/outreach data
+- If trading backend data does not yet exist, create the endpoint and UI using clean mock trading data for now
+- Structure the code so real trading data can replace mock data later without rewriting the page
+
+==================================================
+UI RULES
+==================================================
+
+- Dark mode
+- Same admin styling system
+- Clean, premium, minimal
+- Auto-refresh every 5 seconds
+- Stable layout
+- Keep expanded rows open during refresh where possible
+- Read-only only
+
+==================================================
+HARD CONSTRAINTS
+==================================================
+
+- Do not add pause/resume buttons
+- Do not add execute trade buttons
+- Do not add kill switch buttons
+- Do not merge with /admin/ai-monitor
+- Do not modify existing Corporate Desk monitor logic
+- This must be a separate module
+
+==================================================
+OUTPUT
+==================================================
+
+After implementing, show only:
+1. Exact files changed
+2. What was completed
+3. Any blockers
+Do not just summarize plans.
+Actually implement it.
