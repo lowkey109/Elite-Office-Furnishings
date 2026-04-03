@@ -55,7 +55,7 @@ The visual design features a dark luxury gold theme, using near-black background
 - **Tenant Lease Expiry Engine**: Infers lease expiry windows, generates relocation probability predictions, and surfaces urgency-tiered opportunities.
 - **Company Hierarchy System**: Builds parent/subsidiary relationships and rolls up signals.
 - **Global Intelligence Graph**: Builds a multi-entity graph for relationships between companies, buildings, suburbs, and signals.
-- **Outreach Engine + Auto Booking System**: Comprehensive system for contact discovery, AI-personalized message generation, sequence management, and booking integration.
+- **Outreach Engine + Auto Booking System**: Comprehensive system for contact discovery, AI-personalized message generation, sequence management, and booking integration. Includes `autoDiscoverAndOutreach` in the Nexora orchestrator that automatically discovers contacts (via domain inference + AI) and creates outreach threads with resolved emails when new opportunities are pushed to pipeline. Email resolution runs at thread creation time, populating `resolvedEmail`/`contactReadiness` on the thread. Existing threads without emails are auto-updated when contacts become available.
 - **Stripe Revenue Engine**: Manages payments, payment links, invoices, webhooks, and revenue tracking.
 - **Deal Closing System + Partner Network Extensions + Building/Tenant Database**: Systems for generating branded proposals, managing pricing and approvals, tracking partner commissions, and maintaining a comprehensive database.
 - **Deal Closing Pipeline**: Inbound lead pipeline management in the Admin Dashboard with status tracking and follow-up flags.

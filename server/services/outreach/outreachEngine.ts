@@ -58,14 +58,51 @@ export async function createOutreachThread(params: {
     .limit(1);
 
   if (existing.length > 0) {
+    const existingThread = existing[0];
+    if (params.contactId && (!existingThread.resolvedEmail || existingThread.contactReadiness === "NEEDS_CONTACT")) {
+      try {
+        const { resolveProspectEmail, getContactReadiness } = await import("./prospectEmailResolver");
+        const resolution = await resolveProspectEmail({ companyId: params.companyId, contactId: params.contactId });
+        if (resolution.resolvedEmail) {
+          await db.update(outreachThreads).set({
+            contactId: params.contactId,
+            resolvedEmail: resolution.resolvedEmail,
+            resolvedEmailSource: resolution.sourceType,
+            contactReadiness: getContactReadiness(resolution),
+            updatedAt: new Date(),
+          }).where(eq(outreachThreads.id, existingThread.id));
+          console.log(`[OutreachEngine] Updated existing thread ${existingThread.id} with resolved email ${resolution.resolvedEmail}`);
+        }
+      } catch (err: any) {
+        console.warn(`[OutreachEngine] Failed to update existing thread email: ${err.message}`);
+      }
+    }
     console.log(`[OutreachEngine] Active thread already exists for ${params.companyName}`);
-    return existing[0].id;
+    return existingThread.id;
   }
 
   // Get booking link from env
   const bookingLink = process.env.BOOKING_BASE_URL
     ? `${process.env.BOOKING_BASE_URL}?company=${encodeURIComponent(params.companyName)}`
     : process.env.CALENDLY_LINK ?? "https://calendly.com/thecorporatedesk";
+
+  let resolvedEmail: string | null = null;
+  let resolvedEmailSource: string | null = null;
+  let contactReadiness = "NEEDS_CONTACT";
+
+  if (params.contactId) {
+    try {
+      const { resolveProspectEmail, getContactReadiness } = await import("./prospectEmailResolver");
+      const resolution = await resolveProspectEmail({ companyId: params.companyId, contactId: params.contactId });
+      if (resolution.resolvedEmail) {
+        resolvedEmail = resolution.resolvedEmail;
+        resolvedEmailSource = resolution.sourceType;
+        contactReadiness = getContactReadiness(resolution);
+      }
+    } catch (err: any) {
+      console.warn(`[OutreachEngine] Email resolution failed for contact ${params.contactId}: ${err.message}`);
+    }
+  }
 
   const [thread] = await db.insert(outreachThreads).values({
     companyId: params.companyId,
@@ -80,6 +117,9 @@ export async function createOutreachThread(params: {
     relocationProbability: params.relocationProbability ?? null,
     bookingLink,
     bookingStatus: "link_created",
+    resolvedEmail,
+    resolvedEmailSource,
+    contactReadiness,
   }).returning();
 
   // Log creation event

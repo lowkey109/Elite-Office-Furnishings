@@ -10038,6 +10038,56 @@ Rules:
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
+  app.post("/api/admin/contact-discovery/run", async (req, res) => {
+    try {
+      const { opportunityId } = req.body;
+      if (!opportunityId) return res.status(400).json({ error: "opportunityId required" });
+      const { discoverContactForOpportunity } = await import("./services/outreach/contactDiscoveryService");
+      const result = await discoverContactForOpportunity(opportunityId);
+      res.json({ ok: true, ...result });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/admin/outreach/trigger-for-opportunity", async (req, res) => {
+    try {
+      const { opportunityId } = req.body;
+      if (!opportunityId) return res.status(400).json({ error: "opportunityId required" });
+
+      const { discoverContactForOpportunity } = await import("./services/outreach/contactDiscoveryService");
+      const discovery = await discoverContactForOpportunity(opportunityId);
+
+      if (!discovery.contactId || !discovery.email) {
+        return res.json({ ok: false, reason: "No contact could be discovered", discovery });
+      }
+
+      const { createOutreachThread } = await import("./services/outreach/outreachEngine");
+      const { db: ddb } = await import("./db");
+      const { opportunities: oppsTable } = await import("../shared/schema");
+      const { eq } = await import("drizzle-orm");
+
+      const [opp] = await ddb.select().from(oppsTable).where(eq(oppsTable.id, opportunityId)).limit(1);
+      if (!opp) return res.json({ ok: false, reason: "Opportunity not found" });
+
+      const threadId = await createOutreachThread({
+        companyId: discovery.companyIntelligenceId ?? opp.companyId ?? opportunityId,
+        companyName: opp.companyName ?? "Unknown",
+        city: opp.city,
+        industry: opp.industry,
+        contactId: discovery.contactId,
+        opportunityId,
+        opportunityScore: opp.confidenceScore ?? 55,
+        relocationProbability: opp.relocationProbability ?? undefined,
+        signals: [],
+      });
+
+      res.json({ ok: true, threadId, discovery, company: opp.companyName });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // POST /api/admin/outreach/flush-send — immediately run outreach send cycle (no pg-boss delay)
   app.post("/api/admin/outreach/flush-send", async (req, res) => {
     const LIVE_MODE = process.env.SAFE_MODE === "false";

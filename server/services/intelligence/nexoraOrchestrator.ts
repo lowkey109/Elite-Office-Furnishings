@@ -953,6 +953,53 @@ async function autoTriggerQuote(opportunityId: string, companyName: string, conf
   }
 }
 
+const AUTO_OUTREACH_CONFIDENCE_THRESHOLD = 50;
+
+async function autoDiscoverAndOutreach(
+  opportunityId: string,
+  companyName: string,
+  confidence: number,
+): Promise<void> {
+  try {
+    const { discoverContactForOpportunity } = await import("../outreach/contactDiscoveryService");
+    const discovery = await discoverContactForOpportunity(opportunityId);
+
+    if (!discovery.contactId || !discovery.email) {
+      console.log(`[AutoOutreach] No contact discovered for ${companyName} — skipping outreach`);
+      return;
+    }
+
+    if (confidence < AUTO_OUTREACH_CONFIDENCE_THRESHOLD) {
+      console.log(`[AutoOutreach] Confidence ${confidence} < ${AUTO_OUTREACH_CONFIDENCE_THRESHOLD} for ${companyName} — skipping outreach`);
+      return;
+    }
+
+    const { createOutreachThread } = await import("../outreach/outreachEngine");
+    const { db: ddb } = await import("../../db");
+    const { opportunities: oppsTable } = await import("../../../shared/schema");
+    const { eq } = await import("drizzle-orm");
+
+    const [opp] = await ddb.select().from(oppsTable).where(eq(oppsTable.id, opportunityId)).limit(1);
+    if (!opp) return;
+
+    const threadId = await createOutreachThread({
+      companyId: discovery.companyIntelligenceId ?? opp.companyId ?? opportunityId,
+      companyName,
+      city: opp.city,
+      industry: opp.industry,
+      contactId: discovery.contactId,
+      opportunityId,
+      opportunityScore: confidence,
+      relocationProbability: opp.relocationProbability ?? undefined,
+      signals: [],
+    });
+
+    console.log(`[AutoOutreach] ✓ Thread ${threadId.slice(0, 8)} created for ${companyName} (contact: ${discovery.email}, confidence: ${confidence})`);
+  } catch (err: any) {
+    console.warn(`[AutoOutreach] Failed for ${companyName}: ${err.message}`);
+  }
+}
+
 async function pushToPipeline(
   signal: NexoraSignalLike,
   sourceType: "radar" | "deal",
@@ -965,12 +1012,14 @@ async function pushToPipeline(
     if (sourceType === "deal") {
       await pushDealHunterToPipeline(signal.id);
       const oppId = await autoCreateOpportunity(signal, sourceType);
-      if (oppId && sigConfidence >= AUTO_QUOTE_CONFIDENCE_THRESHOLD) {
-        autoTriggerQuote(oppId, companyNameForQuote, sigConfidence).catch(() => undefined);
+      if (oppId) {
+        autoDiscoverAndOutreach(oppId, companyNameForQuote, sigConfidence).catch(() => undefined);
+        if (sigConfidence >= AUTO_QUOTE_CONFIDENCE_THRESHOLD) {
+          autoTriggerQuote(oppId, companyNameForQuote, sigConfidence).catch(() => undefined);
+        }
       }
       return true;
     }
-    // Radar signal → create a pipeline prospect entry (idempotency key prevents duplicate calls)
     if (sourceType === "radar") {
       const radarSig = signal as any;
       const rawValue = radarSig.estimatedProjectValue;
@@ -992,8 +1041,11 @@ async function pushToPipeline(
         nexoraSignalId: signal.id ?? null,
       } as any);
       const oppId = await autoCreateOpportunity(signal, sourceType);
-      if (oppId && sigConfidence >= AUTO_QUOTE_CONFIDENCE_THRESHOLD) {
-        autoTriggerQuote(oppId, companyNameForQuote, sigConfidence).catch(() => undefined);
+      if (oppId) {
+        autoDiscoverAndOutreach(oppId, companyNameForQuote, sigConfidence).catch(() => undefined);
+        if (sigConfidence >= AUTO_QUOTE_CONFIDENCE_THRESHOLD) {
+          autoTriggerQuote(oppId, companyNameForQuote, sigConfidence).catch(() => undefined);
+        }
       }
       return true;
     }
