@@ -1,0 +1,392 @@
+Here’s T008 mapped in the same full task format.
+
+⸻
+
+T008: Scenario Stress Testing + Portfolio Resilience Layer
+	•	Blocked By: [T003, T005, T006, T007]
+
+⸻
+
+Objective
+
+Transform the trading system from:
+	•	managing the current portfolio well
+
+into:
+	•	testing how the portfolio behaves under bad conditions
+	•	measuring fragility before it causes damage
+	•	detecting concentration, tail risk, and failure modes
+	•	improving resilience across assets, strategies, and regimes
+
+⸻
+
+T008 in one line
+
+Current portfolio state → stress scenarios → simulated impact → resilience scoring → risk alerts → safer portfolio behavior
+
+⸻
+
+Build These Parts
+
+1. Scenario engine
+
+Create a scenario engine that can apply stress shocks to the current paper portfolio.
+
+Initial scenarios should include:
+
+Market shock scenarios
+	•	BTC down 5%
+	•	BTC down 10%
+	•	ETH down 8%
+	•	SOL down 12%
+	•	gold down 3%
+	•	correlated crypto selloff
+	•	broad risk-on rally
+	•	volatility spike
+	•	gap through stop scenario
+
+Portfolio stress scenarios
+	•	all open long crypto positions reprice together
+	•	weakest strategy suffers consecutive losses
+	•	stale feed during high volatility
+	•	slippage doubles on exits
+	•	one asset becomes unavailable/stale
+
+Suggested file:
+	•	server/services/trading/stressScenarioEngine.ts
+
+⸻
+
+2. Portfolio shock calculator
+
+For each scenario, calculate:
+	•	projected unrealized PnL change
+	•	projected drawdown
+	•	exposure concentration risk
+	•	strategy-specific hit
+	•	cluster-specific hit
+	•	liquidation of edge / risk throttle trigger
+	•	worst-case position impact
+	•	worst-case portfolio impact
+
+Suggested file:
+	•	server/services/trading/portfolioStressCalculator.ts
+
+⸻
+
+3. Resilience scoring layer
+
+Create a resilience score for the current portfolio.
+
+Inputs:
+	•	concentration
+	•	cluster exposure
+	•	open position count
+	•	drawdown sensitivity
+	•	strategy diversification
+	•	dependence on one symbol or one regime
+	•	stop gap risk
+	•	stale feed risk
+
+Outputs:
+	•	overall resilience score
+	•	low / medium / high fragility label
+	•	specific risk flags
+
+Examples:
+	•	“crypto cluster concentration too high”
+	•	“portfolio vulnerable to BTC-led selloff”
+	•	“one strategy dominates allocation”
+	•	“drawdown risk elevated if volatility expands”
+
+Suggested file:
+	•	server/services/trading/portfolioResilience.ts
+
+⸻
+
+4. Stress snapshot persistence
+
+Store stress-test results over time.
+
+Suggested table:
+
+portfolio_stress_snapshots
+	•	id
+	•	snapshotAt
+	•	portfolioSnapshotId
+	•	scenarioName
+	•	projectedPnlImpact
+	•	projectedDrawdown
+	•	riskFlagsJson
+	•	resilienceScore
+	•	createdAt
+
+Purpose:
+	•	compare resilience over time
+	•	show whether the system is improving
+	•	feed future learning/adaptation
+
+⸻
+
+5. Scenario catalog
+
+Define a catalog of standard scenarios.
+
+Suggested file:
+	•	server/services/trading/stressScenarios.ts
+
+Initial scenario groups:
+
+Group A — price shocks
+	•	BTC -5%
+	•	BTC -10%
+	•	ETH -8%
+	•	SOL -12%
+	•	XAUUSD -3%
+
+Group B — correlated shocks
+	•	all crypto -7%
+	•	all crypto -12%
+	•	crypto down while gold up
+	•	crypto up while gold flat
+
+Group C — execution/risk shocks
+	•	slippage x2
+	•	stale feed at exit
+	•	stop gap beyond expected level
+	•	volatility expansion 1.5x / 2x
+
+Group D — strategy shocks
+	•	trend_follow underperforms
+	•	mean_reversion underperforms
+	•	momentum_breakout false breakout cluster
+
+⸻
+
+6. Stress-aware risk alerts
+
+Surface actionable alerts when resilience is weak.
+
+Examples:
+	•	reduce crypto cluster exposure
+	•	cap SOL sizing
+	•	disable new entries during high-stress state
+	•	increase caution when stale feed + high volatility
+	•	reduce one over-concentrated strategy
+
+Important:
+	•	T008 should recommend resilience actions
+	•	T006/T007 can later use them
+	•	do not auto-force behavior changes yet unless you explicitly choose to wire it later
+
+Suggested file:
+	•	server/services/trading/stressAlerts.ts
+
+⸻
+
+7. Stress testing endpoint
+
+Add endpoint:
+
+GET /api/admin/trading/stress
+
+Returns:
+	•	current resilience score
+	•	scenario results
+	•	worst-case scenario
+	•	top risk flags
+	•	recent stress snapshots
+
+Optional later:
+	•	on-demand rerun endpoint
+
+For now, read-only is fine.
+
+⸻
+
+8. Trading monitor stress panel
+
+Extend /admin/trading-monitor with a resilience section.
+
+Show:
+	•	resilience score
+	•	fragility label
+	•	worst-case scenario
+	•	projected drawdown under worst case
+	•	top 3 scenario impacts
+	•	top risk flags
+	•	simple stress comparison table
+
+Examples:
+	•	BTC -10% → projected portfolio impact: -6.4%
+	•	all crypto -12% → projected portfolio impact: -9.8%
+	•	slippage x2 → projected performance degradation: moderate
+
+Requirements:
+	•	clean
+	•	read-only
+	•	easy to understand
+	•	no clutter
+
+⸻
+
+9. Strategy stress sensitivity
+
+Measure which strategies are most fragile under shocks.
+
+Examples:
+	•	momentum_breakout highly sensitive to volatility spikes
+	•	mean_reversion fragile in correlated breakdowns
+	•	trend_follow resilient in trending scenarios, weak in sharp reversals
+
+Store or calculate:
+	•	strategy stress sensitivity score
+	•	projected impact by strategy under each scenario
+
+Suggested file:
+	•	server/services/trading/strategyStressProfile.ts
+
+⸻
+
+10. Portfolio resilience history
+
+Track how resilience changes over time.
+
+Examples:
+	•	resilience improving as cluster exposure drops
+	•	fragility rising as one strategy dominates
+	•	drawdown sensitivity rising after multiple correlated entries
+
+This gives you:
+	•	not just “what is risky now?”
+	•	but “are we becoming safer or more fragile?”
+
+⸻
+
+Rules
+	•	Stress testing must use real current portfolio state
+	•	No fake open positions
+	•	No fake exposure values
+	•	No fabricated resilience scores without real calculation inputs
+	•	Use practical deterministic scenarios, not fantasy Monte Carlo models yet
+	•	Keep this separate from Corporate Desk B2B Nexora system
+	•	Keep read-only
+	•	Do not auto-change live config from stress results yet
+
+⸻
+
+Suggested Schema
+
+portfolio_stress_snapshots
+	•	id
+	•	snapshotAt
+	•	portfolioSnapshotId
+	•	scenarioName
+	•	projectedPnlImpact
+	•	projectedDrawdown
+	•	projectedExposureRisk
+	•	resilienceScore
+	•	riskFlagsJson
+	•	createdAt
+
+Optional: strategy_stress_profiles
+	•	id
+	•	strategyName
+	•	scenarioName
+	•	projectedImpact
+	•	sensitivityScore
+	•	createdAt
+
+Optional: stress_alerts
+	•	id
+	•	alertType
+	•	severity
+	•	description
+	•	relatedScenario
+	•	createdAt
+
+⸻
+
+Acceptance Criteria
+
+T008 is complete only if:
+	1.	Portfolio can be evaluated against defined stress scenarios
+	2.	Projected scenario impacts are calculated from real portfolio state
+	3.	Resilience score and fragility label exist
+	4.	Worst-case scenario is surfaced clearly
+	5.	Risk flags are produced from real portfolio conditions
+	6.	Stress results are persisted over time
+	7.	Trading monitor shows resilience/stress information cleanly
+	8.	No fake or seeded stress values remain in active monitor-backed state
+
+⸻
+
+Testing Requirements
+	•	verify scenario engine runs against empty portfolio safely
+	•	verify scenario engine runs against populated portfolio correctly
+	•	verify correlated crypto positions produce larger clustered stress impact
+	•	verify worst-case scenario selection works
+	•	verify resilience score changes when concentration changes
+	•	verify stress snapshots persist correctly
+	•	verify stress endpoint returns structured data
+	•	verify monitor renders stress section with empty and populated states
+	•	verify no existing T002–T007 functionality is broken
+
+⸻
+
+Output Format (for Replit)
+
+After implementation, return ONLY:
+	1.	exact files created/changed
+	2.	scenario engine added
+	3.	resilience scoring added
+	4.	schema/storage added
+	5.	stress endpoint added
+	6.	monitor stress panel added
+	7.	tests/checks run
+	8.	blockers
+
+⸻
+
+One critical instruction
+
+Add this line:
+
+Do not build fantasy backtests or random scenario generators for T008. Use practical deterministic stress scenarios against the real current portfolio state.
+
+⸻
+
+What T008 unlocks
+
+After T008, your system becomes:
+	•	not just adaptive
+	•	not just portfolio-aware
+
+but:
+	•	resilience-aware
+
+That means it starts asking:
+	•	“How much can we make?”
+	•	and also
+	•	“How badly can this book break if conditions turn against us?”
+
+That is a serious jump in maturity.
+
+⸻
+
+Best practical V1 approach
+
+Keep it simple first:
+	•	fixed named scenarios
+	•	deterministic shock percentages
+	•	cluster-aware portfolio impact
+	•	resilience score
+	•	worst-case panel
+
+Do not jump to advanced VaR or Monte Carlo yet.
+
+⸻
+
+If you want, the natural next stage is:
+
+👉 T009: Execution Quality + Slippage Intelligence Layer

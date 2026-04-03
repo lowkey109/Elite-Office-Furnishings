@@ -1,0 +1,355 @@
+Here’s T006 mapped in the same full task format.
+
+⸻
+
+T006: Adaptive Execution — Controlled Auto-Tuning + Guarded Rule Updates
+	•	Blocked By: [T005]
+
+⸻
+
+Objective
+
+Transform the trading system from:
+	•	learning what works
+
+into:
+	•	carefully applying small, evidence-based improvements
+	•	auto-tuning within strict guardrails
+	•	updating rule parameters without breaking the system
+	•	keeping human-readable audit trails for every change
+
+⸻
+
+T006 in one line
+
+Learning outputs → guarded recommendations → limited parameter changes → shadow validation → approved rollout
+
+⸻
+
+Build These Parts
+
+1. Parameter control layer
+
+Create a central place for tunable rule parameters.
+
+Examples:
+	•	minimum confidence threshold
+	•	minimum volume ratio
+	•	max hold time
+	•	strategy enable/disable flags
+	•	regime filters
+	•	symbol-specific risk multipliers
+	•	time-window allow/deny lists
+
+Important:
+	•	parameters must be separate from hardcoded business logic
+	•	parameters must be versioned
+	•	parameters must be auditable
+
+Suggested file:
+	•	server/services/trading/tradingConfig.ts
+
+⸻
+
+2. Rule update engine
+
+Create a service that takes T005 learning outputs and converts them into candidate parameter changes.
+
+Examples:
+	•	increase minConfidence from 0.65 → 0.70
+	•	disable mean_reversion on SOL
+	•	reduce maxHoldMinutes for order_flow_scalp
+	•	require stronger volume on momentum_breakout
+
+Important:
+	•	do not directly apply every suggestion
+	•	first convert them into proposed updates
+
+Suggested file:
+	•	server/services/trading/ruleUpdateEngine.ts
+
+⸻
+
+3. Guardrail layer
+
+Every proposed change must pass strict checks.
+
+Guardrails:
+	•	minimum sample size required
+	•	no updates from insufficient data
+	•	no changes that increase risk above configured caps
+	•	no more than one or two parameter changes per cycle
+	•	no strategy can be fully rewritten automatically
+	•	no auto-tuning of stop/target logic beyond configured safe ranges
+	•	no updates if recent system performance is unstable
+
+Suggested file:
+	•	server/services/trading/tradingGuardrails.ts
+
+⸻
+
+4. Shadow validation layer
+
+Before any update becomes active:
+	•	test it on historical outcomes or held-out recent data
+	•	compare old config vs proposed config
+	•	ensure proposed config improves or at least does not worsen:
+	•	expectancy
+	•	drawdown
+	•	trade quality
+	•	stability
+
+Important:
+	•	this is not full backtest fantasy mode
+	•	it is a controlled comparison using real stored trade history
+
+Suggested file:
+	•	server/services/trading/shadowValidation.ts
+
+⸻
+
+5. Config versioning + rollout
+
+Add versioned configuration records.
+
+Every rule set/version should store:
+	•	version id
+	•	created at
+	•	reason for change
+	•	source recommendation id(s)
+	•	changed parameters
+	•	previous values
+	•	approval status
+	•	rollout status
+	•	active/inactive
+
+Suggested tables:
+	•	trading_config_versions
+	•	trading_config_changes
+
+⸻
+
+6. Approval mode
+
+T006 should support two rollout modes:
+
+Mode A — Review Required (default)
+	•	system generates proposed changes
+	•	admin sees proposals
+	•	admin approves activation
+
+Mode B — Guarded Auto-Apply (later, optional)
+	•	system auto-applies only low-risk, guardrail-approved parameter tweaks
+	•	every change still logged
+	•	rollback always possible
+
+For now, default to:
+	•	review required
+
+⸻
+
+7. Rollback system
+
+Any config version must be reversible.
+
+Add:
+	•	rollback to previous config
+	•	mark bad config as reverted
+	•	keep provenance of rollback reason
+
+Suggested file:
+	•	server/services/trading/configRollback.ts
+
+⸻
+
+8. Strategy adaptation reporting
+
+Expose what changed and why.
+
+Examples:
+	•	“min confidence raised from 65% to 70% due to poor performance in 65–69% band”
+	•	“SOL mean reversion disabled due to negative expectancy over last 34 outcomes”
+	•	“breakout volume threshold increased from 1.4x to 1.6x”
+
+This is critical so the system remains understandable.
+
+Suggested file:
+	•	server/services/trading/adaptationReport.ts
+
+⸻
+
+9. Backend endpoint
+
+Add endpoint:
+
+GET /api/admin/trading/adaptation
+
+Returns:
+	•	current config version
+	•	pending proposals
+	•	recent changes
+	•	rejected changes
+	•	rollback history
+	•	guardrail failures
+
+Optional later:
+	•	POST approval endpoints
+
+For now, read-only visibility is enough unless you explicitly want approval actions in UI.
+
+⸻
+
+10. Frontend Adaptive Execution Panel
+
+Extend trading monitor or create new admin subsection.
+
+Show:
+	•	active rule version
+	•	pending adaptive proposals
+	•	last applied change
+	•	guardrail rejections
+	•	recent rollbacks
+	•	changed parameters table
+	•	reason/evidence for each proposal
+
+UI requirements:
+	•	clean
+	•	read-only by default
+	•	strong audit visibility
+	•	no fake “AI self-improvement” copy
+
+⸻
+
+Rules
+	•	Adaptive changes must come from real T005 learning outputs
+	•	No updates without minimum evidence threshold
+	•	No direct rewriting of strategy logic
+	•	No uncontrolled auto-optimization
+	•	No hidden parameter changes
+	•	Every change must be versioned, explainable, and reversible
+	•	Keep separate from Corporate Desk B2B Nexora system
+
+⸻
+
+Suggested Schema
+
+trading_config_versions
+	•	id
+	•	versionName
+	•	configJson
+	•	isActive
+	•	createdAt
+	•	activatedAt
+	•	deactivatedAt
+	•	sourceRecommendationIds
+	•	changeSummary
+	•	approvalStatus
+	•	createdBy
+
+trading_config_changes
+	•	id
+	•	configVersionId
+	•	parameterKey
+	•	oldValue
+	•	newValue
+	•	reason
+	•	evidenceJson
+	•	createdAt
+
+trading_adaptation_proposals
+	•	id
+	•	recommendationId
+	•	proposalType
+	•	proposalJson
+	•	sampleSize
+	•	confidence
+	•	guardrailStatus
+	•	approvalStatus
+	•	createdAt
+
+trading_rollbacks
+	•	id
+	•	fromConfigVersionId
+	•	toConfigVersionId
+	•	reason
+	•	createdAt
+
+⸻
+
+Acceptance Criteria
+
+T006 is complete only if:
+	1.	Tunable trading parameters are versioned and no longer hidden in code
+	2.	Learning outputs can generate parameter proposals
+	3.	Guardrails block unsafe or weak-evidence changes
+	4.	Proposed changes are shadow-validated before activation
+	5.	Active config versions can be rolled back
+	6.	Every change is auditable and explainable
+	7.	No uncontrolled auto-optimization exists
+	8.	UI can show adaptation state clearly
+	9.	No fake or unsupported claims of “self-improving AI” remain
+
+⸻
+
+Testing Requirements
+	•	verify parameter changes are versioned
+	•	verify weak-evidence recommendations do not create approved changes
+	•	verify guardrails reject unsafe proposals
+	•	verify shadow validation compares old vs new config
+	•	verify rollback restores prior config
+	•	verify active config is used by decision engine
+	•	verify adaptation endpoint returns correct history/proposals
+	•	verify UI handles no proposals / no history cleanly
+	•	verify no seeded/demo adaptive outputs appear
+
+⸻
+
+Output Format (for Replit)
+
+After implementation, return ONLY:
+	1.	exact files created/changed
+	2.	config/versioning layer added
+	3.	proposal engine added
+	4.	guardrails implemented
+	5.	shadow validation implemented
+	6.	rollback support added
+	7.	adaptation reporting added
+	8.	tests/checks run
+	9.	blockers
+
+⸻
+
+One critical instruction
+
+Add this line:
+
+Do not auto-apply strategy changes without explicit approval unless the change is classified low-risk and passes all guardrails — and even then, keep full audit logs and rollback support.
+
+⸻
+
+What T006 unlocks
+
+After T006, your system becomes:
+	•	not just learning
+	•	but adapting carefully
+
+That is the first stage where it starts to behave like a serious, managed trading engine rather than a static ruleset.
+
+⸻
+
+Important warning
+
+T006 is where overfitting risk gets dangerous.
+
+So keep these hard limits:
+	•	tiny changes only
+	•	few parameters only
+	•	evidence threshold high
+	•	rollback always available
+	•	human review by default
+
+⸻
+
+If you want, the natural next stage after this is:
+
+👉 T007: Portfolio Allocation + Cross-Asset Risk Coordination

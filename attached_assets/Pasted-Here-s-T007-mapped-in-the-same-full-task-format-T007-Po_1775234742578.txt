@@ -1,0 +1,387 @@
+Here’s T007 mapped in the same full task format.
+
+⸻
+
+T007: Portfolio Allocation + Cross-Asset Risk Coordination
+	•	Blocked By: [T003, T005, T006]
+
+⸻
+
+Objective
+
+Transform the trading system from:
+	•	handling trades mostly one-by-one
+
+into:
+	•	managing the whole book as a portfolio
+	•	coordinating risk across BTC, ETH, SOL, XAUUSD
+	•	preventing correlated overexposure
+	•	allocating paper capital intelligently across strategies and assets
+
+⸻
+
+T007 in one line
+
+Per-trade decisions → portfolio context → allocation logic → exposure caps → cross-asset risk control → portfolio-aware execution
+
+⸻
+
+Build These Parts
+
+1. Portfolio state layer
+
+Create a portfolio state service that knows, at all times:
+	•	total paper equity
+	•	available buying power
+	•	open positions by symbol
+	•	open positions by strategy
+	•	gross exposure
+	•	net exposure
+	•	unrealized PnL
+	•	realized PnL
+	•	per-asset concentration
+	•	correlation-adjusted exposure
+	•	drawdown state
+
+Suggested file:
+	•	server/services/trading/portfolioState.ts
+
+⸻
+
+2. Allocation engine
+
+Create a portfolio allocator that decides how much capital each new trade is allowed to use.
+
+Inputs:
+	•	current portfolio state
+	•	strategy confidence
+	•	strategy health from T005
+	•	current config version from T006
+	•	asset risk profile
+	•	regime context
+	•	current open exposures
+
+Outputs:
+	•	approved size
+	•	reduced size
+	•	blocked trade
+	•	allocation reason
+
+Examples:
+	•	BTC breakout gets full size in strong trend regime
+	•	SOL breakout gets reduced size if already long BTC and ETH
+	•	gold trade blocked if portfolio already overloaded with macro risk
+	•	weak-confidence trade gets half size
+
+Suggested file:
+	•	server/services/trading/portfolioAllocator.ts
+
+⸻
+
+3. Exposure caps
+
+Add hard portfolio limits.
+
+Examples:
+	•	max exposure per symbol
+	•	max exposure per strategy
+	•	max exposure per correlated asset cluster
+	•	max gross exposure
+	•	max net long exposure
+	•	max net short exposure
+	•	max simultaneous open positions
+	•	max portfolio drawdown before new entries pause
+
+Example config fields:
+	•	maxExposurePerAsset
+	•	maxExposurePerStrategy
+	•	maxCorrelatedClusterExposure
+	•	maxGrossExposure
+	•	maxOpenPositions
+	•	drawdownRiskThrottle
+
+These should be versioned under T006 config control.
+
+⸻
+
+4. Correlation layer
+
+Add simple cross-asset correlation awareness.
+
+For V1, keep this practical:
+	•	BTC / ETH / SOL = correlated crypto cluster
+	•	XAUUSD = macro / defensive cluster
+
+Use this to avoid false diversification.
+
+Examples:
+	•	long BTC + long ETH + long SOL is not 3 independent bets
+	•	they should count toward one correlated cluster cap
+
+Suggested file:
+	•	server/services/trading/correlationModel.ts
+
+V1 can use static correlation groups first.
+Later, this can evolve into rolling realized correlation.
+
+⸻
+
+5. Risk throttling layer
+
+If portfolio conditions worsen, automatically reduce aggressiveness.
+
+Examples:
+	•	after drawdown exceeds threshold, reduce position sizes
+	•	after too many correlated losses, block new trades in same cluster
+	•	if one strategy is degrading, reduce its portfolio allocation
+	•	if data quality is weak, reduce or block new exposure
+
+Suggested file:
+	•	server/services/trading/portfolioRiskThrottle.ts
+
+⸻
+
+6. Portfolio-aware entry approval
+
+Integrate portfolio context into the existing paper trade lifecycle.
+
+Before opening a paper position:
+	•	run trade through portfolio allocator
+	•	check exposure caps
+	•	check correlated cluster exposure
+	•	check current drawdown/risk throttle
+	•	store why the trade was sized or blocked
+
+Important:
+	•	T002 lifecycle stays intact
+	•	T007 adds portfolio-aware sizing/approval before open
+
+Suggested integration point:
+	•	before openPaperPosition()
+
+⸻
+
+7. Portfolio snapshots
+
+Persist portfolio state over time.
+
+Suggested table:
+
+portfolio_snapshots
+	•	id
+	•	totalEquity
+	•	realizedPnl
+	•	unrealizedPnl
+	•	grossExposure
+	•	netExposure
+	•	openPositionsCount
+	•	maxDrawdown
+	•	riskThrottleState
+	•	snapshotAt
+
+Purpose:
+	•	show historical portfolio health
+	•	support future analytics
+	•	support allocator debugging
+
+⸻
+
+8. Allocation decision logging
+
+Every sizing/portfolio decision should be logged.
+
+Suggested table:
+
+portfolio_allocation_logs
+	•	id
+	•	decisionId
+	•	symbol
+	•	requestedRisk
+	•	approvedRisk
+	•	requestedSize
+	•	approvedSize
+	•	wasBlocked
+	•	blockReason
+	•	correlatedCluster
+	•	portfolioStateJson
+	•	createdAt
+
+This is critical because later you’ll want to know:
+	•	why did the system block a trade?
+	•	why did it cut a BTC trade to half size?
+	•	why did it allow gold but reject SOL?
+
+⸻
+
+9. Frontend portfolio/risk panel
+
+Extend /admin/trading-monitor with a portfolio section.
+
+Show:
+	•	total paper equity
+	•	gross exposure
+	•	net exposure
+	•	open positions by asset
+	•	exposure by strategy
+	•	crypto cluster exposure
+	•	gold / macro exposure
+	•	current risk throttle state
+	•	blocked trades due to portfolio limits
+	•	recent allocation decisions
+
+Requirements:
+	•	clean and read-only
+	•	no controls
+	•	no manual override buttons yet
+
+⸻
+
+10. Strategy allocation leaderboard
+
+Show how capital is being distributed.
+
+Examples:
+	•	trend_follow: 38%
+	•	momentum_breakout: 26%
+	•	volatility_squeeze: 19%
+	•	mean_reversion: 10%
+	•	regime_shift: 7%
+
+This helps you see whether:
+	•	one strategy dominates too much
+	•	weak strategies are still consuming capital
+	•	adaptive execution is allocating rationally
+
+⸻
+
+Rules
+	•	Allocation must be based on real portfolio state
+	•	No fake diversification assumptions
+	•	No seeded exposure data
+	•	No strategy gets unlimited size
+	•	Correlated assets must count toward shared risk
+	•	Allocation changes must remain consistent with T006 guardrails/config
+	•	Keep separate from Corporate Desk B2B Nexora system
+
+⸻
+
+Suggested Schema
+
+portfolio_snapshots
+	•	id
+	•	totalEquity
+	•	realizedPnl
+	•	unrealizedPnl
+	•	grossExposure
+	•	netExposure
+	•	openPositionsCount
+	•	maxDrawdown
+	•	riskThrottleState
+	•	snapshotAt
+
+portfolio_allocation_logs
+	•	id
+	•	decisionId
+	•	symbol
+	•	strategy
+	•	requestedRisk
+	•	approvedRisk
+	•	requestedSize
+	•	approvedSize
+	•	wasBlocked
+	•	blockReason
+	•	correlatedCluster
+	•	portfolioStateJson
+	•	createdAt
+
+Optional: asset_risk_profiles
+	•	id
+	•	symbol
+	•	cluster
+	•	volatilityClass
+	•	maxDefaultRisk
+	•	createdAt
+
+This optional table helps configure BTC/ETH/SOL/XAUUSD baseline behavior.
+
+⸻
+
+Acceptance Criteria
+
+T007 is complete only if:
+	1.	New trades are sized with portfolio awareness
+	2.	Exposure caps are enforced
+	3.	Correlated crypto positions are treated as shared risk
+	4.	Portfolio drawdown can throttle new trades
+	5.	Allocation decisions are logged and explainable
+	6.	Portfolio snapshots persist over time
+	7.	Trading monitor shows real portfolio/risk state
+	8.	No fake exposure or seeded allocation data remains
+
+⸻
+
+Testing Requirements
+	•	verify allocator reduces or blocks trades when asset/cluster caps are hit
+	•	verify multiple crypto longs count toward shared cluster exposure
+	•	verify gold is treated separately if configured
+	•	verify drawdown throttle reduces new approved size
+	•	verify allocation logs are written correctly
+	•	verify portfolio snapshots update correctly
+	•	verify monitor renders portfolio state with empty and populated states
+	•	verify no existing T002–T006 flows are broken
+
+⸻
+
+Output Format (for Replit)
+
+After implementation, return ONLY:
+	1.	exact files created/changed
+	2.	portfolio state layer added
+	3.	allocator added
+	4.	exposure/correlation controls added
+	5.	risk throttling added
+	6.	schema/storage added
+	7.	monitor portfolio panel added
+	8.	tests/checks run
+	9.	blockers
+
+⸻
+
+One critical instruction
+
+Add this line:
+
+Do not treat BTC, ETH, and SOL as independent risk if they are all long at the same time. They must count toward shared crypto-cluster exposure.
+
+⸻
+
+What T007 unlocks
+
+After T007, your system becomes:
+	•	not just a trade engine
+	•	but a portfolio engine
+
+That is a major jump in maturity, because now it stops asking:
+	•	“is this trade good?”
+
+and starts asking:
+	•	“is this trade good for the portfolio right now?”
+
+⸻
+
+Best practical V1 approach
+
+Start simple:
+	•	Cluster 1: BTC / ETH / SOL
+	•	Cluster 2: XAUUSD
+	•	Fixed exposure caps
+	•	Simple risk throttles
+	•	Logged allocation decisions
+
+Do not overcomplicate with dynamic covariance matrices yet.
+
+⸻
+
+If you want, the natural next stage is:
+
+👉 T008: Scenario Stress Testing + Portfolio Resilience Layer

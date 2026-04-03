@@ -1,0 +1,354 @@
+Here’s T009 mapped in the same full task format.
+
+⸻
+
+T009: Execution Quality + Slippage Intelligence Layer
+	•	Blocked By: [T003, T005, T007, T008]
+
+⸻
+
+Objective
+
+Transform the trading system from:
+	•	assuming clean fills and ideal exits
+
+into:
+	•	measuring execution quality
+	•	tracking slippage vs expectation
+	•	understanding where PnL is lost in execution
+	•	feeding execution reality back into decisions, risk, and stress layers
+
+⸻
+
+T009 in one line
+
+Expected trade → actual fill/exit → execution delta → slippage analysis → execution quality scoring → smarter assumptions
+
+⸻
+
+Build These Parts
+
+1. Execution model layer
+
+Introduce a realistic execution model for paper trades.
+
+For each trade:
+	•	expected entry price
+	•	actual simulated entry price (based on real spread/slippage assumptions)
+	•	expected exit price
+	•	actual exit price
+	•	slippage (entry + exit)
+
+Important:
+	•	still paper trading
+	•	but no longer “perfect fills”
+
+Inputs:
+	•	bid/ask if available (from T003)
+	•	spread estimates
+	•	volatility context
+	•	scenario flags (gap, fast move, etc.)
+
+Suggested file:
+	•	server/services/trading/executionModel.ts
+
+⸻
+
+2. Slippage tracking
+
+Track slippage at trade level.
+
+For each trade_outcome:
+	•	expectedEntryPrice
+	•	actualEntryPrice
+	•	expectedExitPrice
+	•	actualExitPrice
+	•	entrySlippage
+	•	exitSlippage
+	•	totalSlippageImpact
+	•	slippagePct
+
+Store in DB.
+
+⸻
+
+3. Execution quality scoring
+
+Score each trade’s execution quality.
+
+Factors:
+	•	slippage vs expected
+	•	spread conditions
+	•	volatility at entry/exit
+	•	speed of movement
+	•	gap conditions
+
+Outputs:
+	•	executionQualityScore (0–100)
+	•	executionQualityLabel:
+	•	excellent
+	•	good
+	•	acceptable
+	•	poor
+	•	failed
+
+Suggested file:
+	•	server/services/trading/executionQuality.ts
+
+⸻
+
+4. Execution analytics
+
+Aggregate execution performance across:
+	•	symbol (BTC vs ETH vs SOL vs XAUUSD)
+	•	strategy
+	•	volatility regime
+	•	time of day
+	•	entry type (breakout vs pullback)
+	•	exit type (stop vs target vs timeout)
+
+Metrics:
+	•	avg slippage
+	•	worst slippage
+	•	slippage variance
+	•	% of trades with poor execution
+	•	execution-adjusted PnL vs theoretical PnL
+
+Suggested file:
+	•	server/services/trading/executionAnalytics.ts
+
+⸻
+
+5. Execution-adjusted performance
+
+Update performance calculations to include:
+	•	theoretical PnL (perfect fills)
+	•	actual PnL (with slippage)
+	•	execution drag (difference)
+
+This becomes critical because:
+	•	a strategy can look profitable in theory
+	•	but fail in real execution conditions
+
+⸻
+
+6. Slippage profiles per asset
+
+Define baseline expectations.
+
+Examples:
+	•	BTC → low slippage
+	•	ETH → moderate
+	•	SOL → higher
+	•	XAUUSD → depends on feed/liquidity
+
+Suggested table (optional):
+
+execution_profiles
+	•	id
+	•	symbol
+	•	avgSpread
+	•	avgSlippage
+	•	volatilityMultiplier
+	•	lastUpdated
+
+These profiles improve realism over time.
+
+⸻
+
+7. Stress integration
+
+Connect to T008:
+	•	stress scenarios should now include:
+	•	slippage x2
+	•	slippage x3
+	•	spread widening
+
+This allows:
+	•	“what happens if exits are worse than expected?”
+
+⸻
+
+8. Allocation feedback loop
+
+Connect to T007:
+	•	if an asset consistently has poor execution:
+	•	reduce allocation
+	•	reduce size
+	•	increase required confidence
+
+Examples:
+	•	SOL slippage too high → reduce max risk per trade
+	•	breakout strategy slipping badly → tighten rules
+
+Do NOT auto-change yet unless passing T006 guardrails.
+
+⸻
+
+9. Execution logging
+
+Add table:
+
+execution_logs
+	•	id
+	•	decisionId
+	•	positionId
+	•	symbol
+	•	expectedEntry
+	•	actualEntry
+	•	expectedExit
+	•	actualExit
+	•	entrySlippage
+	•	exitSlippage
+	•	totalSlippage
+	•	slippagePct
+	•	executionQualityScore
+	•	executionQualityLabel
+	•	createdAt
+
+⸻
+
+10. Execution endpoint
+
+Add endpoint:
+
+GET /api/admin/trading/execution
+
+Returns:
+	•	slippage summary
+	•	execution quality distribution
+	•	worst execution cases
+	•	execution-adjusted performance
+	•	per-asset execution stats
+
+⸻
+
+11. Frontend execution panel
+
+Extend trading monitor.
+
+Show:
+	•	avg slippage per asset
+	•	execution quality distribution
+	•	worst execution trades
+	•	execution vs theoretical PnL
+	•	slippage trends over time
+
+Examples:
+	•	BTC avg slippage: 0.08%
+	•	SOL avg slippage: 0.42%
+	•	execution drag: -6.3% of total PnL
+
+⸻
+
+Rules
+	•	Do NOT fabricate slippage
+	•	If bid/ask unavailable:
+	•	use conservative spread assumptions
+	•	clearly mark estimation
+	•	Execution must remain consistent with T003 real price feeds
+	•	Do NOT assume perfect fills anywhere in performance
+	•	Keep separate from Corporate Desk Nexora system
+
+⸻
+
+Suggested Schema
+
+Extend trade_outcomes
+	•	expectedEntryPrice
+	•	actualEntryPrice
+	•	expectedExitPrice
+	•	actualExitPrice
+	•	entrySlippage
+	•	exitSlippage
+	•	totalSlippage
+	•	slippagePct
+	•	executionQualityScore
+	•	executionQualityLabel
+
+execution_logs
+
+(as above)
+
+Optional execution_profiles
+
+⸻
+
+Acceptance Criteria
+
+T009 is complete only if:
+	1.	Trades include execution-adjusted pricing (not perfect fills)
+	2.	Slippage is measured and stored
+	3.	Execution quality scoring exists
+	4.	Execution-adjusted PnL is visible
+	5.	Execution analytics exist across assets and strategies
+	6.	Stress scenarios include slippage effects
+	7.	Allocation can consider execution quality
+	8.	No perfect-fill assumptions remain anywhere
+
+⸻
+
+Testing Requirements
+	•	verify trades compute slippage correctly
+	•	verify poor liquidity conditions produce worse execution
+	•	verify execution-adjusted PnL differs from theoretical PnL
+	•	verify execution logs persist correctly
+	•	verify analytics aggregate correctly
+	•	verify execution endpoint returns structured data
+	•	verify UI renders execution panel cleanly
+	•	verify no existing T002–T008 logic is broken
+
+⸻
+
+Output Format (for Replit)
+
+After implementation, return ONLY:
+	1.	exact files created/changed
+	2.	execution model added
+	3.	slippage tracking added
+	4.	execution analytics added
+	5.	schema/storage added
+	6.	execution endpoint added
+	7.	monitor execution panel added
+	8.	tests/checks run
+	9.	blockers
+
+⸻
+
+One critical instruction
+
+Add this:
+
+Do not assume perfect fills anywhere in the system. Every trade must reflect realistic execution conditions, even in paper mode.
+
+⸻
+
+What T009 unlocks
+
+After T009, your system becomes:
+	•	not just profitable on paper
+	•	but closer to real-world execution reality
+
+This is where most systems fail — and where yours starts becoming serious.
+
+⸻
+
+Best practical V1 approach
+	•	basic spread + slippage model
+	•	per-asset assumptions
+	•	execution-adjusted PnL
+	•	simple scoring
+
+Do not overcomplicate with order book simulation yet.
+
+⸻
+
+What comes next
+
+If you keep going, the next stage is:
+
+👉 T010: Live Execution Bridge (Broker/API integration layer)
+
+That’s where this can move from paper → real money.
+
+But only if everything up to T009 is clean and honest.

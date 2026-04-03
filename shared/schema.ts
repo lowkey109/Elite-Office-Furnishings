@@ -3288,3 +3288,183 @@ export const marketSnapshots = pgTable(
 export const insertMarketSnapshotSchema = createInsertSchema(marketSnapshots).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertMarketSnapshot = z.infer<typeof insertMarketSnapshotSchema>;
 export type MarketSnapshot = typeof marketSnapshots.$inferSelect;
+
+/* ============================================================================
+   T005 — TRADING LEARNING TABLES
+   ========================================================================== */
+
+export const strategyPerformanceSnapshots = pgTable(
+  "strategy_performance_snapshots",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    strategyName: text("strategy_name").notNull(),
+    symbol: text("symbol"),
+    winRate: real("win_rate").notNull(),
+    expectancy: real("expectancy").notNull(),
+    avgWin: real("avg_win").notNull(),
+    avgLoss: real("avg_loss").notNull(),
+    tradeCount: integer("trade_count").notNull(),
+    totalPnl: real("total_pnl").notNull(),
+    drawdown: real("drawdown").notNull().default(0),
+    profitFactor: real("profit_factor"),
+    isDegrading: boolean("is_degrading").notNull().default(false),
+    isHighPerforming: boolean("is_high_performing").notNull().default(false),
+    periodStart: timestamp("period_start"),
+    periodEnd: timestamp("period_end"),
+    ...timestamps,
+  },
+  (t) => ({
+    idxSpsStrategy: index("idx_sps_strategy").on(t.strategyName),
+    idxSpsCreatedAt: index("idx_sps_created_at").on(t.createdAt),
+  }),
+);
+export type StrategyPerformanceSnapshot = typeof strategyPerformanceSnapshots.$inferSelect;
+
+export const decisionReviews = pgTable(
+  "decision_reviews",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    decisionId: text("decision_id").notNull(),
+    outcomeId: text("outcome_id").notNull(),
+    qualityScore: real("quality_score").notNull(),
+    qualityLabel: text("quality_label").notNull(),
+    setupValid: boolean("setup_valid"),
+    confidenceAppropriate: boolean("confidence_appropriate"),
+    outcomeAligned: boolean("outcome_aligned"),
+    notes: text("notes"),
+    ...timestamps,
+  },
+  (t) => ({
+    idxDrDecision: index("idx_dr_decision").on(t.decisionId),
+    idxDrLabel: index("idx_dr_label").on(t.qualityLabel),
+    idxDrCreatedAt: index("idx_dr_created_at").on(t.createdAt),
+    idxDrUniqueOutcome: uniqueIndex("idx_dr_unique_outcome").on(t.outcomeId),
+  }),
+);
+export type DecisionReview = typeof decisionReviews.$inferSelect;
+
+export const edgeInsights = pgTable(
+  "edge_insights",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    insightType: text("insight_type").notNull(),
+    description: text("description").notNull(),
+    confidence: real("confidence").notNull(),
+    supportingDataJson: jsonb("supporting_data_json").$type<Record<string, any>>().default({}),
+    strategy: text("strategy"),
+    symbol: text("symbol"),
+    regime: text("regime"),
+    tradeCount: integer("trade_count"),
+    isActive: boolean("is_active").notNull().default(true),
+    ...timestamps,
+  },
+  (t) => ({
+    idxEiType: index("idx_ei_type").on(t.insightType),
+    idxEiCreatedAt: index("idx_ei_created_at").on(t.createdAt),
+  }),
+);
+export type EdgeInsight = typeof edgeInsights.$inferSelect;
+
+export const learningRecommendations = pgTable(
+  "learning_recommendations",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    recommendationType: text("recommendation_type").notNull(),
+    description: text("description").notNull(),
+    suggestedChange: text("suggested_change").notNull(),
+    confidence: real("confidence").notNull(),
+    evidenceJson: jsonb("evidence_json").$type<Record<string, any>>().default({}),
+    strategy: text("strategy"),
+    symbol: text("symbol"),
+    status: text("status").notNull().default("pending"),
+    ...timestamps,
+  },
+  (t) => ({
+    idxLrType: index("idx_lr_type").on(t.recommendationType),
+    idxLrStatus: index("idx_lr_status").on(t.status),
+    idxLrCreatedAt: index("idx_lr_created_at").on(t.createdAt),
+  }),
+);
+export type LearningRecommendation = typeof learningRecommendations.$inferSelect;
+
+/* ============================================================================
+   T006 — ADAPTIVE EXECUTION TABLES
+   ========================================================================== */
+
+export const tradingConfigVersions = pgTable(
+  "trading_config_versions",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    versionName: text("version_name").notNull(),
+    configJson: jsonb("config_json").$type<Record<string, any>>().notNull(),
+    isActive: boolean("is_active").notNull().default(false),
+    activatedAt: timestamp("activated_at"),
+    deactivatedAt: timestamp("deactivated_at"),
+    sourceRecommendationIds: jsonb("source_recommendation_ids").$type<string[]>().default([]),
+    changeSummary: text("change_summary"),
+    approvalStatus: text("approval_status").notNull().default("pending"),
+    createdBy: text("created_by").notNull().default("system"),
+    ...timestamps,
+  },
+  (t) => ({
+    idxTcvActive: index("idx_tcv_active").on(t.isActive),
+    idxTcvCreatedAt: index("idx_tcv_created_at").on(t.createdAt),
+  }),
+);
+export type TradingConfigVersion = typeof tradingConfigVersions.$inferSelect;
+
+export const tradingConfigChanges = pgTable(
+  "trading_config_changes",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    configVersionId: text("config_version_id").notNull(),
+    parameterKey: text("parameter_key").notNull(),
+    oldValue: text("old_value"),
+    newValue: text("new_value").notNull(),
+    reason: text("reason").notNull(),
+    evidenceJson: jsonb("evidence_json").$type<Record<string, any>>().default({}),
+    ...timestamps,
+  },
+  (t) => ({
+    idxTccVersion: index("idx_tcc_version").on(t.configVersionId),
+  }),
+);
+export type TradingConfigChange = typeof tradingConfigChanges.$inferSelect;
+
+export const tradingAdaptationProposals = pgTable(
+  "trading_adaptation_proposals",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    recommendationId: text("recommendation_id"),
+    proposalType: text("proposal_type").notNull(),
+    proposalJson: jsonb("proposal_json").$type<Record<string, any>>().notNull(),
+    sampleSize: integer("sample_size").notNull(),
+    confidence: real("confidence").notNull(),
+    guardrailStatus: text("guardrail_status").notNull().default("pending"),
+    guardrailNotes: text("guardrail_notes"),
+    shadowResult: jsonb("shadow_result").$type<Record<string, any>>(),
+    approvalStatus: text("approval_status").notNull().default("pending"),
+    appliedConfigVersionId: text("applied_config_version_id"),
+    ...timestamps,
+  },
+  (t) => ({
+    idxTapStatus: index("idx_tap_status").on(t.approvalStatus),
+    idxTapCreatedAt: index("idx_tap_created_at").on(t.createdAt),
+  }),
+);
+export type TradingAdaptationProposal = typeof tradingAdaptationProposals.$inferSelect;
+
+export const tradingRollbacks = pgTable(
+  "trading_rollbacks",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    fromConfigVersionId: text("from_config_version_id").notNull(),
+    toConfigVersionId: text("to_config_version_id").notNull(),
+    reason: text("reason").notNull(),
+    ...timestamps,
+  },
+  (t) => ({
+    idxTrCreatedAt: index("idx_tr_created_at").on(t.createdAt),
+  }),
+);
+export type TradingRollback = typeof tradingRollbacks.$inferSelect;

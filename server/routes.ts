@@ -11265,6 +11265,70 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
     }
   });
 
+  // GET /api/admin/trading/learning — T005 learning engine data (admin-protected)
+  app.get("/api/admin/trading/learning", async (_req, res) => {
+    try {
+      const { analyzeOutcomes } = await import("./services/trading/tradingLearning");
+      const { generateEdgeInsights, persistEdgeInsights } = await import("./services/trading/tradingEdgeAnalysis");
+      const { calculateStrategyHealth } = await import("./services/trading/strategyHealth");
+      const { reviewDecisionQuality } = await import("./services/trading/decisionQuality");
+      const { generateRecommendations } = await import("./services/trading/learningRecommendations");
+
+      const [analysis, edges, strategyHealth, decisionQuality, recommendations] = await Promise.all([
+        analyzeOutcomes(),
+        generateEdgeInsights(),
+        calculateStrategyHealth(),
+        reviewDecisionQuality(),
+        generateRecommendations(),
+      ]);
+
+      if (edges.insights.length > 0) {
+        await persistEdgeInsights(edges.insights);
+      }
+
+      if (strategyHealth.sufficientData && strategyHealth.strategies.length > 0) {
+        const { persistStrategySnapshots } = await import("./services/trading/strategyHealth");
+        await persistStrategySnapshots(strategyHealth.strategies).catch(() => {});
+      }
+
+      let adaptationCycleResult = null;
+      if (analysis.sufficientData && recommendations.sufficientData) {
+        try {
+          const { runAdaptationCycle } = await import("./services/trading/adaptationReport");
+          const { ensureBaselineConfig } = await import("./services/trading/tradingConfig");
+          await ensureBaselineConfig();
+          adaptationCycleResult = await runAdaptationCycle();
+        } catch {}
+      }
+
+      res.json({
+        analysis,
+        edgeInsights: edges,
+        strategyHealth,
+        decisionQuality,
+        recommendations,
+        adaptationCycleResult,
+        generatedAt: new Date().toISOString(),
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // GET /api/admin/trading/adaptation — T006 adaptive execution data (admin-protected)
+  app.get("/api/admin/trading/adaptation", async (_req, res) => {
+    try {
+      const { ensureBaselineConfig } = await import("./services/trading/tradingConfig");
+      const { getAdaptationReport } = await import("./services/trading/adaptationReport");
+
+      await ensureBaselineConfig();
+      const report = await getAdaptationReport();
+      res.json({ ...report, generatedAt: new Date().toISOString() });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // GET /api/admin/nexora/monitor — aggregated real-time AI observation feed (admin-protected)
   app.get("/api/admin/nexora/monitor", async (_req, res) => {
     try {

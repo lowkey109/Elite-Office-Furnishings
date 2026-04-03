@@ -5,7 +5,8 @@ import {
   ChevronDown, ChevronRight, Shield, Zap, AlertTriangle,
   Target, Gauge, LineChart, Crosshair, DollarSign,
   ArrowUpRight, ArrowDownRight, Layers, Newspaper,
-  Globe, BookOpen, ExternalLink,
+  Globe, BookOpen, ExternalLink, Brain, Settings2,
+  CheckCircle2, XCircle, Lightbulb, RotateCcw,
 } from "lucide-react";
 
 function formatAgo(dateStr: string | null | undefined): string {
@@ -543,6 +544,277 @@ export default function AdminTradingMonitor() {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      <LearningPanel />
+      <AdaptationPanel />
+    </div>
+  );
+}
+
+function LearningPanel() {
+  const { data, isLoading } = useQuery<any>({
+    queryKey: ["/api/admin/trading/learning"],
+    refetchInterval: 30000,
+    retry: 1,
+  });
+
+  const analysis = data?.analysis;
+  const edgeInsights = data?.edgeInsights;
+  const strategyHealth = data?.strategyHealth;
+  const decisionQuality = data?.decisionQuality;
+  const recommendations = data?.recommendations;
+  const hasSufficientData = analysis?.sufficientData === true;
+
+  return (
+    <div className="space-y-4" data-testid="learning-panel">
+      <div className="flex items-center gap-2">
+        <Brain className="w-5 h-5 text-[#C9A84C]" />
+        <h2 className="text-lg font-semibold text-white">Learning Engine</h2>
+        {!hasSufficientData && !isLoading && <span className="text-[10px] font-mono text-amber-400/70 px-2 py-0.5 rounded bg-amber-500/10">INSUFFICIENT DATA</span>}
+      </div>
+
+      {isLoading ? (
+        <div className="text-center py-6 text-white/20 text-sm">Loading learning data...</div>
+      ) : !hasSufficientData ? (
+        <div className="bg-white/[0.02] border border-white/5 rounded-lg p-6 text-center space-y-2" data-testid="learning-insufficient-data">
+          <Brain className="w-8 h-8 text-white/10 mx-auto" />
+          <p className="text-white/30 text-sm">Insufficient trade data for learning</p>
+          <p className="text-[11px] text-white/15 font-mono">{analysis?.totalOutcomes ?? 0} outcomes recorded — minimum 20 required</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {strategyHealth?.strategies?.length > 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <BarChart3 className="w-3.5 h-3.5 text-[#C9A84C]" />
+                Strategy Leaderboard
+              </h3>
+              <div className="space-y-2" data-testid="strategy-leaderboard">
+                {strategyHealth.strategies.map((s: any) => (
+                  <div key={s.strategyName} className="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-lg px-3 py-2" data-testid={`strategy-health-${s.strategyName}`}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-white/80 font-mono">{s.strategyName.replace(/_/g, " ")}</span>
+                      {s.isHighPerforming && <span className="text-[8px] font-mono text-emerald-400 px-1 py-0.5 rounded bg-emerald-500/10">HIGH PERF</span>}
+                      {s.isDegrading && <span className="text-[8px] font-mono text-red-400 px-1 py-0.5 rounded bg-red-500/10">DEGRADING</span>}
+                    </div>
+                    <div className="flex items-center gap-4 text-[10px] font-mono">
+                      <span className="text-white/30">WR <span className={s.winRate >= 55 ? "text-emerald-400" : s.winRate < 45 ? "text-red-400" : "text-white/50"}>{s.winRate.toFixed(1)}%</span></span>
+                      <span className="text-white/30">Exp <span className={s.expectancy >= 0 ? "text-emerald-400" : "text-red-400"}>${s.expectancy.toFixed(2)}</span></span>
+                      <span className="text-white/30">PF <span className="text-white/50">{s.profitFactor === Infinity ? "∞" : s.profitFactor.toFixed(2)}</span></span>
+                      <span className="text-white/30">DD <span className="text-white/50">{s.drawdown.toFixed(1)}%</span></span>
+                      <span className="text-white/20">{s.tradeCount} trades</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {edgeInsights?.insights?.length > 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <Lightbulb className="w-3.5 h-3.5 text-[#C9A84C]" />
+                Edge Insights
+              </h3>
+              <div className="space-y-2" data-testid="edge-insights">
+                {edgeInsights.insights.map((e: any, i: number) => (
+                  <div key={i} className="flex items-start gap-2 bg-white/[0.01] border border-white/5 rounded-lg px-3 py-2">
+                    <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded mt-0.5 shrink-0 ${
+                      e.insightType === "top_setup" ? "text-emerald-400 bg-emerald-500/10" :
+                      e.insightType === "weak_setup" ? "text-red-400 bg-red-500/10" :
+                      e.insightType === "degradation" ? "text-amber-400 bg-amber-500/10" :
+                      "text-blue-400 bg-blue-500/10"
+                    }`}>{e.insightType.replace(/_/g, " ").toUpperCase()}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] text-white/50">{e.description}</p>
+                      <p className="text-[9px] text-white/20 font-mono mt-0.5">{e.confidence.toFixed(0)}% confidence · {e.tradeCount} trades</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {decisionQuality?.sufficientData && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <Target className="w-3.5 h-3.5 text-[#C9A84C]" />
+                Decision Quality
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center" data-testid="decision-quality-summary">
+                <div className="bg-white/[0.02] rounded-lg p-2">
+                  <p className="text-[10px] text-white/20 font-mono uppercase">Avg Score</p>
+                  <p className="text-lg font-bold text-white/80">{decisionQuality.avgQualityScore.toFixed(0)}</p>
+                </div>
+                <div className="bg-white/[0.02] rounded-lg p-2">
+                  <p className="text-[10px] text-white/20 font-mono uppercase">Reviewed</p>
+                  <p className="text-lg font-bold text-white/80">{decisionQuality.totalReviewed}</p>
+                </div>
+                {Object.entries(decisionQuality.distribution || {}).slice(0, 2).map(([label, count]: any) => (
+                  <div key={label} className="bg-white/[0.02] rounded-lg p-2">
+                    <p className="text-[9px] text-white/20 font-mono uppercase truncate">{label.replace(/_/g, " ")}</p>
+                    <p className="text-lg font-bold text-white/60">{count}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {recommendations?.recommendations?.length > 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <Lightbulb className="w-3.5 h-3.5 text-[#C9A84C]" />
+                Recommendations
+              </h3>
+              <div className="space-y-2" data-testid="learning-recommendations">
+                {recommendations.recommendations.map((r: any, i: number) => (
+                  <div key={i} className="bg-white/[0.01] border border-white/5 rounded-lg px-3 py-2 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[9px] font-mono text-[#C9A84C]/60 uppercase">{r.recommendationType.replace(/_/g, " ")}</span>
+                      <span className="text-[9px] font-mono text-white/20">{r.confidence.toFixed(0)}% confidence</span>
+                    </div>
+                    <p className="text-[11px] text-white/50">{r.description}</p>
+                    <p className="text-[10px] text-white/30 italic">{r.suggestedChange}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AdaptationPanel() {
+  const { data, isLoading } = useQuery<any>({
+    queryKey: ["/api/admin/trading/adaptation"],
+    refetchInterval: 30000,
+    retry: 1,
+  });
+
+  const currentConfig = data?.currentConfig;
+  const pendingProposals = data?.pendingProposals ?? [];
+  const recentChanges = data?.recentChanges ?? [];
+  const rollbackHistory = data?.rollbackHistory ?? [];
+  const guardrailFailures = data?.guardrailFailures ?? [];
+
+  return (
+    <div className="space-y-4" data-testid="adaptation-panel">
+      <div className="flex items-center gap-2">
+        <Settings2 className="w-5 h-5 text-[#C9A84C]" />
+        <h2 className="text-lg font-semibold text-white">Adaptive Execution</h2>
+        {currentConfig && <span className="text-[10px] font-mono text-white/30 px-2 py-0.5 rounded bg-white/5">{currentConfig.versionName}</span>}
+      </div>
+
+      {isLoading ? (
+        <div className="text-center py-6 text-white/20 text-sm">Loading adaptation data...</div>
+      ) : (
+        <div className="space-y-4">
+          {currentConfig && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <Shield className="w-3.5 h-3.5 text-[#C9A84C]" />
+                Active Configuration
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3" data-testid="active-config">
+                {Object.entries(currentConfig.config || {}).slice(0, 8).map(([key, val]: any) => (
+                  <div key={key} className="bg-white/[0.02] rounded-lg p-2">
+                    <p className="text-[9px] text-white/20 font-mono uppercase truncate">{key.replace(/([A-Z])/g, " $1").trim()}</p>
+                    <p className="text-[11px] text-white/50 font-mono truncate">{typeof val === "object" ? JSON.stringify(val).slice(0, 30) : String(val)}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center gap-4 text-[9px] font-mono text-white/20">
+                <span>Version: {currentConfig.versionName}</span>
+                <span>Status: {currentConfig.approvalStatus}</span>
+                {currentConfig.activatedAt && <span>Active since: {new Date(currentConfig.activatedAt).toLocaleDateString()}</span>}
+              </div>
+            </div>
+          )}
+
+          {pendingProposals.length > 0 ? (
+            <div className="bg-white/[0.02] border border-amber-500/20 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-amber-400/80 flex items-center gap-1.5">
+                <Lightbulb className="w-3.5 h-3.5" />
+                Pending Proposals ({pendingProposals.length})
+              </h3>
+              <div className="space-y-2" data-testid="pending-proposals">
+                {pendingProposals.map((p: any) => (
+                  <div key={p.id} className="bg-white/[0.01] border border-white/5 rounded-lg px-3 py-2 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[9px] font-mono text-amber-400/60 uppercase">{p.proposalType.replace(/_/g, " ")}</span>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded ${p.guardrailStatus === "passed" ? "text-emerald-400 bg-emerald-500/10" : p.guardrailStatus === "failed" ? "text-red-400 bg-red-500/10" : "text-amber-400 bg-amber-500/10"}`}>{p.guardrailStatus}</span>
+                        <span className="text-[9px] font-mono text-white/20">{p.confidence.toFixed(0)}%</span>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-white/40 font-mono">{p.proposal?.parameterKey}: {JSON.stringify(p.proposal?.currentValue)} → {JSON.stringify(p.proposal?.proposedValue)}</p>
+                    <p className="text-[10px] text-white/25">{p.proposal?.reason}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-6 text-center" data-testid="no-proposals">
+              <p className="text-white/20 text-sm">No pending adaptation proposals</p>
+              <p className="text-[10px] text-white/10 font-mono mt-1">Proposals are generated from learning recommendations when sufficient evidence exists</p>
+            </div>
+          )}
+
+          {guardrailFailures.length > 0 && (
+            <div className="bg-white/[0.02] border border-red-500/10 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-red-400/70 flex items-center gap-1.5">
+                <XCircle className="w-3.5 h-3.5" />
+                Guardrail Rejections ({guardrailFailures.length})
+              </h3>
+              <div className="space-y-1" data-testid="guardrail-failures">
+                {guardrailFailures.map((f: any) => (
+                  <div key={f.id} className="text-[10px] text-white/30 font-mono bg-white/[0.01] rounded px-2 py-1">
+                    <span className="text-red-400/60">{f.proposalType}</span>: {f.guardrailNotes}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {recentChanges.length > 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                Recent Changes
+              </h3>
+              <div className="space-y-2" data-testid="recent-changes">
+                {recentChanges.map((c: any, i: number) => (
+                  <div key={i} className="bg-white/[0.01] border border-white/5 rounded-lg px-3 py-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono text-white/40">{c.versionName}</span>
+                      <span className="text-[9px] text-white/20">{c.activatedAt ? new Date(c.activatedAt).toLocaleDateString() : ""}</span>
+                    </div>
+                    <p className="text-[11px] text-white/30 mt-0.5">{c.changeSummary}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {rollbackHistory.length > 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <RotateCcw className="w-3.5 h-3.5 text-white/40" />
+                Rollback History
+              </h3>
+              <div className="space-y-1" data-testid="rollback-history">
+                {rollbackHistory.map((r: any) => (
+                  <div key={r.id} className="text-[10px] text-white/30 font-mono bg-white/[0.01] rounded px-2 py-1">
+                    {r.fromConfigVersionId.slice(0, 8)} → {r.toConfigVersionId.slice(0, 8)}: {r.reason}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

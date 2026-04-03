@@ -1,0 +1,463 @@
+Here’s T010 mapped in the same full task format.
+
+⸻
+
+T010: Live Execution Bridge — Broker/API Integration Layer
+	•	Blocked By: [T003, T006, T007, T008, T009]
+
+⸻
+
+Objective
+
+Transform the trading system from:
+	•	a real paper-trading engine
+
+into:
+	•	a system that is technically capable of live execution
+	•	but only through strict safety gates
+	•	with broker/exchange integration isolated from decision logic
+	•	and with readiness for tiny, controlled live deployment
+
+⸻
+
+T010 in one line
+
+Approved trade → execution gateway → broker/exchange adapter → order lifecycle tracking → fill reconciliation → live position state
+
+⸻
+
+Build These Parts
+
+1. Execution gateway layer
+
+Create a dedicated execution bridge that sits between the decision engine and any live venue.
+
+Purpose:
+	•	isolate live order placement from strategy logic
+	•	enforce safety checks before any order leaves the system
+	•	centralize all live execution handling
+
+Suggested file:
+	•	server/services/trading/liveExecutionGateway.ts
+
+This service should decide:
+	•	is live execution enabled?
+	•	is this symbol allowed?
+	•	is this account in safe mode?
+	•	does this order pass risk and config checks?
+	•	if yes, forward to venue adapter
+	•	if no, block and log
+
+⸻
+
+2. Venue adapter layer
+
+Add adapters for real trading venues.
+
+For V1, keep scope narrow:
+	•	one crypto venue first
+	•	spot or lowest-risk supported path first
+	•	no leverage by default
+	•	no gold live trading unless a compliant real route exists
+
+Suggested files:
+	•	server/services/trading/venues/baseVenueAdapter.ts
+	•	server/services/trading/venues/binanceAdapter.ts or equivalent
+	•	server/services/trading/venues/bybitAdapter.ts or equivalent
+
+Important:
+	•	choose one venue first
+	•	paper mode remains default
+	•	live adapters must be optional and gated
+
+⸻
+
+3. Live order model
+
+Add real live order entities.
+
+Suggested table:
+
+live_orders
+	•	id
+	•	decisionId
+	•	positionId
+	•	venue
+	•	venueOrderId
+	•	symbol
+	•	side
+	•	orderType
+	•	quantity
+	•	requestedPrice
+	•	submittedPrice
+	•	filledPrice
+	•	status
+	•	timeInForce
+	•	reduceOnly
+	•	rawResponseJson
+	•	submittedAt
+	•	filledAt
+	•	cancelledAt
+	•	failedAt
+	•	createdAt
+
+Purpose:
+	•	track each outbound live order
+	•	reconcile venue responses
+	•	audit execution history
+
+⸻
+
+4. Live fills / reconciliation layer
+
+Build reconciliation so live state never depends purely on local assumptions.
+
+Responsibilities:
+	•	fetch order status from venue
+	•	detect fills / partial fills / cancels / rejects
+	•	reconcile local position state with venue reality
+	•	repair local mismatches
+
+Suggested file:
+	•	server/services/trading/liveReconciliation.ts
+
+This is critical.
+Without reconciliation, live trading becomes dangerous.
+
+⸻
+
+5. Live position state
+
+Add separation between:
+	•	paper positions
+	•	live positions
+
+Suggested table:
+
+live_positions
+	•	id
+	•	symbol
+	•	side
+	•	quantity
+	•	entryPrice
+	•	currentPrice
+	•	unrealizedPnl
+	•	stopPrice
+	•	targetPrice
+	•	venue
+	•	status
+	•	openedAt
+	•	closedAt
+	•	linkedDecisionId
+	•	linkedOutcomeId
+	•	createdAt
+	•	updatedAt
+
+Do not mix paper and live positions.
+
+⸻
+
+6. Safety gate layer
+
+Before any live order is sent, enforce:
+	•	live mode enabled in config
+	•	approved venue only
+	•	approved symbols only
+	•	max notional/trade size
+	•	max daily live risk
+	•	no live trading if stale market feed
+	•	no live trading if resilience score too weak
+	•	no live trading if drawdown throttle active
+	•	no live trading if config version not approved
+	•	no live trading if adaptation proposal pending critical review
+
+Suggested file:
+	•	server/services/trading/liveExecutionGuardrails.ts
+
+⸻
+
+7. Approval mode
+
+T010 must support clear execution modes:
+
+Mode A — Paper only (default)
+	•	all trades remain paper only
+
+Mode B — Dry-run live bridge
+	•	trade goes through all live checks
+	•	order payload built
+	•	nothing sent to venue
+
+Mode C — Tiny live mode
+	•	only after explicit config approval
+	•	very small live sizing
+	•	full logging + reconciliation
+
+For now, the system should default to:
+	•	paper only
+	•	live bridge present but disabled unless explicitly enabled
+
+⸻
+
+8. Execution config + secrets boundary
+
+Add clean config boundaries for:
+	•	venue enablement
+	•	allowed symbols
+	•	account mode
+	•	max live risk
+	•	API credential presence
+	•	testnet vs live mode
+
+Important:
+	•	secrets must not be hardcoded
+	•	config must integrate with T006 versioning/approval model
+
+Suggested file:
+	•	server/services/trading/liveExecutionConfig.ts
+
+⸻
+
+9. Live outcome tracking
+
+When live positions close:
+	•	create live trade outcomes
+	•	separate from paper outcomes or clearly label mode
+	•	preserve source order/fill history
+	•	track real slippage vs expected slippage
+
+Suggested extension:
+	•	mode field on outcomes: paper | live
+
+Or separate table if cleaner.
+
+⸻
+
+10. Live monitor panel
+
+Extend /admin/trading-monitor to support execution mode visibility.
+
+Show:
+	•	execution mode (paper / dry-run / live-disabled / live-enabled)
+	•	approved venue
+	•	account type (testnet/live)
+	•	recent live orders
+	•	rejected live orders
+	•	reconciliation status
+	•	last venue sync time
+
+Important:
+	•	still keep monitor read-only unless you explicitly want controls later
+	•	do not add dangerous UI actions by default
+
+⸻
+
+11. Dry-run audit trail
+
+Even before live trading is enabled, log what would have happened.
+
+Suggested table:
+
+execution_attempt_logs
+	•	id
+	•	decisionId
+	•	mode
+	•	venue
+	•	symbol
+	•	requestedAction
+	•	wasBlocked
+	•	blockReason
+	•	payloadJson
+	•	createdAt
+
+This is useful for proving:
+	•	the bridge works
+	•	guardrails are blocking correctly
+	•	venue payloads are sane
+
+⸻
+
+12. Execution readiness checks
+
+Before live mode can ever be enabled, implement readiness checks:
+	•	real market feed healthy
+	•	reconciliation healthy
+	•	no unresolved critical blockers
+	•	acceptable recent paper performance
+	•	acceptable resilience score
+	•	acceptable execution quality
+	•	config explicitly approved
+
+Suggested file:
+	•	server/services/trading/liveReadiness.ts
+
+This should output:
+	•	ready
+	•	not_ready
+	•	reasons
+
+⸻
+
+Rules
+	•	Live execution must be disabled by default
+	•	Paper mode remains the default operating mode
+	•	No venue orders without passing all guardrails
+	•	No mixing paper and live position state
+	•	No hardcoded credentials
+	•	No live execution without reconciliation
+	•	No live execution without config approval
+	•	Keep separate from Corporate Desk B2B Nexora system
+
+⸻
+
+Suggested Schema
+
+live_orders
+	•	id
+	•	decisionId
+	•	positionId
+	•	venue
+	•	venueOrderId
+	•	symbol
+	•	side
+	•	orderType
+	•	quantity
+	•	requestedPrice
+	•	submittedPrice
+	•	filledPrice
+	•	status
+	•	rawResponseJson
+	•	submittedAt
+	•	filledAt
+	•	cancelledAt
+	•	failedAt
+	•	createdAt
+
+live_positions
+	•	id
+	•	symbol
+	•	side
+	•	quantity
+	•	entryPrice
+	•	currentPrice
+	•	unrealizedPnl
+	•	stopPrice
+	•	targetPrice
+	•	venue
+	•	status
+	•	openedAt
+	•	closedAt
+	•	linkedDecisionId
+	•	linkedOutcomeId
+	•	createdAt
+	•	updatedAt
+
+execution_attempt_logs
+	•	id
+	•	decisionId
+	•	mode
+	•	venue
+	•	symbol
+	•	requestedAction
+	•	wasBlocked
+	•	blockReason
+	•	payloadJson
+	•	createdAt
+
+Optional extension to outcomes
+	•	mode
+	•	venue
+	•	linkedLiveOrderId
+
+⸻
+
+Acceptance Criteria
+
+T010 is complete only if:
+	1.	Live execution bridge exists as a separate layer
+	2.	Venue adapters are implemented for at least one venue path
+	3.	Dry-run/live-disabled mode is fully functional
+	4.	Guardrails block unsafe live order attempts
+	5.	Live orders can be tracked and reconciled
+	6.	Live position state is separated from paper position state
+	7.	Monitor shows execution mode and live execution health
+	8.	No live orders can be sent unless explicitly enabled and approved
+	9.	No fake claims of live readiness exist without passing readiness checks
+
+⸻
+
+Testing Requirements
+	•	verify dry-run mode builds real order payloads without sending
+	•	verify blocked orders are logged correctly
+	•	verify live execution guardrails reject unsafe trades
+	•	verify reconciliation handles missing or partial venue data safely
+	•	verify live orders and live positions persist correctly
+	•	verify execution mode displays correctly in monitor
+	•	verify paper mode remains untouched
+	•	verify no existing T002–T009 logic is broken
+
+⸻
+
+Output Format (for Replit)
+
+After implementation, return ONLY:
+	1.	exact files created/changed
+	2.	execution gateway added
+	3.	venue adapters added
+	4.	live order/position schema added
+	5.	guardrails added
+	6.	reconciliation added
+	7.	readiness checks added
+	8.	monitor live execution state added
+	9.	tests/checks run
+	10.	blockers
+
+⸻
+
+One critical instruction
+
+Add this line:
+
+Do not enable live trading by default. Build the live execution bridge, dry-run mode, guardrails, and readiness checks first. Real live order sending must remain explicitly disabled until separately approved.
+
+⸻
+
+What T010 unlocks
+
+After T010, your system becomes:
+	•	not just paper-realistic
+	•	but live-capable in architecture
+
+That does not mean it should immediately trade real money.
+It means the bridge, controls, and safeguards exist.
+
+⸻
+
+Best practical V1 approach
+
+Start with:
+	•	one venue
+	•	dry-run first
+	•	tiny live mode support only after readiness
+	•	full audit logs
+	•	no leverage
+	•	no gold live path unless genuinely supported
+
+⸻
+
+Important warning
+
+T010 is where technical success can trick you into premature live deployment.
+
+So keep these hard rules:
+	•	dry-run first
+	•	tiny size only later
+	•	approval required
+	•	reconciliation mandatory
+	•	rollback / disable path always available
+
+⸻
+
+If you want, the natural next stage is:
+
+👉 T011: Multi-Venue Routing + Execution Redundancy
