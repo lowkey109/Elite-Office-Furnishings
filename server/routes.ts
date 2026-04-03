@@ -7,8 +7,28 @@
 import { whatsappWebhookHandler } from "./services/intelligence/communications/whatsappService";
 import { runManufacturerOutreach } from "./services/aiManufacturerOutreach";
 import { storage } from "./storage";
+import { insertLeadSchema, insertProductReviewSchema } from "@shared/schema";
+import { scoreOpportunity } from "./services/opportunityScoring";
+import { startFollowUpForLead } from "./services/followUpScheduler";
+import {
+  sendLeadNotification,
+  sendEnquiryCustomerEmail,
+  sendQuoteRequestCustomerEmail,
+  sendStrategyCallCustomerEmail,
+  sendFinanceLeadAdminEmail,
+  sendFinanceLeadPartnerEmail,
+  sendFinanceLeadCustomerEmail,
+  sendFormalQuoteEmail,
+  sendPlanningRequestNotification,
+  sendPlannerSubmissionCustomerEmail,
+  sendSupplierQuoteNotification,
+  sendPaymentConfirmationNotification,
+  sendOutreachEmail,
+  sendPartnerWelcomeEmail,
+} from "./email";
+import { analyseSignals, type SignalInput } from "./services/leadIntelligence";
 
-            import { desc } from "drizzle-orm";
+            import { desc, sql, eq } from "drizzle-orm";
             import { db } from "./db";
             import { nexoraRuns, siteVisits } from "@shared/schema";
 
@@ -605,88 +625,6 @@ Commissions:
             }
           });
 
-type Message = {
-  role: Role;
-  content: string;
-};
-
-type Conversation = {
-  messages: Message[];
-  intent?: string;
-};
-
-const conversations = new Map<string, Conversation>();
-
-function getConversation(id: string): Conversation {
-  if (!conversations.has(id)) {
-    conversations.set(id, {
-      messages: [],
-    });
-  }
-  return conversations.get(id)!;
-}
-
-function detectIntent(message: string): string {
-  const msg = message.toLowerCase();
-
-  if (msg.includes("quote")) return "supplier_quote";
-  if (msg.includes("stock") || msg.includes("available")) return "stock";
-  if (msg.includes("delivery")) return "delivery";
-  if (msg.includes("install")) return "installation";
-  if (msg.includes("urgent")) return "urgent";
-  return "general";
-}
-
-function escapeXml(unsafe: string) {
-  return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-}
-
-async function generateReply(messages: Message[], intent: string) {
-  const OpenAI = (await import("openai")).default;
-
-  const client = new OpenAI({
-    apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
-    baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-  });
-
-  const systemPrompt = `
-You are The Corporate Desk operations assistant.
-
-You handle:
-- suppliers
-- logistics
-- delivery coordination
-- stock checks
-- quoting support
-
-Tone:
-- conversational
-- human
-- slightly sharp / witty
-- efficient
-- no fluff
-
-Never sound like a website chatbot.
-
-Intent: ${intent}
-`;
-
-  const completion = await client.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      { role: "system", content: systemPrompt },
-      ...messages,
-    ],
-    max_tokens: 200,
-  });
-
-  return completion.choices[0]?.message?.content || "Got it — let me check that for you.";
-}
 // ─── SAFE_MODE guard (Stage 8) ────────────────────────────────────────────────
 // Set SAFE_MODE=true to suppress all outbound email, Stripe, and CRM side-effects.
 const SAFE_MODE = process.env.SAFE_MODE === "true";
@@ -1703,10 +1641,11 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
       }
 
       res.json({ success: true, id: lead.id });
-    } catch (error) {
-      if (error instanceof ZodError) {
+    } catch (error: any) {
+      if (error?.name === "ZodError") {
         res.status(400).json({ success: false, errors: error.errors });
       } else {
+        console.error("[POST /api/leads] error:", error?.message);
         res.status(500).json({ success: false, message: "Internal server error" });
       }
     }
@@ -2071,17 +2010,6 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
       const limit = Math.min(Number(req.query.limit) || 100, 500);
       const results = await storage.getNexoraOutcomes({ outcome, limit });
       res.json({ outcomes: results, total: results.length });
-    } catch (err: any) { res.status(500).json({ error: err.message }); }
-  });
-
-  app.post("/api/nexora/outcomes", async (req, res) => {
-    try {
-      const body = req.body;
-      if (!body.signalId || !body.outcome) {
-        return res.status(400).json({ error: "signalId and outcome are required" });
-      }
-      const outcome = await storage.createNexoraOutcome(body);
-      res.status(201).json(outcome);
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
@@ -4508,40 +4436,78 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
 
   // ─── Territory CRUD ───────────────────────────────────────────────────────────
 
-  app.get("/api/admin/territories", async (req, res) => {
-    try {
-      res.json(await storage.getTerritories());
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
-    }
-  });
+              app.get("/api/admin/territories", async (_req, res) => {
+                try {
+                  console.log("🔥 GET /api/admin/territories called");
 
-  app.post("/api/admin/territories", async (req, res) => {
-    try {
-      const t = await storage.createTerritory(req.body);
-      res.json(t);
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
-    }
-  });
+                  const territories = await storage.getTerritories();
 
-  app.patch("/api/admin/territories/:id", async (req, res) => {
-    try {
-      const t = await storage.updateTerritory(req.params.id, req.body);
-      res.json(t);
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
-    }
-  });
+                  console.log("✅ territories result:", territories);
 
-  app.delete("/api/admin/territories/:id", async (req, res) => {
-    try {
-      await storage.deleteTerritory(req.params.id);
-      res.json({ success: true });
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
-    }
-  });
+                  res.json(Array.isArray(territories) ? territories : []);
+                } catch (err: any) {
+                  console.error("❌ GET /api/admin/territories failed:", err);
+                  res.status(500).json({
+                    message: err?.message || "Failed to load territories",
+                  });
+                }
+              });
+
+              app.post("/api/admin/territories", async (req, res) => {
+                try {
+                  console.log("🔥 POST /api/admin/territories called with body:", req.body);
+
+                  const territory = await storage.createTerritory(req.body);
+
+                  console.log("✅ territory created:", territory);
+
+                  res.json(territory);
+                } catch (err: any) {
+                  console.error("❌ POST /api/admin/territories failed:", err);
+                  res.status(500).json({
+                    message: err?.message || "Failed to create territory",
+                  });
+                }
+              });
+
+              app.patch("/api/admin/territories/:id", async (req, res) => {
+                try {
+                  console.log("🔥 PATCH /api/admin/territories/:id called", {
+                    id: req.params.id,
+                    body: req.body,
+                  });
+
+                  const territory = await storage.updateTerritory(req.params.id, req.body);
+
+                  console.log("✅ territory updated:", territory);
+
+                  res.json(territory);
+                } catch (err: any) {
+                  console.error("❌ PATCH /api/admin/territories/:id failed:", err);
+                  res.status(500).json({
+                    message: err?.message || "Failed to update territory",
+                  });
+                }
+              });
+
+              app.delete("/api/admin/territories/:id", async (req, res) => {
+                try {
+                  console.log("🔥 DELETE /api/admin/territories/:id called", {
+                    id: req.params.id,
+                  });
+
+                  await storage.deleteTerritory(req.params.id);
+
+                  console.log("✅ territory deleted:", req.params.id);
+
+                  res.json({ success: true });
+                } catch (err: any) {
+                  console.error("❌ DELETE /api/admin/territories/:id failed:", err);
+                  res.status(500).json({
+                    message: err?.message || "Failed to delete territory",
+                  });
+                }
+              });
 
   // ─── Procurement Engine ────────────────────────────────────────────────────────
 
@@ -6889,52 +6855,6 @@ Rules:
       const rec = resolveOutreachChannel(signal);
       res.json(rec);
     } catch (err: any) { res.status(500).json({ error: err.message }); }
-  });
-
-  // ─── WhatsApp Webhook (Twilio) ────────────────────────────────────────────
-  app.post("/webhook/whatsapp", async (req, res) => {
-    const timestamp = new Date().toISOString();
-    const from: string = req.body.From || "";
-    const message: string = (req.body.Body || "").trim();
-    const accountSid = req.body.AccountSid || "(no AccountSid)";
-
-    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    console.log("[WhatsApp] INCOMING REQUEST");
-    console.log(`[WhatsApp] Timestamp : ${timestamp}`);
-    console.log(`[WhatsApp] From      : ${from || "(no From field)"}`);
-    console.log(`[WhatsApp] Message   : ${message || "(empty)"}`);
-    console.log(`[WhatsApp] AccountSid: ${accountSid}`);
-    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-
-    if (!message) {
-      res.set("Content-Type", "text/xml");
-      return res.send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
-    }
-
-    try {
-      const { processWhatsAppMessage } = await import("./services/whatsappAI.js");
-      const { reply, intent, mode } = await processWhatsAppMessage(from, message);
-
-      console.log(`[WhatsApp] Intent    : ${intent}`);
-      console.log(`[WhatsApp] Mode      : ${mode}`);
-      console.log(`[WhatsApp] AI Reply  : ${reply}`);
-
-      const twiml = `<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Message>${reply.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</Message>
-</Response>`;
-
-      res.set("Content-Type", "text/xml");
-      res.send(twiml);
-    } catch (err: any) {
-      console.error("[WhatsApp] AI error:", err.message);
-      const fallback = "Thanks for your message. Our team will be in touch shortly. You can also visit thecorporatedesk.com.au for more information.";
-      res.set("Content-Type", "text/xml");
-      res.send(`<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Message>${fallback}</Message>
-</Response>`);
-    }
   });
 
   // ─── Visitor Analytics Tracking ─────────────────────────────────────────────
@@ -10309,94 +10229,6 @@ Rules:
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
-  // ── TCD AI Company — Alex Orchestrator ────────────────────────────────────────
-
-  // POST /api/admin/alex/run-company
-  app.post("/api/admin/alex/run-company", async (req, res) => {
-    try {
-      const { runTcdAiCompany, isCompanyRunning } = await import("./services/alex/companyOrchestrator");
-      if (isCompanyRunning()) {
-        return res.status(409).json({ error: "A company run is already in progress. Wait for it to complete.", alreadyRunning: true });
-      }
-      const triggeredBy = (req.body?.triggeredBy as string) ?? "manual";
-      // Run async — respond immediately with accepted, result streamed via status
-      res.json({ accepted: true, message: "Company run started. Poll /api/admin/alex/run-company/status for progress." });
-      // Fire the run (don't await so HTTP response returns immediately)
-      runTcdAiCompany(triggeredBy).catch((err: any) => {
-        console.error("[TCD Company] Orchestrator error:", err.message);
-      });
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
-    }
-  });
-
-  // POST /api/admin/alex/run-company/sync  (blocking — waits for completion)
-  app.post("/api/admin/alex/run-company/sync", async (req, res) => {
-    try {
-      const { runTcdAiCompany, isCompanyRunning } = await import("./services/alex/companyOrchestrator");
-      if (isCompanyRunning()) {
-        return res.status(409).json({ error: "A company run is already in progress.", alreadyRunning: true });
-      }
-      const triggeredBy = (req.body?.triggeredBy as string) ?? "manual";
-      const result = await runTcdAiCompany(triggeredBy);
-      res.json(result);
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
-    }
-  });
-
-  // GET /api/admin/alex/run-company/status
-  app.get("/api/admin/alex/run-company/status", async (_req, res) => {
-    try {
-      const { isCompanyRunning, getCurrentRunId, getLatestCompanyRun } = await import("./services/alex/companyOrchestrator");
-      const running = isCompanyRunning();
-      const latest = await getLatestCompanyRun();
-      res.json({
-        isRunning: running,
-        currentRunId: getCurrentRunId(),
-        latest: latest ?? null,
-      });
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
-    }
-  });
-
-  // GET /api/admin/alex/run-company/history
-  app.get("/api/admin/alex/run-company/history", async (req, res) => {
-    try {
-      const { getCompanyRunHistory } = await import("./services/alex/companyOrchestrator");
-      const limit = Math.min(parseInt((req.query.limit as string) ?? "20"), 50);
-      const history = await getCompanyRunHistory(limit);
-      res.json(history);
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
-    }
-  });
-  app.post("/webhook/whatsapp", async (req, res) => {
-    const from = req.body?.From || "unknown";
-    const body = (req.body?.Body || "").trim();
-
-    const convo = getConversation(from);
-
-    const intent = detectIntent(body);
-    convo.intent = intent;
-
-    convo.messages.push({ role: "user", content: body });
-
-    console.log("IN:", body, "| intent:", intent);
-
-    const reply = await generateReply(convo.messages, intent);
-
-    convo.messages.push({ role: "assistant", content: reply });
-
-    console.log("OUT:", reply);
-
-    res.set("Content-Type", "text/xml");
-    res.send(`<?xml version="1.0" encoding="UTF-8"?>
-  <Response>
-    <Message>${escapeXml(reply)}</Message>
-  </Response>`);
-  });
   // ─── Catalog Staging System ─────────────────────────────────────────────────
   // Safe image staging before publishing to live catalog.
   // Status flow: uploaded → needs_review → approved → ready_for_website → live

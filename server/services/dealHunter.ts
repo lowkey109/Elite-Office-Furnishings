@@ -651,6 +651,11 @@ async function fetchAdzunaPage(searchTerm: string, page: number): Promise<any[]>
       },
     });
 
+    if (response.status === 429) {
+      console.warn("[DealHunter] Adzuna 429 rate limit hit — backing off 5s", { searchTerm, page });
+      await new Promise((r) => setTimeout(r, 5000));
+      return [];
+    }
     if (!response.ok) {
       console.error("[DealHunter] Adzuna fetch failed:", response.status, response.statusText, { searchTerm, page });
       return [];
@@ -684,9 +689,7 @@ async function fetchJobSignals(): Promise<RawSignalProfile[]> {
     for (const page of pagesToFetch) {
       const results = await fetchAdzunaPage(term, page);
       allJobs.push(...results);
-      if (results.length > 0) {
-        await new Promise((r) => setTimeout(r, 1500));
-      }
+      await new Promise((r) => setTimeout(r, 1200)); // always pace between Adzuna requests
     }
   }
 
