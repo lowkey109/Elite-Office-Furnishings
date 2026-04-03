@@ -42,3 +42,9 @@ id = "sJE6gCXzv0sLtv2W9HfGU"
 uri = "file://ARCHITECTURE_AUDIT.md"
 type = "text"
 title = "Full Architecture Audit — The Corporate Desk"
+
+[[outputs]]
+id = "N5SCEfjjv_3j9zVkeLa5U"
+uri = "file://AI_TRADING_SYSTEM_COMPLETE.txt"
+type = "text"
+title = "AI Crypto Trading System — Complete Build Reference"
