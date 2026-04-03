@@ -33,6 +33,9 @@ export function buildStrategies(): StrategyProfile[] {
       weaknesses: ["Whipsaws in ranging markets", "Slippage on volatile breakouts", "Requires real-time volume data", "Lower win rate than mean reversion"],
       version: "1.0.0",
       isActive: true,
+      powersDecisions: true,
+      ruleSource: "server/services/trading/strategies.ts",
+      lastUsedAt: null,
     },
     {
       name: "mean_reversion",
@@ -66,6 +69,9 @@ export function buildStrategies(): StrategyProfile[] {
       weaknesses: ["Small R:R means a few losses wipe many wins", "Fails catastrophically in strong trends", "Requires accurate regime detection"],
       version: "1.0.0",
       isActive: true,
+      powersDecisions: true,
+      ruleSource: "server/services/trading/strategies.ts",
+      lastUsedAt: null,
     },
     {
       name: "trend_follow",
@@ -98,6 +104,9 @@ export function buildStrategies(): StrategyProfile[] {
       weaknesses: ["Low win rate requires discipline", "Slow to exit — gives back profit on reversals", "Doesn't work in choppy/ranging markets"],
       version: "1.0.0",
       isActive: true,
+      powersDecisions: true,
+      ruleSource: "server/services/trading/strategies.ts",
+      lastUsedAt: null,
     },
     {
       name: "volatility_squeeze",
@@ -130,6 +139,9 @@ export function buildStrategies(): StrategyProfile[] {
       weaknesses: ["False breakouts common", "Requires patience waiting for squeeze", "Timing of entry is critical"],
       version: "1.0.0",
       isActive: true,
+      powersDecisions: true,
+      ruleSource: "server/services/trading/strategies.ts",
+      lastUsedAt: null,
     },
     {
       name: "regime_shift",
@@ -163,6 +175,9 @@ export function buildStrategies(): StrategyProfile[] {
       weaknesses: ["Lowest win rate of all strategies", "Requires patience and conviction", "False regime shifts are costly", "Hardest strategy to execute psychologically"],
       version: "1.0.0",
       isActive: true,
+      powersDecisions: true,
+      ruleSource: "server/services/trading/strategies.ts",
+      lastUsedAt: null,
     },
     {
       name: "order_flow_scalp",
@@ -194,7 +209,10 @@ export function buildStrategies(): StrategyProfile[] {
       strengths: ["Very high win rate", "Quick trades reduce exposure", "Works in any regime with liquidity", "Low capital at risk per trade"],
       weaknesses: ["Requires institutional-grade data feeds", "High execution cost from frequent trading", "Slippage kills edge on less liquid pairs", "Mentally exhausting"],
       version: "1.0.0",
-      isActive: true,
+      isActive: false,
+      powersDecisions: false,
+      ruleSource: "server/services/trading/strategies.ts",
+      lastUsedAt: null,
     },
   ];
 }

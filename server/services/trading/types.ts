@@ -161,6 +161,16 @@ export interface StrategyProfile {
   weaknesses: string[];
   version: string;
   isActive: boolean;
+  powersDecisions: boolean;
+  ruleSource: string;
+  lastUsedAt: string | null;
+}
+
+export interface NewsAdapterStatus {
+  available: boolean;
+  source: string;
+  lastFetched: string | null;
+  error: string | null;
 }
 
 export interface FeedStatus {
@@ -184,4 +194,5 @@ export interface TradingMonitorResponse {
   dataMode: "simulation" | "paper" | "live";
   lastRefreshed: string;
   feedStatus?: FeedStatus;
+  newsStatus?: NewsAdapterStatus;
 }

@@ -1,7 +1,7 @@
 import type { TradingMonitorResponse } from "./types";
 import { buildStrategies } from "./strategies";
 import { buildMarketContext } from "./marketContext";
-import { buildNews } from "./news";
+import { fetchRealNews, getNewsAdapterStatus } from "./newsAdapter";
 import {
   getMonitorState,
   getRecentDecisions,
@@ -44,18 +44,18 @@ export async function getTradingMonitorData(): Promise<TradingMonitorResponse> {
     strategiesCacheTime = now;
   }
 
-  const [state, decisions, positions, outcomes, performance, marketContext] = await Promise.all([
+  const [state, decisions, positions, outcomes, performance, marketContext, newsResult] = await Promise.all([
     getMonitorState(),
     getRecentDecisions(30),
     getOpenPositions(),
     getRecentOutcomes(50),
     calculatePerformanceFromDB(),
     buildMarketContext(),
+    fetchRealNews(),
   ]);
 
-  const news = buildNews();
-
   const loopStatus = getMarketLoopStatus();
+  const newsStatus = getNewsAdapterStatus();
 
   return {
     state,
@@ -63,7 +63,7 @@ export async function getTradingMonitorData(): Promise<TradingMonitorResponse> {
     positions,
     recent_outcomes: outcomes,
     performance,
-    news,
+    news: newsResult.items,
     marketContext,
     strategies: strategiesCache,
     dataMode: "paper",
@@ -76,5 +76,6 @@ export async function getTradingMonitorData(): Promise<TradingMonitorResponse> {
       liveSymbols: getSupportedSymbols(),
       unavailableSymbols: getUnavailableSymbols(),
     },
+    newsStatus,
   };
 }

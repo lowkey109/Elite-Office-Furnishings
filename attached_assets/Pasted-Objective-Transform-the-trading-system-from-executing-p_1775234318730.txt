@@ -1,0 +1,286 @@
+Objective
+
+Transform the trading system from:
+	•	executing paper trades with real data
+
+into:
+	•	a system that learns from real outcomes
+	•	identifies what actually works
+	•	detects edge and decay
+	•	produces evidence-based improvements
+
+⸻
+
+T005 in one line
+
+Real trade outcomes → structured analysis → edge detection → strategy scoring → decision quality → learning outputs
+
+⸻
+
+Build These Parts
+
+1. Outcome analysis engine
+
+Create a service that analyses trade_outcomes only.
+
+Group and evaluate outcomes by:
+	•	strategy
+	•	symbol (BTC, ETH, SOL)
+	•	market regime (if available)
+	•	confidence bands (e.g. 60–70, 70–80, 80+)
+	•	time-based factors (hour/day/session)
+	•	hold duration buckets
+	•	news presence (with/without news, if T004 active)
+
+Metrics to calculate:
+	•	win rate
+	•	avg win
+	•	avg loss
+	•	expectancy
+	•	total PnL
+	•	max drawdown (basic)
+	•	trade count
+
+Suggested file:
+	•	server/services/trading/tradingLearning.ts
+
+⸻
+
+2. Edge detection layer
+
+Identify statistically meaningful patterns.
+
+Examples:
+	•	strategy A performs best in high-confidence band
+	•	strategy B fails during high volatility
+	•	BTC performs differently from SOL under same strategy
+	•	trades with news outperform/no-news trades (if data exists)
+
+Outputs:
+	•	top-performing setups
+	•	underperforming setups
+	•	emerging edge signals
+	•	degrading edge warnings
+
+Suggested file:
+	•	server/services/trading/tradingEdgeAnalysis.ts
+
+⸻
+
+3. Strategy performance scoring
+
+Track real performance per strategy.
+
+For each strategy:
+	•	win rate
+	•	expectancy
+	•	avg return per trade
+	•	recent vs historical performance
+	•	drawdown contribution
+	•	trade frequency
+
+Add:
+	•	isDegrading flag
+	•	isHighPerforming flag
+
+Suggested file:
+	•	server/services/trading/strategyHealth.ts
+
+⸻
+
+4. Decision quality scoring
+
+Evaluate each decision after outcome is known.
+
+For each decision:
+	•	was the setup valid?
+	•	was confidence appropriate?
+	•	was outcome aligned with probability?
+
+Classification:
+	•	high-quality decision → good outcome
+	•	high-quality decision → bad outcome
+	•	low-quality decision → bad outcome
+	•	rule violation / weak signal
+	•	stale-data decision (if flagged)
+
+Store:
+	•	decisionQualityScore (0–100)
+	•	decisionQualityLabel
+
+Suggested file:
+	•	server/services/trading/decisionQuality.ts
+
+⸻
+
+5. Learning output generator
+
+Convert analysis into actionable outputs.
+
+Examples:
+	•	raise minimum confidence from 65 → 72
+	•	disable strategy X in sideways markets
+	•	reduce SOL exposure
+	•	increase weighting on breakout strategy
+	•	avoid trades during low-volume periods
+
+IMPORTANT:
+	•	These are recommendations only
+	•	Do NOT auto-modify strategy logic yet
+
+Suggested file:
+	•	server/services/trading/learningRecommendations.ts
+
+⸻
+
+6. Learning data persistence (optional but recommended)
+
+Add tables for structured learning outputs.
+
+strategy_performance_snapshots
+	•	id
+	•	strategyName
+	•	winRate
+	•	expectancy
+	•	avgWin
+	•	avgLoss
+	•	tradeCount
+	•	drawdown
+	•	createdAt
+
+decision_reviews
+	•	id
+	•	decisionId
+	•	qualityScore
+	•	qualityLabel
+	•	notes
+	•	createdAt
+
+edge_insights
+	•	id
+	•	insightType (top_setup, weak_setup, degradation, anomaly)
+	•	description
+	•	confidence
+	•	supportingDataJson
+	•	createdAt
+
+learning_recommendations
+	•	id
+	•	recommendationType
+	•	description
+	•	suggestedChange
+	•	confidence
+	•	createdAt
+
+⸻
+
+7. Backend aggregation endpoint
+
+Add endpoint:
+
+GET /api/admin/trading/learning
+
+Returns:
+	•	strategy performance
+	•	edge insights
+	•	decision quality summary
+	•	recommendations
+
+Must be:
+	•	read-only
+	•	derived from real DB data only
+
+⸻
+
+8. Frontend Learning Panel (Admin Only)
+
+Extend /admin/trading-monitor or create new section:
+
+Show:
+	•	strategy leaderboard
+	•	best performing setups
+	•	worst performing setups
+	•	edge insights
+	•	decision quality distribution
+	•	recommendations list
+
+Requirements:
+	•	clean UI
+	•	safe empty states
+	•	no fake data
+	•	no placeholder metrics
+
+⸻
+
+Rules
+	•	Use trade_outcomes only for learning
+	•	Do NOT use open positions
+	•	Do NOT simulate missing data
+	•	Do NOT fabricate insights
+	•	If insufficient data:
+	•	return empty states
+	•	show “insufficient data” clearly
+	•	Keep read-only (no auto execution changes yet)
+	•	Keep separate from Corporate Desk Nexora system
+
+⸻
+
+Acceptance Criteria
+
+T005 is complete only if:
+	1.	Learning is based solely on real trade_outcomes
+	2.	Strategy performance reflects actual DB history
+	3.	Edge insights are derived from real data patterns
+	4.	Decision quality scoring exists and is stored
+	5.	Recommendations are generated from evidence (not static rules)
+	6.	Empty states are handled cleanly when data is insufficient
+	7.	No fake “AI learning” outputs exist anywhere
+
+⸻
+
+Testing Requirements
+	•	verify learning endpoint returns valid structured data
+	•	verify no crashes with low or zero outcomes
+	•	verify decision quality scoring runs after outcomes are written
+	•	verify strategy performance matches DB records
+	•	verify no seeded/demo data appears
+	•	verify frontend renders empty states safely
+	•	verify no existing monitor functionality is broken
+
+⸻
+
+Output Format (for Replit)
+
+After implementation, return ONLY:
+	1.	exact files created/changed
+	2.	learning services added
+	3.	schema/storage added
+	4.	how outcomes are analysed
+	5.	how edge insights are generated
+	6.	how decision quality is computed
+	7.	how recommendations are produced
+	8.	tests/checks run
+	9.	blockers
+
+⸻
+
+One critical instruction
+
+Add this to the prompt:
+
+If total trade_outcomes < minimum threshold (e.g. 20 trades),
+return “insufficient data for learning” instead of weak or misleading insights.
+
+⸻
+
+What T005 unlocks
+
+After this stage, your system becomes:
+	•	not just working
+	•	but improving
+
+This is where it shifts from:
+	•	“engine that trades”
+
+to:
+	•	“engine that gets better over time”

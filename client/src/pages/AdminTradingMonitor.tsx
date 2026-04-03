@@ -79,9 +79,10 @@ interface TOut { id: string; symbol: string; strategy: string; direction: "long"
 interface TPerf { avgWin: number; avgLoss: number; expectancy: number; consecutiveWins: number; consecutiveLosses: number; sharpeRatio: number; profitFactor: number; maxDrawdown: number; totalPnl: number; pnlSeries: { date: string; value: number }[]; }
 interface NItem { id: string; timestamp: string; headline: string; source: string; sentiment: "bullish"|"bearish"|"neutral"; relevance: number; markets: string[]; summary: string; impact: "high"|"medium"|"low"; sourceUrl: string|null; linkedDecisionIds: string[]; }
 interface MCtx { symbol: string; price: number; change24h: number; changePct24h: number; volume24h: number; high24h: number; low24h: number; regime: string; dominantTrend: string; volatilityLevel: string; keyLevels: { support: number[]; resistance: number[] }; technicals: { rsi14: number; macd: { value: number; signal: number; histogram: number }; ema20: number; ema50: number; ema200: number; bbUpper: number; bbLower: number; bbWidth: number; atr14: number; adx: number; obv: string; vwap: number; stochRsi: number; williamsR: number; cci: number; mfi: number; }; fundingRate: number|null; openInterest: number|null; fearGreedIndex: number|null; snapshotId: string; lastUpdated: string; dataSource: string; isStale: boolean; }
-interface SProf { name: string; description: string; edge: string; idealRegime: string; winRate: number; avgRR: number; avgHoldTime: string; riskPerTrade: string; entryRules: string[]; exitRules: string[]; invalidationRules: string[]; strengths: string[]; weaknesses: string[]; version: string; isActive: boolean; }
+interface SProf { name: string; description: string; edge: string; idealRegime: string; winRate: number; avgRR: number; avgHoldTime: string; riskPerTrade: string; entryRules: string[]; exitRules: string[]; invalidationRules: string[]; strengths: string[]; weaknesses: string[]; version: string; isActive: boolean; powersDecisions: boolean; ruleSource: string; lastUsedAt: string|null; }
 interface FeedSt { loopRunning: boolean; lastFastCycle: string|null; lastDetailedCycle: string|null; cycleErrors: number; liveSymbols: string[]; unavailableSymbols: string[]; }
-interface TradingMonitorResponse { state: TradingMonitorState; decisions: TDec[]; positions: OPos[]; recent_outcomes: TOut[]; performance: TPerf; news: NItem[]; marketContext: MCtx[]; strategies: SProf[]; dataMode: "simulation"|"paper"|"live"; lastRefreshed: string; feedStatus?: FeedSt; }
+interface NewsSt { available: boolean; source: string; lastFetched: string|null; error: string|null; }
+interface TradingMonitorResponse { state: TradingMonitorState; decisions: TDec[]; positions: OPos[]; recent_outcomes: TOut[]; performance: TPerf; news: NItem[]; marketContext: MCtx[]; strategies: SProf[]; dataMode: "simulation"|"paper"|"live"; lastRefreshed: string; feedStatus?: FeedSt; newsStatus?: NewsSt; }
 
 function TradingDecisionRow({ decision, index, isExpanded, onToggle }: { decision: TDec; index: number; isExpanded: boolean; onToggle: () => void }) {
   const dirColor = decision.direction === "long" ? "text-emerald-400" : "text-red-400";
@@ -131,6 +132,19 @@ function TradingDecisionRow({ decision, index, isExpanded, onToggle }: { decisio
             <div><p className="text-[10px] uppercase text-white/30 font-mono">Slippage Est.</p><p className="text-sm text-white/60 font-mono">{decision.slippageEstimate != null ? `${decision.slippageEstimate}%` : "—"}</p></div>
             <div><p className="text-[10px] uppercase text-white/30 font-mono">Volume Ratio</p><p className="text-sm text-white/60 font-mono">{decision.volumeRatio ?? "—"}</p></div>
             <div><p className="text-[10px] uppercase text-white/30 font-mono">Model</p><p className="text-sm text-white/60 font-mono">{decision.modelVersion || "—"}</p></div>
+          </div>
+          <div className="space-y-1.5">
+            <p className="text-[10px] uppercase text-white/30 font-mono tracking-wider">Provenance</p>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3 grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div><p className="text-[9px] uppercase text-white/20 font-mono">Decision Source</p><p className="text-[11px] text-white/50 font-mono">{decision.decisionSource || "—"}</p></div>
+              <div><p className="text-[9px] uppercase text-white/20 font-mono">Strategy Version</p><p className="text-[11px] text-white/50 font-mono">{decision.strategyVersion || "—"}</p></div>
+              <div><p className="text-[9px] uppercase text-white/20 font-mono">Execution Status</p><p className={`text-[11px] font-mono ${decision.executionStatus === "filled" ? "text-emerald-400" : decision.executionStatus === "entered" ? "text-blue-400" : decision.executionStatus === "rejected" ? "text-red-400" : "text-amber-400"}`}>{decision.executionStatus || "—"}</p></div>
+              <div><p className="text-[9px] uppercase text-white/20 font-mono">Generated At</p><p className="text-[11px] text-white/50 font-mono">{decision.decisionGeneratedAt ? new Date(decision.decisionGeneratedAt).toLocaleString() : "—"}</p></div>
+              <div><p className="text-[9px] uppercase text-white/20 font-mono">Market Snapshot</p><p className="text-[11px] text-white/40 font-mono truncate">{decision.sourceMarketSnapshotId || "none"}</p></div>
+              <div><p className="text-[9px] uppercase text-white/20 font-mono">News Sources</p><p className="text-[11px] text-white/40 font-mono">{decision.sourceNewsIds?.length > 0 ? `${decision.sourceNewsIds.length} linked` : "none"}</p></div>
+              <div><p className="text-[9px] uppercase text-white/20 font-mono">Position ID</p><p className="text-[11px] text-white/40 font-mono truncate">{decision.linkedPositionId || "none"}</p></div>
+              <div><p className="text-[9px] uppercase text-white/20 font-mono">Confidence Threshold</p><p className="text-[11px] text-white/50 font-mono">{decision.confidenceThreshold}%</p></div>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div><p className="text-[10px] uppercase text-white/30 font-mono">Created</p><p className="text-sm text-white/40 font-mono">{decision.createdAt ? new Date(decision.createdAt).toLocaleString() : "—"}</p></div>
@@ -344,6 +358,7 @@ export default function AdminTradingMonitor() {
   const strategies = data?.strategies ?? [];
   const dataMode = data?.dataMode ?? "paper";
   const feedStatus = data?.feedStatus;
+  const newsStatus = data?.newsStatus;
 
   return (
     <div className="space-y-6 pb-12" data-testid="trading-monitor-page">
@@ -488,7 +503,12 @@ export default function AdminTradingMonitor() {
             <span className="text-[11px] text-white/20 font-mono">{news?.length ?? 0} items</span>
           </div>
           <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1 custom-scrollbar" data-testid="trading-news-feed">
-            {news.length > 0 ? news.map((n) => <NewsRow key={n.id} item={n} />) : <div className="text-center py-8 text-white/20 text-sm">No news available</div>}
+            {news.length > 0 ? news.map((n) => <NewsRow key={n.id} item={n} />) : (
+              <div className="text-center py-8 space-y-2" data-testid="news-empty-state">
+                <p className="text-white/20 text-sm">No real news feed connected</p>
+                {newsStatus?.error && <p className="text-[10px] text-white/15 font-mono max-w-xs mx-auto">{newsStatus.error}</p>}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -501,9 +521,13 @@ export default function AdminTradingMonitor() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3" data-testid="trading-strategy-profiles">
             {strategies.map((s) => (
-              <div key={s.name} className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-2" data-testid={`strategy-profile-${s.name}`}>
+              <div key={s.name} className={`bg-white/[0.02] border rounded-lg p-4 space-y-2 ${s.isActive ? "border-white/5" : "border-white/5 opacity-50"}`} data-testid={`strategy-profile-${s.name}`}>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-white">{s.name.replace(/_/g, " ")}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-white">{s.name.replace(/_/g, " ")}</span>
+                    {s.powersDecisions && <span className="text-[8px] font-mono text-emerald-400 px-1 py-0.5 rounded bg-emerald-500/10">ACTIVE</span>}
+                    {!s.isActive && <span className="text-[8px] font-mono text-white/30 px-1 py-0.5 rounded bg-white/5">INACTIVE</span>}
+                  </div>
                   <span className="text-[10px] font-mono text-[#C9A84C]/60">{s.idealRegime}</span>
                 </div>
                 <p className="text-[11px] text-white/40 leading-relaxed">{s.description}</p>
@@ -512,9 +536,9 @@ export default function AdminTradingMonitor() {
                   <div><span className="text-white/25">R:R</span> <span className="text-white/50">{s.avgRR}</span></div>
                   <div><span className="text-white/25">Hold</span> <span className="text-white/50">{s.avgHoldTime}</span></div>
                 </div>
-                <div>
-                  <p className="text-[9px] uppercase text-white/20 font-mono mb-0.5">Edge</p>
-                  <p className="text-[10px] text-white/30 leading-relaxed italic">{s.edge}</p>
+                <div className="flex items-center justify-between text-[9px] font-mono text-white/20">
+                  <span>v{s.version}</span>
+                  <span>{s.powersDecisions ? "Powers decisions" : "Not connected"}</span>
                 </div>
               </div>
             ))}
