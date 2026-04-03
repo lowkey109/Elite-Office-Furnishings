@@ -8,7 +8,9 @@ import {
   Globe, BookOpen, ExternalLink, Brain, Settings2,
   CheckCircle2, XCircle, Lightbulb, RotateCcw,
   PieChart, Ban, Lock, Ruler, Timer, Radio, Plug,
-  CheckCircle, Circle, Power,
+  CheckCircle, Circle, Power, ShieldCheck, Receipt,
+  Clock4, Combine, Waves, Trophy, Scale,
+  Eye, Bot, Building2,
 } from "lucide-react";
 
 function formatAgo(dateStr: string | null | undefined): string {
@@ -555,6 +557,16 @@ export default function AdminTradingMonitor() {
       <StressTestPanel />
       <ExecutionPanel />
       <LiveBridgePanel />
+      <CompliancePanel />
+      <CostModelPanel />
+      <TimingPanel />
+      <MultiFactorPanel />
+      <RegimePanel />
+      <MetaStrategyPanel />
+      <CapitalScalingPanel />
+      <ObservabilityPanel />
+      <AutonomousPanel />
+      <InstitutionalPanel />
     </div>
   );
 }
@@ -1550,6 +1562,636 @@ function LiveBridgePanel() {
               <p className="text-[11px] text-white/15 font-mono">Bridge is in {config?.executionMode || "paper_only"} mode — no orders sent to venues</p>
             </div>
           )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CompliancePanel() {
+  const { data, isLoading } = useQuery<any>({ queryKey: ["/api/admin/trading/compliance"], refetchInterval: 30000, retry: 1 });
+  const rules = data?.rules || [];
+  const logs = data?.recentAuditLogs || [];
+  const limits = data?.hardLimits;
+  const exposure = data?.currentExposure;
+
+  return (
+    <div className="space-y-4" data-testid="compliance-panel">
+      <div className="flex items-center gap-2">
+        <ShieldCheck className="w-5 h-5 text-[#C9A84C]" />
+        <h2 className="text-lg font-semibold text-white">Compliance + Safety</h2>
+      </div>
+      {isLoading ? <div className="text-center py-6 text-white/20 text-sm">Loading...</div> : (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="compliance-exposure">
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Gross Exposure</p>
+              <p className="text-lg font-mono text-white/90 mt-1">${exposure?.grossExposure?.toFixed(0) || 0}</p>
+              <p className="text-[9px] text-white/20">limit: ${limits?.maxGrossExposure || 0}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Open Positions</p>
+              <p className="text-lg font-mono text-white/90 mt-1">{exposure?.openPositions || 0}</p>
+              <p className="text-[9px] text-white/20">limit: {limits?.maxOpenPositions || 0}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Max Position</p>
+              <p className="text-sm font-mono text-white/70 mt-1">${limits?.maxPositionNotional || 0}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Daily Loss Limit</p>
+              <p className="text-sm font-mono text-red-400 mt-1">${limits?.maxDailyLoss || 0}</p>
+            </div>
+          </div>
+          {rules.length > 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-2">
+              <h3 className="text-sm font-semibold text-white/70">Active Rules ({rules.length})</h3>
+              <div className="space-y-1" data-testid="compliance-rules">
+                {rules.map((r: any) => (
+                  <div key={r.id} className="flex items-center justify-between text-[10px] font-mono">
+                    <span className="text-white/60">{r.ruleName?.replace(/_/g, " ")}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-white/30">{r.ruleType}</span>
+                      <span className={`px-1.5 py-0.5 rounded ${r.action === "block" ? "text-red-400 bg-red-500/10" : "text-amber-400 bg-amber-500/10"}`}>{r.action}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {logs.length > 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-2">
+              <h3 className="text-sm font-semibold text-white/70">Audit Log ({logs.length})</h3>
+              <div className="space-y-1 max-h-32 overflow-y-auto" data-testid="compliance-audit-logs">
+                {logs.map((l: any) => (
+                  <div key={l.id} className="flex items-center justify-between text-[10px] font-mono bg-white/[0.01] rounded px-2 py-1">
+                    <span className={l.severity === "critical" ? "text-red-400" : l.severity === "warning" ? "text-amber-400" : "text-white/40"}>{l.eventType}</span>
+                    <span className="text-white/20 max-w-[300px] truncate">{l.details}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {exposure && Object.keys(exposure.bySymbol || {}).length > 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-2">
+              <h3 className="text-sm font-semibold text-white/70">Exposure by Symbol</h3>
+              <div className="space-y-1" data-testid="compliance-by-symbol">
+                {Object.entries(exposure.bySymbol as Record<string, number>).map(([sym, exp]) => (
+                  <div key={sym} className="flex items-center justify-between text-[10px] font-mono">
+                    <span className="text-white/60">{sym}</span>
+                    <span className="text-white/40">${exp.toFixed(0)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CostModelPanel() {
+  const { data, isLoading } = useQuery<any>({ queryKey: ["/api/admin/trading/cost-model"], refetchInterval: 30000, retry: 1 });
+  const fees = data?.feeSchedule || {};
+  const spreads = data?.spreadModel || {};
+  const entries = data?.recentEntries || [];
+  const agg = data?.aggregateBySymbol || {};
+
+  return (
+    <div className="space-y-4" data-testid="cost-model-panel">
+      <div className="flex items-center gap-2">
+        <Receipt className="w-5 h-5 text-[#C9A84C]" />
+        <h2 className="text-lg font-semibold text-white">Cost Model</h2>
+      </div>
+      {isLoading ? <div className="text-center py-6 text-white/20 text-sm">Loading...</div> : (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="cost-fee-schedule">
+            {Object.entries(fees as Record<string, any>).map(([sym, f]) => (
+              <div key={sym} className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+                <p className="text-[10px] text-white/30 uppercase tracking-wider">{sym}</p>
+                <div className="text-[10px] font-mono mt-1 space-y-0.5">
+                  <div className="text-white/50">maker: {(f.makerFee * 100).toFixed(2)}%</div>
+                  <div className="text-white/50">taker: {(f.takerFee * 100).toFixed(2)}%</div>
+                  <div className="text-white/30">spread: {(spreads[sym]?.typicalSpreadBps || 0)} bps</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          {Object.keys(agg).length > 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-2">
+              <h3 className="text-sm font-semibold text-white/70">Cost by Asset</h3>
+              <div className="space-y-1">
+                {Object.entries(agg as Record<string, any>).map(([sym, d]) => (
+                  <div key={sym} className="flex items-center justify-between text-[10px] font-mono">
+                    <span className="text-white/60">{sym}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-white/40">total: ${d.totalCost}</span>
+                      <span className="text-white/30">{d.avgCostBps} bps avg</span>
+                      <span className="text-white/20">{d.trades} trades</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {entries.length === 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-6 text-center">
+              <Receipt className="w-8 h-8 text-white/10 mx-auto" />
+              <p className="text-white/30 text-sm mt-2">No cost entries recorded yet</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TimingPanel() {
+  const { data, isLoading } = useQuery<any>({ queryKey: ["/api/admin/trading/timing"], refetchInterval: 30000, retry: 1 });
+  const byPhase = data?.byPhase || {};
+  const bySymbol = data?.bySymbol || {};
+  const total = data?.totalMeasurements || 0;
+  const overallAvg = data?.overallAvgMs || 0;
+
+  return (
+    <div className="space-y-4" data-testid="timing-panel">
+      <div className="flex items-center gap-2">
+        <Clock4 className="w-5 h-5 text-[#C9A84C]" />
+        <h2 className="text-lg font-semibold text-white">Execution Timing</h2>
+      </div>
+      {isLoading ? <div className="text-center py-6 text-white/20 text-sm">Loading...</div> : total === 0 ? (
+        <div className="bg-white/[0.02] border border-white/5 rounded-lg p-6 text-center">
+          <Clock4 className="w-8 h-8 text-white/10 mx-auto" />
+          <p className="text-white/30 text-sm mt-2">No timing measurements yet</p>
+          <p className="text-[11px] text-white/15 font-mono">Latency data is captured during trade execution</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Total Measurements</p>
+              <p className="text-lg font-mono text-white/90 mt-1">{total}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Overall Avg Latency</p>
+              <p className="text-lg font-mono text-white/90 mt-1">{overallAvg}ms</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-2">
+              <h3 className="text-sm font-semibold text-white/70">By Phase</h3>
+              <div className="space-y-1">
+                {Object.entries(byPhase as Record<string, any>).map(([phase, d]) => (
+                  <div key={phase} className="flex items-center justify-between text-[10px] font-mono">
+                    <span className="text-white/60">{phase}</span>
+                    <span className="text-white/40">avg {d.avgMs}ms · p95 {d.p95Ms}ms · {d.count}x</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-2">
+              <h3 className="text-sm font-semibold text-white/70">By Symbol</h3>
+              <div className="space-y-1">
+                {Object.entries(bySymbol as Record<string, any>).map(([sym, d]) => (
+                  <div key={sym} className="flex items-center justify-between text-[10px] font-mono">
+                    <span className="text-white/60">{sym}</span>
+                    <span className="text-white/40">avg {d.avgMs}ms · {d.count}x</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MultiFactorPanel() {
+  const { data, isLoading } = useQuery<any>({ queryKey: ["/api/admin/trading/multi-factor"], refetchInterval: 30000, retry: 1 });
+  const signals = data?.latestSignals || {};
+  const weights = data?.weights || {};
+
+  const actionColor = (a: string) => a === "buy" ? "text-emerald-400 bg-emerald-500/10" : a === "sell" ? "text-red-400 bg-red-500/10" : "text-white/40 bg-white/5";
+  const scoreBar = (v: number) => { const w = Math.min(100, Math.max(0, (v + 50) / 100 * 100)); return w; };
+
+  return (
+    <div className="space-y-4" data-testid="multi-factor-panel">
+      <div className="flex items-center gap-2">
+        <Combine className="w-5 h-5 text-[#C9A84C]" />
+        <h2 className="text-lg font-semibold text-white">Multi-Factor Signals</h2>
+      </div>
+      {isLoading ? <div className="text-center py-6 text-white/20 text-sm">Loading...</div> : (
+        <div className="space-y-4">
+          <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-2">
+            <h3 className="text-sm font-semibold text-white/70">Signal Weights</h3>
+            <div className="flex gap-3 text-[10px] font-mono">
+              {Object.entries(weights as Record<string, number>).map(([k, v]) => (
+                <span key={k} className="text-white/40">{k}: {(v * 100).toFixed(0)}%</span>
+              ))}
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" data-testid="multi-factor-signals">
+            {Object.entries(signals as Record<string, any>).map(([sym, s]) => (
+              <div key={sym} className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-white/80">{sym}</span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded font-mono ${actionColor(s.recommendedAction)}`}>{s.recommendedAction}</span>
+                </div>
+                <div className="space-y-1 text-[10px] font-mono">
+                  <div className="flex justify-between"><span className="text-white/40">Price</span><span className="text-white/60">{s.priceScore?.toFixed(1)}</span></div>
+                  <div className="flex justify-between"><span className="text-white/40">News</span><span className="text-white/60">{s.newsScore?.toFixed(1)}</span></div>
+                  <div className="flex justify-between"><span className="text-white/40">Momentum</span><span className="text-white/60">{s.momentumScore?.toFixed(1)}</span></div>
+                  <div className="flex justify-between"><span className="text-white/40">Regime</span><span className="text-white/60">{s.regimeScore?.toFixed(1)}</span></div>
+                  <div className="flex justify-between border-t border-white/5 pt-1 mt-1"><span className="text-white/60 font-bold">Composite</span><span className={`font-bold ${s.compositeScore > 0 ? "text-emerald-400" : s.compositeScore < 0 ? "text-red-400" : "text-white/50"}`}>{s.compositeScore?.toFixed(2)}</span></div>
+                </div>
+                <div className="text-[9px] text-white/20">conf: {(s.confidence * 100).toFixed(0)}%</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RegimePanel() {
+  const { data, isLoading } = useQuery<any>({ queryKey: ["/api/admin/trading/regime"], refetchInterval: 30000, retry: 1 });
+  const regimes = data?.regimes || {};
+  const adaptations = data?.adaptations || {};
+
+  const regimeColor = (r: string) => {
+    if (r === "trending") return "text-emerald-400 bg-emerald-500/10";
+    if (r === "ranging") return "text-white/50 bg-white/5";
+    if (r === "volatile") return "text-amber-400 bg-amber-500/10";
+    if (r === "risk_off") return "text-red-400 bg-red-500/10";
+    return "text-white/40 bg-white/5";
+  };
+
+  return (
+    <div className="space-y-4" data-testid="regime-panel">
+      <div className="flex items-center gap-2">
+        <Waves className="w-5 h-5 text-[#C9A84C]" />
+        <h2 className="text-lg font-semibold text-white">Regime Detection</h2>
+      </div>
+      {isLoading ? <div className="text-center py-6 text-white/20 text-sm">Loading...</div> : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" data-testid="regime-states">
+          {Object.entries(regimes as Record<string, any>).map(([sym, r]) => {
+            const adapt = adaptations[sym];
+            return (
+              <div key={sym} className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-white/80">{sym}</span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded font-mono uppercase ${regimeColor(r.regime)}`}>{r.regime}</span>
+                </div>
+                <div className="space-y-1 text-[10px] font-mono">
+                  <div className="flex justify-between"><span className="text-white/40">Confidence</span><span className="text-white/60">{(r.confidence * 100).toFixed(0)}%</span></div>
+                  <div className="flex justify-between"><span className="text-white/40">Volatility</span><span className="text-white/60">{r.volatilityLevel}</span></div>
+                  <div className="flex justify-between"><span className="text-white/40">Trend Strength</span><span className="text-white/60">{r.trendStrength}</span></div>
+                  {r.previousRegime && <div className="text-[9px] text-white/20">prev: {r.previousRegime}</div>}
+                </div>
+                {adapt && (
+                  <div className="border-t border-white/5 pt-2 mt-1 space-y-1 text-[9px] font-mono">
+                    <div className="text-white/30">risk mult: {adapt.riskMultiplier}x · hold mult: {adapt.holdTimeMultiplier}x</div>
+                    {adapt.preferredStrategies?.length > 0 && <div className="text-emerald-400/50">prefer: {adapt.preferredStrategies.join(", ")}</div>}
+                    {adapt.avoidStrategies?.length > 0 && <div className="text-red-400/40">avoid: {adapt.avoidStrategies.join(", ")}</div>}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MetaStrategyPanel() {
+  const { data, isLoading } = useQuery<any>({ queryKey: ["/api/admin/trading/meta-strategy"], refetchInterval: 30000, retry: 1 });
+  const evals = data?.evaluations || [];
+  const enabled = data?.enabledStrategies || [];
+  const disabled = data?.disabledStrategies || [];
+  const config = data?.config;
+
+  return (
+    <div className="space-y-4" data-testid="meta-strategy-panel">
+      <div className="flex items-center gap-2">
+        <Trophy className="w-5 h-5 text-[#C9A84C]" />
+        <h2 className="text-lg font-semibold text-white">Meta-Strategy Selection</h2>
+      </div>
+      {isLoading ? <div className="text-center py-6 text-white/20 text-sm">Loading...</div> : (
+        <div className="space-y-4">
+          <div className="flex items-center gap-4 text-[10px] font-mono text-white/30">
+            <span>Enabled: {enabled.length}</span><span>Disabled: {disabled.length}</span>
+            {config && <span>disable &lt; {config.disableThreshold} · enable &gt; {config.enableThreshold}</span>}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" data-testid="meta-strategy-evals">
+            {evals.map((e: any) => (
+              <div key={e.strategy} className={`bg-white/[0.02] border rounded-lg p-4 space-y-2 ${e.isEnabled ? "border-white/5" : "border-red-500/20"}`}>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-white/80">{e.strategy.replace(/_/g, " ")}</span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded font-mono ${e.isEnabled ? "text-emerald-400 bg-emerald-500/10" : "text-red-400 bg-red-500/10"}`}>{e.isEnabled ? "active" : "disabled"}</span>
+                </div>
+                <div className="space-y-1 text-[10px] font-mono">
+                  <div className="flex justify-between"><span className="text-white/40">Score</span><span className={e.performanceScore >= 50 ? "text-emerald-400" : "text-red-400"}>{e.performanceScore}</span></div>
+                  <div className="flex justify-between"><span className="text-white/40">Win Rate</span><span className="text-white/60">{e.winRate}%</span></div>
+                  <div className="flex justify-between"><span className="text-white/40">Recent PnL</span><span className={e.recentPnl >= 0 ? "text-emerald-400" : "text-red-400"}>{formatUsd(e.recentPnl)}</span></div>
+                  <div className="flex justify-between"><span className="text-white/40">Trades</span><span className="text-white/60">{e.tradeCount}</span></div>
+                </div>
+                {e.disabledReason && <div className="text-[9px] text-red-400/50 font-mono">{e.disabledReason}</div>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CapitalScalingPanel() {
+  const { data, isLoading } = useQuery<any>({ queryKey: ["/api/admin/trading/capital-scaling"], refetchInterval: 30000, retry: 1 });
+  const scaling = data?.scalingBySymbol || {};
+  const config = data?.config;
+
+  return (
+    <div className="space-y-4" data-testid="capital-scaling-panel">
+      <div className="flex items-center gap-2">
+        <Scale className="w-5 h-5 text-[#C9A84C]" />
+        <h2 className="text-lg font-semibold text-white">Capital Scaling</h2>
+      </div>
+      {isLoading ? <div className="text-center py-6 text-white/20 text-sm">Loading...</div> : (
+        <div className="space-y-4">
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Current Capital</p>
+              <p className="text-lg font-mono text-white/90 mt-1">${(data?.currentCapital || 0).toLocaleString()}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Peak Capital</p>
+              <p className="text-lg font-mono text-white/90 mt-1">${(data?.peakCapital || 0).toLocaleString()}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Drawdown</p>
+              <p className={`text-lg font-mono mt-1 ${(data?.drawdownPct || 0) > 5 ? "text-red-400" : "text-white/90"}`}>{data?.drawdownPct || 0}%</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" data-testid="capital-scaling-symbols">
+            {Object.entries(scaling as Record<string, any>).map(([sym, s]) => (
+              <div key={sym} className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-white/80">{sym}</span>
+                  <span className="text-[10px] font-mono text-white/40">{s.scaleFactor}x</span>
+                </div>
+                <div className="space-y-1 text-[10px] font-mono">
+                  <div className="flex justify-between"><span className="text-white/40">Base Size</span><span className="text-white/60">${s.basePositionSize}</span></div>
+                  <div className="flex justify-between"><span className="text-white/40">Scaled Size</span><span className={`font-bold ${s.scaleFactor >= 1 ? "text-emerald-400" : "text-amber-400"}`}>${s.scaledPositionSize}</span></div>
+                  <div className="flex justify-between"><span className="text-white/40">Perf Mult</span><span className="text-white/60">{s.performanceMultiplier}x</span></div>
+                  <div className="flex justify-between"><span className="text-white/40">DD Mult</span><span className="text-white/60">{s.drawdownMultiplier}x</span></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ObservabilityPanel() {
+  const { data, isLoading } = useQuery<any>({ queryKey: ["/api/admin/trading/observability"], refetchInterval: 30000, retry: 1 });
+  const overview = data?.overview;
+  const byComponent = data?.tracesByComponent || {};
+  const health = data?.systemHealth;
+  const failures = data?.failures || [];
+  const errorRate = data?.errorRate || 0;
+
+  const healthColor = (h: string) => h === "healthy" ? "text-emerald-400" : h === "degraded" ? "text-amber-400" : "text-red-400";
+
+  return (
+    <div className="space-y-4" data-testid="observability-panel">
+      <div className="flex items-center gap-2">
+        <Eye className="w-5 h-5 text-[#C9A84C]" />
+        <h2 className="text-lg font-semibold text-white">System Observability</h2>
+      </div>
+      {isLoading ? <div className="text-center py-6 text-white/20 text-sm">Loading...</div> : (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="observability-overview">
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Health</p>
+              <p className={`text-lg font-mono mt-1 uppercase ${healthColor(health)}`}>{health}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Error Rate</p>
+              <p className={`text-lg font-mono mt-1 ${errorRate > 5 ? "text-red-400" : "text-white/90"}`}>{errorRate}%</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Decisions</p>
+              <p className="text-lg font-mono text-white/90 mt-1">{overview?.totalDecisions || 0}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Total PnL</p>
+              <p className={`text-lg font-mono mt-1 ${(overview?.totalPnl || 0) >= 0 ? "text-emerald-400" : "text-red-400"}`}>{formatUsd(overview?.totalPnl || 0)}</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30">Capital</p>
+              <p className="text-sm font-mono text-white/70 mt-1">${(overview?.currentCapital || 0).toLocaleString()}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30">Peak</p>
+              <p className="text-sm font-mono text-white/70 mt-1">${(overview?.peakCapital || 0).toLocaleString()}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30">Total Positions</p>
+              <p className="text-sm font-mono text-white/70 mt-1">{overview?.totalPositions || 0}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30">Outcomes</p>
+              <p className="text-sm font-mono text-white/70 mt-1">{overview?.totalOutcomes || 0}</p>
+            </div>
+          </div>
+          {Object.keys(byComponent).length > 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-2">
+              <h3 className="text-sm font-semibold text-white/70">Traces by Component</h3>
+              <div className="space-y-1">
+                {Object.entries(byComponent as Record<string, any>).map(([comp, d]) => (
+                  <div key={comp} className="flex items-center justify-between text-[10px] font-mono">
+                    <span className="text-white/60">{comp}</span>
+                    <span className="text-white/30">total: {d.total} · errors: {d.errors} · avg: {d.avgDurationMs}ms</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {failures.length > 0 && (
+            <div className="bg-white/[0.02] border border-red-500/10 rounded-lg p-4 space-y-2">
+              <h3 className="text-sm font-semibold text-red-400/70">Recent Failures</h3>
+              <div className="space-y-1 max-h-32 overflow-y-auto">
+                {failures.map((f: any) => (
+                  <div key={f.id} className="text-[10px] font-mono text-red-400/50 bg-red-500/5 rounded px-2 py-1">
+                    [{f.component}] {f.operation}: {f.errorMessage || f.details}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AutonomousPanel() {
+  const { data, isLoading } = useQuery<any>({ queryKey: ["/api/admin/trading/autonomous"], refetchInterval: 30000, retry: 1 });
+  const status = data?.status;
+  const cbCheck = data?.circuitBreakerCheck;
+  const events = data?.recentBreakerEvents || [];
+  const rules = data?.rules;
+
+  return (
+    <div className="space-y-4" data-testid="autonomous-panel">
+      <div className="flex items-center gap-2">
+        <Bot className="w-5 h-5 text-[#C9A84C]" />
+        <h2 className="text-lg font-semibold text-white">Autonomous Mode</h2>
+      </div>
+      {isLoading ? <div className="text-center py-6 text-white/20 text-sm">Loading...</div> : (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="autonomous-status">
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Mode</p>
+              <span className={`inline-block mt-1 text-xs font-mono px-2 py-0.5 rounded ${status?.mode === "autonomous" ? "text-emerald-400 bg-emerald-500/10" : status?.mode === "semi_auto" ? "text-amber-400 bg-amber-500/10" : "text-white/40 bg-white/5"}`}>{status?.mode || "manual"}</span>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Running</p>
+              <p className={`text-lg font-mono mt-1 ${status?.isRunning ? "text-emerald-400" : "text-white/30"}`}>{status?.isRunning ? "Yes" : "No"}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Cycle Count</p>
+              <p className="text-lg font-mono text-white/90 mt-1">{status?.cycleCount || 0}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Circuit Breaker</p>
+              <p className={`text-lg font-mono mt-1 ${status?.circuitBreakerActive ? "text-red-400" : "text-emerald-400"}`}>{status?.circuitBreakerActive ? "ACTIVE" : "Clear"}</p>
+            </div>
+          </div>
+          {cbCheck && cbCheck.triggered && (
+            <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-4 space-y-2">
+              <h3 className="text-sm font-semibold text-red-400">Circuit Breaker Triggers</h3>
+              <div className="space-y-1" data-testid="circuit-breaker-triggers">
+                {cbCheck.triggers.map((t: any, i: number) => (
+                  <div key={i} className="flex items-center justify-between text-[10px] font-mono">
+                    <span className="text-red-400/70">{t.type.replace(/_/g, " ")}</span>
+                    <span className="text-red-400/50">{t.reason}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {rules && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-2">
+              <h3 className="text-sm font-semibold text-white/70">Safety Rules</h3>
+              <div className="grid grid-cols-2 gap-2 text-[10px] font-mono" data-testid="autonomous-rules">
+                <div className="text-white/40">Max Daily Loss: <span className="text-white/60">${rules.maxDailyLoss}</span></div>
+                <div className="text-white/40">Max Drawdown: <span className="text-white/60">{rules.maxDrawdownPct}%</span></div>
+                <div className="text-white/40">Max Consecutive Losses: <span className="text-white/60">{rules.maxConsecutiveLosses}</span></div>
+                <div className="text-white/40">Feed Staleness: <span className="text-white/60">{rules.maxFeedStaleness || rules.feedStalenessSec}s</span></div>
+              </div>
+            </div>
+          )}
+          {events.length > 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-2">
+              <h3 className="text-sm font-semibold text-white/70">Recent Breaker Events</h3>
+              <div className="space-y-1 max-h-32 overflow-y-auto">
+                {events.map((e: any) => (
+                  <div key={e.id} className="flex items-center justify-between text-[10px] font-mono bg-white/[0.01] rounded px-2 py-1">
+                    <span className={e.severity === "critical" ? "text-red-400" : "text-amber-400"}>{e.triggerType.replace(/_/g, " ")}</span>
+                    <span className="text-white/20 max-w-[250px] truncate">{e.reason}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InstitutionalPanel() {
+  const { data, isLoading } = useQuery<any>({ queryKey: ["/api/admin/trading/institutional"], refetchInterval: 30000, retry: 1 });
+  const accounts = data?.accounts || [];
+  const perf = data?.performanceSummary;
+
+  return (
+    <div className="space-y-4" data-testid="institutional-panel">
+      <div className="flex items-center gap-2">
+        <Building2 className="w-5 h-5 text-[#C9A84C]" />
+        <h2 className="text-lg font-semibold text-white">Institutional Layer</h2>
+      </div>
+      {isLoading ? <div className="text-center py-6 text-white/20 text-sm">Loading...</div> : (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="institutional-overview">
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Total AUM</p>
+              <p className="text-lg font-mono text-white/90 mt-1">${(data?.totalAUM || 0).toLocaleString()}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Total PnL</p>
+              <p className={`text-lg font-mono mt-1 ${(data?.totalPnl || 0) >= 0 ? "text-emerald-400" : "text-red-400"}`}>{formatUsd(data?.totalPnl || 0)}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Return</p>
+              <p className={`text-lg font-mono mt-1 ${(data?.totalPnlPct || 0) >= 0 ? "text-emerald-400" : "text-red-400"}`}>{data?.totalPnlPct || 0}%</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Accounts</p>
+              <p className="text-lg font-mono text-white/90 mt-1">{accounts.length}</p>
+            </div>
+          </div>
+          {perf && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-2">
+              <h3 className="text-sm font-semibold text-white/70">Performance Summary</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[10px] font-mono" data-testid="institutional-performance">
+                <div><span className="text-white/40">Win Rate</span><div className="text-white/70">{perf.winRate}%</div></div>
+                <div><span className="text-white/40">Sharpe (proxy)</span><div className="text-white/70">{perf.sharpeProxy}</div></div>
+                <div><span className="text-white/40">Max Drawdown</span><div className={perf.maxDrawdown > 10 ? "text-red-400" : "text-white/70"}>{perf.maxDrawdown}%</div></div>
+                <div><span className="text-white/40">Total Trades</span><div className="text-white/70">{perf.totalTrades}</div></div>
+              </div>
+            </div>
+          )}
+          {accounts.map((acct: any) => (
+            <div key={acct.id} className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-white/80">{acct.accountName}</h3>
+                <span className={`text-[10px] px-2 py-0.5 rounded font-mono ${acct.isActive ? "text-emerald-400 bg-emerald-500/10" : "text-red-400 bg-red-500/10"}`}>{acct.accountType}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-3 text-[10px] font-mono">
+                <div><span className="text-white/40">Allocated</span><div className="text-white/70">${acct.allocatedCapital?.toLocaleString()}</div></div>
+                <div><span className="text-white/40">Balance</span><div className="text-white/70">${acct.currentBalance?.toLocaleString()}</div></div>
+                <div><span className="text-white/40">PnL</span><div className={acct.pnl >= 0 ? "text-emerald-400" : "text-red-400"}>{formatUsd(acct.pnl)} ({acct.pnlPct}%)</div></div>
+              </div>
+              {acct.partitions?.length > 0 && (
+                <div className="space-y-1 border-t border-white/5 pt-2">
+                  <h4 className="text-[10px] text-white/50 font-semibold">Capital Partitions</h4>
+                  {acct.partitions.map((p: any, i: number) => (
+                    <div key={i} className="flex items-center justify-between text-[10px] font-mono">
+                      <span className="text-white/60">{p.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-white/40">${p.allocated.toLocaleString()}</span>
+                        <span className="text-white/20">avail: ${p.available.toLocaleString()}</span>
+                        {p.purpose && <span className="text-[8px] text-white/15">{p.purpose}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="text-[9px] text-white/20 font-mono">
+                strategies: {acct.strategies?.join(", ") || "—"} · symbols: {acct.symbols?.join(", ") || "—"}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

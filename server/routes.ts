@@ -11374,6 +11374,98 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
     }
   });
 
+  // GET /api/admin/trading/compliance — T012 compliance + safety envelope (admin-protected)
+  app.get("/api/admin/trading/compliance", async (_req, res) => {
+    try {
+      const { getComplianceStatus } = await import("./services/trading/complianceEngine");
+      const data = await getComplianceStatus();
+      res.json({ ...data, generatedAt: new Date().toISOString() });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/admin/trading/cost-model — T013 slippage + cost modelling (admin-protected)
+  app.get("/api/admin/trading/cost-model", async (_req, res) => {
+    try {
+      const { getCostModelAnalytics } = await import("./services/trading/costModelEngine");
+      const data = await getCostModelAnalytics();
+      res.json({ ...data, generatedAt: new Date().toISOString() });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/admin/trading/timing — T014 latency + execution timing (admin-protected)
+  app.get("/api/admin/trading/timing", async (_req, res) => {
+    try {
+      const { getTimingAnalytics } = await import("./services/trading/timingEngine");
+      const data = await getTimingAnalytics();
+      res.json({ ...data, generatedAt: new Date().toISOString() });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/admin/trading/multi-factor — T015 advanced strategy multi-factor (admin-protected)
+  app.get("/api/admin/trading/multi-factor", async (_req, res) => {
+    try {
+      const { getMultiFactorAnalytics } = await import("./services/trading/multiFactorEngine");
+      const data = await getMultiFactorAnalytics();
+      res.json({ ...data, generatedAt: new Date().toISOString() });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/admin/trading/regime — T016 regime detection (admin-protected)
+  app.get("/api/admin/trading/regime", async (_req, res) => {
+    try {
+      const { getAllRegimes, getRegimeHistory, getStrategyAdaptation } = await import("./services/trading/regimeDetectionEngine");
+      const [regimes, history] = await Promise.all([getAllRegimes(), getRegimeHistory(30)]);
+      const adaptations: Record<string, any> = {};
+      for (const [sym, r] of Object.entries(regimes)) { adaptations[sym] = getStrategyAdaptation(r.regime); }
+      res.json({ regimes, adaptations, history, generatedAt: new Date().toISOString() });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/admin/trading/meta-strategy — T017 meta-strategy selection (admin-protected)
+  app.get("/api/admin/trading/meta-strategy", async (_req, res) => {
+    try {
+      const { getMetaStrategyStatus } = await import("./services/trading/metaStrategyEngine");
+      const data = await getMetaStrategyStatus();
+      res.json({ ...data, generatedAt: new Date().toISOString() });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/admin/trading/capital-scaling — T018 capital scaling (admin-protected)
+  app.get("/api/admin/trading/capital-scaling", async (_req, res) => {
+    try {
+      const { getCapitalScalingStatus } = await import("./services/trading/capitalScalingEngine");
+      const data = await getCapitalScalingStatus();
+      res.json({ ...data, generatedAt: new Date().toISOString() });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/admin/trading/observability — T019 system observability (admin-protected)
+  app.get("/api/admin/trading/observability", async (_req, res) => {
+    try {
+      const { getSystemObservability } = await import("./services/trading/observabilityEngine");
+      const data = await getSystemObservability();
+      res.json({ ...data, generatedAt: new Date().toISOString() });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/admin/trading/autonomous — T020 autonomous operation mode (admin-protected)
+  app.get("/api/admin/trading/autonomous", async (_req, res) => {
+    try {
+      const { getAutonomousStatus } = await import("./services/trading/autonomousEngine");
+      const data = await getAutonomousStatus();
+      res.json({ ...data, generatedAt: new Date().toISOString() });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/admin/trading/institutional — T021 institutional-grade layer (admin-protected)
+  app.get("/api/admin/trading/institutional", async (_req, res) => {
+    try {
+      const { getInstitutionalStatus } = await import("./services/trading/institutionalEngine");
+      const data = await getInstitutionalStatus();
+      res.json({ ...data, generatedAt: new Date().toISOString() });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
   // GET /api/admin/trading/live-bridge — T010 live execution bridge data (admin-protected)
   app.get("/api/admin/trading/live-bridge", async (_req, res) => {
     try {

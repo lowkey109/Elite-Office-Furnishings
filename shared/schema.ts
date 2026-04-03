@@ -3727,3 +3727,275 @@ export const executionAttemptLogs = pgTable(
   }),
 );
 export type ExecutionAttemptLog = typeof executionAttemptLogs.$inferSelect;
+
+// ─── T012: COMPLIANCE + SAFETY ENVELOPE ───
+
+export const complianceRules = pgTable("compliance_rules", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  ruleName: text("rule_name").notNull(),
+  ruleType: text("rule_type").notNull(),
+  parameter: text("parameter").notNull(),
+  threshold: real("threshold").notNull(),
+  action: text("action").notNull().default("block"),
+  isActive: boolean("is_active").notNull().default(true),
+  description: text("description"),
+  ...timestamps,
+});
+export type ComplianceRule = typeof complianceRules.$inferSelect;
+
+export const complianceAuditLogs = pgTable(
+  "compliance_audit_logs",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    eventType: text("event_type").notNull(),
+    severity: text("severity").notNull().default("info"),
+    decisionId: text("decision_id"),
+    symbol: text("symbol"),
+    details: text("details").notNull(),
+    ruleTriggered: text("rule_triggered"),
+    actionTaken: text("action_taken"),
+    metadataJson: jsonb("metadata_json").$type<Record<string, any>>().default({}),
+    ...timestamps,
+  },
+  (t) => ({
+    idxCalType: index("idx_cal_type").on(t.eventType),
+    idxCalSeverity: index("idx_cal_severity").on(t.severity),
+    idxCalCreatedAt: index("idx_cal_created_at").on(t.createdAt),
+  }),
+);
+export type ComplianceAuditLog = typeof complianceAuditLogs.$inferSelect;
+
+// ─── T013: SLIPPAGE + COST MODELLING ───
+
+export const costModelEntries = pgTable(
+  "cost_model_entries",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    symbol: text("symbol").notNull(),
+    tradeId: text("trade_id"),
+    side: text("side").notNull(),
+    quantity: real("quantity").notNull(),
+    expectedPrice: real("expected_price").notNull(),
+    filledPrice: real("filled_price").notNull(),
+    spreadCost: real("spread_cost").notNull().default(0),
+    slippageCost: real("slippage_cost").notNull().default(0),
+    feesCost: real("fees_cost").notNull().default(0),
+    totalCost: real("total_cost").notNull().default(0),
+    costBps: real("cost_bps").notNull().default(0),
+    ...timestamps,
+  },
+  (t) => ({
+    idxCmeSymbol: index("idx_cme_symbol").on(t.symbol),
+    idxCmeCreatedAt: index("idx_cme_created_at").on(t.createdAt),
+  }),
+);
+export type CostModelEntry = typeof costModelEntries.$inferSelect;
+
+// ─── T014: LATENCY + EXECUTION TIMING ───
+
+export const executionTimingLogs = pgTable(
+  "execution_timing_logs",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    decisionId: text("decision_id"),
+    symbol: text("symbol").notNull(),
+    phase: text("phase").notNull(),
+    startedAt: timestamp("started_at").notNull(),
+    completedAt: timestamp("completed_at").notNull(),
+    durationMs: real("duration_ms").notNull(),
+    metadata: jsonb("metadata").$type<Record<string, any>>().default({}),
+    ...timestamps,
+  },
+  (t) => ({
+    idxEtlPhase: index("idx_etl_phase").on(t.phase),
+    idxEtlCreatedAt: index("idx_etl_created_at").on(t.createdAt),
+  }),
+);
+export type ExecutionTimingLog = typeof executionTimingLogs.$inferSelect;
+
+// ─── T015: ADVANCED STRATEGY LAYER (MULTI-FACTOR) ───
+
+export const multiFactorSignals = pgTable(
+  "multi_factor_signals",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    symbol: text("symbol").notNull(),
+    priceScore: real("price_score").notNull().default(0),
+    newsScore: real("news_score").notNull().default(0),
+    momentumScore: real("momentum_score").notNull().default(0),
+    regimeScore: real("regime_score").notNull().default(0),
+    compositeScore: real("composite_score").notNull().default(0),
+    weights: jsonb("weights").$type<Record<string, number>>().default({}),
+    recommendedAction: text("recommended_action"),
+    confidence: real("confidence").notNull().default(0),
+    ...timestamps,
+  },
+  (t) => ({
+    idxMfsSymbol: index("idx_mfs_symbol").on(t.symbol),
+    idxMfsCreatedAt: index("idx_mfs_created_at").on(t.createdAt),
+  }),
+);
+export type MultiFactorSignal = typeof multiFactorSignals.$inferSelect;
+
+// ─── T016: REGIME DETECTION ENGINE ───
+
+export const regimeStates = pgTable(
+  "regime_states",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    symbol: text("symbol").notNull(),
+    regime: text("regime").notNull(),
+    confidence: real("confidence").notNull().default(0),
+    volatilityLevel: real("volatility_level").notNull().default(0),
+    trendStrength: real("trend_strength").notNull().default(0),
+    indicators: jsonb("indicators").$type<Record<string, any>>().default({}),
+    previousRegime: text("previous_regime"),
+    transitionAt: timestamp("transition_at"),
+    ...timestamps,
+  },
+  (t) => ({
+    idxRsSymbol: index("idx_rs_symbol").on(t.symbol),
+    idxRsRegime: index("idx_rs_regime").on(t.regime),
+    idxRsCreatedAt: index("idx_rs_created_at").on(t.createdAt),
+  }),
+);
+export type RegimeState = typeof regimeStates.$inferSelect;
+
+// ─── T017: META-STRATEGY SELECTION ───
+
+export const metaStrategySelections = pgTable(
+  "meta_strategy_selections",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    strategy: text("strategy").notNull(),
+    isEnabled: boolean("is_enabled").notNull().default(true),
+    performanceScore: real("performance_score").notNull().default(50),
+    winRate: real("win_rate").notNull().default(0),
+    recentPnl: real("recent_pnl").notNull().default(0),
+    tradeCount: integer("trade_count").notNull().default(0),
+    disabledReason: text("disabled_reason"),
+    lastEvaluatedAt: timestamp("last_evaluated_at"),
+    ...timestamps,
+  },
+  (t) => ({
+    idxMssStrategy: index("idx_mss_strategy").on(t.strategy),
+  }),
+);
+export type MetaStrategySelection = typeof metaStrategySelections.$inferSelect;
+
+// ─── T018: CAPITAL SCALING ENGINE ───
+
+export const capitalScalingStates = pgTable(
+  "capital_scaling_states",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    symbol: text("symbol").notNull(),
+    strategy: text("strategy"),
+    basePositionSize: real("base_position_size").notNull(),
+    scaledPositionSize: real("scaled_position_size").notNull(),
+    scaleFactor: real("scale_factor").notNull().default(1.0),
+    performanceMultiplier: real("performance_multiplier").notNull().default(1.0),
+    drawdownMultiplier: real("drawdown_multiplier").notNull().default(1.0),
+    currentDrawdownPct: real("current_drawdown_pct").notNull().default(0),
+    peakCapital: real("peak_capital").notNull(),
+    ...timestamps,
+  },
+  (t) => ({
+    idxCssSymbol: index("idx_css_symbol").on(t.symbol),
+  }),
+);
+export type CapitalScalingState = typeof capitalScalingStates.$inferSelect;
+
+// ─── T019: FULL SYSTEM OBSERVABILITY ───
+
+export const systemTraceLogs = pgTable(
+  "system_trace_logs",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    traceType: text("trace_type").notNull(),
+    component: text("component").notNull(),
+    operation: text("operation").notNull(),
+    status: text("status").notNull(),
+    durationMs: real("duration_ms"),
+    details: text("details"),
+    errorMessage: text("error_message"),
+    metadataJson: jsonb("metadata_json").$type<Record<string, any>>().default({}),
+    ...timestamps,
+  },
+  (t) => ({
+    idxStlType: index("idx_stl_type").on(t.traceType),
+    idxStlComponent: index("idx_stl_component").on(t.component),
+    idxStlCreatedAt: index("idx_stl_created_at").on(t.createdAt),
+  }),
+);
+export type SystemTraceLog = typeof systemTraceLogs.$inferSelect;
+
+// ─── T020: AUTONOMOUS OPERATION MODE ───
+
+export const autonomousModeState = pgTable("autonomous_mode_state", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  mode: text("mode").notNull().default("manual"),
+  isRunning: boolean("is_running").notNull().default(false),
+  lastCycleAt: timestamp("last_cycle_at"),
+  cycleCount: integer("cycle_count").notNull().default(0),
+  decisionsThisCycle: integer("decisions_this_cycle").notNull().default(0),
+  tradesThisCycle: integer("trades_this_cycle").notNull().default(0),
+  circuitBreakerActive: boolean("circuit_breaker_active").notNull().default(false),
+  circuitBreakerReason: text("circuit_breaker_reason"),
+  configJson: jsonb("config_json").$type<Record<string, any>>().default({}),
+  ...timestamps,
+});
+export type AutonomousModeStateRow = typeof autonomousModeState.$inferSelect;
+
+export const circuitBreakerEvents = pgTable(
+  "circuit_breaker_events",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    triggerType: text("trigger_type").notNull(),
+    severity: text("severity").notNull(),
+    reason: text("reason").notNull(),
+    metrics: jsonb("metrics").$type<Record<string, any>>().default({}),
+    resolvedAt: timestamp("resolved_at"),
+    ...timestamps,
+  },
+  (t) => ({
+    idxCbeType: index("idx_cbe_type").on(t.triggerType),
+    idxCbeCreatedAt: index("idx_cbe_created_at").on(t.createdAt),
+  }),
+);
+export type CircuitBreakerEvent = typeof circuitBreakerEvents.$inferSelect;
+
+// ─── T021: INSTITUTIONAL-GRADE LAYER ───
+
+export const tradingAccounts = pgTable("trading_accounts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  accountName: text("account_name").notNull(),
+  accountType: text("account_type").notNull().default("paper"),
+  allocatedCapital: real("allocated_capital").notNull(),
+  currentBalance: real("current_balance").notNull(),
+  pnl: real("pnl").notNull().default(0),
+  maxDrawdownPct: real("max_drawdown_pct").notNull().default(20),
+  isActive: boolean("is_active").notNull().default(true),
+  strategiesJson: jsonb("strategies_json").$type<string[]>().default([]),
+  symbolsJson: jsonb("symbols_json").$type<string[]>().default([]),
+  ...timestamps,
+});
+export type TradingAccount = typeof tradingAccounts.$inferSelect;
+
+export const capitalPartitions = pgTable(
+  "capital_partitions",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    accountId: text("account_id").notNull(),
+    partitionName: text("partition_name").notNull(),
+    allocatedAmount: real("allocated_amount").notNull(),
+    usedAmount: real("used_amount").notNull().default(0),
+    reservedAmount: real("reserved_amount").notNull().default(0),
+    purpose: text("purpose"),
+    ...timestamps,
+  },
+  (t) => ({
+    idxCpAccount: index("idx_cp_account").on(t.accountId),
+  }),
+);
+export type CapitalPartition = typeof capitalPartitions.$inferSelect;
