@@ -27,6 +27,9 @@ import {
   sendPartnerWelcomeEmail,
 } from "./email";
 import { analyseSignals, type SignalInput } from "./services/leadIntelligence";
+import { generatePackageAndQuote } from "./ai/packageGenerator";
+import { parseFloorPlan, type FloorGeometry } from "./services/floorPlanParser";
+import { captureWorkspaceLearning, buildLearningContext } from "./services/workspaceLearning";
 
             import { desc, sql, eq } from "drizzle-orm";
             import { db } from "./db";
@@ -3405,9 +3408,27 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
           : null,
         floorGeometry: geometry ?? null,
       });
-    } catch (error) {
-      console.error("Planning request error:", error);
-      res.status(500).json({ error: "Failed to process planning request. Please try again." });
+    } catch (err: any) {
+      console.error("Planning request failed:", err);
+
+      try {
+        await storage.createLead({
+          type: "planning_request_fallback",
+          name: req.body?.name || "Unknown",
+          company: req.body?.company || "",
+          email: req.body?.email || "",
+          phone: req.body?.phone || "",
+          message: "Planning request failed in main flow; saved via fallback.",
+          sourcePage: req.originalUrl || "/planning-request",
+          leadStatus: "new",
+        });
+      } catch (fallbackErr) {
+        console.error("Fallback lead save failed:", fallbackErr);
+      }
+
+      return res.status(500).json({
+        error: "Failed to process planning request",
+      });
     }
   });
 

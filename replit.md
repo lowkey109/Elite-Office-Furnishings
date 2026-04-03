@@ -120,6 +120,12 @@ The Nexora OS is a fully autonomous B2B intelligence and outreach engine. Every 
 - `import { storage } from "./storage"` added to `server/routes.ts` (was missing, breaking all storage-dependent routes)
 - 5 missing columns added to `leads` table: `budget_min`, `budget_max`, `estimated_value_min`, `estimated_value_max`, `updated_at`
 
+**Planning Request Fix (Critical):**
+- Missing imports added to `server/routes.ts`: `buildLearningContext`, `generatePackageAndQuote`, `parseFloorPlan`, `captureWorkspaceLearning`
+- `planningRequests` Drizzle schema aligned to actual DB: `budgetRange` text (was `budgetMin`/`budgetMax` integer), `squareMetres`/`staffCount`/`meetingRooms`/`estimatedValue` changed from integer to text, JSON columns changed from jsonb to text, `...timestamps` replaced with explicit `createdAt` only (no `updatedAt` in DB)
+- `workspaceLearningRecords` Drizzle schema similarly aligned: `budgetRange` text, numeric→text columns, JSON→text columns
+- Fallback guard added: on any planning request failure, `storage.createLead(type: "planning_request_fallback")` saves contact details before returning 500
+
 ## External Dependencies
 - **Database**: PostgreSQL
 - **ORM**: Drizzle ORM
