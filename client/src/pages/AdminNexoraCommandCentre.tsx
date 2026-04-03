@@ -12,7 +12,8 @@ import {
   ThumbsUp, ThumbsDown, Radio, Sliders, BookOpen,
   Send, Database, Lock, Unlock, AlertOctagon, RotateCcw,
   HeartPulse, ListChecks, CheckCheck, BarChart3, History,
-  Settings, ArrowUpRight, FileText,
+  Settings, ArrowUpRight, FileText, ChevronDown, ChevronUp,
+  CalendarClock, Trophy, X, Mail,
 } from "lucide-react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -72,9 +73,37 @@ interface SignalSummary {
 }
 
 interface PendingOutreach {
-  id: number; companyName: string; contactName: string | null;
-  phone: string; channel: string; messagePreview: string;
-  createdAt: string; signalContext: string | null; priority: string;
+  id: string; threadId: string; companyName: string;
+  recipientEmail: string; channel: string;
+  subject: string; body: string; messagePreview: string;
+  createdAt: string; signalContext: string | null;
+  confidenceScore: number | null; messageType: string; stage: number;
+  priority: string;
+}
+
+interface PriorityAction {
+  type: string; icon: string; title: string; subtitle: string;
+  urgency: "high" | "medium" | "low"; actionLabel: string;
+  actionTarget: string; data?: { opportunityId?: string; id?: string; stage?: string };
+}
+
+interface PriorityActionsData {
+  actions: PriorityAction[];
+  generatedAt: string;
+  counts: { pendingApprovals: number; overdueFollowUps: number; quoteOpportunities: number; outcomeNeeded: number };
+}
+
+interface FollowUpQueueItem {
+  id: string; leadEmail: string; leadCompany: string; leadType: string;
+  stage: number; status: string;
+  queueStatus: "completed" | "overdue" | "scheduled" | "sent" | "cancelled";
+  nextSendAt: string | null; lastSentAt: string | null;
+  stagesCompleted: string[]; createdAt: string;
+}
+
+interface FollowUpQueueData {
+  sequences: FollowUpQueueItem[];
+  summary: { total: number; overdue: number; scheduled: number; completed: number; active: number };
 }
 
 interface NexoraRunResult {
@@ -168,7 +197,7 @@ function signalTypeBadge(type: string) {
 }
 
 const GOLD = "hsl(43,78%,52%)";
-const TABS = ["Overview", "Finance", "Signals", "Decisions", "Actions", "Reviews", "Outcomes", "Runtime", "Settings"] as const;
+const TABS = ["Overview", "Finance", "Signals", "Decisions", "Actions", "Reviews", "Outcomes", "FollowUps", "Runtime", "Settings"] as const;
 type Tab = typeof TABS[number];
 
 // ── Main Component ─────────────────────────────────────────────────────────────
@@ -184,6 +213,12 @@ export default function AdminNexoraCommandCentre() {
     channel: "email", dealValue: "", notes: "",
   });
   const [lastRunResult, setLastRunResult] = useState<NexoraRunResult | null>(null);
+  const [expandedBodyId, setExpandedBodyId] = useState<string | null>(null);
+  const [editBodyId, setEditBodyId] = useState<string | null>(null);
+  const [editBodyText, setEditBodyText] = useState<string>("");
+  const [quickOutcomeOpp, setQuickOutcomeOpp] = useState<{ id: string; companyName: string; stage?: string } | null>(null);
+  const [quickOutcomeType, setQuickOutcomeType] = useState<"won" | "lost">("won");
+  const [quickOutcomeValue, setQuickOutcomeValue] = useState<string>("");
 
   // ── Queries ────────────────────────────────────────────────────────────────
 
@@ -240,6 +275,16 @@ export default function AdminNexoraCommandCentre() {
   const { data: financialSummary, isLoading: financeLoading } = useQuery<FinancialSummary>({
     queryKey: ["/api/nexora/financial-summary"],
     refetchInterval: 60000,
+  });
+
+  const { data: priorityActions, isLoading: priorityLoading } = useQuery<PriorityActionsData>({
+    queryKey: ["/api/nexora/priority-actions"],
+    refetchInterval: 60000,
+  });
+
+  const { data: followUpQueue, isLoading: followUpLoading } = useQuery<FollowUpQueueData>({
+    queryKey: ["/api/nexora/follow-up-queue"],
+    refetchInterval: 30000,
   });
 
   // ── Mutations ──────────────────────────────────────────────────────────────
@@ -316,6 +361,31 @@ export default function AdminNexoraCommandCentre() {
       queryClient.invalidateQueries({ queryKey: ["/api/nexora/runtime-state"] });
     },
     onError: (err: any) => toast({ title: "Batch approve failed", description: err?.message, variant: "destructive" }),
+  });
+
+  const autoQuoteMutation = useMutation({
+    mutationFn: (opportunityId: string) => apiRequest("POST", `/api/nexora/pipeline/${opportunityId}/auto-quote`),
+    onSuccess: () => {
+      toast({ title: "Quote generated", description: "AI quote draft ready in Admin → Quotes." });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/financial-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/priority-actions"] });
+    },
+    onError: (err: any) => toast({ title: "Quote generation failed", description: err?.message, variant: "destructive" }),
+  });
+
+  const quickOutcomeMutation = useMutation({
+    mutationFn: ({ opportunityId, outcome, dealValue }: { opportunityId: string; outcome: string; dealValue?: number }) =>
+      apiRequest("POST", "/api/nexora/outcomes", { companyName: quickOutcomeOpp?.companyName, outcome, dealValue, channel: "direct" }),
+    onSuccess: () => {
+      toast({ title: "Outcome recorded", description: "Nexora will recalibrate from this feedback." });
+      setQuickOutcomeOpp(null);
+      setQuickOutcomeValue("");
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/outcomes/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/financial-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/priority-actions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/nexora/thresholds/current"] });
+    },
+    onError: (err: any) => toast({ title: "Failed to record outcome", description: err?.message, variant: "destructive" }),
   });
 
   // ── Derived ────────────────────────────────────────────────────────────────
@@ -433,6 +503,9 @@ export default function AdminNexoraCommandCentre() {
               {t === "Reviews" && pendingApprovals > 0 && (
                 <span className="ml-1.5 bg-yellow-500/20 text-yellow-300 text-[9px] px-1.5 py-0.5 rounded-full">{pendingApprovals}</span>
               )}
+              {t === "FollowUps" && (followUpQueue?.summary.overdue ?? 0) > 0 && (
+                <span className="ml-1.5 bg-red-500/20 text-red-300 text-[9px] px-1.5 py-0.5 rounded-full">{followUpQueue!.summary.overdue}</span>
+              )}
               {t === "Runtime" && failedJobs > 0 && (
                 <span className="ml-1.5 bg-red-500/20 text-red-300 text-[9px] px-1.5 py-0.5 rounded-full">{failedJobs}</span>
               )}
@@ -545,7 +618,49 @@ export default function AdminNexoraCommandCentre() {
               </div>
             </div>
 
-            {/* Section 4: Alerts */}
+            {/* Section 4: Today's Priority Actions (Nexora-generated) */}
+            <div className="border border-white/8 bg-white/[0.02]">
+              <div className="px-5 py-3 border-b border-white/5 flex items-center gap-2">
+                <ListChecks className="w-3.5 h-3.5 text-[hsl(43,78%,52%)]" />
+                <span className="text-sm font-medium text-white">Today's Priority Actions</span>
+                {priorityLoading && <Loader2 className="w-3 h-3 animate-spin text-white/30 ml-1" />}
+                <span className="ml-auto text-[10px] text-white/20">Nexora-generated · 60s refresh</span>
+              </div>
+              {!priorityActions?.actions?.length ? (
+                <div className="px-5 py-5 text-xs text-white/25 text-center">
+                  {priorityLoading ? "Generating action list…" : "All clear — no priority actions right now."}
+                </div>
+              ) : (
+                <div className="divide-y divide-white/5">
+                  {priorityActions.actions.slice(0, 8).map((action, i) => (
+                    <div key={i} className="flex items-center gap-3 px-5 py-3 hover:bg-white/[0.02]" data-testid={`priority-action-${i}`}>
+                      <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${action.urgency === "high" ? "bg-red-400" : action.urgency === "medium" ? "bg-yellow-400" : "bg-white/25"}`} />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs text-white/80 font-medium truncate">{action.title}</div>
+                        <div className="text-[10px] text-white/35 truncate">{action.subtitle}</div>
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          if (action.actionTarget === "Reviews") setTab("Reviews");
+                          else if (action.actionTarget === "Finance") setTab("Finance");
+                          else if (action.actionTarget === "FollowUps") setTab("FollowUps");
+                          else if (action.actionTarget === "Outcomes") setTab("Outcomes");
+                          if (action.type === "quote_needed" && action.data?.opportunityId) {
+                            autoQuoteMutation.mutate(action.data.opportunityId);
+                          }
+                        }}
+                        className="h-6 text-[10px] px-2.5 bg-white/5 hover:bg-white/10 text-white/60 border border-white/8 rounded-none flex-shrink-0"
+                      >
+                        {action.actionLabel}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Section 5: Alerts */}
             {(isLocked || failedJobs > 0 || pendingApprovals > 20 || loopStatus?.status === "failed") ? (
               <div className="border border-red-500/20 bg-red-500/[0.04] px-5 py-4">
                 <div className="flex items-center gap-2 mb-3">
@@ -745,41 +860,97 @@ export default function AdminNexoraCommandCentre() {
               </div>
             ) : (
               <div className="space-y-2">
-                {pendingOutreach.pending.map((msg) => (
-                  <div key={msg.id} data-testid={`card-outreach-${msg.id}`} className="p-4 border border-white/6 bg-white/[0.02]">
-                    <div className="flex items-start gap-3">
-                      <MessageSquare className="w-4 h-4 text-yellow-400/60 flex-shrink-0 mt-0.5" />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-medium text-white">{msg.companyName}</span>
-                          {msg.contactName && <span className="text-xs text-white/40">· {msg.contactName}</span>}
-                          <Badge className={`text-[9px] px-1.5 py-0 h-4 capitalize ml-auto ${msg.priority === "high" ? "bg-red-500/15 text-red-300 border-red-500/20" : "bg-white/5 text-white/30 border-white/8"}`}>
-                            {msg.priority}
-                          </Badge>
+                {pendingOutreach.pending.map((msg) => {
+                  const isExpanded = expandedBodyId === msg.id;
+                  const isEditing = editBodyId === msg.id;
+                  return (
+                    <div key={msg.id} data-testid={`card-outreach-${msg.id}`} className="border border-white/6 bg-white/[0.02]">
+                      <div className="p-4">
+                        <div className="flex items-start gap-3">
+                          <Mail className="w-4 h-4 text-yellow-400/60 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <span className="text-sm font-medium text-white">{msg.companyName}</span>
+                              {msg.confidenceScore != null && (
+                                <Badge className={`text-[9px] px-1.5 py-0 h-4 ${msg.confidenceScore >= 75 ? "bg-green-500/15 text-green-300 border-green-500/20" : "bg-white/5 text-white/30 border-white/8"}`}>
+                                  {msg.confidenceScore}% confidence
+                                </Badge>
+                              )}
+                              <Badge className={`text-[9px] px-1.5 py-0 h-4 capitalize ${msg.priority === "high" ? "bg-red-500/15 text-red-300 border-red-500/20" : "bg-white/5 text-white/30 border-white/8"}`}>
+                                {msg.priority}
+                              </Badge>
+                              <span className="ml-auto text-[10px] text-white/25">{timeAgo(msg.createdAt)}</span>
+                            </div>
+                            <p className="text-[10px] text-white/40 mb-1 font-medium">{msg.subject}</p>
+                            <p className="text-xs text-white/50 mb-1">{msg.messagePreview}</p>
+                            {msg.signalContext && (
+                              <p className="text-[10px] text-[hsl(43,78%,52%)]/50 flex items-center gap-1">
+                                <Info className="w-2.5 h-2.5" /> {msg.signalContext}
+                              </p>
+                            )}
+                            <p className="text-[10px] text-white/25 mt-1 flex items-center gap-1">
+                              <Mail className="w-2.5 h-2.5" /> {msg.recipientEmail}
+                            </p>
+                          </div>
+                          <div className="flex flex-col gap-1.5 flex-shrink-0">
+                            <div className="flex gap-1.5">
+                              <Button size="sm" onClick={() => approveMutation.mutate({ id: msg.id as any, action: "approve" })}
+                                disabled={approveMutation.isPending} data-testid={`button-approve-outreach-${msg.id}`}
+                                className="bg-green-700/30 hover:bg-green-700/50 text-green-300 border border-green-700/40 rounded-none h-7 text-xs">
+                                <ThumbsUp className="w-3 h-3 mr-1" /> Approve
+                              </Button>
+                              <Button size="sm" onClick={() => approveMutation.mutate({ id: msg.id as any, action: "reject" })}
+                                disabled={approveMutation.isPending} data-testid={`button-reject-outreach-${msg.id}`}
+                                variant="outline" className="border-red-700/40 text-red-300 hover:bg-red-700/20 rounded-none h-7 text-xs">
+                                <ThumbsDown className="w-3 h-3 mr-1" /> Reject
+                              </Button>
+                            </div>
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                if (isExpanded) { setExpandedBodyId(null); setEditBodyId(null); }
+                                else { setExpandedBodyId(msg.id); setEditBodyText(msg.body); }
+                              }}
+                              className="h-6 text-[10px] bg-white/5 hover:bg-white/10 text-white/40 border border-white/8 rounded-none w-full"
+                            >
+                              {isExpanded ? <><ChevronUp className="w-3 h-3 mr-1" />Hide</> : <><ChevronDown className="w-3 h-3 mr-1" />View Full</>}
+                            </Button>
+                          </div>
                         </div>
-                        <p className="text-xs text-white/50 mb-1 line-clamp-2">{msg.messagePreview}</p>
-                        {msg.signalContext && (
-                          <p className="text-[10px] text-[hsl(43,78%,52%)]/50 flex items-center gap-1">
-                            <Info className="w-2.5 h-2.5" /> {msg.signalContext}
-                          </p>
-                        )}
-                        <p className="text-[10px] text-white/25 mt-1">{msg.phone} · {timeAgo(msg.createdAt)}</p>
                       </div>
-                      <div className="flex gap-2 flex-shrink-0">
-                        <Button size="sm" onClick={() => approveMutation.mutate({ id: msg.id, action: "approve" })}
-                          disabled={approveMutation.isPending} data-testid={`button-approve-outreach-${msg.id}`}
-                          className="bg-green-700/30 hover:bg-green-700/50 text-green-300 border border-green-700/40 rounded-none h-7 text-xs">
-                          <ThumbsUp className="w-3 h-3 mr-1" /> Approve
-                        </Button>
-                        <Button size="sm" onClick={() => approveMutation.mutate({ id: msg.id, action: "reject" })}
-                          disabled={approveMutation.isPending} data-testid={`button-reject-outreach-${msg.id}`}
-                          variant="outline" className="border-red-700/40 text-red-300 hover:bg-red-700/20 rounded-none h-7 text-xs">
-                          <ThumbsDown className="w-3 h-3 mr-1" /> Reject
-                        </Button>
-                      </div>
+                      {isExpanded && (
+                        <div className="border-t border-white/5 px-4 pb-4 pt-3">
+                          {isEditing ? (
+                            <div className="space-y-2">
+                              <textarea
+                                className="w-full bg-black/40 border border-white/10 text-white/80 text-xs p-3 h-48 resize-y font-mono"
+                                value={editBodyText}
+                                onChange={e => setEditBodyText(e.target.value)}
+                              />
+                              <div className="flex gap-2">
+                                <Button size="sm" onClick={() => setEditBodyId(null)} variant="outline"
+                                  className="h-7 text-xs border-white/15 text-white/50 rounded-none">Cancel</Button>
+                                <Button size="sm" onClick={() => approveMutation.mutate({ id: msg.id as any, action: "approve" })}
+                                  disabled={approveMutation.isPending}
+                                  className="h-7 text-xs bg-green-700/30 hover:bg-green-700/50 text-green-300 border border-green-700/40 rounded-none">
+                                  <ThumbsUp className="w-3 h-3 mr-1" /> Approve Edited
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div>
+                              <div className="text-[10px] text-white/40 mb-2 flex items-center gap-2">
+                                Full message body
+                                <button onClick={() => setEditBodyId(msg.id)} className="text-[hsl(43,78%,52%)] hover:underline ml-2">Edit before approving →</button>
+                              </div>
+                              <pre className="text-xs text-white/60 whitespace-pre-wrap font-sans leading-relaxed border border-white/5 bg-black/20 p-3 max-h-64 overflow-y-auto">{msg.body}</pre>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -893,6 +1064,84 @@ export default function AdminNexoraCommandCentre() {
             ) : (
               <div className="py-12 text-center text-white/25 text-sm border border-white/5">
                 No outcomes recorded. Use "Record Outcome" to start training Nexora.
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ════════════════ FOLLOW-UPS ════════════════ */}
+        {tab === "FollowUps" && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <CalendarClock className="w-4 h-4 text-blue-400" />
+              <h2 className="text-sm font-medium text-white">Follow-Up Queue</h2>
+              {followUpQueue && (
+                <>
+                  {followUpQueue.summary.overdue > 0 && (
+                    <Badge className="bg-red-500/15 text-red-300 border-red-500/25 ml-1">{followUpQueue.summary.overdue} overdue</Badge>
+                  )}
+                  <Badge className="bg-white/5 text-white/35 border-white/10 ml-1">{followUpQueue.summary.total} total</Badge>
+                </>
+              )}
+              {followUpLoading && <Loader2 className="w-3 h-3 animate-spin text-white/30" />}
+            </div>
+
+            {/* Summary strip */}
+            {followUpQueue && (
+              <div className="grid grid-cols-4 gap-3">
+                {[
+                  { label: "Overdue", value: followUpQueue.summary.overdue, color: "text-red-300" },
+                  { label: "Scheduled", value: followUpQueue.summary.scheduled, color: "text-blue-300" },
+                  { label: "Active", value: followUpQueue.summary.active, color: "text-yellow-300" },
+                  { label: "Completed", value: followUpQueue.summary.completed, color: "text-green-300" },
+                ].map(({ label, value, color }) => (
+                  <div key={label} className="border border-white/8 bg-white/[0.02] px-4 py-3">
+                    <div className={`text-lg font-bold ${color}`}>{value}</div>
+                    <div className="text-[10px] text-white/35">{label}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {followUpLoading ? (
+              <div className="flex items-center gap-2 text-sm text-white/30 py-8 justify-center">
+                <Loader2 className="w-4 h-4 animate-spin" /> Loading follow-up queue...
+              </div>
+            ) : !followUpQueue?.sequences?.length ? (
+              <div className="py-12 text-center border border-white/5 text-white/25 text-sm">
+                No active follow-up sequences. Run Nexora to generate outreach threads.
+              </div>
+            ) : (
+              <div className="border border-white/8 bg-white/[0.02]">
+                <div className="divide-y divide-white/5">
+                  {followUpQueue.sequences.map((item) => {
+                    const statusConfig = {
+                      overdue:   { dot: "bg-red-400",    badge: "bg-red-500/15 text-red-300 border-red-500/25",       label: "Overdue" },
+                      scheduled: { dot: "bg-blue-400",   badge: "bg-blue-500/15 text-blue-300 border-blue-500/25",     label: "Scheduled" },
+                      sent:      { dot: "bg-green-400",  badge: "bg-green-500/15 text-green-300 border-green-500/25",  label: "Sent" },
+                      completed: { dot: "bg-green-400",  badge: "bg-green-500/15 text-green-300 border-green-500/25",  label: "Done" },
+                      cancelled: { dot: "bg-white/20",   badge: "bg-white/5 text-white/30 border-white/10",            label: "Cancelled" },
+                    }[item.queueStatus] ?? { dot: "bg-white/20", badge: "bg-white/5 text-white/30 border-white/10", label: item.queueStatus };
+                    return (
+                      <div key={item.id} className="px-5 py-3 flex items-center gap-4 text-xs hover:bg-white/[0.02]" data-testid={`row-followup-${item.id}`}>
+                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${statusConfig.dot}`} />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-white/80 font-medium truncate">{item.leadCompany || item.leadEmail}</div>
+                          <div className="text-white/30 text-[10px] truncate">{item.leadEmail}</div>
+                        </div>
+                        <Badge className={`text-[9px] px-2 capitalize ${statusConfig.badge}`}>{statusConfig.label}</Badge>
+                        <Badge className="text-[9px] px-2 bg-white/5 text-white/30 border-white/8 capitalize">{item.leadType?.replace("_", " ") ?? "—"}</Badge>
+                        <div className="text-white/30 min-w-[80px] text-right">
+                          {item.nextSendAt
+                            ? <><Clock className="w-2.5 h-2.5 inline mr-1" />{timeAgo(item.nextSendAt)}</>
+                            : item.lastSentAt
+                            ? <><CheckCircle2 className="w-2.5 h-2.5 inline mr-1 text-green-400" />{timeAgo(item.lastSentAt)}</>
+                            : "—"}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
@@ -1247,17 +1496,44 @@ export default function AdminNexoraCommandCentre() {
                     <div className="px-5 py-3 border-b border-white/5 flex items-center gap-2">
                       <TrendingUp className="w-3.5 h-3.5 text-blue-400" />
                       <span className="text-sm font-medium text-white">Top Pipeline Opportunities</span>
+                      <span className="ml-auto text-[10px] text-white/25">Click Won/Lost to record outcome</span>
                     </div>
                     <div className="divide-y divide-white/5">
                       {(financialSummary.pipeline.topOpportunities ?? []).map((opp) => (
-                        <div key={opp.id} className="flex items-center gap-4 px-5 py-3 text-xs hover:bg-white/[0.02]" data-testid={`row-opp-${opp.id}`}>
-                          <Building2 className="w-3.5 h-3.5 text-white/20 flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <div className="text-white/80 font-medium truncate">{opp.companyName || "Unknown"}</div>
-                            <div className="text-white/30 text-[10px]">{timeAgo(opp.createdAt ?? null)}</div>
+                        <div key={opp.id} className="px-5 py-3 text-xs hover:bg-white/[0.02]" data-testid={`row-opp-${opp.id}`}>
+                          <div className="flex items-center gap-4">
+                            <Building2 className="w-3.5 h-3.5 text-white/20 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <div className="text-white/80 font-medium truncate">{opp.companyName || "Unknown"}</div>
+                              <div className="text-white/30 text-[10px]">{timeAgo(opp.createdAt ?? null)}</div>
+                            </div>
+                            <Badge className={`text-[9px] px-2 capitalize ${
+                              opp.stage === "contacted" ? "bg-yellow-500/10 text-yellow-300 border-yellow-500/20" :
+                              opp.stage === "quoted" ? "bg-purple-500/10 text-purple-300 border-purple-500/20" :
+                              opp.stage === "won" ? "bg-green-500/10 text-green-300 border-green-500/20" :
+                              opp.stage === "lost" ? "bg-red-500/10 text-red-300 border-red-500/20" :
+                              "bg-blue-500/10 text-blue-300 border-blue-500/20"
+                            }`}>{opp.stage ?? "new"}</Badge>
+                            <div className="text-[hsl(43,78%,52%)] font-medium">{fmt$(opp.estimatedValue ?? 0)}</div>
+                            <div className="flex gap-1.5 flex-shrink-0">
+                              <Button
+                                size="sm"
+                                data-testid={`button-won-${opp.id}`}
+                                onClick={() => { setQuickOutcomeOpp({ id: opp.id, companyName: opp.companyName, stage: opp.stage }); setQuickOutcomeType("won"); setQuickOutcomeValue(String(opp.estimatedValue ?? "")); }}
+                                className="h-6 text-[10px] px-2 bg-green-700/20 hover:bg-green-700/40 text-green-300 border border-green-700/30 rounded-none"
+                              >
+                                <Trophy className="w-2.5 h-2.5 mr-1" /> Won
+                              </Button>
+                              <Button
+                                size="sm"
+                                data-testid={`button-lost-${opp.id}`}
+                                onClick={() => { setQuickOutcomeOpp({ id: opp.id, companyName: opp.companyName, stage: opp.stage }); setQuickOutcomeType("lost"); setQuickOutcomeValue(""); }}
+                                className="h-6 text-[10px] px-2 bg-red-700/20 hover:bg-red-700/40 text-red-300 border border-red-700/30 rounded-none"
+                              >
+                                <X className="w-2.5 h-2.5 mr-1" /> Lost
+                              </Button>
+                            </div>
                           </div>
-                          <Badge className="text-[9px] px-2 bg-blue-500/10 text-blue-300 border-blue-500/20 capitalize">{opp.stage ?? "new"}</Badge>
-                          <div className="text-[hsl(43,78%,52%)] font-medium">{fmt$(opp.estimatedValue ?? 0)}</div>
                         </div>
                       ))}
                     </div>
@@ -1277,6 +1553,79 @@ export default function AdminNexoraCommandCentre() {
         )}
 
       </div>
+
+      {/* ── Quick Outcome Modal (T005) ───────────────────────────────────── */}
+      {quickOutcomeOpp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setQuickOutcomeOpp(null)}>
+          <div className="bg-[#0d0c0a] border border-white/12 w-full max-w-sm p-6 space-y-5" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-2">
+              {quickOutcomeType === "won"
+                ? <Trophy className="w-4 h-4 text-green-400" />
+                : <X className="w-4 h-4 text-red-400" />}
+              <h3 className="text-sm font-medium text-white">
+                Record {quickOutcomeType === "won" ? "Win" : "Loss"}
+              </h3>
+              <button onClick={() => setQuickOutcomeOpp(null)} className="ml-auto text-white/30 hover:text-white/60">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div>
+              <p className="text-xs text-white/50 mb-1">Company</p>
+              <p className="text-sm text-white font-medium">{quickOutcomeOpp.companyName}</p>
+            </div>
+
+            <div>
+              <p className="text-xs text-white/50 mb-2">Outcome</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setQuickOutcomeType("won")}
+                  data-testid="modal-outcome-won"
+                  className={`flex-1 py-2 text-xs border rounded-none ${quickOutcomeType === "won" ? "bg-green-700/30 border-green-700/50 text-green-300" : "bg-white/[0.02] border-white/8 text-white/40 hover:bg-white/5"}`}
+                >
+                  <Trophy className="w-3 h-3 inline mr-1" /> Won
+                </button>
+                <button
+                  onClick={() => setQuickOutcomeType("lost")}
+                  data-testid="modal-outcome-lost"
+                  className={`flex-1 py-2 text-xs border rounded-none ${quickOutcomeType === "lost" ? "bg-red-700/30 border-red-700/50 text-red-300" : "bg-white/[0.02] border-white/8 text-white/40 hover:bg-white/5"}`}
+                >
+                  <X className="w-3 h-3 inline mr-1" /> Lost
+                </button>
+              </div>
+            </div>
+
+            {quickOutcomeType === "won" && (
+              <div>
+                <label className="text-xs text-white/50 block mb-1.5">Deal Value (AUD)</label>
+                <input
+                  type="number"
+                  data-testid="input-outcome-deal-value"
+                  value={quickOutcomeValue}
+                  onChange={e => setQuickOutcomeValue(e.target.value)}
+                  placeholder="e.g. 25000"
+                  className="w-full bg-black/40 border border-white/10 text-white/80 text-xs px-3 py-2 focus:outline-none focus:border-[hsl(43,78%,52%)]/40"
+                />
+              </div>
+            )}
+
+            <Button
+              data-testid="button-submit-outcome"
+              disabled={quickOutcomeMutation.isPending}
+              onClick={() => quickOutcomeMutation.mutate({
+                opportunityId: quickOutcomeOpp.id,
+                outcome: quickOutcomeType,
+                dealValue: quickOutcomeType === "won" && quickOutcomeValue ? Number(quickOutcomeValue) : undefined,
+              })}
+              className={`w-full h-9 text-sm rounded-none ${quickOutcomeType === "won" ? "bg-green-700/40 hover:bg-green-700/60 text-green-200 border border-green-700/40" : "bg-red-700/40 hover:bg-red-700/60 text-red-200 border border-red-700/40"}`}
+            >
+              {quickOutcomeMutation.isPending
+                ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Recording…</>
+                : <>Record {quickOutcomeType === "won" ? "Win" : "Loss"}</>}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

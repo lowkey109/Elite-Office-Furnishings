@@ -787,7 +787,7 @@ async function applyLearningFromRun(params: {
 async function autoCreateOpportunity(
   signal: NexoraSignalLike,
   sourceType: "radar" | "deal",
-): Promise<void> {
+): Promise<string | null> {
   try {
     const sig = signal as any;
     const { db: ddb } = await import("../../db");
@@ -804,7 +804,7 @@ async function autoCreateOpportunity(
       .from(opportunities)
       .where(and(eq(opportunities.sourceType, "nexora"), eq(opportunities.sourceId, sourceId)))
       .limit(1);
-    if (existing.length > 0) return;
+    if (existing.length > 0) return existing[0].id;
 
     const rawValue = sig.estimatedProjectValue ?? sig.value ?? 0;
     const estimatedValue = typeof rawValue === "number"
@@ -814,7 +814,7 @@ async function autoCreateOpportunity(
     const confidenceScore = confidenceLevel === "high" ? 80 : confidenceLevel === "low" ? 30 : 55;
     const opportunityScore = sig.radarScore ?? sig.opportunityScore ?? 60;
 
-    await ddb.insert(opportunities).values({
+    const [created] = await ddb.insert(opportunities).values({
       sourceType: "nexora",
       sourceId,
       companyName,
@@ -831,11 +831,56 @@ async function autoCreateOpportunity(
       estimatedValue: estimatedValue > 0 ? estimatedValue : null,
       reasoningSummary: sig.summaryReasoning ?? sig.aiSummary ?? `Nexora ${sourceType} push — ${sig.signalType ?? "signal"}`,
       lastActivityAt: new Date(),
-    } as any);
+    } as any).returning({ id: opportunities.id });
 
     console.log(`[Nexora] Auto-created opportunity for ${companyName} (signal ${sourceId})`);
+    return created?.id ?? null;
   } catch (err: any) {
     console.warn(`[Nexora] autoCreateOpportunity failed (non-critical):`, err?.message);
+    return null;
+  }
+}
+
+const AUTO_QUOTE_CONFIDENCE_THRESHOLD = 80;
+
+async function autoTriggerQuote(opportunityId: string, companyName: string, confidence: number): Promise<void> {
+  try {
+    const { storage } = await import("../../storage");
+    const opp = await storage.getOpportunity(opportunityId);
+    if (!opp || opp.stage === "quoted") return;
+
+    const now = new Date();
+    const ym = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const existing = await storage.getQuotes();
+    const seq = String(existing.length + 1).padStart(4, "0");
+    const quoteNumber = `TCD-${ym}-${seq}`;
+    const estimatedValue = opp.estimatedValue ? Number(opp.estimatedValue) : 0;
+    const subtotal = estimatedValue;
+    const gst = Math.round(subtotal * 0.1);
+
+    await storage.createQuote({
+      quoteNumber,
+      status: "Draft",
+      clientName: opp.contactName ?? opp.companyName,
+      companyName: opp.companyName,
+      email: opp.contactEmail ?? "tbc@placeholder.com",
+      phone: opp.contactPhone ?? null,
+      opportunityId: opp.id,
+      projectSummary: opp.reasoningSummary ?? `Auto-drafted from Nexora opportunity — ${opp.projectType ?? opp.industry ?? "fitout"}`,
+      subtotal,
+      gst,
+      total: subtotal,
+      totalIncGst: subtotal + gst,
+      pipelineStage: "lead",
+      validityDays: 30,
+      preparedBy: "The Corporate Desk (Nexora Auto-Draft)",
+      notes: `Auto-generated at confidence ${confidence}. Company: ${opp.companyName}. Review and update line items before sending.`,
+    });
+
+    await storage.updateOpportunity(opp.id, { stage: "quoted" } as any).catch(() => undefined);
+    console.log(`[AutoQuote] ✓ Quote generated for ${companyName} (opportunity ${opportunityId}) at confidence ${confidence}`);
+  } catch (err: any) {
+    console.warn(`[AutoQuote] Failed for opportunity ${opportunityId}: ${err.message}`);
   }
 }
 
@@ -844,9 +889,16 @@ async function pushToPipeline(
   sourceType: "radar" | "deal",
 ): Promise<boolean> {
   try {
+    const sig = signal as any;
+    const sigConfidence = sig.confidenceScore ?? (sig.confidenceLevel === "high" ? 80 : sig.confidenceLevel === "low" ? 30 : 55);
+    const companyNameForQuote = sig.companyName ?? sig.company ?? "Unknown";
+
     if (sourceType === "deal") {
       await pushDealHunterToPipeline(signal.id);
-      await autoCreateOpportunity(signal, sourceType);
+      const oppId = await autoCreateOpportunity(signal, sourceType);
+      if (oppId && sigConfidence >= AUTO_QUOTE_CONFIDENCE_THRESHOLD) {
+        autoTriggerQuote(oppId, companyNameForQuote, sigConfidence).catch(() => undefined);
+      }
       return true;
     }
     // Radar signal → create a pipeline prospect entry (idempotency key prevents duplicate calls)
@@ -870,7 +922,10 @@ async function pushToPipeline(
         priority: radarSig.confidenceLevel === "high" ? "High" : radarSig.confidenceLevel === "low" ? "Low" : "Medium",
         nexoraSignalId: signal.id ?? null,
       } as any);
-      await autoCreateOpportunity(signal, sourceType);
+      const oppId = await autoCreateOpportunity(signal, sourceType);
+      if (oppId && sigConfidence >= AUTO_QUOTE_CONFIDENCE_THRESHOLD) {
+        autoTriggerQuote(oppId, companyNameForQuote, sigConfidence).catch(() => undefined);
+      }
       return true;
     }
     return false;

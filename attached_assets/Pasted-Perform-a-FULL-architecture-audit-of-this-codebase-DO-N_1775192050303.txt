@@ -1,0 +1,156 @@
+Perform a FULL architecture audit of this codebase.
+
+DO NOT build anything.
+DO NOT modify any files.
+DO NOT suggest features yet.
+
+Your ONLY job is to map the CURRENT system exactly as it exists.
+
+==================================================
+OBJECTIVE
+==================================================
+
+I need a COMPLETE, ACCURATE picture of what is already built so we do NOT duplicate systems.
+
+==================================================
+WHAT TO ANALYSE
+==================================================
+
+1. DATABASE (CRITICAL)
+- List ALL tables from shared/schema.ts
+- Group them into domains:
+  - leads / CRM
+  - opportunities
+  - intelligence (signals, radar, deal hunter)
+  - outreach
+  - partners / referrals
+  - quotes / proposals
+  - payments
+  - admin / logs
+- Identify:
+  - core entities
+  - duplicate/overlapping tables
+  - missing relationships
+  - anything unused
+
+2. BACKEND SERVICES
+Scan all:
+- server/services/*
+- server/nexora/*
+- server/routes/*
+
+For EACH service:
+- what it does
+- whether it is:
+  - REAL (connected to live data)
+  - SYNTHETIC (demo/fake/random data)
+  - PARTIAL (incomplete wiring)
+- what tables it writes to
+- what triggers it
+
+3. NEXORA ENGINE (VERY IMPORTANT)
+- Identify:
+  - nexoraOrchestrator
+  - runNexoraEngine
+  - any schedulers or loops
+- Explain:
+  - actual execution flow
+  - what is REAL vs fake
+  - what decisions it actually makes
+- Confirm:
+  - is this truly the single brain or fragmented?
+
+4. API LAYER
+- List ALL routes from server/routes.ts
+- Identify:
+  - which systems are exposed
+  - which systems exist but have NO routes
+
+5. FRONTEND
+Scan:
+- admin pages
+- Lead Engine
+- Deal Hunter
+- Office Move Radar
+- Quote Builder
+- Upload Floor Plan
+
+For each:
+- what data it shows
+- what endpoints it calls
+- what is:
+  - real
+  - mocked
+  - broken
+
+6. OUTREACH SYSTEM
+- Is there:
+  - deduplication?
+  - scheduling?
+  - sequence logic?
+- Is it SAFE or will it spam?
+
+7. DATA FLOW (CRITICAL)
+Map the REAL flow:
+
+signal → intelligence → opportunity → lead → outreach → quote → revenue
+
+Show:
+- where it works
+- where it breaks
+- where it is fake
+
+==================================================
+OUTPUT FORMAT (STRICT)
+==================================================
+
+1. SYSTEM MAP (HIGH LEVEL)
+- bullet list of all systems detected
+
+2. WHAT IS REAL (WORKING)
+- list only systems that are truly functional
+
+3. WHAT IS FAKE / DEMO
+- list anything using:
+  - random data
+  - mock generators
+  - placeholder logic
+
+4. WHAT IS PARTIALLY BUILT
+- list systems started but not complete
+
+5. DUPLICATES / CONFLICTS
+- naming issues
+- overlapping tables/services
+- inconsistent logic
+
+6. CRITICAL GAPS
+- what must be fixed BEFORE scaling
+
+7. FINAL VERDICT
+- is this system:
+  - production ready
+  - semi-functional
+  - prototype
+
+==================================================
+RULES
+==================================================
+
+- Be brutally honest
+- Do NOT assume anything works
+- Verify everything against actual code
+- If unsure → say “uncertain”
+- Do NOT recommend features yet
+
+==================================================
+END GOAL
+==================================================
+
+I want a CLEAR blueprint of:
+- what exists
+- what works
+- what is broken
+- what is fake
+
+So we can upgrade WITHOUT rebuilding from scratch.

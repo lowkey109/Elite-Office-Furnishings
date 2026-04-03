@@ -11,10 +11,13 @@ import {
   outreachMessages,
   outreachEvents,
   outreachThreads,
+  opportunities,
 } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { enforceTemplate } from "./templateEnforcer";
 import { SENDER } from "./senderProfile";
+
+const AUTO_RELEASE_CONFIDENCE_THRESHOLD = 75;
 
 const SAFE_MODE = process.env.SAFE_MODE === "true";
 
@@ -175,6 +178,54 @@ Write the email body only:`;
   });
 
   console.log(`[OutreachGeneration] Generated ${messageType} for thread ${threadId} (stage ${stage}), SAFE_MODE=${SAFE_MODE}, templateOk=${enforcement.ok}`);
+
+  // ── Auto-release: send immediately if confidence is high and SAFE_MODE is off
+  if (!SAFE_MODE && deliveryStatus === "draft") {
+    try {
+      const [thread] = await db.select().from(outreachThreads).where(eq(outreachThreads.id, threadId)).limit(1);
+      const confidence = thread?.opportunityScore ?? 0;
+      const recipientEmail = thread?.resolvedEmail ?? null;
+
+      if (confidence >= AUTO_RELEASE_CONFIDENCE_THRESHOLD && recipientEmail) {
+        const { sendOutreachEmail } = await import("../../email");
+        const contactFirstName = context.contactName ? context.contactName.split(" ")[0] : null;
+
+        try {
+          const sendResult = await sendOutreachEmail({
+            to: recipientEmail,
+            subject: finalSubject,
+            html: finalBody,
+            companyName: context.companyName,
+            firstName: contactFirstName,
+          });
+
+          await db.update(outreachMessages)
+            .set({ deliveryStatus: "sent", sentAt: new Date(), approvedAt: new Date(), resendMessageId: sendResult?.id ?? null, updatedAt: new Date() })
+            .where(eq(outreachMessages.id, msg.id));
+
+          await db.insert(outreachEvents).values({
+            threadId,
+            eventType: "auto_released",
+            payloadJson: JSON.stringify({ confidence, recipientEmail, messageId: msg.id }),
+          });
+
+          console.log(`[AutoRelease] ✓ Sent to ${recipientEmail} (${context.companyName}) at confidence ${confidence}`);
+
+          // T006: Auto-advance opportunity stage to "contacted" when first outreach is sent
+          if (stage === 0 && thread?.opportunityId) {
+            await db.update(opportunities)
+              .set({ stage: "contacted", lastActivityAt: new Date(), updatedAt: new Date() } as any)
+              .where(and(eq(opportunities.id, thread.opportunityId), eq(opportunities.stage as any, "new")));
+            console.log(`[AutoStage] Opportunity ${thread.opportunityId} advanced to 'contacted'`);
+          }
+        } catch (sendErr: any) {
+          console.warn(`[AutoRelease] Send failed for ${context.companyName} — staying as draft: ${sendErr.message}`);
+        }
+      }
+    } catch (autoErr: any) {
+      console.warn(`[AutoRelease] Auto-release check failed (non-critical): ${autoErr.message}`);
+    }
+  }
 
   return { messageId: msg.id, subject: finalSubject, body: finalBody };
 }

@@ -2181,28 +2181,209 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
   app.get("/api/nexora/outreach/pending", async (req, res) => {
     try {
       const { db: ddb } = await import("./db");
-      const { outreachMessages } = await import("@shared/schema");
-      const { eq, desc: dd } = await import("drizzle-orm");
+      const { outreachMessages, outreachThreads } = await import("@shared/schema");
+      const { eq, desc: dd, leftJoin } = await import("drizzle-orm");
 
-      const pending = await ddb.select().from(outreachMessages)
+      const pending = await ddb
+        .select({
+          id: outreachMessages.id,
+          threadId: outreachMessages.threadId,
+          companyName: outreachMessages.companyName,
+          recipientEmail: outreachMessages.recipientEmail,
+          channel: outreachMessages.channel,
+          subject: outreachMessages.subject,
+          body: outreachMessages.body,
+          campaignKey: outreachMessages.campaignKey,
+          messageType: outreachMessages.messageType,
+          stage: outreachMessages.stage,
+          createdAt: outreachMessages.createdAt,
+          threadOpportunityScore: outreachThreads.opportunityScore,
+          threadResolvedEmail: outreachThreads.resolvedEmail,
+          threadOutreachAngle: outreachThreads.outreachAngle,
+        })
+        .from(outreachMessages)
+        .leftJoin(outreachThreads, eq(outreachMessages.threadId, outreachThreads.id))
         .where(eq(outreachMessages.deliveryStatus, "draft"))
         .orderBy(dd(outreachMessages.createdAt))
-        .limit(50);
+        .limit(100);
 
       res.json({
         pending: pending.map(p => ({
           id: p.id,
+          threadId: p.threadId,
           companyName: p.companyName || "Unknown",
-          contactName: null,
-          phone: p.recipientEmail || "—",
+          recipientEmail: p.recipientEmail || p.threadResolvedEmail || "—",
           channel: p.channel || "email",
-          messagePreview: p.body ? p.body.slice(0, 160) + (p.body.length > 160 ? "..." : "") : "",
+          subject: p.subject || "(No subject)",
+          body: p.body || "",
+          messagePreview: p.body ? p.body.slice(0, 200) + (p.body.length > 200 ? "…" : "") : "",
           createdAt: p.createdAt,
-          signalContext: p.campaignKey || null,
-          priority: "normal",
+          signalContext: p.threadOutreachAngle || p.campaignKey || null,
+          confidenceScore: p.threadOpportunityScore ?? null,
+          messageType: p.messageType,
+          stage: p.stage,
+          priority: (p.threadOpportunityScore ?? 0) >= 75 ? "high" : "normal",
         })),
         total: pending.length,
       });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/nexora/priority-actions — Nexora-generated daily action list
+  app.get("/api/nexora/priority-actions", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { outreachMessages, followUpSequences, opportunities, nexoraOutcomes } = await import("@shared/schema");
+      const { eq, lt, and, isNull, gte, not, inArray } = await import("drizzle-orm");
+      const now = new Date();
+
+      // 1. Pending approval queue count
+      const draftMsgs = await ddb.select({ id: outreachMessages.id, companyName: outreachMessages.companyName, createdAt: outreachMessages.createdAt })
+        .from(outreachMessages).where(eq(outreachMessages.deliveryStatus, "draft")).limit(50);
+
+      // 2. Overdue follow-ups
+      const overdueFollowUps = await ddb.select({
+        id: followUpSequences.id,
+        leadEmail: followUpSequences.leadEmail,
+        leadCompany: followUpSequences.leadCompany,
+        stage: followUpSequences.stage,
+        nextSendAt: followUpSequences.nextSendAt,
+      }).from(followUpSequences)
+        .where(and(
+          eq(followUpSequences.status, "active"),
+          lt(followUpSequences.nextSendAt, now),
+        )).limit(20);
+
+      // 3. High-confidence opportunities without a quote (stage "new" or "qualified" — not yet contacted/quoted)
+      const { notInArray } = await import("drizzle-orm");
+      const highConfOpp = await ddb.select({
+        id: opportunities.id,
+        companyName: opportunities.companyName,
+        estimatedValue: opportunities.estimatedValue,
+        confidenceScore: opportunities.confidenceScore,
+      }).from(opportunities)
+        .where(and(
+          eq(opportunities.status, "open"),
+          gte(opportunities.confidenceScore, 70),
+          notInArray(opportunities.stage, ["won", "lost", "quoted", "proposal", "negotiating"]),
+        )).limit(10);
+
+      // 4. Opportunities marked won/lost with no recorded outcome
+      const wonLostOpps = await ddb.select({ id: opportunities.id, companyName: opportunities.companyName, stage: opportunities.stage })
+        .from(opportunities)
+        .where(inArray(opportunities.stage, ["won", "lost"]))
+        .limit(20);
+
+      // cross-check against nexora_outcomes by sourceId
+      const outcomeSourceIds = await ddb.select({ sourceId: nexoraOutcomes.signalId })
+        .from(nexoraOutcomes).where(isNull(nexoraOutcomes.signalId)).limit(1); // harmless — we'll filter by company below
+      const outcomeCompanies = new Set(
+        (await ddb.select({ companyName: nexoraOutcomes.companyName }).from(nexoraOutcomes)).map(o => o.companyName?.toLowerCase())
+      );
+      const needsOutcome = wonLostOpps.filter(o => !outcomeCompanies.has(o.companyName?.toLowerCase()));
+
+      const actions: Array<{ type: string; icon: string; title: string; subtitle: string; urgency: "high" | "medium" | "low"; actionLabel: string; actionTarget: string; data?: any }> = [];
+
+      if (draftMsgs.length > 0) {
+        actions.push({
+          type: "approval_queue",
+          icon: "Inbox",
+          title: `${draftMsgs.length} outreach message${draftMsgs.length !== 1 ? "s" : ""} awaiting approval`,
+          subtitle: `Oldest: ${draftMsgs[draftMsgs.length - 1]?.companyName ?? "Unknown"} · ${draftMsgs[0]?.companyName ?? ""}`,
+          urgency: draftMsgs.length > 10 ? "high" : "medium",
+          actionLabel: "Review Queue",
+          actionTarget: "Reviews",
+        });
+      }
+
+      overdueFollowUps.forEach(f => {
+        actions.push({
+          type: "overdue_followup",
+          icon: "Clock",
+          title: `Follow-up overdue — ${f.leadCompany}`,
+          subtitle: `Stage ${f.stage} · Scheduled ${f.nextSendAt ? new Date(f.nextSendAt).toLocaleDateString("en-AU") : "N/A"}`,
+          urgency: "high",
+          actionLabel: "View Follow-Ups",
+          actionTarget: "FollowUps",
+          data: { id: f.id },
+        });
+      });
+
+      highConfOpp.forEach(o => {
+        actions.push({
+          type: "quote_needed",
+          icon: "FileText",
+          title: `Generate quote — ${o.companyName}`,
+          subtitle: `${o.confidenceScore}% confidence · Est. $${Math.round((Number(o.estimatedValue) || 0) / 1000)}k`,
+          urgency: "medium",
+          actionLabel: "Auto-Quote",
+          actionTarget: "Finance",
+          data: { opportunityId: o.id },
+        });
+      });
+
+      needsOutcome.forEach(o => {
+        actions.push({
+          type: "outcome_needed",
+          icon: "TrendingUp",
+          title: `Record outcome — ${o.companyName}`,
+          subtitle: `Stage: ${o.stage} — teach Nexora what happened`,
+          urgency: "medium",
+          actionLabel: "Record Outcome",
+          actionTarget: "Finance",
+          data: { opportunityId: o.id, stage: o.stage },
+        });
+      });
+
+      // Sort: high urgency first
+      actions.sort((a, b) => (a.urgency === "high" ? -1 : b.urgency === "high" ? 1 : 0));
+
+      res.json({ actions, generatedAt: new Date().toISOString(), counts: { pendingApprovals: draftMsgs.length, overdueFollowUps: overdueFollowUps.length, quoteOpportunities: highConfOpp.length, outcomeNeeded: needsOutcome.length } });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // GET /api/nexora/follow-up-queue — per-lead follow-up queue with status
+  app.get("/api/nexora/follow-up-queue", async (req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { followUpSequences } = await import("@shared/schema");
+      const { desc: dd } = await import("drizzle-orm");
+      const now = new Date();
+
+      const seqs = await ddb.select().from(followUpSequences).orderBy(dd(followUpSequences.createdAt)).limit(200);
+
+      const rows = seqs.map(s => {
+        let queueStatus: "completed" | "overdue" | "scheduled" | "sent" | "cancelled";
+        if (s.status === "completed") queueStatus = "completed";
+        else if (s.status === "cancelled") queueStatus = "cancelled";
+        else if (s.nextSendAt && new Date(s.nextSendAt) < now) queueStatus = "overdue";
+        else if (s.lastSentAt) queueStatus = "sent";
+        else queueStatus = "scheduled";
+
+        return {
+          id: s.id,
+          leadEmail: s.leadEmail,
+          leadCompany: s.leadCompany,
+          leadType: s.leadType,
+          stage: s.stage,
+          status: s.status,
+          queueStatus,
+          nextSendAt: s.nextSendAt,
+          lastSentAt: s.lastSentAt,
+          stagesCompleted: s.stagesCompleted ?? [],
+          createdAt: s.createdAt,
+        };
+      });
+
+      const summary = {
+        total: rows.length,
+        overdue: rows.filter(r => r.queueStatus === "overdue").length,
+        scheduled: rows.filter(r => r.queueStatus === "scheduled").length,
+        completed: rows.filter(r => r.queueStatus === "completed").length,
+        active: rows.filter(r => r.status === "active").length,
+      };
+
+      res.json({ sequences: rows, summary });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
