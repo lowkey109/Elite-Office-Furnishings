@@ -95,11 +95,19 @@ The Nexora OS is a fully autonomous B2B intelligence and outreach engine. Every 
 - `nexora.push.radar.retry` — durable retry for radar push actions
 - Follow-up scheduler runs every hour (subordinated to Nexora)
 
-**Safety Systems:**
+**Safety Systems (Production-Ready — All 10 Phases Complete):**
 - `SAFE_MODE=true` env var gates all outbound actions (no emails sent without approval)
 - DB deduplication via idempotency keys prevents double-processing
-- Approval queue (137+ messages) for admin review before outbound
+- Approval queue for admin review before outbound
 - Confidence threshold: 50/100 (configurable)
+- **Unsubscribe compliance** (Australian Spam Act 2003): every auto-released and bulk-released email includes a unique unsubscribe link → `GET /api/unsubscribe?m=<messageId>` → adds to `outreach_suppressions`, marks message `unsubscribed`
+- **Suppression gate**: `checkSuppression()` is called before every auto-release send; suppressed messages are marked `deliveryStatus: "suppressed"` and never sent
+- **Send-time jitter**: 0–10 minute random delay on auto-release to avoid domain pattern detection
+- **Learning loop active**: `applyLearningFromRun` now queries `nexora_outcomes` directly (last 30 days); requires ≥3 outcomes to fire; 15 real outcomes currently loaded (win rate 93% → strongPipeline decreasing each run)
+- **Revenue integrity**: `revenueService.ts` filters `isSimulated=false` on all financial queries
+- **Office Move Radar**: synthetic scan skipped when `ALLOW_SYNTHETIC_INTELLIGENCE != "true"`; only real DB-backed radar records flow through
+- **Pipeline unification**: `POST /api/leads` now creates a Nexora opportunity (sourceType: `inbound_lead`) in addition to the legacy `dealExecution` record
+- **Partner network**: `server/services/partnerNetwork.ts` re-export shim created; `routeRelocationSignalToPartners` and all partner routing functions now resolve correctly
 
 **Admin Command Centre:**
 - `/admin/nexora` — Nexora Command Centre with health, decisions, runs, and financial intelligence

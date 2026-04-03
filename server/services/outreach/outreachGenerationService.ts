@@ -187,14 +187,40 @@ Write the email body only:`;
       const recipientEmail = thread?.resolvedEmail ?? null;
 
       if (confidence >= AUTO_RELEASE_CONFIDENCE_THRESHOLD && recipientEmail) {
+        // Suppression gate: block if company or recipient is suppressed
+        const { checkSuppression } = await import("./outreach-guards");
+        const suppression = await checkSuppression({
+          companyName: context.companyName,
+          recipientEmail,
+        }).catch(() => ({ suppressed: false }));
+
+        if (suppression.suppressed) {
+          console.log(`[AutoRelease] Suppressed — ${context.companyName} (${recipientEmail}): ${suppression.reason}`);
+          await db.update(outreachMessages)
+            .set({ deliveryStatus: "suppressed", updatedAt: new Date() } as any)
+            .where(eq(outreachMessages.id, msg.id));
+        } else {
         const { sendOutreachEmail } = await import("../../email");
         const contactFirstName = context.contactName ? context.contactName.split(" ")[0] : null;
+
+        // Send-time jitter: randomise delay 0–10 min to avoid domain-pattern detection
+        const jitterMs = Math.floor(Math.random() * 10 * 60 * 1000);
+        if (jitterMs > 0) {
+          console.log(`[AutoRelease] Jitter delay ${Math.round(jitterMs / 1000)}s for ${context.companyName}`);
+          await new Promise((resolve) => setTimeout(resolve, jitterMs));
+        }
+
+        // Build unsubscribe footer (Australian Spam Act 2003 §18)
+        const baseUrl = process.env.PUBLIC_URL || `https://${process.env.REPLIT_DOMAINS?.split(",")[0] ?? "localhost:5000"}`;
+        const unsubscribeUrl = `${baseUrl}/api/unsubscribe?m=${encodeURIComponent(msg.id)}`;
+        const unsubscribeFooter = `<p style="font-size:11px;color:#999;text-align:center;margin-top:32px;border-top:1px solid #eee;padding-top:16px">You are receiving this email because your company matches our target client profile.<br>To stop receiving emails from The Corporate Desk: <a href="${unsubscribeUrl}" style="color:#999">unsubscribe</a>.</p>`;
+        const htmlWithFooter = finalBody.includes("unsubscribe") ? finalBody : `${finalBody}${unsubscribeFooter}`;
 
         try {
           const sendResult = await sendOutreachEmail({
             to: recipientEmail,
             subject: finalSubject,
-            html: finalBody,
+            html: htmlWithFooter,
             companyName: context.companyName,
             firstName: contactFirstName,
           });
@@ -221,6 +247,7 @@ Write the email body only:`;
         } catch (sendErr: any) {
           console.warn(`[AutoRelease] Send failed for ${context.companyName} — staying as draft: ${sendErr.message}`);
         }
+        } // close else (not suppressed)
       }
     } catch (autoErr: any) {
       console.warn(`[AutoRelease] Auto-release check failed (non-critical): ${autoErr.message}`);

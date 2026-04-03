@@ -26,10 +26,10 @@ export async function getRevenueStats(): Promise<RevenueStats> {
   const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
   const todayEvents = await db.select().from(revenueEvents)
-    .where(gte(revenueEvents.occurredAt, todayStart));
+    .where(and(gte(revenueEvents.occurredAt, todayStart), eq(revenueEvents.isSimulated, false)));
 
   const weekEvents = await db.select().from(revenueEvents)
-    .where(gte(revenueEvents.occurredAt, weekStart));
+    .where(and(gte(revenueEvents.occurredAt, weekStart), eq(revenueEvents.isSimulated, false)));
 
   const revenueToday = todayEvents.reduce((sum, e) => sum + (e.amount || 0), 0);
   const revenueThisWeek = weekEvents.reduce((sum, e) => sum + (e.amount || 0), 0);
@@ -75,7 +75,8 @@ export async function getRevenueStats(): Promise<RevenueStats> {
 
 export async function getRevenueThisWeek(): Promise<number> {
   const weekStart = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-  const events = await db.select().from(revenueEvents).where(gte(revenueEvents.occurredAt, weekStart));
+  const events = await db.select().from(revenueEvents)
+    .where(and(gte(revenueEvents.occurredAt, weekStart), eq(revenueEvents.isSimulated, false)));
   return events.reduce((sum, e) => sum + (e.amount || 0), 0);
 }
 

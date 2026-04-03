@@ -1,0 +1,263 @@
+SYSTEM MODE: PRODUCTION COMPLETION — NO REBUILD
+
+You are finishing an EXISTING, WORKING system.
+
+DO NOT redesign.
+DO NOT refactor everything.
+DO NOT introduce new architecture.
+
+ONLY complete what already exists.
+
+==================================================
+OBJECTIVE
+==================================================
+
+Take this platform from ~78% → PRODUCTION READY.
+
+You must:
+- fix critical gaps
+- complete missing wiring
+- enforce safety + compliance
+- activate learning loop
+
+==================================================
+CRITICAL RULES (NON-NEGOTIABLE)
+==================================================
+
+- DO NOT create new systems if one already exists
+- DO NOT duplicate logic
+- DO NOT introduce synthetic/demo data
+- DO NOT break existing working flows
+- DO NOT rename core systems (Nexora stays the brain)
+
+If unsure:
+→ SEARCH the codebase first
+→ REUSE existing services
+
+==================================================
+PHASE 1 — FIX NOW (MANDATORY)
+==================================================
+
+1. UNFREEZE LEARNING LOOP
+
+- Insert minimum 3 REAL outcomes into `nexora_outcomes`
+- Ensure outcomes are NOT simulated
+- Trigger `applyLearningFromRun()`
+- Verify:
+  - thresholds update in `nexora_thresholds`
+  - learning logs show adjustment
+- If needed:
+  - fix linkage between outcomes → opportunities
+
+SUCCESS = thresholds change after run
+
+--------------------------------------------------
+
+2. UNSUBSCRIBE SYSTEM (COMPLIANCE)
+
+Implement FULL unsubscribe flow:
+
+- Generate unsubscribe token per contact/email
+- Append unsubscribe link to ALL outbound emails
+
+Create route:
+POST /api/outreach/unsubscribe
+
+Logic:
+- identify contact/email
+- insert into `outreach_suppressions`
+- stop ALL future sends (company + email level)
+
+Update:
+- outreach engine must CHECK suppressions BEFORE sending
+
+Expose in admin:
+- suppressed contacts list
+- suppression reason
+
+SUCCESS = no suppressed contact can be emailed again
+
+--------------------------------------------------
+
+3. SEND-TIME JITTER + DOMAIN THROTTLING
+
+Modify:
+- follow-up scheduler
+- outreach send logic
+
+Add:
+- random delay (0–15 min) before sending each email
+- per-domain send limit (e.g. max X per hour)
+
+Prevent:
+- multiple threads hitting same company domain rapidly
+
+Log:
+- throttle events
+- suppression reasons
+
+SUCCESS = no burst sends, no domain flooding
+
+--------------------------------------------------
+
+4. AUTO-CREATE OPPORTUNITIES (CRITICAL)
+
+Ensure ALL entry points upsert into `opportunities`:
+
+- leads
+- prospected_leads
+- visitor_sessions
+- Nexora pipeline pushes
+
+Rules:
+- dedupe by company + source
+- update existing instead of duplicating
+
+Verify:
+- every lead visible in pipeline
+- no orphan records
+
+SUCCESS = single unified pipeline
+
+--------------------------------------------------
+
+5. REMOVE FAKE REVENUE FROM REPORTING
+
+Update ALL queries:
+
+WHERE isSimulated = false
+
+Apply to:
+- dashboard
+- admin summaries
+- finance endpoints
+- Nexora reporting
+
+Add:
+- optional badge if simulated data exists
+
+SUCCESS = all revenue metrics are real
+
+==================================================
+PHASE 2 — COMPLETE SYSTEM
+==================================================
+
+6. RE-ENABLE OFFICE MOVE RADAR (REAL ONLY)
+
+- remove ALL synthetic generation paths
+- use only real feeds/sources
+- ensure signals flow into Nexora again
+
+SUCCESS = radar contributes real signals
+
+--------------------------------------------------
+
+7. CONSOLIDATE LEASE DATA
+
+- choose ONE table: `leases` OR `lease_records`
+- migrate readers/writers
+- remove duplication
+- ensure FK to buildings/companies
+
+SUCCESS = single source of truth
+
+--------------------------------------------------
+
+8. CLEAN OUTREACH DUPLICATION
+
+- confirm `outreach_messages` is primary
+- downgrade/remove `lead_outreach` if unused
+- unify audit logging
+
+SUCCESS = no duplicate message storage
+
+--------------------------------------------------
+
+9. VERIFY AUTO-QUOTE FLOW
+
+Test end-to-end:
+
+pipeline → auto quote → quote created → visible → sent → linked to opportunity
+
+Ensure:
+- no broken steps
+- outcome can be recorded
+
+SUCCESS = 1-click quote actually works
+
+--------------------------------------------------
+
+10. PARTNER AGREEMENT FLOW
+
+- wire missing route if exists
+- ensure agreement status persists
+- reflect in admin
+
+SUCCESS = real partner lifecycle
+
+--------------------------------------------------
+
+11. OUTREACH SAFETY HARDENING
+
+Ensure:
+
+- domain suppression
+- stop on reply
+- unsubscribe propagation
+- rate limits enforced
+- delivery failure handling
+- approval gating where needed
+
+SUCCESS = system cannot spam
+
+--------------------------------------------------
+
+12. AUTOMATE OUTCOMES
+
+Auto-create outcomes when:
+
+- quote accepted → WON
+- pipeline lost → LOST
+- meaningful reply → RESPONDED
+
+Reduce manual input
+
+SUCCESS = learning loop feeds automatically
+
+==================================================
+DO NOT TOUCH
+==================================================
+
+- nexoraOrchestrator
+- decision logic
+- schema structure (unless required for fix)
+- core ingestion services
+
+==================================================
+OUTPUT REQUIRED
+==================================================
+
+- modify EXISTING files only
+- show EXACT files changed
+- no pseudocode
+- fully working implementation
+- no placeholders
+
+==================================================
+END GOAL
+==================================================
+
+System must become:
+
+- safe
+- compliant
+- unified
+- learning-enabled
+- revenue-accurate
+
+NOT:
+
+- rebuilt
+- bloated
+- duplicated
+- experimental

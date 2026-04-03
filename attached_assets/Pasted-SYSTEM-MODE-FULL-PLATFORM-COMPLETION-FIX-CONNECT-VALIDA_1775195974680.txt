@@ -1,0 +1,271 @@
+SYSTEM MODE: FULL PLATFORM COMPLETION — FIX, CONNECT, VALIDATE
+
+You are completing an EXISTING working platform.
+You are NOT rebuilding it.
+You are NOT allowed to stop at planning.
+You are NOT allowed to return vague suggestions.
+You are NOT allowed to leave core TODOs.
+
+==================================================
+PRIMARY RULE
+==================================================
+
+Work PHASE BY PHASE until the system is FULLY COMPLETE
+OR until you hit a SINGLE PRECISE BLOCKER that prevents safe progress.
+
+For EACH phase you must:
+1. Inspect the real code
+2. Implement the required fixes
+3. Connect all affected systems
+4. Validate with real flows and real data paths
+5. Report exactly what changed
+6. Move to the next phase only if the current phase is truly complete
+
+If validation fails:
+- fix it immediately
+- do not move on
+
+==================================================
+OBJECTIVE
+==================================================
+
+Take this platform from its current partially-complete state to FULLY COMPLETE, PRODUCTION-READY.
+
+Do not rebuild.
+Do not create duplicate systems.
+Do not introduce fake/demo logic.
+
+You must:
+- finish missing wiring
+- remove broken flows
+- eliminate fake/demo behavior in production paths
+- enforce safety and compliance
+- ensure all core flows work end to end
+
+==================================================
+NON-NEGOTIABLE CONSTRAINTS
+==================================================
+
+- Nexora remains the SINGLE brain
+- Do not create new overlapping engines
+- Do not introduce synthetic/random production data
+- Do not break working flows
+- If a system already exists, FIX IT instead of rebuilding it
+- Reuse the current schema/services/routes where possible
+
+==================================================
+PHASE 1 — LEARNING ACTIVATION
+==================================================
+
+Tasks:
+- ensure `nexora_outcomes` has at least 3 REAL outcomes
+- fix linkage from opportunity/quote/action to outcome where needed
+- verify `applyLearningFromRun()` updates `nexora_thresholds`
+- verify learning is not using simulated data
+- verify learning is active, not frozen
+
+Validation:
+- thresholds change after a real run
+- DB records prove the update happened
+- logs show learning executed
+
+==================================================
+PHASE 2 — OUTREACH SAFETY + COMPLIANCE
+==================================================
+
+Tasks:
+- implement unsubscribe token + link for outbound emails
+- add unsubscribe route and suppression write
+- enforce suppression checks before ALL sends
+- add send-time jitter
+- add per-domain throttling
+- add stop-on-reply logic
+- log suppression and throttle reasons visibly
+
+Validation:
+- unsubscribed contact cannot be emailed again
+- same domain cannot be flooded
+- replies stop future sequence sends
+
+==================================================
+PHASE 3 — PIPELINE UNIFICATION
+==================================================
+
+Tasks:
+- ensure ALL sources create/update opportunities:
+  - leads
+  - prospected_leads
+  - visitor_sessions
+  - Nexora signals/pipeline pushes
+- deduplicate opportunity creation by company + source
+- remove orphan records and broken links
+
+Validation:
+- every source appears in unified pipeline
+- no duplicate opportunity explosion
+- no source path bypasses opportunities
+
+==================================================
+PHASE 4 — REVENUE INTEGRITY
+==================================================
+
+Tasks:
+- remove simulated revenue from all reporting queries
+- ensure admin/dashboard/chat only use real revenue
+- validate Stripe/payment → revenue reporting path
+
+Validation:
+- all revenue screens exclude simulated data
+- finance totals match real payment/revenue records
+
+==================================================
+PHASE 5 — SIGNAL COMPLETION
+==================================================
+
+Tasks:
+- re-enable Office Move Radar using REAL data only
+- remove synthetic radar production paths
+- ensure radar signals flow into Nexora decisions
+
+Validation:
+- radar contributes real signals again
+- no synthetic paths run in production
+
+==================================================
+PHASE 6 — DATA INTEGRITY
+==================================================
+
+Tasks:
+- consolidate `leases` vs `lease_records`
+- choose one source of truth
+- update readers/writers
+- add missing relationships if needed
+
+Validation:
+- no double counting
+- lease queries use one authoritative path
+
+==================================================
+PHASE 7 — OUTREACH SYSTEM CLEANUP
+==================================================
+
+Tasks:
+- confirm `outreach_messages` is the primary message source
+- isolate/remove legacy `lead_outreach` if no longer primary
+- clean duplicate logging where appropriate
+
+Validation:
+- one clear message source of truth
+- no duplicate message logging unless intentional
+
+==================================================
+PHASE 8 — QUOTE + OUTCOME LOOP
+==================================================
+
+Tasks:
+- verify full loop:
+  opportunity → quote → send → outcome
+- ensure quote outcomes can feed learning automatically
+
+Validation:
+- quote created, sent, tracked, and outcome-linked end to end
+
+==================================================
+PHASE 9 — PARTNER FLOW COMPLETION
+==================================================
+
+Tasks:
+- wire partner agreement flow fully
+- ensure state persists and displays in admin
+- complete any missing backend route wiring
+
+Validation:
+- partner agreement lifecycle works end to end
+
+==================================================
+PHASE 10 — FINAL HARDENING
+==================================================
+
+Tasks:
+- ensure no duplicate execution paths remain
+- ensure dead services do not interfere
+- ensure flows are deterministic
+- ensure no fake data is used in production paths
+
+Validation:
+- repeat runs do not create duplicates
+- no dead legacy path can trigger execution
+- no broken flow remains in core system
+
+==================================================
+VALIDATION RULES
+==================================================
+
+After EACH phase you must prove:
+- DB writes are correct
+- endpoints return correct values
+- flows work end to end
+- no duplicate records are created
+- no silent failures remain
+
+==================================================
+STOP CONDITION
+==================================================
+
+You may stop ONLY when one of these is true:
+
+1. ALL are true:
+- learning loop is active
+- outreach is compliant and safe
+- pipeline is unified
+- revenue reporting is real
+- radar + signals are real and flowing
+- quote → outcome → learning loop works
+- no duplicate systems are active
+- no broken core flows remain
+
+OR
+
+2. You hit a SINGLE PRECISE BLOCKER and report:
+- exact file
+- exact line/function
+- exact blocker
+- why it prevents safe progress
+- what dependency is missing
+
+==================================================
+OUTPUT FORMAT
+==================================================
+
+After each phase output:
+
+PHASE X COMPLETE
+- what was fixed
+- files modified
+- routes changed
+- DB/schema changes if any
+- validation performed
+- issues found and resolved
+
+FINAL OUTPUT
+- full system completion status
+- confirmation of what is now truly complete
+- any remaining risks only if unavoidable
+
+==================================================
+END GOAL
+==================================================
+
+The system must become:
+- real
+- safe
+- fully wired
+- learning-enabled
+- revenue-accurate
+- production-ready
+
+Not:
+- partial
+- demo
+- fragile
+- duplicated

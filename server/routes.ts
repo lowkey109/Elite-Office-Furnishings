@@ -1599,6 +1599,18 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
               });
             }
             console.log(`[LeadEngine] ${lead.company} pushed to deal pipeline (score: ${opp.opportunityScore})`);
+
+            // 3. Also push to Nexora opportunities pipeline (P3: pipeline unification)
+            const { createOpportunityFromLead } = await import("./services/intelligence/nexoraOrchestrator");
+            await createOpportunityFromLead({
+              companyName: lead.company ?? "Unknown",
+              city: lead.officeLocation ?? null,
+              estimatedValue: opp.estimatedValueRange ? parseInt(String(opp.estimatedValueRange).replace(/[^0-9]/g, ""), 10) || null : null,
+              opportunityScore: opp.opportunityScore ?? 50,
+              sourceType: "inbound_lead",
+              sourceId: `lead-${lead.id}`,
+              notes: `Inbound ${lead.type} lead from website — ${lead.message?.substring(0, 120) ?? "No message"}`,
+            }).catch((e: any) => console.warn("[LeadEngine] Nexora opportunity push failed:", e.message));
           } catch (e: any) {
             console.error("[LeadEngine] Pipeline push failed:", e.message);
           }
@@ -7075,6 +7087,61 @@ Rules:
     }
   });
 
+  // ── Public unsubscribe endpoint (Australian Spam Act 2003 compliance) ──────────
+  app.get("/api/unsubscribe", async (req, res) => {
+    const { m: messageId } = req.query;
+    if (!messageId || typeof messageId !== "string") {
+      return res.status(400).send(`<!DOCTYPE html><html><body style="font-family:sans-serif;max-width:500px;margin:80px auto;text-align:center"><h2>Invalid unsubscribe link</h2><p>This link is invalid or has expired.</p></body></html>`);
+    }
+
+    try {
+      const { outreachMessages, outreachSuppressions } = await import("@shared/schema");
+      const [msg] = await db.select().from(outreachMessages).where(eq(outreachMessages.id, messageId)).limit(1);
+
+      if (!msg) {
+        return res.status(404).send(`<!DOCTYPE html><html><body style="font-family:sans-serif;max-width:500px;margin:80px auto;text-align:center"><h2>Link not found</h2><p>This unsubscribe link could not be found.</p></body></html>`);
+      }
+
+      const recipientEmail = msg.recipientEmail ?? null;
+      const companyName = msg.companyName ?? null;
+
+      // Add to outreach_suppressions (idempotent — check before insert)
+      if (recipientEmail) {
+        const normEmail = recipientEmail.toLowerCase().trim();
+        const { and: andOp } = await import("drizzle-orm");
+        const existing = await db.select({ id: outreachSuppressions.id })
+          .from(outreachSuppressions)
+          .where(andOp(
+            sql`lower(trim(${outreachSuppressions.recipientEmail})) = ${normEmail}`,
+            eq(outreachSuppressions.active, 1),
+          ))
+          .limit(1);
+
+        if (existing.length === 0) {
+          await db.insert(outreachSuppressions).values({
+            suppressionScope: "recipient",
+            recipientEmail: normEmail,
+            companyName: companyName ? companyName.toLowerCase().trim() : null,
+            reason: "unsubscribed",
+            active: 1,
+          } as any);
+        }
+      }
+
+      // Update the message record
+      await db.update(outreachMessages)
+        .set({ deliveryStatus: "unsubscribed", updatedAt: new Date() } as any)
+        .where(eq(outreachMessages.id, messageId));
+
+      console.log(`[Unsubscribe] ${recipientEmail ?? "unknown"} (${companyName ?? "unknown"}) unsubscribed via message ${messageId}`);
+
+      return res.send(`<!DOCTYPE html><html><head><title>Unsubscribed — The Corporate Desk</title><style>body{font-family:'Segoe UI',sans-serif;background:#0f0f13;color:#e8e4dc;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.card{background:#1a1a22;border:1px solid #C9A84C;border-radius:12px;padding:48px;max-width:480px;text-align:center}h2{color:#C9A84C;margin-top:0}p{color:#a09880;line-height:1.6}</style></head><body><div class="card"><h2>You've been unsubscribed</h2><p>You'll no longer receive outreach emails from The Corporate Desk.</p><p style="font-size:13px;margin-top:32px">If this was a mistake, please reply to any previous email from us and we'll reinstate your contact preferences.</p></div></body></html>`);
+    } catch (err: any) {
+      console.error("[Unsubscribe] Error:", err.message);
+      return res.status(500).send(`<!DOCTYPE html><html><body style="font-family:sans-serif;max-width:500px;margin:80px auto;text-align:center"><h2>Something went wrong</h2><p>Please try again or contact us directly.</p></body></html>`);
+    }
+  });
+
   app.get("/api/admin/analytics", async (req, res) => {
     try {
       const now = new Date();
@@ -10029,10 +10096,15 @@ Rules:
           if (LIVE_MODE && draft.subject && draft.body) {
             // Rate limit: stay within Resend's 5 req/sec limit
             await new Promise(resolve => setTimeout(resolve, 250));
+            // Inject unsubscribe footer if not already present
+            const baseUrlForUnsub = process.env.PUBLIC_URL || `https://${process.env.REPLIT_DOMAINS?.split(",")[0] ?? "localhost:5000"}`;
+            const unsubUrl = `${baseUrlForUnsub}/api/unsubscribe?m=${encodeURIComponent(draft.msgId)}`;
+            const unsubFooter = `<p style="font-size:11px;color:#999;text-align:center;margin-top:32px;border-top:1px solid #eee;padding-top:16px">You are receiving this email because your company matches our target client profile.<br>To stop receiving emails from The Corporate Desk: <a href="${unsubUrl}" style="color:#999">unsubscribe</a>.</p>`;
+            const htmlBody = draft.body!.includes("unsubscribe") ? draft.body! : `${draft.body!}${unsubFooter}`;
             const sendResult = await sendOutreachEmail({
               to: toEmail,
               subject: draft.subject!,
-              html: draft.body!,
+              html: htmlBody,
               companyName: draft.companyName,
               firstName: draft.firstName ?? null,
             }) as any;

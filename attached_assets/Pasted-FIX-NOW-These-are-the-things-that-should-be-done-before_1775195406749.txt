@@ -1,0 +1,127 @@
+FIX NOW
+
+These are the things that should be done before anything else.
+
+1. Unfreeze learning
+	•	record at least 3 real outcomes in nexora_outcomes
+	•	verify applyLearningFromRun() actually updates nexora_thresholds
+	•	confirm threshold history changes after outcomes exist
+	•	confirm learning is using real outcomes, not simulated ones
+
+2. Add unsubscribe handling
+	•	add unsubscribe link/token to all outbound emails
+	•	add route to process unsubscribe requests
+	•	write suppression into outreach_suppressions
+	•	make outreach engine stop future sends for suppressed contacts/companies
+	•	expose suppression state in admin
+
+3. Add send-time jitter + per-domain throttling
+	•	stagger scheduled sends with random delay
+	•	limit sends per domain/company/time window
+	•	prevent same company domain getting hit by multiple threads too fast
+	•	log throttle/suppression reasons visibly
+
+4. Auto-create opportunities from every lead source
+	•	leads → upsert opportunities
+	•	prospected_leads → upsert opportunities
+	•	visitor_sessions → upsert opportunities
+	•	Nexora pipeline pushes must always link to an opportunity
+	•	dedupe opportunity creation by source + company
+
+5. Filter fake revenue out of reporting
+	•	every finance query must exclude isSimulated = true
+	•	dashboard, admin summaries, charts, and Nexora chat should all use real revenue only
+	•	add an explicit badge if any screen is showing simulated/test data
+
+FINISH NEXT
+
+These are the next completion tasks after the urgent fixes.
+
+6. Re-enable Office Move Radar with real-only data
+	•	remove synthetic path from production flow completely
+	•	point radar to real feeds/sources only
+	•	verify radar contributes real signals again
+
+7. Consolidate lease data
+	•	choose one source of truth between leases and lease_records
+	•	map all live readers/writers to that one
+	•	remove double counting risk
+	•	add FKs to buildings/company entities where missing
+
+8. Clean up outreach duplication
+	•	confirm outreach_messages is the real path
+	•	downgrade or remove lead_outreach if legacy
+	•	confirm audit_logs vs outreach_audit_events responsibilities
+	•	avoid double logging unless intentional
+
+9. Verify auto-quote path end to end
+	•	pipeline item → auto quote trigger
+	•	quote record created
+	•	quote visible in admin
+	•	quote send path works
+	•	quote links back to opportunity
+	•	quote outcome can feed back into Nexora
+
+10. Finish partner agreement flow
+	•	wire missing agreement send route if backend exists
+	•	confirm status changes are reflected in admin
+	•	confirm agreement state is real, not stubbed
+
+11. Tighten outreach compliance and safety
+	•	domain suppression
+	•	stop-on-reply
+	•	unsubscribe propagation
+	•	rate limits
+	•	delivery failure handling
+	•	approval flow only for the right risk bands
+
+12. Make outcome creation more automatic
+	•	quote accepted → won
+	•	pipeline lost → lost
+	•	reply/engagement where meaningful → responded
+	•	reduce reliance on manual outcome entry
+
+LEAVE ALONE
+
+These areas sound strong enough that they should not be rebuilt right now.
+
+Keep as-is unless a bug appears
+	•	nexoraOrchestrator.ts as the single brain
+	•	core Nexora decision flow
+	•	idempotency / run locks
+	•	NewsFeedScanner real ingestion
+	•	DealHunter real ingestion
+	•	outreach thread model
+	•	quote and Stripe foundations
+	•	Admin Nexora Command Centre structure
+	•	partner/referral foundations
+	•	session tracking / intent scoring foundations
+
+DELETE LATER
+
+Do this after the urgent completion work is stable.
+
+Remove or archive
+	•	legacy server/services/nexoraEngine.ts
+	•	any dead Alex references still in backend/frontend
+	•	synthetic radar code paths not allowed in prod
+	•	redundant admin pages that duplicate live Nexora pages
+	•	legacy outreach tables/services if fully replaced
+	•	duplicate audit/event structures if one is enough
+	•	any simulated revenue records from production-facing reports
+	•	misleading client-side “Nexora engine” naming if it confuses the real brain
+
+SUCCESS CRITERIA
+
+You can call the platform “finished enough to scale” when these are true:
+	•	Nexora is the only real brain
+	•	learning is active, not frozen
+	•	every lead source creates or updates an opportunity
+	•	outreach is compliant and throttled
+	•	unsubscribe works
+	•	finance reporting excludes simulated revenue
+	•	radar runs on real data only
+	•	lease source of truth is unified
+	•	auto-quote works end to end
+	•	outcomes feed back automatically enough to improve scoring
+	•	no major legacy path can confuse or duplicate execution

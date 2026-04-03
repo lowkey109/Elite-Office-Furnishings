@@ -18,7 +18,6 @@ import {
   checkDuplicateAgainstKnowledge,
   claimIdempotencyKey,
   completeIdempotencyKey,
-  computeOutcomeLearningUpdate,
   computeSignalFingerprint,
   createAuditLog,
   detectAnomaly,
@@ -406,11 +405,14 @@ async function collectSignals(
   //       DealHunter saves to DB and returns {signals: DealHunterSignal[], ...}.
   //       OfficeMovRadar is synthetic and returns an array directly.
   // We run the scanners first to ensure fresh data is in DB, then query.
+  const allowSynthetic = process.env.ALLOW_SYNTHETIC_INTELLIGENCE === "true";
   const [officeRadarResult, , , , dealHunterResult] = await Promise.all([
-    runOfficeMovRadarScan?.().catch((err: unknown) => {
-      console.warn(`[Nexora] runOfficeMovRadarScan failed: ${(err as Error)?.message}`);
-      return [] as RadarSignalLike[];
-    }),
+    allowSynthetic
+      ? runOfficeMovRadarScan?.().catch((err: unknown) => {
+          console.warn(`[Nexora] runOfficeMovRadarScan failed: ${(err as Error)?.message}`);
+          return [] as RadarSignalLike[];
+        })
+      : Promise.resolve([] as RadarSignalLike[]),
     runNewsFeedScan?.().catch((err: unknown) => {
       console.warn(`[Nexora] runNewsFeedScan failed: ${(err as Error)?.message}`);
     }),
@@ -712,51 +714,54 @@ async function applyLearningFromRun(params: {
       (r.pushedPipeline || r.pushedRadar || r.reviewed),
   );
 
-  const sampleSize = eligible.length;
+  const runSampleSize = eligible.length;
 
-  // Learning guard: require minimum 3 actionable results before adjusting thresholds
-  const MIN_LEARNING_SAMPLE = 3;
-  if (sampleSize < MIN_LEARNING_SAMPLE) {
-    console.log(`[Nexora] Learning frozen — sample size ${sampleSize} < minimum ${MIN_LEARNING_SAMPLE}`);
-    return { ...emptyLearning(), sampleSize };
-  }
-
-  let totalWinRate = 0;
+  // Global outcome-driven learning: query nexora_outcomes directly.
+  // This runs regardless of how many new signals were processed in the current run,
+  // ensuring that accumulated real outcomes drive threshold adaptation even when
+  // most signals are deduplicated.
+  let avgWinRate = 0;
+  let appliedDelta = 0;
   let contributing = 0;
 
-  for (const result of eligible) {
-    const learningUpdate = await computeOutcomeLearningUpdate({
-      signalId: result.signalId,
-      companyName: result.companyName,
-      estimatedValue: result.estimatedValue,
-      action: result.finalDecision.action,
-      priority: result.finalDecision.priority,
-    }).catch(() => null);
+  try {
+    const { db: ddb } = await import("../../db");
+    const { nexoraOutcomes } = await import("../../../shared/schema");
+    const { gte } = await import("drizzle-orm");
 
-    if (learningUpdate?.avgWinRate != null) {
-      totalWinRate += learningUpdate.avgWinRate;
-      contributing += 1;
-    }
-  }
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const recentOutcomes = await ddb
+      .select({ outcome: nexoraOutcomes.outcome })
+      .from(nexoraOutcomes)
+      .where(gte(nexoraOutcomes.recordedAt, thirtyDaysAgo));
 
-  const avgWinRate = contributing > 0 ? totalWinRate / contributing : 0;
+    contributing = recentOutcomes.length;
 
-  let appliedDelta = 0;
+    if (contributing >= 3) {
+      const WIN_OUTCOMES = ["won", "win", "meeting_booked", "replied", "interested"];
+      const wins = recentOutcomes.filter(
+        (o) => WIN_OUTCOMES.includes((o.outcome ?? "").toLowerCase()),
+      ).length;
+      avgWinRate = wins / contributing;
 
-  if (contributing > 0) {
-    if (avgWinRate >= 0.65) {
-      appliedDelta = Math.min(MAX_DRIFT_PER_RUN, 1);
-      thresholds.strongPipeline = Math.max(
-        40,
-        thresholds.strongPipeline - appliedDelta,
+      if (avgWinRate >= 0.65) {
+        appliedDelta = Math.min(MAX_DRIFT_PER_RUN, 1);
+        thresholds.strongPipeline = Math.max(40, thresholds.strongPipeline - appliedDelta);
+      } else if (avgWinRate <= 0.25) {
+        appliedDelta = Math.min(MAX_DRIFT_PER_RUN, 1);
+        thresholds.strongPipeline = Math.min(95, thresholds.strongPipeline + appliedDelta);
+      }
+
+      console.log(
+        `[Nexora] Learning applied — ${contributing} outcomes | winRate=${(avgWinRate * 100).toFixed(0)}% | delta=${appliedDelta} | strongPipeline=${thresholds.strongPipeline}`,
       );
-    } else if (avgWinRate <= 0.25) {
-      appliedDelta = Math.min(MAX_DRIFT_PER_RUN, 1);
-      thresholds.strongPipeline = Math.min(
-        95,
-        thresholds.strongPipeline + appliedDelta,
+    } else {
+      console.log(
+        `[Nexora] Learning deferred — only ${contributing} outcome(s) in nexora_outcomes (need ≥3). Run had ${runSampleSize} eligible signal(s).`,
       );
     }
+  } catch (err: any) {
+    console.warn("[Nexora] Global outcome learning query failed (non-critical):", err?.message);
   }
 
   await createAuditLog({
@@ -765,7 +770,8 @@ async function applyLearningFromRun(params: {
     event: "nexora_learning_applied",
     message: "Learning update computed",
     meta: {
-      sampleSize,
+      runSampleSize,
+      outcomeCount: contributing,
       avgWinRate,
       appliedDelta,
       maxDriftPerRun: MAX_DRIFT_PER_RUN,
@@ -773,7 +779,7 @@ async function applyLearningFromRun(params: {
   });
 
   return {
-    sampleSize,
+    sampleSize: contributing,
     avgWinRate,
     appliedDeltaStrongPipeline: appliedDelta,
     maxDriftPerRun: MAX_DRIFT_PER_RUN,
@@ -837,6 +843,61 @@ async function autoCreateOpportunity(
     return created?.id ?? null;
   } catch (err: any) {
     console.warn(`[Nexora] autoCreateOpportunity failed (non-critical):`, err?.message);
+    return null;
+  }
+}
+
+/**
+ * Public wrapper — creates a Nexora opportunity from an inbound lead or visitor session.
+ * Safe to call from routes (non-blocking, never throws).
+ */
+export async function createOpportunityFromLead(opts: {
+  companyName: string;
+  city?: string | null;
+  industry?: string | null;
+  estimatedValue?: number | null;
+  opportunityScore?: number | null;
+  sourceType?: string;
+  sourceId?: string;
+  notes?: string | null;
+}): Promise<string | null> {
+  try {
+    const { db: ddb } = await import("../../db");
+    const { opportunities } = await import("../../../shared/schema");
+    const { eq, and } = await import("drizzle-orm");
+
+    const sourceType = opts.sourceType ?? "inbound_lead";
+    const sourceId = opts.sourceId ?? `lead-${Date.now()}`;
+    const normalizedName = String(opts.companyName).toLowerCase().replace(/[^a-z0-9]/g, "");
+
+    const existing = await ddb
+      .select({ id: opportunities.id })
+      .from(opportunities)
+      .where(and(eq(opportunities.sourceType, sourceType), eq(opportunities.sourceId, sourceId)))
+      .limit(1);
+    if (existing.length > 0) return existing[0].id;
+
+    const [created] = await ddb.insert(opportunities).values({
+      sourceType,
+      sourceId,
+      companyName: opts.companyName,
+      normalizedCompanyName: normalizedName,
+      city: opts.city ?? null,
+      industry: opts.industry ?? null,
+      stage: "new",
+      status: "open",
+      opportunityScore: opts.opportunityScore ?? 50,
+      confidenceScore: 60,
+      urgencyScore: 0,
+      estimatedValue: opts.estimatedValue ?? null,
+      reasoningSummary: opts.notes ?? `${sourceType} — ${opts.companyName}`,
+      lastActivityAt: new Date(),
+    } as any).returning({ id: opportunities.id });
+
+    console.log(`[Nexora] Opportunity created from ${sourceType} for ${opts.companyName}`);
+    return created?.id ?? null;
+  } catch (err: any) {
+    console.warn(`[Nexora] createOpportunityFromLead failed (non-critical):`, err?.message);
     return null;
   }
 }
