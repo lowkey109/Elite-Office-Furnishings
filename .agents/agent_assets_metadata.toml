@@ -36,3 +36,9 @@ id = "ShshkKfXGg8y66yqHqUCZ"
 uri = "file://SYSTEM_AUDIT.md"
 type = "text"
 title = "Corporate Desk — Full System Audit"
+
+[[outputs]]
+id = "sJE6gCXzv0sLtv2W9HfGU"
+uri = "file://ARCHITECTURE_AUDIT.md"
+type = "text"
+title = "Full Architecture Audit — The Corporate Desk"
