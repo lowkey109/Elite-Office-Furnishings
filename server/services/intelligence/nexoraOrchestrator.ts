@@ -325,7 +325,15 @@ export async function runNexoraEngine(input?: {
       : emptyLearning();
 
     if (config.learningEnabled && learning.sampleSize > 0) {
-      await saveAdaptiveThresholds(thresholds);
+      const reason = learning.appliedDeltaStrongPipeline !== 0
+        ? `winRate=${(learning.avgWinRate * 100).toFixed(0)}% → strongPipeline adjusted by ${learning.appliedDeltaStrongPipeline > 0 ? '+' : ''}${learning.appliedDeltaStrongPipeline}`
+        : `winRate=${(learning.avgWinRate * 100).toFixed(0)}% — no adjustment needed`;
+      await saveAdaptiveThresholds(
+        thresholds,
+        reason,
+        learning.avgWinRate,
+        learning.sampleSize,
+      );
     }
 
     await saveKnowledgeMap(knowledgeMap);
@@ -746,7 +754,7 @@ async function applyLearningFromRun(params: {
 
       if (avgWinRate >= 0.65) {
         appliedDelta = Math.min(MAX_DRIFT_PER_RUN, 1);
-        thresholds.strongPipeline = Math.max(40, thresholds.strongPipeline - appliedDelta);
+        thresholds.strongPipeline = Math.max(30, thresholds.strongPipeline - appliedDelta);
       } else if (avgWinRate <= 0.25) {
         appliedDelta = Math.min(MAX_DRIFT_PER_RUN, 1);
         thresholds.strongPipeline = Math.min(95, thresholds.strongPipeline + appliedDelta);
