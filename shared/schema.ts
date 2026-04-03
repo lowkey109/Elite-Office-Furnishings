@@ -3134,3 +3134,120 @@ export const nexoraRunLocks = pgTable(
 export const insertNexoraRunLockSchema = createInsertSchema(nexoraRunLocks).omit({ id: true, acquiredAt: true });
 export type InsertNexoraRunLock = z.infer<typeof insertNexoraRunLockSchema>;
 export type NexoraRunLock = typeof nexoraRunLocks.$inferSelect;
+
+/* ============================================================================
+   PAPER TRADING ENGINE
+   ========================================================================== */
+
+export const paperTradingDecisions = pgTable(
+  "paper_trading_decisions",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    market: text("market").notNull(),
+    strategy: text("strategy").notNull(),
+    direction: text("direction").notNull(),
+    confidence: real("confidence").notNull(),
+    thesis: text("thesis").notNull(),
+    regime: text("regime").notNull(),
+    volumeRatio: real("volume_ratio"),
+    reasonCode: text("reason_code").notNull(),
+    status: text("status").notNull().default("pending"),
+    expectedMove: real("expected_move"),
+    invalidationRule: text("invalidation_rule").notNull(),
+    riskBucket: text("risk_bucket").notNull(),
+    dataQualityScore: real("data_quality_score").notNull(),
+    slippageEstimate: real("slippage_estimate"),
+    modelVersion: text("model_version").notNull().default("v0.5.0-paper"),
+    fullPayload: jsonb("full_payload").$type<Record<string, any>>().default({}),
+    decisionSource: text("decision_source").notNull().default("strategy_engine"),
+    executionStatus: text("execution_status").notNull().default("pending"),
+    confidenceThreshold: real("confidence_threshold").notNull().default(60),
+    riskAmount: real("risk_amount"),
+    paperCapitalImpact: real("paper_capital_impact"),
+    linkedPositionId: text("linked_position_id"),
+    sourceMarketSnapshotId: text("source_market_snapshot_id"),
+    sourceNewsIds: jsonb("source_news_ids").$type<string[]>().default([]),
+    strategyVersion: text("strategy_version").notNull().default("1.0.0"),
+    marketPriceAtDecision: real("market_price_at_decision"),
+    ...timestamps,
+  },
+  (t) => ({
+    idxPtdMarket: index("idx_ptd_market").on(t.market),
+    idxPtdStatus: index("idx_ptd_status").on(t.status),
+    idxPtdCreatedAt: index("idx_ptd_created_at").on(t.createdAt),
+  }),
+);
+export const insertPaperTradingDecisionSchema = createInsertSchema(paperTradingDecisions).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertPaperTradingDecision = z.infer<typeof insertPaperTradingDecisionSchema>;
+export type PaperTradingDecision = typeof paperTradingDecisions.$inferSelect;
+
+export const paperPositions = pgTable(
+  "paper_positions",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    linkedDecisionId: text("linked_decision_id").notNull(),
+    symbol: text("symbol").notNull(),
+    side: text("side").notNull(),
+    entryPrice: real("entry_price").notNull(),
+    currentPrice: real("current_price").notNull(),
+    stopPrice: real("stop_price").notNull(),
+    targetPrice: real("target_price"),
+    paperCapitalAllocated: real("paper_capital_allocated").notNull(),
+    strategy: text("strategy").notNull(),
+    status: text("status").notNull().default("open"),
+    entryTimestamp: timestamp("entry_timestamp").defaultNow(),
+    closedAt: timestamp("closed_at"),
+    ...timestamps,
+  },
+  (t) => ({
+    idxPpSymbol: index("idx_pp_symbol").on(t.symbol),
+    idxPpStatus: index("idx_pp_status").on(t.status),
+  }),
+);
+export const insertPaperPositionSchema = createInsertSchema(paperPositions).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertPaperPosition = z.infer<typeof insertPaperPositionSchema>;
+export type PaperPosition = typeof paperPositions.$inferSelect;
+
+export const paperTradeOutcomes = pgTable(
+  "paper_trade_outcomes",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    linkedDecisionId: text("linked_decision_id").notNull(),
+    linkedPositionId: text("linked_position_id").notNull(),
+    symbol: text("symbol").notNull(),
+    strategy: text("strategy").notNull(),
+    direction: text("direction").notNull(),
+    entryPrice: real("entry_price").notNull(),
+    exitPrice: real("exit_price").notNull(),
+    realizedPnl: real("realized_pnl").notNull(),
+    paperCapitalReturned: real("paper_capital_returned").notNull(),
+    fees: real("fees").notNull().default(0),
+    slippage: real("slippage").notNull().default(0),
+    outcome: text("outcome").notNull(),
+    exitReason: text("exit_reason").notNull(),
+    duration: text("duration").notNull(),
+    ...timestamps,
+  },
+  (t) => ({
+    idxPtoSymbol: index("idx_pto_symbol").on(t.symbol),
+    idxPtoOutcome: index("idx_pto_outcome").on(t.outcome),
+    idxPtoCreatedAt: index("idx_pto_created_at").on(t.createdAt),
+  }),
+);
+export const insertPaperTradeOutcomeSchema = createInsertSchema(paperTradeOutcomes).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertPaperTradeOutcome = z.infer<typeof insertPaperTradeOutcomeSchema>;
+export type PaperTradeOutcome = typeof paperTradeOutcomes.$inferSelect;
+
+export const paperTradingState = pgTable(
+  "paper_trading_state",
+  {
+    id: varchar("id").primaryKey().default(sql`'singleton'`),
+    paperCapital: real("paper_capital").notNull().default(100000),
+    totalDecisions: integer("total_decisions").notNull().default(0),
+    totalTrades: integer("total_trades").notNull().default(0),
+    isRunning: boolean("is_running").notNull().default(true),
+    lastDecisionAt: timestamp("last_decision_at"),
+    lastMonitorAt: timestamp("last_monitor_at"),
+    ...timestamps,
+  },
+);

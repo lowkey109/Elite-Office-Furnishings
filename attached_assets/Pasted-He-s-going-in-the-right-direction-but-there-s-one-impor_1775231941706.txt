@@ -1,0 +1,181 @@
+He’s going in the right direction, but there’s one important mistake in that T002 plan:
+
+The problem
+
+He says:
+
+“Price simulation with random walks (so positions actually resolve — real feeds come in T003)”
+
+That means T002 is still synthetic.
+
+So if he builds it that way:
+	•	decisions may be DB-backed
+	•	positions may be DB-backed
+	•	outcomes may be DB-backed
+
+…but the price path is fake, which means:
+	•	exits are fake
+	•	PnL is fake
+	•	performance is still fake
+
+So T002 would be a better demo, not a real paper engine.
+
+What to tell the agent
+
+Paste this:
+
+Important correction before you continue:
+
+Do NOT use random-walk price simulation for T002.
+
+That keeps the paper-trade engine synthetic.
+
+Instead:
+
+- Build the DB-backed lifecycle and engine now
+- But keep outcomes/position updates driven only by real price inputs when available
+- If real market feeds are not wired yet, decisions can be created and positions can remain pending/unresolved
+- Do not fabricate price movement just so trades can resolve
+- Do not generate fake exits or fake PnL
+
+T002 must build the REAL lifecycle architecture:
+decision -> paper position -> monitor -> exit -> outcome
+
+But unresolved positions are acceptable until T003 real market feeds are connected.
+
+Requirements for T002:
+1. Add DB tables for:
+   - trading_decisions
+   - paper_positions
+   - trade_outcomes
+
+2. Build real lifecycle methods for:
+   - createDecision
+   - openPaperPosition
+   - evaluateOpenPositions
+   - closePaperPosition
+   - createTradeOutcome
+
+3. Enforce idempotency:
+   - no duplicate opens
+   - no duplicate closes
+   - no duplicate outcome writes
+
+4. Performance must be calculated from trade_outcomes table only
+
+5. Frontend must read from DB-backed state, not seeded demo outcomes
+
+6. If feeds are not ready yet:
+   - positions can stay open
+   - outcomes can stay empty
+   - performance can reflect only actual resolved outcomes
+   - do not fake resolution
+
+Output only:
+1. files changed
+2. lifecycle implementation completed
+3. schema added
+4. how unresolved positions are handled before T003
+5. tests/checks run
+6. blockers
+
+About the schema file you pasted
+
+Your shared/schema.ts is already huge, so be careful here.
+
+Good
+
+Opening shared/schema.ts is logical because T002 needs tables.
+
+Risk
+
+That file is already massive. Adding trading tables directly into it is okay for now, but only if he keeps it clean and grouped in a clearly separated section like:
+	•	TRADING / PAPER EXECUTION
+
+He should not scatter the trading tables randomly through the file.
+
+What tables he should add
+
+These are the minimum useful ones:
+
+tradingDecisions
+	•	id
+	•	symbol
+	•	market
+	•	strategy
+	•	direction
+	•	confidence
+	•	thesis
+	•	regime
+	•	status
+	•	reasonCode
+	•	expectedMove
+	•	expectedCost
+	•	invalidationRule
+	•	riskBucket
+	•	dataQualityScore
+	•	slippageEstimate
+	•	modelVersion
+	•	fullPayload
+	•	createdAt
+	•	updatedAt
+
+paperPositions
+	•	id
+	•	decisionId
+	•	symbol
+	•	side
+	•	entryPrice
+	•	currentPrice
+	•	stopPrice
+	•	targetPrice
+	•	quantity
+	•	status
+	•	openedAt
+	•	closedAt
+	•	linkedOutcomeId
+	•	createdAt
+	•	updatedAt
+
+tradeOutcomes
+	•	id
+	•	positionId
+	•	decisionId
+	•	symbol
+	•	strategy
+	•	direction
+	•	entryPrice
+	•	exitPrice
+	•	realizedPnl
+	•	slippage
+	•	outcome
+	•	exitReason
+	•	durationSeconds
+	•	createdAt
+
+What you should watch for
+
+When he finishes T002, make sure he did not do these bad shortcuts:
+	•	hardcoded entry prices
+	•	random price updates
+	•	auto-closing trades on timers
+	•	pre-filled outcomes
+	•	performance still computed from seeded arrays
+
+What “good T002” looks like
+
+A correct T002 result is:
+	•	new DB tables exist
+	•	decisions create real DB rows
+	•	positions open as real DB rows
+	•	monitor page reads these DB rows
+	•	outcomes are only created when a real exit condition happens
+	•	if feeds aren’t connected yet, positions may remain open and outcomes may remain empty
+
+That is fine.
+
+Bottom line
+
+The agent is building the right shape, but the random-walk idea is wrong if your goal is a real paper engine.
+
+You should stop that now before he bakes fake PnL into the architecture.
