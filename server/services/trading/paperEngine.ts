@@ -127,6 +127,7 @@ export async function closePaperPosition(params: {
   positionId: string;
   exitPrice: number;
   exitReason: string;
+  exitSnapshotId?: string;
 }): Promise<string | null> {
   const positions = await db.select().from(paperPositions).where(eq(paperPositions.id, params.positionId));
   if (positions.length === 0) return null;
@@ -170,11 +171,12 @@ export async function closePaperPosition(params: {
     slippage,
     outcome,
     exitReason: params.exitReason,
+    exitSnapshotId: params.exitSnapshotId ?? null,
     duration: durationStr,
   }).returning();
 
   await db.update(paperPositions)
-    .set({ status: "closed", currentPrice: params.exitPrice, closedAt: new Date(), updatedAt: new Date() })
+    .set({ status: "closed", currentPrice: params.exitPrice, closedAt: new Date(), exitSnapshotId: params.exitSnapshotId ?? null, updatedAt: new Date() })
     .where(eq(paperPositions.id, params.positionId));
 
   await db.update(paperTradingDecisions)
@@ -397,16 +399,36 @@ export async function getMonitorState(): Promise<TradingMonitorState> {
 
   const perf = await calculatePerformanceFromDB();
 
+  let regime = "awaiting_feeds";
+  let dataQualityScore = 0;
+  try {
+    const { getLatestSnapshots } = await import("./marketSnapshots");
+    const snaps = await getLatestSnapshots();
+    const freshCount = [...snaps.values()].filter(s => {
+      if (!s.fetchedAt) return false;
+      return Date.now() - new Date(s.fetchedAt).getTime() < 120_000;
+    }).length;
+    if (freshCount >= 3) {
+      regime = "live";
+      dataQualityScore = Math.round((freshCount / 4) * 100);
+    } else if (freshCount > 0) {
+      regime = "partial_feeds";
+      dataQualityScore = Math.round((freshCount / 4) * 100);
+    }
+  } catch {
+    regime = "awaiting_feeds";
+  }
+
   return {
     mode: "paper",
-    currentRegime: "awaiting_feeds",
+    currentRegime: regime,
     lastDecisionTime: state.lastDecisionAt?.toISOString() || "",
     totalTrades: state.totalTrades,
     winRate,
     currentDrawdown: perf.maxDrawdown,
     openPositionsCount: Number(openPos[0]?.count || 0),
     bestStrategy: bestStrategy.replace(/_/g, " "),
-    dataQualityScore: 0,
+    dataQualityScore,
   };
 }
 

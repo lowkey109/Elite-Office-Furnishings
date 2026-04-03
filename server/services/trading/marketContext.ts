@@ -1,171 +1,115 @@
 import type { MarketContext } from "./types";
+import { getLatestSnapshots, isSnapshotStale } from "./marketSnapshots";
+import { getUnavailableSymbols } from "./marketDataAdapter";
 
-export function buildMarketContext(): MarketContext[] {
-  const now = new Date().toISOString();
-  return [
-    {
-      symbol: "BTC/USD",
-      price: 84532.40,
-      change24h: 1247.80,
-      changePct24h: 1.50,
-      volume24h: 42.8e9,
-      high24h: 85120.00,
-      low24h: 82940.00,
-      regime: "trending",
-      dominantTrend: "bullish",
-      volatilityLevel: "moderate",
-      keyLevels: {
-        support: [82000, 80500, 78200, 75000],
-        resistance: [85500, 87000, 90000, 92500],
-      },
-      technicals: {
-        rsi14: 62.4,
-        macd: { value: 284.5, signal: 198.2, histogram: 86.3 },
-        ema20: 83180,
-        ema50: 81450,
-        ema200: 74200,
-        bbUpper: 86400,
-        bbLower: 81200,
-        bbWidth: 6.2,
-        atr14: 1850,
-        adx: 31.2,
-        obv: "+2.4B (rising)",
-        vwap: 83920,
-        stochRsi: 0.72,
-        williamsR: -28.5,
-        cci: 124.3,
-        mfi: 58.7,
-      },
-      fundingRate: 0.0082,
-      openInterest: 18.4e9,
-      fearGreedIndex: 67,
-      snapshotId: "snap-btc-001",
-      lastUpdated: now,
-      dataSource: "simulation",
-      isStale: false,
-    },
-    {
-      symbol: "ETH/USD",
-      price: 1898.60,
-      change24h: -22.40,
-      changePct24h: -1.17,
-      volume24h: 18.2e9,
-      high24h: 1935.00,
-      low24h: 1875.00,
-      regime: "ranging",
-      dominantTrend: "neutral",
-      volatilityLevel: "low",
-      keyLevels: {
-        support: [1860, 1820, 1780, 1720],
-        resistance: [1940, 1980, 2050, 2120],
-      },
-      technicals: {
-        rsi14: 47.8,
-        macd: { value: -12.4, signal: -8.1, histogram: -4.3 },
-        ema20: 1910,
-        ema50: 1925,
-        ema200: 2180,
-        bbUpper: 1960,
-        bbLower: 1860,
-        bbWidth: 5.3,
-        atr14: 62,
-        adx: 18.4,
-        obv: "-180M (flat)",
-        vwap: 1905,
-        stochRsi: 0.35,
-        williamsR: -62.1,
-        cci: -18.7,
-        mfi: 42.3,
-      },
-      fundingRate: 0.0045,
-      openInterest: 8.2e9,
-      fearGreedIndex: 52,
-      snapshotId: "snap-eth-001",
-      lastUpdated: now,
-      dataSource: "simulation",
-      isStale: false,
-    },
-    {
-      symbol: "XAUUSD",
-      price: 3128.50,
-      change24h: 32.70,
-      changePct24h: 1.06,
-      volume24h: 210e6,
-      high24h: 3142.00,
-      low24h: 3088.00,
-      regime: "trending",
-      dominantTrend: "bullish",
-      volatilityLevel: "moderate",
-      keyLevels: {
-        support: [3080, 3050, 3000, 2960],
-        resistance: [3150, 3180, 3200, 3250],
-      },
-      technicals: {
-        rsi14: 64.1,
-        macd: { value: 18.2, signal: 12.8, histogram: 5.4 },
-        ema20: 3095,
-        ema50: 3040,
-        ema200: 2820,
-        bbUpper: 3160,
-        bbLower: 3020,
-        bbWidth: 4.5,
-        atr14: 28.5,
-        adx: 28.7,
-        obv: "+450M (rising)",
-        vwap: 3112,
-        stochRsi: 0.68,
-        williamsR: -22.8,
-        cci: 98.4,
-        mfi: 61.2,
-      },
+const ALL_SYMBOLS = ["BTC/USD", "ETH/USD", "SOL/USD", "XAUUSD"];
+
+export async function buildMarketContext(): Promise<MarketContext[]> {
+  const snapshots = await getLatestSnapshots();
+  const unavailable = new Set(getUnavailableSymbols());
+  const results: MarketContext[] = [];
+
+  for (const symbol of ALL_SYMBOLS) {
+    if (unavailable.has(symbol)) {
+      results.push(makeUnavailableContext(symbol));
+      continue;
+    }
+
+    const snap = snapshots.get(symbol);
+    if (!snap) {
+      results.push(makeUnavailableContext(symbol));
+      continue;
+    }
+
+    const stale = isSnapshotStale(snap);
+
+    results.push({
+      symbol,
+      price: snap.price,
+      change24h: snap.change24h ?? 0,
+      changePct24h: snap.changePct24h ?? 0,
+      volume24h: snap.volume24h ?? 0,
+      high24h: snap.high24h ?? snap.price,
+      low24h: snap.low24h ?? snap.price,
+      regime: stale ? "stale" : deriveRegime(snap.changePct24h ?? 0),
+      dominantTrend: deriveTrend(snap.changePct24h ?? 0),
+      volatilityLevel: deriveVolatility(snap.changePct24h ?? 0),
+      keyLevels: { support: [], resistance: [] },
+      technicals: emptyTechnicals(snap.price),
       fundingRate: null,
       openInterest: null,
       fearGreedIndex: null,
-      snapshotId: "snap-xau-001",
-      lastUpdated: now,
-      dataSource: "simulation",
-      isStale: false,
-    },
-    {
-      symbol: "SOL/USD",
-      price: 134.20,
-      change24h: 5.80,
-      changePct24h: 4.52,
-      volume24h: 4.8e9,
-      high24h: 136.50,
-      low24h: 127.40,
-      regime: "volatile",
-      dominantTrend: "bullish",
-      volatilityLevel: "high",
-      keyLevels: {
-        support: [128, 122, 115, 108],
-        resistance: [138, 145, 155, 165],
-      },
-      technicals: {
-        rsi14: 68.9,
-        macd: { value: 4.8, signal: 2.1, histogram: 2.7 },
-        ema20: 129.50,
-        ema50: 124.80,
-        ema200: 118.40,
-        bbUpper: 140.20,
-        bbLower: 120.80,
-        bbWidth: 14.5,
-        atr14: 8.2,
-        adx: 34.6,
-        obv: "+820M (surging)",
-        vwap: 132.40,
-        stochRsi: 0.82,
-        williamsR: -15.4,
-        cci: 156.2,
-        mfi: 72.4,
-      },
-      fundingRate: 0.012,
-      openInterest: 2.8e9,
-      fearGreedIndex: 71,
-      snapshotId: "snap-sol-001",
-      lastUpdated: now,
-      dataSource: "simulation",
-      isStale: false,
-    },
-  ];
+      snapshotId: snap.id,
+      lastUpdated: snap.fetchedAt?.toISOString() ?? new Date().toISOString(),
+      dataSource: stale ? `${snap.source} (stale)` : snap.source,
+      isStale: stale,
+    });
+  }
+
+  return results;
+}
+
+function makeUnavailableContext(symbol: string): MarketContext {
+  return {
+    symbol,
+    price: 0,
+    change24h: 0,
+    changePct24h: 0,
+    volume24h: 0,
+    high24h: 0,
+    low24h: 0,
+    regime: "unavailable",
+    dominantTrend: "unavailable",
+    volatilityLevel: "unavailable",
+    keyLevels: { support: [], resistance: [] },
+    technicals: emptyTechnicals(0),
+    fundingRate: null,
+    openInterest: null,
+    fearGreedIndex: null,
+    snapshotId: "",
+    lastUpdated: new Date().toISOString(),
+    dataSource: "unavailable",
+    isStale: true,
+  };
+}
+
+function deriveRegime(changePct: number): string {
+  const abs = Math.abs(changePct);
+  if (abs > 5) return "volatile";
+  if (abs > 2) return "trending";
+  return "ranging";
+}
+
+function deriveTrend(changePct: number): string {
+  if (changePct > 1) return "bullish";
+  if (changePct < -1) return "bearish";
+  return "neutral";
+}
+
+function deriveVolatility(changePct: number): string {
+  const abs = Math.abs(changePct);
+  if (abs > 5) return "high";
+  if (abs > 2) return "moderate";
+  return "low";
+}
+
+function emptyTechnicals(price: number) {
+  return {
+    rsi14: 0,
+    macd: { value: 0, signal: 0, histogram: 0 },
+    ema20: price,
+    ema50: price,
+    ema200: price,
+    bbUpper: price,
+    bbLower: price,
+    bbWidth: 0,
+    atr14: 0,
+    adx: 0,
+    obv: "n/a",
+    vwap: price,
+    stochRsi: 0,
+    williamsR: 0,
+    cci: 0,
+    mfi: 0,
+  };
 }

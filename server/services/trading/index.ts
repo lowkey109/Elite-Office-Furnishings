@@ -9,6 +9,8 @@ import {
   getRecentOutcomes,
   calculatePerformanceFromDB,
 } from "./paperEngine";
+import { startMarketLoop, getMarketLoopStatus } from "./marketLoop";
+import { getSupportedSymbols, getUnavailableSymbols } from "./marketDataAdapter";
 
 export type { TradingMonitorResponse } from "./types";
 
@@ -21,11 +23,20 @@ export {
   getOrCreateState,
 } from "./paperEngine";
 
+export { startMarketLoop, stopMarketLoop, getMarketLoopStatus } from "./marketLoop";
+
 let strategiesCache: ReturnType<typeof buildStrategies> | null = null;
 let strategiesCacheTime = 0;
 const STRATEGIES_TTL = 60000;
 
+let marketLoopStarted = false;
+
 export async function getTradingMonitorData(): Promise<TradingMonitorResponse> {
+  if (!marketLoopStarted) {
+    startMarketLoop();
+    marketLoopStarted = true;
+  }
+
   const now = Date.now();
 
   if (!strategiesCache || (now - strategiesCacheTime) > STRATEGIES_TTL) {
@@ -33,16 +44,18 @@ export async function getTradingMonitorData(): Promise<TradingMonitorResponse> {
     strategiesCacheTime = now;
   }
 
-  const [state, decisions, positions, outcomes, performance] = await Promise.all([
+  const [state, decisions, positions, outcomes, performance, marketContext] = await Promise.all([
     getMonitorState(),
     getRecentDecisions(30),
     getOpenPositions(),
     getRecentOutcomes(50),
     calculatePerformanceFromDB(),
+    buildMarketContext(),
   ]);
 
-  const marketContext = buildMarketContext();
   const news = buildNews();
+
+  const loopStatus = getMarketLoopStatus();
 
   return {
     state,
@@ -55,5 +68,13 @@ export async function getTradingMonitorData(): Promise<TradingMonitorResponse> {
     strategies: strategiesCache,
     dataMode: "paper",
     lastRefreshed: new Date().toISOString(),
+    feedStatus: {
+      loopRunning: loopStatus.isRunning,
+      lastFastCycle: loopStatus.lastFastCycleAt,
+      lastDetailedCycle: loopStatus.lastDetailedCycleAt,
+      cycleErrors: loopStatus.cycleErrors,
+      liveSymbols: getSupportedSymbols(),
+      unavailableSymbols: getUnavailableSymbols(),
+    },
   };
 }

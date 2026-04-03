@@ -80,7 +80,8 @@ interface TPerf { avgWin: number; avgLoss: number; expectancy: number; consecuti
 interface NItem { id: string; timestamp: string; headline: string; source: string; sentiment: "bullish"|"bearish"|"neutral"; relevance: number; markets: string[]; summary: string; impact: "high"|"medium"|"low"; sourceUrl: string|null; linkedDecisionIds: string[]; }
 interface MCtx { symbol: string; price: number; change24h: number; changePct24h: number; volume24h: number; high24h: number; low24h: number; regime: string; dominantTrend: string; volatilityLevel: string; keyLevels: { support: number[]; resistance: number[] }; technicals: { rsi14: number; macd: { value: number; signal: number; histogram: number }; ema20: number; ema50: number; ema200: number; bbUpper: number; bbLower: number; bbWidth: number; atr14: number; adx: number; obv: string; vwap: number; stochRsi: number; williamsR: number; cci: number; mfi: number; }; fundingRate: number|null; openInterest: number|null; fearGreedIndex: number|null; snapshotId: string; lastUpdated: string; dataSource: string; isStale: boolean; }
 interface SProf { name: string; description: string; edge: string; idealRegime: string; winRate: number; avgRR: number; avgHoldTime: string; riskPerTrade: string; entryRules: string[]; exitRules: string[]; invalidationRules: string[]; strengths: string[]; weaknesses: string[]; version: string; isActive: boolean; }
-interface TradingMonitorResponse { state: TradingMonitorState; decisions: TDec[]; positions: OPos[]; recent_outcomes: TOut[]; performance: TPerf; news: NItem[]; marketContext: MCtx[]; strategies: SProf[]; dataMode: "simulation"|"paper"|"live"; lastRefreshed: string; }
+interface FeedSt { loopRunning: boolean; lastFastCycle: string|null; lastDetailedCycle: string|null; cycleErrors: number; liveSymbols: string[]; unavailableSymbols: string[]; }
+interface TradingMonitorResponse { state: TradingMonitorState; decisions: TDec[]; positions: OPos[]; recent_outcomes: TOut[]; performance: TPerf; news: NItem[]; marketContext: MCtx[]; strategies: SProf[]; dataMode: "simulation"|"paper"|"live"; lastRefreshed: string; feedStatus?: FeedSt; }
 
 function TradingDecisionRow({ decision, index, isExpanded, onToggle }: { decision: TDec; index: number; isExpanded: boolean; onToggle: () => void }) {
   const dirColor = decision.direction === "long" ? "text-emerald-400" : "text-red-400";
@@ -230,31 +231,48 @@ function NewsRow({ item }: { item: NItem }) {
 
 function MarketContextCard({ ctx }: { ctx: MCtx }) {
   const isUp = ctx.changePct24h >= 0;
+  const isUnavailable = ctx.dataSource === "unavailable" || ctx.regime === "unavailable";
+  const isStale = ctx.isStale && !isUnavailable;
+
+  if (isUnavailable) {
+    return (
+      <div className="bg-white/[0.01] border border-white/5 rounded-lg p-3 space-y-2 opacity-40" data-testid={`market-ctx-${ctx.symbol}`}>
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-semibold text-white/50">{ctx.symbol}</span>
+          <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded text-white/30 bg-white/5">UNAVAILABLE</span>
+        </div>
+        <div className="text-xs text-white/20 py-4 text-center">No live feed available</div>
+      </div>
+    );
+  }
+
+  const regimeColor = ctx.regime === "trending" ? "text-emerald-400 bg-emerald-500/10"
+    : ctx.regime === "volatile" ? "text-amber-400 bg-amber-500/10"
+    : ctx.regime === "stale" ? "text-red-400 bg-red-500/10"
+    : "text-blue-400 bg-blue-500/10";
+
   return (
-    <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3 space-y-2" data-testid={`market-ctx-${ctx.symbol}`}>
+    <div className={`bg-white/[0.02] border rounded-lg p-3 space-y-2 ${isStale ? "border-red-500/30" : "border-white/5"}`} data-testid={`market-ctx-${ctx.symbol}`}>
       <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-white">{ctx.symbol}</span>
-        <span className={`text-[10px] font-mono uppercase px-1.5 py-0.5 rounded ${ctx.regime === "trending" ? "text-emerald-400 bg-emerald-500/10" : ctx.regime === "volatile" ? "text-amber-400 bg-amber-500/10" : "text-blue-400 bg-blue-500/10"}`}>{ctx.regime}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold text-white">{ctx.symbol}</span>
+          {isStale && <span className="text-[9px] font-mono text-red-400 px-1 py-0.5 rounded bg-red-500/10">STALE</span>}
+        </div>
+        <span className={`text-[10px] font-mono uppercase px-1.5 py-0.5 rounded ${regimeColor}`}>{ctx.regime}</span>
       </div>
       <div className="flex items-baseline gap-2">
         <span className="text-lg font-mono text-white">${ctx.price?.toLocaleString()}</span>
-        <span className={`text-xs font-mono ${isUp ? "text-emerald-400" : "text-red-400"}`}>{isUp ? "+" : ""}{ctx.changePct24h}%</span>
+        <span className={`text-xs font-mono ${isUp ? "text-emerald-400" : "text-red-400"}`}>{isUp ? "+" : ""}{ctx.changePct24h?.toFixed(2)}%</span>
       </div>
       <div className="grid grid-cols-3 gap-2 text-[10px] font-mono">
         <div><span className="text-white/25">Vol</span> <span className="text-white/50">{formatVolume(ctx.volume24h)}</span></div>
-        <div><span className="text-white/25">RSI</span> <span className={`${ctx.technicals?.rsi14 > 70 ? "text-red-400" : ctx.technicals?.rsi14 < 30 ? "text-emerald-400" : "text-white/50"}`}>{ctx.technicals?.rsi14}</span></div>
-        <div><span className="text-white/25">ADX</span> <span className="text-white/50">{ctx.technicals?.adx}</span></div>
-        <div><span className="text-white/25">ATR</span> <span className="text-white/50">{ctx.technicals?.atr14}</span></div>
-        <div><span className="text-white/25">VWAP</span> <span className="text-white/50">${ctx.technicals?.vwap?.toLocaleString()}</span></div>
-        <div><span className="text-white/25">Vol</span> <span className="text-white/50">{ctx.volatilityLevel}</span></div>
+        <div><span className="text-white/25">H24</span> <span className="text-white/50">{ctx.high24h ? `$${ctx.high24h.toLocaleString()}` : "—"}</span></div>
+        <div><span className="text-white/25">L24</span> <span className="text-white/50">{ctx.low24h ? `$${ctx.low24h.toLocaleString()}` : "—"}</span></div>
       </div>
-      <div className="flex gap-2 text-[9px] font-mono">
-        <div className="flex-1"><span className="text-emerald-400/40">S:</span> <span className="text-white/30">{ctx.keyLevels?.support?.slice(0, 2).map((l: number) => `$${l.toLocaleString()}`).join(" · ")}</span></div>
-        <div className="flex-1"><span className="text-red-400/40">R:</span> <span className="text-white/30">{ctx.keyLevels?.resistance?.slice(0, 2).map((l: number) => `$${l.toLocaleString()}`).join(" · ")}</span></div>
+      <div className="flex items-center justify-between text-[9px] font-mono text-white/20">
+        <span>{ctx.dataSource}</span>
+        <span>{formatAgo(ctx.lastUpdated)}</span>
       </div>
-      {ctx.fundingRate != null && (
-        <div className="text-[9px] font-mono text-white/25">Funding: <span className={ctx.fundingRate > 0.01 ? "text-red-400" : "text-white/40"}>{(ctx.fundingRate * 100).toFixed(3)}%</span> · OI: {formatVolume(ctx.openInterest || 0)} · F&G: {ctx.fearGreedIndex}</div>
-      )}
     </div>
   );
 }
@@ -325,6 +343,7 @@ export default function AdminTradingMonitor() {
   const marketContext = data?.marketContext ?? [];
   const strategies = data?.strategies ?? [];
   const dataMode = data?.dataMode ?? "paper";
+  const feedStatus = data?.feedStatus;
 
   return (
     <div className="space-y-6 pb-12" data-testid="trading-monitor-page">
@@ -344,9 +363,20 @@ export default function AdminTradingMonitor() {
             <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
             <span className="text-xs text-amber-400 font-mono uppercase font-semibold tracking-wider">{dataMode === "paper" ? "PAPER ENGINE" : dataMode === "simulation" ? "SIMULATION" : "LIVE"}</span>
           </div>
-          {(decisions.length === 0 && recent_outcomes.length === 0) && (
+          {feedStatus?.loopRunning && (
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10" data-testid="feed-live-badge">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[10px] text-emerald-400 font-mono uppercase">FEEDS LIVE</span>
+            </div>
+          )}
+          {state?.currentRegime === "awaiting_feeds" && (
             <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-blue-500/30 bg-blue-500/10" data-testid="awaiting-feeds-badge">
               <span className="text-[10px] text-blue-400 font-mono uppercase">AWAITING FEEDS</span>
+            </div>
+          )}
+          {feedStatus && feedStatus.unavailableSymbols.length > 0 && (
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-white/10 bg-white/5" data-testid="unavailable-symbols-badge">
+              <span className="text-[10px] text-white/40 font-mono">{feedStatus.unavailableSymbols.join(", ")} unavailable</span>
             </div>
           )}
         </div>
@@ -361,7 +391,7 @@ export default function AdminTradingMonitor() {
         <StateCard label="Drawdown" value={`${state?.currentDrawdown ?? 0}%`} icon={TrendingDown} color={(state?.currentDrawdown ?? 0) > 10 ? "text-red-400" : (state?.currentDrawdown ?? 0) > 5 ? "text-amber-400" : "text-emerald-400"} />
         <StateCard label="Open Positions" value={String(state?.openPositionsCount ?? 0)} icon={Crosshair} color="text-purple-400" />
         <StateCard label="Best Strategy" value={state?.bestStrategy || "—"} icon={Zap} color="text-[#C9A84C]" />
-        <StateCard label="Data Quality" value={state?.dataQualityScore ? `${Math.round(state.dataQualityScore * 100)}%` : "—"} icon={Gauge} color={(state?.dataQualityScore ?? 0) >= 0.9 ? "text-emerald-400" : "text-amber-400"} />
+        <StateCard label="Data Quality" value={state?.dataQualityScore ? `${state.dataQualityScore}%` : "—"} icon={Gauge} color={(state?.dataQualityScore ?? 0) >= 75 ? "text-emerald-400" : (state?.dataQualityScore ?? 0) >= 50 ? "text-amber-400" : "text-red-400"} />
       </div>
 
       {marketContext?.length > 0 && (

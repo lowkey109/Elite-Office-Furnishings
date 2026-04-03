@@ -3197,6 +3197,9 @@ export const paperPositions = pgTable(
     status: text("status").notNull().default("open"),
     entryTimestamp: timestamp("entry_timestamp").defaultNow(),
     closedAt: timestamp("closed_at"),
+    lastMarkedAt: timestamp("last_marked_at"),
+    lastMarkedSnapshotId: text("last_marked_snapshot_id"),
+    exitSnapshotId: text("exit_snapshot_id"),
     ...timestamps,
   },
   (t) => ({
@@ -3226,6 +3229,7 @@ export const paperTradeOutcomes = pgTable(
     slippage: real("slippage").notNull().default(0),
     outcome: text("outcome").notNull(),
     exitReason: text("exit_reason").notNull(),
+    exitSnapshotId: text("exit_snapshot_id"),
     duration: text("duration").notNull(),
     ...timestamps,
   },
@@ -3253,3 +3257,34 @@ export const paperTradingState = pgTable(
     ...timestamps,
   },
 );
+
+export const marketSnapshots = pgTable(
+  "market_snapshots",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    symbol: text("symbol").notNull(),
+    source: text("source").notNull(),
+    price: real("price").notNull(),
+    bid: real("bid"),
+    ask: real("ask"),
+    high24h: real("high_24h"),
+    low24h: real("low_24h"),
+    volume24h: real("volume_24h"),
+    change24h: real("change_24h"),
+    changePct24h: real("change_pct_24h"),
+    marketCap: real("market_cap"),
+    regime: text("regime"),
+    isStale: boolean("is_stale").notNull().default(false),
+    fetchedAt: timestamp("fetched_at").notNull().defaultNow(),
+    rawPayloadJson: jsonb("raw_payload_json").$type<Record<string, unknown>>().default({}),
+    ...timestamps,
+  },
+  (t) => ({
+    idxMsSymbol: index("idx_ms_symbol").on(t.symbol),
+    idxMsFetchedAt: index("idx_ms_fetched_at").on(t.fetchedAt),
+    idxMsSymbolFetched: index("idx_ms_symbol_fetched").on(t.symbol, t.fetchedAt),
+  }),
+);
+export const insertMarketSnapshotSchema = createInsertSchema(marketSnapshots).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertMarketSnapshot = z.infer<typeof insertMarketSnapshotSchema>;
+export type MarketSnapshot = typeof marketSnapshots.$inferSelect;

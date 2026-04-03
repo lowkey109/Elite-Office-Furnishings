@@ -163,6 +163,15 @@ export interface StrategyProfile {
   isActive: boolean;
 }
 
+export interface FeedStatus {
+  loopRunning: boolean;
+  lastFastCycle: string | null;
+  lastDetailedCycle: string | null;
+  cycleErrors: number;
+  liveSymbols: string[];
+  unavailableSymbols: string[];
+}
+
 export interface TradingMonitorResponse {
   state: TradingMonitorState;
   decisions: TradingDecision[];
@@ -174,4 +183,5 @@ export interface TradingMonitorResponse {
   strategies: StrategyProfile[];
   dataMode: "simulation" | "paper" | "live";
   lastRefreshed: string;
+  feedStatus?: FeedStatus;
 }
