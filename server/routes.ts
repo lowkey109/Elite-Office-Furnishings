@@ -11254,6 +11254,93 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
+  // GET /api/admin/nexora/monitor — aggregated real-time AI observation feed (admin-protected)
+  app.get("/api/admin/nexora/monitor", async (_req, res) => {
+    try {
+      const { db: ddb } = await import("./db");
+      const { nexoraDecisions, nexoraOutcomes, nexoraThresholds, opportunities, outreachMessages, outreachThreads } = await import("@shared/schema");
+      const { desc, eq, sql: drizzleSql, and, gte } = await import("drizzle-orm");
+      const { getNexoraLoopState } = await import("./services/nexoraLoop");
+
+      const loopState = getNexoraLoopState();
+
+      const decisions = await ddb
+        .select()
+        .from(nexoraDecisions)
+        .orderBy(desc(nexoraDecisions.createdAt))
+        .limit(50);
+
+      const outcomes = await ddb
+        .select()
+        .from(nexoraOutcomes)
+        .orderBy(desc(nexoraOutcomes.createdAt))
+        .limit(20);
+
+      const pipeline = await ddb
+        .select()
+        .from(opportunities)
+        .orderBy(desc(opportunities.createdAt))
+        .limit(30);
+
+      const thresholds = await ddb
+        .select()
+        .from(nexoraThresholds)
+        .orderBy(desc(nexoraThresholds.version))
+        .limit(1);
+
+      const threadCount = await ddb.select({ count: drizzleSql<number>`count(*)::int` }).from(outreachThreads);
+      const draftCount = await ddb.select({ count: drizzleSql<number>`count(*)::int` }).from(outreachMessages).where(eq(outreachMessages.deliveryStatus, "draft"));
+      const sentCount = await ddb.select({ count: drizzleSql<number>`count(*)::int` }).from(outreachMessages).where(eq(outreachMessages.deliveryStatus, "sent"));
+
+      const totalOutcomes = outcomes.length;
+      const wins = outcomes.filter((r) => ["won", "meeting_booked", "replied"].includes(r.outcome)).length;
+      const losses = outcomes.filter((r) => ["lost", "bounced"].includes(r.outcome)).length;
+
+      const pipelineByStage: Record<string, number> = {};
+      let totalPipelineValue = 0;
+      for (const o of pipeline) {
+        const stage = o.stage ?? "unknown";
+        pipelineByStage[stage] = (pipelineByStage[stage] ?? 0) + 1;
+        totalPipelineValue += o.estimatedValue ?? 0;
+      }
+
+      const currentThreshold = thresholds[0] ?? null;
+
+      res.json({
+        state: {
+          loopEnabled: loopState.enabled ?? false,
+          loopRunning: loopState.running ?? false,
+          lastRunAt: loopState.lastRunAt ?? null,
+          mode: process.env.SAFE_MODE === "true" ? "safe" : "live",
+          currentThreshold: currentThreshold ? {
+            strongPipeline: currentThreshold.strongPipeline,
+            strongMove: currentThreshold.strongMove,
+            version: currentThreshold.version,
+          } : null,
+        },
+        decisions,
+        outcomes,
+        pipeline: {
+          items: pipeline,
+          byStage: pipelineByStage,
+          totalValue: totalPipelineValue,
+          total: pipeline.length,
+        },
+        outreach: {
+          threads: threadCount[0]?.count ?? 0,
+          drafts: draftCount[0]?.count ?? 0,
+          sent: sentCount[0]?.count ?? 0,
+        },
+        stats: {
+          totalOutcomes,
+          wins,
+          losses,
+          winRate: totalOutcomes > 0 ? Math.round((wins / totalOutcomes) * 100) : 0,
+        },
+      });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
   // POST /api/nexora/outreach/approve-batch — approve all low-risk draft messages
   app.post("/api/nexora/outreach/approve-batch", async (req, res) => {
     try {

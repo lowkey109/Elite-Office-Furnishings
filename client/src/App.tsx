@@ -59,6 +59,7 @@ import AdminProductCommandCentre from "@/pages/AdminProductCommandCentre";
 import AdminLeadEngine from "@/pages/AdminLeadEngine";
 import AdminNexoraCommandCentre from "@/pages/AdminNexoraCommandCentre";
 import AdminNexoraAdvanced from "@/pages/AdminNexoraAdvanced";
+import AdminNexoraMonitor from "@/pages/AdminNexoraMonitor";
 import AdminAIChat from "@/pages/AdminAIChat";
 import AdminPartners from "@/pages/AdminPartners";
 import Partners from "@/pages/Partners";
@@ -122,6 +123,7 @@ function AdminRoutes() {
         <Route path="/admin/lead-engine" component={AdminLeadEngine} />
         <Route path="/admin/nexora/advanced" component={AdminNexoraAdvanced} />
         <Route path="/admin/nexora" component={AdminNexoraCommandCentre} />
+        <Route path="/admin/ai-monitor" component={AdminNexoraMonitor} />
         <Route path="/admin/ai-chat" component={AdminAIChat} />
         <Route path="/admin/partners" component={AdminPartners} />
         <Route path="/admin/catalog-staging" component={AdminCatalogStaging} />

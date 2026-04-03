@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import {
-  LayoutDashboard, Zap, TrendingUp, Users, Crosshair, FileText,
+  LayoutDashboard, Zap, TrendingUp, Users, Crosshair, FileText, Activity,
   Radar, Search, Map,
   MessageSquare, RefreshCw, Send, Package, ShoppingBag, Star, Layout,
   PenTool, GraduationCap, Truck, Network, Receipt, Building2,
@@ -27,6 +27,7 @@ const NAV: NavSection[] = [
     items: [
       { label: "Dashboard",  href: "/admin/dashboard", icon: LayoutDashboard },
       { label: "Nexora OS",  href: "/admin/nexora",    icon: Zap },
+      { label: "AI Monitor", href: "/admin/ai-monitor", icon: Activity },
       { label: "AI Chat",    href: "/admin/ai-chat",   icon: MessageSquare },
     ],
   },
