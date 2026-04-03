@@ -7,6 +7,8 @@ import {
   ArrowUpRight, ArrowDownRight, Layers, Newspaper,
   Globe, BookOpen, ExternalLink, Brain, Settings2,
   CheckCircle2, XCircle, Lightbulb, RotateCcw,
+  PieChart, Ban, Lock, Ruler, Timer, Radio, Plug,
+  CheckCircle, Circle, Power,
 } from "lucide-react";
 
 function formatAgo(dateStr: string | null | undefined): string {
@@ -549,6 +551,10 @@ export default function AdminTradingMonitor() {
 
       <LearningPanel />
       <AdaptationPanel />
+      <PortfolioPanel />
+      <StressTestPanel />
+      <ExecutionPanel />
+      <LiveBridgePanel />
     </div>
   );
 }
@@ -813,6 +819,735 @@ function AdaptationPanel() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PortfolioPanel() {
+  const { data, isLoading } = useQuery<any>({
+    queryKey: ["/api/admin/trading/portfolio"],
+    refetchInterval: 15000,
+    retry: 1,
+  });
+
+  const ps = data?.portfolioState;
+  const limits = data?.limits;
+  const strategyAllocation = data?.strategyAllocation || {};
+  const clusters = data?.clusters || [];
+  const blockedAllocations = data?.blockedAllocations || [];
+  const recentAllocations = data?.recentAllocations || [];
+
+  const throttleColor = (t: string) => {
+    if (t === "critical") return "text-red-400 bg-red-500/10";
+    if (t === "elevated") return "text-orange-400 bg-orange-500/10";
+    if (t === "cautious") return "text-amber-400 bg-amber-500/10";
+    return "text-emerald-400 bg-emerald-500/10";
+  };
+
+  return (
+    <div className="space-y-4" data-testid="portfolio-panel">
+      <div className="flex items-center gap-2">
+        <PieChart className="w-5 h-5 text-[#C9A84C]" />
+        <h2 className="text-lg font-semibold text-white">Portfolio & Risk</h2>
+        {ps && <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${throttleColor(ps.riskThrottleState)}`}>{ps.riskThrottleState.toUpperCase()}</span>}
+      </div>
+
+      {isLoading ? (
+        <div className="text-center py-6 text-white/20 text-sm">Loading portfolio data...</div>
+      ) : !ps ? (
+        <div className="bg-white/[0.02] border border-white/5 rounded-lg p-6 text-center space-y-2" data-testid="portfolio-no-data">
+          <PieChart className="w-8 h-8 text-white/10 mx-auto" />
+          <p className="text-white/30 text-sm">Portfolio state unavailable</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="portfolio-metrics">
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Total Equity</p>
+              <p className="text-lg font-mono text-white/90 mt-1" data-testid="portfolio-equity">{formatUsd(ps.totalEquity)}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Buying Power</p>
+              <p className="text-lg font-mono text-white/90 mt-1">{formatUsd(ps.availableBuyingPower)}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Gross Exposure</p>
+              <p className="text-lg font-mono text-white/90 mt-1" data-testid="portfolio-gross">{formatUsd(ps.grossExposure)}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Net Exposure</p>
+              <p className={`text-lg font-mono mt-1 ${ps.netExposure >= 0 ? "text-emerald-400" : "text-red-400"}`}>{ps.netExposure >= 0 ? "+" : ""}{formatUsd(ps.netExposure)}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Realized PnL</p>
+              <p className={`text-sm font-mono mt-1 ${ps.realizedPnl >= 0 ? "text-emerald-400" : "text-red-400"}`} data-testid="portfolio-realized-pnl">{ps.realizedPnl >= 0 ? "+" : ""}{formatUsd(ps.realizedPnl)}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Unrealized PnL</p>
+              <p className={`text-sm font-mono mt-1 ${ps.unrealizedPnl >= 0 ? "text-emerald-400" : "text-red-400"}`}>{ps.unrealizedPnl >= 0 ? "+" : ""}{formatUsd(ps.unrealizedPnl)}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Open Positions</p>
+              <p className="text-sm font-mono text-white/90 mt-1" data-testid="portfolio-open-count">{ps.openPositionsCount} / {limits?.maxOpenPositions || 8}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Max Drawdown</p>
+              <p className={`text-sm font-mono mt-1 ${ps.maxDrawdown > 10 ? "text-red-400" : ps.maxDrawdown > 5 ? "text-amber-400" : "text-white/70"}`}>{ps.maxDrawdown.toFixed(1)}%</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-[#C9A84C]" />
+                Exposure by Asset
+              </h3>
+              {Object.keys(ps.exposureBySymbol).length === 0 ? (
+                <p className="text-[11px] text-white/20 font-mono">No open exposure</p>
+              ) : (
+                <div className="space-y-2" data-testid="portfolio-exposure-by-asset">
+                  {Object.entries(ps.exposureBySymbol as Record<string, number>).sort((a, b) => b[1] - a[1]).map(([sym, exp]) => (
+                    <div key={sym} className="flex items-center justify-between">
+                      <span className="text-xs font-mono text-white/60">{sym}</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-24 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                          <div className="h-full bg-[#C9A84C]/60 rounded-full" style={{ width: `${Math.min(100, (exp / (limits?.maxExposurePerAsset || 25000)) * 100)}%` }} />
+                        </div>
+                        <span className="text-[10px] font-mono text-white/40 w-14 text-right">{formatUsd(exp)}</span>
+                        <span className="text-[9px] text-white/20">{ps.concentrationByAsset?.[sym] || 0}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <Shield className="w-3.5 h-3.5 text-[#C9A84C]" />
+                Cluster Exposure
+              </h3>
+              {clusters.map((c: any) => {
+                const clusterExp = ps.exposureByCluster?.[c.name] || 0;
+                const maxCluster = limits?.maxCorrelatedClusterExposure || 40000;
+                return (
+                  <div key={c.name} className="space-y-1" data-testid={`cluster-${c.name}`}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-mono text-white/60 capitalize">{c.name}</span>
+                      <span className="text-[10px] font-mono text-white/40">{formatUsd(clusterExp)} / {formatUsd(maxCluster)}</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${clusterExp > maxCluster * 0.8 ? "bg-red-500/60" : "bg-[#C9A84C]/50"}`} style={{ width: `${Math.min(100, (clusterExp / maxCluster) * 100)}%` }} />
+                    </div>
+                    <p className="text-[9px] text-white/20 font-mono">{c.symbols.join(", ")} — correlation weight: {c.correlationWeight}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {Object.keys(strategyAllocation).length > 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <BarChart3 className="w-3.5 h-3.5 text-[#C9A84C]" />
+                Strategy Allocation
+              </h3>
+              <div className="space-y-2" data-testid="strategy-allocation">
+                {Object.entries(strategyAllocation as Record<string, number>).sort((a, b) => b[1] - a[1]).map(([strat, pct]) => (
+                  <div key={strat} className="flex items-center justify-between">
+                    <span className="text-xs font-mono text-white/60">{strat.replace(/_/g, " ")}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-32 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                        <div className="h-full bg-[#C9A84C]/50 rounded-full" style={{ width: `${pct}%` }} />
+                      </div>
+                      <span className="text-[10px] font-mono text-white/40 w-8 text-right">{pct}%</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {blockedAllocations.length > 0 && (
+            <div className="bg-white/[0.02] border border-red-500/10 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-red-400/70 flex items-center gap-1.5">
+                <Ban className="w-3.5 h-3.5" />
+                Blocked Trades ({blockedAllocations.length})
+              </h3>
+              <div className="space-y-1" data-testid="portfolio-blocked">
+                {blockedAllocations.slice(0, 10).map((b: any) => (
+                  <div key={b.id} className="text-[10px] text-white/30 font-mono bg-white/[0.01] rounded px-2 py-1 flex items-center justify-between">
+                    <span><span className="text-red-400/60">{b.symbol}</span> · {b.strategy}</span>
+                    <span className="text-white/20 truncate max-w-[200px]">{b.blockReason}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {recentAllocations.length > 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                Recent Allocation Decisions
+              </h3>
+              <div className="space-y-1" data-testid="portfolio-recent-allocations">
+                {recentAllocations.slice(0, 10).map((a: any) => (
+                  <div key={a.id} className="text-[10px] text-white/30 font-mono bg-white/[0.01] rounded px-2 py-1">
+                    <div className="flex items-center justify-between">
+                      <span>
+                        <span className={a.wasBlocked ? "text-red-400/60" : "text-emerald-400/60"}>{a.wasBlocked ? "BLOCKED" : "APPROVED"}</span>
+                        {" "}{a.symbol} · {a.strategy}
+                      </span>
+                      <span className="text-white/20">
+                        {a.wasBlocked ? "" : `${formatUsd(a.requestedSize)} → ${formatUsd(a.approvedSize)}`}
+                      </span>
+                    </div>
+                    {a.blockReason && <p className="text-[9px] text-white/15 mt-0.5">{a.blockReason}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+            <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+              <Lock className="w-3.5 h-3.5 text-white/40" />
+              Exposure Limits
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2" data-testid="portfolio-limits">
+              {limits && Object.entries(limits as Record<string, number>).map(([key, val]) => (
+                <div key={key} className="text-[10px] font-mono">
+                  <span className="text-white/25">{key.replace(/([A-Z])/g, " $1").toLowerCase()}</span>
+                  <span className="text-white/50 ml-1">{typeof val === "number" ? formatUsd(val) : String(val)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StressTestPanel() {
+  const { data, isLoading } = useQuery<any>({
+    queryKey: ["/api/admin/trading/stress"],
+    refetchInterval: 30000,
+    retry: 1,
+  });
+
+  const resilience = data?.resilience;
+  const scenarioResults = data?.scenarioResults || [];
+  const worstCase = data?.worstCase;
+  const topRiskFlags = data?.topRiskFlags || [];
+  const strategySensitivities = data?.strategySensitivities || [];
+  const alerts = data?.alerts || [];
+  const hasPositions = (data?.portfolioState?.openPositionsCount || 0) > 0;
+
+  const fragilityColor = (label: string) => {
+    if (label === "high") return "text-red-400 bg-red-500/10";
+    if (label === "medium") return "text-amber-400 bg-amber-500/10";
+    return "text-emerald-400 bg-emerald-500/10";
+  };
+
+  const severityColor = (s: string) => {
+    if (s === "critical") return "text-red-400";
+    if (s === "high") return "text-orange-400";
+    if (s === "medium") return "text-amber-400";
+    return "text-white/40";
+  };
+
+  return (
+    <div className="space-y-4" data-testid="stress-panel">
+      <div className="flex items-center gap-2">
+        <AlertTriangle className="w-5 h-5 text-[#C9A84C]" />
+        <h2 className="text-lg font-semibold text-white">Stress Testing & Resilience</h2>
+        {resilience && <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${fragilityColor(resilience.fragilityLabel)}`}>{resilience.fragilityLabel.toUpperCase()} FRAGILITY</span>}
+      </div>
+
+      {isLoading ? (
+        <div className="text-center py-6 text-white/20 text-sm">Running stress tests...</div>
+      ) : !hasPositions ? (
+        <div className="bg-white/[0.02] border border-white/5 rounded-lg p-6 text-center space-y-2" data-testid="stress-no-positions">
+          <Shield className="w-8 h-8 text-white/10 mx-auto" />
+          <p className="text-white/30 text-sm">No open positions to stress test</p>
+          <p className="text-[11px] text-white/15 font-mono">Stress scenarios will be evaluated against live portfolio exposure</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="stress-metrics">
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Resilience Score</p>
+              <p className={`text-lg font-mono mt-1 ${(resilience?.overallScore || 0) >= 70 ? "text-emerald-400" : (resilience?.overallScore || 0) >= 40 ? "text-amber-400" : "text-red-400"}`} data-testid="resilience-score">{resilience?.overallScore || 0}/100</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Worst Case Impact</p>
+              <p className="text-lg font-mono text-red-400 mt-1" data-testid="worst-case-impact">{worstCase ? formatUsd(worstCase.projectedPnlImpact) : "$0"}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Worst Scenario</p>
+              <p className="text-sm font-mono text-white/70 mt-1 truncate" data-testid="worst-scenario">{worstCase?.scenarioName || "—"}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Worst Drawdown</p>
+              <p className={`text-lg font-mono mt-1 ${(worstCase?.projectedDrawdown || 0) > 10 ? "text-red-400" : "text-amber-400"}`}>{worstCase?.projectedDrawdown?.toFixed(1) || "0"}%</p>
+            </div>
+          </div>
+
+          {alerts.length > 0 && (
+            <div className="bg-white/[0.02] border border-red-500/10 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-red-400/70 flex items-center gap-1.5">
+                <AlertTriangle className="w-3.5 h-3.5" />
+                Risk Alerts ({alerts.length})
+              </h3>
+              <div className="space-y-1" data-testid="stress-alerts">
+                {alerts.map((a: any, i: number) => (
+                  <div key={i} className="text-[10px] font-mono bg-white/[0.01] rounded px-2 py-1 flex items-center gap-2">
+                    <span className={`${severityColor(a.severity)} uppercase text-[8px]`}>{a.severity}</span>
+                    <span className="text-white/40">{a.description}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+            <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-[#C9A84C]" />
+              Scenario Impact Table
+            </h3>
+            <div className="space-y-1" data-testid="scenario-impacts">
+              {scenarioResults.sort((a: any, b: any) => a.projectedPnlImpact - b.projectedPnlImpact).slice(0, 10).map((s: any) => (
+                <div key={s.scenarioName} className="flex items-center justify-between text-[10px] font-mono bg-white/[0.01] rounded px-2 py-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[8px] text-white/20 uppercase w-16">{s.scenarioGroup.replace(/_/g, " ")}</span>
+                    <span className="text-white/50">{s.scenarioName}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`${s.projectedPnlImpact < 0 ? "text-red-400" : "text-emerald-400"}`}>{s.projectedPnlImpact >= 0 ? "+" : ""}{formatUsd(s.projectedPnlImpact)}</span>
+                    <span className="text-white/20 w-12 text-right">{s.projectedDrawdown.toFixed(1)}% DD</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {strategySensitivities.length > 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <Target className="w-3.5 h-3.5 text-[#C9A84C]" />
+                Strategy Stress Sensitivity
+              </h3>
+              <div className="space-y-2" data-testid="strategy-sensitivity">
+                {strategySensitivities.map((s: any) => (
+                  <div key={s.strategy} className="flex items-center justify-between text-[10px] font-mono">
+                    <span className="text-white/60">{s.strategy.replace(/_/g, " ")}</span>
+                    <div className="flex items-center gap-3">
+                      <span className={`text-[8px] px-1.5 py-0.5 rounded ${s.label === "fragile" ? "text-red-400 bg-red-500/10" : s.label === "moderate" ? "text-amber-400 bg-amber-500/10" : "text-emerald-400 bg-emerald-500/10"}`}>{s.label}</span>
+                      <span className="text-white/30">worst: {formatUsd(s.worstImpact)}</span>
+                      <span className="text-white/20">{s.worstScenario}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {topRiskFlags.length > 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-2">
+              <h3 className="text-sm font-semibold text-white/70">Risk Flags</h3>
+              <div className="flex flex-wrap gap-1" data-testid="risk-flags">
+                {topRiskFlags.map((f: string, i: number) => (
+                  <span key={i} className="text-[9px] font-mono text-amber-400/60 bg-amber-500/5 px-1.5 py-0.5 rounded">{f.replace(/_/g, " ")}</span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ExecutionPanel() {
+  const { data, isLoading } = useQuery<any>({
+    queryKey: ["/api/admin/trading/execution"],
+    refetchInterval: 30000,
+    retry: 1,
+  });
+
+  const stats = data?.overallStats;
+  const bySymbol = data?.bySymbol || {};
+  const byStrategy = data?.byStrategy || {};
+  const qualityDist = data?.qualityDistribution || {};
+  const worstExecutions = data?.worstExecutions || [];
+  const tvap = data?.theoreticalVsActualPnl;
+  const profiles = data?.profiles || {};
+  const hasTrades = (stats?.totalTrades || 0) > 0;
+
+  const labelColor = (label: string) => {
+    if (label === "excellent") return "text-emerald-400 bg-emerald-500/10";
+    if (label === "good") return "text-green-400 bg-green-500/10";
+    if (label === "acceptable") return "text-white/50 bg-white/5";
+    if (label === "poor") return "text-amber-400 bg-amber-500/10";
+    return "text-red-400 bg-red-500/10";
+  };
+
+  return (
+    <div className="space-y-4" data-testid="execution-panel">
+      <div className="flex items-center gap-2">
+        <Ruler className="w-5 h-5 text-[#C9A84C]" />
+        <h2 className="text-lg font-semibold text-white">Execution Quality</h2>
+      </div>
+
+      {isLoading ? (
+        <div className="text-center py-6 text-white/20 text-sm">Loading execution data...</div>
+      ) : !hasTrades ? (
+        <div className="bg-white/[0.02] border border-white/5 rounded-lg p-6 text-center space-y-2" data-testid="execution-no-data">
+          <Ruler className="w-8 h-8 text-white/10 mx-auto" />
+          <p className="text-white/30 text-sm">No execution data yet</p>
+          <p className="text-[11px] text-white/15 font-mono">Execution quality is measured when trades close</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="execution-metrics">
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Avg Slippage</p>
+              <p className="text-lg font-mono text-white/90 mt-1">${stats?.avgSlippage?.toFixed(2) || "0"}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Worst Slippage</p>
+              <p className="text-lg font-mono text-amber-400 mt-1">${stats?.worstSlippage?.toFixed(2) || "0"}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Poor Execution %</p>
+              <p className={`text-lg font-mono mt-1 ${(stats?.poorExecutionPct || 0) > 20 ? "text-red-400" : "text-white/90"}`}>{stats?.poorExecutionPct || 0}%</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Execution Drag</p>
+              <p className="text-lg font-mono text-red-400 mt-1">-${Math.abs(stats?.executionDrag || 0).toFixed(2)}</p>
+            </div>
+          </div>
+
+          {tvap && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-2">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <DollarSign className="w-3.5 h-3.5 text-[#C9A84C]" />
+                Theoretical vs Actual PnL
+              </h3>
+              <div className="grid grid-cols-3 gap-3" data-testid="execution-pnl-comparison">
+                <div className="text-center">
+                  <p className="text-[10px] text-white/30">Theoretical</p>
+                  <p className={`text-sm font-mono ${tvap.theoretical >= 0 ? "text-emerald-400" : "text-red-400"}`}>{formatUsd(tvap.theoretical)}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] text-white/30">Actual</p>
+                  <p className={`text-sm font-mono ${tvap.actual >= 0 ? "text-emerald-400" : "text-red-400"}`}>{formatUsd(tvap.actual)}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] text-white/30">Drag</p>
+                  <p className="text-sm font-mono text-red-400">{formatUsd(tvap.drag)}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <BarChart3 className="w-3.5 h-3.5 text-[#C9A84C]" />
+                Slippage by Asset
+              </h3>
+              <div className="space-y-2" data-testid="execution-by-symbol">
+                {Object.entries(bySymbol as Record<string, any>).map(([sym, d]) => (
+                  <div key={sym} className="flex items-center justify-between text-[10px] font-mono">
+                    <span className="text-white/60">{sym}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-white/40">avg ${d.avgSlippage.toFixed(2)}</span>
+                      <span className="text-white/20">{d.trades} trades</span>
+                      <span className="text-[8px] text-white/30">score {d.avgScore}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <Gauge className="w-3.5 h-3.5 text-[#C9A84C]" />
+                Quality Distribution
+              </h3>
+              <div className="space-y-2" data-testid="execution-quality-dist">
+                {Object.entries(qualityDist as Record<string, number>).filter(([, v]) => v > 0).map(([label, count]) => (
+                  <div key={label} className="flex items-center justify-between text-[10px] font-mono">
+                    <span className={`px-1.5 py-0.5 rounded ${labelColor(label)}`}>{label}</span>
+                    <span className="text-white/40">{count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {worstExecutions.length > 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                Worst Executions
+              </h3>
+              <div className="space-y-1" data-testid="worst-executions">
+                {worstExecutions.map((e: any) => (
+                  <div key={e.id} className="flex items-center justify-between text-[10px] font-mono bg-white/[0.01] rounded px-2 py-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-white/60">{e.symbol}</span>
+                      <span className="text-white/30">{e.strategy}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-white/40">slip: ${e.totalSlippage?.toFixed(2)}</span>
+                      <span className={`text-[8px] px-1.5 py-0.5 rounded ${labelColor(e.label)}`}>{e.label}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+            <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+              <Timer className="w-3.5 h-3.5 text-white/40" />
+              Execution Profiles (Baseline Assumptions)
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2" data-testid="execution-profiles">
+              {Object.entries(profiles as Record<string, any>).map(([sym, p]) => (
+                <div key={sym} className="text-[10px] font-mono">
+                  <span className="text-white/60 font-bold">{sym}</span>
+                  <div className="text-white/25 mt-0.5">spread: {(p.avgSpread * 100).toFixed(2)}%</div>
+                  <div className="text-white/25">slip: {(p.avgSlippage * 100).toFixed(2)}%</div>
+                  <div className="text-white/25">vol: {p.volatilityMultiplier}x</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LiveBridgePanel() {
+  const { data, isLoading } = useQuery<any>({
+    queryKey: ["/api/admin/trading/live-bridge"],
+    refetchInterval: 30000,
+    retry: 1,
+  });
+
+  const config = data?.config;
+  const readiness = data?.readiness;
+  const reconciliation = data?.reconciliation;
+  const attemptLogs = data?.attemptLogs || [];
+  const liveOrdersData = data?.liveOrders || [];
+  const livePositionsData = data?.livePositions || [];
+
+  const modeLabel = (mode: string) => {
+    if (mode === "paper_only") return { text: "Paper Only", color: "text-white/40 bg-white/5" };
+    if (mode === "dry_run") return { text: "Dry Run", color: "text-amber-400 bg-amber-500/10" };
+    if (mode === "tiny_live") return { text: "Tiny Live", color: "text-emerald-400 bg-emerald-500/10" };
+    return { text: mode, color: "text-white/40 bg-white/5" };
+  };
+
+  const statusColor = (status: string) => {
+    if (status === "ready" || status === "healthy") return "text-emerald-400";
+    if (status === "not_ready" || status === "stale") return "text-amber-400";
+    return "text-white/40";
+  };
+
+  const ml = config ? modeLabel(config.executionMode) : null;
+
+  return (
+    <div className="space-y-4" data-testid="live-bridge-panel">
+      <div className="flex items-center gap-2">
+        <Radio className="w-5 h-5 text-[#C9A84C]" />
+        <h2 className="text-lg font-semibold text-white">Live Execution Bridge</h2>
+      </div>
+
+      {isLoading ? (
+        <div className="text-center py-6 text-white/20 text-sm">Loading bridge status...</div>
+      ) : (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="bridge-config">
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Execution Mode</p>
+              <span className={`inline-block mt-1 text-xs font-mono px-2 py-0.5 rounded ${ml?.color}`}>{ml?.text}</span>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Live Enabled</p>
+              <div className="flex items-center gap-1.5 mt-1">
+                {config?.liveEnabled ? (
+                  <><Power className="w-3.5 h-3.5 text-emerald-400" /><span className="text-xs font-mono text-emerald-400">Yes</span></>
+                ) : (
+                  <><Power className="w-3.5 h-3.5 text-white/20" /><span className="text-xs font-mono text-white/30">No</span></>
+                )}
+              </div>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Account Mode</p>
+              <p className="text-xs font-mono text-white/60 mt-1">{config?.accountMode || "—"}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Venue</p>
+              <p className="text-xs font-mono text-white/60 mt-1">{config?.approvedVenue || "None"}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3" data-testid="bridge-limits">
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Max Risk/Trade</p>
+              <p className="text-sm font-mono text-white/70 mt-1">${config?.maxLiveRiskPerTrade || 0}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Max Daily Risk</p>
+              <p className="text-sm font-mono text-white/70 mt-1">${config?.maxDailyLiveRisk || 0}</p>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">Max Open Positions</p>
+              <p className="text-sm font-mono text-white/70 mt-1">{config?.maxLiveOpenPositions || 0}</p>
+            </div>
+          </div>
+
+          {readiness && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <Shield className="w-3.5 h-3.5 text-[#C9A84C]" />
+                Readiness Checks
+                <span className={`ml-auto text-xs font-mono ${statusColor(readiness.status)}`}>{readiness.status === "ready" ? "READY" : "NOT READY"}</span>
+              </h3>
+              <div className="space-y-1.5" data-testid="readiness-checks">
+                {readiness.checks?.map((c: any, i: number) => (
+                  <div key={i} className="flex items-center justify-between text-[10px] font-mono">
+                    <div className="flex items-center gap-1.5">
+                      {c.passed ? (
+                        <CheckCircle className="w-3 h-3 text-emerald-400" />
+                      ) : (
+                        <XCircle className="w-3 h-3 text-red-400" />
+                      )}
+                      <span className="text-white/60">{c.name}</span>
+                    </div>
+                    <span className="text-white/30">{c.reason}</span>
+                  </div>
+                ))}
+              </div>
+              {readiness.reasons?.length > 0 && (
+                <div className="text-[9px] text-red-400/60 font-mono mt-1">
+                  Blockers: {readiness.reasons.join(" · ")}
+                </div>
+              )}
+            </div>
+          )}
+
+          {reconciliation && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-2">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <RotateCcw className="w-3.5 h-3.5 text-white/40" />
+                Reconciliation
+                <span className={`ml-auto text-xs font-mono ${statusColor(reconciliation.status)}`}>{reconciliation.status}</span>
+              </h3>
+              <div className="text-[10px] font-mono text-white/30">
+                Orders checked: {reconciliation.ordersChecked} · Last sync: {formatAgo(reconciliation.lastSyncAt)}
+              </div>
+              {reconciliation.mismatches?.length > 0 && (
+                <div className="space-y-0.5 mt-1">
+                  {reconciliation.mismatches.map((m: string, i: number) => (
+                    <div key={i} className="text-[9px] text-amber-400/60 font-mono">{m}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {livePositionsData.length > 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <Crosshair className="w-3.5 h-3.5 text-[#C9A84C]" />
+                Live Positions ({livePositionsData.length})
+              </h3>
+              <div className="space-y-1" data-testid="live-positions">
+                {livePositionsData.map((p: any) => (
+                  <div key={p.id} className="flex items-center justify-between text-[10px] font-mono bg-white/[0.01] rounded px-2 py-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-white/60">{p.symbol}</span>
+                      <span className={p.side === "long" ? "text-emerald-400" : "text-red-400"}>{p.side}</span>
+                      <span className="text-white/30">{p.venue}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-white/40">{p.quantity} @ ${p.entryPrice?.toFixed(2)}</span>
+                      <span className={p.unrealizedPnl >= 0 ? "text-emerald-400" : "text-red-400"}>{formatUsd(p.unrealizedPnl)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {liveOrdersData.length > 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-white/40" />
+                Recent Live Orders ({liveOrdersData.length})
+              </h3>
+              <div className="space-y-1" data-testid="live-orders">
+                {liveOrdersData.map((o: any) => (
+                  <div key={o.id} className="flex items-center justify-between text-[10px] font-mono bg-white/[0.01] rounded px-2 py-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-white/60">{o.symbol}</span>
+                      <span className={o.side === "buy" ? "text-emerald-400" : "text-red-400"}>{o.side}</span>
+                      <span className="text-white/30">{o.venue}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-white/40">{o.quantity} @ ${o.requestedPrice?.toFixed(2)}</span>
+                      <span className={`text-[8px] px-1.5 py-0.5 rounded ${o.status.includes("filled") ? "text-emerald-400 bg-emerald-500/10" : o.status === "pending" ? "text-amber-400 bg-amber-500/10" : "text-white/30 bg-white/5"}`}>{o.status}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {attemptLogs.length > 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-white/70 flex items-center gap-1.5">
+                <Plug className="w-3.5 h-3.5 text-white/40" />
+                Recent Gateway Attempts ({attemptLogs.length})
+              </h3>
+              <div className="space-y-1 max-h-48 overflow-y-auto" data-testid="gateway-attempts">
+                {attemptLogs.map((a: any) => (
+                  <div key={a.id} className="flex items-center justify-between text-[10px] font-mono bg-white/[0.01] rounded px-2 py-1">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-1.5 h-1.5 rounded-full ${a.wasBlocked ? "bg-red-400" : "bg-emerald-400"}`} />
+                      <span className="text-white/60">{a.symbol}</span>
+                      <span className="text-white/30">{a.mode}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-white/20 max-w-[200px] truncate">{a.requestedAction}</span>
+                      {a.wasBlocked && <span className="text-[8px] text-red-400/60">{a.blockReason}</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {liveOrdersData.length === 0 && livePositionsData.length === 0 && attemptLogs.length === 0 && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-6 text-center space-y-2" data-testid="bridge-no-activity">
+              <Radio className="w-8 h-8 text-white/10 mx-auto" />
+              <p className="text-white/30 text-sm">No live execution activity</p>
+              <p className="text-[11px] text-white/15 font-mono">Bridge is in {config?.executionMode || "paper_only"} mode — no orders sent to venues</p>
             </div>
           )}
         </div>

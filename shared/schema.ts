@@ -3468,3 +3468,262 @@ export const tradingRollbacks = pgTable(
   }),
 );
 export type TradingRollback = typeof tradingRollbacks.$inferSelect;
+
+// ─── T007: PORTFOLIO ALLOCATION + CROSS-ASSET RISK ───
+
+export const portfolioSnapshots = pgTable(
+  "portfolio_snapshots",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    totalEquity: real("total_equity").notNull(),
+    realizedPnl: real("realized_pnl").notNull(),
+    unrealizedPnl: real("unrealized_pnl").notNull(),
+    grossExposure: real("gross_exposure").notNull(),
+    netExposure: real("net_exposure").notNull(),
+    openPositionsCount: integer("open_positions_count").notNull(),
+    maxDrawdown: real("max_drawdown").notNull(),
+    riskThrottleState: text("risk_throttle_state").notNull().default("normal"),
+    exposureBySymbol: jsonb("exposure_by_symbol").$type<Record<string, number>>().default({}),
+    exposureByStrategy: jsonb("exposure_by_strategy").$type<Record<string, number>>().default({}),
+    exposureByCluster: jsonb("exposure_by_cluster").$type<Record<string, number>>().default({}),
+    snapshotAt: timestamp("snapshot_at").defaultNow(),
+    ...timestamps,
+  },
+  (t) => ({
+    idxPsSnapshotAt: index("idx_ps_snapshot_at").on(t.snapshotAt),
+  }),
+);
+export type PortfolioSnapshot = typeof portfolioSnapshots.$inferSelect;
+
+export const portfolioAllocationLogs = pgTable(
+  "portfolio_allocation_logs",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    decisionId: text("decision_id").notNull(),
+    symbol: text("symbol").notNull(),
+    strategy: text("strategy").notNull(),
+    requestedRisk: real("requested_risk").notNull(),
+    approvedRisk: real("approved_risk").notNull(),
+    requestedSize: real("requested_size").notNull(),
+    approvedSize: real("approved_size").notNull(),
+    wasBlocked: boolean("was_blocked").notNull().default(false),
+    blockReason: text("block_reason"),
+    correlatedCluster: text("correlated_cluster"),
+    portfolioStateJson: jsonb("portfolio_state_json").$type<Record<string, any>>().default({}),
+    ...timestamps,
+  },
+  (t) => ({
+    idxPalDecision: index("idx_pal_decision").on(t.decisionId),
+    idxPalBlocked: index("idx_pal_blocked").on(t.wasBlocked),
+    idxPalCreatedAt: index("idx_pal_created_at").on(t.createdAt),
+  }),
+);
+export type PortfolioAllocationLog = typeof portfolioAllocationLogs.$inferSelect;
+
+export const assetRiskProfiles = pgTable(
+  "asset_risk_profiles",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    symbol: text("symbol").notNull().unique(),
+    cluster: text("cluster").notNull(),
+    volatilityClass: text("volatility_class").notNull(),
+    maxDefaultRisk: real("max_default_risk").notNull(),
+    ...timestamps,
+  },
+  (t) => ({
+    idxArpSymbol: index("idx_arp_symbol").on(t.symbol),
+  }),
+);
+export type AssetRiskProfile = typeof assetRiskProfiles.$inferSelect;
+
+// ─── T008: SCENARIO STRESS TESTING + PORTFOLIO RESILIENCE ───
+
+export const portfolioStressSnapshots = pgTable(
+  "portfolio_stress_snapshots",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    snapshotAt: timestamp("snapshot_at").defaultNow(),
+    portfolioSnapshotId: text("portfolio_snapshot_id"),
+    scenarioName: text("scenario_name").notNull(),
+    scenarioGroup: text("scenario_group").notNull(),
+    projectedPnlImpact: real("projected_pnl_impact").notNull(),
+    projectedDrawdown: real("projected_drawdown").notNull(),
+    projectedExposureRisk: real("projected_exposure_risk").notNull(),
+    resilienceScore: real("resilience_score").notNull(),
+    riskFlagsJson: jsonb("risk_flags_json").$type<string[]>().default([]),
+    ...timestamps,
+  },
+  (t) => ({
+    idxPssSnapshotAt: index("idx_pss_snapshot_at").on(t.snapshotAt),
+    idxPssScenario: index("idx_pss_scenario").on(t.scenarioName),
+  }),
+);
+export type PortfolioStressSnapshot = typeof portfolioStressSnapshots.$inferSelect;
+
+export const strategyStressProfiles = pgTable(
+  "strategy_stress_profiles",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    strategyName: text("strategy_name").notNull(),
+    scenarioName: text("scenario_name").notNull(),
+    projectedImpact: real("projected_impact").notNull(),
+    sensitivityScore: real("sensitivity_score").notNull(),
+    ...timestamps,
+  },
+  (t) => ({
+    idxSspStrategy: index("idx_ssp_strategy").on(t.strategyName),
+    idxSspScenario: index("idx_ssp_scenario").on(t.scenarioName),
+  }),
+);
+export type StrategyStressProfile = typeof strategyStressProfiles.$inferSelect;
+
+export const stressAlerts = pgTable(
+  "stress_alerts",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    alertType: text("alert_type").notNull(),
+    severity: text("severity").notNull(),
+    description: text("description").notNull(),
+    relatedScenario: text("related_scenario"),
+    ...timestamps,
+  },
+  (t) => ({
+    idxSaCreatedAt: index("idx_sa_created_at").on(t.createdAt),
+    idxSaSeverity: index("idx_sa_severity").on(t.severity),
+  }),
+);
+export type StressAlert = typeof stressAlerts.$inferSelect;
+
+// ─── T009: EXECUTION QUALITY + SLIPPAGE INTELLIGENCE ───
+
+export const executionLogs = pgTable(
+  "execution_logs",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    decisionId: text("decision_id"),
+    positionId: text("position_id"),
+    symbol: text("symbol").notNull(),
+    strategy: text("strategy").notNull(),
+    expectedEntry: real("expected_entry"),
+    actualEntry: real("actual_entry"),
+    expectedExit: real("expected_exit"),
+    actualExit: real("actual_exit"),
+    entrySlippage: real("entry_slippage").notNull().default(0),
+    exitSlippage: real("exit_slippage").notNull().default(0),
+    totalSlippage: real("total_slippage").notNull().default(0),
+    slippagePct: real("slippage_pct").notNull().default(0),
+    executionQualityScore: real("execution_quality_score").notNull().default(50),
+    executionQualityLabel: text("execution_quality_label").notNull().default("acceptable"),
+    spreadAtEntry: real("spread_at_entry"),
+    spreadAtExit: real("spread_at_exit"),
+    volatilityAtEntry: real("volatility_at_entry"),
+    ...timestamps,
+  },
+  (t) => ({
+    idxElDecision: index("idx_el_decision").on(t.decisionId),
+    idxElSymbol: index("idx_el_symbol").on(t.symbol),
+    idxElCreatedAt: index("idx_el_created_at").on(t.createdAt),
+  }),
+);
+export type ExecutionLog = typeof executionLogs.$inferSelect;
+
+export const executionProfiles = pgTable(
+  "execution_profiles",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    symbol: text("symbol").notNull().unique(),
+    avgSpread: real("avg_spread").notNull(),
+    avgSlippage: real("avg_slippage").notNull(),
+    volatilityMultiplier: real("volatility_multiplier").notNull().default(1.0),
+    lastUpdated: timestamp("last_updated").defaultNow(),
+    ...timestamps,
+  },
+  (t) => ({
+    idxEpSymbol: index("idx_ep_symbol").on(t.symbol),
+  }),
+);
+export type ExecutionProfile = typeof executionProfiles.$inferSelect;
+
+// ─── T010: LIVE EXECUTION BRIDGE ───
+
+export const liveOrders = pgTable(
+  "live_orders",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    decisionId: text("decision_id"),
+    positionId: text("position_id"),
+    venue: text("venue").notNull(),
+    venueOrderId: text("venue_order_id"),
+    symbol: text("symbol").notNull(),
+    side: text("side").notNull(),
+    orderType: text("order_type").notNull(),
+    quantity: real("quantity").notNull(),
+    requestedPrice: real("requested_price"),
+    submittedPrice: real("submitted_price"),
+    filledPrice: real("filled_price"),
+    status: text("status").notNull().default("pending"),
+    timeInForce: text("time_in_force").notNull().default("GTC"),
+    reduceOnly: boolean("reduce_only").notNull().default(false),
+    rawResponseJson: jsonb("raw_response_json").$type<Record<string, any>>().default({}),
+    submittedAt: timestamp("submitted_at"),
+    filledAt: timestamp("filled_at"),
+    cancelledAt: timestamp("cancelled_at"),
+    failedAt: timestamp("failed_at"),
+    ...timestamps,
+  },
+  (t) => ({
+    idxLoStatus: index("idx_lo_status").on(t.status),
+    idxLoVenue: index("idx_lo_venue").on(t.venue),
+    idxLoCreatedAt: index("idx_lo_created_at").on(t.createdAt),
+  }),
+);
+export type LiveOrder = typeof liveOrders.$inferSelect;
+
+export const livePositions = pgTable(
+  "live_positions",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    symbol: text("symbol").notNull(),
+    side: text("side").notNull(),
+    quantity: real("quantity").notNull(),
+    entryPrice: real("entry_price").notNull(),
+    currentPrice: real("current_price").notNull(),
+    unrealizedPnl: real("unrealized_pnl").notNull().default(0),
+    stopPrice: real("stop_price"),
+    targetPrice: real("target_price"),
+    venue: text("venue").notNull(),
+    status: text("status").notNull().default("open"),
+    openedAt: timestamp("opened_at").defaultNow(),
+    closedAt: timestamp("closed_at"),
+    linkedDecisionId: text("linked_decision_id"),
+    linkedOutcomeId: text("linked_outcome_id"),
+    ...timestamps,
+  },
+  (t) => ({
+    idxLpStatus: index("idx_lp_status").on(t.status),
+    idxLpSymbol: index("idx_lp_symbol").on(t.symbol),
+  }),
+);
+export type LivePosition = typeof livePositions.$inferSelect;
+
+export const executionAttemptLogs = pgTable(
+  "execution_attempt_logs",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    decisionId: text("decision_id"),
+    mode: text("mode").notNull(),
+    venue: text("venue"),
+    symbol: text("symbol").notNull(),
+    requestedAction: text("requested_action").notNull(),
+    wasBlocked: boolean("was_blocked").notNull().default(false),
+    blockReason: text("block_reason"),
+    payloadJson: jsonb("payload_json").$type<Record<string, any>>().default({}),
+    ...timestamps,
+  },
+  (t) => ({
+    idxEalMode: index("idx_eal_mode").on(t.mode),
+    idxEalBlocked: index("idx_eal_blocked").on(t.wasBlocked),
+    idxEalCreatedAt: index("idx_eal_created_at").on(t.createdAt),
+  }),
+);
+export type ExecutionAttemptLog = typeof executionAttemptLogs.$inferSelect;

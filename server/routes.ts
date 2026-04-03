@@ -11329,6 +11329,106 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
     }
   });
 
+  // GET /api/admin/trading/portfolio — T007 portfolio allocation + risk data (admin-protected)
+  app.get("/api/admin/trading/portfolio", async (_req, res) => {
+    try {
+      const { calculatePortfolioState, persistPortfolioSnapshot, getRecentSnapshots } = await import("./services/trading/portfolioState");
+      const { getRecentAllocationLogs, getBlockedAllocations } = await import("./services/trading/portfolioAllocator");
+      const { getAllClusters, getAssetRiskProfiles } = await import("./services/trading/correlationModel");
+      const { getPortfolioLimits } = await import("./services/trading/portfolioAllocator");
+      const { getActiveConfig } = await import("./services/trading/tradingConfig");
+
+      const portfolioState = await calculatePortfolioState();
+      await persistPortfolioSnapshot(portfolioState).catch(() => {});
+
+      const { config } = await getActiveConfig();
+      const limits = getPortfolioLimits(config);
+
+      const [recentAllocations, blockedAllocations, recentSnapshots, clusters, assetProfiles] = await Promise.all([
+        getRecentAllocationLogs(30),
+        getBlockedAllocations(20),
+        getRecentSnapshots(20),
+        Promise.resolve(getAllClusters()),
+        getAssetRiskProfiles(),
+      ]);
+
+      const strategyAllocation: Record<string, number> = {};
+      const totalExposure = portfolioState.grossExposure || 1;
+      for (const [strategy, exposure] of Object.entries(portfolioState.exposureByStrategy)) {
+        strategyAllocation[strategy] = Math.round((exposure / totalExposure) * 100);
+      }
+
+      res.json({
+        portfolioState,
+        limits,
+        strategyAllocation,
+        clusters,
+        assetProfiles,
+        recentAllocations,
+        blockedAllocations,
+        recentSnapshots,
+        generatedAt: new Date().toISOString(),
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // GET /api/admin/trading/live-bridge — T010 live execution bridge data (admin-protected)
+  app.get("/api/admin/trading/live-bridge", async (_req, res) => {
+    try {
+      const { getLiveExecutionConfig } = await import("./services/trading/liveExecutionConfig");
+      const { checkLiveReadiness } = await import("./services/trading/liveReadiness");
+      const { reconcileLiveState } = await import("./services/trading/liveReconciliation");
+      const { getRecentAttemptLogs, getRecentLiveOrders, getLivePositionsSummary } = await import("./services/trading/liveExecutionGateway");
+
+      const [config, readiness, reconciliation, attemptLogs, liveOrdersData, livePositionsData] = await Promise.all([
+        Promise.resolve(getLiveExecutionConfig()),
+        checkLiveReadiness(),
+        reconcileLiveState(),
+        getRecentAttemptLogs(20),
+        getRecentLiveOrders(20),
+        getLivePositionsSummary(),
+      ]);
+
+      res.json({
+        config,
+        readiness,
+        reconciliation,
+        attemptLogs,
+        liveOrders: liveOrdersData,
+        livePositions: livePositionsData,
+        generatedAt: new Date().toISOString(),
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // GET /api/admin/trading/execution — T009 execution quality + slippage data (admin-protected)
+  app.get("/api/admin/trading/execution", async (_req, res) => {
+    try {
+      const { calculateExecutionAnalytics } = await import("./services/trading/executionAnalytics");
+      const { getExecutionProfiles } = await import("./services/trading/executionModel");
+      const analytics = await calculateExecutionAnalytics();
+      const profiles = await getExecutionProfiles();
+      res.json({ ...analytics, profiles, generatedAt: new Date().toISOString() });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // GET /api/admin/trading/stress — T008 stress testing + resilience data (admin-protected)
+  app.get("/api/admin/trading/stress", async (_req, res) => {
+    try {
+      const { runStressTest } = await import("./services/trading/stressScenarioEngine");
+      const result = await runStressTest();
+      res.json(result);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // GET /api/admin/nexora/monitor — aggregated real-time AI observation feed (admin-protected)
   app.get("/api/admin/nexora/monitor", async (_req, res) => {
     try {

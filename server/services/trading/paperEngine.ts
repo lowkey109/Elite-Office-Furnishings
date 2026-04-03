@@ -151,9 +151,36 @@ export async function closePaperPosition(params: {
     rawPnl = pos.entryPrice - params.exitPrice;
   }
 
-  const slippage = Math.round(Math.abs(rawPnl) * 0.001 * 100) / 100;
+  let entrySlippageVal = 0;
+  let exitSlippageVal = 0;
+  let actualEntryPrice = pos.entryPrice;
+  let actualExitPrice = params.exitPrice;
+  try {
+    const { getExecutionProfiles, simulateEntryExecution, simulateExitExecution } = await import("./executionModel");
+    const profiles = await getExecutionProfiles();
+    const profile = profiles[pos.symbol] || { avgSpread: 0.001, avgSlippage: 0.001, volatilityMultiplier: 1.0 };
+
+    const entryExec = simulateEntryExecution(pos.symbol, pos.entryPrice, pos.side as "long" | "short", profile);
+    const exitExec = simulateExitExecution(pos.symbol, params.exitPrice, pos.side as "long" | "short", params.exitReason, profile);
+    entrySlippageVal = entryExec.entrySlippage;
+    exitSlippageVal = exitExec.exitSlippage;
+    actualEntryPrice = entryExec.simulatedEntry;
+    actualExitPrice = exitExec.simulatedExit;
+  } catch (err) {
+    console.warn("[paperEngine] Execution simulation failed for", pos.symbol, "- using raw prices:", err instanceof Error ? err.message : err);
+  }
+
+  const totalSlippageVal = entrySlippageVal + exitSlippageVal;
+  const slippage = Math.round(totalSlippageVal * 100) / 100;
   const fees = Math.round(pos.paperCapitalAllocated * 0.001 * 100) / 100;
-  const realizedPnl = Math.round((rawPnl - slippage - fees) * 100) / 100;
+
+  let adjustedPnl: number;
+  if (pos.side === "long") {
+    adjustedPnl = actualExitPrice - actualEntryPrice;
+  } else {
+    adjustedPnl = actualEntryPrice - actualExitPrice;
+  }
+  const realizedPnl = Math.round((adjustedPnl - fees) * 100) / 100;
   const outcome = realizedPnl >= 0 ? "win" : "loss";
   const capitalReturned = Math.round((pos.paperCapitalAllocated + realizedPnl) * 100) / 100;
 
@@ -190,6 +217,39 @@ export async function closePaperPosition(params: {
       updatedAt: new Date(),
     })
     .where(eq(paperTradingState.id, "singleton"));
+
+  try {
+    const { scoreExecutionQuality } = await import("./executionQualityScoring");
+    const { executionLogs: execLogsTable } = await import("@shared/schema");
+    const expectedSlippage = pos.entryPrice * 0.001;
+    const quality = scoreExecutionQuality({
+      entrySlippage: entrySlippageVal,
+      exitSlippage: exitSlippageVal,
+      totalSlippage: totalSlippageVal,
+      entryPrice: pos.entryPrice,
+      exitPrice: params.exitPrice,
+      expectedSlippage,
+    });
+    const slippagePct = pos.entryPrice > 0 ? Math.round((totalSlippageVal / pos.entryPrice) * 100 * 10000) / 10000 : 0;
+    await db.insert(execLogsTable).values({
+      decisionId: pos.linkedDecisionId,
+      positionId: params.positionId,
+      symbol: pos.symbol,
+      strategy: pos.strategy,
+      expectedEntry: pos.entryPrice,
+      actualEntry: actualEntryPrice,
+      expectedExit: params.exitPrice,
+      actualExit: actualExitPrice,
+      entrySlippage: entrySlippageVal,
+      exitSlippage: exitSlippageVal,
+      totalSlippage: totalSlippageVal,
+      slippagePct,
+      executionQualityScore: quality.score,
+      executionQualityLabel: quality.label,
+    });
+  } catch (execErr: any) {
+    console.error("[PaperEngine] Failed to log execution:", execErr?.message);
+  }
 
   return outcomeRow.id;
 }
