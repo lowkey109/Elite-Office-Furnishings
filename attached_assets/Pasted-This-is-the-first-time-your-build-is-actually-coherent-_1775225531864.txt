@@ -1,0 +1,273 @@
+This is the first time your build is actually coherent, runnable, and not overengineered.
+
+I’m not going to add new architecture. I’m going to give you the last mile fixes so it actually runs without breaking — because right now, if you hit run, a few things will fail.
+
+⸻
+
+🚨 Critical Fixes Before You Run (Do These First)
+
+1. Broken imports (this WILL crash immediately)
+
+You still have:
+
+from ..common.models import DecisionPayload
+
+That will fail in multi-process + Docker.
+
+👉 Replace in ALL files:
+
+from src.common.models import DecisionPayload
+
+
+⸻
+
+2. Your services are NOT connected (biggest issue)
+
+Right now:
+	•	ingest prints
+	•	feature_engine returns
+	•	strategy returns
+
+👉 But nothing flows between them.
+
+You need basic HTTP chaining (keep it simple for V1).
+
+⸻
+
+🔧 Add this to ingest/app.py
+
+import httpx
+
+async def process_bar(bar: dict):
+    async with httpx.AsyncClient() as client:
+        # 1. Data quality
+        dq = await client.post("http://localhost:8002/gate", json=bar)
+        dq_json = dq.json()
+        if not dq_json["passed"]:
+            print(f"[BLOCKED] {dq_json['reason']}")
+            return
+
+        # 2. Features
+        feat = await client.post("http://localhost:8003/process", json=bar)
+        feat_json = feat.json()
+
+        # 3. Strategy
+        strat = await client.post(
+            "http://localhost:8004/generate",
+            json={"bar": bar, "features": feat_json["features"]}
+        )
+        candidates = strat.json()["candidates"]
+        if not candidates:
+            return
+
+        # 4. AI scoring
+        ai = await client.post("http://localhost:8005/score", json=candidates)
+        scored = ai.json()["scored_candidates"]
+
+        # 5. Risk + compliance + execution
+        for payload in scored:
+            rc = await client.post("http://localhost:8006/validate", json=payload)
+            approved = rc.json()["approved"]
+
+            exec_res = await client.post(
+                "http://localhost:8007/execute",
+                json={"payload": payload, "approved": approved}
+            )
+
+            # 6. Audit
+            await client.post(
+                "http://localhost:8008/log",
+                json={"payload": payload, "outcome": exec_res.json()}
+            )
+
+👉 This is your entire system loop
+
+⸻
+
+3. Fix your FastAPI endpoints (they won’t parse input)
+
+Right now you have:
+
+async def generate_candidates(bar: dict, features: dict):
+
+FastAPI won’t handle that correctly.
+
+👉 Replace with:
+
+from pydantic import BaseModel
+
+class StrategyInput(BaseModel):
+    bar: dict
+    features: dict
+
+@app.post("/generate")
+async def generate_candidates(input: StrategyInput):
+    bar = input.bar
+    features = input.features
+
+Do this for:
+	•	strategy_family
+	•	paper_execution
+	•	audit
+
+⸻
+
+4. Paper execution endpoint is wrong
+
+Fix this:
+
+@app.post("/execute")
+async def execute_trade(payload: DecisionPayload, approved: bool):
+
+👉 Replace with:
+
+class ExecInput(BaseModel):
+    payload: DecisionPayload
+    approved: bool
+
+@app.post("/execute")
+async def execute_trade(input: ExecInput):
+    payload = input.payload
+    approved = input.approved
+
+
+⸻
+
+5. You forgot to install httpx
+
+Add to pyproject.toml:
+
+httpx = "^0.27"
+
+
+⸻
+
+6. Add missing service in main.py
+
+You forgot xai_audit
+
+("xai_audit", 8008),
+
+
+⸻
+
+7. Your system won’t produce data yet
+
+Right now nothing feeds bars.
+
+⸻
+
+🚀 ADD THIS (so you can actually see it run)
+
+Create:
+
+research/simulator.py
+
+import asyncio
+import httpx
+import random
+from datetime import datetime
+
+async def send_fake_bars():
+    price = 65000
+
+    async with httpx.AsyncClient() as client:
+        while True:
+            price += random.uniform(-100, 100)
+
+            bar = {
+                "symbol": "BTCUSDT",
+                "time": datetime.utcnow().isoformat(),
+                "open": price,
+                "high": price + random.uniform(0, 50),
+                "low": price - random.uniform(0, 50),
+                "close": price,
+                "volume": random.uniform(100, 1000),
+                "latency_ms": random.randint(50, 500),
+                "spread_pct": random.uniform(0.0003, 0.001),
+                "vol_spike": random.uniform(0.5, 2.5),
+                "avg_volume_20": 500
+            }
+
+            await client.post("http://localhost:8001/bar", json=bar)
+            await asyncio.sleep(2)
+
+if __name__ == "__main__":
+    asyncio.run(send_fake_bars())
+
+
+⸻
+
+🧠 What Happens When You Run This
+
+You’ll see:
+
+[INGEST]
+[BLOCKED]
+[PAPER EXEC]
+[AUDIT]
+
+👉 That’s your full system working.
+
+⸻
+
+⚠️ First Bugs You Will Notice (Normal)
+	•	Too many trades → adjust confidence threshold
+	•	No trades → loosen filters
+	•	Weird trades → fix feature logic
+	•	Slippage too high → tweak model
+	•	Strategy imbalance → tune weights
+
+⸻
+
+🎯 Your ONLY job after this
+
+Do NOT:
+	•	add agents
+	•	add ML complexity
+	•	add new strategies
+
+⸻
+
+Only do this:
+
+👉 Watch behavior
+👉 Log everything
+👉 Improve signal quality
+
+⸻
+
+🚀 Next Step Options
+
+When you’ve run it:
+
+Option 1
+
+👉 “ANALYSE OUTPUT”
+I’ll break down your trades and fix your edge
+
+Option 2
+
+👉 “CONNECT REAL DATA (BYBIT)”
+I’ll wire real WebSocket feeds safely
+
+Option 3
+
+👉 “ADD PERFORMANCE TRACKING”
+PnL, win rate, drawdown dashboard
+
+⸻
+
+🧱 Final truth
+
+You now have:
+
+👉 a system that can fail, learn, and improve
+
+That’s how real trading systems are built.
+
+⸻
+
+Run it.
+
+Then we make it better.

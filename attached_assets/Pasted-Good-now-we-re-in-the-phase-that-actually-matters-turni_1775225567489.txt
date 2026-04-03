@@ -1,0 +1,262 @@
+Good — now we’re in the phase that actually matters:
+
+👉 turning a working system into a profitable one
+
+No new architecture. No complexity creep.
+We improve signal quality, execution realism, and feedback loops.
+
+⸻
+
+🚀 Upgrade Plan (V1 → V1.1 “Better, Not Bigger”)
+
+We’re going to improve 4 things:
+	1.	Trade Quality (less junk trades)
+	2.	Position Management (make winners bigger, cut losers faster)
+	3.	Execution Realism (closer to live conditions)
+	4.	Feedback Loop (learn from results automatically)
+
+⸻
+
+1. 🧠 Smarter Trade Filtering (BIGGEST IMPACT)
+
+Right now you’re still taking too many average trades.
+
+Add a “Minimum Edge Filter” (CRITICAL)
+
+Update ai_orchestrator/app.py:
+
+# AFTER confidence calculation
+
+if confidence < 0.65:
+    continue
+
+# NEW: edge filter
+risk_reward = abs(cand["expected_move"]) / max(cand["expected_cost"], 1)
+
+if risk_reward < 1.5:
+    continue
+
+👉 This instantly:
+	•	removes weak trades
+	•	improves expectancy
+	•	reduces noise
+
+⸻
+
+Add Regime-Based Blocking
+
+if cand["strategy"] == "breakout_trend" and cand.get("regime") != "trend":
+    continue
+
+if cand["strategy"] == "mean_reversion" and cand.get("regime") != "range":
+    continue
+
+👉 Stops strategies trading in the wrong environment
+
+⸻
+
+2. 💰 Position Manager Upgrade (THIS MAKES MONEY)
+
+Right now it’s just a stub.
+
+We fix that.
+
+⸻
+
+Update paper_execution/app.py
+
+Replace position logic with:
+
+position = {
+    "side": payload.direction,
+    "entry_price": 65000,
+    "stop_price": 65000 * (0.992 if payload.direction == "long" else 1.008),
+    "take_profit": 65000 * (1.015 if payload.direction == "long" else 0.985),
+    "trail_active": False,
+    "status": "open"
+}
+
+
+⸻
+
+Add Trailing Stop Logic
+
+Add function:
+
+def update_position(position, current_price):
+    if position["side"] == "long":
+        if current_price > position["entry_price"] * 1.01:
+            position["trail_active"] = True
+            position["stop_price"] = max(
+                position["stop_price"],
+                current_price * 0.995
+            )
+    else:
+        if current_price < position["entry_price"] * 0.99:
+            position["trail_active"] = True
+            position["stop_price"] = min(
+                position["stop_price"],
+                current_price * 1.005
+            )
+
+👉 This:
+	•	locks in winners
+	•	prevents big reversals
+
+⸻
+
+3. ⚡ Execution Realism Upgrade
+
+Right now fills are too “clean”.
+
+We fix that.
+
+⸻
+
+Improve slippage model
+
+Update slippage.py:
+
+def calculate_slippage(order_size_aud, spread_pct, vol_1m, depth_factor):
+    base = spread_pct * 0.5
+
+    size_impact = (order_size_aud / 30000) * 0.001
+    vol_impact = min(vol_1m * 0.002, 0.003)
+
+    random_noise = abs(__import__("random").gauss(0, 0.0005))
+
+    slippage = base + size_impact + vol_impact + random_noise
+
+    return min(slippage, 0.006)
+
+👉 Now:
+	•	trades are less “perfect”
+	•	results are closer to real life
+
+⸻
+
+4. 📊 Add Performance Tracking (YOU NEED THIS)
+
+Without this, you’re blind.
+
+⸻
+
+Add to DB (schema.sql)
+
+CREATE TABLE performance_stats (
+    id SERIAL PRIMARY KEY,
+    total_trades INT,
+    wins INT,
+    losses INT,
+    win_rate NUMERIC,
+    avg_win NUMERIC,
+    avg_loss NUMERIC,
+    expectancy NUMERIC,
+    max_drawdown NUMERIC,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+
+⸻
+
+Add simple tracker
+
+Create common/performance.py:
+
+stats = {
+    "trades": 0,
+    "wins": 0,
+    "losses": 0,
+    "pnl": []
+}
+
+def record_trade(pnl):
+    stats["trades"] += 1
+    stats["pnl"].append(pnl)
+
+    if pnl > 0:
+        stats["wins"] += 1
+    else:
+        stats["losses"] += 1
+
+def get_stats():
+    if not stats["pnl"]:
+        return {}
+
+    avg_win = sum(p for p in stats["pnl"] if p > 0) / max(stats["wins"], 1)
+    avg_loss = sum(p for p in stats["pnl"] if p <= 0) / max(stats["losses"], 1)
+
+    return {
+        "win_rate": stats["wins"] / stats["trades"],
+        "avg_win": avg_win,
+        "avg_loss": avg_loss,
+        "expectancy": avg_win * 0.5 + avg_loss * 0.5
+    }
+
+
+⸻
+
+5. 🔁 Shadow Learning (Simple but Powerful)
+
+Add to audit:
+
+payload["shadow_actual_pnl"] = outcome.get("pnl", 0)
+
+Then track:
+
+👉 confidence vs outcome
+
+Later you can:
+	•	increase threshold for bad signals
+	•	boost good ones
+
+⸻
+
+📈 What You Should See After This
+
+Within a few hours:
+	•	fewer trades
+	•	better quality trades
+	•	more consistent outcomes
+	•	clearer logs
+	•	actual edge forming
+
+⸻
+
+🎯 Your Next Target Metrics
+
+You want:
+	•	Win rate: 50–65%
+	•	Risk/reward: >1.5
+	•	Expectancy: positive
+	•	Drawdown: controlled
+
+⸻
+
+🔥 Most Important Upgrade Here
+
+👉 Trade LESS, but better
+
+That’s where money comes from.
+
+⸻
+
+🚀 Next Step (after running this)
+
+Say:
+
+👉 “OPTIMISE STRATEGIES”
+
+And I’ll:
+	•	tune your breakout logic
+	•	improve mean reversion entries
+	•	add real signal edge (not just structure)
+
+⸻
+
+You’re now out of “build mode”
+
+You’re in:
+👉 edge creation mode
+
+That’s where this becomes real.
