@@ -262,7 +262,7 @@ export default function AdminRelocationIntelligence() {
                   <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
                     <div className="flex items-center gap-2 mb-4"><MapPin className="w-4 h-4 text-red-400" /><span className="text-white font-medium">By City</span></div>
                     <div className="space-y-3">
-                      {intel.cityBreakdown.slice(0, 8).map(({ city, count, avgProbability, totalValue }) => (
+                      {(intel.cityBreakdown ?? []).slice(0, 8).map(({ city, count, avgProbability, totalValue }) => (
                         <div key={city}>
                           <div className="flex items-center justify-between mb-1">
                             <span className="text-zinc-300 text-sm">{city}</span>
@@ -281,7 +281,7 @@ export default function AdminRelocationIntelligence() {
                   <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
                     <div className="flex items-center gap-2 mb-4"><Briefcase className="w-4 h-4 text-blue-400" /><span className="text-white font-medium">By Industry</span></div>
                     <div className="space-y-3">
-                      {intel.industryBreakdown.slice(0, 8).map(({ industry, count, avgProbability, totalValue }) => (
+                      {(intel.industryBreakdown ?? []).slice(0, 8).map(({ industry, count, avgProbability, totalValue }) => (
                         <div key={industry}>
                           <div className="flex items-center justify-between mb-1">
                             <span className="text-zinc-300 text-sm">{industry}</span>
@@ -300,7 +300,7 @@ export default function AdminRelocationIntelligence() {
                   <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
                     <div className="flex items-center gap-2 mb-4"><Activity className="w-4 h-4 text-violet-400" /><span className="text-white font-medium">Signal Types</span></div>
                     <div className="space-y-2">
-                      {intel.signalTypeBreakdown.map(({ signalType, count }) => (
+                      {(intel.signalTypeBreakdown ?? []).map(({ signalType, count }) => (
                         <div key={signalType} className="flex items-center justify-between">
                           <span className={`text-xs px-2 py-0.5 rounded-lg ${SIGNAL_COLORS[signalType] ?? "bg-zinc-700 text-zinc-300"}`}>{signalType.replace(/_/g, " ")}</span>
                           <span className="text-zinc-400 text-sm font-medium">{count}</span>
@@ -309,11 +309,11 @@ export default function AdminRelocationIntelligence() {
                     </div>
 
                     {/* Top Opportunities */}
-                    {intel.topOpportunities.length > 0 && (
+                    {(intel.topOpportunities ?? []).length > 0 && (
                       <div className="mt-5 pt-5 border-t border-zinc-800">
                         <div className="text-zinc-400 text-xs mb-3">Top Priority Signals</div>
                         <div className="space-y-2">
-                          {intel.topOpportunities.slice(0, 5).map(sig => (
+                          {(intel.topOpportunities ?? []).slice(0, 5).map(sig => (
                             <div key={sig.id} className="flex items-center justify-between">
                               <div>
                                 <div className="text-white text-xs font-medium">{sig.companyName}</div>

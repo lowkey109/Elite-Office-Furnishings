@@ -224,9 +224,9 @@ export default function AdminCompanyVisitors() {
                       {s.country && <div className="text-white/30 text-[10px]">{s.country}</div>}
                     </td>
                     <td className="px-5 py-3">
-                      <div className="text-white/60 text-xs font-semibold">{s.pagesViewed.length} pages</div>
+                      <div className="text-white/60 text-xs font-semibold">{(s.pagesViewed ?? []).length} pages</div>
                       <div className="text-white/30 text-[10px] max-w-[140px] truncate">
-                        {s.pagesViewed.slice(0, 2).join(", ")}
+                        {(s.pagesViewed ?? []).slice(0, 2).join(", ")}
                       </div>
                     </td>
                     <td className="px-5 py-3">

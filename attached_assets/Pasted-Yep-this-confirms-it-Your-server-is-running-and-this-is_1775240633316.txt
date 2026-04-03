@@ -1,0 +1,144 @@
+Yep — this confirms it.
+
+Your server is running, and this is not the main cause of that homepage crash.
+
+What these logs say
+
+The backend is alive:
+	•	express serving on port 5000
+	•	pg-boss started successfully
+	•	workers registered
+	•	jobs are processing
+
+So the site is not failing because the whole app is down.
+
+What the Adzuna errors mean
+
+This part:
+
+Adzuna fetch failed: 503 Service Temporarily Unavailable
+
+means the external Adzuna API was temporarily unavailable for some requests.
+
+That is a real issue, but it is not the same error as the one on your homepage.
+
+Your homepage error was:
+
+undefined is not an object (evaluating '...slice')
+
+That is a frontend code bug where some variable is undefined and your UI tries to do .slice() on it.
+
+So there are 2 separate problems
+
+1. External API issue
+Adzuna sometimes returning 503
+
+2. Frontend crash
+A React component on the homepage is calling .slice() on missing data
+
+⸻
+
+What this tells us technically
+
+Because the backend stayed up, the likely problem is one of these:
+
+someArray.slice(0, 3)
+
+but someArray is undefined because:
+	•	the API returned no data
+	•	the response shape changed
+	•	one section of the page renders before data arrives
+	•	one query failed and your UI didn’t fall back to []
+
+⸻
+
+What to do right now
+
+Step 1: search your frontend for .slice(
+
+Look especially in:
+	•	Home.tsx
+	•	homepage section components
+	•	sliders/carousels
+	•	featured products
+	•	testimonials
+	•	blog/news sections
+	•	any query-driven list component
+
+Step 2: patch every risky line
+
+Change patterns like this:
+
+data.slice(0, 6)
+
+to:
+
+(data ?? []).slice(0, 6)
+
+and this:
+
+data.items.slice(0, 6)
+
+to:
+
+(data?.items ?? []).slice(0, 6)
+
+and for strings:
+
+(title ?? "").slice(0, 80)
+
+
+⸻
+
+Very likely real cause in your app
+
+Because your system is doing live scans and external feeds, one homepage/admin/dashboard block is probably expecting something like:
+	•	deal hunter results
+	•	radar signals
+	•	featured leads
+	•	recent activity
+	•	jobs/news feed
+	•	carousel items
+
+and when one fetch fails or returns unexpectedly, the UI still tries to slice it.
+
+Example:
+
+const recentSignals = dashboardData.signals.slice(0, 5);
+
+should become:
+
+const recentSignals = (dashboardData?.signals ?? []).slice(0, 5);
+
+
+⸻
+
+Important
+
+The Adzuna 503 should still be handled properly too.
+
+Your backend should not let a temporary third-party failure break page data shape.
+
+For example, wherever you fetch Adzuna results, return safe defaults:
+
+return {
+  jobs: [],
+  total: 0,
+  error: "Adzuna temporarily unavailable",
+};
+
+not undefined.
+
+And frontend code should still protect itself even then.
+
+⸻
+
+Bottom line
+
+Your screenshots prove:
+	•	backend is up
+	•	jobs are running
+	•	Adzuna is flaky on some calls
+	•	the page crash is still a frontend .slice() bug
+
+Paste your Home.tsx or the page/component that loads first on thecorporatedesk.au, and I’ll point to the exact line that’s breaking.
