@@ -502,3 +502,93 @@ function formatDuration(ms: number): string {
   const days = Math.floor(hours / 24);
   return `${days}d ${hours % 24}h`;
 }
+export async function runPaperTrade(input: {
+  symbol: string;
+  side: "BUY" | "SELL";
+  notionalUsd: number;
+  source: string;
+  meta?: Record<string, any>;
+}) {
+  console.log("[PaperEngine] Smart wallet trade received", input);
+
+  const decisionId = await createDecision({
+    market: input.symbol,
+    strategy: "smart_wallet",
+    direction: input.side === "BUY" ? "long" : "short",
+    confidence: 75,
+    thesis: "Smart wallet copy trade",
+    regime: "unknown",
+    reasonCode: "SMART_WALLET",
+    invalidationRule: "wallet reversal",
+    riskBucket: "medium",
+    dataQualityScore: 0.8,
+    marketPriceAtDecision: 100,
+  });
+
+  const positionId = await openPaperPosition({
+    decisionId,
+    symbol: input.symbol,
+    side: input.side === "BUY" ? "long" : "short",
+    entryPrice: 100,
+    stopPrice: 90,
+    targetPrice: 120,
+    paperCapitalAllocated: input.notionalUsd,
+    strategy: "smart_wallet",
+  });
+
+  console.log("[PaperEngine] position opened", {
+    decisionId,
+    positionId,
+  });
+
+  return {
+    ok: true,
+    decisionId,
+    positionId,
+  };
+}
+export async function runPaperTrade(input: {
+  symbol: string;
+  side: "BUY" | "SELL";
+  notionalUsd: number;
+  source: string;
+  meta?: Record<string, any>;
+}) {
+  console.log("[PaperEngine] Smart wallet trade received", input);
+
+  const decisionId = await createDecision({
+    market: input.symbol,
+    strategy: "smart_wallet",
+    direction: input.side === "BUY" ? "long" : "short",
+    confidence: 75,
+    thesis: "Smart wallet copy trade",
+    regime: "unknown",
+    reasonCode: "SMART_WALLET",
+    invalidationRule: "wallet reversal",
+    riskBucket: "medium",
+    dataQualityScore: 0.8,
+    marketPriceAtDecision: 100,
+  });
+
+  const positionId = await openPaperPosition({
+    decisionId,
+    symbol: input.symbol,
+    side: input.side === "BUY" ? "long" : "short",
+    entryPrice: 100,
+    stopPrice: 90,
+    targetPrice: 120,
+    paperCapitalAllocated: input.notionalUsd,
+    strategy: "smart_wallet",
+  });
+
+  console.log("[PaperEngine] position opened", {
+    decisionId,
+    positionId,
+  });
+
+  return {
+    ok: true,
+    decisionId,
+    positionId,
+  };
+}
