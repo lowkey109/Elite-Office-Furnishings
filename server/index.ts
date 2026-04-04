@@ -1,6 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { startNexoraBackground } from "./services/intelligence/nexoraOrchestrator";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import session from "express-session";
@@ -17,8 +16,6 @@ const PgSession = connectPgSimple(session);
 const app = express();
 
 const httpServer = createServer(app);
-
-startNexoraBackground();
 
 app.set("trust proxy", 1);
 
@@ -157,38 +154,6 @@ app.use((req, res, next) => {
 (async () => {
   await registerRoutes(httpServer, app);
 
-  // ── Single orchestration brain: NexoraOrchestrator ───────────────────────
-  // startNexoraBackground() is called at the top of this file (line 21).
-  // It is the SOLE entry point for all business intelligence, signal
-  // processing, outreach decisions, and pipeline actions.
-  //
-  // pg-boss is started as a durable job persistence layer, subordinate
-  // to Nexora. It does not run its own logic — it only re-triggers jobs
-  // that Nexora has already scheduled via runIntelligenceSubTasks().
-  //
-  // startIntelligenceScheduler() is called for backward compatibility
-  // (it is now a no-op — all independent timers have been removed from it).
-  //
-  // startFollowUpScheduler() runs follow-up email sequences. This is a
-  // narrow, bounded email task that is explicitly not an orchestration brain.
-  // It does not make business decisions; it only advances pre-created
-  // follow-up sequences in the DB.
-
-  const { startIntelligenceScheduler, startSchedulerWithPgBoss } = await import("./services/intelligenceScheduler");
-  await startSchedulerWithPgBoss().catch((err) => {
-    console.log("[Index] pg-boss unavailable — Nexora will coordinate sub-tasks directly:", err?.message);
-  });
-  startIntelligenceScheduler(); // no-op; kept for compatibility
-
-  const { startFollowUpScheduler } = await import("./services/followUpScheduler");
-  startFollowUpScheduler(); // bounded email follow-up only — not an orchestration brain
-
-  // ── Runtime hardening: clean up expired DB locks on startup ─────────────
-  // Prevents stale locks from blocking Nexora if the server crashed mid-run.
-  import("./services/intelligence/nexora/nexora-support")
-    .then(({ cleanupExpiredLocks }) => cleanupExpiredLocks())
-    .catch(() => undefined); // non-fatal
-
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
@@ -207,6 +172,45 @@ app.use((req, res, next) => {
   const port = parseInt(process.env.PORT || "5000", 10);
   httpServer.listen({ port, host: "0.0.0.0", reusePort: true }, () => {
     log(`serving on port ${port}`);
+
+    // ── Delayed background system initialization ──────────────────────────
+    // All background systems (Nexora, pg-boss, schedulers) are intentionally
+    // delayed 15 seconds after the HTTP server binds to its port. This
+    // prevents startup race conditions where background tasks attempt DB
+    // connections or job scheduling before the process is fully ready.
+    setTimeout(async () => {
+      log("[Startup] Initialising background systems (15s post-bind delay)...");
+
+      // ── Single orchestration brain: NexoraOrchestrator ─────────────────
+      // The SOLE entry point for all business intelligence, signal
+      // processing, outreach decisions, and pipeline actions.
+      const { startNexoraBackground } = await import("./services/intelligence/nexoraOrchestrator");
+      startNexoraBackground();
+      log("[Startup] Nexora background loop started");
+
+      // ── pg-boss: durable job persistence layer ──────────────────────────
+      // Subordinate to Nexora — only re-triggers jobs Nexora has scheduled.
+      const { startIntelligenceScheduler, startSchedulerWithPgBoss } = await import("./services/intelligenceScheduler");
+      await startSchedulerWithPgBoss().catch((err: any) => {
+        log(`[Startup] pg-boss unavailable — Nexora will coordinate sub-tasks directly: ${err?.message}`);
+      });
+      startIntelligenceScheduler(); // no-op; kept for compatibility
+
+      // ── Follow-up scheduler: bounded email sequences only ───────────────
+      // Not an orchestration brain — only advances pre-created follow-up
+      // sequences in the DB. Does not make business decisions.
+      const { startFollowUpScheduler } = await import("./services/followUpScheduler");
+      startFollowUpScheduler();
+      log("[Startup] Follow-up scheduler started");
+
+      // ── Runtime hardening: clean up expired DB locks ────────────────────
+      // Prevents stale locks from blocking Nexora if the server crashed mid-run.
+      import("./services/intelligence/nexora/nexora-support")
+        .then(({ cleanupExpiredLocks }) => cleanupExpiredLocks())
+        .catch(() => undefined); // non-fatal
+
+      log("[Startup] All background systems initialised");
+    }, 15_000);
   });
 
   // ── Graceful shutdown ─────────────────────────────────────────────────────
