@@ -1,4 +1,4 @@
-// server/services/trading/wallet-to-paper-bridge.ts
+nano server/services/trading/wallet-to-paper-bridge.ts// server/services/trading/wallet-to-paper-bridge.ts
 
 import type { WalletAction } from "./types/trading-types";
 
