@@ -41,12 +41,26 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 // ── Session middleware (server-side admin auth) ───────────────────────────────
-app.use(session({
-  store: new PgSession({
+let sessionStore: any;
+let sessionStoreType = "memory";
+
+try {
+  sessionStore = new PgSession({
     conString: process.env.DATABASE_URL,
     tableName: "admin_sessions",
     createTableIfMissing: true,
-  }),
+  });
+  sessionStoreType = "postgresql";
+  console.log("[Session] Using PostgreSQL session store");
+} catch (err: any) {
+  console.warn("[Session] PostgreSQL session store failed, falling back to memory:", err.message);
+  // Use memory store as fallback
+  sessionStore = undefined; // express-session will use memory store by default
+  sessionStoreType = "memory";
+}
+
+app.use(session({
+  store: sessionStore,
   secret: process.env.SESSION_SECRET || "tcd-dev-fallback-secret",
   resave: false,
   saveUninitialized: false,
@@ -58,6 +72,8 @@ app.use(session({
   },
   name: "tcd_session",
 }));
+
+console.log(`[Session] Admin session store: ${sessionStoreType}`);
 
 declare module "http" {
   interface IncomingMessage {

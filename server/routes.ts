@@ -228,6 +228,11 @@ import { captureWorkspaceLearning, buildLearningContext } from "./services/works
               });
 
               app.post("/api/admin/auth/login", authLimiter, (req: any, res: any) => {
+                if (!req.session) {
+                  console.error("[Auth] Session object not initialized");
+                  return res.status(500).json({ error: "Session not initialized" });
+                }
+
                 const { email, password } = req.body || {};
                 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@thecorporatedesk.com.au";
                 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
@@ -247,7 +252,10 @@ import { captureWorkspaceLearning, buildLearningContext } from "./services/works
 
                 req.session.isAdmin = true;
                 req.session.save((err: any) => {
-                  if (err) return res.status(500).json({ error: "Session error" });
+                  if (err) {
+                    console.error("[Auth] Session save failed:", err.message);
+                    return res.status(500).json({ error: "Failed to create session: " + err.message });
+                  }
                   return res.json({ ok: true });
                 });
               });
