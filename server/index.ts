@@ -18,8 +18,6 @@ const app = express();
 
 const httpServer = createServer(app);
 
-startNexoraBackground();
-
 app.set("trust proxy", 1);
 
 // ── Canonical domain redirect (301) ──────────────────────────────────────────
@@ -139,40 +137,32 @@ app.use((req, res, next) => {
   next();
 });
 
-(async () => {
-  await registerRoutes(httpServer, app);
+// ── Background systems ────────────────────────────────────────────────────────
+// Encapsulates all heavy initialisation so it can be deferred until after the
+// HTTP server has bound to its port and Railway health checks have passed.
+async function startBackgroundSystems() {
+  // Start Nexora orchestration brain
+  startNexoraBackground();
 
-  // ── Single orchestration brain: NexoraOrchestrator ───────────────────────
-  // startNexoraBackground() is called at the top of this file (line 21).
-  // It is the SOLE entry point for all business intelligence, signal
-  // processing, outreach decisions, and pipeline actions.
-  //
-  // pg-boss is started as a durable job persistence layer, subordinate
-  // to Nexora. It does not run its own logic — it only re-triggers jobs
-  // that Nexora has already scheduled via runIntelligenceSubTasks().
-  //
-  // startIntelligenceScheduler() is called for backward compatibility
-  // (it is now a no-op — all independent timers have been removed from it).
-  //
-  // startFollowUpScheduler() runs follow-up email sequences. This is a
-  // narrow, bounded email task that is explicitly not an orchestration brain.
-  // It does not make business decisions; it only advances pre-created
-  // follow-up sequences in the DB.
-
+  // Start pg-boss and intelligence scheduler
   const { startIntelligenceScheduler, startSchedulerWithPgBoss } = await import("./services/intelligenceScheduler");
   await startSchedulerWithPgBoss().catch((err) => {
     console.log("[Index] pg-boss unavailable — Nexora will coordinate sub-tasks directly:", err?.message);
   });
   startIntelligenceScheduler(); // no-op; kept for compatibility
 
+  // Start follow-up email scheduler (bounded email task — not an orchestration brain)
   const { startFollowUpScheduler } = await import("./services/followUpScheduler");
-  startFollowUpScheduler(); // bounded email follow-up only — not an orchestration brain
+  startFollowUpScheduler();
 
-  // ── Runtime hardening: clean up expired DB locks on startup ─────────────
-  // Prevents stale locks from blocking Nexora if the server crashed mid-run.
+  // Clean up expired DB locks — prevents stale locks blocking Nexora after a crash
   import("./services/intelligence/nexora/nexora-support")
     .then(({ cleanupExpiredLocks }) => cleanupExpiredLocks())
     .catch(() => undefined); // non-fatal
+}
+
+(async () => {
+  await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -192,6 +182,19 @@ app.use((req, res, next) => {
   const port = parseInt(process.env.PORT || "5000", 10);
   httpServer.listen({ port, host: "0.0.0.0", reusePort: true }, () => {
     log(`serving on port ${port}`);
+
+    // ── Delayed background boot (15 s) ────────────────────────────────────
+    // HTTP server binds first so Railway health checks pass immediately.
+    // All heavy initialisation (Nexora, pg-boss, schedulers) starts only
+    // after the platform has confirmed the app is up and stable.
+    setTimeout(async () => {
+      try {
+        log("Delayed background systems booting...");
+        await startBackgroundSystems();
+      } catch (err) {
+        console.error("[Startup] Background boot failed:", err);
+      }
+    }, 15000);
   });
 
   // ── Graceful shutdown ─────────────────────────────────────────────────────
