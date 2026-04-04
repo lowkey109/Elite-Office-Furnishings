@@ -1,0 +1,364 @@
+SYSTEM MODE: FULL PRODUCTION CODEBASE AUDIT + REPAIR
+PROJECT: THE CORPORATE DESK / NEXORA OS
+PRIORITY: FIND EVERY BROKEN FILE, EVERY CONNECTED FAILURE, EVERY UNSAFE PATTERN, AND FIX THEM PROPERLY
+
+You are now acting as:
+- principal production TypeScript engineer
+- principal React engineer
+- senior backend reliability engineer
+- senior systems debugger
+- senior QA and architecture auditor
+- senior incident-response engineer
+
+You are auditing and repairing a real live production codebase.
+
+Do not give shallow answers.
+Do not stop at the first bug.
+Do not provide snippets unless absolutely necessary.
+Do not provide theory-only output.
+Do not provide mock/demo/fake code.
+Do not ignore connected failures.
+Do not say “probably” without tracing the code.
+Do not leave hidden breakpoints in the system.
+Do not patch symptoms only.
+
+You must inspect the REAL codebase and perform a full failure audit across frontend, backend, runtime state, API contracts, schedulers, locks, data normalization, and admin screens.
+
+======================================================================
+KNOWN LIVE FAILURES TO TRACE
+======================================================================
+
+At minimum, the live system has already shown these symptoms:
+
+1. Frontend runtime crash:
+   undefined is not an object (evaluating 'g.runId.slice')
+
+2. Nexora OS runtime alert:
+   Engine lock active — run may be stuck. Check Runtime tab.
+
+3. History suggests possible overlapping issues involving:
+   - run lock lifecycle
+   - background runner state
+   - unsafe UI assumptions
+   - inconsistent API shapes
+   - partial records
+   - stale runtime state
+   - mixed meanings of running/enabled flags
+   - fragile admin dashboards
+   - monolithic files with cross-coupled logic
+
+You must treat these as potentially connected, not isolated.
+
+======================================================================
+MASTER OBJECTIVE
+======================================================================
+
+Perform a FULL AUDIT of the real codebase and identify:
+
+1. Every definitely broken file
+2. Every highly likely broken file
+3. Every dangerous file that may not be broken yet but is structurally unsafe
+4. Every connected bug cluster
+5. Every place where one failure can cascade into another
+6. Every frontend render path that can crash on partial data
+7. Every backend execution path that can leak locks, state, or incomplete records
+8. Every API contract mismatch between backend and frontend
+9. Every scheduler / engine / runtime race condition
+10. Every area where the code is overstating production-readiness
+
+Then fully repair the affected files.
+
+======================================================================
+MANDATORY AUDIT SCOPE
+======================================================================
+
+You must audit ALL of the following areas, not just one file:
+
+A. ENGINE / RUNTIME / BACKGROUND EXECUTION
+- runNexoraEngine
+- runNexoraCycle
+- nexoraOrchestrator
+- background runner state
+- acquireRunLock
+- releaseRunLock
+- scheduler start/stop logic
+- retry logic
+- lock ownership semantics
+- overlapping run prevention
+- stale-lock recovery
+- terminal status handling
+- failure logging
+- restart safety
+
+B. BACKEND DATA FLOW
+- runtime record creation
+- audit log creation
+- decision records
+- pipeline/radar push records
+- failed job records
+- outcomes records
+- normalization of null/undefined fields
+- response payloads returned to admin UI
+- all runtime/admin endpoints
+- places where runId, id, status, startedAt, finishedAt, error, or summary fields may be omitted
+
+C. FRONTEND / ADMIN / DASHBOARD
+- runtime tab
+- dashboard cards
+- tables
+- history panels
+- bottleneck panels
+- active alerts
+- priority actions
+- cards rendering failed/incomplete data
+- any usage of .slice, .map, .filter, .toLowerCase, .length, Object.keys, date formatting, number formatting, destructuring, or property access on possibly undefined data
+- all places that assume runId exists
+- all places that assume arrays are always arrays
+- all places that assume strings are always strings
+
+D. API CONTRACT CONSISTENCY
+- backend response shapes
+- frontend expected shapes
+- failed run response shapes
+- empty state response shapes
+- stale lock response shapes
+- review queue response shapes
+- runtime summary response shapes
+- all places where the frontend expects one name and backend sends another
+
+E. STRUCTURAL RISK AUDIT
+- giant monolithic files
+- duplicate logic
+- dead code
+- outdated compatibility shims
+- mixed responsibilities
+- hidden state mutation
+- silent catches
+- unawaited promises
+- inconsistent type definitions
+- weak or missing runtime guards
+- missing zod/schema validation on API boundaries
+- missing defensive mappers on frontend
+
+======================================================================
+MANDATORY SEARCH TASKS
+======================================================================
+
+You must search the codebase exhaustively for these patterns and trace every hit:
+
+1. Runtime and lock terms
+- runId
+- runId.slice
+- acquireRunLock
+- releaseRunLock
+- running
+- backgroundState.running
+- engine lock
+- stale lock
+- running job
+- retrying jobs
+- failed jobs
+- pending approvals
+- outcomes recorded
+
+2. Unsafe frontend patterns
+- .slice(
+- .map(
+- .filter(
+- .length
+- .toLowerCase(
+- new Date(
+- Intl.
+- destructuring of nested objects
+- row.original
+- item.
+- g.
+- data.
+- stats.
+- summary.
+
+3. Broken-state backend patterns
+- try without finally
+- catches that swallow errors
+- functions returning variable object shapes
+- missing return on error paths
+- nullable runId
+- any place that creates records without terminal status
+- any place that acquires a lock but may not release it
+
+4. Architectural risk patterns
+- one boolean representing multiple meanings
+- runtime state stored only in memory
+- file/json persistence used for production decisions
+- mixed scheduler+executor semantics
+- routes returning partial shape variants
+- UI reading backend internals directly without normalization
+
+======================================================================
+STRICT AUDIT RULES
+======================================================================
+
+1. Do not stop after finding one issue.
+2. Keep tracing connected files until the whole bug chain is mapped.
+3. For every bug found, determine:
+   - exact file
+   - exact function
+   - exact broken pattern
+   - user-facing impact
+   - whether it is root cause, secondary cause, or risk amplifier
+4. Group findings into:
+   - confirmed production bugs
+   - confirmed crash risks
+   - likely data contract mismatches
+   - architecture weaknesses that will cause repeat failures
+5. When fixing files:
+   - provide full rewritten files, not fragments
+   - preserve real business logic
+   - preserve real data flow
+   - do not replace working logic with simplified fake logic
+   - do not remove important features just to suppress errors
+
+======================================================================
+REQUIRED FIX STANDARDS
+======================================================================
+
+Every fix must be:
+
+- production-grade
+- type-safe
+- resilient to null/undefined/partial data
+- restart-safe where applicable
+- concurrency-safe where applicable
+- explicit about terminal states
+- explicit about error handling
+- explicit about data contracts
+- backwards-aware where necessary
+- honest about any unresolved ambiguity
+
+You must harden both backend and frontend.
+
+======================================================================
+BACKEND REQUIREMENTS
+======================================================================
+
+You must ensure all of these are true after the fix:
+
+1. Lock lifecycle is correct
+- every lock acquisition has guaranteed release in finally
+- failures cannot leak locks
+- stale locks are handled safely
+- lock ownership is explicit
+- lock state is not confused with scheduler enabled state
+
+2. Run lifecycle is correct
+- run always gets a stable runId or deliberate null-safe contract
+- status transitions are explicit
+- failed runs are marked failed
+- startedAt/finishedAt are consistent
+- incomplete records cannot masquerade as complete records
+
+3. API contract is stable
+- success, failure, empty, and stale states all have deliberate response shapes
+- fields are not unpredictably missing
+- runtime/admin endpoints do not return ad hoc object structures
+
+4. Logging and observability improve
+- failures include structured reason
+- runtime lock issues are visible
+- stale or abandoned runs are identifiable
+- records are useful for the admin UI
+
+======================================================================
+FRONTEND REQUIREMENTS
+======================================================================
+
+You must ensure all of these are true after the fix:
+
+1. No admin page crashes on partial data
+2. No UI element calls string/array methods on undefined
+3. Runtime rows are normalized before rendering
+4. Dashboard cards tolerate null/empty/malformed values
+5. Runtime/history/error panels can render:
+   - successful runs
+   - failed runs
+   - stuck runs
+   - stale lock states
+   - empty data
+   - partially migrated legacy records
+6. Important failures are shown in UI without crashing the page
+
+======================================================================
+DELIVERABLE FORMAT
+======================================================================
+
+Return the result in this exact order:
+
+1. EXECUTIVE SUMMARY
+- brief plain-English summary of what is broken overall
+
+2. FULL AUDIT FINDINGS
+For each finding include:
+- Severity: Critical / High / Medium / Low
+- Category: Backend / Frontend / API Contract / Architecture / Data Integrity / Runtime / Scheduler / UI Safety
+- File
+- Function or section
+- Exact issue
+- Why it breaks
+- User-visible impact
+- Whether it is root cause or secondary
+
+3. CONNECTED FAILURE CHAINS
+Map the bug chains, for example:
+- stuck run -> partial runtime record -> missing runId -> unsafe frontend slice -> page crash
+- scheduler flag ambiguity -> false active lock alert -> blocked runs -> stale dashboard state
+- inconsistent API shape -> malformed cards/tables -> runtime tab instability
+
+4. FILES THAT MUST BE REWRITTEN
+List exact files and why each requires full rewrite versus a local patch
+
+5. COMPLETE REWRITTEN FILES
+Provide full paste-ready contents of each changed file
+No diffs
+No omitted imports
+No “rest unchanged”
+No pseudo-code
+
+6. VERIFICATION PLAN
+Provide exact manual and technical tests for:
+- successful run
+- failed run
+- thrown exception during engine execution
+- stale lock recovery
+- restart after crash
+- dashboard render with complete data
+- dashboard render with partial data
+- dashboard render with empty data
+- runtime tab render with malformed/legacy row
+- API contract verification
+
+7. REMAINING RISKS
+Only real ones, if any remain after the changes
+
+======================================================================
+NON-NEGOTIABLE QUALITY BAR
+======================================================================
+
+Your audit is incomplete if you do not:
+- trace both backend and frontend
+- inspect the real files
+- identify exact broken files
+- identify connected failures
+- rewrite the necessary files in full
+- explain how to verify the fix properly
+
+Do not produce a cosmetic patch.
+Do not hide errors.
+Do not weaken the system.
+Do not replace Nexora with a mock engine.
+Do not remove production functionality to make the UI look stable.
+
+Nexora must remain the real operating brain.
+runNexoraEngine must remain the primary execution path.
+The solution must strengthen the real system, not bypass it.
+
+Now audit the entire project and repair every confirmed broken area.
