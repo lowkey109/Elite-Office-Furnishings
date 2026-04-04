@@ -1,4 +1,4 @@
-            import express, { type Express, type Request, type Response } from "express";
+            import express, { type Express, type Request, type Response, type NextFunction } from "express";
             import path from "path";
             import fs from "fs";
             import { createServer, type Server } from "http";
@@ -190,6 +190,25 @@ import { captureWorkspaceLearning, buildLearningContext } from "./services/works
                 hasPost: typeof (app as any)?.post,
               });
 
+              // ── SECURITY: Block .env and config file probing ──────────────────────────
+              app.use((req: Request, res: Response, next: NextFunction) => {
+                const reqPath = req.path.toLowerCase();
+
+                // Block .env files, swagger/openapi docs, and sensitive config files
+                if (
+                  reqPath.includes(".env") ||
+                  reqPath.includes("swagger.json") ||
+                  reqPath.includes("openapi.json") ||
+                  reqPath.includes("api-docs") ||
+                  reqPath.match(/\.(env|config|yml|yaml|json)$/i)
+                ) {
+                  console.warn(`[Security] Blocked probe attempt: ${req.method} ${req.path}`);
+                  return res.status(404).json({ error: "Not found" });
+                }
+
+                next();
+              });
+
               // ─── Static serving ───────────────────────────────────────────────────────
               const catalogImagesPath = path.join(process.cwd(), "catalog-images");
               serveIfExists(app, "/catalog-assets", catalogImagesPath);
@@ -228,6 +247,11 @@ import { captureWorkspaceLearning, buildLearningContext } from "./services/works
               });
 
               app.post("/api/admin/auth/login", authLimiter, (req: any, res: any) => {
+                if (!req.session) {
+                  console.error("[Auth] Session object not initialized");
+                  return res.status(500).json({ error: "Session not initialized" });
+                }
+
                 const { email, password } = req.body || {};
                 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@thecorporatedesk.com.au";
                 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
@@ -243,11 +267,18 @@ import { captureWorkspaceLearning, buildLearningContext } from "./services/works
                 const passwordMatch =
                   password === ADMIN_PASSWORD || (LEGACY_PASSWORD && password === LEGACY_PASSWORD);
 
-                if (!emailMatch || !passwordMatch) return res.status(401).json({ error: "Invalid credentials" });
+                if (!emailMatch || !passwordMatch) {
+                  console.warn(`[Auth] Failed login attempt for ${email}`);
+                  return res.status(401).json({ error: "Invalid credentials" });
+                }
 
                 req.session.isAdmin = true;
                 req.session.save((err: any) => {
-                  if (err) return res.status(500).json({ error: "Session error" });
+                  if (err) {
+                    console.error("[Auth] Session save failed:", err.message);
+                    return res.status(500).json({ error: "Failed to create session: " + err.message });
+                  }
+                  console.log(`[Auth] Successful login for ${email}`);
                   return res.json({ ok: true });
                 });
               });
