@@ -4,6 +4,7 @@ import { randomUUID } from "crypto";
 import { listTrackedWallets } from "./wallet-registry";
 import { processWalletActions } from "./wallet-to-paper-bridge";
 import type { WalletAction } from "./types/trading-types";
+import { runWalletScoring } from "./wallet-score-engine";
 
 let isRunning = false;
 
@@ -48,6 +49,7 @@ export async function startWalletMonitor(intervalMs = 5000) {
       if (actions.length > 0) {
         console.log(`[WalletMonitor] detected ${actions.length} wallet actions`);
         await processWalletActions(actions);
+runWalletScoring();
       }
     } catch (err) {
       console.error("[WalletMonitor] error:", err);
