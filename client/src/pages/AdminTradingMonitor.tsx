@@ -827,7 +827,7 @@ function AdaptationPanel() {
               <div className="space-y-1" data-testid="rollback-history">
                 {rollbackHistory.map((r: any) => (
                   <div key={r.id} className="text-[10px] text-white/30 font-mono bg-white/[0.01] rounded px-2 py-1">
-                    {r.fromConfigVersionId.slice(0, 8)} → {r.toConfigVersionId.slice(0, 8)}: {r.reason}
+                    {(r.fromConfigVersionId ?? "").slice(0, 8)} → {(r.toConfigVersionId ?? "").slice(0, 8)}: {r.reason}
                   </div>
                 ))}
               </div>

@@ -157,7 +157,7 @@ export default function AdminNexoraAdvanced() {
             <div className="divide-y divide-white/5 font-mono text-[11px]">
               {decisions.decisions.slice(0, 30).map((d) => (
                 <div key={d.id} className="px-5 py-2.5 flex items-start gap-3 hover:bg-white/[0.02]">
-                  <span className="text-white/20 w-14 flex-shrink-0 truncate">{d.id?.slice(0, 8)}</span>
+                  <span className="text-white/20 w-14 flex-shrink-0 truncate">{d.id?.slice(0, 8) ?? "—"}</span>
                   <span className="text-white/50 flex-1 truncate">{d.companyName ?? "—"}</span>
                   <span className={`flex-shrink-0 ${d.action === "push_pipeline" ? "text-blue-300" : d.action === "push_radar" ? "text-purple-300" : "text-white/30"}`}>{d.action}</span>
                   <span className="text-white/30 flex-shrink-0 w-8 text-right">{Math.round((d.confidence ?? 0) * 100)}%</span>

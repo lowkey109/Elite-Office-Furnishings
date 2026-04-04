@@ -473,7 +473,7 @@ export default function AdminNexoraCommandCentre() {
             {lastRunResult.ok
               ? <CheckCircle2 className="w-3.5 h-3.5 text-[hsl(43,78%,52%)] flex-shrink-0" />
               : <AlertTriangle className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />}
-            <span className="text-white/50 font-mono">Run {lastRunResult.runId.slice(0, 8)}…</span>
+            <span className="text-white/50 font-mono">Run {lastRunResult.runId ? lastRunResult.runId.slice(0, 8) : "N/A"}…</span>
             <span className="text-white/40">{lastRunResult.totals.scanned} scanned</span>
             <span className="text-blue-300 font-medium">{lastRunResult.totals.pushedPipeline} → pipeline</span>
             <span className="text-purple-300 font-medium">{lastRunResult.totals.pushedRadar} → radar</span>
