@@ -18,9 +18,18 @@ import { storage } from "../storage";
 import { scoreRadarSignal } from "./officeMovRadarService";
 
 function makeOpenAI(): OpenAI {
+  const apiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY ?? process.env.OPENAI_API_KEY;
+  const baseURL = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL;
+
+  if (!apiKey) {
+    throw new Error("OpenAI API key not configured (AI_INTEGRATIONS_OPENAI_API_KEY or OPENAI_API_KEY)");
+  }
+
   return new OpenAI({
-    apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY ?? process.env.OPENAI_API_KEY,
-    baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+    apiKey,
+    baseURL: baseURL || undefined, // Only set if explicitly provided
+    timeout: 30000, // 30 second timeout
+    maxRetries: 2,
   });
 }
 
@@ -279,11 +288,34 @@ Rules:
   } catch (err: any) {
     if (err?.status === 429 || err?.message?.includes("429") || err?.message?.includes("quota")) {
       markQuotaExhausted();
+    } else if (err?.code === "ECONNREFUSED" || err?.message?.includes("Connection")) {
+      console.error("[NewsFeedScanner] OpenAI connection error (will retry):", err.message);
     } else {
       console.error("[NewsFeedScanner] GPT batch classify failed:", err.message);
     }
-    return [];
+    throw err;
   }
+}
+
+async function classifyArticleBatchWithRetry(
+  items: RSSItem[],
+  mode: ScanMode,
+  maxRetries: number = 2,
+): Promise<ClassifiedSignal[]> {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await classifyArticleBatch(items, mode);
+    } catch (err: any) {
+      if (attempt === maxRetries) {
+        console.error("[NewsFeedScanner] GPT batch classify failed after all retries:", err.message);
+        return [];
+      }
+      const delay = Math.pow(2, attempt) * 1000; // 1s, 2s
+      console.log(`[NewsFeedScanner] Retry ${attempt + 1}/${maxRetries} after ${delay}ms...`);
+      await sleep(delay);
+    }
+  }
+  return [];
 }
 
 // ─── City resolver ────────────────────────────────────────────────────────────
@@ -480,7 +512,7 @@ async function runBatchedScan(
   let totalSaved = 0;
   for (let i = 0; i < preFiltered.length; i += BATCH_SIZE) {
     const batch = preFiltered.slice(i, i + BATCH_SIZE);
-    const classified = await classifyArticleBatch(batch, mode);
+    const classified = await classifyArticleBatchWithRetry(batch, mode);
     totalSaved += await saveSignals(batch, classified, sourceType);
     if (i + BATCH_SIZE < preFiltered.length) await sleep(BATCH_DELAY_MS);
   }
