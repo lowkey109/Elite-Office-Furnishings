@@ -5438,7 +5438,6 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
       const scoring = scoreRadarSignal({
         confidence: "medium",
         signalType,
-        confidence,
         city: body.city ?? "",
         industry: body.industry,
         estimatedHeadcount: body.estimatedHeadcount,
@@ -6613,8 +6612,6 @@ Rules:
         partnerId: resolvedPartnerId,
         contactName: body.clientName || body.contactName || null,
         clientCompany: body.clientCompany || body.companyName || null,
-        contactName: body.contactName || null,
-        contactEmail: body.contactEmail || null,
         contactPhone: body.contactPhone || null,
         officeLocation: body.officeLocation || body.city || null,
         officeSizeSqm: body.officeSizeSqm ? String(body.officeSizeSqm) : null,
