@@ -1,0 +1,278 @@
+diff --git a/server/routes.ts b/server/routes.ts
+index 953246d..23b0721 100644
+--- a/server/routes.ts
++++ b/server/routes.ts
+@@ -1501,7 +1501,7 @@ IMPORTANT RULES:
+         ...data,
+         opportunityScore: opp.opportunityScore,
+         opportunityTier: opp.opportunityTier,
+-        signalsJson: JSON.stringify(opp.signals),
++        signalsJson: opp.signals,
+         nextAction: data.nexoraNextAction || opp.nextAction,
+         estimatedValueRange: data.nexoraDealBand || opp.estimatedValueRange || null,
+       } as any);
+@@ -2518,7 +2518,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
+         estimatedValueRange: projectValue || opp.estimatedValueRange || null,
+         opportunityScore: opp.opportunityScore,
+         opportunityTier: opp.opportunityTier,
+-        signalsJson: JSON.stringify(opp.signals),
++        signalsJson: opp.signals,
+         nextAction: opp.nextAction,
+         estimateJson: JSON.stringify({
+           financeType,
+@@ -2673,7 +2673,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
+         ].filter(Boolean).join("\n"),
+         opportunityScore: opp.opportunityScore,
+         opportunityTier: opp.opportunityTier,
+-        signalsJson: JSON.stringify(opp.signals),
++        signalsJson: opp.signals,
+         nextAction: opp.nextAction,
+         estimatedValueRange: aiRec?.estimatedProjectValue || opp.estimatedValueRange || null,
+         estimateJson: quoteResult ? JSON.stringify(quoteResult.quote) : null,
+@@ -3774,7 +3774,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
+         await storage.updateLeadScore(lead.id, {
+           opportunityScore: opp.opportunityScore,
+           opportunityTier: opp.opportunityTier,
+-          signalsJson: JSON.stringify(opp.signals),
++          signalsJson: opp.signals,
+           nextAction: opp.nextAction,
+           estimatedValueRange: opp.estimatedValueRange,
+         });
+@@ -10181,7 +10181,7 @@ Rules:
+           const reason = resolved.blockingReason ?? "No external email found";
+           await ddb.update(om).set({ deliveryStatus: "blocked", blockingReason: reason, emailSourceType: "blocked" }).where(eq(om.id, draft.msgId));
+           await ddb.update(ot).set({ contactReadiness: "NEEDS_CONTACT", updatedAt: new Date() }).where(eq(ot.id, draft.threadId));
+-          await ddb.insert(oe).values({ threadId: draft.threadId, eventType: "blocked", payloadJson: JSON.stringify({ messageId: draft.msgId, reason }) });
++          await ddb.insert(oe).values({ threadId: draft.threadId, eventType: "blocked", payloadJson: { messageId: draft.msgId, reason } });
+           results.push({ company: draft.companyName, status: "blocked", reason, msgId: draft.msgId });
+           blocked++;
+           continue;
+@@ -10230,7 +10230,7 @@ Rules:
+           }
+ 
+           await ddb.update(om).set({ deliveryStatus: "sent", sentAt: new Date(), resendMessageId: resendMsgId, blockingReason: LIVE_MODE ? null : "SAFE_MODE" }).where(eq(om.id, draft.msgId));
+-          await ddb.insert(oe).values({ threadId: draft.threadId, eventType: "sent", payloadJson: JSON.stringify({ messageId: draft.msgId, recipientEmail: toEmail, sourceType: resolved.sourceType, liveMode: LIVE_MODE, resendMsgId }) });
++          await ddb.insert(oe).values({ threadId: draft.threadId, eventType: "sent", payloadJson: { messageId: draft.msgId, recipientEmail: toEmail, sourceType: resolved.sourceType, liveMode: LIVE_MODE, resendMsgId } });
+           results.push({ company: draft.companyName, status: LIVE_MODE ? "sent" : "safe_mode", email: toEmail, msgId: draft.msgId });
+           sent++;
+         } catch (sendErr: any) {
+diff --git a/server/services/outreach/bookingService.ts b/server/services/outreach/bookingService.ts
+index 78c0330..01b8f6a 100644
+--- a/server/services/outreach/bookingService.ts
++++ b/server/services/outreach/bookingService.ts
+@@ -77,7 +77,7 @@ export async function createBookingLink(params: {
+   await db.insert(outreachEvents).values({
+     threadId: params.threadId,
+     eventType: "booking_link_created",
+-    payloadJson: JSON.stringify({ provider, bookingLink, isSandbox }),
++    payloadJson: { provider, bookingLink, isSandbox },
+   });
+ 
+   console.log(`[BookingService] Link created for ${params.companyName}: ${bookingLink} (provider: ${provider}, sandbox: ${isSandbox})`);
+@@ -96,7 +96,7 @@ export async function recordBookingClick(threadId: string, bookingEventId: strin
+   await db.insert(outreachEvents).values({
+     threadId,
+     eventType: "booking_clicked",
+-    payloadJson: JSON.stringify({ bookingEventId }),
++    payloadJson: { bookingEventId },
+   });
+ }
+ 
+diff --git a/server/services/outreach/contactDiscoveryService.ts b/server/services/outreach/contactDiscoveryService.ts
+index 2aee6f4..64b921e 100644
+--- a/server/services/outreach/contactDiscoveryService.ts
++++ b/server/services/outreach/contactDiscoveryService.ts
+@@ -345,7 +345,7 @@ export async function discoverContactForOpportunity(opportunityId: string): Prom
+           contactId: saved.id,
+           checkType: "mx_domain",
+           result: "passed",
+-          detailsJson: JSON.stringify({ domain, role: contact.role, confidence: contact.confidence }),
++          detailsJson: { domain, role: contact.role, confidence: contact.confidence },
+         });
+ 
+         if (contactsFound === 0) {
+diff --git a/server/services/outreach/outreachEngine.ts b/server/services/outreach/outreachEngine.ts
+index 89dcaa4..d2e25ed 100644
+--- a/server/services/outreach/outreachEngine.ts
++++ b/server/services/outreach/outreachEngine.ts
+@@ -126,7 +126,7 @@ export async function createOutreachThread(params: {
+   await db.insert(outreachEvents).values({
+     threadId: thread.id,
+     eventType: "created",
+-    payloadJson: JSON.stringify({ companyName: params.companyName, angle, bookingLink }),
++    payloadJson: { companyName: params.companyName, angle, bookingLink },
+   });
+ 
+   // Schedule sequence
+@@ -241,7 +241,7 @@ export async function processScheduledFollowUps(): Promise<{ processed: number;
+     await db.insert(outreachEvents).values({
+       threadId: seq.threadId,
+       eventType: SAFE_MODE ? "draft_generated" : "sent",
+-      payloadJson: JSON.stringify({ stage: seq.stage, sequenceId: seq.id }),
++      payloadJson: { stage: seq.stage, sequenceId: seq.id },
+     });
+ 
+     sent++;
+@@ -266,7 +266,7 @@ export async function pauseThread(threadId: string): Promise<void> {
+   await db.insert(outreachEvents).values({
+     threadId,
+     eventType: "paused",
+-    payloadJson: JSON.stringify({ reason: "manual" }),
++    payloadJson: { reason: "manual" },
+   });
+ }
+ 
+@@ -285,7 +285,7 @@ export async function stopThread(threadId: string, reason = "manual"): Promise<v
+   await db.insert(outreachEvents).values({
+     threadId,
+     eventType: "stopped",
+-    payloadJson: JSON.stringify({ reason }),
++    payloadJson: { reason },
+   });
+ }
+ 
+diff --git a/server/services/outreach/outreachGenerationService.ts b/server/services/outreach/outreachGenerationService.ts
+index 9dc16ee..6440028 100644
+--- a/server/services/outreach/outreachGenerationService.ts
++++ b/server/services/outreach/outreachGenerationService.ts
+@@ -174,7 +174,7 @@ Write the email body only:`;
+   await db.insert(outreachEvents).values({
+     threadId,
+     eventType: "message_generated",
+-    payloadJson: JSON.stringify({ stage, messageType, subject }),
++    payloadJson: { stage, messageType, subject },
+   });
+ 
+   console.log(`[OutreachGeneration] Generated ${messageType} for thread ${threadId} (stage ${stage}), SAFE_MODE=${SAFE_MODE}, templateOk=${enforcement.ok}`);
+@@ -232,7 +232,7 @@ Write the email body only:`;
+           await db.insert(outreachEvents).values({
+             threadId,
+             eventType: "auto_released",
+-            payloadJson: JSON.stringify({ confidence, recipientEmail, messageId: msg.id }),
++            payloadJson: { confidence, recipientEmail, messageId: msg.id },
+           });
+ 
+           console.log(`[AutoRelease] ✓ Sent to ${recipientEmail} (${context.companyName}) at confidence ${confidence}`);
+diff --git a/server/services/stripe/invoiceService.ts b/server/services/stripe/invoiceService.ts
+index 270662b..807da7b 100644
+--- a/server/services/stripe/invoiceService.ts
++++ b/server/services/stripe/invoiceService.ts
+@@ -109,7 +109,7 @@ export async function createInvoice(opts: CreateInvoiceOptions): Promise<Invoice
+     action: config.safeMode ? "create_invoice_simulated" : "create_invoice",
+     entityType: "invoice",
+     entityId: inserted.id,
+-    metadataJson: JSON.stringify({ quoteId: opts.quoteId, amount: opts.amount, isTestMode: config.testMode }),
++    metadataJson: { quoteId: opts.quoteId, amount: opts.amount, isTestMode: config.testMode },
+   });
+ 
+   return {
+@@ -152,7 +152,7 @@ export async function resendInvoice(invoiceLogId: string): Promise<{ success: bo
+     action: config.safeMode ? "resend_invoice_simulated" : "resend_invoice",
+     entityType: "invoice",
+     entityId: invoiceLogId,
+-    metadataJson: JSON.stringify({ safeMode: config.safeMode }),
++    metadataJson: { safeMode: config.safeMode },
+   });
+ 
+   return { success: true, message: config.safeMode ? "Resend simulated (SAFE MODE)" : "Invoice resent via Stripe" };
+diff --git a/server/services/stripe/paymentLinkService.ts b/server/services/stripe/paymentLinkService.ts
+index 9eee406..f370017 100644
+--- a/server/services/stripe/paymentLinkService.ts
++++ b/server/services/stripe/paymentLinkService.ts
+@@ -125,7 +125,7 @@ export async function createPaymentLink(opts: CreatePaymentLinkOptions): Promise
+     action: config.safeMode ? "create_payment_link_simulated" : "create_payment_link",
+     entityType: "payment_link",
+     entityId: inserted.id,
+-    metadataJson: JSON.stringify({ quoteId: opts.quoteId, amount: finalAmount, linkType, isTestMode: config.testMode }),
++    metadataJson: { quoteId: opts.quoteId, amount: finalAmount, linkType, isTestMode: config.testMode },
+   });
+ 
+   return {
+@@ -153,6 +153,6 @@ export async function markLinkStale(linkId: string) {
+     action: "mark_link_superseded",
+     entityType: "payment_link",
+     entityId: linkId,
+-    metadataJson: JSON.stringify({ reason: "manual" }),
++    metadataJson: { reason: "manual" },
+   });
+ }
+diff --git a/server/services/stripe/webhookService.ts b/server/services/stripe/webhookService.ts
+index 5a1b058..0131a13 100644
+--- a/server/services/stripe/webhookService.ts
++++ b/server/services/stripe/webhookService.ts
+@@ -89,7 +89,7 @@ export async function processStripeWebhook(
+       externalEventId: event.id,
+       eventType: event.type,
+       processed: false,
+-      payloadJson: JSON.stringify(event), // store whole event for forensic/debug
++      payloadJson: event, // store whole event for forensic/debug
+     })
+     .onConflictDoNothing()
+     .returning();
+@@ -117,7 +117,7 @@ export async function processStripeWebhook(
+       action: `webhook_processed:${event.type}`,
+       entityType: "webhook_event",
+       entityId: webhookRecord.id,
+-      metadataJson: JSON.stringify({ stripeEventId: event.id, eventType: event.type }),
++      metadataJson: { stripeEventId: event.id, eventType: event.type },
+     });
+ 
+     return { success: true, eventId: webhookRecord.id, eventType: event.type };
+@@ -191,7 +191,7 @@ async function handleStripeEvent(
+           amount: intent.amount,
+           currency: intent.currency,
+           paymentStatus: "succeeded",
+-          rawPayloadJson: JSON.stringify(intent),
++          rawPayloadJson: intent,
+         })
+         .onConflictDoNothing();
+ 
+@@ -240,7 +240,7 @@ async function handleStripeEvent(
+           amount: intent.amount,
+           currency: intent.currency,
+           paymentStatus: "failed",
+-          rawPayloadJson: JSON.stringify(intent),
++          rawPayloadJson: intent,
+         })
+         .onConflictDoNothing();
+ 
+@@ -489,7 +489,7 @@ export async function simulateWebhookEvent(opts: {
+       eventType: opts.eventType,
+       processed: true,
+       processedAt: new Date(),
+-      payloadJson: JSON.stringify({ simulated: true, ...opts }),
++      payloadJson: { simulated: true, ...opts },
+     })
+     .returning();
+ 
+@@ -523,7 +523,7 @@ export async function simulateWebhookEvent(opts: {
+     action: "simulate_webhook",
+     entityType: "webhook_event",
+     entityId: record.id,
+-    metadataJson: JSON.stringify({ ...opts, testMode: config.testMode }),
++    metadataJson: { ...opts, testMode: config.testMode },
+   });
+ 
+   return {
+diff --git a/server/services/whatsappAI.ts b/server/services/whatsappAI.ts
+index 0f17825..7a0e02d 100644
+--- a/server/services/whatsappAI.ts
++++ b/server/services/whatsappAI.ts
+@@ -294,7 +294,7 @@ async function tryCaptureLead(phone: string, history: Message[]): Promise<void>
+       await storage.updateLeadScore(existing.id, {
+         opportunityScore: Math.max(opportunityScore, existing.opportunityScore ?? 0),
+         opportunityTier,
+-        signalsJson: JSON.stringify(data),
++        signalsJson: data,
+         nextAction: data.nextBestAction ?? "Follow up on WhatsApp conversation",
+         estimatedValueRange: data.budget ?? existing.estimatedValueRange ?? "",
+       });
+@@ -314,7 +314,7 @@ async function tryCaptureLead(phone: string, history: Message[]): Promise<void>
+         officeLocation: data.city ?? "",
+         opportunityScore,
+         opportunityTier,
+-        signalsJson: JSON.stringify(data),
++        signalsJson: data,
+         nextAction: data.nextBestAction ?? "Follow up on WhatsApp conversation",
+         estimatedValueRange: data.budget ?? "",
+       });

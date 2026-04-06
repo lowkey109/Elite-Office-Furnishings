@@ -177,7 +177,7 @@ export class ProposalService {
     const htmlContent = generateHtmlProposal(content);
 
     const [newProposal] = await db.insert(proposals).values({
-      opportunityId: options?.opportunityId || quote.opportunityId || undefined,
+      opportunityId: options?.opportunityId,opportunityId || quote.opportunityId || undefined,
       quoteId,
       version: nextVersion,
       title: options?.title || `Workspace Proposal – ${content.companyName || content.clientName}`,
@@ -201,7 +201,7 @@ export class ProposalService {
           clientName: content.clientName,
           clientEmail: content.email || "billing@thecorporatedesk.com.au",
           companyName: content.companyName,
-          opportunityId: options?.opportunityId,
+          opportunityId: options?.opportunityId,opportunityId,
           amount: content.totalIncGst,
           currency: "aud",
           linkType: "full",

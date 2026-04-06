@@ -1420,12 +1420,12 @@ export async function runDealHunterScan(
             sourceUrl: profile.sourceUrl,
             rawPayloadSummary: profile.rawPayloadSummary,
 
-            signalStrengthScore: score,
+            signalStrengthScore: typeof  score,
             signalConfidence: confidence,
             reasoningSummary: reasoning.join(" | "),
 
             estimatedWorkspaceSqm: sqm,
-            estimatedProjectValue: value,
+            estimatedProjectValue: value ? Number(value) || null : null,
 
             relocationProbability:
               tier === "high"

@@ -1,0 +1,603 @@
+client/src/components/ChatBot.tsx(34,5): error TS2339: Property 'addMessage' does not exist on type 'ConciergeContextValue'.
+client/src/components/ChatBot.tsx(35,5): error TS2339: Property 'updateLastMessage' does not exist on type 'ConciergeContextValue'.
+client/src/components/ChatBot.tsx(37,5): error TS2339: Property 'updateProfile' does not exist on type 'ConciergeContextValue'.
+client/src/components/ChatBot.tsx(39,5): error TS2339: Property 'addSignal' does not exist on type 'ConciergeContextValue'.
+client/src/components/ChatBot.tsx(162,13): error TS2741: Property 'id' is missing in type '{ imageUrl?: string | undefined; role: "user"; content: string; }' but required in type 'ConversationMessage'.
+client/src/components/TrackingPixels.tsx(109,3): error TS2304: Cannot find name 'inlineNoScript'.
+client/src/lib/nexoraEngine.ts(481,19): error TS2339: Property 'ADMIN_ACTION' does not exist on type '{ LAYOUT_PLANNING: string; QUOTE_REQUEST: string; STRATEGY_NEEDED: string; PROCUREMENT: string; FINANCE_INQUIRY: string; PRODUCT_BROWSE: string; BOOKING_REQUEST: string; PARTNER_REFERRAL: string; BUDGET_INQUIRY: string; }'.
+client/src/lib/nexoraEngine.ts(481,19): error TS2339: Property 'EXPLORE' does not exist on type '{ LAYOUT_PLANNING: string; QUOTE_REQUEST: string; STRATEGY_NEEDED: string; PROCUREMENT: string; FINANCE_INQUIRY: string; PRODUCT_BROWSE: string; BOOKING_REQUEST: string; PARTNER_REFERRAL: string; BUDGET_INQUIRY: string; }'.
+client/src/lib/nexoraEngine.ts(481,19): error TS2339: Property 'SUPPORT_ISSUE' does not exist on type '{ LAYOUT_PLANNING: string; QUOTE_REQUEST: string; STRATEGY_NEEDED: string; PROCUREMENT: string; FINANCE_INQUIRY: string; PRODUCT_BROWSE: string; BOOKING_REQUEST: string; PARTNER_REFERRAL: string; BUDGET_INQUIRY: string; }'.
+client/src/pages/AdminDashboard.tsx(589,54): error TS2367: This comparison appears to be unintentional because the types 'number | null' and 'string' have no overlap.
+client/src/pages/AdminDashboard.tsx(589,54): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'SetStateAction<number | null>'.
+  Type 'string' is not assignable to type 'SetStateAction<number | null>'.
+client/src/pages/AdminDashboard.tsx(606,98): error TS2367: This comparison appears to be unintentional because the types 'number | null' and 'string' have no overlap.
+client/src/pages/AdminDashboard.tsx(610,22): error TS2367: This comparison appears to be unintentional because the types 'number | null' and 'string' have no overlap.
+client/src/pages/AdminLeadEngine.tsx(105,65): error TS2345: Argument of type '{ method: string; }' is not assignable to parameter of type 'string'.
+client/src/pages/AdminLeadEngine.tsx(114,76): error TS2345: Argument of type '{ method: string; }' is not assignable to parameter of type 'string'.
+client/src/pages/AdminLeadEngine.tsx(123,72): error TS2345: Argument of type '{ method: string; }' is not assignable to parameter of type 'string'.
+client/src/pages/AdminLeadEngine.tsx(132,59): error TS2345: Argument of type '{ method: string; body: string; }' is not assignable to parameter of type 'string'.
+client/src/pages/AdminNexoraCommandCentre.tsx(293,5): error TS2322: Type '() => Promise<Response>' is not assignable to type 'MutationFunction<NexoraRunResult, void>'.
+  Type 'Promise<Response>' is not assignable to type 'Promise<NexoraRunResult>'.
+    Type 'Response' is missing the following properties from type 'NexoraRunResult': runId, trigger, startedAt, finishedAt, and 3 more.
+client/src/pages/AdminProductCommandCentre.tsx(97,81): error TS2345: Argument of type '{ method: string; }' is not assignable to parameter of type 'string'.
+client/src/pages/AdminProductCommandCentre.tsx(103,83): error TS2345: Argument of type '{ method: string; }' is not assignable to parameter of type 'string'.
+client/src/pages/AdminProductCommandCentre.tsx(108,81): error TS2345: Argument of type '{ method: string; }' is not assignable to parameter of type 'string'.
+client/src/pages/AdminProductCommandCentre.tsx(113,80): error TS2345: Argument of type '{ method: string; }' is not assignable to parameter of type 'string'.
+client/src/pages/AdminProductCommandCentre.tsx(118,84): error TS2345: Argument of type '{ method: string; }' is not assignable to parameter of type 'string'.
+client/src/pages/AdminProductCommandCentre.tsx(125,47): error TS2345: Argument of type '{ method: string; body: string; }' is not assignable to parameter of type 'string'.
+client/src/pages/AdminProductCommandCentre.tsx(130,83): error TS2345: Argument of type '{ method: string; body: string; }' is not assignable to parameter of type 'string'.
+client/src/pages/AdminProductCommandCentre.tsx(135,67): error TS2345: Argument of type '{ method: string; body: string; }' is not assignable to parameter of type 'string'.
+client/src/pages/AdminProductCommandCentre.tsx(140,96): error TS2345: Argument of type '{ method: string; }' is not assignable to parameter of type 'string'.
+client/src/pages/AdminProductCommandCentre.tsx(145,71): error TS2345: Argument of type '{ method: string; body: string; }' is not assignable to parameter of type 'string'.
+client/src/pages/AdminProductCommandCentre.tsx(152,49): error TS2345: Argument of type '{ method: string; body: string; }' is not assignable to parameter of type 'string'.
+client/src/pages/AdminQuotes.tsx(86,31): error TS2345: Argument of type 'Record<string, unknown>[]' is not assignable to parameter of type 'string'.
+client/src/pages/BlogPost.tsx(277,20): error TS18047: 'images' is possibly 'null'.
+client/src/pages/BlogPost.tsx(278,20): error TS18047: 'images' is possibly 'null'.
+client/src/pages/BlogPost.tsx(279,24): error TS18047: 'images' is possibly 'null'.
+client/src/pages/Marketing.tsx(759,19): error TS2322: Type '(platform: Platform, extra: Record<string, string>) => Promise<void>' is not assignable to type '(id: Platform, extra?: Record<string, string> | undefined) => void'.
+  Types of parameters 'extra' and 'extra' are incompatible.
+    Type 'Record<string, string> | undefined' is not assignable to type 'Record<string, string>'.
+      Type 'undefined' is not assignable to type 'Record<string, string>'.
+client/src/pages/QuotePrint.tsx(56,30): error TS2345: Argument of type 'Record<string, unknown>[]' is not assignable to parameter of type 'string'.
+server/replit_integrations/audio/routes.ts(23,27): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/replit_integrations/audio/routes.ts(51,27): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/replit_integrations/audio/routes.ts(65,39): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/replit_integrations/batch/utils.ts(110,30): error TS2339: Property 'AbortError' does not exist on type '<T>(input: (attemptNumber: number) => T | PromiseLike<T>, options?: Options | undefined) => Promise<T>'.
+server/replit_integrations/batch/utils.ts(159,32): error TS2339: Property 'AbortError' does not exist on type '<T>(input: (attemptNumber: number) => T | PromiseLike<T>, options?: Options | undefined) => Promise<T>'.
+server/replit_integrations/chat/routes.ts(25,27): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/replit_integrations/chat/routes.ts(53,27): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/replit_integrations/chat/routes.ts(65,39): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/replit_integrations/chat/storage.ts(2,10): error TS2305: Module '"@shared/schema"' has no exported member 'conversations'.
+server/replit_integrations/chat/storage.ts(2,25): error TS2305: Module '"@shared/schema"' has no exported member 'messages'.
+server/replit_integrations/image/client.ts(23,18): error TS18048: 'response.data' is possibly 'undefined'.
+server/replit_integrations/image/client.ts(50,23): error TS18048: 'response.data' is possibly 'undefined'.
+server/replit_integrations/image/routes.ts(20,25): error TS18048: 'response.data' is possibly 'undefined'.
+server/routes.ts(380,75): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/routes.ts(439,222): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/routes.ts(558,57): error TS2345: Argument of type '"system-run"' is not assignable to parameter of type '"manual" | "scheduler" | "background" | "webhook" | "api" | undefined'.
+server/routes.ts(559,84): error TS2339: Property 'skipped' does not exist on type 'NexoraEngineResult'.
+server/routes.ts(559,133): error TS2339: Property 'message' does not exist on type 'NexoraEngineResult'.
+server/routes.ts(559,158): error TS2339: Property 'skipped' does not exist on type 'NexoraEngineResult'.
+server/routes.ts(584,76): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/routes.ts(672,29): error TS2304: Cannot find name 'Stripe'.
+server/routes.ts(675,14): error TS2304: Cannot find name 'Stripe'.
+server/routes.ts(1493,9): error TS2322: Type 'number | null | undefined' is not assignable to type 'string | null | undefined'.
+  Type 'number' is not assignable to type 'string'.
+server/routes.ts(1568,9): error TS2322: Type 'number | null' is not assignable to type 'string | null | undefined'.
+  Type 'number' is not assignable to type 'string'.
+server/routes.ts(1589,9): error TS2322: Type 'number | null' is not assignable to type 'string | null | undefined'.
+  Type 'number' is not assignable to type 'string'.
+server/routes.ts(1662,11): error TS2322: Type 'number | null' is not assignable to type 'string | null | undefined'.
+  Type 'number' is not assignable to type 'string'.
+server/routes.ts(1674,11): error TS2322: Type 'number | null' is not assignable to type 'string | null | undefined'.
+  Type 'number' is not assignable to type 'string'.
+server/routes.ts(1864,44): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/routes.ts(1867,119): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/routes.ts(1894,41): error TS2339: Property 'nexoraScore' does not exist on type 'PgTableWithColumns<{ name: "deal_hunter_signals"; schema: undefined; columns: { createdAt: PgColumn<{ name: "created_at"; tableName: "deal_hunter_signals"; dataType: "date"; columnType: "PgTimestamp"; data: Date; ... 9 more ...; generated: undefined; }, {}, {}>; ... 42 more ...; signalWindowBucket: PgColumn<...>; };...'.
+server/routes.ts(1897,61): error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "date_detected"; tableName: "office_move_radar"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: false; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>, right: Date | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'Date | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string>, right: string | SQLWrapper): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "date_detected"; tableName: "office_move_radar"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: false; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string>'.
+      Type 'PgColumn<{ name: "date_detected"; tableName: "office_move_radar"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: false; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "date_detected"; tableName: "office_move_radar"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: false; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+server/routes.ts(1913,20): error TS2339: Property 'nexoraScore' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; companyName: string; companyDomain: string | null; city: string; state: string | null; country: string | null; ... 35 more ...; signalWindowBucket: string | null; }'.
+server/routes.ts(1915,25): error TS2339: Property 'confidenceLevel' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; companyName: string; companyDomain: string | null; city: string; state: string | null; country: string | null; ... 35 more ...; signalWindowBucket: string | null; }'.
+server/routes.ts(1916,27): error TS2339: Property 'whyItMatters' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; companyName: string; companyDomain: string | null; city: string; state: string | null; country: string | null; ... 35 more ...; signalWindowBucket: string | null; }'.
+server/routes.ts(2231,29): error TS2339: Property 'leftJoin' does not exist on type 'typeof import("/Users/bmumford/Elite-Office-Furnishings/node_modules/drizzle-orm/index")'.
+server/routes.ts(2566,9): error TS2322: Type 'number | null' is not assignable to type 'string | null | undefined'.
+  Type 'number' is not assignable to type 'string'.
+server/routes.ts(2755,38): error TS2339: Property 'email' does not exist on type 'PgTableWithColumns<{ name: "partner_referrals"; schema: undefined; columns: { createdAt: PgColumn<{ name: "created_at"; tableName: "partner_referrals"; dataType: "date"; columnType: "PgTimestamp"; data: Date; ... 9 more ...; generated: undefined; }, {}, {}>; ... 34 more ...; notes: PgColumn<...>; }; dialect: "pg"; }>'.
+server/routes.ts(2879,35): error TS2504: Type 'ChatCompletion & { _request_id?: string | null | undefined; }' must have a '[Symbol.asyncIterator]()' method that returns an async iterator.
+server/routes.ts(2982,14): error TS2304: Cannot find name 'getAdaptersMeta'.
+server/routes.ts(3008,31): error TS2304: Cannot find name 'SourceType'.
+server/routes.ts(3009,33): error TS2304: Cannot find name 'SourceType'.
+server/routes.ts(3009,87): error TS2304: Cannot find name 'SourceType'.
+server/routes.ts(3009,127): error TS2304: Cannot find name 'SourceType'.
+server/routes.ts(3020,54): error TS2304: Cannot find name 'extractDomain'.
+server/routes.ts(3020,110): error TS2304: Cannot find name 'extractDomain'.
+server/routes.ts(3033,55): error TS2345: Argument of type '{ company: string; domain: any; website: string | null; location: string; industry: string; estimatedTeamSize: string; likelyOfficeNeed: string; signalsDetected: string[]; estimatedProjectValue: string; ... 7 more ...; sourceUrl: string | null; }' is not assignable to parameter of type 'Omit<ProspectedLead, "id" | "status" | "createdAt">'.
+  Type '{ company: string; domain: any; website: string | null; location: string; industry: string; estimatedTeamSize: string; likelyOfficeNeed: string; signalsDetected: string[]; estimatedProjectValue: string; ... 7 more ...; sourceUrl: string | null; }' is missing the following properties from type 'Omit<ProspectedLead, "id" | "status" | "createdAt">': city, signalType, estimatedHeadcount, recommendedNextAction, and 6 more.
+server/routes.ts(3090,35): error TS2304: Cannot find name 'SourceType'.
+server/routes.ts(3091,37): error TS2304: Cannot find name 'SourceType'.
+server/routes.ts(3091,96): error TS2304: Cannot find name 'SourceType'.
+server/routes.ts(3091,141): error TS2304: Cannot find name 'SourceType'.
+server/routes.ts(3100,63): error TS2304: Cannot find name 'extractDomain'.
+server/routes.ts(3100,124): error TS2304: Cannot find name 'extractDomain'.
+server/routes.ts(3110,59): error TS2345: Argument of type '{ company: string; domain: any; website: string | null; location: string; industry: string; estimatedTeamSize: string; likelyOfficeNeed: string; signalsDetected: string[]; estimatedProjectValue: string; ... 7 more ...; sourceUrl: string | null; }' is not assignable to parameter of type 'Omit<ProspectedLead, "id" | "status" | "createdAt">'.
+  Type '{ company: string; domain: any; website: string | null; location: string; industry: string; estimatedTeamSize: string; likelyOfficeNeed: string; signalsDetected: string[]; estimatedProjectValue: string; ... 7 more ...; sourceUrl: string | null; }' is missing the following properties from type 'Omit<ProspectedLead, "id" | "status" | "createdAt">': city, signalType, estimatedHeadcount, recommendedNextAction, and 6 more.
+server/routes.ts(3624,82): error TS2345: Argument of type 'Record<string, unknown>' is not assignable to parameter of type 'string'.
+server/routes.ts(3639,36): error TS2551: Property 'estimatedValueRange' does not exist on type '{ id: string; name: string; officeSizeSqm: number | null; staffCount: number | null; budgetMin: number | null; budgetMax: number | null; createdAt: Date | null; type: string; message: string | null; ... 26 more ...; hasFloorplan: boolean | null; }'. Did you mean 'estimatedValueMin'?
+server/routes.ts(3642,29): error TS2551: Property 'officeSize' does not exist on type '{ id: string; name: string; officeSizeSqm: number | null; staffCount: number | null; budgetMin: number | null; budgetMax: number | null; createdAt: Date | null; type: string; message: string | null; ... 26 more ...; hasFloorplan: boolean | null; }'. Did you mean 'officeSizeSqm'?
+server/routes.ts(3644,25): error TS2339: Property 'budget' does not exist on type '{ id: string; name: string; officeSizeSqm: number | null; staffCount: number | null; budgetMin: number | null; budgetMax: number | null; createdAt: Date | null; type: string; message: string | null; ... 26 more ...; hasFloorplan: boolean | null; }'.
+server/routes.ts(3655,25): error TS2551: Property 'officeSize' does not exist on type '{ id: string; name: string; officeSizeSqm: number | null; staffCount: number | null; budgetMin: number | null; budgetMax: number | null; createdAt: Date | null; type: string; message: string | null; ... 26 more ...; hasFloorplan: boolean | null; }'. Did you mean 'officeSizeSqm'?
+server/routes.ts(3656,11): error TS2322: Type 'number | null' is not assignable to type 'string | null | undefined'.
+  Type 'number' is not assignable to type 'string'.
+server/routes.ts(3657,21): error TS2339: Property 'budget' does not exist on type '{ id: string; name: string; officeSizeSqm: number | null; staffCount: number | null; budgetMin: number | null; budgetMax: number | null; createdAt: Date | null; type: string; message: string | null; ... 26 more ...; hasFloorplan: boolean | null; }'.
+server/routes.ts(3677,27): error TS2551: Property 'officeSize' does not exist on type '{ id: string; name: string; officeSizeSqm: number | null; staffCount: number | null; budgetMin: number | null; budgetMax: number | null; createdAt: Date | null; type: string; message: string | null; ... 26 more ...; hasFloorplan: boolean | null; }'. Did you mean 'officeSizeSqm'?
+server/routes.ts(3679,23): error TS2339: Property 'budget' does not exist on type '{ id: string; name: string; officeSizeSqm: number | null; staffCount: number | null; budgetMin: number | null; budgetMax: number | null; createdAt: Date | null; type: string; message: string | null; ... 26 more ...; hasFloorplan: boolean | null; }'.
+server/routes.ts(3767,11): error TS2322: Type 'number | null' is not assignable to type 'string | null | undefined'.
+  Type 'number' is not assignable to type 'string'.
+server/routes.ts(3777,11): error TS2322: Type 'OppSignal[]' is not assignable to type 'string'.
+server/routes.ts(4102,18): error TS2503: Cannot find namespace 'Stripe'.
+server/routes.ts(4113,46): error TS2503: Cannot find namespace 'Stripe'.
+server/routes.ts(4437,29): error TS2304: Cannot find name 'isWhatsAppConfigured'.
+server/routes.ts(4458,32): error TS2304: Cannot find name 'sendWhatsAppTextMessage'.
+server/routes.ts(4556,31): error TS2339: Property 'projectBrief' does not exist on type '{ id: string; name: string; staffCount: string | null; status: string; createdAt: Date | null; source: string | null; budgetRange: string | null; email: string; company: string; phone: string; ... 24 more ...; geometrySource: string | null; }'.
+server/routes.ts(4583,29): error TS2304: Cannot find name 'runLeaseSignalScan'.
+server/routes.ts(4657,13): error TS2322: Type 'string' is not assignable to type 'number'.
+server/routes.ts(4658,13): error TS2322: Type 'string' is not assignable to type 'number'.
+server/routes.ts(4674,89): error TS7006: Parameter 'l' implicitly has an 'any' type.
+server/routes.ts(4765,31): error TS2304: Cannot find name 'computeProcurementRecommendations'.
+server/routes.ts(5185,41): error TS2339: Property 'name' does not exist on type 'ProspectedLead'.
+server/routes.ts(5316,34): error TS2345: Argument of type '{ id: string; officeSizeSqm: number | null; staffCount: number | null; status: string; createdAt: Date | null; email: string; phone: string | null; companyName: string | null; ... 35 more ...; stripeCustomerId: string | null; }' is not assignable to parameter of type '{ id: string; quoteNumber: string; clientName: string; companyName?: string | null | undefined; email: string; phone?: string | null | undefined; projectSummary?: string | null | undefined; ... 11 more ...; preparedBy?: string | ... 1 more ... | undefined; }'.
+  Types of property 'quoteItems' are incompatible.
+    Type 'Record<string, unknown>[] | null' is not assignable to type 'string | null | undefined'.
+      Type 'Record<string, unknown>[]' is not assignable to type 'string'.
+server/routes.ts(5453,9): error TS2322: Type 'string | number' is not assignable to type 'string'.
+  Type 'number' is not assignable to type 'string'.
+server/routes.ts(5458,9): error TS2322: Type 'string | number' is not assignable to type 'string'.
+  Type 'number' is not assignable to type 'string'.
+server/routes.ts(5472,9): error TS2322: Type 'number | null' is not assignable to type 'string | null'.
+  Type 'number' is not assignable to type 'string'.
+server/routes.ts(5473,9): error TS2322: Type 'number | null' is not assignable to type 'string | null'.
+  Type 'number' is not assignable to type 'string'.
+server/routes.ts(5503,9): error TS2322: Type 'number | undefined' is not assignable to type 'string | undefined'.
+  Type 'number' is not assignable to type 'string'.
+server/routes.ts(5538,51): error TS2345: Argument of type '"jobs"' is not assignable to parameter of type '"manual" | "scheduler" | "background" | "webhook" | "api" | undefined'.
+server/routes.ts(5663,9): error TS2561: Object literal may only specify known properties, but 'confidenceLevel' does not exist in type 'RadarScoringInput'. Did you mean to write 'confidence'?
+server/routes.ts(5825,30): error TS2339: Property 'match' does not exist on type 'number | ""'.
+  Property 'match' does not exist on type 'number'.
+server/routes.ts(5838,13): error TS2322: Type 'string | number' is not assignable to type 'string'.
+  Type 'number' is not assignable to type 'string'.
+server/routes.ts(5970,28): error TS2304: Cannot find name 'analyseAllDeals'.
+server/routes.ts(6033,29): error TS2304: Cannot find name 'getNetworkSummary'.
+server/routes.ts(6369,28): error TS2304: Cannot find name 'routeOpportunityToPartners'.
+server/routes.ts(6378,28): error TS2304: Cannot find name 'routeRadarToPartners'.
+server/routes.ts(6562,9): error TS2769: No overload matches this call.
+  Overload 2 of 2, '(values: { id?: string | SQL<unknown> | Placeholder<string, any> | undefined; officeSizeSqm?: number | SQL<unknown> | Placeholder<string, any> | null | undefined; ... 33 more ...; crmLeadId?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'partnerId' does not exist in type '{ id?: string | SQL<unknown> | Placeholder<string, any> | undefined; officeSizeSqm?: number | SQL<unknown> | Placeholder<string, any> | null | undefined; ... 33 more ...; crmLeadId?: string | ... 3 more ... | undefined; }[]'.
+server/routes.ts(6780,29): error TS2304: Cannot find name 'generateRelocationSignals'.
+server/routes.ts(6787,27): error TS2304: Cannot find name 'getMarketIntelligence'.
+server/routes.ts(6794,28): error TS2304: Cannot find name 'pushRelocationToPipeline'.
+server/routes.ts(6828,30): error TS2304: Cannot find name 'generateStrategyRecommendation'.
+server/routes.ts(6846,30): error TS2304: Cannot find name 'getLearningInsights'.
+server/routes.ts(6870,27): error TS2304: Cannot find name 'getDealHunterStats'.
+server/routes.ts(6943,28): error TS2304: Cannot find name 'pushDealHunterToPipeline'.
+server/routes.ts(6950,28): error TS2304: Cannot find name 'pushDealHunterToRadar'.
+server/routes.ts(6957,29): error TS2304: Cannot find name 'reviewDealHunterSignal'.
+server/routes.ts(6964,29): error TS2304: Cannot find name 'dismissDealHunterSignal'.
+server/routes.ts(7405,60): error TS2345: Argument of type 'Record<string, unknown>[]' is not assignable to parameter of type 'string'.
+server/routes.ts(7406,73): error TS2345: Argument of type 'Record<string, unknown>[]' is not assignable to parameter of type 'string'.
+server/routes.ts(7498,64): error TS2339: Property 'replace' does not exist on type 'number | "0"'.
+  Property 'replace' does not exist on type 'number'.
+server/routes.ts(7608,14): error TS2339: Property 'currentCity' does not exist on type '{ id: string; officeSizeSqm: number | null; status: string; createdAt: Date | null; city: string; companyName: string; industry: string | null; state: string | null; signalType: string; ... 16 more ...; leaseExpiryDate: string | null; }'.
+server/routes.ts(7616,66): error TS2339: Property 'currentCity' does not exist on type '{ id: string; officeSizeSqm: number | null; status: string; createdAt: Date | null; city: string; companyName: string; industry: string | null; state: string | null; signalType: string; ... 16 more ...; leaseExpiryDate: string | null; }'.
+server/routes.ts(7617,27): error TS2339: Property 'targetCity' does not exist on type '{ id: string; officeSizeSqm: number | null; status: string; createdAt: Date | null; city: string; companyName: string; industry: string | null; state: string | null; signalType: string; ... 16 more ...; leaseExpiryDate: string | null; }'.
+server/routes.ts(7866,63): error TS2339: Property 'growthRate' does not exist on type '{ id: string; createdAt: Date | null; city: string; state: string | null; suburb: string; lat: number | null; lng: number | null; demandScore: number; snapshotDate: string; activeCompanies: number; ... 4 more ...; demandTier: string; }'.
+server/routes.ts(8077,62): error TS2339: Property 'replace' does not exist on type 'number | "0"'.
+  Property 'replace' does not exist on type 'number'.
+server/routes.ts(8832,30): error TS2304: Cannot find name 'proposalService'.
+server/routes.ts(8840,31): error TS2304: Cannot find name 'proposalService'.
+server/routes.ts(8847,27): error TS2304: Cannot find name 'proposalService'.
+server/routes.ts(8867,29): error TS2304: Cannot find name 'proposalService'.
+server/routes.ts(8873,24): error TS2304: Cannot find name 'proposalService'.
+server/routes.ts(8881,22): error TS2304: Cannot find name 'pricingEngine'.
+server/routes.ts(8882,57): error TS2304: Cannot find name 'PRICING_RULES'.
+server/routes.ts(8893,23): error TS2304: Cannot find name 'pricingEngine'.
+server/routes.ts(8895,35): error TS2304: Cannot find name 'dealApprovalService'.
+server/routes.ts(8917,28): error TS2304: Cannot find name 'dealApprovalService'.
+server/routes.ts(8925,26): error TS2304: Cannot find name 'dealApprovalService'.
+server/routes.ts(8932,27): error TS2304: Cannot find name 'dealApprovalService'.
+server/routes.ts(8940,30): error TS2304: Cannot find name 'dealApprovalService'.
+server/routes.ts(8948,30): error TS2304: Cannot find name 'dealApprovalService'.
+server/routes.ts(8958,35): error TS2304: Cannot find name 'proposalService'.
+server/routes.ts(8959,35): error TS2304: Cannot find name 'dealApprovalService'.
+server/routes.ts(8978,32): error TS2304: Cannot find name 'commissionService'.
+server/routes.ts(8986,26): error TS2304: Cannot find name 'commissionService'.
+server/routes.ts(8987,27): error TS2304: Cannot find name 'commissionService'.
+server/routes.ts(9003,27): error TS2304: Cannot find name 'commissionService'.
+server/routes.ts(9010,32): error TS2304: Cannot find name 'commissionService'.
+server/routes.ts(9018,32): error TS2304: Cannot find name 'commissionService'.
+server/routes.ts(9025,27): error TS2304: Cannot find name 'commissionService'.
+server/routes.ts(9042,27): error TS2304: Cannot find name 'buildingIngestionService'.
+server/routes.ts(9049,28): error TS2304: Cannot find name 'buildingIngestionService'.
+server/routes.ts(9058,13): error TS2304: Cannot find name 'buildingIngestionService'.
+server/routes.ts(9074,28): error TS2304: Cannot find name 'buildingIngestionService'.
+server/routes.ts(9090,27): error TS2304: Cannot find name 'buildingIngestionService'.
+server/routes.ts(9361,17): error TS2339: Property 'sendEmail' does not exist on type 'typeof import("/Users/bmumford/Elite-Office-Furnishings/server/email")'.
+server/routes.ts(9514,28): error TS2304: Cannot find name 'sendTestEmail'.
+server/routes.ts(10180,40): error TS2367: This comparison appears to be unintentional because the types '"generic_fallback" | "contact_direct" | "company_generic"' and '"blocked"' have no overlap.
+server/routes.ts(10970,44): error TS2304: Cannot find name 'strategyBookings'.
+server/routes.ts(10971,15): error TS2304: Cannot find name 'strategyBookings'.
+server/routes.ts(10972,22): error TS2304: Cannot find name 'strategyBookings'.
+server/routes.ts(10972,68): error TS2304: Cannot find name 'strategyBookings'.
+server/routes.ts(10983,22): error TS2304: Cannot find name 'insertStrategyBookingSchema'.
+server/routes.ts(10987,47): error TS2304: Cannot find name 'strategyBookings'.
+server/routes.ts(10988,15): error TS2304: Cannot find name 'strategyBookings'.
+server/routes.ts(10989,22): error TS2304: Cannot find name 'strategyBookings'.
+server/routes.ts(10989,80): error TS2304: Cannot find name 'strategyBookings'.
+server/routes.ts(10989,138): error TS2304: Cannot find name 'strategyBookings'.
+server/routes.ts(10991,42): error TS2304: Cannot find name 'strategyBookings'.
+server/routes.ts(11012,44): error TS2304: Cannot find name 'strategyBookings'.
+server/routes.ts(11012,76): error TS2304: Cannot find name 'strategyBookings'.
+server/routes.ts(11012,113): error TS2304: Cannot find name 'strategyBookings'.
+server/routes.ts(11162,82): error TS2345: Argument of type '{ id: string; decisionId: string | null; signalId: string; companyName: string | null; outcome: string; channel: string | null; responseText: string | null; daysToOutcome: number | null; ... 5 more ...; createdAt: Date | null; }[]' is not assignable to parameter of type '{ outcome: string; confidence?: number | undefined; dealValue?: number | undefined; }[]'.
+  Type '{ id: string; decisionId: string | null; signalId: string; companyName: string | null; outcome: string; channel: string | null; responseText: string | null; daysToOutcome: number | null; ... 5 more ...; createdAt: Date | null; }' is not assignable to type '{ outcome: string; confidence?: number | undefined; dealValue?: number | undefined; }'.
+    Types of property 'dealValue' are incompatible.
+      Type 'number | null' is not assignable to type 'number | undefined'.
+        Type 'null' is not assignable to type 'number | undefined'.
+server/services/buildings/buildingIngestionService.ts(103,40): error TS2339: Property 'companyId' does not exist on type 'PgTableWithColumns<{ name: "company_building_edges"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "company_building_edges"; dataType: "string"; columnType: "PgVarchar"; data: string; driverParam: string; ... 8 more ...; generated: undefined; }, {}, { ...; }>; ... 11 more ...; createdAt: PgColu...'.
+server/services/buildings/buildingIngestionService.ts(108,11): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { city: string | SQL<unknown> | Placeholder<string, any>; companyName: string | SQL<unknown> | Placeholder<string, any>; normalizedCompanyName: string | SQL<...> | Placeholder<...>; ... 9 more ...; detectedAt?: Date | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'companyId' does not exist in type '{ city: string | SQL<unknown> | Placeholder<string, any>; companyName: string | SQL<unknown> | Placeholder<string, any>; normalizedCompanyName: string | SQL<...> | Placeholder<...>; ... 9 more ...; detectedAt?: Date | ... 3 more ... | undefined; }'.
+  Overload 2 of 2, '(values: { city: string | SQL<unknown> | Placeholder<string, any>; companyName: string | SQL<unknown> | Placeholder<string, any>; normalizedCompanyName: string | SQL<...> | Placeholder<...>; ... 9 more ...; detectedAt?: Date | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'companyId' does not exist in type '{ city: string | SQL<unknown> | Placeholder<string, any>; companyName: string | SQL<unknown> | Placeholder<string, any>; normalizedCompanyName: string | SQL<...> | Placeholder<...>; ... 9 more ...; detectedAt?: Date | ... 3 more ... | undefined; }[]'.
+server/services/companyIntelligenceService.ts(186,108): error TS2345: Argument of type '{ type: string; date: Date | null; source: string; }[]' is not assignable to parameter of type '{ type: string; date: string | Date; source?: string | undefined; }[]'.
+  Type '{ type: string; date: Date | null; source: string; }' is not assignable to type '{ type: string; date: string | Date; source?: string | undefined; }'.
+    Types of property 'date' are incompatible.
+      Type 'Date | null' is not assignable to type 'string | Date'.
+        Type 'null' is not assignable to type 'string | Date'.
+server/services/companyIntelligenceService.ts(189,64): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/services/companyIntelligenceService.ts(362,21): error TS2551: Property 'createOfficeMovRadar' does not exist on type 'DrizzleStorage'. Did you mean 'createOfficeMovRadarRecord'?
+server/services/dealClosing/proposalService.ts(179,54): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { clientName: string | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<string, any> | undefined; status?: string | SQL<...> | Placeholder<...> | undefined; ... 16 more ...; validUntil?: Date | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Type 'string' is not assignable to type 'SQL<unknown> | Record<string, unknown> | Placeholder<string, any> | null | undefined'.
+  Overload 2 of 2, '(values: { clientName: string | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<string, any> | undefined; status?: string | SQL<...> | Placeholder<...> | undefined; ... 16 more ...; validUntil?: Date | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'opportunityId' does not exist in type '{ clientName: string | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<string, any> | undefined; status?: string | SQL<unknown> | Placeholder<...> | undefined; ... 16 more ...; validUntil?: Date | ... 3 more ... | undefined; }[]'.
+server/services/dealHunter.ts(1516,5): error TS2322: Type 'string | undefined' is not assignable to type 'number | null | undefined'.
+  Type 'string' is not assignable to type 'number'.
+server/services/dealHunter.ts(1519,5): error TS2322: Type 'string | undefined' is not assignable to type 'number | null | undefined'.
+  Type 'string' is not assignable to type 'number'.
+server/services/dealHunter.ts(1522,5): error TS2322: Type 'string | undefined' is not assignable to type 'number | null | undefined'.
+  Type 'string' is not assignable to type 'number'.
+server/services/dealHunter.ts(1554,44): error TS2345: Argument of type 'string[] | null' is not assignable to parameter of type 'string | null | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+server/services/dealHunter.ts(1560,5): error TS2322: Type 'string | undefined' is not assignable to type 'string | null'.
+  Type 'undefined' is not assignable to type 'string | null'.
+server/services/dealHunter.ts(1567,5): error TS2322: Type 'string | undefined' is not assignable to type 'string | null'.
+  Type 'undefined' is not assignable to type 'string | null'.
+server/services/dealIntelligence.ts(670,7): error TS2322: Type 'string' is not assignable to type 'number'.
+server/services/dealIntelligence.ts(671,7): error TS2322: Type 'string' is not assignable to type 'number'.
+server/services/dealIntelligence.ts(715,7): error TS2322: Type 'string' is not assignable to type 'number'.
+server/services/dealIntelligence.ts(716,7): error TS2322: Type 'string' is not assignable to type 'number'.
+server/services/dealIntelligence.ts(758,7): error TS2322: Type 'string | number' is not assignable to type 'number | null | undefined'.
+  Type 'string' is not assignable to type 'number'.
+server/services/dealIntelligence.ts(759,7): error TS2322: Type 'string | number' is not assignable to type 'number | null | undefined'.
+  Type 'string' is not assignable to type 'number'.
+server/services/dealIntelligence.ts(760,7): error TS2322: Type 'string | number' is not assignable to type 'string | null | undefined'.
+  Type 'number' is not assignable to type 'string'.
+server/services/dealIntelligence.ts(801,27): error TS2551: Property 'officeSize' does not exist on type '{ id: string; name: string; officeSizeSqm: number | null; staffCount: number | null; budgetMin: number | null; budgetMax: number | null; createdAt: Date | null; type: string; message: string | null; ... 26 more ...; hasFloorplan: boolean | null; }'. Did you mean 'officeSizeSqm'?
+server/services/dealIntelligence.ts(802,7): error TS2322: Type 'string | number' is not assignable to type 'number | null | undefined'.
+  Type 'string' is not assignable to type 'number'.
+server/services/dealIntelligence.ts(803,24): error TS2339: Property 'budget' does not exist on type '{ id: string; name: string; officeSizeSqm: number | null; staffCount: number | null; budgetMin: number | null; budgetMax: number | null; createdAt: Date | null; type: string; message: string | null; ... 26 more ...; hasFloorplan: boolean | null; }'.
+server/services/dealIntelligence.ts(843,7): error TS2353: Object literal may only specify known properties, and 'hasRadarSignal' does not exist in type 'Partial<DealSignals>'.
+server/services/dealIntelligence.ts(856,7): error TS2322: Type 'string' is not assignable to type 'number'.
+server/services/dealIntelligence.ts(857,7): error TS2322: Type 'string' is not assignable to type 'number'.
+server/services/followUpEmails.ts(61,9): error TS2551: Property 'officeSize' does not exist on type '{ id: string; leadId: string; leadName: string; leadEmail: string; leadCompany: string; leadType: string; officeSizeSqm: number | null; staffCount: number | null; budgetMin: number | null; ... 6 more ...; createdAt: Date | null; }'. Did you mean 'officeSizeSqm'?
+server/services/followUpEmails.ts(61,30): error TS2551: Property 'officeSize' does not exist on type '{ id: string; leadId: string; leadName: string; leadEmail: string; leadCompany: string; leadType: string; officeSizeSqm: number | null; staffCount: number | null; budgetMin: number | null; ... 6 more ...; createdAt: Date | null; }'. Did you mean 'officeSizeSqm'?
+server/services/followUpEmails.ts(63,9): error TS2339: Property 'budget' does not exist on type '{ id: string; leadId: string; leadName: string; leadEmail: string; leadCompany: string; leadType: string; officeSizeSqm: number | null; staffCount: number | null; budgetMin: number | null; ... 6 more ...; createdAt: Date | null; }'.
+server/services/followUpEmails.ts(63,36): error TS2339: Property 'budget' does not exist on type '{ id: string; leadId: string; leadName: string; leadEmail: string; leadCompany: string; leadType: string; officeSizeSqm: number | null; staffCount: number | null; budgetMin: number | null; ... 6 more ...; createdAt: Date | null; }'.
+server/services/followUpScheduler.ts(119,24): error TS2551: Property 'officeSizeSqm' does not exist on type '{ id: string; name: string; email: string; company: string; type: string; officeSize?: string | null | undefined; staffCount?: string | null | undefined; budget?: string | null | undefined; }'. Did you mean 'officeSize'?
+server/services/followUpScheduler.ts(119,48): error TS2551: Property 'officeSizeSqm' does not exist on type '{ id: string; name: string; email: string; company: string; type: string; officeSize?: string | null | undefined; staffCount?: string | null | undefined; budget?: string | null | undefined; }'. Did you mean 'officeSize'?
+server/services/followUpScheduler.ts(120,7): error TS2322: Type 'string | null' is not assignable to type 'number | null | undefined'.
+  Type 'string' is not assignable to type 'number'.
+server/services/followUpScheduler.ts(121,20): error TS2339: Property 'budgetRange' does not exist on type '{ id: string; name: string; email: string; company: string; type: string; officeSize?: string | null | undefined; staffCount?: string | null | undefined; budget?: string | null | undefined; }'.
+server/services/intelligence/clusterEngine.ts(88,13): error TS2339: Property 'industry' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; rawSignalId: string | null; companyName: string; normalizedCompanyName: string; city: string; normalizedCity: string; ... 18 more ...; status: string; }'.
+server/services/intelligence/clusterEngine.ts(89,36): error TS2339: Property 'industry' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; rawSignalId: string | null; companyName: string; normalizedCompanyName: string; city: string; normalizedCity: string; ... 18 more ...; status: string; }'.
+server/services/intelligence/clusterEngine.ts(89,78): error TS2339: Property 'industry' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; rawSignalId: string | null; companyName: string; normalizedCompanyName: string; city: string; normalizedCity: string; ... 18 more ...; status: string; }'.
+server/services/intelligence/communications/whatsappFlows.ts(5,31): error TS2307: Cannot find module './whatsappSequences' or its corresponding type declarations.
+server/services/intelligence/communications/whatsappService.ts(91,38): error TS2307: Cannot find module 'twilio' or its corresponding type declarations.
+server/services/intelligence/companyHierarchyService.ts(98,35): error TS2339: Property 'employeeCount' does not exist on type '{ id: string; status: string; createdAt: Date | null; city: string; companyName: string; industry: string | null; state: string | null; country: string; estimatedOfficeSizeSqm: number | null; ... 16 more ...; linkedRadarIds: string[] | null; }'.
+server/services/intelligence/companyHierarchyService.ts(98,68): error TS2339: Property 'employeeCount' does not exist on type '{ id: string; status: string; createdAt: Date | null; city: string; companyName: string; industry: string | null; state: string | null; country: string; estimatedOfficeSizeSqm: number | null; ... 16 more ...; linkedRadarIds: string[] | null; }'.
+server/services/intelligence/dealHunter.ts(35,22): error TS2339: Property 'sourceTitle' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; companyName: string; companyDomain: string | null; city: string; state: string | null; country: string | null; ... 35 more ...; signalWindowBucket: string | null; }'.
+server/services/intelligence/demandForecastEngine.ts(69,46): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+server/services/intelligence/intelligenceGraphService.ts(52,45): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { sourceType: string | SQL<unknown> | Placeholder<string, any>; sourceId: string | SQL<unknown> | Placeholder<string, any>; sourceName: string | SQL<...> | Placeholder<...>; ... 8 more ...; weight?: number | ... 2 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Type 'string | null' is not assignable to type 'SQL<unknown> | Record<string, unknown> | Placeholder<string, any> | null | undefined'.
+      Type 'string' is not assignable to type 'SQL<unknown> | Record<string, unknown> | Placeholder<string, any> | null | undefined'.
+  Overload 2 of 2, '(values: { sourceType: string | SQL<unknown> | Placeholder<string, any>; sourceId: string | SQL<unknown> | Placeholder<string, any>; sourceName: string | SQL<...> | Placeholder<...>; ... 8 more ...; weight?: number | ... 2 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'sourceType' does not exist in type '{ sourceType: string | SQL<unknown> | Placeholder<string, any>; sourceId: string | SQL<unknown> | Placeholder<string, any>; sourceName: string | SQL<unknown> | Placeholder<...>; ... 8 more ...; weight?: number | ... 2 more ... | undefined; }[]'.
+server/services/intelligence/leaseExpiryService.ts(84,54): error TS2345: Argument of type 'Date | null' is not assignable to parameter of type 'string | null'.
+  Type 'Date' is not assignable to type 'string'.
+server/services/intelligence/leaseExpiryService.ts(118,56): error TS2345: Argument of type 'Date | null' is not assignable to parameter of type 'string | null'.
+  Type 'Date' is not assignable to type 'string'.
+server/services/intelligence/leaseExpiryService.ts(216,56): error TS2345: Argument of type 'Date | null' is not assignable to parameter of type 'string | null'.
+  Type 'Date' is not assignable to type 'string'.
+server/services/intelligence/leaseExpiryService.ts(226,74): error TS2339: Property 'replace' does not exist on type 'number | "0"'.
+  Property 'replace' does not exist on type 'number'.
+server/services/intelligence/newsFeedScanner.ts(16,22): error TS2339: Property 'companyName' does not exist on type '{ id: string; buildingName: string; address: string | null; suburb: string | null; city: string; state: string | null; signalType: string; sourceUrl: string | null; observedCompany: string | null; observedFloor: string | null; notes: string | null; createdAt: Date | null; }'.
+server/services/intelligence/newsFeedScanner.ts(27,22): error TS2339: Property 'headline' does not exist on type '{ id: string; buildingName: string; address: string | null; suburb: string | null; city: string; state: string | null; signalType: string; sourceUrl: string | null; observedCompany: string | null; observedFloor: string | null; notes: string | null; createdAt: Date | null; }'.
+server/services/intelligence/newsFeedScanner.ts(28,28): error TS2339: Property 'summary' does not exist on type '{ id: string; buildingName: string; address: string | null; suburb: string | null; city: string; state: string | null; signalType: string; sourceUrl: string | null; observedCompany: string | null; observedFloor: string | null; notes: string | null; createdAt: Date | null; }'.
+server/services/intelligence/newsFeedScanner.ts(68,28): error TS2339: Property 'rawNotes' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; companyName: string; industry: string | null; city: string; state: string | null; signalType: string; signalSource: string | null; ... 16 more ...; status: string; }'.
+server/services/intelligence/nexoraOrchestrator.ts(149,39): error TS2345: Argument of type 'number | undefined' is not assignable to parameter of type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+server/services/intelligence/nexoraOrchestrator.ts(290,29): error TS2345: Argument of type 'number | undefined' is not assignable to parameter of type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+server/services/intelligence/nexoraOrchestrator.ts(292,11): error TS2741: Property 'value' is missing in type '{}' but required in type 'RetryCounter'.
+server/services/intelligence/nexoraOrchestrator.ts(299,23): error TS18048: 'config.maxAiAnalysesPerRun' is possibly 'undefined'.
+server/services/intelligence/nexoraOrchestrator.ts(306,9): error TS2322: Type 'Map<string, KnowledgeEntry>' is not assignable to type 'Record<string, KnowledgeEntry>'.
+  Index signature for type 'string' is missing in type 'Map<string, KnowledgeEntry>'.
+server/services/intelligence/nexoraOrchestrator.ts(599,53): error TS2345: Argument of type '"radar" | "deal" | undefined' is not assignable to parameter of type '"radar" | "deal"'.
+  Type 'undefined' is not assignable to type '"radar" | "deal"'.
+server/services/intelligence/nexoraOrchestrator.ts(603,47): error TS2345: Argument of type '"radar" | "deal" | undefined' is not assignable to parameter of type '"radar" | "deal"'.
+  Type 'undefined' is not assignable to type '"radar" | "deal"'.
+server/services/intelligence/nexoraOrchestrator.ts(640,5): error TS2322: Type 'ValidationResult & { valid: boolean; }' is not assignable to type '{ [k: string]: unknown; valid?: boolean | undefined; overallValid?: boolean | undefined; } | undefined'.
+  Type 'ValidationResult & { valid: boolean; }' is not assignable to type '{ [k: string]: unknown; valid?: boolean | undefined; overallValid?: boolean | undefined; }'.
+    Index signature for type 'string' is missing in type 'ValidationResult & { valid: boolean; }'.
+server/services/intelligence/nexoraOrchestrator.ts(655,30): error TS2345: Argument of type 'NexoraDecisionRecordLike' is not assignable to parameter of type 'NexoraDecisionRecordLike & Record<string, unknown>'.
+  Type 'NexoraDecisionRecordLike' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'NexoraDecisionRecordLike'.
+server/services/intelligence/nexoraOrchestrator.ts(691,5): error TS2322: Type '"radar" | "deal" | undefined' is not assignable to type '"radar" | "deal"'.
+  Type 'undefined' is not assignable to type '"radar" | "deal"'.
+server/services/intelligence/nexoraOrchestrator.ts(721,20): error TS2339: Property 'valid' does not exist on type 'ValidationResult'.
+server/services/intelligence/nexoraOrchestrator.ts(1013,38): error TS2345: Argument of type 'string | null | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/services/intelligence/nexoraOrchestrator.ts(1071,35): error TS2345: Argument of type 'string | null | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/services/intelligence/nexoraOrchestrator.ts(1263,5): error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'KnowledgeEntry'.
+server/services/intelligence/nexoraOrchestrator.ts(1286,53): error TS2339: Property 'valid' does not exist on type 'ValidationResult'.
+server/services/intelligence/nexoraOrchestrator.ts(1287,56): error TS2339: Property 'valid' does not exist on type 'ValidationResult'.
+server/services/intelligence/nexoraOrchestrator.ts(1302,5): error TS2353: Object literal may only specify known properties, and 'signalId' does not exist in type 'NexoraResult'.
+server/services/intelligence/officeMovRadarService.ts(27,22): error TS2339: Property 'sourceTitle' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; companyName: string; industry: string | null; city: string; state: string | null; country: string | null; signalType: string; ... 27 more ...; signalWindowBucket: string | null; }'.
+server/services/intelligence/officeMovRadarService.ts(28,28): error TS2339: Property 'rawPayloadSummary' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; companyName: string; industry: string | null; city: string; state: string | null; country: string | null; signalType: string; ... 27 more ...; signalWindowBucket: string | null; }'.
+server/services/intelligence/opportunityEngine.ts(104,71): error TS2339: Property 'industry' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; rawSignalId: string | null; companyName: string; normalizedCompanyName: string; city: string; normalizedCity: string; ... 18 more ...; status: string; }'.
+server/services/intelligence/partnerNetwork.ts(174,7): error TS2322: Type 'string | null' is not assignable to type 'number | null | undefined'.
+  Type 'string' is not assignable to type 'number'.
+server/services/intelligence/partnerNetwork.ts(175,7): error TS2322: Type 'string | null' is not assignable to type 'number | null | undefined'.
+  Type 'string' is not assignable to type 'number'.
+server/services/intelligence/partnerNetwork.ts(244,21): error TS2339: Property 'industry' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; rawSignalId: string | null; companyName: string; normalizedCompanyName: string; city: string; normalizedCity: string; ... 18 more ...; status: string; }'.
+server/services/intelligence/partnerNetwork.ts(280,51): error TS2345: Argument of type 'number | null' is not assignable to parameter of type 'string | null | undefined'.
+  Type 'number' is not assignable to type 'string'.
+server/services/intelligence/partnerNetwork.ts(297,9): error TS2322: Type 'number | undefined' is not assignable to type 'string | undefined'.
+  Type 'number' is not assignable to type 'string'.
+server/services/intelligence/partnerNetwork.ts(298,9): error TS2322: Type 'number | undefined' is not assignable to type 'string | undefined'.
+  Type 'number' is not assignable to type 'string'.
+server/services/intelligence/signalIngestionService.ts(310,18): error TS2339: Property 'opportunityScore' does not exist on type 'ClassifiedSignal'.
+server/services/intelligence/signalIngestionService.ts(374,45): error TS2345: Argument of type '{ createdAt: Date | null; updatedAt: Date | null; id: string; name: string; type: string; url: string | null; region: string; isActive: boolean; lastFetchedAt: Date | null; ... 4 more ...; config: Record<...> | null; }' is not assignable to parameter of type '{ id: string; type: string; url?: string | undefined; config?: string | undefined; }'.
+  Types of property 'url' are incompatible.
+    Type 'string | null' is not assignable to type 'string | undefined'.
+      Type 'null' is not assignable to type 'string | undefined'.
+server/services/intelligenceEngine.ts(150,44): error TS2345: Argument of type '{ title: any; slug: any; metaDescription: any; content: any; category: any; tags: any; internalLinkingSuggestions: any; imagePrompts: any; qualityScore: any; status: string; }' is not assignable to parameter of type 'Omit<{ id: string; status: string; title: string; content: string; category: string | null; slug: string; tags: string[] | null; publishedAt: Date | null; qualityScore: number | null; generatedAt: Date | null; metaDescription: string | null; internalLinkingSuggestions: string | null; imagePrompts: string[] | null; }...'.
+  Property 'publishedAt' is missing in type '{ title: any; slug: any; metaDescription: any; content: any; category: any; tags: any; internalLinkingSuggestions: any; imagePrompts: any; qualityScore: any; status: string; }' but required in type 'Omit<{ id: string; status: string; title: string; content: string; category: string | null; slug: string; tags: string[] | null; publishedAt: Date | null; qualityScore: number | null; generatedAt: Date | null; metaDescription: string | null; internalLinkingSuggestions: string | null; imagePrompts: string[] | null; }...'.
+server/services/intelligenceEngine.ts(190,55): error TS2551: Property 'officeSize' does not exist on type '{ id: string; name: string; officeSizeSqm: number | null; staffCount: number | null; budgetMin: number | null; budgetMax: number | null; createdAt: Date | null; type: string; message: string | null; ... 26 more ...; hasFloorplan: boolean | null; }'. Did you mean 'officeSizeSqm'?
+server/services/intelligenceEngine.ts(191,50): error TS2339: Property 'budget' does not exist on type '{ id: string; name: string; officeSizeSqm: number | null; staffCount: number | null; budgetMin: number | null; budgetMax: number | null; createdAt: Date | null; type: string; message: string | null; ... 26 more ...; hasFloorplan: boolean | null; }'.
+server/services/intelligenceEngine.ts(229,38): error TS2345: Argument of type '{ issueType: any; severity: any; description: any; affectedUrl: any; affectedItem: any; suggestion: any; status: string; }' is not assignable to parameter of type 'Omit<{ id: string; status: string; detectedAt: Date | null; issueType: string; severity: string; description: string; affectedUrl: string | null; affectedItem: string | null; suggestion: string | null; resolvedAt: Date | null; }, "id" | "detectedAt">'.
+  Property 'resolvedAt' is missing in type '{ issueType: any; severity: any; description: any; affectedUrl: any; affectedItem: any; suggestion: any; status: string; }' but required in type 'Omit<{ id: string; status: string; detectedAt: Date | null; issueType: string; severity: string; description: string; affectedUrl: string | null; affectedItem: string | null; suggestion: string | null; resolvedAt: Date | null; }, "id" | "detectedAt">'.
+server/services/intelligenceScheduler.ts(64,48): error TS2345: Argument of type '{ jobType: JobType; status: string; triggeredBy: "manual" | "scheduler"; startedAt: Date; result: null; error: null; }' is not assignable to parameter of type 'Omit<{ id: string; status: string; createdAt: Date | null; result: string | null; error: string | null; startedAt: Date | null; durationMs: number | null; jobType: string; triggeredBy: string; completedAt: Date | null; }, "id" | "createdAt">'.
+  Type '{ jobType: JobType; status: string; triggeredBy: "manual" | "scheduler"; startedAt: Date; result: null; error: null; }' is missing the following properties from type 'Omit<{ id: string; status: string; createdAt: Date | null; result: string | null; error: string | null; startedAt: Date | null; durationMs: number | null; jobType: string; triggeredBy: string; completedAt: Date | null; }, "id" | "createdAt">': durationMs, completedAt
+server/services/jobOrchestrator.ts(172,38): error TS2339: Property 'getJobCountByName' does not exist on type 'PgBoss'.
+server/services/jobOrchestrator.ts(173,41): error TS2339: Property 'getJobCountByName' does not exist on type 'PgBoss'.
+server/services/jobOrchestrator.ts(174,38): error TS2339: Property 'getJobCountByName' does not exist on type 'PgBoss'.
+server/services/leadEngine.ts(96,36): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { companyName: string | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<string, any> | undefined; stage?: string | SQL<...> | Placeholder<...> | undefined; ... 20 more ...; dealValueEstimate?: number | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'contactName' does not exist in type '{ companyName: string | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<string, any> | undefined; stage?: string | SQL<unknown> | Placeholder<...> | undefined; ... 20 more ...; dealValueEstimate?: number | ... 3 more ... | undefined; }'.
+  Overload 2 of 2, '(values: { companyName: string | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<string, any> | undefined; stage?: string | SQL<...> | Placeholder<...> | undefined; ... 20 more ...; dealValueEstimate?: number | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'companyName' does not exist in type '{ companyName: string | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<string, any> | undefined; stage?: string | SQL<unknown> | Placeholder<...> | undefined; ... 20 more ...; dealValueEstimate?: number | ... 3 more ... | undefined; }[]'.
+server/services/leaseSignalScanner.ts(41,3): error TS2322: Type 'PricingRecord[] | null' is not assignable to type 'PricingRecord[]'.
+  Type 'null' is not assignable to type 'PricingRecord[]'.
+server/services/newsFeedScanner.ts(382,9): error TS2322: Type 'string' is not assignable to type 'number'.
+server/services/newsFeedScanner.ts(383,9): error TS2322: Type 'string' is not assignable to type 'number'.
+server/services/nexoraLoop.ts(6,8): error TS2305: Module '"./intelligence/nexoraOrchestrator"' has no exported member 'NexoraCycleResult'.
+server/services/nexoraLoop.ts(37,39): error TS2345: Argument of type 'string' is not assignable to parameter of type '"manual" | "scheduler" | "background" | "webhook" | "api" | undefined'.
+server/services/nexoraLoop.ts(41,15): error TS2339: Property 'success' does not exist on type 'NexoraEngineResult'.
+server/services/nexoraLoop.ts(42,46): error TS2339: Property 'message' does not exist on type 'NexoraEngineResult'.
+server/services/officeMovRadarService.ts(494,45): error TS2345: Argument of type 'string[]' is not assignable to parameter of type 'RadarSignalType[]'.
+  Type 'string' is not assignable to type 'RadarSignalType'.
+server/services/officeMovRadarService.ts(528,9): error TS2322: Type 'string' is not assignable to type 'number'.
+server/services/officeMovRadarService.ts(529,9): error TS2322: Type 'string' is not assignable to type 'number'.
+server/services/officeMovRadarService.ts(530,9): error TS2322: Type 'string' is not assignable to type 'number'.
+server/services/outreach/outreach-guards.ts(179,42): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { eventType: string | SQL<unknown> | Placeholder<string, any>; entityType: string | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<...> | undefined; ... 5 more ...; entityId?: string | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Type 'string | null' is not assignable to type 'SQL<unknown> | Record<string, unknown> | Placeholder<string, any> | null | undefined'.
+      Type 'string' is not assignable to type 'SQL<unknown> | Record<string, unknown> | Placeholder<string, any> | null | undefined'.
+  Overload 2 of 2, '(values: { eventType: string | SQL<unknown> | Placeholder<string, any>; entityType: string | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<...> | undefined; ... 5 more ...; entityId?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'entityType' does not exist in type '{ eventType: string | SQL<unknown> | Placeholder<string, any>; entityType: string | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<...> | undefined; ... 5 more ...; entityId?: string | ... 3 more ... | undefined; }[]'.
+server/services/outreach/outreachGenerationService.ts(198,109): error TS2339: Property 'reason' does not exist on type '{ suppressed: boolean; reason?: string | undefined; } | { suppressed: boolean; }'.
+  Property 'reason' does not exist on type '{ suppressed: boolean; }'.
+server/services/outreach/prospectEmailResolver.ts(144,31): error TS2367: This comparison appears to be unintentional because the types '"generic_fallback" | "contact_direct" | "company_generic"' and '"blocked"' have no overlap.
+server/services/partnerScoring.ts(44,61): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/services/partnerScoring.ts(44,95): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/services/partnerScoring.ts(46,41): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/services/partnerScoring.ts(50,57): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/services/partnerScoring.ts(141,31): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/services/partnerScoring.ts(142,53): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/services/realLeadSeeder.ts(242,11): error TS2769: No overload matches this call.
+  Overload 2 of 2, '(values: { city: string | SQL<unknown> | Placeholder<string, any>; companyName: string | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<...> | undefined; ... 22 more ...; linkedRadarIds?: string[] | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'companyName' does not exist in type '{ city: string | SQL<unknown> | Placeholder<string, any>; companyName: string | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<string, any> | undefined; ... 22 more ...; linkedRadarIds?: string[] | ... 3 more ... | undefined; }[]'.
+server/services/relocationIntelligence.ts(328,5): error TS2353: Object literal may only specify known properties, and 'status' does not exist in type 'Omit<ProspectedLead, "id" | "status" | "createdAt">'.
+server/services/runAllRealScans.ts(3,35): error TS2307: Cannot find module './predictiveScanner' or its corresponding type declarations.
+server/services/stripe/invoiceService.ts(5,30): error TS7016: Could not find a declaration file for module 'uuid'. '/Users/bmumford/Elite-Office-Furnishings/node_modules/uuid/dist/esm-browser/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/uuid` if it exists or add a new declaration (.d.ts) file containing `declare module 'uuid';`
+server/services/stripe/paymentLinkService.ts(5,30): error TS7016: Could not find a declaration file for module 'uuid'. '/Users/bmumford/Elite-Office-Furnishings/node_modules/uuid/dist/esm-browser/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/uuid` if it exists or add a new declaration (.d.ts) file containing `declare module 'uuid';`
+server/services/stripe/webhookService.ts(87,6): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { eventType: string | SQL<unknown> | Placeholder<string, any>; externalEventId: string | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<...> | undefined; ... 5 more ...; provider?: string | ... 2 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Type 'Event' is not assignable to type 'SQL<unknown> | Record<string, unknown> | Placeholder<string, any> | null | undefined'.
+      Type 'AccountApplicationAuthorizedEvent' is not assignable to type 'SQL<unknown> | Record<string, unknown> | Placeholder<string, any> | null | undefined'.
+        Type 'AccountApplicationAuthorizedEvent' is not assignable to type 'Record<string, unknown>'.
+          Index signature for type 'string' is missing in type 'AccountApplicationAuthorizedEvent'.
+  Overload 2 of 2, '(values: { eventType: string | SQL<unknown> | Placeholder<string, any>; externalEventId: string | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<...> | undefined; ... 5 more ...; provider?: string | ... 2 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'provider' does not exist in type '{ eventType: string | SQL<unknown> | Placeholder<string, any>; externalEventId: string | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<...> | undefined; ... 5 more ...; provider?: string | ... 2 more ... | undefined; }[]'.
+server/services/stripe/webhookService.ts(187,10): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { amount: number | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<string, any> | undefined; createdAt?: Date | SQL<...> | Placeholder<...> | null | undefined; ... 7 more ...; rawPayloadJson?: SQL<...> | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Type 'PaymentIntent' is not assignable to type 'SQL<unknown> | Record<string, unknown> | Placeholder<string, any> | null | undefined'.
+      Type 'PaymentIntent' is not assignable to type 'Record<string, unknown>'.
+        Index signature for type 'string' is missing in type 'PaymentIntent'.
+  Overload 2 of 2, '(values: { amount: number | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<string, any> | undefined; createdAt?: Date | SQL<...> | Placeholder<...> | null | undefined; ... 7 more ...; rawPayloadJson?: SQL<...> | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'quoteId' does not exist in type '{ amount: number | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<string, any> | undefined; createdAt?: Date | SQL<...> | Placeholder<...> | null | undefined; ... 7 more ...; rawPayloadJson?: SQL<...> | ... 3 more ... | undefined; }[]'.
+server/services/stripe/webhookService.ts(236,10): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { amount: number | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<string, any> | undefined; createdAt?: Date | SQL<...> | Placeholder<...> | null | undefined; ... 7 more ...; rawPayloadJson?: SQL<...> | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Type 'PaymentIntent' is not assignable to type 'SQL<unknown> | Record<string, unknown> | Placeholder<string, any> | null | undefined'.
+      Type 'PaymentIntent' is not assignable to type 'Record<string, unknown>'.
+        Index signature for type 'string' is missing in type 'PaymentIntent'.
+  Overload 2 of 2, '(values: { amount: number | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<string, any> | undefined; createdAt?: Date | SQL<...> | Placeholder<...> | null | undefined; ... 7 more ...; rawPayloadJson?: SQL<...> | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'quoteId' does not exist in type '{ amount: number | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<string, any> | undefined; createdAt?: Date | SQL<...> | Placeholder<...> | null | undefined; ... 7 more ...; rawPayloadJson?: SQL<...> | ... 3 more ... | undefined; }[]'.
+server/services/stripe/webhookService.ts(439,32): error TS2339: Property 'commissionRate' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; companyName: string; partnerType: string; contactName: string; email: string; phone: string | null; website: string | null; ... 30 more ...; approvedAt: Date | null; }'.
+server/services/stripe/webhookService.ts(449,10): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { partnerId: string | SQL<unknown> | Placeholder<string, any>; dealValue: number | SQL<unknown> | Placeholder<string, any>; commissionAmount: number | SQL<...> | Placeholder<...>; ... 12 more ...; invoiceRef?: string | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'partnerOpportunityId' does not exist in type '{ partnerId: string | SQL<unknown> | Placeholder<string, any>; dealValue: number | SQL<unknown> | Placeholder<string, any>; commissionAmount: number | SQL<...> | Placeholder<...>; ... 12 more ...; invoiceRef?: string | ... 3 more ... | undefined; }'.
+  Overload 2 of 2, '(values: { partnerId: string | SQL<unknown> | Placeholder<string, any>; dealValue: number | SQL<unknown> | Placeholder<string, any>; commissionAmount: number | SQL<...> | Placeholder<...>; ... 12 more ...; invoiceRef?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'partnerId' does not exist in type '{ partnerId: string | SQL<unknown> | Placeholder<string, any>; dealValue: number | SQL<unknown> | Placeholder<string, any>; commissionAmount: number | SQL<...> | Placeholder<...>; ... 12 more ...; invoiceRef?: string | ... 3 more ... | undefined; }[]'.
+server/services/trading/autonomousEngine.ts(71,30): error TS2339: Property 'totalPnl' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/autonomousEngine.ts(76,30): error TS2339: Property 'peakCapital' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/autonomousEngine.ts(76,51): error TS2339: Property 'currentCapital' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/autonomousEngine.ts(77,19): error TS2339: Property 'peakCapital' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/autonomousEngine.ts(77,39): error TS2339: Property 'currentCapital' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/autonomousEngine.ts(77,63): error TS2339: Property 'peakCapital' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/capitalScalingEngine.ts(37,33): error TS2339: Property 'currentCapital' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/capitalScalingEngine.ts(38,30): error TS2339: Property 'peakCapital' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/capitalScalingEngine.ts(53,54): error TS2339: Property 'adjustedPnl' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; linkedDecisionId: string; linkedPositionId: string; symbol: string; strategy: string; direction: string; entryPrice: number; ... 8 more ...; duration: string; }'.
+server/services/trading/capitalScalingEngine.ts(53,71): error TS2339: Property 'rawPnl' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; linkedDecisionId: string; linkedPositionId: string; symbol: string; strategy: string; direction: string; entryPrice: number; ... 8 more ...; duration: string; }'.
+server/services/trading/capitalScalingEngine.ts(107,33): error TS2339: Property 'currentCapital' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/capitalScalingEngine.ts(108,30): error TS2339: Property 'peakCapital' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/institutionalEngine.ts(43,35): error TS2339: Property 'currentCapital' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/institutionalEngine.ts(44,24): error TS2339: Property 'totalPnl' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/institutionalEngine.ts(73,40): error TS2339: Property 'adjustedPnl' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; linkedDecisionId: string; linkedPositionId: string; symbol: string; strategy: string; direction: string; entryPrice: number; ... 8 more ...; duration: string; }'.
+server/services/trading/institutionalEngine.ts(73,57): error TS2339: Property 'rawPnl' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; linkedDecisionId: string; linkedPositionId: string; symbol: string; strategy: string; direction: string; entryPrice: number; ... 8 more ...; duration: string; }'.
+server/services/trading/institutionalEngine.ts(76,36): error TS2339: Property 'adjustedPnl' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; linkedDecisionId: string; linkedPositionId: string; symbol: string; strategy: string; direction: string; entryPrice: number; ... 8 more ...; duration: string; }'.
+server/services/trading/institutionalEngine.ts(76,53): error TS2339: Property 'rawPnl' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; linkedDecisionId: string; linkedPositionId: string; symbol: string; strategy: string; direction: string; entryPrice: number; ... 8 more ...; duration: string; }'.
+server/services/trading/institutionalEngine.ts(81,27): error TS2339: Property 'peakCapital' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/institutionalEngine.ts(81,49): error TS2339: Property 'currentCapital' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/institutionalEngine.ts(82,26): error TS2339: Property 'peakCapital' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/institutionalEngine.ts(82,46): error TS2339: Property 'currentCapital' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/institutionalEngine.ts(82,70): error TS2339: Property 'peakCapital' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/metaStrategyEngine.ts(38,47): error TS2339: Property 'adjustedPnl' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; linkedDecisionId: string; linkedPositionId: string; symbol: string; strategy: string; direction: string; entryPrice: number; ... 8 more ...; duration: string; }'.
+server/services/trading/metaStrategyEngine.ts(38,64): error TS2339: Property 'rawPnl' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; linkedDecisionId: string; linkedPositionId: string; symbol: string; strategy: string; direction: string; entryPrice: number; ... 8 more ...; duration: string; }'.
+server/services/trading/metaStrategyEngine.ts(40,74): error TS2339: Property 'adjustedPnl' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; linkedDecisionId: string; linkedPositionId: string; symbol: string; strategy: string; direction: string; entryPrice: number; ... 8 more ...; duration: string; }'.
+server/services/trading/metaStrategyEngine.ts(40,91): error TS2339: Property 'rawPnl' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; linkedDecisionId: string; linkedPositionId: string; symbol: string; strategy: string; direction: string; entryPrice: number; ... 8 more ...; duration: string; }'.
+server/services/trading/multiFactorEngine.ts(83,13): error TS2339: Property 'getLatestNews' does not exist on type 'typeof import("/Users/bmumford/Elite-Office-Furnishings/server/services/trading/newsAdapter")'.
+server/services/trading/observabilityEngine.ts(92,30): error TS2339: Property 'currentCapital' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/observabilityEngine.ts(93,27): error TS2339: Property 'peakCapital' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/observabilityEngine.ts(94,24): error TS2339: Property 'totalPnl' does not exist on type '{ createdAt: Date | null; updatedAt: Date | null; id: string; paperCapital: number; totalDecisions: number; totalTrades: number; isRunning: boolean; lastDecisionAt: Date | null; lastMonitorAt: Date | null; }'.
+server/services/trading/state-normalizer.ts(2,15): error TS2305: Module '"./types/trading-types"' has no exported member 'TradingSystemState'.
+server/services/whatsappAI.ts(299,54): error TS2551: Property 'estimatedValueRange' does not exist on type '{ id: string; name: string; officeSizeSqm: number | null; staffCount: number | null; budgetMin: number | null; budgetMax: number | null; createdAt: Date | null; type: string; message: string | null; ... 26 more ...; hasFloorplan: boolean | null; }'. Did you mean 'estimatedValueMin'?
+server/services/whatsappAI.ts(310,9): error TS2561: Object literal may only specify known properties, but 'officeSize' does not exist in type '{ name: string; type: string; email: string; officeSizeSqm?: number | null | undefined; staffCount?: number | null | undefined; budgetMin?: number | null | undefined; budgetMax?: number | null | undefined; ... 25 more ...; hasFloorplan?: boolean | ... 1 more ... | undefined; }'. Did you mean to write 'officeSizeSqm'?
+server/services/workspaceStrategy.ts(61,41): error TS2554: Expected 0 arguments, but got 1.
+server/services/workspaceStrategy.ts(68,27): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+server/services/workspaceStrategy.ts(81,28): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+server/services/workspaceStrategy.ts(98,42): error TS2345: Argument of type '{ planningRequestId?: string | undefined; officeSqm: number; staffCount: number; projectType?: string | undefined; industryContext?: string | undefined; budgetRange?: string | undefined; stylePreference?: string | undefined; }' is not assignable to parameter of type '{ sqm: number; staffCount: number; projectType?: string | null | undefined; industryContext?: string | null | undefined; }'.
+  Property 'sqm' is missing in type '{ planningRequestId?: string | undefined; officeSqm: number; staffCount: number; projectType?: string | undefined; industryContext?: string | undefined; budgetRange?: string | undefined; stylePreference?: string | undefined; }' but required in type '{ sqm: number; staffCount: number; projectType?: string | null | undefined; industryContext?: string | null | undefined; }'.
+server/services/workspaceStrategy.ts(224,41): error TS2554: Expected 0 arguments, but got 1.
+server/services/workspaceStrategy.ts(241,32): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+server/storage.ts(355,5): error TS2322: Type 'number | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'.
+server/storage.ts(358,5): error TS2322: Type 'number | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'.
+server/storage.ts(374,5): error TS2322: Type 'number | null' is not assignable to type 'string | null'.
+  Type 'number' is not assignable to type 'string'.
+server/storage.ts(375,5): error TS2322: Type 'number | null' is not assignable to type 'string | null'.
+  Type 'number' is not assignable to type 'string'.
+server/storage.ts(392,5): error TS2322: Type 'number' is not assignable to type 'string'.
+server/storage.ts(393,5): error TS2322: Type 'number | undefined' is not assignable to type 'string | undefined'.
+  Type 'number' is not assignable to type 'string'.
+server/storage.ts(413,5): error TS2322: Type 'number | undefined' is not assignable to type 'string | undefined'.
+  Type 'number' is not assignable to type 'string'.
+server/storage.ts(438,43): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { name: string | SQL<unknown> | Placeholder<string, any>; type: string | SQL<unknown> | Placeholder<string, any>; email: string | SQL<unknown> | Placeholder<string, any>; ... 32 more ...; hasFloorplan?: boolean | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Argument of type '{ company: string; name: string; type: string; email: string; officeSizeSqm?: number | null | undefined; staffCount?: number | null | undefined; budgetMin?: number | null | undefined; budgetMax?: number | ... 1 more ... | undefined; ... 24 more ...; hasFloorplan?: boolean | ... 1 more ... | undefined; }' is not assignable to parameter of type '{ name: string | SQL<unknown> | Placeholder<string, any>; type: string | SQL<unknown> | Placeholder<string, any>; email: string | SQL<unknown> | Placeholder<string, any>; ... 32 more ...; hasFloorplan?: boolean | ... 3 more ... | undefined; }'.
+      Types of property 'signalsJson' are incompatible.
+        Type 'Record<string, unknown> | Json | undefined' is not assignable to type 'SQL<unknown> | Record<string, unknown> | Placeholder<string, any> | null | undefined'.
+          Type 'string' is not assignable to type 'SQL<unknown> | Record<string, unknown> | Placeholder<string, any> | null | undefined'.
+  Overload 2 of 2, '(values: { name: string | SQL<unknown> | Placeholder<string, any>; type: string | SQL<unknown> | Placeholder<string, any>; email: string | SQL<unknown> | Placeholder<string, any>; ... 32 more ...; hasFloorplan?: boolean | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'company' does not exist in type '{ name: string | SQL<unknown> | Placeholder<string, any>; type: string | SQL<unknown> | Placeholder<string, any>; email: string | SQL<unknown> | Placeholder<string, any>; ... 32 more ...; hasFloorplan?: boolean | ... 3 more ... | undefined; }[]'.
+server/storage.ts(465,7): error TS2322: Type 'string' is not assignable to type 'SQL<unknown> | Record<string, unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | null | undefined'.
+server/storage.ts(473,7): error TS2769: No overload matches this call.
+  Overload 2 of 2, '(values: { company: string | SQL<unknown> | Placeholder<string, any>; industry: string | SQL<unknown> | Placeholder<string, any>; location: string | SQL<unknown> | Placeholder<...>; ... 28 more ...; scanBatchId?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'company' does not exist in type '{ company: string | SQL<unknown> | Placeholder<string, any>; industry: string | SQL<unknown> | Placeholder<string, any>; location: string | SQL<unknown> | Placeholder<...>; ... 28 more ...; scanBatchId?: string | ... 3 more ... | undefined; }[]'.
+server/storage.ts(556,7): error TS2769: No overload matches this call.
+  Overload 2 of 2, '(values: { sku: string | SQL<unknown> | Placeholder<string, any>; supplierName: string | SQL<unknown> | Placeholder<string, any>; productName: string | SQL<unknown> | Placeholder<...>; ... 13 more ...; projectReference?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'supplierName' does not exist in type '{ sku: string | SQL<unknown> | Placeholder<string, any>; supplierName: string | SQL<unknown> | Placeholder<string, any>; productName: string | SQL<unknown> | Placeholder<...>; ... 13 more ...; projectReference?: string | ... 3 more ... | undefined; }[]'.
+server/storage.ts(592,12): error TS2345: Argument of type 'Partial<InsertSupplierQuote>' is not assignable to parameter of type '{ sku?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; supplierName?: string | SQL<...> | PgColumn<...> | undefined; ... 14 more ...; projectReference?: string | ... 3 more ... | undefined; }'.
+  Types of property 'unitPrice' are incompatible.
+    Type 'string | undefined' is not assignable to type 'number | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined'.
+      Type 'string' is not assignable to type 'number | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined'.
+server/storage.ts(604,46): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { referrerName: string | SQL<unknown> | Placeholder<string, any>; leadSource: string | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<...> | undefined; ... 8 more ...; clientCompany?: string | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Type 'string | undefined' is not assignable to type 'number | SQL<unknown> | Placeholder<string, any> | null | undefined'.
+      Type 'string' is not assignable to type 'number | SQL<unknown> | Placeholder<string, any> | null | undefined'.
+  Overload 2 of 2, '(values: { referrerName: string | SQL<unknown> | Placeholder<string, any>; leadSource: string | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<...> | undefined; ... 8 more ...; clientCompany?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'referrerName' does not exist in type '{ referrerName: string | SQL<unknown> | Placeholder<string, any>; leadSource: string | SQL<unknown> | Placeholder<string, any>; id?: string | SQL<unknown> | Placeholder<...> | undefined; ... 8 more ...; clientCompany?: string | ... 3 more ... | undefined; }[]'.
+server/storage.ts(1541,14): error TS2345: Argument of type '{ updatedAt: Date; city?: string | undefined; companyName?: string | undefined; status?: string | undefined; industry?: string | null | undefined; state?: string | null | undefined; ... 17 more ...; linkedRadarIds?: string[] | ... 1 more ... | undefined; }' is not assignable to parameter of type '{ city?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; companyName?: string | SQL<...> | PgColumn<...> | undefined; ... 23 more ...; linkedRadarIds?: string[] | ... 3 more ... | undefined; }'.
+  Types of property 'signalTypesJson' are incompatible.
+    Type 'string[] | Json | undefined' is not assignable to type 'string[] | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | null | undefined'.
+      Type 'string' is not assignable to type 'string[] | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | null | undefined'.

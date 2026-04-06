@@ -1,0 +1,2 @@
+server/services/dealClosing/proposalService.ts(205,17): error TS1005: ',' expected.
+server/services/dealClosing/proposalService.ts(205,26): error TS1005: ',' expected.

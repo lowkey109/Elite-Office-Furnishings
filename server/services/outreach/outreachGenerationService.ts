@@ -174,7 +174,7 @@ Write the email body only:`;
   await db.insert(outreachEvents).values({
     threadId,
     eventType: "message_generated",
-    payloadJson: JSON.stringify({ stage, messageType, subject }),
+    payloadJson: { stage, messageType, subject },
   });
 
   console.log(`[OutreachGeneration] Generated ${messageType} for thread ${threadId} (stage ${stage}), SAFE_MODE=${SAFE_MODE}, templateOk=${enforcement.ok}`);
@@ -232,7 +232,7 @@ Write the email body only:`;
           await db.insert(outreachEvents).values({
             threadId,
             eventType: "auto_released",
-            payloadJson: JSON.stringify({ confidence, recipientEmail, messageId: msg.id }),
+            payloadJson: { confidence, recipientEmail, messageId: msg.id },
           });
 
           console.log(`[AutoRelease] ✓ Sent to ${recipientEmail} (${context.companyName}) at confidence ${confidence}`);
