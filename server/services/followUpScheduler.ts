@@ -98,9 +98,10 @@ export async function startFollowUpForLead(lead: {
   email: string;
   company: string;
   type: string;
-  officeSize?: string | null;
-  staffCount?: string | null;
-  budget?: string | null;
+  officeSizeSqm?: string | number | null;
+  staffCount?: string | number | null;
+  budgetMin?: string | number | null;
+  budgetMax?: string | number | null;
 }): Promise<void> {
   try {
     // Don't create duplicate sequences
@@ -116,9 +117,10 @@ export async function startFollowUpForLead(lead: {
       leadEmail: lead.email,
       leadCompany: lead.company,
       leadType: lead.type,
-      officeSize: lead.officeSize || null,
-      staffCount: lead.staffCount || null,
-      budget: lead.budget || null,
+      officeSizeSqm: lead.officeSizeSqm != null ? parseInt(String(lead.officeSizeSqm)) || null : null,
+      staffCount: lead.staffCount != null ? parseInt(String(lead.staffCount)) || null : null,
+      budgetMin: lead.budgetMin != null ? parseInt(String(lead.budgetMin)) || null : null,
+      budgetMax: lead.budgetMax != null ? parseInt(String(lead.budgetMax)) || null : null,
       stage: 0,
       status: "active",
       nextSendAt,
