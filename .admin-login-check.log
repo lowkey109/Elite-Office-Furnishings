@@ -1,0 +1,54 @@
+
+> rest-express@1.0.0 build
+> tsx script/build.ts
+
+building client...
+vite v7.3.0 building client environment for production...
+transforming...
+Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+✓ 1874 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/public/index.html                    10.66 kB │ gzip:   2.83 kB
+../dist/public/assets/index-CtJvHzar.css    213.77 kB │ gzip:  36.37 kB
+../dist/public/assets/index-BNH095rN.js   3,612.85 kB │ gzip: 927.78 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 8.98s
+building server...
+▲ [WARNING] Duplicate key "confidence" in object literal [duplicate-object-key]
+
+    server/routes.ts:5441:8:
+      5441 │         confidence,
+           ╵         ~~~~~~~~~~
+
+  The original key "confidence" is here:
+
+    server/routes.ts:5439:8:
+      5439 │         confidence: "medium",
+           ╵         ~~~~~~~~~~
+
+▲ [WARNING] Duplicate key "contactName" in object literal [duplicate-object-key]
+
+    server/routes.ts:6616:8:
+      6616 │         contactName: body.contactName || null,
+           ╵         ~~~~~~~~~~~
+
+  The original key "contactName" is here:
+
+    server/routes.ts:6614:8:
+      6614 │         contactName: body.clientName || body.contactName || null,
+           ╵         ~~~~~~~~~~~
+
+2 warnings
+
+  dist/index.cjs  2.4mb ⚠️
+
+⚡ Done in 315ms

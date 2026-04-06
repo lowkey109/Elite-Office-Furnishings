@@ -1,0 +1,27 @@
+server/services/dealClosing/proposalService.ts(180,59): error TS1005: ',' expected.
+server/services/dealClosing/proposalService.ts(182,14): error TS1005: ',' expected.
+server/services/dealClosing/proposalService.ts(183,12): error TS1005: ',' expected.
+server/services/dealClosing/proposalService.ts(184,17): error TS1005: ',' expected.
+server/services/dealClosing/proposalService.ts(185,18): error TS1005: ',' expected.
+server/services/dealClosing/proposalService.ts(186,12): error TS1005: ',' expected.
+server/services/dealClosing/proposalService.ts(188,18): error TS1005: ',' expected.
+server/services/dealClosing/proposalService.ts(189,13): error TS1005: ',' expected.
+server/services/dealClosing/proposalService.ts(190,17): error TS1005: ',' expected.
+server/services/dealClosing/proposalService.ts(191,5): error TS1135: Argument expression expected.
+server/services/dealClosing/proposalService.ts(191,6): error TS1068: Unexpected token. A constructor, method, accessor, or property was expected.
+server/services/dealClosing/proposalService.ts(191,7): error TS1068: Unexpected token. A constructor, method, accessor, or property was expected.
+server/services/dealClosing/proposalService.ts(193,5): error TS1068: Unexpected token. A constructor, method, accessor, or property was expected.
+server/services/dealClosing/proposalService.ts(222,3): error TS1128: Declaration or statement expected.
+server/services/dealClosing/proposalService.ts(224,3): error TS1434: Unexpected keyword or identifier.
+server/services/dealClosing/proposalService.ts(224,31): error TS1109: Expression expected.
+server/services/dealClosing/proposalService.ts(224,50): error TS1005: ',' expected.
+server/services/dealClosing/proposalService.ts(224,72): error TS1005: ';' expected.
+server/services/dealClosing/proposalService.ts(234,3): error TS1434: Unexpected keyword or identifier.
+server/services/dealClosing/proposalService.ts(234,32): error TS1005: ',' expected.
+server/services/dealClosing/proposalService.ts(234,48): error TS1005: ',' expected.
+server/services/dealClosing/proposalService.ts(234,63): error TS1109: Expression expected.
+server/services/dealClosing/proposalService.ts(234,95): error TS1005: ';' expected.
+server/services/dealClosing/proposalService.ts(247,3): error TS1434: Unexpected keyword or identifier.
+server/services/dealClosing/proposalService.ts(247,28): error TS1005: ';' expected.
+server/services/dealClosing/proposalService.ts(259,23): error TS1005: ';' expected.
+server/services/dealClosing/proposalService.ts(262,1): error TS1128: Declaration or statement expected.

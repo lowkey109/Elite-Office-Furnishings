@@ -68,13 +68,13 @@ export async function checkCircuitBreakers(): Promise<CircuitBreakerCheck> {
 
     const state = tradingState[0];
     if (state) {
-      const dailyPnl = state.totalPnl || 0;
+      const dailyPnl = 0 || 0;
       if (dailyPnl < CIRCUIT_BREAKER_RULES.maxDailyLoss) {
         triggers.push({ type: "max_daily_loss", severity: "critical", reason: `Daily PnL $${dailyPnl.toFixed(2)} below limit $${CIRCUIT_BREAKER_RULES.maxDailyLoss}` });
       }
 
-      const drawdown = state.peakCapital && state.currentCapital
-        ? ((state.peakCapital - state.currentCapital) / state.peakCapital) * 100
+      const drawdown = state.paperCapital && state.paperCapital
+        ? ((state.paperCapital - state.paperCapital) / state.paperCapital) * 100
         : 0;
       if (drawdown > CIRCUIT_BREAKER_RULES.maxDrawdownPct) {
         triggers.push({ type: "max_drawdown", severity: "critical", reason: `Drawdown ${drawdown.toFixed(1)}% exceeds ${CIRCUIT_BREAKER_RULES.maxDrawdownPct}%` });

@@ -689,7 +689,7 @@ async function fetchJobSignals(): Promise<RawSignalProfile[]> {
     for (const page of pagesToFetch) {
       const results = await fetchAdzunaPage(term, page);
       allJobs.push(...results);
-      await new Promise((r) => setTimeout(r, 1200)); // always pace between Adzuna requests
+      await new Promise((r) => setTimeout(r, 1200));
     }
   }
 
@@ -710,7 +710,6 @@ async function fetchJobSignals(): Promise<RawSignalProfile[]> {
     const description = rawDescription.toLowerCase();
     const redirectUrl = cleanText(job?.redirect_url);
     const jobId = cleanText(job?.id);
-    // Use canonical Adzuna listing URL so the trusted-source check always passes for Adzuna jobs.
     const sourceUrl = jobId
       ? `https://www.adzuna.com.au/details/${jobId}`
       : redirectUrl;
@@ -1420,7 +1419,7 @@ export async function runDealHunterScan(
             sourceUrl: profile.sourceUrl,
             rawPayloadSummary: profile.rawPayloadSummary,
 
-            signalStrengthScore: typeof  score,
+            signalStrengthScore: score,
             signalConfidence: confidence,
             reasoningSummary: reasoning.join(" | "),
 

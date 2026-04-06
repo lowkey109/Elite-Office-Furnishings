@@ -1,0 +1,2 @@
+server/routes.ts(980,56): error TS1005: ',' expected.
+server/routes.ts(1182,1): error TS1005: '}' expected.
