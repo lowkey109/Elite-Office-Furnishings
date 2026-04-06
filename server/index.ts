@@ -5,6 +5,7 @@ import { serveStatic } from "./static";
 import { createServer } from "http";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
+import { Pool } from "pg";
 
 declare module "express-session" {
   interface SessionData {
@@ -40,39 +41,52 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// ── Session middleware with fallback ──────────────────────────────────────────
-let sessionStore: any;
-let sessionStoreType = "memory";
+// ── Session store initialisation ──────────────────────────────────────────────
+// connect-pg-simple's createTableIfMissing reads a bundled table.sql file via
+// __dirname, which resolves to /app/dist/table.sql after esbuild bundling —
+// a path that does not exist. Instead, we create the admin_sessions table
+// directly via a raw SQL query before handing the pool to connect-pg-simple.
+// initSessionStore() is awaited inside the startup IIFE before any routes are
+// registered, so the session middleware is always registered with the correct store.
+async function initSessionStore(): Promise<{ store: any; storeType: string }> {
+  if (!process.env.DATABASE_URL) {
+    console.warn("[Session] DATABASE_URL not set — using in-memory session store");
+    return { store: undefined, storeType: "memory" };
+  }
 
-try {
-  sessionStore = new PgSession({
-    conString: process.env.DATABASE_URL,
-    tableName: "admin_sessions",
-    createTableIfMissing: true,
+  const sessionPool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+    max: 3,
   });
-  sessionStoreType = "postgresql";
-  console.log("[Session] Using PostgreSQL session store");
-} catch (err: any) {
-  console.warn("[Session] PostgreSQL session store failed, falling back to memory:", err.message);
-  sessionStore = undefined;
-  sessionStoreType = "memory";
+
+  try {
+    // Create the admin_sessions table directly — avoids connect-pg-simple's
+    // file-based table.sql lookup which fails in the bundled dist output.
+    await sessionPool.query(`
+      CREATE TABLE IF NOT EXISTS admin_sessions (
+        sid    VARCHAR        NOT NULL COLLATE "default" PRIMARY KEY,
+        sess   JSON           NOT NULL,
+        expire TIMESTAMP(6)  NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_admin_sessions_expire ON admin_sessions (expire);
+    `);
+    console.log("[Session] admin_sessions table verified/created");
+
+    const store = new PgSession({
+      pool: sessionPool,
+      tableName: "admin_sessions",
+      // createTableIfMissing is intentionally omitted — table is created above
+      // via raw SQL to avoid the bundled table.sql ENOENT error.
+    });
+    console.log("[Session] Using PostgreSQL session store");
+    return { store, storeType: "postgresql" };
+  } catch (err: any) {
+    console.warn("[Session] PostgreSQL session store init failed, falling back to memory:", err.message);
+    try { await sessionPool.end(); } catch { /* ignore */ }
+    return { store: undefined, storeType: "memory" };
+  }
 }
-
-app.use(session({
-  store: sessionStore,
-  secret: process.env.SESSION_SECRET || "tcd-dev-fallback-secret",
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === "production",
-    httpOnly: true,
-    maxAge: 8 * 60 * 60 * 1000,
-    sameSite: "lax",
-  },
-  name: "tcd_session",
-}));
-
-console.log(`[Session] Admin session store: ${sessionStoreType}`);
 
 declare module "http" {
   interface IncomingMessage {
@@ -155,6 +169,24 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // ── Session store: must be initialised before routes so the session
+  // middleware is registered with the correct store (pg or memory fallback).
+  const { store: sessionStore, storeType: sessionStoreType } = await initSessionStore();
+  app.use(session({
+    store: sessionStore,
+    secret: process.env.SESSION_SECRET || "tcd-dev-fallback-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 8 * 60 * 60 * 1000,
+      sameSite: "lax",
+    },
+    name: "tcd_session",
+  }));
+  console.log(`[Session] Admin session store: ${sessionStoreType}`);
+
   await registerRoutes(httpServer, app);
 
   // ── Single orchestration brain: NexoraOrchestrator ───────────────────────
