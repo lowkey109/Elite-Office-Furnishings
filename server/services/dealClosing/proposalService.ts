@@ -177,7 +177,6 @@ export class ProposalService {
     const htmlContent = generateHtmlProposal(content);
 
     const [newProposal] = await db.insert(proposals).values({
-      opportunityId: options?.opportunityId || quote.opportunityId || undefined,
       quoteId,
       version: nextVersion,
       title: options?.title || `Workspace Proposal – ${content.companyName || content.clientName}`,
@@ -185,7 +184,7 @@ export class ProposalService {
       companyName: content.companyName || undefined,
       email: content.email || undefined,
       htmlContent,
-      contentJson: JSON.stringify(content),
+      contentJson: content,
       status: "draft",
       validUntil: new Date(Date.now() + (content.validityDays || 30) * 24 * 60 * 60 * 1000),
     }).returning();
