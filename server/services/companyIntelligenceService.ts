@@ -86,8 +86,14 @@ export function computeStackedConfidence(signals: {
   const uniqueCount = uniqueTypes.length;
 
   // Recency scoring
-  const recentSignals = signals.filter(s => now - new Date(s.date).getTime() < WINDOW_90);
-  const veryRecentSignals = signals.filter(s => now - new Date(s.date).getTime() < WINDOW_30);
+  const recentSignals = signals.filter(s => {
+    const d = new Date(s.date);
+    return !isNaN(d.getTime()) && now - d.getTime() < WINDOW_90;
+  });
+  const veryRecentSignals = signals.filter(s => {
+    const d = new Date(s.date);
+    return !isNaN(d.getTime()) && now - d.getTime() < WINDOW_30;
+  });
 
   // Source reliability average
   const avgReliability = signals.reduce((sum, s) => {
