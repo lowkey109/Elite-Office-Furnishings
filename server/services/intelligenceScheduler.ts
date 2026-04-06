@@ -68,6 +68,8 @@ async function runJob(
     startedAt,
     result: null,
     error: null,
+    durationMs: null,
+    completedAt: null,
   });
 
   console.log(`[Scheduler] START: ${jobType}`);
