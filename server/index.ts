@@ -35,23 +35,36 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// ✅ FIXED SESSION (THIS IS THE REAL FIX)
+const sessionSecret = process.env.SESSION_SECRET?.trim();
+if (!sessionSecret) {
+  console.warn(
+    "[Session] SESSION_SECRET is not set — using insecure fallback. " +
+    "Set SESSION_SECRET in your environment for production deployments.",
+  );
+}
+
+const isProduction = process.env.NODE_ENV === "production";
+
+// Session middleware — must be registered before any route that reads req.session
 app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "tcd-dev-fallback-secret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: false,
-      httpOnly: true,
-      maxAge: 8 * 60 * 60 * 1000,
-      sameSite: "lax",
-    },
-    name: "tcd_session",
-  })
+  session({
+    secret: sessionSecret || "tcd-dev-fallback-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      // In production the app sits behind a TLS-terminating proxy (trust proxy is
+      // already set above), so secure cookies work correctly.  In development we
+      // keep them insecure so the local HTTP server still sets the cookie.
+      secure: isProduction,
+      httpOnly: true,
+      maxAge: 8 * 60 * 60 * 1000, // 8 hours
+      sameSite: "lax",
+    },
+    name: "tcd_session",
+  })
 );
 
-console.log("[Session] Admin session store: memory (FIXED)");
+console.log(`[Session] Session store initialised (secure=${isProduction})`);
 
 declare module "http" {
   interface IncomingMessage {
