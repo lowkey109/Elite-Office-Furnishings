@@ -1943,7 +1943,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
           signalType: d.signalType || "expansion",
           score: d.signalStrengthScore || 0,
           estimatedValue: d.estimatedProjectValue ? parseInt(String(d.estimatedProjectValue).replace(/[^0-9]/g, "")) || 0 : 0,
-          confidenceLevel: d.signalConfidence || "medium",
+          confidence: d.signalConfidence || "medium",
           whyItMatters: `${d.companyName} showing ${d.signalType || "expansion"} signal`,
           nextAction: d.recommendedAction || "Review and contact",
           detectedAt: d.createdAt,
@@ -1957,7 +1957,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
           signalType: r.signalType,
           score: r.radarScore || 0,
           estimatedValue: r.estimatedProjectValue ? parseInt(String(r.estimatedProjectValue).replace(/[^0-9]/g, "")) || 0 : 0,
-          confidenceLevel: r.confidenceLevel || "medium",
+          confidence: r.confidence || "medium",
           whyItMatters: `${r.companyName} detected via office radar — ${r.signalType}`,
           nextAction: "Initiate outreach",
           detectedAt: r.dateDetected,
@@ -1971,7 +1971,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
           signalType: l.type || "inbound",
           score: Number(l.opportunityScore) || 0,
           estimatedValue: Number((l as any).estimatedValue) || 0,
-          confidenceLevel: Number(l.opportunityScore) >= 70 ? "high" : Number(l.opportunityScore) >= 40 ? "medium" : "low",
+          confidence: Number(l.opportunityScore) >= 70 ? "high" : Number(l.opportunityScore) >= 40 ? "medium" : "low",
           whyItMatters: `Inbound enquiry from ${l.company || l.name} — ${l.type || "general"}`,
           nextAction: (l as any).followUpDate ? "Follow up due" : "Review and respond",
           detectedAt: l.createdAt,
@@ -2219,7 +2219,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
         signalsByType[t] = (signalsByType[t] || 0) + 1;
         const c = (s as any).city || "Unknown";
         signalsByCity[c] = (signalsByCity[c] || 0) + 1;
-        const conf = (s as any).confidenceLevel || "medium";
+        const conf = (s as any).confidence || "medium";
         if (conf === "high" || conf === "very_high") highConfidence++;
         else if (conf === "medium") mediumConfidence++;
         else lowConfidence++;
@@ -3284,7 +3284,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
       const geomForPrompt = detectedGeometryEarly && !detectedGeometryEarly.fallback
         ? {
             source: detectedGeometryEarly.source,
-            confidenceLevel: detectedGeometryEarly.confidence,
+            confidence: detectedGeometryEarly.confidence,
             aspectRatio: detectedGeometryEarly.aspectRatio,
             detectedShape: detectedGeometryEarly.detectedShape,
             fallback: detectedGeometryEarly.fallback,
@@ -4068,7 +4068,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
               quotedPrice: Math.round(balancedStack.quotedPrice),
               estimatedProfit: Math.round(balancedStack.grossProfit),
               estimatedMarginPercent: Math.round(balancedStack.marginPercent),
-              confidenceLevel: balancedStack.confidenceLevel,
+              confidence: balancedStack.confidence,
               conversionResult: "pending",
             });
             console.log(`[ProfitRecord] Auto-saved profit record for planning request ${id}`);
@@ -4607,7 +4607,7 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
         floorGeometry: geomData ? {
           boundary: geomData.boundary || [],
           aspectRatio: geomData.aspectRatio || 1,
-          confidenceLevel: geomData.confidence || 0,
+          confidence: geomData.confidence || 0,
           source: geomData.source || "fallback-rectangle",
           detectedShape: geomData.detectedShape || null,
           fallback: geomData.fallback ?? true,
@@ -4685,7 +4685,7 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
           const { scoreRadarSignal } = await import("./services/officeMovRadarService");
           const scoring = scoreRadarSignal({
             signalType: mappedSignal as any,
-            confidenceLevel: (lead.priority === "High" ? "high" : lead.priority === "Medium" ? "medium" : "low") as any,
+            confidence: (lead.priority === "High" ? "high" : lead.priority === "Medium" ? "medium" : "low") as any,
             city: lead.city,
             industry: lead.industry,
             estimatedHeadcount: lead.estimatedHeadcount ?? undefined,
@@ -4699,7 +4699,7 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
             country: "Australia",
             signalType: mappedSignal,
             signalSource: lead.signalSource ?? "Lease Signal Scanner",
-            confidenceLevel: scoring.priority === "High" ? "high" : scoring.priority === "Medium" ? "medium" : "low",
+            confidence: scoring.priority === "High" ? "high" : scoring.priority === "Medium" ? "medium" : "low",
             estimatedHeadcount: lead.estimatedHeadcount ? Number(String(lead.estimatedHeadcount).replace(/[^0-9]/g, "")) || null : null,
             estimatedOfficeSizeSqm: Number(scoring.estimatedOfficeSizeSqm) || 0,
             estimatedProjectValue: Number(scoring.estimatedProjectValue) || 0,
@@ -5423,7 +5423,7 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
       const { scoreRadarSignal } = await import("./services/officeMovRadarService");
       const body = req.body;
       const signalType = body.signalType ?? "manual";
-      const confidence = body.confidenceLevel ?? "medium";
+      const confidence = body.confidence ?? "medium";
 
       const existing = await storage.findRadarDuplicate(
         body.companyName, body.city ?? "", signalType
@@ -5884,7 +5884,7 @@ Rules:
           bucket.companies.push({
             name: rec.companyName,
             signalType: rec.signalType,
-            confidenceLevel: rec.radarScore || 50,
+            confidence: rec.radarScore || 50,
             value: String(rec.estimatedProjectValue || "N/A"),
             priority: rec.priority,
           });
@@ -5905,7 +5905,7 @@ Rules:
           bucket.companies.push({
             name: vs.companyName || "Website Visitor",
             signalType: "visitor_intelligence",
-            confidenceLevel: vs.confidenceScore || 40,
+            confidence: vs.confidenceScore || 40,
             value: vs.estimatedProjectValue ? `$${vs.estimatedProjectValue.toLocaleString()}` : "N/A",
             priority: vs.engagementScore > 70 ? "High" : "Medium",
           });
@@ -7600,7 +7600,7 @@ Rules:
           properties: {
             id: r.id, companyName: r.companyName, city: r.city, state: r.state,
             signalType: r.signalType, radarScore: r.radarScore, priority: r.priority,
-            status: r.status, industry: r.industry, confidenceLevel: r.confidenceLevel,
+            status: r.status, industry: r.industry, confidence: r.confidence,
             dateDetected: r.dateDetected, color: getSignalColor(r.signalType),
           },
         };
@@ -7863,7 +7863,7 @@ Rules:
             companyName: r.companyName, city: r.city,
             signalType: r.signalType,
             radarScore: r.radarScore,
-            confidenceLevel: r.confidenceLevel,
+            confidence: r.confidence,
             dateDetected: r.dateDetected,
             estimatedProjectValue: r.estimatedProjectValue,
           },
@@ -10237,7 +10237,7 @@ Rules:
           const reason = resolved.blockingReason ?? "No external email found";
           await ddb.update(om).set({ deliveryStatus: "blocked", blockingReason: reason, emailSourceType: "blocked" }).where(eq(om.id, draft.msgId));
           await ddb.update(ot).set({ contactReadiness: "NEEDS_CONTACT", updatedAt: new Date() }).where(eq(ot.id, draft.threadId));
-          await ddb.insert(oe).values({ threadId: draft.threadId, eventType: "blocked", payloadJson: JSON.stringify({ messageId: draft.msgId, reason }) });
+          await ddb.insert(oe).values({ threadId: draft.threadId, eventType: "blocked", payloadJson: { messageId: draft.msgId, reason } });
           results.push({ company: draft.companyName, status: "blocked", reason, msgId: draft.msgId });
           blocked++;
           continue;
@@ -10286,7 +10286,7 @@ Rules:
           }
 
           await ddb.update(om).set({ deliveryStatus: "sent", sentAt: new Date(), resendMessageId: resendMsgId, blockingReason: LIVE_MODE ? null : "SAFE_MODE" }).where(eq(om.id, draft.msgId));
-          await ddb.insert(oe).values({ threadId: draft.threadId, eventType: "sent", payloadJson: JSON.stringify({ messageId: draft.msgId, recipientEmail: toEmail, sourceType: resolved.sourceType, liveMode: LIVE_MODE, resendMsgId }) });
+          await ddb.insert(oe).values({ threadId: draft.threadId, eventType: "sent", payloadJson: { messageId: draft.msgId, recipientEmail: toEmail, sourceType: resolved.sourceType, liveMode: LIVE_MODE, resendMsgId } });
           results.push({ company: draft.companyName, status: LIVE_MODE ? "sent" : "safe_mode", email: toEmail, msgId: draft.msgId });
           sent++;
         } catch (sendErr: any) {

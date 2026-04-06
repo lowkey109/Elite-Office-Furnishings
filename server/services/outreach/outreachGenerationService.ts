@@ -195,7 +195,7 @@ Write the email body only:`;
         }).catch(() => ({ suppressed: false }));
 
         if (suppression.suppressed) {
-          console.log(`[AutoRelease] Suppressed — ${context.companyName} (${recipientEmail}): ${suppression.reason}`);
+          console.log(`[AutoRelease] Suppressed — ${context.companyName} (${recipientEmail}): ${("reason" in suppression ? suppression.reason : undefined)}`);
           await db.update(outreachMessages)
             .set({ deliveryStatus: "suppressed", updatedAt: new Date() } as any)
             .where(eq(outreachMessages.id, msg.id));

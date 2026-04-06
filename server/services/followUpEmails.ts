@@ -60,7 +60,7 @@ function getStageContent(seq: FollowUpSequence, stage: number): StageContent {
   const contextNote = [
     seq.officeSizeSqm && `${seq.officeSizeSqm} office`,
     seq.staffCount && `${seq.staffCount} team members`,
-    seq.budget && `budget of ${seq.budget}`,
+    (seq.budgetMin || seq.budgetMax) && `budget range recorded`,
   ]
     .filter(Boolean)
     .join(", ");
