@@ -1514,13 +1514,13 @@ export async function pushDealHunterToRadar(
     sourceUrl: signal.sourceUrl ?? undefined,
     confidenceLevel: signal.probabilityTier,
     estimatedHeadcount: signal.employeeEstimate
-      ? String(signal.employeeEstimate)
+      ? parseInt(String(signal.employeeEstimate)) || undefined
       : undefined,
     estimatedOfficeSizeSqm: signal.estimatedWorkspaceSqm
-      ? String(signal.estimatedWorkspaceSqm)
+      ? parseInt(String(signal.estimatedWorkspaceSqm)) || undefined
       : undefined,
     estimatedProjectValue: signal.estimatedProjectValue
-      ? `$${signal.estimatedProjectValue.toLocaleString()}`
+      ? Number(signal.estimatedProjectValue) || undefined
       : undefined,
     radarScore: signal.signalStrengthScore,
     priority:
