@@ -1,6 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { startNexoraBackground } from "./services/intelligence/nexoraOrchestrator";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import session from "express-session";
@@ -14,8 +13,6 @@ declare module "express-session" {
 const app = express();
 
 const httpServer = createServer(app);
-
-startNexoraBackground();
 
 app.set("trust proxy", 1);
 
@@ -135,10 +132,105 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  await registerRoutes(httpServer, app);
+  await registerRoutes(httpServer, app);
 
-  const port = parseInt(process.env.PORT || "5000", 10);
-  httpServer.listen({ port, host: "0.0.0.0" }, () => {
-    log(`serving on port ${port}`);
-  });
+  app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    console.error("Internal Server Error:", err);
+    if (res.headersSent) return next(err);
+    return res.status(status).json({ message });
+  });
+
+  if (process.env.NODE_ENV === "production") {
+    serveStatic(app);
+  } else {
+    const { setupVite } = await import("./vite");
+    await setupVite(httpServer, app);
+  }
+
+  const port = parseInt(process.env.PORT || "5000", 10);
+  httpServer.listen({ port, host: "0.0.0.0", reusePort: true }, () => {
+    log(`serving on port ${port}`);
+
+    // ── Delayed background system initialization ──────────────────────────
+    // All background systems (Nexora, pg-boss, schedulers) are intentionally
+    // delayed 15 seconds after the HTTP server binds to its port. This
+    // prevents startup race conditions where background tasks attempt DB
+    // connections or job scheduling before the process is fully ready.
+    setTimeout(async () => {
+      log("[Startup] Initialising background systems (15s post-bind delay)...");
+
+      // ── Single orchestration brain: NexoraOrchestrator ─────────────────
+      // The SOLE entry point for all business intelligence, signal
+      // processing, outreach decisions, and pipeline actions.
+      const { startNexoraBackground } = await import("./services/intelligence/nexoraOrchestrator");
+      startNexoraBackground();
+      log("[Startup] Nexora background loop started");
+
+      // ── pg-boss: durable job persistence layer ──────────────────────────
+      // Subordinate to Nexora — only re-triggers jobs Nexora has scheduled.
+      const { startIntelligenceScheduler, startSchedulerWithPgBoss } = await import("./services/intelligenceScheduler");
+      await startSchedulerWithPgBoss().catch((err: any) => {
+        log(`[Startup] pg-boss unavailable — Nexora will coordinate sub-tasks directly: ${err?.message}`);
+      });
+      startIntelligenceScheduler(); // no-op; kept for compatibility
+
+      // ── Follow-up scheduler: bounded email sequences only ───────────────
+      // Not an orchestration brain — only advances pre-created follow-up
+      // sequences in the DB. Does not make business decisions.
+      const { startFollowUpScheduler } = await import("./services/followUpScheduler");
+      startFollowUpScheduler();
+      log("[Startup] Follow-up scheduler started");
+
+      // ── Runtime hardening: clean up expired DB locks ────────────────────
+      // Prevents stale locks from blocking Nexora if the server crashed mid-run.
+      import("./services/intelligence/nexora/nexora-support")
+        .then(({ cleanupExpiredLocks }) => cleanupExpiredLocks())
+        .catch(() => undefined); // non-fatal
+
+      log("[Startup] All background systems initialised");
+    }, 15_000);
+  });
+
+  // ── Graceful shutdown ─────────────────────────────────────────────────────
+  // On SIGTERM (container stop, deploy, restart) or SIGINT (Ctrl-C):
+  // 1. Stop accepting new connections
+  // 2. Let the current Nexora cycle finish (stopNexoraBackground disables timer)
+  // 3. Drain pg-boss (stopJobOrchestrator)
+  // 4. Exit cleanly so the platform can restart safely
+
+  let shuttingDown = false;
+
+  async function gracefulShutdown(signal: string) {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    log(`Received ${signal} — initiating graceful shutdown...`);
+
+    // Stop new HTTP requests
+    httpServer.close(() => {
+      log("HTTP server closed");
+    });
+
+    // Stop Nexora background timer (running cycle completes naturally)
+    const { stopNexoraBackground } = await import("./services/intelligence/nexoraOrchestrator");
+    stopNexoraBackground();
+    log("Nexora background loop disabled");
+
+    // Drain pg-boss gracefully
+    const { stopJobOrchestrator } = await import("./services/jobOrchestrator");
+    await stopJobOrchestrator().catch(() => undefined);
+    log("pg-boss stopped");
+
+    // Release any held DB run-locks
+    import("./services/intelligence/nexora/nexora-support")
+      .then(({ cleanupExpiredLocks }) => cleanupExpiredLocks())
+      .catch(() => undefined);
+
+    log("Graceful shutdown complete");
+    process.exit(0);
+  }
+
+  process.once("SIGTERM", () => gracefulShutdown("SIGTERM"));
+  process.once("SIGINT", () => gracefulShutdown("SIGINT"));
 })();
