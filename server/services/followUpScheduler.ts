@@ -98,9 +98,10 @@ export async function startFollowUpForLead(lead: {
   email: string;
   company: string;
   type: string;
-  officeSize?: string | null;
-  staffCount?: string | null;
-  budget?: string | null;
+  officeSizeSqm?: string | number | null;
+  staffCount?: string | number | null;
+  budgetMin?: string | number | null;
+  budgetMax?: string | number | null;
 }): Promise<void> {
   try {
     // Don't create duplicate sequences
