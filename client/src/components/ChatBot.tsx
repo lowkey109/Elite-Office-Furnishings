@@ -77,7 +77,7 @@ export default function ChatBot() {
 
     if (messages.length === 0) {
       const greeting = PAGE_GREETINGS[location] ?? DEFAULT_GREETING;
-      addMessage({ role: "assistant", content: greeting });
+      addMessage?.({ role: "assistant", content: greeting });
     }
   }, [isOpen, location, messages.length, addMessage]);
 
@@ -155,17 +155,18 @@ export default function ChatBot() {
       setShowCTA(false);
 
       const profileUpdates = extractProfileFromText(trimmed);
-      if (Object.keys(profileUpdates).length > 0) updateProfile(profileUpdates);
+      if (Object.keys(profileUpdates).length > 0) updateProfile?.(profileUpdates);
 
       const mergedProfile: UserProfile = { ...userProfile, ...profileUpdates };
 
       const userMsg: ConversationMessage = {
+        id: crypto.randomUUID(),
         role: "user",
         content: trimmed,
         ...(attachedImageUrl ? { imageUrl: attachedImageUrl } : {}),
       };
 
-      addMessage(userMsg);
+      addMessage?.(userMsg);
       setInput("");
       clearAttachment();
 
@@ -190,7 +191,7 @@ export default function ChatBot() {
 
       setNexoraDecision(decision);
 
-      addSignal({
+      addSignal?.({
         type: "message",
         intent: decision.intent,
         stage: decision.journeyStage,
@@ -198,7 +199,7 @@ export default function ChatBot() {
         timestamp: Date.now(),
       });
 
-      addMessage({ role: "assistant", content: "", isStreaming: true });
+      addMessage?.({ role: "assistant", content: "", isStreaming: true });
 
       try {
         const res = await fetch("/api/chat", {
@@ -247,15 +248,15 @@ export default function ChatBot() {
 
                   if (delta) {
                     accumulated += delta;
-                    updateLastMessage(accumulated, true);
+                    updateLastMessage?.(accumulated, true);
                   }
                 } catch {
                   accumulated += data;
-                  updateLastMessage(accumulated, true);
+                  updateLastMessage?.(accumulated, true);
                 }
               } else if (!line.startsWith(":")) {
                 accumulated += line;
-                updateLastMessage(accumulated, true);
+                updateLastMessage?.(accumulated, true);
               }
             }
           }
@@ -264,7 +265,7 @@ export default function ChatBot() {
             accumulated += buffer;
           }
 
-          updateLastMessage(accumulated, false);
+          updateLastMessage?.(accumulated, false);
         } else {
           const data = await res.json();
           const content =
@@ -273,20 +274,20 @@ export default function ChatBot() {
             data.reply ??
             "I'm here to help. What would you like to know?";
 
-          updateLastMessage(content, false);
+          updateLastMessage?.(content, false);
         }
 
         setShowCTA(true);
         if (messageCountRef.current >= 2) setShowQuickReplies(true);
       } catch (err: unknown) {
         if ((err as Error)?.name === "AbortError") {
-          updateLastMessage("", false);
+          updateLastMessage?.("", false);
           return;
         }
 
         // eslint-disable-next-line no-console
         console.error("[ChatBot] API error:", err);
-        updateLastMessage(
+        updateLastMessage?.(
           "I'm having trouble connecting right now. Please try again, or call us on **1300 977 607**.",
           false
         );

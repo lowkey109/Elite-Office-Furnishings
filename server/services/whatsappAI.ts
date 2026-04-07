@@ -294,7 +294,7 @@ async function tryCaptureLead(phone: string, history: Message[]): Promise<void> 
       await storage.updateLeadScore(existing.id, {
         opportunityScore: Math.max(opportunityScore, existing.opportunityScore ?? 0),
         opportunityTier,
-        signalsJson: JSON.stringify(data),
+        signalsJson: data,
         nextAction: data.nextBestAction ?? "Follow up on WhatsApp conversation",
         estimatedValueRange: data.budget ?? existing.estimatedValueRange ?? "",
       });
@@ -314,7 +314,7 @@ async function tryCaptureLead(phone: string, history: Message[]): Promise<void> 
         officeLocation: data.city ?? "",
         opportunityScore,
         opportunityTier,
-        signalsJson: JSON.stringify(data),
+        signalsJson: data,
         nextAction: data.nextBestAction ?? "Follow up on WhatsApp conversation",
         estimatedValueRange: data.budget ?? "",
       });

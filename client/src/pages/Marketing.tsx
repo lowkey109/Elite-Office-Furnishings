@@ -542,7 +542,8 @@ export default function Marketing() {
     setGeneratingPlatforms((prev) => { const next = new Set(prev); next.delete(platform); return next; });
   };
 
-  const postToChannel = async (platform: Platform, extra: Record<string, string>) => {
+  const postToChannel = async (platform: Platform, extra?: Record<string, string>) => {
+    const safeExtra = extra ?? {};
     const content = generatedContent[platform];
     if (!content) return;
 
@@ -566,19 +567,19 @@ export default function Marketing() {
       if (platform === "email") {
         const c = content as NonNullable<GeneratedContent["email"]>;
         const htmlBody = `<h1 style="color:#fff;font-family:Georgia,serif;font-size:28px;margin-bottom:16px">${c.headline}</h1><div style="color:rgba(255,255,255,0.75);font-size:15px;line-height:1.7">${c.body.replace(/\n/g, "<br>")}</div><div style="text-align:center;margin:32px 0"><a href="${c.ctaUrl}" style="background:#C9A84C;color:#0d0f14;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:15px">${c.ctaText}</a></div>`;
-        body = { to: (extra.emailTo || "").split(",").map((s: string) => s.trim()).filter(Boolean), subject: c.subject, htmlBody, previewText: c.previewText };
+        body = { to: (safeExtra.emailTo || "").split(",").map((s: string) => s.trim()).filter(Boolean), subject: c.subject, htmlBody, previewText: c.previewText };
       } else if (platform === "facebook") {
         const c = content as NonNullable<GeneratedContent["facebook"]>;
         body = { message: `${c.post}\n\n${c.hashtags?.join(" ") || ""}`, link: "https://thecorporatedesk.com.au" };
       } else if (platform === "instagram") {
         const c = content as NonNullable<GeneratedContent["instagram"]>;
-        body = { caption: `${c.caption}\n\n${c.hashtags?.join(" ") || ""}`, imageUrl: extra.instagramImageUrl || "" };
+        body = { caption: `${c.caption}\n\n${c.hashtags?.join(" ") || ""}`, imageUrl: safeExtra.instagramImageUrl || "" };
       } else if (platform === "telegram") {
         body = { message: (content as NonNullable<GeneratedContent["telegram"]>).message };
       } else if (platform === "twitter") {
         body = { tweets: (content as NonNullable<GeneratedContent["twitter"]>).tweets };
       } else if (platform === "whatsapp") {
-        body = { message: (content as NonNullable<GeneratedContent["whatsapp"]>).message, to: extra.whatsappTo || "" };
+        body = { message: (content as NonNullable<GeneratedContent["whatsapp"]>).message, to: safeExtra.whatsappTo || "" };
       }
 
       const res = await fetch(endpoint, {
