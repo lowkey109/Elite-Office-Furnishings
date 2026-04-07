@@ -125,7 +125,7 @@ export async function createPaymentLink(opts: CreatePaymentLinkOptions): Promise
     action: config.safeMode ? "create_payment_link_simulated" : "create_payment_link",
     entityType: "payment_link",
     entityId: inserted.id,
-    metadataJson: JSON.stringify({ quoteId: opts.quoteId, amount: finalAmount, linkType, isTestMode: config.testMode }),
+    metadataJson: { quoteId: opts.quoteId, amount: finalAmount, linkType, isTestMode: config.testMode },
   });
 
   return {
@@ -153,6 +153,6 @@ export async function markLinkStale(linkId: string) {
     action: "mark_link_superseded",
     entityType: "payment_link",
     entityId: linkId,
-    metadataJson: JSON.stringify({ reason: "manual" }),
+    metadataJson: { reason: "manual" },
   });
 }

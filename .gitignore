@@ -3,4 +3,33 @@ dist
 .DS_Store
 server/public
 vite.config.ts.*
-*.tar.gz
+*.tar.gz# temp logs / local repair artifacts
+*.log
+.agent-tsc.*
+.real-tsc.*
+.tsc-errors*
+.current-*.log
+.finish-*.log
+.after-*.log
+.reset-*.log
+.routes-*.log
+.proposal-*.log
+clean-reset.log
+clean.log
+test.log
+nexora-pass.log
+routes-fixed.log
+routes-next.log
+routes-pass.log
+after-routes-dedupe.log
+
+# local backup / repair folders
+.ts_fix_backups/
+.ai-backups/
+.fix-backup-*/
+.backup/
+.autofix-*/
+
+# local backup files
+*.bak
+*.pre-routes-fix.bak

@@ -40,8 +40,8 @@ export async function getInstitutionalStatus(): Promise<{
 
   const accountSummaries: AccountSummary[] = accounts.map(acct => {
     const acctPartitions = partitions.filter(p => p.accountId === acct.id);
-    const currentBalance = state?.currentCapital || acct.currentBalance;
-    const pnl = state?.totalPnl || acct.pnl;
+    const currentBalance = state?.paperCapital || acct.currentBalance;
+    const pnl = 0 || acct.pnl;
 
     return {
       id: acct.id,
@@ -70,16 +70,16 @@ export async function getInstitutionalStatus(): Promise<{
   const totalPnl = accountSummaries.reduce((s, a) => s + a.pnl, 0);
   const totalAllocated = accountSummaries.reduce((s, a) => s + a.allocatedCapital, 0);
 
-  const wins = outcomes.filter(o => (o.adjustedPnl || o.rawPnl) > 0).length;
+  const wins = outcomes.filter(o => (o.realizedPnl || o.realizedPnl) > 0).length;
   const winRate = outcomes.length > 0 ? Math.round((wins / outcomes.length) * 100) : 0;
 
-  const pnls = outcomes.map(o => o.adjustedPnl || o.rawPnl);
+  const pnls = outcomes.map(o => o.realizedPnl || o.realizedPnl);
   const avgPnl = pnls.length > 0 ? pnls.reduce((s, v) => s + v, 0) / pnls.length : 0;
   const stdPnl = pnls.length > 1 ? Math.sqrt(pnls.reduce((s, v) => s + (v - avgPnl) ** 2, 0) / pnls.length) : 1;
   const sharpeProxy = stdPnl > 0 ? Math.round((avgPnl / stdPnl) * 100) / 100 : 0;
 
-  const drawdown = state?.peakCapital && state?.currentCapital
-    ? Math.round(((state.peakCapital - state.currentCapital) / state.peakCapital) * 10000) / 100
+  const drawdown = state?.paperCapital && state?.paperCapital
+    ? Math.round(((state.paperCapital - state.paperCapital) / state.paperCapital) * 10000) / 100
     : 0;
 
   return {

@@ -1,60 +1,52 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { startNexoraBackground } from "./services/intelligence/nexoraOrchestrator";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import session from "express-session";
-import connectPgSimple from "connect-pg-simple";
 
 declare module "express-session" {
-  interface SessionData {
-    isAdmin: boolean;
-  }
+  interface SessionData {
+    isAdmin: boolean;
+  }
 }
-
-const PgSession = connectPgSimple(session);
 
 const app = express();
 
 const httpServer = createServer(app);
 
-startNexoraBackground();
-
 app.set("trust proxy", 1);
 
 // ── Canonical domain redirect (301) ──────────────────────────────────────────
-// Primary domain: www.thecorporatedesk.au
-// All .com.au variants and bare .au redirect here for SEO consolidation.
 app.use((req: Request, res: Response, next: NextFunction) => {
-  const host = (req.headers.host ?? "").toLowerCase().replace(/:\d+$/, "");
-  const CANONICAL = "www.thecorporatedesk.au";
-  const REDIRECT_HOSTS = [
-    "thecorporatedesk.au",
-    "thecorporatedesk.com.au",
-    "www.thecorporatedesk.com.au",
-  ];
-  if (REDIRECT_HOSTS.includes(host)) {
-    const target = `https://${CANONICAL}${req.originalUrl}`;
-    return res.redirect(301, target);
-  }
-  next();
+  const host = (req.headers.host ?? "").toLowerCase().replace(/:\d+$/, "");
+  const CANONICAL = "www.thecorporatedesk.au";
+  const REDIRECT_HOSTS = [
+    "thecorporatedesk.au",
+    "thecorporatedesk.com.au",
+    "www.thecorporatedesk.com.au",
+  ];
+  if (REDIRECT_HOSTS.includes(host)) {
+    const target = `https://${CANONICAL}${req.originalUrl}`;
+    return res.redirect(301, target);
+  }
+  next();
 });
 
-// ── Session middleware with fallback ──────────────────────────────────────────
+// ── Session middleware (server-side admin auth) ───────────────────────────────
 let sessionStore: any;
 let sessionStoreType = "memory";
 
-try {
-  sessionStore = new PgSession({
-    conString: process.env.DATABASE_URL,
-    tableName: "admin_sessions",
-    createTableIfMissing: true,
+  const sessionPool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+    max: 3,
   });
   sessionStoreType = "postgresql";
   console.log("[Session] Using PostgreSQL session store");
 } catch (err: any) {
   console.warn("[Session] PostgreSQL session store failed, falling back to memory:", err.message);
-  sessionStore = undefined;
+  // Use memory store as fallback
+  sessionStore = undefined; // express-session will use memory store by default
   sessionStoreType = "memory";
 }
 
@@ -75,119 +67,93 @@ app.use(session({
 console.log(`[Session] Admin session store: ${sessionStoreType}`);
 
 declare module "http" {
-  interface IncomingMessage {
-    rawBody: unknown;
-  }
+  interface IncomingMessage {
+    rawBody: unknown;
+  }
 }
 
 const WORDPRESS_ORIGINS = [
-  "https://www.thecorporatedesk.au",
-  "https://thecorporatedesk.au",
-  "https://www.thecorporatedesk.com.au",
-  "https://thecorporatedesk.com.au",
+  "https://www.thecorporatedesk.au",
+  "https://thecorporatedesk.au",
+  "https://www.thecorporatedesk.com.au",
+  "https://thecorporatedesk.com.au",
 ];
 
 app.use((req, res, next) => {
-  const origin = req.headers.origin as string | undefined;
-  if (origin && WORDPRESS_ORIGINS.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-  }
-  if (req.method === "OPTIONS") return res.sendStatus(204);
-  next();
+  const origin = req.headers.origin as string | undefined;
+  if (origin && WORDPRESS_ORIGINS.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  }
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  next();
 });
 
 app.use((req, res, next) => {
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  if (!req.path.startsWith("/embed/")) {
-    res.setHeader("X-Frame-Options", "SAMEORIGIN");
-  }
-  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
-  res.removeHeader("X-Powered-By");
-  next();
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  if (!req.path.startsWith("/embed/")) {
+    res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  }
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.removeHeader("X-Powered-By");
+  next();
 });
 
 app.use(
-  express.json({
-    verify: (req, _res, buf) => {
-      req.rawBody = buf;
-    },
-  })
+  express.json({
+    verify: (req, _res, buf) => {
+      req.rawBody = buf;
+    },
+  })
 );
 app.use(express.urlencoded({ extended: false }));
 
 export function log(message: string, source = "express") {
-  const formattedTime = new Date().toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  });
-  console.log(`${formattedTime} [${source}] ${message}`);
+  const formattedTime = new Date().toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
+  console.log(`${formattedTime} [${source}] ${message}`);
 }
 
 app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined;
+  const start = Date.now();
+  const path = req.path;
 
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    if (path.startsWith("/api")) {
+      log(`${req.method} ${path} ${res.statusCode} in ${duration}ms`);
+    }
+  });
 
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        const serialized = JSON.stringify(capturedJsonResponse);
-        logLine += ` :: ${serialized.length > 200 ? serialized.slice(0, 200) + "…" : serialized}`;
-      }
-      log(logLine);
-    }
-  });
-
-  next();
+  next();
 });
 
 (async () => {
+  // ── Session store: must be initialised before routes so the session
+  // middleware is registered with the correct store (pg or memory fallback).
+  const { store: sessionStore, storeType: sessionStoreType } = await initSessionStore();
+  app.use(session({
+    store: sessionStore,
+    secret: process.env.SESSION_SECRET || "tcd-dev-fallback-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 8 * 60 * 60 * 1000,
+      sameSite: "lax",
+    },
+    name: "tcd_session",
+  }));
+  console.log(`[Session] Admin session store: ${sessionStoreType}`);
+
   await registerRoutes(httpServer, app);
-
-  // ── Single orchestration brain: NexoraOrchestrator ───────────────────────
-  // startNexoraBackground() is called at the top of this file (line 21).
-  // It is the SOLE entry point for all business intelligence, signal
-  // processing, outreach decisions, and pipeline actions.
-  //
-  // pg-boss is started as a durable job persistence layer, subordinate
-  // to Nexora. It does not run its own logic — it only re-triggers jobs
-  // that Nexora has already scheduled via runIntelligenceSubTasks().
-  //
-  // startIntelligenceScheduler() is called for backward compatibility
-  // (it is now a no-op — all independent timers have been removed from it).
-  //
-  // startFollowUpScheduler() runs follow-up email sequences. This is a
-  // narrow, bounded email task that is explicitly not an orchestration brain.
-  // It does not make business decisions; it only advances pre-created
-  // follow-up sequences in the DB.
-
-  const { startIntelligenceScheduler, startSchedulerWithPgBoss } = await import("./services/intelligenceScheduler");
-  await startSchedulerWithPgBoss().catch((err) => {
-    console.log("[Index] pg-boss unavailable — Nexora will coordinate sub-tasks directly:", err?.message);
-  });
-  startIntelligenceScheduler(); // no-op; kept for compatibility
-
-  const { startFollowUpScheduler } = await import("./services/followUpScheduler");
-  startFollowUpScheduler(); // bounded email follow-up only — not an orchestration brain
-
-  // ── Runtime hardening: clean up expired DB locks on startup ─────────────
-  // Prevents stale locks from blocking Nexora if the server crashed mid-run.
-  import("./services/intelligence/nexora/nexora-support")
-    .then(({ cleanupExpiredLocks }) => cleanupExpiredLocks())
-    .catch(() => undefined); // non-fatal
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -207,6 +173,45 @@ app.use((req, res, next) => {
   const port = parseInt(process.env.PORT || "5000", 10);
   httpServer.listen({ port, host: "0.0.0.0", reusePort: true }, () => {
     log(`serving on port ${port}`);
+
+    // ── Delayed background system initialization ──────────────────────────
+    // All background systems (Nexora, pg-boss, schedulers) are intentionally
+    // delayed 15 seconds after the HTTP server binds to its port. This
+    // prevents startup race conditions where background tasks attempt DB
+    // connections or job scheduling before the process is fully ready.
+    setTimeout(async () => {
+      log("[Startup] Initialising background systems (15s post-bind delay)...");
+
+      // ── Single orchestration brain: NexoraOrchestrator ─────────────────
+      // The SOLE entry point for all business intelligence, signal
+      // processing, outreach decisions, and pipeline actions.
+      const { startNexoraBackground } = await import("./services/intelligence/nexoraOrchestrator");
+      startNexoraBackground();
+      log("[Startup] Nexora background loop started");
+
+      // ── pg-boss: durable job persistence layer ──────────────────────────
+      // Subordinate to Nexora — only re-triggers jobs Nexora has scheduled.
+      const { startIntelligenceScheduler, startSchedulerWithPgBoss } = await import("./services/intelligenceScheduler");
+      await startSchedulerWithPgBoss().catch((err: any) => {
+        log(`[Startup] pg-boss unavailable — Nexora will coordinate sub-tasks directly: ${err?.message}`);
+      });
+      startIntelligenceScheduler(); // no-op; kept for compatibility
+
+      // ── Follow-up scheduler: bounded email sequences only ───────────────
+      // Not an orchestration brain — only advances pre-created follow-up
+      // sequences in the DB. Does not make business decisions.
+      const { startFollowUpScheduler } = await import("./services/followUpScheduler");
+      startFollowUpScheduler();
+      log("[Startup] Follow-up scheduler started");
+
+      // ── Runtime hardening: clean up expired DB locks ────────────────────
+      // Prevents stale locks from blocking Nexora if the server crashed mid-run.
+      import("./services/intelligence/nexora/nexora-support")
+        .then(({ cleanupExpiredLocks }) => cleanupExpiredLocks())
+        .catch(() => undefined); // non-fatal
+
+      log("[Startup] All background systems initialised");
+    }, 15_000);
   });
 
   // ── Graceful shutdown ─────────────────────────────────────────────────────
