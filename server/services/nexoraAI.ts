@@ -1,9 +1,23 @@
 import OpenAI from "openai";
 
-const oai = new OpenAI({
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-});
+const resolvedApiKey =
+  process.env.AI_INTEGRATIONS_OPENAI_API_KEY?.trim() ||
+  process.env.OPENAI_API_KEY?.trim() ||
+  "";
+
+if (!resolvedApiKey) {
+  console.warn(
+    "[NexoraAI] No OpenAI API key found — AI analysis will be skipped. " +
+    "Set AI_INTEGRATIONS_OPENAI_API_KEY or OPENAI_API_KEY to enable it.",
+  );
+}
+
+const oai = resolvedApiKey
+  ? new OpenAI({
+      apiKey: resolvedApiKey,
+      baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+    })
+  : null;
 
 export type NexoraAIResponse = {
   action: "pipeline" | "radar" | "both" | "hold";
@@ -13,6 +27,11 @@ export type NexoraAIResponse = {
 };
 
 export async function nexoraAIAnalysis(input: unknown): Promise<NexoraAIResponse | null> {
+  if (!oai) {
+    console.warn("[NexoraAI] Skipping AI analysis — no API key configured.");
+    return null;
+  }
+
   try {
     const resp = await oai.chat.completions.create({
       model: "gpt-4o-mini",

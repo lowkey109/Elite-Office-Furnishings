@@ -273,12 +273,14 @@ export default function BlogPost() {
         {/* Hero image — below the header, full-width within content column */}
         <div className="bg-[hsl(220,20%,5%)] pb-0">
           <div className="max-w-4xl mx-auto px-6 lg:px-8">
-            <ArticleImage
-              src={images.hero.src}
-              alt={images.hero.alt}
-              caption={images.hero.caption}
-              testId={`img-hero-${post.id}`}
-            />
+            {images ? (
+              <ArticleImage
+                src={images.hero.src}
+                alt={images.hero.alt}
+                caption={images.hero.caption}
+                testId={`img-hero-${post.id}`}
+              />
+            ) : null}
           </div>
         </div>
 
