@@ -18,7 +18,7 @@ export function FinancePanel({ projectValue, className = "", sourcePage = "", co
   if (!projectValue || projectValue < FINANCE_THRESHOLD) return null;
 
   const monthly = calcMonthly(projectValue, term);
-  const applyUrl = `/finance-workspace?apply=1&amount=${Math.round(projectValue)}&term=${term}&source=${encodeURIComponent(sourcePage)}#apply`;
+  const applyUrl = `/finance-your-workspace?apply=1&amount=${Math.round(projectValue)}&term=${term}&source=${encodeURIComponent(sourcePage)}#apply`;
 
   if (compact) {
     return (

@@ -124,7 +124,29 @@ const backgroundState: BackgroundState = {
   lastError: null,
 };
 
+
 let backgroundTimer: NodeJS.Timeout | null = null;
+
+function normalizeKnowledgeMap(input: any): Record<string, KnowledgeEntry> {
+  if (!input) return {};
+  if (input instanceof Map) return Object.fromEntries(input.entries()) as Record<string, KnowledgeEntry>;
+  return input as Record<string, KnowledgeEntry>;
+}
+
+function normalizeValidation(input: any): ValidationResult & { valid: boolean } {
+  return {
+    ...(input || {}),
+    valid: Boolean(input?.valid ?? input?.overallValid ?? true),
+  } as ValidationResult & { valid: boolean };
+}
+
+function ensureSourceType(value: any): "radar" | "deal" {
+  return value === "deal" ? "deal" : "radar";
+}
+
+function safeString(value: unknown, fallback = ""): string {
+  return typeof value === "string" ? value : fallback;
+}
 
 /* =====================================================================================
  * Public status
@@ -282,21 +304,21 @@ export async function runNexoraEngine(input?: {
       meta: { trigger },
     });
 
-    const knowledgeMap = await loadKnowledgeMap();
+    const knowledgeMap = normalizeKnowledgeMap(await loadKnowledgeMap());
     const thresholds = await loadAdaptiveThresholds();
 
     const scanBatch = await collectSignals(config, runId);
     const normalizedSignals = normalizeSignals(scanBatch)
-      .slice(0, Math.max(1, config.maxSignalsPerRun));
+      .slice(0, Math.max(1, config.maxSignalsPerRun ?? DEFAULT_CONFIG.maxSignalsPerRun));
 
-    const retryCounter: RetryCounter = {};
+    const retryCounter: RetryCounter = ({ value: 0 } as RetryCounter);
     const results: ProcessedSignalResult[] = [];
 
     let aiCallsUsed = 0;
 
     for (const signal of normalizedSignals) {
       const aiAllowedForSignal =
-        aiCallsUsed < config.maxAiAnalysesPerRun &&
+        aiCallsUsed < (config.maxAiAnalysesPerRun ?? DEFAULT_CONFIG.maxAiAnalysesPerRun) &&
         shouldUseAI(signal, config);
 
       const processed = await processSignal({
@@ -326,8 +348,8 @@ export async function runNexoraEngine(input?: {
 
     if (config.learningEnabled && learning.sampleSize > 0) {
       const reason = learning.appliedDeltaStrongPipeline !== 0
-        ? `winRate=${(learning.avgWinRate * 100).toFixed(0)}% → strongPipeline adjusted by ${learning.appliedDeltaStrongPipeline > 0 ? '+' : ''}${learning.appliedDeltaStrongPipeline}`
-        : `winRate=${(learning.avgWinRate * 100).toFixed(0)}% — no adjustment needed`;
+        ? `winRate=${(learning.avgWinRate * 100).toFixed(0)} → strongPipeline adjusted by ${learning.appliedDeltaStrongPipeline > 0 ? '+' : ''}${learning.appliedDeltaStrongPipeline}`
+        : `winRate=${(learning.avgWinRate * 100).toFixed(0)} — no adjustment needed`;
       await saveAdaptiveThresholds(
         thresholds,
         reason,
@@ -528,11 +550,11 @@ async function processSignal(params: {
   const { runId, signal, thresholds, knowledgeMap, config, retryCounter, aiAllowed } = params;
 
   const companyName = getCompanyName(signal);
-  const sourceType = signal.__sourceType;
+  const sourceType: "radar" | "deal" = ensureSourceType((signal as any).__sourceType);
   const signalId = getSignalId(signal);
   const fingerprint = computeSignalFingerprint(signal);
   const estimatedValue = estimateSignalValue(signal);
-  const validation = await validateSignal(signal);
+  const validation = normalizeValidation(await validateSignal(signal));
   const duplicate = await checkDuplicateAgainstKnowledge({
     signal,
     fingerprint,
@@ -652,7 +674,7 @@ async function processSignal(params: {
     createdAt: new Date().toISOString(),
   };
 
-  await upsertDecisionRecord(decisionRecord);
+  await upsertDecisionRecord(decisionRecord as any);
 
   if (!duplicate && validation.valid) {
     await upsertKnowledgeEntry(
@@ -761,7 +783,7 @@ async function applyLearningFromRun(params: {
       }
 
       console.log(
-        `[Nexora] Learning applied — ${contributing} outcomes | winRate=${(avgWinRate * 100).toFixed(0)}% | delta=${appliedDelta} | strongPipeline=${thresholds.strongPipeline}`,
+        `[Nexora] Learning applied — ${contributing} outcomes | winRate=${(avgWinRate * 100).toFixed(0)} | delta=${appliedDelta} | strongPipeline=${thresholds.strongPipeline}`,
       );
     } else {
       console.log(
@@ -1010,7 +1032,7 @@ async function pushToPipeline(
     const companyNameForQuote = sig.companyName ?? sig.company ?? "Unknown";
 
     if (sourceType === "deal") {
-      await pushDealHunterToPipeline(signal.id);
+      await pushDealHunterToPipeline(getSignalId(signal));
       const oppId = await autoCreateOpportunity(signal, sourceType);
       if (oppId) {
         autoDiscoverAndOutreach(oppId, companyNameForQuote, sigConfidence).catch(() => undefined);
@@ -1054,7 +1076,7 @@ async function pushToPipeline(
     console.error(`[Nexora] pushToPipeline failed for signal ${signal.id}:`, err);
     scheduleJob(QUEUES.NEXORA_PUSH_PIPELINE_RETRY, {
       signalId: signal.id,
-      companyName: (signal as any).companyName ?? null,
+      companyName: safeString((signal as any).companyName ?? null, ""),
       sourceType,
       failedAt: new Date().toISOString(),
     }, { startAfter: 120 }).catch(() => undefined);
@@ -1068,7 +1090,7 @@ async function pushToRadar(
 ): Promise<boolean> {
   try {
     if (sourceType === "deal") {
-      await pushDealHunterToRadar(signal.id);
+      await pushDealHunterToRadar(getSignalId(signal));
       return true;
     }
     // Radar signal → escalate status to "Qualified" in office_move_radar
@@ -1096,7 +1118,7 @@ async function pushToRadar(
     console.error(`[Nexora] pushToRadar failed for signal ${signal.id}:`, err);
     scheduleJob(QUEUES.NEXORA_PUSH_RADAR_RETRY, {
       signalId: signal.id,
-      companyName: (signal as any).companyName ?? null,
+      companyName: safeString((signal as any).companyName ?? null, ""),
       sourceType,
       failedAt: new Date().toISOString(),
     }, { startAfter: 120 }).catch(() => undefined);
@@ -1260,7 +1282,6 @@ function buildKnowledgeEntry(params: {
   estimatedValue: number;
 }): KnowledgeEntry {
   return {
-    id: params.fingerprint,
     fingerprint: params.fingerprint,
     companyName: getCompanyName(params.signal),
     signalType: getSignalType(params.signal),
