@@ -58,7 +58,7 @@ app.use(session({
   cookie: {
     secure: process.env.NODE_ENV === "production",
     httpOnly: true,
-    maxAge: 8 * 60 * 60 * 1000, // 8 hours
+    maxAge: 8 * 60 * 60 * 1000,
     sameSite: "lax",
   },
   name: "tcd_session",
