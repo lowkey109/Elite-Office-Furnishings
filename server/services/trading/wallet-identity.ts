@@ -25,16 +25,16 @@ export function buildWalletIdentityProfiles(): WalletIdentityProfile[] {
 
   return wallets.map((wallet) => {
     const proofOfSkillScore =
-      wallet.walletQualityScore > 0 ? wallet.walletQualityScore : 50;
+      (wallet.walletQualityScore ?? 0) > 0 ? (wallet.walletQualityScore ?? 0) : 50;
 
     const copyabilityScore =
-      wallet.copyabilityScore > 0 ? wallet.copyabilityScore : 50;
+      (wallet.copyabilityScore ?? 0) > 0 ? (wallet.copyabilityScore ?? 0) : 50;
 
     return {
       walletId: wallet.id,
       address: wallet.address,
       label: wallet.label,
-      chain: wallet.chain,
+      chain: wallet.chain as "solana",
       isActive: wallet.isActive,
       tradeCount: 0,
       winRate: 0,

@@ -35,7 +35,7 @@ export async function processWalletActions(actions: WalletAction[]) {
 
       if (!assessment.shouldCopy) {
         console.log("[WalletBridge] skipped action", {
-          walletId: action.walletId,
+          walletId: (action.walletId ?? action.wallet),
           txHash: action.txHash,
           reason: assessment.reason,
           score: assessment.score,
@@ -45,7 +45,7 @@ export async function processWalletActions(actions: WalletAction[]) {
 
       if (!trade) {
         console.log("[WalletBridge] skipped action", {
-          walletId: action.walletId,
+          walletId: (action.walletId ?? action.wallet),
           txHash: action.txHash,
           reason: "unmappable_trade",
         });
@@ -53,14 +53,14 @@ export async function processWalletActions(actions: WalletAction[]) {
       }
 
       const risk = await evaluateRisk({
-        walletId: action.walletId,
+        walletId: (action.walletId ?? action.wallet),
         symbol: trade.token,
         notionalUsd: trade.sizeUsd,
       });
 
       if (!risk.allowed) {
         console.log("[RiskGovernor] blocked trade", {
-          walletId: action.walletId,
+          walletId: (action.walletId ?? action.wallet),
           txHash: action.txHash,
           symbol: trade.token,
           reason: risk.reason,
@@ -69,7 +69,7 @@ export async function processWalletActions(actions: WalletAction[]) {
       }
 
       console.log("[WalletBridge] processing action → trade", {
-        walletId: action.walletId,
+        walletId: (action.walletId ?? action.wallet),
         side: trade.side,
         token: trade.token,
         sizeUsd: trade.sizeUsd,
@@ -81,7 +81,7 @@ export async function processWalletActions(actions: WalletAction[]) {
         notionalUsd: trade.sizeUsd,
         source: "SMART_WALLET",
         meta: {
-          walletId: action.walletId,
+          walletId: (action.walletId ?? action.wallet),
           txHash: action.txHash,
           actionType: action.actionType,
           copyabilityScore: assessment.score,

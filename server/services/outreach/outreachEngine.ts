@@ -126,7 +126,7 @@ export async function createOutreachThread(params: {
   await db.insert(outreachEvents).values({
     threadId: thread.id,
     eventType: "created",
-    payloadJson: JSON.stringify({ companyName: params.companyName, angle, bookingLink }),
+    payloadJson: { companyName: params.companyName, angle, bookingLink },
   });
 
   // Schedule sequence
@@ -241,7 +241,7 @@ export async function processScheduledFollowUps(): Promise<{ processed: number; 
     await db.insert(outreachEvents).values({
       threadId: seq.threadId,
       eventType: SAFE_MODE ? "draft_generated" : "sent",
-      payloadJson: JSON.stringify({ stage: seq.stage, sequenceId: seq.id }),
+      payloadJson: { stage: seq.stage, sequenceId: seq.id },
     });
 
     sent++;
@@ -266,7 +266,7 @@ export async function pauseThread(threadId: string): Promise<void> {
   await db.insert(outreachEvents).values({
     threadId,
     eventType: "paused",
-    payloadJson: JSON.stringify({ reason: "manual" }),
+    payloadJson: { reason: "manual" },
   });
 }
 
@@ -285,7 +285,7 @@ export async function stopThread(threadId: string, reason = "manual"): Promise<v
   await db.insert(outreachEvents).values({
     threadId,
     eventType: "stopped",
-    payloadJson: JSON.stringify({ reason }),
+    payloadJson: { reason },
   });
 }
 
@@ -305,7 +305,7 @@ export async function markThreadBooked(threadId: string, meetingTime?: Date): Pr
   await db.insert(outreachEvents).values({
     threadId,
     eventType: "meeting_booked",
-    payloadJson: JSON.stringify({ meetingTime: meetingTime?.toISOString() }),
+    payloadJson: { meetingTime: meetingTime?.toISOString() },
   });
 }
 
