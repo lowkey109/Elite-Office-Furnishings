@@ -32,36 +32,40 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-const sessionSecret = process.env.SESSION_SECRET?.trim();
-if (!sessionSecret) {
-  console.warn(
-    "[Session] SESSION_SECRET is not set — using insecure fallback. " +
-    "Set SESSION_SECRET in your environment for production deployments.",
-  );
+// ── Session middleware (server-side admin auth) ───────────────────────────────
+let sessionStore: any;
+let sessionStoreType = "memory";
+
+try {
+  sessionStore = new PgSession({
+    conString: process.env.DATABASE_URL,
+    tableName: "admin_sessions",
+    createTableIfMissing: true,
+  });
+  sessionStoreType = "postgresql";
+  console.log("[Session] Using PostgreSQL session store");
+} catch (err: any) {
+  console.warn("[Session] PostgreSQL session store failed, falling back to memory:", err.message);
+  // Use memory store as fallback
+  sessionStore = undefined; // express-session will use memory store by default
+  sessionStoreType = "memory";
 }
 
-const isProduction = process.env.NODE_ENV === "production";
+app.use(session({
+  store: sessionStore,
+  secret: process.env.SESSION_SECRET || "tcd-dev-fallback-secret",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    maxAge: 8 * 60 * 60 * 1000, // 8 hours
+    sameSite: "lax",
+  },
+  name: "tcd_session",
+}));
 
-// Session middleware — must be registered before any route that reads req.session
-app.use(
-  session({
-    secret: sessionSecret || "tcd-dev-fallback-secret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      // In production the app sits behind a TLS-terminating proxy (trust proxy is
-      // already set above), so secure cookies work correctly.  In development we
-      // keep them insecure so the local HTTP server still sets the cookie.
-      secure: isProduction,
-      httpOnly: true,
-      maxAge: 8 * 60 * 60 * 1000, // 8 hours
-      sameSite: "lax",
-    },
-    name: "tcd_session",
-  })
-);
-
-console.log(`[Session] Session store initialised (secure=${isProduction})`);
+console.log(`[Session] Admin session store: ${sessionStoreType}`);
 
 declare module "http" {
   interface IncomingMessage {
