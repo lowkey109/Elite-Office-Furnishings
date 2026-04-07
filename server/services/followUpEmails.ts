@@ -57,10 +57,18 @@ function getStageContent(seq: FollowUpSequence, stage: number): StageContent {
   const company = seq.leadCompany;
   const type = seq.leadType;
 
+  const budgetNote = seq.budgetMin && seq.budgetMax
+    ? `$${seq.budgetMin.toLocaleString("en-AU")} – $${seq.budgetMax.toLocaleString("en-AU")}`
+    : seq.budgetMin
+    ? `from $${seq.budgetMin.toLocaleString("en-AU")}`
+    : seq.budgetMax
+    ? `up to $${seq.budgetMax.toLocaleString("en-AU")}`
+    : null;
+
   const contextNote = [
-    seq.officeSizeSqm && `${seq.officeSizeSqm} office`,
+    seq.officeSizeSqm && `${seq.officeSizeSqm} sqm office`,
     seq.staffCount && `${seq.staffCount} team members`,
-    (seq.budgetMin || seq.budgetMax) && `budget range recorded`,
+    budgetNote && `budget of ${budgetNote}`,
   ]
     .filter(Boolean)
     .join(", ");
@@ -85,6 +93,7 @@ function getStageContent(seq: FollowUpSequence, stage: number): StageContent {
       return {
         subject: `${firstName}, your finance options for ${company}`,
         body: `
+
           ${p(`Hi ${firstName},`)}
           ${p(`Thank you for your interest in financing your office fit-out. I wanted to follow up to make sure you have everything you need to move forward with confidence.`)}
           ${p(`We work with three specialist commercial finance partners — Stratton Finance, QPF Finance, and Vestone Capital — depending on your project size and structure. Most clients are approved within 24–48 hours and can spread the cost over 24–60 months, keeping cash in the business while getting the office done now.`)}
