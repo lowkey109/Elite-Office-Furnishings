@@ -254,6 +254,8 @@ import Stripe from "stripe";
                 res.send(robotsTxt());
               });
 
+
+
               app.get("/llms.txt", (_req, res) => {
                 res.set("Content-Type", "text/plain");
                 res.set("Cache-Control", "public, max-age=86400");
@@ -278,6 +280,33 @@ import Stripe from "stripe";
               });
 
 
+app.post("/api/admin/auth/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@thecorporatedesk.au";
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "password123";
+
+    if (!email || !password) {
+      return res.status(400).json({ error: "Missing credentials" });
+    }
+
+    if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    req.session.admin = {
+      email,
+      loggedIn: true,
+    };
+
+    return res.json({ success: true });
+
+  } catch (err) {
+    console.error("Admin login error:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+}
               app.get("/api/admin/auth/check", (req: any, res: any) => {
                 res.json({ authenticated: !!req.session?.isAdmin });
               });
