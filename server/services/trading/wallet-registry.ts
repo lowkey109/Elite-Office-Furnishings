@@ -26,7 +26,7 @@ function now(): Date {
 
 export function listTrackedWallets(): TrackedWallet[] {
   return Array.from(trackedWalletStore.values()).sort(
-    (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime(),
+    (a, b) => (b.updatedAt ?? new Date(0)).getTime() - (a.updatedAt ?? new Date(0)).getTime(),
   );
 }
 

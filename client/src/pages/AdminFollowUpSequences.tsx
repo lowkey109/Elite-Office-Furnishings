@@ -204,14 +204,14 @@ export default function AdminFollowUpSequences() {
 
                         {/* Context tags */}
                         <div className="flex flex-wrap gap-1.5 mt-2">
-                          {seq.officeSize && (
-                            <span className="text-xs px-2 py-0.5 bg-gray-100 rounded text-gray-500">{seq.officeSize}</span>
+                          {seq.officeSizeSqm && (
+                            <span className="text-xs px-2 py-0.5 bg-gray-100 rounded text-gray-500">{`${seq.officeSizeSqm} sqm`}</span>
                           )}
                           {seq.staffCount && (
                             <span className="text-xs px-2 py-0.5 bg-gray-100 rounded text-gray-500">{seq.staffCount} staff</span>
                           )}
-                          {seq.budget && (
-                            <span className="text-xs px-2 py-0.5 bg-gray-100 rounded text-gray-500">{seq.budget}</span>
+                          {(seq.budgetMin || seq.budgetMax) && (
+                            <span className="text-xs px-2 py-0.5 bg-gray-100 rounded text-gray-500">{seq.budgetMin && seq.budgetMax ? `$${seq.budgetMin.toLocaleString()} – $${seq.budgetMax.toLocaleString()}` : seq.budgetMin ? `$${seq.budgetMin.toLocaleString()}+` : seq.budgetMax ? `Up to $${seq.budgetMax.toLocaleString()}` : ""}</span>
                           )}
                         </div>
                       </div>

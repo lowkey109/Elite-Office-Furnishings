@@ -290,7 +290,10 @@ export default function AdminNexoraCommandCentre() {
   // ── Mutations ──────────────────────────────────────────────────────────────
 
   const runMutation = useMutation({
-    mutationFn: () => apiRequest("POST", "/api/nexora/run"),
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/nexora/run");
+      return await response.json();
+    },
     onSuccess: (data: NexoraRunResult) => {
       setLastRunResult(data);
       const t = data.totals;
