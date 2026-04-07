@@ -1512,7 +1512,7 @@ export async function pushDealHunterToRadar(
     signalSource: signal.signalSource,
     sourceUrl: signal.sourceUrl ?? undefined,
     confidenceLevel: signal.probabilityTier,
-um    estimatedHeadcount: (signal.employeeEstimate == null ? null : Number(String(signal.employeeEstimate).replace(/[^0-9.-]/g, "")) || null)
+    estimatedHeadcount: (signal.employeeEstimate == null ? null : Number(String(signal.employeeEstimate).replace(/[^0-9.-]/g, "")) || null)
       ? String(signal.employeeEstimate)
       : undefined,
     estimatedOfficeSizeSqm: (signal.estimatedWorkspaceSqm == null ? null : Number(String(signal.estimatedWorkspaceSqm).replace(/[^0-9.-]/g, "")) || null)

@@ -1,5 +1,5 @@
 import { db } from "../../db";
-import { buildings, tenants, leases, buildingSuburbEdges } from "../../../shared/schema";
+import { buildings, tenants, leases, companyBuildingEdges, buildingSuburbEdges } from "../../../shared/schema";
 import { eq, desc, sql } from "drizzle-orm";
 
 const AU_SEED_BUILDINGS = [
@@ -97,6 +97,21 @@ export class BuildingIngestionService {
       tenantStatus: "active",
       sourceType: "manual",
     }).returning();
+
+    if (input.companyId) {
+      const existing = await db.select().from(companyBuildingEdges)
+        .where(eq(companyBuildingEdges.companyId, input.companyId))
+        .limit(1);
+
+      if (existing.length === 0) {
+        await db.insert(companyBuildingEdges).values({
+          companyId: input.companyId,
+          edgeType: "tenant",
+          confidence: 90,
+          sourceType: "manual",
+        });
+      }
+    }
 
     return tenant;
   }
