@@ -36,11 +36,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 let sessionStore: any;
 let sessionStoreType = "memory";
 
-try {
-  sessionStore = new PgSession({
-    conString: process.env.DATABASE_URL,
-    tableName: "admin_sessions",
-    createTableIfMissing: true,
+  const sessionPool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+    max: 3,
   });
   sessionStoreType = "postgresql";
   console.log("[Session] Using PostgreSQL session store");
@@ -136,6 +135,24 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // ── Session store: must be initialised before routes so the session
+  // middleware is registered with the correct store (pg or memory fallback).
+  const { store: sessionStore, storeType: sessionStoreType } = await initSessionStore();
+  app.use(session({
+    store: sessionStore,
+    secret: process.env.SESSION_SECRET || "tcd-dev-fallback-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 8 * 60 * 60 * 1000,
+      sameSite: "lax",
+    },
+    name: "tcd_session",
+  }));
+  console.log(`[Session] Admin session store: ${sessionStoreType}`);
+
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
