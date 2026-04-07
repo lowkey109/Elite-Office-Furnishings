@@ -114,7 +114,7 @@ const buyerRoles = [
     icon: TrendingUp,
     heading: "Premium Quality.\nControlled Budget.",
     subheading: "Financing from $30k. Transparent quotes. No surprises on delivery.",
-    cta1: { label: "Finance Options", href: "/finance-workspace", icon: Calculator },
+    cta1: { label: "Finance Options", href: "/finance-your-workspace", icon: Calculator },
     cta2: { label: "Get a Fixed Quote", href: "/request-a-quote", icon: FileText },
     cta3: { label: "Book a Pricing Call", href: "/strategy-call", icon: Phone },
     trust: ["Financing available", "Fixed price contracts", "No hidden costs", "Budget vs premium comparison"],
@@ -284,7 +284,7 @@ export default function Home() {
               { label: "I'm fitting out a new office", href: "/ai-office-planner", icon: Building2, sub: "Start with AI Planner" },
               { label: "I need a quote for furniture", href: "/request-a-quote", icon: FileText, sub: "Get fixed-price quote" },
               { label: "We're relocating", href: "/free-layout-plan", icon: MapPin, sub: "Upload floorplan free" },
-              { label: "I want to explore finance", href: "/finance-workspace", icon: TrendingUp, sub: "From $30k · flexible terms" },
+              { label: "I want to explore finance", href: "/finance-your-workspace", icon: TrendingUp, sub: "From $30k · flexible terms" },
             ].map(({ label, href, icon: Icon, sub }) => (
               <Link key={label} href={href} data-testid={`button-quickpath-${label.toLowerCase().replace(/[^a-z]+/g, "-")}`}>
                 <div className="p-4 border border-white/8 bg-white/[0.02] hover:border-[rgba(201,168,76,0.25)] hover:bg-[rgba(201,168,76,0.04)] transition-all duration-200 cursor-pointer group h-full">
@@ -472,7 +472,7 @@ export default function Home() {
             </div>
             <div className="flex gap-3 flex-shrink-0">
               <Button asChild size="sm" className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold border-none" data-testid="button-finance-strip">
-                <Link href="/finance-workspace">Explore Finance <ArrowRight className="ml-1.5 w-3.5 h-3.5" /></Link>
+                <Link href="/finance-your-workspace">Explore Finance <ArrowRight className="ml-1.5 w-3.5 h-3.5" /></Link>
               </Button>
               <Button asChild size="sm" variant="outline" className="border-white/15 text-white/50" data-testid="button-finance-call">
                 <a href="tel:1300977607">1300 977 607</a>

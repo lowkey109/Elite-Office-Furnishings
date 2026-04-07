@@ -149,7 +149,7 @@ export default function AdminAlexDashboard() {
     catch { return []; }
   })();
   const isRunning = statusData?.isRunning ?? false;
-  const latestStatus = isRunning ? "running" : (latest?.status ?? null);
+  const latestStatus = isRunning ? "partial" : (latest?.status ?? null);
 
   // ── Aggregate company metrics ────────────────────────────────────────────────
 
@@ -318,7 +318,7 @@ export default function AdminAlexDashboard() {
                         <Icon className={`w-4 h-4 ${meta?.color ?? "text-white/60"}`} />
                       </div>
                       <Badge className={`text-xs border ${sc.badge}`}>
-                        <StatusIcon className={`w-3 h-3 mr-1 ${dept.status === "running" ? "animate-spin" : ""}`} />
+                        <StatusIcon className={`w-3 h-3 mr-1 ${dept.status === "partial" ? "animate-spin" : ""}`} />
                         {sc.label}
                       </Badge>
                     </div>

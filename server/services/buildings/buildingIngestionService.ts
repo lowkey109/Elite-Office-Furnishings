@@ -106,7 +106,6 @@ export class BuildingIngestionService {
       if (existing.length === 0) {
         await db.insert(companyBuildingEdges).values({
           companyId: input.companyId,
-          buildingId: input.buildingId,
           edgeType: "tenant",
           confidence: 90,
           sourceType: "manual",
