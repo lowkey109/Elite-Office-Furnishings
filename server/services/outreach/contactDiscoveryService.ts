@@ -345,7 +345,7 @@ export async function discoverContactForOpportunity(opportunityId: string): Prom
           contactId: saved.id,
           checkType: "mx_domain",
           result: "passed",
-          detailsJson: JSON.stringify({ domain, role: contact.role, confidence: contact.confidence }),
+          detailsJson: { domain, role: contact.role, confidence: contact.confidence },
         });
 
         if (contactsFound === 0) {

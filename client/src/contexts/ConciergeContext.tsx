@@ -83,6 +83,11 @@ interface ConciergeContextValue {
   setSelectedService: (service: string | null) => void;
   setLastDecision: (decision: NexoraDecision | null) => void;
 
+  addMessage?: (...args: any[]) => void;
+  updateLastMessage?: (...args: any[]) => void;
+  updateProfile?: (...args: any[]) => void;
+  addSignal?: (...args: any[]) => void;
+
   // Signal emission — the universal capture method
   emit: (type: NexoraSignalType, payload?: Record<string, string | number | boolean | null>) => void;
 }

@@ -689,7 +689,7 @@ async function fetchJobSignals(): Promise<RawSignalProfile[]> {
     for (const page of pagesToFetch) {
       const results = await fetchAdzunaPage(term, page);
       allJobs.push(...results);
-      await new Promise((r) => setTimeout(r, 1200)); // always pace between Adzuna requests
+      await new Promise((r) => setTimeout(r, 1200));
     }
   }
 
@@ -710,7 +710,6 @@ async function fetchJobSignals(): Promise<RawSignalProfile[]> {
     const description = rawDescription.toLowerCase();
     const redirectUrl = cleanText(job?.redirect_url);
     const jobId = cleanText(job?.id);
-    // Use canonical Adzuna listing URL so the trusted-source check always passes for Adzuna jobs.
     const sourceUrl = jobId
       ? `https://www.adzuna.com.au/details/${jobId}`
       : redirectUrl;
@@ -1425,7 +1424,7 @@ export async function runDealHunterScan(
             reasoningSummary: reasoning.join(" | "),
 
             estimatedWorkspaceSqm: sqm,
-            estimatedProjectValue: value,
+            estimatedProjectValue: value ? Number(value) || null : null,
 
             relocationProbability:
               tier === "high"
@@ -1513,13 +1512,13 @@ export async function pushDealHunterToRadar(
     signalSource: signal.signalSource,
     sourceUrl: signal.sourceUrl ?? undefined,
     confidenceLevel: signal.probabilityTier,
-    estimatedHeadcount: signal.employeeEstimate
+    estimatedHeadcount: (signal.employeeEstimate == null ? null : Number(String(signal.employeeEstimate).replace(/[^0-9.-]/g, "")) || null)
       ? String(signal.employeeEstimate)
       : undefined,
-    estimatedOfficeSizeSqm: signal.estimatedWorkspaceSqm
+    estimatedOfficeSizeSqm: (signal.estimatedWorkspaceSqm == null ? null : Number(String(signal.estimatedWorkspaceSqm).replace(/[^0-9.-]/g, "")) || null)
       ? String(signal.estimatedWorkspaceSqm)
       : undefined,
-    estimatedProjectValue: signal.estimatedProjectValue
+    estimatedProjectValue: (signal.estimatedProjectValue == null ? null : Number(String(signal.estimatedProjectValue).replace(/[^0-9.-]/g, "")) || null)
       ? `$${signal.estimatedProjectValue.toLocaleString()}`
       : undefined,
     radarScore: signal.signalStrengthScore,
@@ -1557,16 +1556,16 @@ export async function pushDealHunterToPipeline(
 
   const prospect = await storage.createProspectedLead({
     company: signal.companyName,
-    domain: signal.companyDomain ?? undefined,
+    domain: signal.companyDomain ?? null,
     website: signal.companyDomain ? `https://${signal.companyDomain}` : null,
     location: `${signal.city}, ${signal.state ?? "AU"}`,
     industry: signal.industry,
     estimatedTeamSize: signal.employeeEstimate
       ? String(signal.employeeEstimate)
       : "Unknown",
-    likelyOfficeNeed: signal.projectType ?? undefined,
+    likelyOfficeNeed: signal.projectType ?? null,
     signalsDetected: [signal.signalType],
-    estimatedProjectValue: signal.estimatedProjectValue
+    estimatedProjectValue: (signal.estimatedProjectValue == null ? null : Number(String(signal.estimatedProjectValue).replace(/[^0-9.-]/g, "")) || null)
       ? `$${signal.estimatedProjectValue.toLocaleString()}`
       : "$0",
     score: signal.signalStrengthScore,
@@ -1608,7 +1607,7 @@ export async function pushDealHunterToPipeline(
     estimatedOfficeSqm: signal.estimatedWorkspaceSqm
       ? String(signal.estimatedWorkspaceSqm)
       : null,
-    estimatedHeadcount: signal.employeeEstimate
+    estimatedHeadcount: (signal.employeeEstimate == null ? null : Number(String(signal.employeeEstimate).replace(/[^0-9.-]/g, "")) || null)
       ? String(signal.employeeEstimate)
       : null,
     recommendedNextAction: signal.recommendedAction ?? null,
