@@ -83,7 +83,7 @@ function QuoteEditor({
   // Line items
   const [items, setItems] = useState<QuoteLineItem[]>(() => {
     if (quote?.quoteItems) {
-      try { return JSON.parse(quote.quoteItems); } catch {}
+      return Array.isArray(quote.quoteItems) ? quote.quoteItems : [];
     }
     // Pre-fill from planning request package if available
     if (prefillRequest?.packageJson) {

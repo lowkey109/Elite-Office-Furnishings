@@ -89,7 +89,7 @@ export default function AdminDashboard() {
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [pwError, setPwError] = useState(false);
-  const [expandedLead, setExpandedLead] = useState<number | null>(null);
+  const [expandedLead, setExpandedLead] = useState<string | null>(null);
 
   useEffect(() => {
     document.title = "Admin Dashboard | The Corporate Desk";

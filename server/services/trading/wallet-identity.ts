@@ -1,0 +1,57 @@
+// server/services/trading/wallet-identity.ts
+
+import { listTrackedWallets } from "./wallet-registry";
+
+export type WalletIdentityProfile = {
+  walletId: string;
+  address: string;
+  label?: string;
+  chain: "solana";
+  isActive: boolean;
+  tradeCount: number;
+  winRate: number;
+  profitFactor: number;
+  maxDrawdown: number;
+  consistencyScore: number;
+  capitalEfficiencyScore: number;
+  survivabilityScore: number;
+  proofOfSkillScore: number;
+  copyabilityScore: number;
+  updatedAt: Date;
+};
+
+export function buildWalletIdentityProfiles(): WalletIdentityProfile[] {
+  const wallets = listTrackedWallets();
+
+  return wallets.map((wallet) => {
+    const proofOfSkillScore =
+      (wallet.walletQualityScore ?? 0) > 0 ? (wallet.walletQualityScore ?? 0) : 50;
+
+    const copyabilityScore =
+      (wallet.copyabilityScore ?? 0) > 0 ? (wallet.copyabilityScore ?? 0) : 50;
+
+    return {
+      walletId: wallet.id,
+      address: wallet.address,
+      label: wallet.label,
+      chain: wallet.chain as "solana",
+      isActive: wallet.isActive,
+      tradeCount: 0,
+      winRate: 0,
+      profitFactor: 0,
+      maxDrawdown: 0,
+      consistencyScore: 50,
+      capitalEfficiencyScore: 50,
+      survivabilityScore: 50,
+      proofOfSkillScore,
+      copyabilityScore,
+      updatedAt: new Date(),
+    };
+  });
+}
+
+export function getTopWalletIdentityProfiles(limit = 10): WalletIdentityProfile[] {
+  return buildWalletIdentityProfiles()
+    .sort((a, b) => b.proofOfSkillScore - a.proofOfSkillScore)
+    .slice(0, limit);
+}

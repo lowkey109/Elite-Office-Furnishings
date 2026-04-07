@@ -1,10 +1,24 @@
 import OpenAI from "openai";
 import type { DealHunterSignalLike, NormalizedAIDecision } from "./nexora/nexora-types";
 
-const openai = new OpenAI({
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY ?? process.env.OPENAI_API_KEY,
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-});
+const resolvedApiKey =
+  process.env.AI_INTEGRATIONS_OPENAI_API_KEY?.trim() ||
+  process.env.OPENAI_API_KEY?.trim() ||
+  "";
+
+if (!resolvedApiKey) {
+  console.warn(
+    "[NexoraAI] No OpenAI API key found — AI analysis will be skipped. " +
+    "Set AI_INTEGRATIONS_OPENAI_API_KEY or OPENAI_API_KEY to enable it.",
+  );
+}
+
+const openai = resolvedApiKey
+  ? new OpenAI({
+      apiKey: resolvedApiKey,
+      baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+    })
+  : null;
 
 type AIAgentType = "value-forecaster" | "risk-analyst" | "intent-detector" | "market-dynamics";
 
@@ -22,6 +36,11 @@ const AGENT_PROMPTS: Record<AIAgentType, string> = {
 
 export async function nexoraAIAnalysis(input: NexoraAIInput): Promise<NormalizedAIDecision> {
   const { agent, fallbackDecision, ...signal } = input;
+
+  if (!openai) {
+    console.warn("[NexoraAI] Skipping AI analysis — no API key configured.");
+    return fallbackDecision;
+  }
 
   const systemPrompt = AGENT_PROMPTS[agent] ?? AGENT_PROMPTS["value-forecaster"];
 

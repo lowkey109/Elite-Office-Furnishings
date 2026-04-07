@@ -94,62 +94,62 @@ export default function AdminProductCommandCentre() {
   // ── Mutations ────────────────────────────────────────────────────────────────
 
   const publishMut = useMutation({
-    mutationFn: (id: string) => apiRequest(`/api/admin/products/${id}/publish`, { method: "POST" }),
+    mutationFn: (id: string) => apiRequest("POST", `/api/admin/products/${id}/publish`),
     onSuccess: () => { toast({ title: "Product published ✓" }); qc.invalidateQueries({ queryKey: ["/api/admin/products"] }); refetchStats(); },
     onError: (e: any) => toast({ title: "Publish failed", description: e.message, variant: "destructive" }),
   });
 
   const unpublishMut = useMutation({
-    mutationFn: (id: string) => apiRequest(`/api/admin/products/${id}/unpublish`, { method: "POST" }),
+    mutationFn: (id: string) => apiRequest("POST", `/api/admin/products/${id}/unpublish`),
     onSuccess: () => { toast({ title: "Product unpublished" }); qc.invalidateQueries({ queryKey: ["/api/admin/products"] }); refetchStats(); },
   });
 
   const approveMut = useMutation({
-    mutationFn: (id: string) => apiRequest(`/api/admin/products/${id}/approve`, { method: "POST" }),
+    mutationFn: (id: string) => apiRequest("POST", `/api/admin/products/${id}/approve`),
     onSuccess: () => { toast({ title: "Approved ✓" }); qc.invalidateQueries({ queryKey: ["/api/admin/products"] }); },
   });
 
   const rejectMut = useMutation({
-    mutationFn: (id: string) => apiRequest(`/api/admin/products/${id}/reject`, { method: "POST" }),
+    mutationFn: (id: string) => apiRequest("POST", `/api/admin/products/${id}/reject`),
     onSuccess: () => { toast({ title: "Rejected" }); qc.invalidateQueries({ queryKey: ["/api/admin/products"] }); },
   });
 
   const regenMut = useMutation({
-    mutationFn: (id: string) => apiRequest(`/api/admin/products/${id}/regenerate`, { method: "POST" }),
+    mutationFn: (id: string) => apiRequest("POST", `/api/admin/products/${id}/regenerate`),
     onSuccess: () => { toast({ title: "Regenerating content..." }); setTimeout(() => qc.invalidateQueries({ queryKey: ["/api/admin/products"] }), 3000); },
     onError: (e: any) => toast({ title: "Regen failed", description: e.message, variant: "destructive" }),
   });
 
   const updateMut = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Product> }) =>
-      apiRequest(`/api/admin/products/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+      apiRequest("PATCH", `/api/admin/products/${id}`, JSON.stringify(data)),
     onSuccess: () => { toast({ title: "Saved ✓" }); setEditMode(false); qc.invalidateQueries({ queryKey: ["/api/admin/products"] }); },
   });
 
   const bulkPublishMut = useMutation({
-    mutationFn: (ids: string[]) => apiRequest("/api/admin/products/bulk-publish", { method: "POST", body: JSON.stringify({ ids }) }),
+    mutationFn: (ids: string[]) => apiRequest("POST", "/api/admin/products/bulk-publish", JSON.stringify({ ids })),
     onSuccess: (d: any) => { toast({ title: `Published ${d.published} products` }); setSelectedIds(new Set()); qc.invalidateQueries({ queryKey: ["/api/admin/products"] }); refetchStats(); },
   });
 
   const createCatMut = useMutation({
-    mutationFn: () => apiRequest("/api/admin/product-categories", { method: "POST", body: JSON.stringify({ name: newCatName, slug: newCatSlug }) }),
+    mutationFn: () => apiRequest("POST", "/api/admin/product-categories", JSON.stringify({ name: newCatName, slug: newCatSlug })),
     onSuccess: () => { toast({ title: "Category created" }); setNewCatName(""); setNewCatSlug(""); qc.invalidateQueries({ queryKey: ["/api/admin/product-categories"] }); },
   });
 
   const genCatSeoMut = useMutation({
-    mutationFn: (id: string) => apiRequest(`/api/admin/product-categories/${id}/generate-seo`, { method: "POST" }),
+    mutationFn: (id: string) => apiRequest("POST", `/api/admin/product-categories/${id}/generate-seo`),
     onSuccess: () => { toast({ title: "SEO generated ✓" }); qc.invalidateQueries({ queryKey: ["/api/admin/product-categories"] }); },
   });
 
   const manualCreateMut = useMutation({
-    mutationFn: () => apiRequest("/api/admin/products/create-manual", { method: "POST", body: JSON.stringify({ title: manualTitle, categoryName: manualCategory }) }),
+    mutationFn: () => apiRequest("POST", "/api/admin/products/create-manual", JSON.stringify({ title: manualTitle, categoryName: manualCategory })),
     onSuccess: () => { toast({ title: "Product created — AI generating content..." }); setManualTitle(""); setManualCategory(""); qc.invalidateQueries({ queryKey: ["/api/admin/products"] }); setActiveTab("review"); },
     onError: (e: any) => toast({ title: "Create failed", description: e.message, variant: "destructive" }),
   });
 
   const uploadRegisterMut = useMutation({
     mutationFn: (data: { filename: string; originalName: string; mimeType: string; sizeBytes?: number; fileUrl?: string; uploadType: string }) =>
-      apiRequest("/api/admin/uploads/register", { method: "POST", body: JSON.stringify(data) }),
+      apiRequest("POST", "/api/admin/uploads/register", JSON.stringify(data)),
     onSuccess: () => {
       toast({ title: "Upload registered — AI processing started" });
       setUploadPreviews([]);

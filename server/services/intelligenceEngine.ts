@@ -158,6 +158,7 @@ Return JSON in this exact format:
     imagePrompts: Array.isArray(article.imagePrompts) ? article.imagePrompts : [],
     qualityScore: article.qualityScore || 75,
     status: "draft",
+    publishedAt: null,
   });
 
   console.log(`[Intelligence] Blog article generated: "${article.title}"`);
@@ -187,8 +188,8 @@ Based on the following business data, identify potential website issues, convers
 Recent leads (last 20): ${recentLeads.length} leads
 - Lead types: ${[...new Set(recentLeads.map((l) => l.type))].join(", ")}
 - Missing phone numbers: ${recentLeads.filter((l) => !l.phone).length}
-- Missing office size: ${recentLeads.filter((l) => !l.officeSize).length}
-- Missing budget: ${recentLeads.filter((l) => !l.budget).length}
+- Missing office size: ${recentLeads.filter((l) => !l.officeSizeSqm).length}
+- Missing budget: ${recentLeads.filter((l) => !l.budgetRange).length}
 
 Planning requests: ${recentRequests.length} requests
 - Paid conversions: ${recentRequests.filter((r) => r.isPaid).length}
@@ -234,6 +235,7 @@ Based on this data, generate 4-6 actionable website/conversion issues to investi
       affectedItem: issue.affectedItem || null,
       suggestion: issue.suggestion || "",
       status: "open",
+      resolvedAt: null,
     });
   }
 
@@ -433,6 +435,7 @@ Keep it concise, commercial, and action-oriented. Use real numbers provided.`;
     content,
     period: week,
     status: "draft",
+    publishedAt: null,
   });
 
   console.log(`[Intelligence] Weekly report generated for ${week}`);

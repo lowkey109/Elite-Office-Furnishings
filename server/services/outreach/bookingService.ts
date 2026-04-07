@@ -77,7 +77,7 @@ export async function createBookingLink(params: {
   await db.insert(outreachEvents).values({
     threadId: params.threadId,
     eventType: "booking_link_created",
-    payloadJson: JSON.stringify({ provider, bookingLink, isSandbox }),
+    payloadJson: { provider, bookingLink, isSandbox },
   });
 
   console.log(`[BookingService] Link created for ${params.companyName}: ${bookingLink} (provider: ${provider}, sandbox: ${isSandbox})`);
@@ -96,7 +96,7 @@ export async function recordBookingClick(threadId: string, bookingEventId: strin
   await db.insert(outreachEvents).values({
     threadId,
     eventType: "booking_clicked",
-    payloadJson: JSON.stringify({ bookingEventId }),
+    payloadJson: { bookingEventId },
   });
 }
 
@@ -147,11 +147,11 @@ export async function confirmMeeting(params: {
   await db.insert(outreachEvents).values({
     threadId: params.threadId,
     eventType: "meeting_booked",
-    payloadJson: JSON.stringify({
+    payloadJson: {
       meetingTime: params.meetingTime.toISOString(),
       calendarEventId: params.calendarEventId,
       isSandbox: SAFE_MODE,
-    }),
+    },
   });
 
   console.log(`[BookingService] Meeting confirmed for ${thread?.companyName ?? params.threadId} at ${params.meetingTime.toISOString()}`);

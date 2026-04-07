@@ -81,9 +81,9 @@ async function calculatePriceScore(symbol: string): Promise<number> {
 async function calculateNewsScore(symbol: string): Promise<number> {
   try {
     const { getLatestNews } = await import("./newsAdapter");
-    const news = getLatestNews(symbol);
-    if (!news || news.length === 0) return 0;
-    const avgSentiment = news.reduce((s: number, n: any) => s + (n.sentiment || 0), 0) / news.length;
+    const news = await getLatestNews(symbol);
+    if (!news || (news?.length ?? 0) === 0) return 0;
+    const avgSentiment = (news ?? []).reduce((s: number, n: any) => s + (n.sentiment || 0), 0) / (news?.length ?? 0);
     return Math.max(-50, Math.min(50, avgSentiment * 50));
   } catch (err) {
     console.warn("[multiFactor] News score failed for", symbol, err instanceof Error ? err.message : err);
