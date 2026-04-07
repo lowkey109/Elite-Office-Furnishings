@@ -3,6 +3,16 @@ import session from "express-session";
 import path from "path";
 import { registerRoutes } from "./routes";
 
+import path from "path"
+
+const __dirname = new URL('.', import.meta.url).pathname
+
+app.use(express.static(path.join(__dirname, "../dist/public")))
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist/public/index.html"))
+})
+
 const app = express();
 
 app.use(express.json());
