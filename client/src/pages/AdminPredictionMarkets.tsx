@@ -50,8 +50,8 @@ interface OpportunitiesResponse {
 
 const SCANNER_BASE =
   typeof window !== "undefined" && window.location.hostname === "localhost"
-    ? "http://prediction-market-scanner.railway.internal"
-    : "https://prediction-market-scanner.up.railway.app";
+    ? "http://prediction-market-scanner.railway.internal:8080"
+    : "https://prediction-market-scanner.up.railway.app:8080";
 
 function formatEdge(edge: number | string | null | undefined): string {
   if (edge == null) return "—";
