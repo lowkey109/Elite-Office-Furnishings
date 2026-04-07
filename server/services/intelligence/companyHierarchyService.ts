@@ -95,7 +95,7 @@ export async function buildHierarchyFromExistingData(): Promise<{ nodes: number;
         city: company.city ?? null,
         state: company.state ?? null,
         country: company.country ?? "Australia",
-        employeeEstimate: company.employeeCount ? parseInt(company.employeeCount) : null,
+        employeeEstimate: (company as any).employeeCount ? parseInt((company as any).employeeCount) : null,
         aggregatedSignalCount: company.radarSignalCount ?? 0,
         aggregatedConfidenceScore: company.confidenceScore ?? 0,
         dataSource: "company_intelligence",

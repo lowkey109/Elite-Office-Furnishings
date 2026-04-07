@@ -35,9 +35,9 @@ export async function evaluateStrategies(): Promise<StrategyEvaluation[]> {
       continue;
     }
 
-    const wins = stratOutcomes.filter(o => (o.adjustedPnl || o.rawPnl) > 0).length;
+    const wins = stratOutcomes.filter(o => (o.realizedPnl || o.realizedPnl) > 0).length;
     const winRate = Math.round((wins / tradeCount) * 100);
-    const recentPnl = stratOutcomes.slice(0, 20).reduce((s, o) => s + (o.adjustedPnl || o.rawPnl), 0);
+    const recentPnl = stratOutcomes.slice(0, 20).reduce((s, o) => s + (o.realizedPnl || o.realizedPnl), 0);
     const performanceScore = Math.round(Math.max(0, Math.min(100, winRate * 0.6 + (recentPnl > 0 ? 30 : recentPnl > -500 ? 15 : 0) + (tradeCount > 20 ? 10 : 5))));
 
     let isEnabled = true;

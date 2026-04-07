@@ -1,97 +1,82 @@
-// server/services/trading/types/trading-types.ts
-
-export type Chain = "solana";
-
-export type ActionType =
-  | "BUY_OPEN"
-  | "BUY_ADD"
-  | "SELL_TRIM"
-  | "SELL_CLOSE"
-  | "ROTATE"
-  | "NOISE";
-
-export interface TrackedWallet {
+export type TradingSystemState = {
   id: string;
-  chain: Chain;
+  paperCapital: number;
+  currentCapital?: number;
+  peakCapital?: number;
+  totalPnl?: number;
+  totalDecisions: number;
+  totalTrades: number;
+  isRunning: boolean;
+  lastDecisionAt: Date | null;
+  lastMonitorAt: Date | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+};
+
+export type TradeOutcome = {
+  id: string;
+  linkedDecisionId: string;
+  linkedPositionId: string;
+  symbol: string;
+  strategy: string;
+  direction: string;
+  entryPrice: number;
+  exitPrice: number;
+  realizedPnl: number;
+  rawPnl?: number;
+  adjustedPnl?: number;
+  duration: string;
+  slippage?: number;
+  outcome?: "win" | "loss";
+  timestamp?: string;
+  exitReason?: string;
+  paperCapitalReturned?: number;
+  fees?: number;
+  createdAt?: Date | null;
+  updatedAt?: Date | null;
+};
+
+export type Chain = "ethereum" | "solana" | "polygon" | "base" | "arbitrum";
+
+export type TrackedWallet = {
+  id: string;
   address: string;
+  chain: Chain;
   label?: string;
   isActive: boolean;
-  walletQualityScore: number;
-  copyabilityScore: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
+  walletQualityScore?: number;
+  copyabilityScore?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
 
-export interface WalletAction {
-  id: string;
-  walletId: string;
-  chain: Chain;
-  txHash: string;
-  detectedAt: Date;
-
-  actionType: ActionType;
-
+export type WalletAction = {
+  id?: string;
+  wallet: string;
+  walletId?: string;
+  chain?: Chain;
+  actionType: "BUY_OPEN" | "SELL_CLOSE" | "BUY_ADD";
   tokenIn?: string;
   tokenOut?: string;
-
   amountIn?: number;
   amountOut?: number;
-
   estimatedUsdValue?: number;
+  confidence?: number;
+  txHash?: string;
+  timestamp?: number;
+  detectedAt?: Date;
+};
 
-  confidence: number;
-}
-
-export interface WalletScore {
-  walletId: string;
-  winRate: number;
-  profitFactor: number;
-  maxDrawdown: number;
-  consistencyScore: number;
-  walletQualityScore: number;
-}
-
-export interface CopyDecision {
-  walletId: string;
-  txHash: string;
-
-  shouldCopy: boolean;
-  reason?: string;
-
-  copyabilityScore: number;
-  estimatedSlippageBps: number;
-  estimatedLiquidityUsd: number;
-}
-
-export interface MirrorTrade {
-  id: string;
-  walletId: string;
-  sourceTxHash: string;
-
-  token: string;
-  side: "BUY" | "SELL";
-
-  detectedAt: Date;
-  executedAt?: Date;
-
-  sourcePrice?: number;
-  copiedPrice?: number;
-
-  slippageBps?: number;
-
-  notionalUsd: number;
-
-  status: "OPEN" | "CLOSED" | "SKIPPED";
-
+export type MirrorTrade = {
+  id?: string;
+  wallet?: string;
+  walletId?: string;
+  symbol?: string;
+  token?: string;
+  side?: "buy" | "sell";
+  direction?: "long" | "short";
+  size?: number;
+  notionalUsd?: number;
   realizedPnl?: number;
-  sourceRealizedPnl?: number;
-}
-
-export interface RiskLimits {
-  maxDailyLossUsd: number;
-  maxOpenPositions: number;
-  maxPerWalletBps: number;
-  maxPerTokenBps: number;
-  minLiquidityUsd: number;
-  maxSlippageBps: number;
-}
+  timestamp?: number;
+};

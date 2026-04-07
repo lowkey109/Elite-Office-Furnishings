@@ -186,7 +186,7 @@ export async function syncCompanyIntelligence(): Promise<{ synced: number; creat
     const { confidenceScore, priorityLevel, moveProbability, reasoningSummary } = computeStackedConfidence(signalTimeline);
 
     const uniqueTypes = [...new Set(signalTimeline.map(s => s.type))];
-    const latestSignalDates = signalTimeline.map(s => new Date(s.date)).filter(d => !isNaN(d.getTime()));
+    const latestSignalDates = signalTimeline.filter(s => s.date != null).map(s => new Date(s.date as any)).filter(d => !isNaN(d.getTime()));
     const latestSignalDate = latestSignalDates.length ? new Date(Math.max(...latestSignalDates.map(d => d.getTime()))) : undefined;
 
     const existingRecords = await storage.getCompanyIntelligenceRecords({ limit: 500 });
@@ -359,7 +359,7 @@ Return ONLY a valid JSON array of ${count} objects. No markdown.`;
   for (const rec of records) {
     try {
       const cityInfo = sampleCities.find(c => c.city === rec.city);
-      await storage.createOfficeMovRadar({
+      await storage.createOfficeMovRadarRecord({
         companyName: rec.companyName,
         industry: rec.industry || null,
         city: rec.city,

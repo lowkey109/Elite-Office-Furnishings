@@ -68,6 +68,8 @@ async function runJob(
     startedAt,
     result: null,
     error: null,
+    durationMs: null,
+    completedAt: null,
   });
 
   console.log(`[Scheduler] START: ${jobType}`);
@@ -213,6 +215,14 @@ export async function runIntelligenceSubTasks(opts: {
   systemHealthMinIntervalMs?: number;
   radarMinIntervalMs?: number;
 } = {}): Promise<{ triggered: string[] }> {
+  // ENABLE_SCANNERS guards scanner sub-tasks (deal_hunter, radar_scan).
+  // system_health is always allowed as it doesn't hit external APIs.
+  const scannersEnabled = process.env.ENABLE_SCANNERS === "true";
+
+  if (!scannersEnabled) {
+    console.log("[Scheduler] Scanners disabled (ENABLE_SCANNERS != true) — skipping deal_hunter and radar_scan sub-tasks");
+  }
+
   const now = Date.now();
   const triggered: string[] = [];
 
@@ -220,7 +230,7 @@ export async function runIntelligenceSubTasks(opts: {
   const systemHealthInterval = opts.systemHealthMinIntervalMs ?? 12 * 60 * 60 * 1000; // 12h
   const radarInterval = opts.radarMinIntervalMs ?? 4 * 60 * 60 * 1000; // 4h
 
-  if (!_lastRunAt.deal_hunter || now - _lastRunAt.deal_hunter > dealHunterInterval) {
+  if (scannersEnabled && (!_lastRunAt.deal_hunter || now - _lastRunAt.deal_hunter > dealHunterInterval)) {
     _lastRunAt.deal_hunter = now;
     setImmediate(() => runJob("deal_hunter"));
     triggered.push("deal_hunter");
@@ -232,7 +242,7 @@ export async function runIntelligenceSubTasks(opts: {
     triggered.push("system_health");
   }
 
-  if (!_lastRunAt.radar_scan || now - _lastRunAt.radar_scan > radarInterval) {
+  if (scannersEnabled && (!_lastRunAt.radar_scan || now - _lastRunAt.radar_scan > radarInterval)) {
     _lastRunAt.radar_scan = now;
     setImmediate(() => runJob("radar_scan"));
     triggered.push("radar_scan");
