@@ -430,12 +430,21 @@ async function collectSignals(
   config: NexoraConfig,
   runId: string,
 ): Promise<ScanBatch> {
+  // ENABLE_SCANNERS guards all RSS/GPT-backed scanners.
+  // Default: false — scanners are disabled until explicitly enabled via env var.
+  // Set ENABLE_SCANNERS=true in Railway variables to activate scanning.
+  const scannersEnabled = process.env.ENABLE_SCANNERS === "true";
+
+  if (!scannersEnabled) {
+    console.log("[Nexora] Scanners disabled (ENABLE_SCANNERS != true) — skipping RSS/GPT scans, querying DB only");
+  }
+
   // Run all scanners in parallel.
   // NOTE: news/job/predictive scanners save to DB and return {saved, processed}.
   //       DealHunter saves to DB and returns {signals: DealHunterSignal[], ...}.
   //       OfficeMovRadar is synthetic and returns an array directly.
   // We run the scanners first to ensure fresh data is in DB, then query.
-  const allowSynthetic = process.env.ALLOW_SYNTHETIC_INTELLIGENCE === "true";
+  const allowSynthetic = scannersEnabled && process.env.ALLOW_SYNTHETIC_INTELLIGENCE === "true";
   const [officeRadarResult, , , , dealHunterResult] = await Promise.all([
     allowSynthetic
       ? runOfficeMovRadarScan?.().catch((err: unknown) => {
@@ -443,19 +452,27 @@ async function collectSignals(
           return [] as RadarSignalLike[];
         })
       : Promise.resolve([] as RadarSignalLike[]),
-    runNewsFeedScan?.().catch((err: unknown) => {
-      console.warn(`[Nexora] runNewsFeedScan failed: ${(err as Error)?.message}`);
-    }),
-    runJobSignalScan?.().catch((err: unknown) => {
-      console.warn(`[Nexora] runJobSignalScan failed: ${(err as Error)?.message}`);
-    }),
-    runPredictiveScan?.().catch((err: unknown) => {
-      console.warn(`[Nexora] runPredictiveScan failed: ${(err as Error)?.message}`);
-    }),
-    runDealHunterScan?.().catch((err: unknown) => {
-      console.warn(`[Nexora] runDealHunterScan failed: ${(err as Error)?.message}`);
-      return { signals: [] as DealHunterSignalLike[], created: 0, deduplicated: 0 };
-    }),
+    scannersEnabled
+      ? runNewsFeedScan?.().catch((err: unknown) => {
+          console.warn(`[Nexora] runNewsFeedScan failed: ${(err as Error)?.message}`);
+        })
+      : Promise.resolve(undefined),
+    scannersEnabled
+      ? runJobSignalScan?.().catch((err: unknown) => {
+          console.warn(`[Nexora] runJobSignalScan failed: ${(err as Error)?.message}`);
+        })
+      : Promise.resolve(undefined),
+    scannersEnabled
+      ? runPredictiveScan?.().catch((err: unknown) => {
+          console.warn(`[Nexora] runPredictiveScan failed: ${(err as Error)?.message}`);
+        })
+      : Promise.resolve(undefined),
+    scannersEnabled
+      ? runDealHunterScan?.().catch((err: unknown) => {
+          console.warn(`[Nexora] runDealHunterScan failed: ${(err as Error)?.message}`);
+          return { signals: [] as DealHunterSignalLike[], created: 0, deduplicated: 0 };
+        })
+      : Promise.resolve({ signals: [] as DealHunterSignalLike[], created: 0, deduplicated: 0 }),
   ]);
 
   // OfficeMovRadar returns an array of OfficeMovRadar[] (synthetic AI data)
