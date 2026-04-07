@@ -1473,14 +1473,25 @@ function getEvidence(signal: NexoraSignalLike): string {
   );
 }
 
+function parseCurrencyValue(raw: unknown): number {
+  if (raw === null || raw === undefined) return 0;
+  if (typeof raw === "number") return raw;
+  // Handle formatted strings like "$970,000" or "970,000" or "$1.2M"
+  const str = String(raw).trim();
+  if (!str || str === "0") return 0;
+  // Strip currency symbols, commas, spaces — keep digits and decimal point
+  const cleaned = str.replace(/[^0-9.]/g, "");
+  const parsed = parseFloat(cleaned);
+  return isNaN(parsed) ? 0 : Math.round(parsed);
+}
+
 function estimateSignalValue(signal: NexoraSignalLike): number {
-  const explicit =
-    Number(
-      (signal as any).estimatedValue ??
-        (signal as any).projectValue ??
-        (signal as any).estimatedProjectValue ??
-        0,
-    ) || 0;
+  const rawExplicit =
+    (signal as any).estimatedValue ??
+    (signal as any).projectValue ??
+    (signal as any).estimatedProjectValue ??
+    0;
+  const explicit = parseCurrencyValue(rawExplicit);
 
   if (explicit > 0) return explicit;
 
