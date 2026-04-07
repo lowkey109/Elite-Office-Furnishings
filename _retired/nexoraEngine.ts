@@ -862,9 +862,10 @@ export async function runNexoraEngine(
   );
 
   const durationMs = Date.now() - start;
-  const avgDecisionMs = dealResults,
-    ? Math.round(durationMs / dealResults.length)
-    : 0;
+  const avgDecisionMs =
+    dealResults.length > 0
+      ? Math.round(durationMs / dealResults.length)
+      : 0;
 
   if (errors.length === 0) {
     circuitBreakerFailures = 0;

@@ -352,14 +352,21 @@ export async function loadKnowledgeMap(): Promise<Map<string, KnowledgeEntry>> {
 }
 
 export async function saveKnowledgeMap(
-  map: Map<string, KnowledgeEntry>,
+  map: Map<string, KnowledgeEntry> | Record<string, KnowledgeEntry>,
 ): Promise<void> {
   try {
     const db = await getDb();
     const { nexoraKnowledge } = await import("../../../../shared/schema");
     const { sql: drizzleSql } = await import("drizzle-orm");
 
-    for (const [entryKey, entry] of map.entries()) {
+    // Accept both Map instances and plain objects (the orchestrator normalises
+    // the loaded Map to a plain Record before passing it back here).
+    const entries: [string, KnowledgeEntry][] =
+      map instanceof Map
+        ? Array.from(map.entries())
+        : Object.entries(map as Record<string, KnowledgeEntry>);
+
+    for (const [entryKey, entry] of entries) {
       const e = entry as any;
       await db
         .insert(nexoraKnowledge)
