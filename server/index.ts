@@ -1,9 +1,70 @@
-import express from "express";
+import express, { type Request, Response, NextFunction } from "express";
+import { registerRoutes } from "./routes";
+import { startNexoraBackground } from "./services/intelligence/nexoraOrchestrator";
+import { serveStatic } from "./static";
+import { createServer } from "http";
 import session from "express-session";
 import path from "path";
 import { registerRoutes } from "./routes";
 
-import path from "path"
+declare module "express-session" {
+  interface SessionData {
+    isAdmin: boolean;
+  }
+}
+
+const app = express();
+
+const httpServer = createServer(app);
+
+app.set("trust proxy", 1);
+
+// ── Canonical domain redirect (301) ──────────────────────────────────────────
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const host = (req.headers.host ?? "").toLowerCase().replace(/:\d+$/, "");
+  const CANONICAL = "www.thecorporatedesk.au";
+  const REDIRECT_HOSTS = [
+    "thecorporatedesk.au",
+    "thecorporatedesk.com.au",
+    "www.thecorporatedesk.com.au",
+  ];
+  if (REDIRECT_HOSTS.includes(host)) {
+    const target = `https://${CANONICAL}${req.originalUrl}`;
+    return res.redirect(301, target);
+  }
+  next();
+});
+
+const sessionSecret = process.env.SESSION_SECRET?.trim();
+if (!sessionSecret) {
+  console.warn(
+    "[Session] SESSION_SECRET is not set — using insecure fallback. " +
+    "Set SESSION_SECRET in your environment for production deployments.",
+  );
+}
+
+const isProduction = process.env.NODE_ENV === "production";
+
+// Session middleware — must be registered before any route that reads req.session
+app.use(
+  session({
+    secret: sessionSecret || "tcd-dev-fallback-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      // In production the app sits behind a TLS-terminating proxy (trust proxy is
+      // already set above), so secure cookies work correctly.  In development we
+      // keep them insecure so the local HTTP server still sets the cookie.
+      secure: isProduction,
+      httpOnly: true,
+      maxAge: 8 * 60 * 60 * 1000, // 8 hours
+      sameSite: "lax",
+    },
+    name: "tcd_session",
+  })
+);
+
+console.log(`[Session] Session store initialised (secure=${isProduction})`);
 
 const __dirname = new URL('.', import.meta.url).pathname
 
@@ -16,34 +77,43 @@ app.get("*", (req, res) => {
 const app = express();
 
 app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "supersecret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: false,
-    },
-  })
+  express.json({
+    verify: (req, _res, buf) => {
+      req.rawBody = buf;
+    },
+  })
 );
+app.use(express.urlencoded({ extended: false }));
 
-// API routes
-registerRoutes(app);
+export function log(message: string, source = "express") {
+  const formattedTime = new Date().toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
+  console.log(`${formattedTime} [${source}] ${message}`);
+}
 
-// Serve frontend
-const frontendPath = path.join(process.cwd(), "dist/public");
+app.use((req, res, next) => {
+  const start = Date.now();
+  const path = req.path;
 
-app.use(express.static(frontendPath));
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    if (path.startsWith("/api")) {
+      log(`${req.method} ${path} ${res.statusCode} in ${duration}ms`);
+    }
+  });
 
-app.get("*", (req, res) => {
-  if (req.path.startsWith("/api")) {
-    return res.status(404).json({ error: "API route not found" });
-  }
-
-  res.sendFile(path.join(frontendPath, "index.html"));
+  next();
 });
 
-const PORT = process.env.PORT || 8080;
+(async () => {
+  await registerRoutes(httpServer, app);
 
-app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
-});
+  const port = parseInt(process.env.PORT || "5000", 10);
+  httpServer.listen({ port, host: "0.0.0.0" }, () => {
+    log(`serving on port ${port}`);
+  });
+})();

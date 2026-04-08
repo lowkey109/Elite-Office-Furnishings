@@ -1501,41 +1501,33 @@ export async function pushDealHunterToRadar(
   if (!signal) throw new Error("Deal hunter signal not found");
   if (signal.pushedToRadar) throw new Error("Already pushed to radar");
 
-const radar = await storage.createOfficeMovRadarRecord({
-  companyName: signal.companyName,
-  industry: signal.industry,
-  city: signal.city,
-  state: signal.state ?? undefined,
-  country: signal.country ?? COUNTRY,
-  signalType: signal.signalType,
-  signalSubtype: signal.signalSubtype ?? undefined,
-  signalSource: signal.signalSource,
-  sourceUrl: signal.sourceUrl ?? undefined,
-  confidenceLevel: signal.probabilityTier,
-
-  estimatedHeadcount:
-    signal.employeeEstimate == null
-      ? null
-      : Number(String(signal.employeeEstimate).replace(/[^0-9]/g, "")),
-
-  estimatedOfficeSizeSqm:
-    signal.estimatedWorkspaceSqm == null
-      ? null
-      : Number(String(signal.estimatedWorkspaceSqm).replace(/[^0-9]/g, "")),
-
-  estimatedProjectValue:
-    signal.estimatedProjectValue == null
-      ? null
-      : Number(String(signal.estimatedProjectValue).replace(/[^0-9]/g, "")),
-
-  radarScore: signal.signalStrengthScore,
-
-  priority:
-    signal.probabilityTier === "high"
-      ? "High"
-      : signal.probabilityTier === "medium"
-      ? "Medium"
-      : "Low",
+  const radar = await storage.createOfficeMovRadarRecord({
+    companyName: signal.companyName,
+    industry: signal.industry,
+    city: signal.city,
+    state: signal.state ?? undefined,
+    country: signal.country ?? COUNTRY,
+    signalType: signal.signalType,
+    signalSubtype: signal.signalSubtype ?? undefined,
+    signalSource: signal.signalSource,
+    sourceUrl: signal.sourceUrl ?? undefined,
+    confidenceLevel: signal.probabilityTier,
+    estimatedHeadcount: (signal.employeeEstimate == null ? null : Number(String(signal.employeeEstimate).replace(/[^0-9.-]/g, "")) || null)
+      ? String(signal.employeeEstimate)
+      : undefined,
+    estimatedOfficeSizeSqm: (signal.estimatedWorkspaceSqm == null ? null : Number(String(signal.estimatedWorkspaceSqm).replace(/[^0-9.-]/g, "")) || null)
+      ? String(signal.estimatedWorkspaceSqm)
+      : undefined,
+    estimatedProjectValue: (signal.estimatedProjectValue == null ? null : Number(String(signal.estimatedProjectValue).replace(/[^0-9.-]/g, "")) || null)
+      ? `$${signal.estimatedProjectValue.toLocaleString()}`
+      : undefined,
+    radarScore: signal.signalStrengthScore,
+    priority:
+      signal.probabilityTier === "high"
+        ? "High"
+        : signal.probabilityTier === "medium"
+        ? "Medium"
+        : "Low",
     recommendedOutreachAngle: signal.recommendedOutreachAngle ?? undefined,
     recommendedOffer: "Free office layout plan + workspace strategy session",
     recommendedNextAction: signal.recommendedAction ?? undefined,
