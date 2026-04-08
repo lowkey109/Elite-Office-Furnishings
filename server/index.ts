@@ -35,12 +35,22 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-const sessionSecret = process.env.SESSION_SECRET?.trim();
-if (!sessionSecret) {
-  console.warn(
-    "[Session] SESSION_SECRET is not set — using insecure fallback. " +
-    "Set SESSION_SECRET in your environment for production deployments.",
-  );
+// ── Session middleware with fallback ──────────────────────────────────────────
+let sessionStore: any;
+let sessionStoreType = "memory";
+
+try {
+  sessionStore = new PgSession({
+    conString: process.env.DATABASE_URL,
+    tableName: "admin_sessions",
+    createTableIfMissing: true,
+  });
+  sessionStoreType = "postgresql";
+  console.log("[Session] Using PostgreSQL session store");
+} catch (err: any) {
+  console.warn("[Session] PostgreSQL session store failed, falling back to memory:", err.message);
+  sessionStore = undefined;
+  sessionStoreType = "memory";
 }
 
 const isProduction = process.env.NODE_ENV === "production";
