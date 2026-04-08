@@ -106,7 +106,7 @@ function initLinkedIn(partnerId: string): void {
     "linkedin-insight"
   );
 
-  inlineNoScript(
+  inlineScript(
     `<img height="1" width="1" style="display:none;" alt="" src="https://px.ads.linkedin.com/collect/?pid=${partnerId}&fmt=gif" />`,
     "linkedin-noscript"
   );

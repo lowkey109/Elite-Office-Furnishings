@@ -56,6 +56,12 @@ function isQuotaExhausted(): boolean {
   return _quotaExhausted;
 }
 
+// ─── Scan locks — prevent concurrent runs of each scanner ────────────────────
+
+let _newsFeedScanning = false;
+let _jobSignalScanning = false;
+let _predictiveScanning = false;
+
 // ─── Geographic scope — all major Australian cities ──────────────────────────
 
 export const AUSTRALIAN_CITIES = [
@@ -210,6 +216,7 @@ NOT relevant:
 async function classifyArticleBatch(
   items: RSSItem[],
   mode: ScanMode,
+  attempt = 0,
 ): Promise<ClassifiedSignal[]> {
   if (items.length === 0) return [];
 
@@ -288,32 +295,27 @@ Rules:
   } catch (err: any) {
     if (err?.status === 429 || err?.message?.includes("429") || err?.message?.includes("quota")) {
       markQuotaExhausted();
-    } else if (err?.code === "ECONNREFUSED" || err?.message?.includes("Connection")) {
-      console.error("[NewsFeedScanner] OpenAI connection error (will retry):", err.message);
-    } else {
-      console.error("[NewsFeedScanner] GPT batch classify failed:", err.message);
+      return [];
     }
-    throw err;
-  }
-}
 
-async function classifyArticleBatchWithRetry(
-  items: RSSItem[],
-  mode: ScanMode,
-  maxRetries: number = 2,
-): Promise<ClassifiedSignal[]> {
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      return await classifyArticleBatch(items, mode);
-    } catch (err: any) {
-      if (attempt === maxRetries) {
-        console.error("[NewsFeedScanner] GPT batch classify failed after all retries:", err.message);
-        return [];
-      }
-      const delay = Math.pow(2, attempt) * 1000; // 1s, 2s
-      console.log(`[NewsFeedScanner] Retry ${attempt + 1}/${maxRetries} after ${delay}ms...`);
-      await sleep(delay);
+    // Transient connection/network error — exponential backoff, max 3 retries
+    const isTransient =
+      err?.message?.includes("Connection error") ||
+      err?.message?.includes("ECONNRESET") ||
+      err?.message?.includes("ETIMEDOUT") ||
+      err?.code === "ECONNRESET" ||
+      err?.code === "ETIMEDOUT";
+
+    if (isTransient && attempt < 3) {
+      const backoffMs = Math.pow(2, attempt) * 1000; // 1s → 2s → 4s
+      console.warn(`[NewsFeedScanner] GPT batch classify transient error (attempt ${attempt + 1}/3) — retrying in ${backoffMs}ms: ${err.message}`);
+      await sleep(backoffMs);
+      return classifyArticleBatch(items, mode, attempt + 1);
     }
+
+    // Non-retryable error — log and skip batch (don't re-throw to prevent cascade)
+    console.error(`[NewsFeedScanner] GPT batch classify failed — skipping batch: ${err.message}`);
+    return [];
   }
   return [];
 }
@@ -411,8 +413,8 @@ async function saveSignals(
         sourceUrl: item.link,
         confidenceLevel: signal.confidence ?? "medium",
         estimatedHeadcount: null,
-        estimatedOfficeSizeSqm: scoring.estimatedOfficeSizeSqm ?? null,
-        estimatedProjectValue: scoring.estimatedProjectValue ?? null,
+        estimatedOfficeSizeSqm: (scoring.estimatedOfficeSizeSqm == null ? null : Number(String(scoring.estimatedOfficeSizeSqm).replace(/[^0-9.-]/g, "")) || null),
+        estimatedProjectValue: (scoring.estimatedProjectValue == null ? null : Number(String(scoring.estimatedProjectValue).replace(/[^0-9.-]/g, "")) || null),
         radarScore: scoring.radarScore,
         priority: scoring.priority,
         recommendedOutreachAngle: scoring.recommendedOutreachAngle ?? null,
@@ -512,7 +514,8 @@ async function runBatchedScan(
   let totalSaved = 0;
   for (let i = 0; i < preFiltered.length; i += BATCH_SIZE) {
     const batch = preFiltered.slice(i, i + BATCH_SIZE);
-    const classified = await classifyArticleBatchWithRetry(batch, mode);
+    if (i > 0) await sleep(500); // 500ms between GPT calls to avoid API hammering
+    const classified = await classifyArticleBatch(batch, mode);
     totalSaved += await saveSignals(batch, classified, sourceType);
     if (i + BATCH_SIZE < preFiltered.length) await sleep(BATCH_DELAY_MS);
   }
@@ -527,58 +530,76 @@ async function runBatchedScan(
  * Scans news RSS feeds for direct office move/expansion/opening signals.
  */
 export async function runNewsFeedScan(): Promise<{ saved: number; processed: number }> {
-  console.log("[NewsFeedScanner] Starting office news feed scan...");
+  if (_newsFeedScanning) {
+    console.warn("[NewsFeedScanner] runNewsFeedScan already in progress — skipping concurrent run");
+    return { saved: 0, processed: 0 };
+  }
+  _newsFeedScanning = true;
+  try {
+    console.log("[NewsFeedScanner] Starting office news feed scan...");
 
-  const queries = [
-    '"new office" Australia',
-    '"office expansion" Australia',
-    '"office relocation" Australia',
-    '"opens new office" Australia',
-    '"new Australian office"',
-    '"office fitout" Australia',
-    '"new headquarters" Australia',
-  ];
+    const queries = [
+      '"new office" Australia',
+      '"office expansion" Australia',
+      '"office relocation" Australia',
+      '"opens new office" Australia',
+      '"new Australian office"',
+      '"office fitout" Australia',
+      '"new headquarters" Australia',
+    ];
 
-  const allItems: RSSItem[] = [];
-  const fetches = await Promise.allSettled([
-    ...queries.map(q => fetchRSS(
-      `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-AU&gl=AU&ceid=AU:en`,
-      "Google News",
-    )),
-    fetchRSS("https://www.smartcompany.com.au/feed/", "SmartCompany"),
-    fetchRSS("https://www.startupdaily.net/feed/", "Startup Daily"),
-    fetchRSS("https://businessnews.com.au/rss.xml", "Business News AU"),
-  ]);
-  for (const r of fetches) if (r.status === "fulfilled") allItems.push(...r.value);
+    const allItems: RSSItem[] = [];
+    const fetches = await Promise.allSettled([
+      ...queries.map(q => fetchRSS(
+        `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-AU&gl=AU&ceid=AU:en`,
+        "Google News",
+      )),
+      fetchRSS("https://www.smartcompany.com.au/feed/", "SmartCompany"),
+      fetchRSS("https://www.startupdaily.net/feed/", "Startup Daily"),
+      fetchRSS("https://businessnews.com.au/rss.xml", "Business News AU"),
+    ]);
+    for (const r of fetches) if (r.status === "fulfilled") allItems.push(...r.value);
 
-  return runBatchedScan(deduplicateItems(allItems), "office_news", "news_rss", "Office news scan");
+    return runBatchedScan(deduplicateItems(allItems), "office_news", "news_rss", "Office news scan");
+  } finally {
+    _newsFeedScanning = false;
+  }
 }
 
 /**
  * Scans for job posting signals (facilities/workplace roles = likely office growth).
  */
 export async function runJobSignalScan(): Promise<{ saved: number; processed: number }> {
-  console.log("[NewsFeedScanner] Starting job signal scan...");
+  if (_jobSignalScanning) {
+    console.warn("[NewsFeedScanner] runJobSignalScan already in progress — skipping concurrent run");
+    return { saved: 0, processed: 0 };
+  }
+  _jobSignalScanning = true;
+  try {
+    console.log("[NewsFeedScanner] Starting job signal scan...");
 
-  const queries = [
-    '"facilities manager" Australia hiring',
-    '"workplace experience" Australia',
-    '"head of workplace" Australia',
-    '"office manager" "new role" Australia',
-    '"director of real estate" Australia',
-    '"workplace lead" Australia',
-  ];
+    const queries = [
+      '"facilities manager" Australia hiring',
+      '"workplace experience" Australia',
+      '"head of workplace" Australia',
+      '"office manager" "new role" Australia',
+      '"director of real estate" Australia',
+      '"workplace lead" Australia',
+    ];
 
-  const allItems: RSSItem[] = [];
-  const fetches = await Promise.allSettled(
-    queries.map(q => fetchRSS(
-      `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-AU&gl=AU&ceid=AU:en`,
-      "Google News (Jobs)",
-    )),
-  );
-  for (const r of fetches) if (r.status === "fulfilled") allItems.push(...r.value);
+    const allItems: RSSItem[] = [];
+    const fetches = await Promise.allSettled(
+      queries.map(q => fetchRSS(
+        `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-AU&gl=AU&ceid=AU:en`,
+        "Google News (Jobs)",
+      )),
+    );
+    for (const r of fetches) if (r.status === "fulfilled") allItems.push(...r.value);
 
-  return runBatchedScan(deduplicateItems(allItems), "job_signal", "job_signal", "Job signal scan");
+    return runBatchedScan(deduplicateItems(allItems), "job_signal", "job_signal", "Job signal scan");
+  } finally {
+    _jobSignalScanning = false;
+  }
 }
 
 /**
@@ -586,35 +607,44 @@ export async function runJobSignalScan(): Promise<{ saved: number; processed: nu
  * funding rounds, hiring spikes, startup expansion, workplace role hires, growth news.
  */
 export async function runPredictiveScan(): Promise<{ saved: number; processed: number }> {
-  console.log("[NewsFeedScanner] Starting predictive signal scan...");
+  if (_predictiveScanning) {
+    console.warn("[NewsFeedScanner] runPredictiveScan already in progress — skipping concurrent run");
+    return { saved: 0, processed: 0 };
+  }
+  _predictiveScanning = true;
+  try {
+    console.log("[NewsFeedScanner] Starting predictive signal scan...");
 
-  const queries = [
-    '"Series A" Australia office',
-    '"Series B" Australia',
-    '"seed funding" Australia startup',
-    '"raises" million Australia technology',
-    '"venture capital" Australia',
-    '"expanding" "new office" Australia',
-    '"opening" office Australia 2025 OR 2026',
-    '"Australian office" opens',
-    '"interstate expansion" Australia',
-    '"contract win" Australia office',
-    '"acquisition" Australia office',
-  ];
+    const queries = [
+      '"Series A" Australia office',
+      '"Series B" Australia',
+      '"seed funding" Australia startup',
+      '"raises" million Australia technology',
+      '"venture capital" Australia',
+      '"expanding" "new office" Australia',
+      '"opening" office Australia 2025 OR 2026',
+      '"Australian office" opens',
+      '"interstate expansion" Australia',
+      '"contract win" Australia office',
+      '"acquisition" Australia office',
+    ];
 
-  const allItems: RSSItem[] = [];
-  const fetches = await Promise.allSettled([
-    ...queries.map(q => fetchRSS(
-      `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-AU&gl=AU&ceid=AU:en`,
-      "Google News (Predictive)",
-    )),
-    fetchRSS("https://www.smartcompany.com.au/feed/", "SmartCompany"),
-    fetchRSS("https://www.startupdaily.net/feed/", "Startup Daily"),
-    fetchRSS("https://businessnews.com.au/rss.xml", "Business News AU"),
-  ]);
-  for (const r of fetches) if (r.status === "fulfilled") allItems.push(...r.value);
+    const allItems: RSSItem[] = [];
+    const fetches = await Promise.allSettled([
+      ...queries.map(q => fetchRSS(
+        `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-AU&gl=AU&ceid=AU:en`,
+        "Google News (Predictive)",
+      )),
+      fetchRSS("https://www.smartcompany.com.au/feed/", "SmartCompany"),
+      fetchRSS("https://www.startupdaily.net/feed/", "Startup Daily"),
+      fetchRSS("https://businessnews.com.au/rss.xml", "Business News AU"),
+    ]);
+    for (const r of fetches) if (r.status === "fulfilled") allItems.push(...r.value);
 
-  return runBatchedScan(deduplicateItems(allItems), "predictive", "predictive", "Predictive signal scan");
+    return runBatchedScan(deduplicateItems(allItems), "predictive", "predictive", "Predictive signal scan");
+  } finally {
+    _predictiveScanning = false;
+  }
 }
 
 /**

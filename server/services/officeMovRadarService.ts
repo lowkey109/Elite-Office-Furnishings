@@ -510,7 +510,7 @@ Return JSON as an OBJECT with a "results" array of exactly ${count} objects:
         confidence: r.confidence_level as RadarConfidence,
         city: r.city,
         industry: r.industry,
-        estimatedHeadcount: r.estimated_headcount,
+        estimatedHeadcount: (r.estimated_headcount == null ? null : Number(String(r.estimated_headcount).replace(/[^0-9.-]/g, "")) || null),
         hasSourceUrl: !!r.source_url,
       });
 
@@ -525,9 +525,9 @@ Return JSON as an OBJECT with a "results" array of exactly ${count} objects:
         signalSource: r.signal_source,
         sourceUrl: r.source_url,
         confidenceLevel: r.confidence_level,
-        estimatedHeadcount: r.estimated_headcount,
-        estimatedOfficeSizeSqm: scoring.estimatedOfficeSizeSqm,
-        estimatedProjectValue: scoring.estimatedProjectValue,
+        estimatedHeadcount: (r.estimated_headcount == null ? null : Number(String(r.estimated_headcount).replace(/[^0-9.-]/g, "")) || null),
+        estimatedOfficeSizeSqm: (scoring.estimatedOfficeSizeSqm == null ? null : Number(String(scoring.estimatedOfficeSizeSqm).replace(/[^0-9.-]/g, "")) || null),
+        estimatedProjectValue: (scoring.estimatedProjectValue == null ? null : Number(String(scoring.estimatedProjectValue).replace(/[^0-9.-]/g, "")) || null),
         radarScore: scoring.radarScore,
         priority: scoring.priority,
         recommendedOutreachAngle: scoring.recommendedOutreachAngle,

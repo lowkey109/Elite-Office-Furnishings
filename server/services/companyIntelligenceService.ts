@@ -86,8 +86,14 @@ export function computeStackedConfidence(signals: {
   const uniqueCount = uniqueTypes.length;
 
   // Recency scoring
-  const recentSignals = signals.filter(s => now - new Date(s.date).getTime() < WINDOW_90);
-  const veryRecentSignals = signals.filter(s => now - new Date(s.date).getTime() < WINDOW_30);
+  const recentSignals = signals.filter(s => {
+    const d = new Date(s.date);
+    return !isNaN(d.getTime()) && now - d.getTime() < WINDOW_90;
+  });
+  const veryRecentSignals = signals.filter(s => {
+    const d = new Date(s.date);
+    return !isNaN(d.getTime()) && now - d.getTime() < WINDOW_30;
+  });
 
   // Source reliability average
   const avgReliability = signals.reduce((sum, s) => {
@@ -186,7 +192,7 @@ export async function syncCompanyIntelligence(): Promise<{ synced: number; creat
     const { confidenceScore, priorityLevel, moveProbability, reasoningSummary } = computeStackedConfidence(signalTimeline);
 
     const uniqueTypes = [...new Set(signalTimeline.map(s => s.type))];
-    const latestSignalDates = signalTimeline.map(s => new Date(s.date)).filter(d => !isNaN(d.getTime()));
+    const latestSignalDates = signalTimeline.filter(s => s.date != null).map(s => new Date(s.date as any)).filter(d => !isNaN(d.getTime()));
     const latestSignalDate = latestSignalDates.length ? new Date(Math.max(...latestSignalDates.map(d => d.getTime()))) : undefined;
 
     const existingRecords = await storage.getCompanyIntelligenceRecords({ limit: 500 });
@@ -359,7 +365,7 @@ Return ONLY a valid JSON array of ${count} objects. No markdown.`;
   for (const rec of records) {
     try {
       const cityInfo = sampleCities.find(c => c.city === rec.city);
-      await storage.createOfficeMovRadar({
+      await storage.createOfficeMovRadarRecord({
         companyName: rec.companyName,
         industry: rec.industry || null,
         city: rec.city,
