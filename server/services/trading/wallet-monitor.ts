@@ -17,6 +17,7 @@ export async function runWalletMonitorCycle(): Promise<WalletAction[]> {
     // TEMP: simulated detection (replace with real Solana later)
     const mockAction: WalletAction = {
       id: randomUUID(),
+      wallet: wallet.address,
       walletId: wallet.id,
       chain: "solana",
       txHash: randomUUID(),

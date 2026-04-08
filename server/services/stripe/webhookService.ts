@@ -89,7 +89,7 @@ export async function processStripeWebhook(
       externalEventId: event.id,
       eventType: event.type,
       processed: false,
-      payloadJson: JSON.stringify(event), // store whole event for forensic/debug
+      payloadJson: event, // store whole event for forensic/debug
     })
     .onConflictDoNothing()
     .returning();
@@ -117,7 +117,7 @@ export async function processStripeWebhook(
       action: `webhook_processed:${event.type}`,
       entityType: "webhook_event",
       entityId: webhookRecord.id,
-      metadataJson: JSON.stringify({ stripeEventId: event.id, eventType: event.type }),
+      metadataJson: { stripeEventId: event.id, eventType: event.type },
     });
 
     return { success: true, eventId: webhookRecord.id, eventType: event.type };
@@ -191,7 +191,7 @@ async function handleStripeEvent(
           amount: intent.amount,
           currency: intent.currency,
           paymentStatus: "succeeded",
-          rawPayloadJson: JSON.stringify(intent),
+          rawPayloadJson: intent,
         })
         .onConflictDoNothing();
 
@@ -240,7 +240,7 @@ async function handleStripeEvent(
           amount: intent.amount,
           currency: intent.currency,
           paymentStatus: "failed",
-          rawPayloadJson: JSON.stringify(intent),
+          rawPayloadJson: intent,
         })
         .onConflictDoNothing();
 
@@ -489,7 +489,7 @@ export async function simulateWebhookEvent(opts: {
       eventType: opts.eventType,
       processed: true,
       processedAt: new Date(),
-      payloadJson: JSON.stringify({ simulated: true, ...opts }),
+      payloadJson: { simulated: true, ...opts },
     })
     .returning();
 
@@ -523,7 +523,7 @@ export async function simulateWebhookEvent(opts: {
     action: "simulate_webhook",
     entityType: "webhook_event",
     entityId: record.id,
-    metadataJson: JSON.stringify({ ...opts, testMode: config.testMode }),
+    metadataJson: { ...opts, testMode: config.testMode },
   });
 
   return {
