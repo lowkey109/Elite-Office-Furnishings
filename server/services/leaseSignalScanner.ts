@@ -30,7 +30,7 @@ interface PricingRecord {
 
 let _pricingCache: PricingRecord[] | null = null;
 function loadSupplierPricing(): PricingRecord[] {
-  if (_pricingCache) return _pricingCache;
+  if (_pricingCache) return _pricingCache ?? [];
   try {
     const filePath = path.join(process.cwd(), "server/data/supplierPricing.json");
     const data = JSON.parse(readFileSync(filePath, "utf-8"));
@@ -38,7 +38,7 @@ function loadSupplierPricing(): PricingRecord[] {
   } catch {
     _pricingCache = [];
   }
-  return _pricingCache;
+  return _pricingCache ?? [];
 }
 
 function getPricingForCategory(categoryKey: string): { min: number; max: number; leadTimeDays: number; confidence: string } {

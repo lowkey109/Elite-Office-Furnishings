@@ -109,7 +109,7 @@ export async function createInvoice(opts: CreateInvoiceOptions): Promise<Invoice
     action: config.safeMode ? "create_invoice_simulated" : "create_invoice",
     entityType: "invoice",
     entityId: inserted.id,
-    metadataJson: JSON.stringify({ quoteId: opts.quoteId, amount: opts.amount, isTestMode: config.testMode }),
+    metadataJson: { quoteId: opts.quoteId, amount: opts.amount, isTestMode: config.testMode },
   });
 
   return {
@@ -152,7 +152,7 @@ export async function resendInvoice(invoiceLogId: string): Promise<{ success: bo
     action: config.safeMode ? "resend_invoice_simulated" : "resend_invoice",
     entityType: "invoice",
     entityId: invoiceLogId,
-    metadataJson: JSON.stringify({ safeMode: config.safeMode }),
+    metadataJson: { safeMode: config.safeMode },
   });
 
   return { success: true, message: config.safeMode ? "Resend simulated (SAFE MODE)" : "Invoice resent via Stripe" };

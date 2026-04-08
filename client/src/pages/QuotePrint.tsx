@@ -52,8 +52,8 @@ export default function QuotePrint() {
   }
 
   let items: any[] = [];
-  if (quote.quoteItems) {
-    try { items = JSON.parse(quote.quoteItems); } catch {}
+  if (Array.isArray(quote.quoteItems)) {
+    items = quote.quoteItems;
   }
 
   const validUntil = (() => {

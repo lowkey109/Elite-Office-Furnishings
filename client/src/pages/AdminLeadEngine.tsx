@@ -102,7 +102,7 @@ export default function AdminLeadEngine() {
   });
 
   const seedMut = useMutation({
-    mutationFn: () => apiRequest("/api/admin/lead-engine/seed", { method: "POST" }),
+    mutationFn: () => apiRequest("POST", "/api/admin/lead-engine/seed"),
     onSuccess: (d: any) => {
       toast({ title: `✓ Seeded ${d.added} AU leads`, description: `${d.skipped} duplicates skipped` });
       qc.invalidateQueries({ queryKey: ["/api/admin/lead-engine"] });
@@ -111,7 +111,7 @@ export default function AdminLeadEngine() {
   });
 
   const linkedinMut = useMutation({
-    mutationFn: () => apiRequest("/api/admin/lead-engine/scrape/linkedin", { method: "POST" }),
+    mutationFn: () => apiRequest("POST", "/api/admin/lead-engine/scrape/linkedin"),
     onSuccess: (d: any) => {
       toast({ title: `LinkedIn: ${d.added} new leads`, description: `${d.skipped} skipped` });
       qc.invalidateQueries({ queryKey: ["/api/admin/lead-engine"] });
@@ -120,7 +120,7 @@ export default function AdminLeadEngine() {
   });
 
   const mapsMut = useMutation({
-    mutationFn: () => apiRequest("/api/admin/lead-engine/scrape/maps", { method: "POST" }),
+    mutationFn: () => apiRequest("POST", "/api/admin/lead-engine/scrape/maps"),
     onSuccess: (d: any) => {
       toast({ title: `Maps: ${d.added} new leads`, description: `${d.skipped} skipped` });
       qc.invalidateQueries({ queryKey: ["/api/admin/lead-engine"] });
@@ -129,7 +129,7 @@ export default function AdminLeadEngine() {
   });
 
   const csvMut = useMutation({
-    mutationFn: () => apiRequest("/api/leads/import-csv", { method: "POST", body: JSON.stringify({ csv: csvText }) }),
+    mutationFn: () => apiRequest("POST", "/api/leads/import-csv", JSON.stringify({ csv: csvText })),
     onSuccess: (d: any) => {
       toast({ title: `CSV Import: ${d.imported} imported`, description: `${d.duplicates} duplicates skipped, ${d.invalid} invalid` });
       closeCsvModal();

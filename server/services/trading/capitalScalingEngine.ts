@@ -34,8 +34,8 @@ export interface ScalingResult {
 export async function calculateScaling(symbol: string, strategy?: string): Promise<ScalingResult> {
   const states = await db.select().from(paperTradingState).limit(1);
   const state = states[0];
-  const currentCapital = state?.currentCapital || 100000;
-  const peakCapital = state?.peakCapital || currentCapital;
+  const currentCapital = state?.paperCapital || 100000;
+  const peakCapital = state?.paperCapital || currentCapital;
   const drawdownPct = peakCapital > 0 ? ((peakCapital - currentCapital) / peakCapital) * 100 : 0;
 
   let drawdownMultiplier = 1.0;
@@ -50,7 +50,7 @@ export async function calculateScaling(symbol: string, strategy?: string): Promi
   let performanceMultiplier = 1.0;
 
   if (relevantOutcomes.length >= 5) {
-    const winRate = (relevantOutcomes.filter(o => (o.adjustedPnl || o.rawPnl) > 0).length / relevantOutcomes.length) * 100;
+    const winRate = (relevantOutcomes.filter(o => (o.realizedPnl || o.realizedPnl) > 0).length / relevantOutcomes.length) * 100;
     if (winRate >= SCALING_CONFIG.performanceBoostThreshold) {
       performanceMultiplier = SCALING_CONFIG.performanceBoostMultiplier;
     } else if (winRate < SCALING_CONFIG.performancePenaltyThreshold) {
@@ -104,8 +104,8 @@ export async function getCapitalScalingStatus(): Promise<{
 
   const states = await db.select().from(paperTradingState).limit(1);
   const state = states[0];
-  const currentCapital = state?.currentCapital || 100000;
-  const peakCapital = state?.peakCapital || currentCapital;
+  const currentCapital = state?.paperCapital || 100000;
+  const peakCapital = state?.paperCapital || currentCapital;
 
   return {
     scalingBySymbol, config: SCALING_CONFIG,
