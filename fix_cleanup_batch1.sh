@@ -209,11 +209,11 @@ p = Path("server/services/followUpScheduler.ts")
 text = p.read_text()
 orig = text
 
-text = text.replace('lead.officeSizeSqm', 'lead.officeSize')
+text = text.replace('lead.officeSize', 'lead.officeSize')
 text = text.replace('budgetRange: lead.budgetRange,', 'budgetRange: lead.budget ?? null,')
 text = text.replace(
-    'officeSizeSqm: lead.officeSize,',
-    'officeSizeSqm: lead.officeSize ? Number(String(lead.officeSize).replace(/[^0-9.]/g, "")) || null : null,'
+    'officeSize: lead.officeSize,',
+    'officeSize: lead.officeSize ? Number(String(lead.officeSize).replace(/[^0-9.]/g, "")) || null : null,'
 )
 
 if text != orig:

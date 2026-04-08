@@ -17,7 +17,7 @@ interface DealRecord {
   companyName: string;
   city: string | null;
   industry: string | null;
-  officeSizeSqm: string | null;
+  officeSize: string | null;
   staffCount: string | null;
   budgetBand: string | null;
   pipelineStage: string | null;
@@ -194,7 +194,7 @@ function DealCard({ deal, onMarkOutcome }: { deal: DealRecord; onMarkOutcome: (i
           {/* Deal detail grid */}
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div className="space-y-2">
-              {deal.officeSizeSqm && <div className="flex justify-between"><span className="text-white/30">Office size</span><span className="text-white/70">{deal.officeSizeSqm} sqm</span></div>}
+              {deal.officeSize && <div className="flex justify-between"><span className="text-white/30">Office size</span><span className="text-white/70">{deal.officeSize} sqm</span></div>}
               {deal.staffCount && <div className="flex justify-between"><span className="text-white/30">Staff</span><span className="text-white/70">{deal.staffCount}</span></div>}
               {deal.budgetBand && <div className="flex justify-between"><span className="text-white/30">Budget</span><span className="text-white/70 truncate ml-2 text-right">{deal.budgetBand}</span></div>}
               {deal.industry && <div className="flex justify-between"><span className="text-white/30">Industry</span><span className="text-white/70">{deal.industry}</span></div>}

@@ -66,7 +66,7 @@ function getStageContent(seq: FollowUpSequence, stage: number): StageContent {
     : null;
 
   const contextNote = [
-    seq.officeSizeSqm && `${seq.officeSizeSqm} sqm office`,
+    seq.officeSize && `${seq.officeSize} sqm office`,
     seq.staffCount && `${seq.staffCount} team members`,
     budgetNote && `budget of ${budgetNote}`,
   ]

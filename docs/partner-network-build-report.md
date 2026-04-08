@@ -26,7 +26,7 @@ A full end-to-end Partner Referral Network integrated into The Corporate Desk pl
 
 **`partnerReferrals`** — Extended with full AI enrichment fields:
 - `clientCompany`, `contactName`, `contactEmail`, `contactPhone`
-- `officeLocation`, `officeSizeSqm`, `staffCount`
+- `officeLocation`, `officeSize`, `staffCount`
 - `projectType`, `projectStage`, `estimatedValue`
 - `aiFitScore` (0–100), `aiSummary`, `aiNextBestAction`
 - `aiRiskFlagsJson`, `aiEnrichmentJson`

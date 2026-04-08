@@ -98,7 +98,7 @@ export async function startFollowUpForLead(lead: {
   email: string;
   company: string;
   type: string;
-  officeSizeSqm?: string | number | null;
+  officeSize?: string | number | null;
   staffCount?: string | number | null;
   budgetMin?: string | number | null;
   budgetMax?: string | number | null;

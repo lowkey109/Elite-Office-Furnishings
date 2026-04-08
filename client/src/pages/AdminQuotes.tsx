@@ -72,7 +72,7 @@ function QuoteEditor({
   const [companyName, setCompanyName] = useState(quote?.companyName ?? prefillRequest?.businessName ?? "");
   const [email, setEmail] = useState(quote?.email ?? prefillRequest?.email ?? "");
   const [phone, setPhone] = useState(quote?.phone ?? prefillRequest?.phone ?? "");
-  const [officeSizeSqm, setOfficeSizeSqm] = useState(String(quote?.officeSizeSqm ?? prefillRequest?.officeSizeSqm ?? ""));
+  const [officeSize, setOfficeSizeSqm] = useState(String(quote?.officeSize ?? prefillRequest?.officeSize ?? ""));
   const [staffCount, setStaffCount] = useState(String(quote?.staffCount ?? prefillRequest?.staffCount ?? ""));
   const [projectSummary, setProjectSummary] = useState(quote?.projectSummary ?? "");
   const [status, setStatus] = useState<string>(quote?.status ?? "Draft");
@@ -170,7 +170,7 @@ function QuoteEditor({
     email,
     phone: phone || null,
     planningRequestId: quote?.planningRequestId ?? prefillRequest?.id ?? null,
-    officeSizeSqm: officeSizeSqm ? Number(officeSizeSqm) : null,
+    officeSize: officeSize ? Number(officeSize) : null,
     staffCount: staffCount ? Number(staffCount) : null,
     projectSummary: projectSummary || null,
     quoteItems: JSON.stringify(items),
@@ -313,7 +313,7 @@ function QuoteEditor({
                 <div>
                   <label className="text-white/50 text-xs mb-1.5 block">Office Size (m²)</label>
                   <Input
-                    value={officeSizeSqm}
+                    value={officeSize}
                     onChange={e => setOfficeSizeSqm(e.target.value)}
                     placeholder="200"
                     type="number"

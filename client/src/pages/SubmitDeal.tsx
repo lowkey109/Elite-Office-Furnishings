@@ -17,7 +17,7 @@ const submitSchema = z.object({
   contactEmail: z.string().email("Valid email required"),
   contactPhone: z.string().min(8, "Phone required"),
   officeLocation: z.string().min(2, "Office location required"),
-  officeSizeSqm: z.string().optional(),
+  officeSize: z.string().optional(),
   staffCount: z.string().optional(),
   projectType: z.string().min(1, "Project type required"),
   projectStage: z.string().min(1, "Project stage required"),
@@ -63,7 +63,7 @@ export default function SubmitDeal() {
     resolver: zodResolver(submitSchema),
     defaultValues: {
       companyName: "", contactName: "", contactEmail: "", contactPhone: "",
-      officeLocation: "", officeSizeSqm: "", staffCount: "",
+      officeLocation: "", officeSize: "", staffCount: "",
       projectType: "", projectStage: "", estimatedValue: "", sourceNotes: "",
       partnerName: "", partnerEmail: "",
     },
@@ -185,7 +185,7 @@ export default function SubmitDeal() {
                   </div>
                   <div>
                     <label className="block text-xs text-white/40 uppercase tracking-wide mb-2">Office Size (sqm)</label>
-                    <Input {...form.register("officeSizeSqm")} data-testid="input-deal-sqm" placeholder="e.g. 400" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-none" />
+                    <Input {...form.register("officeSize")} data-testid="input-deal-sqm" placeholder="e.g. 400" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-none" />
                   </div>
                   <div>
                     <label className="block text-xs text-white/40 uppercase tracking-wide mb-2">Staff Count</label>

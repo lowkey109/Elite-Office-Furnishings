@@ -137,7 +137,7 @@ export async function routeOpportunityToPartners(
     city?: string;
     industry?: string;
     projectType?: string;
-    officeSizeSqm?: string;
+    officeSize?: string;
     staffCount?: string;
     estimatedProjectValue?: number;
     relocationScore?: number;
@@ -171,7 +171,7 @@ export async function routeOpportunityToPartners(
       city: opportunityData.city ?? null,
       industry: opportunityData.industry ?? null,
       projectType: opportunityData.projectType ?? null,
-      officeSizeSqm: opportunityData.officeSizeSqm ? Number(String(opportunityData.officeSizeSqm).replace(/[^0-9.-]/g, "")) || null : null,
+      officeSize: opportunityData.officeSize ? Number(String(opportunityData.officeSize).replace(/[^0-9.-]/g, "")) || null : null,
       staffCount: opportunityData.staffCount ? Number(String(opportunityData.staffCount).replace(/[^0-9.-]/g, "")) || null : null,
       estimatedProjectValue: opportunityData.estimatedProjectValue ?? null,
       relocationScore: opportunityData.relocationScore ?? score,
@@ -294,7 +294,7 @@ export async function autoRouteRadarSignals(): Promise<{ routed: number }> {
         city: r.city,
         industry: r.industry ?? undefined,
         projectType,
-        officeSizeSqm: r.estimatedOfficeSizeSqm != null ? String(r.estimatedOfficeSizeSqm) : undefined,
+        officeSize: r.estimatedOfficeSizeSqm != null ? String(r.estimatedOfficeSizeSqm) : undefined,
         staffCount: r.estimatedHeadcount != null ? String(r.estimatedHeadcount) : undefined,
         estimatedProjectValue: projectValue,
         relocationScore: r.radarScore ?? 60,

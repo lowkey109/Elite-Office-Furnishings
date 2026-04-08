@@ -48,7 +48,7 @@ interface RfqProject {
   clientEmail?: string;
   city?: string;
   headcount?: number;
-  officeSizeSqm?: number;
+  officeSize?: number;
   budget?: string;
   timeline?: string;
   status: string;
@@ -274,7 +274,7 @@ export default function AdminSupplierIntelligence() {
 
   const [rfqForm, setRfqForm] = useState({
     projectName: "", clientName: "", clientCompany: "", clientEmail: "",
-    city: "", headcount: "", officeSizeSqm: "", budget: "", timeline: "", notes: "",
+    city: "", headcount: "", officeSize: "", budget: "", timeline: "", notes: "",
   });
   const [autoFurniture, setAutoFurniture] = useState<FurnitureItem[] | null>(null);
   const [autoRouting, setAutoRouting] = useState<SupplierMatch[] | null>(null);
@@ -321,7 +321,7 @@ export default function AdminSupplierIntelligence() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["/api/admin/rfq"] });
       setShowRfqForm(false); setAutoFurniture(null); setAutoRouting(null);
-      setRfqForm({ projectName: "", clientName: "", clientCompany: "", clientEmail: "", city: "", headcount: "", officeSizeSqm: "", budget: "", timeline: "", notes: "" });
+      setRfqForm({ projectName: "", clientName: "", clientCompany: "", clientEmail: "", city: "", headcount: "", officeSize: "", budget: "", timeline: "", notes: "" });
       toast({ title: "RFQ project created" });
     },
     onError: () => toast({ title: "Error creating RFQ", variant: "destructive" }),
@@ -675,7 +675,7 @@ export default function AdminSupplierIntelligence() {
                           onClick={() => createRfqMutation.mutate({
                             ...rfqForm,
                             headcount: rfqForm.headcount ? parseInt(rfqForm.headcount) : null,
-                            officeSizeSqm: rfqForm.officeSizeSqm ? parseInt(rfqForm.officeSizeSqm) : null,
+                            officeSize: rfqForm.officeSize ? parseInt(rfqForm.officeSize) : null,
                             furnitureJson: JSON.stringify(furnitureForRfq),
                             status: "draft",
                           })}

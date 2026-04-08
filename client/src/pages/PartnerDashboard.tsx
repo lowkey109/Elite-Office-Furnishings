@@ -21,7 +21,7 @@ type Partner = {
 
 type Opportunity = {
   id: string; opportunityTitle: string; companyName?: string; city?: string;
-  industry?: string; projectType?: string; officeSizeSqm?: string;
+  industry?: string; projectType?: string; officeSize?: string;
   staffCount?: string; estimatedProjectValue?: number; relocationScore?: number;
   sourceType?: string; routingReason?: string; status: string;
   createdAt: string; viewedAt?: string; notes?: string;
@@ -421,7 +421,7 @@ export default function PartnerDashboard() {
                           {opp.city && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {opp.city}</span>}
                           {opp.projectType && <span className="flex items-center gap-1"><Target className="w-3 h-3" /> {opp.projectType}</span>}
                           {opp.estimatedProjectValue && <span className="flex items-center gap-1 text-[hsl(43,78%,52%)]"><DollarSign className="w-3 h-3" /> {formatCurrency(opp.estimatedProjectValue)}</span>}
-                          {opp.officeSizeSqm && <span className="flex items-center gap-1"><Building2 className="w-3 h-3" /> {opp.officeSizeSqm} sqm</span>}
+                          {opp.officeSize && <span className="flex items-center gap-1"><Building2 className="w-3 h-3" /> {opp.officeSize} sqm</span>}
                           <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {timeAgo(opp.createdAt)}</span>
                         </div>
                         {opp.routingReason && <p className="text-xs text-white/30 mt-2">{opp.routingReason}</p>}

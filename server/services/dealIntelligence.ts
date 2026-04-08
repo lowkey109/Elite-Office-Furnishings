@@ -8,7 +8,7 @@ export interface DealSignals {
   radarScore: number;
   radarConfidence: string;
   staffCount: number;
-  officeSizeSqm: number;
+  officeSize: number;
   budgetBand: string;
   hasPlanningRequest: boolean;
   isPlanningRequestPaid: boolean;
@@ -74,7 +74,7 @@ export function computeWinProbability(signals: Partial<DealSignals>) {
   let score = 0;
 
   score += (signals.staffCount ?? 0) > 20 ? 15 : 5;
-  score += (signals.officeSizeSqm ?? 0) > 200 ? 10 : 3;
+  score += (signals.officeSize ?? 0) > 200 ? 10 : 3;
   score += parseBudgetBand(signals.budgetBand).min > 100000 ? 20 : 5;
   score += signals.hasPlanningRequest ? 15 : 0;
   score += signals.hasQuote ? 10 : 0;
@@ -91,7 +91,7 @@ export function analyseDeal(signals: Partial<DealSignals>) {
   const budget = parseBudgetBand(signals.budgetBand);
   const estimatedValue =
     budget.min ||
-    (signals.officeSizeSqm ?? 0) * 1800 ||
+    (signals.officeSize ?? 0) * 1800 ||
     (signals.staffCount ?? 0) * 4500 ||
     45000;
 
@@ -112,7 +112,7 @@ export function prospectsToSignals(p: any): Partial<DealSignals> {
   return {
     pipelineStage: safeStr(p.status || "Lead Detected"),
     staffCount: parseStaff(p.estimatedHeadcount),
-    officeSizeSqm: parseSqm(p.estimatedOfficeSqm),
+    officeSize: parseSqm(p.estimatedOfficeSqm),
     budgetBand: safeStr(p.estimatedProjectValue),
     industryFit: safeStr(p.industry),
     urgencyLevel: "",
@@ -150,7 +150,7 @@ export async function analyseAllDeals() {
       companyName: safeStr(p.company),
       city: safeStr(p.city),
       industry: safeStr(p.industry),
-      officeSizeSqm: signals.officeSizeSqm ?? 0,
+      officeSize: signals.officeSize ?? 0,
       staffCount: signals.staffCount ?? 0,
       budgetBand: safeStr(signals.budgetBand),
       pipelineStage: safeStr(signals.pipelineStage),

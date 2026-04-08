@@ -16,7 +16,7 @@ type RelocationSignal = {
   id: string; companyName: string; industry?: string; city: string; state?: string;
   signalType: string; signalSource?: string; signalDetail?: string;
   jobPostingsCount?: number; estimatedHeadcount?: number; headcountGrowthPct?: number;
-  leaseExpiryDate?: string; officeSizeSqm?: number; relocationProbability: number;
+  leaseExpiryDate?: string; officeSize?: number; relocationProbability: number;
   probabilityTier: string; estimatedProjectValue?: number; estimatedTimeline?: string;
   recommendedAction?: string; pushedToPipeline: boolean; status: string; createdAt: string;
 };
@@ -353,7 +353,7 @@ export default function AdminRelocationIntelligence() {
                 { label: "Location", value: `${selectedSignal.city}${selectedSignal.state ? `, ${selectedSignal.state}` : ""}` },
                 { label: "Industry", value: selectedSignal.industry ?? "—" },
                 { label: "Est. Headcount", value: selectedSignal.estimatedHeadcount ? `${selectedSignal.estimatedHeadcount.toLocaleString()} staff` : "—" },
-                { label: "Office Size", value: selectedSignal.officeSizeSqm ? `${selectedSignal.officeSizeSqm} sqm` : "—" },
+                { label: "Office Size", value: selectedSignal.officeSize ? `${selectedSignal.officeSize} sqm` : "—" },
                 { label: "Project Value", value: formatCurrency(selectedSignal.estimatedProjectValue) },
                 { label: "Timeline", value: selectedSignal.estimatedTimeline ?? "—" },
                 { label: "Signal Source", value: selectedSignal.signalSource ?? "—" },

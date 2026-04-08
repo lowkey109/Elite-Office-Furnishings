@@ -340,7 +340,7 @@ function ProfitRecordsPanel() {
                   <td className="px-4 py-3">
                     <p className="text-white font-medium text-xs">{record.packageName || "Unnamed Package"}</p>
                     <p className="text-zinc-500 text-xs">
-                      {record.officeSizeSqm && `${record.officeSizeSqm}sqm`}
+                      {record.officeSize && `${record.officeSize}sqm`}
                       {record.staffCount && ` · ${record.staffCount} staff`}
                       {record.packageTier && ` · ${record.packageTier}`}
                     </p>

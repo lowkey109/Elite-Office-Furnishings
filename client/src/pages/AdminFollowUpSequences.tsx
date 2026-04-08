@@ -204,8 +204,8 @@ export default function AdminFollowUpSequences() {
 
                         {/* Context tags */}
                         <div className="flex flex-wrap gap-1.5 mt-2">
-                          {seq.officeSizeSqm && (
-                            <span className="text-xs px-2 py-0.5 bg-gray-100 rounded text-gray-500">{`${seq.officeSizeSqm} sqm`}</span>
+                          {seq.officeSize && (
+                            <span className="text-xs px-2 py-0.5 bg-gray-100 rounded text-gray-500">{`${seq.officeSize} sqm`}</span>
                           )}
                           {seq.staffCount && (
                             <span className="text-xs px-2 py-0.5 bg-gray-100 rounded text-gray-500">{seq.staffCount} staff</span>

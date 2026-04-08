@@ -159,9 +159,9 @@ export default function QuotePrint() {
               <div style={{ color: "#888", fontSize: 9, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", fontFamily: "Arial, sans-serif", marginBottom: 10 }}>
                 Project Details
               </div>
-              {quote.officeSizeSqm && (
+              {quote.officeSize && (
                 <div style={{ color: "#555", fontSize: 13, fontFamily: "Arial, sans-serif", marginBottom: 3 }}>
-                  Office Size: <strong>{quote.officeSizeSqm} m²</strong>
+                  Office Size: <strong>{quote.officeSize} m²</strong>
                 </div>
               )}
               {quote.staffCount && (

@@ -188,7 +188,7 @@ Based on the following business data, identify potential website issues, convers
 Recent leads (last 20): ${recentLeads.length} leads
 - Lead types: ${[...new Set(recentLeads.map((l) => l.type))].join(", ")}
 - Missing phone numbers: ${recentLeads.filter((l) => !l.phone).length}
-- Missing office size: ${recentLeads.filter((l) => !l.officeSizeSqm).length}
+- Missing office size: ${recentLeads.filter((l) => !l.officeSize).length}
 - Missing budget: ${recentLeads.filter((l) => !l.budgetRange).length}
 
 Planning requests: ${recentRequests.length} requests

@@ -8,7 +8,7 @@ ROOTS = ["server", "shared", "client"]
 EXTS = {".ts", ".tsx"}
 
 REPLACEMENTS = [
-    (re.compile(r"\bofficeSize\b"), "officeSizeSqm"),
+    (re.compile(r"\bofficeSize\b"), "officeSize"),
     (re.compile(r"\bestimatedValueRange\b"), "estimatedValueMin"),
 ]
 
@@ -49,7 +49,7 @@ def main() -> int:
             except Exception as exc:
                 print(f"ERR {path}: {exc}", file=sys.stderr)
     print(f"\nChanged files: {changed}")
-    print("Note: review all officeSize -> officeSizeSqm changes before commit.")
+    print("Note: review all officeSize -> officeSize changes before commit.")
     return 0
 
 if __name__ == "__main__":

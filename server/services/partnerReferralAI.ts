@@ -31,7 +31,7 @@ export async function scorePartnerReferral(referralId: string): Promise<PartnerR
 Company: ${referral.clientCompany || referral.clientName || "Unknown"}
 Contact: ${referral.contactName || ""} — ${referral.contactEmail || ""} — ${referral.contactPhone || ""}
 Location: ${referral.officeLocation || "Unknown"}
-Office Size: ${referral.officeSizeSqm || "Unknown"} sqm
+Office Size: ${referral.officeSize || "Unknown"} sqm
 Staff Count: ${referral.staffCount || "Unknown"}
 Project Type: ${referral.projectType || "Unknown"}
 Project Stage: ${referral.projectStage || "Unknown"}
