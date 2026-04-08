@@ -61,6 +61,7 @@ import AdminNexoraCommandCentre from "@/pages/AdminNexoraCommandCentre";
 import AdminNexoraAdvanced from "@/pages/AdminNexoraAdvanced";
 import AdminNexoraMonitor from "@/pages/AdminNexoraMonitor";
 import AdminTradingMonitor from "@/pages/AdminTradingMonitor";
+import AdminPredictionMarkets from "@/pages/AdminPredictionMarkets";
 import AdminAIChat from "@/pages/AdminAIChat";
 import AdminPartners from "@/pages/AdminPartners";
 import Partners from "@/pages/Partners";
@@ -126,6 +127,7 @@ function AdminRoutes() {
         <Route path="/admin/nexora" component={AdminNexoraCommandCentre} />
         <Route path="/admin/ai-monitor" component={AdminNexoraMonitor} />
         <Route path="/admin/trading-monitor" component={AdminTradingMonitor} />
+        <Route path="/admin/prediction-markets" component={AdminPredictionMarkets} />
         <Route path="/admin/ai-chat" component={AdminAIChat} />
         <Route path="/admin/partners" component={AdminPartners} />
         <Route path="/admin/catalog-staging" component={AdminCatalogStaging} />

@@ -859,10 +859,7 @@ async function autoCreateOpportunity(
       .limit(1);
     if (existing.length > 0) return existing[0].id;
 
-    const rawValue = sig.estimatedProjectValue ?? sig.value ?? 0;
-    const estimatedValue = typeof rawValue === "number"
-      ? rawValue
-      : parseInt(String(rawValue ?? "0").replace(/[^0-9]/g, ""), 10) || 0;
+    const estimatedValue = parseCurrencyToNumber(sig.estimatedProjectValue ?? sig.value ?? 0);
     const confidenceLevel = sig.confidenceLevel ?? "medium";
     const confidenceScore = confidenceLevel === "high" ? 80 : confidenceLevel === "low" ? 30 : 55;
     const opportunityScore = sig.radarScore ?? sig.opportunityScore ?? 60;
@@ -1061,10 +1058,8 @@ async function pushToPipeline(
     }
     if (sourceType === "radar") {
       const radarSig = signal as any;
-      const rawValue = radarSig.estimatedProjectValue;
-      const parsedValue = typeof rawValue === "number"
-        ? rawValue
-        : parseInt(String(rawValue ?? "0").replace(/[^0-9]/g, ""), 10) || 0;
+      const parsedProjectValue = parseCurrencyToNumber(radarSig.estimatedProjectValue);
+      const parsedOfficeSqm = parseCurrencyToNumber(radarSig.estimatedOfficeSizeSqm ?? radarSig.estimatedOfficeSize ?? radarSig.estimatedOfficeSqm);
       await storage.createProspectedLead({
         company: radarSig.companyName ?? "Unknown",
         domain: null,
@@ -1074,7 +1069,7 @@ async function pushToPipeline(
         estimatedTeamSize: "Unknown",
         likelyOfficeNeed: radarSig.signalSubtype ?? radarSig.signalType ?? "Unknown",
         signalsDetected: [radarSig.signalType ?? "radar"],
-        estimatedProjectValue: parsedValue > 0 ? `$${parsedValue.toLocaleString()}` : "$0",
+        estimatedProjectValue: parsedProjectValue > 0 ? parsedProjectValue : 0,
         score: radarSig.radarScore ?? 50,
         priority: radarSig.confidenceLevel === "high" ? "High" : radarSig.confidenceLevel === "low" ? "Low" : "Medium",
         nexoraSignalId: signal.id ?? null,
@@ -1115,6 +1110,7 @@ async function pushToRadar(
       const { db: ddb } = await import("../../db");
       const { officeMovRadar } = await import("../../../shared/schema");
       const { eq } = await import("drizzle-orm");
+      const radarSig = signal as any;
       const existing = await ddb
         .select({ id: officeMovRadar.id, status: officeMovRadar.status })
         .from(officeMovRadar)
@@ -1122,9 +1118,15 @@ async function pushToRadar(
         .limit(1);
       if (existing.length > 0) {
         if (existing[0].status !== "Qualified") {
+          const parsedProjectValue = parseCurrencyToNumber(radarSig.estimatedProjectValue);
+          const parsedOfficeSizeSqm = parseCurrencyToNumber(radarSig.estimatedOfficeSizeSqm ?? radarSig.estimatedOfficeSize);
           await ddb
             .update(officeMovRadar)
-            .set({ status: "Qualified" } as any)
+            .set({
+              status: "Qualified",
+              ...(parsedProjectValue > 0 && { estimatedProjectValue: parsedProjectValue }),
+              ...(parsedOfficeSizeSqm > 0 && { estimatedOfficeSizeSqm: parsedOfficeSizeSqm }),
+            } as any)
             .where(eq(officeMovRadar.id, signal.id));
         }
         return true;
@@ -1356,6 +1358,22 @@ function toPublicResult(result: ProcessedSignalResult): NexoraResult {
  * Utility
  * ===================================================================================== */
 
+/**
+ * Safely converts a currency string (e.g. "$970,000") or any value to an integer.
+ * Strips currency symbols, commas, and whitespace before parsing.
+ * Returns 0 for null/undefined/unparseable values.
+ */
+function parseCurrencyToNumber(value: any): number {
+  if (typeof value === 'number') return Math.floor(value);
+  if (value == null) return 0;
+
+  const str = String(value).trim();
+  // Remove currency symbols, commas, spaces
+  const cleaned = str.replace(/[$£€¥,\s]/g, '');
+  const parsed = parseFloat(cleaned);
+  return isNaN(parsed) ? 0 : Math.floor(parsed);
+}
+
 async function safeArray<T>(
   promise: Promise<T[] | undefined> | undefined,
   name: string,
@@ -1473,25 +1491,14 @@ function getEvidence(signal: NexoraSignalLike): string {
   );
 }
 
-function parseCurrencyValue(raw: unknown): number {
-  if (raw === null || raw === undefined) return 0;
-  if (typeof raw === "number") return raw;
-  // Handle formatted strings like "$970,000" or "970,000" or "$1.2M"
-  const str = String(raw).trim();
-  if (!str || str === "0") return 0;
-  // Strip currency symbols, commas, spaces — keep digits and decimal point
-  const cleaned = str.replace(/[^0-9.]/g, "");
-  const parsed = parseFloat(cleaned);
-  return isNaN(parsed) ? 0 : Math.round(parsed);
-}
-
 function estimateSignalValue(signal: NexoraSignalLike): number {
-  const rawExplicit =
-    (signal as any).estimatedValue ??
-    (signal as any).projectValue ??
-    (signal as any).estimatedProjectValue ??
-    0;
-  const explicit = parseCurrencyValue(rawExplicit);
+  const explicit =
+    Number(
+      (signal as any).estimatedValue ??
+        (signal as any).projectValue ??
+        (signal as any).estimatedProjectValue ??
+        0,
+    ) || 0;
 
   if (explicit > 0) return explicit;
 
