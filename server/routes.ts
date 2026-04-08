@@ -373,7 +373,7 @@ app.post("/api/admin/auth/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    req.session.admin = {
+    (req.session as any).admin = {
       email,
       loggedIn: true,
     };
@@ -1015,7 +1015,7 @@ ${data.floorGeometry && !data.floorGeometry.fallback ? `
 DETECTED FLOOR GEOMETRY (use to guide zone placement — real shape detected from uploaded floor plan):
 - Shape Type: ${data.floorGeometry.detectedShape || "polygon"}
 - Aspect Ratio: ${data.floorGeometry.aspectRatio.toFixed(2)} (${data.floorGeometry.aspectRatio > 1.6 ? "elongated landscape — position reception at short end, workstations along long axis" : data.floorGeometry.aspectRatio < 0.75 ? "portrait layout — stack zones vertically" : "roughly square — flexible zoning"})
-- Detection Confidence: ${Math.round(data.floorGeometry.confidence * 100)}%
+- Detection Confidence: ${Math.round(data.floorGeometry?.confidence * 100)}%
 - Internal Walls Detected: ${(data.floorGeometry.internalWalls as unknown[])?.length || 0}
 Apply these geometry observations when distributing workspace percentages across zones.
 ${data.floorGeometry.detectedShape === "L-shape" ? "L-shaped floor: shorter wing → private offices/meeting rooms; longer wing → open plan workstations." : ""}
@@ -1593,7 +1593,7 @@ IMPORTANT RULES:
         name: data.name,
         company: data.company,
         message: data.message,
-        officeSize: data.officeSizeSqm ? `${data.officeSizeSqm} sqm` : null,
+        officeSizeSqm: data.officeSizeSqm ? `${data.officeSizeSqm} sqm` : null,
         staffCount: data.staffCount != null ? String(data.staffCount) : null,
         budget: data.budgetRange,
         timeline: data.timeline,
@@ -1668,7 +1668,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
         email: lead.email,
         phone: lead.phone,
         officeLocation: lead.officeLocation,
-        officeSize: lead.officeSizeSqm ? `${lead.officeSizeSqm} sqm` : null,
+        officeSizeSqm: lead.officeSizeSqm ? `${lead.officeSizeSqm} sqm` : null,
         staffCount: lead.staffCount != null ? String(lead.staffCount) : null,
         budget: lead.budgetRange,
         timeline: lead.timeline,
@@ -1689,7 +1689,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
         email: lead.email,
         company: lead.company ?? "",
         type: lead.type,
-        officeSize: lead.officeSizeSqm ? `${lead.officeSizeSqm} sqm` : null,
+        officeSizeSqm: lead.officeSizeSqm ? `${lead.officeSizeSqm} sqm` : null,
         staffCount: lead.staffCount != null ? String(lead.staffCount) : null,
         budget: lead.budgetRange,
       }).catch(err => console.error("[followup] Failed to start sequence:", err));
@@ -1762,7 +1762,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
           name: lead.company ?? "Unknown",
           company: lead.company ?? "",
           email: lead.email,
-          officeSize: lead.officeSizeSqm ? `${lead.officeSizeSqm} sqm` : null,
+          officeSizeSqm: lead.officeSizeSqm ? `${lead.officeSizeSqm} sqm` : null,
           staffCount: lead.staffCount != null ? String(lead.staffCount) : null,
           budget: lead.budgetRange,
           timeline: lead.timeline,
@@ -1774,7 +1774,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
           name: lead.company ?? "Unknown",
           company: lead.company ?? "",
           email: lead.email,
-          officeSize: lead.officeSizeSqm ? `${lead.officeSizeSqm} sqm` : null,
+          officeSizeSqm: lead.officeSizeSqm ? `${lead.officeSizeSqm} sqm` : null,
           staffCount: lead.staffCount != null ? String(lead.staffCount) : null,
           budget: lead.budgetRange,
           timeline: lead.timeline,
@@ -2030,7 +2030,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
           signalType: r.signalType,
           score: r.radarScore || 0,
           estimatedValue: r.estimatedProjectValue ? parseInt(String(r.estimatedProjectValue).replace(/[^0-9]/g, "")) || 0 : 0,
-          confidence: r.confidence || "medium",
+          confidence: r?.confidence || "medium",
           whyItMatters: `${r.companyName} detected via office radar — ${r.signalType}`,
           nextAction: "Initiate outreach",
           detectedAt: r.dateDetected,
@@ -2292,7 +2292,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
         signalsByType[t] = (signalsByType[t] || 0) + 1;
         const c = (s as any).city || "Unknown";
         signalsByCity[c] = (signalsByCity[c] || 0) + 1;
-        const conf = (s as any).confidence || "medium";
+        const conf = (s as any)?.confidence || "medium";
         if (conf === "high" || conf === "very_high") highConfidence++;
         else if (conf === "medium") mediumConfidence++;
         else lowConfidence++;
@@ -2612,7 +2612,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
         company,
         email,
         phone,
-        officeSize: officeSize || null,
+        officeSizeSqm: officeSize || null,
         staffCount: staffCount || null,
         budget: financeTerm || null,
         message: [
@@ -2666,7 +2666,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
         email: lead.email,
         company: lead.company ?? "",
         type: "finance-lead",
-        officeSize: lead.officeSizeSqm ? `${lead.officeSizeSqm} sqm` : null,
+        officeSizeSqm: lead.officeSizeSqm ? `${lead.officeSizeSqm} sqm` : null,
         staffCount: lead.staffCount != null ? String(lead.staffCount) : null,
         budget: projectValue,
       }).catch(err => console.error("[followup] Finance lead sequence failed:", err));
@@ -2747,7 +2747,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
         type: "quote-builder",
         name,
         company,
-        officeSize: squareMetres ? `${squareMetres} sqm` : undefined,
+        officeSizeSqm: squareMetres ? `${squareMetres} sqm` : undefined,
         staffCount,
         budget: budgetRange,
         timeline: undefined,
@@ -2761,7 +2761,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
         company,
         email,
         phone,
-        officeSize: squareMetres ? `${squareMetres} sqm` : undefined,
+        officeSizeSqm: squareMetres ? `${squareMetres} sqm` : undefined,
         staffCount,
         budget: budgetRange,
         officeLocation: city,
@@ -2790,7 +2790,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
         email: lead.email,
         phone: lead.phone,
         officeLocation: city,
-        officeSize: squareMetres ? `${squareMetres} sqm` : undefined,
+        officeSizeSqm: squareMetres ? `${squareMetres} sqm` : undefined,
         staffCount,
         budget: budgetRange,
         message: lead.message,
@@ -2807,7 +2807,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
         name: lead.company ?? "Unknown",
         company: lead.company ?? "",
         email: lead.email,
-        officeSize: squareMetres ? `${squareMetres} sqm` : undefined,
+        officeSizeSqm: squareMetres ? `${squareMetres} sqm` : undefined,
         staffCount,
         budget: budgetRange,
         type: "Advanced Estimator",
@@ -2820,7 +2820,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
         email: lead.email,
         company: lead.company ?? "",
         type: "quote-builder",
-        officeSize: squareMetres ? `${squareMetres} sqm` : undefined,
+        officeSizeSqm: squareMetres ? `${squareMetres} sqm` : undefined,
         staffCount,
         budget: budgetRange,
       }).catch(err => console.error("[followup] Quote builder sequence failed:", err));
@@ -3357,7 +3357,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
       const geomForPrompt = detectedGeometryEarly && !detectedGeometryEarly.fallback
         ? {
             source: detectedGeometryEarly.source,
-            confidence: detectedGeometryEarly.confidence,
+            confidence: detectedGeometryEarly?.confidence,
             aspectRatio: detectedGeometryEarly.aspectRatio,
             detectedShape: detectedGeometryEarly.detectedShape,
             fallback: detectedGeometryEarly.fallback,
@@ -3440,7 +3440,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
       const geometrySource = geometry?.source || null;
 
       if (geometry) {
-        console.log(`[FloorPlanParser] Stored geometry: source=${geometry.source}, confidence=${geometry.confidence.toFixed(2)}, fallback=${geometry.fallback}`);
+        console.log(`[FloorPlanParser] Stored geometry: source=${geometry.source}, confidence=${geometry?.confidence.toFixed(2)}, fallback=${geometry.fallback}`);
       }
 
       const planningRequest = await storage.createPlanningRequest({
@@ -3491,7 +3491,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
           try { return JSON.parse(aiRecommendations || "null"); } catch { return null; }
         })(),
         geometrySource: geometry?.source || null,
-        geometryConfidence: geometry?.confidence ?? null,
+        geometryConfidence: geometry??.confidence ?? null,
         designEngineUsed: body.source === "design-engine",
       }).catch(() => {});
 
@@ -3759,7 +3759,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
             estimatedValueRange: String(l.estimatedValueMin ?? ""),
             createdAt: l.createdAt?.toISOString() || "",
             details: {
-              officeSize: l.officeSizeSqm ? `${l.officeSizeSqm} sqm` : null,
+              officeSizeSqm: l.officeSizeSqm ? `${l.officeSizeSqm} sqm` : null,
               staffCount: l.staffCount != null ? String(l.staffCount) : null,
               budget: l.budgetRange,
               timeline: l.timeline,
@@ -3772,7 +3772,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
         const opp = scoreOpportunity({
           type: l.type,
           message: l.message,
-          officeSize: l.officeSizeSqm ? `${l.officeSizeSqm} sqm` : null,
+          officeSizeSqm: l.officeSizeSqm ? `${l.officeSizeSqm} sqm` : null,
           staffCount: l.staffCount != null ? String(l.staffCount) : null,
           budget: l.budgetRange,
           timeline: l.timeline,
@@ -3794,7 +3794,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
           estimatedValueRange: opp.estimatedValueRange,
           createdAt: l.createdAt?.toISOString() || "",
           details: {
-            officeSize: l.officeSizeSqm ? `${l.officeSizeSqm} sqm` : null,
+            officeSizeSqm: l.officeSizeSqm ? `${l.officeSizeSqm} sqm` : null,
             staffCount: l.staffCount != null ? String(l.staffCount) : null,
             budget: l.budgetRange,
             timeline: l.timeline,
@@ -3883,7 +3883,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
         const opp = scoreOpportunity({
           type: lead.type,
           message: lead.message,
-          officeSize: lead.officeSizeSqm ? `${lead.officeSizeSqm} sqm` : null,
+          officeSizeSqm: lead.officeSizeSqm ? `${lead.officeSizeSqm} sqm` : null,
           staffCount: lead.staffCount != null ? String(lead.staffCount) : null,
           budget: lead.budgetRange,
           timeline: lead.timeline,
@@ -4141,7 +4141,7 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
               quotedPrice: Math.round(balancedStack.quotedPrice),
               estimatedProfit: Math.round(balancedStack.grossProfit),
               estimatedMarginPercent: Math.round(balancedStack.marginPercent),
-              confidence: balancedStack.confidence,
+              confidence: balancedStack?.confidence,
               conversionResult: "pending",
             });
             console.log(`[ProfitRecord] Auto-saved profit record for planning request ${id}`);
@@ -4680,7 +4680,7 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
         floorGeometry: geomData ? {
           boundary: geomData.boundary || [],
           aspectRatio: geomData.aspectRatio || 1,
-          confidence: geomData.confidence || 0,
+          confidence: geomData?.confidence || 0,
           source: geomData.source || "fallback-rectangle",
           detectedShape: geomData.detectedShape || null,
           fallback: geomData.fallback ?? true,
@@ -5496,7 +5496,7 @@ Write ONLY the message body — no subject line, no labels, no explanation. Just
       const { scoreRadarSignal } = await import("./services/officeMovRadarService");
       const body = req.body;
       const signalType = body.signalType ?? "manual";
-      const confidence = body.confidence ?? "medium";
+      const confidence = body?.confidence ?? "medium";
 
       const existing = await storage.findRadarDuplicate(
         body.companyName, body.city ?? "", signalType
@@ -7673,7 +7673,7 @@ Rules:
           properties: {
             id: r.id, companyName: r.companyName, city: r.city, state: r.state,
             signalType: r.signalType, radarScore: r.radarScore, priority: r.priority,
-            status: r.status, industry: r.industry, confidence: r.confidence,
+            status: r.status, industry: r.industry, confidence: r?.confidence,
             dateDetected: r.dateDetected, color: getSignalColor(r.signalType),
           },
         };
@@ -7936,7 +7936,7 @@ Rules:
             companyName: r.companyName, city: r.city,
             signalType: r.signalType,
             radarScore: r.radarScore,
-            confidence: r.confidence,
+            confidence: r?.confidence,
             dateDetected: r.dateDetected,
             estimatedProjectValue: r.estimatedProjectValue,
           },
