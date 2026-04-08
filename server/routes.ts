@@ -384,7 +384,7 @@ app.post("/api/admin/auth/login", async (req, res) => {
     console.error("Admin login error:", err);
     return res.status(500).json({ error: "Server error" });
   }
-}
+});
               app.get("/api/admin/auth/check", (req: any, res: any) => {
                 res.json({ authenticated: !!req.session?.isAdmin });
               });
@@ -478,9 +478,11 @@ app.post("/api/admin/auth/login", async (req, res) => {
                 ddb.select().from(pCommissions).orderBy(dDesc(pCommissions.createdAt)).limit(10),
               ]);
 
-              const staleReferrals = allReferrals.filter(r =>
-                ["submitted", "reviewing"].includes(r.status) && r.createdAt ? new Date(r.createdAt) : new Date(0) < threeDaysAgo
-              );
+              const staleReferrals = allReferrals.filter(r => {
+  if (!["submitted", "reviewing"].includes(r.status)) return false;
+  if (!r.createdAt) return false;
+  return new Date(r.createdAt) < threeDaysAgo;
+});
               const highValueReferrals = allReferrals.filter(r => (r.estimatedValue || 0) >= 100000);
               const pendingCommissions = allCommissions.filter(c => c.paymentStatus === "pending");
               const paidCommissions = allCommissions.filter(c => c.paymentStatus === "paid");

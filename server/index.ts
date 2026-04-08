@@ -5,8 +5,10 @@ import { serveStatic } from "./static";
 import { createServer } from "http";
 import session from "express-session";
 import path from "path";
+import { createServer } from "http";
 import { registerRoutes } from "./routes";
 
+<<<<<<< HEAD
 declare module "express-session" {
   interface SessionData {
     isAdmin: boolean;
@@ -84,7 +86,13 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../dist/public/index.html"))
 })
 
+=======
+>>>>>>> 49e2c29 (Fix missing closure in admin login route)
 const app = express();
+const server = createServer(app);
+
+// Middleware
+app.use(express.json());
 
 app.use(
   express.json({
@@ -95,6 +103,7 @@ app.use(
 );
 app.use(express.urlencoded({ extended: false }));
 
+<<<<<<< HEAD
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -104,6 +113,10 @@ export function log(message: string, source = "express") {
   });
   console.log(`${formattedTime} [${source}] ${message}`);
 }
+=======
+// Register API routes (FIXED SIGNATURE)
+registerRoutes(server, app);
+>>>>>>> 49e2c29 (Fix missing closure in admin login route)
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -122,8 +135,14 @@ app.use((req, res, next) => {
 (async () => {
   await registerRoutes(httpServer, app);
 
+<<<<<<< HEAD
   const port = parseInt(process.env.PORT || "5000", 10);
   httpServer.listen({ port, host: "0.0.0.0" }, () => {
     log(`serving on port ${port}`);
   });
 })();
+=======
+server.listen(PORT, () => {
+  console.log("Server running on port", PORT);
+});
+>>>>>>> 49e2c29 (Fix missing closure in admin login route)
