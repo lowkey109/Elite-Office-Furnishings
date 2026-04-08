@@ -4,6 +4,8 @@ import { startNexoraBackground } from "./services/intelligence/nexoraOrchestrato
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import session from "express-session";
+import path from "path";
+import { registerRoutes } from "./routes";
 
 declare module "express-session" {
   interface SessionData {
@@ -64,40 +66,15 @@ app.use(
 
 console.log(`[Session] Session store initialised (secure=${isProduction})`);
 
-declare module "http" {
-  interface IncomingMessage {
-    rawBody: unknown;
-  }
-}
+const __dirname = new URL('.', import.meta.url).pathname
 
-const WORDPRESS_ORIGINS = [
-  "https://www.thecorporatedesk.au",
-  "https://thecorporatedesk.au",
-  "https://www.thecorporatedesk.com.au",
-  "https://thecorporatedesk.com.au",
-];
+app.use(express.static(path.join(__dirname, "../dist/public")))
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin as string | undefined;
-  if (origin && WORDPRESS_ORIGINS.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-  }
-  if (req.method === "OPTIONS") return res.sendStatus(204);
-  next();
-});
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist/public/index.html"))
+})
 
-app.use((req, res, next) => {
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  if (!req.path.startsWith("/embed/")) {
-    res.setHeader("X-Frame-Options", "SAMEORIGIN");
-  }
-  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
-  res.removeHeader("X-Powered-By");
-  next();
-});
+const app = express();
 
 app.use(
   express.json({

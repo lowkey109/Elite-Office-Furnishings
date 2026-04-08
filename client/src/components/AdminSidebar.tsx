@@ -44,9 +44,10 @@ const NAV: NavSection[] = [
   {
     label: "Intelligence",
     items: [
-      { label: "Move Radar",        href: "/admin/office-move-radar",  icon: Radar },
-      { label: "Deal Hunter",       href: "/admin/deal-hunter",        icon: Search },
-      { label: "Territory Scanner", href: "/admin/territory-scanner",  icon: Map },
+      { label: "Move Radar",          href: "/admin/office-move-radar",      icon: Radar },
+      { label: "Deal Hunter",         href: "/admin/deal-hunter",            icon: Search },
+      { label: "Territory Scanner",   href: "/admin/territory-scanner",      icon: Map },
+      { label: "Prediction Markets",  href: "/admin/prediction-markets",     icon: TrendingUp },
     ],
   },
   {

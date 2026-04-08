@@ -18,9 +18,18 @@ import { storage } from "../storage";
 import { scoreRadarSignal } from "./officeMovRadarService";
 
 function makeOpenAI(): OpenAI {
+  const apiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY ?? process.env.OPENAI_API_KEY;
+  const baseURL = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL;
+
+  if (!apiKey) {
+    throw new Error("OpenAI API key not configured (AI_INTEGRATIONS_OPENAI_API_KEY or OPENAI_API_KEY)");
+  }
+
   return new OpenAI({
-    apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY ?? process.env.OPENAI_API_KEY,
-    baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+    apiKey,
+    baseURL: baseURL || undefined, // Only set if explicitly provided
+    timeout: 30000, // 30 second timeout
+    maxRetries: 2,
   });
 }
 
@@ -308,6 +317,7 @@ Rules:
     console.error(`[NewsFeedScanner] GPT batch classify failed — skipping batch: ${err.message}`);
     return [];
   }
+  return [];
 }
 
 // ─── City resolver ────────────────────────────────────────────────────────────

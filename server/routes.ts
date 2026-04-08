@@ -254,6 +254,8 @@ import Stripe from "stripe";
                 res.send(robotsTxt());
               });
 
+
+
               app.get("/llms.txt", (_req, res) => {
                 res.set("Content-Type", "text/plain");
                 res.set("Cache-Control", "public, max-age=86400");
@@ -277,43 +279,34 @@ import Stripe from "stripe";
                 legacyHeaders: false,
               });
 
-              app.post("/api/admin/auth/login", authLimiter, (req: any, res: any) => {
-                if (!req.session) {
-                  console.error("[Auth] Session object not initialized");
-                  return res.status(500).json({ error: "Session not initialized" });
-                }
 
-                const { email, password } = req.body || {};
-                const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@thecorporatedesk.com.au";
-                const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-                const LEGACY_PASSWORD = process.env.ADMIN_PASSWORD_LEGACY;
+app.post("/api/admin/auth/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-                if (!ADMIN_PASSWORD) {
-                  console.error("[Auth] ADMIN_PASSWORD env var not set — login rejected");
-                  return res.status(503).json({ error: "Auth not configured" });
-                }
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@thecorporatedesk.au";
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "password123";
 
-                const emailMatch =
-                  (typeof email === "string" ? email : "").trim().toLowerCase() === ADMIN_EMAIL.toLowerCase();
-                const passwordMatch =
-                  password === ADMIN_PASSWORD || (LEGACY_PASSWORD && password === LEGACY_PASSWORD);
+    if (!email || !password) {
+      return res.status(400).json({ error: "Missing credentials" });
+    }
 
-                if (!emailMatch || !passwordMatch) {
-                  console.warn(`[Auth] Failed login attempt for ${email}`);
-                  return res.status(401).json({ error: "Invalid credentials" });
-                }
+    if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
 
-                req.session.isAdmin = true;
-                req.session.save((err: any) => {
-                  if (err) {
-                    console.error("[Auth] Session save failed:", err.message);
-                    return res.status(500).json({ error: "Failed to create session: " + err.message });
-                  }
-                  console.log(`[Auth] Successful login for ${email}`);
-                  return res.json({ ok: true });
-                });
-              });
+    req.session.admin = {
+      email,
+      loggedIn: true,
+    };
 
+    return res.json({ success: true });
+
+  } catch (err) {
+    console.error("Admin login error:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+}
               app.get("/api/admin/auth/check", (req: any, res: any) => {
                 res.json({ authenticated: !!req.session?.isAdmin });
               });
