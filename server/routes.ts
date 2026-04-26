@@ -236,6 +236,22 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
 
   // CLIENT_PORTAL_PRODUCTION_API_ROUTES
 
+  // PLAN_ACCESS_API_ROUTES
+  app.get("/api/client/plan-access", async (req: any, res: any) => {
+    try {
+      const { getClientPlanAccess } = await import("./services/clientPortal/clientPortalService");
+      return res.json(await getClientPlanAccess(clientTokenFromReq(req)));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.get("/api/client/subscription/checkout-status/:plan", async (req: any, res: any) => {
+    const { getClientCheckoutStatus } = await import("./services/clientPortal/clientPortalService");
+    return res.json(await getClientCheckoutStatus(req.params.plan));
+  });
+
+
   // PROPERTY_LISTINGS_API_ROUTES
 
   // PROPERTY_ENQUIRIES_API_ROUTES
@@ -244,6 +260,9 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
       const { requireClient } = await import("./services/clientPortal/clientPortalService");
       const { createPropertyEnquiry } = await import("./services/propertyIntelligence/propertyEnquiriesService");
       const user: any = await requireClient(clientTokenFromReq(req));
+      const { requireFeature } = await import("./services/clientPortal/planAccess");
+      const gate = requireFeature(user.plan, "property_enquiries");
+      if (!gate.ok) return res.status(403).json({ ...gate, gate: "PROPERTY_ENQUIRIES_PLAN_GATE" });
       return res.json(await createPropertyEnquiry({
         tenantId: user.tenantId,
         clientUserId: user.id,
@@ -311,8 +330,11 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     try {
       const { requireClient } = await import("./services/clientPortal/clientPortalService");
       const { listClientPropertyListings } = await import("./services/propertyIntelligence/propertyListingsService");
-      await requireClient(clientTokenFromReq(req));
-      return res.json(await listClientPropertyListings(req.query || {}));
+      const user: any = await requireClient(clientTokenFromReq(req));
+      const { requireFeature } = await import("./services/clientPortal/planAccess");
+      const gate = requireFeature(user.plan, "property_listings");
+      if (!gate.ok) return res.status(403).json(gate);
+      return res.json({ ...(await listClientPropertyListings(req.query || {})), access: gate.access, gate: "PROPERTY_LISTINGS_PLAN_GATE" });
     } catch (error: any) {
       return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
     }

@@ -1,5 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
+import { getPlanAccess } from "./planAccess";
 import {
   randomBytes,
   scryptSync,
@@ -474,4 +475,43 @@ export async function createStripeCheckout(input: any) {
   }
 
   return { ok: true, configured: true, checkoutUrl: json.url, session: json };
+}
+
+
+export async function getClientPlanAccess(token: string | undefined) {
+  const user = await requireClient(token);
+
+  return {
+    ok: true,
+    user: {
+      id: user.id,
+      tenantId: user.tenantId,
+      email: user.email,
+      companyName: user.companyName,
+      plan: user.plan,
+      subscriptionStatus: user.subscriptionStatus,
+      trialStartedAt: user.trialStartedAt,
+      trialEndsAt: user.trialEndsAt,
+      stripeCustomerId: user.stripeCustomerId || null,
+      stripeSubscriptionId: user.stripeSubscriptionId || null,
+    },
+    access: getPlanAccess(user.plan),
+  };
+}
+
+export async function getClientCheckoutStatus(plan: string) {
+  const configured = Boolean(process.env.STRIPE_SECRET_KEY);
+  const envName = `STRIPE_PRICE_${String(plan || "").toUpperCase().replace(/[^A-Z0-9]/g, "_")}`;
+  const priceId = process.env[envName];
+
+  return {
+    ok: true,
+    configured,
+    plan,
+    priceEnv: envName,
+    priceConfigured: Boolean(priceId),
+    message: configured && priceId
+      ? "Stripe checkout is configured for this plan."
+      : "Stripe checkout is not fully configured. Add STRIPE_SECRET_KEY and the matching STRIPE_PRICE_* env var.",
+  };
 }
