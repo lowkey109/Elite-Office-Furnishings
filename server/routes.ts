@@ -246,43 +246,19 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
       return res.status(401).json({ error: "Authentication required" });
     }
 
-    return res.json({
-      ok: true,
-      connected: true,
-      status: "online",
-      mode: "paper",
-      paperMode: true,
-      liveTradingEnabled: false,
-      generatedAt: new Date().toISOString(),
-      state: {
-        engine: "PhantomX",
-        runtime: "local",
-        dataFeed: "safe_fallback",
-        message: "Trading Monitor connected. Real trading feed still needs repair.",
-      },
-      decisions: [],
-      recent_decisions: [],
-      open_positions: [],
-      recent_outcomes: [],
-      news: [],
-      strategy_profiles: [],
-      market_context: {},
-      performance: {
-        totalTrades: 0,
-        openTrades: 0,
-        closedTrades: 0,
-        winRate: 0,
-        pnl: 0,
-        realisedPnl: 0,
-        unrealisedPnl: 0,
-      },
-      engine: {
-        running: false,
-        paperMode: true,
-        liveTradingEnabled: false,
-        approvalRequired: false,
-      },
-    });
+    try {
+      const { getSafeTradingMonitorData } = await import("./services/trading/tradingMonitorSafe");
+      const data = await getSafeTradingMonitorData();
+      return res.json(data);
+    } catch (error: any) {
+      return res.status(500).json({
+        ok: false,
+        connected: false,
+        status: "error",
+        error: error?.message || String(error),
+        generatedAt: new Date().toISOString(),
+      });
+    }
   });
 
               console.log("registerRoutes arg check", {
