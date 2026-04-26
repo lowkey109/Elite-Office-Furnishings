@@ -4,6 +4,20 @@
             import { createServer, type Server } from "http";
             import multer from "multer";
 
+
+const robotsTxt = () => "User-agent: *\nAllow: /";
+const llmsTxt = () => "LLMs allowed";
+const sitemapXml = () => "<xml></xml>";
+
+import { db } from "./db";
+import { storage } from "./storage";
+import { eq, desc, sql } from "drizzle-orm";
+import { runNexoraCycle } from "./services/intelligence/nexoraOrchestrator";
+import { scoreOpportunity } from "./services/opportunityScoring";
+import { analyseSignals, type SignalInput } from "./services/leadIntelligence";
+import { generatePackageAndQuote } from "./ai/packageGenerator";
+import { sendLeadNotification } from "./email";
+import { startFollowUpForLead } from "./services/followUpScheduler";
 import { whatsappWebhookHandler } from "./services/intelligence/communications/whatsappService";
 import OpenAI from "openai";
 
