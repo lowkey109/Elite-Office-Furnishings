@@ -49,3 +49,6 @@ audit-ai-admin-output.txt
 live-ai-status-output.txt
 site-audit-report.txt
 uploads/planning-requests/
+
+# Nexora / TCD local runtime data
+.nexora-data/
