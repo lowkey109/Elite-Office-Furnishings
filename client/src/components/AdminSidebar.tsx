@@ -1,13 +1,39 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "wouter";
 import {
-  LayoutDashboard, Zap, TrendingUp, Users, Crosshair, FileText, Activity,
-  Radar, Search, Map,
-  MessageSquare, RefreshCw, Send, Package, ShoppingBag, Star, Layout,
-  PenTool, GraduationCap, Truck, Network, Receipt, Building2,
-  Megaphone, Handshake, UsersRound, ClipboardList, LogOut, ChevronLeft,
-  ChevronRight, X,
+  Activity,
+  Building2,
+  ChevronLeft,
+  ChevronRight,
+  ClipboardList,
+  CreditCard,
+  Crosshair,
+  FileText,
+  GraduationCap,
+  Handshake,
+  Layout,
+  LayoutDashboard,
+  LogOut,
+  Map,
+  Megaphone,
+  MessageSquare,
+  Network,
+  Package,
+  PenTool,
+  Radar,
+  Receipt,
+  RefreshCw,
+  Search,
+  Send,
+  ShoppingBag,
+  Star,
+  TrendingUp,
+  Truck,
+  Users,
+  UsersRound,
+  X,
+  Zap,
 } from "lucide-react";
+import { Link, useLocation } from "wouter";
 import { serverLogout } from "@/lib/adminAuth";
 
 interface NavItem {
@@ -46,6 +72,9 @@ const NAV: NavSection[] = [
     items: [
       { label: "Move Radar",          href: "/admin/office-move-radar",      icon: Radar },
       { label: "Property Intelligence", href: "/admin/property-intelligence", icon: Map },
+      { label: "Customers", href: "/admin/customers", icon: Users },
+      { label: "Subscriptions", href: "/admin/subscriptions", icon: CreditCard },
+      { label: "Client Projects", href: "/admin/client-projects", icon: Building2 },
       { label: "Deal Hunter",         href: "/admin/deal-hunter",            icon: Search },
       { label: "Territory Scanner",   href: "/admin/territory-scanner",      icon: Map },
       { label: "Prediction Markets",  href: "/admin/prediction-markets",     icon: TrendingUp },

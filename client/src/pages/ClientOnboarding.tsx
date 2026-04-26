@@ -19,7 +19,7 @@ export default function ClientOnboarding() {
   const [setup, setSetup] = useState({ goal: "", timeline: "", budget: "", seats: "", city: "" });
   const last = index === steps.length - 1;
 
-  function finish() {
+  async function finish() {
     sessionStorage.setItem("tcd_client_onboarding_complete", "true");
     sessionStorage.setItem("tcd_client_setup", JSON.stringify(setup));
     setLocation("/client-dashboard");

@@ -92,6 +92,9 @@ import Terms from "@/pages/legal/Terms";
 import PrivacyNotice from "@/pages/legal/PrivacyNotice";
 import SubscriptionTerms from "@/pages/legal/SubscriptionTerms";
 import PhantomXRiskDisclaimer from "@/pages/legal/PhantomXRiskDisclaimer";
+import AdminCustomers from "@/pages/AdminCustomers";
+import AdminSubscriptions from "@/pages/AdminSubscriptions";
+import AdminClientProjects from "@/pages/AdminClientProjects";
 
 function AdminRoutes() {
   return (
@@ -145,6 +148,9 @@ function AdminRoutes() {
         <Route path="/admin/dev-studio" component={AdminDevStudio} />
         <Route path="/admin/prediction-markets" component={AdminPredictionMarkets} />
         <Route path="/admin/property-intelligence" component={AdminPropertyIntelligence} />
+        <Route path="/admin/customers" component={AdminCustomers} />
+        <Route path="/admin/subscriptions" component={AdminSubscriptions} />
+        <Route path="/admin/client-projects" component={AdminClientProjects} />
         <Route path="/admin/ai-chat" component={AdminAIChat} />
         <Route path="/admin/partners" component={AdminPartners} />
         <Route path="/admin/catalog-staging" component={AdminCatalogStaging} />

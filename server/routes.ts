@@ -234,6 +234,98 @@ function filterSafePendingOutreach(mapped: any[]) {
 
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
 
+  // CLIENT_PORTAL_PRODUCTION_API_ROUTES
+  const clientTokenFromReq = (req: any) => {
+    const auth = String(req?.headers?.authorization || "");
+    if (auth.toLowerCase().startsWith("bearer ")) return auth.slice(7).trim();
+    return String(req?.headers?.["x-tcd-client-token"] || "");
+  };
+
+  app.post("/api/client/auth/signup", async (req: any, res: any) => {
+    const { signupClient } = await import("./services/clientPortal/clientPortalService");
+    return res.json(await signupClient(req.body || {}));
+  });
+
+  app.post("/api/client/auth/login", async (req: any, res: any) => {
+    const { loginClient } = await import("./services/clientPortal/clientPortalService");
+    return res.json(await loginClient(req.body || {}));
+  });
+
+  app.get("/api/client/me", async (req: any, res: any) => {
+    const { getClientByToken } = await import("./services/clientPortal/clientPortalService");
+    const user = await getClientByToken(clientTokenFromReq(req));
+    if (!user) return res.status(401).json({ error: "Client authentication required" });
+    const { passwordHash, ...safe } = user as any;
+    return res.json({ ok: true, user: safe });
+  });
+
+  app.post("/api/client/onboarding/complete", async (req: any, res: any) => {
+    try {
+      const { completeClientOnboarding } = await import("./services/clientPortal/clientPortalService");
+      return res.json(await completeClientOnboarding(clientTokenFromReq(req), req.body || {}));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.get("/api/client/dashboard", async (req: any, res: any) => {
+    try {
+      const { getClientDashboard } = await import("./services/clientPortal/clientPortalService");
+      return res.json(await getClientDashboard(clientTokenFromReq(req)));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.post("/api/client/projects", async (req: any, res: any) => {
+    try {
+      const { createClientProject } = await import("./services/clientPortal/clientPortalService");
+      return res.json(await createClientProject(clientTokenFromReq(req), req.body || {}));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.post("/api/client/uploads/metadata", async (req: any, res: any) => {
+    try {
+      const { addClientUploadMetadata } = await import("./services/clientPortal/clientPortalService");
+      return res.json(await addClientUploadMetadata(clientTokenFromReq(req), req.body || {}));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.get("/api/client/leasehawk/opportunities", async (req: any, res: any) => {
+    try {
+      const { getCustomerSafeLeaseHawk } = await import("./services/clientPortal/clientPortalService");
+      return res.json(await getCustomerSafeLeaseHawk(clientTokenFromReq(req)));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.get("/api/client/phantomx/paper", async (req: any, res: any) => {
+    try {
+      const { getCustomerSafePhantomX } = await import("./services/clientPortal/clientPortalService");
+      return res.json(await getCustomerSafePhantomX(clientTokenFromReq(req)));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.post("/api/client/subscription/checkout", async (req: any, res: any) => {
+    const { createStripeCheckout } = await import("./services/clientPortal/clientPortalService");
+    return res.json(await createStripeCheckout(req.body || {}));
+  });
+
+  app.get("/api/admin/clients", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const { listAdminClients } = await import("./services/clientPortal/clientPortalService");
+    return res.json(await listAdminClients());
+  });
+
+
   // PROPERTY_INTELLIGENCE_API_ROUTES
   app.get("/api/admin/property-intelligence", async (req: any, res: any) => {
     const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;

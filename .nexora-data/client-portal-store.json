@@ -1,0 +1,42 @@
+{
+  "users": [
+    {
+      "id": "client-1777222376299-e64974db",
+      "tenantId": "tenant-1777222376299-f39d4ada",
+      "fullName": "Test Client",
+      "email": "testclient+1777222376@example.com",
+      "companyName": "Test Company",
+      "phone": "",
+      "companySize": "",
+      "projectType": "",
+      "plan": "growth",
+      "passwordHash": "21abb9cbaf6aee64b6b9d80c89136733:0ea47de0ad73f0353454a5c1574bda118a5cdd623ba86c26d72dbca03729285707c473aa7b800d0f0ad4bd74d9e6eae5bc6b8c89b64bb3643aff7af8b3d4eba0",
+      "emailVerified": false,
+      "onboardingComplete": true,
+      "legalAcceptedAt": "2026-04-26T16:52:56.299Z",
+      "trialStartedAt": "2026-04-26T16:52:56.299Z",
+      "trialEndsAt": "2026-05-10T16:52:56.351Z",
+      "subscriptionStatus": "trialing",
+      "createdAt": "2026-04-26T16:52:56.299Z",
+      "updatedAt": "2026-04-26T16:52:56.385Z"
+    }
+  ],
+  "projects": [
+    {
+      "id": "project-1777222376385-77c001f7",
+      "tenantId": "tenant-1777222376299-f39d4ada",
+      "clientUserId": "client-1777222376299-e64974db",
+      "title": "Office relocation",
+      "goal": "Office relocation",
+      "timeline": "60 days",
+      "budget": "$50k-$100k",
+      "seats": "35",
+      "city": "Brisbane",
+      "status": "new",
+      "createdAt": "2026-04-26T16:52:56.385Z",
+      "updatedAt": "2026-04-26T16:52:56.385Z"
+    }
+  ],
+  "uploads": [],
+  "supportMessages": []
+}

@@ -20,7 +20,7 @@ export default function ClientSignup() {
     setForm(f => ({ ...f, [key]: value }));
   }
 
-  function signup(e: React.FormEvent) {
+  async function signup(e: React.FormEvent) {
     e.preventDefault();
     if (!acceptedLegal) {
       alert("Please accept the legal terms before creating an account.");

@@ -7,7 +7,7 @@ export default function ClientLogin() {
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
 
-  function login(e: React.FormEvent) {
+  async function login(e: React.FormEvent) {
     e.preventDefault();
     sessionStorage.setItem("tcd_client_auth", "true");
     sessionStorage.setItem("tcd_client_email", email || "client@example.com");
