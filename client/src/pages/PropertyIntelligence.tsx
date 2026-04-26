@@ -6,7 +6,7 @@ export default function PropertyIntelligence() {
     <main className="min-h-screen bg-[#080A12] text-white">
       <section className="px-6 py-24 max-w-6xl mx-auto">
         <p className="text-amber-400 text-xs uppercase tracking-[0.3em] font-semibold">Property Intelligence Pro</p>
-        <h1 className="text-4xl md:text-6xl font-bold mt-4 max-w-4xl">Find office moves, lease signals and property opportunities before your competitors.</h1>
+        <h1 className="text-4xl md:text-6xl font-bold mt-4 max-w-4xl">Find houses for sale, lease signals, office moves, builder stock and property opportunities before your competitors.</h1>
         <p className="text-white/55 mt-6 max-w-3xl text-lg">
           A subscription-ready property intelligence machine for builders, commercial agents, tenant reps, fitout companies, furniture suppliers and workspace consultants.
         </p>

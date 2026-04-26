@@ -9,7 +9,7 @@ export default function Subscriptions() {
         <p className="text-amber-400 text-xs uppercase tracking-[0.3em] font-semibold">Subscriptions</p>
         <h1 className="text-4xl md:text-6xl font-bold mt-4">Choose the tools you need.</h1>
         <p className="text-white/55 mt-5 max-w-3xl text-lg">
-          Manage workspace projects, request quotes, upload floor plans, compare furniture options, explore finance, unlock Nexora LeaseHawk, or add PhantomX paper trading.
+          Manage workspace projects, request quotes, upload floor plans, compare furniture options, explore finance, unlock Nexora LeaseHawk for houses-for-sale, lease and property opportunity intelligence, or add PhantomX paper trading.
         </p>
         <p className="text-amber-300 mt-4 font-semibold">14-day free trial on Starter, Growth, LeaseHawk and PhantomX paper plans. No lock-in.</p>\n        <p className="text-white/40 mt-3 text-sm">By subscribing, customers must accept our <a className="text-amber-300 underline" href="/legal/terms">Terms</a>, <a className="text-amber-300 underline" href="/legal/privacy">Privacy Notice</a>, <a className="text-amber-300 underline" href="/legal/subscription-terms">Subscription Terms</a> and, where applicable, the <a className="text-amber-300 underline" href="/legal/phantomx-risk-disclaimer">PhantomX Risk Disclaimer</a>.</p>
       </section>

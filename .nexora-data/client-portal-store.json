@@ -19,6 +19,26 @@
       "subscriptionStatus": "trialing",
       "createdAt": "2026-04-26T16:52:56.299Z",
       "updatedAt": "2026-04-26T16:52:56.385Z"
+    },
+    {
+      "id": "client-1777222522502-c7e19cbb",
+      "tenantId": "tenant-1777222522502-f69a6a64",
+      "fullName": "LeaseHawk Test",
+      "email": "leasehawk+1777222522@example.com",
+      "companyName": "LeaseHawk Co",
+      "phone": "",
+      "companySize": "",
+      "projectType": "",
+      "plan": "leasehawk-pro",
+      "passwordHash": "561bed113f690367069b721807d75299:221ba0db70dd0f7de02338a773f2f196d2b29c40428fb4ebfa110a84b96d69740dbf31a26f2f461484c2e944b47454948057c49378757b5e3312f99bbf8e7845",
+      "emailVerified": false,
+      "onboardingComplete": false,
+      "legalAcceptedAt": "2026-04-26T16:55:22.502Z",
+      "trialStartedAt": "2026-04-26T16:55:22.502Z",
+      "trialEndsAt": "2026-05-10T16:55:22.545Z",
+      "subscriptionStatus": "trialing",
+      "createdAt": "2026-04-26T16:55:22.502Z",
+      "updatedAt": "2026-04-26T16:55:22.502Z"
     }
   ],
   "projects": [

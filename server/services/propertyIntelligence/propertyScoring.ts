@@ -71,8 +71,21 @@ export function scorePropertyOpportunity(input: PropertyScoreInput) {
     (input.estimatedSeats || 0) >= 40 ? 8 :
     3;
 
+  const residentialSaleLikelihood =
+    signal.includes("house_for_sale") ? 20 :
+    signal.includes("unit_for_sale") ? 16 :
+    signal.includes("townhouse_for_sale") ? 16 :
+    signal.includes("land_for_sale") ? 14 :
+    signal.includes("residential_listing") ? 18 :
+    signal.includes("new_home_listing") ? 18 :
+    signal.includes("builder_inventory") ? 20 :
+    signal.includes("display_home") ? 16 :
+    signal.includes("development_site") ? 18 :
+    signal.includes("project_marketing") ? 14 :
+    0;
+
   const confidenceScore = clamp(sourceReliability + freshness + relocationLikelihood + fitoutLikelihood);
-  const opportunityScore = clamp(projectValue + relocationLikelihood + fitoutLikelihood + furnitureLikelihood + financeLikelihood);
+  const opportunityScore = clamp(projectValue + relocationLikelihood + fitoutLikelihood + furnitureLikelihood + financeLikelihood + residentialSaleLikelihood);
   const urgencyScore = clamp(freshness + relocationLikelihood + (stage.includes("active") ? 20 : 0));
 
   return {

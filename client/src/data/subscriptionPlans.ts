@@ -74,11 +74,12 @@ export const subscriptionPlans: SubscriptionPlan[] = [
     name: "LeaseHawk Pro",
     price: "$299/mo",
     trial: "14-day free trial",
-    description: "Find office moves, lease signals, builder activity and high-value workspace opportunities.",
+    description: "Find houses for sale, lease signals, builder activity, development sites and high-value property/workspace opportunities.",
     bestFor: "Real estate agents, tenant reps, suppliers, fitout teams and brokers",
     cta: "Try LeaseHawk Pro",
     features: [
       "Nexora LeaseHawk",
+      "Houses-for-sale tracking",
       "Office Move Radar feed",
       "Market Map access",
       "Lease signal tracking",
