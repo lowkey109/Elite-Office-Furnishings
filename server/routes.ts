@@ -234,6 +234,82 @@ function filterSafePendingOutreach(mapped: any[]) {
 
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
 
+  // PROPERTY_INTELLIGENCE_API_ROUTES
+  app.get("/api/admin/property-intelligence", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const { getPropertyIntelligenceDashboard } = await import("./services/propertyIntelligence/propertyIntelligenceService");
+    return res.json(await getPropertyIntelligenceDashboard());
+  });
+
+  app.get("/api/admin/property-intelligence/opportunities", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const { listPropertyOpportunities } = await import("./services/propertyIntelligence/propertyIntelligenceService");
+    return res.json(await listPropertyOpportunities(req.query || {}));
+  });
+
+  app.get("/api/admin/property-intelligence/stats", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const { getPropertyIntelligenceStats } = await import("./services/propertyIntelligence/propertyIntelligenceService");
+    return res.json(await getPropertyIntelligenceStats());
+  });
+
+  app.post("/api/admin/property-intelligence/opportunities", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const { createPropertyOpportunity } = await import("./services/propertyIntelligence/propertyIntelligenceService");
+    return res.json(await createPropertyOpportunity(req.body || {}));
+  });
+
+  app.patch("/api/admin/property-intelligence/opportunities/:id", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const { updatePropertyOpportunity } = await import("./services/propertyIntelligence/propertyIntelligenceService");
+    return res.json(await updatePropertyOpportunity(req.params.id, req.body || {}));
+  });
+
+  app.post("/api/admin/property-intelligence/opportunities/:id/generate-outreach", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const { listPropertyOpportunities, generatePropertyOpportunityOutreach } = await import("./services/propertyIntelligence/propertyIntelligenceService");
+    const data = await listPropertyOpportunities();
+    const opportunity = data.opportunities.find((o: any) => o.id === req.params.id);
+    if (!opportunity) return res.status(404).json({ ok: false, error: "Opportunity not found" });
+    return res.json({ ok: true, outreach: generatePropertyOpportunityOutreach(opportunity), opportunity });
+  });
+
+  app.post("/api/admin/property-intelligence/opportunities/:id/push-to-radar", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    return res.json({
+      ok: true,
+      pushed: false,
+      status: "ready_for_radar_mapping",
+      message: "Opportunity verified. Direct Radar mutation can be wired to storage after field mapping review.",
+      id: req.params.id,
+    });
+  });
+
+  app.post("/api/admin/property-intelligence/scan-all", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const results: any = {};
+    const tryPost = async (path: string) => {
+      try {
+        const r = await fetch("http://localhost:" + (process.env.PORT || "5000") + path, { method: "POST", headers: { "x-tcd-admin-auth": "true", "content-type": "application/json" } });
+        results[path] = { ok: r.ok, status: r.status, body: await r.text() };
+      } catch (e: any) {
+        results[path] = { ok: false, error: e?.message || String(e) };
+      }
+    };
+    await tryPost("/api/admin/office-move-radar/scan-all");
+    await tryPost("/api/admin/lease-signal-scan");
+    return res.json({ ok: true, generatedAt: new Date().toISOString(), results });
+  });
+
+
   // PREDICTION_MARKETS_API_ROUTES
   // Local JSON API for Admin Prediction Markets.
   // This prevents /api/prediction-markets/* falling through to the Vite HTML catch-all.

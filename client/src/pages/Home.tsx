@@ -686,7 +686,35 @@ export default function Home() {
               </a>
             </div>
           </div>
+        
+      <section className="relative py-20 px-6 border-t border-white/10 bg-[#080A12] text-white">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 items-center">
+          <div>
+            <p className="text-amber-400 text-xs uppercase tracking-[0.25em] font-semibold">Client Portal</p>
+            <h2 className="text-3xl md:text-5xl font-bold mt-4">Client Portal for Workspace Projects</h2>
+            <p className="text-white/55 mt-5 text-lg">
+              Already working with The Corporate Desk? Log in to view quotes, furniture selections, floor plan reviews, finance options, project updates and procurement requests.
+            </p>
+            <div className="flex flex-wrap gap-3 mt-7">
+              <a href="/client-login" className="px-5 py-3 rounded-xl bg-amber-500 text-black font-semibold">Client Login</a>
+              <a href="/client-signup" className="px-5 py-3 rounded-xl border border-white/15 text-white">Create Client Account</a>
+              <a href="/subscriptions" className="px-5 py-3 rounded-xl border border-amber-500/30 text-amber-300">View Subscription Plans</a>
+            </div>
+            <p className="text-white/35 text-sm mt-4">Private admin tools remain separate and are not available through client accounts.</p>
+          </div>
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              {["Quotes", "Floor Plans", "Procurement", "Finance", "LeaseHawk", "PhantomX Paper"].map((item) => (
+                <div key={item} className="rounded-2xl bg-black/20 border border-white/10 p-4">
+                  <div className="text-amber-300 font-semibold">{item}</div>
+                  <div className="text-white/35 mt-1">Available by plan</div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
+      </section>
+</div>
       </section>
     </Layout>
   );

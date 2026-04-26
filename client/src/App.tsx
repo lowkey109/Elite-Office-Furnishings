@@ -63,6 +63,9 @@ import AdminNexoraAdvanced from "@/pages/AdminNexoraAdvanced";
 import AdminNexoraMonitor from "@/pages/AdminNexoraMonitor";
 import AdminTradingMonitor from "@/pages/AdminTradingMonitor";
 import AdminPredictionMarkets from "@/pages/AdminPredictionMarkets";
+import AdminPropertyIntelligence from "@/pages/AdminPropertyIntelligence";
+import PropertyIntelligence from "@/pages/PropertyIntelligence";
+import ClientPropertyIntelligence from "@/pages/ClientPropertyIntelligence";
 import AdminAIChat from "@/pages/AdminAIChat";
 import AdminPartners from "@/pages/AdminPartners";
 import Partners from "@/pages/Partners";
@@ -80,6 +83,15 @@ import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { GoogleReviewsBadge } from "@/components/GoogleReviewsBadge";
 import { TrackingPixels } from "@/components/TrackingPixels";
 import AdminDevStudio from "@/pages/AdminDevStudio";
+import ClientLogin from "@/pages/ClientLogin";
+import ClientSignup from "@/pages/ClientSignup";
+import ClientOnboarding from "@/pages/ClientOnboarding";
+import ClientDashboard from "@/pages/ClientDashboard";
+import Subscriptions from "@/pages/Subscriptions";
+import Terms from "@/pages/legal/Terms";
+import PrivacyNotice from "@/pages/legal/PrivacyNotice";
+import SubscriptionTerms from "@/pages/legal/SubscriptionTerms";
+import PhantomXRiskDisclaimer from "@/pages/legal/PhantomXRiskDisclaimer";
 
 function AdminRoutes() {
   return (
@@ -132,6 +144,7 @@ function AdminRoutes() {
         <Route path="/admin/trading-monitor" component={AdminTradingMonitor} />
         <Route path="/admin/dev-studio" component={AdminDevStudio} />
         <Route path="/admin/prediction-markets" component={AdminPredictionMarkets} />
+        <Route path="/admin/property-intelligence" component={AdminPropertyIntelligence} />
         <Route path="/admin/ai-chat" component={AdminAIChat} />
         <Route path="/admin/partners" component={AdminPartners} />
         <Route path="/admin/catalog-staging" component={AdminCatalogStaging} />
@@ -214,6 +227,18 @@ function Router() {
 
       {/* ── Other pages ────────────────────────────────── */}
       <Route path="/market-map" component={MarketMap} />
+      <Route path="/property-intelligence" component={PropertyIntelligence} />
+      <Route path="/subscriptions" component={Subscriptions} />
+      <Route path="/legal/terms" component={Terms} />
+      <Route path="/legal/privacy" component={PrivacyNotice} />
+      <Route path="/legal/subscription-terms" component={SubscriptionTerms} />
+      <Route path="/legal/phantomx-risk-disclaimer" component={PhantomXRiskDisclaimer} />
+      <Route path="/client-login" component={ClientLogin} />
+      <Route path="/client-signup" component={ClientSignup} />
+      <Route path="/client-onboarding" component={ClientOnboarding} />
+      <Route path="/client-dashboard" component={ClientDashboard} />
+      <Route path="/client/subscription" component={Subscriptions} />
+      <Route path="/client/property-intelligence" component={ClientPropertyIntelligence} />
       <Route path="/submit-deal" component={SubmitDeal} />
       <Route path="/trade-customers-portal" component={TradeCustomersPortal} />
       <Route component={NotFound} />
