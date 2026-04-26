@@ -58,11 +58,33 @@ function num(v: any, fallback = 0) {
   return Number.isFinite(n) ? n : fallback;
 }
 
+async function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  let timer: NodeJS.Timeout | null = null;
+
+  const timeout = new Promise<T>((resolve) => {
+    timer = setTimeout(() => resolve(fallback), ms);
+  });
+
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 async function fetchLocalJson(path: string) {
   const port = process.env.PORT || "5000";
   const url = `http://localhost:${port}${path}`;
   try {
-    const res = await fetch(url, { headers: { "x-tcd-admin-auth": "true" } });
+    const res = await withTimeout(
+      fetch(url, { headers: { "x-tcd-admin-auth": "true" } }),
+      2500,
+      null as any
+    );
+
+    if (!res) {
+      return { connected: false, path, error: "timeout", data: null };
+    }
     const text = await res.text();
     if (!res.ok) return { connected: false, path, status: res.status, error: text.slice(0, 300), data: null };
     try {

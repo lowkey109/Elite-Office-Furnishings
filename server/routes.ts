@@ -241,6 +241,63 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     return String(req?.headers?.["x-tcd-client-token"] || "");
   };
 
+  // LEASEHAWK_UPGRADE_API_ROUTES
+  app.post("/api/client/leasehawk/territories", async (req: any, res: any) => {
+    try {
+      const { requireClient } = await import("./services/clientPortal/clientPortalService");
+      const { createLeaseHawkTerritory } = await import("./services/propertyIntelligence/leasehawkEngine");
+      const user: any = await requireClient(clientTokenFromReq(req));
+      return res.json(await createLeaseHawkTerritory({ tenantId: user.tenantId, plan: user.plan, ...(req.body || {}) }));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.post("/api/client/leasehawk/actions", async (req: any, res: any) => {
+    try {
+      const { requireClient } = await import("./services/clientPortal/clientPortalService");
+      const { recordLeaseHawkAction } = await import("./services/propertyIntelligence/leasehawkEngine");
+      const user: any = await requireClient(clientTokenFromReq(req));
+      return res.json(await recordLeaseHawkAction({ tenantId: user.tenantId, opportunityId: req.body?.opportunityId, actionType: req.body?.actionType, notes: req.body?.notes }));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.get("/api/client/leasehawk/report", async (req: any, res: any) => {
+    try {
+      const { requireClient } = await import("./services/clientPortal/clientPortalService");
+      const { generateLeaseHawkReport } = await import("./services/propertyIntelligence/leasehawkEngine");
+      const user: any = await requireClient(clientTokenFromReq(req));
+      return res.json(await generateLeaseHawkReport({ tenantId: user.tenantId, plan: user.plan }));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.get("/api/client/leasehawk/export.csv", async (req: any, res: any) => {
+    try {
+      const { requireClient } = await import("./services/clientPortal/clientPortalService");
+      const { exportLeaseHawkCsv } = await import("./services/propertyIntelligence/leasehawkEngine");
+      const user: any = await requireClient(clientTokenFromReq(req));
+      const result = await exportLeaseHawkCsv({ tenantId: user.tenantId, plan: user.plan });
+      if (!result.ok) return res.status(403).json(result);
+      res.setHeader("content-type", result.contentType);
+      res.setHeader("content-disposition", `attachment; filename="${result.fileName}"`);
+      return res.send(result.csv);
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.get("/api/admin/leasehawk/overview", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const { getAdminLeaseHawkOverview } = await import("./services/propertyIntelligence/leasehawkEngine");
+    return res.json(await getAdminLeaseHawkOverview());
+  });
+
+
   app.post("/api/client/auth/signup", async (req: any, res: any) => {
     const { signupClient } = await import("./services/clientPortal/clientPortalService");
     return res.json(await signupClient(req.body || {}));

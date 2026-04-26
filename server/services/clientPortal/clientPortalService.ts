@@ -376,45 +376,11 @@ export function planAllows(plan: ClientPlan, feature: string) {
 
 export async function getCustomerSafeLeaseHawk(token: string | undefined) {
   const user = await requireClient(token);
-  if (!planAllows(user.plan, "leasehawk")) {
-    return {
-      ok: true,
-      locked: true,
-      upgradeRequired: true,
-      plan: user.plan,
-      message: "Upgrade to LeaseHawk Pro to access opportunity intelligence.",
-      opportunities: [],
-    };
-  }
-
-  const { listPropertyOpportunities } = await import("../propertyIntelligence/propertyIntelligenceService");
-  const data = await listPropertyOpportunities({});
-
-  const limit = user.plan === "leasehawk-pro" ? 50 : user.plan === "leasehawk-plus" ? 250 : 500;
-
-  return {
-    ok: true,
-    locked: false,
+  const { getLeaseHawkFeedForTenant } = await import("../propertyIntelligence/leasehawkEngine");
+  return getLeaseHawkFeedForTenant({
+    tenantId: user.tenantId,
     plan: user.plan,
-    opportunities: data.opportunities.slice(0, limit).map((o: any) => ({
-      id: o.id,
-      companyName: o.companyName,
-      projectName: o.projectName,
-      city: o.city,
-      state: o.state,
-      signalType: o.signalType,
-      opportunityType: o.opportunityType,
-      opportunityScore: o.opportunityScore,
-      urgencyScore: o.urgencyScore,
-      confidenceScore: o.confidenceScore,
-      estimatedSeats: o.estimatedSeats,
-      estimatedSqm: o.estimatedSqm,
-      sourceName: o.sourceName,
-      nextBestAction: o.nextBestAction,
-      assignedTier: o.assignedTier,
-      status: o.status,
-    })),
-  };
+  });
 }
 
 export async function getCustomerSafePhantomX(token: string | undefined) {
