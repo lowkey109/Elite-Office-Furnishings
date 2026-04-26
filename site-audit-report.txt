@@ -1,0 +1,99 @@
+========================================
+THE CORPORATE DESK SITE + ADMIN AUDIT
+Base URL: http://localhost:5000
+Time: Sun Apr 26 01:33:55 PM UTC 2026
+========================================
+
+1) CODE HEALTH
+----------------------------------------
+---- TypeScript check ----
+
+> rest-express@1.0.0 check
+> tsc
+
+✅ PASS: TypeScript check
+
+---- Production build ----
+
+> rest-express@1.0.0 build
+> tsx script/build.ts
+
+building client...
+vite v7.3.2 building client environment for production...
+transforming...
+
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+✓ 1887 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/public/index.html                    10.66 kB │ gzip:   2.84 kB
+../dist/public/assets/index-DflfOMgc.css    218.41 kB │ gzip:  36.93 kB
+../dist/public/assets/index-BWIwX7h1.js   3,633.58 kB │ gzip: 931.60 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 8.37s
+building server...
+✅ PASS: Production build
+
+2) SERVER PROCESS CHECK
+----------------------------------------
+✅ Server responding at http://localhost:5000
+
+3) PUBLIC WEBSITE ROUTES
+----------------------------------------
+✅ PUBLIC / [200] http://localhost:5000/
+✅ PUBLIC /workplace-solutions [200] http://localhost:5000/workplace-solutions
+✅ PUBLIC /workplace-strategy [200] http://localhost:5000/workplace-strategy
+✅ PUBLIC /strategy-call [200] http://localhost:5000/strategy-call
+✅ PUBLIC /free-layout-plan [200] http://localhost:5000/free-layout-plan
+✅ PUBLIC /finance-your-workspace [200] http://localhost:5000/finance-your-workspace
+✅ PUBLIC /3d-office-walkthrough [200] http://localhost:5000/3d-office-walkthrough
+✅ PUBLIC /catalog [200] http://localhost:5000/catalog
+✅ PUBLIC /partners [200] http://localhost:5000/partners
+✅ PUBLIC /blog [200] http://localhost:5000/blog
+✅ PUBLIC /testimonials [200] http://localhost:5000/testimonials
+✅ PUBLIC /office-furniture-brisbane [200] http://localhost:5000/office-furniture-brisbane
+✅ PUBLIC /office-furniture-sydney [200] http://localhost:5000/office-furniture-sydney
+✅ PUBLIC /office-furniture-melbourne [200] http://localhost:5000/office-furniture-melbourne
+✅ PUBLIC /office-furniture-canberra [200] http://localhost:5000/office-furniture-canberra
+✅ PUBLIC /upload-your-floor-plan [200] http://localhost:5000/upload-your-floor-plan
+
+4) ADMIN / INTERNAL ROUTES
+----------------------------------------
+✅ ADMIN /admin [200] http://localhost:5000/admin
+✅ ADMIN /admin/overview [200] http://localhost:5000/admin/overview
+✅ ADMIN /admin/nexora-monitor [200] http://localhost:5000/admin/nexora-monitor
+✅ ADMIN /admin/trading-monitor [200] http://localhost:5000/admin/trading-monitor
+✅ ADMIN /admin/office-move-radar [200] http://localhost:5000/admin/office-move-radar
+✅ ADMIN /admin/deal-hunter [200] http://localhost:5000/admin/deal-hunter
+✅ ADMIN /admin/dev-studio [200] http://localhost:5000/admin/dev-studio
+
+5) API HEALTH + CORE ENDPOINTS
+----------------------------------------
+✅ API JSON: /api/health [200] http://localhost:5000/api/health
+✅ PROTECTED API OK: /api/admin/trading/monitor [401] http://localhost:5000/api/admin/trading/monitor
+✅ API REACHABLE: /api/prediction-markets/opportunities [200 non-JSON response allowed] http://localhost:5000/api/prediction-markets/opportunities
+✅ API REACHABLE: /api/dev-studio/logs [200 non-JSON response allowed] http://localhost:5000/api/dev-studio/logs
+✅ API REACHABLE: /api/dev-studio/files/list [200 non-JSON response allowed] http://localhost:5000/api/dev-studio/files/list
+
+6) STATIC ASSETS
+----------------------------------------
+✅ robots.txt [200] http://localhost:5000/robots.txt
+✅ favicon.png [200] http://localhost:5000/favicon.png
+✅ chatbot-widget.js [200] http://localhost:5000/chatbot-widget.js
+
+7) QUICK CONTENT CHECKS
+----------------------------------------
+✅ Homepage brand text found
+✅ Homepage industry text found
+
+8) SUMMARY
+----------------------------------------
+✅ Pass: 36
+⚠️  Warn: 0
+❌ Fail: 0
+
+RESULT: ✅ Website/admin/API audit passed with no hard failures.

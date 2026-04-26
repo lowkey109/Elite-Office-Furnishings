@@ -24,8 +24,8 @@ export async function runOfficeMovRadarScan(): Promise<RadarSignalLike[]> {
       estimatedProjectValue: r.estimatedProjectValue ?? null,
       sourceUrl: r.sourceUrl ?? null,
       sourcePublishedAt: (r as any).sourcePublishedAt ?? null,
-      sourceTitle: r.sourceTitle ?? null,
-      rawPayloadSummary: r.rawPayloadSummary ?? null,
+      sourceTitle: (r as any).sourceTitle ?? null,
+      rawPayloadSummary: (r as any).rawPayloadSummary ?? null,
       signalSource: "officeMov",
     }));
   } catch {

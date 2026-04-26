@@ -47,7 +47,6 @@ export async function ingestLead(params: {
   // Insert lead
   const [lead] = await db.insert(ingestedLeads).values({
     companyName: params.companyName,
-    contactName: params.contactName,
     email: params.email,
     phone: params.phone,
     city: params.city,
@@ -95,15 +94,13 @@ export async function ingestLead(params: {
   try {
     await db.insert(dealExecution).values({
       companyName: params.companyName,
-      contactName: params.contactName ?? params.companyName,
-      contactEmail: params.email ?? `contact@${params.companyName.toLowerCase().replace(/[^a-z]/g, "")}.com.au`,
       stage: "signal_detected",
       dealValueEstimate: params.estimatedValue ?? 50000,
       confidence: score,
       source: `lead_engine_${params.source}`,
       notes: `Auto-ingested: ${params.notes ?? "Lead Engine"}`,
       priority: score >= 80 ? "high" : score >= 65 ? "medium" : "low",
-    });
+    } as any);
   } catch (_e) {
     // ignore
   }

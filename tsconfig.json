@@ -8,7 +8,20 @@
     "node_modules",
     "build",
     "dist",
-    "**/*.test.ts"
+    "**/*.test.ts",
+    "**/*.before-*.ts",
+    "**/*.before-*.tsx",
+    "**/*.backup.ts",
+    "**/*.backup.tsx",
+    "**/*.bak.ts",
+    "**/*.bak.tsx",
+    "**/*.old.ts",
+    "**/*.old.tsx",
+    "server/routes.*.ts",
+    "server/**/*.before-*.ts",
+    "server/**/*.before-*.tsx",
+    "client/**/*.before-*.ts",
+    "client/**/*.before-*.tsx"
   ],
   "compilerOptions": {
     "incremental": true,

@@ -241,7 +241,7 @@ export async function autoRouteHighScoreSignals(): Promise<{ routed: number }> {
         opportunityTitle: `${s.companyName} — Intelligence Signal (${s.signalType})`,
         companyName: s.companyName,
         city: s.city ?? undefined,
-        industry: s.industry ?? undefined,
+        industry: (s as any).industry ?? undefined,
         projectType: inferProjectType(s.signalType),
         estimatedProjectValue: 80000,
         relocationScore: s.relocationProbability ?? 60,
@@ -277,7 +277,7 @@ export async function autoRouteRadarSignals(): Promise<{ routed: number }> {
     if (already) continue;
 
     try {
-      const projectValue = parseProjectValueLabel(r.estimatedProjectValue, 80000);
+      const projectValue = parseProjectValueLabel(r.estimatedProjectValue == null ? null : String(r.estimatedProjectValue), 80000);
       const projectType = inferProjectType(r.signalType);
 
       const result = await routeOpportunityToPartners({

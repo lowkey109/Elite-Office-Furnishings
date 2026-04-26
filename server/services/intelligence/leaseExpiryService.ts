@@ -81,7 +81,7 @@ export async function scanLeaseExpirySignals(): Promise<{ processed: number; cre
       ))
       .limit(1);
 
-    const { expiryYear, quarter } = inferLeaseExpiry(radar.dateDetected);
+    const { expiryYear, quarter } = inferLeaseExpiry(radar.dateDetected ? radar.dateDetected.toISOString() : null);
     const score = scoreLeasePrediction(radar.radarScore ?? 50, 1, 60);
 
     if (existing.length === 0) {
@@ -115,7 +115,7 @@ export async function scanLeaseExpirySignals(): Promise<{ processed: number; cre
       .limit(1);
 
     if (existing.length === 0) {
-      const { expiryYear, quarter } = inferLeaseExpiry(company.latestSignalDate);
+      const { expiryYear, quarter } = inferLeaseExpiry(company.latestSignalDate ? company.latestSignalDate.toISOString() : null);
       const score = scoreLeasePrediction(company.confidenceScore ?? 50, company.radarSignalCount ?? 0, company.moveProbability ?? 60);
 
       await db.insert(leaseRecords).values({
@@ -213,7 +213,7 @@ export async function getLeaseExpiryOpportunities(limit = 20): Promise<{
       .slice(0, limit);
 
     return leaseRadar.map(r => {
-      const { expiryYear, quarter } = inferLeaseExpiry(r.dateDetected);
+      const { expiryYear, quarter } = inferLeaseExpiry(r.dateDetected ? r.dateDetected.toISOString() : null);
       return {
         id: r.id,
         companyName: r.companyName,
@@ -223,7 +223,7 @@ export async function getLeaseExpiryOpportunities(limit = 20): Promise<{
         relocationProbability: Math.min(100, (r.radarScore ?? 50) + 15),
         opportunityScore: r.radarScore ?? 50,
         urgencyTier: urgencyFromScore(r.radarScore ?? 50),
-        estimatedProjectValue: parseInt((r.estimatedProjectValue ?? "0").replace(/[^0-9]/g, "")) || null,
+        estimatedProjectValue: parseInt(String(r.estimatedProjectValue ?? "0").replace(/[^0-9]/g, "")) || null,
         reasoningSummary: `Signal type: ${r.signalType?.replace(/_/g, " ")}.`,
         status: "open",
       };

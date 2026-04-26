@@ -40,6 +40,8 @@ type ZoneType =
   | "other";
 
 interface Props {
+  onViewClick?: () => void | Promise<void>;
+  viewing?: boolean;
   zones: WorkspaceZone[];
   squareMetres?: string;
   staffCount?: string;

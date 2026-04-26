@@ -307,7 +307,7 @@ export async function persistSignal(
 // ─── STEP 9: Opportunity Evaluation ──────────────────────────────────────────
 
 export async function evaluateOpportunity(signalId: string, classified: ClassifiedSignal): Promise<void> {
-  if (classified.opportunityScore === undefined) return;
+  if ((classified as any).opportunityScore === undefined) return;
   const opportunityScore =
     classified.signalStrength * 0.35 + classified.confidenceScore * 0.25 + classified.relocationProbability * 0.4;
 
@@ -371,7 +371,7 @@ export async function runIngestionCycle(): Promise<{
   let duplicatesSkipped = 0;
 
   for (const source of sources) {
-    const rawInputs = await fetchFromSource(source);
+    const rawInputs = await fetchFromSource({ ...source, url: source.url ?? undefined, config: source.config == null ? undefined : JSON.stringify(source.config) });
 
     for (const input of rawInputs) {
       const result = await ingestSignal(input);

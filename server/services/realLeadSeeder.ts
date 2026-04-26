@@ -238,7 +238,7 @@ export async function seedRealLeads(): Promise<{
       // 1. Create company_intelligence record
       const [ci] = await db
         .insert(companyIntelligence)
-        .values({
+          .values({
           companyName: lead.companyName,
           domain: lead.domain,
           city: lead.city,
@@ -253,7 +253,7 @@ export async function seedRealLeads(): Promise<{
           radarSignalCount: 3,
           status: "active",
           reasoningSummary: `${lead.industry} company with ${lead.employeeEstimate} employees showing office expansion signals`,
-        })
+        } as any)
         .returning({ id: companyIntelligence.id });
 
       if (!ci) continue;

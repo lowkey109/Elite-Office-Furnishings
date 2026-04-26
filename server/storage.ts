@@ -352,10 +352,10 @@ function rowToProspectedLead(row: typeof prospectedLeads.$inferSelect): Prospect
     website: row.website ?? null,
     location: row.location,
     industry: row.industry,
-    estimatedTeamSize: row.estimatedTeamSize,
+    estimatedTeamSize: row.estimatedTeamSize == null ? "" : String(row.estimatedTeamSize),
     likelyOfficeNeed: row.likelyOfficeNeed ?? null,
     signalsDetected: row.signalsDetected ?? [],
-    estimatedProjectValue: row.estimatedProjectValue,
+    estimatedProjectValue: row.estimatedProjectValue == null ? "" : String(row.estimatedProjectValue),
     score: row.score,
     priority: row.priority as ProspectedLead["priority"],
     decisionMakers: row.decisionMakers,
@@ -371,8 +371,8 @@ function rowToProspectedLead(row: typeof prospectedLeads.$inferSelect): Prospect
     contactEmail: row.contactEmail ?? null,
     contactRole: row.contactRole ?? null,
     dealProbability: row.dealProbability ?? null,
-    estimatedOfficeSqm: row.estimatedOfficeSqm ?? null,
-    estimatedHeadcount: row.estimatedHeadcount ?? null,
+    estimatedOfficeSqm: row.estimatedOfficeSqm == null ? null : String(row.estimatedOfficeSqm),
+    estimatedHeadcount: row.estimatedHeadcount == null ? null : String(row.estimatedHeadcount),
     recommendedNextAction: row.recommendedNextAction ?? null,
     outreachSubject: row.outreachSubject ?? null,
     scanBatchId: row.scanBatchId ?? null,
@@ -389,8 +389,8 @@ function rowToSupplierQuote(row: typeof supplierQuotes.$inferSelect): SupplierQu
     sku: row.sku,
     quantity: row.quantity,
     colourFinish: row.colourFinish ?? undefined,
-    unitPrice: row.unitPrice,
-    freightCost: row.freightCost ?? undefined,
+    unitPrice: row.unitPrice == null ? "" : String(row.unitPrice),
+    freightCost: row.freightCost == null ? undefined : String(row.freightCost),
     leadTime: row.leadTime ?? undefined,
     quoteDate: row.quoteDate,
     projectReference: row.projectReference ?? undefined,
@@ -410,7 +410,7 @@ function rowToReferral(row: typeof referrals.$inferSelect): Referral {
     leadSource: row.leadSource as Referral["leadSource"],
     clientName: row.clientName ?? undefined,
     clientCompany: row.clientCompany ?? undefined,
-    estimatedValue: row.estimatedValue ?? undefined,
+    estimatedValue: row.estimatedValue == null ? undefined : String(row.estimatedValue),
     notes: row.notes ?? undefined,
     status: row.status as Referral["status"],
     createdAt: row.createdAt ?? new Date(),
@@ -438,7 +438,7 @@ export class DrizzleStorage implements IStorage {
     const [lead] = await db.insert(leads).values({
       ...insertLead,
       company: insertLead.company ?? "",
-    }).returning();
+    } as any).returning();
     return lead;
   }
 
@@ -462,9 +462,8 @@ export class DrizzleStorage implements IStorage {
     await db.update(leads).set({
       opportunityScore: data.opportunityScore,
       opportunityTier: data.opportunityTier,
-      signalsJson: data.signalsJson,
+      signalsJson: data.signalsJson && typeof data.signalsJson === "object" ? data.signalsJson as Record<string, unknown> : null,
       nextAction: data.nextAction,
-      estimatedValueRange: data.estimatedValueRange,
     }).where(eq(leads.id, id));
   }
 
@@ -498,7 +497,7 @@ export class DrizzleStorage implements IStorage {
       recommendedNextAction: data.recommendedNextAction ?? null,
       outreachSubject: data.outreachSubject ?? null,
       scanBatchId: data.scanBatchId ?? null,
-    }).returning();
+    } as any).returning();
     return rowToProspectedLead(row);
   }
 
@@ -567,7 +566,7 @@ export class DrizzleStorage implements IStorage {
       projectReference: data.projectReference,
       status: data.status ?? "Requested",
       notes: data.notes,
-    }).returning();
+    } as any).returning();
     return rowToSupplierQuote(row);
   }
 
@@ -589,7 +588,7 @@ export class DrizzleStorage implements IStorage {
   async updateSupplierQuote(id: string, data: Partial<InsertSupplierQuote>): Promise<SupplierQuote | undefined> {
     const [row] = await db
       .update(supplierQuotes)
-      .set(data)
+      .set(data as any)
       .where(eq(supplierQuotes.id, id))
       .returning();
     if (!row) return undefined;
@@ -612,7 +611,7 @@ export class DrizzleStorage implements IStorage {
       estimatedValue: data.estimatedValue,
       notes: data.notes,
       status: "New",
-    }).returning();
+    } as any).returning();
     return rowToReferral(row);
   }
 
@@ -664,7 +663,7 @@ export class DrizzleStorage implements IStorage {
       geometrySource: data.geometrySource,
       status: "New",
       source: data.source ?? "upload-floor-plan",
-    }).returning();
+    } as any).returning();
     return row;
   }
 
@@ -718,7 +717,7 @@ export class DrizzleStorage implements IStorage {
   }
 
   async createProductReview(data: InsertProductReview): Promise<ProductReview> {
-    const [row] = await db.insert(productReviews).values({ ...data, status: "pending" }).returning();
+    const [row] = await db.insert(productReviews).values({ ...data, status: "pending" } as any).returning();
     return row;
   }
 
@@ -1538,7 +1537,7 @@ export class DrizzleStorage implements IStorage {
       .where(ilike(companyIntelligence.companyName, companyName)).limit(1);
     if (existing) {
       const [updated] = await db.update(companyIntelligence)
-        .set({ ...data, updatedAt: new Date() })
+        .set({ ...(data as any), updatedAt: new Date() })
         .where(eq(companyIntelligence.id, existing.id))
         .returning();
       return updated;

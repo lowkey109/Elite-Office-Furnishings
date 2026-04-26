@@ -66,7 +66,7 @@ export async function aggregateSuburbDemand(city: string): Promise<SuburbSignalA
     existing.signalCount++;
     existing.companyCount++;
     if (row.estimatedProjectValue) {
-      existing.totalProjectValue += parseInt(row.estimatedProjectValue) || 0;
+      existing.totalProjectValue += Number(row.estimatedProjectValue) || 0;
     }
     if (["office_move", "new_lease", "tenant_move_in"].includes(row.signalType)) {
       existing.relocationsIn++;

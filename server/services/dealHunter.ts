@@ -1501,6 +1501,21 @@ export async function pushDealHunterToRadar(
   if (!signal) throw new Error("Deal hunter signal not found");
   if (signal.pushedToRadar) throw new Error("Already pushed to radar");
 
+  const estimatedHeadcount =
+    signal.employeeEstimate == null
+      ? null
+      : Number(String(signal.employeeEstimate).replace(/[^0-9.-]/g, "")) || null;
+
+  const estimatedOfficeSizeSqm =
+    signal.estimatedWorkspaceSqm == null
+      ? null
+      : Number(String(signal.estimatedWorkspaceSqm).replace(/[^0-9.-]/g, "")) || null;
+
+  const estimatedProjectValue =
+    signal.estimatedProjectValue == null
+      ? null
+      : Number(String(signal.estimatedProjectValue).replace(/[^0-9.-]/g, "")) || null;
+
   const radar = await storage.createOfficeMovRadarRecord({
     companyName: signal.companyName,
     industry: signal.industry,
@@ -1512,36 +1527,31 @@ export async function pushDealHunterToRadar(
     signalSource: signal.signalSource,
     sourceUrl: signal.sourceUrl ?? undefined,
     confidenceLevel: signal.probabilityTier,
-    estimatedHeadcount: (signal.employeeEstimate == null ? null : Number(String(signal.employeeEstimate).replace(/[^0-9.-]/g, "")) || null)
-      ? String(signal.employeeEstimate)
-      : undefined,
-    estimatedOfficeSizeSqm: (signal.estimatedWorkspaceSqm == null ? null : Number(String(signal.estimatedWorkspaceSqm).replace(/[^0-9.-]/g, "")) || null)
-      ? String(signal.estimatedWorkspaceSqm)
-      : undefined,
-    estimatedProjectValue: (signal.estimatedProjectValue == null ? null : Number(String(signal.estimatedProjectValue).replace(/[^0-9.-]/g, "")) || null)
-      ? `$${signal.estimatedProjectValue.toLocaleString()}`
-      : undefined,
+    estimatedHeadcount,
+    estimatedOfficeSizeSqm,
+    estimatedProjectValue,
     radarScore: signal.signalStrengthScore,
     priority:
       signal.probabilityTier === "high"
         ? "High"
         : signal.probabilityTier === "medium"
-        ? "Medium"
-        : "Low",
+          ? "Medium"
+          : "Low",
     recommendedOutreachAngle: signal.recommendedOutreachAngle ?? undefined,
     recommendedOffer: "Free office layout plan + workspace strategy session",
     recommendedNextAction: signal.recommendedAction ?? undefined,
     status: "New",
+    evidenceExcerpt: (signal as any).reasoning ?? (signal as any).evidenceExcerpt ?? (signal as any).rawPayloadSummary ?? (signal as any).notes ?? null,
   });
 
   await storage.updateDealHunterSignal(signalId, {
     pushedToRadar: true,
     linkedRadarId: radar.id,
-    updatedAt: new Date(),
-  } as any);
+  });
 
   return { radarId: radar.id };
 }
+
 
 export async function pushDealHunterToPipeline(
   signalId: string
@@ -1550,7 +1560,7 @@ export async function pushDealHunterToPipeline(
   if (!signal) throw new Error("Deal hunter signal not found");
   if (signal.pushedToPipeline) throw new Error("Already pushed to pipeline");
 
-  const parsed = parseStoredDecisionMakers(signal.recommendedContactRolesJson);
+  const parsed = parseStoredDecisionMakers(Array.isArray(signal.recommendedContactRolesJson) ? JSON.stringify(signal.recommendedContactRolesJson) : signal.recommendedContactRolesJson);
   const best = parsed.best;
   const all = parsed.all;
 
@@ -1565,8 +1575,8 @@ export async function pushDealHunterToPipeline(
       : "Unknown",
     likelyOfficeNeed: signal.projectType ?? null,
     signalsDetected: [signal.signalType],
-    estimatedProjectValue: (signal.estimatedProjectValue == null ? null : Number(String(signal.estimatedProjectValue).replace(/[^0-9.-]/g, "")) || null)
-      ? `$${signal.estimatedProjectValue.toLocaleString()}`
+    estimatedProjectValue: signal.estimatedProjectValue == null ? "" : String(signal.estimatedProjectValue)
+      ? `$${Number(signal.estimatedProjectValue ?? 0).toLocaleString()}`
       : "$0",
     score: signal.signalStrengthScore,
     priority:
@@ -1607,7 +1617,7 @@ export async function pushDealHunterToPipeline(
     estimatedOfficeSqm: signal.estimatedWorkspaceSqm
       ? String(signal.estimatedWorkspaceSqm)
       : null,
-    estimatedHeadcount: (signal.employeeEstimate == null ? null : Number(String(signal.employeeEstimate).replace(/[^0-9.-]/g, "")) || null)
+    estimatedHeadcount: (signal.employeeEstimate == null ? null : Number(String(signal.employeeEstimate).replace(/[^0-9.-]/g, "")) || null) as number | null
       ? String(signal.employeeEstimate)
       : null,
     recommendedNextAction: signal.recommendedAction ?? null,

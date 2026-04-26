@@ -16,8 +16,7 @@ async function buildAll() {
   const pkg = JSON.parse(await readFile("package.json", "utf-8"));
   const allDeps = [
     ...Object.keys(pkg.dependencies || {}),
-    ...Object.keys(pkg.devDependencies || {}),
-  ];
+    ...Object.keys(pkg.devDependencies || {})];
   const externals = allDeps.filter((dep) => !allowlist.includes(dep));
 
   await esbuild({

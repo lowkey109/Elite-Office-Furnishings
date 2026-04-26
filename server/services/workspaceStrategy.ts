@@ -58,14 +58,14 @@ async function getAverageMetricsFromLearning(sqm: number, staffCount: number): P
   sampleSize: number;
 }> {
   const [learningRecords, profitRecords] = await Promise.all([
-    storage.getWorkspaceLearningRecords(100),
+    storage.getWorkspaceLearningRecords(),
     storage.getProfitRecords(100),
   ]);
 
   // Filter to similar-sized projects (within 50% of target size)
   const similarLearning = learningRecords.filter(r => {
-    if (!r.officeSqm) return false;
-    const diff = Math.abs(r.officeSqm - sqm) / sqm;
+    if (!Number(r.officeSqm ?? 0)) return false;
+    const diff = Math.abs(Number(r.officeSqm ?? 0) - sqm) / sqm;
     return diff <= 0.5;
   });
 
@@ -78,7 +78,7 @@ async function getAverageMetricsFromLearning(sqm: number, staffCount: number): P
   const avgValuePerSqm = similarLearning.length >= 3
     ? Math.round(similarLearning.reduce((s, r) => {
         const cost = r.estimatedCost ? parseFloat(String(r.estimatedCost).replace(/[^0-9.]/g, "")) : baseRate * sqm;
-        return s + (cost / (r.officeSqm ?? sqm));
+        return s + (cost / (Number(r.officeSqm ?? 0) ?? sqm));
       }, 0) / similarLearning.length)
     : baseRate;
 
@@ -95,7 +95,7 @@ export async function generateStrategyRecommendation(input: {
   budgetRange?: string;
   stylePreference?: string;
 }): Promise<WorkspaceStrategyRecommendation> {
-  const layoutType = recommendLayoutType(input);
+  const layoutType = recommendLayoutType({ sqm: input.officeSqm, staffCount: input.staffCount, projectType: input.projectType, industryContext: input.industryContext });
   const layoutConfig = LAYOUT_TYPES[layoutType];
 
   const { avgValuePerSqm, avgMargin, sampleSize } = await getAverageMetricsFromLearning(input.officeSqm, input.staffCount);
@@ -221,7 +221,7 @@ export async function getLearningInsights(): Promise<{
 }> {
   const [strategies, learning, profits] = await Promise.all([
     storage.getWorkspaceStrategies(50),
-    storage.getWorkspaceLearningRecords(100),
+    storage.getWorkspaceLearningRecords(),
     storage.getProfitRecords(100),
   ]);
 
@@ -236,10 +236,10 @@ export async function getLearningInsights(): Promise<{
       }, 0) / Math.max(learning.filter(r => r.estimatedCost).length, 1))
     : 0;
 
-  const avgDensity = learning.filter(r => r.officeSqm && r.staffCount).length > 0
-    ? Math.round(learning.filter(r => r.officeSqm && r.staffCount)
-        .reduce((s, r) => s + (r.officeSqm! / Math.max(parseInt(String(r.staffCount ?? "1")), 1)), 0)
-        / learning.filter(r => r.officeSqm && r.staffCount).length)
+  const avgDensity = learning.filter(r => Number(r.officeSqm ?? 0) && r.staffCount).length > 0
+    ? Math.round(learning.filter(r => Number(r.officeSqm ?? 0) && r.staffCount)
+        .reduce((s, r) => s + (Number(r.officeSqm ?? 0)! / Math.max(parseInt(String(r.staffCount ?? "1")), 1)), 0)
+        / learning.filter(r => Number(r.officeSqm ?? 0) && r.staffCount).length)
     : 12;
 
   // Layout breakdown from strategies

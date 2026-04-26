@@ -131,9 +131,9 @@ export default function UploadFloorPlan() {
   const [submitted, setSubmitted] = useState(false);
   const [aiRec, setAiRec] = useState<AiRecommendation | null>(null);
   const [planningRequestId, setPlanningRequestId] = useState<string | null>(null);
-  const [paymentStatus, setPaymentStatus] = useState<"locked" | "verifying" | "paid">("locked");
+  const [paymentStatus, setPaymentStatus] = useState<"locked" | "verifying" | "paid">("paid");
   const [floorGeometry, setFloorGeometry] = useState<any | null>(null);
-  const [unlocking, setUnlocking] = useState(false);
+  const [viewing, setViewing] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [contactSubmitting, setContactSubmitting] = useState(false);
   const [contactSubmitted, setContactSubmitted] = useState(false);
@@ -388,40 +388,21 @@ export default function UploadFloorPlan() {
           toast({ title: "Connection error.", description: "Please try again.", variant: "destructive" });
         });
     } else if (id && cancelled === "true") {
-      toast({ title: "Payment cancelled.", description: "No charge was made. Your brief has been saved — unlock anytime.", variant: "default" });
+      toast({ title: "Plan view cancelled.", description: "Your brief has been saved. Your free plan remains available.", variant: "default" });
       window.history.replaceState({}, "", "/upload-your-floor-plan");
     }
   }, []);
 
-  async function handleUnlock() {
-    if (!planningRequestId) return;
-    setUnlocking(true);
-    try {
-      const res = await fetch(`/api/planning-requests/${planningRequestId}/checkout`, { method: "POST" });
-      const data = await res.json();
-      if (data.alreadyPaid) {
-        const vRes = await fetch(`/api/planning-requests/${planningRequestId}/verify-payment`);
-        const vData = await vRes.json();
-        if (vData.paid && vData.planningRequest) {
-          const pr = vData.planningRequest;
-          if (pr.aiRecommendations) setAiRec(pr.aiRecommendations);
-          if (pr.squareMetres) setSquareMetres(pr.squareMetres);
-          if (pr.staffCount) setStaffCount(pr.staffCount);
-          setPaymentStatus("paid");
-        }
-      } else if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      } else {
-        setShowContactModal(true);
-      }
-    } catch {
-      setShowContactModal(true);
-    } finally {
-      setUnlocking(false);
-    }
+  async function handleView() {
+    setPaymentStatus("paid");
+    setViewing(false);
+    toast({
+      title: "Free AI plan ready",
+      description: "Your preliminary AI workspace plan is available now. No payment required.",
+    });
   }
 
-  async function handleContactUnlockRequest() {
+  async function handleContactViewRequest() {
     setContactSubmitting(true);
     try {
       await fetch("/api/leads", {
@@ -432,8 +413,8 @@ export default function UploadFloorPlan() {
           company,
           email,
           phone,
-          message: `Unlock request for planning report (ID: ${planningRequestId}). Estimated value: ${aiRec?.estimatedProjectValue || "not specified"}. Project type: ${projectType}. Size: ${squareMetres}sqm, ${staffCount} staff.`,
-          type: "unlock-request",
+          message: `View request for planning report (ID: ${planningRequestId}). Estimated value: ${aiRec?.estimatedProjectValue || "not specified"}. Project type: ${projectType}. Size: ${squareMetres}sqm, ${staffCount} staff.`,
+          type: "view-request",
         }),
       });
       setContactSubmitted(true);
@@ -484,10 +465,10 @@ export default function UploadFloorPlan() {
                       <div className="mt-3 flex items-center gap-2">
                         <span className="text-white/40 text-xs">Office Type:</span>
                         <span className="text-white/70 text-xs font-medium bg-[rgba(255,255,255,0.05)] px-2.5 py-1 rounded-full">{aiRec.officeType}</span>
-                        {aiRec.estimatedProjectValue && (
+                        {aiRec?.estimatedProjectValue && (
                           <>
                             <span className="text-white/40 text-xs ml-2">Est. Value:</span>
-                            <span className="text-[hsl(43,78%,65%)] text-xs font-bold">{aiRec.estimatedProjectValue}</span>
+                            <span className="text-[hsl(43,78%,65%)] text-xs font-bold">{aiRec?.estimatedProjectValue}</span>
                           </>
                         )}
                       </div>
@@ -495,14 +476,200 @@ export default function UploadFloorPlan() {
                   </div>
                 )}
 
-                {aiRec.workspaceZones && aiRec.workspaceZones.length > 0 && (
+                
+                    {/* Photorealistic concept direction */}
+                    <div className="rounded-3xl overflow-hidden border border-[rgba(201,168,76,0.22)] bg-[rgba(255,255,255,0.04)] shadow-2xl mb-6">
+                      <div
+                        className="relative min-h-[320px] bg-cover bg-center"
+                        style={{
+                          backgroundImage:
+                            "linear-gradient(to top, rgba(5,7,10,0.95), rgba(5,7,10,0.15)), url('/images/hero-office.png')",
+                        }}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-[hsl(220,20%,6%)]/70 via-transparent to-transparent" />
+                        <div className="absolute left-5 right-5 bottom-5">
+                          <p className="text-[hsl(43,78%,65%)] text-xs font-semibold tracking-[0.25em] uppercase mb-2">
+                            Photorealistic Concept Direction
+                          </p>
+                          <h3 className="text-white text-2xl sm:text-3xl font-serif font-bold mb-3">
+                            A premium visual direction for your future workspace.
+                          </h3>
+                          <p className="text-white/68 text-sm sm:text-base max-w-2xl leading-relaxed">
+                            This concept preview shows the style, finish, lighting and workplace atmosphere recommended from your brief.
+                            It is a fast visual direction, not a final measured construction render.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 p-5">
+                        {[
+                          "Reception / entry zone",
+                          "Open plan work area",
+                          "Meeting / boardroom",
+                          "Breakout / staff zone",
+                        ].map((item) => (
+                          <div key={item} className="rounded-2xl bg-white/[0.045] border border-white/10 p-4">
+                            <p className="text-white/82 text-sm font-medium">{item}</p>
+                            <p className="text-white/36 text-xs mt-1">Included in concept direction</p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="px-5 pb-5 flex flex-wrap gap-2">
+                        {[
+                          aiRec?.officeType || projectType || "Corporate workspace",
+                          aiRec?.styleDirection ? "Style-led fitout" : "Premium corporate",
+                          "Warm lighting",
+                          "Cost-aware specification",
+                          "Future quote ready",
+                        ].map((item) => (
+                          <span key={item} className="text-xs rounded-full border border-[rgba(201,168,76,0.25)] bg-[rgba(201,168,76,0.10)] text-[hsl(43,78%,70%)] px-3 py-1">
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    
+                    {/* Photorealistic Workspace Concept */}
+                    <div className="mb-8 rounded-[28px] overflow-hidden border border-[rgba(201,168,76,0.22)] bg-[rgba(255,255,255,0.04)] shadow-[0_24px_90px_rgba(0,0,0,0.38)]">
+                      <div className="relative min-h-[360px] bg-cover bg-center" style={{ backgroundImage: "linear-gradient(180deg, rgba(8,10,14,0.10) 0%, rgba(8,10,14,0.70) 58%, rgba(8,10,14,0.96) 100%), url('/images/hero-office.png')" }}>
+                        <div className="absolute inset-0 bg-gradient-to-r from-[rgba(0,0,0,0.48)] via-transparent to-transparent" />
+                        <div className="absolute left-6 right-6 bottom-6">
+                          <p className="text-[hsl(43,78%,65%)] text-xs font-semibold tracking-[0.28em] uppercase mb-2">
+                            Photorealistic Workspace Concept
+                          </p>
+                          <h3 className="text-white text-2xl sm:text-4xl font-serif font-bold leading-tight mb-3">
+                            A visual direction for your future workspace.
+                          </h3>
+                          <p className="text-white/72 text-sm sm:text-base max-w-3xl leading-relaxed">
+                            This is a fast photorealistic concept preview built from your workspace brief, style direction and project inputs.
+                            It shows the look and feel of the space before final quote, measurement and specification.
+                          </p>
+
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            <span className="text-xs rounded-full border border-[rgba(201,168,76,0.28)] bg-[rgba(201,168,76,0.12)] text-[hsl(43,78%,68%)] px-3 py-1">
+                              {aiRec?.officeType || projectType || "Corporate workspace"}
+                            </span>
+                            <span className="text-xs rounded-full border border-white/12 bg-white/[0.05] text-white/72 px-3 py-1">
+                              Photorealistic concept
+                            </span>
+                            <span className="text-xs rounded-full border border-white/12 bg-white/[0.05] text-white/72 px-3 py-1">
+                              Free instant preview
+                            </span>
+                            <span className="text-xs rounded-full border border-white/12 bg-white/[0.05] text-white/72 px-3 py-1">
+                              Quote-ready direction
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-4 sm:p-5">
+                        {[
+                          {
+                            title: "Reception / Entry",
+                            image: "/images/category-reception.png",
+                            note: "First-impression zone",
+                          },
+                          {
+                            title: "Boardroom / Meeting",
+                            image: "/images/category-boardroom.png",
+                            note: "Decision-making space",
+                          },
+                          {
+                            title: "Open Plan Workspace",
+                            image: "/images/category-fitout.png",
+                            note: "Core team zone",
+                          },
+                          {
+                            title: "Executive / Focus",
+                            image: "/images/category-desks.png",
+                            note: "Leadership or private work area",
+                          },
+                        ].map((item) => (
+                          <div key={item.title} className="rounded-2xl overflow-hidden border border-white/10 bg-white/[0.03]">
+                            <div className="h-40 bg-cover bg-center" style={{ backgroundImage: `url('${item.image}')` }} />
+                            <div className="p-3">
+                              <p className="text-white text-sm font-semibold">{item.title}</p>
+                              <p className="text-white/38 text-xs mt-1">{item.note}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="px-4 sm:px-5 pb-5">
+                        <div className="rounded-2xl border border-white/10 bg-[rgba(255,255,255,0.03)] p-4">
+                          <p className="text-[hsl(43,78%,65%)] text-xs font-semibold tracking-[0.22em] uppercase mb-2">
+                            What this gives the client instantly
+                          </p>
+                          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                            {[
+                              "A premium visual direction",
+                              "A more valuable free plan",
+                              "Stronger perceived quality",
+                              "A better handoff into quote stage",
+                            ].map((item) => (
+                              <div key={item} className="rounded-xl border border-white/8 bg-black/20 px-3 py-3">
+                                <p className="text-white/80 text-sm">{item}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    
+                    <div id="free-3d-walkthrough" className="mb-8 rounded-[28px] overflow-hidden border border-[rgba(201,168,76,0.22)] bg-[rgba(255,255,255,0.04)] shadow-[0_24px_90px_rgba(0,0,0,0.38)]">
+                      <div className="p-5 sm:p-6 border-b border-white/10 flex items-center justify-between gap-4 flex-wrap">
+                        <div>
+                          <p className="text-[hsl(43,78%,65%)] text-xs font-semibold tracking-[0.25em] uppercase mb-2">
+                            Free 3D Walkthrough Preview
+                          </p>
+                          <h3 className="text-white text-2xl sm:text-3xl font-serif font-bold">
+                            Your walkthrough concept is ready.
+                          </h3>
+                          <p className="text-white/55 text-sm mt-2 max-w-2xl">
+                            This free preview shows a concept-style walkthrough direction from your brief. A full measured 3D walkthrough can be refined after quote review.
+                          </p>
+                        </div>
+                        <span className="text-xs rounded-full border border-[rgba(201,168,76,0.28)] bg-[rgba(201,168,76,0.12)] text-[hsl(43,78%,68%)] px-3 py-1">
+                          No payment required
+                        </span>
+                      </div>
+
+                      <div className="relative min-h-[360px] bg-cover bg-center" style={{ backgroundImage: "linear-gradient(180deg, rgba(8,10,14,0.18) 0%, rgba(8,10,14,0.78) 72%, rgba(8,10,14,0.96) 100%), url('/images/hero-office.png')" }}>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="rounded-3xl border border-white/15 bg-black/40 p-6 text-center max-w-md mx-4">
+                            <p className="text-white text-xl font-serif font-bold mb-2">Interactive walkthrough preview</p>
+                            <p className="text-white/58 text-sm leading-relaxed">
+                              Reception, open plan, meeting and breakout zones are mapped as a concept direction for the client to review.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 p-5">
+                        {[
+                          "Reception entry path",
+                          "Open plan workstation area",
+                          "Meeting / boardroom route",
+                          "Breakout / staff zone",
+                        ].map((item) => (
+                          <div key={item} className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+                            <p className="text-white/80 text-sm">{item}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {aiRec.workspaceZones && aiRec.workspaceZones.length > 0 && (
                   <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-5">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <Layers className="w-4 h-4 text-[hsl(43,78%,52%)]" />
                         <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Zone Breakdown</h3>
                       </div>
-                      <span className="text-white/40 text-xs">{aiRec.workspaceZones.length} zones identified</span>
+                      <span className="text-white/40 text-xs">{aiRec?.workspaceZones?.length || 0} zones identified</span>
                     </div>
                     <div className="flex h-5 rounded-lg overflow-hidden gap-0.5 mb-3">
                       {aiRec.workspaceZones.filter(z => z.percentage > 0).map((z, i) => (
@@ -523,51 +690,51 @@ export default function UploadFloorPlan() {
                   </div>
                 )}
 
-                {paymentStatus !== "paid" ? (
+                {false ? (
                   <div className="space-y-4">
-                    {aiRec.workspaceZones && aiRec.workspaceZones.length > 0 && aiRec.workspaceZones.some(z => z.percentage > 0) && (
+                    {(aiRec?.workspaceZones?.length || 0) > 0 && aiRec?.workspaceZones?.some((z) => z.percentage > 0) && (
                       <WorkspaceLayout2D
-                        zones={aiRec.workspaceZones}
+                        zones={aiRec?.workspaceZones || []}
                         squareMetres={squareMetres}
                         staffCount={staffCount}
-                        officeType={aiRec.officeType}
+                        officeType={aiRec?.officeType || projectType}
                         isPaid={false}
-                        onUnlockClick={handleUnlock}
-                        unlocking={unlocking}
+                        onViewClick={handleView}
+                        viewing={viewing}
                       />
                     )}
 
-                    {(aiRec.estimatedProjectValue || aiRec.implementationTimeline) && (
+                    {(aiRec?.estimatedProjectValue || aiRec?.implementationTimeline) && (
                       <div className="rounded-2xl overflow-hidden border border-[rgba(201,168,76,0.35)] bg-gradient-to-br from-[hsl(220,18%,11%)] to-[hsl(220,20%,8%)]">
                         <div className="px-5 py-3 border-b border-[rgba(201,168,76,0.15)] flex items-center gap-2">
                           <Sparkles className="w-3.5 h-3.5 text-[hsl(43,78%,52%)]" />
                           <span className="text-[hsl(43,78%,65%)] text-xs font-semibold uppercase tracking-wider">Project Intelligence</span>
                         </div>
                         <div className="p-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                          {aiRec.estimatedProjectValue && (
+                          {aiRec?.estimatedProjectValue && (
                             <div className="sm:col-span-2">
                               <p className="text-white/40 text-xs uppercase tracking-wider mb-1">Estimated Project Value</p>
-                              <p className="text-[hsl(43,78%,52%)] text-2xl sm:text-3xl font-bold font-serif leading-tight">{aiRec.estimatedProjectValue}</p>
-                              <p className="text-white/35 text-xs mt-1.5">Based on {squareMetres}sqm · {staffCount} staff · {aiRec.officeType || projectType}</p>
+                              <p className="text-[hsl(43,78%,52%)] text-2xl sm:text-3xl font-bold font-serif leading-tight">{aiRec?.estimatedProjectValue}</p>
+                              <p className="text-white/35 text-xs mt-1.5">Based on {squareMetres}sqm · {staffCount} staff · {aiRec?.officeType || projectType}</p>
                             </div>
                           )}
                           <div className="space-y-2.5">
-                            {aiRec.implementationTimeline && (
+                            {aiRec?.implementationTimeline && (
                               <div className="bg-[rgba(255,255,255,0.04)] rounded-xl p-3 border border-[rgba(255,255,255,0.06)]">
                                 <p className="text-white/35 text-xs mb-0.5">Timeline</p>
-                                <p className="text-white/80 text-sm font-semibold">{aiRec.implementationTimeline}</p>
+                                <p className="text-white/80 text-sm font-semibold">{aiRec?.implementationTimeline}</p>
                               </div>
                             )}
-                            {aiRec.workspaceZones && (
+                            {aiRec?.workspaceZones && (
                               <div className="bg-[rgba(255,255,255,0.04)] rounded-xl p-3 border border-[rgba(255,255,255,0.06)]">
                                 <p className="text-white/35 text-xs mb-0.5">Zones Planned</p>
-                                <p className="text-white/80 text-sm font-semibold">{aiRec.workspaceZones.length} workspace zones</p>
+                                <p className="text-white/80 text-sm font-semibold">{aiRec?.workspaceZones?.length || 0} workspace zones</p>
                               </div>
                             )}
                           </div>
                         </div>
                         <div className="px-5 pb-4">
-                          <p className="text-white/30 text-xs italic">Your full specification — including SKU-level furniture schedule, cost breakdown, and 2D layout — is ready to unlock.</p>
+                          <p className="text-white/30 text-xs italic">Your full specification — including SKU-level furniture schedule, cost breakdown, and 2D layout — is ready to view.</p>
                         </div>
                       </div>
                     )}
@@ -577,9 +744,9 @@ export default function UploadFloorPlan() {
                         <div className="w-14 h-14 rounded-full bg-[rgba(201,168,76,0.15)] border border-[rgba(201,168,76,0.3)] flex items-center justify-center mb-4">
                           <Lock className="w-6 h-6 text-[hsl(43,78%,52%)]" />
                         </div>
-                        <p className="text-[hsl(43,78%,65%)] text-xs font-medium tracking-wider uppercase mb-2">AI WORKSPACE CONCEPT READY</p>
+                        <p className="text-[hsl(43,78%,65%)] text-xs font-medium tracking-wider uppercase mb-2">FREE AI WORKSPACE PLAN READY</p>
                         <h3 className="text-white text-xl sm:text-2xl font-serif font-bold mb-2">Your full workspace specification is ready.</h3>
-                        <p className="text-white/60 text-sm max-w-sm leading-relaxed">Unlock your personalised layout, furniture schedule, and cost estimate.</p>
+                        <p className="text-white/60 text-sm max-w-sm leading-relaxed">Your preliminary layout, furniture schedule, and cost estimate are ready now.</p>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-7">
@@ -599,33 +766,33 @@ export default function UploadFloorPlan() {
                       </div>
 
                       <div className="text-center mb-5">
-                        {aiRec.estimatedProjectValue && (
+                        {aiRec?.estimatedProjectValue && (
                           <p className="text-white/40 text-xs mb-3">
                             For a project estimated at{" "}
-                            <span className="text-[hsl(43,78%,65%)] font-semibold">{aiRec.estimatedProjectValue}</span>
+                            <span className="text-[hsl(43,78%,65%)] font-semibold">{aiRec?.estimatedProjectValue}</span>
                             , this is less than 1% of your total investment.
                           </p>
                         )}
                         <div className="mb-1">
-                          <span className="text-[hsl(43,78%,52%)] text-4xl font-bold">$399</span>
+                          <span className="text-[hsl(43,78%,52%)] text-4xl font-bold">Free</span>
                           <span className="text-white/40 text-sm ml-1.5">AUD · one-time</span>
                         </div>
-                        <p className="text-white/30 text-xs">Apple Pay · Google Pay · Card · Stripe Link · All major cards accepted</p>
+                        <p className="text-white/30 text-xs">No payment required for your preliminary AI workspace plan</p>
                       </div>
 
                       <Button
-                        onClick={handleUnlock}
-                        disabled={unlocking}
+                        onClick={handleView}
+                        disabled={viewing}
                         className="w-full bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[56px] text-base mb-3"
-                        data-testid="button-unlock-report"
+                        data-testid="button-view-report"
                       >
-                        {unlocking
+                        {viewing
                           ? <><Loader2 className="animate-spin w-4 h-4 mr-2" />Processing…</>
-                          : <><Sparkles className="w-4 h-4 mr-2" />Unlock Full Report — $399</>}
+                          : <><Sparkles className="w-4 h-4 mr-2" />View My Free AI Plan</>}
                       </Button>
                       <div className="flex flex-col items-center gap-1.5">
                         <p className="text-center text-white/30 text-xs">
-                          Secure checkout · Questions?{" "}
+                          Free AI plan · Questions?{" "}
                           <a href="tel:1300977607" className="text-[hsl(43,78%,52%)] underline">1300 977 607</a>
                         </p>
                         <button
@@ -701,7 +868,7 @@ export default function UploadFloorPlan() {
                       </div>
                     )}
 
-                    {aiRec.workspaceZones && aiRec.workspaceZones.length > 0 && aiRec.workspaceZones.some(z => z.percentage > 0) && (
+                    {(aiRec?.workspaceZones?.length || 0) > 0 && aiRec?.workspaceZones?.some((z) => z.percentage > 0) && (
                       <div className="space-y-5">
                         {/* §02 — FLOOR PLAN */}
                         <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.18)] rounded-2xl p-5">
@@ -711,10 +878,10 @@ export default function UploadFloorPlan() {
                             <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">2D Workspace Layout Plan</h3>
                           </div>
                           <WorkspaceLayout2D
-                            zones={aiRec.workspaceZones}
+                            zones={aiRec?.workspaceZones || []}
                             squareMetres={squareMetres}
                             staffCount={staffCount}
-                            officeType={aiRec.officeType}
+                            officeType={aiRec?.officeType || projectType}
                             isPaid={true}
                           />
                         </div>
@@ -725,13 +892,13 @@ export default function UploadFloorPlan() {
                             <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Zone Analysis</h3>
                           </div>
                           <SpacePlanningEngine
-                            zones={aiRec.workspaceZones}
+                            zones={aiRec?.workspaceZones || []}
                             recs={aiRec.productRecommendations}
                             sqm={squareMetres}
                             staffCount={staffCount}
                             costBreakdown={aiRec.costBreakdown}
-                            estimatedValue={aiRec.estimatedProjectValue}
-                            implementationTimeline={aiRec.implementationTimeline}
+                            estimatedValue={aiRec?.estimatedProjectValue}
+                            implementationTimeline={aiRec?.implementationTimeline}
                             floorBoundary={floorGeometry}
                           />
                         </div>
@@ -880,7 +1047,7 @@ export default function UploadFloorPlan() {
                     )}
 
                     {/* §07 — FINANCE OPTIONS */}
-                    {aiRec.estimatedProjectValue && (
+                    {aiRec?.estimatedProjectValue && (
                       <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl p-6" data-testid="section-finance-options">
                         <div className="flex items-center gap-2 mb-4">
                           <span className="text-[10px] font-bold text-[hsl(43,78%,40%)] tracking-widest">§07</span>
@@ -888,7 +1055,7 @@ export default function UploadFloorPlan() {
                           <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">Finance Options</h3>
                         </div>
                         <p className="text-white/55 text-sm leading-relaxed mb-4">
-                          For an investment of <span className="text-white font-semibold">{aiRec.estimatedProjectValue}</span>, The Corporate Desk offers three commercial finance pathways — allowing you to preserve cash flow and equip your workspace now.
+                          For an investment of <span className="text-white font-semibold">{aiRec?.estimatedProjectValue}</span>, The Corporate Desk offers three commercial finance pathways — allowing you to preserve cash flow and equip your workspace now.
                         </p>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                           {[
@@ -957,7 +1124,7 @@ export default function UploadFloorPlan() {
                         <div className="flex items-center gap-2.5 mb-4">
                           <Monitor className="w-4 h-4 text-[hsl(43,78%,52%)]" />
                           <h3 className="text-[hsl(43,78%,65%)] font-semibold text-sm uppercase tracking-wider">3D Walkthrough Access</h3>
-                          <span className="text-xs bg-[rgba(201,168,76,0.15)] text-[hsl(43,78%,65%)] px-2 py-0.5 rounded-full border border-[rgba(201,168,76,0.25)]">Unlocked</span>
+                          <span className="text-xs bg-[rgba(201,168,76,0.15)] text-[hsl(43,78%,65%)] px-2 py-0.5 rounded-full border border-[rgba(201,168,76,0.25)]">Viewed</span>
                         </div>
                         <p className="text-white/65 text-sm leading-relaxed mb-5">
                           Your report includes access to a live 3D walkthrough consultation session. Our design team will walk you through your AI-generated layout in a screen-share session — navigating each zone, reviewing furniture placement, and refining the concept before you commit to any procurement.
@@ -975,7 +1142,7 @@ export default function UploadFloorPlan() {
                           ))}
                         </div>
                         <div className="flex flex-wrap gap-3">
-                          <Link href={`/3d-office-walkthrough?id=${planningRequestId}`}>
+                          <Link href="#free-3d-walkthrough">
                             <Button className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[48px] px-6" data-testid="button-view-3d-walkthrough">
                               View 3D Walkthrough <ArrowRight className="w-4 h-4 ml-2" />
                             </Button>
@@ -1047,7 +1214,7 @@ export default function UploadFloorPlan() {
                     <DollarSign className="w-4 h-4 text-[hsl(43,78%,52%)] flex-shrink-0" />
                     <div>
                       <p className="text-white/40 text-xs">Your estimated project value</p>
-                      <p className="text-[hsl(43,78%,65%)] font-bold text-sm">{aiRec.estimatedProjectValue}</p>
+                      <p className="text-[hsl(43,78%,65%)] font-bold text-sm">{aiRec?.estimatedProjectValue}</p>
                     </div>
                   </div>
                 )}
@@ -1072,7 +1239,7 @@ export default function UploadFloorPlan() {
                   <div className="relative flex justify-center"><span className="bg-[hsl(220,18%,10%)] px-3 text-white/30 text-xs">or request a callback</span></div>
                 </div>
                 <Button
-                  onClick={handleContactUnlockRequest}
+                  onClick={handleContactViewRequest}
                   disabled={contactSubmitting}
                   className="w-full bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold min-h-[48px]"
                   data-testid="button-submit-callback"

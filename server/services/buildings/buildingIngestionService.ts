@@ -89,29 +89,12 @@ export class BuildingIngestionService {
     const [tenant] = await db.insert(tenants).values({
       buildingId: input.buildingId,
       companyName: input.companyName,
-      companyId: input.companyId,
       floor: input.floor,
       spaceSizeSqm: input.spaceSizeSqm,
       industry: input.industry,
       estimatedHeadcount: input.estimatedHeadcount,
       tenantStatus: "active",
-      sourceType: "manual",
     }).returning();
-
-    if (input.companyId) {
-      const existing = await db.select().from(companyBuildingEdges)
-        .where(eq(companyBuildingEdges.companyId, input.companyId))
-        .limit(1);
-
-      if (existing.length === 0) {
-        await db.insert(companyBuildingEdges).values({
-          companyId: input.companyId,
-          edgeType: "tenant",
-          confidence: 90,
-          sourceType: "manual",
-        });
-      }
-    }
 
     return tenant;
   }
@@ -142,7 +125,6 @@ export class BuildingIngestionService {
       spaceSizeSqm: input.spaceSizeSqm,
       totalAnnualRent,
       status: "active",
-      sourceType: "manual",
       notes: input.notes,
     }).returning();
 

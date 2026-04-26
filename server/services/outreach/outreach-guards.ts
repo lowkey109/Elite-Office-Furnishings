@@ -183,7 +183,11 @@ export async function writeAuditEvent(opts: {
       companyName: opts.companyName,
       recipientEmail: opts.recipientEmail,
       campaignKey: opts.campaignKey,
-      details: opts.details ? JSON.stringify(opts.details) : null,
+      details: opts.details && typeof opts.details === "object"
+        ? (opts.details as Record<string, unknown>)
+        : opts.details == null
+          ? null
+          : { value: String(opts.details) },
     });
   } catch (err) {
     console.error("[OutreachAudit] Failed to write audit event:", err);
@@ -215,7 +219,10 @@ export async function suppressCompany(opts: {
     eventType: "company_suppressed",
     companyName: opts.companyName,
     campaignKey: opts.campaignKey,
-    details: { reason: opts.reason, note: opts.note },
+    details: {
+      reason: opts.reason ?? null,
+      note: opts.note ?? null,
+    },
   });
 }
 
@@ -247,6 +254,9 @@ export async function suppressRecipient(opts: {
     companyName: opts.companyName,
     recipientEmail: opts.recipientEmail,
     campaignKey: opts.campaignKey,
-    details: { reason: opts.reason, note: opts.note },
+    details: {
+      reason: opts.reason ?? null,
+      note: opts.note ?? null,
+    },
   });
 }

@@ -2,9 +2,24 @@ import { type Express } from "express";
 import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
 import viteConfig from "../vite.config";
-import fs from "fs";
 import path from "path";
 import { nanoid } from "nanoid";
+
+import fsp from "fs/promises";
+import { existsSync } from "fs";
+
+const PROJECT_ROOT: string = existsSync(path.resolve(process.cwd(), "client", "index.html"))
+  ? process.cwd()
+  : existsSync(path.resolve(process.cwd(), "workspace", "client", "index.html"))
+    ? path.resolve(process.cwd(), "workspace")
+    : "/home/runner/workspace";
+
+const fromRoot = (...parts: string[]): string => path.resolve(PROJECT_ROOT, ...parts);
+
+
+
+
+
 
 const viteLogger = createLogger();
 
@@ -35,15 +50,10 @@ export async function setupVite(server: Server, app: Express) {
     const url = req.originalUrl;
 
     try {
-      const clientTemplate = path.resolve(
-        import.meta.dirname,
-        "..",
-        "client",
-        "index.html",
-      );
+      const clientTemplate = fromRoot("client", "index.html");
 
       // always reload the index.html file from disk incase it changes
-      let template = await fs.promises.readFile(clientTemplate, "utf-8");
+      let template = await fsp.readFile(clientTemplate, "utf-8");
       template = template.replace(
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`,

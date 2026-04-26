@@ -169,9 +169,9 @@ export async function getJobStats(): Promise<{
     const stats = await Promise.all(
       queueNames.map(async (name) => {
         try {
-          const active = await boss!.getJobCountByName(name, "active");
-          const completed = await boss!.getJobCountByName(name, "completed");
-          const failed = await boss!.getJobCountByName(name, "failed");
+          const active = await (boss! as any).getJobCountByName?.(name, "active") ?? 0;
+          const completed = await (boss! as any).getJobCountByName?.(name, "completed") ?? 0;
+          const failed = await (boss! as any).getJobCountByName?.(name, "failed") ?? 0;
           return { name, active: active ?? 0, completed: completed ?? 0, failed: failed ?? 0 };
         } catch {
           return { name, active: 0, completed: 0, failed: 0 };

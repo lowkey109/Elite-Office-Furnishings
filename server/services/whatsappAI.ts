@@ -296,7 +296,7 @@ async function tryCaptureLead(phone: string, history: Message[]): Promise<void> 
         opportunityTier,
         signalsJson: data,
         nextAction: data.nextBestAction ?? "Follow up on WhatsApp conversation",
-        estimatedValueRange: data.budget ?? existing.estimatedValueRange ?? "",
+        estimatedValueRange: data.budget ?? existing.budgetRange ?? "",
       });
       console.log(`[WhatsApp] Lead score updated: ${existing.name} (id: ${existing.id})`);
     } else {
@@ -309,14 +309,13 @@ async function tryCaptureLead(phone: string, history: Message[]): Promise<void> 
         message: messageParts,
         officeSize: data.officeSize ?? "",
         staffCount: data.headcount ?? "",
-        budget: data.budget ?? "",
+        budgetRange: data.budget ?? "",
         timeline: data.timeframe ?? "",
         officeLocation: data.city ?? "",
         opportunityScore,
         opportunityTier,
         signalsJson: data,
         nextAction: data.nextBestAction ?? "Follow up on WhatsApp conversation",
-        estimatedValueRange: data.budget ?? "",
       });
       console.log(`[WhatsApp] New lead captured: ${data.name ?? "Unknown"} from ${data.company ?? "Unknown company"} — ${opportunityTier}`);
     }

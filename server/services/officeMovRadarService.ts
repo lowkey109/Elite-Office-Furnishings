@@ -491,7 +491,7 @@ Return JSON as an OBJECT with a "results" array of exactly ${count} objects:
 
   // Normalise + validate each result to reduce save failures
   const cleaned = results
-    .map((r: any) => normaliseScanResult(r, signalTypes))
+    .map((r: any) => normaliseScanResult(r, signalTypes as any))
     .filter(Boolean) as ScannedRadarResult[];
 
   const saved: OfficeMovRadar[] = [];
@@ -510,7 +510,7 @@ Return JSON as an OBJECT with a "results" array of exactly ${count} objects:
         confidence: r.confidence_level as RadarConfidence,
         city: r.city,
         industry: r.industry,
-        estimatedHeadcount: (r.estimated_headcount == null ? null : Number(String(r.estimated_headcount).replace(/[^0-9.-]/g, "")) || null),
+        estimatedHeadcount: r.estimated_headcount == null ? undefined : String(r.estimated_headcount),
         hasSourceUrl: !!r.source_url,
       });
 
@@ -525,7 +525,7 @@ Return JSON as an OBJECT with a "results" array of exactly ${count} objects:
         signalSource: r.signal_source,
         sourceUrl: r.source_url,
         confidenceLevel: r.confidence_level,
-        estimatedHeadcount: (r.estimated_headcount == null ? null : Number(String(r.estimated_headcount).replace(/[^0-9.-]/g, "")) || null),
+          estimatedHeadcount: r.estimated_headcount == null ? null : Number(String(r.estimated_headcount).replace(/[^0-9.-]/g, "")) || null,
         estimatedOfficeSizeSqm: (scoring.estimatedOfficeSizeSqm == null ? null : Number(String(scoring.estimatedOfficeSizeSqm).replace(/[^0-9.-]/g, "")) || null),
         estimatedProjectValue: (scoring.estimatedProjectValue == null ? null : Number(String(scoring.estimatedProjectValue).replace(/[^0-9.-]/g, "")) || null),
         radarScore: scoring.radarScore,

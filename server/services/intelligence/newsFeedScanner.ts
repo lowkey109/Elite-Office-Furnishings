@@ -13,7 +13,7 @@ export async function runNewsFeedScan(): Promise<{ signals: RadarSignalLike[] }>
 
     const signals: RadarSignalLike[] = rows.map((r) => ({
       id: r.id,
-      companyName: r.companyName ?? null,
+      companyName: ((r as any).companyName ?? (r as any).observedCompany) ?? null,
       city: r.city ?? null,
       state: null,
       industry: null,
@@ -24,8 +24,8 @@ export async function runNewsFeedScan(): Promise<{ signals: RadarSignalLike[] }>
       estimatedProjectValue: null,
       sourceUrl: r.sourceUrl ?? null,
       sourcePublishedAt: null,
-      sourceTitle: r.headline ?? null,
-      rawPayloadSummary: r.summary ?? null,
+      sourceTitle: ((r as any).headline ?? (r as any).buildingName) ?? null,
+      rawPayloadSummary: ((r as any).summary ?? (r as any).notes) ?? null,
       signalSource: "news",
     }));
 
@@ -53,7 +53,7 @@ export async function runPredictiveScan(): Promise<{ signals: RadarSignalLike[] 
 
     const signals: RadarSignalLike[] = rows.map((r) => ({
       id: r.id,
-      companyName: r.companyName ?? null,
+      companyName: ((r as any).companyName ?? (r as any).observedCompany) ?? null,
       city: r.city ?? null,
       state: r.state ?? null,
       industry: r.industry ?? null,
@@ -65,7 +65,7 @@ export async function runPredictiveScan(): Promise<{ signals: RadarSignalLike[] 
       sourceUrl: r.sourceUrl ?? null,
       sourcePublishedAt: null,
       sourceTitle: null,
-      rawPayloadSummary: r.rawNotes ?? null,
+      rawPayloadSummary: ((r as any).rawNotes ?? (r as any).notes) ?? null,
       signalSource: "predictive",
     }));
 

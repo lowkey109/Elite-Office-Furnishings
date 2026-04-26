@@ -53,7 +53,7 @@ interface LayoutData {
   staffCount?: string;
   projectBrief?: string;
   isPaid: boolean;
-  paymentStatus?: string;
+  accessStatus?: string;
   aiRecommendations?: {
     workspaceZones?: WorkspaceZone[];
     productRecommendations?: ProductRec[];
@@ -933,9 +933,9 @@ export default function OfficeWalkthrough() {
           </div>
         )}
 
-        {/* Locked state */}
+        {/* Ready state */}
         {planId && !isLoading && layoutData && !isPaid && (
-          <div className="max-w-3xl mx-auto px-4 py-16" data-testid="section-locked-state">
+          <div className="max-w-3xl mx-auto px-4 py-16" data-testid="section-ready-state">
             <div className="text-center mb-8">
               <div className="w-16 h-16 rounded-2xl bg-[rgba(201,168,76,0.1)] border border-[rgba(201,168,76,0.2)] flex items-center justify-center mx-auto mb-5">
                 <Lock className="w-7 h-7 text-[hsl(43,78%,60%)]" />
@@ -944,8 +944,8 @@ export default function OfficeWalkthrough() {
               <h2 className="text-2xl font-serif font-bold text-white mb-3" data-testid="heading-concept-ready">
                 Your AI workspace concept is ready.
               </h2>
-              <p className="text-white/50 text-base" data-testid="text-unlock-message">
-                Unlock the full layout and furniture plan to access the interactive 3D walkthrough.
+              <p className="text-white/50 text-base" data-testid="text-view-message">
+                View the full layout and furniture plan to access the interactive 3D walkthrough.
               </p>
             </div>
             {/* Blurred 3D preview */}
@@ -956,18 +956,18 @@ export default function OfficeWalkthrough() {
                   <div key={i} className="opacity-40" style={{ background: z.color + "22" }} />
                 ))}
               </div>
-              <div className="absolute inset-0 backdrop-blur-sm flex items-center justify-center">
+              <div className="absolute inset-0 backdrop- flex items-center justify-center">
                 <div className="text-center">
                   <Box className="w-10 h-10 text-[hsl(43,78%,52%)] mx-auto mb-2 opacity-80" />
-                  <p className="text-white/60 text-sm font-medium">3D walkthrough locked</p>
+                  <p className="text-white/60 text-sm font-medium">3D walkthrough ready</p>
                 </div>
               </div>
             </div>
             <div className="bg-[hsl(220,18%,10%)] border border-[rgba(201,168,76,0.2)] rounded-2xl p-6 text-center">
-              <p className="text-white/60 text-sm mb-4">Unlock your full AI workspace plan at:</p>
+              <p className="text-white/60 text-sm mb-4">View your full AI workspace plan at:</p>
               <Link href={`/upload-your-floor-plan?id=${planId}`}>
                 <Button className="bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[hsl(220,20%,6%)] font-bold px-8 py-3 text-base">
-                  Unlock Full Report — $399
+                  View Free 3D Walkthrough
                   <ChevronRight className="w-5 h-5 ml-1" />
                 </Button>
               </Link>
@@ -1043,7 +1043,7 @@ export default function OfficeWalkthrough() {
               {/* Controls overlay */}
               {sceneReady && (
                 <div className="absolute bottom-4 left-4 flex items-center gap-2 flex-wrap">
-                  <div className="bg-[rgba(0,0,0,0.65)] backdrop-blur-sm rounded-xl px-3 py-2 flex items-center gap-3 text-white/50 text-xs">
+                  <div className="bg-[rgba(0,0,0,0.65)] backdrop- rounded-xl px-3 py-2 flex items-center gap-3 text-white/50 text-xs">
                     <span className="flex items-center gap-1"><RotateCcw className="w-3 h-3" /> Drag to rotate</span>
                     <span className="hidden sm:flex items-center gap-1"><ZoomIn className="w-3 h-3" /> Scroll to zoom</span>
                     <span className="hidden sm:flex items-center gap-1"><Move className="w-3 h-3" /> Right-drag pan</span>
@@ -1051,7 +1051,7 @@ export default function OfficeWalkthrough() {
                   </div>
                   <button
                     onClick={handleResetCamera}
-                    className="bg-[rgba(0,0,0,0.65)] backdrop-blur-sm rounded-xl px-3 py-2 text-white/50 text-xs hover:text-white/80 transition-colors"
+                    className="bg-[rgba(0,0,0,0.65)] backdrop- rounded-xl px-3 py-2 text-white/50 text-xs hover:text-white/80 transition-colors"
                     data-testid="button-reset-camera"
                   >
                     Reset view
@@ -1061,7 +1061,7 @@ export default function OfficeWalkthrough() {
 
               {/* Demo badge */}
               {!planId && sceneReady && (
-                <div className="absolute top-4 left-4 bg-[rgba(201,168,76,0.15)] border border-[rgba(201,168,76,0.3)] backdrop-blur-sm rounded-lg px-3 py-1.5">
+                <div className="absolute top-4 left-4 bg-[rgba(201,168,76,0.15)] border border-[rgba(201,168,76,0.3)] backdrop- rounded-lg px-3 py-1.5">
                   <span className="text-[hsl(43,78%,65%)] text-xs font-medium tracking-wider">DEMONSTRATION LAYOUT</span>
                 </div>
               )}
@@ -1217,7 +1217,7 @@ export default function OfficeWalkthrough() {
                       </Button>
                     </Link>
                   </div>
-                  <p className="text-white/25 text-xs mt-3">Free concept · No account required · Full plan unlocks for $399</p>
+                  <p className="text-white/25 text-xs mt-3">Free concept · No account required · Full plan views for Free</p>
                 </div>
                 {/* Right: Funnel steps */}
                 <div className="border-t sm:border-t-0 sm:border-l border-[rgba(201,168,76,0.1)] p-8">
@@ -1226,7 +1226,7 @@ export default function OfficeWalkthrough() {
                     {[
                       { step: "1", title: "Submit your brief", desc: "Tell us your office size, team, style preference and budget — takes 3 minutes." },
                       { step: "2", title: "Get your free AI concept", desc: "Our AI analyses your brief and generates a personalised workspace zone breakdown instantly." },
-                      { step: "3", title: "Unlock the full plan", desc: "Pay $399 to unlock the full visual layout, 3D walkthrough, furniture SKUs and cost estimate." },
+                      { step: "3", title: "View the full plan", desc: "Pay Free to view the full visual layout, 3D walkthrough, furniture SKUs and cost estimate." },
                       { step: "4", title: "Request a quote", desc: "Share your plan with our team and receive a full fit-out proposal tailored to your space." },
                     ].map(({ step, title, desc }) => (
                       <div key={step} className="flex items-start gap-3">

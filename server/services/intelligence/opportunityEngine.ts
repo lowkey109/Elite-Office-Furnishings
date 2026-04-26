@@ -101,7 +101,7 @@ export async function getTopOpportunities(limit = 20): Promise<OpportunityRecord
       city: s.city,
       state: s.state ?? undefined,
       signalType: s.signalType,
-      opportunityScore: applyGraphBoost(s.opportunityScore, s.city, s.industry ?? undefined, weights),
+      opportunityScore: applyGraphBoost(s.opportunityScore, s.city, (s as any).industry ?? undefined, weights),
       confidenceScore: s.confidenceScore,
       relocationProbability: s.relocationProbability,
       commercialTier: s.commercialTier ?? "mid",

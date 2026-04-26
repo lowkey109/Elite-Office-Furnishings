@@ -3,8 +3,9 @@
 import {
   runNexoraCycle,
   isNexoraCycleRunning,
-  type NexoraCycleResult,
-} from "./intelligence/nexoraOrchestrator";
+  } from "./intelligence/nexoraOrchestrator";
+
+type NexoraCycleResult = Awaited<ReturnType<typeof runNexoraCycle>>;
 
 import { runWhatsAppDispatchCycle } from "./intelligence/communications/whatsappScheduler";
 
@@ -34,12 +35,12 @@ async function executeLoopRun(source = "loop"): Promise<NexoraCycleResult> {
   lastRunAt = new Date().toISOString();
 
   // Run Nexora
-  const result = await runNexoraCycle(source, false);
+  const result = await runNexoraCycle(source as any, {});
   lastResult = result;
   runCount += 1;
 
-  if (!result.success) {
-    lastError = result.errors?.[0] ?? result.message ?? "Unknown loop error";
+  if ((result as any).ok === false || (result as any).success === false) {
+    lastError = (result as any).errors?.[0] ?? (result as any).message ?? "Unknown loop error";
   } else {
     lastError = null;
   }
@@ -131,6 +132,14 @@ export function startNexoraLoop(intervalMs?: number): NexoraLoopState {
 
   loopEnabled = true;
   startTimer();
+
+  // Run immediately on start so admin can verify Nexora is actually operating.
+  if (!isNexoraCycleRunning()) {
+    void executeLoopRun("loop-start").catch((e: any) => {
+      lastError = e?.message || "Immediate loop-start run failed";
+      console.error("[NexoraLoop] Immediate run failed:", lastError);
+    });
+  }
 
   console.log(
     `[NexoraLoop] Autonomous loop started — interval ${Math.round(

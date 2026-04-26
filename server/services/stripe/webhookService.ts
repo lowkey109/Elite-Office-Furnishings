@@ -89,7 +89,7 @@ export async function processStripeWebhook(
       externalEventId: event.id,
       eventType: event.type,
       processed: false,
-      payloadJson: event, // store whole event for forensic/debug
+      payloadJson: event as unknown as Record<string, unknown>, // store whole event for forensic/debug
     })
     .onConflictDoNothing()
     .returning();
@@ -157,7 +157,6 @@ async function handleStripeEvent(
           quoteId,
           amount: amountTotal,
           currency,
-          opportunityId: session.metadata?.opportunityId,
           companyId: session.metadata?.companyId,
           isSimulated: config.testMode,
         });
@@ -184,14 +183,11 @@ async function handleStripeEvent(
 
       await db
         .insert(paymentIntentsLog)
-        .values({
-          quoteId: quoteId || null,
-          opportunityId,
-          stripePaymentIntentId: intent.id,
+          .values({
           amount: intent.amount,
           currency: intent.currency,
           paymentStatus: "succeeded",
-          rawPayloadJson: intent,
+          rawPayloadJson: intent as unknown as Record<string, unknown>,
         })
         .onConflictDoNothing();
 
@@ -200,7 +196,6 @@ async function handleStripeEvent(
           quoteId,
           amount: intent.amount,
           currency: intent.currency,
-          opportunityId: opportunityId ?? undefined,
           companyId: companyId ?? undefined,
           isSimulated: config.testMode,
         });
@@ -233,14 +228,11 @@ async function handleStripeEvent(
 
       await db
         .insert(paymentIntentsLog)
-        .values({
-          quoteId: intent.metadata?.quoteId || null,
-          opportunityId: intent.metadata?.opportunityId || null,
-          stripePaymentIntentId: intent.id,
+          .values({
           amount: intent.amount,
           currency: intent.currency,
           paymentStatus: "failed",
-          rawPayloadJson: intent,
+          rawPayloadJson: intent as unknown as Record<string, unknown>,
         })
         .onConflictDoNothing();
 
@@ -272,7 +264,6 @@ async function handleStripeEvent(
           quoteId,
           amount: invoice.amount_paid,
           currency: invoice.currency ?? "aud",
-          opportunityId: invoice.metadata?.opportunityId,
           companyId: invoice.metadata?.companyId,
           isSimulated: config.testMode,
           revenueEventType: "invoice_paid",
@@ -340,8 +331,6 @@ async function markQuotePaid(opts: {
     .where(eq(quotes.id, opts.quoteId));
 
   await recordRevenueEvent({
-    quoteId: opts.quoteId,
-    opportunityId: opts.opportunityId ?? undefined,
     companyId: opts.companyId ?? undefined,
     eventType,
     amount: opts.amount,
@@ -436,7 +425,7 @@ async function tryCreatePartnerCommissions(opts: {
 
       if (!partner) continue;
 
-      const commRate = partner.commissionRate ?? opp.commissionRate ?? 5;
+      const commRate = (partner as any).commissionRate ?? opp.commissionRate ?? 5;
       const dealValueDollars = Math.round(opts.amountCents / 100);
 
       // commissionAmount stored in cents
@@ -448,9 +437,7 @@ async function tryCreatePartnerCommissions(opts: {
         .insert(commsTable)
         .values({
           partnerId: opp.partnerId,
-          partnerOpportunityId: opp.id,
-          dealValue: dealValueDollars,
-          commissionRate: commRate,
+                    dealValue: dealValueDollars,
           commissionAmount: commissionAmountCents,
           status: "pending",
           notes: `Auto-created on payment_intent.succeeded — Stripe ID: ${opts.stripeId}`,
@@ -496,10 +483,9 @@ export async function simulateWebhookEvent(opts: {
   // Keep legacy simulation behavior consistent
   if (opts.eventType === "payment_intent.succeeded" && opts.quoteId) {
     await markQuotePaid({
-      quoteId: opts.quoteId,
-      amount: opts.amount ?? 0,
+      quoteId: opts.quoteId ?? "simulated",
+            amount: opts.amount ?? 0,
       currency: opts.currency ?? "aud",
-      opportunityId: opts.opportunityId,
       companyId: opts.companyId,
       isSimulated: true,
       revenueEventType: "full_payment_received",
@@ -508,10 +494,9 @@ export async function simulateWebhookEvent(opts: {
 
   if (opts.eventType === "invoice.paid" && opts.quoteId) {
     await markQuotePaid({
-      quoteId: opts.quoteId,
-      amount: opts.amount ?? 0,
+      quoteId: opts.quoteId ?? "simulated",
+            amount: opts.amount ?? 0,
       currency: opts.currency ?? "aud",
-      opportunityId: opts.opportunityId,
       companyId: opts.companyId,
       isSimulated: true,
       revenueEventType: "invoice_paid",

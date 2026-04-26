@@ -435,7 +435,6 @@ Keep it concise, commercial, and action-oriented. Use real numbers provided.`;
     content,
     period: week,
     status: "draft",
-    publishedAt: null,
   });
 
   console.log(`[Intelligence] Weekly report generated for ${week}`);

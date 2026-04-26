@@ -53,7 +53,11 @@ async function upsertEdge(
       sourceType, sourceId, sourceName,
       targetType, targetId, targetName,
       edgeType, weight,
-      metadata: typeof metadata === "string" ? { value: metadata } : (metadata as any) ? JSON.stringify(metadata) : null,
+      metadata: metadata && typeof metadata === "object"
+        ? (metadata as Record<string, unknown>)
+        : metadata == null
+          ? null
+          : { value: String(metadata) },
     });
   }
 }

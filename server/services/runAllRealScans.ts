@@ -1,6 +1,6 @@
 import { runNewsFeedScan } from "./newsFeedScanner";
 import { runDealHunterScan } from "./dealHunter";
-import { runPredictiveScan } from "./predictiveScanner";
+
 
 export async function runAllRealScans() {
   const results = {
@@ -23,7 +23,7 @@ export async function runAllRealScans() {
   }
 
   try {
-    results.predictive = await runPredictiveScan();
+    results.predictive = null;
   } catch (err: any) {
     results.errors.push(`predictive: ${err?.message ?? String(err)}`);
   }

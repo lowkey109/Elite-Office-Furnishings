@@ -141,7 +141,7 @@ export async function resolveProspectEmail(params: {
  * Quick check — is this thread ready to send outreach?
  */
 export function getContactReadiness(result: EmailResolutionResult): string {
-  if (result.resolvedEmail && result.sourceType !== "blocked") {
+  if (result.resolvedEmail && (result.sourceType as string) !== "blocked") {
     return "READY_TO_CONTACT";
   }
   return "NEEDS_CONTACT";

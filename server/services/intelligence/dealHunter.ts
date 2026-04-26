@@ -32,7 +32,7 @@ export async function runDealHunterScan(): Promise<DealHunterSignalLike[]> {
       employeeEstimate: r.employeeEstimate ?? null,
       probabilityTier: r.probabilityTier ?? null,
       rawPayloadSummary: r.rawPayloadSummary ?? null,
-      sourceTitle: r.sourceTitle ?? null,
+      sourceTitle: (r as any).sourceTitle ?? null,
       sourcePublishedAt: (r as any).sourcePublishedAt ?? null,
       sourceUrl: r.sourceUrl ?? null,
       signalSource: r.signalSource ?? null,

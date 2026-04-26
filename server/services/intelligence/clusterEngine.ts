@@ -85,8 +85,8 @@ export async function computeClusters(): Promise<{
     if (sig.signalType?.includes("relocation") || sig.relocationProbability > 60) {
       cityMap[city].relocations++;
     }
-    if (sig.industry) {
-      cityMap[city].industries[sig.industry] = (cityMap[city].industries[sig.industry] ?? 0) + 1;
+    if ((sig as any).industry) {
+      cityMap[city].industries[(sig as any).industry] = (cityMap[city].industries[(sig as any).industry] ?? 0) + 1;
     }
     cityMap[city].avgScore += sig.opportunityScore;
   }

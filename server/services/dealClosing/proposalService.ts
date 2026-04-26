@@ -1,3 +1,4 @@
+import { desc } from "drizzle-orm";
 import { db } from "../../db";
 import { quotes, proposals } from "@shared/schema";
 import { eq } from "drizzle-orm";
@@ -6,8 +7,17 @@ interface ProposalContent {
   clientName: string;
   companyName?: string;
   email?: string;
-  validityDays?: number;
-  totalIncGst?: number;
+  staffCount?: number | null;
+  subtotal?: number | null;
+  freightCost?: number | null;
+  installationCost?: number | null;
+  otherCosts?: number | null;
+  discount?: number | null;
+  gst?: number | null;
+  totalIncGst?: number | null;
+  validityDays?: number | null;
+  preparedBy?: string | null;
+  quoteItems?: unknown;
 }
 
 export class ProposalService {
@@ -25,9 +35,6 @@ export class ProposalService {
       clientName: quote.clientName,
       companyName: quote.companyName || undefined,
       email: quote.email,
-      quoteNumber: quote.quoteNumber,
-      projectSummary: quote.projectSummary || undefined,
-      officeSizeSqm: quote.officeSizeSqm || undefined,
       staffCount: quote.staffCount || undefined,
       subtotal: quote.subtotal || 0,
       freightCost: quote.freightCost || 0,
@@ -41,7 +48,7 @@ export class ProposalService {
       quoteItems: quote.quoteItems || undefined,
     };
 
-    const htmlContent = generateHtmlProposal(content);
+    const htmlContent = generateHtmlProposal(content as unknown as Record<string, unknown>);
 
     const [newProposal] = await db.insert(proposals).values({
       quoteId,
@@ -51,7 +58,7 @@ export class ProposalService {
       companyName: content.companyName || undefined,
       email: content.email || undefined,
       htmlContent,
-      contentJson: content,
+      contentJson: content as unknown as Record<string, unknown>,
       status: "draft",
       validUntil: new Date(Date.now() + (content.validityDays || 30) * 24 * 60 * 60 * 1000),
     }).returning();
@@ -87,4 +94,14 @@ export class ProposalService {
 
     return newProposal;
   }
+}
+
+
+function generateHtmlProposal(content: Record<string, unknown>): string {
+  const title = String(content.title ?? content.quoteNumber ?? "Proposal");
+  return `<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>${title}</title></head>
+<body><pre>${JSON.stringify(content, null, 2)}</pre></body>
+</html>`;
 }

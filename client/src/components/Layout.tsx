@@ -240,7 +240,7 @@ function Footer() {
               <span className="text-sm font-serif tracking-[0.3em] gold-text uppercase -mt-1">DESK</span>
             </div>
             <p className="text-sm text-white/50 leading-relaxed mb-6">
-              Australia's premier commercial office furniture supplier. ISO 9001 certified with a 6-year manufacturer's warranty.
+              Execution and financial control for workspace projects — connecting procurement, suppliers, delivery and finance so cost stays visible while projects are live.
             </p>
             <div className="flex gap-3">
               <a

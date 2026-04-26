@@ -41,13 +41,13 @@ export async function calculatePartnerScore(partnerId: string): Promise<PartnerS
   const avgDealValue = wonCount > 0 ? totalRevenue / wonCount : 0;
 
   // Recency — days since last referral
-  const lastReferral = referralRows.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+  const lastReferral = referralRows.sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime())[0];
   const recencyDays = lastReferral
-    ? Math.floor((Date.now() - new Date(lastReferral.createdAt).getTime()) / (1000 * 60 * 60 * 24))
+    ? Math.floor((Date.now() - new Date(lastReferral.createdAt ?? 0).getTime()) / (1000 * 60 * 60 * 24))
     : 999;
 
   // Consistency bonus — referrals spread over multiple months
-  const months = new Set(referralRows.map(r => new Date(r.createdAt).toISOString().slice(0, 7)));
+  const months = new Set(referralRows.map(r => new Date(r.createdAt ?? 0).toISOString().slice(0, 7)));
   const consistencyBonus = Math.min(months.size * 5, 25);
 
   // Score formula (0-100)
@@ -138,8 +138,8 @@ export async function detectNudgeTargets(): Promise<{ nudge48h: any[]; reengagem
   const referralsByPartner = new Map<string, Date>();
   for (const r of allReferrals) {
     const existing = referralsByPartner.get(r.partnerId!);
-    if (!existing || new Date(r.createdAt) > existing) {
-      referralsByPartner.set(r.partnerId!, new Date(r.createdAt));
+    if (!existing || new Date(r.createdAt ?? 0) > existing) {
+      referralsByPartner.set(r.partnerId!, new Date(r.createdAt ?? 0));
     }
   }
 

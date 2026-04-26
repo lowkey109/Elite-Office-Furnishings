@@ -183,7 +183,7 @@ export async function syncCompanyIntelligence(): Promise<{ synced: number; creat
     }
 
     // Compute stacked confidence
-    const { confidenceScore, priorityLevel, moveProbability, reasoningSummary } = computeStackedConfidence(signalTimeline);
+    const { confidenceScore, priorityLevel, moveProbability, reasoningSummary } = computeStackedConfidence(signalTimeline.filter((s) => s.date != null).map((s) => ({ ...s, date: s.date as Date })));
 
     const uniqueTypes = [...new Set(signalTimeline.map(s => s.type))];
     const latestSignalDates = signalTimeline.filter(s => s.date != null).map(s => new Date(s.date as any)).filter(d => !isNaN(d.getTime()));
