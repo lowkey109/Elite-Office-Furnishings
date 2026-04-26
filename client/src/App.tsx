@@ -95,6 +95,8 @@ import PhantomXRiskDisclaimer from "@/pages/legal/PhantomXRiskDisclaimer";
 import AdminCustomers from "@/pages/AdminCustomers";
 import AdminSubscriptions from "@/pages/AdminSubscriptions";
 import AdminClientProjects from "@/pages/AdminClientProjects";
+import AdminPropertyListings from "@/pages/AdminPropertyListings";
+import ClientPropertyListings from "@/pages/ClientPropertyListings";
 
 function AdminRoutes() {
   return (
@@ -148,6 +150,7 @@ function AdminRoutes() {
         <Route path="/admin/dev-studio" component={AdminDevStudio} />
         <Route path="/admin/prediction-markets" component={AdminPredictionMarkets} />
         <Route path="/admin/property-intelligence" component={AdminPropertyIntelligence} />
+        <Route path="/admin/property-listings" component={AdminPropertyListings} />
         <Route path="/admin/customers" component={AdminCustomers} />
         <Route path="/admin/subscriptions" component={AdminSubscriptions} />
         <Route path="/admin/client-projects" component={AdminClientProjects} />
@@ -245,6 +248,7 @@ function Router() {
       <Route path="/client-dashboard" component={ClientDashboard} />
       <Route path="/client/subscription" component={Subscriptions} />
       <Route path="/client/property-intelligence" component={ClientPropertyIntelligence} />
+      <Route path="/client/property-listings" component={ClientPropertyListings} />
       <Route path="/submit-deal" component={SubmitDeal} />
       <Route path="/trade-customers-portal" component={TradeCustomersPortal} />
       <Route component={NotFound} />

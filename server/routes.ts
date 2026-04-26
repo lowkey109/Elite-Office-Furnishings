@@ -235,6 +235,54 @@ function filterSafePendingOutreach(mapped: any[]) {
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
 
   // CLIENT_PORTAL_PRODUCTION_API_ROUTES
+
+  // PROPERTY_LISTINGS_API_ROUTES
+  app.get("/api/admin/property-listings", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const { listAdminPropertyListings } = await import("./services/propertyIntelligence/propertyListingsService");
+    return res.json(await listAdminPropertyListings(req.query || {}));
+  });
+
+  app.post("/api/admin/property-listings/manual", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const { createManualPropertyListing } = await import("./services/propertyIntelligence/propertyListingsService");
+    return res.json(await createManualPropertyListing(req.body || {}));
+  });
+
+  app.patch("/api/admin/property-listings/:id", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const { updatePropertyListing } = await import("./services/propertyIntelligence/propertyListingsService");
+    return res.json(await updatePropertyListing(req.params.id, req.body || {}));
+  });
+
+  app.post("/api/admin/property-listings/import-csv", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const { importPropertyListingsCsv } = await import("./services/propertyIntelligence/propertyListingsService");
+    return res.json(await importPropertyListingsCsv(req.body || {}));
+  });
+
+  app.post("/api/admin/property-listings/seed-samples", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const { seedSamplePropertyListings } = await import("./services/propertyIntelligence/propertyListingsService");
+    return res.json(await seedSamplePropertyListings());
+  });
+
+  app.get("/api/client/property-listings", async (req: any, res: any) => {
+    try {
+      const { requireClient } = await import("./services/clientPortal/clientPortalService");
+      const { listClientPropertyListings } = await import("./services/propertyIntelligence/propertyListingsService");
+      await requireClient(clientTokenFromReq(req));
+      return res.json(await listClientPropertyListings(req.query || {}));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
   const clientTokenFromReq = (req: any) => {
     const auth = String(req?.headers?.authorization || "");
     if (auth.toLowerCase().startsWith("bearer ")) return auth.slice(7).trim();

@@ -20,6 +20,7 @@ export default function ClientDashboard() {
         <Card icon={<PackageSearch />} title="Procurement" text="Submit product or supplier comparison requests." />
         <Card icon={<CreditCard />} title="Finance Options" text="Explore ways to reduce large upfront costs." />
         <Link href="/client/property-intelligence"><span><Card icon={<Map />} title="LeaseHawk" text="View subscription-safe property intelligence." /></span></Link>
+        <Link href="/client/property-listings"><span><Card icon={<Building2 />} title="Property Listings" text="View houses for sale, leases and partner listings." /></span></Link>
         <Link href="/subscriptions"><span><Card icon={<TrendingUp />} title="Subscription" text="Manage plans, trials and add-ons." /></span></Link>
         <Card icon={<Headphones />} title="Support" text="Book a workspace strategy call." />
       </div>

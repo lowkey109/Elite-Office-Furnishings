@@ -10,6 +10,7 @@ import {
   FileText,
   GraduationCap,
   Handshake,
+  Home,
   Layout,
   LayoutDashboard,
   LogOut,
@@ -72,6 +73,7 @@ const NAV: NavSection[] = [
     items: [
       { label: "Move Radar",          href: "/admin/office-move-radar",      icon: Radar },
       { label: "Property Intelligence", href: "/admin/property-intelligence", icon: Map },
+      { label: "Property Listings", href: "/admin/property-listings", icon: Home },
       { label: "Customers", href: "/admin/customers", icon: Users },
       { label: "Subscriptions", href: "/admin/subscriptions", icon: CreditCard },
       { label: "Client Projects", href: "/admin/client-projects", icon: Building2 },
