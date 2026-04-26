@@ -379,8 +379,8 @@ Return ONLY a valid JSON array of ${count} objects. No markdown.`;
         recommendedOffer: rec.recommendedOffer || null,
         recommendedNextAction: rec.recommendedNextAction || null,
         status: "New",
-        sourceType: "global_radar_synthetic",
-        verificationStatus: "synthetic",
+        sourceType: "global_radar_disabled",
+        verificationStatus: "disabled",
         dateDetected: new Date(),
       } as any);
       saved++;

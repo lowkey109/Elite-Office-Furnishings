@@ -101,13 +101,13 @@ export default function AdminLeadEngine() {
     queryFn: () => fetch(`/api/admin/lead-engine/leads${sourceFilter ? `?source=${sourceFilter}` : ""}`).then(r => r.json()),
   });
 
-  const seedMut = useMutation({
+  const realIngestionOnlyMut = useMutation({
     mutationFn: () => apiRequest("POST", "/api/admin/lead-engine/seed"),
     onSuccess: (d: any) => {
       toast({ title: `✓ Seeded ${d.added} AU leads`, description: `${d.skipped} duplicates skipped` });
       qc.invalidateQueries({ queryKey: ["/api/admin/lead-engine"] });
     },
-    onError: (e: any) => toast({ title: "Seed failed", description: e.message, variant: "destructive" }),
+    onError: (e: any) => toast({ title: "Real ingestion action unavailable", description: e.message, variant: "destructive" }),
   });
 
   const linkedinMut = useMutation({
@@ -200,13 +200,13 @@ export default function AdminLeadEngine() {
       {/* Action buttons */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <button
-          onClick={() => seedMut.mutate()}
-          disabled={seedMut.isPending}
+          onClick={() => realIngestionOnlyMut.mutate()}
+          disabled={realIngestionOnlyMut.isPending}
           className="flex flex-col items-center gap-1.5 bg-[rgba(201,168,76,0.08)] hover:bg-[rgba(201,168,76,0.14)] border border-[rgba(201,168,76,0.2)] rounded-xl px-4 py-3 text-[hsl(43,78%,52%)] transition-colors disabled:opacity-50"
-          data-testid="btn-seed-leads"
+          data-testid="btn-real-ingestion-only"
         >
           <Globe className="w-4 h-4" />
-          <span className="text-xs font-semibold">{seedMut.isPending ? "Seeding..." : "Seed 25 AU Leads"}</span>
+          <span className="text-xs font-semibold">{realIngestionOnlyMut.isPending ? "Checking..." : "Real Ingestion Only"}</span>
         </button>
         <button
           onClick={() => linkedinMut.mutate()}
@@ -397,7 +397,7 @@ export default function AdminLeadEngine() {
         ) : leads.length === 0 ? (
           <div className="p-8 text-center">
             <Users className="w-8 h-8 text-white/20 mx-auto mb-2" />
-            <p className="text-white/30 text-sm">No leads yet — use the buttons above to seed or scrape</p>
+            <p className="text-white/30 text-sm">No leads yet — use real scraping, import, or signal ingestion</p>
           </div>
         ) : (
           <div className="overflow-x-auto">

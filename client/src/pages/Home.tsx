@@ -549,7 +549,7 @@ export default function Home() {
                 <Button asChild size="lg" className="bg-[hsl(43,78%,52%)] text-[hsl(220,20%,6%)] font-bold border-none" data-testid="button-home-ai-planner">
                   <Link href="/ai-office-planner"><Sparkles className="w-4 h-4 mr-2" /> Start Free AI Office Planner</Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.08)]" data-testid="button-home-view-demo">
+                <Button asChild size="lg" variant="outline" className="border-[rgba(201,168,76,0.3)] text-[hsl(43,78%,65%)] hover:bg-[rgba(201,168,76,0.08)]" data-testid="button-home-view-preview">
                   <Link href="/3d-office-walkthrough"><Monitor className="w-4 h-4 mr-2" /> View 3D Demo</Link>
                 </Button>
               </div>

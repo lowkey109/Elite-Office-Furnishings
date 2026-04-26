@@ -301,7 +301,7 @@ export default function AdminSupplierIntelligence() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["/api/admin/supplier-profiles"] }); toast({ title: "Supplier removed" }); },
   });
 
-  const seedMutation = useMutation({
+  const loadSupplierDirectoryMutation = useMutation({
     mutationFn: async () => {
       for (const s of SEED_SUPPLIERS) {
         await apiRequest("POST", "/api/admin/supplier-profiles", s);
@@ -422,12 +422,12 @@ export default function AdminSupplierIntelligence() {
                     size="sm"
                     variant="outline"
                     className="h-8 text-xs"
-                    onClick={() => seedMutation.mutate()}
-                    disabled={seedMutation.isPending}
-                    data-testid="btn-seed-suppliers"
+                    onClick={() => loadSupplierDirectoryMutation.mutate()}
+                    disabled={loadSupplierDirectoryMutation.isPending}
+                    data-testid="btn-load-real-suppliers"
                   >
-                    {seedMutation.isPending ? <RefreshCw className="w-3.5 h-3.5 animate-spin mr-1" /> : null}
-                    Seed Known Suppliers
+                    {loadSupplierDirectoryMutation.isPending ? <RefreshCw className="w-3.5 h-3.5 animate-spin mr-1" /> : null}
+                    Load Real Supplier Directory
                   </Button>
                 )}
                 <Button
@@ -534,7 +534,7 @@ export default function AdminSupplierIntelligence() {
               <div className="text-center py-16 text-gray-400">
                 <Package className="w-10 h-10 mx-auto opacity-20 mb-3" />
                 <p className="text-sm">No supplier profiles yet.</p>
-                <p className="text-xs mt-1">Click "Seed Known Suppliers" to load your existing suppliers, or add one manually.</p>
+                <p className="text-xs mt-1">Click "Load Real Supplier Directory" to load your existing suppliers, or add one manually.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

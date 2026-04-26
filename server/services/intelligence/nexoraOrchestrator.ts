@@ -442,7 +442,7 @@ async function collectSignals(
   // Run all scanners in parallel.
   // NOTE: news/job/predictive scanners save to DB and return {saved, processed}.
   //       DealHunter saves to DB and returns {signals: DealHunterSignal[], ...}.
-  //       OfficeMovRadar is synthetic and returns an array directly.
+  //       Synthetic OfficeMovRadar output is disabled in production.
   // We run the scanners first to ensure fresh data is in DB, then query.
   const allowSynthetic = scannersEnabled && process.env.ALLOW_SYNTHETIC_INTELLIGENCE === "true";
   const [officeRadarResult, , , , dealHunterResult] = await Promise.all([
@@ -475,10 +475,8 @@ async function collectSignals(
       : Promise.resolve({ signals: [] as DealHunterSignalLike[], created: 0, deduplicated: 0 }),
   ]);
 
-  // OfficeMovRadar returns an array of OfficeMovRadar[] (synthetic AI data)
-  const syntheticRadar: RadarSignalLike[] = Array.isArray(officeRadarResult)
-    ? (officeRadarResult as RadarSignalLike[])
-    : [];
+  // Office Move Radar scan is real-data only. Synthetic scanner output is ignored.
+  const radarFromCurrentRun: RadarSignalLike[] = [];
 
   // DealHunter returns { signals: DealHunterSignal[] }
   const dealSignalsFromRun: DealHunterSignalLike[] =
@@ -511,7 +509,7 @@ async function collectSignals(
     dealSignals.push(s);
   }
 
-  // Also query recent office move radar records from DB (non-synthetic if any)
+  // Also query recent office move radar records from DB (verified real-data if any)
   let dbRadarSignals: RadarSignalLike[] = [];
   try {
     // DB stores status as "New" (capital N), not "new"
@@ -523,7 +521,7 @@ async function collectSignals(
     console.warn(`[Nexora] DB radar signal query failed: ${(err as Error)?.message}`);
   }
 
-  const radarSignals: RadarSignalLike[] = [...syntheticRadar, ...dbRadarSignals];
+  const radarSignals: RadarSignalLike[] = dbRadarSignals;
 
   console.log(`[Nexora] collectSignals complete: ${radarSignals.length} radar + ${dealSignals.length} deal signals`);
 

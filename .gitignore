@@ -33,3 +33,19 @@ after-routes-dedupe.log
 # local backup files
 *.bak
 *.pre-routes-fix.bak
+
+# TCD cleanup: do not commit local backups, audits, or private uploads
+*.before-*.ts
+*.before-*.tsx
+*.backup.ts
+*.backup.tsx
+*.final-working.tsx
+*.finished.tsx
+*.locked-backup.tsx
+*Recovery*.tsx
+*Safe.tsx
+*-audit.txt
+audit-ai-admin-output.txt
+live-ai-status-output.txt
+site-audit-report.txt
+uploads/planning-requests/

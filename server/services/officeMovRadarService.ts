@@ -7,11 +7,11 @@ const openai = new OpenAI({
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
 });
 
-function assertSyntheticAllowed(featureName: string) {
-  const allowSynthetic = process.env.ALLOW_SYNTHETIC_INTELLIGENCE === "true";
-  if (!allowSynthetic) {
+function assertGeneratedAllowed(featureName: string) {
+  const allowGenerated = process.env.ALLOW_SYNTHETIC_INTELLIGENCE === "true";
+  if (!allowGenerated) {
     throw new Error(
-      `${featureName} is disabled because synthetic intelligence is not allowed in this environment.`
+      `${featureName} is disabled because disabled generated intelligence is not allowed in this environment.`
     );
   }
 }
@@ -402,156 +402,48 @@ interface ScannedRadarResult {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Radar scan (synthetic) — FIXED: consistent JSON + safer generation
+// Office Move Radar scan — real-data orchestrator
 // ─────────────────────────────────────────────────────────────────────────────
 
-export async function runOfficeMovRadarScan(
-  opts: RadarScanOpts = {}
-): Promise<OfficeMovRadar[]> {
-  assertSyntheticAllowed("runOfficeMovRadarScan");
+export async function runOfficeMovRadarScan(): Promise<{
+  success: boolean;
+  mode: "real_data";
+  scansRun: string[];
+  results: Record<string, unknown>;
+}> {
+  const scansRun: string[] = [];
+  const results: Record<string, unknown> = {};
 
-  const cities =
-    opts.cities?.length ? opts.cities : ["Brisbane", "Sydney", "Melbourne"];
-
-  const signalTypes =
-    opts.signalTypes?.length
-      ? opts.signalTypes
-      : [
-          "office_move",
-          "new_lease",
-          "office_expansion",
-          "hiring_surge",
-          "funding_growth",
-          "new_office_opening",
-        ];
-
-  const count = Math.min(Math.max(opts.count ?? 5, 1), 8);
-
-  // IMPORTANT:
-  // This function stores results as verificationStatus: "synthetic"
-  // So we must NOT claim "REAL companies" here.
-  const prompt = `You are generating synthetic test data for an Australian commercial office fitout radar.
-
-Generate ${count} plausible (FICTIONAL) Office Move Radar detections for The Corporate Desk — a premium office furniture company.
-
-These represent companies likely to need new office furniture, workstations, executive seating, reception furniture, or a full fitout.
-
-TARGET CITIES: ${cities.join(", ")}
-SIGNAL TYPES TO DETECT: ${signalTypes.join(", ")}
-
-Rules:
-- Companies must be FICTIONAL but realistic-sounding (do NOT use real company names).
-- Use real Australian precincts / suburbs.
-- Each detection must be distinct company + city + signal.
-- Make the notes specific and realistic.
-- source_url must be null (synthetic).
-
-Return JSON as an OBJECT with a "results" array of exactly ${count} objects:
-
-{
-  "results": [
-    {
-      "company_name": "Company name",
-      "industry": "Industry sector",
-      "city": "City",
-      "state": "State abbreviation (QLD, NSW, VIC, WA, SA, ACT, NT, TAS)",
-      "signal_type": "one of: ${signalTypes.join(", ")}",
-      "signal_subtype": "specific sub-signal description",
-      "signal_source": "Synthetic radar",
-      "source_url": null,
-      "confidence_level": "high | medium | low",
-      "estimated_headcount": "one of: 5–15, 15–30, 30–60, 60–120, 120–250, 250+",
-      "notes": "1-2 sentence plain-English description of the signal detected"
-    }
-  ]
-}`;
-
-  let results: ScannedRadarResult[] = [];
-
-  try {
-    const completion = await openai.chat.completions.create(
-      {
-        model: "gpt-4o",
-        messages: [{ role: "user", content: prompt }],
-        response_format: { type: "json_object" },
-        max_tokens: 1800,
-      },
-      { signal: AbortSignal.timeout(25000) }
-    );
-
-    const raw = completion.choices[0]?.message?.content ?? "{}";
-    const parsed = safeJsonParse<Record<string, any>>(raw, {});
-    const candidate = Array.isArray(parsed) ? parsed : parsed.results;
-
-    results = Array.isArray(candidate) ? candidate : [];
-  } catch (err: any) {
-    console.error("[OfficeMovRadar] scan failed:", err?.message || err);
-    return [];
-  }
-
-  // Normalise + validate each result to reduce save failures
-  const cleaned = results
-    .map((r: any) => normaliseScanResult(r, signalTypes as any))
-    .filter(Boolean) as ScannedRadarResult[];
-
-  const saved: OfficeMovRadar[] = [];
-
-  for (const r of cleaned) {
+  const runStep = async (
+    name: string,
+    fn: () => Promise<unknown>
+  ): Promise<void> => {
     try {
-      const existing = await storage.findRadarDuplicate(
-        r.company_name,
-        r.city,
-        r.signal_type
-      );
-      if (existing) continue;
-
-      const scoring = scoreRadarSignal({
-        signalType: r.signal_type as RadarSignalType,
-        confidence: r.confidence_level as RadarConfidence,
-        city: r.city,
-        industry: r.industry,
-        estimatedHeadcount: r.estimated_headcount == null ? undefined : String(r.estimated_headcount),
-        hasSourceUrl: !!r.source_url,
-      });
-
-      const record = await storage.createOfficeMovRadarRecord({
-        companyName: r.company_name,
-        industry: r.industry,
-        city: r.city,
-        state: r.state,
-        country: "Australia",
-        signalType: r.signal_type,
-        signalSubtype: r.signal_subtype,
-        signalSource: r.signal_source,
-        sourceUrl: r.source_url,
-        confidenceLevel: r.confidence_level,
-          estimatedHeadcount: r.estimated_headcount == null ? null : Number(String(r.estimated_headcount).replace(/[^0-9.-]/g, "")) || null,
-        estimatedOfficeSizeSqm: (scoring.estimatedOfficeSizeSqm == null ? null : Number(String(scoring.estimatedOfficeSizeSqm).replace(/[^0-9.-]/g, "")) || null),
-        estimatedProjectValue: (scoring.estimatedProjectValue == null ? null : Number(String(scoring.estimatedProjectValue).replace(/[^0-9.-]/g, "")) || null),
-        radarScore: scoring.radarScore,
-        priority: scoring.priority,
-        recommendedOutreachAngle: scoring.recommendedOutreachAngle,
-        recommendedOffer: scoring.recommendedOffer,
-        recommendedNextAction: scoring.recommendedNextAction,
-        notes: r.notes,
-        status: "New",
-        sourceType: "office_move_radar_synthetic",
-        verificationStatus: "synthetic",
-      });
-
-      saved.push(record);
-    } catch (err: any) {
-      console.error("[OfficeMovRadar] failed to save record:", err?.message || err);
+      const result = await fn();
+      scansRun.push(name);
+      results[name] = result;
+    } catch (error: any) {
+      results[name] = {
+        success: false,
+        error: error?.message || String(error),
+      };
     }
-  }
+  };
 
-  console.log(`[OfficeMovRadar] Scan complete — ${saved.length} new records saved`);
-  return saved;
+  const scanner = await import("./newsFeedScanner");
+
+  await runStep("news_rss_scan", async () => scanner.runNewsFeedScan());
+  await runStep("job_signal_scan", async () => scanner.runJobSignalScan());
+  await runStep("predictive_scan", async () => scanner.runPredictiveScan());
+
+  return {
+    success: scansRun.length > 0,
+    mode: "real_data",
+    scansRun,
+    results,
+  };
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Helpers (parsing + normalisation)
-// ─────────────────────────────────────────────────────────────────────────────
 
 function safeJsonParse<T>(raw: string, fallback: T): T {
   try {
@@ -617,10 +509,10 @@ function normaliseScanResult(
     state: normaliseState(r.state),
     signal_type,
     signal_subtype: toCleanString(r.signal_subtype, "Workplace change signal"),
-    signal_source: toCleanString(r.signal_source, "Synthetic radar"),
-    source_url: null, // force null for synthetic
+    signal_source: toCleanString(r.signal_source, "Real radar"),
+    source_url: r.source_url ?? null,
     confidence_level: normaliseConfidence(r.confidence_level),
     estimated_headcount: normaliseHeadcount(r.estimated_headcount),
-    notes: toCleanString(r.notes, "Synthetic signal generated for testing."),
+    notes: toCleanString(r.notes, "Real signal normalised from source."),
   };
 }

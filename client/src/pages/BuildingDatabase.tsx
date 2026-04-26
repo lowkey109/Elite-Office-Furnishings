@@ -43,14 +43,14 @@ export default function BuildingDatabase() {
     queryKey: ["/api/admin/leases"],
   });
 
-  const seedMutation = useMutation({
+  const importRealBuildingMutation = useMutation({
     mutationFn: () => fetch("/api/admin/buildings/seed", { method: "POST" }).then(r => r.json()),
     onSuccess: (d) => {
       toast({ title: "Buildings Seeded", description: `${d.inserted} new buildings added, ${d.skipped} already present.` });
       qc.invalidateQueries({ queryKey: ["/api/admin/buildings"] });
       qc.invalidateQueries({ queryKey: ["/api/admin/buildings/stats"] });
     },
-    onError: () => toast({ title: "Seed failed", variant: "destructive" }),
+    onError: () => toast({ title: "Import failed", variant: "destructive" }),
   });
 
   const addBuildingMutation = useMutation({
@@ -97,8 +97,8 @@ export default function BuildingDatabase() {
           <h1 className="text-white font-bold text-lg">Building + Tenant Database</h1>
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <button onClick={() => seedMutation.mutate()} disabled={seedMutation.isPending} className="flex items-center gap-2 bg-[rgba(180,100,255,0.08)] hover:bg-[rgba(180,100,255,0.14)] border border-[rgba(180,100,255,0.2)] rounded-xl px-3 py-2 text-purple-400 text-xs font-semibold transition-colors disabled:opacity-50" data-testid="btn-seed-au-buildings">
-            {seedMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Layers className="w-3.5 h-3.5" />} Seed AU Buildings
+          <button onClick={() => importRealBuildingMutation.mutate()} disabled={importRealBuildingMutation.isPending} className="flex items-center gap-2 bg-[rgba(180,100,255,0.08)] hover:bg-[rgba(180,100,255,0.14)] border border-[rgba(180,100,255,0.2)] rounded-xl px-3 py-2 text-purple-400 text-xs font-semibold transition-colors disabled:opacity-50" data-testid="btn-import-real-au-buildings">
+            {importRealBuildingMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Layers className="w-3.5 h-3.5" />} Import Real Buildings
           </button>
           <button onClick={() => setShowAddBuilding(true)} className="flex items-center gap-2 bg-[rgba(100,220,150,0.08)] hover:bg-[rgba(100,220,150,0.14)] border border-[rgba(100,220,150,0.2)] rounded-xl px-3 py-2 text-green-400 text-xs font-semibold transition-colors" data-testid="btn-add-building">
             <Plus className="w-3.5 h-3.5" /> Add Building
@@ -188,7 +188,7 @@ export default function BuildingDatabase() {
               <div className="bg-[hsl(220,18%,10%)] border border-[rgba(255,255,255,0.06)] rounded-2xl py-16 text-center">
                 <Database className="w-8 h-8 text-white/20 mx-auto mb-3" />
                 <p className="text-white/40 text-sm">No buildings in database</p>
-                <button onClick={() => seedMutation.mutate()} className="mt-4 text-purple-400 text-xs underline" data-testid="btn-seed-empty-state">Seed Australian buildings</button>
+                <button onClick={() => importRealBuildingMutation.mutate()} className="mt-4 text-purple-400 text-xs underline" data-testid="btn-import-real-empty-state">Import real Australian buildings</button>
               </div>
             ) : (
               <div className="space-y-2">

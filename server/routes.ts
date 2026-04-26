@@ -9799,14 +9799,14 @@ Rules:
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
-  // POST /api/admin/lead-engine/seed — seed 25 AU leads
+  // POST /api/admin/lead-engine/seed — disabled; use real ingestion
   app.post("/api/admin/lead-engine/seed", async (_req, res) => {
-    try {
-      const { seedInitialLeads } = await import("./services/leadEngine");
-      const result = await seedInitialLeads();
-      res.json(result);
-    } catch (err: any) { res.status(500).json({ error: err.message }); }
+    return res.status(410).json({
+      error: "Disabled",
+      message: "Seed lead endpoint is disabled. Use real lead ingestion, scraping, or Nexora signal ingestion instead.",
+    });
   });
+
 
   // POST /api/admin/lead-engine/scrape/linkedin
   app.post("/api/admin/lead-engine/scrape/linkedin", async (_req, res) => {
@@ -10372,13 +10372,14 @@ Rules:
     }
   });
 
-  // POST /api/admin/seed-real-leads — deprecated, use Nexora signal ingestion instead
+  // POST /api/admin/seed-real-leads — disabled; use Nexora signal ingestion instead
   app.post("/api/admin/seed-real-leads", async (_req, res) => {
-    res.status(410).json({
-      success: false,
-      message: "Real lead seeding has been superseded by the Nexora autonomous signal pipeline. Use POST /api/nexora/run to trigger a fresh scan.",
+    return res.status(410).json({
+      error: "Disabled",
+      message: "Seed lead endpoint is disabled. Use real signal ingestion instead.",
     });
   });
+
 
   // ── AI Product Command Centre Routes ─────────────────────────────────────────
 

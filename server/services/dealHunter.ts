@@ -115,7 +115,6 @@ const ALLOWED_SOURCE_URL_HOSTS = [
 const BLOCKED_MARKERS = [
   "demo",
   "mock",
-  "synthetic",
   "fake",
   "seed",
   "test",

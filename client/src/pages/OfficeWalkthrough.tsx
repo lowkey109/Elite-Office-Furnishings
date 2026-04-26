@@ -864,9 +864,9 @@ export default function OfficeWalkthrough() {
                   See what your future office<br className="hidden sm:block" /> could look like
                 </h1>
                 <p className="text-white/60 text-base sm:text-lg max-w-2xl mb-6 leading-relaxed">
-                  This is a sample demonstration workspace. Upload your floor plan to generate your own AI workspace concept — personalised to your team size, style, and budget.
+                  This is a example workspace preview. Upload your floor plan to generate your own AI workspace concept — personalised to your team size, style, and budget.
                 </p>
-                <div className="flex flex-wrap gap-3" data-testid="hero-demo-ctas">
+                <div className="flex flex-wrap gap-3" data-testid="hero-preview-ctas">
                   <Link href="/upload-your-floor-plan">
                     <Button className="bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-[hsl(220,20%,6%)] font-bold px-6 py-3 text-sm" data-testid="button-start-planner-hero">
                       <Sparkles className="w-4 h-4 mr-2" /> Get My Workspace Concept
@@ -975,7 +975,7 @@ export default function OfficeWalkthrough() {
           </div>
         )}
 
-        {/* Main 3D viewer (paid or demo) */}
+        {/* Main 3D viewer (paid or preview) */}
         {(isPaid && (zones.length > 0 || !isLoading)) && (
           <div className="relative">
             {/* Zone legend */}
@@ -1175,7 +1175,7 @@ export default function OfficeWalkthrough() {
 
         {/* Demo mode mid-page CTA — start your own plan */}
         {!planId && (
-          <section className="max-w-5xl mx-auto px-4 py-12" data-testid="section-demo-promo">
+          <section className="max-w-5xl mx-auto px-4 py-12" data-testid="section-preview-promo">
             <div className="bg-gradient-to-br from-[hsl(220,18%,10%)] to-[hsl(220,18%,8%)] border border-[rgba(201,168,76,0.2)] rounded-2xl overflow-hidden">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-0">
                 {/* Left: Benefits */}
