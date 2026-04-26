@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "mode": "paper",
+  "liveTradingEnabled": false,
+  "running": false,
+  "startingBalance": 10000,
+  "balance": 10000,
+  "equity": 10000,
+  "maxOpenPositions": 3,
+  "riskPerTradePct": 1,
+  "positions": [],
+  "outcomes": [],
+  "learning": {
+    "momentum_breakout": {
+      "name": "momentum_breakout",
+      "score": 50,
+      "wins": 0,
+      "losses": 0,
+      "trades": 0,
+      "pnl": 0
+    },
+    "mean_reversion": {
+      "name": "mean_reversion",
+      "score": 50,
+      "wins": 0,
+      "losses": 0,
+      "trades": 0,
+      "pnl": 0
+    },
+    "trend_follow": {
+      "name": "trend_follow",
+      "score": 50,
+      "wins": 0,
+      "losses": 0,
+      "trades": 0,
+      "pnl": 0
+    },
+    "volatility_squeeze": {
+      "name": "volatility_squeeze",
+      "score": 50,
+      "wins": 0,
+      "losses": 0,
+      "trades": 0,
+      "pnl": 0
+    },
+    "regime_shift": {
+      "name": "regime_shift",
+      "score": 50,
+      "wins": 0,
+      "losses": 0,
+      "trades": 0,
+      "pnl": 0
+    }
+  },
+  "tickCount": 0
+}

@@ -143,6 +143,7 @@ export async function getSafeTradingMonitorData() {
   const generatedAt = new Date().toISOString();
 
   const [
+    paperLearner,
     marketData,
     openPositions,
     recentOutcomes,
@@ -155,6 +156,9 @@ export async function getSafeTradingMonitorData() {
     guardrails,
     tradingIndex,
   ] = await Promise.all([
+    callFirstExport("./phantomXPaperLearner", [
+      "getPhantomXPaperState",
+    ], {}, "phantomX.paperLearner"),
     callFirstExport("./mexcMarketData", [
       "getMarketDataState",
       "getMexcMarketSnapshot",
@@ -235,6 +239,7 @@ export async function getSafeTradingMonitorData() {
   const performance = summarisePaperEngine(openPositions.data, recentOutcomes.data);
 
   const sections = {
+    paperLearner,
     marketData,
     openPositions,
     recentOutcomes,
@@ -253,6 +258,7 @@ export async function getSafeTradingMonitorData() {
   const timedOutSections = sectionValues.filter((section) => section.timedOut);
 
   const realFeedHealthy =
+    paperLearner.ok ||
     marketData.ok ||
     openPositions.ok ||
     recentOutcomes.ok ||
@@ -285,7 +291,7 @@ export async function getSafeTradingMonitorData() {
     },
 
     engine: {
-      running: Boolean((paperState.data as any)?.running ?? (walletMonitor.data as any)?.running ?? false),
+      running: Boolean((paperLearner.data as any)?.running ?? (paperState.data as any)?.running ?? (walletMonitor.data as any)?.running ?? false),
       paperMode: true,
       liveTradingEnabled: false,
       approvalRequired: false,
@@ -298,9 +304,18 @@ export async function getSafeTradingMonitorData() {
       },
     },
 
-    performance,
-    open_positions: openPositionsData,
-    recent_outcomes: recentOutcomesData,
+    performance: {
+      ...performance,
+      paperBalance: (paperLearner.data as any)?.balance,
+      paperEquity: (paperLearner.data as any)?.equity,
+      learnerTickCount: (paperLearner.data as any)?.tickCount,
+    },
+    open_positions: Array.isArray((paperLearner.data as any)?.positions)
+      ? (paperLearner.data as any).positions.filter((p: any) => p.status === "open")
+      : openPositionsData,
+    recent_outcomes: Array.isArray((paperLearner.data as any)?.outcomes)
+      ? (paperLearner.data as any).outcomes
+      : recentOutcomesData,
     decisions: pickArray((tradingIndex.data as any)?.decisions ?? (tradingIndex.data as any)?.recent_decisions),
     recent_decisions: pickArray((tradingIndex.data as any)?.recent_decisions ?? (tradingIndex.data as any)?.decisions),
     news: pickArray((tradingIndex.data as any)?.news),
@@ -311,6 +326,7 @@ export async function getSafeTradingMonitorData() {
         : (tradingIndex.data as any)?.market_context ?? (tradingIndex.data as any)?.marketContext ?? {},
 
     realData: {
+      phantomXPaperLearner: paperLearner.data,
       marketData: marketData.data,
       paperEngine: {
         state: paperState.data,
@@ -327,6 +343,10 @@ export async function getSafeTradingMonitorData() {
     },
 
     counts: {
+      paperLearnerRunning: Boolean((paperLearner.data as any)?.running),
+      paperLearnerTicks: (paperLearner.data as any)?.tickCount ?? 0,
+      paperOpenPositions: Array.isArray((paperLearner.data as any)?.positions) ? (paperLearner.data as any).positions.filter((p: any) => p.status === "open").length : 0,
+      paperOutcomes: Array.isArray((paperLearner.data as any)?.outcomes) ? (paperLearner.data as any).outcomes.length : 0,
       marketSymbols: Array.isArray((marketData.data as any)?.marketContext) ? (marketData.data as any).marketContext.length : 0,
       staleMarketSymbols: Array.isArray((marketData.data as any)?.failures) ? (marketData.data as any).failures.length : 0,
       openPositions: openPositionsData.length,

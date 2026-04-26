@@ -235,6 +235,48 @@ function filterSafePendingOutreach(mapped: any[]) {
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
 
   // EARLY_TRADING_MONITOR_INTERCEPTOR
+
+  // PHANTOMX_PAPER_LEARNER_ROUTES
+  app.get("/api/admin/trading/paper/state", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+
+    const { getPhantomXPaperState } = await import("./services/trading/phantomXPaperLearner");
+    return res.json(await getPhantomXPaperState());
+  });
+
+  app.post("/api/admin/trading/paper/start", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+
+    const { startPhantomXPaperLearner } = await import("./services/trading/phantomXPaperLearner");
+    return res.json(await startPhantomXPaperLearner());
+  });
+
+  app.post("/api/admin/trading/paper/stop", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+
+    const { stopPhantomXPaperLearner } = await import("./services/trading/phantomXPaperLearner");
+    return res.json(await stopPhantomXPaperLearner());
+  });
+
+  app.post("/api/admin/trading/paper/tick", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+
+    const { runPhantomXPaperTick } = await import("./services/trading/phantomXPaperLearner");
+    return res.json(await runPhantomXPaperTick());
+  });
+
+  app.post("/api/admin/trading/paper/reset", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+
+    const { resetPhantomXPaperLearner } = await import("./services/trading/phantomXPaperLearner");
+    return res.json(await resetPhantomXPaperLearner());
+  });
+
   // Must be registered before older admin/trading handlers so the monitor cannot hang.
   app.get("/api/admin/trading/monitor", async (req: any, res: any) => {
     const localAdmin =
