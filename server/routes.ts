@@ -234,6 +234,64 @@ function filterSafePendingOutreach(mapped: any[]) {
 
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
 
+  // PREDICTION_MARKETS_API_ROUTES
+  // Local JSON API for Admin Prediction Markets.
+  // This prevents /api/prediction-markets/* falling through to the Vite HTML catch-all.
+  app.get("/api/prediction-markets/opportunities", async (_req: any, res: any) => {
+    const now = new Date().toISOString();
+
+    return res.json({
+      ok: true,
+      connected: true,
+      mode: "local",
+      source: "local_prediction_market_scanner_fallback",
+      generatedAt: now,
+      message: "Prediction Markets API is connected locally. External scanner proxy can be reconnected later.",
+      opportunities: [],
+      markets: [],
+      stats: {
+        totalOpportunities: 0,
+        activeMarkets: 0,
+        averageEdge: 0,
+        lastScanAt: null,
+      },
+      health: {
+        api: "online",
+        externalScanner: "not_configured",
+        fallback: true,
+      },
+    });
+  });
+
+  app.get("/api/admin/prediction-markets", async (req: any, res: any) => {
+    const localAdmin =
+      req?.headers?.["x-tcd-admin-auth"] === "true" ||
+      req?.headers?.["x-tcd-admin-auth"] === true ||
+      req?.session?.adminAuthenticated === true;
+
+    if (!localAdmin) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
+    const now = new Date().toISOString();
+
+    return res.json({
+      ok: true,
+      connected: true,
+      mode: "local",
+      source: "admin_prediction_markets_local_status",
+      generatedAt: now,
+      status: "online",
+      message: "Admin Prediction Markets route is connected.",
+      scanner: {
+        configured: false,
+        externalUrl: process.env.PREDICTION_MARKET_SCANNER_URL || null,
+        note: "Set PREDICTION_MARKET_SCANNER_URL later to proxy a live scanner service.",
+      },
+    });
+  });
+
+
   // EARLY_TRADING_MONITOR_INTERCEPTOR
 
   // PHANTOMX_PAPER_LEARNER_ROUTES
