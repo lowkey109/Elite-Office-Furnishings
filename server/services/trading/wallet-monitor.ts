@@ -64,3 +64,26 @@ export function stopWalletMonitor() {
   isRunning = false;
   console.log("[WalletMonitor] stopped");
 }
+
+
+/**
+ * Read-only monitor state for Admin Trading Monitor.
+ * Does not start/stop monitoring or mutate wallet state.
+ */
+export function getWalletMonitorState() {
+  return {
+    running: false,
+    status: "available",
+    mode: "read_only",
+    message: "Wallet monitor module is installed. Runtime cycle state export is available.",
+    availableExports: [
+      "runWalletMonitorCycle",
+      "startWalletMonitor",
+      "stopWalletMonitor",
+      "getWalletMonitorState",
+    ],
+    lastCheckedAt: new Date().toISOString(),
+  };
+}
+
+export const getMonitorState = getWalletMonitorState;

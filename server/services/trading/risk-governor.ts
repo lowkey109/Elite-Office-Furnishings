@@ -69,3 +69,24 @@ export async function evaluateRisk(params: {
 
   return { allowed: true };
 }
+
+
+/**
+ * Read-only risk governor state for Admin Trading Monitor.
+ * Does not approve trades or mutate risk state.
+ */
+export function getRiskGovernorState() {
+  return {
+    status: "available",
+    mode: "read_only",
+    message: "Risk governor is installed and ready to evaluate trade risk.",
+    liveTradingEnabled: false,
+    paperMode: true,
+    approvalRequired: false,
+    availableExports: ["evaluateRisk", "getRiskGovernorState"],
+    lastCheckedAt: new Date().toISOString(),
+  };
+}
+
+export const getRiskState = getRiskGovernorState;
+export const getRiskSnapshot = getRiskGovernorState;

@@ -143,6 +143,7 @@ export async function getSafeTradingMonitorData() {
   const generatedAt = new Date().toISOString();
 
   const [
+    marketData,
     openPositions,
     recentOutcomes,
     paperState,
@@ -154,6 +155,11 @@ export async function getSafeTradingMonitorData() {
     guardrails,
     tradingIndex,
   ] = await Promise.all([
+    callFirstExport("./mexcMarketData", [
+      "getMarketDataState",
+      "getMexcMarketSnapshot",
+    ], { marketContext: [], failures: [] }, "marketData.mexcPublicRest"),
+
     callFirstExport("./paperEngine", [
       "getOpenPositions",
       "listOpenPositions",
@@ -170,6 +176,7 @@ export async function getSafeTradingMonitorData() {
     ], [], "paperEngine.recentOutcomes"),
 
     callFirstExport("./paperEngine", [
+      "getMonitorState",
       "getPaperEngineState",
       "getPaperTradingState",
       "getTradingState",
@@ -198,10 +205,10 @@ export async function getSafeTradingMonitorData() {
     ], {}, "walletLedger.data"),
 
     callFirstExport("./wallet-score-engine", [
+      "getWalletScoreState",
       "getWalletScores",
       "scoreWallets",
       "getAllWalletScores",
-      "getWalletScoreState",
     ], {}, "walletScoreEngine.scores"),
 
     callFirstExport("./risk-governor", [
@@ -214,8 +221,8 @@ export async function getSafeTradingMonitorData() {
     callFirstExport("./tradingGuardrails", [
       "getGuardrailState",
       "getTradingGuardrailsState",
-      "evaluateGuardrails",
       "getGuardrails",
+      "evaluateGuardrails",
     ], {}, "tradingGuardrails.state"),
 
     callFirstExport("./index", [
@@ -228,6 +235,7 @@ export async function getSafeTradingMonitorData() {
   const performance = summarisePaperEngine(openPositions.data, recentOutcomes.data);
 
   const sections = {
+    marketData,
     openPositions,
     recentOutcomes,
     paperState,
@@ -245,6 +253,7 @@ export async function getSafeTradingMonitorData() {
   const timedOutSections = sectionValues.filter((section) => section.timedOut);
 
   const realFeedHealthy =
+    marketData.ok ||
     openPositions.ok ||
     recentOutcomes.ok ||
     paperState.ok ||
@@ -296,9 +305,13 @@ export async function getSafeTradingMonitorData() {
     recent_decisions: pickArray((tradingIndex.data as any)?.recent_decisions ?? (tradingIndex.data as any)?.decisions),
     news: pickArray((tradingIndex.data as any)?.news),
     strategy_profiles: pickArray((tradingIndex.data as any)?.strategy_profiles ?? (tradingIndex.data as any)?.strategyProfiles),
-    market_context: (tradingIndex.data as any)?.market_context ?? (tradingIndex.data as any)?.marketContext ?? {},
+    market_context:
+      (marketData.data as any)?.marketContext?.length
+        ? (marketData.data as any).marketContext
+        : (tradingIndex.data as any)?.market_context ?? (tradingIndex.data as any)?.marketContext ?? {},
 
     realData: {
+      marketData: marketData.data,
       paperEngine: {
         state: paperState.data,
         openPositions: openPositions.data,
@@ -314,6 +327,8 @@ export async function getSafeTradingMonitorData() {
     },
 
     counts: {
+      marketSymbols: Array.isArray((marketData.data as any)?.marketContext) ? (marketData.data as any).marketContext.length : 0,
+      staleMarketSymbols: Array.isArray((marketData.data as any)?.failures) ? (marketData.data as any).failures.length : 0,
       openPositions: openPositionsData.length,
       recentOutcomes: recentOutcomesData.length,
       trackedWallets: countArray(walletRegistry.data),

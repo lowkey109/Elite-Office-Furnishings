@@ -73,3 +73,25 @@ export function classifyRisk(proposal: ParameterProposal): "low" | "medium" | "h
   if (proposal.proposalType === "setup_filter") return "low";
   return "medium";
 }
+
+
+/**
+ * Read-only guardrail state for Admin Trading Monitor.
+ * Does not evaluate a specific trade and does not mutate config.
+ */
+export function getGuardrailState() {
+  return {
+    status: "available",
+    mode: "read_only",
+    message: "Trading guardrails module is installed. Trade-specific guardrail evaluation requires a trade proposal.",
+    liveTradingEnabled: false,
+    paperMode: true,
+    checks: [],
+    violations: [],
+    availableExports: ["evaluateGuardrails", "getGuardrailState"],
+    lastCheckedAt: new Date().toISOString(),
+  };
+}
+
+export const getTradingGuardrailsState = getGuardrailState;
+export const getGuardrails = getGuardrailState;

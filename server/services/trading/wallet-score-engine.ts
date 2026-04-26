@@ -69,3 +69,21 @@ export function runWalletScoring(): WalletScoreResult[] {
 
   return results.sort((a, b) => b.score - a.score);
 }
+
+
+/**
+ * Read-only wallet score state for Admin Trading Monitor.
+ */
+export function getWalletScoreState() {
+  return {
+    status: "available",
+    mode: "read_only",
+    message: "Wallet score engine is installed. Run wallet scoring cycle to populate scores.",
+    scores: [],
+    scoreCount: 0,
+    availableExports: ["runWalletScoring", "getWalletScoreState"],
+    lastCheckedAt: new Date().toISOString(),
+  };
+}
+
+export const getWalletScores = getWalletScoreState;
