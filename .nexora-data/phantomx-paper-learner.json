@@ -2,13 +2,68 @@
   "version": 1,
   "mode": "paper",
   "liveTradingEnabled": false,
-  "running": false,
+  "running": true,
   "startingBalance": 10000,
   "balance": 10000,
   "equity": 10000,
   "maxOpenPositions": 3,
   "riskPerTradePct": 1,
-  "positions": [],
+  "positions": [
+    {
+      "id": "paper-pos-1777219310869-jknl0b",
+      "symbol": "BTC/USD",
+      "exchangeSymbol": "BTCUSDT",
+      "strategy": "mean_reversion",
+      "side": "long",
+      "entryPrice": 78020.11,
+      "currentPrice": 78020.11,
+      "quantity": 0.012817208281300807,
+      "notional": 1000,
+      "stopLoss": 77044.85862500001,
+      "takeProfit": 79775.562475,
+      "openedAt": "2026-04-26T16:01:50.869Z",
+      "status": "open",
+      "pnl": 0,
+      "pnlPct": 0,
+      "reason": "Paper entry allowed: confidence 56, strategy mean_reversion, side long"
+    },
+    {
+      "id": "paper-pos-1777219310869-233p80",
+      "symbol": "ETH/USD",
+      "exchangeSymbol": "ETHUSDT",
+      "strategy": "mean_reversion",
+      "side": "long",
+      "entryPrice": 2346.72,
+      "currentPrice": 2346.72,
+      "quantity": 0.42612667893911504,
+      "notional": 1000,
+      "stopLoss": 2317.386,
+      "takeProfit": 2399.5211999999997,
+      "openedAt": "2026-04-26T16:01:50.869Z",
+      "status": "open",
+      "pnl": 0,
+      "pnlPct": 0,
+      "reason": "Paper entry allowed: confidence 56, strategy mean_reversion, side long"
+    },
+    {
+      "id": "paper-pos-1777219310869-r6k7uf",
+      "symbol": "SOL/USD",
+      "exchangeSymbol": "SOLUSDT",
+      "strategy": "mean_reversion",
+      "side": "long",
+      "entryPrice": 86.55,
+      "currentPrice": 86.55,
+      "quantity": 11.554015020219527,
+      "notional": 1000,
+      "stopLoss": 85.468125,
+      "takeProfit": 88.49737499999999,
+      "openedAt": "2026-04-26T16:01:50.869Z",
+      "status": "open",
+      "pnl": 0,
+      "pnlPct": 0,
+      "reason": "Paper entry allowed: confidence 55, strategy mean_reversion, side long"
+    }
+  ],
   "outcomes": [],
   "learning": {
     "momentum_breakout": {
@@ -52,5 +107,73 @@
       "pnl": 0
     }
   },
-  "tickCount": 0
+  "tickCount": 10,
+  "lastDecision": {
+    "action": "open_paper_trade",
+    "symbol": "SOL/USD",
+    "exchangeSymbol": "SOLUSDT",
+    "strategy": "mean_reversion",
+    "side": "long",
+    "confidence": 55,
+    "price": 86.55,
+    "reason": "Paper entry allowed: confidence 55, strategy mean_reversion, side long",
+    "market": {
+      "symbol": "SOL/USD",
+      "exchangeSymbol": "SOLUSDT",
+      "price": 86.55,
+      "change24h": 0.26,
+      "changePct24h": 0.003,
+      "volume24h": 25562504.53,
+      "high24h": 86.74,
+      "low24h": 85.57,
+      "regime": "normal",
+      "dominantTrend": "neutral",
+      "volatilityLevel": "low",
+      "keyLevels": {
+        "support": [
+          85.57
+        ],
+        "resistance": [
+          86.74
+        ]
+      },
+      "orderBook": {
+        "bidPrice": 86.53,
+        "bidQty": 1463.327,
+        "askPrice": 86.54,
+        "askQty": 327.784,
+        "spread": 0.01
+      },
+      "technicals": {
+        "rsi14": 0,
+        "macd": {
+          "value": 0,
+          "signal": 0,
+          "histogram": 0
+        },
+        "ema20": 86.55,
+        "ema50": 86.55,
+        "ema200": 86.55,
+        "bbUpper": 86.74,
+        "bbLower": 85.57,
+        "bbWidth": 1.35,
+        "atr14": 1.17,
+        "adx": 0,
+        "obv": "n/a",
+        "vwap": 86.55,
+        "stochRsi": 0,
+        "williamsR": 0,
+        "cci": 0,
+        "mfi": 0
+      },
+      "fundingRate": null,
+      "openInterest": null,
+      "fearGreedIndex": null,
+      "snapshotId": "mexc-SOLUSDT-1777219310708",
+      "lastUpdated": "2026-04-26T16:01:50.465Z",
+      "dataSource": "mexc_public_rest",
+      "isStale": false
+    }
+  },
+  "lastTickAt": "2026-04-26T16:01:51.206Z"
 }
