@@ -66,7 +66,15 @@ const port = Number(process.env.PORT || 5000);
     console.log(`Server running on port ${port}`);
 
     if (process.env.NEXORA_LOOP_ENABLED !== "false") {
-      startNexoraLoop();
+      if (process.env.TCD_DISABLE_STARTUP_JOBS !== "true") {
+
+        startNexoraLoop();
+
+      } else {
+
+        console.log("[startup] TCD_DISABLE_STARTUP_JOBS=true — Nexora startup loop skipped for local testing");
+
+      }
       console.log("[NexoraLoop] Auto-started from server/index.ts");
     }
   });
