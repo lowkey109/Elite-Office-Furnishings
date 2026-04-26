@@ -6,6 +6,29 @@ function token() {
   return typeof window !== "undefined" ? window.sessionStorage.getItem("tcd_client_token") || "" : "";
 }
 
+async function sendListingEnquiry(listingId: string, enquiryType: string) {
+  const message =
+    enquiryType === "request_intro"
+      ? "Client requested an introduction for this listing."
+      : enquiryType === "request_finance"
+        ? "Client requested finance information for this listing."
+        : enquiryType === "save_listing"
+          ? "Client saved this listing."
+          : "Client requested more information about this listing.";
+
+  const res = await fetch("/api/client/property-listings/" + listingId + "/enquiry", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: "Bearer " + token(),
+    },
+    body: JSON.stringify({ enquiryType, message }),
+  });
+
+  const json = await res.json();
+  alert(json.ok ? "Request saved." : json.error || "Could not save request.");
+}
+
 async function fetchListings() {
   const res = await fetch("/api/client/property-listings", {
     headers: { authorization: "Bearer " + token() },
@@ -64,6 +87,12 @@ export default function ClientPropertyListings() {
             <p className="text-white/50 text-sm mt-2">{l.description}</p>
             <div className="flex flex-wrap gap-2 mt-3 text-xs text-white/45">
               <span>{l.listingType}</span><span>·</span><span>{l.propertyType}</span><span>·</span><span>{l.status}</span>
+            </div>
+            <div className="flex flex-wrap gap-2 mt-4">
+              <button onClick={() => sendListingEnquiry(l.id, "general_enquiry")} className="px-3 py-2 rounded-xl bg-amber-500 text-black text-sm font-semibold">Enquire</button>
+              <button onClick={() => sendListingEnquiry(l.id, "request_intro")} className="px-3 py-2 rounded-xl border border-white/10 text-white/70 text-sm">Request Intro</button>
+              <button onClick={() => sendListingEnquiry(l.id, "request_finance")} className="px-3 py-2 rounded-xl border border-white/10 text-white/70 text-sm">Request Finance</button>
+              <button onClick={() => sendListingEnquiry(l.id, "save_listing")} className="px-3 py-2 rounded-xl border border-white/10 text-white/70 text-sm">Save</button>
             </div>
             {l.listingUrl && <a href={l.listingUrl} target="_blank" rel="noreferrer" className="inline-block mt-4 text-amber-300 underline">Open listing</a>}
           </div>

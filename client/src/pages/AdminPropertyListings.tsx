@@ -79,6 +79,8 @@ export default function AdminPropertyListings() {
           <p className="text-white/45 mt-2">Free-first listing engine: manual, partner-submitted and CSV listings now. Domain/PropTrack adapters later.</p>
         </div>
         <div className="flex gap-2">
+          <a href="/admin/property-listings/import" className="px-4 py-2 rounded-xl border border-white/10 text-white/70">Import CSV</a>
+          <a href="/admin/property-enquiries" className="px-4 py-2 rounded-xl border border-white/10 text-white/70">Enquiries</a>
           <button onClick={() => seedMutation.mutate()} className="px-4 py-2 rounded-xl border border-white/10 text-white/70">Seed Samples</button>
           <button onClick={() => refetch()} className="px-4 py-2 rounded-xl bg-amber-500 text-black font-semibold flex gap-2 items-center"><RefreshCw className="w-4 h-4" />Refresh</button>
         </div>

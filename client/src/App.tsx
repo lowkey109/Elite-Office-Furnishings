@@ -97,6 +97,8 @@ import AdminSubscriptions from "@/pages/AdminSubscriptions";
 import AdminClientProjects from "@/pages/AdminClientProjects";
 import AdminPropertyListings from "@/pages/AdminPropertyListings";
 import ClientPropertyListings from "@/pages/ClientPropertyListings";
+import AdminPropertyListingsImport from "@/pages/AdminPropertyListingsImport";
+import AdminPropertyEnquiries from "@/pages/AdminPropertyEnquiries";
 
 function AdminRoutes() {
   return (
@@ -151,6 +153,8 @@ function AdminRoutes() {
         <Route path="/admin/prediction-markets" component={AdminPredictionMarkets} />
         <Route path="/admin/property-intelligence" component={AdminPropertyIntelligence} />
         <Route path="/admin/property-listings" component={AdminPropertyListings} />
+        <Route path="/admin/property-listings/import" component={AdminPropertyListingsImport} />
+        <Route path="/admin/property-enquiries" component={AdminPropertyEnquiries} />
         <Route path="/admin/customers" component={AdminCustomers} />
         <Route path="/admin/subscriptions" component={AdminSubscriptions} />
         <Route path="/admin/client-projects" component={AdminClientProjects} />

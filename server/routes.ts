@@ -237,6 +237,41 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
   // CLIENT_PORTAL_PRODUCTION_API_ROUTES
 
   // PROPERTY_LISTINGS_API_ROUTES
+
+  // PROPERTY_ENQUIRIES_API_ROUTES
+  app.post("/api/client/property-listings/:id/enquiry", async (req: any, res: any) => {
+    try {
+      const { requireClient } = await import("./services/clientPortal/clientPortalService");
+      const { createPropertyEnquiry } = await import("./services/propertyIntelligence/propertyEnquiriesService");
+      const user: any = await requireClient(clientTokenFromReq(req));
+      return res.json(await createPropertyEnquiry({
+        tenantId: user.tenantId,
+        clientUserId: user.id,
+        clientEmail: user.email,
+        clientCompanyName: user.companyName,
+        listingId: req.params.id,
+        enquiryType: req.body?.enquiryType || "general_enquiry",
+        message: req.body?.message || "",
+      }));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.get("/api/admin/property-enquiries", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const { listAdminPropertyEnquiries } = await import("./services/propertyIntelligence/propertyEnquiriesService");
+    return res.json(await listAdminPropertyEnquiries(req.query || {}));
+  });
+
+  app.patch("/api/admin/property-enquiries/:id", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const { updatePropertyEnquiry } = await import("./services/propertyIntelligence/propertyEnquiriesService");
+    return res.json(await updatePropertyEnquiry(req.params.id, req.body || {}));
+  });
+
   app.get("/api/admin/property-listings", async (req: any, res: any) => {
     const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
     if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
