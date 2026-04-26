@@ -293,29 +293,46 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
 
 app.post("/api/admin/auth/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body || {};
 
-    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@thecorporatedesk.au";
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@thecorporatedesk.com.au";
     const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "password123";
 
     if (!email || !password) {
-      return res.status(400).json({ error: "Missing credentials" });
+      return res.status(400).json({ error: "Email and password are required" });
     }
 
     if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    (req.session as any).admin = {
+    const sessionReq = req as any;
+
+    if (sessionReq.session) {
+      try {
+        sessionReq.session.adminAuthenticated = true;
+        sessionReq.session.adminEmail = email;
+        sessionReq.session.adminLoginAt = new Date().toISOString();
+
+        await new Promise<void>((resolve, reject) => {
+          sessionReq.session.save((err: any) => err ? reject(err) : resolve());
+        });
+      } catch (sessionError: any) {
+        console.error("[AdminAuth] Session save failed, returning stateless success:", sessionError?.message || sessionError);
+      }
+    }
+
+    return res.json({
+      success: true,
+      authenticated: true,
       email,
-      loggedIn: true,
-    };
-
-    return res.json({ success: true });
-
-  } catch (err) {
-    console.error("Admin login error:", err);
-    return res.status(500).json({ error: "Server error" });
+    });
+  } catch (error: any) {
+    console.error("[AdminAuth] Login server error:", error?.message || error);
+    return res.status(500).json({
+      error: "Server error",
+      detail: error?.message || String(error),
+    });
   }
 });
               app.get("/api/admin/auth/check", (req: any, res: any) => {
@@ -11813,6 +11830,196 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
       });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // DevStudio / App Builder API
+  // Local repo repair tools for The Corporate Desk admin only.
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  const DEVSTUDIO_ROOT = process.cwd();
+
+  async function devStudioSafePath(inputPath?: string): Promise<string> {
+    const path = await import("path");
+    const raw = inputPath && String(inputPath).trim() ? String(inputPath) : ".";
+    const resolved = path.resolve(DEVSTUDIO_ROOT, raw);
+
+    if (!resolved.startsWith(DEVSTUDIO_ROOT)) {
+      throw new Error("Path outside workspace is not allowed");
+    }
+
+    return resolved;
+  }
+
+  app.get("/api/dev-studio/logs", async (_req, res) => {
+    return res.json({
+      ok: true,
+      message: "DevStudio API online",
+      cwd: process.cwd(),
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  app.get("/api/dev-studio/files/list", async (req, res) => {
+    try {
+      const fs = await import("fs/promises");
+      const path = await import("path");
+
+      const target = await devStudioSafePath(String(req.query.path || "."));
+      const entries = await fs.readdir(target, { withFileTypes: true });
+
+      const files = entries
+        .filter((entry: any) => !["node_modules", ".git", "dist"].includes(entry.name))
+        .map((entry: any) => ({
+          name: entry.name,
+          path: path.relative(DEVSTUDIO_ROOT, path.join(target, entry.name)) || ".",
+          type: entry.isDirectory() ? "directory" : "file",
+        }))
+        .sort((a: any, b: any) => {
+          if (a.type !== b.type) return a.type === "directory" ? -1 : 1;
+          return a.name.localeCompare(b.name);
+        });
+
+      return res.json({ ok: true, path: path.relative(DEVSTUDIO_ROOT, target) || ".", files });
+    } catch (error: any) {
+      return res.status(400).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.get("/api/dev-studio/files/read", async (req, res) => {
+    try {
+      const fs = await import("fs/promises");
+      const path = await import("path");
+
+      const filePath = await devStudioSafePath(String(req.query.path || ""));
+      const stat = await fs.stat(filePath);
+
+      if (!stat.isFile()) {
+        return res.status(400).json({ ok: false, error: "Path is not a file" });
+      }
+
+      if (stat.size > 2_000_000) {
+        return res.status(400).json({ ok: false, error: "File too large to read in DevStudio" });
+      }
+
+      const content = await fs.readFile(filePath, "utf8");
+
+      return res.json({
+        ok: true,
+        path: path.relative(DEVSTUDIO_ROOT, filePath),
+        content,
+      });
+    } catch (error: any) {
+      return res.status(400).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.post("/api/dev-studio/files/write", async (req, res) => {
+    try {
+      const fs = await import("fs/promises");
+      const path = await import("path");
+      const { filePath, path: bodyPath, content } = req.body || {};
+
+      const requestedPath = filePath || bodyPath;
+      if (!requestedPath) {
+        return res.status(400).json({ ok: false, error: "Missing file path" });
+      }
+
+      const target = await devStudioSafePath(String(requestedPath));
+      const rel = path.relative(DEVSTUDIO_ROOT, target);
+
+      await fs.mkdir(path.dirname(target), { recursive: true });
+
+      try {
+        const before = await fs.readFile(target, "utf8");
+        await fs.writeFile(target + ".devstudio-backup", before);
+      } catch {
+        // New file or unreadable existing file; continue.
+      }
+
+      await fs.writeFile(target, String(content ?? ""), "utf8");
+
+      return res.json({
+        ok: true,
+        path: rel,
+        message: "File written",
+      });
+    } catch (error: any) {
+      return res.status(400).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.post("/api/dev-studio/terminal", async (req, res) => {
+    try {
+      const { exec } = await import("child_process");
+      const command = String((req.body || {}).command || (req.body || {}).cmd || "").trim();
+
+      if (!command) {
+        return res.status(400).json({ ok: false, error: "Missing command" });
+      }
+
+      const blocked = ["rm -rf /", "mkfs", "dd if=", ":(){", "shutdown", "reboot"];
+
+      if (blocked.some((bad) => command.includes(bad))) {
+        return res.status(400).json({ ok: false, error: "Blocked unsafe command" });
+      }
+
+      exec(
+        command,
+        {
+          cwd: DEVSTUDIO_ROOT,
+          timeout: 120_000,
+          maxBuffer: 1024 * 1024 * 6,
+          env: process.env,
+          shell: "/bin/bash",
+        },
+        (error: any, stdout: string, stderr: string) => {
+          return res.json({
+            ok: !error,
+            command,
+            stdout,
+            stderr,
+            exitCode: error?.code ?? 0,
+            error: error?.message || null,
+          });
+        }
+      );
+    } catch (error: any) {
+      return res.status(500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.post("/api/dev-studio/auto-fix", async (req, res) => {
+    try {
+      const { exec } = await import("child_process");
+      const task = String((req.body || {}).task || "fix typescript");
+
+      exec(
+        "npm run check",
+        {
+          cwd: DEVSTUDIO_ROOT,
+          timeout: 120_000,
+          maxBuffer: 1024 * 1024 * 6,
+          env: process.env,
+          shell: "/bin/bash",
+        },
+        (error: any, stdout: string, stderr: string) => {
+          const output = [stdout, stderr].filter(Boolean).join("\n");
+
+          return res.json({
+            ok: !error,
+            task,
+            logs: output.split("\n"),
+            message: error ? "TypeScript check found errors" : "TypeScript clean — no fix needed",
+            exitCode: error?.code ?? 0,
+          });
+        }
+      );
+    } catch (error: any) {
+      return res.status(500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+
 
   return httpServer;
 }

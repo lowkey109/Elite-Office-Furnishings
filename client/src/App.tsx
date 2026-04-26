@@ -79,6 +79,7 @@ import { BrisbanePage, SydneyPage, MelbournePage, CanberraPage } from "@/pages/C
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { GoogleReviewsBadge } from "@/components/GoogleReviewsBadge";
 import { TrackingPixels } from "@/components/TrackingPixels";
+import AdminDevStudio from "@/pages/AdminDevStudio";
 
 function AdminRoutes() {
   return (
@@ -129,6 +130,7 @@ function AdminRoutes() {
         <Route path="/admin/nexora" component={AdminNexoraCommandCentre} />
         <Route path="/admin/ai-monitor" component={AdminNexoraMonitor} />
         <Route path="/admin/trading-monitor" component={AdminTradingMonitor} />
+        <Route path="/admin/dev-studio" component={AdminDevStudio} />
         <Route path="/admin/prediction-markets" component={AdminPredictionMarkets} />
         <Route path="/admin/ai-chat" component={AdminAIChat} />
         <Route path="/admin/partners" component={AdminPartners} />
