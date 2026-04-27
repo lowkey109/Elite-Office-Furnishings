@@ -12578,5 +12578,113 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
     return res.json(await updateAdminPhantomXApplication(req.params.id, req.body || {}));
   });
 
+
+
+  // CLIENT_PORTAL_POLISH_ROUTES
+  app.get("/api/client/saved-listings", async (req: any, res: any) => {
+    try {
+      const { requireClient } = await import("./services/clientPortal/clientPortalService");
+      const { listClientSavedListings } = await import("./services/clientPortal/clientEngagementService");
+      const user: any = await requireClient(clientTokenFromReq(req));
+      return res.json(await listClientSavedListings(user.tenantId));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.post("/api/client/saved-listings", async (req: any, res: any) => {
+    try {
+      const { requireClient } = await import("./services/clientPortal/clientPortalService");
+      const { saveClientListing } = await import("./services/clientPortal/clientEngagementService");
+      const user: any = await requireClient(clientTokenFromReq(req));
+      return res.json(await saveClientListing({
+        tenantId: user.tenantId,
+        clientUserId: user.id,
+        clientEmail: user.email,
+        clientCompanyName: user.companyName,
+        listingId: req.body?.listingId,
+      }));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.delete("/api/client/saved-listings/:id", async (req: any, res: any) => {
+    try {
+      const { requireClient } = await import("./services/clientPortal/clientPortalService");
+      const { removeClientSavedListing } = await import("./services/clientPortal/clientEngagementService");
+      const user: any = await requireClient(clientTokenFromReq(req));
+      return res.json(await removeClientSavedListing(user.tenantId, req.params.id));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.get("/api/client/property-enquiries", async (req: any, res: any) => {
+    try {
+      const { requireClient } = await import("./services/clientPortal/clientPortalService");
+      const { listClientPropertyEnquiryHistory } = await import("./services/clientPortal/clientEngagementService");
+      const user: any = await requireClient(clientTokenFromReq(req));
+      return res.json(await listClientPropertyEnquiryHistory(user.tenantId));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.get("/api/client/support/messages", async (req: any, res: any) => {
+    try {
+      const { requireClient } = await import("./services/clientPortal/clientPortalService");
+      const { listClientSupportMessages } = await import("./services/clientPortal/clientEngagementService");
+      const user: any = await requireClient(clientTokenFromReq(req));
+      return res.json(await listClientSupportMessages(user.tenantId));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.post("/api/client/support/messages", async (req: any, res: any) => {
+    try {
+      const { requireClient } = await import("./services/clientPortal/clientPortalService");
+      const { createClientSupportMessage } = await import("./services/clientPortal/clientEngagementService");
+      const user: any = await requireClient(clientTokenFromReq(req));
+      return res.json(await createClientSupportMessage({
+        tenantId: user.tenantId,
+        clientUserId: user.id,
+        clientEmail: user.email,
+        clientCompanyName: user.companyName,
+        subject: req.body?.subject,
+        category: req.body?.category,
+        message: req.body?.message,
+      }));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.get("/api/client/onboarding/checklist", async (req: any, res: any) => {
+    try {
+      const { requireClient } = await import("./services/clientPortal/clientPortalService");
+      const { getClientOnboardingChecklist } = await import("./services/clientPortal/clientEngagementService");
+      const user: any = await requireClient(clientTokenFromReq(req));
+      return res.json(await getClientOnboardingChecklist(user));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.get("/api/admin/support/messages", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const { listAdminSupportMessages } = await import("./services/clientPortal/clientEngagementService");
+    return res.json(await listAdminSupportMessages(req.query || {}));
+  });
+
+  app.patch("/api/admin/support/messages/:id", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const { updateAdminSupportMessage } = await import("./services/clientPortal/clientEngagementService");
+    return res.json(await updateAdminSupportMessage(req.params.id, req.body || {}));
+  });
+
   return httpServer;
 }
