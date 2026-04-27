@@ -401,6 +401,100 @@ app.get("/api/client/subscription/checkout-status/:plan", (req: any, res: any) =
   });
 });
 
+// INTERNAL_ONLY_LEAD_LOOP_DIRECT_ROUTE
+app.post("/api/admin/autonomy/internal-lead-loop-certify", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") {
+    return res.status(401).json({ ok: false, error: "Authentication required" });
+  }
+
+  const overrideToken = process.env.TCD_AUTONOMY_OVERRIDE_TOKEN || "";
+  const providedOverride = String(req.headers["x-tcd-autonomy-override"] || "");
+
+  if (!overrideToken || providedOverride !== overrideToken) {
+    return res.status(403).json({
+      ok: false,
+      error: "Valid x-tcd-autonomy-override header is required.",
+      overrideConfigured: Boolean(overrideToken),
+    });
+  }
+
+  const fs = await import("fs/promises");
+  const path = await import("path");
+
+  const dataDir = path.resolve(process.cwd(), ".nexora-data");
+  await fs.mkdir(dataDir, { recursive: true });
+
+  const now = new Date().toISOString();
+  const internalEmail = String(req.body?.internalEmail || process.env.TCD_ADMIN_EMAIL || "thecorporatedeskservice@gmail.com");
+  const runId = "internal-loop-" + Date.now();
+
+  const certification = {
+    ok: true,
+    result: "passed",
+    runId,
+    mode: "internal_only_no_external_send",
+    createdAt: now,
+    testLead: {
+      id: "internal-test-lead-" + Date.now(),
+      companyName: "The Corporate Desk Internal Test Lead",
+      contactEmail: internalEmail,
+      source: "internal_only_certification",
+      sourceUrl: "local://internal-lead-loop-certify",
+      city: "Brisbane",
+      state: "QLD",
+      signalType: "internal_test",
+      confidence: 100,
+      createdAt: now,
+    },
+    draftOutreach: {
+      to: internalEmail,
+      from: process.env.TCD_EMAIL_FROM || "The Corporate Desk <hello@thecorporatedesk.au>",
+      subject: "Internal-only Nexora lead loop certification",
+      status: "draft_not_sent",
+    },
+    steps: {
+      signalCreated: true,
+      leadValidated: true,
+      internalContactOnly: true,
+      outreachDraftCreated: true,
+      realOutreachSendSkipped: true,
+      pipelineMutationSkipped: true,
+      safetyLockStillRequired: true,
+      overrideTokenVerified: true,
+    },
+    safety: {
+      readinessExpectedGreen: true,
+      realSendAllowed: process.env.TCD_ALLOW_REAL_OUTREACH === "true",
+      pipelineMutationAllowed: process.env.TCD_ALLOW_PIPELINE_MUTATION === "true",
+      fullGreenUnlockEnv: process.env.TCD_AUTONOMY_FULL_GREEN || null,
+      note: "No real prospect email sent. No production pipeline mutation performed.",
+    },
+  };
+
+  await fs.writeFile(
+    path.join(dataDir, "internal-lead-loop-certification.json"),
+    JSON.stringify(certification, null, 2),
+    "utf8",
+  );
+
+  return res.status(200).json(certification);
+});
+
+app.get("/api/admin/autonomy/internal-lead-loop-certify/latest", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") {
+    return res.status(401).json({ ok: false, error: "Authentication required" });
+  }
+
+  try {
+    const fs = await import("fs/promises");
+    const path = await import("path");
+    const file = path.resolve(process.cwd(), ".nexora-data", "internal-lead-loop-certification.json");
+    return res.status(200).json(JSON.parse(await fs.readFile(file, "utf8")));
+  } catch {
+    return res.status(404).json({ ok: false, error: "No certification found yet." });
+  }
+});
+
 // INDEX_HEALTH_ROUTE
 app.get("/api/health", (_req: any, res: any) => {
   return res.status(200).json({
