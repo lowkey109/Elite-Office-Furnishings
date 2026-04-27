@@ -25,7 +25,7 @@ export default function Subscriptions() {
         <h2 className="text-2xl font-bold mb-5">AI trading add-ons</h2>
         <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-4 mb-5 flex gap-3 text-sm text-red-100">
           <ShieldAlert className="w-5 h-5 text-red-300 flex-shrink-0" />
-          <p>PhantomX subscriptions are paper trading and market intelligence only. Live-money trading is disabled by default and requires a separate private readiness review.</p>
+          <p>PhantomX Paper Trader is free and uses pretend money only. Live-money trading is disabled by default and will only be considered later through a private compliance, risk and approval process.</p>
         </div>
         <div className="grid md:grid-cols-3 gap-4">
           {tradingAddOns.map(plan => <Plan key={plan.id} plan={plan} />)}

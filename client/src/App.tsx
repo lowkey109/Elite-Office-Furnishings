@@ -99,6 +99,7 @@ import AdminPropertyListings from "@/pages/AdminPropertyListings";
 import ClientPropertyListings from "@/pages/ClientPropertyListings";
 import AdminPropertyListingsImport from "@/pages/AdminPropertyListingsImport";
 import AdminPropertyEnquiries from "@/pages/AdminPropertyEnquiries";
+import ClientPhantomXPaper from "@/pages/ClientPhantomXPaper";
 
 function AdminRoutes() {
   return (
@@ -253,6 +254,7 @@ function Router() {
       <Route path="/client/subscription" component={Subscriptions} />
       <Route path="/client/property-intelligence" component={ClientPropertyIntelligence} />
       <Route path="/client/property-listings" component={ClientPropertyListings} />
+      <Route path="/client/phantomx-paper" component={ClientPhantomXPaper} />
       <Route path="/submit-deal" component={SubmitDeal} />
       <Route path="/trade-customers-portal" component={TradeCustomersPortal} />
       <Route component={NotFound} />

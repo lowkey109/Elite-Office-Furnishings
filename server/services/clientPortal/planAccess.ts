@@ -52,8 +52,8 @@ export function getPlanAccess(plan: string) {
       property_enquiries: p === "leasehawk-pro" || p === "leasehawk-plus" || p === "enterprise",
       leasehawk_reports: p === "leasehawk-pro" || p === "leasehawk-plus" || p === "enterprise",
       leasehawk_exports: p === "leasehawk-plus" || p === "enterprise",
-      phantomx_paper: p === "phantomx-paper" || p === "phantomx-pro" || p === "enterprise",
-      phantomx_pro: p === "phantomx-pro" || p === "enterprise",
+      phantomx_paper: true,
+      phantomx_pro: p === "enterprise",
       admin: false,
     },
     limits: {

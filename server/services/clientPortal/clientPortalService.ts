@@ -386,25 +386,16 @@ export async function getCustomerSafeLeaseHawk(token: string | undefined) {
 
 export async function getCustomerSafePhantomX(token: string | undefined) {
   const user = await requireClient(token);
-  if (!planAllows(user.plan, "phantomx-paper")) {
-    return {
-      ok: true,
-      locked: true,
-      upgradeRequired: true,
-      plan: user.plan,
-      message: "Upgrade to PhantomX Paper Trader to access pretend-money AI trading analytics.",
-    };
-  }
-
   const { getPhantomXPaperState } = await import("../trading/phantomXPaperLearner");
   const state = await getPhantomXPaperState();
 
   return {
     ok: true,
     locked: false,
+    free: true,
     paperOnly: true,
     liveTradingEnabled: false,
-    disclaimer: "PhantomX customer access is paper trading only. No real exchange orders are placed.",
+    disclaimer: "PhantomX Paper Trader is free pretend-money trading only. No real funds, no live exchange orders, no financial advice.",
     balance: state.balance,
     equity: state.equity,
     running: state.running,
