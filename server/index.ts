@@ -14,6 +14,12 @@ import { serveStatic } from "./static";
 
 const app = express();
 
+// INDEX_JSON_BODY_PARSER_FOR_EARLY_ROUTES
+// Needed because several safety/certification routes are registered before registerRoutes().
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+
 
 // POSTGRES_DATA_LAYER_INDEX_ROUTES
 app.get("/api/admin/data-layer/status", async (req: any, res: any) => {
@@ -492,6 +498,46 @@ app.get("/api/admin/autonomy/internal-lead-loop-certify/latest", async (req: any
     return res.status(200).json(JSON.parse(await fs.readFile(file, "utf8")));
   } catch {
     return res.status(404).json({ ok: false, error: "No certification found yet." });
+  }
+});
+
+// AUTONOMOUS_SAFE_ACTION_INDEX_ROUTES
+app.get("/api/admin/autonomy/actions/status", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") {
+    return res.status(401).json({ ok: false, error: "Authentication required" });
+  }
+
+  try {
+    const { getAutonomousActionStatus } = await import("./services/platform/autonomousSafeActionService");
+    return res.status(200).json(await getAutonomousActionStatus());
+  } catch (error: any) {
+    return res.status(500).json({ ok: false, error: error?.message || String(error) });
+  }
+});
+
+app.post("/api/admin/autonomy/actions/certify", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") {
+    return res.status(401).json({ ok: false, error: "Authentication required" });
+  }
+
+  try {
+    const { certifyAutonomousSafeActionLayer } = await import("./services/platform/autonomousSafeActionService");
+    return res.status(200).json(await certifyAutonomousSafeActionLayer());
+  } catch (error: any) {
+    return res.status(500).json({ ok: false, error: error?.message || String(error) });
+  }
+});
+
+app.post("/api/admin/autonomy/actions/simulate-lead-decision", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") {
+    return res.status(401).json({ ok: false, error: "Authentication required" });
+  }
+
+  try {
+    const { simulateAutonomousLeadDecision } = await import("./services/platform/autonomousSafeActionService");
+    return res.status(200).json(await simulateAutonomousLeadDecision(req.body || {}));
+  } catch (error: any) {
+    return res.status(500).json({ ok: false, error: error?.message || String(error) });
   }
 });
 
