@@ -6,6 +6,7 @@ import {
   ChevronRight,
   ClipboardList,
   CreditCard,
+  Database,
   Crosshair,
   FileText,
   GraduationCap,

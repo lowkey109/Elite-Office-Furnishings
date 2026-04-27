@@ -14,6 +14,47 @@ import { serveStatic } from "./static";
 
 const app = express();
 
+
+// POSTGRES_DATA_LAYER_INDEX_ROUTES
+app.get("/api/admin/data-layer/status", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") {
+    return res.status(401).json({ ok: false, error: "Authentication required" });
+  }
+
+  try {
+    const { getProductionDataStatus } = await import("./services/platform/productionDataStore");
+    return res.status(200).json(await getProductionDataStatus());
+  } catch (error: any) {
+    return res.status(500).json({ ok: false, error: error?.message || String(error) });
+  }
+});
+
+app.post("/api/admin/data-layer/migrate-local-json", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") {
+    return res.status(401).json({ ok: false, error: "Authentication required" });
+  }
+
+  try {
+    const { migrateLocalRuntimeDataToPostgres } = await import("./services/platform/productionDataStore");
+    return res.status(200).json(await migrateLocalRuntimeDataToPostgres());
+  } catch (error: any) {
+    return res.status(500).json({ ok: false, error: error?.message || String(error) });
+  }
+});
+
+app.get("/api/admin/data-layer/stores", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") {
+    return res.status(401).json({ ok: false, error: "Authentication required" });
+  }
+
+  try {
+    const { listRuntimeStores } = await import("./services/platform/productionDataStore");
+    return res.status(200).json(await listRuntimeStores());
+  } catch (error: any) {
+    return res.status(500).json({ ok: false, error: error?.message || String(error) });
+  }
+});
+
 // EMAIL_DEBUG_PING_ROUTE
 app.get("/api/admin/notifications/ping", (_req: any, res: any) => {
   return res.status(200).json({

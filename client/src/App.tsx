@@ -108,6 +108,7 @@ import LeaseHawkLanding from "@/pages/LeaseHawkLanding";
 import PhantomXLanding from "@/pages/PhantomXLanding";
 import TrustCentre from "@/pages/TrustCentre";
 import AdminEmailNotifications from "@/pages/AdminEmailNotifications";
+import AdminDataLayer from "@/pages/AdminDataLayer";
 
 function AdminRoutes() {
   return (
