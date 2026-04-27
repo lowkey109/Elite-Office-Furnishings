@@ -169,3 +169,109 @@ export async function simulateAutonomousLeadDecision(lead: LeadLike) {
 
   return decision;
 }
+
+
+export async function autoPipelineQualifiedLead(lead: LeadLike, opts: { overrideToken?: string } = {}) {
+  const validation = validateLeadForAutonomy(lead);
+
+  const fullGreen = process.env.TCD_AUTONOMY_FULL_GREEN === "true";
+  const pipelineAllowed = process.env.TCD_ALLOW_PIPELINE_MUTATION === "true";
+  const overrideConfigured = Boolean(process.env.TCD_AUTONOMY_OVERRIDE_TOKEN);
+  const overrideMatches =
+    overrideConfigured &&
+    String(opts.overrideToken || "") === String(process.env.TCD_AUTONOMY_OVERRIDE_TOKEN || "");
+
+  if (!validation.qualified) {
+    const blocked = {
+      ok: true,
+      action: "blocked_to_review_queue",
+      pipelineMutationPerformed: false,
+      validation,
+      reason: "Lead failed autonomy quality rules.",
+    };
+
+    await appendAudit({ type: "auto_pipeline_blocked", blocked });
+    return blocked;
+  }
+
+  if (!fullGreen || !pipelineAllowed || !overrideMatches) {
+    const simulated = {
+      ok: true,
+      action: "qualified_but_pipeline_locked",
+      pipelineMutationPerformed: false,
+      validation,
+      required: {
+        TCD_AUTONOMY_FULL_GREEN: "true",
+        TCD_ALLOW_PIPELINE_MUTATION: "true",
+        "x-tcd-autonomy-override": "must match TCD_AUTONOMY_OVERRIDE_TOKEN",
+      },
+      reason: "Lead is qualified, but pipeline mutation remains locked.",
+    };
+
+    await appendAudit({ type: "auto_pipeline_qualified_locked", simulated });
+    return simulated;
+  }
+
+  const store = await readJson("autonomous-pipeline-store.json", { opportunities: [] });
+  const opportunities = Array.isArray(store.opportunities) ? store.opportunities : [];
+
+  const idempotencyKey = [
+    validation.normalized.companyName.toLowerCase(),
+    validation.normalized.sourceUrl.toLowerCase(),
+  ].join("::");
+
+  const existing = opportunities.find((item: any) => item.idempotencyKey === idempotencyKey);
+
+  if (existing) {
+    const duplicate = {
+      ok: true,
+      action: "duplicate_skipped",
+      pipelineMutationPerformed: false,
+      existingId: existing.id,
+      validation,
+      reason: "Qualified lead already exists in autonomous pipeline store.",
+    };
+
+    await appendAudit({ type: "auto_pipeline_duplicate_skipped", duplicate });
+    return duplicate;
+  }
+
+  const opportunity = {
+    id: "auto-pipeline-" + Date.now(),
+    idempotencyKey,
+    createdAt: new Date().toISOString(),
+    status: "new_qualified",
+    source: "autonomous_safe_action_layer",
+    companyName: validation.normalized.companyName,
+    contactEmail: validation.normalized.contactEmail,
+    sourceUrl: validation.normalized.sourceUrl,
+    confidence: validation.normalized.confidence,
+    nextAction: "prepare_outreach_draft_after_suppression_check",
+    realOutreachSent: false,
+  };
+
+  store.opportunities = [opportunity, ...opportunities].slice(0, 1000);
+  await writeJson("autonomous-pipeline-store.json", store);
+
+  const result = {
+    ok: true,
+    action: "pushed_to_autonomous_pipeline",
+    pipelineMutationPerformed: true,
+    opportunity,
+    validation,
+  };
+
+  await appendAudit({ type: "auto_pipeline_pushed", result });
+  return result;
+}
+
+export async function listAutonomousPipelineStore() {
+  const store = await readJson("autonomous-pipeline-store.json", { opportunities: [] });
+  const opportunities = Array.isArray(store.opportunities) ? store.opportunities : [];
+
+  return {
+    ok: true,
+    count: opportunities.length,
+    opportunities,
+  };
+}

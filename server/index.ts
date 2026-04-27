@@ -541,6 +541,35 @@ app.post("/api/admin/autonomy/actions/simulate-lead-decision", async (req: any, 
   }
 });
 
+// QUALIFIED_AUTO_PIPELINE_INDEX_ROUTES
+app.post("/api/admin/autonomy/actions/auto-pipeline-qualified-lead", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") {
+    return res.status(401).json({ ok: false, error: "Authentication required" });
+  }
+
+  try {
+    const { autoPipelineQualifiedLead } = await import("./services/platform/autonomousSafeActionService");
+    return res.status(200).json(await autoPipelineQualifiedLead(req.body || {}, {
+      overrideToken: String(req.headers["x-tcd-autonomy-override"] || ""),
+    }));
+  } catch (error: any) {
+    return res.status(500).json({ ok: false, error: error?.message || String(error) });
+  }
+});
+
+app.get("/api/admin/autonomy/actions/pipeline-store", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") {
+    return res.status(401).json({ ok: false, error: "Authentication required" });
+  }
+
+  try {
+    const { listAutonomousPipelineStore } = await import("./services/platform/autonomousSafeActionService");
+    return res.status(200).json(await listAutonomousPipelineStore());
+  } catch (error: any) {
+    return res.status(500).json({ ok: false, error: error?.message || String(error) });
+  }
+});
+
 // INDEX_HEALTH_ROUTE
 app.get("/api/health", (_req: any, res: any) => {
   return res.status(200).json({
