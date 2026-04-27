@@ -109,6 +109,7 @@ import PhantomXLanding from "@/pages/PhantomXLanding";
 import TrustCentre from "@/pages/TrustCentre";
 import AdminEmailNotifications from "@/pages/AdminEmailNotifications";
 import AdminDataLayer from "@/pages/AdminDataLayer";
+import AdminAutonomyReadiness from "@/pages/AdminAutonomyReadiness";
 
 function AdminRoutes() {
   return (

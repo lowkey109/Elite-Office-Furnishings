@@ -55,6 +55,149 @@ app.get("/api/admin/data-layer/stores", async (req: any, res: any) => {
   }
 });
 
+// AUTONOMY_READINESS_INDEX_ROUTE
+app.get("/api/admin/autonomy-readiness", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") {
+    return res.status(401).json({ ok: false, error: "Authentication required" });
+  }
+
+  try {
+    const { getAutonomyReadiness } = await import("./services/platform/autonomyReadinessService");
+    return res.status(200).json(await getAutonomyReadiness());
+  } catch (error: any) {
+    return res.status(500).json({ ok: false, error: error?.message || String(error) });
+  }
+});
+
+// AUTONOMY_SAFETY_LOCK_MIDDLEWARE
+const dangerousAutonomyPaths = [
+  "/api/outreach/send",
+  "/api/outreach/resume",
+  "/api/outreach/approve",
+  "/api/admin/outreach/flush-send",
+  "/api/admin/outreach/create-for-top-opportunities",
+  "/api/admin/outreach/trigger-for-opportunity",
+  "/api/admin/deal-hunter/signals",
+  "/api/admin/office-move-radar",
+  "/api/admin/property-intelligence/opportunities",
+  "/api/admin/relocation-signals",
+  "/api/nexora/outreach",
+  "/api/nexora/pipeline",
+];
+
+function isDangerousAutonomyMutation(req: any) {
+  if (!["POST", "PATCH", "PUT", "DELETE"].includes(String(req.method || "").toUpperCase())) {
+    return false;
+  }
+
+  const path = String(req.path || req.url || "");
+
+  const explicitDanger =
+    path.includes("/push-to-pipeline") ||
+    path.includes("/queue-outreach") ||
+    path.includes("/generate-outreach") ||
+    path.includes("/approve") ||
+    path.includes("/flush-send") ||
+    path.includes("/send");
+
+  return explicitDanger || dangerousAutonomyPaths.some((prefix) => path.startsWith(prefix));
+}
+
+app.use((req: any, res: any, next: any) => {
+  if (!isDangerousAutonomyMutation(req)) return next();
+
+  const allowRealOutreach = process.env.TCD_ALLOW_REAL_OUTREACH === "true";
+  const allowPipelineMutation = process.env.TCD_ALLOW_PIPELINE_MUTATION === "true";
+  const fullGreen = process.env.TCD_AUTONOMY_FULL_GREEN === "true";
+  const overrideToken = process.env.TCD_AUTONOMY_OVERRIDE_TOKEN || "";
+  const providedOverride = String(req.headers["x-tcd-autonomy-override"] || "");
+
+  const path = String(req.path || req.url || "");
+  const isOutreachSend =
+    path.includes("/send") ||
+    path.includes("/flush-send") ||
+    path.includes("/approve") ||
+    path.includes("/queue-outreach") ||
+    path.includes("/generate-outreach");
+
+  const isPipelinePush =
+    path.includes("/push-to-pipeline") ||
+    path.includes("/api/nexora/pipeline");
+
+  const hasOverride = Boolean(overrideToken) && providedOverride === overrideToken;
+
+  if (isOutreachSend && !(fullGreen && allowRealOutreach && hasOverride)) {
+    return res.status(423).json({
+      ok: false,
+      locked: true,
+      lock: "AUTONOMY_OUTREACH_LOCK",
+      message:
+        "Real outreach is locked until Autonomy Readiness is green, sender/domain are verified, suppression tests pass, and override is supplied.",
+      required: {
+        TCD_AUTONOMY_FULL_GREEN: "true",
+        TCD_ALLOW_REAL_OUTREACH: "true",
+        "x-tcd-autonomy-override": "must match TCD_AUTONOMY_OVERRIDE_TOKEN",
+      },
+      path,
+    });
+  }
+
+  if (isPipelinePush && !(fullGreen && allowPipelineMutation && hasOverride)) {
+    return res.status(423).json({
+      ok: false,
+      locked: true,
+      lock: "AUTONOMY_PIPELINE_LOCK",
+      message:
+        "Automatic pipeline mutation is locked until lead quality validation passes and override is supplied.",
+      required: {
+        TCD_AUTONOMY_FULL_GREEN: "true",
+        TCD_ALLOW_PIPELINE_MUTATION: "true",
+        "x-tcd-autonomy-override": "must match TCD_AUTONOMY_OVERRIDE_TOKEN",
+      },
+      path,
+    });
+  }
+
+  return next();
+});
+
+app.get("/api/admin/autonomy-safety/status", (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") {
+    return res.status(401).json({ ok: false, error: "Authentication required" });
+  }
+
+  return res.status(200).json({
+    ok: true,
+    fullGreen: process.env.TCD_AUTONOMY_FULL_GREEN === "true",
+    realOutreachAllowed: process.env.TCD_ALLOW_REAL_OUTREACH === "true",
+    pipelineMutationAllowed: process.env.TCD_ALLOW_PIPELINE_MUTATION === "true",
+    overrideConfigured: Boolean(process.env.TCD_AUTONOMY_OVERRIDE_TOKEN),
+    safetyMode:
+      process.env.TCD_AUTONOMY_FULL_GREEN === "true"
+        ? "override_required"
+        : "locked_certification_mode",
+    protectedActions: [
+      "send outreach",
+      "approve outreach",
+      "flush outreach send queue",
+      "queue outreach",
+      "generate outreach",
+      "push to pipeline",
+      "Nexora pipeline mutation",
+    ],
+  });
+});
+
+// INDEX_HEALTH_ROUTE
+app.get("/api/health", (_req: any, res: any) => {
+  return res.status(200).json({
+    ok: true,
+    service: "The Corporate Desk",
+    status: "running",
+    time: new Date().toISOString(),
+  });
+});
+
 // EMAIL_DEBUG_PING_ROUTE
 app.get("/api/admin/notifications/ping", (_req: any, res: any) => {
   return res.status(200).json({

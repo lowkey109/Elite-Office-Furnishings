@@ -26,6 +26,7 @@ import {
   Receipt,
   RefreshCw,
   Search,
+  ShieldCheck,
   Send,
   ShieldAlert,
   ShoppingBag,
