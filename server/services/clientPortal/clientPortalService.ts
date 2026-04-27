@@ -506,3 +506,34 @@ export async function getClientCheckoutStatus(plan: string) {
       : "Stripe checkout is not fully configured. Add STRIPE_SECRET_KEY and the matching STRIPE_PRICE_* env var.",
   };
 }
+
+
+export async function createClientBillingPortal(token: string | undefined, returnUrl?: string) {
+  const user = await requireClient(token);
+
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return { ok: false, configured: false, error: "STRIPE_SECRET_KEY is not configured" };
+  }
+
+  if (!user.stripeCustomerId) {
+    return {
+      ok: false,
+      configured: true,
+      error: "No Stripe customer is linked to this client yet. Complete checkout first.",
+    };
+  }
+
+  const Stripe = (await import("stripe")).default;
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+  const session = await stripe.billingPortal.sessions.create({
+    customer: user.stripeCustomerId,
+    return_url: returnUrl || process.env.PUBLIC_APP_URL || "http://localhost:5000/client/billing",
+  });
+
+  return {
+    ok: true,
+    configured: true,
+    url: session.url,
+  };
+}
