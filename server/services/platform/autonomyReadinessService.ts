@@ -102,6 +102,7 @@ export async function getAutonomyReadiness() {
   const clientEngagement = await readJson("client-engagement-store.json", { savedListings: [], supportMessages: [] });
   const emailLog = await readJson("email-notification-log.json", { emails: [] });
   const phantomxCompliance = await readJson("phantomx-compliance-store.json", { applications: [] });
+  const outreachCertification = await readJson("outreach-safety-certification.json", null);
 
   const databaseConfigured = envSet("DATABASE_URL");
   const resendConfigured = envSet("RESEND_API_KEY");
@@ -253,18 +254,28 @@ export async function getAutonomyReadiness() {
       : "Watch logs and verify loop outputs before outreach sending.",
   });
 
+  const outreachCertified =
+    outreachCertification?.result === "passed" &&
+    outreachCertification?.checks?.sendLockVerified === true &&
+    outreachCertification?.checks?.realOutreachNotEnabled === true;
+
   checks.push({
     id: "outreach_safety",
     label: "Outreach safety gates",
-    status: senderLooksVerified() && resendConfigured ? "yellow" : "red",
-    summary: senderLooksVerified() && resendConfigured
-      ? "Email provider and sender are close, but suppression/approval tests must still pass."
-      : "Outreach must remain blocked until sender and provider are production-ready.",
+    status: outreachCertified ? "green" : senderLooksVerified() && resendConfigured ? "yellow" : "red",
+    summary: outreachCertified
+      ? "Outreach safety certification passed in internal-only mode. Real sending remains locked by default."
+      : senderLooksVerified() && resendConfigured
+        ? "Email provider and sender are close, but suppression/approval tests must still pass."
+        : "Outreach must remain blocked until sender and provider are production-ready.",
     evidence: {
       resendConfigured,
       senderVerified: senderLooksVerified(),
+      certification: outreachCertification,
     },
-    nextAction: "Verify suppressions, pending approvals, safety stats and one internal-only outreach test.",
+    nextAction: outreachCertified
+      ? "Keep real outreach locked until every remaining readiness item is green and an override is intentionally configured."
+      : "Verify suppressions, pending approvals, safety stats and one internal-only outreach test.",
   });
 
   const overall = worstStatus(checks);

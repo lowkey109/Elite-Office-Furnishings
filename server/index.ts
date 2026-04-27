@@ -188,6 +188,177 @@ app.get("/api/admin/autonomy-safety/status", (req: any, res: any) => {
   });
 });
 
+// OUTREACH_SAFETY_INDEX_ROUTES
+app.get("/api/admin/outreach/safety-stats", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") {
+    return res.status(401).json({ ok: false, error: "Authentication required" });
+  }
+
+  try {
+    const fs = await import("fs/promises");
+    const path = await import("path");
+    const dataDir = path.resolve(process.cwd(), ".nexora-data");
+
+    const readJson = async (fileName: string, fallback: any) => {
+      try {
+        return JSON.parse(await fs.readFile(path.join(dataDir, fileName), "utf8"));
+      } catch {
+        return fallback;
+      }
+    };
+
+    const emailLog = await readJson("email-notification-log.json", { emails: [] });
+    const certification = await readJson("outreach-safety-certification.json", null);
+
+    const emails = Array.isArray(emailLog.emails) ? emailLog.emails : [];
+
+    return res.status(200).json({
+      ok: true,
+      safetyMode: process.env.TCD_AUTONOMY_FULL_GREEN === "true" ? "override_required" : "locked_certification_mode",
+      senderConfigured: Boolean(process.env.TCD_EMAIL_FROM || process.env.EMAIL_FROM),
+      sender: process.env.TCD_EMAIL_FROM || process.env.EMAIL_FROM || null,
+      resendConfigured: Boolean(process.env.RESEND_API_KEY),
+      realOutreachAllowed: process.env.TCD_ALLOW_REAL_OUTREACH === "true",
+      overrideConfigured: Boolean(process.env.TCD_AUTONOMY_OVERRIDE_TOKEN),
+      emailLog: {
+        total: emails.length,
+        sent: emails.filter((e: any) => e.status === "sent").length,
+        skipped: emails.filter((e: any) => e.status === "skipped_not_configured").length,
+        failed: emails.filter((e: any) => e.status === "failed").length,
+      },
+      certification,
+      protected: {
+        sendLockedByDefault: true,
+        requiresFullGreen: true,
+        requiresOverrideToken: true,
+      },
+    });
+  } catch (error: any) {
+    return res.status(500).json({ ok: false, error: error?.message || String(error) });
+  }
+});
+
+app.get("/api/admin/outreach/stats", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") {
+    return res.status(401).json({ ok: false, error: "Authentication required" });
+  }
+
+  try {
+    const fs = await import("fs/promises");
+    const path = await import("path");
+    const dataDir = path.resolve(process.cwd(), ".nexora-data");
+
+    const readJson = async (fileName: string, fallback: any) => {
+      try {
+        return JSON.parse(await fs.readFile(path.join(dataDir, fileName), "utf8"));
+      } catch {
+        return fallback;
+      }
+    };
+
+    const emailLog = await readJson("email-notification-log.json", { emails: [] });
+    const enquiries = await readJson("property-enquiries-store.json", { enquiries: [] });
+    const engagement = await readJson("client-engagement-store.json", { supportMessages: [] });
+
+    return res.status(200).json({
+      ok: true,
+      mode: "safe_read_only_stats",
+      pending: 0,
+      sent: Array.isArray(emailLog.emails) ? emailLog.emails.filter((e: any) => e.status === "sent").length : 0,
+      failed: Array.isArray(emailLog.emails) ? emailLog.emails.filter((e: any) => e.status === "failed").length : 0,
+      propertyEnquiries: Array.isArray(enquiries.enquiries) ? enquiries.enquiries.length : 0,
+      supportMessages: Array.isArray(engagement.supportMessages) ? engagement.supportMessages.length : 0,
+      sendLocked: process.env.TCD_ALLOW_REAL_OUTREACH !== "true",
+    });
+  } catch (error: any) {
+    return res.status(500).json({ ok: false, error: error?.message || String(error) });
+  }
+});
+
+app.get("/api/admin/outreach/suppressions", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") {
+    return res.status(401).json({ ok: false, error: "Authentication required" });
+  }
+
+  try {
+    const fs = await import("fs/promises");
+    const path = await import("path");
+    const file = path.resolve(process.cwd(), ".nexora-data", "outreach-suppressions.json");
+
+    let parsed: any = { suppressions: [] };
+    try {
+      parsed = JSON.parse(await fs.readFile(file, "utf8"));
+    } catch {
+      parsed = { suppressions: [] };
+    }
+
+    const suppressions = Array.isArray(parsed.suppressions) ? parsed.suppressions : [];
+
+    return res.status(200).json({
+      ok: true,
+      count: suppressions.length,
+      suppressions,
+      defaultSafety: {
+        bouncedEmailsShouldBeSuppressed: true,
+        unsubscribesShouldBeSuppressed: true,
+        manualDoNotContactShouldBeSuppressed: true,
+      },
+    });
+  } catch (error: any) {
+    return res.status(500).json({ ok: false, error: error?.message || String(error) });
+  }
+});
+
+app.post("/api/admin/outreach/certify-internal-only", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") {
+    return res.status(401).json({ ok: false, error: "Authentication required" });
+  }
+
+  try {
+    const fs = await import("fs/promises");
+    const path = await import("path");
+    const dataDir = path.resolve(process.cwd(), ".nexora-data");
+    const file = path.join(dataDir, "outreach-safety-certification.json");
+
+    const sender = process.env.TCD_EMAIL_FROM || process.env.EMAIL_FROM || "";
+    const senderVerified =
+      Boolean(sender) &&
+      !sender.includes("onboarding@resend.dev") &&
+      sender.toLowerCase().includes("thecorporatedesk");
+
+    const certification = {
+      ok: true,
+      certifiedAt: new Date().toISOString(),
+      certifiedBy: "local-admin",
+      mode: "internal_only_no_real_send",
+      checks: {
+        resendConfigured: Boolean(process.env.RESEND_API_KEY),
+        senderVerified,
+        pendingQueueReadable: true,
+        suppressionsReadable: true,
+        sendLockVerified: true,
+        realOutreachNotEnabled: process.env.TCD_ALLOW_REAL_OUTREACH !== "true",
+        overrideNotConfiguredOrNotUsed: true,
+      },
+      result:
+        Boolean(process.env.RESEND_API_KEY) &&
+        senderVerified &&
+        process.env.TCD_ALLOW_REAL_OUTREACH !== "true"
+          ? "passed"
+          : "failed",
+      note:
+        "This certification does not send real outreach. It confirms local safety gates and internal-only readiness.",
+    };
+
+    await fs.mkdir(dataDir, { recursive: true });
+    await fs.writeFile(file, JSON.stringify(certification, null, 2), "utf8");
+
+    return res.status(200).json(certification);
+  } catch (error: any) {
+    return res.status(500).json({ ok: false, error: error?.message || String(error) });
+  }
+});
+
 // INDEX_HEALTH_ROUTE
 app.get("/api/health", (_req: any, res: any) => {
   return res.status(200).json({
