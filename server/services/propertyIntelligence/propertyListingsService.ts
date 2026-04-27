@@ -68,6 +68,9 @@ export type PropertyListing = {
   longitude?: number | null;
   partnerName?: string;
   sourceReference?: string;
+  sourceConfidence?: number;
+  verificationStatus?: "unverified" | "source_checked" | "partner_verified" | "admin_verified" | "expired";
+  duplicateKey?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -94,6 +97,41 @@ function clean(value: any) {
 function num(value: any): number | null {
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
+}
+
+function duplicateKeyForListing(input: any) {
+  const address = String(input.address || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const suburb = String(input.suburb || input.city || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const state = String(input.state || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const title = String(input.title || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const listingType = String(input.listingType || input.type || "").toLowerCase();
+  const propertyType = String(input.propertyType || "").toLowerCase();
+
+  if (address && suburb) return [listingType, propertyType, address, suburb, state].join(":");
+  return [listingType, propertyType, title, suburb, state].join(":");
+}
+
+function calculateSourceConfidence(input: any) {
+  let score = 35;
+
+  if (input.address) score += 10;
+  if (input.suburb || input.city) score += 8;
+  if (input.state) score += 5;
+  if (input.price || input.rent) score += 8;
+  if (input.agentName || input.agencyName) score += 8;
+  if (input.listingUrl || input.url) score += 10;
+  if (input.description) score += 6;
+  if (input.source === "partner_submitted") score += 8;
+  if (input.source === "csv_upload") score += 4;
+  if (input.source === "manual") score += 2;
+
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+function verificationStatusFor(input: any) {
+  if (input.verificationStatus) return input.verificationStatus;
+  if (input.source === "partner_submitted") return "partner_verified";
+  return "unverified";
 }
 
 function asArray(value: any): string[] {
@@ -163,6 +201,9 @@ function normaliseListing(input: any, source: PropertyListingSource = "manual"):
     longitude: num(input.longitude),
     partnerName: clean(input.partnerName),
     sourceReference: clean(input.sourceReference),
+    sourceConfidence: calculateSourceConfidence(input),
+    verificationStatus: verificationStatusFor(input),
+    duplicateKey: duplicateKeyForListing(input),
     createdAt: input.createdAt || t,
     updatedAt: t,
   };
@@ -329,7 +370,7 @@ function parseCsvLine(line: string) {
   return result.map(clean);
 }
 
-export async function importPropertyListingsCsv(input: { csv: string; source?: PropertyListingSource; partnerName?: string }) {
+export async function previewPropertyListingsCsv(input: { csv: string; source?: PropertyListingSource; partnerName?: string }) {
   const csv = String(input.csv || "").trim();
 
   if (!csv) {
@@ -337,13 +378,14 @@ export async function importPropertyListingsCsv(input: { csv: string; source?: P
   }
 
   const lines = csv.split(/\r?\n/).filter((line) => line.trim());
-  const headers = parseCsvLine(lines[0]).map((h) => h.trim());
+  const headers = parseCsvLine(lines[0] || "").map((h) => h.trim());
   const rows = lines.slice(1);
-
-  const created: PropertyListing[] = [];
   const store = await loadStore();
 
-  for (const row of rows) {
+  const existingKeys = new Set(store.listings.map((listing: any) => listing.duplicateKey || duplicateKeyForListing(listing)));
+  const seenInUpload = new Set<string>();
+
+  const preview = rows.map((row, rowIndex) => {
     const values = parseCsvLine(row);
     const obj: any = {};
 
@@ -351,10 +393,59 @@ export async function importPropertyListingsCsv(input: { csv: string; source?: P
       obj[header] = values[index] || "";
     });
 
-    obj.source = input.source || "csv_upload";
+    obj.source = input.source || obj.source || "csv_upload";
     obj.partnerName = input.partnerName || obj.partnerName || "";
 
-    created.push(normaliseListing(obj, obj.source));
+    const listing = normaliseListing(obj, obj.source);
+    const duplicateKey = listing.duplicateKey || duplicateKeyForListing(listing);
+    const duplicateExisting = existingKeys.has(duplicateKey);
+    const duplicateInUpload = seenInUpload.has(duplicateKey);
+    seenInUpload.add(duplicateKey);
+
+    const issues: string[] = [];
+
+    if (!listing.title) issues.push("Missing title");
+    if (!listing.address && !listing.suburb && !listing.city) issues.push("Missing location");
+    if (!listing.price && !listing.rent) issues.push("Missing price/rent");
+    if (duplicateExisting) issues.push("Possible duplicate of existing listing");
+    if (duplicateInUpload) issues.push("Duplicate inside uploaded CSV");
+
+    return {
+      rowNumber: rowIndex + 2,
+      action: duplicateExisting || duplicateInUpload ? "skip_duplicate" : "ready_import",
+      duplicateExisting,
+      duplicateInUpload,
+      issues,
+      listing,
+    };
+  });
+
+  return {
+    ok: true,
+    totalRows: preview.length,
+    readyToImport: preview.filter((row) => row.action === "ready_import").length,
+    duplicates: preview.filter((row) => row.action === "skip_duplicate").length,
+    warnings: preview.filter((row) => row.issues.length > 0).length,
+    preview,
+  };
+}
+
+export async function importPropertyListingsCsv(input: { csv: string; source?: PropertyListingSource; partnerName?: string; skipDuplicates?: boolean }) {
+  const duplicatePreview = await previewPropertyListingsCsv(input);
+
+  if (!duplicatePreview.ok) return duplicatePreview;
+
+  const created: PropertyListing[] = [];
+  const skipped: any[] = [];
+  const store = await loadStore();
+
+  for (const row of duplicatePreview.preview || []) {
+    if (input.skipDuplicates !== false && row.action === "skip_duplicate") {
+      skipped.push(row);
+      continue;
+    }
+
+    created.push(row.listing);
   }
 
   store.listings.unshift(...created);
@@ -363,7 +454,10 @@ export async function importPropertyListingsCsv(input: { csv: string; source?: P
   return {
     ok: true,
     imported: created.length,
+    skippedDuplicates: skipped.length,
+    totalRows: duplicatePreview.totalRows,
     listings: created,
+    skipped,
   };
 }
 
