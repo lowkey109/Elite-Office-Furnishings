@@ -186,13 +186,24 @@ export async function getAutonomyReadiness() {
       : "Set TCD_EMAIL_FROM to a verified domain sender such as The Corporate Desk <hello@thecorporatedesk.au>.",
   });
 
+  const stripePaidPricesValid =
+    stripeConfigured &&
+    Boolean(process.env.STRIPE_WEBHOOK_SECRET) &&
+    String(process.env.STRIPE_PRICE_STARTER || "").trim().startsWith("price_") &&
+    String(process.env.STRIPE_PRICE_GROWTH || "").trim().startsWith("price_") &&
+    String(process.env.STRIPE_PRICE_LEASEHAWK_PRO || "").trim().startsWith("price_") &&
+    String(process.env.STRIPE_PRICE_LEASEHAWK_PLUS || "").trim().startsWith("price_") &&
+    String(process.env.STRIPE_PRICE_PHANTOMX_PRO || "").trim().startsWith("price_");
+
   checks.push({
     id: "stripe_billing",
     label: "Stripe billing",
-    status: stripeConfigured ? "yellow" : "red",
-    summary: stripeConfigured
-      ? "Stripe key is configured, but every price ID and webhook should still be verified."
-      : "Stripe secret key is missing.",
+    status: stripePaidPricesValid ? "green" : stripeConfigured ? "yellow" : "red",
+    summary: stripePaidPricesValid
+      ? "Stripe paid plans and webhook are configured. PhantomX Paper is intentionally free."
+      : stripeConfigured
+        ? "Stripe key is configured, but every paid price ID and webhook should still be verified."
+        : "Stripe secret key is missing.",
     evidence: {
       STRIPE_SECRET_KEY: stripeConfigured,
       STRIPE_WEBHOOK_SECRET: envSet("STRIPE_WEBHOOK_SECRET"),
@@ -201,7 +212,9 @@ export async function getAutonomyReadiness() {
       STRIPE_PRICE_LEASEHAWK_PRO: envSet("STRIPE_PRICE_LEASEHAWK_PRO"),
       STRIPE_PRICE_LEASEHAWK_PLUS: envSet("STRIPE_PRICE_LEASEHAWK_PLUS"),
     },
-    nextAction: "Verify every Stripe price ID starts with price_ and complete a test checkout.",
+    nextAction: stripePaidPricesValid
+      ? "Complete one test checkout and webhook event before production deployment."
+      : "Set missing paid price IDs. PhantomX Paper should remain free and does not need a Stripe price.",
   });
 
   const supportCount = Array.isArray(clientEngagement.supportMessages) ? clientEngagement.supportMessages.length : 0;

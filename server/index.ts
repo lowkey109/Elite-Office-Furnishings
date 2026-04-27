@@ -359,6 +359,48 @@ app.post("/api/admin/outreach/certify-internal-only", async (req: any, res: any)
   }
 });
 
+// STRIPE_CHECKOUT_STATUS_INDEX_ROUTE
+app.get("/api/client/subscription/checkout-status/:plan", (req: any, res: any) => {
+  const plan = String(req.params.plan || "").trim();
+
+  if (plan === "phantomx-paper") {
+    return res.status(200).json({
+      ok: true,
+      configured: true,
+      plan,
+      free: true,
+      priceEnv: null,
+      priceConfigured: true,
+      message: "PhantomX Paper is intentionally free and does not require Stripe checkout.",
+    });
+  }
+
+  const priceEnvByPlan: Record<string, string> = {
+    starter: "STRIPE_PRICE_STARTER",
+    growth: "STRIPE_PRICE_GROWTH",
+    "leasehawk-pro": "STRIPE_PRICE_LEASEHAWK_PRO",
+    "leasehawk-plus": "STRIPE_PRICE_LEASEHAWK_PLUS",
+    "phantomx-pro": "STRIPE_PRICE_PHANTOMX_PRO",
+  };
+
+  const priceEnv = priceEnvByPlan[plan] || "";
+  const priceValue = priceEnv ? String(process.env[priceEnv] || "").trim() : "";
+  const secretConfigured = Boolean(process.env.STRIPE_SECRET_KEY);
+  const priceConfigured = priceValue.startsWith("price_");
+
+  return res.status(200).json({
+    ok: true,
+    configured: secretConfigured,
+    plan,
+    priceEnv: priceEnv || null,
+    priceConfigured,
+    message:
+      secretConfigured && priceConfigured
+        ? "Stripe checkout is configured for this plan."
+        : "Stripe checkout is not fully configured. Add STRIPE_SECRET_KEY and the matching STRIPE_PRICE_* env var.",
+  });
+});
+
 // INDEX_HEALTH_ROUTE
 app.get("/api/health", (_req: any, res: any) => {
   return res.status(200).json({
