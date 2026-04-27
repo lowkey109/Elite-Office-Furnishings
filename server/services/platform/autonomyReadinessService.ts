@@ -37,11 +37,21 @@ function envSet(key: string) {
 }
 
 function senderLooksVerified() {
-  const from = process.env.TCD_EMAIL_FROM || process.env.EMAIL_FROM || "";
-  if (!from) return false;
-  if (from.includes("hello@thecorporatedesk.au")) return false;
-  if (!from.toLowerCase().includes("thecorporatedesk")) return false;
-  return true;
+  const raw = String(process.env.TCD_EMAIL_FROM || process.env.EMAIL_FROM || "").trim();
+  const lower = raw.toLowerCase();
+
+  if (!raw) return false;
+  if (lower.includes("onboarding@resend.dev")) return false;
+  if (!lower.includes("@")) return false;
+
+  const compact = lower.replace(/[^a-z0-9@.]/g, "");
+
+  return (
+    compact.includes("thecorporatedesk") ||
+    compact.includes("hello@thecorporatedesk.au") ||
+    compact.includes("@thecorporatedesk.au") ||
+    compact.includes("@thecorporatedesk.com.au")
+  );
 }
 
 function statusRank(status: ReadinessStatus) {
