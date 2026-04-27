@@ -118,6 +118,10 @@ export async function submitPhantomXApplication(input: any) {
   store.applications.unshift(application);
   await saveStore(store);
 
+  import("../notifications/clientEmailNotificationService")
+    .then(({ sendPhantomXApplicationSubmittedEmail }) => sendPhantomXApplicationSubmittedEmail(application))
+    .catch((error) => console.warn("[notifications] PhantomX application email failed", error));
+
   return {
     ok: true,
     application,

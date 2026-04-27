@@ -221,6 +221,10 @@ export async function signupClient(input: any) {
   await saveStore(store);
 
   const token = createSession(user);
+  import("./../notifications/clientEmailNotificationService")
+    .then(({ sendWelcomeEmail }) => sendWelcomeEmail(user))
+    .catch((error) => console.warn("[notifications] welcome email failed", error));
+
   return { ok: true, token, user: publicUser(user) };
 }
 

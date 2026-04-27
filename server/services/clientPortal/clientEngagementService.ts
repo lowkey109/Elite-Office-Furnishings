@@ -152,6 +152,10 @@ export async function createClientSupportMessage(input: {
   store.supportMessages.unshift(supportMessage);
   await saveStore(store);
 
+  import("../notifications/clientEmailNotificationService")
+    .then(({ sendSupportMessageReceivedEmail }) => sendSupportMessageReceivedEmail(supportMessage))
+    .catch((error) => console.warn("[notifications] support message email failed", error));
+
   return { ok: true, supportMessage };
 }
 

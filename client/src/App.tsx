@@ -107,6 +107,7 @@ import WorkspaceControlLanding from "@/pages/WorkspaceControlLanding";
 import LeaseHawkLanding from "@/pages/LeaseHawkLanding";
 import PhantomXLanding from "@/pages/PhantomXLanding";
 import TrustCentre from "@/pages/TrustCentre";
+import AdminEmailNotifications from "@/pages/AdminEmailNotifications";
 
 function AdminRoutes() {
   return (

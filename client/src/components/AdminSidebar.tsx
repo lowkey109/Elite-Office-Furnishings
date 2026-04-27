@@ -15,6 +15,7 @@ import {
   LayoutDashboard,
   LogOut,
   Map,
+  Mail,
   Megaphone,
   MessageSquare,
   Network,

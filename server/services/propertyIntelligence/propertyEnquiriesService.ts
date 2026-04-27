@@ -103,6 +103,10 @@ export async function createPropertyEnquiry(input: {
   store.enquiries.unshift(enquiry);
   await saveStore(store);
 
+  import("../notifications/clientEmailNotificationService")
+    .then(({ sendPropertyEnquiryReceivedEmail }) => sendPropertyEnquiryReceivedEmail(enquiry))
+    .catch((error) => console.warn("[notifications] property enquiry email failed", error));
+
   return { ok: true, enquiry };
 }
 

@@ -12686,5 +12686,72 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
     return res.json(await updateAdminSupportMessage(req.params.id, req.body || {}));
   });
 
+
+
+  // EMAIL_NOTIFICATION_ROUTES
+  app.get("/api/admin/notifications/email-log", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+
+    try {
+      const fs = await import("fs/promises");
+      const path = await import("path");
+
+      const file = path.resolve(process.cwd(), ".nexora-data", "email-notification-log.json");
+
+      let parsed: any = { emails: [] };
+      try {
+        parsed = JSON.parse(await fs.readFile(file, "utf8"));
+      } catch {
+        parsed = { emails: [] };
+      }
+
+      const emails = Array.isArray(parsed.emails) ? parsed.emails : [];
+
+      return res.json({
+        ok: true,
+        configured: Boolean(process.env.RESEND_API_KEY),
+        from: process.env.TCD_EMAIL_FROM || process.env.EMAIL_FROM || "The Corporate Desk <onboarding@resend.dev>",
+        adminEmail: process.env.TCD_ADMIN_EMAIL || process.env.INTERNAL_NOTIFY_EMAIL || "thecorporatedeskservice@gmail.com",
+        count: emails.length,
+        emails: emails.slice(0, 100),
+        stats: {
+          sent: emails.filter((email: any) => email.status === "sent").length,
+          skipped: emails.filter((email: any) => email.status === "skipped_not_configured").length,
+          failed: emails.filter((email: any) => email.status === "failed").length,
+        },
+      });
+    } catch (error: any) {
+      return res.status(500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.post("/api/admin/notifications/trial-ending-reminders", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+
+    try {
+      const { sendTrialEndingReminders } = await import("./services/notifications/clientEmailNotificationService");
+
+      const timeout = new Promise((resolve) => {
+        setTimeout(() => resolve({
+          ok: false,
+          timeout: true,
+          candidates: 0,
+          message: "Trial reminder task timed out before completion.",
+        }), 8000);
+      });
+
+      const result = await Promise.race([
+        sendTrialEndingReminders(Number(req.body?.daysAhead || 3)),
+        timeout,
+      ]);
+
+      return res.json(result);
+    } catch (error: any) {
+      return res.status(500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
   return httpServer;
 }
