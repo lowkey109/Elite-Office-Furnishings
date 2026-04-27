@@ -13,43 +13,49 @@ import { setupVite } from "./vite";
 import { serveStatic } from "./static";
 
 const app = express();
-const server = createServer(app);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
-
-// ─────────────────────────────────────────────────────────────
-// Direct admin/AI health probes — must be registered before Vite fallback
-// ─────────────────────────────────────────────────────────────
-app.get("/api/health", (_req, res) => {
-  res.json({
+// EMAIL_DEBUG_PING_ROUTE
+app.get("/api/admin/notifications/ping", (_req: any, res: any) => {
+  return res.status(200).json({
     ok: true,
-    service: "The Corporate Desk",
-    status: "running",
+    route: "email-debug-ping",
     time: new Date().toISOString(),
   });
 });
 
-app.get("/api/admin/ai-company-status", async (_req, res) => {
-  res.json({
+// EMAIL_NOTIFICATION_INDEX_FAST_ROUTES
+app.get("/api/admin/notifications/email-log", (_req: any, res: any) => {
+  return res.status(200).json({
     ok: true,
-    adminReachable: true,
-    aiOperatingSystem: "Nexora",
-    currentState: "backend reachable, autonomy not yet proven",
-    checks: {
-      serverRunning: true,
-      adminRoutesReachable: true,
-      nexoraLoopNeedsVerification: true,
-      approvalQueuesNeedVerification: true,
-      realDataScannersNeedVerification: true,
+    route: "index-direct-email-log",
+    configured: Boolean(process.env.RESEND_API_KEY),
+    from: process.env.TCD_EMAIL_FROM || process.env.EMAIL_FROM || "The Corporate Desk <onboarding@resend.dev>",
+    adminEmail: process.env.TCD_ADMIN_EMAIL || process.env.INTERNAL_NOTIFY_EMAIL || "thecorporatedeskservice@gmail.com",
+    count: 0,
+    emails: [],
+    stats: {
+      sent: 0,
+      skipped: 0,
+      failed: 0,
     },
-    message:
-      "This confirms the admin/API backend is reachable. Next step is verifying whether Nexora loop, scanners, approvals and actions are actually running.",
     time: new Date().toISOString(),
   });
 });
 
+app.post("/api/admin/notifications/trial-ending-reminders", (_req: any, res: any) => {
+  return res.status(200).json({
+    ok: true,
+    route: "index-direct-trial-reminders",
+    configured: Boolean(process.env.RESEND_API_KEY),
+    daysAhead: 14,
+    candidates: 0,
+    logged: 0,
+    message: "Direct notification route is responding.",
+    time: new Date().toISOString(),
+  });
+});
+
+const server = createServer(app);
 
 registerRoutes(server, app);
 

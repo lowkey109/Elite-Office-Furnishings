@@ -12690,25 +12690,26 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
 
   // EMAIL_NOTIFICATION_ROUTES
   app.get("/api/admin/notifications/email-log", async (req: any, res: any) => {
-    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
-    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const localAdmin = req.headers["x-tcd-admin-auth"] === "true";
+    if (!localAdmin) return res.status(401).json({ ok: false, error: "Authentication required" });
 
     try {
       const fs = await import("fs/promises");
       const path = await import("path");
 
-      const file = path.resolve(process.cwd(), ".nexora-data", "email-notification-log.json");
+      const logFile = path.resolve(process.cwd(), ".nexora-data", "email-notification-log.json");
 
       let parsed: any = { emails: [] };
       try {
-        parsed = JSON.parse(await fs.readFile(file, "utf8"));
+        const raw = await fs.readFile(logFile, "utf8");
+        parsed = JSON.parse(raw);
       } catch {
         parsed = { emails: [] };
       }
 
       const emails = Array.isArray(parsed.emails) ? parsed.emails : [];
 
-      return res.json({
+      return res.status(200).json({
         ok: true,
         configured: Boolean(process.env.RESEND_API_KEY),
         from: process.env.TCD_EMAIL_FROM || process.env.EMAIL_FROM || "The Corporate Desk <onboarding@resend.dev>",
@@ -12727,27 +12728,73 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
   });
 
   app.post("/api/admin/notifications/trial-ending-reminders", async (req: any, res: any) => {
-    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
-    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const localAdmin = req.headers["x-tcd-admin-auth"] === "true";
+    if (!localAdmin) return res.status(401).json({ ok: false, error: "Authentication required" });
 
     try {
-      const { sendTrialEndingReminders } = await import("./services/notifications/clientEmailNotificationService");
+      const fs = await import("fs/promises");
+      const path = await import("path");
 
-      const timeout = new Promise((resolve) => {
-        setTimeout(() => resolve({
-          ok: false,
-          timeout: true,
-          candidates: 0,
-          message: "Trial reminder task timed out before completion.",
-        }), 8000);
+      const clientStoreFile = path.resolve(process.cwd(), ".nexora-data", "client-portal-store.json");
+      const emailLogFile = path.resolve(process.cwd(), ".nexora-data", "email-notification-log.json");
+
+      let clientStore: any = { users: [] };
+      try {
+        clientStore = JSON.parse(await fs.readFile(clientStoreFile, "utf8"));
+      } catch {
+        clientStore = { users: [] };
+      }
+
+      let emailLog: any = { emails: [] };
+      try {
+        emailLog = JSON.parse(await fs.readFile(emailLogFile, "utf8"));
+      } catch {
+        emailLog = { emails: [] };
+      }
+
+      const daysAhead = Number(req.body?.daysAhead || 3);
+      const nowMs = Date.now();
+      const maxMs = nowMs + daysAhead * 24 * 60 * 60 * 1000;
+
+      const users = Array.isArray(clientStore.users) ? clientStore.users : [];
+      const candidates = users.filter((user: any) => {
+        if (user.subscriptionStatus !== "trialing") return false;
+        if (!user.trialEndsAt || !user.email) return false;
+        const t = new Date(user.trialEndsAt).getTime();
+        return Number.isFinite(t) && t >= nowMs && t <= maxMs;
       });
 
-      const result = await Promise.race([
-        sendTrialEndingReminders(Number(req.body?.daysAhead || 3)),
-        timeout,
-      ]);
+      const logs = candidates.map((user: any) => ({
+        id: "email-log-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
+        createdAt: new Date().toISOString(),
+        status: process.env.RESEND_API_KEY ? "queued_not_sent_in_safe_route" : "skipped_not_configured",
+        provider: "resend",
+        to: user.email,
+        subject: "Your The Corporate Desk trial is ending soon",
+        category: "trial_ending",
+        metadata: {
+          clientUserId: user.id,
+          tenantId: user.tenantId,
+          plan: user.plan,
+          trialEndsAt: user.trialEndsAt,
+        },
+      }));
 
-      return res.json(result);
+      emailLog.emails = [...logs, ...(Array.isArray(emailLog.emails) ? emailLog.emails : [])].slice(0, 500);
+
+      await fs.mkdir(path.dirname(emailLogFile), { recursive: true });
+      await fs.writeFile(emailLogFile, JSON.stringify(emailLog, null, 2), "utf8");
+
+      return res.status(200).json({
+        ok: true,
+        configured: Boolean(process.env.RESEND_API_KEY),
+        daysAhead,
+        candidates: candidates.length,
+        logged: logs.length,
+        message: process.env.RESEND_API_KEY
+          ? "Trial reminder candidates were logged. Full sending can be enabled after Resend is verified."
+          : "RESEND_API_KEY is not configured. Trial reminder candidates were logged as skipped.",
+      });
     } catch (error: any) {
       return res.status(500).json({ ok: false, error: error?.message || String(error) });
     }
