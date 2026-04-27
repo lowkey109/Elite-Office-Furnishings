@@ -116,7 +116,7 @@ Return ONLY the email body text. No markdown, no subject line, no placeholders.
 
       try {
         const sendResult = await resend.emails.send({
-          from: process.env.OUTREACH_FROM_EMAIL || "The Corporate Desk <onboarding@resend.dev>",
+          from: process.env.OUTREACH_FROM_EMAIL || "The Corporate Desk <hello@thecorporatedesk.au>",
           to: [supplier.email],
           subject,
           text: message,

@@ -35,7 +35,7 @@ async function saveEmailLog(store: EmailLogStore) {
 }
 
 function sender() {
-  return process.env.TCD_EMAIL_FROM || process.env.EMAIL_FROM || "The Corporate Desk <onboarding@resend.dev>";
+  return process.env.TCD_EMAIL_FROM || process.env.EMAIL_FROM || "The Corporate Desk <hello@thecorporatedesk.au>";
 }
 
 function adminEmail() {

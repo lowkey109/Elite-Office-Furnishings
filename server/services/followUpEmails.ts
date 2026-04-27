@@ -1,6 +1,6 @@
 import type { FollowUpSequence } from "@shared/schema";
 
-const FROM = "The Corporate Desk <onboarding@resend.dev>";
+const FROM = "The Corporate Desk <hello@thecorporatedesk.au>";
 const ADMIN_EMAIL = "thecorporatedeskservice@gmail.com";
 const SITE_URL = "https://thecorporatedesk.com.au";
 

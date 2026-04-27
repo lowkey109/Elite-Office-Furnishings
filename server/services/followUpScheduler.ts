@@ -24,7 +24,7 @@ async function internalSendEmail(opts: { to: string; subject: string; html: stri
     return;
   }
   await resend.emails.send({
-    from: "The Corporate Desk <onboarding@resend.dev>",
+    from: "The Corporate Desk <hello@thecorporatedesk.au>",
     to: opts.to,
     subject: opts.subject,
     html: opts.html,

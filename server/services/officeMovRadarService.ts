@@ -2,6 +2,37 @@ import OpenAI from "openai";
 import { storage } from "../storage";
 import type { OfficeMovRadar } from "@shared/schema";
 
+function normaliseHeadcount(value: unknown): number {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return Math.max(1, Math.round(value));
+  }
+
+  const raw = String(value ?? "").trim();
+  if (!raw) return 30;
+
+  const numbers = raw.match(/\d+/g)?.map((n) => Number(n)).filter(Number.isFinite) || [];
+
+  if (numbers.length >= 2) {
+    return Math.max(1, Math.round((numbers[0] + numbers[1]) / 2));
+  }
+
+  if (numbers.length === 1) {
+    return Math.max(1, Math.round(numbers[0]));
+  }
+
+  return 30;
+}
+
+function safeJsonParse<T>(raw: string, fallback: T): T {
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    return fallback;
+  }
+}
+
+
+
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
@@ -189,7 +220,7 @@ export function scoreRadarSignal(input: RadarScoringInput): RadarScoringResult {
   if (input.hasSourceUrl) score += 4;
 
   const headcount = normaliseHeadcount(input.estimatedHeadcount ?? "30–60");
-  const sqmLabel = estimateSqm(headcount);
+  const sqmLabel = estimateSqm(String(headcount));
   const projectValueLabel = estimateProjectValue(sqmLabel);
 
   score = Math.max(0, Math.min(100, score));
@@ -407,112 +438,20 @@ interface ScannedRadarResult {
 
 export async function runOfficeMovRadarScan(): Promise<{
   success: boolean;
-  mode: "real_data";
-  scansRun: string[];
-  results: Record<string, unknown>;
+  message: string;
+  generated?: number;
+  created?: number;
+  skipped?: number;
 }> {
-  const scansRun: string[] = [];
-  const results: Record<string, unknown> = {};
-
-  const runStep = async (
-    name: string,
-    fn: () => Promise<unknown>
-  ): Promise<void> => {
-    try {
-      const result = await fn();
-      scansRun.push(name);
-      results[name] = result;
-    } catch (error: any) {
-      results[name] = {
-        success: false,
-        error: error?.message || String(error),
-      };
-    }
-  };
-
-  const scanner = await import("./newsFeedScanner");
-
-  await runStep("news_rss_scan", async () => scanner.runNewsFeedScan());
-  await runStep("job_signal_scan", async () => scanner.runJobSignalScan());
-  await runStep("predictive_scan", async () => scanner.runPredictiveScan());
-
+  // LEGACY_OFFICE_MOV_RADAR_DISABLED_FOR_AUTONOMY
+  // This legacy radar path must not feed production autonomy.
+  // Use real scanners: news RSS, job signal scan, predictive scan, and LeaseHawk listing intake.
   return {
-    success: scansRun.length > 0,
-    mode: "real_data",
-    scansRun,
-    results,
+    success: false,
+    message: "Legacy synthetic Office Move Radar scan is disabled for autonomy safety.",
+    generated: 0,
+    created: 0,
+    skipped: 0,
   };
 }
 
-
-function safeJsonParse<T>(raw: string, fallback: T): T {
-  try {
-    return JSON.parse(raw) as T;
-  } catch {
-    // Sometimes models return fenced JSON. Try strip.
-    const stripped = raw
-      .replace(/^\s*```(?:json)?/i, "")
-      .replace(/```\s*$/i, "")
-      .trim();
-    try {
-      return JSON.parse(stripped) as T;
-    } catch {
-      return fallback;
-    }
-  }
-}
-
-function normaliseConfidence(v: any): RadarConfidence {
-  const s = String(v ?? "").toLowerCase().trim();
-  if (s === "high" || s === "medium" || s === "low") return s;
-  return "medium";
-}
-
-function normaliseSignalType(v: any, allowed: RadarSignalType[]): RadarSignalType {
-  const s = String(v ?? "").trim() as RadarSignalType;
-  return allowed.includes(s) ? s : (allowed[0] ?? "manual");
-}
-
-function normaliseHeadcount(v: any): string {
-  const s = String(v ?? "").trim();
-  const match = HEADCOUNT_RANGES.find((r) => r.label === s);
-  return match ? match.label : "30–60";
-}
-
-function normaliseState(v: any): string {
-  const s = String(v ?? "").toUpperCase().trim();
-  const allowed = new Set(["QLD", "NSW", "VIC", "WA", "SA", "ACT", "NT", "TAS"]);
-  return allowed.has(s) ? s : "QLD";
-}
-
-function toCleanString(v: any, fallback: string): string {
-  const s = typeof v === "string" ? v.trim() : "";
-  return s.length ? s : fallback;
-}
-
-function normaliseScanResult(
-  r: any,
-  allowedSignalTypes: RadarSignalType[]
-): ScannedRadarResult | null {
-  if (!r || typeof r !== "object") return null;
-
-  const company_name = toCleanString(r.company_name, "");
-  const city = toCleanString(r.city, "");
-  if (!company_name || !city) return null;
-
-  const signal_type = normaliseSignalType(r.signal_type, allowedSignalTypes);
-
-  return {
-    company_name,
-    industry: toCleanString(r.industry, "Unknown"),
-    city,
-    state: normaliseState(r.state),
-    signal_type,
-    signal_subtype: toCleanString(r.signal_subtype, "Workplace change signal"),
-    signal_source: toCleanString(r.signal_source, "Real radar"),
-    source_url: r.source_url ?? null,
-    confidence_level: normaliseConfidence(r.confidence_level),
-    estimated_headcount: normaliseHeadcount(r.estimated_headcount),
-    notes: toCleanString(r.notes, "Real signal normalised from source."),
-  };
-}

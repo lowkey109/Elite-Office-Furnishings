@@ -10065,7 +10065,7 @@ Rules:
         envStatus: {
           RESEND_API_KEY: process.env.RESEND_API_KEY ? `SET (length: ${process.env.RESEND_API_KEY.length})` : "NOT SET",
           SAFE_MODE: process.env.SAFE_MODE ?? "not set",
-          fromAddress: "The Corporate Desk <onboarding@resend.dev>",
+          fromAddress: "The Corporate Desk <hello@thecorporatedesk.au>",
         },
       });
     }
@@ -10406,7 +10406,7 @@ Rules:
           attachedContactEmail: contactEmail,
           emailActuallySent: r.deliveryStatus === "sent" && !!r.recipientEmail,
           wasInternal: r.recipientEmail
-            ? ["thecorporatedeskservice@gmail.com", "service@thecorporatedesk.com.au", "onboarding@resend.dev"].includes(r.recipientEmail)
+            ? ["thecorporatedeskservice@gmail.com", "service@thecorporatedesk.com.au", "hello@thecorporatedesk.au"].includes(r.recipientEmail)
             : null,
         };
       }));
@@ -12712,7 +12712,7 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
       return res.status(200).json({
         ok: true,
         configured: Boolean(process.env.RESEND_API_KEY),
-        from: process.env.TCD_EMAIL_FROM || process.env.EMAIL_FROM || "The Corporate Desk <onboarding@resend.dev>",
+        from: process.env.TCD_EMAIL_FROM || process.env.EMAIL_FROM || "The Corporate Desk <hello@thecorporatedesk.au>",
         adminEmail: process.env.TCD_ADMIN_EMAIL || process.env.INTERNAL_NOTIFY_EMAIL || "thecorporatedeskservice@gmail.com",
         count: emails.length,
         emails: emails.slice(0, 100),

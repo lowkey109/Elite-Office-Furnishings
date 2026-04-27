@@ -20,7 +20,7 @@ const INTERNAL_DOMAINS = [
 const INTERNAL_EXACT = [
   "thecorporatedeskservice@gmail.com",
   "service@thecorporatedesk.com.au",
-  "onboarding@resend.dev",
+  "hello@thecorporatedesk.au",
 ];
 
 export type ResolvedTarget = {

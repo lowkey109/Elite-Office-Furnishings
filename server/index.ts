@@ -323,7 +323,7 @@ app.post("/api/admin/outreach/certify-internal-only", async (req: any, res: any)
     const sender = process.env.TCD_EMAIL_FROM || process.env.EMAIL_FROM || "";
     const senderVerified =
       Boolean(sender) &&
-      !sender.includes("onboarding@resend.dev") &&
+      !sender.includes("hello@thecorporatedesk.au") &&
       sender.toLowerCase().includes("thecorporatedesk");
 
     const certification = {
@@ -426,7 +426,7 @@ app.get("/api/admin/notifications/email-log", (_req: any, res: any) => {
     ok: true,
     route: "index-direct-email-log",
     configured: Boolean(process.env.RESEND_API_KEY),
-    from: process.env.TCD_EMAIL_FROM || process.env.EMAIL_FROM || "The Corporate Desk <onboarding@resend.dev>",
+    from: process.env.TCD_EMAIL_FROM || process.env.EMAIL_FROM || "The Corporate Desk <hello@thecorporatedesk.au>",
     adminEmail: process.env.TCD_ADMIN_EMAIL || process.env.INTERNAL_NOTIFY_EMAIL || "thecorporatedeskservice@gmail.com",
     count: 0,
     emails: [],

@@ -5,7 +5,7 @@ const TCD_RECIPIENTS = [
   "thecorporatedeskservice@gmail.com",
 ];
 
-const TCD_FROM = "The Corporate Desk <onboarding@resend.dev>";
+const TCD_FROM = "The Corporate Desk <hello@thecorporatedesk.au>";
 const TCD_PHONE = "1300 977 607";
 const TCD_EMAIL = "service@thecorporatedesk.com.au";
 const TCD_WEBSITE = "https://thecorporatedesk.com.au";

@@ -16,10 +16,10 @@ export const SENDER = {
 
 /**
  * The FROM address used when sending outreach emails.
- * Uses onboarding@resend.dev until thecorporatedesk.au domain is verified in Resend.
+ * Uses the verified TCD sender from environment where available.
  * Once verified: `${SENDER.name} <${SENDER.email}>`
  */
-export const OUTREACH_FROM = `${SENDER.name} – ${SENDER.company} <onboarding@resend.dev>`;
+export const OUTREACH_FROM = `${SENDER.name} – ${SENDER.company} <hello@thecorporatedesk.au>`;
 
 /**
  * HTML signature block appended to every outreach email body.
