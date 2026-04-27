@@ -12528,5 +12528,55 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
 
 
 
+
+
+  // PHANTOMX_COMPLIANCE_API_ROUTES
+  app.get("/api/client/phantomx/compliance-rules", async (_req: any, res: any) => {
+    const { getPhantomXComplianceRules } = await import("./services/trading/phantomXComplianceService");
+    return res.json(getPhantomXComplianceRules());
+  });
+
+  app.get("/api/client/phantomx/applications", async (req: any, res: any) => {
+    try {
+      const { requireClient } = await import("./services/clientPortal/clientPortalService");
+      const { listClientPhantomXApplications } = await import("./services/trading/phantomXComplianceService");
+      const user: any = await requireClient(clientTokenFromReq(req));
+      return res.json(await listClientPhantomXApplications(user.tenantId));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.post("/api/client/phantomx/applications", async (req: any, res: any) => {
+    try {
+      const { requireClient } = await import("./services/clientPortal/clientPortalService");
+      const { submitPhantomXApplication } = await import("./services/trading/phantomXComplianceService");
+      const user: any = await requireClient(clientTokenFromReq(req));
+      return res.json(await submitPhantomXApplication({
+        tenantId: user.tenantId,
+        clientUserId: user.id,
+        clientEmail: user.email,
+        clientCompanyName: user.companyName,
+        ...(req.body || {}),
+      }));
+    } catch (error: any) {
+      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+    }
+  });
+
+  app.get("/api/admin/phantomx/applications", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const { listAdminPhantomXApplications } = await import("./services/trading/phantomXComplianceService");
+    return res.json(await listAdminPhantomXApplications(req.query || {}));
+  });
+
+  app.patch("/api/admin/phantomx/applications/:id", async (req: any, res: any) => {
+    const localAdmin = req?.headers?.["x-tcd-admin-auth"] === "true" || req?.session?.adminAuthenticated === true;
+    if (!localAdmin) return res.status(401).json({ error: "Authentication required" });
+    const { updateAdminPhantomXApplication } = await import("./services/trading/phantomXComplianceService");
+    return res.json(await updateAdminPhantomXApplication(req.params.id, req.body || {}));
+  });
+
   return httpServer;
 }

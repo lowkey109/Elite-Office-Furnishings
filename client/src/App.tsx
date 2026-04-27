@@ -100,6 +100,8 @@ import ClientPropertyListings from "@/pages/ClientPropertyListings";
 import AdminPropertyListingsImport from "@/pages/AdminPropertyListingsImport";
 import AdminPropertyEnquiries from "@/pages/AdminPropertyEnquiries";
 import ClientPhantomXPaper from "@/pages/ClientPhantomXPaper";
+import ClientPhantomXCompliance from "@/pages/ClientPhantomXCompliance";
+import AdminPhantomXCompliance from "@/pages/AdminPhantomXCompliance";
 
 function AdminRoutes() {
   return (
@@ -150,6 +152,7 @@ function AdminRoutes() {
         <Route path="/admin/nexora" component={AdminNexoraCommandCentre} />
         <Route path="/admin/ai-monitor" component={AdminNexoraMonitor} />
         <Route path="/admin/trading-monitor" component={AdminTradingMonitor} />
+        <Route path="/admin/phantomx-compliance" component={AdminPhantomXCompliance} />
         <Route path="/admin/dev-studio" component={AdminDevStudio} />
         <Route path="/admin/prediction-markets" component={AdminPredictionMarkets} />
         <Route path="/admin/property-intelligence" component={AdminPropertyIntelligence} />
@@ -255,6 +258,7 @@ function Router() {
       <Route path="/client/property-intelligence" component={ClientPropertyIntelligence} />
       <Route path="/client/property-listings" component={ClientPropertyListings} />
       <Route path="/client/phantomx-paper" component={ClientPhantomXPaper} />
+      <Route path="/client/phantomx-compliance" component={ClientPhantomXCompliance} />
       <Route path="/submit-deal" component={SubmitDeal} />
       <Route path="/trade-customers-portal" component={TradeCustomersPortal} />
       <Route component={NotFound} />
