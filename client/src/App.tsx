@@ -102,6 +102,11 @@ import AdminPropertyEnquiries from "@/pages/AdminPropertyEnquiries";
 import ClientPhantomXPaper from "@/pages/ClientPhantomXPaper";
 import ClientPhantomXCompliance from "@/pages/ClientPhantomXCompliance";
 import AdminPhantomXCompliance from "@/pages/AdminPhantomXCompliance";
+import PlatformOverview from "@/pages/PlatformOverview";
+import WorkspaceControlLanding from "@/pages/WorkspaceControlLanding";
+import LeaseHawkLanding from "@/pages/LeaseHawkLanding";
+import PhantomXLanding from "@/pages/PhantomXLanding";
+import TrustCentre from "@/pages/TrustCentre";
 
 function AdminRoutes() {
   return (
@@ -246,6 +251,11 @@ function Router() {
       <Route path="/market-map" component={MarketMap} />
       <Route path="/property-intelligence" component={PropertyIntelligence} />
       <Route path="/subscriptions" component={Subscriptions} />
+      <Route path="/platform" component={PlatformOverview} />
+      <Route path="/workspace-control" component={WorkspaceControlLanding} />
+      <Route path="/leasehawk" component={LeaseHawkLanding} />
+      <Route path="/phantomx" component={PhantomXLanding} />
+      <Route path="/trust-centre" component={TrustCentre} />
       <Route path="/legal/terms" component={Terms} />
       <Route path="/legal/privacy" component={PrivacyNotice} />
       <Route path="/legal/subscription-terms" component={SubscriptionTerms} />

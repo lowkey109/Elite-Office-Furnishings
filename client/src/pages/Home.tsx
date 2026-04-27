@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { allPosts } from "@/data/blog/index";
 import { useSEO, buildBreadcrumbSchema } from "@/hooks/useSEO";
+import ConversionProductStrip from "@/components/ConversionProductStrip";
 
 const productCategories = [
   {
@@ -101,7 +102,7 @@ const buyerRoles = [
     key: "facilities",
     label: "Facilities Manager",
     icon: Building2,
-    heading: "Where Ambition\nMeets Design",
+    heading: "Where Ambition\\nMeets Design",
     subheading: "Complete fitout management, delivery, and installation — handled for you.",
     cta1: { label: "Get a Project Quote", href: "/request-a-quote", icon: FileText },
     cta2: { label: "AI Office Planner", href: "/ai-office-planner", icon: Sparkles },
@@ -112,7 +113,7 @@ const buyerRoles = [
     key: "cfo",
     label: "Finance / CFO",
     icon: TrendingUp,
-    heading: "Premium Quality.\nControlled Budget.",
+    heading: "Premium Quality.\\nControlled Budget.",
     subheading: "Financing from $30k. Transparent quotes. No surprises on delivery.",
     cta1: { label: "Finance Options", href: "/finance-your-workspace", icon: Calculator },
     cta2: { label: "Get a Fixed Quote", href: "/request-a-quote", icon: FileText },
@@ -123,7 +124,7 @@ const buyerRoles = [
     key: "hr",
     label: "HR / People",
     icon: Users,
-    heading: "Workplaces People\nActually Love",
+    heading: "Workplaces People\\nActually Love",
     subheading: "Ergonomic, wellness-focused spaces that improve retention and performance.",
     cta1: { label: "Start with AI Planner", href: "/ai-office-planner", icon: Sparkles },
     cta2: { label: "Workplace Strategy", href: "/strategy-call", icon: Calendar },
@@ -134,7 +135,7 @@ const buyerRoles = [
     key: "relocation",
     label: "Office Relocation",
     icon: MapPin,
-    heading: "Moving Office?\nWe Make It Seamless.",
+    heading: "Moving Office?\\nWe Make It Seamless.",
     subheading: "AI-powered space planning and full fitout from one trusted supplier.",
     cta1: { label: "Upload Your Floorplan", href: "/free-layout-plan", icon: FileText },
     cta2: { label: "Get Move Quote", href: "/request-a-quote", icon: FileText },
@@ -208,8 +209,8 @@ export default function Home() {
 
             <div className={`transition-opacity duration-200 ${animating ? "opacity-0" : "opacity-100"}`}>
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-white leading-[1.05] mb-5 sm:mb-6 whitespace-pre-line">
-                {role.heading.split("\n")[0]}<br />
-                <span className="gold-text">{role.heading.split("\n")[1]}</span>
+                {role.heading.split("\\n")[0]}<br />
+                <span className="gold-text">{role.heading.split("\\n")[1]}</span>
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-white/70 leading-relaxed mb-4 max-w-2xl">
                 {role.subheading}
