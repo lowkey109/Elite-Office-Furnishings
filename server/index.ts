@@ -1,3 +1,4 @@
+import path from "path";
 
 // Local development scanner switch
 process.env.ENABLE_SCANNERS = process.env.ENABLE_SCANNERS || "true";
@@ -16,6 +17,16 @@ const app = express();
 
 // INDEX_JSON_BODY_PARSER_FOR_EARLY_ROUTES
 // Needed because several safety/certification routes are registered before registerRoutes().
+
+// TCD_PUBLIC_IMAGE_STATIC_ROUTE
+app.use(
+  "/images",
+  express.static(path.resolve(process.cwd(), "public/images"), {
+    fallthrough: true,
+    maxAge: process.env.NODE_ENV === "production" ? "7d" : 0
+  })
+);
+
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
