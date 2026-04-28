@@ -760,6 +760,23 @@ app.post("/api/admin/procurement/email-outbox/send", async (req: any, res: any) 
   }));
 });
 
+// PROCUREMENT_ANTI_FLOOD_RELEASE_ROUTES
+app.get("/api/admin/procurement/send-audit", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { listProcurementSendAudit } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await listProcurementSendAudit());
+});
+
+app.post("/api/admin/procurement/whatsapp-outbox/release-one", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { releaseOneProcurementWhatsAppDraft } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await releaseOneProcurementWhatsAppDraft({
+    messageId: String(req.body?.messageId || ""),
+    dryRun: req.body?.dryRun === true,
+    overrideToken: String(req.headers["x-tcd-autonomy-override"] || "")
+  }));
+});
+
 // INDEX_HEALTH_ROUTE
 app.get("/api/health", (_req: any, res: any) => {
   return res.status(200).json({

@@ -7,6 +7,7 @@ const STORE_FILE = "procurement-quote-store.json";
 const OUTBOX_FILE = "procurement-whatsapp-outbox.json";
 const QUOTE_LOG_FILE = "procurement-customer-quote-log.json";
 const EMAIL_OUTBOX_FILE = "procurement-email-outbox.json";
+const PROCUREMENT_SEND_AUDIT_FILE = "procurement-send-audit.json";
 
 type ProcurementItem = {
   name: string;
@@ -373,7 +374,8 @@ async function appendWhatsAppOutbox(entry: any) {
     {
       id: "wa-outbox-" + Date.now(),
       createdAt: now(),
-      status: "queued",
+      status: entry.initialStatus || "queued",
+      holdReason: entry.holdReason || undefined,
       ...entry
     },
     ...messages
@@ -529,6 +531,8 @@ export async function queueManufacturerRfq(id: string, supplier: any = {}) {
     channel: supplier.whatsapp ? "whatsapp" : "manual",
     direction: "outbound",
     purpose: "manufacturer_rfq",
+    initialStatus: "draft_hold",
+    holdReason: "Manufacturer RFQs require one-at-a-time manual release to prevent supplier flooding.",
     quoteRequestId: id,
     quoteNumber: request.quoteNumber,
     toName,
@@ -936,7 +940,7 @@ export async function sendQueuedProcurementWhatsAppMessages(opts: { overrideToke
   const limit = Math.max(1, Number(opts.limit || 10));
 
   const pending = messages
-    .filter((message: any) => message.status === "queued" && message.channel === "whatsapp")
+    .filter((message: any) => message.status === "queued" && message.channel === "whatsapp" && !["manufacturer_rfq", "shipping_agent_rfq"].includes(String(message.purpose || "")))
     .slice(0, limit);
 
   const results = [];
@@ -1392,6 +1396,8 @@ Thanks.`;
     channel: "whatsapp",
     direction: "outbound",
     purpose: "shipping_agent_rfq",
+    initialStatus: "draft_hold",
+    holdReason: "Shipping RFQs require one-at-a-time manual release to prevent supplier flooding.",
     quoteRequestId: id,
     quoteNumber: request.quoteNumber,
     toName: agent.contactName,
@@ -1409,5 +1415,262 @@ Thanks.`;
     agent,
     queued,
     message
+  };
+}
+
+
+// PROCUREMENT_ANTI_FLOOD_GUARDS
+function procurementTodayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function normaliseProcurementRecipient(value: unknown) {
+  return String(value || "").trim().toLowerCase();
+}
+
+async function readProcurementSendAudit() {
+  return await readJson(PROCUREMENT_SEND_AUDIT_FILE, { sends: [] });
+}
+
+async function writeProcurementSendAudit(audit: any) {
+  await writeJson(PROCUREMENT_SEND_AUDIT_FILE, audit);
+}
+
+function getManufacturerDailyCap() {
+  return Math.max(1, Number(process.env.TCD_PROCUREMENT_MANUFACTURER_DAILY_CAP || 3));
+}
+
+function getManufacturerCooldownHours() {
+  return Math.max(1, Number(process.env.TCD_PROCUREMENT_MANUFACTURER_COOLDOWN_HOURS || 24));
+}
+
+async function canReleaseProcurementMessage(message: any) {
+  const purpose = String(message?.purpose || "");
+  const recipient = normaliseProcurementRecipient(message?.to);
+  const quoteRequestId = String(message?.quoteRequestId || "");
+  const today = procurementTodayKey();
+  const audit = await readProcurementSendAudit();
+  const sends = Array.isArray(audit.sends) ? audit.sends : [];
+
+  if (!recipient || recipient === "tbc") {
+    return { ok: false, reason: "missing_recipient" };
+  }
+
+  if (!["manufacturer_rfq", "shipping_agent_rfq"].includes(purpose)) {
+    return { ok: false, reason: "only_manufacturer_or_shipping_release_supported_here" };
+  }
+
+  const sameQuoteDuplicate = sends.find((send: any) =>
+    send.status === "sent" &&
+    normaliseProcurementRecipient(send.to) === recipient &&
+    String(send.quoteRequestId || "") === quoteRequestId &&
+    String(send.purpose || "") === purpose
+  );
+
+  if (sameQuoteDuplicate) {
+    return {
+      ok: false,
+      reason: "duplicate_supplier_rfq_for_same_quote",
+      existingSendId: sameQuoteDuplicate.id,
+      existingSentAt: sameQuoteDuplicate.sentAt
+    };
+  }
+
+  const dailyCap = getManufacturerDailyCap();
+  const sentToday = sends.filter((send: any) =>
+    send.status === "sent" &&
+    String(send.sentAt || "").startsWith(today) &&
+    ["manufacturer_rfq", "shipping_agent_rfq"].includes(String(send.purpose || ""))
+  );
+
+  if (sentToday.length >= dailyCap) {
+    return {
+      ok: false,
+      reason: "manufacturer_daily_cap_reached",
+      dailyCap,
+      sentToday: sentToday.length
+    };
+  }
+
+  const cooldownHours = getManufacturerCooldownHours();
+  const cutoffMs = Date.now() - cooldownHours * 60 * 60 * 1000;
+  const recentToSameRecipient = sends.find((send: any) =>
+    send.status === "sent" &&
+    normaliseProcurementRecipient(send.to) === recipient &&
+    Date.parse(send.sentAt || "") >= cutoffMs
+  );
+
+  if (recentToSameRecipient) {
+    return {
+      ok: false,
+      reason: "recipient_cooldown_active",
+      cooldownHours,
+      recentSendId: recentToSameRecipient.id,
+      recentSentAt: recentToSameRecipient.sentAt
+    };
+  }
+
+  return {
+    ok: true,
+    dailyCap,
+    sentToday: sentToday.length,
+    cooldownHours
+  };
+}
+
+async function recordProcurementSendAudit(entry: any) {
+  const audit = await readProcurementSendAudit();
+  const sends = Array.isArray(audit.sends) ? audit.sends : [];
+
+  audit.sends = [
+    {
+      id: "proc-send-audit-" + Date.now(),
+      createdAt: now(),
+      ...entry
+    },
+    ...sends
+  ].slice(0, 2000);
+
+  await writeProcurementSendAudit(audit);
+  return audit.sends[0];
+}
+
+export async function listProcurementSendAudit() {
+  const audit = await readProcurementSendAudit();
+  return {
+    ok: true,
+    count: Array.isArray(audit.sends) ? audit.sends.length : 0,
+    sends: Array.isArray(audit.sends) ? audit.sends : [],
+    guard: {
+      manufacturerDailyCap: getManufacturerDailyCap(),
+      manufacturerCooldownHours: getManufacturerCooldownHours()
+    }
+  };
+}
+
+export async function releaseOneProcurementWhatsAppDraft(input: {
+  messageId?: string;
+  overrideToken?: string;
+  dryRun?: boolean;
+}) {
+  const overrideConfigured = Boolean(process.env.TCD_AUTONOMY_OVERRIDE_TOKEN);
+  const overrideMatches = overrideConfigured && input.overrideToken === process.env.TCD_AUTONOMY_OVERRIDE_TOKEN;
+
+  if (process.env.TCD_ALLOW_REAL_OUTREACH !== "true" || !overrideMatches) {
+    return {
+      ok: false,
+      locked: true,
+      message: "Release is locked unless real outreach is enabled and override token matches."
+    };
+  }
+
+  if (!input.messageId) {
+    return {
+      ok: false,
+      error: "messageId is required. This endpoint only releases one selected RFQ at a time."
+    };
+  }
+
+  const outbox = await readJson(OUTBOX_FILE, { messages: [] });
+  const messages = Array.isArray(outbox.messages) ? outbox.messages : [];
+  const message = messages.find((item: any) => item.id === input.messageId);
+
+  if (!message) {
+    return { ok: false, error: "Message not found" };
+  }
+
+  if (message.status !== "draft_hold") {
+    return {
+      ok: false,
+      error: "Only draft_hold messages can be released.",
+      currentStatus: message.status
+    };
+  }
+
+  const guard = await canReleaseProcurementMessage(message);
+
+  if (!guard.ok) {
+    message.status = "draft_hold";
+    message.lastBlockedAt = now();
+    message.lastBlockedReason = guard.reason;
+    await writeJson(OUTBOX_FILE, { messages });
+
+    return {
+      ok: false,
+      blocked: true,
+      guard,
+      message: {
+        id: message.id,
+        purpose: message.purpose,
+        toCompany: message.toCompany,
+        toName: message.toName,
+        to: message.to,
+        status: message.status
+      }
+    };
+  }
+
+  if (input.dryRun === true) {
+    return {
+      ok: true,
+      dryRun: true,
+      guard,
+      message: {
+        id: message.id,
+        purpose: message.purpose,
+        toCompany: message.toCompany,
+        toName: message.toName,
+        to: message.to,
+        body: message.body,
+        status: message.status
+      }
+    };
+  }
+
+  const cleanTo = String(message.to || "").replace(/^whatsapp:/, "").trim();
+  const result: any = await sendWhatsAppMessage({
+    toE164: cleanTo,
+    message: String(message.body || "")
+  });
+
+  const success = result.ok === true || result.success === true;
+
+  message.status = success ? "sent" : "send_failed";
+  message.sentAt = success ? now() : undefined;
+  message.realSendPerformed = success;
+  message.provider = result.provider || "existing_whatsapp_service";
+  message.providerResponse = success ? result : undefined;
+  message.error = success ? undefined : result;
+
+  await writeJson(OUTBOX_FILE, { messages });
+
+  await recordProcurementSendAudit({
+    status: success ? "sent" : "send_failed",
+    sentAt: success ? message.sentAt : undefined,
+    messageId: message.id,
+    quoteRequestId: message.quoteRequestId,
+    quoteNumber: message.quoteNumber,
+    purpose: message.purpose,
+    toCompany: message.toCompany,
+    toName: message.toName,
+    to: message.to,
+    provider: message.provider,
+    providerResponse: message.providerResponse,
+    error: message.error
+  });
+
+  return {
+    ok: success,
+    action: success ? "one_procurement_whatsapp_rfq_sent" : "one_procurement_whatsapp_rfq_failed",
+    guard,
+    message: {
+      id: message.id,
+      purpose: message.purpose,
+      toCompany: message.toCompany,
+      toName: message.toName,
+      to: message.to,
+      status: message.status
+    },
+    providerResponse: result
   };
 }
