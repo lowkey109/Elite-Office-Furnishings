@@ -52,6 +52,62 @@ app.get("/api/admin/data-layer/status", async (req: any, res: any) => {
  * Stage 2D — customer uploaded competitor quote intake.
  * Nexora parses the customer supplied quote amount so admin does not manually enter it.
  */
+
+/**
+ * TCD_STAGE_3_ADMIN_COMPETITOR_QUOTES_API
+ * Admin visibility for customer-uploaded competitor quote intake.
+ */
+app.get("/api/admin/customer-competitor-quotes", async (_req: any, res: any) => {
+  try {
+    const fsMod = await import("fs/promises");
+    const pathMod = await import("path");
+
+    async function readJsonIfExists(filePath: string, fallback: any) {
+      try {
+        const raw = await fsMod.readFile(filePath, "utf8");
+        return JSON.parse(raw);
+      } catch {
+        return fallback;
+      }
+    }
+
+    const candidatePaths = [
+      pathMod.join(process.cwd(), "customer-competitor-quote-intake.json"),
+      pathMod.join(process.cwd(), "data", "customer-competitor-quote-intake.json"),
+      pathMod.join(process.cwd(), "data", "procurement", "customer-competitor-quote-intake.json"),
+      pathMod.join(process.cwd(), "procurement", "customer-competitor-quote-intake.json")
+    ];
+
+    let sourcePath = candidatePaths[0];
+    let intake = { submissions: [] as any[] };
+
+    for (const candidate of candidatePaths) {
+      const parsed = await readJsonIfExists(candidate, null);
+      if (parsed && Array.isArray(parsed.submissions)) {
+        intake = parsed;
+        sourcePath = candidate;
+        break;
+      }
+    }
+
+    const submissions = Array.isArray(intake.submissions) ? intake.submissions : [];
+
+    return res.json({
+      ok: true,
+      sourcePath,
+      count: submissions.length,
+      submissions: submissions
+        .slice()
+        .sort((a: any, b: any) => String(b.createdAt || b.submittedAt || "").localeCompare(String(a.createdAt || a.submittedAt || "")))
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      ok: false,
+      error: error?.message || "Failed to load competitor quote intake"
+    });
+  }
+});
+
 app.post("/api/customer/competitor-quote/upload", async (req: any, res: any) => {
   try {
     const body = req.body || {};

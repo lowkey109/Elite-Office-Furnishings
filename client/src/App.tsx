@@ -11,6 +11,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import UploadYourQuote from "@/pages/UploadYourQuote";
+import AdminCompetitorQuotes from "@/pages/AdminCompetitorQuotes";
 
 import About from "@/pages/About";
 import Products from "@/pages/Products";
@@ -150,7 +151,8 @@ function AdminRoutes() {
         <Route path="/admin/deal-intelligence" component={() => <Redirect to="/admin/nexora" />} />
         <Route path="/admin/quotes/:id/print" component={QuotePrint} />
         <Route path="/admin/quotes" component={AdminQuotes} />
-        <Route path="/admin/deal-hunter" component={AdminDealHunter} />
+                <Route path="/admin/competitor-quotes" component={AdminCompetitorQuotes} />
+<Route path="/admin/deal-hunter" component={AdminDealHunter} />
         <Route path="/admin/partner-network" component={AdminPartnerNetwork} />
         <Route path="/admin/relocation-intelligence" component={() => <Redirect to="/admin/nexora" />} />
         <Route path="/admin/workspace-strategy" component={AdminWorkspaceStrategy} />
