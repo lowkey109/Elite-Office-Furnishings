@@ -10,21 +10,40 @@ export interface BlogImageSet {
   bottom: BlogImage;
 }
 
-const FALLBACK_IMAGES = [
-  "/images/hero-office.png"
+const BLOG_IMAGES = [
+  "/images/blog/5-1774166138986.jpg",
+  "/images/blog/6-1774166138986.jpg",
+  "/images/blog/7-1774166138986.jpg",
+  "/images/blog/8-1774166138986.jpg",
+  "/images/blog/9-1774166138986.jpg",
+  "/images/blog/10-1774166138986.jpg",
+  "/images/blog/12-1774166138986.jpg",
+  "/images/blog/13-1774166138986.jpg",
+  "/images/blog/14-1774166138986.jpg",
+  "/images/blog/15-1774166138986.jpg",
+  "/images/blog/tcd-of-001.png",
+  "/images/blog/tcd-of-002.png",
+  "/images/blog/tcd-of-003.png",
+  "/images/blog/tcd-of-004.jpg",
+  "/images/blog/tcd-of-005.jpg",
+  "/images/blog/tcd-rs-001.png",
+  "/images/blog/tcd-rs-002.png",
+  "/images/blog/tcd-rs-003.jpg",
+  "/images/blog/tcd-ts-001.jpg",
+  "/images/blog/tcd-ts-002.jpg"
 ] as const;
 
 const CATEGORY_IMAGE_POOLS: Record<string, string[]> = {
-  "office fit-out planning": [],
-  "office layout design": [],
-  "workplace productivity": [],
-  "office relocation": [],
-  "boardroom furniture": [],
-  "reception furniture": [],
-  "ergonomics": [],
-  "sustainability": [],
-  "office trends": [],
-  "buying guides": []
+  "office fit-out planning": BLOG_IMAGES.slice(0, 10),
+  "office layout design": BLOG_IMAGES.slice(2, 14),
+  "workplace productivity": BLOG_IMAGES.slice(4, 16),
+  "office relocation": BLOG_IMAGES.slice(0, 12),
+  "boardroom furniture": BLOG_IMAGES.slice(10, 20),
+  "reception furniture": BLOG_IMAGES.slice(14, 20),
+  "ergonomics": BLOG_IMAGES.slice(8, 18),
+  "sustainability": BLOG_IMAGES.slice(2, 16),
+  "office trends": BLOG_IMAGES.slice(0, 20),
+  "buying guides": BLOG_IMAGES.slice(10, 20)
 };
 
 function hashString(value: string) {
@@ -54,9 +73,9 @@ function normaliseCategory(category: string) {
 
 function pickImage(postId: string | number, category: string, offset: number) {
   const key = normaliseCategory(category);
-  const pool = CATEGORY_IMAGE_POOLS[key]?.length ? CATEGORY_IMAGE_POOLS[key] : [...FALLBACK_IMAGES];
+  const pool = CATEGORY_IMAGE_POOLS[key]?.length ? CATEGORY_IMAGE_POOLS[key] : [...BLOG_IMAGES];
   const index = (hashString(String(postId) + ":" + category) + offset) % pool.length;
-  return pool[index] || FALLBACK_IMAGES[0] || "/images/hero-office.png";
+  return pool[index] || BLOG_IMAGES[0] || "/images/blog/tcd-of-001.png";
 }
 
 function categoryAlt(category: string, slot: "hero" | "mid" | "bottom") {
@@ -70,8 +89,8 @@ function categoryAlt(category: string, slot: "hero" | "mid" | "bottom") {
 
 export function getBlogImages(postId: string | number, category: string): BlogImageSet {
   const hero = pickImage(postId, category, 0);
-  const mid = pickImage(postId, category, 3);
-  const bottom = pickImage(postId, category, 7);
+  const mid = pickImage(postId, category, 5);
+  const bottom = pickImage(postId, category, 11);
 
   return {
     hero: {
