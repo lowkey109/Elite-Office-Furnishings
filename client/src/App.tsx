@@ -2,16 +2,28 @@ import React, { Suspense, lazy } from "react";
 import { Route, Switch } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { ConciergeProvider } from "@/contexts/ConciergeContext";
-import { AdminAuthGate } from "@/components/AdminAuthGate";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 import { usePageTracking } from "@/lib/usePageTracking";
 import { Redirect } from "wouter";
 
 // TCD_STAGE_25_ROUTE_LEVEL_LAZY_LOADING
+// TCD_STAGE_30_LAZY_GLOBAL_SHELL
+const Toaster = lazy(() =>
+  import("@/components/ui/toaster").then((m) => ({ default: m.Toaster }))
+);
+const TooltipProvider = lazy(() =>
+  import("@/components/ui/tooltip").then((m) => ({ default: m.TooltipProvider }))
+);
+const ConciergeProvider = lazy(() =>
+  import("@/contexts/ConciergeContext").then((m) => ({ default: m.ConciergeProvider }))
+);
+const AdminAuthGate = lazy(() =>
+  import("@/components/AdminAuthGate").then((m) => ({ default: m.AdminAuthGate }))
+);
+const ErrorBoundary = lazy(() =>
+  import("@/components/ErrorBoundary").then((m) => ({ default: m.ErrorBoundary }))
+);
+
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
 const UploadYourQuote = lazy(() => import("@/pages/UploadYourQuote"));
