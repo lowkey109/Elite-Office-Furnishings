@@ -612,6 +612,82 @@ app.get("/api/admin/autonomy/actions/outreach-log", async (req: any, res: any) =
   }
 });
 
+// PROCUREMENT_QUOTE_ORCHESTRATOR_INDEX_ROUTES
+app.get("/api/admin/procurement/installers", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { listProcurementInstallers } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await listProcurementInstallers());
+});
+
+app.get("/api/admin/procurement/quote-requests", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { listProcurementQuoteRequests } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await listProcurementQuoteRequests());
+});
+
+app.post("/api/admin/procurement/quote-requests", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { createProcurementQuoteRequest } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await createProcurementQuoteRequest(req.body || {}));
+});
+
+app.get("/api/admin/procurement/quote-requests/:id", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { getProcurementQuoteRequest } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await getProcurementQuoteRequest(req.params.id));
+});
+
+app.post("/api/admin/procurement/quote-requests/:id/installer-rfq", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { queueInstallerRfq } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await queueInstallerRfq(req.params.id));
+});
+
+app.post("/api/admin/procurement/quote-requests/:id/manufacturer-rfq", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { queueManufacturerRfq } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await queueManufacturerRfq(req.params.id, req.body || {}));
+});
+
+app.get("/api/admin/procurement/whatsapp-outbox", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { listProcurementWhatsAppOutbox } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await listProcurementWhatsAppOutbox());
+});
+
+app.post("/api/admin/procurement/quote-requests/:id/supplier-response", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { recordSupplierResponse } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await recordSupplierResponse(req.params.id, req.body || {}));
+});
+
+app.post("/api/admin/procurement/quote-requests/:id/installer-response", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { recordInstallerResponse } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await recordInstallerResponse(req.params.id, req.body || {}));
+});
+
+app.post("/api/admin/procurement/quote-requests/:id/customer-quote", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { buildCustomerQuote } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await buildCustomerQuote(req.params.id, req.body || {}));
+});
+
+app.get("/api/admin/procurement/quote-requests/:id/customer-quote/html", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).send("Authentication required");
+  const { renderCustomerQuoteHtml } = await import("./services/procurement/procurementQuoteOrchestrator");
+  res.setHeader("content-type", "text/html; charset=utf-8");
+  return res.send(await renderCustomerQuoteHtml(req.params.id));
+});
+
+app.post("/api/admin/procurement/quote-requests/:id/send-customer-quote", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { sendCustomerQuoteEmail } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await sendCustomerQuoteEmail(req.params.id, {
+    overrideToken: String(req.headers["x-tcd-autonomy-override"] || "")
+  }));
+});
+
 // INDEX_HEALTH_ROUTE
 app.get("/api/health", (_req: any, res: any) => {
   return res.status(200).json({
