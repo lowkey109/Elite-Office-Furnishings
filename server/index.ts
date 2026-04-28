@@ -1,4 +1,6 @@
 import path from "path";
+import multer from "multer";
+import fs from "fs";
 
 // Local development scanner switch
 process.env.ENABLE_SCANNERS = process.env.ENABLE_SCANNERS || "true";
@@ -14,6 +16,225 @@ import { setupVite } from "./vite";
 import { serveStatic } from "./static";
 
 const app = express();
+
+/**
+ * TCD_STAGE_4_TO_7_REAL_COMPETITOR_QUOTE_FILES_COMPLETE
+ *
+ * Stage 4: real customer competitor quote file upload.
+ * Stage 5: admin file download/view.
+ * Stage 6: Nexora decision/audit intake record.
+ * Stage 7: check/build/commit verification.
+ */
+const TCD_COMPETITOR_QUOTE_DATA_DIR = path.join(process.cwd(), "data", "procurement");
+const TCD_COMPETITOR_QUOTE_UPLOAD_DIR = path.join(TCD_COMPETITOR_QUOTE_DATA_DIR, "customer-competitor-quote-uploads");
+const TCD_COMPETITOR_QUOTE_INTAKE_FILE = path.join(TCD_COMPETITOR_QUOTE_DATA_DIR, "customer-competitor-quote-intake.json");
+const TCD_COMPETITOR_QUOTE_AUDIT_FILE = path.join(TCD_COMPETITOR_QUOTE_DATA_DIR, "customer-competitor-quote-decision-audit.json");
+
+fs.mkdirSync(TCD_COMPETITOR_QUOTE_UPLOAD_DIR, { recursive: true });
+
+const tcdCompetitorQuoteStorage = multer.diskStorage({
+  destination: (_req: any, _file: any, cb: any) => {
+    fs.mkdirSync(TCD_COMPETITOR_QUOTE_UPLOAD_DIR, { recursive: true });
+    cb(null, TCD_COMPETITOR_QUOTE_UPLOAD_DIR);
+  },
+  filename: (_req: any, file: any, cb: any) => {
+    const safeOriginal = String(file.originalname || "quote-file")
+      .replace(/[^a-zA-Z0-9._-]/g, "-")
+      .slice(0, 120);
+    cb(null, Date.now() + "-" + Math.random().toString(36).slice(2, 10) + "-" + safeOriginal);
+  }
+});
+
+const tcdCompetitorQuoteUpload = multer({
+  storage: tcdCompetitorQuoteStorage,
+  limits: { fileSize: 20 * 1024 * 1024 },
+  fileFilter: (_req: any, file: any, cb: any) => {
+    const allowed = new Set([
+      "application/pdf",
+      "image/png",
+      "image/jpeg",
+      "image/jpg",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/msword"
+    ]);
+
+    if (allowed.has(String(file.mimetype || "").toLowerCase())) {
+      cb(null, true);
+      return;
+    }
+
+    cb(new Error("Unsupported file type. Please upload PDF, image, Excel or Word quote files."));
+  }
+});
+
+async function tcdReadCompetitorQuoteIntake(): Promise<{ submissions: any[] }> {
+  try {
+    const raw = await fs.promises.readFile(TCD_COMPETITOR_QUOTE_INTAKE_FILE, "utf8");
+    const parsed = JSON.parse(raw);
+    return { submissions: Array.isArray(parsed?.submissions) ? parsed.submissions : [] };
+  } catch {
+    return { submissions: [] };
+  }
+}
+
+async function tcdWriteCompetitorQuoteIntake(data: { submissions: any[] }) {
+  await fs.promises.mkdir(TCD_COMPETITOR_QUOTE_DATA_DIR, { recursive: true });
+  await fs.promises.writeFile(TCD_COMPETITOR_QUOTE_INTAKE_FILE, JSON.stringify(data, null, 2));
+}
+
+async function tcdReadCompetitorQuoteAudit(): Promise<{ events: any[] }> {
+  try {
+    const raw = await fs.promises.readFile(TCD_COMPETITOR_QUOTE_AUDIT_FILE, "utf8");
+    const parsed = JSON.parse(raw);
+    return { events: Array.isArray(parsed?.events) ? parsed.events : [] };
+  } catch {
+    return { events: [] };
+  }
+}
+
+async function tcdWriteCompetitorQuoteAudit(data: { events: any[] }) {
+  await fs.promises.mkdir(TCD_COMPETITOR_QUOTE_DATA_DIR, { recursive: true });
+  await fs.promises.writeFile(TCD_COMPETITOR_QUOTE_AUDIT_FILE, JSON.stringify(data, null, 2));
+}
+
+function tcdCleanString(value: any): string {
+  return String(value ?? "").trim();
+}
+
+function tcdParseMoney(value: any): number | null {
+  const raw = String(value ?? "").replace(/[^0-9.]/g, "");
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+function tcdBuildCompetitorQuoteDecision(submission: any) {
+  const amount = tcdParseMoney(submission?.competitorQuoteAmount);
+  return {
+    status: "received_for_nexora_review",
+    action: "nexora_will_compare_before_customer_quote_send",
+    competitorQuoteAmount: amount,
+    minimumGrossProfitRequired: 500,
+    message:
+      "Competitor quote received. Nexora will automatically use this uploaded quote amount when deciding whether The Corporate Desk can beat/match it without dropping below the $500 gross profit floor."
+  };
+}
+
+app.post("/api/customer/competitor-quote/upload", tcdCompetitorQuoteUpload.single("quoteFile"), async (req: any, res: any) => {
+  try {
+    const file = req.file || null;
+    const body = req.body || {};
+
+    const submission: any = {
+      id: "competitor-quote-" + Date.now(),
+      createdAt: new Date().toISOString(),
+      source: "upload-your-quote-page",
+      customerName: tcdCleanString(body.customerName || body.name),
+      customerEmail: tcdCleanString(body.customerEmail || body.email).toLowerCase(),
+      customerPhone: tcdCleanString(body.customerPhone || body.phone),
+      companyName: tcdCleanString(body.companyName || body.company),
+      projectSuburb: tcdCleanString(body.projectSuburb || body.suburb),
+      quoteRequestId: tcdCleanString(body.quoteRequestId || body.requestId),
+      competitorQuoteAmount: tcdParseMoney(body.competitorQuoteAmount || body.competitorQuote || body.amount),
+      notes: tcdCleanString(body.notes || body.message || body.projectDetails),
+      uploadedFile: file
+        ? {
+            originalName: file.originalname,
+            storedName: file.filename,
+            mimeType: file.mimetype,
+            sizeBytes: file.size,
+            uploadedAt: new Date().toISOString()
+          }
+        : null
+    };
+
+    submission["nexoraDecision"] = tcdBuildCompetitorQuoteDecision(submission);
+
+    const intake = await tcdReadCompetitorQuoteIntake();
+    intake.submissions = [submission, ...intake.submissions].slice(0, 500);
+    await tcdWriteCompetitorQuoteIntake(intake);
+
+    const audit = await tcdReadCompetitorQuoteAudit();
+    audit.events = [
+      {
+        id: "competitor-quote-audit-" + Date.now(),
+        createdAt: new Date().toISOString(),
+        submissionId: submission.id,
+        action: "uploaded_competitor_quote_received",
+        decision: submission["nexoraDecision"],
+        fileStored: Boolean(file)
+      },
+      ...audit.events
+    ].slice(0, 1000);
+    await tcdWriteCompetitorQuoteAudit(audit);
+
+    return res.json({
+      ok: true,
+      submissionId: submission.id,
+      nexoraDecision: submission["nexoraDecision"],
+      message: "Quote uploaded. Nexora will compare it before any customer quote is sent."
+    });
+  } catch (error: any) {
+    return res.status(400).json({
+      ok: false,
+      error: error?.message || "Failed to upload competitor quote"
+    });
+  }
+});
+
+app.get("/api/admin/customer-competitor-quotes", async (_req: any, res: any) => {
+  try {
+    const intake = await tcdReadCompetitorQuoteIntake();
+    const audit = await tcdReadCompetitorQuoteAudit();
+
+    const submissions = intake.submissions.map((item: any) => ({
+      ...item,
+      fileDownloadUrl: item?.uploadedFile?.storedName
+        ? "/api/admin/customer-competitor-quotes/" + encodeURIComponent(item.id) + "/file"
+        : null
+    }));
+
+    return res.json({
+      ok: true,
+      count: submissions.length,
+      submissions,
+      auditEvents: audit.events
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      ok: false,
+      error: error?.message || "Failed to load competitor quotes"
+    });
+  }
+});
+
+app.get("/api/admin/customer-competitor-quotes/:id/file", async (req: any, res: any) => {
+  try {
+    const intake = await tcdReadCompetitorQuoteIntake();
+    const item = intake.submissions.find((submission: any) => String(submission.id) === String(req.params.id));
+
+    if (!item?.uploadedFile?.storedName) {
+      return res.status(404).json({ ok: false, error: "No uploaded file found for this quote" });
+    }
+
+    const storedName = path.basename(String(item.uploadedFile.storedName));
+    const filePath = path.join(TCD_COMPETITOR_QUOTE_UPLOAD_DIR, storedName);
+
+    if (!filePath.startsWith(TCD_COMPETITOR_QUOTE_UPLOAD_DIR) || !fs.existsSync(filePath)) {
+      return res.status(404).json({ ok: false, error: "Uploaded file is missing" });
+    }
+
+    return res.download(filePath, item.uploadedFile.originalName || storedName);
+  } catch (error: any) {
+    return res.status(500).json({
+      ok: false,
+      error: error?.message || "Failed to download uploaded quote"
+    });
+  }
+});
+
+
 
 // INDEX_JSON_BODY_PARSER_FOR_EARLY_ROUTES
 // Needed because several safety/certification routes are registered before registerRoutes().
@@ -65,96 +286,9 @@ app.get("/api/admin/data-layer/status", async (req: any, res: any) => {
  * TCD_STAGE_5_ADMIN_COMPETITOR_QUOTE_FILE_DOWNLOAD
  * Admin download route for uploaded competitor quote files.
  */
-app.get("/api/admin/customer-competitor-quotes/:id/file", async (req: any, res: any) => {
-  try {
-    const fsPromises = await import("fs/promises");
-    const fsSync = await import("fs");
-    const pathMod = await import("path");
 
-    const fsp = fsPromises.default;
-    const fss = fsSync.default;
-    const path = pathMod.default;
 
-    const dataDir = path.join(process.cwd(), "data", "procurement");
-    const uploadDir = path.join(dataDir, "customer-competitor-quote-uploads");
-    const intakeFile = path.join(dataDir, "customer-competitor-quote-intake.json");
 
-    if (!fss.existsSync(intakeFile)) {
-      return res.status(404).json({ ok: false, error: "No competitor quote intake found" });
-    }
-
-    const raw = await fsp.readFile(intakeFile, "utf8");
-    const parsed = JSON.parse(raw);
-    const submissions = Array.isArray(parsed?.submissions) ? parsed.submissions : [];
-    const item = submissions.find((entry: any) => String(entry.id) === String(req.params.id));
-
-    if (!item?.uploadedFile?.storedName) {
-      return res.status(404).json({ ok: false, error: "Uploaded file not found for this quote" });
-    }
-
-    const storedName = path.basename(String(item.uploadedFile.storedName));
-    const fullPath = path.join(uploadDir, storedName);
-
-    if (!fss.existsSync(fullPath)) {
-      return res.status(404).json({ ok: false, error: "Uploaded file is missing on disk" });
-    }
-
-    return res.download(fullPath, item.uploadedFile.originalName || storedName);
-  } catch (err: any) {
-    return res.status(500).json({ ok: false, error: err?.message || "Failed to download uploaded quote" });
-  }
-});
-
-app.get("/api/admin/customer-competitor-quotes", async (_req: any, res: any) => {
-  try {
-    const fsMod = await import("fs/promises");
-    const pathMod = await import("path");
-
-    async function readJsonIfExists(filePath: string, fallback: any) {
-      try {
-        const raw = await fsMod.readFile(filePath, "utf8");
-        return JSON.parse(raw);
-      } catch {
-        return fallback;
-      }
-    }
-
-    const candidatePaths = [
-      pathMod.join(process.cwd(), "customer-competitor-quote-intake.json"),
-      pathMod.join(process.cwd(), "data", "customer-competitor-quote-intake.json"),
-      pathMod.join(process.cwd(), "data", "procurement", "customer-competitor-quote-intake.json"),
-      pathMod.join(process.cwd(), "procurement", "customer-competitor-quote-intake.json")
-    ];
-
-    let sourcePath = candidatePaths[0];
-    let intake = { submissions: [] as any[] };
-
-    for (const candidate of candidatePaths) {
-      const parsed = await readJsonIfExists(candidate, null);
-      if (parsed && Array.isArray(parsed.submissions)) {
-        intake = parsed;
-        sourcePath = candidate;
-        break;
-      }
-    }
-
-    const submissions = Array.isArray(intake.submissions) ? intake.submissions : [];
-
-    return res.json({
-      ok: true,
-      sourcePath,
-      count: submissions.length,
-      submissions: submissions
-        .slice()
-        .sort((a: any, b: any) => String(b.createdAt || b.submittedAt || "").localeCompare(String(a.createdAt || a.submittedAt || "")))
-    });
-  } catch (error: any) {
-    return res.status(500).json({
-      ok: false,
-      error: error?.message || "Failed to load competitor quote intake"
-    });
-  }
-});
 
 /**
  * TCD_STAGE_4_REAL_COMPETITOR_QUOTE_FILE_UPLOAD_CLEAN
@@ -185,143 +319,7 @@ app.get("/api/admin/customer-competitor-quotes", async (_req: any, res: any) => 
  * - records quote amount and file metadata
  * - creates a Nexora audit/decision record
  */
-app.post("/api/customer/competitor-quote/upload", async (req: any, res: any) => {
-  try {
-    const fsPromises = await import("fs/promises");
-    const fsSync = await import("fs");
-    const pathMod = await import("path");
-    const multerMod: any = await import("multer");
 
-    const multer = multerMod.default || multerMod;
-    const path = pathMod.default;
-    const fsp = fsPromises.default;
-    const fss = fsSync.default;
-
-    const dataDir = path.join(process.cwd(), "data", "procurement");
-    const uploadDir = path.join(dataDir, "customer-competitor-quote-uploads");
-    const intakeFile = path.join(dataDir, "customer-competitor-quote-intake.json");
-
-    await fsp.mkdir(uploadDir, { recursive: true });
-
-    const allowedExt = new Set([".pdf", ".jpg", ".jpeg", ".png", ".webp", ".doc", ".docx", ".xls", ".xlsx"]);
-
-    const storage = multer.diskStorage({
-      destination: (_req: any, _file: any, cb: any) => cb(null, uploadDir),
-      filename: (_req: any, file: any, cb: any) => {
-        const ext = path.extname(String(file.originalname || "")).toLowerCase();
-        const safeExt = allowedExt.has(ext) ? ext : ".bin";
-        const safeBase = String(file.originalname || "competitor-quote")
-          .replace(/[^a-zA-Z0-9._-]/g, "-")
-          .slice(0, 90);
-
-        cb(null, Date.now() + "-" + Math.random().toString(36).slice(2) + "-" + safeBase + safeExt);
-      }
-    });
-
-    const upload = multer({
-      storage,
-      limits: { fileSize: 20 * 1024 * 1024 },
-      fileFilter: (_req: any, file: any, cb: any) => {
-        const ext = path.extname(String(file.originalname || "")).toLowerCase();
-        if (!allowedExt.has(ext)) {
-          cb(new Error("Unsupported file type. Upload PDF, image, Word or Excel only."));
-          return;
-        }
-        cb(null, true);
-      }
-    }).single("quoteFile");
-
-    upload(req, res, async (uploadError: any) => {
-      try {
-        if (uploadError) {
-          return res.status(400).json({ ok: false, error: uploadError.message || "Upload failed" });
-        }
-
-        let intake: { submissions: any[] } = { submissions: [] };
-
-        if (fss.existsSync(intakeFile)) {
-          try {
-            const raw = await fsp.readFile(intakeFile, "utf8");
-            const parsed = JSON.parse(raw);
-            intake.submissions = Array.isArray(parsed?.submissions) ? parsed.submissions : [];
-          } catch {
-            intake.submissions = [];
-          }
-        }
-
-        const body = req.body || {};
-        const submissionId = "competitor-quote-" + Date.now();
-
-        const rawAmount =
-          body.competitorQuoteAmount ||
-          body.competitorQuote ||
-          body.otherQuoteAmount ||
-          body.quoteAmount ||
-          body.amount ||
-          "";
-
-        const submittedAmount = Number(String(rawAmount).replace(/[^0-9.]/g, ""));
-
-        const uploadedFile = req.file
-          ? {
-              originalName: req.file.originalname,
-              storedName: req.file.filename,
-              mimeType: req.file.mimetype,
-              sizeBytes: req.file.size,
-              downloadUrl: "/api/admin/customer-competitor-quotes/" + submissionId + "/file"
-            }
-          : null;
-
-        const submission = {
-          id: submissionId,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          status: "received",
-          source: "upload-your-quote",
-          customerName: String(body.customerName || body.name || "").trim(),
-          customerEmail: String(body.customerEmail || body.email || "").trim(),
-          customerPhone: String(body.customerPhone || body.phone || "").trim(),
-          companyName: String(body.companyName || body.company || "").trim(),
-          projectLocation: String(body.projectLocation || body.location || body.suburb || "").trim(),
-          competitorName: String(body.competitorName || body.supplierName || "").trim(),
-          competitorQuoteAmount: Number.isFinite(submittedAmount) && submittedAmount > 0 ? submittedAmount : null,
-          message: String(body.message || body.notes || "").trim(),
-          uploadedFile,
-          nexoraDecision: {
-            status: "queued_for_guardrail_check",
-            minimumGrossProfitRequired: 500,
-            rule: "Do not match or beat a competitor quote if it leaves less than $500 gross profit or exposes raw manufacturer/supplier cost.",
-            customerPolicy: "If the customer's existing quote is genuinely better and TCD cannot clear the minimum margin, recommend they stay with their existing quote."
-          },
-          audit: [
-            {
-              at: new Date().toISOString(),
-              action: "competitor_quote_uploaded",
-              by: "customer",
-              note: "Customer uploaded competitor quote for Nexora comparison."
-            }
-          ]
-        };
-
-        intake.submissions = [submission, ...intake.submissions];
-
-        await fsp.mkdir(dataDir, { recursive: true });
-        await fsp.writeFile(intakeFile, JSON.stringify(intake, null, 2));
-
-        return res.json({
-          ok: true,
-          submissionId,
-          message: "Quote received. Nexora will compare it against our landed cost and only proceed if it is commercially safe and genuinely better for you.",
-          submission
-        });
-      } catch (err: any) {
-        return res.status(500).json({ ok: false, error: err?.message || "Failed to save uploaded quote" });
-      }
-    });
-  } catch (err: any) {
-    return res.status(500).json({ ok: false, error: err?.message || "Upload route failed" });
-  }
-});
 
 app.post("/api/admin/data-layer/migrate-local-json", async (req: any, res: any) => {
   if (req.headers["x-tcd-admin-auth"] !== "true") {
