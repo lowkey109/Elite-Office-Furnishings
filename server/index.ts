@@ -801,6 +801,37 @@ app.post("/api/admin/nexora/recovery-analyze", async (req: any, res: any) => {
   return res.json(analyzeNexoraOperationalProblem(req.body || {}));
 });
 
+// SALES_PSYCHOLOGY_ENGINE_ROUTES
+app.get("/api/admin/sales-psychology/playbook", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { SALES_PSYCHOLOGY_PLAYBOOK, ETHICAL_SALES_RULES, DEAL_STAGES } = await import("./services/sales/salesPsychologyEngine");
+  return res.json({ ok: true, playbook: SALES_PSYCHOLOGY_PLAYBOOK, ethicalRules: ETHICAL_SALES_RULES, dealStages: DEAL_STAGES });
+});
+
+app.post("/api/admin/sales-psychology/analyze", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { buildPsychologyGuidance } = await import("./services/sales/salesPsychologyEngine");
+  return res.json(buildPsychologyGuidance(req.body || {}));
+});
+
+app.post("/api/admin/sales-psychology/quote-readiness", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { canSendCustomerQuote } = await import("./services/sales/salesPsychologyEngine");
+  return res.json(canSendCustomerQuote(req.body || {}));
+});
+
+app.post("/api/admin/sales-psychology/parse-supplier-reply", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { parseSupplierReply } = await import("./services/sales/salesPsychologyEngine");
+  return res.json(parseSupplierReply(String(req.body?.text || "")));
+});
+
+app.post("/api/admin/sales-psychology/follow-up-plan", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { buildFollowUpPlan } = await import("./services/sales/salesPsychologyEngine");
+  return res.json(buildFollowUpPlan(req.body || {}));
+});
+
 // INDEX_HEALTH_ROUTE
 app.get("/api/health", (_req: any, res: any) => {
   return res.status(200).json({
