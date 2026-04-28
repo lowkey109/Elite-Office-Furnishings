@@ -23,29 +23,59 @@ export default defineConfig({
         manualChunks(id) {
           if (!id.includes("node_modules")) return undefined;
 
-          // Keep React together.
+          // React runtime must stay together.
           if (
             id.includes("/react/") ||
             id.includes("/react-dom/") ||
-            id.includes("scheduler")
+            id.includes("/scheduler/")
           ) {
             return "vendor-react";
           }
 
-          // Split common large libraries so one monster vendor file is avoided.
+          // First-load app framework / router.
+          if (id.includes("/wouter/")) return "vendor-router";
+
+          // Query/cache layer.
           if (id.includes("@tanstack")) return "vendor-query";
+
+          // Icon pack.
           if (id.includes("lucide-react")) return "vendor-icons";
-          if (id.includes("framer-motion")) return "vendor-motion";
-          if (id.includes("recharts") || id.includes("d3-")) return "vendor-charts";
+
+          // Form/validation libraries.
+          if (
+            id.includes("react-hook-form") ||
+            id.includes("@hookform") ||
+            id.includes("/zod/") ||
+            id.includes("zod-validation-error")
+          ) {
+            return "vendor-forms";
+          }
+
+          // UI primitives/utilities.
           if (id.includes("@radix-ui")) return "vendor-radix";
-          if (id.includes("date-fns")) return "vendor-date";
-          if (id.includes("zod")) return "vendor-zod";
-          if (id.includes("stripe") || id.includes("@stripe")) return "vendor-stripe";
-          if (id.includes("cmdk")) return "vendor-cmdk";
-          if (id.includes("embla")) return "vendor-carousel";
-          if (id.includes("class-variance-authority") || id.includes("clsx") || id.includes("tailwind-merge")) {
+          if (
+            id.includes("class-variance-authority") ||
+            id.includes("tailwind-merge") ||
+            id.includes("/clsx/") ||
+            id.includes("/cmdk/") ||
+            id.includes("/vaul/") ||
+            id.includes("embla-carousel")
+          ) {
             return "vendor-ui-utils";
           }
+
+          // Heavy visual libraries should never pollute the base app shell.
+          if (id.includes("framer-motion")) return "vendor-motion";
+          if (
+            id.includes("recharts") ||
+            id.includes("/d3-") ||
+            id.includes("/d3/")
+          ) {
+            return "vendor-charts";
+          }
+
+          // Date helpers and misc libraries.
+          if (id.includes("date-fns")) return "vendor-date";
 
           return "vendor-core";
         },
