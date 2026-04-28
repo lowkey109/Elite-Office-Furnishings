@@ -219,6 +219,11 @@ app.post("/api/customer/competitor-quote/upload", tcdCompetitorQuoteUpload.singl
 
 app.get("/api/admin/customer-competitor-quotes", async (req: any, res: any) => {
   try {
+    // TCD_STAGE_9_ADMIN_COMPETITOR_LIST_GUARD_APPLIED
+    if (!tcdCompetitorQuoteAdminAllowed(req)) {
+      return res.status(401).json({ ok: false, error: "Admin auth required" });
+    }
+
     // TCD_STAGE_9_ADMIN_LIST_GUARD_APPLIED
     if (!tcdCompetitorQuoteAdminAllowed(req)) {
       return res.status(401).json({ ok: false, error: "Admin auth required" });
@@ -249,6 +254,11 @@ app.get("/api/admin/customer-competitor-quotes", async (req: any, res: any) => {
 
 app.get("/api/admin/customer-competitor-quotes/:id/file", async (req: any, res: any) => {
   try {
+    // TCD_STAGE_9_ADMIN_COMPETITOR_FILE_GUARD_APPLIED
+    if (!tcdCompetitorQuoteAdminAllowed(req)) {
+      return res.status(401).json({ ok: false, error: "Admin auth required" });
+    }
+
     // TCD_STAGE_9_ADMIN_FILE_GUARD_APPLIED
     if (!tcdCompetitorQuoteAdminAllowed(req)) {
       return res.status(401).json({ ok: false, error: "Admin auth required" });
