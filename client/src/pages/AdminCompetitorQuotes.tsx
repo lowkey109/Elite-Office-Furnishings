@@ -169,6 +169,16 @@ export default function AdminCompetitorQuotes() {
                         <>
                           <p className="mt-2 break-all text-slate-300">
                             {item.uploadedFile.originalName || "Uploaded quote file"}
+                    {(item.fileDownloadUrl || item.uploadedFile?.downloadUrl) && (
+                      <a
+                        href={item.fileDownloadUrl || item.uploadedFile?.downloadUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex rounded-lg bg-cyan-300 px-3 py-2 text-xs font-semibold text-slate-950 hover:bg-cyan-200"
+                      >
+                        Download quote file
+                      </a>
+                    )}
                           </p>
                           <p className="mt-1 text-xs text-slate-500">
                             {item.uploadedFile.mimeType || "file"} {fileSize(item.uploadedFile.sizeBytes) ? "· " + fileSize(item.uploadedFile.sizeBytes) : ""}

@@ -57,6 +57,46 @@ app.get("/api/admin/data-layer/status", async (req: any, res: any) => {
  * TCD_STAGE_3_ADMIN_COMPETITOR_QUOTES_API
  * Admin visibility for customer-uploaded competitor quote intake.
  */
+/**
+ * TCD_FINAL_COMPETITOR_QUOTE_ADMIN_FILE_DOWNLOAD
+ * Admin download/view route for uploaded competitor quote files.
+ */
+app.get("/api/admin/customer-competitor-quotes/:id/file", async (req: any, res: any) => {
+  try {
+    const fsMod = await import("fs/promises");
+    const fsSync = await import("fs");
+    const pathMod = await import("path");
+
+    const dataDir = pathMod.default.join(process.cwd(), "data", "procurement");
+    const uploadDir = pathMod.default.join(dataDir, "customer-competitor-quote-uploads");
+    const intakeFile = pathMod.default.join(dataDir, "customer-competitor-quote-intake.json");
+
+    if (!fsSync.default.existsSync(intakeFile)) {
+      return res.status(404).json({ ok: false, error: "No quote intake file found" });
+    }
+
+    const raw = await fsMod.default.readFile(intakeFile, "utf8");
+    const parsed = JSON.parse(raw);
+    const submissions = Array.isArray(parsed?.submissions) ? parsed.submissions : [];
+    const item = submissions.find((entry: any) => String(entry.id) === String(req.params.id));
+
+    if (!item?.uploadedFile?.storedName) {
+      return res.status(404).json({ ok: false, error: "Uploaded quote file not found" });
+    }
+
+    const storedName = pathMod.default.basename(String(item.uploadedFile.storedName));
+    const fullPath = pathMod.default.join(uploadDir, storedName);
+
+    if (!fsSync.default.existsSync(fullPath)) {
+      return res.status(404).json({ ok: false, error: "File missing on disk" });
+    }
+
+    return res.download(fullPath, item.uploadedFile.originalName || storedName);
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err?.message || "Failed to download quote file" });
+  }
+});
+
 app.get("/api/admin/customer-competitor-quotes", async (_req: any, res: any) => {
   try {
     const fsMod = await import("fs/promises");
@@ -117,6 +157,16 @@ app.get("/api/admin/customer-competitor-quotes", async (_req: any, res: any) => 
  * - records intake metadata
  * - keeps Nexora/profit guard using the submitted competitor amount
  */
+/**
+ * TCD_FINAL_COMPETITOR_QUOTE_UPLOAD_FILES_AND_DECISION_AUDIT
+ *
+ * Customer quote upload intake:
+ * - accepts multipart/form-data
+ * - stores uploaded competitor quote files safely
+ * - records quote amount and file metadata
+ * - creates a Nexora decision/audit record
+ * - feeds uploaded competitor amount into quote guardrails later
+ */
 app.post("/api/customer/competitor-quote/upload", async (req: any, res: any) => {
   try {
     const fsMod = await import("fs/promises");
@@ -138,10 +188,10 @@ app.post("/api/customer/competitor-quote/upload", async (req: any, res: any) => 
       filename: (_req: any, file: any, cb: any) => {
         const ext = pathMod.default.extname(String(file.originalname || "")).toLowerCase();
         const safeExt = allowedExt.has(ext) ? ext : ".bin";
-        const safeName = String(file.originalname || "competitor-quote")
+        const base = String(file.originalname || "competitor-quote")
           .replace(/[^a-zA-Z0-9._-]/g, "-")
-          .slice(0, 80);
-        cb(null, Date.now() + "-" + Math.random().toString(36).slice(2) + "-" + safeName + safeExt);
+          .slice(0, 90);
+        cb(null, Date.now() + "-" + Math.random().toString(36).slice(2) + "-" + base + safeExt);
       }
     });
 
@@ -151,7 +201,7 @@ app.post("/api/customer/competitor-quote/upload", async (req: any, res: any) => 
       fileFilter: (_req: any, file: any, cb: any) => {
         const ext = pathMod.default.extname(String(file.originalname || "")).toLowerCase();
         if (!allowedExt.has(ext)) {
-          cb(new Error("Unsupported file type. Please upload PDF, image, Word or Excel files only."));
+          cb(new Error("Unsupported file type. Upload PDF, image, Word or Excel only."));
           return;
         }
         cb(null, true);
@@ -177,30 +227,32 @@ app.post("/api/customer/competitor-quote/upload", async (req: any, res: any) => 
         }
 
         const body = req.body || {};
-        const uploadedFile = req.file
-          ? {
-              originalName: req.file.originalname,
-              storedName: req.file.filename,
-              path: req.file.path,
-              mimeType: req.file.mimetype,
-              sizeBytes: req.file.size,
-              downloadUrl: "/api/admin/customer-competitor-quotes/" + Date.now() + "/file"
-            }
-          : null;
+        const submissionId = "competitor-quote-" + Date.now();
 
-        const submittedAmount = Number(String(
+        const rawAmount =
           body.competitorQuoteAmount ||
           body.competitorQuote ||
           body.otherQuoteAmount ||
           body.quoteAmount ||
-          ""
-        ).replace(/[^0-9.]/g, ""));
+          body.amount ||
+          "";
 
-        const submissionId = "competitor-quote-" + Date.now();
+        const submittedAmount = Number(String(rawAmount).replace(/[^0-9.]/g, ""));
+
+        const uploadedFile = req.file
+          ? {
+              originalName: req.file.originalname,
+              storedName: req.file.filename,
+              mimeType: req.file.mimetype,
+              sizeBytes: req.file.size,
+              downloadUrl: "/api/admin/customer-competitor-quotes/" + submissionId + "/file"
+            }
+          : null;
 
         const submission = {
           id: submissionId,
           createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
           status: "received",
           source: "upload-your-quote",
           customerName: String(body.customerName || body.name || "").trim(),
@@ -213,9 +265,19 @@ app.post("/api/customer/competitor-quote/upload", async (req: any, res: any) => 
           message: String(body.message || body.notes || "").trim(),
           uploadedFile,
           nexoraDecision: {
-            status: "queued_for_review",
-            rule: "Nexora will compare this competitor quote against landed cost and the $500 minimum gross profit floor before any customer quote is sent."
-          }
+            status: "queued_for_guardrail_check",
+            minimumGrossProfitRequired: 500,
+            rule: "Nexora must not match or beat this quote if doing so leaves less than $500 gross profit or exposes raw manufacturer/supplier cost.",
+            customerPolicy: "If the customer quote is genuinely better for the customer and we cannot make at least $500 gross profit, tell the customer to stay with their existing quote."
+          },
+          audit: [
+            {
+              at: new Date().toISOString(),
+              action: "competitor_quote_uploaded",
+              by: "customer",
+              note: "Customer uploaded competitor quote for Nexora comparison."
+            }
+          ]
         };
 
         intake.submissions = [submission, ...intake.submissions];
@@ -226,11 +288,11 @@ app.post("/api/customer/competitor-quote/upload", async (req: any, res: any) => 
         return res.json({
           ok: true,
           submissionId,
-          message: "Quote received. Nexora will compare it against our landed cost and only proceed if it is commercially safe and genuinely better for the customer.",
+          message: "Quote received. Nexora will compare it against our landed cost and only proceed if it is commercially safe and genuinely better for you.",
           submission
         });
       } catch (err: any) {
-        return res.status(500).json({ ok: false, error: err?.message || "Failed to save uploaded quote" });
+        return res.status(500).json({ ok: false, error: err?.message || "Failed to save quote upload" });
       }
     });
   } catch (err: any) {
