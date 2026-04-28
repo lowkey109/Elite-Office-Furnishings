@@ -1,4 +1,5 @@
 import path from "path";
+import compression from "compression";
 import multer from "multer";
 import fs from "fs";
 
@@ -16,6 +17,78 @@ import { setupVite } from "./vite";
 import { serveStatic } from "./static";
 
 const app = express();
+
+/**
+ * TCD_STAGE_23_SPEED_HARDENING
+ *
+ * Global speed layer:
+ * - gzip/deflate compression for JSON + static responses
+ * - timing headers for route performance visibility
+ * - short cache headers for fast admin summary routes
+ * - no-store on authenticated admin responses unless explicitly cached as summaries
+ */
+app.use(
+  compression({
+    threshold: 1024,
+    level: 6,
+    filter: (req: any, res: any) => {
+      if (req.headers["x-no-compression"]) return false;
+      return compression.filter(req, res);
+    },
+  }),
+);
+
+app.use((req: any, res: any, next: any) => {
+  const startedAt = Date.now();
+
+  res.on("finish", () => {
+    const durationMs = Date.now() - startedAt;
+    if (durationMs >= 750) {
+      console.warn("[slow-route]", {
+        method: req.method,
+        path: req.originalUrl || req.url,
+        statusCode: res.statusCode,
+        durationMs,
+      });
+    }
+  });
+
+  res.setHeader("X-TCD-Stage", "23-speed-hardening");
+  res.setHeader("X-Response-Start", String(startedAt));
+
+  const originalEnd = res.end;
+  res.end = function patchedEnd(...args: any[]) {
+    const durationMs = Date.now() - startedAt;
+    if (!res.headersSent) {
+      res.setHeader("X-Response-Time-Ms", String(durationMs));
+    }
+    return originalEnd.apply(this, args as any);
+  };
+
+  next();
+});
+
+app.use("/api/admin", (req: any, res: any, next: any) => {
+  const path = String(req.originalUrl || req.url || "");
+
+  const fastSummaryRoutes = [
+    "/api/admin/nexora/monitor",
+    "/api/admin/office-move-radar",
+    "/api/admin/deal-hunter/stats",
+    "/api/admin/quotes",
+    "/api/admin/follow-up-sequences",
+    "/api/admin/revenue/stats",
+  ];
+
+  if (fastSummaryRoutes.some((route) => path.startsWith(route))) {
+    res.setHeader("Cache-Control", "private, max-age=10, stale-while-revalidate=30");
+  } else {
+    res.setHeader("Cache-Control", "no-store");
+  }
+
+  next();
+});
+
 
 /**
  * TCD_STAGE_4_TO_7_REAL_COMPETITOR_QUOTE_FILES_COMPLETE
