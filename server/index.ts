@@ -16,6 +16,17 @@ import { startNexoraLoop } from "./services/nexoraLoop";
 import { setupVite } from "./vite";
 import { serveStatic } from "./static";
 
+
+/**
+ * TCD_STAGE_32_RAILWAY_SAFE_BOOT
+ *
+ * Railway must boot the web server first.
+ * Heavy scanners/AI loops should only auto-start when explicitly enabled.
+ */
+const TCD_ENABLE_BACKGROUND_JOBS =
+  process.env.TCD_ENABLE_BACKGROUND_JOBS === "true" ||
+  process.env.ENABLE_BACKGROUND_JOBS === "true";
+
 const app = express();
 
 /**
@@ -1597,7 +1608,10 @@ const port = Number(process.env.PORT || 5000);
     if (process.env.NEXORA_LOOP_ENABLED !== "false") {
       if (process.env.TCD_DISABLE_STARTUP_JOBS !== "true") {
 
-        startNexoraLoop();
+        if (TCD_ENABLE_BACKGROUND_JOBS) {
+
+
+          startNexoraLoop();
 
       } else {
 
@@ -1605,6 +1619,15 @@ const port = Number(process.env.PORT || 5000);
 
       }
       console.log("[NexoraLoop] Auto-started from server/index.ts");
+
+
+        } else {
+
+
+          console.log("[NexoraLoop] Auto-start skipped — set TCD_ENABLE_BACKGROUND_JOBS=true to enable.");
+
+
+        }
     }
   });
 })();
