@@ -834,7 +834,236 @@ export async function renderCustomerQuoteHtml(id: string) {
 </html>`;
 }
 
-export async function sendCustomerQuoteEmail(id: string, opts: { overrideToken?: string } = {}) {
+
+/**
+ * TCD_STAGE_2C_CUSTOMER_QUOTE_PROFIT_GUARD
+ *
+ * Customer-facing quotes must never expose supplier/manufacturer cost,
+ * must never be sent at or below landed cost, and must clear a minimum
+ * $500 gross profit floor. If a customer's competing quote would leave
+ * less than $500 profit, we block the send and advise them honestly to
+ * stay with their original quote.
+ */
+const TCD_MINIMUM_CUSTOMER_QUOTE_GROSS_PROFIT = 500;
+
+type TcdQuoteProfitGuardResult =
+  | { ok: true; grossProfit: number; landedCost: number; minimumProfit: number }
+  | {
+      ok: false;
+      blocked: true;
+      stage: "quote_profit_guard";
+      error: string;
+      customerMessage: string;
+      grossProfit?: number;
+      landedCost?: number;
+      minimumProfit: number;
+      competitorQuote?: number | null;
+    };
+
+function tcdParseMoney(...values: any[]): number | null {
+  for (const value of values) {
+    if (value === null || value === undefined || value === "") continue;
+    const cleaned = String(value).replace(/[^0-9.-]/g, "");
+    const parsed = Number(cleaned);
+    if (Number.isFinite(parsed) && parsed > 0) return parsed;
+  }
+  return null;
+}
+
+function tcdPick(obj: any, paths: string[]): any {
+  for (const path of paths) {
+    let cur = obj;
+    for (const part of path.split(".")) {
+      cur = cur?.[part];
+      if (cur === undefined || cur === null) break;
+    }
+    if (cur !== undefined && cur !== null && cur !== "") return cur;
+  }
+  return null;
+}
+
+function assertCustomerQuoteProfitSafe(request: any, quote: any, opts: any = {}): TcdQuoteProfitGuardResult {
+  const manufacturerCost = tcdParseMoney(
+    tcdPick(request, [
+      "supplier.response.manufacturerCost",
+      "supplier.response.supplierCost",
+      "supplier.response.unitCost",
+      "supplier.response.totalCost",
+      "supplier.manufacturerCost",
+      "supplier.supplierCost",
+      "supplier.unitCost",
+      "supplier.totalCost"
+    ]),
+    tcdPick(quote, [
+      "internal.manufacturerCost",
+      "internal.supplierCost",
+      "internalCosts.manufacturerCost",
+      "internalCosts.supplierCost",
+      "costs.manufacturerCost",
+      "costs.supplierCost",
+      "manufacturerCost",
+      "supplierCost",
+      "unitCost"
+    ])
+  );
+
+  const shippingCost = tcdParseMoney(
+    tcdPick(request, [
+      "supplier.response.shippingCost",
+      "shipping.response.shippingCost",
+      "shippingCost",
+      "freightCost"
+    ]),
+    tcdPick(quote, [
+      "internal.shippingCost",
+      "internalCosts.shippingCost",
+      "costs.shippingCost",
+      "shippingCost",
+      "freightCost"
+    ]),
+    0
+  ) || 0;
+
+  const installerCost = tcdParseMoney(
+    tcdPick(request, [
+      "installer.response.installCost",
+      "installer.estimatedInstallCost",
+      "installerCost",
+      "installCost"
+    ]),
+    tcdPick(quote, [
+      "internal.installerCost",
+      "internal.installCost",
+      "internalCosts.installerCost",
+      "costs.installerCost",
+      "installerCost",
+      "installCost"
+    ]),
+    0
+  ) || 0;
+
+  const customerTotal = tcdParseMoney(
+    tcdPick(quote, [
+      "customerTotal",
+      "total",
+      "totalWithGst",
+      "grandTotal",
+      "amount",
+      "price",
+      "totals.customerTotal",
+      "totals.total",
+      "totals.totalWithGst",
+      "totals.grandTotal",
+      "pricing.customerTotal",
+      "pricing.total",
+      "pricing.totalWithGst",
+      "summary.total",
+      "summary.totalWithGst"
+    ])
+  );
+
+  const competitorQuote = tcdParseMoney(
+    opts?.competitorQuote,
+    opts?.competitorPrice,
+    opts?.customerCompetitorQuote,
+    opts?.otherQuoteAmount,
+    tcdPick(request, [
+      "customerCompetitorQuote",
+      "competitorQuote",
+      "competitorPrice",
+      "otherQuoteAmount"
+    ]),
+    tcdPick(quote, [
+      "customerCompetitorQuote",
+      "competitorQuote",
+      "competitorPrice",
+      "otherQuoteAmount"
+    ])
+  );
+
+  if (!manufacturerCost || !customerTotal) {
+    return {
+      ok: false,
+      blocked: true,
+      stage: "quote_profit_guard",
+      error: "Customer quote blocked: manufacturer cost and customer total must be known before sending.",
+      customerMessage: "I need to confirm the final pricing before sending this quote through.",
+      minimumProfit: TCD_MINIMUM_CUSTOMER_QUOTE_GROSS_PROFIT,
+      competitorQuote
+    };
+  }
+
+  const landedCost = manufacturerCost + shippingCost + installerCost;
+  const grossProfit = customerTotal - landedCost;
+
+  if (customerTotal <= manufacturerCost) {
+    return {
+      ok: false,
+      blocked: true,
+      stage: "quote_profit_guard",
+      error: "Customer quote blocked: customer total is not above manufacturer cost.",
+      customerMessage: "I need to confirm the final pricing before sending this quote through.",
+      grossProfit,
+      landedCost,
+      minimumProfit: TCD_MINIMUM_CUSTOMER_QUOTE_GROSS_PROFIT,
+      competitorQuote
+    };
+  }
+
+  if (customerTotal <= landedCost) {
+    return {
+      ok: false,
+      blocked: true,
+      stage: "quote_profit_guard",
+      error: "Customer quote blocked: customer total is not above landed cost.",
+      customerMessage: "I need to confirm the final pricing before sending this quote through.",
+      grossProfit,
+      landedCost,
+      minimumProfit: TCD_MINIMUM_CUSTOMER_QUOTE_GROSS_PROFIT,
+      competitorQuote
+    };
+  }
+
+  if (grossProfit < TCD_MINIMUM_CUSTOMER_QUOTE_GROSS_PROFIT) {
+    return {
+      ok: false,
+      blocked: true,
+      stage: "quote_profit_guard",
+      error: "Customer quote blocked: gross profit is below the $500 minimum floor.",
+      customerMessage: "At that price, your existing quote is the better option. We would rather be honest than push you into a worse deal.",
+      grossProfit,
+      landedCost,
+      minimumProfit: TCD_MINIMUM_CUSTOMER_QUOTE_GROSS_PROFIT,
+      competitorQuote
+    };
+  }
+
+  if (competitorQuote && competitorQuote < customerTotal) {
+    const competitorProfit = competitorQuote - landedCost;
+    if (competitorProfit < TCD_MINIMUM_CUSTOMER_QUOTE_GROSS_PROFIT) {
+      return {
+        ok: false,
+        blocked: true,
+        stage: "quote_profit_guard",
+        error: "Customer quote blocked: matching the competitor quote would leave less than $500 gross profit.",
+        customerMessage: "At that price, your existing quote is the better option. We would rather be honest than push you into a worse deal.",
+        grossProfit: competitorProfit,
+        landedCost,
+        minimumProfit: TCD_MINIMUM_CUSTOMER_QUOTE_GROSS_PROFIT,
+        competitorQuote
+      };
+    }
+  }
+
+  return {
+    ok: true,
+    grossProfit,
+    landedCost,
+    minimumProfit: TCD_MINIMUM_CUSTOMER_QUOTE_GROSS_PROFIT
+  };
+}
+
+export async function sendCustomerQuoteEmail(id: string, opts: { overrideToken?: string; competitorQuote?: any; competitorPrice?: any; customerCompetitorQuote?: any; otherQuoteAmount?: any } = {}) {
   const result = await getProcurementQuoteRequest(id);
   if (!result.ok) return result;
 
@@ -843,6 +1072,11 @@ export async function sendCustomerQuoteEmail(id: string, opts: { overrideToken?:
 
   if (!quote) {
     return { ok: false, error: "Customer quote has not been built yet" };
+  }
+
+  const profitGuard = assertCustomerQuoteProfitSafe(request, quote, opts);
+  if (!profitGuard.ok) {
+    return profitGuard;
   }
 
   if (!request.customer.email) {
