@@ -5,20 +5,11 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ConciergeProvider } from "@/contexts/ConciergeContext";
-import { NexoraCopilot } from "@/components/NexoraCopilot";
-import { NexoraJourneyBar } from "@/components/NexoraJourneyBar";
 import { AdminAuthGate } from "@/components/AdminAuthGate";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-import { ThankYouLayoutPlan, ThankYouQuote, ThankYouStrategy } from "@/pages/ThankYou";
-import LeadCapturePopup from "@/components/LeadCapturePopup";
-import StickyCTA from "@/components/StickyCTA";
 import { usePageTracking } from "@/lib/usePageTracking";
 import { Redirect } from "wouter";
-import { BrisbanePage, SydneyPage, MelbournePage, CanberraPage } from "@/pages/CityLandingPage";
-import { WhatsAppButton } from "@/components/WhatsAppButton";
-import { GoogleReviewsBadge } from "@/components/GoogleReviewsBadge";
-import { TrackingPixels } from "@/components/TrackingPixels";
 
 // TCD_STAGE_25_ROUTE_LEVEL_LAZY_LOADING
 const NotFound = lazy(() => import("@/pages/not-found"));
@@ -120,6 +111,48 @@ const TrustCentre = lazy(() => import("@/pages/TrustCentre"));
 const AdminEmailNotifications = lazy(() => import("@/pages/AdminEmailNotifications"));
 const AdminDataLayer = lazy(() => import("@/pages/AdminDataLayer"));
 const AdminAutonomyReadiness = lazy(() => import("@/pages/AdminAutonomyReadiness"));
+
+// TCD_STAGE_26_FLASH_APP_SHELL
+const NexoraCopilot = lazy(() =>
+  import("@/components/NexoraCopilot").then((m) => ({ default: m.NexoraCopilot }))
+);
+const NexoraJourneyBar = lazy(() =>
+  import("@/components/NexoraJourneyBar").then((m) => ({ default: m.NexoraJourneyBar }))
+);
+const LeadCapturePopup = lazy(() => import("@/components/LeadCapturePopup"));
+const StickyCTA = lazy(() => import("@/components/StickyCTA"));
+const WhatsAppButton = lazy(() =>
+  import("@/components/WhatsAppButton").then((m) => ({ default: m.WhatsAppButton }))
+);
+const GoogleReviewsBadge = lazy(() =>
+  import("@/components/GoogleReviewsBadge").then((m) => ({ default: m.GoogleReviewsBadge }))
+);
+const TrackingPixels = lazy(() =>
+  import("@/components/TrackingPixels").then((m) => ({ default: m.TrackingPixels }))
+);
+
+const ThankYouLayoutPlan = lazy(() =>
+  import("@/pages/ThankYou").then((m) => ({ default: m.ThankYouLayoutPlan }))
+);
+const ThankYouQuote = lazy(() =>
+  import("@/pages/ThankYou").then((m) => ({ default: m.ThankYouQuote }))
+);
+const ThankYouStrategy = lazy(() =>
+  import("@/pages/ThankYou").then((m) => ({ default: m.ThankYouStrategy }))
+);
+
+const BrisbanePage = lazy(() =>
+  import("@/pages/CityLandingPage").then((m) => ({ default: m.BrisbanePage }))
+);
+const SydneyPage = lazy(() =>
+  import("@/pages/CityLandingPage").then((m) => ({ default: m.SydneyPage }))
+);
+const MelbournePage = lazy(() =>
+  import("@/pages/CityLandingPage").then((m) => ({ default: m.MelbournePage }))
+);
+const CanberraPage = lazy(() =>
+  import("@/pages/CityLandingPage").then((m) => ({ default: m.CanberraPage }))
+);
 
 
 const tcdRouteFallback = (
@@ -319,12 +352,12 @@ function App() {
         <TooltipProvider>
           <ConciergeProvider>
             <Toaster />
-            <TrackingPixels />
+            <Suspense fallback={null}><TrackingPixels /></Suspense>
             <Router />
-            <NexoraJourneyBar />
-            <NexoraCopilot />
-            <WhatsAppButton />
-            <GoogleReviewsBadge />
+            <Suspense fallback={null}><NexoraJourneyBar /></Suspense>
+            <Suspense fallback={null}><NexoraCopilot /></Suspense>
+            <Suspense fallback={null}><WhatsAppButton /></Suspense>
+            <Suspense fallback={null}><GoogleReviewsBadge /></Suspense>
           </ConciergeProvider>
         </TooltipProvider>
       </QueryClientProvider>
