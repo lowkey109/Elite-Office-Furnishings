@@ -217,6 +217,55 @@ app.post("/api/customer/competitor-quote/upload", tcdCompetitorQuoteUpload.singl
   }
 });
 
+
+/**
+ * TCD_STAGE_12_TO_17_GLOBAL_ADMIN_PRODUCTION_GUARD
+ *
+ * Local/dev remains open for smoke tests.
+ * Production protects /api/admin/* routes with server-side session or admin token.
+ * This does not delete pipeline, outreach, procurement, Nexora, trading, or any existing route.
+ */
+function tcdStage12To17AdminAllowed(req: any): boolean {
+  if (process.env.NODE_ENV !== "production") return true;
+
+  const originalUrl = String(req?.originalUrl || req?.url || "");
+  if (
+    originalUrl.startsWith("/api/admin/auth/login") ||
+    originalUrl.startsWith("/api/admin/auth/check") ||
+    originalUrl.startsWith("/api/admin/auth/logout")
+  ) {
+    return true;
+  }
+
+  if (req?.session?.adminAuthenticated === true || req?.session?.isAdmin === true) {
+    return true;
+  }
+
+  const expected =
+    process.env.TCD_ADMIN_API_TOKEN ||
+    process.env.ADMIN_API_TOKEN ||
+    process.env.ADMIN_TOKEN ||
+    "";
+
+  if (!expected) return false;
+
+  const provided =
+    String(req?.headers?.["x-tcd-admin-token"] || "") ||
+    String(req?.headers?.["x-admin-token"] || "");
+
+  return provided === expected;
+}
+
+app.use("/api/admin", (req: any, res: any, next: any) => {
+  if (tcdStage12To17AdminAllowed(req)) return next();
+
+  return res.status(401).json({
+    ok: false,
+    error: "Admin authentication required",
+    stage: "stage_12_to_17_global_admin_guard"
+  });
+});
+
 app.get("/api/admin/customer-competitor-quotes", async (req: any, res: any) => {
   try {
     // TCD_STAGE_9_ADMIN_COMPETITOR_LIST_GUARD_APPLIED
