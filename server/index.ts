@@ -570,6 +570,48 @@ app.get("/api/admin/autonomy/actions/pipeline-store", async (req: any, res: any)
   }
 });
 
+// SAFE_AUTONOMOUS_OUTREACH_INDEX_ROUTES
+app.post("/api/admin/autonomy/actions/prepare-qualified-outreach", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") {
+    return res.status(401).json({ ok: false, error: "Authentication required" });
+  }
+
+  try {
+    const { prepareQualifiedAutonomousOutreach } = await import("./services/platform/autonomousSafeActionService");
+    return res.status(200).json(await prepareQualifiedAutonomousOutreach(req.body?.opportunityId));
+  } catch (error: any) {
+    return res.status(500).json({ ok: false, error: error?.message || String(error) });
+  }
+});
+
+app.post("/api/admin/autonomy/actions/send-qualified-outreach", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") {
+    return res.status(401).json({ ok: false, error: "Authentication required" });
+  }
+
+  try {
+    const { sendQualifiedAutonomousOutreach } = await import("./services/platform/autonomousSafeActionService");
+    return res.status(200).json(await sendQualifiedAutonomousOutreach(req.body?.opportunityId, {
+      overrideToken: String(req.headers["x-tcd-autonomy-override"] || ""),
+    }));
+  } catch (error: any) {
+    return res.status(500).json({ ok: false, error: error?.message || String(error) });
+  }
+});
+
+app.get("/api/admin/autonomy/actions/outreach-log", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") {
+    return res.status(401).json({ ok: false, error: "Authentication required" });
+  }
+
+  try {
+    const { listAutonomousOutreachLog } = await import("./services/platform/autonomousSafeActionService");
+    return res.status(200).json(await listAutonomousOutreachLog());
+  } catch (error: any) {
+    return res.status(500).json({ ok: false, error: error?.message || String(error) });
+  }
+});
+
 // INDEX_HEALTH_ROUTE
 app.get("/api/health", (_req: any, res: any) => {
   return res.status(200).json({

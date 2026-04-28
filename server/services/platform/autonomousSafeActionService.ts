@@ -275,3 +275,284 @@ export async function listAutonomousPipelineStore() {
     opportunities,
   };
 }
+
+
+function normaliseEmail(email: string) {
+  return String(email || "").trim().toLowerCase();
+}
+
+async function getSuppressionSet() {
+  const store = await readJson("outreach-suppressions.json", { suppressions: [] });
+  const suppressions = Array.isArray(store.suppressions) ? store.suppressions : [];
+
+  return new Set(
+    suppressions
+      .map((item: any) => normaliseEmail(item.email || item.recipientEmail || item.value || ""))
+      .filter(Boolean),
+  );
+}
+
+async function getOutreachRateLimit() {
+  const today = new Date().toISOString().slice(0, 10);
+  const store = await readJson("autonomous-outreach-rate-limit.json", { date: today, sent: 0 });
+
+  if (store.date !== today) {
+    return { date: today, sent: 0 };
+  }
+
+  return {
+    date: today,
+    sent: Number(store.sent || 0),
+  };
+}
+
+async function incrementOutreachRateLimit() {
+  const current = await getOutreachRateLimit();
+  current.sent += 1;
+  await writeJson("autonomous-outreach-rate-limit.json", current);
+  return current;
+}
+
+function buildOutreachEmail(opportunity: any) {
+  const companyName = String(opportunity.companyName || "your team").trim();
+
+  return {
+    subject: "Workspace project cost control",
+    body: `Hi,
+
+I noticed a public business signal connected to ${companyName} and wanted to reach out from The Corporate Desk.
+
+We help companies control cost, supplier coordination, execution visibility and financial outcomes across office fitouts, relocations, expansions and multi-site workspace projects.
+
+This is not a generic furniture quote. The aim is to reduce overruns, delays and poor financial visibility before they become expensive.
+
+If a workspace project is coming up, I can send a short project-control outline.
+
+Regards,
+The Corporate Desk
+hello@thecorporatedesk.au
+
+Opt out: reply “unsubscribe” and we will not contact you again.`,
+  };
+}
+
+async function logAutonomousEmail(entry: any) {
+  const log = await readJson("email-notification-log.json", { emails: [] });
+  const emails = Array.isArray(log.emails) ? log.emails : [];
+
+  log.emails = [
+    {
+      id: "auto-outreach-" + Date.now(),
+      createdAt: new Date().toISOString(),
+      ...entry,
+    },
+    ...emails,
+  ].slice(0, 1000);
+
+  await writeJson("email-notification-log.json", log);
+}
+
+export async function prepareQualifiedAutonomousOutreach(opportunityId?: string) {
+  const store = await readJson("autonomous-pipeline-store.json", { opportunities: [] });
+  const opportunities = Array.isArray(store.opportunities) ? store.opportunities : [];
+
+  const opportunity = opportunityId
+    ? opportunities.find((item: any) => item.id === opportunityId)
+    : opportunities.find((item: any) => item.status === "new_qualified" && item.realOutreachSent !== true);
+
+  if (!opportunity) {
+    return {
+      ok: false,
+      action: "no_qualified_pipeline_opportunity_found",
+    };
+  }
+
+  const validation = validateLeadForAutonomy(opportunity);
+  const suppressions = await getSuppressionSet();
+  const recipient = normaliseEmail(opportunity.contactEmail);
+
+  if (!validation.qualified) {
+    return {
+      ok: true,
+      action: "blocked_to_review_queue",
+      validation,
+      realOutreachPerformed: false,
+      reason: "Opportunity no longer passes autonomous lead validation.",
+    };
+  }
+
+  if (!recipient || suppressions.has(recipient)) {
+    return {
+      ok: true,
+      action: "blocked_suppressed_or_missing_recipient",
+      recipient,
+      realOutreachPerformed: false,
+    };
+  }
+
+  const draft = buildOutreachEmail(opportunity);
+
+  return {
+    ok: true,
+    action: "outreach_draft_ready",
+    opportunityId: opportunity.id,
+    to: recipient,
+    from: process.env.TCD_EMAIL_FROM || "The Corporate Desk <hello@thecorporatedesk.au>",
+    subject: draft.subject,
+    body: draft.body,
+    realOutreachPerformed: false,
+  };
+}
+
+export async function sendQualifiedAutonomousOutreach(opportunityId: string | undefined, opts: { overrideToken?: string } = {}) {
+  const fullGreen = process.env.TCD_AUTONOMY_FULL_GREEN === "true";
+  const outreachAllowed = process.env.TCD_ALLOW_REAL_OUTREACH === "true";
+  const overrideConfigured = Boolean(process.env.TCD_AUTONOMY_OVERRIDE_TOKEN);
+  const overrideMatches =
+    overrideConfigured &&
+    String(opts.overrideToken || "") === String(process.env.TCD_AUTONOMY_OVERRIDE_TOKEN || "");
+
+  if (!fullGreen || !outreachAllowed || !overrideMatches) {
+    const locked = {
+      ok: true,
+      action: "qualified_outreach_locked",
+      realOutreachPerformed: false,
+      required: {
+        TCD_AUTONOMY_FULL_GREEN: "true",
+        TCD_ALLOW_REAL_OUTREACH: "true",
+        "x-tcd-autonomy-override": "must match TCD_AUTONOMY_OVERRIDE_TOKEN",
+      },
+    };
+
+    await appendAudit({ type: "auto_outreach_locked", locked });
+    return locked;
+  }
+
+  const prepared = await prepareQualifiedAutonomousOutreach(opportunityId);
+
+  if (!prepared.ok || prepared.action !== "outreach_draft_ready") {
+    await appendAudit({ type: "auto_outreach_not_ready", prepared });
+    return prepared;
+  }
+
+  const dailyLimit = Number(process.env.TCD_OUTREACH_DAILY_LIMIT || 10);
+  const rateLimit = await getOutreachRateLimit();
+
+  if (rateLimit.sent >= dailyLimit) {
+    const limited = {
+      ok: true,
+      action: "daily_outreach_limit_reached",
+      realOutreachPerformed: false,
+      dailyLimit,
+      sentToday: rateLimit.sent,
+    };
+
+    await appendAudit({ type: "auto_outreach_rate_limited", limited });
+    return limited;
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    return {
+      ok: false,
+      action: "resend_not_configured",
+      realOutreachPerformed: false,
+    };
+  }
+
+  const from = process.env.TCD_EMAIL_FROM || "The Corporate Desk <hello@thecorporatedesk.au>";
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      from,
+      to: prepared.to,
+      subject: prepared.subject,
+      text: prepared.body,
+    }),
+  });
+
+  const payload = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const failed = {
+      ok: false,
+      action: "resend_send_failed",
+      realOutreachPerformed: false,
+      status: response.status,
+      error: payload,
+    };
+
+    await logAutonomousEmail({
+      status: "failed",
+      category: "autonomous_outreach",
+      to: prepared.to,
+      from,
+      subject: prepared.subject,
+      provider: "resend",
+      error: payload,
+    });
+
+    await appendAudit({ type: "auto_outreach_failed", failed });
+    return failed;
+  }
+
+  await incrementOutreachRateLimit();
+
+  const store = await readJson("autonomous-pipeline-store.json", { opportunities: [] });
+  const opportunities = Array.isArray(store.opportunities) ? store.opportunities : [];
+
+  store.opportunities = opportunities.map((item: any) =>
+    item.id === prepared.opportunityId
+      ? {
+          ...item,
+          realOutreachSent: true,
+          outreachSentAt: new Date().toISOString(),
+          outreachProvider: "resend",
+          outreachMessageId: payload?.id || null,
+          status: "outreach_sent",
+        }
+      : item,
+  );
+
+  await writeJson("autonomous-pipeline-store.json", store);
+
+  const sent = {
+    ok: true,
+    action: "autonomous_outreach_sent",
+    realOutreachPerformed: true,
+    opportunityId: prepared.opportunityId,
+    to: prepared.to,
+    subject: prepared.subject,
+    provider: "resend",
+    providerResponse: payload,
+  };
+
+  await logAutonomousEmail({
+    status: "sent",
+    category: "autonomous_outreach",
+    to: prepared.to,
+    from,
+    subject: prepared.subject,
+    provider: "resend",
+    providerResponse: payload,
+  });
+
+  await appendAudit({ type: "auto_outreach_sent", sent });
+
+  return sent;
+}
+
+export async function listAutonomousOutreachLog() {
+  const log = await readJson("email-notification-log.json", { emails: [] });
+  const emails = Array.isArray(log.emails) ? log.emails : [];
+
+  return {
+    ok: true,
+    count: emails.length,
+    emails: emails.filter((email: any) => email.category === "autonomous_outreach").slice(0, 100),
+  };
+}
