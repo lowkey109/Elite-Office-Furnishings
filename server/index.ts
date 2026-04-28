@@ -338,6 +338,39 @@ app.get("/api/admin/customer-competitor-quotes/:id/file", async (req: any, res: 
 
 
 // INDEX_JSON_BODY_PARSER_FOR_EARLY_ROUTES
+
+/**
+ * TCD_STAGE_20_ADMIN_TOKEN_LEGACY_ROUTE_BRIDGE
+ *
+ * Bridges the newer x-tcd-admin-token production auth into the older admin
+ * route checks that still look for x-tcd-admin-auth or session flags.
+ *
+ * This keeps old pipeline/outreach/procurement/Nexora routes protected,
+ * while allowing one production admin token to access them.
+ */
+app.use((req: any, _res: any, next: any) => {
+  const expected =
+    process.env.TCD_ADMIN_API_TOKEN ||
+    process.env.ADMIN_API_TOKEN ||
+    process.env.ADMIN_TOKEN ||
+    "";
+
+  const provided =
+    String(req.headers?.["x-tcd-admin-token"] || "") ||
+    String(req.headers?.["x-admin-token"] || "");
+
+  if (expected && provided && provided === expected) {
+    req.headers["x-tcd-admin-auth"] = "true";
+
+    if (req.session) {
+      req.session.adminAuthenticated = true;
+      req.session.isAdmin = true;
+    }
+  }
+
+  next();
+});
+
 // Needed because several safety/certification routes are registered before registerRoutes().
 
 // TCD_PUBLIC_IMAGE_STATIC_ROUTE
