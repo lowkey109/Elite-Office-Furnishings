@@ -744,6 +744,22 @@ app.post("/api/admin/procurement/quote-requests/:id/shipping-agent-rfq", async (
   return res.json(await queueShippingAgentRfq(req.params.id, req.body || {}));
 });
 
+// PROCUREMENT_EMAIL_OUTBOX_ROUTES
+app.get("/api/admin/procurement/email-outbox", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { listProcurementEmailOutbox } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await listProcurementEmailOutbox());
+});
+
+app.post("/api/admin/procurement/email-outbox/send", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { sendQueuedProcurementEmails } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await sendQueuedProcurementEmails({
+    overrideToken: String(req.headers["x-tcd-autonomy-override"] || ""),
+    limit: Number(req.body?.limit || 10)
+  }));
+});
+
 // INDEX_HEALTH_ROUTE
 app.get("/api/health", (_req: any, res: any) => {
   return res.status(200).json({

@@ -6,6 +6,7 @@ const DATA_DIR = path.resolve(process.cwd(), ".nexora-data");
 const STORE_FILE = "procurement-quote-store.json";
 const OUTBOX_FILE = "procurement-whatsapp-outbox.json";
 const QUOTE_LOG_FILE = "procurement-customer-quote-log.json";
+const EMAIL_OUTBOX_FILE = "procurement-email-outbox.json";
 
 type ProcurementItem = {
   name: string;
@@ -73,7 +74,8 @@ const INSTALLERS = [
     contactName: "Liam Flew",
     role: "Country Manager - Australia",
     email: "liam@teamkitset.com",
-    whatsapp: "+61497977002",
+    preferredContact: "email",
+    whatsapp: null,
     phoneAu: "0497977002",
     phoneNz: "0274926664",
     address: "16 Nexus Way, Southport, QLD 4215",
@@ -357,6 +359,96 @@ async function appendWhatsAppOutbox(entry: any) {
   return outbox.messages[0];
 }
 
+
+async function appendProcurementEmailOutbox(entry: any) {
+  const outbox = await readJson(EMAIL_OUTBOX_FILE, { emails: [] });
+  const emails = Array.isArray(outbox.emails) ? outbox.emails : [];
+
+  outbox.emails = [
+    {
+      id: "proc-email-" + Date.now(),
+      createdAt: now(),
+      status: "queued",
+      realSendPerformed: false,
+      ...entry
+    },
+    ...emails
+  ].slice(0, 1000);
+
+  await writeJson(EMAIL_OUTBOX_FILE, outbox);
+  return outbox.emails[0];
+}
+
+export async function listProcurementEmailOutbox() {
+  const outbox = await readJson(EMAIL_OUTBOX_FILE, { emails: [] });
+  return {
+    ok: true,
+    count: Array.isArray(outbox.emails) ? outbox.emails.length : 0,
+    emails: Array.isArray(outbox.emails) ? outbox.emails : []
+  };
+}
+
+export async function sendQueuedProcurementEmails(opts: { overrideToken?: string; limit?: number } = {}) {
+  const overrideConfigured = Boolean(process.env.TCD_AUTONOMY_OVERRIDE_TOKEN);
+  const overrideMatches = overrideConfigured && opts.overrideToken === process.env.TCD_AUTONOMY_OVERRIDE_TOKEN;
+
+  if (process.env.TCD_ALLOW_REAL_OUTREACH !== "true" || !overrideMatches) {
+    return {
+      ok: false,
+      locked: true,
+      message: "Procurement email send is locked unless real outreach is enabled and override token matches."
+    };
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    return { ok: false, error: "RESEND_API_KEY is missing" };
+  }
+
+  const outbox = await readJson(EMAIL_OUTBOX_FILE, { emails: [] });
+  const emails = Array.isArray(outbox.emails) ? outbox.emails : [];
+  const limit = Math.max(1, Number(opts.limit || 10));
+  const pending = emails.filter((email: any) => email.status === "queued").slice(0, limit);
+  const results = [];
+  const from = process.env.TCD_EMAIL_FROM_PLAIN || "hello@thecorporatedesk.au";
+
+  for (const email of pending) {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        from,
+        to: email.to,
+        subject: email.subject,
+        text: email.body
+      })
+    });
+
+    const payload = await response.json().catch(() => ({}));
+
+    email.status = response.ok ? "sent" : "send_failed";
+    email.sentAt = response.ok ? now() : undefined;
+    email.realSendPerformed = response.ok;
+    email.provider = "resend";
+    email.providerResponse = response.ok ? payload : undefined;
+    email.error = response.ok ? undefined : payload;
+
+    results.push({
+      id: email.id,
+      to: email.to,
+      purpose: email.purpose,
+      status: email.status,
+      providerResponse: payload
+    });
+  }
+
+  await writeJson(EMAIL_OUTBOX_FILE, { emails });
+
+  return { ok: true, attempted: pending.length, results };
+}
+
 export async function queueInstallerRfq(id: string) {
   const store = await getStore();
   const request = (store.requests || []).find((item: QuoteRequest) => item.id === id);
@@ -368,26 +460,28 @@ export async function queueInstallerRfq(id: string) {
   const installer = INSTALLERS[0];
   const message = buildInstallerRfqMessage(request);
 
-  const queued = await appendWhatsAppOutbox({
-    channel: "whatsapp",
+  const queued = await appendProcurementEmailOutbox({
+    channel: "email",
     direction: "outbound",
     purpose: "installer_rfq",
     quoteRequestId: id,
     quoteNumber: request.quoteNumber,
     toName: installer.contactName,
     toCompany: installer.companyName,
-    to: installer.whatsapp,
+    to: installer.email || "liam@teamkitset.com",
+    phone: installer.phoneAu || "0497977002",
+    subject: `Install quote request - ${request.quoteNumber}`,
     body: message,
-    realSendPerformed: false,
-    note: "Queued for WhatsApp send. Wire this to Twilio/Meta WhatsApp before production auto-send."
+    note: "Installer/assembler uses email or phone, not WhatsApp."
   });
 
-  request.status = "installer_rfq_queued";
+  request.status = "installer_email_rfq_queued";
   request.updatedAt = now();
   await saveStore(store);
 
   return {
     ok: true,
+    requestStatus: request.status,
     queued,
     installer,
     message
