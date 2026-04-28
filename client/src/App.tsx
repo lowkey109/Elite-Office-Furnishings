@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, lazy } from "react";
 import { Route, Switch } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -9,121 +9,131 @@ import { NexoraCopilot } from "@/components/NexoraCopilot";
 import { NexoraJourneyBar } from "@/components/NexoraJourneyBar";
 import { AdminAuthGate } from "@/components/AdminAuthGate";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import NotFound from "@/pages/not-found";
-import Home from "@/pages/Home";
-import UploadYourQuote from "@/pages/UploadYourQuote";
-import AdminCompetitorQuotes from "@/pages/AdminCompetitorQuotes";
 
-import About from "@/pages/About";
-import Products from "@/pages/Products";
-import WorkplaceSolutions from "@/pages/WorkplaceSolutions";
-import FreeLayoutPlan from "@/pages/FreeLayoutPlan";
-import SendQuote from "@/pages/SendQuote";
-import WorkplaceStrategy from "@/pages/WorkplaceStrategy";
-import TradeProcurement from "@/pages/TradeProcurement";
 import { ThankYouLayoutPlan, ThankYouQuote, ThankYouStrategy } from "@/pages/ThankYou";
-import Contact from "@/pages/Contact";
-import Marketing from "@/pages/Marketing";
-import QuoteBuilder from "@/pages/QuoteBuilder";
-import FinanceWorkspace from "@/pages/FinanceWorkspace";
-import Checkout from "@/pages/Checkout";
-import PaymentSuccess from "@/pages/PaymentSuccess";
-import PaymentCancelled from "@/pages/PaymentCancelled";
 import LeadCapturePopup from "@/components/LeadCapturePopup";
 import StickyCTA from "@/components/StickyCTA";
-import CaseStudies from "@/pages/CaseStudies";
-import AdminDashboard from "@/pages/AdminDashboard";
-import AdminLeads from "@/pages/AdminLeads";
-import AdminSupplierQuotes from "@/pages/AdminSupplierQuotes";
-import AdminPlanningRequests from "@/pages/AdminPlanningRequests";
-import UploadFloorPlan from "@/pages/UploadFloorPlan";
-import OfficeWalkthrough from "@/pages/OfficeWalkthrough";
-import Testimonials from "@/pages/Testimonials";
-import Blog from "@/pages/Blog";
-import BlogPost from "@/pages/BlogPost";
-import ProductDetail from "@/pages/ProductDetail";
-import AdminProductReviews from "@/pages/AdminProductReviews";
-import AdminManufacturerMessaging from "@/pages/AdminManufacturerMessaging";
-import AdminFollowUpSequences from "@/pages/AdminFollowUpSequences";
-import AdminDealPipeline from "@/pages/AdminDealPipeline";
-import AdminTerritoryScanner from "@/pages/AdminTerritoryScanner";
-import AdminProcurementEngine from "@/pages/AdminProcurementEngine";
-import AdminSupplierIntelligence from "@/pages/AdminSupplierIntelligence";
-import AdminWorkspaceLearning from "@/pages/AdminWorkspaceLearning";
-import AdminQuotes from "@/pages/AdminQuotes";
-import QuotePrint from "@/pages/QuotePrint";
-import AdminOfficeMovRadar from "@/pages/AdminOfficeMovRadar";
-import WorkspaceDesignEngine from "@/pages/WorkspaceDesignEngine";
-import AdminPartnerNetwork from "@/pages/AdminPartnerNetwork";
-import AdminDealHunter from "@/pages/AdminDealHunter";
-import AdminWorkspaceStrategy from "@/pages/AdminWorkspaceStrategy";
-import PartnerOnboarding from "@/pages/PartnerOnboarding";
-import PartnerDashboard from "@/pages/PartnerDashboard";
-import PartnerAgreement from "@/pages/PartnerAgreement";
-import PartnerApply from "@/pages/PartnerApply";
-import MarketMap from "@/pages/MarketMap";
-import ProposalEngine from "@/pages/ProposalEngine";
-import BuildingDatabase from "@/pages/BuildingDatabase";
-import AdminProductCommandCentre from "@/pages/AdminProductCommandCentre";
-import AdminLeadEngine from "@/pages/AdminLeadEngine";
-import AdminNexoraCommandCentre from "@/pages/AdminNexoraCommandCentre";
-import AdminNexoraAdvanced from "@/pages/AdminNexoraAdvanced";
-import AdminNexoraMonitor from "@/pages/AdminNexoraMonitor";
-import AdminTradingMonitor from "@/pages/AdminTradingMonitor";
-import AdminPredictionMarkets from "@/pages/AdminPredictionMarkets";
-import AdminPropertyIntelligence from "@/pages/AdminPropertyIntelligence";
-import PropertyIntelligence from "@/pages/PropertyIntelligence";
-import ClientPropertyIntelligence from "@/pages/ClientPropertyIntelligence";
-import AdminAIChat from "@/pages/AdminAIChat";
-import AdminPartners from "@/pages/AdminPartners";
-import Partners from "@/pages/Partners";
-import SubmitDeal from "@/pages/SubmitDeal";
-import TradeCustomersPortal from "@/pages/TradeCustomersPortal";
-import Start from "@/pages/Start";
-import Capability from "@/pages/Capability";
-import AdminCatalogStaging from "@/pages/AdminCatalogStaging";
-import Catalog from "@/pages/Catalog";
-import CatalogProductDetail from "@/pages/CatalogProductDetail";
 import { usePageTracking } from "@/lib/usePageTracking";
 import { Redirect } from "wouter";
 import { BrisbanePage, SydneyPage, MelbournePage, CanberraPage } from "@/pages/CityLandingPage";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { GoogleReviewsBadge } from "@/components/GoogleReviewsBadge";
 import { TrackingPixels } from "@/components/TrackingPixels";
-import AdminDevStudio from "@/pages/AdminDevStudio";
-import ClientLogin from "@/pages/ClientLogin";
-import ClientSignup from "@/pages/ClientSignup";
-import ClientOnboarding from "@/pages/ClientOnboarding";
-import ClientDashboard from "@/pages/ClientDashboard";
-import Subscriptions from "@/pages/Subscriptions";
-import Terms from "@/pages/legal/Terms";
-import PrivacyNotice from "@/pages/legal/PrivacyNotice";
-import SubscriptionTerms from "@/pages/legal/SubscriptionTerms";
-import PhantomXRiskDisclaimer from "@/pages/legal/PhantomXRiskDisclaimer";
-import AdminCustomers from "@/pages/AdminCustomers";
-import AdminSubscriptions from "@/pages/AdminSubscriptions";
-import AdminClientProjects from "@/pages/AdminClientProjects";
-import AdminPropertyListings from "@/pages/AdminPropertyListings";
-import ClientPropertyListings from "@/pages/ClientPropertyListings";
-import AdminPropertyListingsImport from "@/pages/AdminPropertyListingsImport";
-import AdminPropertyEnquiries from "@/pages/AdminPropertyEnquiries";
-import ClientPhantomXPaper from "@/pages/ClientPhantomXPaper";
-import ClientPhantomXCompliance from "@/pages/ClientPhantomXCompliance";
-import AdminPhantomXCompliance from "@/pages/AdminPhantomXCompliance";
-import PlatformOverview from "@/pages/PlatformOverview";
-import WorkspaceControlLanding from "@/pages/WorkspaceControlLanding";
-import LeaseHawkLanding from "@/pages/LeaseHawkLanding";
-import PhantomXLanding from "@/pages/PhantomXLanding";
-import TrustCentre from "@/pages/TrustCentre";
-import AdminEmailNotifications from "@/pages/AdminEmailNotifications";
-import AdminDataLayer from "@/pages/AdminDataLayer";
-import AdminAutonomyReadiness from "@/pages/AdminAutonomyReadiness";
+
+// TCD_STAGE_25_ROUTE_LEVEL_LAZY_LOADING
+const NotFound = lazy(() => import("@/pages/not-found"));
+const Home = lazy(() => import("@/pages/Home"));
+const UploadYourQuote = lazy(() => import("@/pages/UploadYourQuote"));
+const AdminCompetitorQuotes = lazy(() => import("@/pages/AdminCompetitorQuotes"));
+const About = lazy(() => import("@/pages/About"));
+const Products = lazy(() => import("@/pages/Products"));
+const WorkplaceSolutions = lazy(() => import("@/pages/WorkplaceSolutions"));
+const FreeLayoutPlan = lazy(() => import("@/pages/FreeLayoutPlan"));
+const SendQuote = lazy(() => import("@/pages/SendQuote"));
+const WorkplaceStrategy = lazy(() => import("@/pages/WorkplaceStrategy"));
+const TradeProcurement = lazy(() => import("@/pages/TradeProcurement"));
+const Contact = lazy(() => import("@/pages/Contact"));
+const Marketing = lazy(() => import("@/pages/Marketing"));
+const QuoteBuilder = lazy(() => import("@/pages/QuoteBuilder"));
+const FinanceWorkspace = lazy(() => import("@/pages/FinanceWorkspace"));
+const Checkout = lazy(() => import("@/pages/Checkout"));
+const PaymentSuccess = lazy(() => import("@/pages/PaymentSuccess"));
+const PaymentCancelled = lazy(() => import("@/pages/PaymentCancelled"));
+const CaseStudies = lazy(() => import("@/pages/CaseStudies"));
+const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
+const AdminLeads = lazy(() => import("@/pages/AdminLeads"));
+const AdminSupplierQuotes = lazy(() => import("@/pages/AdminSupplierQuotes"));
+const AdminPlanningRequests = lazy(() => import("@/pages/AdminPlanningRequests"));
+const UploadFloorPlan = lazy(() => import("@/pages/UploadFloorPlan"));
+const OfficeWalkthrough = lazy(() => import("@/pages/OfficeWalkthrough"));
+const Testimonials = lazy(() => import("@/pages/Testimonials"));
+const Blog = lazy(() => import("@/pages/Blog"));
+const BlogPost = lazy(() => import("@/pages/BlogPost"));
+const ProductDetail = lazy(() => import("@/pages/ProductDetail"));
+const AdminProductReviews = lazy(() => import("@/pages/AdminProductReviews"));
+const AdminManufacturerMessaging = lazy(() => import("@/pages/AdminManufacturerMessaging"));
+const AdminFollowUpSequences = lazy(() => import("@/pages/AdminFollowUpSequences"));
+const AdminDealPipeline = lazy(() => import("@/pages/AdminDealPipeline"));
+const AdminTerritoryScanner = lazy(() => import("@/pages/AdminTerritoryScanner"));
+const AdminProcurementEngine = lazy(() => import("@/pages/AdminProcurementEngine"));
+const AdminSupplierIntelligence = lazy(() => import("@/pages/AdminSupplierIntelligence"));
+const AdminWorkspaceLearning = lazy(() => import("@/pages/AdminWorkspaceLearning"));
+const AdminQuotes = lazy(() => import("@/pages/AdminQuotes"));
+const QuotePrint = lazy(() => import("@/pages/QuotePrint"));
+const AdminOfficeMovRadar = lazy(() => import("@/pages/AdminOfficeMovRadar"));
+const WorkspaceDesignEngine = lazy(() => import("@/pages/WorkspaceDesignEngine"));
+const AdminPartnerNetwork = lazy(() => import("@/pages/AdminPartnerNetwork"));
+const AdminDealHunter = lazy(() => import("@/pages/AdminDealHunter"));
+const AdminWorkspaceStrategy = lazy(() => import("@/pages/AdminWorkspaceStrategy"));
+const PartnerOnboarding = lazy(() => import("@/pages/PartnerOnboarding"));
+const PartnerDashboard = lazy(() => import("@/pages/PartnerDashboard"));
+const PartnerAgreement = lazy(() => import("@/pages/PartnerAgreement"));
+const PartnerApply = lazy(() => import("@/pages/PartnerApply"));
+const MarketMap = lazy(() => import("@/pages/MarketMap"));
+const ProposalEngine = lazy(() => import("@/pages/ProposalEngine"));
+const BuildingDatabase = lazy(() => import("@/pages/BuildingDatabase"));
+const AdminProductCommandCentre = lazy(() => import("@/pages/AdminProductCommandCentre"));
+const AdminLeadEngine = lazy(() => import("@/pages/AdminLeadEngine"));
+const AdminNexoraCommandCentre = lazy(() => import("@/pages/AdminNexoraCommandCentre"));
+const AdminNexoraAdvanced = lazy(() => import("@/pages/AdminNexoraAdvanced"));
+const AdminNexoraMonitor = lazy(() => import("@/pages/AdminNexoraMonitor"));
+const AdminTradingMonitor = lazy(() => import("@/pages/AdminTradingMonitor"));
+const AdminPredictionMarkets = lazy(() => import("@/pages/AdminPredictionMarkets"));
+const AdminPropertyIntelligence = lazy(() => import("@/pages/AdminPropertyIntelligence"));
+const PropertyIntelligence = lazy(() => import("@/pages/PropertyIntelligence"));
+const ClientPropertyIntelligence = lazy(() => import("@/pages/ClientPropertyIntelligence"));
+const AdminAIChat = lazy(() => import("@/pages/AdminAIChat"));
+const AdminPartners = lazy(() => import("@/pages/AdminPartners"));
+const Partners = lazy(() => import("@/pages/Partners"));
+const SubmitDeal = lazy(() => import("@/pages/SubmitDeal"));
+const TradeCustomersPortal = lazy(() => import("@/pages/TradeCustomersPortal"));
+const Start = lazy(() => import("@/pages/Start"));
+const Capability = lazy(() => import("@/pages/Capability"));
+const AdminCatalogStaging = lazy(() => import("@/pages/AdminCatalogStaging"));
+const Catalog = lazy(() => import("@/pages/Catalog"));
+const CatalogProductDetail = lazy(() => import("@/pages/CatalogProductDetail"));
+const AdminDevStudio = lazy(() => import("@/pages/AdminDevStudio"));
+const ClientLogin = lazy(() => import("@/pages/ClientLogin"));
+const ClientSignup = lazy(() => import("@/pages/ClientSignup"));
+const ClientOnboarding = lazy(() => import("@/pages/ClientOnboarding"));
+const ClientDashboard = lazy(() => import("@/pages/ClientDashboard"));
+const Subscriptions = lazy(() => import("@/pages/Subscriptions"));
+const Terms = lazy(() => import("@/pages/legal/Terms"));
+const PrivacyNotice = lazy(() => import("@/pages/legal/PrivacyNotice"));
+const SubscriptionTerms = lazy(() => import("@/pages/legal/SubscriptionTerms"));
+const PhantomXRiskDisclaimer = lazy(() => import("@/pages/legal/PhantomXRiskDisclaimer"));
+const AdminCustomers = lazy(() => import("@/pages/AdminCustomers"));
+const AdminSubscriptions = lazy(() => import("@/pages/AdminSubscriptions"));
+const AdminClientProjects = lazy(() => import("@/pages/AdminClientProjects"));
+const AdminPropertyListings = lazy(() => import("@/pages/AdminPropertyListings"));
+const ClientPropertyListings = lazy(() => import("@/pages/ClientPropertyListings"));
+const AdminPropertyListingsImport = lazy(() => import("@/pages/AdminPropertyListingsImport"));
+const AdminPropertyEnquiries = lazy(() => import("@/pages/AdminPropertyEnquiries"));
+const ClientPhantomXPaper = lazy(() => import("@/pages/ClientPhantomXPaper"));
+const ClientPhantomXCompliance = lazy(() => import("@/pages/ClientPhantomXCompliance"));
+const AdminPhantomXCompliance = lazy(() => import("@/pages/AdminPhantomXCompliance"));
+const PlatformOverview = lazy(() => import("@/pages/PlatformOverview"));
+const WorkspaceControlLanding = lazy(() => import("@/pages/WorkspaceControlLanding"));
+const LeaseHawkLanding = lazy(() => import("@/pages/LeaseHawkLanding"));
+const PhantomXLanding = lazy(() => import("@/pages/PhantomXLanding"));
+const TrustCentre = lazy(() => import("@/pages/TrustCentre"));
+const AdminEmailNotifications = lazy(() => import("@/pages/AdminEmailNotifications"));
+const AdminDataLayer = lazy(() => import("@/pages/AdminDataLayer"));
+const AdminAutonomyReadiness = lazy(() => import("@/pages/AdminAutonomyReadiness"));
+
+
+const tcdRouteFallback = (
+  <div style={{ minHeight: "60vh", display: "grid", placeItems: "center" }}>
+    <div style={{ fontFamily: "system-ui", color: "#64748b" }}>Loading The Corporate Desk…</div>
+  </div>
+);
 
 function AdminRoutes() {
   return (
     <Suspense fallback={<TcdStage24RouteFallback />}>
       <AdminAuthGate>
-      <Switch>
+      <Suspense fallback={tcdRouteFallback}>
+        <Switch>
         <Route
           path="/admin"
           component={() => {
@@ -185,6 +195,7 @@ function AdminRoutes() {
         <Route path="/admin/catalog-staging" component={AdminCatalogStaging} />
         <Route component={NotFound} />
       </Switch>
+      </Suspense>
     </AdminAuthGate>
     </Suspense>
   );

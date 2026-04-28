@@ -17,18 +17,14 @@ export default defineConfig({
   build: {
     outDir: path.resolve(rootDir, "dist/public"),
     emptyOutDir: true,
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 900,
     rollupOptions: {
       output: {
+        // Keep vendor split simple to avoid circular chunks.
         manualChunks(id) {
           if (!id.includes("node_modules")) return undefined;
-
-          if (id.includes("react") || id.includes("scheduler")) return "vendor-react";
           if (id.includes("@tanstack")) return "vendor-query";
           if (id.includes("lucide-react")) return "vendor-icons";
-          if (id.includes("framer-motion")) return "vendor-motion";
-          if (id.includes("recharts")) return "vendor-charts";
-
           return "vendor";
         },
       },
