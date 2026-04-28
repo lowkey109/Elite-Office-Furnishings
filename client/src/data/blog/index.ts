@@ -1,3 +1,4 @@
+import { strategicPlanningExpansionPosts } from "./strategicPlanningExpansion";
 import { buyingGuides } from "./buyingGuides";
 import { fitout } from "./fitout";
 import { layout } from "./layout";
@@ -11,7 +12,9 @@ import { sustainability } from "./sustainability";
 import type { BlogPost } from "./types";
 
 export const allPosts: BlogPost[] = [
-  ...buyingGuides,
+  
+  ...strategicPlanningExpansionPosts,
+...buyingGuides,
   ...fitout,
   ...layout,
   ...productivity,
