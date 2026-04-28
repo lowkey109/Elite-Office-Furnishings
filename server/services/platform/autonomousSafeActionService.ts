@@ -397,7 +397,7 @@ export async function prepareQualifiedAutonomousOutreach(opportunityId?: string)
     action: "outreach_draft_ready",
     opportunityId: opportunity.id,
     to: recipient,
-    from: process.env.TCD_EMAIL_FROM || "The Corporate Desk <hello@thecorporatedesk.au>",
+    from: process.env.TCD_EMAIL_FROM_PLAIN || "hello@thecorporatedesk.au",
     subject: draft.subject,
     body: draft.body,
     realOutreachPerformed: false,
@@ -459,7 +459,7 @@ export async function sendQualifiedAutonomousOutreach(opportunityId: string | un
     };
   }
 
-  const from = process.env.TCD_EMAIL_FROM || "The Corporate Desk <hello@thecorporatedesk.au>";
+  const from = process.env.TCD_EMAIL_FROM_PLAIN || "hello@thecorporatedesk.au";
 
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
