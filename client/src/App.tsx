@@ -1,3 +1,4 @@
+import React, { Suspense } from "react";
 import { Route, Switch } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -120,7 +121,8 @@ import AdminAutonomyReadiness from "@/pages/AdminAutonomyReadiness";
 
 function AdminRoutes() {
   return (
-    <AdminAuthGate>
+    <Suspense fallback={<TcdStage24RouteFallback />}>
+      <AdminAuthGate>
       <Switch>
         <Route
           path="/admin"
@@ -184,6 +186,7 @@ function AdminRoutes() {
         <Route component={NotFound} />
       </Switch>
     </AdminAuthGate>
+    </Suspense>
   );
 }
 
@@ -291,6 +294,13 @@ function Router() {
         <Route path="/upload-your-quote" component={UploadYourQuote} />
 }
 
+const TcdStage24RouteFallback = () => (
+  <div style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
+    Loading The Corporate Desk admin…
+  </div>
+);
+
+// TCD_STAGE_24_FLASH_FRONTEND_LAZY_ROUTES
 function App() {
   return (
     <ErrorBoundary>

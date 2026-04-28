@@ -2,18 +2,20 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import { defineConfig } from "vite";
 
+const rootDir = __dirname;
+
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(import.meta.dirname, "client", "src"),
-      "@shared": path.resolve(import.meta.dirname, "shared"),
-      "@assets": path.resolve(import.meta.dirname, "attached_assets"),
+      "@": path.resolve(rootDir, "client", "src"),
+      "@shared": path.resolve(rootDir, "shared"),
+      "@assets": path.resolve(rootDir, "attached_assets"),
     },
   },
-  root: path.resolve(import.meta.dirname, "client"),
+  root: path.resolve(rootDir, "client"),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    outDir: path.resolve(rootDir, "dist/public"),
     emptyOutDir: true,
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
@@ -21,20 +23,13 @@ export default defineConfig({
         manualChunks(id) {
           if (!id.includes("node_modules")) return undefined;
 
-          if (
-            id.includes("/react/") ||
-            id.includes("/react-dom/") ||
-            id.includes("scheduler")
-          ) {
-            return "vendor-react";
-          }
-
+          if (id.includes("react") || id.includes("scheduler")) return "vendor-react";
           if (id.includes("@tanstack")) return "vendor-query";
           if (id.includes("lucide-react")) return "vendor-icons";
           if (id.includes("framer-motion")) return "vendor-motion";
           if (id.includes("recharts")) return "vendor-charts";
 
-          return "vendor-core";
+          return "vendor";
         },
       },
     },
