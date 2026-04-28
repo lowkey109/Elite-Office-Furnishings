@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import type { DealHunterSignalLike, NormalizedAIDecision } from "./nexora/nexora-types";
+import { ETHICAL_SALES_RULES, SALES_PSYCHOLOGY_PLAYBOOK } from "../sales/salesPsychologyEngine";
 
 const resolvedApiKey =
   process.env.AI_INTEGRATIONS_OPENAI_API_KEY?.trim() ||
@@ -43,6 +44,7 @@ export async function nexoraAIAnalysis(input: NexoraAIInput): Promise<Normalized
   }
 
   const systemPrompt = AGENT_PROMPTS[agent] ?? AGENT_PROMPTS["value-forecaster"];
+  const salesPsychologyContext = `\n\nTCD_NEXORA_AI_SALES_PSYCHOLOGY_WIRED\nSales psychology context: ${SALES_PSYCHOLOGY_PLAYBOOK.mission}\nRules:\n${ETHICAL_SALES_RULES.map((rule) => "- " + rule).join("\\n")}\n`;
 
   const userContent = `Signal data:
 Company: ${signal.companyName ?? "unknown"}
@@ -58,7 +60,7 @@ Source: ${signal.sourceTitle ?? "unknown"} (${signal.sourceUrl ?? "no URL"})`;
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
-      { role: "system", content: systemPrompt },
+      { role: "system", content: systemPrompt + salesPsychologyContext },
       { role: "user", content: userContent },
     ],
     response_format: { type: "json_object" },

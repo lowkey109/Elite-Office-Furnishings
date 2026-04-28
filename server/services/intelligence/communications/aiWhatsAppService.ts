@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { sendWhatsAppMessage, notifyOpsWhatsApp } from "./whatsappService";
+import { ETHICAL_SALES_RULES, SALES_PSYCHOLOGY_PLAYBOOK } from "../../sales/salesPsychologyEngine";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -81,6 +82,17 @@ export async function generateAIWhatsAppDraft(
 
   const prompt = `
 You are an expert B2B commercial communications assistant for The Corporate Desk, an Australian premium office furniture and workspace company.
+
+TCD_WHATSAPP_SALES_PSYCHOLOGY_WIRED
+Sales psychology guidance:
+- Mission: ${SALES_PSYCHOLOGY_PLAYBOOK.mission}
+- Be warm, brief and useful.
+- Reduce confusion and move to one clear next step.
+- If price is the blocker, mention finance/staged options where appropriate.
+- Never pressure, fake urgency or invent facts.
+- Ethical rules:
+${ETHICAL_SALES_RULES.map((rule) => `  - ${rule}`).join(`\n`)}
+
 
 Write ONE WhatsApp message only.
 

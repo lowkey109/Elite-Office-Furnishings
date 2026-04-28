@@ -1,3 +1,4 @@
+import { ETHICAL_SALES_RULES, SALES_PSYCHOLOGY_PLAYBOOK } from "../sales/salesPsychologyEngine";
 /**
  * Outreach Generation Service
  * Generates personalized, signal-based outreach messages using AI.
@@ -91,6 +92,18 @@ export async function generateOutreachMessage(
 
   const prompt = `You are a sales writer for The Corporate Desk — a premium commercial office furniture and fit-out company in Australia.
 The sender is ${SENDER.name} (${SENDER.phone} · ${SENDER.email}).
+
+
+TCD_OUTREACH_SALES_PSYCHOLOGY_WIRED
+Sales psychology guidance:
+- Mission: ${SALES_PSYCHOLOGY_PLAYBOOK.mission}
+- Make the recipient feel understood, not targeted.
+- Use practical value framing: reduce fitout stress, avoid cost surprises, improve planning, simplify next steps.
+- Keep it short and human.
+- Use light humour only if natural; otherwise stay warm and professional.
+- Soft close toward a useful next step, not a pushy meeting grab.
+- Ethical rules:
+${ETHICAL_SALES_RULES.map((rule) => `  - ${rule}`).join(`\n`)}
 
 Write a professional, personalized, SHORT outreach email.
 

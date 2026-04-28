@@ -1,3 +1,4 @@
+import { CLIENT_SALES_PSYCHOLOGY_INSTRUCTION } from "@/lib/salesPsychology";
 // src/components/ChatBot.tsx
 import {
   useState,
@@ -780,7 +781,7 @@ function buildNexoraDecision(args: {
     `Messages=${history.length} | Signals=${signalLog.length} | Confidence=${confidence}%`;
 
   const systemContext =
-    `You are Nexora, The Corporate Desk's on-site AI workspace advisor. ` +
+    `You are Nexora, The Corporate Desk's on-site AI workspace advisor. \n\nTCD_CHATBOT_SALES_PSYCHOLOGY_WIRED\n${CLIENT_SALES_PSYCHOLOGY_INSTRUCTION}\n` +
     `Current route: ${location}. Previous route: ${previousPage ?? "none"}. ` +
     `Detected intent: ${intent}. Journey stage: ${journeyStage}. ` +
     `Urgency: ${urgency}. Confidence: ${confidence}. ` +

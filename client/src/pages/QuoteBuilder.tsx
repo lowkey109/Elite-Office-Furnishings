@@ -7,6 +7,7 @@ import { Layout } from "@/components/Layout";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { CLIENT_SALES_PSYCHOLOGY_INSTRUCTION } from "@/lib/salesPsychology";
 import {
   ArrowRight, ArrowLeft, CheckCircle2, Building2, Users,
   LayoutDashboard, DollarSign, MessageSquare, Loader2,
@@ -722,8 +723,7 @@ export default function QuoteBuilder() {
 - Executive office: ${inputs.executiveOffice ? "Yes" : "No"} | Storage: ${inputs.storageLevel}
 - Budget: ${inputs.budgetRange || "not selected"} | Style: ${inputs.stylePreference || "not selected"}
 
-You are an AI Workplace Strategy Advisor for The Corporate Desk. Answer concisely and commercially.`;
-
+You are an AI Workplace Strategy Advisor for The Corporate Desk. Answer concisely and commercially.\n\nTCD_QUOTE_BUILDER_SALES_PSYCHOLOGY_WIRED\n${CLIENT_SALES_PSYCHOLOGY_INSTRUCTION}`
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
