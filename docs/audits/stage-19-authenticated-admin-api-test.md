@@ -10,7 +10,7 @@
 | `/api/admin/autonomy-readiness` | 200 | PASS |
 | `/api/admin/outreach/stats` | 200 | PASS |
 | `/api/admin/outreach/safety-stats` | 200 | PASS |
-| `/api/admin/nexora/monitor` | 000 | FAIL |
+| `/api/admin/nexora/monitor` | 200 | PASS |
 | `/api/admin/trading/monitor` | 200 | PASS |
 | `/api/admin/office-move-radar` | 000 | FAIL |
 | `/api/admin/deal-hunter/stats` | 000 | FAIL |
