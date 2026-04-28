@@ -23,6 +23,11 @@ import Contact from "@/pages/Contact";
 import Marketing from "@/pages/Marketing";
 import QuoteBuilder from "@/pages/QuoteBuilder";
 import FinanceWorkspace from "@/pages/FinanceWorkspace";
+import Checkout from "@/pages/Checkout";
+import PaymentSuccess from "@/pages/PaymentSuccess";
+import PaymentCancelled from "@/pages/PaymentCancelled";
+import LeadCapturePopup from "@/components/LeadCapturePopup";
+import StickyCTA from "@/components/StickyCTA";
 import CaseStudies from "@/pages/CaseStudies";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminLeads from "@/pages/AdminLeads";
@@ -236,6 +241,9 @@ function Router() {
       <Route path="/3d-office-walkthrough" component={OfficeWalkthrough} />
       <Route path="/quote-builder" component={QuoteBuilder} />
       <Route path="/finance-your-workspace" component={FinanceWorkspace} />
+      <Route path="/checkout" component={Checkout} />
+      <Route path="/payment-success" component={PaymentSuccess} />
+      <Route path="/payment-cancelled" component={PaymentCancelled} />
       <Route path="/trade-project-procurement" component={TradeProcurement} />
 
       {/* ── Admin — server-session protected ──────────── */}

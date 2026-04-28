@@ -630,7 +630,7 @@ function EstimateResultsPage({
                   Book Strategy Call
                 </button>
               </a>
-              <Link href="/upload-floor-plan">
+              <Link href="/upload-your-floor-plan">
                 <button
                   data-testid="button-cta-ai-planner"
                   className="w-full border border-[rgba(255,255,255,0.12)] text-white/70 hover:border-[rgba(201,168,76,0.3)] hover:text-white font-bold rounded-xl px-6 py-4 flex items-center justify-center gap-2 transition-all"
