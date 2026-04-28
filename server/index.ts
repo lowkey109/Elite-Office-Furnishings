@@ -61,39 +61,47 @@ app.get("/api/admin/data-layer/status", async (req: any, res: any) => {
  * TCD_FINAL_COMPETITOR_QUOTE_ADMIN_FILE_DOWNLOAD
  * Admin download/view route for uploaded competitor quote files.
  */
+/**
+ * TCD_STAGE_5_ADMIN_COMPETITOR_QUOTE_FILE_DOWNLOAD
+ * Admin download route for uploaded competitor quote files.
+ */
 app.get("/api/admin/customer-competitor-quotes/:id/file", async (req: any, res: any) => {
   try {
-    const fsMod = await import("fs/promises");
+    const fsPromises = await import("fs/promises");
     const fsSync = await import("fs");
     const pathMod = await import("path");
 
-    const dataDir = pathMod.default.join(process.cwd(), "data", "procurement");
-    const uploadDir = pathMod.default.join(dataDir, "customer-competitor-quote-uploads");
-    const intakeFile = pathMod.default.join(dataDir, "customer-competitor-quote-intake.json");
+    const fsp = fsPromises.default;
+    const fss = fsSync.default;
+    const path = pathMod.default;
 
-    if (!fsSync.default.existsSync(intakeFile)) {
-      return res.status(404).json({ ok: false, error: "No quote intake file found" });
+    const dataDir = path.join(process.cwd(), "data", "procurement");
+    const uploadDir = path.join(dataDir, "customer-competitor-quote-uploads");
+    const intakeFile = path.join(dataDir, "customer-competitor-quote-intake.json");
+
+    if (!fss.existsSync(intakeFile)) {
+      return res.status(404).json({ ok: false, error: "No competitor quote intake found" });
     }
 
-    const raw = await fsMod.default.readFile(intakeFile, "utf8");
+    const raw = await fsp.readFile(intakeFile, "utf8");
     const parsed = JSON.parse(raw);
     const submissions = Array.isArray(parsed?.submissions) ? parsed.submissions : [];
     const item = submissions.find((entry: any) => String(entry.id) === String(req.params.id));
 
     if (!item?.uploadedFile?.storedName) {
-      return res.status(404).json({ ok: false, error: "Uploaded quote file not found" });
+      return res.status(404).json({ ok: false, error: "Uploaded file not found for this quote" });
     }
 
-    const storedName = pathMod.default.basename(String(item.uploadedFile.storedName));
-    const fullPath = pathMod.default.join(uploadDir, storedName);
+    const storedName = path.basename(String(item.uploadedFile.storedName));
+    const fullPath = path.join(uploadDir, storedName);
 
-    if (!fsSync.default.existsSync(fullPath)) {
-      return res.status(404).json({ ok: false, error: "File missing on disk" });
+    if (!fss.existsSync(fullPath)) {
+      return res.status(404).json({ ok: false, error: "Uploaded file is missing on disk" });
     }
 
     return res.download(fullPath, item.uploadedFile.originalName || storedName);
   } catch (err: any) {
-    return res.status(500).json({ ok: false, error: err?.message || "Failed to download quote file" });
+    return res.status(500).json({ ok: false, error: err?.message || "Failed to download uploaded quote" });
   }
 });
 
@@ -167,31 +175,46 @@ app.get("/api/admin/customer-competitor-quotes", async (_req: any, res: any) => 
  * - creates a Nexora decision/audit record
  * - feeds uploaded competitor amount into quote guardrails later
  */
+/**
+ * TCD_STAGE_4_REAL_COMPETITOR_QUOTE_FILE_UPLOAD
+ * TCD_STAGE_6_NEXORA_COMPETITOR_QUOTE_DECISION_AUDIT
+ *
+ * Customer competitor quote intake:
+ * - accepts multipart/form-data
+ * - stores uploaded quote files safely
+ * - records quote amount and file metadata
+ * - creates a Nexora audit/decision record
+ */
 app.post("/api/customer/competitor-quote/upload", async (req: any, res: any) => {
   try {
-    const fsMod = await import("fs/promises");
+    const fsPromises = await import("fs/promises");
     const fsSync = await import("fs");
     const pathMod = await import("path");
     const multerMod: any = await import("multer");
 
-    const dataDir = pathMod.default.join(process.cwd(), "data", "procurement");
-    const uploadDir = pathMod.default.join(dataDir, "customer-competitor-quote-uploads");
-    const intakeFile = pathMod.default.join(dataDir, "customer-competitor-quote-intake.json");
+    const multer = multerMod.default || multerMod;
+    const path = pathMod.default;
+    const fsp = fsPromises.default;
+    const fss = fsSync.default;
 
-    await fsMod.default.mkdir(uploadDir, { recursive: true });
+    const dataDir = path.join(process.cwd(), "data", "procurement");
+    const uploadDir = path.join(dataDir, "customer-competitor-quote-uploads");
+    const intakeFile = path.join(dataDir, "customer-competitor-quote-intake.json");
+
+    await fsp.mkdir(uploadDir, { recursive: true });
 
     const allowedExt = new Set([".pdf", ".jpg", ".jpeg", ".png", ".webp", ".doc", ".docx", ".xls", ".xlsx"]);
-    const multer = multerMod.default || multerMod;
 
     const storage = multer.diskStorage({
       destination: (_req: any, _file: any, cb: any) => cb(null, uploadDir),
       filename: (_req: any, file: any, cb: any) => {
-        const ext = pathMod.default.extname(String(file.originalname || "")).toLowerCase();
+        const ext = path.extname(String(file.originalname || "")).toLowerCase();
         const safeExt = allowedExt.has(ext) ? ext : ".bin";
-        const base = String(file.originalname || "competitor-quote")
+        const safeBase = String(file.originalname || "competitor-quote")
           .replace(/[^a-zA-Z0-9._-]/g, "-")
           .slice(0, 90);
-        cb(null, Date.now() + "-" + Math.random().toString(36).slice(2) + "-" + base + safeExt);
+
+        cb(null, Date.now() + "-" + Math.random().toString(36).slice(2) + "-" + safeBase + safeExt);
       }
     });
 
@@ -199,7 +222,7 @@ app.post("/api/customer/competitor-quote/upload", async (req: any, res: any) => 
       storage,
       limits: { fileSize: 20 * 1024 * 1024 },
       fileFilter: (_req: any, file: any, cb: any) => {
-        const ext = pathMod.default.extname(String(file.originalname || "")).toLowerCase();
+        const ext = path.extname(String(file.originalname || "")).toLowerCase();
         if (!allowedExt.has(ext)) {
           cb(new Error("Unsupported file type. Upload PDF, image, Word or Excel only."));
           return;
@@ -216,13 +239,13 @@ app.post("/api/customer/competitor-quote/upload", async (req: any, res: any) => 
 
         let intake: { submissions: any[] } = { submissions: [] };
 
-        if (fsSync.default.existsSync(intakeFile)) {
+        if (fss.existsSync(intakeFile)) {
           try {
-            const raw = await fsMod.default.readFile(intakeFile, "utf8");
+            const raw = await fsp.readFile(intakeFile, "utf8");
             const parsed = JSON.parse(raw);
-            intake = { submissions: Array.isArray(parsed?.submissions) ? parsed.submissions : [] };
+            intake.submissions = Array.isArray(parsed?.submissions) ? parsed.submissions : [];
           } catch {
-            intake = { submissions: [] };
+            intake.submissions = [];
           }
         }
 
@@ -267,8 +290,8 @@ app.post("/api/customer/competitor-quote/upload", async (req: any, res: any) => 
           nexoraDecision: {
             status: "queued_for_guardrail_check",
             minimumGrossProfitRequired: 500,
-            rule: "Nexora must not match or beat this quote if doing so leaves less than $500 gross profit or exposes raw manufacturer/supplier cost.",
-            customerPolicy: "If the customer quote is genuinely better for the customer and we cannot make at least $500 gross profit, tell the customer to stay with their existing quote."
+            rule: "Do not match or beat a competitor quote if it leaves less than $500 gross profit or exposes raw manufacturer/supplier cost.",
+            customerPolicy: "If the customer's existing quote is genuinely better and TCD cannot clear the minimum margin, recommend they stay with their existing quote."
           },
           audit: [
             {
@@ -282,8 +305,8 @@ app.post("/api/customer/competitor-quote/upload", async (req: any, res: any) => 
 
         intake.submissions = [submission, ...intake.submissions];
 
-        await fsMod.default.mkdir(dataDir, { recursive: true });
-        await fsMod.default.writeFile(intakeFile, JSON.stringify(intake, null, 2));
+        await fsp.mkdir(dataDir, { recursive: true });
+        await fsp.writeFile(intakeFile, JSON.stringify(intake, null, 2));
 
         return res.json({
           ok: true,
@@ -292,7 +315,7 @@ app.post("/api/customer/competitor-quote/upload", async (req: any, res: any) => 
           submission
         });
       } catch (err: any) {
-        return res.status(500).json({ ok: false, error: err?.message || "Failed to save quote upload" });
+        return res.status(500).json({ ok: false, error: err?.message || "Failed to save uploaded quote" });
       }
     });
   } catch (err: any) {

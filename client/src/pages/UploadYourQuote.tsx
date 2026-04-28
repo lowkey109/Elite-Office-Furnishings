@@ -61,7 +61,7 @@ export default function UploadYourQuote() {
           <form
             onSubmit={handleSubmit}
             className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl backdrop-blur"
-          >
+           encType="multipart/form-data">
             <div className="grid gap-4 md:grid-cols-2">
               <label className="block">
                 <span className="mb-2 block text-sm font-medium text-slate-200">Your name</span>
