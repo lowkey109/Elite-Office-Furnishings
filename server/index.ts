@@ -688,6 +688,43 @@ app.post("/api/admin/procurement/quote-requests/:id/send-customer-quote", async 
   }));
 });
 
+// PROCUREMENT_WHATSAPP_PDF_INDEX_ROUTES
+app.post("/api/admin/procurement/whatsapp-outbox/send", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { sendQueuedProcurementWhatsAppMessages } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await sendQueuedProcurementWhatsAppMessages({
+    overrideToken: String(req.headers["x-tcd-autonomy-override"] || ""),
+    limit: Number(req.body?.limit || 10)
+  }));
+});
+
+app.post("/api/admin/procurement/whatsapp-inbound/parse", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { parseInboundProcurementWhatsAppReply } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await parseInboundProcurementWhatsAppReply(req.body || {}));
+});
+
+app.post("/api/webhooks/procurement/whatsapp", async (req: any, res: any) => {
+  const { parseInboundProcurementWhatsAppReply } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await parseInboundProcurementWhatsAppReply(req.body || {}));
+});
+
+app.get("/api/admin/procurement/whatsapp-inbound", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { listInboundProcurementWhatsAppReplies } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await listInboundProcurementWhatsAppReplies());
+});
+
+app.get("/api/admin/procurement/quote-requests/:id/customer-quote/pdf", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).send("Authentication required");
+  const { renderCustomerQuotePdfBuffer } = await import("./services/procurement/procurementQuoteOrchestrator");
+  const result = await renderCustomerQuotePdfBuffer(req.params.id);
+  res.setHeader("content-type", result.contentType);
+  res.setHeader("content-disposition", `inline; filename="${result.fileName}"`);
+  if (!result.ok && result.error) res.setHeader("x-pdf-fallback-error", String(result.error).slice(0, 200));
+  return res.send(result.buffer);
+});
+
 // INDEX_HEALTH_ROUTE
 app.get("/api/health", (_req: any, res: any) => {
   return res.status(200).json({

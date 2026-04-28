@@ -1,5 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
+import { sendWhatsAppMessage } from "../intelligence/communications/whatsappService";
 
 const DATA_DIR = path.resolve(process.cwd(), ".nexora-data");
 const STORE_FILE = "procurement-quote-store.json";
@@ -792,4 +793,264 @@ export async function sendCustomerQuoteEmail(id: string, opts: { overrideToken?:
     to: request.customer.email,
     providerResponse: payload
   };
+}
+
+
+export async function sendQueuedProcurementWhatsAppMessages(opts: { overrideToken?: string; limit?: number } = {}) {
+  const overrideConfigured = Boolean(process.env.TCD_AUTONOMY_OVERRIDE_TOKEN);
+  const overrideMatches = overrideConfigured && opts.overrideToken === process.env.TCD_AUTONOMY_OVERRIDE_TOKEN;
+
+  if (process.env.TCD_ALLOW_REAL_OUTREACH !== "true" || !overrideMatches) {
+    return {
+      ok: false,
+      locked: true,
+      message: "Procurement WhatsApp send is locked unless real outreach is enabled and override token matches.",
+      required: {
+        TCD_ALLOW_REAL_OUTREACH: "true",
+        "x-tcd-autonomy-override": "must match TCD_AUTONOMY_OVERRIDE_TOKEN"
+      }
+    };
+  }
+
+  const outbox = await readJson(OUTBOX_FILE, { messages: [] });
+  const messages = Array.isArray(outbox.messages) ? outbox.messages : [];
+  const limit = Math.max(1, Number(opts.limit || 10));
+
+  const pending = messages
+    .filter((message: any) => message.status === "queued" && message.channel === "whatsapp")
+    .slice(0, limit);
+
+  const results = [];
+
+  for (const message of pending) {
+    const cleanTo = String(message.to || "").replace(/^whatsapp:/, "").trim();
+
+    let result: any;
+    if (!cleanTo || cleanTo === "TBC") {
+      result = {
+        ok: false,
+        skipped: true,
+        reason: "Missing valid WhatsApp recipient number"
+      };
+    } else {
+      result = await sendWhatsAppMessage({
+        toE164: cleanTo,
+        message: String(message.body || "")
+      });
+    }
+
+    message.status = (result.ok === true || result.success === true) ? "sent" : "send_failed";
+    message.sentAt = (result.ok === true || result.success === true) ? now() : undefined;
+    message.realSendPerformed = result.ok === true || result.success === true;
+    message.provider = result.provider || "existing_whatsapp_service";
+    message.providerResponse = (result.ok === true || result.success === true) ? result : undefined;
+    message.error = (result.ok === true || result.success === true) ? undefined : result;
+
+    results.push({
+      id: message.id,
+      to: message.to,
+      purpose: message.purpose,
+      status: message.status,
+      result
+    });
+  }
+
+  await writeJson(OUTBOX_FILE, { messages });
+
+  return {
+    ok: true,
+    attempted: pending.length,
+    results,
+    config: {
+      TWILIO_ACCOUNT_SID: Boolean(process.env.TWILIO_ACCOUNT_SID),
+      TWILIO_AUTH_TOKEN: Boolean(process.env.TWILIO_AUTH_TOKEN),
+      TWILIO_WHATSAPP_FROM: Boolean(process.env.TWILIO_WHATSAPP_FROM),
+      WHATSAPP_GATEWAY_URL: Boolean(process.env.WHATSAPP_GATEWAY_URL)
+    }
+  };
+}
+
+function parseMoneyFromProcurementText(text: string): number[] {
+  return [...String(text || "").matchAll(/\$?\s*([0-9]+(?:\.[0-9]{1,2})?)/g)]
+    .map((match) => Number(match[1]))
+    .filter((n) => Number.isFinite(n));
+}
+
+function parseProcurementLeadTimeWeeks(text: string): number | undefined {
+  const value = String(text || "").toLowerCase();
+  const weekMatch = value.match(/([0-9]+)\s*(week|weeks|wk|wks)/);
+  if (weekMatch) return Number(weekMatch[1]);
+
+  const dayMatch = value.match(/([0-9]+)\s*(day|days)/);
+  if (dayMatch) return Math.max(1, Math.ceil(Number(dayMatch[1]) / 7));
+
+  return undefined;
+}
+
+export async function parseInboundProcurementWhatsAppReply(input: any) {
+  const body = String(input.Body || input.body || input.message || "").trim();
+  const from = String(input.From || input.from || "").trim();
+  const quoteRefRaw = String(input.quoteRequestId || input.quoteNumber || "").trim();
+
+  const store = await getStore();
+  const requests = Array.isArray(store.requests) ? store.requests : [];
+
+  const request =
+    requests.find((item: QuoteRequest) => item.id === quoteRefRaw || item.quoteNumber === quoteRefRaw) ||
+    requests.find((item: QuoteRequest) => body.includes(item.quoteNumber)) ||
+    requests[0];
+
+  if (!request) {
+    return {
+      ok: false,
+      error: "No procurement quote request found for inbound reply",
+      from,
+      body
+    };
+  }
+
+  const lower = body.toLowerCase();
+  const moneyValues = parseMoneyFromProcurementText(body);
+  const leadTimeWeeks = parseProcurementLeadTimeWeeks(body);
+
+  const looksInstaller =
+    lower.includes("install") ||
+    lower.includes("assembly") ||
+    lower.includes("rubbish") ||
+    lower.includes("site") ||
+    from.includes("497977002");
+
+  let applied: any;
+
+  if (looksInstaller) {
+    applied = await recordInstallerResponse(request.id, {
+      installerName: input.installerName || "Kitset Assembly Services",
+      installCost: moneyValues[0] || request.installer.estimatedInstallCost || 0,
+      notes: body
+    });
+  } else {
+    applied = await recordSupplierResponse(request.id, {
+      supplierName: input.supplierName || "WhatsApp Supplier Reply",
+      unitCost: moneyValues[0] || 0,
+      shippingCost: moneyValues[1] || 0,
+      leadTimeWeeks,
+      warranty: lower.includes("3 year") || lower.includes("3-year") ? "3 years" : undefined,
+      notes: body
+    });
+  }
+
+  const inboundLog = await readJson("procurement-whatsapp-inbound-log.json", { replies: [] });
+  inboundLog.replies = [
+    {
+      id: "wa-inbound-" + Date.now(),
+      createdAt: now(),
+      from,
+      body,
+      quoteRequestId: request.id,
+      quoteNumber: request.quoteNumber,
+      parsedAs: looksInstaller ? "installer_response" : "supplier_response",
+      moneyValues,
+      leadTimeWeeks,
+      appliedOk: applied.ok === true
+    },
+    ...(Array.isArray(inboundLog.replies) ? inboundLog.replies : [])
+  ].slice(0, 1000);
+
+  await writeJson("procurement-whatsapp-inbound-log.json", inboundLog);
+
+  return {
+    ok: true,
+    parsedAs: looksInstaller ? "installer_response" : "supplier_response",
+    quoteRequestId: request.id,
+    quoteNumber: request.quoteNumber,
+    moneyValues,
+    leadTimeWeeks,
+    applied
+  };
+}
+
+export async function listInboundProcurementWhatsAppReplies() {
+  const inboundLog = await readJson("procurement-whatsapp-inbound-log.json", { replies: [] });
+  return {
+    ok: true,
+    count: Array.isArray(inboundLog.replies) ? inboundLog.replies.length : 0,
+    replies: Array.isArray(inboundLog.replies) ? inboundLog.replies : []
+  };
+}
+
+function stripHtmlForProcurementPdf(html: string) {
+  return html
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export async function renderCustomerQuotePdfBuffer(id: string) {
+  const html = await renderCustomerQuoteHtml(id);
+
+  try {
+    const playwright = await new Function("return import(\"playwright\")")();
+    const browser = await playwright.chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { width: 1200, height: 1600 } });
+    await page.setContent(html, { waitUntil: "networkidle" });
+
+    const pdf = await page.pdf({
+      format: "A4",
+      printBackground: true,
+      margin: { top: "10mm", right: "10mm", bottom: "10mm", left: "10mm" }
+    });
+
+    await browser.close();
+
+    return {
+      ok: true,
+      contentType: "application/pdf",
+      fileName: id + "-customer-quote.pdf",
+      buffer: Buffer.from(pdf)
+    };
+  } catch (error: any) {
+    const text = stripHtmlForProcurementPdf(html).slice(0, 180).replace(/[()]/g, "");
+    const fallback = Buffer.from(
+      `%PDF-1.4
+1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
+2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
+3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >> endobj
+4 0 obj << /Length 220 >> stream
+BT
+/F1 18 Tf
+50 780 Td
+(The Corporate Desk Quote) Tj
+0 -28 Td
+/F1 10 Tf
+(${text}) Tj
+0 -24 Td
+(Styled quote is available from the HTML quote route.) Tj
+ET
+endstream endobj
+5 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000520 00000 n 
+trailer << /Size 6 /Root 1 0 R >>
+startxref
+590
+%%EOF`,
+      "utf8"
+    );
+
+    return {
+      ok: false,
+      contentType: "application/pdf",
+      fileName: id + "-customer-quote-fallback.pdf",
+      buffer: fallback,
+      error: error?.message || String(error)
+    };
+  }
 }
