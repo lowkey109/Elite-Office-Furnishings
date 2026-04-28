@@ -1063,6 +1063,76 @@ function assertCustomerQuoteProfitSafe(request: any, quote: any, opts: any = {})
   };
 }
 
+
+/**
+ * TCD_STAGE_2E_AUTO_USE_UPLOADED_COMPETITOR_QUOTE_FIXED
+ *
+ * Nexora automatically checks customer-uploaded competitor quote intake
+ * before sending our customer quote. Admin does not manually enter it.
+ */
+async function tcdFindUploadedCompetitorQuoteForRequest(request: any): Promise<any | null> {
+  try {
+    const intake = await readJson("customer-competitor-quote-intake.json", { submissions: [] });
+    const submissions = Array.isArray(intake?.submissions) ? intake.submissions : [];
+
+    const requestId = String(request?.id || request?.quoteRequestId || "").trim().toLowerCase();
+    const customerEmail = String(
+      request?.customer?.email ||
+      request?.customerEmail ||
+      request?.leadEmail ||
+      request?.email ||
+      ""
+    ).trim().toLowerCase();
+
+    const customerPhone = String(
+      request?.customer?.phone ||
+      request?.customerPhone ||
+      request?.phone ||
+      ""
+    ).replace(/[^0-9]/g, "");
+
+    const matches = submissions
+      .filter((item: any) => {
+        const itemRequestId = String(item?.quoteRequestId || item?.requestId || "").trim().toLowerCase();
+        const itemEmail = String(item?.email || item?.customerEmail || "").trim().toLowerCase();
+        const itemPhone = String(item?.phone || item?.customerPhone || "").replace(/[^0-9]/g, "");
+
+        if (requestId && itemRequestId && requestId === itemRequestId) return true;
+        if (customerEmail && itemEmail && customerEmail === itemEmail) return true;
+        if (customerPhone && itemPhone && customerPhone === itemPhone) return true;
+
+        return false;
+      })
+      .sort((a: any, b: any) => {
+        const at = new Date(a?.createdAt || a?.uploadedAt || 0).getTime();
+        const bt = new Date(b?.createdAt || b?.uploadedAt || 0).getTime();
+        return bt - at;
+      });
+
+    return matches[0] || null;
+  } catch {
+    return null;
+  }
+}
+
+function tcdCompetitorAmountFromUpload(upload: any): number | null {
+  return tcdParseMoney(
+    upload?.competitorQuote,
+    upload?.competitorPrice,
+    upload?.customerCompetitorQuote,
+    upload?.otherQuoteAmount,
+    upload?.quoteAmount,
+    upload?.amount,
+    upload?.total,
+    upload?.price,
+    upload?.estimatedTotal,
+    upload?.extracted?.total,
+    upload?.extracted?.quoteTotal,
+    upload?.parsed?.total,
+    upload?.parsed?.quoteTotal
+  );
+}
+
 export async function sendCustomerQuoteEmail(id: string, opts: { overrideToken?: string; competitorQuote?: any; competitorPrice?: any; customerCompetitorQuote?: any; otherQuoteAmount?: any } = {}) {
   const result = await getProcurementQuoteRequest(id);
   if (!result.ok) return result;
@@ -1070,11 +1140,17 @@ export async function sendCustomerQuoteEmail(id: string, opts: { overrideToken?:
   const request = result.request as QuoteRequest;
   const quote = request.customerQuote;
 
+  const uploadedCompetitorQuote = await tcdFindUploadedCompetitorQuoteForRequest(request);
+  const uploadedCompetitorAmount = tcdCompetitorAmountFromUpload(uploadedCompetitorQuote);
+  const effectiveOpts = uploadedCompetitorAmount
+    ? { ...opts, competitorQuote: opts.competitorQuote ?? uploadedCompetitorAmount }
+    : opts;
+
   if (!quote) {
     return { ok: false, error: "Customer quote has not been built yet" };
   }
 
-  const profitGuard = assertCustomerQuoteProfitSafe(request, quote, opts);
+  const profitGuard = assertCustomerQuoteProfitSafe(request, quote, effectiveOpts);
   if (!profitGuard.ok) {
     return profitGuard;
   }
