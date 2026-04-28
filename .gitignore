@@ -52,3 +52,6 @@ uploads/planning-requests/
 
 # Nexora / TCD local runtime data
 .nexora-data/
+/data/procurement/customer-competitor-quote-uploads/
+/data/procurement/customer-competitor-quote-intake.json
+/data/procurement/customer-competitor-quote-decision-audit.json

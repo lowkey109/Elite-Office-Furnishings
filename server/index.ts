@@ -121,6 +121,40 @@ function tcdBuildCompetitorQuoteDecision(submission: any) {
   };
 }
 
+
+/**
+ * TCD_STAGE_9_COMPETITOR_QUOTE_ADMIN_PRODUCTION_GUARD
+ *
+ * Production-only admin protection for competitor quote intake/download.
+ * Development remains open for local smoke tests.
+ *
+ * In production, set one of:
+ * - TCD_ADMIN_API_TOKEN
+ * - ADMIN_API_TOKEN
+ * - ADMIN_TOKEN
+ *
+ * Then call admin endpoints with:
+ * - x-tcd-admin-token: <token>
+ */
+function tcdCompetitorQuoteAdminAllowed(req: any): boolean {
+  if (process.env.NODE_ENV !== "production") return true;
+
+  const expected =
+    process.env.TCD_ADMIN_API_TOKEN ||
+    process.env.ADMIN_API_TOKEN ||
+    process.env.ADMIN_TOKEN ||
+    "";
+
+  if (!expected) return false;
+
+  const provided =
+    String(req.headers?.["x-tcd-admin-token"] || "") ||
+    String(req.headers?.["x-admin-token"] || "") ||
+    String(req.query?.adminToken || "");
+
+  return provided === expected;
+}
+
 app.post("/api/customer/competitor-quote/upload", tcdCompetitorQuoteUpload.single("quoteFile"), async (req: any, res: any) => {
   try {
     const file = req.file || null;
@@ -183,8 +217,12 @@ app.post("/api/customer/competitor-quote/upload", tcdCompetitorQuoteUpload.singl
   }
 });
 
-app.get("/api/admin/customer-competitor-quotes", async (_req: any, res: any) => {
+app.get("/api/admin/customer-competitor-quotes", async (req: any, res: any) => {
   try {
+    // TCD_STAGE_9_ADMIN_LIST_GUARD_APPLIED
+    if (!tcdCompetitorQuoteAdminAllowed(req)) {
+      return res.status(401).json({ ok: false, error: "Admin auth required" });
+    }
     const intake = await tcdReadCompetitorQuoteIntake();
     const audit = await tcdReadCompetitorQuoteAudit();
 
@@ -211,6 +249,10 @@ app.get("/api/admin/customer-competitor-quotes", async (_req: any, res: any) => 
 
 app.get("/api/admin/customer-competitor-quotes/:id/file", async (req: any, res: any) => {
   try {
+    // TCD_STAGE_9_ADMIN_FILE_GUARD_APPLIED
+    if (!tcdCompetitorQuoteAdminAllowed(req)) {
+      return res.status(401).json({ ok: false, error: "Admin auth required" });
+    }
     const intake = await tcdReadCompetitorQuoteIntake();
     const item = intake.submissions.find((submission: any) => String(submission.id) === String(req.params.id));
 
