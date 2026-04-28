@@ -777,6 +777,19 @@ app.post("/api/admin/procurement/whatsapp-outbox/release-one", async (req: any, 
   }));
 });
 
+// NEXORA_EXISTING_RECOVERY_ROUTES
+app.get("/api/admin/nexora/recovery-policy", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { getNexoraRecoveryPolicy } = await import("./services/intelligence/nexora/nexora-support");
+  return res.json(getNexoraRecoveryPolicy());
+});
+
+app.post("/api/admin/nexora/recovery-analyze", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { analyzeNexoraOperationalProblem } = await import("./services/intelligence/nexora/nexora-support");
+  return res.json(analyzeNexoraOperationalProblem(req.body || {}));
+});
+
 // INDEX_HEALTH_ROUTE
 app.get("/api/health", (_req: any, res: any) => {
   return res.status(200).json({

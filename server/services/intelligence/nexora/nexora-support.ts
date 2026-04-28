@@ -1207,3 +1207,265 @@ export async function cleanupExpiredLocks(): Promise<void> {
 export async function initNexoraDataSource(): Promise<void> {
   await cleanupExpiredLocks();
 }
+
+
+/* ─── NEXORA_EXISTING_RECOVERY_POLICY ────────────────────────────────────── */
+
+export type NexoraOperationalProblemCategory =
+  | "missing_configuration"
+  | "provider_failure"
+  | "safety_lock"
+  | "rate_limit_or_flood_risk"
+  | "bad_or_incomplete_data"
+  | "duplicate_or_idempotency"
+  | "external_party_not_ready"
+  | "workflow_waiting"
+  | "build_or_typecheck"
+  | "unknown";
+
+export type NexoraRecoveryAction = {
+  type:
+    | "continue"
+    | "retry_once"
+    | "fallback_channel"
+    | "hold"
+    | "request_missing_data"
+    | "use_alternative_supplier"
+    | "queue_follow_up"
+    | "manual_review"
+    | "block";
+  safeToAutoRun: boolean;
+  summary: string;
+};
+
+function nexoraProblemText(input: unknown): string {
+  try {
+    return JSON.stringify(input || {}).toLowerCase();
+  } catch {
+    return String(input || "").toLowerCase();
+  }
+}
+
+function nexoraHasAny(haystack: string, needles: string[]): boolean {
+  return needles.some((needle) => haystack.includes(needle.toLowerCase()));
+}
+
+export function classifyNexoraOperationalProblem(input: {
+  module?: string;
+  operation?: string;
+  error?: unknown;
+  context?: unknown;
+}): {
+  category: NexoraOperationalProblemCategory;
+  severity: "info" | "low" | "medium" | "high" | "critical";
+  reason: string;
+} {
+  const haystack = nexoraProblemText(input);
+
+  if (nexoraHasAny(haystack, ["daily cap", "cooldown", "flood", "too many", "rate limit", "bulk"])) {
+    return {
+      category: "rate_limit_or_flood_risk",
+      severity: "medium",
+      reason: "The action risks contacting too many people or repeating contact too quickly."
+    };
+  }
+
+  if (nexoraHasAny(haystack, ["locked", "autonomy_outreach_lock", "override", "safety lock", "draft_hold"])) {
+    return {
+      category: "safety_lock",
+      severity: "medium",
+      reason: "A safety lock or draft hold blocked the action. This is normally expected."
+    };
+  }
+
+  if (nexoraHasAny(haystack, ["missing", "not configured", "env", "api key", "secret", "undefined"])) {
+    return {
+      category: "missing_configuration",
+      severity: "high",
+      reason: "A required environment variable, credential, API key, or provider setting appears to be missing."
+    };
+  }
+
+  if (nexoraHasAny(haystack, ["403", "domain is not verified", "unauthorized", "twilio", "resend", "stripe", "provider"])) {
+    return {
+      category: "provider_failure",
+      severity: "high",
+      reason: "An external provider rejected the request or returned a provider failure."
+    };
+  }
+
+  if (nexoraHasAny(haystack, ["tbc", "missing recipient", "invalid email", "unknown", "confidence_below", "not verified"])) {
+    return {
+      category: "bad_or_incomplete_data",
+      severity: "medium",
+      reason: "The data is incomplete, invalid, weak, or not trusted enough for automation."
+    };
+  }
+
+  if (nexoraHasAny(haystack, ["duplicate", "idempotency", "already sent", "same quote"])) {
+    return {
+      category: "duplicate_or_idempotency",
+      severity: "medium",
+      reason: "The system detected a duplicate or repeated action risk."
+    };
+  }
+
+  if (nexoraHasAny(haystack, ["sandbox", "recipient", "not joined", "not ready", "no reply", "unresponsive"])) {
+    return {
+      category: "external_party_not_ready",
+      severity: "medium",
+      reason: "The external party or provider is not ready, unavailable, or has not responded."
+    };
+  }
+
+  if (nexoraHasAny(haystack, ["waiting", "queued", "pending", "awaiting"])) {
+    return {
+      category: "workflow_waiting",
+      severity: "low",
+      reason: "The workflow is waiting for a reply, release, approval, or next input."
+    };
+  }
+
+  if (nexoraHasAny(haystack, ["tsc", "typescript", "build", "vite", "cannot find module", "error ts"])) {
+    return {
+      category: "build_or_typecheck",
+      severity: "high",
+      reason: "A build or TypeScript problem is blocking safe deployment."
+    };
+  }
+
+  return {
+    category: "unknown",
+    severity: "medium",
+    reason: "The problem did not match a known recovery pattern and needs review."
+  };
+}
+
+export function proposeNexoraRecoveryActions(category: NexoraOperationalProblemCategory): NexoraRecoveryAction[] {
+  switch (category) {
+    case "rate_limit_or_flood_risk":
+      return [
+        { type: "block", safeToAutoRun: true, summary: "Block bulk sending and keep one-at-a-time release only." },
+        { type: "queue_follow_up", safeToAutoRun: true, summary: "Hold remaining messages until daily cap/cooldown allows release." }
+      ];
+
+    case "safety_lock":
+      return [
+        { type: "hold", safeToAutoRun: true, summary: "Keep the item held. Safety lock is working as intended." },
+        { type: "manual_review", safeToAutoRun: false, summary: "Only release with override after readiness and review." }
+      ];
+
+    case "missing_configuration":
+      return [
+        { type: "hold", safeToAutoRun: true, summary: "Hold the affected workflow to avoid repeated failure." },
+        { type: "request_missing_data", safeToAutoRun: false, summary: "Ask for the exact missing key, credential, DNS record, or provider setting." }
+      ];
+
+    case "provider_failure":
+      return [
+        { type: "retry_once", safeToAutoRun: true, summary: "Retry once only if the failure may be temporary." },
+        { type: "fallback_channel", safeToAutoRun: true, summary: "Use an approved alternate channel where available." },
+        { type: "manual_review", safeToAutoRun: false, summary: "Stop if authentication, domain verification, or provider approval is the problem." }
+      ];
+
+    case "bad_or_incomplete_data":
+      return [
+        { type: "hold", safeToAutoRun: true, summary: "Hold item in review instead of sending or mutating pipeline." },
+        { type: "request_missing_data", safeToAutoRun: false, summary: "Ask for missing recipient, quote input, supplier price, lead time, or evidence." }
+      ];
+
+    case "duplicate_or_idempotency":
+      return [
+        { type: "block", safeToAutoRun: true, summary: "Block duplicate action and link to existing quote/message/pipeline item." }
+      ];
+
+    case "external_party_not_ready":
+      return [
+        { type: "fallback_channel", safeToAutoRun: true, summary: "Try approved alternate channel, such as email instead of WhatsApp." },
+        { type: "queue_follow_up", safeToAutoRun: true, summary: "Queue a polite follow-up after the waiting period." },
+        { type: "use_alternative_supplier", safeToAutoRun: true, summary: "Ask the next approved supplier if the first supplier is unavailable." }
+      ];
+
+    case "workflow_waiting":
+      return [
+        { type: "continue", safeToAutoRun: true, summary: "Do nothing risky. Keep waiting until the required reply/release/data arrives." }
+      ];
+
+    case "build_or_typecheck":
+      return [
+        { type: "manual_review", safeToAutoRun: false, summary: "Do not deploy. Fix check/build first, then rerun npm run check and npm run build." }
+      ];
+
+    default:
+      return [
+        { type: "manual_review", safeToAutoRun: false, summary: "Unknown problem. Log it, stop risky action, and ask for review." }
+      ];
+  }
+}
+
+export function analyzeNexoraOperationalProblem(input: {
+  module?: string;
+  operation?: string;
+  error?: unknown;
+  context?: unknown;
+}) {
+  const classification = classifyNexoraOperationalProblem(input);
+  const recoveryActions = proposeNexoraRecoveryActions(classification.category);
+
+  return {
+    ok: true,
+    createdAt: new Date().toISOString(),
+    module: input.module || "unknown",
+    operation: input.operation || "unknown",
+    classification,
+    recoveryActions,
+    autoRunnableActions: recoveryActions.filter((action) => action.safeToAutoRun),
+    blockedActions: recoveryActions.filter((action) => !action.safeToAutoRun),
+    rule: "Nexora can auto-run safe recovery actions only. Risky actions stay held or require review."
+  };
+}
+
+export function getNexoraRecoveryPolicy() {
+  return {
+    ok: true,
+    policy: {
+      globalRule: "Detect, classify, recover safely, log/observe through existing Nexora systems, and never repeat risky actions blindly.",
+      usesExistingSystems: [
+        "withIntelligentRetry",
+        "retryStats",
+        "runHealthChecks",
+        "idempotency keys",
+        "duplicate checks",
+        "rule decision hold",
+        "autonomy safety locks",
+        "WhatsApp guards/outbox",
+        "procurement draft_hold"
+      ],
+      safeAutoActions: [
+        "hold unsafe item",
+        "retry once",
+        "fallback to approved alternate channel",
+        "queue follow-up",
+        "use another approved supplier",
+        "block duplicate",
+        "stop bulk sends"
+      ],
+      blockedWithoutReview: [
+        "bulk supplier messaging",
+        "sending to unknown recipients",
+        "pipeline mutation for unqualified leads",
+        "customer quote send without valid pricing",
+        "pretending a deal is closed without acceptance/payment evidence",
+        "deploying while check/build fails"
+      ],
+      procurementRules: [
+        "Manufacturers use Chinese-first WhatsApp drafts.",
+        "Manufacturers and shipping agents stay draft_hold by default.",
+        "Only one manufacturer/shipping message can be released at a time.",
+        "Daily cap and recipient cooldown prevent flooding.",
+        "Installer uses email/phone, not WhatsApp.",
+        "Customer quote never exposes supplier cost or margin."
+      ]
+    }
+  };
+}
