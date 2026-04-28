@@ -10,6 +10,7 @@ import { AdminAuthGate } from "@/components/AdminAuthGate";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
+import UploadYourQuote from "@/pages/UploadYourQuote";
 
 import About from "@/pages/About";
 import Products from "@/pages/Products";
@@ -285,6 +286,7 @@ function Router() {
       <Route component={NotFound} />
     </Switch>
   );
+        <Route path="/upload-your-quote" component={UploadYourQuote} />
 }
 
 function App() {

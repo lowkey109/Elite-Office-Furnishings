@@ -46,6 +46,113 @@ app.get("/api/admin/data-layer/status", async (req: any, res: any) => {
   }
 });
 
+
+
+/**
+ * Stage 2D — customer uploaded competitor quote intake.
+ * Nexora parses the customer supplied quote amount so admin does not manually enter it.
+ */
+app.post("/api/customer/competitor-quote/upload", async (req: any, res: any) => {
+  try {
+    const body = req.body || {};
+    const text = String(body.extractedText || body.text || body.quoteText || "").trim();
+    const fileName = String(body.fileName || "").trim();
+
+    function parseMoneyCandidates(input: string): number[] {
+      const labelled: number[] = [];
+      const loose: number[] = [];
+
+      const lines = input.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+
+      for (const line of lines) {
+        const moneyMatches = line.match(/\$?\s*\d{1,3}(?:,\d{3})*(?:\.\d{2})?|\$?\s*\d+(?:\.\d{2})?/g) || [];
+        for (const raw of moneyMatches) {
+          const value = Number(String(raw).replace(/[^0-9.]/g, ""));
+          if (!Number.isFinite(value) || value <= 0) continue;
+
+          if (/grand\s*total|total\s*inc|total\s*incl|amount\s*payable|quote\s*total|balance\s*due|total\s*aud|total/i.test(line)) {
+            labelled.push(value);
+          } else {
+            loose.push(value);
+          }
+        }
+      }
+
+      return labelled.length ? labelled.sort((a, b) => b - a) : loose.sort((a, b) => b - a);
+    }
+
+    if (!text) {
+      return res.json({
+        ok: false,
+        blocked: true,
+        stage: "competitor_quote_parse",
+        error: "No readable quote text was supplied.",
+        customerMessage: "We received your quote upload, but Nexora could not read the price confidently. A human review is required before we send a comparison.",
+        competitorQuote: null,
+        confidence: "low",
+        reason: "No extracted or pasted text was provided."
+      });
+    }
+
+    const candidates = parseMoneyCandidates(text);
+    const competitorQuote = candidates[0] || null;
+    const confidence = competitorQuote
+      ? (/grand\s*total|total\s*inc|total\s*incl|amount\s*payable|quote\s*total|balance\s*due/i.test(text) ? "high" : "medium")
+      : "low";
+
+    const result = {
+      ok: Boolean(competitorQuote),
+      blocked: !competitorQuote,
+      stage: "competitor_quote_uploaded",
+      message: competitorQuote
+        ? "Nexora read your uploaded quote and saved the detected total for comparison."
+        : "Nexora could not confidently find the quote total.",
+      customerMessage: competitorQuote
+        ? "Thanks — Nexora has read your quote. We will only recommend our option if it genuinely makes sense."
+        : "We received your quote, but Nexora could not read the price confidently. A human review is required before we send a comparison.",
+      competitorQuote,
+      confidence,
+      reason: competitorQuote
+        ? "Detected likely quote total from uploaded/pasted quote text."
+        : "No reliable total amount found.",
+      fileName,
+      receivedAt: new Date().toISOString()
+    };
+
+    const fs = await import("fs/promises");
+    const path = await import("path");
+    const dir = path.join(process.cwd(), "data", "customer-quote-uploads");
+    await fs.mkdir(dir, { recursive: true });
+    const logFile = path.join(dir, "uploads.json");
+
+    let existing: any[] = [];
+    try {
+      existing = JSON.parse(await fs.readFile(logFile, "utf8"));
+      if (!Array.isArray(existing)) existing = [];
+    } catch {
+      existing = [];
+    }
+
+    existing.unshift({
+      ...result,
+      customerName: body.customerName || null,
+      customerEmail: body.customerEmail || null,
+      textPreview: text.slice(0, 1000)
+    });
+
+    await fs.writeFile(logFile, JSON.stringify(existing.slice(0, 500), null, 2));
+
+    return res.json(result);
+  } catch (error: any) {
+    return res.status(500).json({
+      ok: false,
+      blocked: true,
+      stage: "competitor_quote_upload_error",
+      error: error?.message || "Competitor quote upload failed"
+    });
+  }
+});
+
 app.post("/api/admin/data-layer/migrate-local-json", async (req: any, res: any) => {
   if (req.headers["x-tcd-admin-auth"] !== "true") {
     return res.status(401).json({ ok: false, error: "Authentication required" });
