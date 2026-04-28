@@ -318,7 +318,31 @@ function buildManufacturerRfqMessage(request: QuoteRequest) {
     `- ${item.quantity} x ${item.name}${item.model ? " (" + item.model + ")" : ""}${item.colour ? " — " + item.colour : ""}${item.dimensions ? " — " + item.dimensions : ""}`
   );
 
-  return `Hi, this is The Corporate Desk.
+  return `你好，这是 The Corporate Desk。
+
+请帮我们报价以下产品：
+
+${lines.join("\n")}
+
+送货地址/城市：
+${request.customer.deliveryAddress || request.project.deliverySuburb || "待确认"}
+
+请回复以下信息：
+1. 单价
+2. 运费
+3. 生产/交货周期
+4. 保修期
+5. 包装信息
+6. 安装注意事项
+7. 是否可以定制颜色/尺寸
+
+报价编号：${request.quoteNumber}
+
+谢谢。
+
+---
+
+Hello, this is The Corporate Desk.
 
 Please quote supply pricing for:
 
@@ -334,6 +358,7 @@ Please provide:
 4. Warranty
 5. Packing details
 6. Any install notes
+7. Whether colour/size can be customised
 
 Quote ref: ${request.quoteNumber}
 
@@ -1319,7 +1344,30 @@ export async function queueShippingAgentRfq(id: string, opts: any = {}) {
     `- ${item.quantity} x ${item.name}${item.model ? " (" + item.model + ")" : ""}${item.dimensions ? " — " + item.dimensions : ""}`
   );
 
-  const message = `Hi ${agent.contactName}, this is The Corporate Desk.
+  const message = `你好 ${agent.contactName}，这是 The Corporate Desk。
+
+如果工厂运费太高，请帮我们估算这单从中国到澳大利亚的运输费用。
+
+产品：
+${itemLines.join("\n")}
+
+目的地：
+${request.customer.deliveryAddress || request.project.deliverySuburb || "Australia, address TBC"}
+
+请确认：
+1. 预计运费
+2. 运输时间
+3. 清关/进口注意事项
+4. 是否包含门到门派送
+5. 是否需要包装尺寸/重量才能准确报价
+
+报价编号：${request.quoteNumber}
+
+谢谢。
+
+---
+
+Hi ${agent.contactName}, this is The Corporate Desk.
 
 Can you please estimate shipping/freight for this quote if manufacturer shipping is too high?
 
@@ -1334,6 +1382,7 @@ Please confirm:
 2. Transit time
 3. Any customs/import notes
 4. Whether door-to-door delivery is included
+5. Whether you need package size/weight for accurate pricing
 
 Quote ref: ${request.quoteNumber}
 
