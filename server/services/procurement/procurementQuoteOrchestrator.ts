@@ -1054,3 +1054,217 @@ startxref
     };
   }
 }
+
+
+// APPROVED_MANUFACTURER_DIRECTORY
+const APPROVED_MANUFACTURERS = [
+  {
+    id: "xitian-wangzhen-ruby",
+    companyName: "Xitian Furniture",
+    contactName: "wangzhen Ruby",
+    whatsapp: "+8618007947880",
+    country: "China",
+    website: "https://xitianfurniture.com",
+    categories: ["office furniture", "reception desks", "executive desks", "workstations", "custom furniture"],
+    priority: 1,
+    notes: "WhatsApp Business furniture supplier. Use for general office furniture and custom product RFQs."
+  },
+  {
+    id: "huayi-metal-products-gina",
+    companyName: "Huayi Metal Products Co.Ltd",
+    contactName: "Gina",
+    whatsapp: "+8618024514609",
+    country: "China",
+    website: null,
+    categories: ["metal products", "office furniture", "executive desks", "cabinets", "custom furniture"],
+    priority: 2,
+    notes: "Use when RFQ may require metal products, desks, cabinets, or custom manufacturing."
+  },
+  {
+    id: "jinying-furniture-alice",
+    companyName: "Jinying Furniture",
+    contactName: "Alice",
+    whatsapp: "+8613380299408",
+    country: "China",
+    website: null,
+    categories: ["office furniture", "executive desks", "reception desks", "classic desks", "custom furniture"],
+    priority: 3,
+    notes: "Use for executive furniture and general office furniture RFQs."
+  },
+  {
+    id: "ella-office-furniture",
+    companyName: "Ella Office Furniture",
+    contactName: "Ms Ella",
+    whatsapp: "+8613690142502",
+    country: "China",
+    website: null,
+    categories: ["office furniture", "executive desks", "catalog products", "workstations", "reception desks"],
+    priority: 4,
+    notes: "WhatsApp Business with catalog. Use for office furniture catalog RFQs."
+  },
+  {
+    id: "guangzhou-meiyi-furniture-asya",
+    companyName: "Guangzhou Meiyi Furniture Co., Ltd",
+    contactName: "Asya",
+    whatsapp: "+8613422161319",
+    country: "China",
+    website: "https://www.meiyifurnishing.com",
+    alternateWebsite: "https://myofficefurniture.com.cn",
+    categories: ["office furniture", "reception desks", "executive desks", "cabinets", "custom furniture"],
+    priority: 5,
+    notes: "Only work communication. Use for office furniture and custom manufacturing RFQs."
+  },
+  {
+    id: "denny-office-furniture",
+    companyName: "Denny Office Furniture",
+    contactName: "Denny",
+    whatsapp: "+8613127968208",
+    country: "China",
+    website: null,
+    categories: ["office furniture", "custom furniture", "reception desks", "executive desks"],
+    priority: 6,
+    notes: "Use as additional supplier backup for quote comparison."
+  }
+];
+
+const APPROVED_SHIPPING_AGENTS = [
+  {
+    id: "lynne-mao-china-shipping",
+    companyName: "China Shipping Agent",
+    contactName: "Lynne Mao",
+    whatsapp: "+8618770665717",
+    country: "China",
+    categories: ["shipping", "freight", "export", "china to australia"],
+    priority: 1,
+    notes: "Shipping agent from China. Use when manufacturer shipping is too expensive or needs comparison."
+  }
+];
+
+function normaliseCategoryText(value: unknown): string {
+  return String(value || "").toLowerCase();
+}
+
+function manufacturerMatchesItems(manufacturer: any, items: ProcurementItem[]) {
+  const combined = normaliseCategoryText(
+    items.map((item) => [item.name, item.model, item.notes, item.colour, item.dimensions].filter(Boolean).join(" ")).join(" ")
+  );
+
+  if (!combined.trim()) return true;
+
+  return manufacturer.categories.some((category: string) => {
+    const c = normaliseCategoryText(category);
+    return combined.includes(c) || c.includes("office furniture") || c.includes("custom furniture");
+  });
+}
+
+export async function listApprovedProcurementManufacturers() {
+  return {
+    ok: true,
+    count: APPROVED_MANUFACTURERS.length,
+    manufacturers: APPROVED_MANUFACTURERS,
+    shippingAgents: APPROVED_SHIPPING_AGENTS
+  };
+}
+
+export async function queueApprovedManufacturerRfqs(id: string, opts: any = {}) {
+  const requestResult = await getProcurementQuoteRequest(id);
+  if (!requestResult.ok) return requestResult;
+
+  const request = requestResult.request as QuoteRequest;
+  const maxSuppliers = Math.max(1, Number(opts.maxSuppliers || 4));
+  const includeAll = opts.includeAll === true;
+
+  const matched = APPROVED_MANUFACTURERS
+    .filter((manufacturer: any) => includeAll || manufacturerMatchesItems(manufacturer, request.items))
+    .sort((a: any, b: any) => Number(a.priority || 999) - Number(b.priority || 999))
+    .slice(0, maxSuppliers);
+
+  const results: any[] = [];
+
+  for (const manufacturer of matched) {
+    try {
+      const queued = await queueManufacturerRfq(id, {
+        companyName: manufacturer.companyName,
+        name: manufacturer.contactName,
+        whatsapp: manufacturer.whatsapp
+      });
+
+      results.push({
+        manufacturer,
+        queued
+      });
+    } catch (error: any) {
+      results.push({
+        manufacturer,
+        queued: {
+          ok: false,
+          error: error?.message || String(error)
+        }
+      });
+    }
+  }
+
+  return {
+    ok: true,
+    quoteRequestId: id,
+    quoteNumber: request.quoteNumber,
+    matchedCount: matched.length,
+    queuedCount: results.filter((item) => item.queued?.ok === true).length,
+    results
+  };
+}
+
+export async function queueShippingAgentRfq(id: string, opts: any = {}) {
+  const requestResult = await getProcurementQuoteRequest(id);
+  if (!requestResult.ok) return requestResult;
+
+  const agent = APPROVED_SHIPPING_AGENTS[0];
+  const request = requestResult.request as QuoteRequest;
+
+  const itemLines = request.items.map((item) =>
+    `- ${item.quantity} x ${item.name}${item.model ? " (" + item.model + ")" : ""}${item.dimensions ? " — " + item.dimensions : ""}`
+  );
+
+  const message = `Hi ${agent.contactName}, this is The Corporate Desk.
+
+Can you please estimate shipping/freight for this quote if manufacturer shipping is too high?
+
+Items:
+${itemLines.join("\n")}
+
+Delivery destination:
+${request.customer.deliveryAddress || request.project.deliverySuburb || "Australia, address TBC"}
+
+Please confirm:
+1. Estimated shipping/freight cost
+2. Transit time
+3. Any customs/import notes
+4. Whether door-to-door delivery is included
+
+Quote ref: ${request.quoteNumber}
+
+Thanks.`;
+
+  const queued = await appendWhatsAppOutbox({
+    channel: "whatsapp",
+    direction: "outbound",
+    purpose: "shipping_agent_rfq",
+    quoteRequestId: id,
+    quoteNumber: request.quoteNumber,
+    toName: agent.contactName,
+    toCompany: agent.companyName,
+    to: agent.whatsapp,
+    body: message,
+    realSendPerformed: false,
+    note: "Queued shipping agent RFQ for freight comparison."
+  });
+
+  return {
+    ok: true,
+    quoteRequestId: id,
+    quoteNumber: request.quoteNumber,
+    agent,
+    queued,
+    message
+  };
+}

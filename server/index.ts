@@ -725,6 +725,25 @@ app.get("/api/admin/procurement/quote-requests/:id/customer-quote/pdf", async (r
   return res.send(result.buffer);
 });
 
+// PROCUREMENT_MANUFACTURER_DIRECTORY_ROUTES
+app.get("/api/admin/procurement/manufacturers", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { listApprovedProcurementManufacturers } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await listApprovedProcurementManufacturers());
+});
+
+app.post("/api/admin/procurement/quote-requests/:id/approved-manufacturer-rfqs", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { queueApprovedManufacturerRfqs } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await queueApprovedManufacturerRfqs(req.params.id, req.body || {}));
+});
+
+app.post("/api/admin/procurement/quote-requests/:id/shipping-agent-rfq", async (req: any, res: any) => {
+  if (req.headers["x-tcd-admin-auth"] !== "true") return res.status(401).json({ ok: false, error: "Authentication required" });
+  const { queueShippingAgentRfq } = await import("./services/procurement/procurementQuoteOrchestrator");
+  return res.json(await queueShippingAgentRfq(req.params.id, req.body || {}));
+});
+
 // INDEX_HEALTH_ROUTE
 app.get("/api/health", (_req: any, res: any) => {
   return res.status(200).json({
