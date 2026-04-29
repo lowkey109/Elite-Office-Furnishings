@@ -118,6 +118,9 @@ export default function AdminPhantomXIntelligence() {
   const [data, setData] = useState<Payload | null>(null);
   const [error, setError] = useState("");
   const [scanning, setScanning] = useState(false);
+  const [learning, setLearning] = useState(false);
+  const [autoLoop, setAutoLoop] = useState(false);
+  const [lastAction, setLastAction] = useState("");
 
   async function load() {
     try {
@@ -128,6 +131,53 @@ export default function AdminPhantomXIntelligence() {
       setError("");
     } catch (e: any) {
       setError(e?.message || "Unable to load Phantom X feed");
+    }
+  }
+
+  async function learn() {
+    setLearning(true);
+    try {
+      const res = await fetch("/api/admin/phantomx/learn", {
+        method: "POST",
+        credentials: "include",
+      });
+      const json = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(json?.error || `HTTP ${res.status}`);
+      setLastAction(`Learned ${json.learned || 0} markets`);
+      setLastAction(`Scanned ${json?.scanned || 0}; opportunities ${json?.opportunities || 0}`);
+      await load();
+    } catch (e: any) {
+      setError(e?.message || "Learning failed");
+    } finally {
+      setLearning(false);
+    }
+  }
+
+  async function scanAndLearn() {
+    setScanning(true);
+    setLearning(true);
+    try {
+      const scanRes = await fetch("/api/admin/phantomx/scan-polymarket", {
+        method: "POST",
+        credentials: "include",
+      });
+      const scanJson = await scanRes.json().catch(() => null);
+      if (!scanRes.ok) throw new Error(scanJson?.error || `Scan HTTP ${scanRes.status}`);
+
+      const learnRes = await fetch("/api/admin/phantomx/learn", {
+        method: "POST",
+        credentials: "include",
+      });
+      const learnJson = await learnRes.json().catch(() => null);
+      if (!learnRes.ok) throw new Error(learnJson?.error || `Learn HTTP ${learnRes.status}`);
+
+      setLastAction(`Scanned ${scanJson.scanned || 0}; learned ${learnJson.learned || 0}`);
+      await load();
+    } catch (e: any) {
+      setError(e?.message || "Auto loop failed");
+    } finally {
+      setScanning(false);
+      setLearning(false);
     }
   }
 
@@ -150,6 +200,13 @@ export default function AdminPhantomXIntelligence() {
     const id = window.setInterval(load, 20000);
     return () => window.clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    if (!autoLoop) return;
+    scanAndLearn();
+    const id = window.setInterval(scanAndLearn, 180000);
+    return () => window.clearInterval(id);
+  }, [autoLoop]);
 
   const curve = useMemo(() => {
     const trades = data?.paperTrades || [];
@@ -213,8 +270,33 @@ export default function AdminPhantomXIntelligence() {
             >
               {scanning ? "Scanning" : "Scan"}
             </button>
+
+            <button
+              onClick={learn}
+              disabled={learning}
+              className="rounded-md border border-[#8fffd245] bg-[#8fffd214] px-3 py-2 font-mono text-[10px] font-black uppercase tracking-[0.2em] text-[#8fffd2] hover:bg-[#8fffd225] disabled:opacity-50"
+            >
+              {learning ? "Learning" : "Learn"}
+            </button>
+
+            <button
+              onClick={() => setAutoLoop((v) => !v)}
+              className={`rounded-md border px-3 py-2 font-mono text-[10px] font-black uppercase tracking-[0.2em] ${
+                autoLoop
+                  ? "border-red-400/40 bg-red-950/30 text-red-200"
+                  : "border-[#d9913a45] bg-black/30 text-[#ffbd6b]"
+              }`}
+            >
+              {autoLoop ? "Stop Loop" : "Auto Loop"}
+            </button>
           </div>
         </header>
+
+        {lastAction && (
+          <div className="mb-3 rounded-md border border-[#8fffd230] bg-[#8fffd210] p-3 font-mono text-xs text-[#8fffd2]">
+            {lastAction} · paper-only · no live execution
+          </div>
+        )}
 
         {error && (
           <div className="mb-3 rounded-md border border-red-400/30 bg-red-950/35 p-3 font-mono text-xs text-red-200">
