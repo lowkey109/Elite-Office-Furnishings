@@ -1,47 +1,33 @@
 import { Link } from "wouter";
-import { AlertTriangle, BarChart3, ShieldAlert, TrendingUp, Wallet } from "lucide-react";
 
 export default function PhantomXLanding() {
   return (
-    <main className="min-h-screen bg-[#080A12] text-white px-6 py-24">
-      <div className="max-w-7xl mx-auto">
-        <p className="text-amber-400 text-xs uppercase tracking-[0.25em] font-semibold">PhantomX Paper Trader</p>
-        <h1 className="text-5xl md:text-7xl font-bold mt-5 max-w-5xl leading-[0.95]">
-          Free pretend-money AI trading simulation.
-        </h1>
-        <p className="text-white/60 text-xl mt-6 max-w-3xl">
-          Test AI market strategies with pretend money. No real funds. No live exchange orders. No financial advice.
+    <main className="min-h-screen bg-[#020607] text-white p-6">
+      <div className="max-w-6xl mx-auto rounded-2xl border border-[#d9913a33] bg-black/50 p-8">
+        <p className="font-mono text-xs uppercase tracking-[0.35em] text-[#d9913a]">Phantom X // Polymarket Intelligence</p>
+        <h1 className="mt-4 font-mono text-5xl font-black tracking-[-0.08em] text-[#ffbd6b]">Alpha Flow Terminal</h1>
+        <p className="mt-5 max-w-3xl text-slate-400">
+          Phantom X is now a Polymarket intelligence and paper-trading command layer. It tracks public market activity,
+          opportunity scores, evidence logs and simulated paper-only decisions. Live-money trading is disabled.
         </p>
 
-        <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-5 flex gap-3 mt-8 max-w-4xl">
-          <ShieldAlert className="text-red-300 flex-shrink-0" />
-          <p className="text-white/65 text-sm">
-            PhantomX Paper Trader is free simulation only. Real-money trading is disabled by default and requires separate live-readiness review, legal/compliance checks, risk limits and written approval.
-          </p>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Link href="/client/phantomx-paper">
+            <span className="cursor-pointer rounded-xl border border-[#d9913a55] bg-[#d9913a18] px-5 py-3 font-mono text-sm font-bold uppercase tracking-[0.2em] text-[#ffbd6b]">
+              Open Customer Terminal
+            </span>
+          </Link>
+          <Link href="/legal/phantomx-risk-disclaimer">
+            <span className="cursor-pointer rounded-xl border border-slate-700 px-5 py-3 font-mono text-sm font-bold uppercase tracking-[0.2em] text-slate-300">
+              Risk Disclaimer
+            </span>
+          </Link>
         </div>
 
-        <div className="grid lg:grid-cols-4 gap-4 mt-12">
-          <Feature icon={<Wallet />} title="Pretend Balance" text="Use simulated balance and paper positions only." />
-          <Feature icon={<TrendingUp />} title="Strategy Learning" text="Track paper decisions, ticks, outcomes and learning behaviour." />
-          <Feature icon={<BarChart3 />} title="Market Dashboard" text="Monitor market data and strategy context without placing orders." />
-          <Feature icon={<AlertTriangle />} title="Risk First" text="No profit guarantee, no financial advice and no live orders." />
-        </div>
-
-        <div className="flex flex-wrap gap-3 mt-10">
-          <Link href="/client-signup"><span className="px-6 py-4 rounded-xl bg-amber-500 text-black font-semibold cursor-pointer">Start Free Paper Mode</span></Link>
-          <Link href="/client/phantomx-compliance"><span className="px-6 py-4 rounded-xl border border-white/15 text-white/80 cursor-pointer">Live Readiness Review</span></Link>
+        <div className="mt-8 rounded-xl border border-red-400/25 bg-red-950/25 p-4 text-sm text-red-100">
+          Paper mode only. No financial advice. No live-money execution.
         </div>
       </div>
     </main>
-  );
-}
-
-function Feature({ icon, title, text }: any) {
-  return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-      <div className="text-amber-400">{icon}</div>
-      <h2 className="text-xl font-semibold mt-5">{title}</h2>
-      <p className="text-white/50 mt-3">{text}</p>
-    </div>
   );
 }
