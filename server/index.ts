@@ -16,6 +16,20 @@ import { startNexoraLoop } from "./services/nexoraLoop";
 import { setupVite } from "./vite";
 import { serveStatic } from "./static";
 
+// TCD_CHAT_ENV_ALIAS_FIX
+// Keep old and new OpenAI env names in sync so all chatbots/services work.
+// Some routes use AI_INTEGRATIONS_OPENAI_API_KEY, others use OPENAI_API_KEY.
+if (!process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.OPENAI_API_KEY) {
+  process.env.AI_INTEGRATIONS_OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+}
+if (!process.env.OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_API_KEY) {
+  process.env.OPENAI_API_KEY = process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
+}
+if (process.env.AI_INTEGRATIONS_OPENAI_BASE_URL === "") {
+  delete process.env.AI_INTEGRATIONS_OPENAI_BASE_URL;
+}
+
+
 
 /**
  * TCD_STAGE_32_RAILWAY_SAFE_BOOT
