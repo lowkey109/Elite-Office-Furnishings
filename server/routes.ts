@@ -13232,5 +13232,374 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
   });
 
 
+  
+
+  // TCD_PHANTOMX_SUPERBRAIN_V1
+  app.post("/api/admin/phantomx/superbrain", async (_req: any, res: any) => {
+    try {
+      const { Client } = await import("pg");
+      const client = new Client({ connectionString: process.env.DATABASE_URL } as any);
+      await client.connect();
+
+      const n = (v: any) => Number.isFinite(Number(v)) ? Number(v) : 0;
+      const clamp = (v: number, min = 0, max = 100) => Math.max(min, Math.min(max, v));
+
+      const stateRes = await client.query(`
+        SELECT *
+        FROM phantom_x_model_state
+        WHERE model_name = 'phantomx-superbrain-v1'
+        LIMIT 1
+      `);
+
+      const state = stateRes.rows[0] || {};
+      const entryThreshold = n(state.entry_threshold) || 72;
+      const watchThreshold = n(state.watch_threshold) || 52;
+      const riskLimit = n(state.risk_limit) || 55;
+
+      const { rows: markets } = await client.query(`
+        SELECT id, question, price, yes_price, liquidity, volume, updated_at
+        FROM phantom_x_markets
+        WHERE active = true AND closed = false
+        ORDER BY COALESCE(volume,0) DESC, updated_at DESC
+        LIMIT 300
+      `);
+
+      let learned = 0;
+      let candidates = 0;
+      let paperEntries = 0;
+
+      for (const m of markets) {
+        const price = n(m.price || m.yes_price);
+        const volume = n(m.volume);
+        const liquidity = n(m.liquidity);
+
+        const { rows: snaps } = await client.query(`
+          SELECT price, volume, liquidity, created_at
+          FROM phantom_x_market_snapshots
+          WHERE market_id = $1
+          ORDER BY created_at DESC
+          LIMIT 12
+        `, [m.id]);
+
+        const newest = snaps[0] || {};
+        const oldest = snaps[snaps.length - 1] || {};
+
+        const volumeScore = clamp(Math.log10(volume + 10) * 18);
+        const liquidityScore = clamp(Math.log10(liquidity + 10) * 18);
+        const priceScore = price > 0.15 && price < 0.85 ? 22 : price > 0.05 && price < 0.95 ? 12 : 2;
+
+        const flowNow = n(newest.volume) + n(newest.liquidity);
+        const flowOld = n(oldest.volume) + n(oldest.liquidity);
+        const momentumScore = snaps.length >= 2
+          ? clamp(((flowNow - flowOld) / Math.max(1, flowOld)) * 42 + 15)
+          : 5;
+
+        const priceNow = n(newest.price || price);
+        const priceOld = n(oldest.price || price);
+        const priceMomentum = snaps.length >= 2 ? clamp((priceNow - priceOld) * 280 + 20) : 5;
+
+        const risk =
+          price <= 0.02 || price >= 0.98 ? 90 :
+          liquidity < n(state.min_liquidity || 500) ? 75 :
+          volume < n(state.min_volume || 1000) ? 60 :
+          Math.abs(price - 0.5) > 0.42 ? 45 :
+          25;
+
+        const intelligence =
+          volumeScore * 0.20 +
+          liquidityScore * 0.22 +
+          priceScore * 0.18 +
+          momentumScore * 0.20 +
+          priceMomentum * 0.12 -
+          risk * 0.18;
+
+        const edge = clamp(intelligence);
+        const score = clamp(edge + volumeScore * 0.18 + liquidityScore * 0.18 + momentumScore * 0.12);
+        const confidence = clamp(score / 100, 0, 0.96);
+
+        const decision =
+          score >= entryThreshold && risk <= riskLimit ? "PAPER_ENTRY_CANDIDATE" :
+          score >= watchThreshold ? "WATCH" :
+          "IGNORE";
+
+        const reason =
+          `score=${score.toFixed(1)} edge=${edge.toFixed(1)} risk=${risk.toFixed(1)} volume=${volume} liquidity=${liquidity} price=${price} momentum=${momentumScore.toFixed(1)}`;
+
+        await client.query(`
+          INSERT INTO phantom_x_learning_scores
+            (market_id, score, confidence, edge, risk, liquidity_score, volume_score, price_score, momentum_score, decision, reason, metadata)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+        `, [
+          m.id,
+          score,
+          confidence,
+          edge,
+          risk,
+          liquidityScore,
+          volumeScore,
+          priceScore,
+          momentumScore,
+          decision,
+          reason,
+          JSON.stringify({
+            model: "phantomx-superbrain-v1",
+            priceMomentum,
+            entryThreshold,
+            watchThreshold,
+            riskLimit,
+          }),
+        ]);
+
+        const decisionRes = await client.query(`
+          INSERT INTO phantom_x_decisions
+            (market_id, decision, reason, confidence, evidence)
+          VALUES ($1,$2,$3,$4,$5)
+          RETURNING id
+        `, [
+          m.id,
+          decision,
+          reason,
+          confidence,
+          JSON.stringify({ score, edge, risk, volumeScore, liquidityScore, priceScore, momentumScore, priceMomentum }),
+        ]);
+
+        if (decision === "PAPER_ENTRY_CANDIDATE") {
+          candidates++;
+
+          const already = await client.query(`
+            SELECT id FROM phantom_x_paper_positions
+            WHERE market_id = $1 AND status = 'open'
+            LIMIT 1
+          `, [m.id]);
+
+          if (!already.rows.length && price > 0.01 && price < 0.99) {
+            const notional = Math.max(5, Math.min(100, score));
+            const quantity = notional / Math.max(0.01, price);
+
+            await client.query(`
+              INSERT INTO phantom_x_paper_positions
+                (market_id, market_title, side, entry_price, current_price, quantity, notional, pnl, status, entry_score, confidence, reason, metadata)
+              VALUES ($1,$2,'YES',$3,$3,$4,$5,0,'open',$6,$7,$8,$9)
+            `, [
+              m.id,
+              m.question,
+              price,
+              quantity,
+              notional,
+              score,
+              confidence,
+              reason,
+              JSON.stringify({ model: "phantomx-superbrain-v1", simulated: true }),
+            ]);
+
+            paperEntries++;
+          }
+        }
+
+        learned++;
+      }
+
+      await client.end();
+
+      res.json({
+        ok: true,
+        mode: "paper",
+        model: "phantomx-superbrain-v1",
+        learned,
+        candidates,
+        paperEntries,
+        thresholds: { entryThreshold, watchThreshold, riskLimit },
+        note: "SuperBrain completed. Paper-only. No live execution."
+      });
+    } catch (err: any) {
+      res.status(500).json({ ok: false, error: err?.message || "SuperBrain failed" });
+    }
+  });
+
+  app.post("/api/admin/phantomx/feedback", async (_req: any, res: any) => {
+    try {
+      const { Client } = await import("pg");
+      const client = new Client({ connectionString: process.env.DATABASE_URL } as any);
+      await client.connect();
+
+      const n = (v: any) => Number.isFinite(Number(v)) ? Number(v) : 0;
+
+      const { rows: decisions } = await client.query(`
+        SELECT d.id, d.market_id, d.decision, d.confidence, d.evidence, d.created_at
+        FROM phantom_x_decisions d
+        WHERE d.decision IN ('PAPER_ENTRY_CANDIDATE','WATCH')
+          AND d.created_at < NOW() - INTERVAL '20 minutes'
+        ORDER BY d.created_at DESC
+        LIMIT 250
+      `);
+
+      let feedback = 0;
+
+      for (const d of decisions) {
+        const entrySnap = await client.query(`
+          SELECT price
+          FROM phantom_x_market_snapshots
+          WHERE market_id = $1 AND created_at >= $2
+          ORDER BY created_at ASC
+          LIMIT 1
+        `, [d.market_id, d.created_at]);
+
+        const futureSnap = await client.query(`
+          SELECT price
+          FROM phantom_x_market_snapshots
+          WHERE market_id = $1 AND created_at > $2 + INTERVAL '20 minutes'
+          ORDER BY created_at ASC
+          LIMIT 1
+        `, [d.market_id, d.created_at]);
+
+        if (!entrySnap.rows.length || !futureSnap.rows.length) continue;
+
+        const entry = n(entrySnap.rows[0].price);
+        const future = n(futureSnap.rows[0].price);
+        const delta = future - entry;
+        const success = d.decision === "PAPER_ENTRY_CANDIDATE" ? delta > 0.01 : delta >= -0.03;
+
+        const exists = await client.query(`
+          SELECT id FROM phantom_x_feedback_events
+          WHERE decision_id = $1
+          LIMIT 1
+        `, [d.id]);
+
+        if (exists.rows.length) continue;
+
+        await client.query(`
+          INSERT INTO phantom_x_feedback_events
+            (market_id, decision_id, decision, entry_price, future_price, price_delta, success, horizon_minutes, score, confidence, metadata)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,20,$8,$9,$10)
+        `, [
+          d.market_id,
+          d.id,
+          d.decision,
+          entry,
+          future,
+          delta,
+          success,
+          n(d.evidence?.score),
+          n(d.confidence),
+          JSON.stringify({ model: "phantomx-superbrain-v1" }),
+        ]);
+
+        feedback++;
+      }
+
+      const stats = await client.query(`
+        SELECT
+          COUNT(*)::int AS sample_size,
+          AVG(CASE WHEN success THEN 1 ELSE 0 END)::numeric AS win_rate,
+          AVG(price_delta)::numeric AS avg_return,
+          AVG(CASE WHEN success = false AND decision = 'PAPER_ENTRY_CANDIDATE' THEN 1 ELSE 0 END)::numeric AS false_positive_rate
+        FROM phantom_x_feedback_events
+        WHERE created_at > NOW() - INTERVAL '14 days'
+      `);
+
+      const row = stats.rows[0] || {};
+      const winRate = n(row.win_rate);
+      const avgReturn = n(row.avg_return);
+      const fpRate = n(row.false_positive_rate);
+      const sampleSize = Number(row.sample_size || 0);
+
+      let entryThreshold = 72;
+      let watchThreshold = 52;
+      let riskLimit = 55;
+
+      if (sampleSize >= 20) {
+        if (winRate >= 0.62 && avgReturn > 0) {
+          entryThreshold = 68;
+          watchThreshold = 49;
+          riskLimit = 58;
+        } else if (winRate < 0.48 || fpRate > 0.35) {
+          entryThreshold = 78;
+          watchThreshold = 58;
+          riskLimit = 48;
+        }
+      }
+
+      await client.query(`
+        UPDATE phantom_x_model_state
+        SET win_rate = $1,
+            avg_return = $2,
+            false_positive_rate = $3,
+            sample_size = $4,
+            entry_threshold = $5,
+            watch_threshold = $6,
+            risk_limit = $7,
+            updated_at = NOW()
+        WHERE model_name = 'phantomx-superbrain-v1'
+      `, [winRate, avgReturn, fpRate, sampleSize, entryThreshold, watchThreshold, riskLimit]);
+
+      await client.query(`
+        UPDATE phantom_x_paper_positions p
+        SET current_price = m.price,
+            pnl = (m.price - p.entry_price) * p.quantity,
+            updated_at = NOW()
+        FROM phantom_x_markets m
+        WHERE p.market_id = m.id AND p.status = 'open'
+      `);
+
+      await client.end();
+
+      res.json({
+        ok: true,
+        mode: "paper",
+        feedback,
+        sampleSize,
+        winRate,
+        avgReturn,
+        falsePositiveRate: fpRate,
+        thresholds: { entryThreshold, watchThreshold, riskLimit }
+      });
+    } catch (err: any) {
+      res.status(500).json({ ok: false, error: err?.message || "Feedback failed" });
+    }
+  });
+
+  app.get("/api/admin/phantomx/report-card", async (_req: any, res: any) => {
+    try {
+      const { Client } = await import("pg");
+      const client = new Client({ connectionString: process.env.DATABASE_URL } as any);
+      await client.connect();
+
+      const state = await client.query(`
+        SELECT * FROM phantom_x_model_state
+        WHERE model_name = 'phantomx-superbrain-v1'
+        LIMIT 1
+      `);
+
+      const positions = await client.query(`
+        SELECT *
+        FROM phantom_x_paper_positions
+        ORDER BY created_at DESC
+        LIMIT 30
+      `);
+
+      const feedback = await client.query(`
+        SELECT decision, COUNT(*)::int AS total,
+          AVG(CASE WHEN success THEN 1 ELSE 0 END)::numeric AS win_rate,
+          AVG(price_delta)::numeric AS avg_delta
+        FROM phantom_x_feedback_events
+        GROUP BY decision
+        ORDER BY total DESC
+      `);
+
+      await client.end();
+
+      res.json({
+        ok: true,
+        mode: "paper",
+        model: state.rows[0] || null,
+        feedback: feedback.rows,
+        paperPositions: positions.rows,
+      });
+    } catch (err: any) {
+      res.status(500).json({ ok: false, error: err?.message || "Report card failed" });
+    }
+  });
+
+
   return httpServer;
 }
