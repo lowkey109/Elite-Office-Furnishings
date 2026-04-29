@@ -13088,5 +13088,149 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
   });
 
 
+  
+
+  // TCD_PHANTOMX_LEARNING_ENGINE_ROUTES_V1
+  app.post("/api/admin/phantomx/learn", async (_req: any, res: any) => {
+    try {
+      const { runPhantomXLearningCycle } = await import("./services/trading/phantomXLearningEngine");
+      const result = await runPhantomXLearningCycle();
+      return res.json(result);
+    } catch (err: any) {
+      return res.status(500).json({
+        ok: false,
+        error: err?.message || "Phantom X learning cycle failed",
+      });
+    }
+  });
+
+  app.get("/api/admin/phantomx/learning", async (_req: any, res: any) => {
+    try {
+      const { getPhantomXLearningSnapshot } = await import("./services/trading/phantomXLearningEngine");
+      const result = await getPhantomXLearningSnapshot();
+      return res.json(result);
+    } catch (err: any) {
+      return res.status(500).json({
+        ok: false,
+        error: err?.message || "Phantom X learning snapshot failed",
+      });
+    }
+  });
+
+
+  
+
+  // TCD_PHANTOMX_LEARNING_ENGINE_V1
+  app.post("/api/admin/phantomx/learn", async (_req: any, res: any) => {
+    try {
+      const { Client } = await import("pg");
+      const client = new Client({ connectionString: process.env.DATABASE_URL } as any);
+      await client.connect();
+
+      const { rows: markets } = await client.query(`
+        SELECT id, question, price, yes_price, liquidity, volume, updated_at
+        FROM phantom_x_markets
+        WHERE active = true AND closed = false
+        ORDER BY updated_at DESC
+        LIMIT 250
+      `);
+
+      let learned = 0;
+
+      const n = (v: any) => Number.isFinite(Number(v)) ? Number(v) : 0;
+      const clamp = (v: number, min = 0, max = 100) => Math.max(min, Math.min(max, v));
+
+      for (const m of markets) {
+        const price = n(m.price || m.yes_price);
+        const volume = n(m.volume);
+        const liquidity = n(m.liquidity);
+
+        const volumeScore = clamp(Math.log10(volume + 10) * 18);
+        const liquidityScore = clamp(Math.log10(liquidity + 10) * 18);
+        const priceScore = price > 0.08 && price < 0.92 ? 18 : price > 0.03 && price < 0.97 ? 8 : 2;
+
+        const { rows: snaps } = await client.query(`
+          SELECT price, volume, liquidity, created_at
+          FROM phantom_x_market_snapshots
+          WHERE market_id = $1
+          ORDER BY created_at DESC
+          LIMIT 8
+        `, [m.id]);
+
+        let momentumScore = 0;
+        if (snaps.length >= 2) {
+          const newest = n(snaps[0].volume) + n(snaps[0].liquidity);
+          const oldest = n(snaps[snaps.length - 1].volume) + n(snaps[snaps.length - 1].liquidity);
+          momentumScore = clamp(((newest - oldest) / Math.max(1, oldest)) * 35 + 12);
+        }
+
+        const risk =
+          price <= 0.02 || price >= 0.98 ? 85 :
+          liquidity < 500 ? 70 :
+          volume < 1000 ? 55 :
+          25;
+
+        const edge = clamp(volumeScore * .28 + liquidityScore * .28 + priceScore * .24 + momentumScore * .20 - risk * .18);
+        const score = clamp(edge + volumeScore * .25 + liquidityScore * .25);
+        const confidence = clamp(score / 100, 0, .95);
+
+        const decision =
+          score >= 72 && risk < 55 ? "PAPER_ENTRY_CANDIDATE" :
+          score >= 52 ? "WATCH" :
+          "IGNORE";
+
+        const reason =
+          `score=${score.toFixed(1)}, edge=${edge.toFixed(1)}, risk=${risk.toFixed(1)}, volume=${volume}, liquidity=${liquidity}, price=${price}`;
+
+        await client.query(`
+          INSERT INTO phantom_x_learning_scores
+            (market_id, score, confidence, edge, risk, liquidity_score, volume_score, price_score, momentum_score, decision, reason, metadata)
+          VALUES
+            ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+        `, [
+          m.id,
+          score,
+          confidence,
+          edge,
+          risk,
+          liquidityScore,
+          volumeScore,
+          priceScore,
+          momentumScore,
+          decision,
+          reason,
+          JSON.stringify({ model: "phantomx-fast-paper-v1" }),
+        ]);
+
+        await client.query(`
+          INSERT INTO phantom_x_decisions
+            (market_id, decision, reason, confidence, evidence)
+          VALUES ($1,$2,$3,$4,$5)
+        `, [
+          m.id,
+          decision,
+          reason,
+          confidence,
+          JSON.stringify({ score, edge, risk, volumeScore, liquidityScore, priceScore, momentumScore }),
+        ]);
+
+        learned++;
+      }
+
+      await client.end();
+
+      res.json({
+        ok: true,
+        mode: "paper",
+        learned,
+        model: "phantomx-fast-paper-v1",
+        note: "No live trades executed. Decisions are paper-only."
+      });
+    } catch (err: any) {
+      res.status(500).json({ ok: false, error: err?.message || "Learning failed" });
+    }
+  });
+
+
   return httpServer;
 }
