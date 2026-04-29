@@ -81,6 +81,7 @@ const AdminNexoraCommandCentre = lazy(() => import("@/pages/AdminNexoraCommandCe
 const AdminNexoraAdvanced = lazy(() => import("@/pages/AdminNexoraAdvanced"));
 const AdminNexoraMonitor = lazy(() => import("@/pages/AdminNexoraMonitor"));
 const AdminTradingMonitor = lazy(() => import("@/pages/AdminTradingMonitor"));
+const AdminPhantomXIntelligence = lazy(() => import("@/pages/AdminPhantomXIntelligence"));
 const AdminPredictionMarkets = lazy(() => import("@/pages/AdminPredictionMarkets"));
 const AdminPropertyIntelligence = lazy(() => import("@/pages/AdminPropertyIntelligence"));
 const PropertyIntelligence = lazy(() => import("@/pages/PropertyIntelligence"));
@@ -225,6 +226,7 @@ function AdminRoutes() {
         <Route path="/admin/nexora" component={AdminNexoraCommandCentre} />
         <Route path="/admin/ai-monitor" component={AdminNexoraMonitor} />
         <Route path="/admin/trading-monitor" component={AdminTradingMonitor} />
+        <Route path="/admin/phantomx-intelligence" component={AdminPhantomXIntelligence} />
         <Route path="/admin/phantomx-compliance" component={AdminPhantomXCompliance} />
         <Route path="/admin/dev-studio" component={AdminDevStudio} />
         <Route path="/admin/prediction-markets" component={AdminPredictionMarkets} />

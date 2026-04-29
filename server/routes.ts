@@ -12800,5 +12800,293 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
     }
   });
 
+  
+
+  // TCD_PHANTOMX_POLYMARKET_TERMINAL_API_V1
+  app.get("/api/admin/phantomx/intelligence", async (_req: any, res: any) => {
+    const empty = {
+      ok: true,
+      mode: "paper",
+      generatedAt: new Date().toISOString(),
+      markets: [],
+      wallets: [],
+      opportunities: [],
+      paperTrades: [],
+      decisions: [],
+      stats: {
+        markets: 0,
+        wallets: 0,
+        opportunities: 0,
+        paperTrades: 0,
+        totalVolume: 0,
+        totalLiquidity: 0,
+        avgConfidence: 0,
+      },
+      errors: [] as string[],
+    };
+
+    try {
+      const { Client } = await import("pg");
+
+      const connectionString =
+        process.env.DATABASE_URL ||
+        (process.env.PGHOST && process.env.PGDATABASE && process.env.PGUSER
+          ? `postgresql://${process.env.PGUSER}:${process.env.PGPASSWORD || ""}@${process.env.PGHOST}:${process.env.PGPORT || "5432"}/${process.env.PGDATABASE}`
+          : "");
+
+      if (!connectionString) {
+        return res.json({ ...empty, errors: ["No database connection configured"] });
+      }
+
+      const client = new Client({
+        connectionString,
+        ssl: connectionString.includes("railway") || connectionString.includes("rlwy")
+          ? { rejectUnauthorized: false }
+          : undefined,
+      } as any);
+
+      await client.connect();
+
+      async function hasTable(table: string) {
+        const r = await client.query("SELECT to_regclass($1) AS exists", [`public.${table}`]);
+        return Boolean(r.rows[0]?.exists);
+      }
+
+      async function safe(table: string, sql: string) {
+        try {
+          if (!(await hasTable(table))) return [];
+          const r = await client.query(sql);
+          return r.rows;
+        } catch (err: any) {
+          empty.errors.push(`${table}: ${err.message}`);
+          return [];
+        }
+      }
+
+      const markets = await safe("phantom_x_markets", `
+        SELECT id, question, slug, category, price, yes_price, no_price, liquidity, volume, source_url, updated_at
+        FROM phantom_x_markets
+        ORDER BY COALESCE(volume,0) DESC, COALESCE(liquidity,0) DESC, updated_at DESC
+        LIMIT 24
+      `);
+
+      const wallets = await safe("phantom_x_wallets", `
+        SELECT address, label, source, score, pnl, win_rate, volume, risk_score, last_seen_at
+        FROM phantom_x_wallets
+        ORDER BY COALESCE(score,0) DESC, COALESCE(pnl,0) DESC
+        LIMIT 16
+      `);
+
+      const opportunities = await safe("phantom_x_opportunities", `
+        SELECT id, market_id, title, score, confidence, thesis, evidence_summary, status, created_at
+        FROM phantom_x_opportunities
+        ORDER BY COALESCE(score,0) DESC, created_at DESC
+        LIMIT 16
+      `);
+
+      const paperTrades = await safe("phantom_x_paper_trades", `
+        SELECT id, market_id, market_title, side, entry_price, current_price, pnl, status, created_at
+        FROM phantom_x_paper_trades
+        ORDER BY created_at DESC
+        LIMIT 16
+      `);
+
+      const decisions = await safe("phantom_x_decisions", `
+        SELECT id, market_id, decision, reason, confidence, created_at
+        FROM phantom_x_decisions
+        ORDER BY created_at DESC
+        LIMIT 20
+      `);
+
+      await client.end();
+
+      const totalVolume = markets.reduce((a: number, m: any) => a + Number(m.volume || 0), 0);
+      const totalLiquidity = markets.reduce((a: number, m: any) => a + Number(m.liquidity || 0), 0);
+      const confidenceValues = [
+        ...opportunities.map((o: any) => Number(o.confidence || 0)),
+        ...decisions.map((d: any) => Number(d.confidence || 0)),
+      ].filter((n: number) => Number.isFinite(n) && n > 0);
+
+      return res.json({
+        ok: true,
+        mode: "paper",
+        generatedAt: new Date().toISOString(),
+        markets,
+        wallets,
+        opportunities,
+        paperTrades,
+        decisions,
+        stats: {
+          markets: markets.length,
+          wallets: wallets.length,
+          opportunities: opportunities.length,
+          paperTrades: paperTrades.length,
+          totalVolume,
+          totalLiquidity,
+          avgConfidence: confidenceValues.length
+            ? confidenceValues.reduce((a: number, b: number) => a + b, 0) / confidenceValues.length
+            : 0,
+        },
+        errors: empty.errors,
+      });
+    } catch (err: any) {
+      return res.status(200).json({
+        ...empty,
+        errors: [err?.message || "Unknown Phantom X error"],
+      });
+    }
+  });
+
+  app.post("/api/admin/phantomx/scan-polymarket", async (_req: any, res: any) => {
+    try {
+      const { Client } = await import("pg");
+
+      const connectionString =
+        process.env.DATABASE_URL ||
+        (process.env.PGHOST && process.env.PGDATABASE && process.env.PGUSER
+          ? `postgresql://${process.env.PGUSER}:${process.env.PGPASSWORD || ""}@${process.env.PGHOST}:${process.env.PGPORT || "5432"}/${process.env.PGDATABASE}`
+          : "");
+
+      if (!connectionString) return res.status(500).json({ ok: false, error: "No database connection configured" });
+
+      const response = await fetch("https://gamma-api.polymarket.com/events?active=true&closed=false&limit=80", {
+        headers: { accept: "application/json" },
+      });
+
+      if (!response.ok) {
+        return res.status(502).json({ ok: false, error: `Polymarket Gamma API HTTP ${response.status}` });
+      }
+
+      const events = await response.json();
+
+      const client = new Client({
+        connectionString,
+        ssl: connectionString.includes("railway") || connectionString.includes("rlwy")
+          ? { rejectUnauthorized: false }
+          : undefined,
+      } as any);
+
+      await client.connect();
+
+      const toNum = (v: any) => {
+        const n = Number(v);
+        return Number.isFinite(n) ? n : 0;
+      };
+
+      const pickPrice = (m: any) => {
+        const raw = m?.lastTradePrice ?? m?.bestAsk ?? m?.bestBid;
+        const n = Number(raw);
+        return Number.isFinite(n) && n >= 0 && n <= 1 ? n : 0;
+      };
+
+      let count = 0;
+      let opportunities = 0;
+
+      for (const event of Array.isArray(events) ? events : []) {
+        const markets = Array.isArray(event.markets) && event.markets.length ? event.markets : [event];
+
+        for (const market of markets) {
+          const id = String(market.id || market.conditionId || event.id || event.slug || crypto.randomUUID());
+          const question = String(market.question || market.title || event.title || event.question || "Untitled market");
+          const slug = String(market.slug || event.slug || "");
+          const price = pickPrice(market);
+          const liquidity = toNum(market.liquidity || event.liquidity);
+          const volume = toNum(market.volume || event.volume);
+          const sourceUrl = slug ? `https://polymarket.com/event/${slug}` : "https://polymarket.com";
+
+          await client.query(`
+            INSERT INTO phantom_x_markets
+              (id, question, slug, category, price, yes_price, no_price, liquidity, volume, active, closed, source_url, metadata, updated_at)
+            VALUES
+              ($1,$2,$3,$4,$5,$5,CASE WHEN $5 > 0 THEN 1 - $5 ELSE 0 END,$6,$7,true,false,$8,$9,NOW())
+            ON CONFLICT (id) DO UPDATE SET
+              question = EXCLUDED.question,
+              slug = EXCLUDED.slug,
+              category = EXCLUDED.category,
+              price = EXCLUDED.price,
+              yes_price = EXCLUDED.yes_price,
+              no_price = EXCLUDED.no_price,
+              liquidity = EXCLUDED.liquidity,
+              volume = EXCLUDED.volume,
+              source_url = EXCLUDED.source_url,
+              metadata = EXCLUDED.metadata,
+              updated_at = NOW()
+          `, [
+            id,
+            question,
+            slug,
+            market.category || event.slug || "Polymarket",
+            price,
+            liquidity,
+            volume,
+            sourceUrl,
+            JSON.stringify({ eventId: event.id, marketId: market.id, source: "gamma-api.polymarket.com" }),
+          ]);
+
+          await client.query(`
+            INSERT INTO phantom_x_market_snapshots
+              (market_id, price, liquidity, volume, metadata)
+            VALUES ($1,$2,$3,$4,$5)
+          `, [id, price, liquidity, volume, JSON.stringify({ source: "gamma-api.polymarket.com" })]);
+
+          const score = Math.min(
+            100,
+            Math.round(
+              Math.log10(volume + 10) * 18 +
+              Math.log10(liquidity + 10) * 14 +
+              (price > 0.08 && price < 0.92 ? 12 : 0)
+            )
+          );
+
+          if (score >= 45) {
+            await client.query(`
+              INSERT INTO phantom_x_opportunities
+                (market_id, title, score, confidence, thesis, evidence_summary, status, metadata, updated_at)
+              VALUES
+                ($1,$2,$3,$4,$5,$6,'watch',$7,NOW())
+            `, [
+              id,
+              question,
+              score,
+              Math.min(0.95, score / 100),
+              "High-volume Polymarket watch candidate. Requires wallet-flow, order-book, and news confirmation before any paper entry.",
+              `Volume=${volume}; Liquidity=${liquidity}; Price=${price}; Source=${sourceUrl}`,
+              JSON.stringify({ sourceUrl, price, volume, liquidity }),
+            ]);
+
+            await client.query(`
+              INSERT INTO phantom_x_decisions
+                (market_id, decision, reason, confidence, evidence)
+              VALUES
+                ($1,'WATCH',$2,$3,$4)
+            `, [
+              id,
+              `Market scored ${score}/100 from public Gamma data. No live-money action. Await wallet-flow confirmation.`,
+              Math.min(0.95, score / 100),
+              JSON.stringify({ sourceUrl, price, volume, liquidity, score }),
+            ]);
+
+            opportunities++;
+          }
+
+          count++;
+        }
+      }
+
+      await client.end();
+
+      return res.json({
+        ok: true,
+        scanned: count,
+        opportunities,
+        source: "gamma-api.polymarket.com",
+        scannedAt: new Date().toISOString(),
+      });
+    } catch (err: any) {
+      return res.status(500).json({ ok: false, error: err?.message || "Scan failed" });
+    }
+  });
+
+
   return httpServer;
 }
