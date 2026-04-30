@@ -36,13 +36,22 @@ function realPct(value: unknown, fallback = "WAITING") {
 
 function tone(state?: string) {
   const s = String(state || "").toLowerCase();
-  if (s === "online" || s === "running") return { text: "text-emerald-300", label: "LIVE", dot: "bg-emerald-300" };
-  if (s === "idle" || s === "blocked" || s === "paper_only") return { text: "text-amber-300", label: s === "idle" ? "IDLE" : "SAFE", dot: "bg-amber-300" };
-  return { text: "text-red-300", label: "FAULT", dot: "bg-red-300" };
+  if (s === "online" || s === "running") return { text: "text-emerald-300", dot: "bg-emerald-300", label: "LIVE" };
+  if (s === "idle" || s === "blocked" || s === "paper_only") return { text: "text-amber-300", dot: "bg-amber-300", label: s === "idle" ? "IDLE" : "SAFE" };
+  return { text: "text-red-300", dot: "bg-red-300", label: "FAULT" };
 }
 
-function EcgTrace({ monitor }: { monitor?: Monitor }) {
-  const state = String(monitor?.state || "");
+function stateScore(monitor: Monitor) {
+  const s = String(monitor.state || "").toLowerCase();
+  if (s === "online" || s === "running") return 88;
+  if (s === "idle") return 44;
+  if (s === "blocked" || s === "paper_only") return 34;
+  if (s === "offline" || s === "timeout" || s === "fault" || s === "stalled") return 12;
+  return 24;
+}
+
+function EcgTrace({ monitor, compact = false }: { monitor?: Monitor; compact?: boolean }) {
+  const state = String(monitor?.state || "").toLowerCase();
   const isMarket = monitor?.kind === "market";
   const live = monitor?.moving === true && (state === "online" || state === "running");
   const safe = state === "idle" || state === "blocked" || state === "paper_only";
@@ -50,23 +59,29 @@ function EcgTrace({ monitor }: { monitor?: Monitor }) {
 
   if (isMarket) {
     return (
-      <div className="ecg-bars">
-        {Array.from({ length: 18 }).map((_, i) => (
-          <span key={i} style={{ height: `${20 + ((i * 17) % 68)}%`, animationDelay: `${(i % 7) * 0.14}s` }} />
+      <div className={compact ? "ecg-bars compact" : "ecg-bars"}>
+        {Array.from({ length: compact ? 14 : 18 }).map((_, i) => (
+          <span key={i} style={{ height: `${Math.max(14, stateScore(monitor || {}) - ((i * 9) % 38))}%`, animationDelay: `${(i % 7) * 0.13}s` }} />
         ))}
       </div>
     );
   }
 
   return (
-    <svg className="ecg-line" viewBox="0 0 260 34" preserveAspectRatio="none">
-      <line x1="0" y1="18" x2="260" y2="18" className={fault ? "flat fault" : safe ? "flat safe" : "flat"} />
-      {live ? (
-        <path className="beat live" d="M0 18 H42 L50 9 L58 27 L67 3 L77 31 L88 18 H132 L142 18 L151 10 L160 25 L171 18 H260" />
-      ) : safe ? (
-        <path className="beat safe" d="M0 18 H112 L118 16 L124 20 L130 18 H260" />
-      ) : null}
-    </svg>
+    <div className={compact ? "ecg-window compact" : "ecg-window"}>
+      <svg className="ecg-track" viewBox="0 0 520 34" preserveAspectRatio="none">
+        <line x1="0" y1="18" x2="520" y2="18" className={fault ? "flat fault" : safe ? "flat safe" : "flat"} />
+        {live ? (
+          <g className="beat-scroll live">
+            <path d="M0 18 H42 L50 9 L58 27 L67 3 L77 31 L88 18 H132 L142 18 L151 10 L160 25 L171 18 H260 H302 L310 9 L318 27 L327 3 L337 31 L348 18 H392 L402 18 L411 10 L420 25 L431 18 H520" />
+          </g>
+        ) : safe ? (
+          <g className="beat-scroll safe">
+            <path d="M0 18 H112 L118 16 L124 20 L130 18 H260 H372 L378 16 L384 20 L390 18 H520" />
+          </g>
+        ) : null}
+      </svg>
+    </div>
   );
 }
 
@@ -88,29 +103,26 @@ export default function PolyEdgeReferenceOnePage() {
     let active = true;
 
     async function load() {
-      try {
-        const [monitorRes, replayRes] = await Promise.allSettled([
-          fetch("/api/polyedge/action-monitor").then((r) => r.json()),
-          fetch("/api/polyedge/replay/status").then((r) => r.json()),
-        ]);
+      const requests = await Promise.allSettled([
+        fetch("/api/polyedge/action-monitor").then((r) => r.json()),
+        fetch("/api/polyedge/replay/status").then((r) => r.json()),
+      ]);
 
-        if (!active) return;
+      if (!active) return;
 
-        if (monitorRes.status === "fulfilled") setActionMonitor(monitorRes.value);
-        if (replayRes.status === "fulfilled") setReplayStatus(replayRes.value);
+      if (requests[0].status === "fulfilled") setActionMonitor(requests[0].value);
+      if (requests[1].status === "fulfilled") setReplayStatus(requests[1].value);
 
-        if (monitorRes.status === "rejected" && replayRes.status === "rejected") {
-          setApiError("PolyEdge API unavailable");
-        } else {
-          setApiError("");
-        }
-      } catch (err: any) {
-        if (active) setApiError(err?.message || "PolyEdge API unavailable");
+      if (requests[0].status === "rejected" && requests[1].status === "rejected") {
+        setApiError("PolyEdge API unavailable");
+      } else {
+        setApiError("");
       }
     }
 
-    load();
-    const timer = window.setInterval(load, 5000);
+    load().catch((err: any) => active && setApiError(err?.message || "PolyEdge API unavailable"));
+    const timer = window.setInterval(() => load().catch(() => undefined), 5000);
+
     return () => {
       active = false;
       window.clearInterval(timer);
@@ -124,9 +136,13 @@ export default function PolyEdgeReferenceOnePage() {
   const safe = monitors.filter((m) => ["idle", "blocked", "paper_only"].includes(String(m.state))).length;
   const fault = monitors.filter((m) => ["offline", "timeout", "stalled", "fault"].includes(String(m.state))).length;
 
-  const marketRows = monitors.filter((m) => m.kind === "market").slice(0, 4);
+  const leftRailRows = monitors.slice(0, 14);
   const moduleRows = monitors.filter((m) => m.kind !== "market").slice(0, 12);
-  const allRows = monitors.slice(0, 12);
+  const marketRows = monitors.filter((m) => m.kind === "market").slice(0, 4);
+  const actionRows = monitors.slice(0, 12);
+
+  const totalPnl = Number(metrics?.totalPnl);
+  const hasRealEquity = Number.isFinite(totalPnl);
 
   const pnl = realMoney(metrics?.totalPnl);
   const winRate = realPct(metrics?.winRate);
@@ -136,8 +152,12 @@ export default function PolyEdgeReferenceOnePage() {
   const qualified = realValue(metrics?.qualifiedProfitablePaperTrades || 0);
   const required = realValue(metrics?.requiredProfitablePaperTrades || 500);
   const timestamp = realValue(actionMonitor?.generatedAt || replayStatus?.generatedAt || replayStatus?.lastRunAt);
-
   const onlinePct = monitors.length ? Math.round((live / monitors.length) * 100) : 0;
+
+  const statusBars = useMemo(() => {
+    const rows = monitors.length ? monitors.slice(0, 22) : [];
+    return rows.map((m, i) => Math.max(10, stateScore(m) - ((i * 7) % 24)));
+  }, [monitors]);
 
   return (
     <div className="poly-ref-root">
@@ -158,11 +178,11 @@ export default function PolyEdgeReferenceOnePage() {
           overflow: hidden;
           color: white;
           background:
-            radial-gradient(circle at 15% 8%, rgba(34,211,238,.16), transparent 30%),
+            radial-gradient(circle at 14% 8%, rgba(34,211,238,.16), transparent 30%),
             radial-gradient(circle at 78% 18%, rgba(168,85,247,.14), transparent 36%),
-            radial-gradient(circle at 52% 94%, rgba(249,115,22,.10), transparent 36%),
+            radial-gradient(circle at 50% 96%, rgba(249,115,22,.10), transparent 34%),
             #02040a;
-          font-size: clamp(8px, .64vw, 11px);
+          font-size: clamp(8px, .61vw, 10.5px);
         }
 
         .poly-ref-root * { box-sizing: border-box; }
@@ -174,33 +194,33 @@ export default function PolyEdgeReferenceOnePage() {
           background-image:
             linear-gradient(rgba(34,211,238,.08) 1px, transparent 1px),
             linear-gradient(90deg, rgba(34,211,238,.06) 1px, transparent 1px);
-          background-size: 24px 24px;
+          background-size: 22px 22px;
         }
 
         .shell {
           position: relative;
           z-index: 1;
           display: grid;
-          grid-template-columns: 230px 1fr;
-          gap: 5px;
+          grid-template-columns: 190px 1fr;
+          gap: 4px;
           width: 100%;
           height: 100%;
-          padding: 5px;
+          padding: 4px;
           overflow: hidden;
         }
 
         .left {
           display: grid;
-          grid-template-rows: 64px 154px 1fr 92px;
-          gap: 5px;
+          grid-template-rows: 56px 126px 1fr 78px;
+          gap: 4px;
           min-height: 0;
         }
 
         .main {
           display: grid;
           grid-template-columns: repeat(12, minmax(0, 1fr));
-          grid-template-rows: 42px 1.15fr .78fr .72fr .64fr 24px;
-          gap: 5px;
+          grid-template-rows: 38px 1.14fr .74fr .66fr .58fr 22px;
+          gap: 4px;
           min-height: 0;
           overflow: hidden;
         }
@@ -224,18 +244,18 @@ export default function PolyEdgeReferenceOnePage() {
           background-image:
             linear-gradient(rgba(34,211,238,.11) 1px, transparent 1px),
             linear-gradient(90deg, rgba(34,211,238,.07) 1px, transparent 1px);
-          background-size: 16px 16px;
+          background-size: 15px 15px;
         }
 
         .panel-title {
           position: relative;
           z-index: 1;
-          height: 20px;
-          padding: 6px 8px 0;
-          font-size: .62rem;
+          height: 18px;
+          padding: 5px 7px 0;
+          font-size: .58rem;
           line-height: 1;
           font-weight: 900;
-          letter-spacing: .18em;
+          letter-spacing: .17em;
           text-transform: uppercase;
           color: rgb(190,255,255);
           text-shadow: 0 0 10px rgba(34,211,238,.55);
@@ -247,9 +267,9 @@ export default function PolyEdgeReferenceOnePage() {
         .panel-body {
           position: relative;
           z-index: 1;
-          height: calc(100% - 20px);
+          height: calc(100% - 18px);
           min-height: 0;
-          padding: 5px;
+          padding: 4px;
           overflow: hidden;
         }
 
@@ -257,14 +277,14 @@ export default function PolyEdgeReferenceOnePage() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          height: 17px;
-          padding: 0 6px;
+          height: 15px;
+          padding: 0 5px;
           border: 1px solid rgba(34,211,238,.12);
           background: rgba(0,0,0,.34);
           color: rgba(190,255,255,.72);
-          font-size: 7px;
+          font-size: 6.5px;
           font-weight: 900;
-          letter-spacing: .14em;
+          letter-spacing: .13em;
           text-transform: uppercase;
         }
 
@@ -277,19 +297,29 @@ export default function PolyEdgeReferenceOnePage() {
         }
 
         .ecg-card {
-          min-height: 35px;
+          min-height: 31px;
           padding: 3px 4px;
           border: 1px solid rgba(34,211,238,.18);
           background: rgba(0,0,0,.60);
           overflow: hidden;
         }
 
-        .ecg-line {
-          display: block;
+        .ecg-window {
           width: 100%;
           height: 13px;
           margin-top: 1px;
           overflow: hidden;
+          background: rgba(0,0,0,.32);
+        }
+
+        .ecg-window.compact {
+          height: 11px;
+        }
+
+        .ecg-track {
+          display: block;
+          width: 100%;
+          height: 100%;
         }
 
         .flat {
@@ -305,36 +335,48 @@ export default function PolyEdgeReferenceOnePage() {
           stroke: rgba(255,209,102,.70);
         }
 
-        .beat.live {
+        .beat-scroll path {
           fill: none;
-          stroke: #21ff82;
           stroke-width: 3;
-          filter: drop-shadow(0 0 5px rgba(33,255,130,.75));
-          animation: ecg-pass 7.8s linear infinite;
-          stroke-dasharray: 260 260;
+          stroke-linecap: round;
+          stroke-linejoin: round;
         }
 
-        .beat.safe {
-          fill: none;
+        .beat-scroll.live path {
+          stroke: #21ff82;
+          filter: drop-shadow(0 0 5px rgba(33,255,130,.75));
+        }
+
+        .beat-scroll.safe path {
           stroke: #ffd166;
           stroke-width: 2;
           filter: drop-shadow(0 0 4px rgba(255,209,102,.55));
-          animation: ecg-pass 13.5s linear infinite;
-          stroke-dasharray: 260 260;
         }
 
-        @keyframes ecg-pass {
-          from { stroke-dashoffset: -260; }
-          to { stroke-dashoffset: 260; }
+        .beat-scroll {
+          animation: ecgMoveRightToLeft 8.8s linear infinite;
+        }
+
+        .beat-scroll.safe {
+          animation-duration: 15s;
+        }
+
+        @keyframes ecgMoveRightToLeft {
+          from { transform: translateX(0); }
+          to { transform: translateX(-260px); }
         }
 
         .ecg-bars {
           display: flex;
           align-items: end;
           gap: 2px;
-          height: 14px;
+          height: 13px;
           margin-top: 1px;
           overflow: hidden;
+        }
+
+        .ecg-bars.compact {
+          height: 11px;
         }
 
         .ecg-bars span {
@@ -353,8 +395,8 @@ export default function PolyEdgeReferenceOnePage() {
         .status {
           display: grid;
           grid-template-columns: repeat(6, minmax(0, 1fr));
-          gap: 4px;
-          padding: 4px;
+          gap: 3px;
+          padding: 3px;
         }
 
         .stat {
@@ -366,9 +408,9 @@ export default function PolyEdgeReferenceOnePage() {
         }
 
         .stat-k {
-          font-size: 7px;
+          font-size: 6.5px;
           font-weight: 900;
-          letter-spacing: .16em;
+          letter-spacing: .15em;
           text-transform: uppercase;
           color: rgba(190,255,255,.48);
           white-space: nowrap;
@@ -376,7 +418,7 @@ export default function PolyEdgeReferenceOnePage() {
 
         .stat-v {
           margin-top: 1px;
-          font-size: 9px;
+          font-size: 8.5px;
           font-weight: 900;
           text-transform: uppercase;
           white-space: nowrap;
@@ -387,24 +429,41 @@ export default function PolyEdgeReferenceOnePage() {
         .action-grid {
           display: grid;
           grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 4px;
+          gap: 3px;
           height: 100%;
           overflow: hidden;
         }
 
         .mini-monitor {
-          min-height: 42px;
+          min-height: 37px;
           border: 1px solid rgba(34,211,238,.18);
           background: rgba(0,0,0,.58);
-          padding: 4px;
+          padding: 3px;
           overflow: hidden;
         }
 
-        .bottom-grid {
-          display: grid;
-          grid-template-columns: repeat(5, minmax(0, 1fr));
+        .mini-row {
+          display: flex;
+          justify-content: space-between;
           gap: 5px;
-          height: 100%;
+          border-bottom: 1px solid rgba(34,211,238,.10);
+          padding-bottom: 3px;
+          margin-bottom: 3px;
+          font-size: 7.5px;
+        }
+
+        .mini-stat-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 3px;
+          font-size: 7.5px;
+        }
+
+        .mini-box {
+          border: 1px solid rgba(34,211,238,.13);
+          background: rgba(0,0,0,.35);
+          padding: 3px;
+          min-height: 24px;
         }
 
         @media (max-width: 900px) {
@@ -416,12 +475,12 @@ export default function PolyEdgeReferenceOnePage() {
             overflow: auto;
             font-size: 10px;
           }
-          .shell, .main, .left, .bottom-grid {
+          .shell, .main, .left {
             display: flex;
             flex-direction: column;
             height: auto;
           }
-          .panel { min-height: 130px; }
+          .panel { min-height: 120px; }
         }
       `}</style>
 
@@ -432,10 +491,10 @@ export default function PolyEdgeReferenceOnePage() {
           <section className="panel">
             <div className="panel-body h-full">
               <div className="flex h-full items-center gap-2">
-                <div className="grid h-9 w-9 place-items-center rounded-lg border border-cyan-300/40 bg-cyan-300/10 text-xs font-black text-cyan-200">P/E</div>
+                <div className="grid h-8 w-8 place-items-center rounded-lg border border-cyan-300/40 bg-cyan-300/10 text-[10px] font-black text-cyan-200">P/E</div>
                 <div className="min-w-0">
-                  <div className="truncate text-base font-black uppercase tracking-[0.16em] text-cyan-100">POLY//EDGE</div>
-                  <div className="truncate text-[8px] uppercase tracking-[0.24em] text-cyan-300/65">Aetherforge</div>
+                  <div className="truncate text-sm font-black uppercase tracking-[0.16em] text-cyan-100">POLY//EDGE</div>
+                  <div className="truncate text-[7px] uppercase tracking-[0.22em] text-cyan-300/65">Aetherforge</div>
                 </div>
               </div>
             </div>
@@ -454,15 +513,15 @@ export default function PolyEdgeReferenceOnePage() {
             <div className="panel-title">ECG Monitor Rail <span className="float-right text-emerald-300">{live}/{monitors.length}</span></div>
             <div className="panel-body">
               <div className="ecg-list">
-                {allRows.map((monitor) => {
+                {leftRailRows.map((monitor) => {
                   const t = tone(monitor.state);
                   return (
                     <div key={monitor.key || monitor.label} className="ecg-card">
                       <div className="flex items-center justify-between gap-2">
-                        <div className="truncate text-[8px] font-black uppercase tracking-[0.1em] text-white">{monitor.label || monitor.key}</div>
-                        <div className={`text-[7px] font-black uppercase ${t.text}`}>{monitor.state || "unknown"}</div>
+                        <div className="truncate text-[7.5px] font-black uppercase tracking-[0.1em] text-white">{monitor.label || monitor.key}</div>
+                        <div className={`text-[6.5px] font-black uppercase ${t.text}`}>{monitor.state || "unknown"}</div>
                       </div>
-                      <EcgTrace monitor={monitor} />
+                      <EcgTrace monitor={monitor} compact />
                     </div>
                   );
                 })}
@@ -473,9 +532,9 @@ export default function PolyEdgeReferenceOnePage() {
           <section className="panel">
             <div className="panel-body grid place-items-center text-center">
               <div>
-                <div className="mx-auto mb-1 h-12 w-12 rounded-full border border-cyan-300/35 bg-cyan-300/10 shadow-[0_0_36px_rgba(34,211,238,.28)]" />
-                <div className="text-base font-black text-cyan-200">99.999997%</div>
-                <div className="text-[7px] uppercase tracking-[0.22em] text-cyan-300/55">Neural Synapse</div>
+                <div className="mx-auto mb-1 h-10 w-10 rounded-full border border-cyan-300/35 bg-cyan-300/10 shadow-[0_0_30px_rgba(34,211,238,.28)]" />
+                <div className="text-sm font-black text-cyan-200">{live}/{monitors.length}</div>
+                <div className="text-[7px] uppercase tracking-[0.2em] text-cyan-300/55">Module Sync</div>
               </div>
             </div>
           </section>
@@ -499,20 +558,29 @@ export default function PolyEdgeReferenceOnePage() {
           </section>
 
           <Panel title="Hyperdimensional Equity Curve" className="col-span-6">
-            <svg viewBox="0 0 700 250" preserveAspectRatio="none" className="h-[78%] w-full">
-              <defs>
-                <linearGradient id="polyRefFill" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0%" stopColor="rgba(34,211,238,.34)" />
-                  <stop offset="100%" stopColor="rgba(34,211,238,0)" />
-                </linearGradient>
-              </defs>
-              {Array.from({ length: 6 }).map((_, i) => (
-                <line key={i} x1="0" x2="700" y1={30 + i * 36} y2={30 + i * 36} stroke="rgba(34,211,238,.12)" />
-              ))}
-              <path d="M0 215 L55 210 L110 198 L165 176 L220 188 L275 150 L330 160 L385 118 L440 92 L495 70 L550 82 L605 50 L660 60 L700 28 L700 250 L0 250 Z" fill="url(#polyRefFill)" />
-              <path d="M0 215 L55 210 L110 198 L165 176 L220 188 L275 150 L330 160 L385 118 L440 92 L495 70 L550 82 L605 50 L660 60 L700 28" fill="none" stroke="#67e8f9" strokeWidth="4" strokeDasharray="10 8" />
-              <path d="M0 226 L55 220 L110 212 L165 198 L220 202 L275 182 L330 187 L385 154 L440 137 L495 116 L550 124 L605 98 L660 106 L700 76" fill="none" stroke="#c026d3" strokeWidth="3" />
-            </svg>
+            {hasRealEquity ? (
+              <svg viewBox="0 0 700 250" preserveAspectRatio="none" className="h-[76%] w-full">
+                <defs>
+                  <linearGradient id="polyRefFill" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stopColor="rgba(34,211,238,.34)" />
+                    <stop offset="100%" stopColor="rgba(34,211,238,0)" />
+                  </linearGradient>
+                </defs>
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <line key={i} x1="0" x2="700" y1={30 + i * 36} y2={30 + i * 36} stroke="rgba(34,211,238,.12)" />
+                ))}
+                <path d="M0 210 L70 205 L140 192 L210 176 L280 166 L350 140 L420 122 L490 98 L560 78 L630 58 L700 38 L700 250 L0 250 Z" fill="url(#polyRefFill)" />
+                <path d="M0 210 L70 205 L140 192 L210 176 L280 166 L350 140 L420 122 L490 98 L560 78 L630 58 L700 38" fill="none" stroke="#67e8f9" strokeWidth="4" strokeDasharray="10 8" />
+                <path d="M0 225 L70 216 L140 208 L210 194 L280 184 L350 166 L420 150 L490 130 L560 112 L630 94 L700 78" fill="none" stroke="#c026d3" strokeWidth="3" />
+              </svg>
+            ) : (
+              <div className="grid h-[76%] place-items-center border border-cyan-300/12 bg-black/25 text-center">
+                <div>
+                  <div className="text-lg font-black text-cyan-200">WAITING</div>
+                  <div className="text-[8px] uppercase tracking-[0.22em] text-cyan-300/55">Real paper outcomes required</div>
+                </div>
+              </div>
+            )}
             <div className="grid grid-cols-5 gap-1 text-[8px]">
               {[["TRADES", trades], ["PNL", pnl], ["ACTIVE", live], ["WINS", `${qualified}/${required}`], ["FAULT", fault]].map(([k, v]: any) => (
                 <div key={k} className="border border-cyan-300/16 bg-black/40 p-1">
@@ -578,25 +646,30 @@ export default function PolyEdgeReferenceOnePage() {
             <div className="grid h-full place-items-center text-center">
               <div>
                 <div className="text-4xl text-cyan-300">◎</div>
-                <div className="text-[9px] font-black text-cyan-200">REAL DATA</div>
-                <div className="text-[8px] text-cyan-100/55">Parallel scenarios waiting</div>
+                <div className="text-[9px] font-black text-cyan-200">WAITING</div>
+                <div className="text-[8px] text-cyan-100/55">Real scenarios</div>
               </div>
             </div>
           </Panel>
 
           <Panel title="Hyper Liquidity Depth" className="col-span-4">
             <div className="flex h-full items-end gap-1 px-2 pb-1">
-              {Array.from({ length: 22 }).map((_, i) => (
-                <span key={i} className="w-full rounded-t bg-gradient-to-t from-orange-500 via-cyan-300 to-white shadow-[0_0_8px_rgba(34,211,238,.55)]" style={{ height: `${18 + ((i * 19) % 70)}%` }} />
+              {(statusBars.length ? statusBars : [10, 10, 10, 10, 10, 10, 10, 10]).map((h, i) => (
+                <span key={i} className="w-full rounded-t bg-gradient-to-t from-orange-500 via-cyan-300 to-white shadow-[0_0_8px_rgba(34,211,238,.55)]" style={{ height: `${h}%` }} />
               ))}
             </div>
           </Panel>
 
           <Panel title="Real-Time Smart Money Flow" className="col-span-3">
-            <div className="flex h-full items-end gap-1 px-2 pb-1">
-              {Array.from({ length: 24 }).map((_, i) => (
-                <span key={i} className="w-full rounded-t bg-gradient-to-t from-fuchsia-700 via-cyan-300 to-white shadow-[0_0_8px_rgba(34,211,238,.55)]" style={{ height: `${20 + ((i * 17) % 62)}%` }} />
-              ))}
+            <div className="space-y-1 text-[8px]">
+              {marketRows.length ? marketRows.map((m) => (
+                <div key={m.key || m.label}>
+                  <div className="mb-1 flex justify-between">
+                    <span>{m.label}</span><span className="text-emerald-300">{realValue(m.value || m.price)}</span>
+                  </div>
+                  <EcgTrace monitor={m} compact />
+                </div>
+              )) : <div className="grid h-full place-items-center text-cyan-300/60">WAITING FOR MARKET FEEDS</div>}
             </div>
           </Panel>
 
@@ -609,6 +682,14 @@ export default function PolyEdgeReferenceOnePage() {
             </div>
           </Panel>
 
+          <Panel title="System Alerts" className="col-span-3">
+            <div className="grid h-full grid-cols-3 gap-1 text-[8px]">
+              <div className="border border-red-400/40 p-2 text-red-300">FAULTS<br /><b>{fault}</b></div>
+              <div className="border border-amber-400/40 p-2 text-amber-300">SAFE<br /><b>{safe}</b></div>
+              <div className="border border-purple-400/40 p-2 text-purple-300">API<br /><b>{apiError ? "ERROR" : "OK"}</b></div>
+            </div>
+          </Panel>
+
           <Panel title="Risk Fortress Status" className="col-span-2">
             <div className="space-y-1 text-[8px]">
               <div className="flex justify-between"><span>Max DD</span><b className="text-emerald-300">{maxDd}</b></div>
@@ -618,12 +699,46 @@ export default function PolyEdgeReferenceOnePage() {
             </div>
           </Panel>
 
+          <Panel title="All PolyEdge Action Monitors" className="col-span-5">
+            <div className="action-grid">
+              {actionRows.map((monitor) => {
+                const t = tone(monitor.state);
+                return (
+                  <div key={monitor.key || monitor.label} className="mini-monitor">
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="truncate text-[7.5px] font-black uppercase text-white">{monitor.label || monitor.key}</div>
+                      <div className={`text-[6.5px] font-black uppercase ${t.text}`}>{monitor.state || "unknown"}</div>
+                    </div>
+                    <EcgTrace monitor={monitor} compact />
+                  </div>
+                );
+              })}
+            </div>
+          </Panel>
+
+          <Panel title="Replay Engine Monitor" className="col-span-2">
+            <div className="text-lg font-black text-amber-300">{realValue(replayStatus?.state || "IDLE")}</div>
+            <div className="mt-2 grid grid-cols-2 gap-1 text-[8px]">
+              <div className="mini-box">Wins<br /><b>{qualified}</b></div>
+              <div className="mini-box">Trades<br /><b>{trades}</b></div>
+            </div>
+          </Panel>
+
+          <Panel title="Neural Learning Core" className="col-span-2">
+            <div className="mini-stat-grid">
+              <div className="mini-box">Learning<br /><b>{realValue(metrics?.learningScore || 0)}</b></div>
+              <div className="mini-box">Samples<br /><b>{trades}</b></div>
+              <div className="mini-box">Threshold<br /><b>{required}</b></div>
+              <div className="mini-box">Live<br /><b>NO</b></div>
+            </div>
+          </Panel>
+
           <Panel title="Decision Stream // Live Log" className="col-span-3">
             <div className="space-y-1 text-[8px]">
-              {moduleRows.slice(0, 6).map((m) => {
+              {moduleRows.slice(0, 5).map((m) => {
                 const t = tone(m.state);
                 return (
-                  <div key={m.key || m.label} className="flex justify-between border-b border-cyan-300/10 pb-1">
+                  <div key={m.key || m.label} className="mini-row">
                     <span className="truncate">{m.label}</span>
                     <span className={`font-black uppercase ${t.text}`}>{m.state}</span>
                   </div>
@@ -632,36 +747,11 @@ export default function PolyEdgeReferenceOnePage() {
             </div>
           </Panel>
 
-          <Panel title="All PolyEdge Action Monitors" className="col-span-6">
-            <div className="action-grid">
-              {allRows.map((monitor) => {
-                const t = tone(monitor.state);
-                return (
-                  <div key={monitor.key || monitor.label} className="mini-monitor">
-                    <div className="flex items-center justify-between gap-1">
-                      <div className="truncate text-[8px] font-black uppercase text-white">{monitor.label || monitor.key}</div>
-                      <div className={`text-[7px] font-black uppercase ${t.text}`}>{monitor.state || "unknown"}</div>
-                    </div>
-                    <EcgTrace monitor={monitor} />
-                  </div>
-                );
-              })}
-            </div>
-          </Panel>
-
-          <Panel title="System Alerts" className="col-span-3">
-            <div className="grid h-full grid-cols-3 gap-1 text-[8px]">
-              <div className="border border-red-400/40 p-2 text-red-300">FAULTS<br /><b>{fault}</b></div>
-              <div className="border border-amber-400/40 p-2 text-amber-300">SAFE<br /><b>{safe}</b></div>
-              <div className="border border-purple-400/40 p-2 text-purple-300">REAL DATA<br /><b>{apiError ? "ERROR" : "ON"}</b></div>
-            </div>
-          </Panel>
-
           <section className="panel col-span-12 flex items-center justify-between px-3 text-[8px] uppercase tracking-[0.16em]">
             <span><b className="text-emerald-300">MAX DD:</b> {maxDd}</span>
             <span><b className="text-emerald-300">WIN RATE:</b> {winRate}</span>
             <span><b className="text-purple-300">PF:</b> {profitFactor}</span>
-            <span><b className="text-cyan-300">HEART:</b> REAL DATA</span>
+            <span><b className="text-cyan-300">HEART:</b> RIGHT-TO-LEFT ECG</span>
             <span><b className="text-amber-300">SAFE:</b> {safe}</span>
           </section>
         </main>
