@@ -1455,11 +1455,317 @@ export default function PolyEdgeReferenceOnePage() {
           border-radius: 999px;
         }
 
+        .mobile-cockpit {
+          display: none;
+        }
+
+        @media (max-width: 767px) {
+          .shell {
+            display: none !important;
+          }
+
+          .mobile-cockpit {
+            position: relative;
+            z-index: 2;
+            display: block;
+            min-height: 100vh;
+            padding: 10px;
+            color: #cffafe;
+          }
+
+          .mobile-top-card {
+            border: 1px solid rgba(34,211,238,.35);
+            background: rgba(2,8,23,.82);
+            box-shadow: inset 0 0 28px rgba(34,211,238,.08), 0 0 24px rgba(34,211,238,.08);
+            padding: 12px;
+            margin-bottom: 10px;
+          }
+
+          .mobile-brand-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+          }
+
+          .mobile-logo {
+            display: grid;
+            height: 38px;
+            width: 38px;
+            place-items: center;
+            border-radius: 10px;
+            border: 1px solid rgba(103,232,249,.45);
+            background: rgba(34,211,238,.12);
+            color: #a5f3fc;
+            font-size: 12px;
+            font-weight: 900;
+          }
+
+          .mobile-title {
+            font-size: 20px;
+            line-height: 1;
+            font-weight: 900;
+            letter-spacing: .18em;
+            color: #ecfeff;
+          }
+
+          .mobile-subtitle {
+            margin-top: 3px;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .22em;
+            color: rgba(103,232,249,.65);
+          }
+
+          .mobile-pill {
+            border: 1px solid rgba(52,211,153,.35);
+            background: rgba(16,185,129,.1);
+            color: #6ee7b7;
+            padding: 5px 8px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 900;
+            text-transform: uppercase;
+            white-space: nowrap;
+          }
+
+          .mobile-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 12px;
+          }
+
+          .mobile-metric {
+            border: 1px solid rgba(34,211,238,.22);
+            background: rgba(0,0,0,.35);
+            padding: 9px;
+            min-height: 58px;
+          }
+
+          .mobile-metric-label {
+            font-size: 9px;
+            color: rgba(207,250,254,.48);
+            text-transform: uppercase;
+            letter-spacing: .14em;
+          }
+
+          .mobile-metric-value {
+            margin-top: 4px;
+            font-size: 15px;
+            font-weight: 900;
+            color: #67e8f9;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .mobile-section {
+            border: 1px solid rgba(34,211,238,.28);
+            background: rgba(2,8,23,.78);
+            margin-top: 10px;
+            padding: 12px;
+          }
+
+          .mobile-section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 10px;
+            color: #e0f2fe;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+          }
+
+          .mobile-status-text {
+            color: #fbbf24;
+            font-size: 11px;
+            line-height: 1.35;
+          }
+
+          .mobile-actions {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+          }
+
+          .mobile-actions button {
+            border: 1px solid rgba(34,211,238,.25);
+            background: rgba(34,211,238,.08);
+            color: #cffafe;
+            padding: 9px 6px;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+          }
+
+          .mobile-list {
+            display: grid;
+            gap: 7px;
+          }
+
+          .mobile-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            border: 1px solid rgba(34,211,238,.14);
+            background: rgba(0,0,0,.28);
+            padding: 8px;
+            font-size: 11px;
+          }
+
+          .mobile-row span {
+            color: rgba(207,250,254,.68);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .mobile-row b {
+            color: #67e8f9;
+            white-space: nowrap;
+          }
+
+          .mobile-ecg-grid {
+            display: grid;
+            gap: 8px;
+          }
+        }
+
 `}
 
 </style>
 
       <div className="grid-bg" />
+
+      <div className="mobile-cockpit">
+        <section className="mobile-top-card">
+          <div className="mobile-brand-row">
+            <div className="flex items-center gap-3">
+              <div className="mobile-logo">P/E</div>
+              <div>
+                <div className="mobile-title">POLY//EDGE</div>
+                <div className="mobile-subtitle">Aetherforge • Paper Only</div>
+              </div>
+            </div>
+            <div className="mobile-pill">{autoPaperState?.enabled ? "Running" : "Standby"}</div>
+          </div>
+
+          <div className="mobile-grid">
+            <div className="mobile-metric">
+              <div className="mobile-metric-label">Win Rate</div>
+              <div className="mobile-metric-value">{winRate}</div>
+            </div>
+            <div className="mobile-metric">
+              <div className="mobile-metric-label">Paper P&L</div>
+              <div className="mobile-metric-value">{pnl}</div>
+            </div>
+            <div className="mobile-metric">
+              <div className="mobile-metric-label">Trades</div>
+              <div className="mobile-metric-value">{trades}</div>
+            </div>
+            <div className="mobile-metric">
+              <div className="mobile-metric-label">Open</div>
+              <div className="mobile-metric-value">{autoPaperState?.openPositions ?? 0}</div>
+            </div>
+            <div className="mobile-metric">
+              <div className="mobile-metric-label">Learning</div>
+              <div className="mobile-metric-value">{autoPaperState?.learning?.learningScore ?? "WAIT"}</div>
+            </div>
+            <div className="mobile-metric">
+              <div className="mobile-metric-label">Safe</div>
+              <div className="mobile-metric-value">{autoPaperState?.paperOnly ? "PAPER" : "CHECK"}</div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mobile-section">
+          <div className="mobile-section-title">
+            <span>Auto Paper Execution</span>
+            <span>{autoPaperState?.running ? "ACTIVE" : "WATCHING"}</span>
+          </div>
+          <div className="mobile-status-text">
+            {capitalMessage || autoPaperMessage || autoPaperState?.lastReason || "Paper-only auto learning ready."}
+          </div>
+          <div className="mobile-actions">
+            <button type="button" onClick={() => callAutoPaper("start-fast")}>Start</button>
+            <button type="button" onClick={() => callAutoPaper("tick")}>Tick</button>
+            <button type="button" onClick={() => callAutoPaper("stop")}>Stop</button>
+          </div>
+        </section>
+
+        <section className="mobile-section">
+          <div className="mobile-section-title">
+            <span>Learning Performance</span>
+            <span>{autoPaperState?.learning?.sampleSize ?? 0} samples</span>
+          </div>
+          <div className="mobile-list">
+            <div className="mobile-row"><span>Win Rate</span><b>{autoPaperState?.learning?.winRate ?? "WAIT"}%</b></div>
+            <div className="mobile-row"><span>Total P&L</span><b>{realMoney(autoPaperState?.learning?.totalPnl || 0)}</b></div>
+            <div className="mobile-row"><span>Profit Factor</span><b>{autoPaperState?.learning?.profitFactor ?? "WAIT"}</b></div>
+            <div className="mobile-row"><span>Confidence Floor</span><b>{autoPaperState?.learning?.confidenceFloor ?? "WAIT"}</b></div>
+          </div>
+        </section>
+
+        <section className="mobile-section">
+          <div className="mobile-section-title">
+            <span>Strategy Leaderboard</span>
+            <span>Live DB</span>
+          </div>
+          <div className="mobile-list">
+            {strategyLeaderboardMonitor.length ? strategyLeaderboardMonitor.slice(0, 5).map((row: any) => (
+              <div key={row.strategy} className="mobile-row">
+                <span>{row.strategy} • {row.trades} trades</span>
+                <b>{row.winRate ?? "WAIT"}% / {realMoney(row.pnl || 0)}</b>
+              </div>
+            )) : (
+              <div className="mobile-row"><span>Waiting for strategy outcomes</span><b>WAIT</b></div>
+            )}
+          </div>
+        </section>
+
+        <section className="mobile-section">
+          <div className="mobile-section-title">
+            <span>Symbol Watchlist</span>
+            <span>Paper</span>
+          </div>
+          <div className="mobile-list">
+            {symbolWatchlistMonitor.length ? symbolWatchlistMonitor.slice(0, 5).map((row: any) => (
+              <div key={row.symbol} className="mobile-row">
+                <span>{row.symbol} • {row.trend} • open {row.open}</span>
+                <b>{row.winRate ?? "WAIT"}% / {realMoney(row.pnl || 0)}</b>
+              </div>
+            )) : (
+              <div className="mobile-row"><span>Waiting for symbol data</span><b>WAIT</b></div>
+            )}
+          </div>
+        </section>
+
+        <section className="mobile-section">
+          <div className="mobile-section-title">
+            <span>ECG Monitor Rail</span>
+            <span>{live}/{monitors.length}</span>
+          </div>
+          <div className="mobile-ecg-grid">
+            {leftRailRows.slice(0, 8).map((monitor) => {
+              const t = tone(monitor.state);
+              return (
+                <div key={monitor.key || monitor.label} className="ecg-card">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="truncate text-[10px] font-black uppercase tracking-[0.1em] text-white">{monitor.label || monitor.key}</div>
+                    <div className={`text-[9px] font-black uppercase ${t.text}`}>{monitor.state || "unknown"}</div>
+                  </div>
+                  <EcgTrace monitor={monitor} compact />
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      </div>
 
       <div className="shell">
         <aside className="left">
