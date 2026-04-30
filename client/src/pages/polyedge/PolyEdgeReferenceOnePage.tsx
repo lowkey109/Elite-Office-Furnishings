@@ -1438,6 +1438,23 @@ export default function PolyEdgeReferenceOnePage() {
           to { transform: rotateX(52deg) rotateZ(430deg) translateX(26px) rotateZ(-430deg); }
         }
 
+
+        /* PUBLIC EXCHANGE FLOW MONITORS — ECG untouched */
+        .polyedge-additive-real-monitors {
+          overflow-y: auto !important;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(34,211,238,.35) transparent;
+        }
+
+        .polyedge-additive-real-monitors::-webkit-scrollbar {
+          width: 4px;
+        }
+
+        .polyedge-additive-real-monitors::-webkit-scrollbar-thumb {
+          background: rgba(34,211,238,.35);
+          border-radius: 999px;
+        }
+
 `}
 
 </style>

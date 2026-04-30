@@ -1647,6 +1647,13 @@ app.post("/api/polyedge/auto-paper/start", async (req, res) => {
   res.json(await startPolyEdgeAutoPaperLoop(intervalMs));
 });
 
+app.post("/api/polyedge/auto-paper/start-fast", async (_req, res) => {
+  const { startPolyEdgeAutoPaperLoop, polyEdgeAutoPaperTick } = await import("./services/trading/polyEdgeAutoPaper");
+  const started = await startPolyEdgeAutoPaperLoop(5000);
+  await polyEdgeAutoPaperTick().catch(() => undefined);
+  res.json(started);
+});
+
 app.post("/api/polyedge/auto-paper/stop", async (_req, res) => {
   const { stopPolyEdgeAutoPaperLoop } = await import("./services/trading/polyEdgeAutoPaper");
   res.json(await stopPolyEdgeAutoPaperLoop());
@@ -1715,6 +1722,21 @@ app.get("/api/polyedge/additive-real-monitors", async (_req, res) => {
   const { getPolyEdgeAdditiveRealMonitors } = await import("./services/polyedge/polyEdgeAdditiveRealMonitors");
   res.json(await getPolyEdgeAdditiveRealMonitors());
 });
+
+// Auto-start PolyEdge PAPER-ONLY learning loop unless explicitly disabled.
+// This does not enable real-money trading.
+if (process.env.POLYEDGE_AUTO_PAPER_AUTOSTART !== "false") {
+  setTimeout(async () => {
+    try {
+      const { startPolyEdgeAutoPaperLoop, polyEdgeAutoPaperTick } = await import("./services/trading/polyEdgeAutoPaper");
+      await startPolyEdgeAutoPaperLoop(5000);
+      await polyEdgeAutoPaperTick().catch(() => undefined);
+      console.log("[polyedge] PAPER-ONLY auto trader started");
+    } catch (err) {
+      console.error("[polyedge] PAPER-ONLY auto trader failed to start", err);
+    }
+  }, 1200);
+}
 
 registerRoutes(server, app);
 

@@ -171,7 +171,10 @@ async function openFastPaperPosition() {
 
   const learning = await calculateLearning();
 
-  if (learning.sampleSize >= 10 && state.learningScore < 32) {
+  const forceContinuousPaperLearning = process.env.POLYEDGE_FAST_PAPER_FORCE_CONTINUOUS !== "false";
+  const defensiveMicroLearning = learning.sampleSize >= 10 && state.learningScore < 32;
+
+  if (defensiveMicroLearning && !forceContinuousPaperLearning) {
     return { opened: false, reason: "Learning score too low; waiting." };
   }
 
@@ -182,7 +185,12 @@ async function openFastPaperPosition() {
   const direction = seed % 4 === 0 ? "short" : "long";
   const confidence = Math.max(state.confidenceFloor, Math.min(92, state.confidenceFloor + (seed % 20)));
 
-  const riskPct = state.learningScore >= 70 ? 0.012 : state.learningScore < 45 ? 0.004 : 0.007;
+  const riskPct =
+    defensiveMicroLearning ? 0.0015 :
+    state.learningScore >= 70 ? 0.012 :
+    state.learningScore < 45 ? 0.004 :
+    0.007;
+
   const paperCapitalAllocated = Math.round(100000 * riskPct * 100) / 100;
 
   const move = symbol === "BTC/USD" ? 0.0016 : symbol === "ETH/USD" ? 0.002 : symbol === "SOL/USD" ? 0.0028 : 0.0011;
@@ -200,12 +208,12 @@ async function openFastPaperPosition() {
     strategy,
     direction,
     confidence,
-    thesis: `PolyEdge fast autonomous PAPER-ONLY learning decision. Learning score ${state.learningScore}.`,
+    thesis: `PolyEdge fast autonomous PAPER-ONLY learning decision. Learning score ${state.learningScore}. ${defensiveMicroLearning ? "Defensive micro-learning mode active." : "Normal paper-learning mode active."}`,
     regime: state.learningScore >= 60 ? "fast_adaptive_paper" : "fast_defensive_paper",
     reasonCode: "polyedge_fast_auto_paper_learning",
     expectedMove: Math.round(move * 10000) / 100,
     invalidationRule: `Exit if synthetic paper mark breaches ${stopPrice}`,
-    riskBucket: state.learningScore >= 70 ? "adaptive_medium" : "defensive_low",
+    riskBucket: defensiveMicroLearning ? "defensive_micro_continuous_learning" : state.learningScore >= 70 ? "adaptive_medium" : "defensive_low",
     dataQualityScore: 72,
     slippageEstimate: 0.04,
     marketPriceAtDecision: entry,

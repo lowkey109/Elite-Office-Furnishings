@@ -169,6 +169,96 @@ function getWalletFlowIntelligence() {
   };
 }
 
+function spreadFromBidAsk(bid: unknown, ask: unknown) {
+  const b = num(bid);
+  const a = num(ask);
+  if (b === null || a === null) return null;
+  return money(a - b);
+}
+
+function exchangeStatus(ok: boolean) {
+  return ok ? "PUBLIC_FEED_ONLINE" : "WAITING_FOR_PUBLIC_FEED";
+}
+
+async function getPublicExchangeFlow() {
+  const [binanceBtc, binanceEth, binanceSol, kraken, okxBtc, okxEth, okxSol] = await Promise.all([
+    fetchJson("https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT"),
+    fetchJson("https://api.binance.com/api/v3/ticker/24hr?symbol=ETHUSDT"),
+    fetchJson("https://api.binance.com/api/v3/ticker/24hr?symbol=SOLUSDT"),
+    fetchJson("https://api.kraken.com/0/public/Ticker?pair=XBTUSD,ETHUSD,SOLUSD"),
+    fetchJson("https://www.okx.com/api/v5/market/ticker?instId=BTC-USDT"),
+    fetchJson("https://www.okx.com/api/v5/market/ticker?instId=ETH-USDT"),
+    fetchJson("https://www.okx.com/api/v5/market/ticker?instId=SOL-USDT"),
+  ]);
+
+  const krakenResults = kraken && typeof kraken === "object" && kraken.result ? Object.values(kraken.result as Record<string, any>) : [];
+  const krakenOnline = Array.isArray(krakenResults) && krakenResults.length > 0;
+
+  const okxRows = [okxBtc, okxEth, okxSol]
+    .map((r: any) => Array.isArray(r?.data) ? r.data[0] : null)
+    .filter(Boolean);
+
+  const binanceRows = [binanceBtc, binanceEth, binanceSol].filter(Boolean);
+
+  const binanceVolume = money(binanceRows.reduce((sum: number, row: any) => sum + Number(row.quoteVolume || 0), 0));
+  const krakenVolume = money(krakenResults.reduce((sum: number, row: any) => {
+    const volume = Array.isArray(row?.v) ? Number(row.v[1] || row.v[0] || 0) : 0;
+    const close = Array.isArray(row?.c) ? Number(row.c[0] || 0) : 0;
+    return sum + volume * close;
+  }, 0));
+  const okxVolume = money(okxRows.reduce((sum: number, row: any) => sum + Number(row.volCcy24h || row.vol24h || 0), 0));
+
+  const binanceSpreads = binanceRows.map((row: any) => {
+    const weightedAvg = num(row.weightedAvgPrice);
+    const last = num(row.lastPrice);
+    return weightedAvg !== null && last !== null ? Math.abs(last - weightedAvg) : null;
+  }).filter((v: any) => v !== null);
+
+  const okxSpreads = okxRows.map((row: any) => spreadFromBidAsk(row.bidPx, row.askPx)).filter((v: any) => v !== null);
+
+  const allSpreadSamples = [...binanceSpreads, ...okxSpreads];
+  const avgSpread = allSpreadSamples.length
+    ? money(allSpreadSamples.reduce((sum: number, v: any) => sum + Number(v || 0), 0) / allSpreadSamples.length)
+    : null;
+
+  const onlineCount = [
+    binanceRows.length > 0,
+    krakenOnline,
+    okxRows.length > 0,
+  ].filter(Boolean).length;
+
+  const totalVolume = money(binanceVolume + krakenVolume + okxVolume);
+
+  return {
+    sourceType: onlineCount > 0 ? "PUBLIC_EXCHANGE_FEEDS" : "WAITING_FOR_PUBLIC_FEED",
+    status: onlineCount > 0 ? `${onlineCount}/3 PUBLIC FEEDS ONLINE` : "WAITING_FOR_PUBLIC_FEED",
+    exchanges: {
+      binance: {
+        sourceType: binanceRows.length > 0 ? "PUBLIC_BINANCE_FEED" : "WAITING_FOR_PUBLIC_FEED",
+        status: exchangeStatus(binanceRows.length > 0),
+        pairs: binanceRows.length,
+        quoteVolume24h: binanceVolume,
+      },
+      kraken: {
+        sourceType: krakenOnline ? "PUBLIC_KRAKEN_FEED" : "WAITING_FOR_PUBLIC_FEED",
+        status: exchangeStatus(krakenOnline),
+        pairs: krakenResults.length,
+        quoteVolume24h: krakenVolume,
+      },
+      okx: {
+        sourceType: okxRows.length > 0 ? "PUBLIC_OKX_FEED" : "WAITING_FOR_PUBLIC_FEED",
+        status: exchangeStatus(okxRows.length > 0),
+        pairs: okxRows.length,
+        quoteVolume24h: okxVolume,
+      },
+    },
+    totalVolume24h: totalVolume,
+    avgSpread,
+    volumePressure: totalVolume > 0 ? "PUBLIC_VOLUME_VISIBLE" : "WAITING_FOR_PUBLIC_FEED",
+    spreadPressure: avgSpread !== null ? "PUBLIC_SPREAD_VISIBLE" : "WAITING_FOR_PUBLIC_FEED",
+  };
+}
+
 export async function getPolyEdgeAdditiveRealMonitors() {
   const [openPositions, outcomes, decisions] = await Promise.all([
     db.select().from(paperPositions).where(eq(paperPositions.status, "open")).catch(() => []),
@@ -182,6 +272,12 @@ export async function getPolyEdgeAdditiveRealMonitors() {
   );
 
   const latestDecision: any = sortedDecisions[0] || null;
+  const sortedOpenPositions = [...(openPositions as any[])].sort((a, b) =>
+    new Date(b.createdAt || b.updatedAt || 0).getTime() -
+    new Date(a.createdAt || a.updatedAt || 0).getTime()
+  );
+  const latestOpenPosition: any = sortedOpenPositions[0] || null;
+  const latestOutcome: any = (outcomes as any[])[0] || null;
 
   let autoPaper: any = null;
   try {
@@ -222,6 +318,28 @@ export async function getPolyEdgeAdditiveRealMonitors() {
 
   const exposure = money((openPositions as any[]).reduce((sum, p) => sum + Number(p.paperCapitalAllocated || 0), 0));
   const openPnl = money((openPositions as any[]).reduce((sum, p) => sum + positionPnl(p), 0));
+
+  const closedPnl = totalPnl;
+  const totalPaperPnl = money(closedPnl + openPnl);
+  const paperProfitMonitor = {
+    sourceType: "REAL_CALCULATED_FROM_DB",
+    closedPnl,
+    openPnl,
+    totalPaperPnl,
+    winRate,
+    profitFactor,
+    tradesClosed: outcomes.length,
+    openPositions: openPositions.length,
+    exposure,
+    lastClosedTrade: latestOutcome
+      ? {
+          symbol: latestOutcome.symbol || "UNKNOWN",
+          outcome: latestOutcome.outcome || "CLOSED",
+          pnl: money(latestOutcome.realizedPnl || 0),
+          reason: latestOutcome.exitReason || "closed",
+        }
+      : null,
+  };
 
   const strategyMap: Record<string, any> = {};
   for (const o of outcomes as any[]) {
@@ -328,7 +446,18 @@ export async function getPolyEdgeAdditiveRealMonitors() {
 
   const currentDrawdown = peak > 0 ? ((peak - equity) / peak) * 100 : 0;
 
+  const realExecutionEnabled = String(process.env.POLYEDGE_REAL_EXECUTION_ENABLED || "").toLowerCase() === "true";
+  const realExchangeConfigured = Boolean(process.env.POLYEDGE_REAL_EXCHANGE || process.env.POLYEDGE_REAL_EXCHANGE_API_KEY);
+  const realExecutionActivity = {
+    sourceType: realExecutionEnabled && realExchangeConfigured ? "REAL_EXECUTION_CONFIGURED" : "WAITING_FOR_REAL_EXECUTION_CONFIG",
+    status: realExecutionEnabled && realExchangeConfigured ? "ARMED_REQUIRES_CONFIRMATION" : "REAL_TRADING_DISABLED",
+    capitalAtRisk: 0,
+    lastOrder: "NO_REAL_ORDERS_PLACED",
+    exchange: process.env.POLYEDGE_REAL_EXCHANGE || "WAITING_FOR_REAL_EXCHANGE",
+  };
+
   const walletFlow = getWalletFlowIntelligence();
+  const exchangeFlow = await getPublicExchangeFlow();
 
   return {
     ok: true,
@@ -368,6 +497,34 @@ export async function getPolyEdgeAdditiveRealMonitors() {
         sub: autoPaper?.lastReason || "Waiting for auto paper service",
       },
       {
+        title: "Paper Profit Monitor",
+        sourceType: paperProfitMonitor.sourceType,
+        value: `${money(paperProfitMonitor.totalPaperPnl)} total P&L`,
+        sub: `Closed ${money(paperProfitMonitor.closedPnl)} • Open ${money(paperProfitMonitor.openPnl)}`,
+      },
+      {
+        title: "Paper Win / PF",
+        sourceType: paperProfitMonitor.sourceType,
+        value: `${paperProfitMonitor.winRate ?? "WAIT"}% WR`,
+        sub: `${paperProfitMonitor.tradesClosed} closed • PF ${paperProfitMonitor.profitFactor ?? "WAIT"}`,
+      },
+      {
+        title: "Paper Exposure",
+        sourceType: paperProfitMonitor.sourceType,
+        value: `${paperProfitMonitor.openPositions} open`,
+        sub: `Allocated ${money(paperProfitMonitor.exposure)} • Open P&L ${money(paperProfitMonitor.openPnl)}`,
+      },
+      {
+        title: "Last Closed Paper Trade",
+        sourceType: paperProfitMonitor.lastClosedTrade ? "REAL_DB" : "WAITING_FOR_OUTCOME",
+        value: paperProfitMonitor.lastClosedTrade
+          ? `${paperProfitMonitor.lastClosedTrade.symbol} ${money(paperProfitMonitor.lastClosedTrade.pnl)}`
+          : "NO_CLOSED_TRADE",
+        sub: paperProfitMonitor.lastClosedTrade
+          ? `${paperProfitMonitor.lastClosedTrade.outcome} • ${paperProfitMonitor.lastClosedTrade.reason}`
+          : "Waiting for first closed paper trade",
+      },
+      {
         title: "Learning",
         sourceType: "REAL_CALCULATED_FROM_DB",
         value: `${winRate ?? "WAIT"}% WR`,
@@ -390,6 +547,102 @@ export async function getPolyEdgeAdditiveRealMonitors() {
         sourceType: "REAL_CALCULATED_FROM_DB",
         value: `${money(currentDrawdown)}% DD`,
         sub: `Peak ${money(peak)} • Max DD ${money(maxDrawdown)}%`,
+      },
+      {
+        title: "Exchange Feed Status",
+        sourceType: exchangeFlow.sourceType,
+        value: exchangeFlow.status,
+        sub: "Binance + Kraken + OKX public feeds",
+      },
+      {
+        title: "Binance Liquidity",
+        sourceType: exchangeFlow.exchanges.binance.sourceType,
+        value: exchangeFlow.exchanges.binance.status,
+        sub: `${exchangeFlow.exchanges.binance.pairs} pairs • Vol ${exchangeFlow.exchanges.binance.quoteVolume24h}`,
+      },
+      {
+        title: "Kraken Liquidity",
+        sourceType: exchangeFlow.exchanges.kraken.sourceType,
+        value: exchangeFlow.exchanges.kraken.status,
+        sub: `${exchangeFlow.exchanges.kraken.pairs} pairs • Vol ${exchangeFlow.exchanges.kraken.quoteVolume24h}`,
+      },
+      {
+        title: "OKX Liquidity",
+        sourceType: exchangeFlow.exchanges.okx.sourceType,
+        value: exchangeFlow.exchanges.okx.status,
+        sub: `${exchangeFlow.exchanges.okx.pairs} pairs • Vol ${exchangeFlow.exchanges.okx.quoteVolume24h}`,
+      },
+      {
+        title: "Spread Pressure",
+        sourceType: exchangeFlow.sourceType,
+        value: exchangeFlow.spreadPressure,
+        sub: `Avg public spread sample ${exchangeFlow.avgSpread ?? "WAIT"}`,
+      },
+      {
+        title: "Volume Pressure",
+        sourceType: exchangeFlow.sourceType,
+        value: exchangeFlow.volumePressure,
+        sub: `Combined public 24h volume ${exchangeFlow.totalVolume24h}`,
+      },
+      {
+        title: "Paper Execution",
+        sourceType: autoPaper ? "REAL_AUTO_PAPER_STATE" : "WAITING_FOR_AUTO_PAPER",
+        value: autoPaper?.enabled ? "PAPER_ACTIVE" : "PAPER_STOPPED",
+        sub: `Running ${autoPaper?.running ? "YES" : "NO"} • ticks ${autoPaper?.ticks || 0}`,
+      },
+      {
+        title: "Paper Last Action",
+        sourceType: autoPaper ? "REAL_AUTO_PAPER_STATE" : "WAITING_FOR_AUTO_PAPER",
+        value: autoPaper?.lastAction || "WAITING",
+        sub: autoPaper?.lastReason || "No paper action recorded",
+      },
+      {
+        title: "Paper Open Exposure",
+        sourceType: "REAL_CALCULATED_FROM_DB",
+        value: `${openPositions.length} open / ${money(exposure)} allocated`,
+        sub: `Open P&L ${money(openPnl)} • outcomes ${outcomes.length}`,
+      },
+      {
+        title: "Paper Last Position",
+        sourceType: latestOpenPosition ? "REAL_DB" : "WAITING_FOR_PAPER_POSITION",
+        value: latestOpenPosition
+          ? `${String(latestOpenPosition.side || "").toUpperCase()} ${latestOpenPosition.symbol}`
+          : "NO_OPEN_POSITION",
+        sub: latestOpenPosition
+          ? `${latestOpenPosition.strategy || "strategy"} • entry ${latestOpenPosition.entryPrice} • capital ${money(latestOpenPosition.paperCapitalAllocated || 0)}`
+          : "Waiting for paper position",
+      },
+      {
+        title: "Paper Last Decision",
+        sourceType: latestDecision ? "REAL_DB" : "WAITING_FOR_DECISION",
+        value: latestDecision
+          ? `${String(latestDecision.direction || "").toUpperCase()} ${latestDecision.market}`
+          : "WAITING",
+        sub: latestDecision
+          ? `${latestDecision.strategy || "strategy"} • confidence ${latestDecision.confidence ?? "WAIT"} • risk ${money(latestDecision.riskAmount || 0)}`
+          : "Waiting for paper decision",
+      },
+      {
+        title: "Paper Recent Outcome",
+        sourceType: latestOutcome ? "REAL_DB" : "WAITING_FOR_OUTCOME",
+        value: latestOutcome
+          ? `${String(latestOutcome.outcome || "closed").toUpperCase()} ${money(latestOutcome.realizedPnl || 0)}`
+          : "NO_OUTCOME_YET",
+        sub: latestOutcome
+          ? `${latestOutcome.symbol || "symbol"} • ${latestOutcome.exitReason || "closed"}`
+          : "Waiting for closed paper trades",
+      },
+      {
+        title: "Real Execution",
+        sourceType: realExecutionActivity.sourceType,
+        value: realExecutionActivity.status,
+        sub: `${realExecutionActivity.exchange} • ${realExecutionActivity.lastOrder}`,
+      },
+      {
+        title: "Real Capital At Risk",
+        sourceType: realExecutionActivity.sourceType,
+        value: realExecutionActivity.capitalAtRisk,
+        sub: "Real money disabled until explicit execution config",
       },
       {
         title: "Wallet Flow Scan",
@@ -443,6 +696,9 @@ export async function getPolyEdgeAdditiveRealMonitors() {
 
     strategyLeaderboard,
     marketFeeds,
+    paperProfitMonitor,
     walletFlow,
+    exchangeFlow,
+    realExecutionActivity,
   };
 }
