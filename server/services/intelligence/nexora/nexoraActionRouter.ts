@@ -25,6 +25,7 @@ import {
   type NexoraModuleDefinition,
   type NexoraModuleRiskLevel,
 } from "./nexoraModuleRegistry";
+import { scoreNexoraBusinessAction } from "./nexoraBusinessMandate";
 
 export type NexoraActionIntent =
   | "scan"
@@ -76,6 +77,7 @@ export type NexoraActionRouteResult = {
   reason: string;
   policyNotes: string[];
   module?: NexoraModuleDefinition;
+  empireScore?: ReturnType<typeof scoreNexoraBusinessAction>;
 };
 
 const INTENT_TO_CAPABILITY: Record<NexoraActionIntent, NexoraModuleCapability | "deploy" | "destructive_change" | "move_money"> = {
@@ -114,6 +116,15 @@ const HARD_BLOCK_INTENTS = new Set<NexoraActionIntent>([
 
 export function routeNexoraAction(request: NexoraActionRequest): NexoraActionRouteResult {
   const module = getNexoraModule(request.moduleKey);
+  const empireScore = scoreNexoraBusinessAction({
+    moduleKey: request.moduleKey,
+    intent: request.intent,
+    requestedBy: request.requestedBy,
+    reason: request.reason,
+    evidence: request.evidence,
+    riskLevel: request.riskOverride,
+    preAuthorized: request.preAuthorized,
+  });
 
   if (!module) {
     return {
@@ -290,14 +301,16 @@ export function routeNexoraAction(request: NexoraActionRequest): NexoraActionRou
     requiresHumanApproval: false,
     canAutoRun: module.canAutoRun,
     reason: request.dryRun
-      ? `Dry run approved by Nexora policy for ${module.name}: ${request.reason}`
-      : `Approved by Nexora policy for ${module.name}: ${request.reason}`,
+      ? `Dry run approved by Nexora policy for ${module.name}: ${request.reason} — Empire Score ${empireScore.empireScore}/100`
+      : `Approved by Nexora policy for ${module.name}: ${request.reason} — Empire Score ${empireScore.empireScore}/100`,
     policyNotes: [
       "Action is inside the registered capability list.",
       "Nexora policy gate passed.",
       "No human approval required for this normal business action.",
+      `Business decision: ${empireScore.businessDecision} with Empire Score ${empireScore.empireScore}/100.`,
     ],
     module,
+    empireScore,
   };
 }
 
