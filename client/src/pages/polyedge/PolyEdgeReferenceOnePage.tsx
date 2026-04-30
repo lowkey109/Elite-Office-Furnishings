@@ -308,11 +308,6 @@ export default function PolyEdgeReferenceOnePage() {
   const signalQualityMonitor = traderMonitors?.signalQuality || {};
   const liquidityMonitor = traderMonitors?.liquidityOrderFlow || {};
   const newsRiskMonitor = traderMonitors?.newsEventRisk || {};
-  const volatilityMonitor = traderMonitors?.volatilityAtr || {};
-  const drawdownMonitor = traderMonitors?.drawdownRecovery || {};
-  const capitalModeMonitor = traderMonitors?.capitalMode || {};
-  const autonomousModeMonitor = traderMonitors?.autonomousMode || {};
-  const decisionExplainerMonitor = traderMonitors?.decisionExplainer || {};
 
   const adminNavItems = [
     ["Dashboard", "/admin/dashboard"],
@@ -1422,17 +1417,17 @@ export default function PolyEdgeReferenceOnePage() {
             </div>
           </Panel>
 
-          <Panel title="Capital Mode Monitor" className="col-span-4">
+          <Panel title="Capital + Auto Paper Control" className="col-span-4">
             <div className="grid grid-cols-2 gap-1 text-[8px]">
               <div className="mini-box">
                 <div className="text-cyan-100/45">REAL MONEY</div>
                 <div className="font-black text-emerald-300">{realCapital}</div>
-                <div className="text-[6px] text-cyan-100/40">{capitalModeMonitor.realMoneyExecution ? "Execution enabled" : "Tracked only"}</div>
+                <div className="text-[6px] text-cyan-100/40">Tracked only</div>
               </div>
               <div className="mini-box">
                 <div className="text-cyan-100/45">PAPER MONEY</div>
                 <div className="font-black text-cyan-300">{paperCapital}</div>
-                <div className="text-[6px] text-cyan-100/40">{capitalModeMonitor.mode || "Simulation only"}</div>
+                <div className="text-[6px] text-cyan-100/40">Simulation only</div>
               </div>
             </div>
 
@@ -1472,16 +1467,16 @@ export default function PolyEdgeReferenceOnePage() {
             </div>
 
             <div className="mt-1 truncate text-[7px] text-amber-300">
-              {capitalMessage || autoPaperMessage || autoPaperState?.lastReason || `Available paper: ${realMoney(capitalModeMonitor.availablePaper || 0)}`}
+              {capitalMessage || autoPaperMessage || autoPaperState?.lastReason || "Paper-only auto learning ready."}
             </div>
           </Panel>
-          <Panel title="Volatility / ATR Monitor" className="col-span-2">
+          <Panel title="News / Event Risk Monitor" className="col-span-2">
             <div className="space-y-1">
-              <div className="trader-monitor-row"><span>Mode</span><b>{volatilityMonitor.mode || "WAITING"}</b></div>
-              <div className="trader-monitor-row"><span>ATR Score</span><b>{volatilityMonitor.atrScore ?? "WAIT"}</b></div>
-              <div className="trader-monitor-row"><span>Stops</span><b>{volatilityMonitor.stopWidth || "WAITING"}</b></div>
-              <div className="trader-monitor-row"><span>Speed</span><b>{volatilityMonitor.tradeSpeed || "WAITING"}</b></div>
-              <div className="truncate text-[7px] text-amber-300">{volatilityMonitor.riskNote || "Waiting for ATR data."}</div>
+              <div className="trader-monitor-row"><span>Mode</span><b>{newsRiskMonitor.mode || "WAITING"}</b></div>
+              <div className="trader-monitor-row"><span>Shock</span><b>{newsRiskMonitor.shockRisk || "WAITING"}</b></div>
+              <div className="trader-monitor-row"><span>Action</span><b>{newsRiskMonitor.action || "WAITING"}</b></div>
+              <div className="trader-monitor-row"><span>Risk</span><b>{newsRiskMonitor.riskScore ?? "WAIT"}</b></div>
+              <div className="truncate text-[7px] text-amber-300">{newsRiskMonitor.headline || "Waiting for news feed."}</div>
             </div>
           </Panel>
 
@@ -1508,32 +1503,15 @@ export default function PolyEdgeReferenceOnePage() {
             </div>
           </Panel>
 
-          <Panel title="Drawdown Recovery Monitor" className="col-span-4">
-            <div className="grid h-full grid-cols-2 gap-1 text-[8px]">
-              <div className="mini-box">
-                <div className="text-cyan-100/45">MODE</div>
-                <div className="font-black text-emerald-300">{drawdownMonitor.mode || "WAITING"}</div>
-              </div>
-              <div className="mini-box">
-                <div className="text-cyan-100/45">RECOVERY</div>
-                <div className="font-black text-cyan-300">{drawdownMonitor.recoveryProgress ?? "WAIT"}%</div>
-              </div>
-              <div className="mini-box">
-                <div className="text-cyan-100/45">CURRENT DD</div>
-                <div className="font-black text-amber-300">{drawdownMonitor.currentDrawdown ?? 0}%</div>
-              </div>
-              <div className="mini-box">
-                <div className="text-cyan-100/45">MAX DD</div>
-                <div className="font-black text-red-300">{drawdownMonitor.maxDrawdown ?? 0}%</div>
-              </div>
-              <div className="mini-box">
-                <div className="text-cyan-100/45">EQUITY</div>
-                <div className="font-black text-emerald-300">{realMoney(drawdownMonitor.currentEquity || 0)}</div>
-              </div>
-              <div className="mini-box">
-                <div className="text-cyan-100/45">PEAK</div>
-                <div className="font-black text-purple-300">{realMoney(drawdownMonitor.peakEquity || 0)}</div>
-              </div>
+          <Panel title="Holographic Universe View" className="col-span-4">
+            <div className="holo-stage">
+              <div className="holo-scan" />
+              <div className="holo-ring one" />
+              <div className="holo-ring two" />
+              <div className="holo-ring three" />
+              <div className="holo-core" />
+              <div className="holo-orbit-dot" />
+              <div className="absolute bottom-2 text-[8px] uppercase tracking-[0.18em] text-cyan-300/70">Real Monitors • Active Field</div>
             </div>
           </Panel>
 
@@ -1568,14 +1546,14 @@ export default function PolyEdgeReferenceOnePage() {
             </div>
           </Panel>
 
-          <Panel title="Autonomous Mode Monitor" className="col-span-3">
+          <Panel title="Auto Paper Execution Monitor" className="col-span-3">
             <div className="space-y-1">
-              <div className="trader-monitor-row"><span>Mode</span><b>{autonomousModeMonitor.mode || "STOPPED"}</b></div>
-              <div className="trader-monitor-row"><span>Running</span><b>{autonomousModeMonitor.running ? "YES" : "NO"}</b></div>
-              <div className="trader-monitor-row"><span>Interval</span><b>{autonomousModeMonitor.intervalMs || 5000}ms</b></div>
-              <div className="trader-monitor-row"><span>Max Open</span><b>{autonomousModeMonitor.maxOpenPositions || 8}</b></div>
-              <div className="trader-monitor-row"><span>Max Age</span><b>{Math.round((autonomousModeMonitor.maxAgeMs || 45000) / 1000)}s</b></div>
-              <div className="truncate text-[7px] text-amber-300">{autonomousModeMonitor.lastReason || "Waiting for autonomous loop."}</div>
+              <div className="trader-monitor-row"><span>Mode</span><b>{autoExecMonitor.enabled ? "FAST RUNNING" : "STOPPED"}</b></div>
+              <div className="trader-monitor-row"><span>Ticks</span><b>{autoExecMonitor.ticks || 0}</b></div>
+              <div className="trader-monitor-row"><span>Decisions</span><b>{autoExecMonitor.decisionsCreated || 0}</b></div>
+              <div className="trader-monitor-row"><span>Opened</span><b>{autoExecMonitor.positionsOpened || 0}</b></div>
+              <div className="trader-monitor-row"><span>Closed</span><b>{autoExecMonitor.positionsClosed || 0}</b></div>
+              <div className="truncate text-[7px] text-amber-300">{autoExecMonitor.lastReason || "Waiting for auto paper loop."}</div>
             </div>
           </Panel>
 
@@ -1605,12 +1583,12 @@ export default function PolyEdgeReferenceOnePage() {
             </div>
           </Panel>
 
-          <section className="panel col-span-12 flex items-center justify-between gap-3 px-3 text-[8px] uppercase tracking-[0.14em]">
-            <span><b className="text-emerald-300">AUDIT:</b> {decisionExplainerMonitor.status || "WAITING"}</span>
-            <span><b className="text-cyan-300">SYMBOL:</b> {decisionExplainerMonitor.symbol || "WAITING"}</span>
-            <span><b className="text-purple-300">STRATEGY:</b> {decisionExplainerMonitor.strategy || "WAITING"}</span>
-            <span><b className="text-amber-300">CONF:</b> {decisionExplainerMonitor.confidence || 0}</span>
-            <span className="min-w-0 flex-1 truncate"><b className="text-red-300">WHY:</b> {decisionExplainerMonitor.reasonCode || decisionExplainerMonitor.explanation || "Waiting for decision."}</span>
+          <section className="panel col-span-12 flex items-center justify-between px-3 text-[8px] uppercase tracking-[0.16em]">
+            <span><b className="text-emerald-300">MAX DD:</b> {maxDd}</span>
+            <span><b className="text-emerald-300">WIN RATE:</b> {winRate}</span>
+            <span><b className="text-purple-300">PF:</b> {profitFactor}</span>
+            <span><b className="text-cyan-300">HEART:</b> REAL ECG PULSE</span>
+            <span><b className="text-amber-300">SAFE:</b> {safe}</span>
           </section>
         </main>
       </div>

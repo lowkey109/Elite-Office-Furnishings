@@ -137,77 +137,6 @@ export async function getPolyEdgeTraderMonitors() {
     executionQuality: profitFactor && profitFactor >= 1.3 ? "GOOD" : profitFactor && profitFactor < 1 ? "POOR" : "NORMAL",
   };
 
-  let capitalState: any = null;
-  try {
-    const mod = await import("./polyEdgeCapitalStore");
-    capitalState = await mod.getPolyEdgeCapitalState();
-  } catch {
-    capitalState = null;
-  }
-
-  const startingEquity = 100000;
-  let runningEquity = startingEquity;
-  let peakEquity = startingEquity;
-  let maxDrawdown = 0;
-
-  for (const o of [...(outcomes as any[])].reverse()) {
-    runningEquity += Number(o.realizedPnl || 0);
-    peakEquity = Math.max(peakEquity, runningEquity);
-    const dd = peakEquity > 0 ? ((peakEquity - runningEquity) / peakEquity) * 100 : 0;
-    maxDrawdown = Math.max(maxDrawdown, dd);
-  }
-
-  const currentDrawdown = peakEquity > 0 ? ((peakEquity - runningEquity) / peakEquity) * 100 : 0;
-  const recoveryProgress = maxDrawdown > 0 ? Math.max(0, Math.min(100, 100 - (currentDrawdown / maxDrawdown) * 100)) : 100;
-
-  const volatilityAtr = {
-    mode: regimeScore >= 75 ? "EXPANDING" : regimeScore >= 55 ? "NORMAL" : "COMPRESSED",
-    atrScore: Math.max(12, Math.min(96, 34 + openPositions.length * 7 + Math.abs(totalPnl) / 80)),
-    stopWidth: regimeScore >= 75 ? "WIDE" : regimeScore >= 55 ? "NORMAL" : "TIGHT",
-    tradeSpeed: openPositions.length >= 6 ? "FAST" : "CONTROLLED",
-    riskNote: openPositions.length >= 6 ? "High open exposure" : "ATR within paper limits",
-  };
-
-  const drawdownRecovery = {
-    currentEquity: money(runningEquity),
-    peakEquity: money(peakEquity),
-    currentDrawdown: Math.round(currentDrawdown * 100) / 100,
-    maxDrawdown: Math.round(maxDrawdown * 100) / 100,
-    recoveryProgress: Math.round(recoveryProgress),
-    mode: currentDrawdown > 10 ? "RECOVERY MODE" : currentDrawdown > 3 ? "WATCH" : "HEALTHY",
-  };
-
-  const capitalMode = {
-    realMoneyBalance: money(capitalState?.realMoneyBalance || 0),
-    paperMoneyBalance: money(capitalState?.paperMoneyBalance || 0),
-    paperExposure: exposure,
-    availablePaper: money((capitalState?.paperMoneyBalance || 0) - exposure),
-    mode: "PAPER LEARNING",
-    realMoneyExecution: false,
-  };
-
-  const autonomousMode = {
-    mode: autoPaper?.enabled ? "FAST LEARNING" : "STOPPED",
-    running: autoPaper?.running ?? false,
-    intervalMs: autoPaper?.fastLearning?.intervalMs || 5000,
-    maxOpenPositions: autoPaper?.fastLearning?.maxOpenPositions || 8,
-    maxAgeMs: autoPaper?.fastLearning?.maxAgeMs || 45000,
-    lastAction: autoPaper?.lastAction || "idle",
-    lastReason: autoPaper?.lastReason || "Auto paper waiting.",
-  };
-
-  const decisionExplainer = {
-    latestDecisionId: latestDecision?.id || null,
-    symbol: latestDecision?.market || "WAITING",
-    strategy: latestDecision?.strategy || "WAITING",
-    direction: latestDecision?.direction || "WAITING",
-    confidence: latestDecision?.confidence || 0,
-    reasonCode: latestDecision?.reasonCode || "WAITING",
-    status: latestDecision?.status || latestDecision?.executionStatus || "WAITING",
-    explanation: latestDecision?.thesis || "Waiting for the next autonomous paper decision.",
-    paperOnly: true,
-  };
-
   const newsEventRisk = {
     mode: openPositions.length >= 6 ? "CAUTION" : "CLEAR",
     shockRisk: totalPnl < -500 ? "ELEVATED" : "NORMAL",
@@ -283,10 +212,5 @@ export async function getPolyEdgeTraderMonitors() {
     signalQuality,
     liquidityOrderFlow,
     newsEventRisk,
-    volatilityAtr,
-    drawdownRecovery,
-    capitalMode,
-    autonomousMode,
-    decisionExplainer,
   };
 }
