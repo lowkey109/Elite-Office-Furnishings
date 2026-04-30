@@ -1634,6 +1634,29 @@ app.post("/api/admin/notifications/trial-ending-reminders", (_req: any, res: any
 
 const server = createServer(app);
 
+
+// PolyEdge autonomous paper trader routes — PAPER ONLY, no broker/live execution.
+app.get("/api/polyedge/auto-paper/status", async (_req, res) => {
+  const { getPolyEdgeAutoPaperStatus } = await import("./services/trading/polyEdgeAutoPaper");
+  res.json(await getPolyEdgeAutoPaperStatus());
+});
+
+app.post("/api/polyedge/auto-paper/start", async (req, res) => {
+  const { startPolyEdgeAutoPaperLoop } = await import("./services/trading/polyEdgeAutoPaper");
+  const intervalMs = Number(req.body?.intervalMs || 30000);
+  res.json(await startPolyEdgeAutoPaperLoop(intervalMs));
+});
+
+app.post("/api/polyedge/auto-paper/stop", async (_req, res) => {
+  const { stopPolyEdgeAutoPaperLoop } = await import("./services/trading/polyEdgeAutoPaper");
+  res.json(await stopPolyEdgeAutoPaperLoop());
+});
+
+app.post("/api/polyedge/auto-paper/tick", async (_req, res) => {
+  const { polyEdgeAutoPaperTick } = await import("./services/trading/polyEdgeAutoPaper");
+  res.json(await polyEdgeAutoPaperTick());
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
