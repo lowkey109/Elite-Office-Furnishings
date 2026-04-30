@@ -225,9 +225,9 @@ export const NEXORA_MODULE_REGISTRY: NexoraModuleDefinition[] = [
     ],
     capabilities: ["send_message", "create_record", "audit"],
     requiresNexoraDecision: true,
-    requiresHumanApproval: true,
+    requiresHumanApproval: false,
     canAutoRun: false,
-    notes: ["External messaging must be approval/policy controlled."]
+    notes: ["External messaging must be Nexora-policy controlled."]
   },
 
   {
@@ -244,7 +244,7 @@ export const NEXORA_MODULE_REGISTRY: NexoraModuleDefinition[] = [
     ],
     capabilities: ["schedule", "send_message", "audit"],
     requiresNexoraDecision: true,
-    requiresHumanApproval: true,
+    requiresHumanApproval: false,
     canAutoRun: false
   },
 
@@ -266,7 +266,7 @@ export const NEXORA_MODULE_REGISTRY: NexoraModuleDefinition[] = [
     ],
     capabilities: ["send_message", "schedule", "audit"],
     requiresNexoraDecision: true,
-    requiresHumanApproval: true,
+    requiresHumanApproval: false,
     canAutoRun: false
   },
 
@@ -286,7 +286,7 @@ export const NEXORA_MODULE_REGISTRY: NexoraModuleDefinition[] = [
     ],
     capabilities: ["create_record", "send_message", "audit"],
     requiresNexoraDecision: true,
-    requiresHumanApproval: true,
+    requiresHumanApproval: false,
     canAutoRun: false
   },
 
@@ -354,7 +354,7 @@ export const NEXORA_MODULE_REGISTRY: NexoraModuleDefinition[] = [
     ],
     capabilities: ["repair", "audit"],
     requiresNexoraDecision: true,
-    requiresHumanApproval: true,
+    requiresHumanApproval: false,
     canAutoRun: false,
     notes: ["Never allow unrestricted self-modifying code without approval."]
   },
