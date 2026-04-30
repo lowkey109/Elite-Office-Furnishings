@@ -486,27 +486,65 @@ function ReplayEngineMonitor({
 
 
 
+
+function statusTone(state?: string) {
+  if (state === "online" || state === "running") {
+    return {
+      shell: "border-emerald-300/35 bg-[radial-gradient(circle_at_15%_15%,rgba(0,255,136,.18),transparent_34%),linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,0,0,.45))]",
+      text: "text-emerald-300",
+      dot: "bg-emerald-300",
+      glow: "shadow-[0_0_35px_rgba(0,255,136,.45)]",
+      stroke: "#00ff88",
+    };
+  }
+
+  if (state === "blocked" || state === "paper_only" || state === "idle") {
+    return {
+      shell: "border-amber-300/35 bg-[radial-gradient(circle_at_15%_15%,rgba(255,209,102,.15),transparent_34%),linear-gradient(135deg,rgba(255,209,102,.07),rgba(0,0,0,.45))]",
+      text: "text-amber-300",
+      dot: "bg-amber-300",
+      glow: "shadow-[0_0_28px_rgba(255,209,102,.35)]",
+      stroke: "#ffd166",
+    };
+  }
+
+  return {
+    shell: "border-red-300/35 bg-[radial-gradient(circle_at_15%_15%,rgba(255,77,77,.16),transparent_34%),linear-gradient(135deg,rgba(255,77,77,.08),rgba(0,0,0,.45))]",
+    text: "text-red-300",
+    dot: "bg-red-300",
+    glow: "shadow-[0_0_28px_rgba(255,77,77,.35)]",
+    stroke: "#ff4d4d",
+  };
+}
+
 function MiniActionMonitor({ monitor }: { monitor: PolyEdgeActionMonitorItem }) {
   const moving = monitor.moving === true;
-  const failed = monitor.state === "timeout" || monitor.state === "offline" || monitor.state === "stalled";
-  const blocked = monitor.state === "blocked" || monitor.state === "paper_only";
-  const stroke = failed ? "#ff4d4d" : blocked ? "#ffd166" : "#00ff88";
+  const tone = statusTone(monitor.state);
 
   if (monitor.kind === "market") {
     return (
-      <div className="mt-3 rounded-xl border border-cyan-300/10 bg-black/35 p-2">
-        <div className="mb-1 flex items-center justify-between text-[9px] uppercase tracking-[0.14em] text-cyan-100/35">
-          <span>Market Feed</span>
-          <span>{monitor.value ? "$" + Number(monitor.value).toLocaleString() : "no price"}</span>
+      <div className="relative mt-4 overflow-hidden rounded-2xl border border-cyan-200/15 bg-black/45 p-3 shadow-[inset_0_0_28px_rgba(34,240,255,.08)]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(34,240,255,.18),transparent_42%)]" />
+        <div className="relative z-10 mb-2 flex items-end justify-between">
+          <div>
+            <div className="text-[8px] uppercase tracking-[0.22em] text-cyan-100/35">Live Market Feed</div>
+            <div className="mt-1 text-xs font-black uppercase tracking-[0.14em] text-cyan-100">{monitor.label}</div>
+          </div>
+          <div className={`text-lg font-black ${tone.text}`}>
+            {monitor.value ? "$" + Number(monitor.value).toLocaleString() : "NO FEED"}
+          </div>
         </div>
-        <div className="flex h-10 items-end gap-1 overflow-hidden">
-          {Array.from({ length: 28 }).map((_, i) => (
+
+        <div className="relative z-10 flex h-16 items-end gap-1 overflow-hidden rounded-xl border border-cyan-300/10 bg-black/60 px-2 pb-2">
+          {Array.from({ length: 38 }).map((_, i) => (
             <span
               key={i}
-              className={`w-1 rounded-full ${moving ? "bg-emerald-300/80" : "bg-red-300/40"}`}
+              className={`w-1.5 rounded-t-full ${moving ? "bg-gradient-to-t from-emerald-500 via-cyan-300 to-white" : "bg-red-300/45"}`}
               style={{
-                height: moving ? `${12 + ((i * 7) % 24)}px` : "2px",
-                animation: moving ? `poly-market-bars ${0.9 + (i % 5) * 0.12}s ease-in-out infinite alternate` : undefined,
+                height: moving ? `${14 + ((i * 11) % 42)}px` : "3px",
+                animation: moving ? `poly-premium-market-bars ${0.75 + (i % 7) * 0.08}s ease-in-out infinite alternate` : undefined,
+                animationDelay: `${i * 0.025}s`,
+                boxShadow: moving ? "0 0 12px rgba(0,255,136,.65)" : undefined,
               }}
             />
           ))}
@@ -517,11 +555,26 @@ function MiniActionMonitor({ monitor }: { monitor: PolyEdgeActionMonitorItem }) 
 
   if (monitor.kind === "replay") {
     return (
-      <div className="mt-3 rounded-xl border border-fuchsia-300/10 bg-black/35 p-2">
-        <div className="relative h-11 overflow-hidden rounded-lg bg-black/50">
-          <div className={`absolute left-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full border ${moving ? "border-emerald-300/60" : blocked ? "border-amber-300/50" : "border-cyan-300/25"}`} style={{ animation: moving ? "poly-replay-mini-spin 1.4s linear infinite" : undefined }} />
-          <div className="absolute left-14 right-2 top-1/2 h-1 -translate-y-1/2 rounded-full bg-black ring-1 ring-fuchsia-300/20">
-            <div className={`h-full rounded-full ${moving ? "bg-emerald-300" : blocked ? "bg-amber-300" : "bg-cyan-300/25"}`} style={{ width: moving ? "60%" : "10%" }} />
+      <div className="relative mt-4 overflow-hidden rounded-2xl border border-fuchsia-300/15 bg-black/45 p-3 shadow-[inset_0_0_30px_rgba(255,0,170,.08)]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(255,0,170,.18),transparent_38%),radial-gradient(circle_at_80%_50%,rgba(34,240,255,.14),transparent_35%)]" />
+        <div className="relative z-10 flex items-center gap-4">
+          <div className="relative h-16 w-16">
+            <div className={`absolute inset-0 rounded-full border ${moving ? "border-emerald-300/60" : "border-amber-300/40"}`} style={{ animation: moving ? "poly-premium-spin 1.2s linear infinite" : undefined }} />
+            <div className="absolute inset-3 rounded-full border border-fuchsia-300/30" style={{ animation: moving ? "poly-premium-spin 2.2s linear infinite reverse" : undefined }} />
+            <div className={`absolute inset-[23px] rounded-full ${tone.dot} ${tone.glow}`} style={{ animation: moving ? "poly-premium-core 1s ease-in-out infinite" : undefined }} />
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <div className="mb-2 flex justify-between text-[8px] uppercase tracking-[0.2em] text-cyan-100/35">
+              <span>Replay Pulse</span>
+              <span className={tone.text}>{monitor.state}</span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-black ring-1 ring-fuchsia-300/20">
+              <div
+                className={`h-full rounded-full ${moving ? "bg-gradient-to-r from-cyan-300 via-emerald-300 to-fuchsia-300" : "bg-amber-300/60"}`}
+                style={{ width: moving ? "72%" : "18%" }}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -529,20 +582,28 @@ function MiniActionMonitor({ monitor }: { monitor: PolyEdgeActionMonitorItem }) 
   }
 
   return (
-    <div className="mt-3 rounded-xl border border-cyan-300/10 bg-black/35 p-2">
-      <svg className="h-11 w-full" viewBox="0 0 320 54" preserveAspectRatio="none">
+    <div className="relative mt-4 overflow-hidden rounded-2xl border border-cyan-300/10 bg-black/45 p-3 shadow-[inset_0_0_30px_rgba(34,240,255,.08)]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_50%,rgba(34,240,255,.12),transparent_34%)]" />
+      <svg className="relative z-10 h-16 w-full drop-shadow-[0_0_12px_rgba(0,255,136,.55)]" viewBox="0 0 420 72" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id={`grad-${monitor.key}`} x1="0" x2="1">
+            <stop offset="0%" stopColor={tone.stroke} stopOpacity="0.25" />
+            <stop offset="50%" stopColor={tone.stroke} stopOpacity="1" />
+            <stop offset="100%" stopColor={tone.stroke} stopOpacity="0.25" />
+          </linearGradient>
+        </defs>
         <polyline
           points={
             moving
-              ? "0,32 34,32 46,32 56,18 68,44 82,8 100,32 138,32 156,32 166,22 178,40 190,14 208,32 250,32 270,32 282,18 296,42 308,32 320,32"
-              : "0,32 320,32"
+              ? "0,42 38,42 54,42 68,20 84,58 102,8 124,42 170,42 194,42 208,28 224,54 242,14 264,42 306,42 330,42 348,22 366,58 388,42 420,42"
+              : "0,42 420,42"
           }
           fill="none"
-          stroke={stroke}
-          strokeWidth="4"
+          stroke={`url(#grad-${monitor.key})`}
+          strokeWidth="5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          style={{ animation: moving ? "poly-mini-ecg 1.5s linear infinite" : undefined }}
+          style={{ animation: moving ? "poly-premium-ecg 1.25s linear infinite" : undefined }}
         />
       </svg>
     </div>
@@ -552,75 +613,87 @@ function MiniActionMonitor({ monitor }: { monitor: PolyEdgeActionMonitorItem }) 
 function PolyEdgeActionMonitorGrid({ actionMonitor }: { actionMonitor: PolyEdgeActionMonitorResponse | null }) {
   const monitors = actionMonitor?.monitors || [];
 
-  const stateClass = (state?: string) => {
-    if (state === "online" || state === "running") return "text-emerald-300 border-emerald-300/30 bg-emerald-400/5";
-    if (state === "blocked" || state === "paper_only") return "text-amber-300 border-amber-300/30 bg-amber-400/5";
-    if (state === "timeout" || state === "offline" || state === "stalled") return "text-red-300 border-red-300/30 bg-red-400/5";
-    return "text-cyan-200 border-cyan-300/20 bg-cyan-400/5";
-  };
-
   return (
     <HoloPanel title="PolyEdge Action Monitor Grid" icon={Cpu} className="col-span-12">
       <style>{`
-        @keyframes poly-monitor-beat {
-          0%, 100% { opacity: .45; transform: scale(.9); }
-          50% { opacity: 1; transform: scale(1.2); }
-        }
-        @keyframes poly-monitor-sweep {
-          from { transform: translateX(-120%); }
-          to { transform: translateX(240%); }
-        }
-        @keyframes poly-mini-ecg {
-          from { transform: translateX(-18%); }
+        @keyframes poly-premium-ecg {
+          from { transform: translateX(-12%); }
           to { transform: translateX(0%); }
         }
-        @keyframes poly-replay-mini-spin {
-          from { transform: translateY(-50%) rotate(0deg); }
-          to { transform: translateY(-50%) rotate(360deg); }
+        @keyframes poly-premium-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
-        @keyframes poly-market-bars {
-          from { transform: scaleY(.35); opacity: .45; }
-          to { transform: scaleY(1.05); opacity: 1; }
+        @keyframes poly-premium-core {
+          0%, 100% { transform: scale(.85); opacity: .55; }
+          50% { transform: scale(1.18); opacity: 1; }
+        }
+        @keyframes poly-premium-market-bars {
+          from { transform: scaleY(.35); opacity: .45; filter: brightness(.8); }
+          to { transform: scaleY(1.1); opacity: 1; filter: brightness(1.35); }
+        }
+        @keyframes poly-premium-sweep {
+          from { transform: translateX(-140%); }
+          to { transform: translateX(260%); }
+        }
+        @keyframes poly-premium-border {
+          0%, 100% { opacity: .35; }
+          50% { opacity: 1; }
         }
       `}</style>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {monitors.length === 0 ? (
-          <div className="col-span-full rounded-2xl border border-red-300/25 bg-red-400/5 p-4 text-red-200">
-            PolyEdge action monitor has not responded yet.
+      <div className="relative overflow-hidden rounded-[28px] border border-cyan-200/20 bg-[radial-gradient(circle_at_50%_0%,rgba(34,240,255,.12),transparent_35%),radial-gradient(circle_at_80%_20%,rgba(255,0,170,.08),transparent_35%),rgba(0,0,0,.38)] p-4 shadow-[0_0_80px_rgba(34,240,255,.13),inset_0_0_60px_rgba(34,240,255,.06)]">
+        <div className="pointer-events-none absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.12) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-cyan-300/10 to-transparent" style={{ animation: "poly-premium-sweep 5s linear infinite" }} />
+
+        <div className="relative z-10 mb-4 flex items-center justify-between">
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.26em] text-cyan-100/45">PolyEdge Operational Command Fabric</div>
+            <div className="mt-1 text-xl font-black uppercase tracking-[0.14em] text-white">Action Monitor Grid</div>
           </div>
-        ) : monitors.map((m) => (
-          <div key={m.key} className={`relative overflow-hidden rounded-2xl border p-4 ${stateClass(m.state)}`}>
-            {m.moving ? (
-              <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-emerald-300/15 to-transparent" style={{ animation: "poly-monitor-sweep 2.4s linear infinite" }} />
-            ) : null}
-
-            <div className="relative z-10 flex items-start justify-between gap-3">
-              <div>
-                <div className="text-[9px] uppercase tracking-[0.16em] opacity-55">{m.key}</div>
-                <div className="mt-1 text-sm font-black uppercase tracking-[0.1em] text-white">{m.label}</div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span
-                  className={`h-2.5 w-2.5 rounded-full ${m.moving ? "bg-emerald-300" : m.state === "blocked" || m.state === "paper_only" ? "bg-amber-300" : "bg-red-300"}`}
-                  style={{ animation: m.moving ? "poly-monitor-beat 1s ease-in-out infinite" : undefined }}
-                />
-                <span className="text-xs font-black uppercase">{m.state || "unknown"}</span>
-              </div>
-            </div>
-
-            <div className="relative z-10 mt-3 text-[11px] leading-relaxed text-cyan-50/65">
-              {m.detail || "No detail available."}
-            </div>
-
-            <MiniActionMonitor monitor={m} />
-
-            <div className="relative z-10 mt-3 flex justify-between text-[10px] text-cyan-100/35">
-              <span>{m.liveTradingAffected ? "Live gate related" : "Paper/system only"}</span>
-              <span>{m.lastCheckAt ? new Date(m.lastCheckAt).toLocaleTimeString() : "waiting"}</span>
-            </div>
+          <div className="rounded-2xl border border-emerald-300/25 bg-emerald-300/10 px-4 py-2 text-right shadow-[0_0_30px_rgba(0,255,136,.18)]">
+            <div className="text-[8px] uppercase tracking-[0.18em] text-emerald-100/50">Responding</div>
+            <div className="text-lg font-black text-emerald-300">{monitors.filter((m) => m.state === "online" || m.state === "running").length}/{monitors.length}</div>
           </div>
-        ))}
+        </div>
+
+        <div className="relative z-10 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {monitors.length === 0 ? (
+            <div className="col-span-full rounded-3xl border border-red-300/25 bg-red-400/5 p-5 text-red-200">
+              PolyEdge action monitor has not responded yet.
+            </div>
+          ) : monitors.map((m) => {
+            const tone = statusTone(m.state);
+            return (
+              <div key={m.key} className={`group relative overflow-hidden rounded-3xl border p-4 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] ${tone.shell} ${tone.glow}`}>
+                <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: "linear-gradient(120deg, transparent 20%, rgba(255,255,255,.10), transparent 80%)", animation: "poly-premium-sweep 2.8s linear infinite" }} />
+                <div className="pointer-events-none absolute inset-0 rounded-3xl border border-white/5" />
+
+                <div className="relative z-10 flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[8px] uppercase tracking-[0.2em] text-cyan-100/35">{m.key}</div>
+                    <div className="mt-1 text-base font-black uppercase tracking-[0.12em] text-white">{m.label}</div>
+                  </div>
+                  <div className={`flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-black uppercase ${tone.text} border-current/25 bg-black/35`}>
+                    <span className={`h-2.5 w-2.5 rounded-full ${tone.dot}`} style={{ animation: m.moving ? "poly-premium-core 1s ease-in-out infinite" : undefined }} />
+                    {m.state || "unknown"}
+                  </div>
+                </div>
+
+                <div className="relative z-10 mt-3 min-h-[38px] text-[11px] leading-relaxed text-cyan-50/68">
+                  {m.detail || "No detail available."}
+                </div>
+
+                <MiniActionMonitor monitor={m} />
+
+                <div className="relative z-10 mt-3 flex justify-between text-[10px] text-cyan-100/35">
+                  <span>{m.liveTradingAffected ? "Live gate related" : "Paper/system only"}</span>
+                  <span>{m.lastCheckAt ? new Date(m.lastCheckAt).toLocaleTimeString() : "waiting"}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </HoloPanel>
   );
