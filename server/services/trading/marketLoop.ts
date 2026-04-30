@@ -29,22 +29,7 @@ export function getMarketLoopStatus() {
 }
 
 export function startMarketLoop(): void {
-  if (process.env.PHANTOM_X_MARKET_LOOP_ENABLED !== "true") {
-    console.log("[MarketLoop] Not started — controlled worker disabled unless PHANTOM_X_MARKET_LOOP_ENABLED=true");
-    return;
-  }
-
-  if (isRunning) return;
-  isRunning = true;
-  console.log("[MarketLoop] Starting as controlled worker — fast: 15s, detailed: 60s");
-
-  runFastCycle();
-
-  setTimeout(() => runDetailedCycle(), 5000);
-
-  fastTimer = setInterval(() => runFastCycle(), FAST_INTERVAL_MS);
-  detailedTimer = setInterval(() => runDetailedCycle(), DETAILED_INTERVAL_MS);
-  pruneTimer = setInterval(() => runPrune(), PRUNE_INTERVAL_MS);
+  console.log("[MarketLoop] Legacy in-process market loop disabled — use durable Nexora pg-boss Phantom X market workers");
 }
 
 export function stopMarketLoop(): void {

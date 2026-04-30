@@ -103,13 +103,8 @@ export async function runFollowUpScheduler(): Promise<void> {
   }
 }
 
-const INTERVAL_MS = 60 * 60 * 1000; // Every hour
-
 export function startFollowUpScheduler(): void {
-  console.log("[FollowUp] Scheduler started — checking every hour");
-  // Run once on startup to catch any overdue sequences
-  setTimeout(() => runFollowUpScheduler(), 10_000);
-  setInterval(() => runFollowUpScheduler(), INTERVAL_MS);
+  console.log("[FollowUp] Legacy in-process scheduler disabled — use durable Nexora pg-boss worker QUEUES.FOLLOWUPS_SEND");
 }
 
 // Helper: create a follow-up sequence for a new lead
