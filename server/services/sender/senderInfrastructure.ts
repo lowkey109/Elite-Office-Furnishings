@@ -1,4 +1,4 @@
-export type SenderChannel = "email" | "whatsapp" | "sms" | "internal";
+export type SenderChannel = "email" | "whatsapp" | "internal";
 
 export type SenderReadinessCheck = {
   key: string;
@@ -37,54 +37,50 @@ export function getSenderReadiness(channel: SenderChannel = "email"): SenderRead
   const liveMode = process.env.SAFE_MODE === "false";
   const checks: SenderReadinessCheck[] = [];
 
-  checks.push(check(
-    "safe_mode",
-    !liveMode || boolEnv("TCD_ALLOW_REAL_OUTREACH"),
-    liveMode ? "critical" : "info",
-    liveMode
-      ? "SAFE_MODE=false requires TCD_ALLOW_REAL_OUTREACH=true"
-      : "SAFE_MODE is not false; live outbound is suppressed"
-  ));
-
   if (channel === "email") {
-    checks.push(check("resend_api_key", !!env("RESEND_API_KEY"), "critical", "RESEND_API_KEY must be configured"));
-    checks.push(check("sender_from", !!env("TCD_EMAIL_FROM_PLAIN") || !!env("TCD_EMAIL_FROM"), "critical", "A branded sender address must be configured"));
-    checks.push(check("public_url", !!env("PUBLIC_URL") || !!env("REPLIT_DOMAINS"), "warning", "PUBLIC_URL should be configured for unsubscribe links"));
-    checks.push(check("spf_documented", boolEnv("TCD_SPF_VERIFIED"), "warning", "Set TCD_SPF_VERIFIED=true after SPF is verified"));
-    checks.push(check("dkim_documented", boolEnv("TCD_DKIM_VERIFIED"), "warning", "Set TCD_DKIM_VERIFIED=true after DKIM is verified"));
-    checks.push(check("dmarc_documented", boolEnv("TCD_DMARC_VERIFIED"), "warning", "Set TCD_DMARC_VERIFIED=true after DMARC is verified"));
-    checks.push(check("bounce_handling", boolEnv("TCD_BOUNCE_HANDLING_ENABLED"), "warning", "Bounce handling should be enabled before scaled outbound"));
-    checks.push(check("suppression_enforced", true, "info", "Suppression guards exist in outreach send paths"));
+    checks.push(
+      check("RESEND_API_KEY", !!env("RESEND_API_KEY"), "critical", "Resend API key required."),
+      check("TCD_EMAIL_FROM_PLAIN", !!env("TCD_EMAIL_FROM_PLAIN"), "critical", "Branded sender required."),
+      check("TCD_ALLOW_REAL_OUTREACH", boolEnv("TCD_ALLOW_REAL_OUTREACH"), "critical", "Real outreach must be explicitly enabled."),
+      check("EMAIL_DOMAIN_VERIFIED", boolEnv("EMAIL_DOMAIN_VERIFIED"), "critical", "Sending domain must be verified."),
+      check("EMAIL_SPF_VERIFIED", boolEnv("EMAIL_SPF_VERIFIED"), "critical", "SPF must be verified."),
+      check("EMAIL_DKIM_VERIFIED", boolEnv("EMAIL_DKIM_VERIFIED"), "critical", "DKIM must be verified."),
+      check("EMAIL_DMARC_VERIFIED", boolEnv("EMAIL_DMARC_VERIFIED"), "warning", "DMARC should be configured."),
+      check("EMAIL_BOUNCE_WEBHOOK_ENABLED", boolEnv("EMAIL_BOUNCE_WEBHOOK_ENABLED"), "warning", "Bounce webhook should be enabled."),
+      check("EMAIL_DELIVERABILITY_TELEMETRY", boolEnv("EMAIL_DELIVERABILITY_TELEMETRY"), "warning", "Deliverability telemetry should be enabled.")
+    );
   }
 
   if (channel === "whatsapp") {
-    const twilioReady = !!env("TWILIO_ACCOUNT_SID") && !!env("TWILIO_AUTH_TOKEN") && !!env("TWILIO_WHATSAPP_FROM");
-    const gatewayReady = !!env("WHATSAPP_GATEWAY_URL");
-    checks.push(check("whatsapp_provider", twilioReady || gatewayReady, "critical", "Twilio WhatsApp or WHATSAPP_GATEWAY_URL must be configured"));
-    checks.push(check("whatsapp_ops_visibility", !!env("WHATSAPP_OPS_E164") || !!env("WHATSAPP_OPS_E164_LIST"), "warning", "Ops WhatsApp recipient should be configured"));
+    checks.push(
+      check("WHATSAPP_PROVIDER", !!env("TWILIO_ACCOUNT_SID") || !!env("WHATSAPP_GATEWAY_URL"), "critical", "WhatsApp provider required."),
+      check("WHATSAPP_GUARDS_ENABLED", true, "info", "WhatsApp guards are present."),
+      check("WHATSAPP_OPS_RECIPIENTS", !!env("WHATSAPP_OPS_E164") || !!env("WHATSAPP_OPS_E164_LIST"), "warning", "Ops WhatsApp recipient recommended.")
+    );
+  }
+
+  if (channel === "internal") {
+    checks.push(check("INTERNAL_NOTIFICATIONS", true, "info", "Internal notifications allowed."));
   }
 
   const missingCritical = checks.filter(c => !c.ok && c.severity === "critical").map(c => c.key);
   const warnings = checks.filter(c => !c.ok && c.severity === "warning").map(c => c.key);
 
-  return {
-    ok: missingCritical.length === 0,
-    channel,
-    liveMode,
-    checks,
-    missingCritical,
-    warnings,
-  };
+  return { ok: missingCritical.length === 0, channel, liveMode, checks, missingCritical, warnings };
 }
 
 export function assertSenderReady(channel: SenderChannel = "email"): SenderReadinessResult {
-  const result = getSenderReadiness(channel);
-  if (!result.ok) {
-    console.warn("[SenderInfrastructure] Sender not production-ready", {
-      channel,
-      missingCritical: result.missingCritical,
-      warnings: result.warnings,
-    });
+  const readiness = getSenderReadiness(channel);
+  if (readiness.liveMode && !readiness.ok) {
+    throw new Error(`Sender not production-ready for ${channel}: ${readiness.missingCritical.join(", ")}`);
   }
-  return result;
+  return readiness;
+}
+
+export function getAllSenderReadiness(): Record<SenderChannel, SenderReadinessResult> {
+  return {
+    email: getSenderReadiness("email"),
+    whatsapp: getSenderReadiness("whatsapp"),
+    internal: getSenderReadiness("internal"),
+  };
 }
