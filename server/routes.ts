@@ -129,6 +129,26 @@ async function isWhatsAppConfigured(): Promise<boolean> {
 }
 
 async function sendWhatsAppTextMessage(to: string, message: string): Promise<{ success: boolean }> {
+  const { assertNexoraExecutionApproved } = await import("./services/intelligence/nexora/nexoraExecutionGate");
+
+  const gate = assertNexoraExecutionApproved({
+    moduleKey: "whatsapp",
+    intent: "send_message",
+    requestedBy: "nexora",
+    reason: `Nexora approved WhatsApp route send to ${to}`,
+    evidence: {
+      to,
+      messageLength: String(message || "").length,
+      source: "routes_whatsapp_stub_send",
+    },
+  });
+
+  console.log("[Nexora WhatsApp] Route send approved through execution gate", {
+    to,
+    decision: gate.decision,
+    empireScore: gate.empireScore?.empireScore,
+  });
+
   console.log("[WhatsApp] Message queued:", { to, message });
   return { success: true };
 }

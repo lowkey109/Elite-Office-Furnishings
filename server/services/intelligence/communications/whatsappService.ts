@@ -1,6 +1,7 @@
 // server/services/communications/whatsappService.ts
 
 import type { Request, Response } from "express";
+import { assertNexoraExecutionApproved } from "../nexora/nexoraExecutionGate";
 
 /**
  * Outbound send contract used across the codebase
@@ -77,6 +78,24 @@ export async function sendWhatsAppMessage(
       responseText: "Message is empty",
     };
   }
+
+  const nexoraGate = assertNexoraExecutionApproved({
+    moduleKey: "whatsapp",
+    intent: "send_message",
+    requestedBy: "nexora",
+    reason: `Nexora approved WhatsApp send to ${toE164}`,
+    evidence: {
+      toE164,
+      messageLength: message.length,
+      source: "whatsapp_service_send",
+    },
+  });
+
+  console.log("[Nexora WhatsApp] Send approved through execution gate", {
+    toE164,
+    decision: nexoraGate.decision,
+    empireScore: nexoraGate.empireScore?.empireScore,
+  });
 
   // ─────────────────────────────────────────────
   // Provider 1: Twilio WhatsApp
