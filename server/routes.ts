@@ -12889,6 +12889,28 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
   // ── PolyEdge / Aetherforge — Decision Lineage API ──────────────────────────
 
   // ── PolyEdge / Aetherforge — Tiny-Live Promotion Gate API ──────────────────
+
+  // ── PolyEdge / Aetherforge — Fast Paper Replay Engine ──────────────────────
+  app.get("/api/admin/polyedge/replay/status", async (_req: any, res: any) => {
+    try {
+      const { getPolyEdgeReplayStatus } = await import("./services/trading/polyEdgeFastReplayEngine");
+      return res.json(await getPolyEdgeReplayStatus());
+    } catch (err: any) {
+      return res.status(500).json({ ok: false, error: err?.message || "PolyEdge replay status failed" });
+    }
+  });
+
+  app.post("/api/admin/polyedge/replay/run", async (req: any, res: any) => {
+    try {
+      const { runPolyEdgeFastPaperReplay } = await import("./services/trading/polyEdgeFastReplayEngine");
+      const requestedBatchSize = Number(req.body?.batchSize || req.query?.batchSize || 25);
+      const force = req.body?.force === true || req.query?.force === "true";
+      return res.json(await runPolyEdgeFastPaperReplay({ requestedBatchSize, force }));
+    } catch (err: any) {
+      return res.status(500).json({ ok: false, error: err?.message || "PolyEdge replay run failed" });
+    }
+  });
+
   app.get("/api/admin/polyedge/promotion-readiness", async (_req: any, res: any) => {
     try {
       const { getPolyEdgePromotionReadiness } = await import("./services/trading/polyEdgePromotionGate");

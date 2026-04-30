@@ -12,7 +12,7 @@ type PromotionStatus =
   | "tiny_live_allowed";
 
 const RULES = {
-  minimumCompletedPaperTrades: 500,
+  minimumQualifiedProfitablePaperTrades: 500,
   minimumWinRate: 55,
   minimumProfitFactor: 1.25,
   maximumDrawdownPct: 12,
@@ -56,7 +56,8 @@ export async function getPolyEdgePromotionReadiness(mode: PolyEdgePromotionMode 
   const learningSummary = (learningResult as any)?.summary || {};
   const lineageSummary = (lineageResult as any)?.summary || {};
 
-  const completedPaperTrades = n(proof.totalTrades);
+  const totalPaperTrades = n(proof.totalTrades);
+  const qualifiedProfitablePaperTrades = n(proof.wins);
   const winRate = n(proof.winRate);
   const profitFactor = n(proof.profitFactor);
   const maxDrawdownPct = n(proof.maxDrawdownPct);
@@ -71,10 +72,10 @@ export async function getPolyEdgePromotionReadiness(mode: PolyEdgePromotionMode 
   const checks = [
     pass(
       "minimum_completed_paper_trades",
-      completedPaperTrades >= RULES.minimumCompletedPaperTrades,
-      completedPaperTrades,
-      RULES.minimumCompletedPaperTrades,
-      `Requires at least ${RULES.minimumCompletedPaperTrades} completed paper trades before tiny-live review.`
+      qualifiedProfitablePaperTrades >= RULES.minimumQualifiedProfitablePaperTrades,
+      qualifiedProfitablePaperTrades,
+      RULES.minimumQualifiedProfitablePaperTrades,
+      `Requires at least ${RULES.minimumQualifiedProfitablePaperTrades} profitable completed paper trades before tiny-live review. Losing trades still count against all risk/proof metrics.`
     ),
     pass(
       "minimum_win_rate",
@@ -148,7 +149,7 @@ export async function getPolyEdgePromotionReadiness(mode: PolyEdgePromotionMode 
 
   let status: PromotionStatus = "blocked";
 
-  if (completedPaperTrades < RULES.minimumCompletedPaperTrades) {
+  if (qualifiedProfitablePaperTrades < RULES.minimumQualifiedProfitablePaperTrades) {
     status = "paper_only";
   } else if (performanceChecksPassed && runtime.phantomXLivePreauthorised !== true) {
     status = "eligible_for_tiny_live_review";
@@ -160,7 +161,7 @@ export async function getPolyEdgePromotionReadiness(mode: PolyEdgePromotionMode 
 
   const nextRequiredAction =
     status === "paper_only"
-      ? `Complete ${Math.max(0, RULES.minimumCompletedPaperTrades - completedPaperTrades)} more paper trades.`
+      ? `Complete ${Math.max(0, RULES.minimumQualifiedProfitablePaperTrades - qualifiedProfitablePaperTrades)} more profitable paper trades. Losses still count for learning and risk.`
       : status === "eligible_for_tiny_live_review"
         ? "Performance gates passed. Manual preauthorisation is still required before tiny-live."
         : status === "tiny_live_allowed"
@@ -178,9 +179,10 @@ export async function getPolyEdgePromotionReadiness(mode: PolyEdgePromotionMode 
     tinyLiveCaps: RULES.tinyLiveCaps,
     rules: RULES,
     metrics: {
-      completedPaperTrades,
-      requiredPaperTrades: RULES.minimumCompletedPaperTrades,
-      paperTradeProgressPct: Math.min(100, Math.round((completedPaperTrades / RULES.minimumCompletedPaperTrades) * 10000) / 100),
+      totalPaperTrades,
+      qualifiedProfitablePaperTrades,
+      requiredProfitablePaperTrades: RULES.minimumQualifiedProfitablePaperTrades,
+      profitablePaperTradeProgressPct: Math.min(100, Math.round((qualifiedProfitablePaperTrades / RULES.minimumQualifiedProfitablePaperTrades) * 10000) / 100),
       winRate,
       profitFactor,
       maxDrawdownPct,
