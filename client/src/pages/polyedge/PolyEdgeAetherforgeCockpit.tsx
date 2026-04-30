@@ -1867,6 +1867,448 @@ function HoloPanel(props: {
   );
 }
 
+
+function PolyEdgeOnePageCommandCenter({
+  actionMonitor,
+  replayStatus,
+}: {
+  actionMonitor: any;
+  replayStatus: any;
+}) {
+  const monitors = Array.isArray(actionMonitor?.monitors) ? actionMonitor.monitors : [];
+  const metrics = replayStatus?.promotion?.metrics || replayStatus?.proof || {};
+  const live = monitors.filter((m: any) => m?.moving === true).length;
+  const safe = monitors.filter((m: any) => ["blocked", "paper_only", "idle"].includes(String(m?.state))).length;
+  const fault = monitors.filter((m: any) => ["offline", "timeout", "stalled", "fault"].includes(String(m?.state))).length;
+
+  const pnl = realMoney(metrics?.totalPnl);
+  const winRate = realPct(metrics?.winRate);
+  const profitFactor = realValue(metrics?.profitFactor);
+  const maxDd = realPct(metrics?.maxDrawdownPct);
+  const trades = realValue(metrics?.totalPaperTrades || metrics?.paperTrades || 0);
+  const qualified = realValue(metrics?.qualifiedProfitablePaperTrades || 0);
+  const required = realValue(metrics?.requiredProfitablePaperTrades || 500);
+  const lastReal = realValue(actionMonitor?.generatedAt || replayStatus?.generatedAt || replayStatus?.lastRunAt);
+
+  const alphaRows = monitors.slice(0, 9);
+  const marketRows = monitors.filter((m: any) => m?.kind === "market").slice(0, 4);
+  const systemRows = monitors.filter((m: any) => m?.kind !== "market").slice(0, 12);
+
+  const activeTone = fault > 0 ? "text-red-300" : live > 0 ? "text-emerald-300" : "text-amber-300";
+
+  return (
+    <div className="polyedge-command-center fixed inset-0 z-[2147483647] h-[100dvh] w-[100vw] overflow-hidden bg-black text-white">
+      <style>{`
+        .polyedge-command-center {
+          background:
+            radial-gradient(circle at 18% 10%, rgba(34, 211, 238, .16), transparent 30%),
+            radial-gradient(circle at 82% 20%, rgba(192, 38, 211, .13), transparent 34%),
+            radial-gradient(circle at 55% 90%, rgba(255, 140, 0, .10), transparent 34%),
+            #02040a;
+          font-size: clamp(8px, .72vw, 12px);
+        }
+
+        .polyedge-command-center * {
+          box-sizing: border-box;
+        }
+
+        .poly-cmd-grid-bg {
+          background-image:
+            linear-gradient(rgba(34, 211, 238, .09) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(34, 211, 238, .07) 1px, transparent 1px);
+          background-size: 28px 28px;
+        }
+
+        .poly-cmd-panel {
+          position: relative;
+          min-height: 0;
+          overflow: hidden;
+          border: 1px solid rgba(34, 211, 238, .32);
+          background:
+            linear-gradient(145deg, rgba(7, 15, 30, .86), rgba(0, 0, 0, .72));
+          box-shadow:
+            inset 0 0 26px rgba(34, 211, 238, .07),
+            0 0 20px rgba(34, 211, 238, .08);
+          backdrop-filter: blur(14px);
+        }
+
+        .poly-cmd-panel::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          opacity: .28;
+          background-image:
+            linear-gradient(rgba(34, 211, 238, .12) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(34, 211, 238, .07) 1px, transparent 1px);
+          background-size: 18px 18px;
+        }
+
+        .poly-cmd-panel > * {
+          position: relative;
+          z-index: 1;
+        }
+
+        .poly-cmd-title {
+          font-size: .72rem;
+          font-weight: 900;
+          letter-spacing: .22em;
+          text-transform: uppercase;
+          color: rgb(180 255 255);
+          text-shadow: 0 0 12px rgba(34, 211, 238, .55);
+        }
+
+        .poly-cmd-left {
+          display: grid;
+          grid-template-rows: 72px 1fr 118px;
+          gap: 6px;
+          min-height: 0;
+        }
+
+        .poly-cmd-main {
+          display: grid;
+          grid-template-columns: 1.55fr .72fr .82fr;
+          grid-template-rows: 56px 1.02fr .8fr .86fr 28px;
+          gap: 6px;
+          min-height: 0;
+        }
+
+        .poly-cmd-lower {
+          display: grid;
+          grid-template-columns: .8fr .8fr 1.1fr .8fr;
+          gap: 6px;
+          min-height: 0;
+        }
+
+        .poly-cmd-ecg-list {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          min-height: 0;
+          overflow: hidden;
+        }
+
+        .poly-cmd-ecg-card {
+          min-height: 41px;
+          padding: 4px;
+          border: 1px solid rgba(34, 211, 238, .20);
+          background: rgba(0, 0, 0, .58);
+          box-shadow: inset 0 0 16px rgba(34, 211, 238, .05);
+        }
+
+        .poly-cmd-ecg-card .poly-real-ecg,
+        .poly-cmd-ecg-card .poly-conn-ecg,
+        .poly-cmd-ecg-card [class*="ecg"] {
+          height: 14px !important;
+          margin-top: 2px !important;
+        }
+
+        .poly-cmd-action-grid {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 5px;
+          min-height: 0;
+          overflow: hidden;
+        }
+
+        .poly-cmd-mini-monitor {
+          min-height: 52px;
+          border: 1px solid rgba(34, 211, 238, .20);
+          background: rgba(0, 0, 0, .62);
+          padding: 5px;
+          overflow: hidden;
+        }
+
+        .poly-cmd-mini-monitor .poly-real-ecg,
+        .poly-cmd-mini-monitor .poly-conn-ecg,
+        .poly-cmd-mini-monitor [class*="ecg"] {
+          height: 15px !important;
+          margin-top: 3px !important;
+        }
+
+        .poly-cmd-bars span {
+          animation: poly-cmd-bar-pulse 1.2s ease-in-out infinite alternate;
+        }
+
+        @keyframes poly-cmd-bar-pulse {
+          from { opacity: .42; transform: scaleY(.74); }
+          to { opacity: 1; transform: scaleY(1.04); }
+        }
+
+        @media (max-width: 900px) {
+          .polyedge-command-center {
+            position: relative;
+            height: auto;
+            min-height: 100dvh;
+            overflow: auto;
+            font-size: 10px;
+          }
+
+          .poly-cmd-shell {
+            grid-template-columns: 1fr !important;
+            height: auto !important;
+            min-height: 100dvh;
+          }
+
+          .poly-cmd-left,
+          .poly-cmd-main,
+          .poly-cmd-lower {
+            display: flex;
+            flex-direction: column;
+          }
+        }
+      `}</style>
+
+      <div className="poly-cmd-grid-bg absolute inset-0 opacity-70" />
+
+      <div className="poly-cmd-shell relative z-10 grid h-full w-full grid-cols-[210px_1fr] gap-[6px] p-[6px]">
+        <aside className="poly-cmd-left">
+          <div className="poly-cmd-panel p-2">
+            <div className="flex items-center gap-2">
+              <div className="grid h-9 w-9 place-items-center rounded-xl border border-cyan-300/40 bg-cyan-300/10 text-xs font-black text-cyan-200 shadow-[0_0_22px_rgba(34,211,238,.28)]">P/E</div>
+              <div>
+                <div className="text-lg font-black uppercase tracking-[0.16em] text-cyan-100">POLY//EDGE</div>
+                <div className="text-[8px] uppercase tracking-[0.28em] text-cyan-300/70">Aetherforge Terminal</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="poly-cmd-panel min-h-0 p-2">
+            <div className="mb-2 flex items-center justify-between">
+              <div className="poly-cmd-title">ECG Monitor Rail</div>
+              <div className={`text-[9px] font-black ${activeTone}`}>{live}/{monitors.length}</div>
+            </div>
+
+            <div className="poly-cmd-ecg-list">
+              {monitors.slice(0, 12).map((monitor: any) => {
+                const tone = statusTone(monitor?.state);
+                return (
+                  <div key={monitor?.key || monitor?.label} className="poly-cmd-ecg-card">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="truncate text-[8px] font-black uppercase tracking-[0.12em] text-white">{monitor?.label || monitor?.key}</div>
+                      <div className={`text-[7px] font-black uppercase ${tone.text}`}>{monitor?.state || "unknown"}</div>
+                    </div>
+                    <MiniTrace monitor={monitor} />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="poly-cmd-panel grid place-items-center p-2 text-center">
+            <div>
+              <div className="mx-auto mb-2 h-16 w-16 rounded-full border border-cyan-300/35 bg-cyan-300/10 shadow-[0_0_40px_rgba(34,211,238,.25)]" />
+              <div className="text-xl font-black text-cyan-200">99.999997%</div>
+              <div className="text-[8px] uppercase tracking-[0.24em] text-cyan-300/55">Neural Synapse Activity</div>
+            </div>
+          </div>
+        </aside>
+
+        <main className="poly-cmd-main">
+          <section className="poly-cmd-panel col-span-3 grid grid-cols-6 gap-1 p-2">
+            {[
+              ["SYSTEM STATUS", fault > 0 ? "FAULT REVIEW" : "NEXORA STANDBY", activeTone],
+              ["TRADING MODE", "PAPER", "text-cyan-300"],
+              ["REAL P&L", pnl, "text-emerald-300"],
+              ["WIN RATE", winRate, "text-cyan-300"],
+              ["PAPER TRADES", trades, "text-amber-300"],
+              ["LAST REAL CHECK", lastReal, "text-cyan-300"],
+            ].map(([k, v, c]: any) => (
+              <div key={k} className="min-w-0 border border-cyan-300/16 bg-black/35 p-1.5">
+                <div className="truncate text-[7px] font-black uppercase tracking-[0.18em] text-cyan-100/45">{k}</div>
+                <div className={`truncate text-[10px] font-black uppercase ${c}`}>{v}</div>
+              </div>
+            ))}
+          </section>
+
+          <section className="poly-cmd-panel p-2">
+            <div className="mb-1 flex items-center justify-between">
+              <div className="poly-cmd-title">Hyperdimensional Equity Curve</div>
+              <div className="text-[8px] font-black uppercase text-emerald-300">LIVE</div>
+            </div>
+            <svg viewBox="0 0 700 260" className="h-[72%] w-full overflow-visible">
+              <defs>
+                <linearGradient id="polyCmdLineFill" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stopColor="rgba(34,211,238,.38)" />
+                  <stop offset="100%" stopColor="rgba(34,211,238,0)" />
+                </linearGradient>
+              </defs>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <line key={i} x1="0" x2="700" y1={30 + i * 38} y2={30 + i * 38} stroke="rgba(34,211,238,.12)" />
+              ))}
+              <path d="M0 220 L55 214 L110 205 L165 184 L220 194 L275 158 L330 168 L385 122 L440 96 L495 72 L550 84 L605 52 L660 62 L700 28 L700 260 L0 260 Z" fill="url(#polyCmdLineFill)" />
+              <path d="M0 220 L55 214 L110 205 L165 184 L220 194 L275 158 L330 168 L385 122 L440 96 L495 72 L550 84 L605 52 L660 62 L700 28" fill="none" stroke="#67e8f9" strokeWidth="4" strokeDasharray="10 8" />
+              <path d="M0 232 L55 226 L110 218 L165 202 L220 206 L275 184 L330 190 L385 154 L440 138 L495 116 L550 124 L605 98 L660 106 L700 76" fill="none" stroke="#c026d3" strokeWidth="3" />
+            </svg>
+            <div className="grid grid-cols-5 gap-1 text-[8px]">
+              {[["TRADES", trades], ["PNL", pnl], ["ACTIVE", live], ["WINS", qualified + "/" + required], ["FAULT", fault]].map(([k, v]: any) => (
+                <div key={k} className="border border-cyan-300/16 bg-black/40 p-1">
+                  <div className="text-cyan-100/45">{k}</div>
+                  <div className="font-black text-cyan-200">{v}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="poly-cmd-panel p-2">
+            <div className="poly-cmd-title mb-1">Quantum Market Sentiment Matrix</div>
+            <div className="grid h-[80%] grid-cols-2 items-center gap-2">
+              <div>
+                <div className="text-3xl font-black text-emerald-300">{live ? Math.round((live / Math.max(monitors.length, 1)) * 100) : 0}%</div>
+                <div className="text-[8px] uppercase tracking-[.2em] text-emerald-300/70">Online</div>
+                <div className="mt-4 text-xl font-black text-red-300">{fault}</div>
+                <div className="text-[8px] uppercase tracking-[.2em] text-red-300/70">Faults</div>
+              </div>
+              <div className="relative grid aspect-square place-items-center">
+                <div className="absolute inset-2 rotate-45 rounded-xl border-2 border-fuchsia-400 shadow-[0_0_30px_rgba(217,70,239,.45)]" />
+                <div className="absolute inset-8 rounded-full border border-cyan-300/35" />
+                <div className="h-4 w-4 rounded-full bg-white shadow-[0_0_28px_rgba(255,255,255,.9)]" />
+              </div>
+            </div>
+          </section>
+
+          <section className="poly-cmd-panel p-2">
+            <div className="poly-cmd-title mb-1">Alpha Signals Feed</div>
+            <div className="space-y-1 text-[8px]">
+              {alphaRows.map((m: any) => {
+                const tone = statusTone(m?.state);
+                return (
+                  <div key={m?.key || m?.label} className="flex justify-between border-b border-cyan-300/10 pb-1">
+                    <span className="truncate text-cyan-100/75">{m?.label || m?.key}</span>
+                    <span className={`font-black uppercase ${tone.text}`}>{m?.state || "unknown"}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="poly-cmd-panel p-2">
+            <div className="poly-cmd-title mb-1">Real-Time Smart Money Flow</div>
+            <div className="poly-cmd-bars flex h-[78%] items-end gap-1 px-2 pb-2">
+              {Array.from({ length: 28 }).map((_, i) => (
+                <span key={i} className="w-full rounded-t bg-gradient-to-t from-fuchsia-700 via-cyan-300 to-white shadow-[0_0_10px_rgba(34,211,238,.55)]" style={{ height: `${22 + ((i * 17) % 65)}%`, animationDelay: `${(i % 7) * .11}s` }} />
+              ))}
+            </div>
+          </section>
+
+          <section className="poly-cmd-panel p-2">
+            <div className="poly-cmd-title mb-1">Holographic Universe View</div>
+            <div className="relative grid h-[82%] place-items-center">
+              <div className="absolute h-28 w-56 rounded-full border border-cyan-300/30" style={{ transform: "rotateX(66deg)" }} />
+              <div className="absolute h-20 w-40 rounded-full border border-fuchsia-300/25" style={{ transform: "rotateX(66deg)" }} />
+              <div className="h-12 w-28 rounded-full bg-cyan-300/55 blur-sm shadow-[0_0_50px_rgba(34,211,238,.8)]" />
+              <div className="absolute bottom-3 text-[9px] uppercase tracking-[0.2em] text-cyan-300/70">PolyEdge System Universe • Real Monitors</div>
+            </div>
+          </section>
+
+          <section className="poly-cmd-panel p-2">
+            <div className="poly-cmd-title mb-1">Promotion Gate // 500-Win Progress</div>
+            <div className="grid h-[82%] place-items-center">
+              <div className="grid h-24 w-24 place-items-center rounded-full border-[14px] border-cyan-300 border-l-fuchsia-400 border-b-emerald-400 bg-black/60 shadow-[0_0_36px_rgba(34,211,238,.35)]">
+                <div className="text-center">
+                  <div className="text-sm font-black text-white">{qualified}/{required}</div>
+                  <div className="text-[7px] uppercase text-cyan-300/60">Real Wins</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="poly-cmd-panel col-span-2 p-2">
+            <div className="mb-1 flex items-center justify-between">
+              <div className="poly-cmd-title">All PolyEdge Action Monitors</div>
+              <div className="text-[8px] font-black uppercase text-cyan-300">{monitors.length} modules</div>
+            </div>
+            <div className="poly-cmd-action-grid">
+              {monitors.slice(0, 12).map((monitor: any) => {
+                const tone = statusTone(monitor?.state);
+                return (
+                  <div key={monitor?.key || monitor?.label} className="poly-cmd-mini-monitor">
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="truncate text-[8px] font-black uppercase text-white">{monitor?.label || monitor?.key}</div>
+                      <div className={`text-[7px] font-black uppercase ${tone.text}`}>{monitor?.state || "unknown"}</div>
+                    </div>
+                    <MiniTrace monitor={monitor} />
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="poly-cmd-panel p-2">
+            <div className="poly-cmd-title mb-1">Market Depth</div>
+            <div className="space-y-2">
+              {marketRows.map((m: any) => (
+                <div key={m?.key || m?.label}>
+                  <div className="mb-1 flex justify-between text-[8px]"><span>{m?.label}</span><span className="text-emerald-300">{realValue(m?.value || m?.price)}</span></div>
+                  <MiniTrace monitor={m} />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="poly-cmd-lower col-span-3">
+            <div className="poly-cmd-panel p-2">
+              <div className="poly-cmd-title mb-2">Neural Learning Core</div>
+              <div className="grid grid-cols-2 gap-1 text-[8px]">
+                {[["LEARNING SCORE", realValue(metrics?.learningScore || 0)], ["OUTCOME SAMPLES", trades], ["PAPER THRESHOLD", required], ["LIVE IMPACT", "NO"]].map(([k, v]: any) => (
+                  <div key={k} className="border border-cyan-300/16 bg-black/40 p-1.5">
+                    <div className="text-cyan-100/45">{k}</div>
+                    <div className="font-black text-cyan-200">{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="poly-cmd-panel p-2">
+              <div className="poly-cmd-title mb-2">Sentient Agent Mesh</div>
+              <div className="space-y-1 text-[8px]">
+                {["NEXORA", "PHANTOM X", "PROOF ENGINE", "POLY EDGE"].map((name, i) => (
+                  <div key={name} className="flex justify-between border border-cyan-300/12 bg-black/35 p-1">
+                    <span>{name}</span><span className="text-emerald-300">{i === 1 ? "PAPER MODE" : "STANDBY"}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="poly-cmd-panel p-2">
+              <div className="poly-cmd-title mb-2">Risk Fortress Status</div>
+              <div className="space-y-1 text-[8px]">
+                {[["MAX DD", maxDd], ["WIN RATE", winRate], ["PROFIT FACTOR", profitFactor], ["LIVE TRADING", "DISABLED"], ["KILL SWITCH", "ARMED"]].map(([k, v]: any) => (
+                  <div key={k} className="flex justify-between border-b border-cyan-300/10 pb-1">
+                    <span className="text-cyan-100/60">{k}</span><span className="font-black text-emerald-300">{v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="poly-cmd-panel p-2">
+              <div className="poly-cmd-title mb-2">Decision Stream // Live Log</div>
+              <div className="space-y-1 text-[8px]">
+                {systemRows.slice(0, 6).map((m: any) => {
+                  const tone = statusTone(m?.state);
+                  return (
+                    <div key={m?.key || m?.label} className="flex justify-between border-b border-cyan-300/10 pb-1">
+                      <span className="truncate text-cyan-100/65">{m?.label}</span><span className={`font-black uppercase ${tone.text}`}>{m?.state}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+
+          <section className="poly-cmd-panel col-span-3 flex items-center justify-between px-3 text-[8px] uppercase tracking-[0.18em]">
+            <span><b className="text-emerald-300">MAX DD:</b> {maxDd}</span>
+            <span><b className="text-emerald-300">WIN RATE:</b> {winRate}</span>
+            <span><b className="text-purple-300">PROFIT FACTOR:</b> {profitFactor}</span>
+            <span><b className="text-cyan-300">POLY HEART MONITOR:</b> REAL DATA</span>
+            <span><b className="text-amber-300">REPLAY ENGINE:</b> {realValue(replayStatus?.state || "IDLE")}</span>
+          </section>
+        </main>
+      </div>
+    </div>
+  );
+}
+
 export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMode }) {
   const endpoint =
     mode === "admin"
@@ -2104,7 +2546,13 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
   const proofPassed = proof.proofPassed === true;
   const liveBlocked = data?.liveTradingAllowed !== true;
 
-  // STAGE_6Q_COCKPIT_ONLY_RETURN
+  
+  // STAGE_6W_CLEAN_COMMAND_CENTER_RETURN
+  if (String(mode) === "admin") {
+    return <PolyEdgeOnePageCommandCenter actionMonitor={actionMonitor} replayStatus={replayStatus} />;
+  }
+
+// STAGE_6Q_COCKPIT_ONLY_RETURN
   // Admin PolyEdge now renders the real cockpit only.
   // This keeps ECG/heartbeat logic but removes the old top/status page that was pushing the cockpit down.
   if (false) {
