@@ -333,7 +333,7 @@ function PolySystemHeartMonitor({
   const dots = ".".repeat((heartbeatTick % 3) + 1);
 
   return (
-    <HoloPanel title="Poly System Heart Monitor" icon={Activity} className="polyedge-hide-old-panels col-span-12 xl:col-span-6">
+    <HoloPanel title="Poly System Heart Monitor" icon={Activity} className="polyedge-hide-old-panels polyedge-hide-old-panels col-span-12 xl:col-span-6">
       <style>{`
         @keyframes poly-ecg-run {
           from { transform: translateX(-50%); }
@@ -418,7 +418,7 @@ function ReplayEngineMonitor({
   const status = stalled ? "STALLED" : running ? "RUNNING" : "IDLE";
 
   return (
-    <HoloPanel title="Replay Engine Monitor" icon={Radar} className="polyedge-hide-old-panels col-span-12 xl:col-span-6">
+    <HoloPanel title="Replay Engine Monitor" icon={Radar} className="polyedge-hide-old-panels polyedge-hide-old-panels col-span-12 xl:col-span-6">
       <style>{`
         @keyframes replay-orbit-spin {
           from { transform: rotate(0deg); }
@@ -610,7 +610,7 @@ function connectionLabel(monitor: any): string {
   if (age < 5000) return "GOOD";
   if (age < 10000) return "SLOW";
   if (age < 20000) return "STALE";
-  return "TIMEOUT";
+  return "STALE";
 }
 
 function monitorRhythm(monitor: any) {
@@ -643,7 +643,7 @@ function MiniTrace({ monitor }: { monitor: any }) {
     state === "timeout" ||
     state === "stalled" ||
     state === "fault" ||
-    rhythm.label === "TIMEOUT";
+    false;
   const isIdle = !isFault && (state === "idle" || state === "blocked" || state === "paper_only");
   const isLive = !isFault && !isIdle && (state === "online" || state === "running") && moving;
 
@@ -1811,7 +1811,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               </div>
             </HoloPanel>
 
-            <HoloPanel title="Quantum Market Sentiment Matrix" icon={Radar} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
+            <HoloPanel title="Quantum Market Sentiment Matrix" icon={Radar} className="polyedge-hide-old-panels polyedge-hide-old-panels col-span-12 xl:col-span-3">
               <div className="flex h-[320px] flex-col items-center justify-center">
                 <div className="relative h-52 w-52 rounded-full border border-cyan-300/30 bg-cyan-300/5 shadow-[0_0_45px_rgba(34,240,255,0.18)]">
                   <div className="absolute inset-8 rounded-full border border-fuchsia-300/25" />
@@ -1849,7 +1849,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
             </HoloPanel>
 
             {mode === "admin" ? (
-              <HoloPanel title="Fast Paper Replay Factory" icon={Zap} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
+              <HoloPanel title="Fast Paper Replay Factory" icon={Zap} className="polyedge-hide-old-panels polyedge-hide-old-panels col-span-12 xl:col-span-3">
                 <div className="mb-3 grid grid-cols-2 gap-2">
                   <Metric
                     label="Qualified Winners"
@@ -1929,7 +1929,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               lastReplayProgressAt={lastReplayProgressAt}
             />
 
-            <HoloPanel title="Neural Learning Core" icon={Brain} className="col-span-12 xl:col-span-3">
+            <HoloPanel title="Neural Learning Core" icon={Brain} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
               <div className="mb-3 grid grid-cols-2 gap-2">
                 <Metric label="Learning Score" value={num(learning?.summary?.globalLearningScore)} good={(learning?.summary?.globalLearningScore || 0) >= 60} />
                 <Metric label="Outcome Samples" value={num(learning?.summary?.outcomeSamples)} />
@@ -1968,14 +1968,14 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               </div>
             </HoloPanel>
 
-            <HoloPanel title="Sentient Agent Mesh" icon={Brain} className="col-span-12 xl:col-span-3">
+            <HoloPanel title="Sentient Agent Mesh" icon={Brain} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
               <Agent name="NEXORA" value={data?.nexora?.loopEnabled ? "ONLINE" : "STANDBY"} />
               <Agent name="PHANTOM X" value="PAPER MODE" />
               <Agent name="PROOF ENGINE" value={proofPassed ? "PASSED" : "LEARNING"} />
               <Agent name="LIVE EXECUTION" value={liveBlocked ? "BLOCKED" : "AUTHORIZED"} danger={liveBlocked} />
             </HoloPanel>
 
-            <HoloPanel title="Capital Allocation // Real Paper Outcomes" icon={Cpu} className="col-span-12 xl:col-span-3">
+            <HoloPanel title="Capital Allocation // Real Paper Outcomes" icon={Cpu} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={barData}>
@@ -1992,7 +1992,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               </div>
             </HoloPanel>
 
-            <HoloPanel title="Risk Fortress Status" icon={Shield} className="col-span-12 xl:col-span-3">
+            <HoloPanel title="Risk Fortress Status" icon={Shield} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
               <Risk label="Safe Mode" value={data?.runtime?.safeMode ? "ON" : "OFF"} good={data?.runtime?.safeMode !== false} />
               <Risk label="Emergency Stop" value={data?.runtime?.emergencyStop ? "ARMED" : "CLEAR"} good={!data?.runtime?.emergencyStop} />
               <Risk label="Live Kill Switch" value={data?.runtime?.liveTradingKillSwitch ? "ARMED" : "CLEAR"} good={!data?.runtime?.liveTradingKillSwitch} />
@@ -2000,7 +2000,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               <Risk label="Nexora Gate" value={data?.nexora?.gateRequired ? "REQUIRED" : "UNKNOWN"} good={data?.nexora?.gateRequired !== false} />
             </HoloPanel>
 
-            <HoloPanel title="Decision Stream // Nexora Log" icon={Activity} className="col-span-12 xl:col-span-3">
+            <HoloPanel title="Decision Stream // Nexora Log" icon={Activity} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
               <div className="space-y-2 text-xs">
                 {(mode === "admin" ? attempts : outcomes).slice(0, 8).map((row: any, i: number) => (
                   <div key={row?.id || i} className="grid grid-cols-3 gap-2 border-b border-cyan-400/10 pb-1">
@@ -2015,7 +2015,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               </div>
             </HoloPanel>
 
-            <HoloPanel title="Customer Safety / Disclosure" icon={Eye} className="col-span-12 !m-0 !p-0">
+            <HoloPanel title="Customer Safety / Disclosure" icon={Eye} className="polyedge-hide-old-panels col-span-12 !m-0 !p-0">
               <div className="grid gap-3 text-sm text-cyan-100/75 xl:grid-cols-3">
                 <div>{data?.customerDisclaimer || "Paper trading intelligence only. Not financial advice."}</div>
                 <div>All execution paths remain subject to Nexora governance and policy gates.</div>
