@@ -37,27 +37,15 @@ export async function runWalletMonitorCycle(): Promise<WalletAction[]> {
   return detectedActions;
 }
 
-export async function startWalletMonitor(intervalMs = 5000) {
-  if (isRunning) return;
-
-  isRunning = true;
-  console.log("[WalletMonitor] started");
-
-  while (isRunning) {
-    try {
-      const actions = await runWalletMonitorCycle();
-
-      if (actions.length > 0) {
-        console.log(`[WalletMonitor] detected ${actions.length} wallet actions`);
-        await processWalletActions(actions);
-runWalletScoring();
-      }
-    } catch (err) {
-      console.error("[WalletMonitor] error:", err);
-    }
-
-    await new Promise((r) => setTimeout(r, intervalMs));
-  }
+export async function startWalletMonitor(_intervalMs = 5000) {
+  isRunning = false;
+  console.log("[WalletMonitor] Legacy in-process wallet monitor loop disabled — use durable Nexora worker");
+  return {
+    ok: false,
+    running: false,
+    mode: "disabled_pg_boss_required",
+    message: "Legacy in-process wallet monitor loop disabled — use durable Nexora worker",
+  };
 }
 
 export function stopWalletMonitor() {

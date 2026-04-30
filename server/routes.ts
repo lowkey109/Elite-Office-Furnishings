@@ -175,53 +175,6 @@ async function runManufacturerOutreach(req: any, res: any) {
 
 
 
-// ─────────────────────────────────────────────────────────────
-// Nexora loop fallback state/control
-// Keeps /api/nexora/loop/status/start/stop working even if the
-// original loop service imports are missing.
-// ─────────────────────────────────────────────────────────────
-const __nexoraLoopState = {
-  running: false,
-  startedAt: null as string | null,
-  stoppedAt: null as string | null,
-  lastTickAt: null as string | null,
-  intervalMs: 15 * 60 * 1000,
-  tickCount: 0,
-  mode: "fallback_status_only",
-  note: "Fallback loop state active. This proves control routes work, but full autonomous execution still needs runNexoraEngine wiring verification.",
-};
-
-function getNexoraLoopState() {
-  return {
-    ...__nexoraLoopState,
-    uptimeMs: __nexoraLoopState.running && __nexoraLoopState.startedAt
-      ? Date.now() - new Date(__nexoraLoopState.startedAt).getTime()
-      : 0,
-  };
-}
-
-function startNexoraLoop(config: any = {}) {
-  __nexoraLoopState.running = true;
-  __nexoraLoopState.startedAt = new Date().toISOString();
-  __nexoraLoopState.stoppedAt = null;
-  __nexoraLoopState.lastTickAt = new Date().toISOString();
-  __nexoraLoopState.tickCount += 1;
-  if (config.intervalMs) __nexoraLoopState.intervalMs = Number(config.intervalMs);
-  return getNexoraLoopState();
-}
-
-function stopNexoraLoop() {
-  __nexoraLoopState.running = false;
-  __nexoraLoopState.stoppedAt = new Date().toISOString();
-  return getNexoraLoopState();
-}
-
-function patchNexoraLoopConfig(config: any = {}) {
-  if (config.intervalMs) __nexoraLoopState.intervalMs = Number(config.intervalMs);
-  return getNexoraLoopState();
-}
-
-
 function filterSafePendingOutreach(mapped: any[]) {
   const list = Array.isArray(mapped) ? mapped : [];
   const pending = list.filter((p: any) => {
@@ -10874,110 +10827,32 @@ Rules:
     }
   });
 
-  // POST /api/admin/outreach/flush-send — immediately run outreach send cycle (no pg-boss delay)
+  // POST /api/admin/outreach/flush-send — durable queue trigger only
   app.post("/api/admin/outreach/flush-send", async (req, res) => {
-    const LIVE_MODE = process.env.SAFE_MODE === "false";
-    const limit = parseInt((req.query.limit as string) ?? "20");
     try {
-      const { db: ddb } = await import("./db");
-      const { outreachMessages: om, outreachThreads: ot, outreachEvents: oe } = await import("../shared/schema");
-      const { and, eq, desc } = await import("drizzle-orm");
-      const { resolveProspectEmail } = await import("./services/outreach/prospectEmailResolver");
-      const { sendOutreachEmail } = await import("./email");
-
-      const { companyContacts: cc } = await import("../shared/schema");
-
-      const drafts = await ddb
-        .select({
-          msgId: om.id,
-          threadId: om.threadId,
-          subject: om.subject,
-          body: om.body,
-          contactId: ot.contactId,
-          companyName: ot.companyName,
-          companyId: ot.companyId,
-          firstName: cc.firstName,
-        })
-        .from(om)
-        .innerJoin(ot, eq(om.threadId, ot.id))
-        .leftJoin(cc, eq(cc.id, ot.contactId))
-        .where(and(eq(om.deliveryStatus, "draft"), eq(om.direction, "outbound"), eq(ot.status, "active")))
-        .orderBy(desc(om.createdAt))
-        .limit(limit);
-
-      let sent = 0; let blocked = 0; let failed = 0;
-      const results: Array<{ company: string; status: string; email?: string; reason?: string; msgId: string }> = [];
-
-      for (const draft of drafts) {
-        const resolved = await resolveProspectEmail({ companyId: draft.companyId, contactId: draft.contactId ?? null });
-
-        if (!resolved.resolvedEmail || (resolved as any).sourceType === "blocked") {
-          const reason = resolved.blockingReason ?? "No external email found";
-          await ddb.update(om).set({ deliveryStatus: "blocked", blockingReason: reason, emailSourceType: "blocked" }).where(eq(om.id, draft.msgId));
-          await ddb.update(ot).set({ contactReadiness: "NEEDS_CONTACT", updatedAt: new Date() }).where(eq(ot.id, draft.threadId));
-          await ddb.insert(oe).values({ threadId: draft.threadId, eventType: "blocked", payloadJson: { messageId: draft.msgId, reason } });
-          results.push({ company: draft.companyName, status: "blocked", reason, msgId: draft.msgId });
-          blocked++;
-          continue;
+      const limit = parseInt((req.query.limit as string) ?? "20");
+      const { scheduleJob, QUEUES } = await import("./services/jobOrchestrator");
+      const jobId = await scheduleJob(
+        QUEUES.OUTREACH_SEND,
+        {
+          source: "admin_flush_send_route_durable",
+          limit,
+          requestedAt: new Date().toISOString(),
+        },
+        {
+          singletonKey: `admin-flush-send-${Date.now()}`,
         }
+      );
 
-        try {
-          const toEmail = resolved.resolvedEmail;
-          let resendMsgId: string | null = null;
-
-          // Pre-save recipient email BEFORE attempting send (so audit always shows target)
-          await ddb.update(om).set({ recipientEmail: toEmail, emailSourceType: resolved.sourceType }).where(eq(om.id, draft.msgId));
-          await ddb.update(ot).set({ contactReadiness: "READY_TO_CONTACT", resolvedEmail: toEmail, resolvedEmailSource: resolved.sourceType, updatedAt: new Date() }).where(eq(ot.id, draft.threadId));
-
-          // Suppression gate: block if company or recipient is suppressed
-          const { checkSuppression } = await import("./services/outreach/outreach-guards");
-          const suppression = await checkSuppression({ companyName: draft.companyName, recipientEmail: toEmail }).catch(() => ({ suppressed: false, reason: undefined }));
-          if ((suppression as any).suppressed) {
-            console.log(`[FlushSend] Suppressed — ${draft.companyName} (${toEmail}): ${(suppression as any).reason}`);
-            await ddb.update(om).set({ deliveryStatus: "suppressed", suppressionReason: (suppression as any).reason ?? "suppressed", updatedAt: new Date() } as any).where(eq(om.id, draft.msgId));
-            results.push({ company: draft.companyName, status: "suppressed", reason: (suppression as any).reason, msgId: draft.msgId });
-            blocked++;
-            continue;
-          }
-          console.log(`[FlushSend] Suppression check passed for ${draft.companyName} (${toEmail})`);
-
-          if (LIVE_MODE && draft.subject && draft.body) {
-            // Send-time jitter: randomise delay 0–30s for flush-send path
-            const jitterMs = Math.floor(Math.random() * 30 * 1000);
-            if (jitterMs > 0) {
-              console.log(`[FlushSend] Jitter delay ${Math.round(jitterMs / 1000)}s for ${draft.companyName}`);
-              await new Promise(resolve => setTimeout(resolve, jitterMs));
-            }
-            // Inject unsubscribe footer if not already present
-            const baseUrlForUnsub = process.env.PUBLIC_URL || `https://${process.env.REPLIT_DOMAINS?.split(",")[0] ?? "localhost:5000"}`;
-            const unsubUrl = `${baseUrlForUnsub}/api/unsubscribe?m=${encodeURIComponent(draft.msgId)}`;
-            const unsubFooter = `<p style="font-size:11px;color:#999;text-align:center;margin-top:32px;border-top:1px solid #eee;padding-top:16px">You are receiving this email because your company matches our target client profile.<br>To stop receiving emails from The Corporate Desk: <a href="${unsubUrl}" style="color:#999">unsubscribe</a>.</p>`;
-            const htmlBody = draft.body!.includes("unsubscribe") ? draft.body! : `${draft.body!}${unsubFooter}`;
-            const sendResult = await sendOutreachEmail({
-              to: toEmail,
-              subject: draft.subject!,
-              html: htmlBody,
-              companyName: draft.companyName,
-              firstName: draft.firstName ?? null,
-            }) as any;
-            resendMsgId = sendResult?.id ?? null;
-          }
-
-          await ddb.update(om).set({ deliveryStatus: "sent", sentAt: new Date(), resendMessageId: resendMsgId, blockingReason: LIVE_MODE ? null : "SAFE_MODE" }).where(eq(om.id, draft.msgId));
-          await ddb.insert(oe).values({ threadId: draft.threadId, eventType: "sent", payloadJson: { messageId: draft.msgId, recipientEmail: toEmail, sourceType: resolved.sourceType, liveMode: LIVE_MODE, resendMsgId } });
-          results.push({ company: draft.companyName, status: LIVE_MODE ? "sent" : "safe_mode", email: toEmail, msgId: draft.msgId });
-          sent++;
-        } catch (sendErr: any) {
-          // Still track the resolved email target even though send failed
-          await ddb.update(om).set({ deliveryStatus: "failed", blockingReason: sendErr.message }).where(eq(om.id, draft.msgId));
-          results.push({ company: draft.companyName, status: "failed", reason: sendErr.message, msgId: draft.msgId });
-          failed++;
-        }
-      }
-
-      res.json({ success: true, liveMode: LIVE_MODE, totalProcessed: drafts.length, sent, blocked, failed, results });
+      return res.json({
+        ok: true,
+        queued: true,
+        jobId,
+        queue: QUEUES.OUTREACH_SEND,
+        message: "Outreach send queued through durable pg-boss worker. Direct request-path sending is disabled.",
+      });
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      return res.status(500).json({ ok: false, error: err?.message || "Failed to queue outreach send" });
     }
   });
 

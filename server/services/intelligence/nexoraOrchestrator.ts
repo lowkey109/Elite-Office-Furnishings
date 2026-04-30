@@ -165,34 +165,14 @@ export function getNexoraBackgroundState(): BackgroundState {
  * ===================================================================================== */
 
 export function startNexoraBackground(
-  config: Partial<NexoraConfig> = {},
-): { started: boolean; intervalMs: number } {
-  const merged = { ...DEFAULT_CONFIG, ...config };
-  const intervalMs = Math.max(30_000, merged.backgroundIntervalMs ?? DEFAULT_CONFIG.backgroundIntervalMs ?? 60_000);
-
-  if (backgroundTimer) {
-    clearInterval(backgroundTimer);
-    backgroundTimer = null;
-  }
-
-  backgroundState.enabled = true;
-  backgroundState.lastError = null;
-
-  backgroundTimer = setInterval(async () => {
-    if (!backgroundState.enabled) return;
-    if (backgroundState.running) return;
-
-    try {
-      await runNexoraCycle("background", merged);
-    } catch (error) {
-      backgroundState.lastError =
-        error instanceof Error ? error.message : "Unknown background run error";
-    }
-  }, intervalMs);
-
+  _config: Partial<NexoraConfig> = {},
+): { started: boolean; intervalMs: number; mode: "disabled_pg_boss_required" } {
+  backgroundState.enabled = false;
+  backgroundState.lastError = "Legacy in-process Nexora background runner disabled — use durable pg-boss Nexora loop";
   return {
-    started: true,
-    intervalMs,
+    started: false,
+    intervalMs: 0,
+    mode: "disabled_pg_boss_required",
   };
 }
 

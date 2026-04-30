@@ -7,9 +7,6 @@ const FAST_INTERVAL_MS = 15_000;
 const DETAILED_INTERVAL_MS = 60_000;
 const PRUNE_INTERVAL_MS = 6 * 60 * 60 * 1000;
 
-let fastTimer: ReturnType<typeof setInterval> | null = null;
-let detailedTimer: ReturnType<typeof setInterval> | null = null;
-let pruneTimer: ReturnType<typeof setInterval> | null = null;
 let isRunning = false;
 let lastFastCycleAt: Date | null = null;
 let lastDetailedCycleAt: Date | null = null;
@@ -33,12 +30,8 @@ export function startMarketLoop(): void {
 }
 
 export function stopMarketLoop(): void {
-  if (!isRunning) return;
   isRunning = false;
-  if (fastTimer) { clearInterval(fastTimer); fastTimer = null; }
-  if (detailedTimer) { clearInterval(detailedTimer); detailedTimer = null; }
-  if (pruneTimer) { clearInterval(pruneTimer); pruneTimer = null; }
-  console.log("[MarketLoop] Stopped");
+  console.log("[MarketLoop] Legacy in-process market loop stop requested — no timers are active");
 }
 
 export async function runMarketFastCycleOnce(): Promise<void> {
