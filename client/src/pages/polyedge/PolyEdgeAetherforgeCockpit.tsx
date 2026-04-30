@@ -494,6 +494,28 @@ function ReplayEngineMonitor({
 
 
 
+function realValue(value: unknown, fallback = "WAITING") {
+  if (value === null || value === undefined || value === "") return fallback;
+  if (typeof value === "number" && !Number.isFinite(value)) return fallback;
+  return String(value);
+}
+
+function realMoney(value: unknown, fallback = "WAITING") {
+  const n = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  return new Intl.NumberFormat("en-AU", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: Math.abs(n) >= 1000 ? 0 : 2,
+  }).format(n);
+}
+
+function realPct(value: unknown, fallback = "WAITING") {
+  const n = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  return `${Math.round(n * 100) / 100}%`;
+}
+
 function statusTone(state?: string) {
   if (state === "online" || state === "running") {
     return {
@@ -549,7 +571,7 @@ function TerminalPanelTitle({ title, right }: { title: string; right?: any }) {
   );
 }
 
-function TerminalEquityChart({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
+function TerminalEquityChart({ monitors, metrics }: { monitors: PolyEdgeActionMonitorItem[]; metrics?: any }) {
   const active = monitors.filter((m) => m.state === "online" || m.state === "running").length;
   const fault = monitors.filter((m) => m.state === "offline" || m.state === "timeout" || m.state === "stalled").length;
 
@@ -602,12 +624,12 @@ function TerminalEquityChart({ monitors }: { monitors: PolyEdgeActionMonitorItem
 
       <div className="absolute bottom-1 left-0 right-0 grid grid-cols-4 gap-2 text-xs">
         <div className="rounded-xl border border-cyan-400/20 bg-black/30 px-3 py-2">
-          <div className="text-slate-400">START</div>
-          <div className="font-black text-white">$10,000</div>
+          <div className="text-slate-400">TOTAL TRADES</div>
+          <div className="font-black text-white">{realValue(metrics?.totalPaperTrades)}</div>
         </div>
         <div className="rounded-xl border border-cyan-400/20 bg-black/30 px-3 py-2">
-          <div className="text-slate-400">CURRENT</div>
-          <div className="font-black text-cyan-300">$3.21T</div>
+          <div className="text-slate-400">REAL PNL</div>
+          <div className="font-black text-cyan-300">{realMoney(metrics?.totalPnl)}</div>
         </div>
         <div className="rounded-xl border border-emerald-400/20 bg-black/30 px-3 py-2">
           <div className="text-slate-400">ACTIVE</div>
@@ -684,7 +706,7 @@ function TerminalSentiment({ monitors }: { monitors: PolyEdgeActionMonitorItem[]
   );
 }
 
-function TerminalAllocation() {
+function TerminalAllocation({ metrics }: { metrics?: any }) {
   return (
     <div>
       <TerminalPanelTitle title="Capital Allocation // Hyperstructure" />
@@ -693,12 +715,12 @@ function TerminalAllocation() {
           <div className="absolute inset-0 rounded-full border-[18px] border-cyan-300/15" />
           <div className="absolute inset-0 rounded-full border-[18px] border-transparent border-t-cyan-300 border-r-fuchsia-500 border-b-emerald-400" style={{ filter: "drop-shadow(0 0 16px rgba(103,232,249,.8))", animation: "poly-terminal-spin 7s linear infinite" }} />
           <div className="text-center">
-            <div className="text-3xl font-black text-white">100%</div>
-            <div className="text-[10px] uppercase text-cyan-300">Allocated</div>
+            <div className="text-3xl font-black text-white">{realPct(metrics?.profitablePaperTradeProgressPct)}</div>
+            <div className="text-[10px] uppercase text-cyan-300">500-WIN PROGRESS</div>
           </div>
         </div>
       </div>
-      <div className="text-center text-xs text-cyan-400">TOTAL ALLOCATION: 100%</div>
+      <div className="text-center text-xs text-cyan-400">REAL WIN PROGRESS: {realPct(metrics?.profitablePaperTradeProgressPct)}</div>
     </div>
   );
 }
@@ -713,7 +735,7 @@ function TerminalAlphaSignals({ monitors }: { monitors: PolyEdgeActionMonitorIte
           return (
             <div key={m.key} className="flex justify-between border-b border-cyan-300/10 pb-2">
               <span className="truncate pr-3 uppercase text-cyan-50/70">{m.label}</span>
-              <span className={`shrink-0 font-black ${t.text}`}>{(98.8 - i * 0.7).toFixed(2)}% +{(42.7 - i * 2.1).toFixed(1)}σ</span>
+              <span className={`shrink-0 font-black ${t.text}`}>{t.label}</span>
             </div>
           );
         })}
@@ -722,15 +744,15 @@ function TerminalAlphaSignals({ monitors }: { monitors: PolyEdgeActionMonitorIte
   );
 }
 
-function TerminalBottomBar({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
+function TerminalBottomBar({ monitors, metrics }: { monitors: PolyEdgeActionMonitorItem[]; metrics?: any }) {
   const replay = monitors.find((m) => m.key === "replay_engine");
   const replayTone = statusTone(replay?.state);
   return (
     <div className="mt-8 flex items-center justify-between rounded-3xl border border-cyan-400/30 bg-slate-950/65 p-6 text-xs backdrop-blur-xl">
       <div className="flex gap-8">
-        <div><span className="text-emerald-400">RISK EXPOSURE:</span> 0.27%</div>
-        <div><span className="text-emerald-400">REALITY STABILITY:</span> 99.999%</div>
-        <div><span className="text-purple-400">KILL SWITCH:</span> ARMED</div>
+        <div><span className="text-emerald-400">MAX DD:</span> {realPct(metrics?.maxDrawdownPct)}</div>
+        <div><span className="text-emerald-400">WIN RATE:</span> {realPct(metrics?.winRate)}</div>
+        <div><span className="text-purple-400">PROFIT FACTOR:</span> {realValue(metrics?.profitFactor)}</div>
       </div>
       <div className="font-mono text-cyan-400">POLY SYSTEM HEART MONITOR • LIVE</div>
       <div className={`${replayTone.text}`}>REPLAY ENGINE MONITOR • {replayTone.label}</div>
@@ -738,10 +760,18 @@ function TerminalBottomBar({ monitors }: { monitors: PolyEdgeActionMonitorItem[]
   );
 }
 
-function PolyEdgeActionMonitorGrid({ actionMonitor }: { actionMonitor: PolyEdgeActionMonitorResponse | null }) {
+function PolyEdgeActionMonitorGrid({
+  actionMonitor,
+  replayStatus,
+}: {
+  actionMonitor: PolyEdgeActionMonitorResponse | null;
+  replayStatus?: PolyEdgeReplayStatus | null;
+}) {
   const monitors = actionMonitor?.monitors || [];
   const systems = monitors.filter((m) => m.kind !== "market");
   const active = monitors.filter((m) => m.state === "online" || m.state === "running").length;
+  const metrics = (replayStatus as any)?.promotion?.metrics || {};
+  const lastRealCheck = (replayStatus as any)?.lastRunAt || actionMonitor?.generatedAt || null;
   const apiTone = statusTone(monitors.find((m) => m.key === "poly_api")?.state);
 
   return (
@@ -819,7 +849,7 @@ function PolyEdgeActionMonitorGrid({ actionMonitor }: { actionMonitor: PolyEdgeA
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-purple-600 text-2xl font-bold text-white shadow-[0_0_30px_rgba(103,232,249,.4)]">P/E</div>
               <div>
                 <h1 className="text-3xl font-bold tracking-tighter text-cyan-100 drop-shadow-[0_0_18px_rgba(103,232,249,.8)]">POLY//EDGE</h1>
-                <p className="text-xs uppercase tracking-[4px] text-cyan-400">Quantum Override Terminal • 2150</p>
+                <p className="text-xs uppercase tracking-[4px] text-cyan-400">REAL DATA ONLY • NO SIMULATED VALUES</p>
               </div>
             </div>
 
@@ -829,12 +859,12 @@ function PolyEdgeActionMonitorGrid({ actionMonitor }: { actionMonitor: PolyEdgeA
                 <div className="text-xs text-gray-400">AI CONSCIOUSNESS: TRANSCENDENT</div>
               </div>
               <div className="text-center">
-                <div className="font-mono text-3xl font-bold text-white">$3,214,982,776,042</div>
-                <div className="text-xs text-emerald-400">PORTFOLIO VALUE • +$512.8B (24H)</div>
+                <div className="font-mono text-3xl font-bold text-white">{realMoney(metrics?.totalPnl)}</div>
+                <div className="text-xs text-emerald-400">REAL TOTAL PNL</div>
               </div>
               <div className="text-center">
-                <div className="font-mono text-cyan-400">04:38Y 14:2D</div>
-                <div className="text-xs text-purple-400">QUANTUM TIME • 7D REALITY LAYER</div>
+                <div className="font-mono text-cyan-400">{realValue(lastRealCheck)}</div>
+                <div className="text-xs text-purple-400">LAST REAL CHECK</div>
               </div>
             </div>
 
@@ -861,11 +891,11 @@ function PolyEdgeActionMonitorGrid({ actionMonitor }: { actionMonitor: PolyEdgeA
                 <div className="mb-4 flex justify-between">
                   <div>
                     <h2 className="text-lg font-semibold">HYPERDIMENSIONAL EQUITY CURVE</h2>
-                    <p className="text-xs text-gray-400">START: $10,000 • CURRENT: $3.21T • RETURN: +32,148,827%</p>
+                    <p className="text-xs text-gray-400">REAL PNL: {realMoney(metrics?.totalPnl)} • WIN RATE: {realPct(metrics?.winRate)} • PROFIT FACTOR: {realValue(metrics?.profitFactor)}</p>
                   </div>
                   <div className="text-sm text-emerald-400">LIVE</div>
                 </div>
-                <TerminalEquityChart monitors={monitors} />
+                <TerminalEquityChart monitors={monitors} metrics={metrics} />
               </TerminalGlass>
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -887,7 +917,7 @@ function PolyEdgeActionMonitorGrid({ actionMonitor }: { actionMonitor: PolyEdgeA
               </TerminalGlass>
 
               <TerminalGlass>
-                <TerminalAllocation />
+                <TerminalAllocation metrics={metrics} />
               </TerminalGlass>
 
               <TerminalGlass>
@@ -896,7 +926,7 @@ function PolyEdgeActionMonitorGrid({ actionMonitor }: { actionMonitor: PolyEdgeA
             </div>
           </div>
 
-          <TerminalBottomBar monitors={monitors} />
+          <TerminalBottomBar monitors={monitors} metrics={metrics} />
         </div>
       </div>
     </HoloPanel>
@@ -1362,7 +1392,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               </HoloPanel>
             ) : null}
 
-            <PolyEdgeActionMonitorGrid actionMonitor={actionMonitor} />
+            <PolyEdgeActionMonitorGrid actionMonitor={actionMonitor} replayStatus={replayStatus} />
 
             <PolySystemHeartMonitor
               apiStatus={apiStatus}
