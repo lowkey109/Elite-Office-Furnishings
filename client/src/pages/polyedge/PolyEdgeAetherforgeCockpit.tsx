@@ -333,7 +333,7 @@ function PolySystemHeartMonitor({
   const dots = ".".repeat((heartbeatTick % 3) + 1);
 
   return (
-    <HoloPanel title="Poly System Heart Monitor" icon={Activity} className="polyedge-hide-old-panels polyedge-hide-old-panels col-span-12 xl:col-span-6">
+    <HoloPanel title="Poly System Heart Monitor" icon={Activity} className="polyedge-hide-old-panels polyedge-hide-old-panels polyedge-hide-old-panels col-span-12 xl:col-span-6">
       <style>{`
         @keyframes poly-ecg-run {
           from { transform: translateX(-50%); }
@@ -418,7 +418,7 @@ function ReplayEngineMonitor({
   const status = stalled ? "STALLED" : running ? "RUNNING" : "IDLE";
 
   return (
-    <HoloPanel title="Replay Engine Monitor" icon={Radar} className="polyedge-hide-old-panels polyedge-hide-old-panels col-span-12 xl:col-span-6">
+    <HoloPanel title="Replay Engine Monitor" icon={Radar} className="polyedge-hide-old-panels polyedge-hide-old-panels polyedge-hide-old-panels col-span-12 xl:col-span-6">
       <style>{`
         @keyframes replay-orbit-spin {
           from { transform: rotate(0deg); }
@@ -668,7 +668,7 @@ function MiniTrace({ monitor }: { monitor: any }) {
 
   if (isFault) {
     return (
-      <div className="poly-beat-ecg mt-1 h-7 overflow-hidden rounded-md border border-red-300/25 bg-black/85">
+      <div className="poly-beat-ecg mt-1 h-5 overflow-hidden rounded-md border border-red-300/25 bg-black/85 sm:h-6 xl:h-7">
         <div className="poly-beat-grid poly-beat-grid-red" />
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 320 44" preserveAspectRatio="none">
           <path d="M0 27 H320" fill="none" stroke="#ff4d6d" strokeWidth="2.8" strokeLinecap="round" style={{ filter: "drop-shadow(0 0 8px rgba(255,77,109,.85))" }} />
@@ -680,7 +680,7 @@ function MiniTrace({ monitor }: { monitor: any }) {
 
   if (isIdle) {
     return (
-      <div className="poly-beat-ecg mt-1 h-7 overflow-hidden rounded-md border border-amber-300/25 bg-black/85">
+      <div className="poly-beat-ecg mt-1 h-5 overflow-hidden rounded-md border border-amber-300/25 bg-black/85 sm:h-6 xl:h-7">
         <div className="poly-beat-grid poly-beat-grid-amber" />
         <div className="poly-conn-idle-sweep" style={{ animationDuration: rhythm.idleAnim, animationDelay: rhythm.idleDelay }} />
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 320 44" preserveAspectRatio="none">
@@ -704,7 +704,7 @@ function MiniTrace({ monitor }: { monitor: any }) {
   }
 
   return (
-    <div className="poly-beat-ecg mt-1 h-7 overflow-hidden rounded-md border border-emerald-300/25 bg-black/85">
+    <div className="poly-beat-ecg mt-1 h-5 overflow-hidden rounded-md border border-emerald-300/25 bg-black/85 sm:h-6 xl:h-7">
       <div className="poly-beat-grid" />
       <div className="poly-conn-beat-head" style={{ animationDuration: rhythm.liveAnim, animationDelay: rhythm.liveDelay }} />
       <svg className="absolute inset-0 h-full w-full" viewBox="0 0 520 44" preserveAspectRatio="none">
@@ -743,7 +743,7 @@ function MonitorTile({ monitor }: { monitor: any }) {
       : t.label;
 
   return (
-    <div className={`relative overflow-hidden rounded-lg border ${t.border} bg-black/35 p-1.5`} style={{ boxShadow: `inset 0 0 22px ${t.fill}` }}>
+    <div className={`relative overflow-hidden rounded-md border ${t.border} bg-black/35 p-1`} style={{ boxShadow: `inset 0 0 22px ${t.fill}` }}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="truncate text-[9px] font-black uppercase tracking-[0.10em] text-white">{realValue(monitor?.label, "UNKNOWN")}</div>
@@ -953,7 +953,7 @@ function BottomStatusBar({ monitors, metrics }: { monitors: any[]; metrics: any 
   const replayTone = statusTone(replay?.state);
 
   return (
-    <div className="mt-2 flex items-center justify-between rounded-xl border border-cyan-400/30 bg-slate-950/65 px-3 py-2 text-[9px] backdrop-blur-xl">
+    <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-cyan-400/30 bg-slate-950/65 px-3 py-2 text-[9px] backdrop-blur-xl lg:flex-nowrap">
       <div className="flex gap-5">
         <div><span className="text-emerald-400">MAX DD:</span> {realPct(metrics?.maxDrawdownPct)}</div>
         <div><span className="text-emerald-400">WIN RATE:</span> {realPct(metrics?.winRate)}</div>
@@ -1361,8 +1361,8 @@ function PolyEdgeActionMonitorGrid({
       `}</style>
 
       <div className="poly-final-root polyedge-whole-app-onepage relative overflow-hidden rounded-[28px] p-3 text-white">
-        <div className="relative z-10 mx-auto flex h-full max-w-screen-2xl flex-col">
-          <div className="mb-2 flex items-center justify-between rounded-2xl border border-cyan-400/30 bg-slate-950/65 px-4 py-2 backdrop-blur-xl">
+        <div className="relative z-10 mx-auto flex h-auto max-w-screen-2xl flex-col lg:h-full">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-cyan-400/30 bg-slate-950/65 px-3 py-2 backdrop-blur-xl lg:flex-nowrap">
             <div className="flex items-center gap-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-purple-600 text-2xl font-bold text-white shadow-[0_0_30px_rgba(103,232,249,.4)]">P/E</div>
               <div>
@@ -1392,28 +1392,28 @@ function PolyEdgeActionMonitorGrid({
             </div>
           </div>
 
-          <div className="grid min-h-0 flex-1 grid-cols-12 gap-3">
-            <div className="col-span-2 min-h-0">
+          <div className="grid min-h-0 flex-1 grid-cols-1 gap-2 overflow-visible lg:grid-cols-12 lg:overflow-hidden">
+            <div className="col-span-1 min-h-0 lg:col-span-2 lg:overflow-hidden">
               <QuantumGlass className="h-full">
-                <div className="mb-3 font-mono text-[10px] uppercase tracking-widest text-cyan-400">Navigation</div>
-                <ul className="space-y-1.5 text-xs">
+                <div className="mb-2 font-mono text-[9px] uppercase tracking-widest text-cyan-400">Navigation</div>
+                <ul className="space-y-1 text-[11px]">
                   {["Overview", "Markets", "Portfolio", "Agents", "Alpha Grid", "Risk Core"].map((x, i) => (
                     <li key={x} className={`cursor-pointer rounded-xl px-3 py-2 transition hover:bg-white/10 ${i === 0 ? "bg-white/5" : ""}`}>{x}</li>
                   ))}
                 </ul>
 
-                <div className="mt-4 grid grid-cols-1 gap-2">
+                <div className="mt-2 grid grid-cols-1 gap-1.5">
                   {priority.map((m: any) => <MonitorTile key={m.key} monitor={m} />)}
                 </div>
               </QuantumGlass>
             </div>
 
-            <div className="col-span-7 grid min-h-0 grid-rows-[1.15fr_.58fr_.86fr] gap-3">
+            <div className="col-span-1 grid min-h-0 gap-2 lg:col-span-7 lg:grid-rows-[1.08fr_.56fr_.82fr] lg:overflow-hidden">
               <QuantumGlass>
                 <EquityPanel monitors={monitors} metrics={metrics} />
               </QuantumGlass>
 
-              <div className="grid min-h-0 grid-cols-2 gap-3">
+              <div className="grid min-h-0 grid-cols-1 gap-2 sm:grid-cols-2">
                 <QuantumGlass>
                   <MoneyFlowPanel />
                 </QuantumGlass>
@@ -1425,13 +1425,13 @@ function PolyEdgeActionMonitorGrid({
 
               <QuantumGlass>
                 <QuantumTitle title="All PolyEdge Action Monitors" right={<span className="text-[9px] text-cyan-300">{monitors.length} modules</span>} />
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 xl:grid-cols-4">
                   {monitors.slice(0, 12).map((m: any) => <MonitorTile key={m.key} monitor={m} />)}
                 </div>
               </QuantumGlass>
             </div>
 
-            <div className="col-span-3 grid min-h-0 grid-rows-[.62fr_.52fr_1fr] gap-3">
+            <div className="col-span-1 grid min-h-0 gap-2 lg:col-span-3 lg:grid-rows-[.62fr_.52fr_1fr] lg:overflow-hidden">
               <QuantumGlass>
                 <SentimentPanel monitors={monitors} />
               </QuantumGlass>
@@ -1811,7 +1811,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               </div>
             </HoloPanel>
 
-            <HoloPanel title="Quantum Market Sentiment Matrix" icon={Radar} className="polyedge-hide-old-panels polyedge-hide-old-panels col-span-12 xl:col-span-3">
+            <HoloPanel title="Quantum Market Sentiment Matrix" icon={Radar} className="polyedge-hide-old-panels polyedge-hide-old-panels polyedge-hide-old-panels col-span-12 xl:col-span-3">
               <div className="flex h-[320px] flex-col items-center justify-center">
                 <div className="relative h-52 w-52 rounded-full border border-cyan-300/30 bg-cyan-300/5 shadow-[0_0_45px_rgba(34,240,255,0.18)]">
                   <div className="absolute inset-8 rounded-full border border-fuchsia-300/25" />
@@ -1849,7 +1849,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
             </HoloPanel>
 
             {mode === "admin" ? (
-              <HoloPanel title="Fast Paper Replay Factory" icon={Zap} className="polyedge-hide-old-panels polyedge-hide-old-panels col-span-12 xl:col-span-3">
+              <HoloPanel title="Fast Paper Replay Factory" icon={Zap} className="polyedge-hide-old-panels polyedge-hide-old-panels polyedge-hide-old-panels col-span-12 xl:col-span-3">
                 <div className="mb-3 grid grid-cols-2 gap-2">
                   <Metric
                     label="Qualified Winners"
@@ -1929,7 +1929,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               lastReplayProgressAt={lastReplayProgressAt}
             />
 
-            <HoloPanel title="Neural Learning Core" icon={Brain} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
+            <HoloPanel title="Neural Learning Core" icon={Brain} className="polyedge-hide-old-panels polyedge-hide-old-panels col-span-12 xl:col-span-3">
               <div className="mb-3 grid grid-cols-2 gap-2">
                 <Metric label="Learning Score" value={num(learning?.summary?.globalLearningScore)} good={(learning?.summary?.globalLearningScore || 0) >= 60} />
                 <Metric label="Outcome Samples" value={num(learning?.summary?.outcomeSamples)} />
@@ -1968,14 +1968,14 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               </div>
             </HoloPanel>
 
-            <HoloPanel title="Sentient Agent Mesh" icon={Brain} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
+            <HoloPanel title="Sentient Agent Mesh" icon={Brain} className="polyedge-hide-old-panels polyedge-hide-old-panels col-span-12 xl:col-span-3">
               <Agent name="NEXORA" value={data?.nexora?.loopEnabled ? "ONLINE" : "STANDBY"} />
               <Agent name="PHANTOM X" value="PAPER MODE" />
               <Agent name="PROOF ENGINE" value={proofPassed ? "PASSED" : "LEARNING"} />
               <Agent name="LIVE EXECUTION" value={liveBlocked ? "BLOCKED" : "AUTHORIZED"} danger={liveBlocked} />
             </HoloPanel>
 
-            <HoloPanel title="Capital Allocation // Real Paper Outcomes" icon={Cpu} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
+            <HoloPanel title="Capital Allocation // Real Paper Outcomes" icon={Cpu} className="polyedge-hide-old-panels polyedge-hide-old-panels col-span-12 xl:col-span-3">
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={barData}>
@@ -1992,7 +1992,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               </div>
             </HoloPanel>
 
-            <HoloPanel title="Risk Fortress Status" icon={Shield} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
+            <HoloPanel title="Risk Fortress Status" icon={Shield} className="polyedge-hide-old-panels polyedge-hide-old-panels col-span-12 xl:col-span-3">
               <Risk label="Safe Mode" value={data?.runtime?.safeMode ? "ON" : "OFF"} good={data?.runtime?.safeMode !== false} />
               <Risk label="Emergency Stop" value={data?.runtime?.emergencyStop ? "ARMED" : "CLEAR"} good={!data?.runtime?.emergencyStop} />
               <Risk label="Live Kill Switch" value={data?.runtime?.liveTradingKillSwitch ? "ARMED" : "CLEAR"} good={!data?.runtime?.liveTradingKillSwitch} />
@@ -2000,7 +2000,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               <Risk label="Nexora Gate" value={data?.nexora?.gateRequired ? "REQUIRED" : "UNKNOWN"} good={data?.nexora?.gateRequired !== false} />
             </HoloPanel>
 
-            <HoloPanel title="Decision Stream // Nexora Log" icon={Activity} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
+            <HoloPanel title="Decision Stream // Nexora Log" icon={Activity} className="polyedge-hide-old-panels polyedge-hide-old-panels col-span-12 xl:col-span-3">
               <div className="space-y-2 text-xs">
                 {(mode === "admin" ? attempts : outcomes).slice(0, 8).map((row: any, i: number) => (
                   <div key={row?.id || i} className="grid grid-cols-3 gap-2 border-b border-cyan-400/10 pb-1">
@@ -2015,7 +2015,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               </div>
             </HoloPanel>
 
-            <HoloPanel title="Customer Safety / Disclosure" icon={Eye} className="polyedge-hide-old-panels col-span-12 !m-0 !p-0">
+            <HoloPanel title="Customer Safety / Disclosure" icon={Eye} className="polyedge-hide-old-panels polyedge-hide-old-panels col-span-12 !m-0 !p-0">
               <div className="grid gap-3 text-sm text-cyan-100/75 xl:grid-cols-3">
                 <div>{data?.customerDisclaimer || "Paper trading intelligence only. Not financial advice."}</div>
                 <div>All execution paths remain subject to Nexora governance and policy gates.</div>
