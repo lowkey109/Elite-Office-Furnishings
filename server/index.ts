@@ -1657,6 +1657,50 @@ app.post("/api/polyedge/auto-paper/tick", async (_req, res) => {
   res.json(await polyEdgeAutoPaperTick());
 });
 
+
+// PolyEdge capital control — manual tracking only. No deposits, withdrawals, broker, bank, or wallet execution.
+app.get("/api/polyedge/capital/status", async (_req, res) => {
+  const { getPolyEdgeCapitalState } = await import("./services/polyedge/polyEdgeCapitalStore");
+  res.json({
+    ok: true,
+    paperOnlyTrading: true,
+    liveTradingAffected: false,
+    capital: await getPolyEdgeCapitalState(),
+  });
+});
+
+app.post("/api/polyedge/capital/add", async (req, res) => {
+  try {
+    const { addPolyEdgeCapital } = await import("./services/polyedge/polyEdgeCapitalStore");
+    res.json(await addPolyEdgeCapital({
+      type: req.body?.type,
+      amount: req.body?.amount,
+      note: req.body?.note,
+    }));
+  } catch (err) {
+    res.status(400).json({
+      ok: false,
+      paperOnlyTrading: true,
+      liveTradingAffected: false,
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
+app.post("/api/polyedge/capital/reset-paper", async (req, res) => {
+  try {
+    const { resetPolyEdgePaperCapital } = await import("./services/polyedge/polyEdgeCapitalStore");
+    res.json(await resetPolyEdgePaperCapital(req.body?.amount));
+  } catch (err) {
+    res.status(400).json({
+      ok: false,
+      paperOnlyTrading: true,
+      liveTradingAffected: false,
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);

@@ -150,6 +150,11 @@ export default function PolyEdgeReferenceOnePage() {
   const [actionMonitor, setActionMonitor] = useState<any>(null);
   const [replayStatus, setReplayStatus] = useState<any>(null);
   const [apiError, setApiError] = useState("");
+  const [capitalState, setCapitalState] = useState<any>(null);
+  const [capitalType, setCapitalType] = useState<"real" | "paper">("paper");
+  const [capitalAmount, setCapitalAmount] = useState("");
+  const [capitalNote, setCapitalNote] = useState("");
+  const [capitalMessage, setCapitalMessage] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -158,12 +163,14 @@ export default function PolyEdgeReferenceOnePage() {
       const requests = await Promise.allSettled([
         fetch("/api/polyedge/action-monitor").then((r) => r.json()),
         fetch("/api/polyedge/replay/status").then((r) => r.json()),
+        fetch("/api/polyedge/capital/status").then((r) => r.json()),
       ]);
 
       if (!active) return;
 
       if (requests[0].status === "fulfilled") setActionMonitor(requests[0].value);
       if (requests[1].status === "fulfilled") setReplayStatus(requests[1].value);
+      if (requests[2]?.status === "fulfilled") setCapitalState(requests[2].value?.capital || null);
 
       if (requests[0].status === "rejected" && requests[1].status === "rejected") {
         setApiError("PolyEdge API unavailable");
@@ -231,6 +238,65 @@ export default function PolyEdgeReferenceOnePage() {
     ["Territory Scanner", "/admin/territory-scanner"],
     ["Prediction Markets", "/admin/prediction-markets"],
   ];
+
+  async function submitCapitalAdd() {
+    setCapitalMessage("");
+
+    const amount = Number(capitalAmount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setCapitalMessage("Enter a valid amount greater than zero.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/polyedge/capital/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: capitalType, amount, note: capitalNote }),
+      });
+
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Capital update failed.");
+
+      setCapitalState(json.state);
+      setCapitalAmount("");
+      setCapitalNote("");
+      setCapitalMessage(json.message || "Capital updated.");
+    } catch (err: any) {
+      setCapitalMessage(err?.message || "Capital update failed.");
+    }
+  }
+
+  async function resetPaperCapital() {
+    setCapitalMessage("");
+
+    const amount = Number(capitalAmount || 100000);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setCapitalMessage("Enter a valid paper reset amount.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/polyedge/capital/reset-paper", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount }),
+      });
+
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Paper reset failed.");
+
+      setCapitalState(json.state);
+      setCapitalAmount("");
+      setCapitalNote("");
+      setCapitalMessage(json.message || "Paper capital reset.");
+    } catch (err: any) {
+      setCapitalMessage(err?.message || "Paper reset failed.");
+    }
+  }
+
+  const realCapital = realMoney(capitalState?.realMoneyBalance || 0);
+  const paperCapital = realMoney(capitalState?.paperMoneyBalance || 0);
 
   const statusBars = useMemo(() => {
     const rows = monitors.length ? monitors.slice(0, 22) : [];
@@ -782,6 +848,47 @@ export default function PolyEdgeReferenceOnePage() {
           min-height: 24px;
         }
 
+        .capital-form {
+          display: grid;
+          grid-template-columns: 72px 1fr 1fr;
+          gap: 3px;
+          margin-top: 4px;
+        }
+
+        .capital-form select,
+        .capital-form input {
+          min-width: 0;
+          height: 22px;
+          border: 1px solid rgba(34,211,238,.22);
+          background: rgba(0,0,0,.62);
+          color: white;
+          padding: 0 6px;
+          font-size: 8px;
+          outline: none;
+        }
+
+        .capital-buttons {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 3px;
+          margin-top: 3px;
+        }
+
+        .capital-buttons button {
+          height: 22px;
+          border: 1px solid rgba(34,211,238,.28);
+          background: rgba(34,211,238,.10);
+          color: rgb(190,255,255);
+          font-size: 7px;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: .12em;
+        }
+
+        .capital-buttons button:hover {
+          background: rgba(34,211,238,.18);
+        }
+
         @media (max-width: 900px) {
           html, body, #root {
             overflow: auto !important;
@@ -841,6 +948,17 @@ export default function PolyEdgeReferenceOnePage() {
           .nav-item {
             height: 28px;
             font-size: 9px;
+          }
+
+          .capital-form {
+            grid-template-columns: 1fr;
+          }
+
+          .capital-form select,
+          .capital-form input,
+          .capital-buttons button {
+            height: 34px;
+            font-size: 11px;
           }
         }
       `}</style>
@@ -1000,17 +1118,47 @@ export default function PolyEdgeReferenceOnePage() {
             </div>
           </Panel>
 
-          <Panel title="Capital Allocation // Real Outcomes" className="col-span-3">
-            <div className="grid h-full place-items-center">
-              <div className="grid h-20 w-20 place-items-center rounded-full border-[12px] border-cyan-300 border-l-fuchsia-400 border-b-emerald-400 bg-black/60">
-                <div className="text-center">
-                  <div className="text-xs font-black text-white">{qualified}/{required}</div>
-                  <div className="text-[7px] uppercase text-cyan-300/60">Wins</div>
-                </div>
+          <Panel title="Capital Control // Real + Paper" className="col-span-3">
+            <div className="grid grid-cols-2 gap-1 text-[8px]">
+              <div className="mini-box">
+                <div className="text-cyan-100/45">REAL MONEY</div>
+                <div className="font-black text-emerald-300">{realCapital}</div>
+                <div className="text-[6px] text-cyan-100/40">Tracked only</div>
+              </div>
+              <div className="mini-box">
+                <div className="text-cyan-100/45">PAPER MONEY</div>
+                <div className="font-black text-cyan-300">{paperCapital}</div>
+                <div className="text-[6px] text-cyan-100/40">Simulation only</div>
               </div>
             </div>
-          </Panel>
 
+            <div className="capital-form">
+              <select value={capitalType} onChange={(e) => setCapitalType(e.target.value as "real" | "paper")}>
+                <option value="paper">Paper</option>
+                <option value="real">Real</option>
+              </select>
+              <input
+                value={capitalAmount}
+                onChange={(e) => setCapitalAmount(e.target.value)}
+                placeholder="Amount"
+                inputMode="decimal"
+              />
+              <input
+                value={capitalNote}
+                onChange={(e) => setCapitalNote(e.target.value)}
+                placeholder="Note"
+              />
+            </div>
+
+            <div className="capital-buttons">
+              <button type="button" onClick={submitCapitalAdd}>Add Capital</button>
+              <button type="button" onClick={resetPaperCapital}>Reset Paper</button>
+            </div>
+
+            <div className="mt-1 truncate text-[7px] text-amber-300">
+              {capitalMessage || "Real money is recorded only — no funds move."}
+            </div>
+          </Panel>
           <Panel title="Multiverse Simulation" className="col-span-2">
             <div className="grid h-full place-items-center text-center">
               <div>
