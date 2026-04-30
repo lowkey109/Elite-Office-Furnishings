@@ -1617,14 +1617,87 @@ function PolyEdgeActionMonitorGrid({
           }
         }
 
+        .polyedge-cockpit-only-final { display: none; }
+
+        .polyedge-hide-old-panels {
+          display: none !important;
+        }
+
+        .polyedge-fullscreen-page {
+          background:
+            radial-gradient(circle at 25% 15%, rgba(34, 211, 238, .18), transparent 32%),
+            radial-gradient(circle at 75% 35%, rgba(192, 38, 211, .16), transparent 35%),
+            #000 !important;
+        }
+
+        @media (min-width: 768px) {
+          html:has(.polyedge-fullscreen-page),
+          body:has(.polyedge-fullscreen-page),
+          #root:has(.polyedge-fullscreen-page) {
+            width: 100vw !important;
+            height: 100dvh !important;
+            max-width: 100vw !important;
+            max-height: 100dvh !important;
+            overflow: hidden !important;
+            background: #000 !important;
+          }
+
+          body:has(.polyedge-fullscreen-page) {
+            position: fixed !important;
+            inset: 0 !important;
+          }
+
+          .polyedge-cockpit-only-stage {
+            --polyedge-fit-scale: .78;
+            width: calc(100vw / var(--polyedge-fit-scale)) !important;
+            height: calc(100dvh / var(--polyedge-fit-scale)) !important;
+            max-width: none !important;
+            max-height: none !important;
+            transform: scale(var(--polyedge-fit-scale));
+            transform-origin: top left;
+          }
+
+          .polyedge-cockpit-only-stage .poly-final-glass {
+            min-height: 0 !important;
+          }
+        }
+
+        @media (min-width: 1400px) {
+          .polyedge-cockpit-only-stage {
+            --polyedge-fit-scale: .86;
+          }
+        }
+
+        @media (max-width: 767px) {
+          .polyedge-fullscreen-page {
+            position: relative !important;
+            height: auto !important;
+            min-height: 100dvh !important;
+            overflow: auto !important;
+          }
+
+          .polyedge-cockpit-only-stage {
+            width: 100% !important;
+            height: auto !important;
+            transform: none !important;
+          }
+
+          html,
+          body,
+          #root {
+            height: auto !important;
+            overflow: auto !important;
+          }
+        }
+
         @keyframes poly-final-float {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-6px); }
         }
       `}</style>
 
-      <div className="poly-final-root polyedge-fullscreen-page min-h-screen h-screen max-h-screen w-screen overflow-hidden rounded-none p-1 text-white">
-        <div className="relative z-10 mx-auto flex h-full max-w-none flex-col overflow-hidden">
+      <div className="poly-final-root polyedge-cockpit-only-root h-screen w-screen overflow-hidden bg-black p-0 text-white">
+        <div className="relative z-10 flex h-full w-full flex-col overflow-hidden">
           <div className="mb-1.5 flex flex-wrap items-center justify-between gap-1.5 rounded-xl border border-cyan-400/30 bg-slate-950/70 px-2.5 py-1.5 backdrop-blur-xl lg:flex-nowrap">
             <div className="flex items-center gap-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-purple-600 text-sm font-bold text-white shadow-[0_0_30px_rgba(103,232,249,.4)]">P/E</div>
@@ -1983,6 +2056,61 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
   const proofPassed = proof.proofPassed === true;
   const liveBlocked = data?.liveTradingAllowed !== true;
 
+  // STAGE_6Q_COCKPIT_ONLY_RETURN
+  // Admin PolyEdge now renders the real cockpit only.
+  // This keeps ECG/heartbeat logic but removes the old top/status page that was pushing the cockpit down.
+  if (mode === "admin") {
+    return (
+      <div className="polyedge-cockpit-only-root h-screen w-screen overflow-hidden bg-black p-0 text-white">
+        <style>{`
+          .polyedge-cockpit-only-root {
+            background:
+              radial-gradient(circle at 25% 15%, rgba(34, 211, 238, .18), transparent 32%),
+              radial-gradient(circle at 75% 35%, rgba(192, 38, 211, .16), transparent 35%),
+              #000;
+          }
+
+          html,
+          body,
+          #root {
+            width: 100vw !important;
+            height: 100vh !important;
+            overflow: hidden !important;
+            background: #000 !important;
+          }
+
+          .polyedge-hide-old-panels {
+            display: none !important;
+          }
+
+          .polyedge-cockpit-only-root .poly-final-glass {
+            min-height: 0 !important;
+          }
+
+          @media (max-width: 767px) {
+            html,
+            body,
+            #root {
+              height: auto !important;
+              overflow: auto !important;
+            }
+
+            .polyedge-cockpit-only-root {
+              height: auto !important;
+              min-height: 100vh !important;
+              overflow: auto !important;
+            }
+          }
+        `}</style>
+
+        <div className="grid h-full w-full grid-cols-12 gap-1 overflow-hidden p-1">
+          <PolyEdgeActionMonitorGrid actionMonitor={actionMonitor} replayStatus={replayStatus} />
+        </div>
+      </div>
+    );
+  }
+
+
   return (
     <div className="min-h-screen overflow-hidden bg-[#01040a] text-cyan-50">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(34,240,255,0.16),transparent_28%),radial-gradient(circle_at_80%_20%,rgba(255,0,170,0.12),transparent_30%),radial-gradient(circle_at_50%_90%,rgba(255,110,0,0.10),transparent_35%)]" />
@@ -2270,7 +2398,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
 
             <HoloPanel title="Decision Stream // Nexora Log" icon={Activity} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
               <div className="space-y-2 text-xs">
-                {(mode === "admin" ? attempts : outcomes).slice(0, 8).map((row: any, i: number) => (
+                {outcomes.slice(0, 8).map((row: any, i: number) => (
                   <div key={row?.id || i} className="grid grid-cols-3 gap-1.5 border-b border-cyan-400/10 pb-1">
                     <span className="truncate text-cyan-200">{row?.symbol || row?.mode || row?.market || "paper"}</span>
                     <span className="truncate text-cyan-100/60">{row?.wasBlocked ? "blocked" : row?.status || row?.outcome || "logged"}</span>
