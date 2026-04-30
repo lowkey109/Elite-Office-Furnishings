@@ -583,6 +583,7 @@ function QuantumTitle({ title, right }: { title: string; right?: any }) {
 
 
 
+
 function MiniTrace({ monitor }: { monitor: any }) {
   const state = String(monitor?.state || "offline");
   const kind = String(monitor?.kind || "module");
@@ -613,17 +614,10 @@ function MiniTrace({ monitor }: { monitor: any }) {
 
   if (isFault) {
     return (
-      <div className="poly-real-ecg mt-1 h-7 overflow-hidden rounded-md border border-red-300/25 bg-black/80">
-        <div className="poly-real-ecg-grid poly-real-ecg-grid-red" />
+      <div className="poly-beat-ecg mt-1 h-7 overflow-hidden rounded-md border border-red-300/25 bg-black/85">
+        <div className="poly-beat-grid poly-beat-grid-red" />
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 320 44" preserveAspectRatio="none">
-          <polyline
-            points="0,27 320,27"
-            fill="none"
-            stroke="#ff4d6d"
-            strokeWidth="2.8"
-            strokeLinecap="round"
-            style={{ filter: "drop-shadow(0 0 8px rgba(255,77,109,.85))" }}
-          />
+          <path d="M0 27 H320" fill="none" stroke="#ff4d6d" strokeWidth="2.8" strokeLinecap="round" style={{ filter: "drop-shadow(0 0 8px rgba(255,77,109,.85))" }} />
         </svg>
         <div className="absolute right-2 top-1 text-[7px] font-black uppercase tracking-[0.14em] text-red-300">FLATLINE</div>
       </div>
@@ -632,26 +626,18 @@ function MiniTrace({ monitor }: { monitor: any }) {
 
   if (isIdle) {
     return (
-      <div className="poly-real-ecg mt-1 h-7 overflow-hidden rounded-md border border-amber-300/25 bg-black/80">
-        <div className="poly-real-ecg-grid poly-real-ecg-grid-amber" />
-        <div className="poly-real-ecg-idle-sweep" />
-        <svg className="poly-real-ecg-line-idle" viewBox="0 0 640 44" preserveAspectRatio="none">
-          <polyline
-            /*
-              Mostly flat with a tiny occasional pulse:
-              baseline -> tiny blip -> baseline.
-              This is NOT a full heartbeat.
-            */
-            points="
-              0,27 90,27 130,27 140,25 150,27 240,27 320,27
-              330,26 340,27 430,27 520,27 530,25 540,27 640,27
-            "
+      <div className="poly-beat-ecg mt-1 h-7 overflow-hidden rounded-md border border-amber-300/25 bg-black/85">
+        <div className="poly-beat-grid poly-beat-grid-amber" />
+        <div className="poly-beat-idle-sweep" />
+        <svg className="absolute inset-0 h-full w-full" viewBox="0 0 320 44" preserveAspectRatio="none">
+          <path
+            className="poly-beat-idle-path"
+            d="M0 27 H110 C118 27 122 25 128 27 H320"
             fill="none"
             stroke="#ffd166"
             strokeWidth="2.2"
             strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{ filter: "drop-shadow(0 0 7px rgba(255,209,102,.70))" }}
+            style={{ filter: "drop-shadow(0 0 7px rgba(255,209,102,.7))" }}
           />
         </svg>
         <div className="absolute right-2 top-1 text-[7px] font-black uppercase tracking-[0.14em] text-amber-300">STANDBY</div>
@@ -660,52 +646,22 @@ function MiniTrace({ monitor }: { monitor: any }) {
   }
 
   return (
-    <div className="poly-real-ecg mt-1 h-7 overflow-hidden rounded-md border border-emerald-300/25 bg-black/80">
-      <div className="poly-real-ecg-grid" />
-      <div className="poly-real-ecg-sweep" />
-      <svg className="poly-real-ecg-line" viewBox="0 0 900 44" preserveAspectRatio="none">
-        <polyline
-          /*
-            Continuous monitor-style rhythm:
-            baseline -> small P wave -> QRS complex -> T wave -> baseline.
-          */
-          points="
-            0,27 36,27 50,27
-            58,24 67,22 76,24 84,27
-            104,27 112,34 120,5 129,39 139,27
-            168,27 184,24 202,22 220,24 238,27
-            290,27
-
-            320,27 356,27 370,27
-            378,24 387,22 396,24 404,27
-            424,27 432,34 440,5 449,39 459,27
-            488,27 504,24 522,22 540,24 558,27
-            610,27
-
-            640,27 676,27 690,27
-            698,24 707,22 716,24 724,27
-            744,27 752,34 760,5 769,39 779,27
-            808,27 824,24 842,22 860,24 878,27
-            900,27
-          "
+    <div className="poly-beat-ecg mt-1 h-7 overflow-hidden rounded-md border border-emerald-300/25 bg-black/85">
+      <div className="poly-beat-grid" />
+      <div className="poly-beat-head" />
+      <svg className="absolute inset-0 h-full w-full" viewBox="0 0 320 44" preserveAspectRatio="none">
+        <path
+          className="poly-beat-live-path"
+          d="M0 27 H52 C60 27 65 24 71 22 C78 20 84 24 90 27 H104 L112 34 L120 5 L129 39 L139 27 H166 C178 27 187 24 199 22 C214 20 228 24 242 27 H320"
           fill="none"
           stroke="#00ff88"
-          strokeWidth="3.1"
+          strokeWidth="3.2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          style={{
-            filter: "drop-shadow(0 0 7px rgba(0,255,136,.95)) drop-shadow(0 0 15px rgba(0,255,136,.55))",
-            animation: "poly-real-ecg-draw 1.55s linear infinite",
-          }}
+          style={{ filter: "drop-shadow(0 0 7px rgba(0,255,136,.95)) drop-shadow(0 0 16px rgba(0,255,136,.55))" }}
         />
       </svg>
-      <div
-        className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-emerald-300"
-        style={{
-          boxShadow: "0 0 12px rgba(0,255,136,.95)",
-          animation: "poly-real-ecg-beat 1.55s ease-in-out infinite",
-        }}
-      />
+      <div className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(0,255,136,.95)]" style={{ animation: "poly-beat-dot 1.42s ease-in-out infinite" }} />
     </div>
   );
 }
@@ -1133,6 +1089,96 @@ function PolyEdgeActionMonitorGrid({
           width: 18px;
           background: linear-gradient(90deg, transparent, rgba(255,209,102,.18), transparent);
           animation: poly-real-ecg-sweep 5.6s linear infinite;
+        }
+
+        @keyframes poly-beat-draw {
+          0% { stroke-dashoffset: 560; opacity: .15; }
+          8% { opacity: 1; }
+          74% { stroke-dashoffset: 0; opacity: 1; }
+          88% { stroke-dashoffset: 0; opacity: .95; }
+          100% { stroke-dashoffset: 0; opacity: .08; }
+        }
+
+        @keyframes poly-beat-head {
+          0% { left: -18px; opacity: 0; }
+          8% { opacity: 1; }
+          74% { left: 100%; opacity: 1; }
+          100% { left: 100%; opacity: 0; }
+        }
+
+        @keyframes poly-beat-dot {
+          0%, 37%, 100% { opacity: .35; transform: scale(.78); }
+          42% { opacity: 1; transform: scale(1.45); }
+          48% { opacity: .8; transform: scale(.95); }
+        }
+
+        @keyframes poly-beat-idle {
+          0%, 78%, 100% { stroke-dashoffset: 520; opacity: .28; }
+          82% { opacity: .75; }
+          95% { stroke-dashoffset: 0; opacity: .75; }
+        }
+
+        @keyframes poly-beat-idle-sweep {
+          0%, 76% { left: -20px; opacity: 0; }
+          82% { opacity: .75; }
+          98% { left: 100%; opacity: .6; }
+          100% { opacity: 0; }
+        }
+
+        .poly-beat-ecg {
+          position: relative;
+        }
+
+        .poly-beat-grid {
+          position: absolute;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(0,255,136,.13) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,255,136,.10) 1px, transparent 1px);
+          background-size: 10px 10px;
+          opacity: .9;
+        }
+
+        .poly-beat-grid-amber {
+          background-image:
+            linear-gradient(rgba(255,209,102,.12) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,209,102,.08) 1px, transparent 1px);
+        }
+
+        .poly-beat-grid-red {
+          background-image:
+            linear-gradient(rgba(255,77,109,.12) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,77,109,.08) 1px, transparent 1px);
+        }
+
+        .poly-beat-live-path {
+          stroke-dasharray: 560;
+          stroke-dashoffset: 560;
+          animation: poly-beat-draw 1.42s linear infinite;
+        }
+
+        .poly-beat-head {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: 22px;
+          background: linear-gradient(90deg, transparent, rgba(0,255,136,.34), transparent);
+          animation: poly-beat-head 1.42s linear infinite;
+        }
+
+        .poly-beat-idle-path {
+          stroke-dasharray: 520;
+          stroke-dashoffset: 520;
+          animation: poly-beat-idle 4.8s linear infinite;
+        }
+
+        .poly-beat-idle-sweep {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: 16px;
+          background: linear-gradient(90deg, transparent, rgba(255,209,102,.18), transparent);
+          animation: poly-beat-idle-sweep 4.8s linear infinite;
         }
 
         @keyframes poly-final-bars {
