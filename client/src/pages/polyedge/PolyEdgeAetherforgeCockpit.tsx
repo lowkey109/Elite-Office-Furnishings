@@ -24,6 +24,49 @@ import {
 
 type PolyEdgeMode = "admin" | "client";
 
+type PolyEdgeLearningGroup = {
+  key?: string;
+  label?: string;
+  dimension?: string;
+  samples?: number;
+  winRate?: number;
+  totalPnl?: number;
+  profitFactor?: number;
+  learningScore?: number;
+  confidence?: number;
+  recommendation?: string;
+  reason?: string;
+};
+
+type PolyEdgeLearningResponse = {
+  ok?: boolean;
+  summary?: {
+    globalLearningScore?: number;
+    outcomeSamples?: number;
+    decisionSamples?: number;
+    proofPassed?: boolean;
+    proofReadiness?: string;
+  };
+  adaptiveThreshold?: {
+    defaultPaperConfidenceThreshold?: number;
+    recommendedPaperConfidenceThreshold?: number;
+    appliesToLiveTrading?: boolean;
+    notes?: string[];
+    bestStrategy?: PolyEdgeLearningGroup | null;
+    weakestStrategy?: PolyEdgeLearningGroup | null;
+  };
+  byDimension?: {
+    strategy?: PolyEdgeLearningGroup[];
+    symbol?: PolyEdgeLearningGroup[];
+    direction?: PolyEdgeLearningGroup[];
+    regime?: PolyEdgeLearningGroup[];
+    riskBucket?: PolyEdgeLearningGroup[];
+    confidenceBand?: PolyEdgeLearningGroup[];
+  };
+  topOpportunities?: PolyEdgeLearningGroup[];
+  risksToReduce?: PolyEdgeLearningGroup[];
+};
+
 type PolyEdgeProofResponse = {
   ok?: boolean;
   product?: string;
@@ -143,7 +186,13 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
       ? "/api/admin/polyedge/aetherforge"
       : "/api/client/polyedge/aetherforge";
 
+  const learningEndpoint =
+    mode === "admin"
+      ? "/api/admin/polyedge/learning"
+      : "/api/client/polyedge/learning";
+
   const [data, setData] = useState<PolyEdgeProofResponse | null>(null);
+  const [learning, setLearning] = useState<PolyEdgeLearningResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [now, setNow] = useState(new Date());
 
@@ -153,6 +202,12 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
       const json = await res.json();
       if (!res.ok || json?.ok === false) throw new Error(json?.error || "PolyEdge API failed");
       setData(json);
+
+      const learningRes = await fetch(learningEndpoint, { credentials: "include" });
+      const learningJson = await learningRes.json();
+      if (learningRes.ok && learningJson?.ok !== false) {
+        setLearning(learningJson);
+      }
       setError(null);
     } catch (err: any) {
       setError(err?.message || "Failed to load PolyEdge");
@@ -166,7 +221,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
       load();
     }, 30_000);
     return () => window.clearInterval(t);
-  }, [endpoint]);
+  }, [endpoint, learningEndpoint]);
 
   const proof = data?.proof || {};
   const outcomes = data?.monitor?.recent_outcomes || [];
@@ -334,6 +389,45 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
                   );
                 })}
                 {!outcomes.length ? <div className="text-sm text-cyan-100/50">Awaiting paper outcomes.</div> : null}
+              </div>
+            </HoloPanel>
+
+            <HoloPanel title="Neural Learning Core" icon={Brain} className="col-span-12 xl:col-span-3">
+              <div className="mb-3 grid grid-cols-2 gap-2">
+                <Metric label="Learning Score" value={num(learning?.summary?.globalLearningScore)} good={(learning?.summary?.globalLearningScore || 0) >= 60} />
+                <Metric label="Outcome Samples" value={num(learning?.summary?.outcomeSamples)} />
+                <Metric label="Paper Threshold" value={num(learning?.adaptiveThreshold?.recommendedPaperConfidenceThreshold)} />
+                <Metric label="Live Impact" value={learning?.adaptiveThreshold?.appliesToLiveTrading ? "YES" : "NO"} good={!learning?.adaptiveThreshold?.appliesToLiveTrading} />
+              </div>
+
+              <div className="space-y-2">
+                {(learning?.topOpportunities || []).slice(0, 3).map((g) => (
+                  <div key={g.key} className="rounded-xl border border-emerald-400/20 bg-emerald-400/5 p-2">
+                    <div className="flex justify-between text-xs">
+                      <span className="truncate text-emerald-200">{g.label || "learning edge"}</span>
+                      <span className="text-emerald-300">{num(g.learningScore)}</span>
+                    </div>
+                    <div className="mt-1 text-[10px] text-cyan-100/50">
+                      {num(g.winRate, "%")} WR • PF {num(g.profitFactor)} • {g.recommendation}
+                    </div>
+                  </div>
+                ))}
+
+                {(learning?.risksToReduce || []).slice(0, 2).map((g) => (
+                  <div key={g.key} className="rounded-xl border border-amber-400/20 bg-amber-400/5 p-2">
+                    <div className="flex justify-between text-xs">
+                      <span className="truncate text-amber-200">{g.label || "risk pattern"}</span>
+                      <span className="text-amber-300">{num(g.learningScore)}</span>
+                    </div>
+                    <div className="mt-1 text-[10px] text-cyan-100/50">
+                      {g.recommendation} • {num(g.samples)} samples
+                    </div>
+                  </div>
+                ))}
+
+                {!learning ? (
+                  <div className="text-sm text-cyan-100/50">Learning brain warming up.</div>
+                ) : null}
               </div>
             </HoloPanel>
 
