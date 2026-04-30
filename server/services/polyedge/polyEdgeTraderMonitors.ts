@@ -80,6 +80,71 @@ export async function getPolyEdgeTraderMonitors() {
     blockedTrades > 10 ? "STRICT" :
     "NORMAL";
 
+  const strategyMap: Record<string, any> = {};
+  for (const o of outcomes as any[]) {
+    const key = o.strategy || "unknown";
+    if (!strategyMap[key]) strategyMap[key] = { strategy: key, trades: 0, wins: 0, pnl: 0 };
+    strategyMap[key].trades += 1;
+    strategyMap[key].wins += String(o.outcome) === "win" ? 1 : 0;
+    strategyMap[key].pnl += Number(o.realizedPnl || 0);
+  }
+
+  const strategyLeaderboard = Object.values(strategyMap)
+    .map((r: any) => ({
+      strategy: r.strategy,
+      trades: r.trades,
+      winRate: r.trades ? pct(r.wins / r.trades) : null,
+      pnl: money(r.pnl),
+      score: Math.round((r.trades ? (r.wins / r.trades) * 60 : 0) + Math.max(-20, Math.min(30, r.pnl / 100))),
+    }))
+    .sort((a: any, b: any) => b.score - a.score)
+    .slice(0, 5);
+
+  const symbols = ["BTC/USD", "ETH/USD", "SOL/USD", "XAUUSD"];
+  const symbolWatchlist = symbols.map((symbol, i) => {
+    const symbolOutcomes = (outcomes as any[]).filter((o) => o.symbol === symbol);
+    const symbolWins = symbolOutcomes.filter((o) => String(o.outcome) === "win").length;
+    const symbolPnl = money(symbolOutcomes.reduce((sum, o) => sum + Number(o.realizedPnl || 0), 0));
+    const symbolOpen = (openPositions as any[]).filter((p) => p.symbol === symbol).length;
+
+    return {
+      symbol,
+      trend: symbolPnl > 0 ? "BULLISH" : symbolPnl < 0 ? "DEFENSIVE" : i % 2 === 0 ? "WATCHING" : "NEUTRAL",
+      open: symbolOpen,
+      winRate: symbolOutcomes.length ? pct(symbolWins / symbolOutcomes.length) : null,
+      pnl: symbolPnl,
+      signal: Math.max(25, Math.min(92, avgConfidence + (i - 1) * 4)),
+    };
+  });
+
+  const signalQuality = {
+    confidence: avgConfidence,
+    dataQuality: latestDecision?.dataQualityScore || 0,
+    latestReason: latestDecision?.reasonCode || "WAITING",
+    latestStrategy: latestDecision?.strategy || "WAITING",
+    latestSymbol: latestDecision?.market || "WAITING",
+    actionable: avgConfidence >= 60 && riskMode !== "MAX EXPOSURE",
+    freshness: latestDecision?.createdAt || latestDecision?.updatedAt || null,
+  };
+
+  const liquidityOrderFlow = {
+    spreadRisk: openPositions.length >= 6 ? "HIGH" : openPositions.length >= 3 ? "MEDIUM" : "LOW",
+    simulatedSlippage: decisions.length
+      ? money(decisions.reduce((sum: number, d: any) => sum + Number(d.slippageEstimate || 0), 0) / decisions.length)
+      : 0,
+    volumePressure: regimeScore >= 75 ? "BUY PRESSURE" : totalPnl < 0 ? "SELL PRESSURE" : "BALANCED",
+    liquidityScore: Math.max(20, Math.min(94, 88 - openPositions.length * 5 + (totalPnl > 0 ? 8 : 0))),
+    executionQuality: profitFactor && profitFactor >= 1.3 ? "GOOD" : profitFactor && profitFactor < 1 ? "POOR" : "NORMAL",
+  };
+
+  const newsEventRisk = {
+    mode: openPositions.length >= 6 ? "CAUTION" : "CLEAR",
+    shockRisk: totalPnl < -500 ? "ELEVATED" : "NORMAL",
+    action: openPositions.length >= 6 || totalPnl < -500 ? "SLOW DOWN" : "TRADEABLE",
+    headline: "WAITING FOR NEWS FEED",
+    riskScore: openPositions.length >= 6 ? 72 : totalPnl < -500 ? 66 : 24,
+  };
+
   return {
     ok: true,
     generatedAt: new Date().toISOString(),
@@ -141,5 +206,11 @@ export async function getPolyEdgeTraderMonitors() {
       latestStrategy: latestDecision?.strategy || "WAITING",
       latestConfidence: latestDecision?.confidence || 0,
     },
+
+    strategyLeaderboard,
+    symbolWatchlist,
+    signalQuality,
+    liquidityOrderFlow,
+    newsEventRisk,
   };
 }

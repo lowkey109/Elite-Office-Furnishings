@@ -303,6 +303,11 @@ export default function PolyEdgeReferenceOnePage() {
   const learningMonitor = traderMonitors?.learning || {};
   const riskMonitor = traderMonitors?.riskGovernor || {};
   const regimeMonitor = traderMonitors?.marketRegime || {};
+  const strategyLeaderboardMonitor = Array.isArray(traderMonitors?.strategyLeaderboard) ? traderMonitors.strategyLeaderboard : [];
+  const symbolWatchlistMonitor = Array.isArray(traderMonitors?.symbolWatchlist) ? traderMonitors.symbolWatchlist : [];
+  const signalQualityMonitor = traderMonitors?.signalQuality || {};
+  const liquidityMonitor = traderMonitors?.liquidityOrderFlow || {};
+  const newsRiskMonitor = traderMonitors?.newsEventRisk || {};
 
   const adminNavItems = [
     ["Dashboard", "/admin/dashboard"],
@@ -1388,27 +1393,27 @@ export default function PolyEdgeReferenceOnePage() {
             </div>
           </Panel>
 
-          <Panel title="Alpha Signals Feed" className="col-span-3">
-            <div className="space-y-1 text-[8px]">
-              {moduleRows.slice(0, 9).map((m) => {
-                const t = tone(m.state);
-                return (
-                  <div key={m.key || m.label} className="flex justify-between border-b border-cyan-300/10 pb-1">
-                    <span className="truncate text-cyan-100/75">{m.label || m.key}</span>
-                    <span className={`font-black uppercase ${t.text}`}>{m.state || "unknown"}</span>
-                  </div>
-                );
-              })}
+          <Panel title="Signal Quality Monitor" className="col-span-3">
+            <div className="space-y-1">
+              <div className="trader-monitor-row"><span>Confidence</span><b>{signalQualityMonitor.confidence || 0}</b></div>
+              <div className="trader-monitor-row"><span>Data Quality</span><b>{signalQualityMonitor.dataQuality || 0}</b></div>
+              <div className="trader-monitor-row"><span>Actionable</span><b>{signalQualityMonitor.actionable ? "YES" : "WAIT"}</b></div>
+              <div className="trader-monitor-row"><span>Symbol</span><b>{signalQualityMonitor.latestSymbol || "WAITING"}</b></div>
+              <div className="trader-monitor-row"><span>Strategy</span><b>{signalQualityMonitor.latestStrategy || "WAITING"}</b></div>
+              <div className="truncate text-[7px] text-amber-300">{signalQualityMonitor.latestReason || "Waiting for signal reason."}</div>
             </div>
           </Panel>
 
-          <Panel title="Sentient Agent Mesh" className="col-span-3">
-            <div className="space-y-1 text-[8px]">
-              {["NEXORA", "PHANTOM X", "PROOF ENGINE", "POLY EDGE"].map((name, i) => (
-                <div key={name} className="flex justify-between border border-cyan-300/12 bg-black/35 p-1">
-                  <span>{name}</span><span className="text-emerald-300">{i === 1 ? "PAPER MODE" : "STANDBY"}</span>
+          <Panel title="Strategy Leaderboard" className="col-span-3">
+            <div className="space-y-1">
+              {strategyLeaderboardMonitor.length ? strategyLeaderboardMonitor.map((row: any) => (
+                <div key={row.strategy} className="trader-monitor-row">
+                  <span>{row.strategy} • {row.trades} trades</span>
+                  <b>{row.winRate ?? "WAIT"}% / {realMoney(row.pnl || 0)}</b>
                 </div>
-              ))}
+              )) : (
+                <div className="grid h-full place-items-center text-[9px] text-cyan-300/60">WAITING FOR STRATEGY OUTCOMES</div>
+              )}
             </div>
           </Panel>
 
@@ -1465,42 +1470,36 @@ export default function PolyEdgeReferenceOnePage() {
               {capitalMessage || autoPaperMessage || autoPaperState?.lastReason || "Paper-only auto learning ready."}
             </div>
           </Panel>
-          <Panel title="Multiverse Simulation" className="col-span-2">
-            <div className="grid h-full place-items-center text-center">
-              <div>
-                <div className="text-4xl text-cyan-300">◎</div>
-                <div className="text-[9px] font-black text-cyan-200">WAITING</div>
-                <div className="text-[8px] text-cyan-100/55">Real scenarios</div>
-              </div>
+          <Panel title="News / Event Risk Monitor" className="col-span-2">
+            <div className="space-y-1">
+              <div className="trader-monitor-row"><span>Mode</span><b>{newsRiskMonitor.mode || "WAITING"}</b></div>
+              <div className="trader-monitor-row"><span>Shock</span><b>{newsRiskMonitor.shockRisk || "WAITING"}</b></div>
+              <div className="trader-monitor-row"><span>Action</span><b>{newsRiskMonitor.action || "WAITING"}</b></div>
+              <div className="trader-monitor-row"><span>Risk</span><b>{newsRiskMonitor.riskScore ?? "WAIT"}</b></div>
+              <div className="truncate text-[7px] text-amber-300">{newsRiskMonitor.headline || "Waiting for news feed."}</div>
             </div>
           </Panel>
 
-          <Panel title="Hyper Liquidity Depth" className="col-span-3">
-            <div className="liquidity-stage">
-              {(statusBars.length ? statusBars : [22, 36, 48, 32, 58, 44, 70, 62, 38, 55, 46, 64, 34, 52, 76, 42, 60, 49, 66, 37, 54, 71]).map((h, i) => (
-                <span
-                  key={i}
-                  className="liquidity-bar"
-                  style={{
-                    height: `${h}%`,
-                    animationDelay: `${(i % 9) * 0.11}s`,
-                    animationDuration: `${1.35 + (i % 6) * 0.13}s`,
-                  }}
-                />
-              ))}
+          <Panel title="Order Flow / Liquidity Monitor" className="col-span-3">
+            <div className="space-y-1">
+              <div className="trader-monitor-row"><span>Liquidity</span><b>{liquidityMonitor.liquidityScore ?? "WAIT"}</b></div>
+              <div className="trader-monitor-row"><span>Spread Risk</span><b>{liquidityMonitor.spreadRisk || "WAITING"}</b></div>
+              <div className="trader-monitor-row"><span>Slippage</span><b>{liquidityMonitor.simulatedSlippage ?? 0}</b></div>
+              <div className="trader-monitor-row"><span>Pressure</span><b>{liquidityMonitor.volumePressure || "WAITING"}</b></div>
+              <div className="trader-monitor-row"><span>Execution</span><b>{liquidityMonitor.executionQuality || "WAITING"}</b></div>
             </div>
           </Panel>
 
-          <Panel title="Real-Time Smart Money Flow" className="col-span-3">
-            <div className="space-y-1 text-[8px]">
-              {marketRows.length ? marketRows.map((m) => (
-                <div key={m.key || m.label}>
-                  <div className="mb-1 flex justify-between">
-                    <span>{m.label}</span><span className="text-emerald-300">{realValue(m.value || m.price)}</span>
-                  </div>
-                  <EcgTrace monitor={m} compact />
+          <Panel title="Symbol Watchlist Monitor" className="col-span-3">
+            <div className="space-y-1">
+              {symbolWatchlistMonitor.length ? symbolWatchlistMonitor.map((row: any) => (
+                <div key={row.symbol} className="trader-monitor-row">
+                  <span>{row.symbol} • {row.trend} • open {row.open}</span>
+                  <b>{row.winRate ?? "WAIT"}% / {realMoney(row.pnl || 0)}</b>
                 </div>
-              )) : <div className="grid h-full place-items-center text-cyan-300/60">WAITING FOR MARKET FEEDS</div>}
+              )) : (
+                <div className="grid h-full place-items-center text-[9px] text-cyan-300/60">WAITING FOR SYMBOL DATA</div>
+              )}
             </div>
           </Panel>
 
