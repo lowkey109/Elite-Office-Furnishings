@@ -1,1 +1,1 @@
-export { default } from "./ClientPhantomXPaper";
+export { default } from "./AdminPhantomXIntelligence";
