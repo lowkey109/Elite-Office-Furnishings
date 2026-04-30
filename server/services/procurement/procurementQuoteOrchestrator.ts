@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { sendWhatsAppMessage } from "../intelligence/communications/whatsappService";
+import { assertNexoraExecutionApproved } from "../intelligence/nexora/nexoraExecutionGate";
 
 const DATA_DIR = path.resolve(process.cwd(), ".nexora-data");
 const STORE_FILE = "procurement-quote-store.json";
@@ -8,6 +9,32 @@ const OUTBOX_FILE = "procurement-whatsapp-outbox.json";
 const QUOTE_LOG_FILE = "procurement-customer-quote-log.json";
 const EMAIL_OUTBOX_FILE = "procurement-email-outbox.json";
 const PROCUREMENT_SEND_AUDIT_FILE = "procurement-send-audit.json";
+
+function assertProcurementNexoraApproved(input: {
+  intent?: "send_message" | "schedule";
+  reason: string;
+  evidence: Record<string, any>;
+}) {
+  const gate = assertNexoraExecutionApproved({
+    moduleKey: "procurement",
+    intent: input.intent || "send_message",
+    requestedBy: "nexora",
+    reason: input.reason,
+    evidence: {
+      source: "procurement_quote_orchestrator",
+      ...input.evidence,
+    },
+  });
+
+  console.log("[Nexora Procurement] Approved through execution gate", {
+    intent: input.intent || "send_message",
+    decision: gate.decision,
+    empireScore: gate.empireScore?.empireScore,
+    source: input.evidence?.source,
+  });
+
+  return gate;
+}
 
 type ProcurementItem = {
   name: string;
@@ -439,6 +466,19 @@ export async function sendQueuedProcurementEmails(opts: { overrideToken?: string
   const from = process.env.TCD_EMAIL_FROM_PLAIN || "hello@thecorporatedesk.au";
 
   for (const email of pending) {
+    assertProcurementNexoraApproved({
+      reason: `Nexora approved procurement email send to ${email.to}`,
+      evidence: {
+        source: "procurement_email_outbox_send",
+        emailId: email.id,
+        to: email.to,
+        purpose: email.purpose,
+        quoteRequestId: email.quoteRequestId,
+        quoteNumber: email.quoteNumber,
+        subject: email.subject,
+      },
+    });
+
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -1170,6 +1210,19 @@ export async function sendCustomerQuoteEmail(id: string, opts: { overrideToken?:
     };
   }
 
+  assertProcurementNexoraApproved({
+    reason: `Nexora approved customer quote email send for ${request.quoteNumber}`,
+    evidence: {
+      source: "procurement_customer_quote_email_send",
+      quoteRequestId: id,
+      quoteNumber: request.quoteNumber,
+      customerEmail: request.customer.email,
+      customerName: request.customer.name,
+      totalInclGst: quote?.totals?.totalInclGst,
+      profitGuard: "quote_profit_guard_passed",
+    },
+  });
+
   const html = await renderCustomerQuoteHtml(id);
   const from = process.env.TCD_EMAIL_FROM_PLAIN || "hello@thecorporatedesk.au";
 
@@ -1266,6 +1319,18 @@ export async function sendQueuedProcurementWhatsAppMessages(opts: { overrideToke
         reason: "Missing valid WhatsApp recipient number"
       };
     } else {
+      assertProcurementNexoraApproved({
+        reason: `Nexora approved procurement WhatsApp outbox send to ${cleanTo}`,
+        evidence: {
+          source: "procurement_whatsapp_outbox_send",
+          messageId: message.id,
+          to: message.to,
+          purpose: message.purpose,
+          quoteRequestId: message.quoteRequestId,
+          quoteNumber: message.quoteNumber,
+        },
+      });
+
       result = await sendWhatsAppMessage({
         toE164: cleanTo,
         message: String(message.body || "")
@@ -1938,6 +2003,22 @@ export async function releaseOneProcurementWhatsAppDraft(input: {
   }
 
   const cleanTo = String(message.to || "").replace(/^whatsapp:/, "").trim();
+
+  assertProcurementNexoraApproved({
+    reason: `Nexora approved one-at-a-time procurement RFQ release to ${cleanTo}`,
+    evidence: {
+      source: "procurement_one_rfq_whatsapp_release",
+      messageId: message.id,
+      to: message.to,
+      purpose: message.purpose,
+      quoteRequestId: message.quoteRequestId,
+      quoteNumber: message.quoteNumber,
+      toCompany: message.toCompany,
+      toName: message.toName,
+      guard,
+    },
+  });
+
   const result: any = await sendWhatsAppMessage({
     toE164: cleanTo,
     message: String(message.body || "")
