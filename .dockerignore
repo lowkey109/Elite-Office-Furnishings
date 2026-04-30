@@ -1,0 +1,16 @@
+node_modules
+.git
+.data
+dist
+tmp
+.cache
+.npm
+.local
+*.dump
+*.sql
+*.sqlite
+*.db
+*.log
+.env
+.env.*
+.DS_Store
