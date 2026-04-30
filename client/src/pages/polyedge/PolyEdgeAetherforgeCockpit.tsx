@@ -293,6 +293,176 @@ function PolyEdgeHeartbeatPanel({
   );
 }
 
+
+function PolySystemHeartMonitor({
+  apiStatus,
+  lastApiCheck,
+  lastGoodApiCheck,
+  apiFailureCount,
+  heartbeatTick,
+}: {
+  apiStatus: "checking" | "online" | "offline" | "timeout";
+  lastApiCheck: string | null;
+  lastGoodApiCheck: string | null;
+  apiFailureCount: number;
+  heartbeatTick: number;
+}) {
+  const alive = apiStatus === "online";
+  const flatline = apiStatus === "offline" || apiStatus === "timeout";
+  const dots = ".".repeat((heartbeatTick % 3) + 1);
+
+  return (
+    <HoloPanel title="Poly System Heart Monitor" icon={Activity} className="col-span-12 xl:col-span-6">
+      <style>{`
+        @keyframes poly-ecg-run {
+          from { transform: translateX(-50%); }
+          to { transform: translateX(0%); }
+        }
+        @keyframes poly-heart-glow {
+          0%, 100% { opacity: .45; transform: scale(.96); }
+          50% { opacity: 1; transform: scale(1.08); }
+        }
+      `}</style>
+
+      <div className="relative min-h-[220px] overflow-hidden rounded-2xl border border-cyan-300/15 bg-black/40 p-4">
+        <div className="absolute inset-0 opacity-25" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.14) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.10) 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
+        <div className="relative z-10">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <div className="text-[9px] uppercase tracking-[0.18em] text-cyan-100/40">PolyEdge API Heartbeat</div>
+              <div className={`mt-1 text-3xl font-black uppercase tracking-[0.12em] ${alive ? "text-emerald-300" : flatline ? "text-red-300" : "text-cyan-300"}`}>
+                {alive ? `LIVE${dots}` : flatline ? "FLATLINE" : "CHECKING"}
+              </div>
+            </div>
+            <div className="rounded-xl border border-cyan-300/20 bg-black/45 px-4 py-3 text-right">
+              <div className="text-[9px] uppercase tracking-[0.14em] text-cyan-100/40">API Status</div>
+              <div className={`text-xl font-black uppercase ${alive ? "text-emerald-300" : "text-amber-300"}`}>{apiStatus}</div>
+            </div>
+          </div>
+
+          <div className="relative h-24 overflow-hidden rounded-xl border border-cyan-300/15 bg-black/60">
+            <svg className="absolute inset-0 h-full w-[200%]" style={{ animation: alive ? "poly-ecg-run 1.2s linear infinite" : undefined }} viewBox="0 0 1000 120" preserveAspectRatio="none">
+              <polyline
+                points={
+                  alive
+                    ? "0,70 80,70 105,70 118,40 130,95 145,20 165,70 250,70 330,70 355,70 368,48 380,90 394,30 414,70 500,70 580,70 605,70 618,45 630,92 646,24 666,70 750,70 830,70 855,70 868,46 880,94 896,25 916,70 1000,70"
+                    : "0,70 1000,70"
+                }
+                fill="none"
+                stroke={alive ? "#5fffd2" : "#ff4d4d"}
+                strokeWidth="4"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+            </svg>
+            <div className={`absolute right-4 top-4 h-4 w-4 rounded-full ${alive ? "bg-emerald-300" : "bg-red-400"}`} style={{ animation: alive ? "poly-heart-glow 1s ease-in-out infinite" : undefined }} />
+          </div>
+
+          <div className="mt-4 grid grid-cols-3 gap-2 text-[11px]">
+            <div className="rounded-xl border border-cyan-300/15 bg-cyan-300/5 p-3">
+              <div className="text-cyan-100/35">Last Check</div>
+              <div className="font-bold text-white">{lastApiCheck || "waiting"}</div>
+            </div>
+            <div className="rounded-xl border border-emerald-300/15 bg-emerald-300/5 p-3">
+              <div className="text-cyan-100/35">Last Good</div>
+              <div className="font-bold text-emerald-300">{lastGoodApiCheck || "none"}</div>
+            </div>
+            <div className="rounded-xl border border-amber-300/15 bg-amber-300/5 p-3">
+              <div className="text-cyan-100/35">Failures</div>
+              <div className="font-bold text-amber-300">{apiFailureCount}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </HoloPanel>
+  );
+}
+
+function ReplayEngineMonitor({
+  runtime,
+  replayProgress,
+  heartbeatTick,
+  lastReplayProgressAt,
+}: {
+  runtime?: any;
+  replayProgress: number;
+  heartbeatTick: number;
+  lastReplayProgressAt: number | null;
+}) {
+  const running = runtime?.running === true;
+  const completed = Number(runtime?.completed || 0);
+  const total = Number(runtime?.requestedBatchSize || 0);
+  const secondsSinceProgress = running && lastReplayProgressAt ? Math.floor((Date.now() - lastReplayProgressAt) / 1000) : 0;
+  const stalled = running && secondsSinceProgress >= 8;
+  const status = stalled ? "STALLED" : running ? "RUNNING" : "IDLE";
+
+  return (
+    <HoloPanel title="Replay Engine Monitor" icon={Radar} className="col-span-12 xl:col-span-6">
+      <style>{`
+        @keyframes replay-orbit-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes replay-core-pulse {
+          0%, 100% { transform: scale(.9); opacity: .5; }
+          50% { transform: scale(1.12); opacity: 1; }
+        }
+        @keyframes replay-sweep {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+
+      <div className="relative min-h-[220px] overflow-hidden rounded-2xl border border-fuchsia-300/15 bg-black/40 p-4">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_45%,rgba(255,0,170,0.14),transparent_36%),radial-gradient(circle_at_70%_60%,rgba(34,240,255,0.12),transparent_34%)]" />
+        <div className="relative z-10 grid min-h-[190px] grid-cols-[170px_1fr] gap-4">
+          <div className="flex items-center justify-center">
+            <div className="relative h-36 w-36">
+              <div className="absolute inset-0 rounded-full border border-fuchsia-300/25" style={{ animation: running && !stalled ? "replay-orbit-spin 4s linear infinite" : undefined }} />
+              <div className="absolute inset-5 rounded-full border border-cyan-300/25" style={{ animation: running && !stalled ? "replay-orbit-spin 7s linear infinite reverse" : undefined }} />
+              <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-fuchsia-300/80 to-transparent" style={{ animation: running && !stalled ? "replay-sweep 1.4s linear infinite" : undefined }} />
+              <div className={`absolute inset-[52px] rounded-full ${stalled ? "bg-red-400/30" : running ? "bg-emerald-300/30" : "bg-cyan-300/15"} shadow-[0_0_35px_rgba(34,240,255,.55)]`} style={{ animation: running && !stalled ? "replay-core-pulse 1s ease-in-out infinite" : undefined }} />
+            </div>
+          </div>
+
+          <div className="flex flex-col justify-center">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-[9px] uppercase tracking-[0.18em] text-cyan-100/40">Replay Processing Heartbeat</div>
+                <div className={`mt-1 text-3xl font-black uppercase tracking-[0.12em] ${stalled ? "text-red-300" : running ? "text-emerald-300" : "text-cyan-100/45"}`}>
+                  {status}
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-[9px] uppercase tracking-[0.14em] text-cyan-100/40">Trade Progress</div>
+                <div className="text-2xl font-black text-white">{completed}/{total}</div>
+              </div>
+            </div>
+
+            <div className="mt-4 h-3 overflow-hidden rounded-full bg-black/60 ring-1 ring-fuchsia-300/20">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${stalled ? "bg-red-400" : "bg-gradient-to-r from-cyan-300 via-emerald-300 to-fuchsia-300"}`}
+                style={{ width: `${replayProgress}%` }}
+              />
+            </div>
+
+            <div className="mt-4 grid grid-cols-4 gap-2 text-center text-[10px]">
+              <div className="rounded-xl border border-emerald-300/15 bg-black/35 p-2"><div className="text-cyan-100/35">WINS</div><div className="font-bold text-emerald-300">{runtime?.profitable || 0}</div></div>
+              <div className="rounded-xl border border-red-300/15 bg-black/35 p-2"><div className="text-cyan-100/35">LOSSES</div><div className="font-bold text-red-300">{runtime?.losing || 0}</div></div>
+              <div className="rounded-xl border border-amber-300/15 bg-black/35 p-2"><div className="text-cyan-100/35">SKIP</div><div className="font-bold text-amber-300">{runtime?.skipped || 0}</div></div>
+              <div className="rounded-xl border border-cyan-300/15 bg-black/35 p-2"><div className="text-cyan-100/35">NO MOVE</div><div className="font-bold text-cyan-300">{secondsSinceProgress}s</div></div>
+            </div>
+
+            <div className="mt-3 rounded-xl border border-fuchsia-300/15 bg-fuchsia-300/5 p-3 text-[11px] leading-relaxed text-fuchsia-100/75">
+              {runtime?.lastEvent || "Replay engine idle. Press Run 25 or Run 50 to start."}
+            </div>
+          </div>
+        </div>
+      </div>
+    </HoloPanel>
+  );
+}
+
 function HoloPanel(props: {
   title: string;
   icon?: any;
@@ -337,11 +507,20 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
   const [data, setData] = useState<PolyEdgeProofResponse | null>(null);
   const [learning, setLearning] = useState<PolyEdgeLearningResponse | null>(null);
   const [replayStatus, setReplayStatus] = useState<PolyEdgeReplayStatus | null>(null);
+  const runtime = (replayStatus as any)?.runtime;
+  const replayProgress =
+    runtime?.requestedBatchSize && runtime.requestedBatchSize > 0
+      ? Math.min(100, Math.round(((runtime.completed || 0) / runtime.requestedBatchSize) * 100))
+      : 0;
   const [replayRunning, setReplayRunning] = useState(false);
   const [replayMessage, setReplayMessage] = useState<string | null>(null);
   const [heartbeatTick, setHeartbeatTick] = useState(0);
   const [apiStatus, setApiStatus] = useState<"checking" | "online" | "offline" | "timeout">("checking");
   const [lastApiCheck, setLastApiCheck] = useState<string | null>(null);
+  const [lastGoodApiCheck, setLastGoodApiCheck] = useState<string | null>(null);
+  const [apiFailureCount, setApiFailureCount] = useState(0);
+  const [lastReplayCompleted, setLastReplayCompleted] = useState(0);
+  const [lastReplayProgressAt, setLastReplayProgressAt] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [now, setNow] = useState(new Date());
 
@@ -357,13 +536,17 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
         setReplayStatus(json);
         setApiStatus("online");
         setLastApiCheck(new Date().toLocaleTimeString());
+        setLastGoodApiCheck(new Date().toLocaleTimeString());
+        setApiFailureCount(0);
       } else {
         setApiStatus("offline");
         setLastApiCheck(new Date().toLocaleTimeString());
+        setApiFailureCount((x) => x + 1);
       }
     } catch {
       setApiStatus("timeout");
       setLastApiCheck(new Date().toLocaleTimeString());
+      setApiFailureCount((x) => x + 1);
     }
   }
 
@@ -423,6 +606,21 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
   }
 
   useEffect(() => {
+    const completed = Number(runtime?.completed || 0);
+    if (runtime?.running === true) {
+      if (completed !== lastReplayCompleted) {
+        setLastReplayCompleted(completed);
+        setLastReplayProgressAt(Date.now());
+      } else if (!lastReplayProgressAt) {
+        setLastReplayProgressAt(Date.now());
+      }
+    } else if (runtime?.running === false) {
+      setLastReplayCompleted(completed);
+      setLastReplayProgressAt(null);
+    }
+  }, [runtime?.running, runtime?.completed]);
+
+  useEffect(() => {
     load();
     const t = window.setInterval(() => {
       setNow(new Date());
@@ -465,11 +663,6 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
 
   const readiness = String(proof.readiness || "learning").replace(/_/g, " ").toUpperCase();
   const proofPassed = proof.proofPassed === true;
-  const runtime = (replayStatus as any)?.runtime;
-  const replayProgress =
-    runtime?.requestedBatchSize && runtime.requestedBatchSize > 0
-      ? Math.min(100, Math.round(((runtime.completed || 0) / runtime.requestedBatchSize) * 100))
-      : 0;
   const liveBlocked = data?.liveTradingAllowed !== true;
 
   return (
@@ -669,12 +862,19 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               </HoloPanel>
             ) : null}
 
-            <PolyEdgeHeartbeatPanel
+            <PolySystemHeartMonitor
               apiStatus={apiStatus}
               lastApiCheck={lastApiCheck}
+              lastGoodApiCheck={lastGoodApiCheck}
+              apiFailureCount={apiFailureCount}
               heartbeatTick={heartbeatTick}
+            />
+
+            <ReplayEngineMonitor
               runtime={runtime}
-              replayMessage={replayMessage}
+              replayProgress={replayProgress}
+              heartbeatTick={heartbeatTick}
+              lastReplayProgressAt={lastReplayProgressAt}
             />
 
             <HoloPanel title="Neural Learning Core" icon={Brain} className="col-span-12 xl:col-span-3">
