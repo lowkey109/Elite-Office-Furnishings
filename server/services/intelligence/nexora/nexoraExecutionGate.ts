@@ -21,6 +21,7 @@ import {
   type NexoraActionRequest,
   type NexoraActionRouteResult,
 } from "./nexoraActionRouter";
+import { evaluateActionPolicy } from "../../governance/actionPolicyEngine";
 
 export type NexoraExecutionGateInput = {
   moduleKey: string;
@@ -42,7 +43,9 @@ export function evaluateNexoraExecutionGate(input: NexoraExecutionGateInput): Ne
     intent: input.intent,
     requestedBy: input.requestedBy || "system",
     reason: input.reason,
-    evidence: input.evidence || {},
+    evidence: {
+      ...(input.evidence || {}),
+    },
     dryRun: input.dryRun ?? false,
   });
 
@@ -57,6 +60,29 @@ export function assertNexoraExecutionApproved(input: NexoraExecutionGateInput): 
   const result = evaluateNexoraExecutionGate(input);
 
   if (!result.allowed) {
+  const governancePolicy = evaluateActionPolicy({
+    moduleKey: input.moduleKey,
+    intent: input.intent,
+    evidence: input.evidence,
+  });
+
+  if (!governancePolicy.allowed) {
+    return {
+      approved: false,
+      decision: "blocked",
+      reason: governancePolicy.reason,
+      moduleKey: input.moduleKey,
+      intent: input.intent,
+      requestedBy: input.requestedBy,
+      evidence: {
+        ...(input.evidence || {}),
+        governancePolicy,
+      },
+      createdAt: new Date().toISOString(),
+    } as any;
+  }
+
+
     const err = new Error(result.reason || "Nexora declined action") as Error & {
       nexoraGate?: NexoraExecutionGateResult;
       statusCode?: number;
