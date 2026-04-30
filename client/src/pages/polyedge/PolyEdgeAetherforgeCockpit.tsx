@@ -1440,14 +1440,62 @@ function PolyEdgeActionMonitorGrid({
           }
         }
 
+        .polyedge-true-fullscreen-final { display: none; }
+
+        .polyedge-hide-old-panels {
+          display: none !important;
+        }
+
+        @media (min-width: 1024px) {
+          html:has(.polyedge-true-fullscreen),
+          body:has(.polyedge-true-fullscreen),
+          #root:has(.polyedge-true-fullscreen) {
+            width: 100vw !important;
+            height: 100dvh !important;
+            max-width: 100vw !important;
+            max-height: 100dvh !important;
+            overflow: hidden !important;
+            background: #000 !important;
+          }
+
+          body:has(.polyedge-true-fullscreen) {
+            position: fixed !important;
+            inset: 0 !important;
+          }
+
+          .polyedge-true-fullscreen {
+            background:
+              radial-gradient(circle at 25% 15%, rgba(34, 211, 238, .18), transparent 32%),
+              radial-gradient(circle at 75% 35%, rgba(192, 38, 211, .16), transparent 35%),
+              #000;
+          }
+
+          .polyedge-true-fullscreen .poly-final-glass {
+            min-height: 0 !important;
+          }
+
+          .polyedge-true-fullscreen * {
+            box-sizing: border-box;
+          }
+        }
+
+        @media (max-width: 1023px) {
+          .polyedge-true-fullscreen {
+            position: relative !important;
+            height: auto !important;
+            min-height: 100dvh !important;
+            overflow: visible !important;
+          }
+        }
+
         @keyframes poly-final-float {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-6px); }
         }
       `}</style>
 
-      <div className="poly-final-root polyedge-fit-reference relative overflow-visible rounded-[18px] p-1.5 text-white lg:fixed lg:inset-[8px] lg:z-[80] lg:h-[calc(100dvh-16px)] lg:max-h-[calc(100dvh-16px)] lg:overflow-hidden">
-        <div className="relative z-10 mx-auto flex h-auto max-w-[1920px] flex-col lg:h-full lg:min-h-0 lg:overflow-hidden">
+      <div className="poly-final-root polyedge-true-fullscreen relative overflow-visible rounded-none p-1 text-white lg:fixed lg:inset-0 lg:z-[999] lg:h-[100dvh] lg:w-[100vw] lg:max-h-[100dvh] lg:overflow-hidden">
+        <div className="relative z-10 mx-auto flex h-full max-w-none flex-col lg:h-full lg:min-h-0 lg:overflow-hidden">
           <div className="mb-1.5 flex flex-wrap items-center justify-between gap-1.5 rounded-xl border border-cyan-400/30 bg-slate-950/70 px-2.5 py-1.5 backdrop-blur-xl lg:flex-nowrap">
             <div className="flex items-center gap-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-purple-600 text-sm font-bold text-white shadow-[0_0_30px_rgba(103,232,249,.4)]">P/E</div>
@@ -1867,7 +1915,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
           ) : null}
 
           <section className="grid grid-cols-12 gap-4">
-            <HoloPanel title="Hyperdimensional Equity Manifold" icon={TrendingUp} className="col-span-12 xl:col-span-7">
+            <HoloPanel title="Hyperdimensional Equity Manifold" icon={TrendingUp} className="polyedge-hide-old-panels col-span-12 xl:col-span-7">
               <div className="h-[320px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={equityCurve}>
@@ -1914,7 +1962,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               </div>
             </HoloPanel>
 
-            <HoloPanel title="Alpha Signals Feed" icon={Zap} className="col-span-12 xl:col-span-2">
+            <HoloPanel title="Alpha Signals Feed" icon={Zap} className="polyedge-hide-old-panels col-span-12 xl:col-span-2">
               <div className="space-y-2">
                 {outcomes.slice(0, 8).map((row: any, i: number) => {
                   const pnl = getPnl(row);
