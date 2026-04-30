@@ -12885,6 +12885,26 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
   // ── PolyEdge / Aetherforge — Nexora-backed trading proof API ───────────────
 
   // ── PolyEdge / Aetherforge — Learning Brain API ────────────────────────────
+
+  // ── PolyEdge / Aetherforge — Decision Lineage API ──────────────────────────
+  app.get("/api/admin/polyedge/lineage", async (_req: any, res: any) => {
+    try {
+      const { getPolyEdgeDecisionLineage } = await import("./services/trading/polyEdgeDecisionLineage");
+      return res.json(await getPolyEdgeDecisionLineage("admin"));
+    } catch (err: any) {
+      return res.status(500).json({ ok: false, error: err?.message || "PolyEdge lineage API failed" });
+    }
+  });
+
+  app.get("/api/client/polyedge/lineage", async (_req: any, res: any) => {
+    try {
+      const { getPolyEdgeDecisionLineage } = await import("./services/trading/polyEdgeDecisionLineage");
+      return res.json(await getPolyEdgeDecisionLineage("client"));
+    } catch (err: any) {
+      return res.status(500).json({ ok: false, error: err?.message || "PolyEdge client lineage API failed" });
+    }
+  });
+
   app.get("/api/admin/polyedge/learning", async (_req: any, res: any) => {
     try {
       const { getPolyEdgeLearning } = await import("./services/trading/polyEdgeLearningService");
