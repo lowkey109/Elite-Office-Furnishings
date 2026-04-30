@@ -488,63 +488,59 @@ function ReplayEngineMonitor({
 
 
 
+
 function statusTone(state?: string) {
   if (state === "online" || state === "running") {
     return {
-      label: "ACTIVE",
-      text: "text-emerald-300",
-      soft: "text-emerald-100/65",
-      dot: "bg-emerald-300",
+      label: "LIVE",
       stroke: "#00ff88",
+      glow: "rgba(0,255,136,.55)",
+      text: "text-emerald-300",
+      dot: "bg-emerald-300",
       border: "border-emerald-300/30",
-      glow: "shadow-[0_0_34px_rgba(0,255,136,.25)]",
-      halo: "rgba(0,255,136,.22)",
     };
   }
 
   if (state === "blocked" || state === "paper_only" || state === "idle") {
     return {
-      label: state === "idle" ? "STANDBY" : "LOCKED",
-      text: "text-amber-300",
-      soft: "text-amber-100/65",
-      dot: "bg-amber-300",
+      label: state === "idle" ? "IDLE" : "SAFE",
       stroke: "#ffd166",
+      glow: "rgba(255,209,102,.48)",
+      text: "text-amber-300",
+      dot: "bg-amber-300",
       border: "border-amber-300/30",
-      glow: "shadow-[0_0_30px_rgba(255,209,102,.22)]",
-      halo: "rgba(255,209,102,.20)",
     };
   }
 
   return {
     label: "FAULT",
+    stroke: "#ff4d6d",
+    glow: "rgba(255,77,109,.55)",
     text: "text-red-300",
-    soft: "text-red-100/65",
     dot: "bg-red-300",
-    stroke: "#ff4d4d",
     border: "border-red-300/30",
-    glow: "shadow-[0_0_30px_rgba(255,77,77,.25)]",
-    halo: "rgba(255,77,77,.22)",
   };
 }
 
-function SignalTrace({ monitor }: { monitor: PolyEdgeActionMonitorItem }) {
+function HoloSignalTrace({ monitor }: { monitor: PolyEdgeActionMonitorItem }) {
   const tone = statusTone(monitor.state);
   const moving = monitor.moving === true;
 
   if (monitor.kind === "market") {
     return (
-      <div className="relative h-10 overflow-hidden rounded-xl border border-cyan-200/10 bg-black/55 px-2 pb-1">
-        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.10) 1px, transparent 1px)", backgroundSize: "12px 12px" }} />
-        <div className="relative z-10 flex h-full items-end gap-[3px]">
-          {Array.from({ length: 22 }).map((_, i) => (
+      <div className="relative h-9 overflow-hidden rounded-lg bg-black/65 ring-1 ring-cyan-200/10">
+        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.22) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.12) 1px, transparent 1px)", backgroundSize: "10px 10px" }} />
+        <div className="relative z-10 flex h-full items-end justify-center gap-[3px] px-2 pb-1">
+          {Array.from({ length: 20 }).map((_, i) => (
             <span
               key={i}
-              className={`w-1 rounded-t-full ${moving ? "bg-gradient-to-t from-emerald-500 via-cyan-300 to-white" : "bg-red-300/35"}`}
+              className="w-1 rounded-full"
               style={{
-                height: moving ? `${8 + ((i * 11) % 28)}px` : "2px",
-                animation: moving ? `poly-signal-bars ${0.55 + (i % 6) * 0.07}s ease-in-out infinite alternate` : undefined,
+                height: moving ? `${6 + ((i * 13) % 27)}px` : "2px",
+                background: moving ? "linear-gradient(to top,#00ff88,#22f0ff,#ffffff)" : tone.stroke,
+                boxShadow: moving ? `0 0 10px ${tone.glow}` : undefined,
+                animation: moving ? `poly-holo-bars ${0.5 + (i % 6) * 0.07}s ease-in-out infinite alternate` : undefined,
                 animationDelay: `${i * 0.02}s`,
-                boxShadow: moving ? "0 0 9px rgba(0,255,136,.75)" : undefined,
               }}
             />
           ))}
@@ -554,62 +550,116 @@ function SignalTrace({ monitor }: { monitor: PolyEdgeActionMonitorItem }) {
   }
 
   return (
-    <div className="relative h-10 overflow-hidden rounded-xl border border-cyan-200/10 bg-black/55">
-      <svg className="absolute inset-0 h-full w-[130%] drop-shadow-[0_0_10px_rgba(0,255,136,.55)]" viewBox="0 0 360 48" preserveAspectRatio="none">
+    <div className="relative h-9 overflow-hidden rounded-lg bg-black/65 ring-1 ring-cyan-200/10">
+      <svg className="absolute inset-0 h-full w-[135%]" viewBox="0 0 340 44" preserveAspectRatio="none">
         <polyline
-          points={
-            moving
-              ? "0,28 32,28 44,28 54,12 66,38 78,5 94,28 132,28 146,28 158,18 170,36 184,10 202,28 236,28 254,28 268,12 284,40 304,28 360,28"
-              : "0,28 360,28"
-          }
+          points={moving
+            ? "0,25 28,25 38,25 49,10 60,35 74,4 90,25 122,25 136,25 148,15 160,33 174,8 192,25 226,25 244,25 258,11 274,36 292,25 340,25"
+            : "0,25 340,25"}
           fill="none"
           stroke={tone.stroke}
-          strokeWidth="3"
+          strokeWidth="3.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          style={{ animation: moving ? "poly-signal-ecg .95s linear infinite" : undefined }}
+          style={{
+            filter: `drop-shadow(0 0 8px ${tone.glow})`,
+            animation: moving ? "poly-holo-ecg .9s linear infinite" : undefined,
+          }}
         />
       </svg>
     </div>
   );
 }
 
-function SignalCoreTile({ monitor }: { monitor: PolyEdgeActionMonitorItem }) {
+function HoloMonitorNode({ monitor, index }: { monitor: PolyEdgeActionMonitorItem; index: number }) {
   const tone = statusTone(monitor.state);
   const moving = monitor.moving === true;
-  const price = monitor.kind === "market" && monitor.value ? "$" + Number(monitor.value).toLocaleString() : null;
+  const value = monitor.kind === "market" && monitor.value ? "$" + Number(monitor.value).toLocaleString() : tone.label;
 
   return (
-    <div className={`group relative min-h-[128px] overflow-hidden rounded-2xl border ${tone.border} bg-[linear-gradient(145deg,rgba(255,255,255,.055),rgba(0,0,0,.62))] p-3 ${tone.glow} transition-all duration-300 hover:-translate-y-1 hover:scale-[1.015]`}>
-      <div className="pointer-events-none absolute inset-0 opacity-35" style={{ background: `radial-gradient(circle at 18% 12%, ${tone.halo}, transparent 36%)` }} />
-      <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full border border-cyan-200/10" />
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/7 to-transparent opacity-0 group-hover:opacity-100" style={{ animation: "poly-signal-sweep 2.6s linear infinite" }} />
+    <div
+      className={`group relative min-h-[112px] overflow-hidden border ${tone.border} bg-black/55 p-3 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.025]`}
+      style={{
+        clipPath: "polygon(7% 0%, 100% 0%, 100% 78%, 93% 100%, 0% 100%, 0% 22%)",
+        boxShadow: `0 0 28px ${tone.glow}, inset 0 0 28px rgba(34,240,255,.06)`,
+      }}
+    >
+      <div className="pointer-events-none absolute inset-0 opacity-35" style={{ background: `radial-gradient(circle at 18% 18%, ${tone.glow}, transparent 32%)` }} />
+      <div className="pointer-events-none absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.14) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.08) 1px, transparent 1px)", backgroundSize: "14px 14px" }} />
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100" style={{ animation: "poly-holo-sweep 2.2s linear infinite" }} />
 
       <div className="relative z-10 flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <div className="truncate text-[7px] uppercase tracking-[0.22em] text-cyan-100/35">{monitor.key}</div>
-          <div className="mt-1 truncate text-[12px] font-black uppercase tracking-[0.09em] text-white">{monitor.label}</div>
+          <div className="truncate text-[7px] uppercase tracking-[0.22em] text-cyan-100/35">{String(monitor.key || "").replaceAll("_", " ")}</div>
+          <div className="mt-1 truncate text-[12px] font-black uppercase tracking-[0.1em] text-white">{monitor.label}</div>
         </div>
 
-        <div className={`flex shrink-0 items-center gap-1 rounded-full border border-current/25 bg-black/45 px-2 py-1 text-[8px] font-black uppercase ${tone.text}`}>
-          <span className={`h-2 w-2 rounded-full ${tone.dot}`} style={{ animation: moving ? "poly-signal-pulse .85s ease-in-out infinite" : undefined }} />
+        <div className={`flex items-center gap-1 rounded-full border border-current/25 bg-black/55 px-2 py-1 text-[8px] font-black uppercase ${tone.text}`}>
+          <span
+            className={`h-2 w-2 rounded-full ${tone.dot}`}
+            style={{ animation: moving ? "poly-holo-pulse .8s ease-in-out infinite" : undefined, boxShadow: `0 0 12px ${tone.glow}` }}
+          />
           {tone.label}
         </div>
       </div>
 
-      <div className="relative z-10 mt-3 grid grid-cols-[42px_1fr] items-center gap-3">
-        <div className="relative h-10 w-10">
-          <div className="absolute inset-0 rounded-full border border-cyan-300/25" style={{ animation: moving ? "poly-signal-spin 2.4s linear infinite" : undefined }} />
-          <div className="absolute inset-2 rounded-full border border-fuchsia-300/20" style={{ animation: moving ? "poly-signal-spin 3.6s linear infinite reverse" : undefined }} />
-          <div className={`absolute inset-[15px] rounded-full ${tone.dot}`} style={{ boxShadow: `0 0 24px ${tone.halo}`, animation: moving ? "poly-signal-pulse .85s ease-in-out infinite" : undefined }} />
+      <div className="relative z-10 mt-2 grid grid-cols-[30px_1fr] items-center gap-2">
+        <div className="relative h-8 w-8">
+          <div className="absolute inset-0 rounded-full border border-cyan-300/30" style={{ animation: moving ? "poly-holo-spin 2s linear infinite" : undefined }} />
+          <div className="absolute inset-2 rounded-full border border-fuchsia-300/25" style={{ animation: moving ? "poly-holo-spin 3.4s linear infinite reverse" : undefined }} />
+          <div className={`absolute inset-[12px] rounded-full ${tone.dot}`} style={{ boxShadow: `0 0 18px ${tone.glow}`, animation: moving ? "poly-holo-pulse .8s ease-in-out infinite" : undefined }} />
         </div>
 
-        <SignalTrace monitor={monitor} />
+        <HoloSignalTrace monitor={monitor} />
       </div>
 
-      <div className="relative z-10 mt-2 flex items-center justify-between gap-2 border-t border-white/5 pt-2">
-        <div className="truncate text-[9px] text-cyan-50/50">{monitor.detail || "No detail available."}</div>
-        <div className={`shrink-0 text-[10px] font-black ${tone.text}`}>{price || monitor.state || "OK"}</div>
+      <div className="relative z-10 mt-2 flex items-center justify-between border-t border-white/5 pt-2">
+        <div className="truncate text-[8px] text-cyan-50/45">{monitor.liveTradingAffected ? "LIVE-GATE" : "PAPER/SYSTEM"}</div>
+        <div className={`text-[10px] font-black ${tone.text}`}>{value}</div>
+      </div>
+
+      <div className="absolute bottom-1 right-2 text-[7px] text-cyan-100/20">#{String(index + 1).padStart(2, "0")}</div>
+    </div>
+  );
+}
+
+function HoloCoreOrb({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
+  const active = monitors.filter((m) => m.state === "online" || m.state === "running").length;
+  const safe = monitors.filter((m) => m.state === "blocked" || m.state === "paper_only" || m.state === "idle").length;
+  const fault = monitors.filter((m) => m.state === "timeout" || m.state === "offline" || m.state === "stalled").length;
+
+  return (
+    <div className="relative min-h-[160px] overflow-hidden rounded-[28px] border border-cyan-200/20 bg-black/50 p-4 shadow-[0_0_70px_rgba(34,240,255,.13),inset_0_0_50px_rgba(34,240,255,.06)]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(34,240,255,.20),transparent_38%),radial-gradient(circle_at_70%_60%,rgba(255,0,170,.10),transparent_38%)]" />
+      <div className="relative z-10 grid grid-cols-1 gap-4 md:grid-cols-[220px_1fr]">
+        <div className="relative flex min-h-[132px] items-center justify-center">
+          <div className="absolute h-32 w-32 rounded-full border border-cyan-300/30" style={{ animation: "poly-holo-spin 7s linear infinite" }} />
+          <div className="absolute h-24 w-24 rounded-full border border-fuchsia-300/25" style={{ animation: "poly-holo-spin 4s linear infinite reverse" }} />
+          <div className="absolute h-14 w-14 rounded-full border border-emerald-300/30" />
+          <div className="h-8 w-8 rounded-full bg-emerald-300/40 shadow-[0_0_60px_rgba(0,255,136,.85)]" style={{ animation: "poly-holo-pulse 1s ease-in-out infinite" }} />
+          <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-cyan-300/80 to-transparent" style={{ animation: "poly-holo-spin 2.4s linear infinite" }} />
+        </div>
+
+        <div className="flex flex-col justify-center">
+          <div className="text-[9px] uppercase tracking-[0.34em] text-cyan-100/45">PolyEdge Quantum Operations Layer</div>
+          <div className="mt-1 text-3xl font-black uppercase tracking-[0.16em] text-white">Signal Nexus</div>
+          <div className="mt-2 text-xs text-cyan-100/50">Every PolyEdge subsystem below is a live operational signal, not a decoration.</div>
+
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            <div className="rounded-2xl border border-emerald-300/25 bg-emerald-300/10 p-3 text-center">
+              <div className="text-[8px] uppercase tracking-[0.18em] text-emerald-100/45">Active</div>
+              <div className="text-2xl font-black text-emerald-300">{active}</div>
+            </div>
+            <div className="rounded-2xl border border-amber-300/25 bg-amber-300/10 p-3 text-center">
+              <div className="text-[8px] uppercase tracking-[0.18em] text-amber-100/45">Safe</div>
+              <div className="text-2xl font-black text-amber-300">{safe}</div>
+            </div>
+            <div className="rounded-2xl border border-red-300/25 bg-red-300/10 p-3 text-center">
+              <div className="text-[8px] uppercase tracking-[0.18em] text-red-100/45">Fault</div>
+              <div className="text-2xl font-black text-red-300">{fault}</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -617,58 +667,43 @@ function SignalCoreTile({ monitor }: { monitor: PolyEdgeActionMonitorItem }) {
 
 function PolyEdgeActionMonitorGrid({ actionMonitor }: { actionMonitor: PolyEdgeActionMonitorResponse | null }) {
   const monitors = actionMonitor?.monitors || [];
-  const online = monitors.filter((m) => m.state === "online" || m.state === "running").length;
-  const safe = monitors.filter((m) => m.state === "blocked" || m.state === "paper_only" || m.state === "idle").length;
-  const faults = monitors.filter((m) => m.state === "offline" || m.state === "timeout" || m.state === "stalled").length;
 
   return (
-    <HoloPanel title="PolyEdge Signal Core" icon={Cpu} className="col-span-12">
+    <HoloPanel title="PolyEdge Holographic Monitor Wall" icon={Cpu} className="col-span-12">
       <style>{`
-        @keyframes poly-signal-ecg {
-          from { transform: translateX(-13%); }
+        @keyframes poly-holo-ecg {
+          from { transform: translateX(-15%); }
           to { transform: translateX(0%); }
         }
-        @keyframes poly-signal-spin {
+        @keyframes poly-holo-spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        @keyframes poly-signal-pulse {
+        @keyframes poly-holo-pulse {
           0%, 100% { opacity: .48; transform: scale(.82); }
           50% { opacity: 1; transform: scale(1.2); }
         }
-        @keyframes poly-signal-bars {
-          from { transform: scaleY(.32); opacity: .45; filter: brightness(.8); }
-          to { transform: scaleY(1.15); opacity: 1; filter: brightness(1.45); }
+        @keyframes poly-holo-bars {
+          from { transform: scaleY(.28); opacity: .42; filter: brightness(.75); }
+          to { transform: scaleY(1.18); opacity: 1; filter: brightness(1.5); }
         }
-        @keyframes poly-signal-sweep {
-          from { transform: translateX(-150%); }
-          to { transform: translateX(260%); }
+        @keyframes poly-holo-sweep {
+          from { transform: translateX(-160%); }
+          to { transform: translateX(270%); }
         }
       `}</style>
 
-      <div className="relative overflow-hidden rounded-[26px] border border-cyan-200/20 bg-[radial-gradient(circle_at_50%_-10%,rgba(34,240,255,.16),transparent_32%),radial-gradient(circle_at_85%_20%,rgba(255,0,170,.09),transparent_32%),rgba(0,0,0,.42)] p-3 shadow-[0_0_70px_rgba(34,240,255,.13),inset_0_0_52px_rgba(34,240,255,.055)]">
+      <div className="relative overflow-hidden rounded-[30px] border border-cyan-200/20 bg-[radial-gradient(circle_at_50%_-10%,rgba(34,240,255,.14),transparent_32%),radial-gradient(circle_at_90%_20%,rgba(255,0,170,.10),transparent_34%),rgba(0,0,0,.45)] p-3">
         <div className="pointer-events-none absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.10) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-cyan-300/10 to-transparent" style={{ animation: "poly-signal-sweep 4s linear infinite" }} />
 
-        <div className="relative z-10 mb-3 flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <div className="text-[9px] uppercase tracking-[0.28em] text-cyan-100/45">PolyEdge Operational Signal Fabric</div>
-            <div className="mt-1 text-lg font-black uppercase tracking-[0.16em] text-white">Signal Core Matrix</div>
-          </div>
+        <HoloCoreOrb monitors={monitors} />
 
-          <div className="flex gap-2 text-[9px] font-black uppercase">
-            <div className="rounded-xl border border-emerald-300/25 bg-emerald-300/10 px-3 py-2 text-emerald-300">Active {online}</div>
-            <div className="rounded-xl border border-amber-300/25 bg-amber-300/10 px-3 py-2 text-amber-300">Safe {safe}</div>
-            <div className="rounded-xl border border-red-300/25 bg-red-300/10 px-3 py-2 text-red-300">Fault {faults}</div>
-          </div>
-        </div>
-
-        <div className="relative z-10 grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+        <div className="relative z-10 mt-3 grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
           {monitors.length === 0 ? (
             <div className="col-span-full rounded-2xl border border-red-300/25 bg-red-400/5 p-4 text-red-200">
-              PolyEdge signal monitor has not responded yet.
+              PolyEdge monitor wall has not responded yet.
             </div>
-          ) : monitors.map((m) => <SignalCoreTile key={m.key} monitor={m} />)}
+          ) : monitors.map((m, index) => <HoloMonitorNode key={m.key} monitor={m} index={index} />)}
         </div>
       </div>
     </HoloPanel>
