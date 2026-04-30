@@ -1708,6 +1708,14 @@ app.get("/api/polyedge/trader-monitors", async (_req, res) => {
   res.json(await getPolyEdgeTraderMonitors());
 });
 
+
+// PolyEdge additive real-data monitor expansion.
+// This route does not replace existing monitor panels.
+app.get("/api/polyedge/additive-real-monitors", async (_req, res) => {
+  const { getPolyEdgeAdditiveRealMonitors } = await import("./services/polyedge/polyEdgeAdditiveRealMonitors");
+  res.json(await getPolyEdgeAdditiveRealMonitors());
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);

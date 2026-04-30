@@ -195,6 +195,45 @@ function EcgTrace({ monitor, compact = false }: { monitor?: Monitor; compact?: b
   );
 }
 
+
+function PolyEdgeAdditiveRealDataMonitors({ data }: { data: any }) {
+  const monitors = [
+    ["Market Regime", data?.marketRegime?.regime, data?.marketRegime?.sourceType],
+    ["Volatility ATR", data?.volatilityAtr?.mode, data?.volatilityAtr?.sourceType],
+    ["Liquidity", data?.liquidity?.status || data?.liquidity?.mode, data?.liquidity?.sourceType],
+    ["Execution Quality", data?.executionQuality?.status || data?.executionQuality?.grade, data?.executionQuality?.sourceType],
+    ["Strategy Edge", data?.strategyEdge?.status || data?.strategyEdge?.edge, data?.strategyEdge?.sourceType],
+    ["Capital Health", data?.capitalHealth?.status || data?.capitalHealth?.mode, data?.capitalHealth?.sourceType],
+    ["Open PnL", data?.openPnl?.value ?? data?.openPnl, data?.openPnl?.sourceType],
+    ["Win Rate", data?.performance?.winRate ?? data?.winRate, data?.performance?.sourceType],
+    ["Profit Factor", data?.performance?.profitFactor ?? data?.profitFactor, data?.performance?.sourceType],
+    ["Feed Health", data?.feedHealth?.status || data?.primaryFeed?.status, data?.feedHealth?.sourceType || data?.primaryFeed?.sourceType],
+  ];
+
+  return (
+    <section className="polyedge-additive-real-monitors">
+      <div className="polyedge-section-heading">
+        <span>ADDITIVE REAL-DATA MONITORS</span>
+        <small>non-replacing expansion</small>
+      </div>
+
+      <div className="polyedge-additive-monitor-grid">
+        {monitors.map(([label, value, source]) => (
+          <div className="polyedge-additive-monitor-card" key={label}>
+            <div className="polyedge-additive-monitor-label">{label}</div>
+            <div className="polyedge-additive-monitor-value">
+              {value === null || value === undefined || value === "" ? "WAITING" : String(value)}
+            </div>
+            <div className="polyedge-additive-monitor-source">
+              {source ? String(source) : "WAITING_FOR_REAL_DATA"}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function Panel({ title, children, className = "" }: { title: string; children: React.ReactNode; className?: string }) {
   return (
     <section className={`panel ${className}`}>
@@ -209,6 +248,7 @@ export default function PolyEdgeReferenceOnePage() {
   const [replayStatus, setReplayStatus] = useState<any>(null);
   const [apiError, setApiError] = useState("");
   const [traderMonitors, setTraderMonitors] = useState<any>(null);
+  const [additiveRealMonitors, setAdditiveRealMonitors] = useState<any>(null);
   const [capitalState, setCapitalState] = useState<any>(null);
   const [capitalType, setCapitalType] = useState<"real" | "paper">("paper");
   const [capitalAmount, setCapitalAmount] = useState("");
@@ -266,6 +306,30 @@ export default function PolyEdgeReferenceOnePage() {
 
     loadTraderMonitors();
     const timer = window.setInterval(loadTraderMonitors, 5000);
+
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, []);
+
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadAdditiveRealMonitors() {
+      try {
+        const res = await fetch("/api/polyedge/additive-real-monitors");
+        if (!res.ok) throw new Error("additive monitor request failed");
+        const json = await res.json();
+        if (active) setAdditiveRealMonitors(json);
+      } catch {
+        if (active) setAdditiveRealMonitors(null);
+      }
+    }
+
+    loadAdditiveRealMonitors();
+    const timer = window.setInterval(loadAdditiveRealMonitors, 15000);
 
     return () => {
       active = false;
@@ -1260,7 +1324,9 @@ export default function PolyEdgeReferenceOnePage() {
             font-size: 11px;
           }
         }
-      `}</style>
+      `}
+
+</style>
 
       <div className="grid-bg" />
 
@@ -1590,7 +1656,9 @@ export default function PolyEdgeReferenceOnePage() {
             <span><b className="text-cyan-300">HEART:</b> REAL ECG PULSE</span>
             <span><b className="text-amber-300">SAFE:</b> {safe}</span>
           </section>
-        </main>
+        
+        <PolyEdgeAdditiveRealDataMonitors data={additiveRealMonitors} />
+</main>
       </div>
     </div>
   );
