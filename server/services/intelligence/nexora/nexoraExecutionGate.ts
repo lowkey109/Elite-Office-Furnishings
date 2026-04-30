@@ -22,6 +22,7 @@ import {
   type NexoraActionRouteResult,
 } from "./nexoraActionRouter";
 import { evaluateActionPolicy } from "../../governance/actionPolicyEngine";
+import { evaluateRealEvidencePolicy } from "../realEvidencePolicy";
 
 export type NexoraExecutionGateInput = {
   moduleKey: string;
@@ -66,6 +67,28 @@ export function assertNexoraExecutionApproved(input: NexoraExecutionGateInput): 
     evidence: input.evidence,
   });
 
+  const realEvidencePolicy = evaluateRealEvidencePolicy({
+    moduleKey: input.moduleKey,
+    intent: input.intent,
+    evidence: input.evidence,
+  });
+
+  if (!realEvidencePolicy.ok) {
+    return {
+      approved: false,
+      decision: "blocked",
+      reason: realEvidencePolicy.reason,
+      moduleKey: input.moduleKey,
+      intent: input.intent,
+      requestedBy: input.requestedBy,
+      evidence: {
+        ...(input.evidence || {}),
+        realEvidencePolicy,
+      },
+      createdAt: new Date().toISOString(),
+    } as any;
+  }
+
   if (!governancePolicy.allowed) {
     return {
       approved: false,
@@ -77,6 +100,7 @@ export function assertNexoraExecutionApproved(input: NexoraExecutionGateInput): 
       evidence: {
         ...(input.evidence || {}),
         governancePolicy,
+        realEvidencePolicy,
       },
       createdAt: new Date().toISOString(),
     } as any;
