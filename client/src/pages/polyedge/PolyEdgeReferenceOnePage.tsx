@@ -536,6 +536,173 @@ export default function PolyEdgeReferenceOnePage() {
           }
         }
 
+        .holo-stage {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          display: grid;
+          place-items: center;
+          overflow: hidden;
+        }
+
+        .holo-ring {
+          position: absolute;
+          border: 1px solid rgba(34,211,238,.34);
+          border-radius: 999px;
+          box-shadow: 0 0 18px rgba(34,211,238,.18);
+          transform-style: preserve-3d;
+        }
+
+        .holo-ring.one {
+          width: 82%;
+          height: 42%;
+          transform: rotateX(66deg);
+          animation: holoRingSpin 9s linear infinite;
+        }
+
+        .holo-ring.two {
+          width: 58%;
+          height: 30%;
+          border-color: rgba(217,70,239,.32);
+          transform: rotateX(66deg) rotateZ(34deg);
+          animation: holoRingSpinReverse 6.5s linear infinite;
+        }
+
+        .holo-ring.three {
+          width: 36%;
+          height: 18%;
+          border-color: rgba(16,185,129,.28);
+          transform: rotateX(66deg) rotateZ(-28deg);
+          animation: holoRingSpin 4.8s linear infinite;
+        }
+
+        .holo-core {
+          width: 26%;
+          height: 18%;
+          border-radius: 999px;
+          background: radial-gradient(circle, rgba(255,255,255,.95), rgba(34,211,238,.74) 34%, rgba(192,38,211,.18) 68%, transparent);
+          filter: blur(.4px);
+          box-shadow:
+            0 0 24px rgba(34,211,238,.82),
+            0 0 48px rgba(192,38,211,.42);
+          animation: holoCorePulse 1.8s ease-in-out infinite;
+        }
+
+        .holo-orbit-dot {
+          position: absolute;
+          width: 7px;
+          height: 7px;
+          border-radius: 999px;
+          background: #67e8f9;
+          box-shadow:
+            0 0 12px rgba(103,232,249,1),
+            0 0 26px rgba(103,232,249,.75);
+          animation: holoDotOrbit 4.6s linear infinite;
+        }
+
+        .holo-scan {
+          position: absolute;
+          inset: 12%;
+          border-radius: 999px;
+          background: linear-gradient(90deg, transparent, rgba(34,211,238,.18), transparent);
+          animation: holoScan 3.2s ease-in-out infinite;
+          mix-blend-mode: screen;
+        }
+
+        .liquidity-stage {
+          position: relative;
+          height: 100%;
+          display: flex;
+          align-items: end;
+          gap: 3px;
+          padding: 8px 10px 5px;
+          overflow: hidden;
+        }
+
+        .liquidity-stage::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(100deg, transparent 0%, rgba(34,211,238,.16) 45%, transparent 70%);
+          transform: translateX(-120%);
+          animation: liquiditySweep 3.6s linear infinite;
+          pointer-events: none;
+        }
+
+        .liquidity-bar {
+          position: relative;
+          flex: 1;
+          min-width: 3px;
+          border-radius: 999px 999px 0 0;
+          background: linear-gradient(to top, #f97316, #22d3ee, #fff);
+          box-shadow:
+            0 0 7px rgba(34,211,238,.45),
+            0 0 14px rgba(249,115,22,.22);
+          transform-origin: bottom;
+          animation: liquidityPulse 1.7s ease-in-out infinite alternate;
+        }
+
+        .liquidity-bar::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 0;
+          height: 30%;
+          border-radius: inherit;
+          background: rgba(255,255,255,.42);
+          filter: blur(1px);
+        }
+
+        @keyframes holoRingSpin {
+          from { transform: rotateX(66deg) rotateZ(0deg); }
+          to { transform: rotateX(66deg) rotateZ(360deg); }
+        }
+
+        @keyframes holoRingSpinReverse {
+          from { transform: rotateX(66deg) rotateZ(360deg); }
+          to { transform: rotateX(66deg) rotateZ(0deg); }
+        }
+
+        @keyframes holoCorePulse {
+          0%, 100% {
+            transform: scale(.86);
+            opacity: .62;
+          }
+          45% {
+            transform: scale(1.08);
+            opacity: 1;
+          }
+        }
+
+        @keyframes holoDotOrbit {
+          0% { transform: rotate(0deg) translateX(42px) rotate(0deg); }
+          100% { transform: rotate(360deg) translateX(42px) rotate(-360deg); }
+        }
+
+        @keyframes holoScan {
+          0%, 100% { opacity: .08; transform: rotate(0deg) scale(.85); }
+          50% { opacity: .36; transform: rotate(180deg) scale(1.08); }
+        }
+
+        @keyframes liquidityPulse {
+          0% {
+            transform: scaleY(.68);
+            opacity: .58;
+            filter: brightness(.85);
+          }
+          100% {
+            transform: scaleY(1.08);
+            opacity: 1;
+            filter: brightness(1.3);
+          }
+        }
+
+        @keyframes liquiditySweep {
+          from { transform: translateX(-120%); }
+          to { transform: translateX(120%); }
+        }
+
         @keyframes barPulse {
           from { opacity: .45; transform: scaleY(.72); }
           to { opacity: 1; transform: scaleY(1); }
@@ -855,9 +1022,17 @@ export default function PolyEdgeReferenceOnePage() {
           </Panel>
 
           <Panel title="Hyper Liquidity Depth" className="col-span-4">
-            <div className="flex h-full items-end gap-1 px-2 pb-1">
-              {(statusBars.length ? statusBars : [10, 10, 10, 10, 10, 10, 10, 10]).map((h, i) => (
-                <span key={i} className="w-full rounded-t bg-gradient-to-t from-orange-500 via-cyan-300 to-white shadow-[0_0_8px_rgba(34,211,238,.55)]" style={{ height: `${h}%` }} />
+            <div className="liquidity-stage">
+              {(statusBars.length ? statusBars : [22, 36, 48, 32, 58, 44, 70, 62, 38, 55, 46, 64, 34, 52, 76, 42, 60, 49, 66, 37, 54, 71]).map((h, i) => (
+                <span
+                  key={i}
+                  className="liquidity-bar"
+                  style={{
+                    height: `${h}%`,
+                    animationDelay: `${(i % 9) * 0.11}s`,
+                    animationDuration: `${1.35 + (i % 6) * 0.13}s`,
+                  }}
+                />
               ))}
             </div>
           </Panel>
@@ -876,11 +1051,14 @@ export default function PolyEdgeReferenceOnePage() {
           </Panel>
 
           <Panel title="Holographic Universe View" className="col-span-4">
-            <div className="relative grid h-full place-items-center">
-              <div className="absolute h-24 w-52 rounded-full border border-cyan-300/30" style={{ transform: "rotateX(66deg)" }} />
-              <div className="absolute h-16 w-36 rounded-full border border-fuchsia-300/25" style={{ transform: "rotateX(66deg)" }} />
-              <div className="h-10 w-24 rounded-full bg-cyan-300/55 blur-sm shadow-[0_0_48px_rgba(34,211,238,.8)]" />
-              <div className="absolute bottom-2 text-[8px] uppercase tracking-[0.18em] text-cyan-300/70">Real Monitors</div>
+            <div className="holo-stage">
+              <div className="holo-scan" />
+              <div className="holo-ring one" />
+              <div className="holo-ring two" />
+              <div className="holo-ring three" />
+              <div className="holo-core" />
+              <div className="holo-orbit-dot" />
+              <div className="absolute bottom-2 text-[8px] uppercase tracking-[0.18em] text-cyan-300/70">Real Monitors • Active Field</div>
             </div>
           </Panel>
 
