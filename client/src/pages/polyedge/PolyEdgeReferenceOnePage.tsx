@@ -1630,10 +1630,85 @@ export default function PolyEdgeReferenceOnePage() {
             white-space: nowrap;
           }
 
-          .mobile-ecg-grid {
-            display: grid;
-            gap: 8px;
+          .mobile-live-flash {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            border: 1px solid rgba(52,211,153,.35);
+            background: rgba(16,185,129,.08);
+            padding: 10px 12px;
+            overflow: hidden;
+            position: relative;
           }
+
+          .mobile-live-flash::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(52,211,153,.22), transparent);
+            transform: translateX(-100%);
+            animation: mobileLiveSweep 1.6s linear infinite;
+          }
+
+          .mobile-pulse-dot {
+            position: relative;
+            z-index: 1;
+            height: 14px;
+            width: 14px;
+            border-radius: 999px;
+            background: #34d399;
+            box-shadow: 0 0 16px rgba(52,211,153,.95);
+            animation: mobilePulseDot .85s ease-in-out infinite;
+          }
+
+          .mobile-live-flash-text {
+            position: relative;
+            z-index: 1;
+            color: #a7f3d0;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+          }
+
+          .mobile-ecg-line {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            height: 18px;
+            background:
+              linear-gradient(90deg, rgba(52,211,153,.12) 1px, transparent 1px) 0 0 / 10px 100%,
+              linear-gradient(180deg, transparent 45%, rgba(52,211,153,.8) 48%, rgba(52,211,153,.8) 52%, transparent 55%);
+            overflow: hidden;
+          }
+
+          .mobile-ecg-line::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -30%;
+            width: 30%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, #34d399, transparent);
+            animation: mobileEcgMove 1.1s linear infinite;
+          }
+
+          @keyframes mobilePulseDot {
+            0%, 100% { transform: scale(.85); opacity: .55; }
+            50% { transform: scale(1.35); opacity: 1; }
+          }
+
+          @keyframes mobileLiveSweep {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(100%); }
+          }
+
+          @keyframes mobileEcgMove {
+            from { left: -30%; }
+            to { left: 100%; }
+          }
+
         }
 
 `}
