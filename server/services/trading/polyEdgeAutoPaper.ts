@@ -43,6 +43,18 @@ let timer: NodeJS.Timeout | null = null;
 const SYMBOLS = ["BTC/USD", "ETH/USD", "SOL/USD", "XAUUSD"] as const;
 const STRATEGIES = ["trend_follow", "momentum_breakout", "volatility_squeeze", "mean_reversion"] as const;
 
+function emergencyBlockedSymbols() {
+  // BTC paper losses are currently overwhelming learning.
+  // Set POLYEDGE_ALLOW_BTC_PAPER=true to re-enable later.
+  const blocked = new Set<string>();
+
+  if (process.env.POLYEDGE_ALLOW_BTC_PAPER !== "true") {
+    blocked.add("BTC/USD");
+  }
+
+  return blocked;
+}
+
 function nowIso() {
   return new Date().toISOString();
 }
@@ -274,13 +286,15 @@ async function openFastPaperPosition() {
   }
 
   const activePairs = new Set((open as any[]).map((p: any) => `${p.symbol}|${p.strategy}`));
+  const activeSymbols = new Set((open as any[]).map((p: any) => String(p.symbol || "")));
   const blockedPairs = new Set((lossGovernor.worstPairs || []).map((p: any) => `${p.symbol}|${p.strategy}`));
-  const blockedSymbols = new Set(lossGovernor.worstSymbols || []);
+  const blockedSymbols = new Set([...(lossGovernor.worstSymbols || []), ...Array.from(emergencyBlockedSymbols())]);
 
   const candidatePairs: Array<{ symbol: string; strategy: string }> = [];
 
   for (const candidateSymbol of SYMBOLS) {
     if (blockedSymbols.has(candidateSymbol)) continue;
+    if (activeSymbols.has(candidateSymbol)) continue;
 
     for (const candidateStrategy of STRATEGIES) {
       const pairKey = `${candidateSymbol}|${candidateStrategy}`;
@@ -299,7 +313,7 @@ async function openFastPaperPosition() {
   if (!candidatePairs.length) {
     return {
       opened: false,
-      reason: "Adaptive allocator blocked all weak/duplicate symbol-strategy pairs; waiting for open paper positions to close.",
+      reason: "Adaptive allocator blocked weak/duplicate/emergency-blocked symbols; waiting for open paper positions to close.",
     };
   }
 
@@ -355,6 +369,7 @@ async function openFastPaperPosition() {
       source: "polyedge_fast_auto_paper",
       learning,
       lossGovernor,
+      emergencyBlockedSymbols: Array.from(emergencyBlockedSymbols()),
       generatedAt: nowIso(),
     },
   });
