@@ -649,10 +649,18 @@ function MiniTrace({ monitor }: { monitor: any }) {
     <div className="poly-beat-ecg mt-1 h-7 overflow-hidden rounded-md border border-emerald-300/25 bg-black/85">
       <div className="poly-beat-grid" />
       <div className="poly-beat-head" />
-      <svg className="absolute inset-0 h-full w-full" viewBox="0 0 320 44" preserveAspectRatio="none">
+      <svg className="absolute inset-0 h-full w-full" viewBox="0 0 520 44" preserveAspectRatio="none">
         <path
           className="poly-beat-live-path"
-          d="M0 27 H52 C60 27 65 24 71 22 C78 20 84 24 90 27 H104 L112 34 L120 5 L129 39 L139 27 H166 C178 27 187 24 199 22 C214 20 228 24 242 27 H320"
+          d="M0 27 H30
+             C38 27 43 24 49 22 C56 20 62 24 68 27
+             H82 L90 34 L98 5 L107 39 L117 27
+             H142 C154 27 164 24 176 22 C190 20 204 24 218 27
+             H246
+             C254 27 259 24 265 22 C272 20 278 24 284 27
+             H298 L306 34 L314 5 L323 39 L333 27
+             H358 C370 27 380 24 392 22 C406 20 420 24 434 27
+             H520"
           fill="none"
           stroke="#00ff88"
           strokeWidth="3.2"
@@ -1092,7 +1100,7 @@ function PolyEdgeActionMonitorGrid({
         }
 
         @keyframes poly-beat-draw {
-          0% { stroke-dashoffset: 560; opacity: .15; }
+          0% { stroke-dashoffset: 860; opacity: .15; }
           8% { opacity: 1; }
           74% { stroke-dashoffset: 0; opacity: 1; }
           88% { stroke-dashoffset: 0; opacity: .95; }
@@ -1152,8 +1160,8 @@ function PolyEdgeActionMonitorGrid({
         }
 
         .poly-beat-live-path {
-          stroke-dasharray: 560;
-          stroke-dashoffset: 560;
+          stroke-dasharray: 860;
+          stroke-dashoffset: 860;
           animation: poly-beat-draw 1.42s linear infinite;
         }
 
