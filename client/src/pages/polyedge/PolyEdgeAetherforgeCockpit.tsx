@@ -594,6 +594,20 @@ function MiniTrace({ monitor }: { monitor: any }) {
   const isIdle = state === "idle" || state === "blocked" || state === "paper_only";
   const isFault = state === "offline" || state === "timeout" || state === "stalled" || state === "fault";
 
+  // Each monitor gets its own slower rhythm so they do not beat together.
+  const rhythmSeed = Array.from(String(monitor?.key || monitor?.label || "polyedge")).reduce(
+    (sum, ch) => sum + ch.charCodeAt(0),
+    0
+  );
+  const liveSpeed = `${6.4 + (rhythmSeed % 8) * 0.55}s`;
+  const idleSpeed = `${11.5 + (rhythmSeed % 7) * 0.8}s`;
+  const rhythmDelay = `-${((rhythmSeed % 100) / 100) * 6.5}s`;
+  const ecgVars = {
+    "--ecg-speed": liveSpeed,
+    "--ecg-idle-speed": idleSpeed,
+    "--ecg-delay": rhythmDelay,
+  } as React.CSSProperties;
+
   if (isMarket) {
     return (
       <div className="mt-1 flex h-5 items-end gap-[2px] overflow-hidden rounded-md border border-cyan-300/10 bg-black/45 px-2 pb-1">
@@ -626,7 +640,7 @@ function MiniTrace({ monitor }: { monitor: any }) {
 
   if (isIdle) {
     return (
-      <div className="poly-beat-ecg mt-1 h-7 overflow-hidden rounded-md border border-amber-300/25 bg-black/85">
+      <div className="poly-beat-ecg mt-1 h-7 overflow-hidden rounded-md border border-amber-300/25 bg-black/85" style={ecgVars}>
         <div className="poly-beat-grid poly-beat-grid-amber" />
         <div className="poly-beat-idle-sweep" />
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 320 44" preserveAspectRatio="none">
@@ -646,7 +660,7 @@ function MiniTrace({ monitor }: { monitor: any }) {
   }
 
   return (
-    <div className="poly-beat-ecg mt-1 h-7 overflow-hidden rounded-md border border-emerald-300/25 bg-black/85">
+    <div className="poly-beat-ecg mt-1 h-7 overflow-hidden rounded-md border border-emerald-300/25 bg-black/85" style={ecgVars}>
       <div className="poly-beat-grid" />
       <div className="poly-beat-head" />
       <svg className="absolute inset-0 h-full w-full" viewBox="0 0 520 44" preserveAspectRatio="none">
