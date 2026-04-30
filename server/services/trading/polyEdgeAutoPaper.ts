@@ -52,6 +52,10 @@ function emergencyBlockedSymbols() {
     blocked.add("BTC/USD");
   }
 
+  if (process.env.POLYEDGE_ALLOW_SOL_PAPER !== "true") {
+    blocked.add("SOL/USD");
+  }
+
   return blocked;
 }
 
