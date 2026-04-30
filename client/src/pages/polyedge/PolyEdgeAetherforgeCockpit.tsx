@@ -493,168 +493,227 @@ function ReplayEngineMonitor({
 
 
 
+
 function statusTone(state?: string) {
   if (state === "online" || state === "running") {
-    return { label: "LIVE", text: "text-emerald-300", stroke: "#00ff88", glow: "rgba(0,255,136,.8)", bg: "rgba(0,255,136,.08)" };
+    return {
+      label: "LIVE",
+      long: "SINGULARITY ONLINE",
+      text: "text-emerald-400",
+      stroke: "#67e8f9",
+      glow: "rgba(103,232,249,.9)",
+      dot: "bg-emerald-400",
+      panel: "border-emerald-400/50",
+    };
   }
+
   if (state === "blocked" || state === "paper_only" || state === "idle") {
-    return { label: state === "idle" ? "IDLE" : "SAFE", text: "text-amber-300", stroke: "#ffd166", glow: "rgba(255,209,102,.72)", bg: "rgba(255,209,102,.08)" };
+    return {
+      label: state === "idle" ? "IDLE" : "SAFE",
+      long: state === "idle" ? "STANDBY" : "SAFE LOCKED",
+      text: "text-amber-400",
+      stroke: "#fbbf24",
+      glow: "rgba(251,191,36,.8)",
+      dot: "bg-amber-400",
+      panel: "border-amber-400/45",
+    };
   }
-  return { label: "FAULT", text: "text-red-300", stroke: "#ff4d6d", glow: "rgba(255,77,109,.75)", bg: "rgba(255,77,109,.08)" };
+
+  return {
+    label: "FAULT",
+    long: "FAULT",
+    text: "text-red-400",
+    stroke: "#fb7185",
+    glow: "rgba(251,113,133,.8)",
+    dot: "bg-red-400",
+    panel: "border-red-400/45",
+  };
 }
 
-function RefPanel({ title, children, className = "" }: { title: string; children: any; className?: string }) {
+function TerminalGlass({ children, className = "" }: { children: any; className?: string }) {
   return (
-    <div
-      className={`relative overflow-hidden border border-cyan-300/30 bg-black/65 p-2 shadow-[inset_0_0_35px_rgba(34,240,255,.08),0_0_35px_rgba(34,240,255,.10)] ${className}`}
-      style={{
-        clipPath: "polygon(12px 0, calc(100% - 12px) 0, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0 calc(100% - 12px), 0 12px)",
-      }}
-    >
-      <div className="pointer-events-none absolute inset-0 opacity-25" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.09) 1px, transparent 1px)", backgroundSize: "14px 14px" }} />
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-cyan-300/10 to-transparent" style={{ animation: "poly-ref-sweep 4s linear infinite" }} />
-      <div className="relative z-10 mb-1 flex items-center justify-between border-b border-cyan-300/15 pb-1">
-        <div className="text-[9px] font-black uppercase tracking-[0.22em] text-cyan-200">{title}</div>
-        <div className="flex items-center gap-1 text-[7px] font-black uppercase tracking-[0.14em] text-emerald-300">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_10px_rgba(0,255,136,.9)]" />
-          live
-        </div>
-      </div>
-      <div className="relative z-10 h-[calc(100%-22px)]">{children}</div>
+    <div className={`poly-terminal-glass relative overflow-hidden rounded-3xl border border-cyan-400/30 bg-slate-950/65 p-6 backdrop-blur-xl ${className}`}>
+      <div className="pointer-events-none absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(103,232,249,.15) 1px, transparent 1px), linear-gradient(90deg, rgba(103,232,249,.08) 1px, transparent 1px)", backgroundSize: "34px 34px" }} />
+      <div className="poly-terminal-scan pointer-events-none absolute inset-0" />
+      <div className="relative z-10 h-full">{children}</div>
     </div>
   );
 }
 
-function RefEquityChart({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
+function TerminalPanelTitle({ title, right }: { title: string; right?: any }) {
+  return (
+    <div className="mb-4 flex items-center justify-between">
+      <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-white">{title}</h3>
+      {right || <span className="text-xs font-black uppercase text-emerald-400">LIVE</span>}
+    </div>
+  );
+}
+
+function TerminalEquityChart({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
   const active = monitors.filter((m) => m.state === "online" || m.state === "running").length;
-  const safe = monitors.filter((m) => m.state === "blocked" || m.state === "paper_only" || m.state === "idle").length;
   const fault = monitors.filter((m) => m.state === "offline" || m.state === "timeout" || m.state === "stalled").length;
 
   return (
-    <div className="relative h-full">
-      <svg className="h-[74%] w-full" viewBox="0 0 720 250" preserveAspectRatio="none">
+    <div className="relative h-64 w-full">
+      <svg className="h-full w-full" viewBox="0 0 860 260" preserveAspectRatio="none">
         <defs>
-          <linearGradient id="refEqA" x1="0" x2="1">
-            <stop offset="0%" stopColor="#22f0ff" stopOpacity=".35" />
-            <stop offset="60%" stopColor="#22f0ff" stopOpacity="1" />
+          <linearGradient id="terminalEquity" x1="0" x2="1">
+            <stop offset="0%" stopColor="#67e8f9" stopOpacity=".35" />
+            <stop offset="65%" stopColor="#67e8f9" stopOpacity="1" />
             <stop offset="100%" stopColor="#ffffff" stopOpacity=".95" />
           </linearGradient>
-          <linearGradient id="refEqB" x1="0" x2="1">
-            <stop offset="0%" stopColor="#ff9f1c" stopOpacity=".35" />
-            <stop offset="100%" stopColor="#ffd166" stopOpacity=".9" />
+          <linearGradient id="terminalEquityFill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#67e8f9" stopOpacity=".22" />
+            <stop offset="100%" stopColor="#67e8f9" stopOpacity="0" />
           </linearGradient>
         </defs>
 
-        {Array.from({ length: 9 }).map((_, i) => (
-          <line key={"h" + i} x1="0" x2="720" y1={24 + i * 24} y2={24 + i * 24} stroke="rgba(34,240,255,.09)" />
+        {Array.from({ length: 7 }).map((_, i) => (
+          <line key={"h" + i} x1="0" x2="860" y1={25 + i * 34} y2={25 + i * 34} stroke="rgba(255,255,255,.06)" />
         ))}
-        {Array.from({ length: 14 }).map((_, i) => (
-          <line key={"v" + i} y1="0" y2="240" x1={i * 55} x2={i * 55} stroke="rgba(34,240,255,.07)" />
+        {Array.from({ length: 12 }).map((_, i) => (
+          <line key={"v" + i} x1={i * 78} x2={i * 78} y1="0" y2="260" stroke="rgba(255,255,255,.045)" />
         ))}
 
+        <path
+          d="M0 224 L55 210 L110 198 L165 186 L220 166 L275 174 L330 136 L385 149 L440 112 L495 96 L550 72 L605 84 L660 48 L715 40 L770 24 L825 31 L860 12 L860 260 L0 260 Z"
+          fill="url(#terminalEquityFill)"
+        />
+
         <polyline
-          points="0,218 40,206 80,196 120,184 160,166 200,174 240,140 280,154 320,126 360,105 400,88 440,98 480,70 520,58 560,44 600,52 640,28 680,36 720,10"
+          points="0,224 55,210 110,198 165,186 220,166 275,174 330,136 385,149 440,112 495,96 550,72 605,84 660,48 715,40 770,24 825,31 860,12"
           fill="none"
-          stroke="url(#refEqB)"
+          stroke="url(#terminalEquity)"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ filter: "drop-shadow(0 0 13px rgba(103,232,249,.95))", animation: "poly-terminal-dash 2.2s linear infinite" }}
+        />
+
+        <polyline
+          points="0,238 55,222 110,216 165,206 220,188 275,194 330,170 385,178 440,152 495,138 550,120 605,128 660,98 715,90 770,76 825,82 860,61"
+          fill="none"
+          stroke="#c026d3"
           strokeWidth="2"
           strokeLinecap="round"
-          style={{ filter: "drop-shadow(0 0 6px rgba(255,209,102,.6))" }}
-        />
-        <polyline
-          points="0,212 40,198 80,188 120,170 160,145 200,156 240,116 280,128 320,95 360,72 400,54 440,65 480,38 520,26 560,14 600,24 640,8 680,16 720,2"
-          fill="none"
-          stroke="url(#refEqA)"
-          strokeWidth="3.5"
-          strokeLinecap="round"
-          style={{ filter: "drop-shadow(0 0 11px rgba(34,240,255,.9))", animation: "poly-ref-dash 2.7s linear infinite" }}
+          style={{ filter: "drop-shadow(0 0 8px rgba(192,38,211,.85))" }}
         />
       </svg>
 
-      <div className="absolute bottom-0 left-0 right-0 grid grid-cols-6 gap-1 text-center">
-        {[
-          ["START", "$10,000"],
-          ["EQUITY", "$3.21T"],
-          ["RETURN", "+32,149,827%"],
-          ["ACTIVE", String(active)],
-          ["SAFE", String(safe)],
-          ["FAULT", String(fault)],
-        ].map(([a, b]) => (
-          <div key={a} className="border-l border-cyan-300/15 bg-black/35 px-2 py-1">
-            <div className="text-[7px] uppercase tracking-[0.16em] text-cyan-100/35">{a}</div>
-            <div className="truncate text-[11px] font-black text-white">{b}</div>
-          </div>
+      <div className="absolute bottom-1 left-0 right-0 grid grid-cols-4 gap-2 text-xs">
+        <div className="rounded-xl border border-cyan-400/20 bg-black/30 px-3 py-2">
+          <div className="text-slate-400">START</div>
+          <div className="font-black text-white">$10,000</div>
+        </div>
+        <div className="rounded-xl border border-cyan-400/20 bg-black/30 px-3 py-2">
+          <div className="text-slate-400">CURRENT</div>
+          <div className="font-black text-cyan-300">$3.21T</div>
+        </div>
+        <div className="rounded-xl border border-emerald-400/20 bg-black/30 px-3 py-2">
+          <div className="text-slate-400">ACTIVE</div>
+          <div className="font-black text-emerald-400">{active}</div>
+        </div>
+        <div className="rounded-xl border border-red-400/20 bg-black/30 px-3 py-2">
+          <div className="text-slate-400">FAULT</div>
+          <div className="font-black text-red-400">{fault}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TerminalFlowChart() {
+  return (
+    <div className="relative h-52 overflow-hidden rounded-2xl border border-cyan-400/10 bg-black/35 p-3">
+      <div className="absolute inset-0 opacity-15" style={{ backgroundImage: "linear-gradient(rgba(103,232,249,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(103,232,249,.08) 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
+      <div className="relative z-10 flex h-full items-end gap-3">
+        {Array.from({ length: 24 }).map((_, i) => (
+          <span
+            key={i}
+            className="flex-1 rounded-t-xl bg-gradient-to-t from-fuchsia-800 via-fuchsia-500 to-cyan-200"
+            style={{
+              height: `${34 + ((i * 17) % 132)}px`,
+              filter: "drop-shadow(0 0 12px rgba(192,38,211,.8))",
+              animation: `poly-terminal-bars ${0.7 + (i % 7) * 0.07}s ease-in-out infinite alternate`,
+            }}
+          />
         ))}
       </div>
     </div>
   );
 }
 
-function RefSentimentMatrix({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
+function TerminalUniverse() {
+  return (
+    <div className="relative h-52 overflow-hidden rounded-2xl border border-cyan-400/10 bg-black/35">
+      <div className="absolute inset-0 flex items-center justify-center text-8xl opacity-20">🌌</div>
+      <div className="absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-purple-500 via-cyan-400 to-emerald-400 blur-3xl opacity-70" style={{ animation: "poly-terminal-soft-pulse 2.4s ease-in-out infinite" }} />
+      <div className="absolute left-1/2 top-1/2 h-36 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-300/30" style={{ transform: "translate(-50%,-50%) rotateX(68deg)", animation: "poly-terminal-orbit 8s linear infinite" }} />
+      <div className="absolute left-1/2 top-1/2 h-24 w-52 -translate-x-1/2 -translate-y-1/2 rounded-full border border-fuchsia-400/30" style={{ transform: "translate(-50%,-50%) rotateX(68deg)", animation: "poly-terminal-orbit 5s linear infinite reverse" }} />
+      <div className="absolute inset-x-0 bottom-6 text-center text-xs text-cyan-300">PORTFOLIO UNIVERSE • STABLE</div>
+    </div>
+  );
+}
+
+function TerminalSentiment({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
   const active = monitors.filter((m) => m.state === "online" || m.state === "running").length;
-  const pct = Math.min(99.9, Math.round((active / Math.max(1, monitors.length)) * 1000) / 10);
+  const bullish = Math.max(1, Math.min(99, Math.round((active / Math.max(1, monitors.length)) * 100)));
+  const neutral = Math.max(0, 100 - bullish);
 
   return (
-    <div className="relative flex h-full items-center justify-center">
-      <div className="absolute left-1 top-2">
-        <div className="text-[9px] uppercase text-emerald-300">Bullish</div>
-        <div className="text-xl font-black text-white">{pct}%</div>
-      </div>
-      <div className="absolute right-1 top-2 text-right">
-        <div className="text-[9px] uppercase text-amber-300">Neutral</div>
-        <div className="text-xl font-black text-white">{Math.max(0, 100 - pct).toFixed(1)}%</div>
-      </div>
-      <div className="absolute bottom-2 left-1">
-        <div className="text-[9px] uppercase text-red-300">Bearish</div>
-        <div className="text-xl font-black text-white">3.2%</div>
-      </div>
-      <div className="absolute bottom-2 right-1 text-right">
-        <div className="text-[9px] uppercase text-fuchsia-300">Chaotic</div>
-        <div className="text-xl font-black text-white">0.03%</div>
-      </div>
+    <div>
+      <TerminalPanelTitle title="Quantum Market Sentiment Matrix" />
+      <div className="mb-6 flex items-center justify-between">
+        <div className="text-center">
+          <div className="text-5xl font-black text-emerald-400">{bullish}%</div>
+          <div className="text-xs text-emerald-400">BULLISH</div>
+        </div>
 
-      <div className="absolute h-44 w-44 rounded-full border border-cyan-300/20" />
-      <div className="absolute h-32 w-32 rotate-45 border border-cyan-300/55 shadow-[0_0_35px_rgba(34,240,255,.25)]" />
-      <div className="absolute h-24 w-24 rotate-45 border border-fuchsia-300/35" style={{ animation: "poly-ref-spin 6s linear infinite" }} />
-      <div className="absolute h-2 w-2 rounded-full bg-fuchsia-300 shadow-[0_0_35px_rgba(255,0,255,1)]" style={{ animation: "poly-ref-pulse 1s ease-in-out infinite" }} />
-      <div className="absolute bottom-8 h-9 w-36 rounded-full border border-orange-300/35" style={{ transform: "rotateX(68deg)", filter: "drop-shadow(0 0 12px rgba(255,159,28,.8))" }} />
+        <div className="relative mx-auto flex h-32 w-32 items-center justify-center rounded-2xl border-4 border-purple-500 shadow-[0_0_36px_rgba(192,38,211,.65)]" style={{ animation: "poly-terminal-float 5s ease-in-out infinite" }}>
+          <div className="h-4 w-4 rounded-full bg-white shadow-[0_0_30px_#c026d3]" style={{ animation: "poly-terminal-soft-pulse 1s ease-in-out infinite" }} />
+          <div className="absolute inset-4 rotate-45 border border-cyan-300/35" />
+        </div>
+
+        <div className="text-center">
+          <div className="text-5xl font-black text-amber-400">{neutral}%</div>
+          <div className="text-xs text-amber-400">NEUTRAL</div>
+        </div>
+      </div>
+      <div className="text-center text-xs text-red-400">BEARISH 3.2% • CHAOTIC 0.03%</div>
     </div>
   );
 }
 
-function RefAlphaFeed({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
+function TerminalAllocation() {
   return (
-    <div className="h-full space-y-1 overflow-hidden">
-      {monitors.slice(0, 8).map((m, i) => {
-        const t = statusTone(m.state);
-        return (
-          <div key={m.key} className="grid grid-cols-[1fr_44px_42px] items-center gap-1 border-b border-cyan-300/10 py-1 text-[8px]">
-            <span className="truncate font-black uppercase tracking-[0.1em] text-cyan-100/65">● {m.label}</span>
-            <span className="text-right text-emerald-300">{(99.8 - i * 1.7).toFixed(2)}%</span>
-            <span className={`text-right font-black ${t.text}`}>+{(42.7 - i * 2.9).toFixed(1)}α</span>
+    <div>
+      <TerminalPanelTitle title="Capital Allocation // Hyperstructure" />
+      <div className="my-8 flex justify-center">
+        <div className="relative flex h-40 w-40 items-center justify-center">
+          <div className="absolute inset-0 rounded-full border-[18px] border-cyan-300/15" />
+          <div className="absolute inset-0 rounded-full border-[18px] border-transparent border-t-cyan-300 border-r-fuchsia-500 border-b-emerald-400" style={{ filter: "drop-shadow(0 0 16px rgba(103,232,249,.8))", animation: "poly-terminal-spin 7s linear infinite" }} />
+          <div className="text-center">
+            <div className="text-3xl font-black text-white">100%</div>
+            <div className="text-[10px] uppercase text-cyan-300">Allocated</div>
           </div>
-        );
-      })}
-      <div className="pt-1 text-center text-[9px] font-black uppercase tracking-[0.18em] text-cyan-300">View full alpha grid ››</div>
+        </div>
+      </div>
+      <div className="text-center text-xs text-cyan-400">TOTAL ALLOCATION: 100%</div>
     </div>
   );
 }
 
-function RefAgentMesh({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
+function TerminalAlphaSignals({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
   return (
-    <div className="grid h-full grid-cols-[.8fr_1.2fr] gap-2">
-      <div className="relative flex items-center justify-center">
-        <div className="absolute h-20 w-20 rounded-full border border-cyan-300/30" />
-        <div className="absolute h-12 w-12 rounded-full border border-fuchsia-300/25" style={{ animation: "poly-ref-spin 5s linear infinite reverse" }} />
-        <div className="h-3 w-3 rounded-full bg-cyan-300 shadow-[0_0_24px_rgba(34,240,255,.9)]" />
-      </div>
-      <div className="space-y-1">
-        {monitors.slice(0, 5).map((m, i) => {
+    <div className="text-xs">
+      <TerminalPanelTitle title="Alpha Signals Feed" />
+      <div className="space-y-3">
+        {monitors.slice(0, 8).map((m, i) => {
           const t = statusTone(m.state);
           return (
-            <div key={m.key} className="grid grid-cols-[1fr_38px_38px] text-[8px]">
-              <span className="truncate uppercase text-cyan-100/55">{m.label}</span>
-              <span className={`text-right font-black ${t.text}`}>{t.label}</span>
-              <span className="text-right text-emerald-300">+{(128.7 - i * 11.2).toFixed(1)}α</span>
+            <div key={m.key} className="flex justify-between border-b border-cyan-300/10 pb-2">
+              <span className="truncate pr-3 uppercase text-cyan-50/70">{m.label}</span>
+              <span className={`shrink-0 font-black ${t.text}`}>{(98.8 - i * 0.7).toFixed(2)}% +{(42.7 - i * 2.1).toFixed(1)}σ</span>
             </div>
           );
         })}
@@ -663,262 +722,181 @@ function RefAgentMesh({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
   );
 }
 
-function RefAllocation() {
+function TerminalBottomBar({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
+  const replay = monitors.find((m) => m.key === "replay_engine");
+  const replayTone = statusTone(replay?.state);
   return (
-    <div className="relative flex h-full items-center justify-center">
-      <div className="absolute h-32 w-32 rounded-full border-[16px] border-cyan-300/20" />
-      <div className="absolute h-32 w-32 rounded-full border-[16px] border-transparent border-t-cyan-300 border-r-cyan-300 border-b-orange-300" style={{ filter: "drop-shadow(0 0 13px rgba(34,240,255,.65))", animation: "poly-ref-spin 7s linear infinite" }} />
-      <div className="text-center">
-        <div className="text-[8px] uppercase tracking-[0.18em] text-cyan-100/45">Total</div>
-        <div className="text-3xl font-black text-white">100%</div>
-        <div className="text-[9px] uppercase text-cyan-200">Allocation</div>
+    <div className="mt-8 flex items-center justify-between rounded-3xl border border-cyan-400/30 bg-slate-950/65 p-6 text-xs backdrop-blur-xl">
+      <div className="flex gap-8">
+        <div><span className="text-emerald-400">RISK EXPOSURE:</span> 0.27%</div>
+        <div><span className="text-emerald-400">REALITY STABILITY:</span> 99.999%</div>
+        <div><span className="text-purple-400">KILL SWITCH:</span> ARMED</div>
       </div>
-      <div className="absolute right-1 top-2 space-y-1 text-[8px]">
-        {["Crypto 45.2%", "AI 23.7%", "Macro 12.9%", "Quantum 9.1%"].map((x) => (
-          <div key={x} className="text-cyan-100/65">● {x}</div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function RefSimulation() {
-  return (
-    <div className="relative flex h-full items-center justify-center overflow-hidden">
-      <div className="absolute h-28 w-52 rounded-full border border-cyan-300/30" style={{ transform: "rotateX(66deg)", animation: "poly-ref-spin 7s linear infinite" }} />
-      <div className="absolute h-18 w-40 rounded-full border border-fuchsia-300/30" style={{ transform: "rotateX(66deg)", animation: "poly-ref-spin 5s linear infinite reverse" }} />
-      <div className="h-4 w-4 rounded-full bg-cyan-300 shadow-[0_0_38px_rgba(34,240,255,1)]" style={{ animation: "poly-ref-pulse 1s ease-in-out infinite" }} />
-      <div className="absolute bottom-2 text-center">
-        <div className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300">48,672 Parallel Universes</div>
-        <div className="mt-1 grid grid-cols-2 gap-4 text-[9px] text-cyan-100/45">
-          <span>Best Outcome <b className="text-white">$28.7T</b></span>
-          <span>Probability <b className="text-white">78.3%</b></span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function RefMarketDepth({ markets }: { markets: PolyEdgeActionMonitorItem[] }) {
-  return (
-    <div className="relative h-full overflow-hidden">
-      <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.08) 1px, transparent 1px)", backgroundSize: "18px 18px" }} />
-      <div className="relative z-10 flex h-full items-end gap-2 px-2 pb-2">
-        {Array.from({ length: 18 }).map((_, i) => (
-          <div
-            key={i}
-            className={`flex-1 rounded-t ${i > 11 ? "bg-gradient-to-t from-orange-600 to-yellow-200" : "bg-gradient-to-t from-cyan-800 via-cyan-300 to-white"}`}
-            style={{
-              height: `${22 + ((i * 19) % 118)}px`,
-              animation: `poly-ref-bars ${0.75 + (i % 6) * .08}s ease-in-out infinite alternate`,
-              filter: "drop-shadow(0 0 9px rgba(34,240,255,.55))",
-            }}
-          />
-        ))}
-      </div>
-      <div className="absolute bottom-1 right-2 text-[8px] font-black uppercase text-emerald-300">{markets.length} feeds</div>
-    </div>
-  );
-}
-
-function RefMoneyFlow() {
-  return (
-    <svg className="h-full w-full" viewBox="0 0 360 120" preserveAspectRatio="none">
-      {["#00ff88", "#22f0ff", "#ff9f1c", "#bf5fff"].map((c, idx) => (
-        <polyline
-          key={c}
-          points={`0,${82 - idx * 11} 40,${70 - idx * 7} 80,${75 - idx * 4} 120,${52 - idx * 6} 160,${58 - idx * 3} 200,${46 - idx * 8} 240,${35 - idx * 4} 280,${28 - idx * 3} 320,${18 + idx * 10} 360,${14 + idx * 7}`}
-          fill="none"
-          stroke={c}
-          strokeWidth="2"
-          strokeLinecap="round"
-          style={{ filter: `drop-shadow(0 0 7px ${c})`, animation: "poly-ref-dash 2.4s linear infinite" }}
-        />
-      ))}
-    </svg>
-  );
-}
-
-function RefUniverseView() {
-  return (
-    <div className="relative flex h-full items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_48%,rgba(34,240,255,.24),transparent_40%)]" />
-      <div className="absolute h-48 w-80 rounded-full border border-cyan-300/30" style={{ transform: "rotateX(68deg)", animation: "poly-ref-spin 11s linear infinite" }} />
-      <div className="absolute h-28 w-60 rounded-full border border-fuchsia-300/25" style={{ transform: "rotateX(68deg)", animation: "poly-ref-spin 8s linear infinite reverse" }} />
-      <div className="h-3 w-3 rounded-full bg-white shadow-[0_0_60px_rgba(34,240,255,1)]" />
-      <div className="absolute top-3 right-3 text-[8px] uppercase tracking-[0.18em] text-cyan-200">Portfolio Universe</div>
-    </div>
-  );
-}
-
-function RefRiskFortress() {
-  const rows = [
-    ["Live Trading", "Disabled", "text-red-300"],
-    ["Risk Exposure", "0.27%", "text-emerald-300"],
-    ["Insurance Fund", "$947.2B", "text-emerald-300"],
-    ["Kill Switch", "Armed", "text-amber-300"],
-    ["Reality Stability", "99.999%", "text-emerald-300"],
-  ];
-  return (
-    <div className="space-y-1.5">
-      {rows.map(([a, b, c]) => (
-        <div key={a} className="flex justify-between border-b border-cyan-300/10 py-1 text-[10px]">
-          <span className="uppercase tracking-[0.14em] text-cyan-100/45">{a}</span>
-          <span className={`font-black uppercase ${c}`}>{b}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function RefDecisionStream({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
-  return (
-    <div className="space-y-1">
-      {monitors.slice(0, 7).map((m, i) => {
-        const t = statusTone(m.state);
-        return (
-          <div key={m.key} className="grid grid-cols-[40px_1fr_44px_40px] gap-1 border-b border-cyan-300/10 py-1 text-[8px]">
-            <span className="text-cyan-100/35">21:47:{30 + i}</span>
-            <span className="truncate uppercase text-cyan-100/65">{m.label}</span>
-            <span className={`text-right font-black ${t.text}`}>{t.label}</span>
-            <span className="text-right text-emerald-300">PAPER</span>
-          </div>
-        );
-      })}
+      <div className="font-mono text-cyan-400">POLY SYSTEM HEART MONITOR • LIVE</div>
+      <div className={`${replayTone.text}`}>REPLAY ENGINE MONITOR • {replayTone.label}</div>
     </div>
   );
 }
 
 function PolyEdgeActionMonitorGrid({ actionMonitor }: { actionMonitor: PolyEdgeActionMonitorResponse | null }) {
   const monitors = actionMonitor?.monitors || [];
-  const markets = monitors.filter((m) => m.kind === "market");
   const systems = monitors.filter((m) => m.kind !== "market");
+  const active = monitors.filter((m) => m.state === "online" || m.state === "running").length;
+  const apiTone = statusTone(monitors.find((m) => m.key === "poly_api")?.state);
 
   return (
-    <HoloPanel title="POLY//EDGE QUANTUM HYPERINTELLIGENCE TERMINAL" icon={Cpu} className="col-span-12">
+    <HoloPanel title="POLY//EDGE • Quantum Terminal 2150" icon={Cpu} className="col-span-12">
       <style>{`
-        @keyframes poly-ref-dash {
-          from { stroke-dasharray: 9 13; stroke-dashoffset: 90; }
-          to { stroke-dasharray: 9 13; stroke-dashoffset: 0; }
+        .poly-terminal-root {
+          background: radial-gradient(circle at center, #0a0a1f 0%, #000000 100%);
         }
-        @keyframes poly-ref-spin {
+        .poly-terminal-root::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background-image: radial-gradient(#22d3ee 0.5px, transparent 1px);
+          background-size: 40px 40px;
+          opacity: .10;
+          animation: poly-terminal-stars 18s linear infinite;
+        }
+        .poly-terminal-glass {
+          box-shadow: 0 0 0 rgba(103,232,249,0);
+          transition: all .4s cubic-bezier(.23,1,.32,1);
+        }
+        .poly-terminal-glass:hover {
+          transform: translateY(-4px);
+          border-color: rgba(192,38,211,.60);
+          box-shadow: 0 0 45px -5px rgb(103 232 249);
+        }
+        .poly-terminal-scan::after {
+          content: "";
+          position: absolute;
+          top: -100%;
+          left: 0;
+          width: 100%;
+          height: 300%;
+          background: linear-gradient(transparent, rgba(103,232,249,.12), transparent);
+          animation: poly-terminal-scan 9s linear infinite;
+        }
+        @keyframes poly-terminal-scan {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(100%); }
+        }
+        @keyframes poly-terminal-stars {
+          from { transform: translate3d(0,0,0); }
+          to { transform: translate3d(40px,40px,0); }
+        }
+        @keyframes poly-terminal-dash {
+          from { stroke-dasharray: 10 12; stroke-dashoffset: 110; }
+          to { stroke-dasharray: 10 12; stroke-dashoffset: 0; }
+        }
+        @keyframes poly-terminal-bars {
+          from { transform: scaleY(.45); opacity: .55; }
+          to { transform: scaleY(1.12); opacity: 1; }
+        }
+        @keyframes poly-terminal-spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        @keyframes poly-ref-pulse {
-          0%, 100% { opacity: .45; transform: scale(.82); }
-          50% { opacity: 1; transform: scale(1.18); }
+        @keyframes poly-terminal-orbit {
+          from { rotate: 0deg; }
+          to { rotate: 360deg; }
         }
-        @keyframes poly-ref-bars {
-          from { transform: scaleY(.55); opacity: .68; }
-          to { transform: scaleY(1.08); opacity: 1; }
+        @keyframes poly-terminal-soft-pulse {
+          0%, 100% { opacity: .52; transform: scale(.9); }
+          50% { opacity: 1; transform: scale(1.12); }
         }
-        @keyframes poly-ref-sweep {
-          from { transform: translateX(-160%); }
-          to { transform: translateX(270%); }
+        @keyframes poly-terminal-float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
         }
       `}</style>
 
-      <div className="relative mx-auto aspect-[16/9] max-h-[calc(100vh-170px)] min-h-[690px] overflow-hidden rounded-[28px] border border-cyan-300/25 bg-[radial-gradient(circle_at_50%_-10%,rgba(34,240,255,.16),transparent_30%),radial-gradient(circle_at_85%_10%,rgba(255,0,170,.09),transparent_30%),rgba(0,0,0,.70)] p-3 shadow-[0_0_120px_rgba(34,240,255,.18),inset_0_0_90px_rgba(34,240,255,.06)]">
-        <div className="pointer-events-none absolute inset-0 opacity-25" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.09) 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
-
-        <div className="relative z-10 grid h-full grid-cols-[115px_repeat(12,1fr)] grid-rows-[58px_2fr_1.35fr_1.6fr_34px] gap-2">
-          <div className="row-span-5 rounded-[22px] border border-cyan-300/20 bg-black/65 p-2">
-            <div className="mb-4 text-center">
-              <div className="mx-auto mb-2 h-14 w-14 rounded-full border border-cyan-300/30 shadow-[0_0_30px_rgba(34,240,255,.25)]" />
-              <div className="text-[15px] font-black uppercase tracking-[0.12em] text-cyan-200">POLY//EDGE</div>
-              <div className="text-[7px] uppercase tracking-[0.18em] text-cyan-100/40">Version 2050.00</div>
+      <div className="poly-terminal-root relative min-h-screen overflow-hidden rounded-[32px] p-6 text-white">
+        <div className="relative z-10 mx-auto max-w-screen-2xl">
+          <div className="mb-8 flex items-center justify-between rounded-3xl border border-cyan-400/30 bg-slate-950/65 px-8 py-5 backdrop-blur-xl">
+            <div className="flex items-center gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-purple-600 text-2xl font-bold text-white shadow-[0_0_30px_rgba(103,232,249,.4)]">P/E</div>
+              <div>
+                <h1 className="text-3xl font-bold tracking-tighter text-cyan-100 drop-shadow-[0_0_18px_rgba(103,232,249,.8)]">POLY//EDGE</h1>
+                <p className="text-xs uppercase tracking-[4px] text-cyan-400">Quantum Override Terminal • 2150</p>
+              </div>
             </div>
 
-            {["Overview", "Markets", "Portfolio", "Agents", "Alpha Grid", "Risk Core", "Memory", "Simulation", "Settings"].map((x) => (
-              <div key={x} className="mb-2 rounded-lg border border-cyan-300/10 bg-black/35 px-2 py-1.5 text-[8px] font-black uppercase tracking-[0.14em] text-cyan-100/55">
-                {x}
+            <div className="hidden gap-8 text-sm xl:flex">
+              <div className="text-center">
+                <div className="font-mono text-lg text-emerald-400">{apiTone.long}</div>
+                <div className="text-xs text-gray-400">AI CONSCIOUSNESS: TRANSCENDENT</div>
               </div>
-            ))}
+              <div className="text-center">
+                <div className="font-mono text-3xl font-bold text-white">$3,214,982,776,042</div>
+                <div className="text-xs text-emerald-400">PORTFOLIO VALUE • +$512.8B (24H)</div>
+              </div>
+              <div className="text-center">
+                <div className="font-mono text-cyan-400">04:38Y 14:2D</div>
+                <div className="text-xs text-purple-400">QUANTUM TIME • 7D REALITY LAYER</div>
+              </div>
+            </div>
 
-            <div className="absolute bottom-12 left-5 h-20 w-20 rounded-full border border-cyan-300/30 shadow-[0_0_40px_rgba(34,240,255,.25)]" />
-            <div className="absolute bottom-4 left-4 text-[8px] uppercase tracking-[0.12em] text-cyan-100/45">Synapse Activity</div>
+            <div className={`flex items-center gap-3 rounded-2xl border px-6 py-2 text-sm ${apiTone.panel} bg-slate-950/60`}>
+              <span className={`h-3 w-3 rounded-full ${apiTone.dot} animate-pulse`} />
+              <span>{active} / {monitors.length || 1} AGENTS LIVE</span>
+            </div>
           </div>
 
-          <div className="col-span-12 grid grid-cols-7 gap-2">
-            {[
-              ["System Status", "Singularity Online", "text-emerald-300"],
-              ["AI Consciousness", "Transcendent", "text-fuchsia-300"],
-              ["Agents", "512 / 512", "text-cyan-300"],
-              ["Portfolio Value", "$3,214,982,776,042", "text-orange-300"],
-              ["24H P&L", "+$512,847,992,084", "text-emerald-300"],
-              ["Quantum Time", "0+38Y 142D", "text-cyan-200"],
-              ["Reality Layer", "7D", "text-orange-300"],
-            ].map(([a, b, c]) => (
-              <div key={a} className="rounded-xl border border-cyan-300/20 bg-black/60 px-3 py-2">
-                <div className="text-[7px] uppercase tracking-[0.16em] text-cyan-100/35">{a}</div>
-                <div className={`mt-1 truncate text-[12px] font-black uppercase ${c}`}>{b}</div>
+          <div className="grid grid-cols-12 gap-6">
+            <div className="col-span-12 xl:col-span-2">
+              <TerminalGlass className="h-full">
+                <div className="mb-4 font-mono text-xs uppercase tracking-widest text-cyan-400">Navigation</div>
+                <ul className="space-y-2 text-sm">
+                  {["Overview", "Markets", "Portfolio", "Agents", "Alpha Grid", "Risk Core"].map((x, i) => (
+                    <li key={x} className={`cursor-pointer rounded-2xl px-4 py-3 transition hover:bg-white/10 ${i === 0 ? "bg-white/5" : "hover:bg-white/5"}`}>{x}</li>
+                  ))}
+                </ul>
+              </TerminalGlass>
+            </div>
+
+            <div className="col-span-12 space-y-6 xl:col-span-7">
+              <TerminalGlass>
+                <div className="mb-4 flex justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold">HYPERDIMENSIONAL EQUITY CURVE</h2>
+                    <p className="text-xs text-gray-400">START: $10,000 • CURRENT: $3.21T • RETURN: +32,148,827%</p>
+                  </div>
+                  <div className="text-sm text-emerald-400">LIVE</div>
+                </div>
+                <TerminalEquityChart monitors={monitors} />
+              </TerminalGlass>
+
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <TerminalGlass>
+                  <TerminalPanelTitle title="Real-Time Smart Money Flow" />
+                  <TerminalFlowChart />
+                </TerminalGlass>
+
+                <TerminalGlass className="holo">
+                  <TerminalPanelTitle title="Holographic Universe View" />
+                  <TerminalUniverse />
+                </TerminalGlass>
               </div>
-            ))}
+            </div>
+
+            <div className="col-span-12 space-y-6 xl:col-span-3">
+              <TerminalGlass>
+                <TerminalSentiment monitors={monitors} />
+              </TerminalGlass>
+
+              <TerminalGlass>
+                <TerminalAllocation />
+              </TerminalGlass>
+
+              <TerminalGlass>
+                <TerminalAlphaSignals monitors={systems} />
+              </TerminalGlass>
+            </div>
           </div>
 
-          <RefPanel title="Hyperdimensional Equity Curve" className="col-span-7">
-            <RefEquityChart monitors={monitors} />
-          </RefPanel>
-
-          <RefPanel title="Quantum Market Sentiment Matrix" className="col-span-3">
-            <RefSentimentMatrix monitors={monitors} />
-          </RefPanel>
-
-          <RefPanel title="Alpha Signals Feed" className="col-span-2">
-            <RefAlphaFeed monitors={systems} />
-          </RefPanel>
-
-          <RefPanel title="Sentient Agent Mesh" className="col-span-3">
-            <RefAgentMesh monitors={systems} />
-          </RefPanel>
-
-          <RefPanel title="Capital Allocation // Hyperstructure" className="col-span-3">
-            <RefAllocation />
-          </RefPanel>
-
-          <RefPanel title="Multiverse Simulation" className="col-span-3">
-            <RefSimulation />
-          </RefPanel>
-
-          <RefPanel title="Hyper Liquidity Depth" className="col-span-3">
-            <RefMarketDepth markets={markets} />
-          </RefPanel>
-
-          <RefPanel title="Real-Time Smart Money Flow" className="col-span-3">
-            <RefMoneyFlow />
-          </RefPanel>
-
-          <RefPanel title="Holographic Universe View" className="col-span-4">
-            <RefUniverseView />
-          </RefPanel>
-
-          <RefPanel title="Risk Fortress Status" className="col-span-2">
-            <RefRiskFortress />
-          </RefPanel>
-
-          <RefPanel title="Decision Stream // Live Log" className="col-span-3">
-            <RefDecisionStream monitors={systems} />
-          </RefPanel>
-
-          <div className="col-span-12 grid grid-cols-8 gap-2 rounded-xl border border-cyan-300/20 bg-black/60 px-3 py-2 text-[9px]">
-            {[
-              ["BTC", "$284,910", "+12.48%"],
-              ["ETH", "$18,420", "+9.72%"],
-              ["SOL", "$1,942", "+24.91%"],
-              ["AI", "$47.21", "+31.47%"],
-              ["TOTAL MKT CAP", "$132.7T", "+8.21%"],
-              ["24H VOLUME", "$47.2T", "+26.9%"],
-              ["GLOBAL LIQUIDITY", "$10.3T", ""],
-              ["UPLINK", "STABLE", "▮▮▮"],
-            ].map(([a, b, c]) => (
-              <div key={a} className="truncate">
-                <span className="font-black text-orange-300">{a}</span>
-                <span className="ml-2 text-cyan-100/55">{b}</span>
-                <span className="ml-2 text-emerald-300">{c}</span>
-              </div>
-            ))}
-          </div>
+          <TerminalBottomBar monitors={monitors} />
         </div>
       </div>
     </HoloPanel>
