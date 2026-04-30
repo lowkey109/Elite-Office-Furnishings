@@ -12891,6 +12891,19 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
   // ── PolyEdge / Aetherforge — Tiny-Live Promotion Gate API ──────────────────
 
   // ── PolyEdge / Aetherforge — Fast Paper Replay Engine ──────────────────────
+  
+  app.get("/api/admin/polyedge/heartbeat", async (_req: any, res: any) => {
+    return res.json({
+      ok: true,
+      product: "polyedge",
+      service: "heartbeat",
+      status: "online",
+      generatedAt: new Date().toISOString(),
+      liveTradingAffected: false,
+      message: "PolyEdge API heartbeat responding.",
+    });
+  });
+
   app.get("/api/admin/polyedge/replay/status", async (_req: any, res: any) => {
     try {
       const { getPolyEdgeReplayStatus } = await import("./services/trading/polyEdgeFastReplayEngine");

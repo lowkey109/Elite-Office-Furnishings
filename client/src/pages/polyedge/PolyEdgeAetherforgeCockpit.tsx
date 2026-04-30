@@ -524,6 +524,36 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
   const [error, setError] = useState<string | null>(null);
   const [now, setNow] = useState(new Date());
 
+  async function loadPolyHeartbeat() {
+    if (mode !== "admin") return;
+
+    try {
+      setApiStatus((prev) => (prev === "online" ? prev : "checking"));
+      const res = await fetchWithTimeout("/api/admin/polyedge/heartbeat", {
+        credentials: "include",
+        headers: polyEdgeAuthHeaders(mode),
+      }, 3000);
+
+      const json = await res.json().catch(() => null);
+
+      if (res.ok && json?.ok === true) {
+        const now = new Date().toLocaleTimeString();
+        setApiStatus("online");
+        setLastApiCheck(now);
+        setLastGoodApiCheck(now);
+        setApiFailureCount(0);
+      } else {
+        setApiStatus("offline");
+        setLastApiCheck(new Date().toLocaleTimeString());
+        setApiFailureCount((x) => x + 1);
+      }
+    } catch {
+      setApiStatus("timeout");
+      setLastApiCheck(new Date().toLocaleTimeString());
+      setApiFailureCount((x) => x + 1);
+    }
+  }
+
   async function loadReplayStatus() {
     if (mode !== "admin") return;
     try {
@@ -622,6 +652,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
 
   useEffect(() => {
     load();
+    loadPolyHeartbeat();
     const t = window.setInterval(() => {
       setNow(new Date());
       load();
