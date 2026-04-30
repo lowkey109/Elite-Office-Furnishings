@@ -35,7 +35,7 @@ const state: AutoState = {
   positionsOpened: 0,
   positionsClosed: 0,
   learningScore: 50,
-  confidenceFloor: 64,
+  confidenceFloor: 62,
 };
 
 let timer: NodeJS.Timeout | null = null;
@@ -59,22 +59,18 @@ function paperMark(symbol: string) {
     XAUUSD: 3120,
   };
 
-  const t = Math.floor(Date.now() / 60000);
+  const t = Math.floor(Date.now() / 5000);
   const seed = hashNumber(symbol);
-  const wave = Math.sin((t + seed) / 7) * 0.008 + Math.cos((t + seed) / 13) * 0.005;
-  const price = (base[symbol] || 1000) * (1 + wave);
-
-  return Math.round(price * 100) / 100;
+  const wave = Math.sin((t + seed) / 2.7) * 0.0035 + Math.cos((t + seed) / 5.1) * 0.0025;
+  return Math.round((base[symbol] || 1000) * (1 + wave) * 100) / 100;
 }
 
 function chooseSymbol() {
-  const i = Math.abs(Math.floor(Date.now() / 60000)) % SYMBOLS.length;
-  return SYMBOLS[i];
+  return SYMBOLS[Math.abs(Math.floor(Date.now() / 7000)) % SYMBOLS.length];
 }
 
 function chooseStrategy(symbol: string) {
-  const i = hashNumber(symbol + String(Math.floor(Date.now() / 300000))) % STRATEGIES.length;
-  return STRATEGIES[i];
+  return STRATEGIES[hashNumber(symbol + String(Math.floor(Date.now() / 15000))) % STRATEGIES.length];
 }
 
 async function calculateLearning() {
@@ -86,7 +82,7 @@ async function calculateLearning() {
 
   if (!outcomes.length) {
     state.learningScore = 50;
-    state.confidenceFloor = 64;
+    state.confidenceFloor = 62;
     return {
       sampleSize: 0,
       winRate: null,
@@ -108,12 +104,13 @@ async function calculateLearning() {
   const pnlScore = totalPnl > 0 ? 18 : totalPnl < 0 ? -18 : 0;
   const wrScore = Math.round((winRate - 0.5) * 60);
   const pfScore = profitFactor === null ? 0 : Math.max(-12, Math.min(18, Math.round((profitFactor - 1) * 8)));
+
   state.learningScore = Math.max(1, Math.min(99, 50 + pnlScore + wrScore + pfScore));
 
-  if (state.learningScore >= 72 && outcomes.length >= 20) state.confidenceFloor = 60;
-  else if (state.learningScore >= 58 && outcomes.length >= 10) state.confidenceFloor = 63;
-  else if (state.learningScore < 42 && outcomes.length >= 10) state.confidenceFloor = 72;
-  else state.confidenceFloor = 66;
+  if (state.learningScore >= 72 && outcomes.length >= 20) state.confidenceFloor = 58;
+  else if (state.learningScore >= 58 && outcomes.length >= 10) state.confidenceFloor = 61;
+  else if (state.learningScore < 42 && outcomes.length >= 10) state.confidenceFloor = 70;
+  else state.confidenceFloor = 63;
 
   return {
     sampleSize: outcomes.length,
@@ -125,19 +122,15 @@ async function calculateLearning() {
   };
 }
 
-async function maybeClosePositions() {
-  const open = await db
-    .select()
-    .from(paperPositions)
-    .where(eq(paperPositions.status, "open"));
-
+async function closeFastPaperPositions() {
+  const open = await db.select().from(paperPositions).where(eq(paperPositions.status, "open"));
   let closed = 0;
 
   for (const pos of open as any[]) {
     const mark = paperMark(pos.symbol);
     const openedAt = pos.entryTimestamp || pos.createdAt || new Date();
     const ageMs = Date.now() - new Date(openedAt).getTime();
-    const maxAgeMs = 8 * 60 * 1000;
+    const maxAgeMs = Number(process.env.POLYEDGE_FAST_PAPER_MAX_AGE_MS || 45000);
 
     const side = String(pos.side);
     const hitTarget = side === "long"
@@ -151,7 +144,7 @@ async function maybeClosePositions() {
     const agedOut = ageMs >= maxAgeMs;
 
     if (hitTarget || hitStop || agedOut) {
-      const reason = hitTarget ? "auto_target_hit" : hitStop ? "auto_stop_hit" : "auto_time_exit";
+      const reason = hitTarget ? "auto_target_hit" : hitStop ? "auto_stop_hit" : "auto_fast_learning_exit";
       const outcomeId = await closePaperPosition({
         positionId: pos.id,
         exitPrice: mark,
@@ -168,39 +161,35 @@ async function maybeClosePositions() {
   return closed;
 }
 
-async function maybeOpenPosition() {
-  const open = await db
-    .select()
-    .from(paperPositions)
-    .where(eq(paperPositions.status, "open"));
+async function openFastPaperPosition() {
+  const open = await db.select().from(paperPositions).where(eq(paperPositions.status, "open"));
+  const maxOpen = Number(process.env.POLYEDGE_FAST_PAPER_MAX_OPEN || 8);
 
-  if (open.length >= 4) {
+  if (open.length >= maxOpen) {
     return { opened: false, reason: "Open-position limit reached." };
   }
 
   const learning = await calculateLearning();
-  if (learning.sampleSize >= 10 && state.learningScore < 35) {
-    return { opened: false, reason: "Learning score too low; waiting for safer paper conditions." };
+
+  if (learning.sampleSize >= 10 && state.learningScore < 32) {
+    return { opened: false, reason: "Learning score too low; waiting." };
   }
 
   const symbol = chooseSymbol();
   const strategy = chooseStrategy(symbol);
   const entry = paperMark(symbol);
   const seed = hashNumber(symbol + strategy + String(Date.now()));
-  const direction = seed % 5 === 0 ? "short" : "long";
-  const confidence = Math.max(state.confidenceFloor, Math.min(92, state.confidenceFloor + (seed % 18)));
-
-  if (confidence < state.confidenceFloor) {
-    return { opened: false, reason: "Confidence below adaptive floor." };
-  }
+  const direction = seed % 4 === 0 ? "short" : "long";
+  const confidence = Math.max(state.confidenceFloor, Math.min(92, state.confidenceFloor + (seed % 20)));
 
   const riskPct = state.learningScore >= 70 ? 0.012 : state.learningScore < 45 ? 0.004 : 0.007;
   const paperCapitalAllocated = Math.round(100000 * riskPct * 100) / 100;
-  const move = symbol === "BTC/USD" ? 0.008 : symbol === "ETH/USD" ? 0.01 : symbol === "SOL/USD" ? 0.014 : 0.004;
+
+  const move = symbol === "BTC/USD" ? 0.0016 : symbol === "ETH/USD" ? 0.002 : symbol === "SOL/USD" ? 0.0028 : 0.0011;
 
   const targetPrice = direction === "long"
-    ? Math.round(entry * (1 + move * 1.4) * 100) / 100
-    : Math.round(entry * (1 - move * 1.4) * 100) / 100;
+    ? Math.round(entry * (1 + move * 1.35) * 100) / 100
+    : Math.round(entry * (1 - move * 1.35) * 100) / 100;
 
   const stopPrice = direction === "long"
     ? Math.round(entry * (1 - move) * 100) / 100
@@ -211,11 +200,11 @@ async function maybeOpenPosition() {
     strategy,
     direction,
     confidence,
-    thesis: `PolyEdge autonomous paper-only decision. Learning score ${state.learningScore}. Confidence floor ${state.confidenceFloor}.`,
-    regime: state.learningScore >= 60 ? "adaptive_trend" : "defensive_paper",
-    reasonCode: "polyedge_auto_paper_learning_loop",
+    thesis: `PolyEdge fast autonomous PAPER-ONLY learning decision. Learning score ${state.learningScore}.`,
+    regime: state.learningScore >= 60 ? "fast_adaptive_paper" : "fast_defensive_paper",
+    reasonCode: "polyedge_fast_auto_paper_learning",
     expectedMove: Math.round(move * 10000) / 100,
-    invalidationRule: `Exit if paper mark breaches ${stopPrice}`,
+    invalidationRule: `Exit if synthetic paper mark breaches ${stopPrice}`,
     riskBucket: state.learningScore >= 70 ? "adaptive_medium" : "defensive_low",
     dataQualityScore: 72,
     slippageEstimate: 0.04,
@@ -223,8 +212,9 @@ async function maybeOpenPosition() {
     riskAmount: paperCapitalAllocated,
     fullPayload: {
       paperOnly: true,
+      liveTradingAffected: false,
       autonomous: true,
-      source: "polyedge_auto_paper",
+      source: "polyedge_fast_auto_paper",
       learning,
       generatedAt: nowIso(),
     },
@@ -244,14 +234,14 @@ async function maybeOpenPosition() {
   });
 
   if (!positionId) {
-    return { opened: false, reason: "Decision created but position already existed or was blocked." };
+    return { opened: false, reason: "Decision created but position was blocked or already exists." };
   }
 
   state.positionsOpened += 1;
 
   return {
     opened: true,
-    reason: `Opened ${direction} ${symbol} paper position at ${entry}.`,
+    reason: `Opened ${direction} ${symbol} PAPER position at ${entry}.`,
     decisionId,
     positionId,
     symbol,
@@ -276,8 +266,8 @@ export async function polyEdgeAutoPaperTick() {
   try {
     await getOrCreateState();
 
-    const closed = await maybeClosePositions();
-    const opened = state.enabled ? await maybeOpenPosition() : { opened: false, reason: "Auto paper trader is stopped." };
+    const closed = await closeFastPaperPositions();
+    const opened = state.enabled ? await openFastPaperPosition() : { opened: false, reason: "Auto paper trader stopped." };
     const learning = await calculateLearning();
 
     state.lastAction = opened.opened ? "opened_position" : closed > 0 ? "closed_position" : "observed";
@@ -306,37 +296,6 @@ export async function polyEdgeAutoPaperTick() {
   } finally {
     state.running = false;
   }
-}
-
-export function startPolyEdgeAutoPaperLoop(intervalMs = 30000) {
-  state.enabled = true;
-  state.lastAction = "started";
-  state.lastReason = `Auto paper trader started. Interval ${intervalMs}ms.`;
-
-  if (timer) clearInterval(timer);
-
-  timer = setInterval(() => {
-    polyEdgeAutoPaperTick().catch((err) => {
-      state.lastError = err?.message || String(err);
-      state.lastAction = "error";
-      state.lastReason = state.lastError || "Unknown loop error.";
-    });
-  }, Math.max(10000, intervalMs));
-
-  polyEdgeAutoPaperTick().catch(() => undefined);
-
-  return getPolyEdgeAutoPaperStatus();
-}
-
-export function stopPolyEdgeAutoPaperLoop() {
-  state.enabled = false;
-  state.lastAction = "stopped";
-  state.lastReason = "Auto paper trader stopped.";
-  if (timer) {
-    clearInterval(timer);
-    timer = null;
-  }
-  return getPolyEdgeAutoPaperStatus();
 }
 
 export async function getPolyEdgeAutoPaperStatus() {
@@ -372,6 +331,45 @@ export async function getPolyEdgeAutoPaperStatus() {
     positionsClosed: state.positionsClosed,
     openPositions: openPositions.length,
     learning,
+    fastLearning: {
+      enabled: true,
+      intervalMs: 5000,
+      maxAgeMs: Number(process.env.POLYEDGE_FAST_PAPER_MAX_AGE_MS || 45000),
+      maxOpenPositions: Number(process.env.POLYEDGE_FAST_PAPER_MAX_OPEN || 8),
+    },
     updatedAt: nowIso(),
   };
+}
+
+export function startPolyEdgeAutoPaperLoop(intervalMs = 5000) {
+  state.enabled = true;
+  state.lastAction = "started";
+  state.lastReason = `Fast auto paper trader started. Interval ${intervalMs}ms.`;
+
+  if (timer) clearInterval(timer);
+
+  timer = setInterval(() => {
+    polyEdgeAutoPaperTick().catch((err) => {
+      state.lastError = err?.message || String(err);
+      state.lastAction = "error";
+      state.lastReason = state.lastError || "Unknown loop error.";
+    });
+  }, Math.max(5000, intervalMs));
+
+  polyEdgeAutoPaperTick().catch(() => undefined);
+
+  return getPolyEdgeAutoPaperStatus();
+}
+
+export function stopPolyEdgeAutoPaperLoop() {
+  state.enabled = false;
+  state.lastAction = "stopped";
+  state.lastReason = "Fast auto paper trader stopped.";
+
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
+
+  return getPolyEdgeAutoPaperStatus();
 }

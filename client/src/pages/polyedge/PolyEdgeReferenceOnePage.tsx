@@ -51,6 +51,7 @@ function stateScore(monitor: Monitor) {
 }
 
 
+
 function ecgSeed(text: unknown) {
   return String(text || "polyedge")
     .split("")
@@ -69,18 +70,17 @@ function ecgRhythm(monitor?: Monitor) {
   const seed = ecgSeed(monitor?.key || monitor?.label);
   const age = ecgAgeMs(monitor);
 
-  let base = 12.5;
+  let base = 9.5;
   if (age !== null) {
-    if (age < 2500) base = 6.8;
-    else if (age < 5000) base = 8.2;
-    else if (age < 10000) base = 10.5;
-    else if (age < 20000) base = 13.5;
-    else base = 17.5;
+    if (age < 2500) base = 5.6;
+    else if (age < 5000) base = 6.8;
+    else if (age < 10000) base = 8.8;
+    else if (age < 20000) base = 11.5;
+    else base = 15.5;
   }
 
-  const spread = (seed % 9) * 0.37;
-  const duration = base + spread;
-  const delay = -((seed % 97) / 97) * duration;
+  const duration = base + (seed % 8) * 0.41;
+  const delay = -((seed % 101) / 101) * duration;
 
   return {
     duration: `${duration.toFixed(2)}s`,
@@ -91,10 +91,11 @@ function ecgRhythm(monitor?: Monitor) {
 function EcgTrace({ monitor, compact = false }: { monitor?: Monitor; compact?: boolean }) {
   const state = String(monitor?.state || "").toLowerCase();
   const isMarket = monitor?.kind === "market";
-  const live = monitor?.moving === true && (state === "online" || state === "running");
+  const live = monitor?.moving === true || state === "online" || state === "running";
   const safe = state === "idle" || state === "blocked" || state === "paper_only";
   const fault = state === "offline" || state === "timeout" || state === "stalled" || state === "fault";
   const rhythm = ecgRhythm(monitor);
+  const seed = ecgSeed(monitor?.key || monitor?.label);
 
   const rhythmStyle = {
     "--ecg-duration": rhythm.duration,
@@ -102,14 +103,13 @@ function EcgTrace({ monitor, compact = false }: { monitor?: Monitor; compact?: b
   } as React.CSSProperties;
 
   if (isMarket) {
-    const seed = ecgSeed(monitor?.key || monitor?.label);
     return (
       <div className={compact ? "ecg-bars compact" : "ecg-bars"}>
         {Array.from({ length: compact ? 14 : 18 }).map((_, i) => (
           <span
             key={i}
             style={{
-              height: `${Math.max(14, stateScore(monitor || {}) - (((i + seed) * 9) % 38))}%`,
+              height: `${Math.max(16, stateScore(monitor || {}) - (((i + seed) * 9) % 38))}%`,
               animationDelay: `${((i + seed) % 7) * 0.13}s`,
               animationDuration: rhythm.duration,
             }}
@@ -120,18 +120,76 @@ function EcgTrace({ monitor, compact = false }: { monitor?: Monitor; compact?: b
   }
 
   return (
-    <div className={compact ? "ecg-window compact" : "ecg-window"}>
-      <svg className="ecg-track" viewBox="0 0 520 34" preserveAspectRatio="none">
-        <line x1="0" y1="18" x2="520" y2="18" className={fault ? "flat fault" : safe ? "flat safe" : "flat"} />
-        {live ? (
-          <g className="beat-scroll live" style={rhythmStyle}>
-            <path d="M0 18 H34 L42 9 L50 27 L59 3 L69 31 L80 18 H112 L120 18 L128 10 L136 25 L147 18 H176 L184 8 L192 27 L201 4 L211 30 L222 18 H260 H294 L302 9 L310 27 L319 3 L329 31 L340 18 H372 L380 18 L388 10 L396 25 L407 18 H436 L444 8 L452 27 L461 4 L471 30 L482 18 H520" />
+    <div className={compact ? "ecg-real-monitor compact" : "ecg-real-monitor"}>
+      <svg className="ecg-real-svg" viewBox="0 0 260 38" preserveAspectRatio="none">
+        <line x1="0" y1="20" x2="260" y2="20" className={fault ? "ecg-baseline fault" : safe ? "ecg-baseline safe" : "ecg-baseline"} />
+
+        {fault ? (
+          <path className="ecg-tiny-blip fault-blip" d="M0 20 H96 L101 19 L106 21 L111 20 H260" />
+        ) : (
+          <g className={live ? "ecg-wave-run live" : "ecg-wave-run safe"} style={rhythmStyle}>
+            <path
+              className="ecg-wave"
+              d="
+                M0 20
+                H20
+                C24 20 25 17 28 17
+                C31 17 32 20 36 20
+                H44
+                L49 8
+                L54 31
+                L59 3
+                L65 33
+                L72 20
+                H88
+                C94 20 96 15 101 15
+                C106 15 110 20 116 20
+                H130
+
+                C134 20 135 18 138 18
+                C141 18 142 20 146 20
+                H154
+                L159 9
+                L164 30
+                L169 4
+                L175 32
+                L182 20
+                H198
+                C204 20 206 16 211 16
+                C216 16 220 20 226 20
+                H260
+
+                H280
+                C284 20 285 17 288 17
+                C291 17 292 20 296 20
+                H304
+                L309 8
+                L314 31
+                L319 3
+                L325 33
+                L332 20
+                H348
+                C354 20 356 15 361 15
+                C366 15 370 20 376 20
+                H390
+
+                C394 20 395 18 398 18
+                C401 18 402 20 406 20
+                H414
+                L419 9
+                L424 30
+                L429 4
+                L435 32
+                L442 20
+                H458
+                C464 20 466 16 471 16
+                C476 16 480 20 486 20
+                H520
+              "
+            />
+            <circle className="ecg-sweep-dot" cx="255" cy="20" r="2.4" />
           </g>
-        ) : safe ? (
-          <g className="beat-scroll safe" style={rhythmStyle}>
-            <path d="M0 18 H86 L92 16 L98 20 L104 18 H172 L178 17 L184 20 L190 18 H260 H346 L352 16 L358 20 L364 18 H432 L438 17 L444 20 L450 18 H520" />
-          </g>
-        ) : null}
+        )}
       </svg>
     </div>
   );
@@ -155,6 +213,8 @@ export default function PolyEdgeReferenceOnePage() {
   const [capitalAmount, setCapitalAmount] = useState("");
   const [capitalNote, setCapitalNote] = useState("");
   const [capitalMessage, setCapitalMessage] = useState("");
+  const [autoPaperState, setAutoPaperState] = useState<any>(null);
+  const [autoPaperMessage, setAutoPaperMessage] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -164,6 +224,7 @@ export default function PolyEdgeReferenceOnePage() {
         fetch("/api/polyedge/action-monitor").then((r) => r.json()),
         fetch("/api/polyedge/replay/status").then((r) => r.json()),
         fetch("/api/polyedge/capital/status").then((r) => r.json()),
+        fetch("/api/polyedge/auto-paper/status").then((r) => r.json()),
       ]);
 
       if (!active) return;
@@ -171,6 +232,7 @@ export default function PolyEdgeReferenceOnePage() {
       if (requests[0].status === "fulfilled") setActionMonitor(requests[0].value);
       if (requests[1].status === "fulfilled") setReplayStatus(requests[1].value);
       if (requests[2]?.status === "fulfilled") setCapitalState(requests[2].value?.capital || null);
+      if (requests[3]?.status === "fulfilled") setAutoPaperState(requests[3].value || null);
 
       if (requests[0].status === "rejected" && requests[1].status === "rejected") {
         setApiError("PolyEdge API unavailable");
@@ -264,6 +326,43 @@ export default function PolyEdgeReferenceOnePage() {
       setCapitalMessage(json.message || "Capital updated.");
     } catch (err: any) {
       setCapitalMessage(err?.message || "Capital update failed.");
+    }
+  }
+
+  async function quickAddCapital(type: "real" | "paper", amount: number) {
+    setCapitalMessage("");
+
+    try {
+      const res = await fetch("/api/polyedge/capital/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, amount, note: type === "paper" ? "quick paper boost" : "quick real tracking" }),
+      });
+
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Capital update failed.");
+
+      setCapitalState(json.state);
+      setCapitalMessage(json.message || "Capital updated.");
+    } catch (err: any) {
+      setCapitalMessage(err?.message || "Capital update failed.");
+    }
+  }
+
+  async function callAutoPaper(action: "start-fast" | "stop" | "tick") {
+    setAutoPaperMessage("");
+
+    try {
+      const res = await fetch(`/api/polyedge/auto-paper/${action}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const json = await res.json();
+      setAutoPaperState(json.state ? { ...json.state, learning: json.learning } : json);
+      setAutoPaperMessage(json.lastReason || json.state?.lastReason || json.opened?.reason || json.error || "Auto paper updated.");
+    } catch (err: any) {
+      setAutoPaperMessage(err?.message || "Auto paper action failed.");
     }
   }
 
@@ -544,6 +643,124 @@ export default function PolyEdgeReferenceOnePage() {
         @keyframes ecgMoveCorrectDirection {
           from { transform: translateX(260px); }
           to { transform: translateX(-260px); }
+        }
+
+        .ecg-real-monitor {
+          position: relative;
+          width: 100%;
+          height: 15px;
+          margin-top: 1px;
+          overflow: hidden;
+          background:
+            linear-gradient(rgba(33,255,130,.09) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(33,255,130,.07) 1px, transparent 1px),
+            rgba(0, 12, 5, .55);
+          background-size: 12px 8px, 12px 8px, auto;
+          box-shadow:
+            inset 0 0 10px rgba(33,255,130,.10),
+            0 0 6px rgba(33,255,130,.08);
+        }
+
+        .ecg-real-monitor.compact {
+          height: 12px;
+        }
+
+        .ecg-real-svg {
+          display: block;
+          width: 100%;
+          height: 100%;
+        }
+
+        .ecg-baseline {
+          stroke: rgba(33,255,130,.34);
+          stroke-width: 1.3;
+        }
+
+        .ecg-baseline.safe {
+          stroke: rgba(255,209,102,.45);
+        }
+
+        .ecg-baseline.fault {
+          stroke: rgba(255,77,109,.55);
+        }
+
+        .ecg-wave-run {
+          animation: ecgRealSweep var(--ecg-duration, 9s) linear infinite;
+          animation-delay: var(--ecg-delay, 0s);
+          will-change: transform;
+        }
+
+        .ecg-wave {
+          fill: none;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+          stroke-width: 2.7;
+          animation: ecgRealGlow 1.05s ease-in-out infinite;
+        }
+
+        .ecg-wave-run.live .ecg-wave {
+          stroke: #21ff82;
+          filter:
+            drop-shadow(0 0 5px rgba(33,255,130,.95))
+            drop-shadow(0 0 13px rgba(33,255,130,.65));
+        }
+
+        .ecg-wave-run.safe .ecg-wave {
+          stroke: #ffd166;
+          stroke-width: 1.8;
+          opacity: .82;
+          animation: ecgSafeGlow 2.2s ease-in-out infinite;
+          filter: drop-shadow(0 0 5px rgba(255,209,102,.55));
+        }
+
+        .ecg-sweep-dot {
+          fill: #caffdd;
+          filter:
+            drop-shadow(0 0 5px rgba(33,255,130,1))
+            drop-shadow(0 0 13px rgba(33,255,130,.85));
+          animation: ecgDotPulse .8s ease-in-out infinite;
+        }
+
+        .ecg-tiny-blip {
+          fill: none;
+          stroke-width: 1.7;
+          stroke: rgba(255,77,109,.78);
+          filter: drop-shadow(0 0 5px rgba(255,77,109,.6));
+          animation: ecgSafeGlow 2.8s ease-in-out infinite;
+        }
+
+        @keyframes ecgRealSweep {
+          from { transform: translateX(0); }
+          to { transform: translateX(-260px); }
+        }
+
+        @keyframes ecgRealGlow {
+          0%, 100% {
+            opacity: .72;
+            stroke-width: 2.5;
+          }
+          42% {
+            opacity: 1;
+            stroke-width: 4.1;
+          }
+          56% {
+            opacity: .94;
+            stroke-width: 3.3;
+          }
+        }
+
+        @keyframes ecgSafeGlow {
+          0%, 100% {
+            opacity: .35;
+          }
+          48% {
+            opacity: .88;
+          }
+        }
+
+        @keyframes ecgDotPulse {
+          0%, 100% { opacity: .45; transform: scale(.8); }
+          50% { opacity: 1; transform: scale(1.35); }
         }
 
         .ecg-bars {
@@ -889,6 +1106,33 @@ export default function PolyEdgeReferenceOnePage() {
           background: rgba(34,211,238,.18);
         }
 
+        .capital-quick-buttons {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 3px;
+          margin-top: 3px;
+        }
+
+        .capital-quick-buttons button,
+        .auto-paper-buttons button {
+          min-width: 0;
+          height: 20px;
+          border: 1px solid rgba(34,211,238,.24);
+          background: rgba(0,0,0,.48);
+          color: rgb(190,255,255);
+          font-size: 6.5px;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: .08em;
+        }
+
+        .auto-paper-buttons {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 3px;
+          margin-top: 3px;
+        }
+
         @media (max-width: 900px) {
           html, body, #root {
             overflow: auto !important;
@@ -1118,7 +1362,7 @@ export default function PolyEdgeReferenceOnePage() {
             </div>
           </Panel>
 
-          <Panel title="Capital Control // Real + Paper" className="col-span-3">
+          <Panel title="Capital + Auto Paper Control" className="col-span-4">
             <div className="grid grid-cols-2 gap-1 text-[8px]">
               <div className="mini-box">
                 <div className="text-cyan-100/45">REAL MONEY</div>
@@ -1155,8 +1399,20 @@ export default function PolyEdgeReferenceOnePage() {
               <button type="button" onClick={resetPaperCapital}>Reset Paper</button>
             </div>
 
+            <div className="capital-quick-buttons">
+              <button type="button" onClick={() => quickAddCapital("paper", 1000)}>+1K Paper</button>
+              <button type="button" onClick={() => quickAddCapital("paper", 10000)}>+10K Paper</button>
+              <button type="button" onClick={() => quickAddCapital("real", 1000)}>+1K Real</button>
+            </div>
+
+            <div className="auto-paper-buttons">
+              <button type="button" onClick={() => callAutoPaper("start-fast")}>Start Fast</button>
+              <button type="button" onClick={() => callAutoPaper("tick")}>Tick Now</button>
+              <button type="button" onClick={() => callAutoPaper("stop")}>Stop</button>
+            </div>
+
             <div className="mt-1 truncate text-[7px] text-amber-300">
-              {capitalMessage || "Real money is recorded only — no funds move."}
+              {capitalMessage || autoPaperMessage || autoPaperState?.lastReason || "Paper-only auto learning ready."}
             </div>
           </Panel>
           <Panel title="Multiverse Simulation" className="col-span-2">
@@ -1169,7 +1425,7 @@ export default function PolyEdgeReferenceOnePage() {
             </div>
           </Panel>
 
-          <Panel title="Hyper Liquidity Depth" className="col-span-4">
+          <Panel title="Hyper Liquidity Depth" className="col-span-3">
             <div className="liquidity-stage">
               {(statusBars.length ? statusBars : [22, 36, 48, 32, 58, 44, 70, 62, 38, 55, 46, 64, 34, 52, 76, 42, 60, 49, 66, 37, 54, 71]).map((h, i) => (
                 <span
@@ -1262,7 +1518,7 @@ export default function PolyEdgeReferenceOnePage() {
             <span><b className="text-emerald-300">MAX DD:</b> {maxDd}</span>
             <span><b className="text-emerald-300">WIN RATE:</b> {winRate}</span>
             <span><b className="text-purple-300">PF:</b> {profitFactor}</span>
-            <span><b className="text-cyan-300">HEART:</b> PULSING ECG</span>
+            <span><b className="text-cyan-300">HEART:</b> REAL ECG PULSE</span>
             <span><b className="text-amber-300">SAFE:</b> {safe}</span>
           </section>
         </main>
