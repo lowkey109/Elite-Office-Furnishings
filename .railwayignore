@@ -22,3 +22,9 @@ catalog-images
 uploads
 zin9tXLq
 .local
+
+# Heavy public static catalog/media assets
+client/public/catalog
+client/public/catalog-assets
+client/public/catalog-staging
+client/public/images/blog
