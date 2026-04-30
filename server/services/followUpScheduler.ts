@@ -5,6 +5,7 @@ import type { FollowUpSequence } from "@shared/schema";
 // Internal email sender that uses the Resend API directly
 // (to avoid circular import with email.ts)
 import { Resend } from "resend";
+import { assertNexoraExecutionApproved } from "./intelligence/nexora/nexoraExecutionGate";
 
 function getResend(): Resend | null {
   if (!process.env.RESEND_API_KEY) return null;
@@ -54,7 +55,27 @@ export async function runFollowUpScheduler(): Promise<void> {
         }
 
         // Send the email for this stage
+        const gate = assertNexoraExecutionApproved({
+          moduleKey: "follow_up",
+          intent: "send_message",
+          requestedBy: "nexora",
+          reason: `Nexora approved follow-up stage ${nextStage} for ${seq.leadCompany || seq.leadEmail}`,
+          evidence: {
+            sequenceId: seq.id,
+            leadEmail: seq.leadEmail,
+            leadCompany: seq.leadCompany,
+            stage: nextStage,
+            source: "follow_up_scheduler",
+          },
+        });
+
         await sendFollowUpEmail(seq, nextStage, internalSendEmail);
+        console.log("[Nexora FollowUp] Sent through execution gate", {
+          sequenceId: seq.id,
+          stage: nextStage,
+          decision: gate.decision,
+          empireScore: gate.empireScore?.empireScore,
+        });
 
         // Calculate next send time
         const isLastStage = nextStage >= TOTAL_STAGES;
