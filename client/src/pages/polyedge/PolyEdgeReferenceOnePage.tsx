@@ -446,19 +446,24 @@ export default function PolyEdgeReferenceOnePage() {
 
         .beat-scroll.live path {
           stroke: #21ff82;
-          filter: drop-shadow(0 0 5px rgba(33,255,130,.75));
+          filter:
+            drop-shadow(0 0 5px rgba(33,255,130,.75))
+            drop-shadow(0 0 12px rgba(33,255,130,.48));
+          animation: ecgLivePulse 1.05s ease-in-out infinite;
         }
 
         .beat-scroll.safe path {
           stroke: #ffd166;
           stroke-width: 2;
           filter: drop-shadow(0 0 4px rgba(255,209,102,.55));
+          animation: ecgSafePulse 2.4s ease-in-out infinite;
         }
 
         .beat-scroll {
-          animation: ecgMoveCorrectDirection var(--ecg-duration, 12s) linear infinite;
+          animation: ecgMoveRightToLeft var(--ecg-duration, 12s) linear infinite;
           animation-delay: var(--ecg-delay, 0s);
           transform-box: fill-box;
+          will-change: transform;
         }
 
         .beat-scroll.safe {
@@ -494,6 +499,41 @@ export default function PolyEdgeReferenceOnePage() {
           background: linear-gradient(to top, #a21caf, #22d3ee, #fff);
           box-shadow: 0 0 6px rgba(34,211,238,.55);
           animation: barPulse 1.4s ease-in-out infinite alternate;
+        }
+
+        @keyframes ecgLivePulse {
+          0%, 100% {
+            opacity: .68;
+            stroke-width: 2.6;
+            filter:
+              drop-shadow(0 0 4px rgba(33,255,130,.55))
+              drop-shadow(0 0 9px rgba(33,255,130,.30));
+          }
+          38% {
+            opacity: 1;
+            stroke-width: 4.2;
+            filter:
+              drop-shadow(0 0 8px rgba(33,255,130,1))
+              drop-shadow(0 0 18px rgba(33,255,130,.75));
+          }
+          54% {
+            opacity: .92;
+            stroke-width: 3.4;
+            filter:
+              drop-shadow(0 0 6px rgba(33,255,130,.8))
+              drop-shadow(0 0 14px rgba(33,255,130,.55));
+          }
+        }
+
+        @keyframes ecgSafePulse {
+          0%, 100% {
+            opacity: .38;
+            stroke-width: 1.6;
+          }
+          45% {
+            opacity: .78;
+            stroke-width: 2.4;
+          }
         }
 
         @keyframes barPulse {
@@ -896,7 +936,7 @@ export default function PolyEdgeReferenceOnePage() {
             <span><b className="text-emerald-300">MAX DD:</b> {maxDd}</span>
             <span><b className="text-emerald-300">WIN RATE:</b> {winRate}</span>
             <span><b className="text-purple-300">PF:</b> {profitFactor}</span>
-            <span><b className="text-cyan-300">HEART:</b> CONNECTION ECG</span>
+            <span><b className="text-cyan-300">HEART:</b> PULSING ECG</span>
             <span><b className="text-amber-300">SAFE:</b> {safe}</span>
           </section>
         </main>
