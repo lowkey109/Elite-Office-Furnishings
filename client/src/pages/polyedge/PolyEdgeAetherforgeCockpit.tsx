@@ -333,7 +333,7 @@ function PolySystemHeartMonitor({
   const dots = ".".repeat((heartbeatTick % 3) + 1);
 
   return (
-    <HoloPanel title="Poly System Heart Monitor" icon={Activity} className="polyedge-hide-old-panels col-span-12 xl:col-span-6">
+    <HoloPanel title="Poly System Heart Monitor" icon={Activity} className=" col-span-12 xl:col-span-6">
       <style>{`
         @keyframes poly-ecg-run {
           from { transform: translateX(-50%); }
@@ -418,7 +418,7 @@ function ReplayEngineMonitor({
   const status = stalled ? "STALLED" : running ? "RUNNING" : "IDLE";
 
   return (
-    <HoloPanel title="Replay Engine Monitor" icon={Radar} className="polyedge-hide-old-panels col-span-12 xl:col-span-6">
+    <HoloPanel title="Replay Engine Monitor" icon={Radar} className=" col-span-12 xl:col-span-6">
       <style>{`
         @keyframes replay-orbit-spin {
           from { transform: rotate(0deg); }
@@ -1350,7 +1350,7 @@ function PolyEdgeActionMonitorGrid({
           max-height: calc(100vh - 24px);
           overflow: hidden;
         }
-        .polyedge-hide-old-panels {
+        . {
           display: none !important;
         }
 
@@ -1398,7 +1398,7 @@ function PolyEdgeActionMonitorGrid({
 
         .polyedge-reference-fit-final { display: none; }
 
-        .polyedge-hide-old-panels {
+        . {
           display: none !important;
         }
 
@@ -1442,7 +1442,7 @@ function PolyEdgeActionMonitorGrid({
 
         .polyedge-true-fullscreen-final { display: none; }
 
-        .polyedge-hide-old-panels {
+        . {
           display: none !important;
         }
 
@@ -1490,7 +1490,7 @@ function PolyEdgeActionMonitorGrid({
 
         .polyedge-kiosk-final-fix { display: none; }
 
-        .polyedge-hide-old-panels {
+        . {
           display: none !important;
         }
 
@@ -1568,7 +1568,7 @@ function PolyEdgeActionMonitorGrid({
 
         .polyedge-fullscreen-page-final { display: none; }
 
-        .polyedge-hide-old-panels {
+        . {
           display: none !important;
         }
 
@@ -1619,7 +1619,7 @@ function PolyEdgeActionMonitorGrid({
 
         .polyedge-cockpit-only-final { display: none; }
 
-        .polyedge-hide-old-panels {
+        . {
           display: none !important;
         }
 
@@ -1687,6 +1687,104 @@ function PolyEdgeActionMonitorGrid({
           #root {
             height: auto !important;
             overflow: auto !important;
+          }
+        }
+
+        .polyedge-shrink-whole-cockpit-final { display: none; }
+
+        @media (min-width: 768px) {
+          .polyedge-shrink-whole-cockpit {
+            --polyedge-whole-scale: .72;
+            width: calc(100vw / var(--polyedge-whole-scale)) !important;
+            height: calc(100dvh / var(--polyedge-whole-scale)) !important;
+            transform: scale(var(--polyedge-whole-scale));
+            transform-origin: top left;
+            overflow: hidden !important;
+          }
+
+          .polyedge-cockpit-only-root {
+            overflow: hidden !important;
+          }
+        }
+
+        @media (min-width: 1400px) {
+          .polyedge-shrink-whole-cockpit {
+            --polyedge-whole-scale: .78;
+          }
+        }
+
+        @media (max-width: 767px) {
+          .polyedge-shrink-whole-cockpit {
+            width: 100% !important;
+            height: auto !important;
+            transform: none !important;
+          }
+        }
+
+        .polyedge-restore-all-fit-final { display: none; }
+
+        @media (min-width: 768px) {
+          html:has(.poly-final-root),
+          body.polyedge-restore-all-fit-mode,
+          body.polyedge-restore-all-fit-mode #root {
+            width: 100vw !important;
+            height: 100dvh !important;
+            max-width: 100vw !important;
+            max-height: 100dvh !important;
+            overflow: hidden !important;
+            background: #000 !important;
+          }
+
+          body.polyedge-restore-all-fit-mode {
+            position: fixed !important;
+            inset: 0 !important;
+          }
+
+          body.polyedge-restore-all-fit-mode #root > * {
+            --polyedge-restore-scale: .62;
+            width: calc(100vw / var(--polyedge-restore-scale)) !important;
+            height: calc(100dvh / var(--polyedge-restore-scale)) !important;
+            max-width: none !important;
+            max-height: none !important;
+            overflow: hidden !important;
+            transform: scale(var(--polyedge-restore-scale));
+            transform-origin: top left;
+          }
+
+          body.polyedge-restore-all-fit-mode .poly-final-root,
+          body.polyedge-restore-all-fit-mode .polyedge-fullscreen-page,
+          body.polyedge-restore-all-fit-mode .polyedge-kiosk-root,
+          body.polyedge-restore-all-fit-mode .polyedge-cockpit-only-root {
+            position: relative !important;
+            inset: auto !important;
+            width: 100% !important;
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+            border-radius: 0 !important;
+          }
+
+          body.polyedge-restore-all-fit-mode .poly-final-glass {
+            min-height: 0 !important;
+          }
+        }
+
+        @media (min-width: 1400px) {
+          body.polyedge-restore-all-fit-mode #root > * {
+            --polyedge-restore-scale: .68;
+          }
+        }
+
+        @media (max-width: 767px) {
+          body.polyedge-restore-all-fit-mode {
+            position: static !important;
+            overflow: auto !important;
+          }
+
+          body.polyedge-restore-all-fit-mode #root > * {
+            width: 100% !important;
+            height: auto !important;
+            transform: none !important;
           }
         }
 
@@ -1834,7 +1932,9 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
   const [learning, setLearning] = useState<PolyEdgeLearningResponse | null>(null);
   useEffect(() => {
     document.body.classList.add("polyedge-kiosk-mode");
+    document.body.classList.add("polyedge-restore-all-fit-mode");
     return () => document.body.classList.remove("polyedge-kiosk-mode");
+      document.body.classList.remove("polyedge-restore-all-fit-mode");
   }, []);
 
   const [replayStatus, setReplayStatus] = useState<PolyEdgeReplayStatus | null>(null);
@@ -2061,7 +2161,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
   // This keeps ECG/heartbeat logic but removes the old top/status page that was pushing the cockpit down.
   if (false) {
     return (
-      <div className="polyedge-cockpit-only-root h-screen w-screen overflow-hidden bg-black p-0 text-white">
+      <div className="polyedge-cockpit-only-root fixed inset-0 z-[2147483647] h-[100dvh] w-[100vw] overflow-hidden bg-black p-0 text-white">
         <style>{`
           .polyedge-cockpit-only-root {
             background:
@@ -2079,7 +2179,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
             background: #000 !important;
           }
 
-          .polyedge-hide-old-panels {
+          . {
             display: none !important;
           }
 
@@ -2103,7 +2203,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
           }
         `}</style>
 
-        <div className="grid h-full w-full grid-cols-12 gap-1 overflow-hidden p-1">
+        <div className="polyedge-shrink-whole-cockpit grid h-[100dvh] w-[100vw] grid-cols-12 gap-1 overflow-hidden p-1">
           <PolyEdgeActionMonitorGrid actionMonitor={actionMonitor} replayStatus={replayStatus} />
         </div>
       </div>
@@ -2177,7 +2277,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
           ) : null}
 
           <section className="grid grid-cols-12 gap-4">
-            <HoloPanel title="Hyperdimensional Equity Manifold" icon={TrendingUp} className="polyedge-hide-old-panels col-span-12 xl:col-span-7">
+            <HoloPanel title="Hyperdimensional Equity Manifold" icon={TrendingUp} className=" col-span-12 xl:col-span-7">
               <div className="h-[320px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={equityCurve}>
@@ -2207,7 +2307,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               </div>
             </HoloPanel>
 
-            <HoloPanel title="Quantum Market Sentiment Matrix" icon={Radar} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
+            <HoloPanel title="Quantum Market Sentiment Matrix" icon={Radar} className=" col-span-12 xl:col-span-3">
               <div className="flex h-[320px] flex-col items-center justify-center">
                 <div className="relative h-52 w-52 rounded-full border border-cyan-300/30 bg-cyan-300/5 shadow-[0_0_45px_rgba(34,240,255,0.18)]">
                   <div className="absolute inset-8 rounded-full border border-fuchsia-300/25" />
@@ -2224,7 +2324,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               </div>
             </HoloPanel>
 
-            <HoloPanel title="Alpha Signals Feed" icon={Zap} className="polyedge-hide-old-panels col-span-12 xl:col-span-2">
+            <HoloPanel title="Alpha Signals Feed" icon={Zap} className=" col-span-12 xl:col-span-2">
               <div className="space-y-2">
                 {outcomes.slice(0, 8).map((row: any, i: number) => {
                   const pnl = getPnl(row);
@@ -2245,7 +2345,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
             </HoloPanel>
 
             {false ? (
-              <HoloPanel title="Fast Paper Replay Factory" icon={Zap} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
+              <HoloPanel title="Fast Paper Replay Factory" icon={Zap} className=" col-span-12 xl:col-span-3">
                 <div className="mb-3 grid grid-cols-2 gap-1.5">
                   <Metric
                     label="Qualified Winners"
@@ -2325,7 +2425,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               lastReplayProgressAt={lastReplayProgressAt}
             />
 
-            <HoloPanel title="Neural Learning Core" icon={Brain} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
+            <HoloPanel title="Neural Learning Core" icon={Brain} className=" col-span-12 xl:col-span-3">
               <div className="mb-3 grid grid-cols-2 gap-1.5">
                 <Metric label="Learning Score" value={num(learning?.summary?.globalLearningScore)} good={(learning?.summary?.globalLearningScore || 0) >= 60} />
                 <Metric label="Outcome Samples" value={num(learning?.summary?.outcomeSamples)} />
@@ -2364,14 +2464,14 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               </div>
             </HoloPanel>
 
-            <HoloPanel title="Sentient Agent Mesh" icon={Brain} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
+            <HoloPanel title="Sentient Agent Mesh" icon={Brain} className=" col-span-12 xl:col-span-3">
               <Agent name="NEXORA" value={data?.nexora?.loopEnabled ? "ONLINE" : "STANDBY"} />
               <Agent name="PHANTOM X" value="PAPER MODE" />
               <Agent name="PROOF ENGINE" value={proofPassed ? "PASSED" : "LEARNING"} />
               <Agent name="LIVE EXECUTION" value={liveBlocked ? "BLOCKED" : "AUTHORIZED"} danger={liveBlocked} />
             </HoloPanel>
 
-            <HoloPanel title="Capital Allocation // Real Paper Outcomes" icon={Cpu} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
+            <HoloPanel title="Capital Allocation // Real Paper Outcomes" icon={Cpu} className=" col-span-12 xl:col-span-3">
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={barData}>
@@ -2388,7 +2488,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               </div>
             </HoloPanel>
 
-            <HoloPanel title="Risk Fortress Status" icon={Shield} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
+            <HoloPanel title="Risk Fortress Status" icon={Shield} className=" col-span-12 xl:col-span-3">
               <Risk label="Safe Mode" value={data?.runtime?.safeMode ? "ON" : "OFF"} good={data?.runtime?.safeMode !== false} />
               <Risk label="Emergency Stop" value={data?.runtime?.emergencyStop ? "ARMED" : "CLEAR"} good={!data?.runtime?.emergencyStop} />
               <Risk label="Live Kill Switch" value={data?.runtime?.liveTradingKillSwitch ? "ARMED" : "CLEAR"} good={!data?.runtime?.liveTradingKillSwitch} />
@@ -2396,7 +2496,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               <Risk label="Nexora Gate" value={data?.nexora?.gateRequired ? "REQUIRED" : "UNKNOWN"} good={data?.nexora?.gateRequired !== false} />
             </HoloPanel>
 
-            <HoloPanel title="Decision Stream // Nexora Log" icon={Activity} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
+            <HoloPanel title="Decision Stream // Nexora Log" icon={Activity} className=" col-span-12 xl:col-span-3">
               <div className="space-y-2 text-xs">
                 {outcomes.slice(0, 8).map((row: any, i: number) => (
                   <div key={row?.id || i} className="grid grid-cols-3 gap-1.5 border-b border-cyan-400/10 pb-1">
@@ -2411,7 +2511,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               </div>
             </HoloPanel>
 
-            <HoloPanel title="Customer Safety / Disclosure" icon={Eye} className="polyedge-hide-old-panels col-span-12 !m-0 !p-0">
+            <HoloPanel title="Customer Safety / Disclosure" icon={Eye} className=" col-span-12 !m-0 !p-0">
               <div className="grid gap-1.5 text-sm text-cyan-100/75 xl:grid-cols-3">
                 <div>{data?.customerDisclaimer || "Paper trading intelligence only. Not financial advice."}</div>
                 <div>All execution paths remain subject to Nexora governance and policy gates.</div>
