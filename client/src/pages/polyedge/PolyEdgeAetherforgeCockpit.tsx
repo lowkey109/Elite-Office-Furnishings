@@ -494,15 +494,21 @@ function ReplayEngineMonitor({
 
 
 
+
 function realValue(value: unknown, fallback = "WAITING") {
   if (value === null || value === undefined || value === "") return fallback;
   if (typeof value === "number" && !Number.isFinite(value)) return fallback;
   return String(value);
 }
 
-function realMoney(value: unknown, fallback = "WAITING") {
+function realNumber(value: unknown): number | null {
   const n = typeof value === "number" ? value : Number(value);
-  if (!Number.isFinite(n)) return fallback;
+  return Number.isFinite(n) ? n : null;
+}
+
+function realMoney(value: unknown, fallback = "WAITING") {
+  const n = realNumber(value);
+  if (n === null) return fallback;
   return new Intl.NumberFormat("en-AU", {
     style: "currency",
     currency: "USD",
@@ -511,8 +517,8 @@ function realMoney(value: unknown, fallback = "WAITING") {
 }
 
 function realPct(value: unknown, fallback = "WAITING") {
-  const n = typeof value === "number" ? value : Number(value);
-  if (!Number.isFinite(n)) return fallback;
+  const n = realNumber(value);
+  if (n === null) return fallback;
   return `${Math.round(n * 100) / 100}%`;
 }
 
@@ -520,12 +526,13 @@ function statusTone(state?: string) {
   if (state === "online" || state === "running") {
     return {
       label: "LIVE",
-      long: "SINGULARITY ONLINE",
-      text: "text-emerald-400",
-      stroke: "#67e8f9",
-      glow: "rgba(103,232,249,.9)",
-      dot: "bg-emerald-400",
-      panel: "border-emerald-400/50",
+      long: "ONLINE",
+      text: "text-emerald-300",
+      border: "border-emerald-300/45",
+      dot: "bg-emerald-300",
+      stroke: "#67f9c7",
+      glow: "rgba(103,249,199,.85)",
+      fill: "rgba(16,185,129,.13)",
     };
   }
 
@@ -533,208 +540,292 @@ function statusTone(state?: string) {
     return {
       label: state === "idle" ? "IDLE" : "SAFE",
       long: state === "idle" ? "STANDBY" : "SAFE LOCKED",
-      text: "text-amber-400",
-      stroke: "#fbbf24",
-      glow: "rgba(251,191,36,.8)",
-      dot: "bg-amber-400",
-      panel: "border-amber-400/45",
+      text: "text-amber-300",
+      border: "border-amber-300/45",
+      dot: "bg-amber-300",
+      stroke: "#ffd166",
+      glow: "rgba(255,209,102,.78)",
+      fill: "rgba(255,209,102,.12)",
     };
   }
 
   return {
     label: "FAULT",
     long: "FAULT",
-    text: "text-red-400",
-    stroke: "#fb7185",
-    glow: "rgba(251,113,133,.8)",
-    dot: "bg-red-400",
-    panel: "border-red-400/45",
+    text: "text-red-300",
+    border: "border-red-300/45",
+    dot: "bg-red-300",
+    stroke: "#ff4d6d",
+    glow: "rgba(255,77,109,.82)",
+    fill: "rgba(255,77,109,.12)",
   };
 }
 
-function TerminalGlass({ children, className = "" }: { children: any; className?: string }) {
+function QuantumGlass({ children, className = "" }: { children: any; className?: string }) {
   return (
-    <div className={`poly-terminal-glass relative overflow-hidden rounded-3xl border border-cyan-400/30 bg-slate-950/65 p-6 backdrop-blur-xl ${className}`}>
-      <div className="pointer-events-none absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(103,232,249,.15) 1px, transparent 1px), linear-gradient(90deg, rgba(103,232,249,.08) 1px, transparent 1px)", backgroundSize: "34px 34px" }} />
-      <div className="poly-terminal-scan pointer-events-none absolute inset-0" />
+    <div className={`poly-final-glass relative overflow-hidden rounded-[22px] border border-cyan-300/25 bg-slate-950/65 p-3 backdrop-blur-xl ${className}`}>
+      <div className="pointer-events-none absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(103,232,249,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(103,232,249,.08) 1px, transparent 1px)", backgroundSize: "30px 30px" }} />
+      <div className="poly-final-scan pointer-events-none absolute inset-0" />
       <div className="relative z-10 h-full">{children}</div>
     </div>
   );
 }
 
-function TerminalPanelTitle({ title, right }: { title: string; right?: any }) {
+function QuantumTitle({ title, right }: { title: string; right?: any }) {
   return (
-    <div className="mb-4 flex items-center justify-between">
-      <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-white">{title}</h3>
-      {right || <span className="text-xs font-black uppercase text-emerald-400">LIVE</span>}
+    <div className="mb-2 flex items-center justify-between">
+      <div className="truncate text-[10px] font-black uppercase tracking-[0.2em] text-cyan-100">{title}</div>
+      {right || <span className="text-[9px] font-black uppercase text-emerald-300">LIVE</span>}
     </div>
   );
 }
 
-function TerminalEquityChart({ monitors, metrics }: { monitors: PolyEdgeActionMonitorItem[]; metrics?: any }) {
-  const active = monitors.filter((m) => m.state === "online" || m.state === "running").length;
-  const fault = monitors.filter((m) => m.state === "offline" || m.state === "timeout" || m.state === "stalled").length;
+function MiniTrace({ monitor }: { monitor: any }) {
+  const t = statusTone(monitor?.state);
+  const moving = monitor?.moving === true;
 
-  return (
-    <div className="relative h-64 w-full">
-      <svg className="h-full w-full" viewBox="0 0 860 260" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="terminalEquity" x1="0" x2="1">
-            <stop offset="0%" stopColor="#67e8f9" stopOpacity=".35" />
-            <stop offset="65%" stopColor="#67e8f9" stopOpacity="1" />
-            <stop offset="100%" stopColor="#ffffff" stopOpacity=".95" />
-          </linearGradient>
-          <linearGradient id="terminalEquityFill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#67e8f9" stopOpacity=".22" />
-            <stop offset="100%" stopColor="#67e8f9" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-
-        {Array.from({ length: 7 }).map((_, i) => (
-          <line key={"h" + i} x1="0" x2="860" y1={25 + i * 34} y2={25 + i * 34} stroke="rgba(255,255,255,.06)" />
-        ))}
-        {Array.from({ length: 12 }).map((_, i) => (
-          <line key={"v" + i} x1={i * 78} x2={i * 78} y1="0" y2="260" stroke="rgba(255,255,255,.045)" />
-        ))}
-
-        <path
-          d="M0 224 L55 210 L110 198 L165 186 L220 166 L275 174 L330 136 L385 149 L440 112 L495 96 L550 72 L605 84 L660 48 L715 40 L770 24 L825 31 L860 12 L860 260 L0 260 Z"
-          fill="url(#terminalEquityFill)"
-        />
-
-        <polyline
-          points="0,224 55,210 110,198 165,186 220,166 275,174 330,136 385,149 440,112 495,96 550,72 605,84 660,48 715,40 770,24 825,31 860,12"
-          fill="none"
-          stroke="url(#terminalEquity)"
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{ filter: "drop-shadow(0 0 13px rgba(103,232,249,.95))", animation: "poly-terminal-dash 2.2s linear infinite" }}
-        />
-
-        <polyline
-          points="0,238 55,222 110,216 165,206 220,188 275,194 330,170 385,178 440,152 495,138 550,120 605,128 660,98 715,90 770,76 825,82 860,61"
-          fill="none"
-          stroke="#c026d3"
-          strokeWidth="2"
-          strokeLinecap="round"
-          style={{ filter: "drop-shadow(0 0 8px rgba(192,38,211,.85))" }}
-        />
-      </svg>
-
-      <div className="absolute bottom-1 left-0 right-0 grid grid-cols-4 gap-2 text-xs">
-        <div className="rounded-xl border border-cyan-400/20 bg-black/30 px-3 py-2">
-          <div className="text-slate-400">TOTAL TRADES</div>
-          <div className="font-black text-white">{realValue(metrics?.totalPaperTrades)}</div>
-        </div>
-        <div className="rounded-xl border border-cyan-400/20 bg-black/30 px-3 py-2">
-          <div className="text-slate-400">REAL PNL</div>
-          <div className="font-black text-cyan-300">{realMoney(metrics?.totalPnl)}</div>
-        </div>
-        <div className="rounded-xl border border-emerald-400/20 bg-black/30 px-3 py-2">
-          <div className="text-slate-400">ACTIVE</div>
-          <div className="font-black text-emerald-400">{active}</div>
-        </div>
-        <div className="rounded-xl border border-red-400/20 bg-black/30 px-3 py-2">
-          <div className="text-slate-400">FAULT</div>
-          <div className="font-black text-red-400">{fault}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function TerminalFlowChart() {
-  return (
-    <div className="relative h-52 overflow-hidden rounded-2xl border border-cyan-400/10 bg-black/35 p-3">
-      <div className="absolute inset-0 opacity-15" style={{ backgroundImage: "linear-gradient(rgba(103,232,249,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(103,232,249,.08) 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
-      <div className="relative z-10 flex h-full items-end gap-3">
-        {Array.from({ length: 24 }).map((_, i) => (
+  if (monitor?.kind === "market") {
+    return (
+      <div className="mt-2 flex h-8 items-end gap-[3px] overflow-hidden rounded-lg border border-cyan-300/10 bg-black/45 px-2 pb-1">
+        {Array.from({ length: 22 }).map((_, i) => (
           <span
             key={i}
-            className="flex-1 rounded-t-xl bg-gradient-to-t from-fuchsia-800 via-fuchsia-500 to-cyan-200"
+            className="w-1 rounded-t bg-gradient-to-t from-fuchsia-700 via-cyan-300 to-white"
             style={{
-              height: `${34 + ((i * 17) % 132)}px`,
-              filter: "drop-shadow(0 0 12px rgba(192,38,211,.8))",
-              animation: `poly-terminal-bars ${0.7 + (i % 7) * 0.07}s ease-in-out infinite alternate`,
+              height: `${7 + ((i * 13) % 26)}px`,
+              filter: `drop-shadow(0 0 7px ${t.glow})`,
+              animation: moving ? `poly-final-bars ${0.55 + (i % 6) * 0.08}s ease-in-out infinite alternate` : undefined,
             }}
           />
         ))}
       </div>
+    );
+  }
+
+  return (
+    <div className="mt-2 h-8 overflow-hidden rounded-lg border border-cyan-300/10 bg-black/45">
+      <svg className="h-full w-[135%]" viewBox="0 0 320 40" preserveAspectRatio="none">
+        <polyline
+          points={moving ? "0,24 24,24 36,10 49,31 61,24 96,24 112,12 127,30 140,24 176,24 190,9 205,33 218,24 254,24 270,12 288,31 320,24" : "0,24 320,24"}
+          fill="none"
+          stroke={t.stroke}
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{
+            filter: `drop-shadow(0 0 8px ${t.glow})`,
+            animation: moving ? "poly-final-ecg .95s linear infinite" : undefined,
+          }}
+        />
+      </svg>
     </div>
   );
 }
 
-function TerminalUniverse() {
-  return (
-    <div className="relative h-52 overflow-hidden rounded-2xl border border-cyan-400/10 bg-black/35">
-      <div className="absolute inset-0 flex items-center justify-center text-8xl opacity-20">🌌</div>
-      <div className="absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-purple-500 via-cyan-400 to-emerald-400 blur-3xl opacity-70" style={{ animation: "poly-terminal-soft-pulse 2.4s ease-in-out infinite" }} />
-      <div className="absolute left-1/2 top-1/2 h-36 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-300/30" style={{ transform: "translate(-50%,-50%) rotateX(68deg)", animation: "poly-terminal-orbit 8s linear infinite" }} />
-      <div className="absolute left-1/2 top-1/2 h-24 w-52 -translate-x-1/2 -translate-y-1/2 rounded-full border border-fuchsia-400/30" style={{ transform: "translate(-50%,-50%) rotateX(68deg)", animation: "poly-terminal-orbit 5s linear infinite reverse" }} />
-      <div className="absolute inset-x-0 bottom-6 text-center text-xs text-cyan-300">PORTFOLIO UNIVERSE • STABLE</div>
-    </div>
-  );
-}
-
-function TerminalSentiment({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
-  const active = monitors.filter((m) => m.state === "online" || m.state === "running").length;
-  const bullish = Math.max(1, Math.min(99, Math.round((active / Math.max(1, monitors.length)) * 100)));
-  const neutral = Math.max(0, 100 - bullish);
+function MonitorTile({ monitor }: { monitor: any }) {
+  const t = statusTone(monitor?.state);
+  const value =
+    monitor?.kind === "market" && monitor?.value !== undefined
+      ? realMoney(monitor.value)
+      : t.label;
 
   return (
-    <div>
-      <TerminalPanelTitle title="Quantum Market Sentiment Matrix" />
-      <div className="mb-6 flex items-center justify-between">
-        <div className="text-center">
-          <div className="text-5xl font-black text-emerald-400">{bullish}%</div>
-          <div className="text-xs text-emerald-400">BULLISH</div>
+    <div className={`relative overflow-hidden rounded-xl border ${t.border} bg-black/35 p-2`} style={{ boxShadow: `inset 0 0 22px ${t.fill}` }}>
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <div className="truncate text-[10px] font-black uppercase tracking-[0.12em] text-white">{realValue(monitor?.label, "UNKNOWN")}</div>
+          <div className="truncate text-[8px] uppercase text-cyan-100/40">{realValue(monitor?.kind, "module")}</div>
         </div>
-
-        <div className="relative mx-auto flex h-32 w-32 items-center justify-center rounded-2xl border-4 border-purple-500 shadow-[0_0_36px_rgba(192,38,211,.65)]" style={{ animation: "poly-terminal-float 5s ease-in-out infinite" }}>
-          <div className="h-4 w-4 rounded-full bg-white shadow-[0_0_30px_#c026d3]" style={{ animation: "poly-terminal-soft-pulse 1s ease-in-out infinite" }} />
-          <div className="absolute inset-4 rotate-45 border border-cyan-300/35" />
-        </div>
-
-        <div className="text-center">
-          <div className="text-5xl font-black text-amber-400">{neutral}%</div>
-          <div className="text-xs text-amber-400">NEUTRAL</div>
+        <div className={`flex shrink-0 items-center gap-1 text-[8px] font-black uppercase ${t.text}`}>
+          <span className={`h-1.5 w-1.5 rounded-full ${t.dot}`} style={{ animation: monitor?.moving ? "poly-final-pulse .85s ease-in-out infinite" : undefined, boxShadow: `0 0 10px ${t.glow}` }} />
+          {value}
         </div>
       </div>
-      <div className="text-center text-xs text-red-400">BEARISH 3.2% • CHAOTIC 0.03%</div>
+      <MiniTrace monitor={monitor} />
     </div>
   );
 }
 
-function TerminalAllocation({ metrics }: { metrics?: any }) {
+function EquityPanel({ monitors, metrics }: { monitors: any[]; metrics: any }) {
+  const active = monitors.filter((m) => m.state === "online" || m.state === "running").length;
+  const fault = monitors.filter((m) => m.state === "offline" || m.state === "timeout" || m.state === "stalled").length;
+
   return (
-    <div>
-      <TerminalPanelTitle title="Capital Allocation // Hyperstructure" />
-      <div className="my-8 flex justify-center">
-        <div className="relative flex h-40 w-40 items-center justify-center">
-          <div className="absolute inset-0 rounded-full border-[18px] border-cyan-300/15" />
-          <div className="absolute inset-0 rounded-full border-[18px] border-transparent border-t-cyan-300 border-r-fuchsia-500 border-b-emerald-400" style={{ filter: "drop-shadow(0 0 16px rgba(103,232,249,.8))", animation: "poly-terminal-spin 7s linear infinite" }} />
-          <div className="text-center">
-            <div className="text-3xl font-black text-white">{realPct(metrics?.profitablePaperTradeProgressPct)}</div>
-            <div className="text-[10px] uppercase text-cyan-300">500-WIN PROGRESS</div>
+    <div className="h-full">
+      <div className="mb-2 flex items-start justify-between">
+        <div>
+          <div className="text-base font-semibold uppercase tracking-[0.08em] text-white">Hyperdimensional Equity Curve</div>
+          <div className="text-[10px] text-slate-400">
+            REAL PNL: {realMoney(metrics?.totalPnl)} • WIN RATE: {realPct(metrics?.winRate)} • PROFIT FACTOR: {realValue(metrics?.profitFactor)}
+          </div>
+        </div>
+        <div className="text-xs font-black uppercase text-emerald-300">LIVE</div>
+      </div>
+
+      <div className="relative h-[calc(100%-42px)]">
+        <svg className="h-full w-full" viewBox="0 0 920 260" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="polyFinalEquity" x1="0" x2="1">
+              <stop offset="0%" stopColor="#67e8f9" stopOpacity=".32" />
+              <stop offset="65%" stopColor="#67e8f9" stopOpacity="1" />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity=".95" />
+            </linearGradient>
+            <linearGradient id="polyFinalFill" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="#67e8f9" stopOpacity=".19" />
+              <stop offset="100%" stopColor="#67e8f9" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+
+          {Array.from({ length: 7 }).map((_, i) => (
+            <line key={"h" + i} x1="0" x2="920" y1={28 + i * 32} y2={28 + i * 32} stroke="rgba(255,255,255,.055)" />
+          ))}
+          {Array.from({ length: 12 }).map((_, i) => (
+            <line key={"v" + i} x1={i * 84} x2={i * 84} y1="0" y2="260" stroke="rgba(255,255,255,.04)" />
+          ))}
+
+          <path
+            d="M0 225 L60 211 L120 202 L180 188 L240 166 L300 174 L360 138 L420 149 L480 111 L540 94 L600 72 L660 83 L720 47 L780 39 L840 22 L900 29 L920 15 L920 260 L0 260 Z"
+            fill="url(#polyFinalFill)"
+          />
+
+          <polyline
+            points="0,225 60,211 120,202 180,188 240,166 300,174 360,138 420,149 480,111 540,94 600,72 660,83 720,47 780,39 840,22 900,29 920,15"
+            fill="none"
+            stroke="url(#polyFinalEquity)"
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ filter: "drop-shadow(0 0 13px rgba(103,232,249,.95))", animation: "poly-final-dash 2.2s linear infinite" }}
+          />
+
+          <polyline
+            points="0,238 60,224 120,217 180,206 240,190 300,197 360,172 420,181 480,155 540,141 600,123 660,130 720,98 780,91 840,76 900,83 920,70"
+            fill="none"
+            stroke="#c026d3"
+            strokeWidth="2"
+            strokeLinecap="round"
+            style={{ filter: "drop-shadow(0 0 8px rgba(192,38,211,.85))" }}
+          />
+        </svg>
+
+        <div className="absolute bottom-1 left-0 right-0 grid grid-cols-5 gap-2 text-[10px]">
+          <div className="rounded-lg border border-cyan-400/20 bg-black/40 px-2 py-1">
+            <div className="text-slate-400">TRADES</div>
+            <div className="font-black text-white">{realValue(metrics?.totalPaperTrades)}</div>
+          </div>
+          <div className="rounded-lg border border-cyan-400/20 bg-black/40 px-2 py-1">
+            <div className="text-slate-400">PNL</div>
+            <div className="font-black text-cyan-300">{realMoney(metrics?.totalPnl)}</div>
+          </div>
+          <div className="rounded-lg border border-emerald-400/20 bg-black/40 px-2 py-1">
+            <div className="text-slate-400">ACTIVE</div>
+            <div className="font-black text-emerald-300">{active}</div>
+          </div>
+          <div className="rounded-lg border border-amber-400/20 bg-black/40 px-2 py-1">
+            <div className="text-slate-400">WINS</div>
+            <div className="font-black text-amber-300">{realValue(metrics?.qualifiedProfitablePaperTrades, "0")} / {realValue(metrics?.requiredProfitablePaperTrades, "500")}</div>
+          </div>
+          <div className="rounded-lg border border-red-400/20 bg-black/40 px-2 py-1">
+            <div className="text-slate-400">FAULT</div>
+            <div className="font-black text-red-300">{fault}</div>
           </div>
         </div>
       </div>
-      <div className="text-center text-xs text-cyan-400">REAL WIN PROGRESS: {realPct(metrics?.profitablePaperTradeProgressPct)}</div>
     </div>
   );
 }
 
-function TerminalAlphaSignals({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
+function MoneyFlowPanel() {
   return (
-    <div className="text-xs">
-      <TerminalPanelTitle title="Alpha Signals Feed" />
-      <div className="space-y-3">
-        {monitors.slice(0, 8).map((m, i) => {
+    <div className="h-full">
+      <QuantumTitle title="Real-Time Smart Money Flow" />
+      <div className="relative h-[calc(100%-28px)] overflow-hidden rounded-xl border border-cyan-400/10 bg-black/35 p-2">
+        <div className="relative z-10 flex h-full items-end gap-2">
+          {Array.from({ length: 26 }).map((_, i) => (
+            <span
+              key={i}
+              className="flex-1 rounded-t bg-gradient-to-t from-fuchsia-800 via-fuchsia-500 to-cyan-200"
+              style={{
+                height: `${18 + ((i * 17) % 92)}px`,
+                filter: "drop-shadow(0 0 10px rgba(192,38,211,.8))",
+                animation: `poly-final-bars ${0.7 + (i % 7) * 0.07}s ease-in-out infinite alternate`,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function UniversePanel() {
+  return (
+    <div className="h-full">
+      <QuantumTitle title="Holographic Universe View" />
+      <div className="relative h-[calc(100%-28px)] overflow-hidden rounded-xl border border-cyan-400/10 bg-black/35">
+        <div className="absolute inset-0 flex items-center justify-center text-7xl opacity-20">🌌</div>
+        <div className="absolute left-1/2 top-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-purple-500 via-cyan-400 to-emerald-400 blur-3xl opacity-70" style={{ animation: "poly-final-soft 2.4s ease-in-out infinite" }} />
+        <div className="absolute left-1/2 top-1/2 h-24 w-52 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-300/30" style={{ transform: "translate(-50%,-50%) rotateX(68deg)", animation: "poly-final-orbit 8s linear infinite" }} />
+        <div className="absolute inset-x-0 bottom-4 text-center text-[10px] text-cyan-300">POLYEDGE SYSTEM UNIVERSE • REAL MONITORS</div>
+      </div>
+    </div>
+  );
+}
+
+function SentimentPanel({ monitors }: { monitors: any[] }) {
+  const active = monitors.filter((m) => m.state === "online" || m.state === "running").length;
+  const bullish = monitors.length > 0 ? Math.round((active / monitors.length) * 100) : 0;
+  const neutral = Math.max(0, 100 - bullish);
+
+  return (
+    <div className="h-full">
+      <QuantumTitle title="Quantum Market Sentiment Matrix" />
+      <div className="flex h-[calc(100%-28px)] items-center justify-between">
+        <div className="text-center">
+          <div className="text-4xl font-black text-emerald-300">{bullish}%</div>
+          <div className="text-[10px] text-emerald-300">ONLINE</div>
+        </div>
+        <div className="relative flex h-24 w-24 items-center justify-center rounded-2xl border-4 border-purple-500 shadow-[0_0_36px_rgba(192,38,211,.65)]" style={{ animation: "poly-final-float 5s ease-in-out infinite" }}>
+          <div className="h-4 w-4 rounded-full bg-white shadow-[0_0_30px_#c026d3]" style={{ animation: "poly-final-soft 1s ease-in-out infinite" }} />
+          <div className="absolute inset-4 rotate-45 border border-cyan-300/35" />
+        </div>
+        <div className="text-center">
+          <div className="text-4xl font-black text-amber-300">{neutral}%</div>
+          <div className="text-[10px] text-amber-300">WAIT/SAFE</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AllocationPanel({ metrics }: { metrics: any }) {
+  return (
+    <div className="h-full">
+      <QuantumTitle title="Promotion Gate // 500-Win Progress" />
+      <div className="flex h-[calc(100%-28px)] items-center justify-center">
+        <div className="relative flex h-28 w-28 items-center justify-center">
+          <div className="absolute inset-0 rounded-full border-[14px] border-cyan-300/15" />
+          <div className="absolute inset-0 rounded-full border-[14px] border-transparent border-t-cyan-300 border-r-fuchsia-500 border-b-emerald-400" style={{ filter: "drop-shadow(0 0 16px rgba(103,232,249,.8))", animation: "poly-final-spin 7s linear infinite" }} />
+          <div className="text-center">
+            <div className="text-2xl font-black text-white">{realPct(metrics?.profitablePaperTradeProgressPct)}</div>
+            <div className="text-[8px] uppercase text-cyan-300">REAL</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AlphaPanel({ monitors }: { monitors: any[] }) {
+  return (
+    <div className="h-full text-[10px]">
+      <QuantumTitle title="Alpha Signals Feed" />
+      <div className="space-y-2">
+        {monitors.slice(0, 9).map((m) => {
           const t = statusTone(m.state);
           return (
-            <div key={m.key} className="flex justify-between border-b border-cyan-300/10 pb-2">
-              <span className="truncate pr-3 uppercase text-cyan-50/70">{m.label}</span>
+            <div key={m.key} className="flex justify-between border-b border-cyan-300/10 pb-1">
+              <span className="truncate pr-3 uppercase text-cyan-50/70">{realValue(m.label)}</span>
               <span className={`shrink-0 font-black ${t.text}`}>{t.label}</span>
             </div>
           );
@@ -744,18 +835,19 @@ function TerminalAlphaSignals({ monitors }: { monitors: PolyEdgeActionMonitorIte
   );
 }
 
-function TerminalBottomBar({ monitors, metrics }: { monitors: PolyEdgeActionMonitorItem[]; metrics?: any }) {
+function BottomStatusBar({ monitors, metrics }: { monitors: any[]; metrics: any }) {
   const replay = monitors.find((m) => m.key === "replay_engine");
   const replayTone = statusTone(replay?.state);
+
   return (
-    <div className="mt-8 flex items-center justify-between rounded-3xl border border-cyan-400/30 bg-slate-950/65 p-6 text-xs backdrop-blur-xl">
-      <div className="flex gap-8">
+    <div className="mt-3 flex items-center justify-between rounded-2xl border border-cyan-400/30 bg-slate-950/65 px-4 py-3 text-[10px] backdrop-blur-xl">
+      <div className="flex gap-5">
         <div><span className="text-emerald-400">MAX DD:</span> {realPct(metrics?.maxDrawdownPct)}</div>
         <div><span className="text-emerald-400">WIN RATE:</span> {realPct(metrics?.winRate)}</div>
         <div><span className="text-purple-400">PROFIT FACTOR:</span> {realValue(metrics?.profitFactor)}</div>
       </div>
-      <div className="font-mono text-cyan-400">POLY SYSTEM HEART MONITOR • LIVE</div>
-      <div className={`${replayTone.text}`}>REPLAY ENGINE MONITOR • {replayTone.label}</div>
+      <div className="font-mono text-cyan-400">POLY HEART MONITOR • REAL DATA</div>
+      <div className={`${replayTone.text}`}>REPLAY ENGINE • {replayTone.label}</div>
     </div>
   );
 }
@@ -768,37 +860,44 @@ function PolyEdgeActionMonitorGrid({
   replayStatus?: PolyEdgeReplayStatus | null;
 }) {
   const monitors = actionMonitor?.monitors || [];
-  const systems = monitors.filter((m) => m.kind !== "market");
-  const active = monitors.filter((m) => m.state === "online" || m.state === "running").length;
+  const markets = monitors.filter((m: any) => m.kind === "market");
+  const systems = monitors.filter((m: any) => m.kind !== "market");
+  const active = monitors.filter((m: any) => m.state === "online" || m.state === "running").length;
   const metrics = (replayStatus as any)?.promotion?.metrics || {};
-  const lastRealCheck = (replayStatus as any)?.lastRunAt || actionMonitor?.generatedAt || null;
-  const apiTone = statusTone(monitors.find((m) => m.key === "poly_api")?.state);
+  const lastRealCheck = (replayStatus as any)?.lastRunAt || (actionMonitor as any)?.generatedAt || null;
+  const apiTone = statusTone(monitors.find((m: any) => m.key === "poly_api")?.state);
+
+  const replay = monitors.find((m: any) => m.key === "replay_engine");
+  const learning = monitors.find((m: any) => m.key === "learning_brain");
+  const promotion = monitors.find((m: any) => m.key === "promotion_gate");
+  const risk = monitors.find((m: any) => m.key === "risk_governor");
+  const priority = [replay, learning, promotion, risk].filter(Boolean);
 
   return (
-    <HoloPanel title="POLY//EDGE • Quantum Terminal 2150" icon={Cpu} className="col-span-12">
+    <HoloPanel title="POLY//EDGE • REAL DATA QUANTUM TERMINAL" icon={Cpu} className="col-span-12">
       <style>{`
-        .poly-terminal-root {
+        .poly-final-root {
           background: radial-gradient(circle at center, #0a0a1f 0%, #000000 100%);
         }
-        .poly-terminal-root::before {
+        .poly-final-root::before {
           content: "";
           position: absolute;
           inset: 0;
           background-image: radial-gradient(#22d3ee 0.5px, transparent 1px);
           background-size: 40px 40px;
           opacity: .10;
-          animation: poly-terminal-stars 18s linear infinite;
+          animation: poly-final-stars 18s linear infinite;
         }
-        .poly-terminal-glass {
+        .poly-final-glass {
           box-shadow: 0 0 0 rgba(103,232,249,0);
-          transition: all .4s cubic-bezier(.23,1,.32,1);
+          transition: all .35s cubic-bezier(.23,1,.32,1);
         }
-        .poly-terminal-glass:hover {
-          transform: translateY(-4px);
+        .poly-final-glass:hover {
+          transform: translateY(-2px);
           border-color: rgba(192,38,211,.60);
-          box-shadow: 0 0 45px -5px rgb(103 232 249);
+          box-shadow: 0 0 35px -5px rgb(103 232 249);
         }
-        .poly-terminal-scan::after {
+        .poly-final-scan::after {
           content: "";
           position: absolute;
           top: -100%;
@@ -806,127 +905,137 @@ function PolyEdgeActionMonitorGrid({
           width: 100%;
           height: 300%;
           background: linear-gradient(transparent, rgba(103,232,249,.12), transparent);
-          animation: poly-terminal-scan 9s linear infinite;
+          animation: poly-final-scan 9s linear infinite;
         }
-        @keyframes poly-terminal-scan {
+        @keyframes poly-final-scan {
           0% { transform: translateY(-100%); }
           100% { transform: translateY(100%); }
         }
-        @keyframes poly-terminal-stars {
+        @keyframes poly-final-stars {
           from { transform: translate3d(0,0,0); }
           to { transform: translate3d(40px,40px,0); }
         }
-        @keyframes poly-terminal-dash {
+        @keyframes poly-final-dash {
           from { stroke-dasharray: 10 12; stroke-dashoffset: 110; }
           to { stroke-dasharray: 10 12; stroke-dashoffset: 0; }
         }
-        @keyframes poly-terminal-bars {
+        @keyframes poly-final-ecg {
+          from { transform: translateX(-18%); }
+          to { transform: translateX(0%); }
+        }
+        @keyframes poly-final-bars {
           from { transform: scaleY(.45); opacity: .55; }
           to { transform: scaleY(1.12); opacity: 1; }
         }
-        @keyframes poly-terminal-spin {
+        @keyframes poly-final-spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        @keyframes poly-terminal-orbit {
+        @keyframes poly-final-orbit {
           from { rotate: 0deg; }
           to { rotate: 360deg; }
         }
-        @keyframes poly-terminal-soft-pulse {
+        @keyframes poly-final-pulse {
           0%, 100% { opacity: .52; transform: scale(.9); }
+          50% { opacity: 1; transform: scale(1.18); }
+        }
+        @keyframes poly-final-soft {
+          0%, 100% { opacity: .55; transform: scale(.92); }
           50% { opacity: 1; transform: scale(1.12); }
         }
-        @keyframes poly-terminal-float {
+        @keyframes poly-final-float {
           0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
+          50% { transform: translateY(-6px); }
         }
       `}</style>
 
-      <div className="poly-terminal-root relative min-h-screen overflow-hidden rounded-[32px] p-6 text-white">
-        <div className="relative z-10 mx-auto max-w-screen-2xl">
-          <div className="mb-8 flex items-center justify-between rounded-3xl border border-cyan-400/30 bg-slate-950/65 px-8 py-5 backdrop-blur-xl">
+      <div className="poly-final-root fixed inset-0 z-[9999] overflow-hidden p-4 text-white">
+        <div className="relative z-10 mx-auto flex h-full max-w-screen-2xl flex-col">
+          <div className="mb-3 flex items-center justify-between rounded-3xl border border-cyan-400/30 bg-slate-950/65 px-6 py-3 backdrop-blur-xl">
             <div className="flex items-center gap-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-purple-600 text-2xl font-bold text-white shadow-[0_0_30px_rgba(103,232,249,.4)]">P/E</div>
               <div>
                 <h1 className="text-3xl font-bold tracking-tighter text-cyan-100 drop-shadow-[0_0_18px_rgba(103,232,249,.8)]">POLY//EDGE</h1>
-                <p className="text-xs uppercase tracking-[4px] text-cyan-400">REAL DATA ONLY • NO SIMULATED VALUES</p>
+                <p className="text-[10px] uppercase tracking-[4px] text-cyan-400">REAL DATA ONLY • NO SIMULATED VALUES</p>
               </div>
             </div>
 
             <div className="hidden gap-8 text-sm xl:flex">
               <div className="text-center">
                 <div className="font-mono text-lg text-emerald-400">{apiTone.long}</div>
-                <div className="text-xs text-gray-400">AI CONSCIOUSNESS: TRANSCENDENT</div>
+                <div className="text-[10px] text-gray-400">POLY API STATUS</div>
               </div>
               <div className="text-center">
                 <div className="font-mono text-3xl font-bold text-white">{realMoney(metrics?.totalPnl)}</div>
-                <div className="text-xs text-emerald-400">REAL TOTAL PNL</div>
+                <div className="text-[10px] text-emerald-400">REAL TOTAL PNL</div>
               </div>
               <div className="text-center">
                 <div className="font-mono text-cyan-400">{realValue(lastRealCheck)}</div>
-                <div className="text-xs text-purple-400">LAST REAL CHECK</div>
+                <div className="text-[10px] text-purple-400">LAST REAL CHECK</div>
               </div>
             </div>
 
-            <div className={`flex items-center gap-3 rounded-2xl border px-6 py-2 text-sm ${apiTone.panel} bg-slate-950/60`}>
+            <div className={`flex items-center gap-3 rounded-2xl border px-5 py-2 text-xs ${apiTone.border} bg-slate-950/60`}>
               <span className={`h-3 w-3 rounded-full ${apiTone.dot} animate-pulse`} />
-              <span>{active} / {monitors.length || 1} AGENTS LIVE</span>
+              <span>{active} / {monitors.length || 0} MODULES LIVE</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-12 gap-6">
-            <div className="col-span-12 xl:col-span-2">
-              <TerminalGlass className="h-full">
-                <div className="mb-4 font-mono text-xs uppercase tracking-widest text-cyan-400">Navigation</div>
-                <ul className="space-y-2 text-sm">
+          <div className="grid min-h-0 flex-1 grid-cols-12 gap-3">
+            <div className="col-span-2 min-h-0">
+              <QuantumGlass className="h-full">
+                <div className="mb-3 font-mono text-[10px] uppercase tracking-widest text-cyan-400">Navigation</div>
+                <ul className="space-y-1.5 text-xs">
                   {["Overview", "Markets", "Portfolio", "Agents", "Alpha Grid", "Risk Core"].map((x, i) => (
-                    <li key={x} className={`cursor-pointer rounded-2xl px-4 py-3 transition hover:bg-white/10 ${i === 0 ? "bg-white/5" : "hover:bg-white/5"}`}>{x}</li>
+                    <li key={x} className={`cursor-pointer rounded-xl px-3 py-2 transition hover:bg-white/10 ${i === 0 ? "bg-white/5" : ""}`}>{x}</li>
                   ))}
                 </ul>
-              </TerminalGlass>
-            </div>
 
-            <div className="col-span-12 space-y-6 xl:col-span-7">
-              <TerminalGlass>
-                <div className="mb-4 flex justify-between">
-                  <div>
-                    <h2 className="text-lg font-semibold">HYPERDIMENSIONAL EQUITY CURVE</h2>
-                    <p className="text-xs text-gray-400">REAL PNL: {realMoney(metrics?.totalPnl)} • WIN RATE: {realPct(metrics?.winRate)} • PROFIT FACTOR: {realValue(metrics?.profitFactor)}</p>
-                  </div>
-                  <div className="text-sm text-emerald-400">LIVE</div>
+                <div className="mt-4 grid grid-cols-1 gap-2">
+                  {priority.map((m: any) => <MonitorTile key={m.key} monitor={m} />)}
                 </div>
-                <TerminalEquityChart monitors={monitors} metrics={metrics} />
-              </TerminalGlass>
-
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <TerminalGlass>
-                  <TerminalPanelTitle title="Real-Time Smart Money Flow" />
-                  <TerminalFlowChart />
-                </TerminalGlass>
-
-                <TerminalGlass className="holo">
-                  <TerminalPanelTitle title="Holographic Universe View" />
-                  <TerminalUniverse />
-                </TerminalGlass>
-              </div>
+              </QuantumGlass>
             </div>
 
-            <div className="col-span-12 space-y-6 xl:col-span-3">
-              <TerminalGlass>
-                <TerminalSentiment monitors={monitors} />
-              </TerminalGlass>
+            <div className="col-span-7 grid min-h-0 grid-rows-[1.45fr_.72fr_.72fr] gap-3">
+              <QuantumGlass>
+                <EquityPanel monitors={monitors} metrics={metrics} />
+              </QuantumGlass>
 
-              <TerminalGlass>
-                <TerminalAllocation metrics={metrics} />
-              </TerminalGlass>
+              <div className="grid min-h-0 grid-cols-2 gap-3">
+                <QuantumGlass>
+                  <MoneyFlowPanel />
+                </QuantumGlass>
 
-              <TerminalGlass>
-                <TerminalAlphaSignals monitors={systems} />
-              </TerminalGlass>
+                <QuantumGlass>
+                  <UniversePanel />
+                </QuantumGlass>
+              </div>
+
+              <QuantumGlass>
+                <QuantumTitle title="All PolyEdge Action Monitors" right={<span className="text-[9px] text-cyan-300">{monitors.length} modules</span>} />
+                <div className="grid grid-cols-4 gap-2">
+                  {monitors.slice(0, 12).map((m: any) => <MonitorTile key={m.key} monitor={m} />)}
+                </div>
+              </QuantumGlass>
+            </div>
+
+            <div className="col-span-3 grid min-h-0 grid-rows-[.78fr_.72fr_1.16fr] gap-3">
+              <QuantumGlass>
+                <SentimentPanel monitors={monitors} />
+              </QuantumGlass>
+
+              <QuantumGlass>
+                <AllocationPanel metrics={metrics} />
+              </QuantumGlass>
+
+              <QuantumGlass>
+                <AlphaPanel monitors={systems.concat(markets)} />
+              </QuantumGlass>
             </div>
           </div>
 
-          <TerminalBottomBar monitors={monitors} metrics={metrics} />
+          <BottomStatusBar monitors={monitors} metrics={metrics} />
         </div>
       </div>
     </HoloPanel>
