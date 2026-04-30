@@ -67,6 +67,41 @@ type PolyEdgeLearningResponse = {
   risksToReduce?: PolyEdgeLearningGroup[];
 };
 
+type PolyEdgeReplayStatus = {
+  ok?: boolean;
+  maxBatchSize?: number;
+  lastRunAt?: string | null;
+  recentWindow?: {
+    sampledOutcomes?: number;
+    profitable?: number;
+    losses?: number;
+  };
+  proof?: {
+    totalTrades?: number;
+    wins?: number;
+    losses?: number;
+    winRate?: number;
+    profitFactor?: number;
+    maxDrawdownPct?: number;
+    totalPnl?: number;
+  };
+  promotion?: {
+    status?: string;
+    metrics?: {
+      totalPaperTrades?: number;
+      qualifiedProfitablePaperTrades?: number;
+      requiredProfitablePaperTrades?: number;
+      profitablePaperTradeProgressPct?: number;
+      winRate?: number;
+      profitFactor?: number;
+      maxDrawdownPct?: number;
+      totalPnl?: number;
+      globalLearningScore?: number;
+    };
+    nextRequiredAction?: string;
+  };
+};
+
 type PolyEdgeProofResponse = {
   ok?: boolean;
   product?: string;
@@ -193,8 +228,53 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
 
   const [data, setData] = useState<PolyEdgeProofResponse | null>(null);
   const [learning, setLearning] = useState<PolyEdgeLearningResponse | null>(null);
+  const [replayStatus, setReplayStatus] = useState<PolyEdgeReplayStatus | null>(null);
+  const [replayRunning, setReplayRunning] = useState(false);
+  const [replayMessage, setReplayMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [now, setNow] = useState(new Date());
+
+  async function loadReplayStatus() {
+    if (mode !== "admin") return;
+    try {
+      const res = await fetch("/api/admin/polyedge/replay/status", { credentials: "include" });
+      const json = await res.json();
+      if (res.ok && json?.ok !== false) setReplayStatus(json);
+    } catch {
+      // replay panel is admin-only and non-critical
+    }
+  }
+
+  async function runReplay(batchSize: number) {
+    if (mode !== "admin" || replayRunning) return;
+    setReplayRunning(true);
+    setReplayMessage(null);
+
+    try {
+      const res = await fetch("/api/admin/polyedge/replay/run", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ batchSize }),
+      });
+      const json = await res.json();
+
+      if (!res.ok || json?.ok === false) {
+        setReplayMessage(json?.reason || json?.error || "Replay run blocked");
+      } else {
+        setReplayMessage(
+          `Replay complete: ${json.createdTrades || 0} trades, ${json.profitableApprox || 0} profitable, ${json.losingApprox || 0} losses`
+        );
+      }
+
+      await load();
+      await loadReplayStatus();
+    } catch (err: any) {
+      setReplayMessage(err?.message || "Replay run failed");
+    } finally {
+      setReplayRunning(false);
+    }
+  }
 
   async function load() {
     try {
@@ -391,6 +471,70 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
                 {!outcomes.length ? <div className="text-sm text-cyan-100/50">Awaiting paper outcomes.</div> : null}
               </div>
             </HoloPanel>
+
+            {mode === "admin" ? (
+              <HoloPanel title="Fast Paper Replay Factory" icon={Zap} className="col-span-12 xl:col-span-3">
+                <div className="mb-3 grid grid-cols-2 gap-2">
+                  <Metric
+                    label="Qualified Winners"
+                    value={`${num(replayStatus?.promotion?.metrics?.qualifiedProfitablePaperTrades)} / ${num(replayStatus?.promotion?.metrics?.requiredProfitablePaperTrades || 500)}`}
+                    good={(replayStatus?.promotion?.metrics?.qualifiedProfitablePaperTrades || 0) >= 500}
+                  />
+                  <Metric
+                    label="Progress"
+                    value={num(replayStatus?.promotion?.metrics?.profitablePaperTradeProgressPct, "%")}
+                  />
+                  <Metric
+                    label="Total Paper"
+                    value={num(replayStatus?.promotion?.metrics?.totalPaperTrades || replayStatus?.proof?.totalTrades)}
+                  />
+                  <Metric
+                    label="Losses Counted"
+                    value={num(replayStatus?.proof?.losses || replayStatus?.recentWindow?.losses)}
+                    good={true}
+                  />
+                </div>
+
+                <div className="mb-3 rounded-xl border border-cyan-400/15 bg-cyan-400/5 p-3">
+                  <div className="text-[9px] uppercase tracking-[0.16em] text-cyan-100/45">Promotion Status</div>
+                  <div className="mt-1 text-sm font-bold text-amber-300">
+                    {(replayStatus?.promotion?.status || "paper_only").replace(/_/g, " ").toUpperCase()}
+                  </div>
+                  <div className="mt-2 text-[11px] leading-relaxed text-cyan-100/55">
+                    {replayStatus?.promotion?.nextRequiredAction || "Replay status loading."}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    disabled={replayRunning}
+                    onClick={() => runReplay(25)}
+                    className="rounded-xl border border-cyan-300/30 bg-cyan-400/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-cyan-100 hover:bg-cyan-400/20 disabled:opacity-40"
+                  >
+                    {replayRunning ? "Running" : "Run 25"}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={replayRunning}
+                    onClick={() => runReplay(50)}
+                    className="rounded-xl border border-fuchsia-300/30 bg-fuchsia-400/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-fuchsia-100 hover:bg-fuchsia-400/20 disabled:opacity-40"
+                  >
+                    {replayRunning ? "Running" : "Run 50"}
+                  </button>
+                </div>
+
+                {replayMessage ? (
+                  <div className="mt-3 rounded-xl border border-orange-300/20 bg-orange-400/5 p-2 text-[11px] text-orange-100/80">
+                    {replayMessage}
+                  </div>
+                ) : null}
+
+                <div className="mt-3 text-[10px] leading-relaxed text-cyan-100/45">
+                  Paper replay only. Winning trades count toward 500. Losing trades still count against win rate, drawdown, profit factor, learning and promotion gates.
+                </div>
+              </HoloPanel>
+            ) : null}
 
             <HoloPanel title="Neural Learning Core" icon={Brain} className="col-span-12 xl:col-span-3">
               <div className="mb-3 grid grid-cols-2 gap-2">
