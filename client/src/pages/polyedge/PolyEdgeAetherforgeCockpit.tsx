@@ -71,10 +71,13 @@ type PolyEdgeActionMonitorItem = {
   key?: string;
   label?: string;
   state?: string;
+  kind?: string;
   moving?: boolean;
   liveTradingAffected?: boolean;
   detail?: string;
   lastCheckAt?: string;
+  metric?: string;
+  value?: number | string | null;
 };
 
 type PolyEdgeActionMonitorResponse = {
@@ -482,6 +485,70 @@ function ReplayEngineMonitor({
 }
 
 
+
+function MiniActionMonitor({ monitor }: { monitor: PolyEdgeActionMonitorItem }) {
+  const moving = monitor.moving === true;
+  const failed = monitor.state === "timeout" || monitor.state === "offline" || monitor.state === "stalled";
+  const blocked = monitor.state === "blocked" || monitor.state === "paper_only";
+  const stroke = failed ? "#ff4d4d" : blocked ? "#ffd166" : "#00ff88";
+
+  if (monitor.kind === "market") {
+    return (
+      <div className="mt-3 rounded-xl border border-cyan-300/10 bg-black/35 p-2">
+        <div className="mb-1 flex items-center justify-between text-[9px] uppercase tracking-[0.14em] text-cyan-100/35">
+          <span>Market Feed</span>
+          <span>{monitor.value ? "$" + Number(monitor.value).toLocaleString() : "no price"}</span>
+        </div>
+        <div className="flex h-10 items-end gap-1 overflow-hidden">
+          {Array.from({ length: 28 }).map((_, i) => (
+            <span
+              key={i}
+              className={`w-1 rounded-full ${moving ? "bg-emerald-300/80" : "bg-red-300/40"}`}
+              style={{
+                height: moving ? `${12 + ((i * 7) % 24)}px` : "2px",
+                animation: moving ? `poly-market-bars ${0.9 + (i % 5) * 0.12}s ease-in-out infinite alternate` : undefined,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (monitor.kind === "replay") {
+    return (
+      <div className="mt-3 rounded-xl border border-fuchsia-300/10 bg-black/35 p-2">
+        <div className="relative h-11 overflow-hidden rounded-lg bg-black/50">
+          <div className={`absolute left-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full border ${moving ? "border-emerald-300/60" : blocked ? "border-amber-300/50" : "border-cyan-300/25"}`} style={{ animation: moving ? "poly-replay-mini-spin 1.4s linear infinite" : undefined }} />
+          <div className="absolute left-14 right-2 top-1/2 h-1 -translate-y-1/2 rounded-full bg-black ring-1 ring-fuchsia-300/20">
+            <div className={`h-full rounded-full ${moving ? "bg-emerald-300" : blocked ? "bg-amber-300" : "bg-cyan-300/25"}`} style={{ width: moving ? "60%" : "10%" }} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3 rounded-xl border border-cyan-300/10 bg-black/35 p-2">
+      <svg className="h-11 w-full" viewBox="0 0 320 54" preserveAspectRatio="none">
+        <polyline
+          points={
+            moving
+              ? "0,32 34,32 46,32 56,18 68,44 82,8 100,32 138,32 156,32 166,22 178,40 190,14 208,32 250,32 270,32 282,18 296,42 308,32 320,32"
+              : "0,32 320,32"
+          }
+          fill="none"
+          stroke={stroke}
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ animation: moving ? "poly-mini-ecg 1.5s linear infinite" : undefined }}
+        />
+      </svg>
+    </div>
+  );
+}
+
 function PolyEdgeActionMonitorGrid({ actionMonitor }: { actionMonitor: PolyEdgeActionMonitorResponse | null }) {
   const monitors = actionMonitor?.monitors || [];
 
@@ -502,6 +569,18 @@ function PolyEdgeActionMonitorGrid({ actionMonitor }: { actionMonitor: PolyEdgeA
         @keyframes poly-monitor-sweep {
           from { transform: translateX(-120%); }
           to { transform: translateX(240%); }
+        }
+        @keyframes poly-mini-ecg {
+          from { transform: translateX(-18%); }
+          to { transform: translateX(0%); }
+        }
+        @keyframes poly-replay-mini-spin {
+          from { transform: translateY(-50%) rotate(0deg); }
+          to { transform: translateY(-50%) rotate(360deg); }
+        }
+        @keyframes poly-market-bars {
+          from { transform: scaleY(.35); opacity: .45; }
+          to { transform: scaleY(1.05); opacity: 1; }
         }
       `}</style>
 
@@ -533,6 +612,8 @@ function PolyEdgeActionMonitorGrid({ actionMonitor }: { actionMonitor: PolyEdgeA
             <div className="relative z-10 mt-3 text-[11px] leading-relaxed text-cyan-50/65">
               {m.detail || "No detail available."}
             </div>
+
+            <MiniActionMonitor monitor={m} />
 
             <div className="relative z-10 mt-3 flex justify-between text-[10px] text-cyan-100/35">
               <span>{m.liveTradingAffected ? "Live gate related" : "Paper/system only"}</span>
