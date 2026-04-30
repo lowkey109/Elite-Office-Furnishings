@@ -1251,7 +1251,7 @@ function PolyEdgeActionMonitorGrid({
         }
 
         @keyframes poly-conn-beat-draw {
-          0% { stroke-dashoffset: -860; opacity: .08; }
+          0% { stroke-dashoffset: 860; opacity: .08; }
           10% { opacity: 1; }
           84% { stroke-dashoffset: 0; opacity: 1; }
           94% { stroke-dashoffset: 0; opacity: .78; }
@@ -1259,10 +1259,10 @@ function PolyEdgeActionMonitorGrid({
         }
 
         @keyframes poly-conn-head {
-          0% { left: 100%; opacity: 0; }
+          0% { left: -24px; opacity: 0; }
           10% { opacity: 1; }
-          84% { left: -24px; opacity: 1; }
-          100% { left: -24px; opacity: 0; }
+          84% { left: 100%; opacity: 1; }
+          100% { left: 100%; opacity: 0; }
         }
 
         @keyframes poly-conn-dot {
@@ -1280,15 +1280,15 @@ function PolyEdgeActionMonitorGrid({
         }
 
         @keyframes poly-conn-idle-sweep {
-          0%, 76% { left: 100%; opacity: 0; }
+          0%, 76% { left: -20px; opacity: 0; }
           82% { opacity: .65; }
-          98% { left: -20px; opacity: .5; }
+          98% { left: 100%; opacity: .5; }
           100% { opacity: 0; }
         }
 
         .poly-conn-beat-path {
           stroke-dasharray: 860;
-          stroke-dashoffset: -860;
+          stroke-dashoffset: 860;
           animation-name: poly-conn-beat-draw;
           animation-timing-function: linear;
           animation-iteration-count: infinite;
