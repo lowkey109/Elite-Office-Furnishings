@@ -318,10 +318,22 @@ async function openFastPaperPosition() {
   }
 
   if (!candidatePairs.length) {
-    return {
-      opened: false,
-      reason: "Adaptive allocator blocked weak/duplicate/emergency-blocked symbols; waiting for open paper positions to close.",
-    };
+    // Keep PAPER-ONLY learning alive even when allocator blocks every weak pair.
+    // Safe fallback is SOL-only, tiny size, non-BTC, non-live.
+    const fallbackSymbol = "SOL/USD";
+    const fallbackStrategies = STRATEGIES.filter((strategy) => !activePairs.has(`${fallbackSymbol}|${strategy}`));
+
+    if (fallbackStrategies.length) {
+      candidatePairs.push({
+        symbol: fallbackSymbol,
+        strategy: fallbackStrategies[hashNumber(String(Date.now())) % fallbackStrategies.length],
+      });
+    } else {
+      return {
+        opened: false,
+        reason: "Adaptive allocator blocked all pairs and SOL fallback already has active exposure.",
+      };
+    }
   }
 
   const selected = candidatePairs[
@@ -342,7 +354,7 @@ async function openFastPaperPosition() {
     0.007;
 
   const riskPct = baseRiskPct * Number(lossGovernor.riskMultiplier || 1);
-  const paperCapitalAllocated = Math.max(25, Math.round(100000 * riskPct * 100) / 100);
+  const paperCapitalAllocated = Math.max(10, Math.round(100000 * riskPct * 100) / 100);
 
   const move = symbol === "BTC/USD" ? 0.0016 : symbol === "ETH/USD" ? 0.002 : symbol === "SOL/USD" ? 0.0028 : 0.0011;
 
