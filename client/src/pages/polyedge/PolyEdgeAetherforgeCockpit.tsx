@@ -2059,7 +2059,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
   // STAGE_6Q_COCKPIT_ONLY_RETURN
   // Admin PolyEdge now renders the real cockpit only.
   // This keeps ECG/heartbeat logic but removes the old top/status page that was pushing the cockpit down.
-  if (mode === "admin") {
+  if (false) {
     return (
       <div className="polyedge-cockpit-only-root h-screen w-screen overflow-hidden bg-black p-0 text-white">
         <style>{`
@@ -2244,7 +2244,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               </div>
             </HoloPanel>
 
-            {mode === "admin" ? (
+            {false ? (
               <HoloPanel title="Fast Paper Replay Factory" icon={Zap} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
                 <div className="mb-3 grid grid-cols-2 gap-1.5">
                   <Metric
