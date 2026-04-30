@@ -1,0 +1,1566 @@
+AI / BRAIN / AGENT SYSTEM AUDIT
+Generated: Thu Apr 30 06:09:43 AM UTC 2026
+
+== 1) AI / brain / orchestrator / agent filenames ==
+client/public/catalog-assets/products/fsz-exec-chair-black.png
+client/public/catalog-assets/products/fsz-task-chair-mesh.png
+client/public/images/blog/eco-sustainable-office-fitout-natural.png
+client/public/images/blog/office-chair-buying-guide-ergonomic.png
+client/public/images/blog/reception-waiting-lounge-luxury-office.png
+client/public/images/blog/sustainable-office-design-green-certified.png
+client/src/components/NexoraCopilot.tsx
+client/src/components/NexoraJourneyBar.tsx
+client/src/data/blog/sustainability.ts
+client/src/hooks/useNexoraSignal.ts
+client/src/lib/nexoraEngine.ts
+client/src/main.tsx
+client/src/pages/AdminAIChat.tsx
+client/src/pages/AdminDealIntelligence.tsx
+client/src/pages/AdminEmailNotifications.tsx
+client/src/pages/AdminIntelligenceHub.tsx
+client/src/pages/AdminMarketIntelligence.tsx
+client/src/pages/AdminNexoraAdvanced.tsx
+client/src/pages/AdminNexoraCommandCentre.tsx
+client/src/pages/AdminNexoraMonitor.tsx
+client/src/pages/AdminPhantomXCompliance.tsx
+client/src/pages/AdminPhantomXIntelligence.fix.css
+client/src/pages/AdminPhantomXIntelligence.tsx
+client/src/pages/AdminPropertyIntelligence.tsx
+client/src/pages/AdminRelocationIntelligence.tsx
+client/src/pages/AdminSupplierIntelligence.tsx
+client/src/pages/AdminTradingMonitor.tsx
+client/src/pages/AdminWorkspaceLearning.tsx
+client/src/pages/CatalogProductDetail.tsx
+client/src/pages/ClientPhantomXCompliance.tsx
+client/src/pages/ClientPhantomXPaper.tsx
+client/src/pages/ClientPropertyIntelligence.tsx
+client/src/pages/legal/PhantomXRiskDisclaimer.tsx
+client/src/pages/PhantomXLanding.tsx
+client/src/pages/ProductDetail.tsx
+client/src/pages/PropertyIntelligence.tsx
+scripts/phantomx-fix-learning-columns.cjs
+scripts/phantomx-import-old-learning.cjs
+scripts/phantomx-learning-schema.cjs
+scripts/phantomx-polymarket-terminal-schema.cjs
+scripts/phantomx-superbrain-schema.cjs
+server/ai/knowledgeLoader.ts
+server/ai/packageGenerator.ts
+server/ai/productIntelligence.ts
+server/ai/supplierIntelligence.ts
+server/email.ts
+server/services/aiManufacturerOutreach.ts
+server/services/companyIntelligenceService.ts
+server/services/dealIntelligence.ts
+server/services/devStudio/devAIPatch.ts
+server/services/followUpEmails.ts
+server/services/intelligence/buildingRiskEngine.ts
+server/services/intelligence/clusterEngine.ts
+server/services/intelligence/communications/aiWhatsAppService.ts
+server/services/intelligence/communications/whatsappFlows.ts
+server/services/intelligence/communications/whatsappGuards.ts
+server/services/intelligence/communications/whatsappOutbox.ts
+server/services/intelligence/communications/whatsappScheduler.ts
+server/services/intelligence/communications/whatsappService.ts
+server/services/intelligence/companyHierarchyService.ts
+server/services/intelligence/companyIntelligenceAggregationService.ts
+server/services/intelligence/confidenceScoringService.ts
+server/services/intelligence/dealHunter.ts
+server/services/intelligence/demandForecastEngine.ts
+server/services/intelligenceEngine.ts
+server/services/intelligence/intelligenceGraphService.ts
+server/services/intelligence/leaseExpiryService.ts
+server/services/intelligence/newsFeedScanner.ts
+server/services/intelligence/nexoraAI.ts
+server/services/intelligence/nexora/nexora-support.ts
+server/services/intelligence/nexora/nexora-types.ts
+server/services/intelligence/nexoraOrchestrator.ts
+server/services/intelligence/officeMovRadarService.ts
+server/services/intelligence/opportunityEngine.ts
+server/services/intelligence/partnerNetwork.ts
+server/services/intelligenceScheduler.ts
+server/services/intelligence/signalClassificationService.ts
+server/services/intelligence/signalIngestionService.ts
+server/services/intelligence/workspaceIntelligenceEngine.ts
+server/services/intelligence/zoneScoringEngine.ts
+server/services/jobOrchestrator.ts
+server/services/leadIntelligence.ts
+server/services/nexoraAI.ts
+server/services/nexoraLoop.ts
+server/services/notifications/clientEmailNotificationService.ts
+server/services/outreach/prospectEmailResolver.ts
+server/services/partnerReferralAI.ts
+server/services/platform/autonomousSafeActionService.ts
+server/services/procurement/procurementQuoteOrchestrator.ts
+server/services/productAI.ts
+server/services/propertyIntelligence/leasehawkEngine.ts
+server/services/propertyIntelligence/propertyEnquiriesService.ts
+server/services/propertyIntelligence/propertyIntelligenceService.ts
+server/services/propertyIntelligence/propertyListingsService.ts
+server/services/propertyIntelligence/propertyScoring.ts
+server/services/relocationIntelligence.ts
+server/services/trading/adaptationReport.ts
+server/services/trading/autonomousEngine.ts
+server/services/trading/business-signal-correlator.ts
+server/services/trading/capital-allocator-v2.ts
+server/services/trading/capital-flow-engine.ts
+server/services/trading/capitalScalingEngine.ts
+server/services/trading/complianceEngine.ts
+server/services/trading/configRollback.ts
+server/services/trading/copyability-engine.ts
+server/services/trading/correlationModel.ts
+server/services/trading/costModelEngine.ts
+server/services/trading/cross-domain-intelligence.ts
+server/services/trading/decision-explainer.ts
+server/services/trading/decisionQuality.ts
+server/services/trading/decisions.ts
+server/services/trading/executionAnalytics.ts
+server/services/trading/executionModel.ts
+server/services/trading/executionQualityScoring.ts
+server/services/trading/execution-router.ts
+server/services/trading/exitEvaluator.ts
+server/services/trading/future-scenarios.ts
+server/services/trading/index.ts
+server/services/trading/institutionalEngine.ts
+server/services/trading/learningRecommendations.ts
+server/services/trading/liveExecutionConfig.ts
+server/services/trading/liveExecutionGateway.ts
+server/services/trading/liveExecutionGuardrails.ts
+server/services/trading/liveReadiness.ts
+server/services/trading/liveReconciliation.ts
+server/services/trading/marketContext.ts
+server/services/trading/marketDataAdapter.ts
+server/services/trading/marketLoop.ts
+server/services/trading/marketSnapshots.ts
+server/services/trading/metaStrategyEngine.ts
+server/services/trading/mexcMarketData.ts
+server/services/trading/multiFactorEngine.ts
+server/services/trading/newsAdapter.ts
+server/services/trading/observabilityEngine.ts
+server/services/trading/opportunity-fusion.ts
+server/services/trading/outcome-learning-engine.ts
+server/services/trading/outcomes.ts
+server/services/trading/paperEngine.ts
+server/services/trading/performance.ts
+server/services/trading/phantomXComplianceService.ts
+server/services/trading/phantomXLearningEngine.ts
+server/services/trading/phantomXPaperLearner.ts
+server/services/trading/portfolioAllocator.ts
+server/services/trading/portfolio-memory.ts
+server/services/trading/portfolioResilience.ts
+server/services/trading/portfolioRiskThrottle.ts
+server/services/trading/portfolioState.ts
+server/services/trading/portfolioStressCalculator.ts
+server/services/trading/positionMarker.ts
+server/services/trading/positions.ts
+server/services/trading/reason-graph.ts
+server/services/trading/regimeDetectionEngine.ts
+server/services/trading/revenue-orchestrator.ts
+server/services/trading/risk-governor.ts
+server/services/trading/ROADMAP.md
+server/services/trading/ruleUpdateEngine.ts
+server/services/trading/shadowValidation.ts
+server/services/trading/simulation-lab.ts
+server/services/trading/state-normalizer.ts
+server/services/trading/strategies.ts
+server/services/trading/strategyHealth.ts
+server/services/trading/strategyStressProfile.ts
+server/services/trading/stressAlertEngine.ts
+server/services/trading/stress-engine-v2.ts
+server/services/trading/stressScenarioEngine.ts
+server/services/trading/stressScenarios.ts
+server/services/trading/timingEngine.ts
+server/services/trading/tradingConfig.ts
+server/services/trading/tradingEdgeAnalysis.ts
+server/services/trading/tradingGuardrails.ts
+server/services/trading/tradingLearning.ts
+server/services/trading/tradingMonitorSafe.ts
+server/services/trading/types/trading-types.ts
+server/services/trading/types.ts
+server/services/trading/venues/baseVenueAdapter.ts
+server/services/trading/venues/dryRunAdapter.ts
+server/services/trading/wallet-identity.ts
+server/services/trading/wallet-ledger.ts
+server/services/trading/wallet-monitor.ts
+server/services/trading/wallet-registry.ts
+server/services/trading/wallet-score-engine.ts
+server/services/trading/wallet-to-paper-bridge.ts
+server/services/whatsappAI.ts
+server/services/workspaceLearning.ts
+
+== 2) Key service directories ==
+server/services/aiManufacturerOutreach.ts
+server/services/buildings/buildingIngestionService.ts
+server/services/catalogNormaliser.ts
+server/services/clientPortal/adminClientManagementService.ts
+server/services/clientPortal/clientEngagementService.ts
+server/services/clientPortal/clientPortalService.ts
+server/services/clientPortal/planAccess.ts
+server/services/clientPortal/stripeSubscriptionService.ts
+server/services/companyIntelligenceService.ts
+server/services/dealClosing/approvalService.ts
+server/services/dealClosing/pricingEngine.ts
+server/services/dealClosing/proposalService.ts
+server/services/dealHunter.ts
+server/services/dealIntelligence.ts
+server/services/devStudio/devAIPatch.ts
+server/services/devStudio/devAutoFix.ts
+server/services/devStudio/devFiles.ts
+server/services/devStudio/devFileWrite.ts
+server/services/devStudio/devLogs.ts
+server/services/devStudio/devTerminal.ts
+server/services/floorPlanParser.ts
+server/services/followUpEmails.ts
+server/services/followUpScheduler.ts
+server/services/intelligence/buildingRiskEngine.ts
+server/services/intelligence/clusterEngine.ts
+server/services/intelligence/communications/aiWhatsAppService.ts
+server/services/intelligence/communications/whatsappFlows.ts
+server/services/intelligence/communications/whatsappGuards.ts
+server/services/intelligence/communications/whatsappOutbox.ts
+server/services/intelligence/communications/whatsappScheduler.ts
+server/services/intelligence/communications/whatsappService.ts
+server/services/intelligence/companyHierarchyService.ts
+server/services/intelligence/companyIntelligenceAggregationService.ts
+server/services/intelligence/confidenceScoringService.ts
+server/services/intelligence/dealHunter.ts
+server/services/intelligence/demandForecastEngine.ts
+server/services/intelligenceEngine.ts
+server/services/intelligence/intelligenceGraphService.ts
+server/services/intelligence/leaseExpiryService.ts
+server/services/intelligence/newsFeedScanner.ts
+server/services/intelligence/nexoraAI.ts
+server/services/intelligence/nexora/nexora-support.ts
+server/services/intelligence/nexora/nexora-types.ts
+server/services/intelligence/nexoraOrchestrator.ts
+server/services/intelligence/officeMovRadarService.ts
+server/services/intelligence/opportunityEngine.ts
+server/services/intelligence/partnerNetwork.ts
+server/services/intelligenceScheduler.ts
+server/services/intelligence/signalClassificationService.ts
+server/services/intelligence/signalIngestionService.ts
+server/services/intelligence/workspaceIntelligenceEngine.ts
+server/services/intelligence/zoneScoringEngine.ts
+server/services/jobOrchestrator.ts
+server/services/leadCsvImportService.ts
+server/services/leadEngine.ts
+server/services/leadIntelligence.ts
+server/services/leaseSignalScanner.ts
+server/services/newsFeedScanner.ts
+server/services/nexoraAI.ts
+server/services/nexoraLoop.ts
+server/services/notifications/clientEmailNotificationService.ts
+server/services/officeMovRadarService.ts
+server/services/opportunityScoring.ts
+server/services/outreach/bookingService.ts
+server/services/outreach/contactDiscoveryService.ts
+server/services/outreach/outreachEngine.ts
+server/services/outreach/outreach-gateway.ts
+server/services/outreach/outreachGenerationService.ts
+server/services/outreach/outreach-guards.ts
+server/services/outreach/outreach-hashing.ts
+server/services/outreach/outreach-job-runner.ts
+server/services/outreach/prospectEmailResolver.ts
+server/services/outreach/senderProfile.ts
+server/services/outreach/templateEnforcer.ts
+server/services/partnerAgreement.ts
+server/services/partnerNetwork/commissionService.ts
+server/services/partnerNetwork.ts
+server/services/partnerReferralAI.ts
+server/services/partnerScoring.ts
+server/services/platform/autonomousSafeActionService.ts
+server/services/platform/autonomyReadinessService.ts
+server/services/platform/productionDataStore.ts
+server/services/procurement/procurementQuoteOrchestrator.ts
+server/services/productAI.ts
+server/services/profitOptimisation.ts
+server/services/propertyIntelligence/leasehawkEngine.ts
+server/services/propertyIntelligence/propertyEnquiriesService.ts
+server/services/propertyIntelligence/propertyIntelligenceService.ts
+server/services/propertyIntelligence/propertyListingsService.ts
+server/services/propertyIntelligence/propertyScoring.ts
+server/services/realLeadSeeder.ts
+server/services/relocationIntelligence.ts
+server/services/runAllRealScans.ts
+server/services/sales/salesPsychologyEngine.ts
+server/services/stripe/invoiceService.ts
+server/services/stripe/paymentLinkService.ts
+server/services/stripe/revenueService.ts
+server/services/stripe/stripeConfigService.ts
+server/services/stripe/webhookService.ts
+server/services/supplierProcurement.ts
+server/services/trading/adaptationReport.ts
+server/services/trading/autonomousEngine.ts
+server/services/trading/business-signal-correlator.ts
+server/services/trading/capital-allocator-v2.ts
+server/services/trading/capital-flow-engine.ts
+server/services/trading/capitalScalingEngine.ts
+server/services/trading/complianceEngine.ts
+server/services/trading/configRollback.ts
+server/services/trading/copyability-engine.ts
+server/services/trading/correlationModel.ts
+server/services/trading/costModelEngine.ts
+server/services/trading/cross-domain-intelligence.ts
+server/services/trading/decision-explainer.ts
+server/services/trading/decisionQuality.ts
+server/services/trading/decisions.ts
+server/services/trading/executionAnalytics.ts
+server/services/trading/executionModel.ts
+server/services/trading/executionQualityScoring.ts
+server/services/trading/execution-router.ts
+server/services/trading/exitEvaluator.ts
+server/services/trading/future-scenarios.ts
+server/services/trading/index.ts
+server/services/trading/institutionalEngine.ts
+server/services/trading/learningRecommendations.ts
+server/services/trading/liveExecutionConfig.ts
+server/services/trading/liveExecutionGateway.ts
+server/services/trading/liveExecutionGuardrails.ts
+server/services/trading/liveReadiness.ts
+server/services/trading/liveReconciliation.ts
+server/services/trading/marketContext.ts
+server/services/trading/marketDataAdapter.ts
+server/services/trading/marketLoop.ts
+server/services/trading/marketSnapshots.ts
+server/services/trading/metaStrategyEngine.ts
+server/services/trading/mexcMarketData.ts
+server/services/trading/multiFactorEngine.ts
+server/services/trading/newsAdapter.ts
+server/services/trading/observabilityEngine.ts
+server/services/trading/opportunity-fusion.ts
+server/services/trading/outcome-learning-engine.ts
+server/services/trading/outcomes.ts
+server/services/trading/paperEngine.ts
+server/services/trading/performance.ts
+server/services/trading/phantomXComplianceService.ts
+server/services/trading/phantomXLearningEngine.ts
+server/services/trading/phantomXPaperLearner.ts
+server/services/trading/portfolioAllocator.ts
+server/services/trading/portfolio-memory.ts
+server/services/trading/portfolioResilience.ts
+server/services/trading/portfolioRiskThrottle.ts
+server/services/trading/portfolioState.ts
+server/services/trading/portfolioStressCalculator.ts
+server/services/trading/positionMarker.ts
+server/services/trading/positions.ts
+server/services/trading/reason-graph.ts
+server/services/trading/regimeDetectionEngine.ts
+server/services/trading/revenue-orchestrator.ts
+server/services/trading/risk-governor.ts
+server/services/trading/ROADMAP.md
+server/services/trading/ruleUpdateEngine.ts
+server/services/trading/shadowValidation.ts
+server/services/trading/simulation-lab.ts
+server/services/trading/state-normalizer.ts
+server/services/trading/strategies.ts
+server/services/trading/strategyHealth.ts
+server/services/trading/strategyStressProfile.ts
+server/services/trading/stressAlertEngine.ts
+server/services/trading/stress-engine-v2.ts
+server/services/trading/stressScenarioEngine.ts
+server/services/trading/stressScenarios.ts
+server/services/trading/timingEngine.ts
+server/services/trading/tradingConfig.ts
+server/services/trading/tradingEdgeAnalysis.ts
+server/services/trading/tradingGuardrails.ts
+server/services/trading/tradingLearning.ts
+server/services/trading/tradingMonitorSafe.ts
+server/services/trading/types/trading-types.ts
+server/services/trading/types.ts
+server/services/trading/venues/baseVenueAdapter.ts
+server/services/trading/venues/dryRunAdapter.ts
+server/services/trading/wallet-identity.ts
+server/services/trading/wallet-ledger.ts
+server/services/trading/wallet-monitor.ts
+server/services/trading/wallet-registry.ts
+server/services/trading/wallet-score-engine.ts
+server/services/trading/wallet-to-paper-bridge.ts
+server/services/whatsappAI.ts
+server/services/whatsappAssistant.ts
+server/services/whatsapp.ts
+server/services/workspaceLearning.ts
+server/services/workspaceStrategy.ts
+
+== 3) Nexora files ==
+client/src/components/NexoraCopilot.tsx
+client/src/components/NexoraJourneyBar.tsx
+client/src/hooks/useNexoraSignal.ts
+client/src/lib/nexoraEngine.ts
+client/src/pages/AdminNexoraAdvanced.tsx
+client/src/pages/AdminNexoraCommandCentre.tsx
+client/src/pages/AdminNexoraMonitor.tsx
+server/services/intelligence/nexoraAI.ts
+server/services/intelligence/nexora/nexora-support.ts
+server/services/intelligence/nexora/nexora-types.ts
+server/services/intelligence/nexoraOrchestrator.ts
+server/services/nexoraAI.ts
+server/services/nexoraLoop.ts
+
+== 4) Phantom X / trading files ==
+client/src/pages/AdminMarketIntelligence.tsx
+client/src/pages/AdminPhantomXCompliance.tsx
+client/src/pages/AdminPhantomXIntelligence.fix.css
+client/src/pages/AdminPhantomXIntelligence.tsx
+client/src/pages/AdminPredictionMarkets.tsx
+client/src/pages/AdminTradingMonitor.tsx
+client/src/pages/ClientPhantomXCompliance.tsx
+client/src/pages/ClientPhantomXPaper.tsx
+client/src/pages/legal/PhantomXRiskDisclaimer.tsx
+client/src/pages/Marketing.tsx
+client/src/pages/MarketMap.tsx
+client/src/pages/PhantomXLanding.tsx
+client/src/pages/TradeCustomersPortal.tsx
+client/src/pages/TradeProcurement.tsx
+scripts/phantomx-fix-learning-columns.cjs
+scripts/phantomx-import-old-learning.cjs
+scripts/phantomx-learning-schema.cjs
+scripts/phantomx-polymarket-terminal-schema.cjs
+scripts/phantomx-superbrain-schema.cjs
+server/marketing.ts
+server/services/trading/adaptationReport.ts
+server/services/trading/autonomousEngine.ts
+server/services/trading/business-signal-correlator.ts
+server/services/trading/capital-allocator-v2.ts
+server/services/trading/capital-flow-engine.ts
+server/services/trading/capitalScalingEngine.ts
+server/services/trading/complianceEngine.ts
+server/services/trading/configRollback.ts
+server/services/trading/copyability-engine.ts
+server/services/trading/correlationModel.ts
+server/services/trading/costModelEngine.ts
+server/services/trading/cross-domain-intelligence.ts
+server/services/trading/decision-explainer.ts
+server/services/trading/decisionQuality.ts
+server/services/trading/decisions.ts
+server/services/trading/executionAnalytics.ts
+server/services/trading/executionModel.ts
+server/services/trading/executionQualityScoring.ts
+server/services/trading/execution-router.ts
+server/services/trading/exitEvaluator.ts
+server/services/trading/future-scenarios.ts
+server/services/trading/index.ts
+server/services/trading/institutionalEngine.ts
+server/services/trading/learningRecommendations.ts
+server/services/trading/liveExecutionConfig.ts
+server/services/trading/liveExecutionGateway.ts
+server/services/trading/liveExecutionGuardrails.ts
+server/services/trading/liveReadiness.ts
+server/services/trading/liveReconciliation.ts
+server/services/trading/marketContext.ts
+server/services/trading/marketDataAdapter.ts
+server/services/trading/marketLoop.ts
+server/services/trading/marketSnapshots.ts
+server/services/trading/metaStrategyEngine.ts
+server/services/trading/mexcMarketData.ts
+server/services/trading/multiFactorEngine.ts
+server/services/trading/newsAdapter.ts
+server/services/trading/observabilityEngine.ts
+server/services/trading/opportunity-fusion.ts
+server/services/trading/outcome-learning-engine.ts
+server/services/trading/outcomes.ts
+server/services/trading/paperEngine.ts
+server/services/trading/performance.ts
+server/services/trading/phantomXComplianceService.ts
+server/services/trading/phantomXLearningEngine.ts
+server/services/trading/phantomXPaperLearner.ts
+server/services/trading/portfolioAllocator.ts
+server/services/trading/portfolio-memory.ts
+server/services/trading/portfolioResilience.ts
+server/services/trading/portfolioRiskThrottle.ts
+server/services/trading/portfolioState.ts
+server/services/trading/portfolioStressCalculator.ts
+server/services/trading/positionMarker.ts
+server/services/trading/positions.ts
+server/services/trading/reason-graph.ts
+server/services/trading/regimeDetectionEngine.ts
+server/services/trading/revenue-orchestrator.ts
+server/services/trading/risk-governor.ts
+server/services/trading/ROADMAP.md
+server/services/trading/ruleUpdateEngine.ts
+server/services/trading/shadowValidation.ts
+server/services/trading/simulation-lab.ts
+server/services/trading/state-normalizer.ts
+server/services/trading/strategies.ts
+server/services/trading/strategyHealth.ts
+server/services/trading/strategyStressProfile.ts
+server/services/trading/stressAlertEngine.ts
+server/services/trading/stress-engine-v2.ts
+server/services/trading/stressScenarioEngine.ts
+server/services/trading/stressScenarios.ts
+server/services/trading/timingEngine.ts
+server/services/trading/tradingConfig.ts
+server/services/trading/tradingEdgeAnalysis.ts
+server/services/trading/tradingGuardrails.ts
+server/services/trading/tradingLearning.ts
+server/services/trading/tradingMonitorSafe.ts
+server/services/trading/types/trading-types.ts
+server/services/trading/types.ts
+server/services/trading/venues/baseVenueAdapter.ts
+server/services/trading/venues/dryRunAdapter.ts
+server/services/trading/wallet-identity.ts
+server/services/trading/wallet-ledger.ts
+server/services/trading/wallet-monitor.ts
+server/services/trading/wallet-registry.ts
+server/services/trading/wallet-score-engine.ts
+server/services/trading/wallet-to-paper-bridge.ts
+
+== 5) Orchestrator / loop / autonomous files ==
+client/public/catalog-assets/office-furniture/cat-manager-desks.png
+client/public/catalog-assets/products/fsz-manager-oak-desk.png
+server/services/followUpScheduler.ts
+server/services/intelligence/communications/whatsappScheduler.ts
+server/services/intelligence/nexoraOrchestrator.ts
+server/services/intelligenceScheduler.ts
+server/services/jobOrchestrator.ts
+server/services/nexoraLoop.ts
+server/services/outreach/outreach-job-runner.ts
+server/services/platform/autonomousSafeActionService.ts
+server/services/procurement/procurementQuoteOrchestrator.ts
+server/services/trading/autonomousEngine.ts
+server/services/trading/marketLoop.ts
+server/services/trading/revenue-orchestrator.ts
+server/services/trading/wallet-registry.ts
+
+== 6) Exports that look like brains / engines / loops ==
+  server/services/intelligence/nexora/nexora-support.ts:519:export async function upsertDecisionRecord(
+  server/services/intelligence/nexora/nexora-support.ts:558:export const recordDecisionRecord = upsertDecisionRecord;
+  server/services/intelligence/nexora/nexora-support.ts:562:export function computeOutcomeLearningUpdate(
+  server/services/intelligence/nexora/nexora-support.ts:979:export function buildRuleDecision(
+  server/services/intelligence/nexora/nexora-support.ts:1050:export function normalizeAIDecision(
+  server/services/intelligence/nexora/nexora-support.ts:1063:export function finalizeDecision(
+  server/services/intelligence/nexoraAI.ts:38:export async function nexoraAIAnalysis(input: NexoraAIInput): Promise<NormalizedAIDecision> {
+  server/services/intelligence/leaseExpiryService.ts:248:export async function runLeaseExpiryEngine(): Promise<void> {
+  server/services/intelligence/nexoraOrchestrator.ts:228:export async function runNexoraEngine(input?: {
+  server/services/dealClosing/pricingEngine.ts:25:export class PricingEngine {
+  server/services/dealClosing/pricingEngine.ts:68:export const pricingEngine = new PricingEngine();
+  server/services/trading/decisionQuality.ts:128:export async function reviewDecisionQuality(): Promise<DecisionQualitySummary> {
+  server/services/trading/decisions.ts:50:export function buildDecisions(): TradingDecision[] {
+  server/services/trading/index.ts:34:export async function getTradingMonitorData(): Promise<TradingMonitorResponse> {
+  server/services/trading/marketLoop.ts:18:export function isMarketLoopRunning(): boolean {
+  server/services/trading/marketLoop.ts:22:export function getMarketLoopStatus() {
+  server/services/trading/marketLoop.ts:31:export function startMarketLoop(): void {
+  server/services/trading/marketLoop.ts:45:export function stopMarketLoop(): void {
+  server/services/trading/wallet-monitor.ts:11:export async function runWalletMonitorCycle(): Promise<WalletAction[]> {
+  server/services/trading/wallet-monitor.ts:40:export async function startWalletMonitor(intervalMs = 5000) {
+  server/services/trading/wallet-monitor.ts:63:export function stopWalletMonitor() {
+  server/services/trading/wallet-monitor.ts:73:export function getWalletMonitorState() {
+  server/services/trading/wallet-monitor.ts:89:export const getMonitorState = getWalletMonitorState;
+  server/services/trading/learningRecommendations.ts:127:export async function getLearningRecommendations(): Promise<RecommendationOutput[]> {
+  server/services/trading/paperEngine.ts:24:export async function createDecision(params: {
+  server/services/trading/paperEngine.ts:307:export async function getRecentDecisions(limit = 30): Promise<TradingDecision[]> {
+  server/services/trading/paperEngine.ts:447:export async function getMonitorState(): Promise<TradingMonitorState> {
+  server/services/trading/tradingLearning.ts:99:export async function analyzeOutcomes(): Promise<LearningAnalysis> {
+  server/services/trading/tradingMonitorSafe.ts:142:export async function getSafeTradingMonitorData() {
+  server/services/trading/phantomXPaperLearner.ts:446:export async function runPhantomXPaperLoopOnceIfEnabled() {
+  server/services/trading/phantomXLearningEngine.ts:31:export async function runPhantomXLearningCycle() {
+  server/services/trading/phantomXLearningEngine.ts:273:export async function getPhantomXLearningSnapshot() {
+  server/services/jobOrchestrator.ts:87:export async function initJobOrchestrator(): Promise<boolean> {
+  server/services/jobOrchestrator.ts:188:export async function stopJobOrchestrator(): Promise<void> {
+  server/services/leadEngine.ts:213:export async function getLeadEngineStats() {
+  server/services/nexoraLoop.ts:86:export async function triggerNexoraLoopRunNow(): Promise<NexoraCycleResult> {
+  server/services/nexoraLoop.ts:90:export function getNexoraLoopState(): NexoraLoopState {
+  server/services/nexoraLoop.ts:102:export function setNexoraLoopInterval(intervalMs: number): NexoraLoopState {
+  server/services/nexoraLoop.ts:117:export function startNexoraLoop(intervalMs?: number): NexoraLoopState {
+  server/services/nexoraLoop.ts:153:export function stopNexoraLoop(): NexoraLoopState {
+  server/services/workspaceLearning.ts:81:export async function captureWorkspaceLearning(data: {
+  server/services/workspaceLearning.ts:153:export function buildLearningContext(similar: WorkspaceLearning[]): string {
+  server/services/workspaceStrategy.ts:210:export async function getLearningInsights(): Promise<{
+  server/services/platform/autonomousSafeActionService.ts:148:export async function simulateAutonomousLeadDecision(lead: LeadLike) {
+  server/services/procurement/procurementQuoteOrchestrator.ts:1650:export async function queueShippingAgentRfq(id: string, opts: any = {}) {
+  client/src/components/NexoraCopilot.tsx:113:export function NexoraCopilot() {
+  client/src/lib/nexoraEngine.ts:466:export function runNexoraEngine(input: NexoraInput): NexoraDecision {
+  shared/schema.ts:1377:export const workspaceLearningRecords = pgTable("workspace_learning_records", {
+  shared/schema.ts:1407:export const insertWorkspaceLearningSchema = createInsertSchema(workspaceLearningRecords).omit({
+  shared/schema.ts:2973:export const nexoraDecisions = pgTable(
+  shared/schema.ts:3005:export const insertNexoraDecisionSchema = createInsertSchema(nexoraDecisions).omit({ id: true, createdAt: true });
+  shared/schema.ts:3142:export const paperTradingDecisions = pgTable(
+  shared/schema.ts:3180:export const insertPaperTradingDecisionSchema = createInsertSchema(paperTradingDecisions).omit({ id: true, createdAt: true, updatedAt: true });
+
+== 7) Runtime startup calls ==
+  server/services/intelligence/nexora/nexora-types.ts:41:  trigger: "manual" | "background" | "webhook" | "scheduler" | "api";
+  server/services/intelligence/nexora/nexora-types.ts:81:  backgroundIntervalMs?: number;
+  server/services/intelligence/nexora/nexora-support.ts:64:  return new Promise((resolve) => setTimeout(resolve, ms));
+  server/services/intelligence/nexora/nexora-support.ts:752:    const timer = setTimeout(() => controller.abort(), 15_000);
+  server/services/intelligence/nexora/nexora-support.ts:846:    const timer = setTimeout(() => {
+  server/services/intelligence/partnerNetwork.ts:7:// - runNexoraPartnerRoutingStep(): one function you can call inside your Nexora cycle
+  server/services/intelligence/partnerNetwork.ts:398:export async function runNexoraPartnerRoutingStep(): Promise<{
+  server/services/intelligence/nexoraOrchestrator.ts:61: * - fixes broken backgroundState handling
+  server/services/intelligence/nexoraOrchestrator.ts:73:  backgroundIntervalMs: 5 * 60 * 1000,
+  server/services/intelligence/nexoraOrchestrator.ts:118:const backgroundState: BackgroundState = {
+  server/services/intelligence/nexoraOrchestrator.ts:128:let backgroundTimer: NodeJS.Timeout | null = null;
+  server/services/intelligence/nexoraOrchestrator.ts:156:  return backgroundState.running;
+  server/services/intelligence/nexoraOrchestrator.ts:160:  return { ...backgroundState };
+  server/services/intelligence/nexoraOrchestrator.ts:164: * Background runner
+  server/services/intelligence/nexoraOrchestrator.ts:167:export function startNexoraBackground(
+  server/services/intelligence/nexoraOrchestrator.ts:171:  const intervalMs = Math.max(30_000, merged.backgroundIntervalMs ?? DEFAULT_CONFIG.backgroundIntervalMs ?? 60_000);
+  server/services/intelligence/nexoraOrchestrator.ts:173:  if (backgroundTimer) {
+  server/services/intelligence/nexoraOrchestrator.ts:174:    clearInterval(backgroundTimer);
+  server/services/intelligence/nexoraOrchestrator.ts:175:    backgroundTimer = null;
+  server/services/intelligence/nexoraOrchestrator.ts:178:  backgroundState.enabled = true;
+  server/services/intelligence/nexoraOrchestrator.ts:179:  backgroundState.lastError = null;
+  server/services/intelligence/nexoraOrchestrator.ts:181:  backgroundTimer = setInterval(async () => {
+  server/services/intelligence/nexoraOrchestrator.ts:182:    if (!backgroundState.enabled) return;
+  server/services/intelligence/nexoraOrchestrator.ts:183:    if (backgroundState.running) return;
+  server/services/intelligence/nexoraOrchestrator.ts:186:      await runNexoraCycle("background", merged);
+  server/services/intelligence/nexoraOrchestrator.ts:188:      backgroundState.lastError =
+  server/services/intelligence/nexoraOrchestrator.ts:189:        error instanceof Error ? error.message : "Unknown background run error";
+  server/services/intelligence/nexoraOrchestrator.ts:200:  backgroundState.enabled = false;
+  server/services/intelligence/nexoraOrchestrator.ts:202:  if (backgroundTimer) {
+  server/services/intelligence/nexoraOrchestrator.ts:203:    clearInterval(backgroundTimer);
+  server/services/intelligence/nexoraOrchestrator.ts:204:    backgroundTimer = null;
+  server/services/intelligence/nexoraOrchestrator.ts:214:export async function runNexoraCycle(
+  server/services/intelligence/nexoraOrchestrator.ts:218:  return runNexoraEngine({
+  server/services/intelligence/nexoraOrchestrator.ts:228:export async function runNexoraEngine(input?: {
+  server/services/intelligence/nexoraOrchestrator.ts:251:  if (backgroundState.running) {
+  server/services/intelligence/nexoraOrchestrator.ts:269:  backgroundState.running = true;
+  server/services/intelligence/nexoraOrchestrator.ts:270:  backgroundState.lastStartedAt = startedAt.toISOString();
+  server/services/intelligence/nexoraOrchestrator.ts:271:  backgroundState.lastRunId = runId;
+  server/services/intelligence/nexoraOrchestrator.ts:272:  backgroundState.lastError = null;
+  server/services/intelligence/nexoraOrchestrator.ts:389:    backgroundState.lastError = message;
+  server/services/intelligence/nexoraOrchestrator.ts:420:    backgroundState.running = false;
+  server/services/intelligence/nexoraOrchestrator.ts:421:    backgroundState.lastFinishedAt = new Date().toISOString();
+  server/services/outreach/outreach-job-runner.ts:15:const WORKER_ID = `worker-${process.pid}-${Date.now()}`;
+  server/services/outreach/outreachGenerationService.ts:223:          await new Promise((resolve) => setTimeout(resolve, jitterMs));
+  server/services/stripe/webhookService.ts:98:    // Another worker likely inserted it concurrently.
+  server/services/trading/index.ts:12:import { startMarketLoop, getMarketLoopStatus } from "./marketLoop";
+  server/services/trading/index.ts:26:export { startMarketLoop, stopMarketLoop, getMarketLoopStatus } from "./marketLoop";
+  server/services/trading/index.ts:36:    startMarketLoop();
+  server/services/trading/marketDataAdapter.ts:51:    const timeout = setTimeout(() => controller.abort(), 8000);
+  server/services/trading/marketDataAdapter.ts:108:    const timeout = setTimeout(() => controller.abort(), 10000);
+  server/services/trading/marketLoop.ts:10:let fastTimer: ReturnType<typeof setInterval> | null = null;
+  server/services/trading/marketLoop.ts:11:let detailedTimer: ReturnType<typeof setInterval> | null = null;
+  server/services/trading/marketLoop.ts:12:let pruneTimer: ReturnType<typeof setInterval> | null = null;
+  server/services/trading/marketLoop.ts:31:export function startMarketLoop(): void {
+  server/services/trading/marketLoop.ts:38:  setTimeout(() => runDetailedCycle(), 5000);
+  server/services/trading/marketLoop.ts:40:  fastTimer = setInterval(() => runFastCycle(), FAST_INTERVAL_MS);
+  server/services/trading/marketLoop.ts:41:  detailedTimer = setInterval(() => runDetailedCycle(), DETAILED_INTERVAL_MS);
+  server/services/trading/marketLoop.ts:42:  pruneTimer = setInterval(() => runPrune(), PRUNE_INTERVAL_MS);
+  server/services/trading/wallet-monitor.ts:59:    await new Promise((r) => setTimeout(r, intervalMs));
+  server/services/trading/tradingMonitorSafe.ts:13:    setTimeout(() => {
+  server/services/trading/mexcMarketData.ts:35:  const timer = setTimeout(() => controller.abort(), ms);
+  server/services/trading/phantomXPaperLearner.ts:446:export async function runPhantomXPaperLoopOnceIfEnabled() {
+  server/services/partnerNetwork.ts:8:  runNexoraPartnerRoutingStep,
+  server/services/dealHunter.ts:396:  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  server/services/dealHunter.ts:655:      await new Promise((r) => setTimeout(r, 5000));
+  server/services/dealHunter.ts:691:      await new Promise((r) => setTimeout(r, 1200));
+  server/services/floorPlanParser.ts:521:  // Flood-fill background from corners to create a binary map of "non-background"
+  server/services/floorPlanParser.ts:558:  // Find edge pixels that border background — these form the outer contour
+  server/services/floorPlanParser.ts:563:      // Is any neighbor background (visited by flood-fill)?
+  server/services/followUpEmails.ts:15:    <a href="${href}" style="display:inline-block;background:#1a1a1a;color:#c9a84c;text-decoration:none;padding:14px 28px;border-radius:6px;font-size:14px;font-weight:600;letter-spacing:0.5px;">${label}</a>
+  server/services/followUpEmails.ts:29:  return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f9fafb;font-family:'Helvetica Neue',Arial,sans-serif;">
+  server/services/followUpEmails.ts:30:  <div style="max-width:600px;margin:40px auto;background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
+  server/services/followUpEmails.ts:31:    <div style="background:#1a1a1a;padding:28px 36px;display:flex;align-items:center;gap:12px;">
+  server/services/followUpEmails.ts:38:    <div style="background:#f3f4f6;padding:16px 36px;border-top:1px solid #e5e7eb;">
+  server/services/followUpScheduler.ts:90:  setTimeout(() => runFollowUpScheduler(), 10_000);
+  server/services/followUpScheduler.ts:91:  setInterval(() => runFollowUpScheduler(), INTERVAL_MS);
+  server/services/intelligenceScheduler.ts:59:  triggeredBy: "scheduler" | "manual" = "scheduler"
+  server/services/intelligenceScheduler.ts:191:// startIntelligenceScheduler() previously ran its own setInterval timers for
+  server/services/intelligenceScheduler.ts:204:  console.log("[Scheduler] Intelligence scheduler subordinated to NexoraOrchestrator — no independent timers started");
+  server/services/intelligenceScheduler.ts:306:  // ── Nexora push retry workers ──────────────────────────────────────────────
+  server/services/intelligenceScheduler.ts:339:  console.log("[Scheduler] pg-boss ACTIVE — push retry workers registered");
+  server/services/jobOrchestrator.ts:3:// Replaces in-process setInterval/setTimeout with persistent, crash-safe queues.
+  server/services/jobOrchestrator.ts:155:    console.error(`[JobOrchestrator] Failed to register worker for ${queue}:`, err);
+  server/services/newsFeedScanner.ts:458:  return new Promise(resolve => setTimeout(resolve, ms));
+  server/services/newsFeedScanner.ts:652: * Used by the scheduler and "Scan All" admin button.
+  server/services/nexoraLoop.ts:4:  runNexoraCycle,
+  server/services/nexoraLoop.ts:8:type NexoraCycleResult = Awaited<ReturnType<typeof runNexoraCycle>>;
+  server/services/nexoraLoop.ts:38:  const result = await runNexoraCycle(source as any, {});
+  server/services/nexoraLoop.ts:52:    // Don't fail the Nexora loop if WhatsApp scheduler fails
+  server/services/nexoraLoop.ts:69:  loopTimer = setInterval(async () => {
+  server/services/nexoraLoop.ts:93:    running: isNexoraCycleRunning(),
+  server/services/nexoraLoop.ts:117:export function startNexoraLoop(intervalMs?: number): NexoraLoopState {
+  server/services/nexoraLoop.ts:136:  // Run immediately on start so admin can verify Nexora is actually operating.
+  server/services/propertyIntelligence/propertyIntelligenceService.ts:65:    timer = setTimeout(() => resolve(fallback), ms);
+  server/services/notifications/clientEmailNotificationService.ts:132:  <div style="font-family:Arial,sans-serif;background:#080A12;color:#ffffff;padding:32px;">
+  server/services/notifications/clientEmailNotificationService.ts:133:    <div style="max-width:680px;margin:auto;background:#111827;border:1px solid #2a3142;border-radius:18px;padding:28px;">
+  server/services/procurement/procurementQuoteOrchestrator.ts:732:    body { font-family: Arial, sans-serif; color: #17233d; margin: 0; background: #f4f6f8; }
+  server/services/procurement/procurementQuoteOrchestrator.ts:733:    .page { max-width: 980px; margin: 28px auto; background: white; padding: 42px; box-shadow: 0 12px 40px rgba(0,0,0,.08); }
+  server/services/procurement/procurementQuoteOrchestrator.ts:742:    th { text-align: left; background: #0b1d3a; color: white; padding: 12px; }
+  server/services/procurement/procurementQuoteOrchestrator.ts:744:    .summary { margin-left: auto; width: 360px; background: #f8fafc; padding: 20px; border-radius: 12px; }
+  server/services/procurement/procurementQuoteOrchestrator.ts:748:    .card { background: #f8fafc; padding: 18px; border-radius: 12px; }
+  server/systemPrompt.ts:214:- Lobby and floor protection: carpet runners, elevator door pads, and corner protection are non-negotiable — any damage to building becomes a TCD liability
+  server/email.ts:78:    <td colspan="2" style="padding:14px 14px 6px;background:#0f0f13;color:#c9a84c;font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase">${label}</td>
+  server/email.ts:100:      <a href="${href}" style="display:inline-block;background:#c9a84c;color:#0f0f13;font-weight:700;padding:10px 22px;border-radius:6px;text-decoration:none;font-size:13px;letter-spacing:0.3px">${label} →</a>
+  server/email.ts:109:<body style="margin:0;padding:0;background:#0a0a0f;font-family:'Helvetica Neue',Arial,sans-serif">
+  server/email.ts:110:  <div style="max-width:660px;margin:28px auto;background:#14141c;border-radius:10px;overflow:hidden;border:1px solid #252530">
+  server/email.ts:111:    <div style="background:linear-gradient(135deg,#1c1c28 0%,#0f0f16 100%);padding:24px 28px;border-bottom:2px solid ${accentColor}">
+  server/email.ts:116:      <table style="width:100%;border-collapse:collapse;background:#1a1a24;border-radius:8px;overflow:hidden;border:1px solid #252530">
+  server/email.ts:134:<body style="margin:0;padding:0;background:#f0ede8;font-family:'Helvetica Neue',Arial,sans-serif">
+  server/email.ts:135:  <div style="max-width:580px;margin:32px auto;background:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 2px 20px rgba(0,0,0,0.07)">
+  server/email.ts:136:    <div style="background:#0f0f13;padding:26px 32px">
+  server/email.ts:143:    <div style="background:#f7f5f2;border-top:1px solid #e8e4de;padding:18px 32px">
+  server/email.ts:176:    <a href="${href}" style="display:inline-block;background:#0f0f13;color:#ffffff;font-weight:700;padding:13px 26px;border-radius:7px;text-decoration:none;font-size:13px;letter-spacing:0.3px">${label} →</a>
+  server/email.ts:181:  return `<div style="height:2px;background:linear-gradient(90deg,#c9a84c,transparent);margin:20px 0;border-radius:2px"></div>`;
+  server/email.ts:185:  return `<div style="background:#f7f5f1;border-radius:7px;padding:14px 16px;margin:18px 0;border-left:3px solid #c9a84c">
+  server/email.ts:625:      ? `${goldDivider()}<p style="color:#8a8278;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:0 0 8px">Your Message</p><div style="background:#f7f5f1;border-radius:6px;padding:14px 16px;margin:0 0 20px;border-left:3px solid #c9a84c"><p style="margin:0;color:#4a453e;font-size:13px;line-height:1.75">${data.message}</p></div>`
+  server/email.ts:706:<body style="margin:0;padding:0;background:#f4f2ef;font-family:'Helvetica Neue',Arial,sans-serif">
+  server/email.ts:707:  <div style="max-width:600px;margin:28px auto;background:#ffffff;border-radius:10px;overflow:hidden;border:1px solid #e0dcd6">
+  server/email.ts:708:    <div style="background:#0f0f13;padding:24px 28px;border-bottom:3px solid #c9a84c">
+  server/email.ts:784:    `<div style="background:#fffbf0;border:1px solid #e8d9a0;border-radius:7px;padding:14px 16px;margin:18px 0">
+  server/email.ts:821:            <tr style="background:#f7f5f2">
+  server/email.ts:830:            <tr style="background:${i % 2 === 0 ? "#fff" : "#fafaf9"}">
+  server/email.ts:850:      <tr style="background:#0f0f13"><td style="padding:10px 10px;color:#c9a84c;font-weight:700;font-size:14px">Total (inc. GST)</td><td style="padding:10px 10px;text-align:right;color:#c9a84c;font-weight:700;font-size:14px">${fmt(quote.totalIncGst)}</td></tr>
+  server/email.ts:854:    ? `<div style="background:#fffbf0;border:1px solid #e8d9a0;border-radius:8px;padding:14px 16px;margin:18px 0">
+  server/email.ts:1085:<body style="margin:0;padding:0;background:#0f0f0f;font-family:'Helvetica Neue',Arial,sans-serif;color:#ffffff;">
+  server/email.ts:1094:      <div style="display:inline-block;background:rgba(5,150,105,0.12);border:1px solid rgba(5,150,105,0.25);padding:6px 14px;margin-bottom:20px;">
+  server/email.ts:1105:    <div style="background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.15);padding:24px;margin-bottom:28px;">
+  server/email.ts:1109:          <div style="width:24px;height:24px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+  server/email.ts:1115:          <div style="width:24px;height:24px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+  server/email.ts:1121:          <div style="width:24px;height:24px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+  server/email.ts:1130:      <a href="${opts.dashboardUrl}" style="flex:1;display:inline-block;background:#c9a84c;color:#000;font-size:13px;font-weight:600;padding:13px 20px;text-decoration:none;text-align:center;letter-spacing:0.02em;">
+  server/email.ts:1133:      <a href="${opts.submitDealUrl}" style="flex:1;display:inline-block;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.8);font-size:13px;font-weight:500;padding:13px 20px;text-decoration:none;text-align:center;">
+  server/email.ts:1169:<body style="margin:0;padding:0;background:#0f0f0f;font-family:'Helvetica Neue',Arial,sans-serif;color:#ffffff;">
+  server/email.ts:1190:    <div style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);padding:24px;margin-bottom:32px;">
+  server/email.ts:1202:      <a href="${opts.signingUrl}" style="display:inline-block;background:#c9a84c;color:#000000;font-size:14px;font-weight:600;padding:14px 36px;text-decoration:none;letter-spacing:0.03em;">
+  server/marketing.ts:133:<body style="margin:0;padding:0;background:#0a0c10;font-family:Georgia,serif;">
+  server/marketing.ts:134:<div style="max-width:600px;margin:0 auto;background:#0d0f14;">
+  server/marketing.ts:135:  <div style="background:linear-gradient(135deg,#1a1c24,#0d0f14);padding:40px 32px;text-align:center;border-bottom:1px solid rgba(201,168,76,0.2);">
+  server/vite.ts:15:    : "/home/runner/workspace";
+  server/routes.ts:103:import { runNexoraCycle } from "./services/intelligence/nexoraOrchestrator";
+  server/routes.ts:171:  note: "Fallback loop state active. This proves control routes work, but full autonomous execution still needs runNexoraEngine wiring verification.",
+  server/routes.ts:177:    uptimeMs: __nexoraLoopState.running && __nexoraLoopState.startedAt
+  server/routes.ts:183:function startNexoraLoop(config: any = {}) {
+  server/routes.ts:832:          app.get("/api/nexora/background-status", (_req, res) => {
+  server/routes.ts:836:              console.error("Nexora background status error:", err);
+  server/routes.ts:838:                error: err?.message || "Failed to get background status",
+  server/routes.ts:862:              const result = await runNexoraCycle("manual");
+  server/routes.ts:872:                error: err?.message || "Failed to run Nexora",
+  server/routes.ts:1080:              const nexoraResult = await runNexoraCycle("background");
+  server/routes.ts:1162:            const { startNexoraLoop, getNexoraLoopState } = await import("./services/nexoraLoop");
+  server/routes.ts:1164:            startNexoraLoop(intervalMs);
+  server/routes.ts:6043:          const result = await runNexoraCycle("manual");
+  server/routes.ts:6058:              const result = await runNexoraCycle("scheduler");
+  server/routes.ts:7713:      return res.send(`<!DOCTYPE html><html><head><title>Unsubscribed — The Corporate Desk</title><style>body{font-family:'Segoe UI',sans-serif;background:#0f0f13;color:#e8e4dc;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.card{background:#1a1a22;border:1px solid #C9A84C;border-radius:12px;padding:48px;max-width:480px;text-align:center}h2{color:#C9A84C;margin-top:0}p{color:#a09880;line-height:1.6}</style></head><body><div class="card"><h2>You've been unsubscribed</h2><p>You'll no longer receive outreach emails from The Corporate Desk.</p><p style="font-size:13px;margin-top:32px">If this was a mistake, please reply to any previous email from us and we'll reinstate your contact preferences.</p></div></body></html>`);
+  server/routes.ts:10180:      steps.push({ step: "6. Proposal Auto-Generate", status: "ok", detail: "Queued via PROPOSAL_AUTO_SEND worker" });
+  server/routes.ts:10494:      // Reset blocked messages to draft so they get picked up by scheduler
+  server/routes.ts:10746:              await new Promise(resolve => setTimeout(resolve, jitterMs));
+  server/routes.ts:12313:      // 5. Loop state + background state
+  server/index.ts:15:import { startNexoraLoop } from "./services/nexoraLoop";
+  server/index.ts:1628:          startNexoraLoop();
+  server/index.ts:1632:        console.log("[startup] TCD_DISABLE_STARTUP_JOBS=true — Nexora startup loop skipped for local testing");
+  server/index.ts:1635:      console.log("[NexoraLoop] Auto-started from server/index.ts");
+  server/index.ts.chat-env-backup.1777434183:15:import { startNexoraLoop } from "./services/nexoraLoop";
+  server/index.ts.chat-env-backup.1777434183:1614:          startNexoraLoop();
+  server/index.ts.chat-env-backup.1777434183:1618:        console.log("[startup] TCD_DISABLE_STARTUP_JOBS=true — Nexora startup loop skipped for local testing");
+  server/index.ts.chat-env-backup.1777434183:1621:      console.log("[NexoraLoop] Auto-started from server/index.ts");
+
+== 8) OpenAI / model usage ==
+  server/services/intelligence/nexora/nexora-support.ts:168:      const res = await fetch("https://api.openai.com/v1/embeddings", {
+  server/services/intelligence/communications/aiWhatsAppService.ts:1:import OpenAI from "openai";
+  server/services/intelligence/communications/aiWhatsAppService.ts:5:const openai = new OpenAI({
+  server/services/intelligence/communications/aiWhatsAppService.ts:124:    const completion = await openai.chat.completions.create(
+  server/services/intelligence/communications/aiWhatsAppService.ts:126:        model: "gpt-4o",
+  server/services/intelligence/nexoraAI.ts:1:import OpenAI from "openai";
+  server/services/intelligence/nexoraAI.ts:12:    "[NexoraAI] No OpenAI API key found — AI analysis will be skipped. " +
+  server/services/intelligence/nexoraAI.ts:17:const openai = resolvedApiKey
+  server/services/intelligence/nexoraAI.ts:18:  ? new OpenAI({
+  server/services/intelligence/nexoraAI.ts:41:  if (!openai) {
+  server/services/intelligence/nexoraAI.ts:60:  const response = await openai.chat.completions.create({
+  server/services/intelligence/nexoraAI.ts:61:    model: "gpt-4o-mini",
+  server/services/intelligence/signalIngestionService.ts:21:import OpenAI from "openai";
+  server/services/intelligence/signalIngestionService.ts:23:function getOpenAI(): OpenAI {
+  server/services/intelligence/signalIngestionService.ts:24:  return new OpenAI({
+  server/services/intelligence/signalIngestionService.ts:164:  const openai = getOpenAI();
+  server/services/intelligence/signalIngestionService.ts:167:    const resp = await openai.chat.completions.create({
+  server/services/intelligence/signalIngestionService.ts:168:      model: "gpt-4o-mini",
+  server/services/outreach/contactDiscoveryService.ts:11:import OpenAI from "openai";
+  server/services/outreach/contactDiscoveryService.ts:24:const openai = new OpenAI({
+  server/services/outreach/contactDiscoveryService.ts:213:    const completion = await openai.chat.completions.create({
+  server/services/outreach/contactDiscoveryService.ts:214:      model: "gpt-4o-mini",
+  server/services/outreach/outreachGenerationService.ts:9:import OpenAI from "openai";
+  server/services/outreach/outreachGenerationService.ts:25:const openai = new OpenAI({
+  server/services/outreach/outreachGenerationService.ts:139:    const completion = await openai.chat.completions.create({
+  server/services/outreach/outreachGenerationService.ts:140:      model: "gpt-4o-mini",
+  server/services/trading/decisions.ts:75:        model: "v0.4.2-paper", market: "BTC/USD", direction: "long", confidence: 82, regime: "trending", paperMode: true,
+  server/services/trading/decisions.ts:114:        model: "v0.4.2-paper", market: "XAUUSD", direction: "long", confidence: 78, regime: "trending", paperMode: true,
+  server/services/trading/decisions.ts:153:        model: "v0.4.2-paper", market: "ETH/USD", direction: "long", confidence: 61, regime: "ranging", paperMode: true,
+  server/services/trading/decisions.ts:192:        model: "v0.4.2-paper", market: "SOL/USD", direction: "long", confidence: 74, regime: "volatile", paperMode: true,
+  server/services/trading/decisions.ts:231:        model: "v0.4.2-paper", market: "BTC/USD", direction: "long", confidence: 68, regime: "low_vol to breakout", paperMode: true,
+  server/services/trading/decisions.ts:270:        model: "v0.4.2-paper", market: "ETH/USD", direction: "short", confidence: 55, regime: "ranging", paperMode: true,
+  server/services/trading/decisions.ts:323:      fullPayload: { model: "v0.4.2-paper", market: mkt, direction: dir, strategy: strats[i % strats.length], confidence: conf, paperMode: true },
+  server/services/aiManufacturerOutreach.ts:1:import OpenAI from "openai";
+  server/services/aiManufacturerOutreach.ts:5:const openai = new OpenAI({
+  server/services/aiManufacturerOutreach.ts:104:      const completion = await openai.chat.completions.create({
+  server/services/aiManufacturerOutreach.ts:105:        model: "gpt-4o-mini",
+  server/services/productAI.ts:1:import OpenAI from "openai";
+  server/services/productAI.ts:6:const openai = new OpenAI({
+  server/services/productAI.ts:100:    const response = await openai.chat.completions.create({
+  server/services/productAI.ts:101:      model: "gpt-4o",
+  server/services/productAI.ts:110:    console.error("[ProductAI] OpenAI error:", e.message);
+  server/services/supplierProcurement.ts:1:import OpenAI from "openai";
+  server/services/supplierProcurement.ts:3:const openai = new OpenAI({
+  server/services/whatsappAssistant.ts:32:const OPENAI_MODEL = process.env.WHATSAPP_AI_MODEL || "gpt-4o-mini";
+  server/services/whatsappAssistant.ts:151:    model: OPENAI_MODEL,
+  server/services/whatsappAssistant.ts:160:  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  server/services/whatsappAssistant.ts:171:    console.error("[WhatsApp AI] OpenAI error:", errText);
+  server/services/nexoraAI.ts:1:import OpenAI from "openai";
+  server/services/nexoraAI.ts:10:    "[NexoraAI] No OpenAI API key found — AI analysis will be skipped. " +
+  server/services/nexoraAI.ts:16:  ? new OpenAI({
+  server/services/nexoraAI.ts:36:    const resp = await oai.chat.completions.create({
+  server/services/nexoraAI.ts:37:      model: "gpt-4o-mini",
+  server/services/companyIntelligenceService.ts:5:import OpenAI from "openai";
+  server/services/companyIntelligenceService.ts:9:const openai = new OpenAI({
+  server/services/companyIntelligenceService.ts:260:  const response = await openai.chat.completions.create({
+  server/services/companyIntelligenceService.ts:261:    model: "gpt-4o-mini",
+  server/services/companyIntelligenceService.ts:342:  const response = await openai.chat.completions.create({
+  server/services/companyIntelligenceService.ts:343:    model: "gpt-4o-mini",
+  server/services/floorPlanParser.ts:4: * Detection pipeline (NO OpenAI Vision):
+  server/services/floorPlanParser.ts:412:  _openai?: unknown,
+  server/services/intelligenceEngine.ts:5:import OpenAI from "openai";
+  server/services/intelligenceEngine.ts:8:function getOpenAI(): OpenAI {
+  server/services/intelligenceEngine.ts:9:  return new OpenAI({
+  server/services/intelligenceEngine.ts:29:  const openai = getOpenAI();
+  server/services/intelligenceEngine.ts:54:  const response = await openai.chat.completions.create({
+  server/services/intelligenceEngine.ts:55:    model: "gpt-4o",
+  server/services/intelligenceEngine.ts:104:  const openai = getOpenAI();
+  server/services/intelligenceEngine.ts:130:  const response = await openai.chat.completions.create({
+  server/services/intelligenceEngine.ts:131:    model: "gpt-4o",
+  server/services/intelligenceEngine.ts:172:  const openai = getOpenAI();
+  server/services/intelligenceEngine.ts:213:  const response = await openai.chat.completions.create({
+  server/services/intelligenceEngine.ts:214:    model: "gpt-4o",
+  server/services/intelligenceEngine.ts:283:  // OpenAI API check
+  server/services/intelligenceEngine.ts:286:    const openai = getOpenAI();
+  server/services/intelligenceEngine.ts:287:    await openai.chat.completions.create({
+  server/services/intelligenceEngine.ts:288:      model: "gpt-4o",
+  server/services/intelligenceEngine.ts:293:      name: "OpenAI API",
+  server/services/intelligenceEngine.ts:300:      name: "OpenAI API",
+  server/services/intelligenceEngine.ts:302:      detail: `OpenAI error: ${err.message}`,
+  server/services/intelligenceEngine.ts:371:  const openai = getOpenAI();
+  server/services/intelligenceEngine.ts:422:  const response = await openai.chat.completions.create({
+  server/services/intelligenceEngine.ts:423:    model: "gpt-4o",
+  server/services/leadIntelligence.ts:1:import OpenAI from "openai";
+  server/services/leadIntelligence.ts:4:const openai = new OpenAI({
+  server/services/leadIntelligence.ts:127:  const completion = await openai.chat.completions.create({
+  server/services/leadIntelligence.ts:128:    model: "gpt-5-mini",
+  server/services/leaseSignalScanner.ts:1:import OpenAI from "openai";
+  server/services/leaseSignalScanner.ts:5:const openai = new OpenAI({
+  server/services/leaseSignalScanner.ts:181:  const completion = await openai.chat.completions.create({
+  server/services/leaseSignalScanner.ts:182:    model: "gpt-4o",
+  server/services/newsFeedScanner.ts:16:import OpenAI from "openai";
+  server/services/newsFeedScanner.ts:20:function makeOpenAI(): OpenAI {
+  server/services/newsFeedScanner.ts:25:    throw new Error("OpenAI API key not configured (AI_INTEGRATIONS_OPENAI_API_KEY or OPENAI_API_KEY)");
+  server/services/newsFeedScanner.ts:28:  return new OpenAI({
+  server/services/newsFeedScanner.ts:36:let _openai: OpenAI | null = null;
+  server/services/newsFeedScanner.ts:37:function getOpenAI(): OpenAI {
+  server/services/newsFeedScanner.ts:38:  if (!_openai) _openai = makeOpenAI();
+  server/services/newsFeedScanner.ts:39:  return _openai;
+  server/services/newsFeedScanner.ts:48:  console.warn("[NewsFeedScanner] OpenAI quota exhausted — skipping classify for 1 hour");
+  server/services/newsFeedScanner.ts:54:    console.log("[NewsFeedScanner] OpenAI quota cooldown expired — retrying");
+  server/services/newsFeedScanner.ts:263:    const resp = await getOpenAI().chat.completions.create({
+  server/services/newsFeedScanner.ts:264:      model: "gpt-4o-mini",
+  server/services/officeMovRadarService.ts:1:import OpenAI from "openai";
+  server/services/officeMovRadarService.ts:36:const openai = new OpenAI({
+  server/services/officeMovRadarService.ts:373:    const completion = await openai.chat.completions.create(
+  server/services/officeMovRadarService.ts:375:        model: "gpt-4o",
+  server/services/partnerReferralAI.ts:1:import OpenAI from "openai";
+  server/services/partnerReferralAI.ts:7:const openai = new OpenAI({
+  server/services/partnerReferralAI.ts:43:    const completion = await openai.chat.completions.create({
+  server/services/partnerReferralAI.ts:44:      model: "gpt-4o-mini",
+  server/services/whatsappAI.ts:1:import OpenAI from "openai";
+  server/services/whatsappAI.ts:4:const openai = new OpenAI({
+  server/services/whatsappAI.ts:248:    const extraction = await openai.chat.completions.create({
+  server/services/whatsappAI.ts:249:      model: "gpt-4o-mini",
+  server/services/whatsappAI.ts:349:  const completion = await openai.chat.completions.create({
+  server/services/whatsappAI.ts:350:    model: "gpt-4o",
+  server/services/procurement/procurementQuoteOrchestrator.ts:160:      model: item.model || null,
+  server/services/procurement/procurementQuoteOrchestrator.ts:212:        model: item.model ? String(item.model) : undefined,
+  server/services/procurement/procurementQuoteOrchestrator.ts:221:          model: "RD-3000-GR",
+  server/systemPrompt.ts:42:- The "specification" model: get specified by architects, interior designers, and workplace consultants early in the project — this bypasses competitive tender entirely and is worth more than any advertising
+  server/marketing.ts:2:import OpenAI from "openai";
+  server/marketing.ts:6:const openai = new OpenAI({
+  server/marketing.ts:92:      const completion = await openai.chat.completions.create({
+  server/marketing.ts:93:        model: "gpt-5-mini",
+  server/routes.ts:72:async function parseFloorPlan(_filePath: string, _openai?: any, squareMetres?: any): Promise<any> {
+  server/routes.ts:110:import OpenAI from "openai";
+  server/routes.ts:1004:              const OpenAI = (await import("openai")).default;
+  server/routes.ts:1005:              const openai = new OpenAI({ apiKey: AI_KEY, baseURL: AI_BASE });
+  server/routes.ts:1007:              const completion = await openai.chat.completions.create({
+  server/routes.ts:1008:                model: "gpt-4o",
+  server/routes.ts:1189:const openai = new OpenAI({
+  server/routes.ts:2038:          const OpenAI = (await import("openai")).default;
+  server/routes.ts:2039:          const openai = new OpenAI({
+  server/routes.ts:2060:          const completion = await openai.chat.completions.create({
+  server/routes.ts:2061:            model: "gpt-4o-mini",
+  server/routes.ts:3141:        const aiResult = await openai.chat.completions.create({
+  server/routes.ts:3142:          model: "gpt-5-mini",
+  server/routes.ts:3384:        const stream = (await openai.chat.completions.create({
+  server/routes.ts:3385:          model: "gpt-5-mini",
+  server/routes.ts:3403:        const completion = await openai.chat.completions.create({
+  server/routes.ts:3404:          model: "gpt-5-mini",
+  server/routes.ts:3456:      const stream = (await openai.chat.completions.create({
+  server/routes.ts:3457:        model: "gpt-4o",
+  server/routes.ts:3764:        ? await parseFloorPlan(floorPlanFilePath, openai, body.squareMetres).catch(() => null)
+  server/routes.ts:3797:      const aiResult = await openai.chat.completions.create({
+  server/routes.ts:3798:        model: "gpt-5-mini",
+  server/routes.ts:4482:      const completion = await openai.chat.completions.create({
+  server/routes.ts:4483:        model: "gpt-5-mini",
+  server/routes.ts:5041:      const completion = await openai.chat.completions.create({
+  server/routes.ts:5042:        model: "gpt-4o",
+  server/routes.ts:6108:      const openaiModule = await import("openai");
+  server/routes.ts:6109:      const client = new openaiModule.default({
+  server/routes.ts:6143:      const resp = await client.chat.completions.create({
+  server/routes.ts:6144:        model: "gpt-4o-mini",
+  server/routes.ts:11107:      const OpenAI = (await import("openai")).default;
+  server/routes.ts:11108:      const oai = new OpenAI({ apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY, baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL });
+  server/routes.ts:11112:      const resp = await oai.chat.completions.create({
+  server/routes.ts:11113:        model: "gpt-4o-mini",
+  server/routes.ts:11262:      const openai = new OpenAI({ apiKey: AI_INTEGRATIONS_OPENAI_API_KEY, baseURL: AI_INTEGRATIONS_OPENAI_BASE_URL });
+  server/routes.ts:11275:      const resp = await openai.chat.completions.create({
+  server/routes.ts:11276:        model: "gpt-4o-mini",
+  server/routes.ts:13202:          JSON.stringify({ model: "phantomx-fast-paper-v1" }),
+  server/routes.ts:13226:        model: "phantomx-fast-paper-v1",
+  server/routes.ts:13345:            model: "phantomx-superbrain-v1",
+  server/routes.ts:13392:              JSON.stringify({ model: "phantomx-superbrain-v1", simulated: true }),
+  server/routes.ts:13407:        model: "phantomx-superbrain-v1",
+  server/routes.ts:13484:          JSON.stringify({ model: "phantomx-superbrain-v1" }),
+  server/routes.ts:13594:        model: state.rows[0] || null,
+  server/index.ts:20:// Keep old and new OpenAI env names in sync so all chatbots/services work.
+  client/src/data/blog/relocation.ts:723:<p>Many organisations use a hybrid model: a smaller private office as the home base for permanent team members, with coworking day passes or hot desks available for occasional users, remote workers visiting the city, or overflow periods. This provides cultural identity in the private space while preserving flexibility for variable attendance patterns.</p>
+
+== 9) API routes that expose AI / agents / trading ==
+  server/services/intelligence/communications/whatsappService.ts:239:// Mount as: app.post("/webhook/whatsapp", whatsappWebhookHandler());
+  server/marketing.ts:118:  app.post("/api/marketing/send-email", async (req, res) => {
+  server/routes.ts:469:  app.get("/api/client/phantomx/paper", async (req: any, res: any) => {
+  server/routes.ts:492:  app.get("/api/admin/property-intelligence", async (req: any, res: any) => {
+  server/routes.ts:499:  app.get("/api/admin/property-intelligence/opportunities", async (req: any, res: any) => {
+  server/routes.ts:506:  app.get("/api/admin/property-intelligence/stats", async (req: any, res: any) => {
+  server/routes.ts:513:  app.post("/api/admin/property-intelligence/opportunities", async (req: any, res: any) => {
+  server/routes.ts:520:  app.patch("/api/admin/property-intelligence/opportunities/:id", async (req: any, res: any) => {
+  server/routes.ts:527:  app.post("/api/admin/property-intelligence/opportunities/:id/generate-outreach", async (req: any, res: any) => {
+  server/routes.ts:537:  app.post("/api/admin/property-intelligence/opportunities/:id/push-to-radar", async (req: any, res: any) => {
+  server/routes.ts:549:  app.post("/api/admin/property-intelligence/scan-all", async (req: any, res: any) => {
+  server/routes.ts:628:  app.get("/api/admin/trading/paper/state", async (req: any, res: any) => {
+  server/routes.ts:636:  app.post("/api/admin/trading/paper/start", async (req: any, res: any) => {
+  server/routes.ts:644:  app.post("/api/admin/trading/paper/stop", async (req: any, res: any) => {
+  server/routes.ts:652:  app.post("/api/admin/trading/paper/tick", async (req: any, res: any) => {
+  server/routes.ts:660:  app.post("/api/admin/trading/paper/reset", async (req: any, res: any) => {
+  server/routes.ts:669:  app.get("/api/admin/trading/monitor", async (req: any, res: any) => {
+  server/routes.ts:832:          app.get("/api/nexora/background-status", (_req, res) => {
+  server/routes.ts:843:          app.get("/api/nexora/history", async (_req, res) => {
+  server/routes.ts:860:          app.post("/api/nexora/run", async (_req, res) => {
+  server/routes.ts:880:          app.post("/api/nexora/copilot", async (req, res) => {
+  server/routes.ts:1156:          app.get("/api/nexora/loop/status", async (_req, res) => {
+  server/routes.ts:1161:          app.post("/api/nexora/loop/start", async (req, res) => {
+  server/routes.ts:1168:          app.post("/api/nexora/loop/stop", async (_req, res) => {
+  server/routes.ts:1174:          app.patch("/api/nexora/loop/config", async (req, res) => {
+  server/routes.ts:1564:  app.post("/api/ai/manufacturer-outreach", runManufacturerOutreach);
+  server/routes.ts:2369:  app.get("/api/admin/nexora/partner-intelligence", async (req, res) => {
+  server/routes.ts:2404:  app.get("/api/nexora/opportunities/top", async (req, res) => {
+  server/routes.ts:2481:  app.get("/api/nexora/pipeline", async (req, res) => {
+  server/routes.ts:2491:  app.get("/api/nexora/pipeline/:id", async (req, res) => {
+  server/routes.ts:2499:  app.patch("/api/nexora/pipeline/:id", async (req, res) => {
+  server/routes.ts:2523:  app.delete("/api/nexora/pipeline/:id", async (req, res) => {
+  server/routes.ts:2531:  app.post("/api/nexora/pipeline/:id/auto-quote", async (req, res) => {
+  server/routes.ts:2575:  app.get("/api/nexora/outcomes", async (req, res) => {
+  server/routes.ts:2586:  app.get("/api/nexora/financial-summary", async (_req, res) => {
+  server/routes.ts:2688:  app.get("/api/nexora/signals/summary", async (req, res) => {
+  server/routes.ts:2749:  app.get("/api/nexora/outreach/pending", async (req, res) => {
+  server/routes.ts:2801:  app.get("/api/nexora/priority-actions", async (req, res) => {
+  server/routes.ts:2914:  app.get("/api/nexora/follow-up-queue", async (req, res) => {
+  server/routes.ts:2959:  app.patch("/api/nexora/outreach/:id/approve", async (req, res) => {
+  server/routes.ts:4134:  app.get("/api/admin/opportunity-intelligence", async (_req, res) => {
+  server/routes.ts:4277:  app.post("/api/admin/opportunity-intelligence/rescore-all", async (req, res) => {
+  server/routes.ts:5012:  app.post("/api/ai/draft-manufacturer-message", async (req, res) => {
+  server/routes.ts:5342:  app.get("/api/admin/workspace-learning", async (_req, res) => {
+  server/routes.ts:5351:  app.get("/api/admin/workspace-learning/:id", async (req, res) => {
+  server/routes.ts:5361:  app.patch("/api/admin/workspace-learning/:id/conversion", async (req, res) => {
+  server/routes.ts:5371:  app.get("/api/admin/workspace-learning/stats/summary", async (_req, res) => {
+  server/routes.ts:5427:  app.get("/api/admin/intelligence/jobs", async (_req, res) => {
+  server/routes.ts:5436:  app.post("/api/admin/intelligence/jobs/trigger", async (req, res) => {
+  server/routes.ts:5447:  app.get("/api/admin/intelligence/reports", async (req, res) => {
+  server/routes.ts:5457:  app.patch("/api/admin/intelligence/reports/:id/status", async (req, res) => {
+  server/routes.ts:5467:  app.get("/api/admin/intelligence/trends", async (_req, res) => {
+  server/routes.ts:5476:  app.get("/api/admin/intelligence/issues", async (req, res) => {
+  server/routes.ts:5486:  app.patch("/api/admin/intelligence/issues/:id/status", async (req, res) => {
+  server/routes.ts:5496:  app.get("/api/admin/intelligence/blog-articles", async (req, res) => {
+  server/routes.ts:5506:  app.patch("/api/admin/intelligence/blog-articles/:id/status", async (req, res) => {
+  server/routes.ts:5516:  app.get("/api/admin/intelligence/health", async (_req, res) => {
+  server/routes.ts:6228:  app.get("/api/admin/company-intelligence", async (req, res) => {
+  server/routes.ts:6244:  app.get("/api/admin/company-intelligence/:id", async (req, res) => {
+  server/routes.ts:6255:  app.post("/api/admin/company-intelligence/sync", async (req, res) => {
+  server/routes.ts:6265:  app.post("/api/admin/company-intelligence/:id/extract-contacts", async (req, res) => {
+  server/routes.ts:6275:  app.delete("/api/admin/company-intelligence/:id", async (req, res) => {
+  server/routes.ts:6439:  app.get("/api/admin/deal-intelligence", async (req, res) => {
+  server/routes.ts:6452:  app.get("/api/admin/deal-intelligence/summary", async (req, res) => {
+  server/routes.ts:6487:  app.post("/api/admin/deal-intelligence/analyse-all", async (req, res) => {
+  server/routes.ts:6496:  app.get("/api/admin/deal-intelligence/:id", async (req, res) => {
+  server/routes.ts:6506:  app.get("/api/admin/deal-intelligence/by-related/:relatedId", async (req, res) => {
+  server/routes.ts:6515:  app.patch("/api/admin/deal-intelligence/:id/outcome", async (req, res) => {
+  server/routes.ts:6525:  app.delete("/api/admin/deal-intelligence/:id", async (req, res) => {
+  server/routes.ts:6927:  app.get("/api/partner-dashboard/:email", async (req, res) => {
+  server/routes.ts:7231:  app.post("/api/referrals/:id/mark-paid", async (req, res) => {
+  server/routes.ts:7308:  app.get("/api/admin/relocation-signals/market-intelligence", async (req, res) => {
+  server/routes.ts:7367:  app.get("/api/admin/workspace-strategy/learning-insights", async (req, res) => {
+  server/routes.ts:7922:  app.post("/api/admin/rfq/:id/generate-emails", async (req, res) => {
+  server/routes.ts:8407:  app.post("/api/admin/intelligence/trigger-scan", async (req, res) => {
+  server/routes.ts:8431:  app.patch("/api/admin/intelligence/source/:id/toggle", async (req, res) => {
+  server/routes.ts:8446:  app.get("/api/admin/intelligence/lease-expiry-opps", async (_req, res) => {
+  server/routes.ts:8454:  app.get("/api/admin/intelligence/graph-stats", async (_req, res) => {
+  server/routes.ts:8462:  app.get("/api/chat/intelligence-context", async (_req, res) => {
+  server/routes.ts:8498:  app.get("/api/admin/intelligence/dashboard", async (_req, res) => {
+  server/routes.ts:8571:  app.get("/api/admin/intelligence/job-queue", async (_req, res) => {
+  server/routes.ts:8580:  app.get("/api/admin/intelligence/source-health", async (_req, res) => {
+  server/routes.ts:8589:  app.get("/api/admin/market-intelligence", async (_req, res) => {
+  server/routes.ts:9318:  app.get("/api/map/layers/deposits-paid", async (_req, res) => {
+  server/routes.ts:9547:  app.post("/api/commissions/:id/mark-paid", async (req, res) => {
+  server/routes.ts:10044:  app.post("/api/admin/test-email", async (_req, res) => {
+  server/routes.ts:10255:  app.post("/api/intelligence/ingest-lead", async (req, res) => {
+  server/routes.ts:11253:  app.post("/api/admin/catalog-staging/items/:id/ai-suggest", async (req, res) => {
+  server/routes.ts:11498:  app.get("/api/strategy-bookings/available", async (req, res) => {
+  server/routes.ts:11571:  app.get("/api/nexora/decisions", async (req, res) => {
+  server/routes.ts:11587:  app.get("/api/nexora/thresholds/current", async (req, res) => {
+  server/routes.ts:11608:  app.get("/api/nexora/outcomes/stats", async (req, res) => {
+  server/routes.ts:11643:  app.post("/api/nexora/outcomes", async (req, res) => {
+  server/routes.ts:11717:  app.get("/api/nexora/knowledge", async (req, res) => {
+  server/routes.ts:11732:  app.get("/api/nexora/health", async (_req, res) => {
+  server/routes.ts:11829:  app.get("/api/admin/trading/monitor", async (req: any, res: any) => {
+  server/routes.ts:11879:  app.get("/api/admin/trading/learning", async (_req, res) => {
+  server/routes.ts:11929:  app.get("/api/admin/trading/adaptation", async (_req, res) => {
+  server/routes.ts:11943:  app.get("/api/admin/trading/portfolio", async (_req, res) => {
+  server/routes.ts:11988:  app.get("/api/admin/trading/compliance", async (_req, res) => {
+  server/routes.ts:11997:  app.get("/api/admin/trading/cost-model", async (_req, res) => {
+  server/routes.ts:12006:  app.get("/api/admin/trading/timing", async (_req, res) => {
+  server/routes.ts:12015:  app.get("/api/admin/trading/multi-factor", async (_req, res) => {
+  server/routes.ts:12024:  app.get("/api/admin/trading/regime", async (_req, res) => {
+  server/routes.ts:12035:  app.get("/api/admin/trading/meta-strategy", async (_req, res) => {
+  server/routes.ts:12044:  app.get("/api/admin/trading/capital-scaling", async (_req, res) => {
+  server/routes.ts:12053:  app.get("/api/admin/trading/observability", async (_req, res) => {
+  server/routes.ts:12062:  app.get("/api/admin/trading/autonomous", async (_req, res) => {
+  server/routes.ts:12071:  app.get("/api/admin/trading/institutional", async (_req, res) => {
+  server/routes.ts:12080:  app.get("/api/admin/trading/live-bridge", async (_req, res) => {
+  server/routes.ts:12111:  app.get("/api/admin/trading/execution", async (_req, res) => {
+  server/routes.ts:12124:  app.get("/api/admin/trading/stress", async (_req, res) => {
+  server/routes.ts:12135:  app.get("/api/admin/nexora/monitor", async (_req, res) => {
+  server/routes.ts:12222:  app.post("/api/nexora/outreach/approve-batch", async (req, res) => {
+  server/routes.ts:12254:  app.get("/api/nexora/runtime-state", async (_req, res) => {
+  server/routes.ts:12534:  app.get("/api/client/phantomx/compliance-rules", async (_req: any, res: any) => {
+  server/routes.ts:12539:  app.get("/api/client/phantomx/applications", async (req: any, res: any) => {
+  server/routes.ts:12550:  app.post("/api/client/phantomx/applications", async (req: any, res: any) => {
+  server/routes.ts:12567:  app.get("/api/admin/phantomx/applications", async (req: any, res: any) => {
+  server/routes.ts:12574:  app.patch("/api/admin/phantomx/applications/:id", async (req: any, res: any) => {
+  server/routes.ts:12692:  app.get("/api/admin/notifications/email-log", async (req: any, res: any) => {
+  server/routes.ts:12806:  app.get("/api/admin/phantomx/intelligence", async (_req: any, res: any) => {
+  server/routes.ts:12940:  app.post("/api/admin/phantomx/scan-polymarket", async (_req: any, res: any) => {
+  server/routes.ts:13094:  app.post("/api/admin/phantomx/learn", async (_req: any, res: any) => {
+  server/routes.ts:13107:  app.get("/api/admin/phantomx/learning", async (_req: any, res: any) => {
+  server/routes.ts:13124:  app.post("/api/admin/phantomx/learn", async (_req: any, res: any) => {
+  server/routes.ts:13238:  app.post("/api/admin/phantomx/superbrain", async (_req: any, res: any) => {
+  server/routes.ts:13419:  app.post("/api/admin/phantomx/feedback", async (_req: any, res: any) => {
+  server/routes.ts:13561:  app.get("/api/admin/phantomx/report-card", async (_req: any, res: any) => {
+  server/index.ts:448:app.get("/api/admin/nexora/monitor", async (req: any, res: any) => {
+  server/index.ts:1262:app.post("/api/admin/autonomy/actions/simulate-lead-decision", async (req: any, res: any) => {
+  server/index.ts:1472:app.post("/api/admin/procurement/quote-requests/:id/shipping-agent-rfq", async (req: any, res: any) => {
+  server/index.ts:1479:app.get("/api/admin/procurement/email-outbox", async (req: any, res: any) => {
+  server/index.ts:1485:app.post("/api/admin/procurement/email-outbox/send", async (req: any, res: any) => {
+  server/index.ts:1512:app.get("/api/admin/nexora/recovery-policy", async (req: any, res: any) => {
+  server/index.ts:1518:app.post("/api/admin/nexora/recovery-analyze", async (req: any, res: any) => {
+  server/index.ts:1575:app.get("/api/admin/notifications/email-log", (_req: any, res: any) => {
+  server/index.ts.chat-env-backup.1777434183:434:app.get("/api/admin/nexora/monitor", async (req: any, res: any) => {
+  server/index.ts.chat-env-backup.1777434183:1248:app.post("/api/admin/autonomy/actions/simulate-lead-decision", async (req: any, res: any) => {
+  server/index.ts.chat-env-backup.1777434183:1458:app.post("/api/admin/procurement/quote-requests/:id/shipping-agent-rfq", async (req: any, res: any) => {
+  server/index.ts.chat-env-backup.1777434183:1465:app.get("/api/admin/procurement/email-outbox", async (req: any, res: any) => {
+  server/index.ts.chat-env-backup.1777434183:1471:app.post("/api/admin/procurement/email-outbox/send", async (req: any, res: any) => {
+  server/index.ts.chat-env-backup.1777434183:1498:app.get("/api/admin/nexora/recovery-policy", async (req: any, res: any) => {
+  server/index.ts.chat-env-backup.1777434183:1504:app.post("/api/admin/nexora/recovery-analyze", async (req: any, res: any) => {
+  server/index.ts.chat-env-backup.1777434183:1561:app.get("/api/admin/notifications/email-log", (_req: any, res: any) => {
+
+== 10) Database table names that look like AI brains / memory / decisions ==
+  shared/models/chat.ts:1:import { pgTable, serial, integer, text, timestamp } from "drizzle-orm/pg-core";
+  shared/models/chat.ts:6:export const conversations = pgTable("conversations", {
+  shared/models/chat.ts:12:export const messages = pgTable("messages", {
+  shared/walkinshawSchema.ts:2:  pgTable,
+  shared/walkinshawSchema.ts:12:export const walkinshawCampaigns = pgTable("walkinshaw_campaigns", {
+  shared/walkinshawSchema.ts:30:export const walkinshawLeads = pgTable("walkinshaw_leads", {
+  shared/walkinshawSchema.ts:48:export const walkinshawDeals = pgTable("walkinshaw_deals", {
+  shared/walkinshawSchema.ts:62:export const walkinshawEntries = pgTable("walkinshaw_entries", {
+  shared/schema.ts:3:  pgTable,
+  shared/schema.ts:33:export const users = pgTable("users", {
+  shared/schema.ts:52:export const leads = pgTable(
+  shared/schema.ts:82:    nexoraIntent: text("nexora_intent"),
+  shared/schema.ts:83:    nexoraJourney: text("nexora_journey"),
+  shared/schema.ts:84:    nexoraUrgency: text("nexora_urgency"),
+  shared/schema.ts:85:    nexoraConfidence: integer("nexora_confidence"),
+  shared/schema.ts:86:    nexoraAdminSummary: text("nexora_admin_summary"),
+  shared/schema.ts:87:    nexoraNextAction: text("nexora_next_action"),
+  shared/schema.ts:88:    nexoraDealBand: text("nexora_deal_band"),
+  shared/schema.ts:89:    nexoraEscalation: text("nexora_escalation"),
+  shared/schema.ts:130:export const opportunities = pgTable(
+  shared/schema.ts:203:export const prospectedLeads = pgTable(
+  shared/schema.ts:218:    decisionMakers: text("decision_makers").notNull(),
+  shared/schema.ts:254:export const territories = pgTable("territories", {
+  shared/schema.ts:277:export const buildings = pgTable(
+  shared/schema.ts:318:export const tenants = pgTable(
+  shared/schema.ts:348:export const leases = pgTable(
+  shared/schema.ts:384:export const buildingSuburbEdges = pgTable("building_suburb_edges", {
+  shared/schema.ts:405:export const supplierQuotes = pgTable("supplier_quotes", {
+  shared/schema.ts:427:export const quotes = pgTable(
+  shared/schema.ts:496:export const rfqProjects = pgTable("rfq_projects", {
+  shared/schema.ts:523:export const rfqResponses = pgTable("rfq_responses", {
+  shared/schema.ts:550:export const nexoraRuns = pgTable("nexora_runs", {
+  shared/schema.ts:556:  outreachRuns: integer("outreach_runs").notNull().default(0),
+  shared/schema.ts:565:export type NexoraRun = typeof nexoraRuns.$inferSelect;
+  shared/schema.ts:566:export type InsertNexoraRun = typeof nexoraRuns.$inferInsert;
+  shared/schema.ts:572:export const intelligenceSources = pgTable(
+  shared/schema.ts:603:export const rawSignals = pgTable(
+  shared/schema.ts:634:export const intelligenceSignals = pgTable(
+  shared/schema.ts:686:export const signalEvidence = pgTable(
+  shared/schema.ts:715:export const dealHunterSignals = pgTable(
+  shared/schema.ts:792:export const officeMoveRadar = pgTable(
+  shared/schema.ts:860:export const relocationSignals = pgTable("relocation_signals", {
+  shared/schema.ts:900:export const companyIntelligence = pgTable("company_intelligence", {
+  shared/schema.ts:938:export const companyContacts = pgTable(
+  shared/schema.ts:976:export const companyBuildingEdges = pgTable(
+  shared/schema.ts:1006:export const companyZoneScores = pgTable(
+  shared/schema.ts:1036:export const buildingRiskSnapshots = pgTable(
+  shared/schema.ts:1069:export const suburbDemandSnapshots = pgTable(
+  shared/schema.ts:1106:export const leaseRecords = pgTable(
+  shared/schema.ts:1144:export const leaseExpiryPredictions = pgTable(
+  shared/schema.ts:1179:export const companyHierarchyNodes = pgTable(
+  shared/schema.ts:1214:export const companyRelationships = pgTable(
+  shared/schema.ts:1243:export const intelligenceGraphEdges = pgTable(
+  shared/schema.ts:1277:export const siteVisits = pgTable("site_visits", {
+  shared/schema.ts:1286:  userAgentHash: varchar("user_agent_hash"),
+  shared/schema.ts:1298:export const visitorSessions = pgTable("visitor_sessions", {
+  shared/schema.ts:1336:export const planningRequests = pgTable("planning_requests", {
+  shared/schema.ts:1354:  aiSummary: text("ai_summary"),
+  shared/schema.ts:1355:  aiRecommendations: text("ai_recommendations"),
+  shared/schema.ts:1377:export const workspaceLearningRecords = pgTable("workspace_learning_records", {
+  shared/schema.ts:1414:export const workspaceStrategyRecommendations = pgTable("workspace_strategy_recommendations", {
+  shared/schema.ts:1456:export const productReviews = pgTable("product_reviews", {
+  shared/schema.ts:1480:export const manufacturerMessages = pgTable("manufacturer_messages", {
+  shared/schema.ts:1505:export const supplierProfiles = pgTable("supplier_profiles", {
+  shared/schema.ts:1538:export const followUpSequences = pgTable("follow_up_sequences", {
+  shared/schema.ts:1564:export const scheduledJobs = pgTable("scheduled_jobs", {
+  shared/schema.ts:1578:export const intelligenceReports = pgTable("intelligence_reports", {
+  shared/schema.ts:1589:export const spendingTrends = pgTable("spending_trends", {
+  shared/schema.ts:1601:export const websiteIssues = pgTable("website_issues", {
+  shared/schema.ts:1619:export const profitRecords = pgTable("profit_records", {
+  shared/schema.ts:1650:export const dealIntelligenceRecords = pgTable("deal_intelligence_records", {
+  shared/schema.ts:1699:export const generatedBlogArticles = pgTable("generated_blog_articles", {
+  shared/schema.ts:1720:export const referrals = pgTable("referrals", {
+  shared/schema.ts:1735:export const partners = pgTable("partners", {
+  shared/schema.ts:1794:export const partnerOpportunities = pgTable("partner_opportunities", {
+  shared/schema.ts:1829:export const partnerReferrals = pgTable("partner_referrals", {
+  shared/schema.ts:1846:  aiSummary: text("ai_summary"),
+  shared/schema.ts:1847:  aiFitScore: integer("ai_fit_score"),
+  shared/schema.ts:1848:  aiUrgencyScore: integer("ai_urgency_score"),
+  shared/schema.ts:1849:  aiCloseLikelihoodScore: integer("ai_close_likelihood_score"),
+  shared/schema.ts:1850:  aiPriority: text("ai_priority"),
+  shared/schema.ts:1851:  aiRecommendedOwner: text("ai_recommended_owner"),
+  shared/schema.ts:1852:  aiNextBestAction: text("ai_next_best_action"),
+  shared/schema.ts:1853:  aiTagsJson: jsonb("ai_tags_json").$type<string[]>().default([]),
+  shared/schema.ts:1854:  aiRiskFlagsJson: jsonb("ai_risk_flags_json").$type<string[]>().default([]),
+  shared/schema.ts:1874:export const partnerReferralEvents = pgTable("partner_referral_events", {
+  shared/schema.ts:1890:export const partnerCommissions = pgTable("partner_commissions", {
+  shared/schema.ts:1911:export const partnerDocuments = pgTable("partner_documents", {
+  shared/schema.ts:1926:export const partnerSettings = pgTable("partner_settings", {
+  shared/schema.ts:1936:export const partnerAgreements = pgTable("partner_agreements", {
+  shared/schema.ts:1953:export const revenueShareRecords = pgTable("revenue_share_records", {
+  shared/schema.ts:1972:export const commissions = pgTable("commissions", {
+  shared/schema.ts:2001:export const leadMessageTemplates = pgTable("lead_message_templates", {
+  shared/schema.ts:2015:export const leadOutreach = pgTable("lead_outreach", {
+  shared/schema.ts:2033:export const contactDiscoveryRuns = pgTable(
+  shared/schema.ts:2034:  "contact_discovery_runs",
+  shared/schema.ts:2059:export const contactVerificationLogs = pgTable(
+  shared/schema.ts:2080:export const outreachThreads = pgTable(
+  shared/schema.ts:2116:export const outreachMessages = pgTable(
+  shared/schema.ts:2168:export const outreachSuppressions = pgTable(
+  shared/schema.ts:2194:export const outreachJobs = pgTable("outreach_jobs", {
+  shared/schema.ts:2215:export const outreachAuditEvents = pgTable(
+  shared/schema.ts:2216:  "outreach_audit_events",
+  shared/schema.ts:2241:export const outreachSequences = pgTable(
+  shared/schema.ts:2267:export const outreachEvents = pgTable(
+  shared/schema.ts:2288:export const meetingBookingEvents = pgTable(
+  shared/schema.ts:2325:export const paymentCustomers = pgTable(
+  shared/schema.ts:2349:export const paymentLinks = pgTable(
+  shared/schema.ts:2382:export const paymentIntentsLog = pgTable(
+  shared/schema.ts:2409:export const invoicesLog = pgTable(
+  shared/schema.ts:2441:export const revenueEvents = pgTable(
+  shared/schema.ts:2470:export const webhookEvents = pgTable(
+  shared/schema.ts:2499:export const auditLogs = pgTable(
+  shared/schema.ts:2500:  "audit_logs",
+  shared/schema.ts:2512:    idxAuditAction: index("idx_audit_action").on(t.action),
+  shared/schema.ts:2513:    idxAuditEntity: index("idx_audit_entity").on(t.entityType, t.entityId),
+  shared/schema.ts:2514:    idxAuditCreated: index("idx_audit_created").on(t.createdAt),
+  shared/schema.ts:2517:export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
+  shared/schema.ts:2522:export type AuditLog = typeof auditLogs.$inferSelect;
+  shared/schema.ts:2524:export const proposals = pgTable(
+  shared/schema.ts:2560:export const approvals = pgTable(
+  shared/schema.ts:2591:export const dealExecution = pgTable("deal_execution", {
+  shared/schema.ts:2628:export const alexActions = pgTable("alex_actions", {
+  shared/schema.ts:2634:  decision: varchar("decision", { length: 64 }),
+  shared/schema.ts:2650:export const alexCompanyRuns = pgTable("alex_company_runs", {
+  shared/schema.ts:2671:export const buildingSignals = pgTable("building_signals", {
+  shared/schema.ts:2693:export const clusters = pgTable("clusters", {
+  shared/schema.ts:2721:export const ingestedLeads = pgTable(
+  shared/schema.ts:2762:export const productCategories = pgTable("product_categories", {
+  shared/schema.ts:2784:export const uploadQueue = pgTable("upload_queue", {
+  shared/schema.ts:2793:  aiStatus: text("ai_status").notNull().default("pending"),
+  shared/schema.ts:2808:export const productDrafts = pgTable("product_drafts", {
+  shared/schema.ts:2831:  aiConfidenceScore: real("ai_confidence_score").default(0),
+  shared/schema.ts:2836:  overallAiScore: real("overall_ai_score").default(0),
+  shared/schema.ts:2844:  aiRaw: jsonb("ai_raw"),
+  shared/schema.ts:2855:export const catalogStagingBatches = pgTable("catalog_staging_batches", {
+  shared/schema.ts:2873:export const catalogStagingItems = pgTable("catalog_staging_items", {
+  shared/schema.ts:2890:  aiSuggestions: jsonb("ai_suggestions"),
+  shared/schema.ts:2905:export const catalogProducts = pgTable(
+  shared/schema.ts:2935:export const catalogConfig = pgTable("catalog_config", {
+  shared/schema.ts:2946:export const strategyBookings = pgTable("strategy_bookings", {
+  shared/schema.ts:2973:export const nexoraDecisions = pgTable(
+  shared/schema.ts:2974:  "nexora_decisions",
+  shared/schema.ts:2985:    ruleDecision: jsonb("rule_decision").$type<Record<string, unknown> | null>().default(null),
+  shared/schema.ts:2986:    aiDecision: jsonb("ai_decision").$type<Record<string, unknown> | null>().default(null),
+  shared/schema.ts:2987:    finalDecision: jsonb("final_decision").$type<Record<string, unknown> | null>().default(null),
+  shared/schema.ts:3005:export const insertNexoraDecisionSchema = createInsertSchema(nexoraDecisions).omit({ id: true, createdAt: true });
+  shared/schema.ts:3007:export type NexoraDecision = typeof nexoraDecisions.$inferSelect;
+  shared/schema.ts:3009:export const nexoraOutcomes = pgTable(
+  shared/schema.ts:3010:  "nexora_outcomes",
+  shared/schema.ts:3013:    decisionId: varchar("decision_id"),
+  shared/schema.ts:3021:    confidenceAtDecision: real("confidence_at_decision"),
+  shared/schema.ts:3022:    priorityAtDecision: text("priority_at_decision"),
+  shared/schema.ts:3034:export const insertNexoraOutcomeSchema = createInsertSchema(nexoraOutcomes).omit({ id: true, createdAt: true, recordedAt: true });
+  shared/schema.ts:3036:export type NexoraOutcome = typeof nexoraOutcomes.$inferSelect;
+  shared/schema.ts:3038:export const nexoraThresholds = pgTable(
+  shared/schema.ts:3039:  "nexora_thresholds",
+  shared/schema.ts:3049:    learningRate: real("learning_rate").notNull().default(0.15),
+  shared/schema.ts:3061:export const insertNexoraThresholdSchema = createInsertSchema(nexoraThresholds).omit({ id: true, createdAt: true });
+  shared/schema.ts:3063:export type NexoraThreshold = typeof nexoraThresholds.$inferSelect;
+  shared/schema.ts:3065:export const nexoraKnowledge = pgTable(
+  shared/schema.ts:3066:  "nexora_knowledge",
+  shared/schema.ts:3090:export const insertNexoraKnowledgeSchema = createInsertSchema(nexoraKnowledge).omit({ id: true, createdAt: true, lastUpdatedAt: true });
+  shared/schema.ts:3092:export type NexoraKnowledge = typeof nexoraKnowledge.$inferSelect;
+  shared/schema.ts:3094:export const nexoraIdempotencyKeys = pgTable(
+  shared/schema.ts:3095:  "nexora_idempotency_keys",
+  shared/schema.ts:3113:export const insertNexoraIdempotencyKeySchema = createInsertSchema(nexoraIdempotencyKeys).omit({ id: true, claimedAt: true });
+  shared/schema.ts:3115:export type NexoraIdempotencyKey = typeof nexoraIdempotencyKeys.$inferSelect;
+  shared/schema.ts:3117:export const nexoraRunLocks = pgTable(
+  shared/schema.ts:3118:  "nexora_run_locks",
+  shared/schema.ts:3134:export const insertNexoraRunLockSchema = createInsertSchema(nexoraRunLocks).omit({ id: true, acquiredAt: true });
+  shared/schema.ts:3136:export type NexoraRunLock = typeof nexoraRunLocks.$inferSelect;
+  shared/schema.ts:3142:export const paperTradingDecisions = pgTable(
+  shared/schema.ts:3143:  "paper_trading_decisions",
+  shared/schema.ts:3162:    decisionSource: text("decision_source").notNull().default("strategy_engine"),
+  shared/schema.ts:3171:    marketPriceAtDecision: real("market_price_at_decision"),
+  shared/schema.ts:3184:export const paperPositions = pgTable(
+  shared/schema.ts:3188:    linkedDecisionId: text("linked_decision_id").notNull(),
+  shared/schema.ts:3208:    idxPpUniqueDecision: uniqueIndex("idx_pp_unique_decision").on(t.linkedDecisionId),
+  shared/schema.ts:3215:export const paperTradeOutcomes = pgTable(
+  shared/schema.ts:3219:    linkedDecisionId: text("linked_decision_id").notNull(),
+  shared/schema.ts:3247:export const paperTradingState = pgTable(
+  shared/schema.ts:3252:    totalDecisions: integer("total_decisions").notNull().default(0),
+  shared/schema.ts:3255:    lastDecisionAt: timestamp("last_decision_at"),
+  shared/schema.ts:3261:export const marketSnapshots = pgTable(
+  shared/schema.ts:3296:export const strategyPerformanceSnapshots = pgTable(
+  shared/schema.ts:3323:export const decisionReviews = pgTable(
+  shared/schema.ts:3324:  "decision_reviews",
+  shared/schema.ts:3327:    decisionId: text("decision_id").notNull(),
+  shared/schema.ts:3338:    idxDrDecision: index("idx_dr_decision").on(t.decisionId),
+  shared/schema.ts:3344:export type DecisionReview = typeof decisionReviews.$inferSelect;
+  shared/schema.ts:3346:export const edgeInsights = pgTable(
+  shared/schema.ts:3368:export const learningRecommendations = pgTable(
+  shared/schema.ts:3369:  "learning_recommendations",
+  shared/schema.ts:3388:export type LearningRecommendation = typeof learningRecommendations.$inferSelect;
+  shared/schema.ts:3394:export const tradingConfigVersions = pgTable(
+  shared/schema.ts:3416:export const tradingConfigChanges = pgTable(
+  shared/schema.ts:3434:export const tradingAdaptationProposals = pgTable(
+  shared/schema.ts:3457:export const tradingRollbacks = pgTable(
+  shared/schema.ts:3474:export const portfolioSnapshots = pgTable(
+  shared/schema.ts:3498:export const portfolioAllocationLogs = pgTable(
+  shared/schema.ts:3502:    decisionId: text("decision_id").notNull(),
+  shared/schema.ts:3516:    idxPalDecision: index("idx_pal_decision").on(t.decisionId),
+  shared/schema.ts:3523:export const assetRiskProfiles = pgTable(
+  shared/schema.ts:3541:export const portfolioStressSnapshots = pgTable(
+  shared/schema.ts:3563:export const strategyStressProfiles = pgTable(
+  shared/schema.ts:3580:export const stressAlerts = pgTable(
+  shared/schema.ts:3599:export const executionLogs = pgTable(
+  shared/schema.ts:3603:    decisionId: text("decision_id"),
+  shared/schema.ts:3623:    idxElDecision: index("idx_el_decision").on(t.decisionId),
+  shared/schema.ts:3630:export const executionProfiles = pgTable(
+  shared/schema.ts:3649:export const liveOrders = pgTable(
+  shared/schema.ts:3653:    decisionId: text("decision_id"),
+  shared/schema.ts:3682:export const livePositions = pgTable(
+  shared/schema.ts:3698:    linkedDecisionId: text("linked_decision_id"),
+  shared/schema.ts:3709:export const executionAttemptLogs = pgTable(
+  shared/schema.ts:3713:    decisionId: text("decision_id"),
+  shared/schema.ts:3733:export const complianceRules = pgTable("compliance_rules", {
+  shared/schema.ts:3746:export const complianceAuditLogs = pgTable(
+  shared/schema.ts:3747:  "compliance_audit_logs",
+  shared/schema.ts:3752:    decisionId: text("decision_id"),
+  shared/schema.ts:3770:export const costModelEntries = pgTable(
+  shared/schema.ts:3796:export const executionTimingLogs = pgTable(
+  shared/schema.ts:3800:    decisionId: text("decision_id"),
+  shared/schema.ts:3818:export const multiFactorSignals = pgTable(
+  shared/schema.ts:3842:export const regimeStates = pgTable(
+  shared/schema.ts:3866:export const metaStrategySelections = pgTable(
+  shared/schema.ts:3888:export const capitalScalingStates = pgTable(
+  shared/schema.ts:3911:export const systemTraceLogs = pgTable(
+  shared/schema.ts:3935:export const autonomousModeState = pgTable("autonomous_mode_state", {
+  shared/schema.ts:3941:  decisionsThisCycle: integer("decisions_this_cycle").notNull().default(0),
+  shared/schema.ts:3950:export const circuitBreakerEvents = pgTable(
+  shared/schema.ts:3970:export const tradingAccounts = pgTable("trading_accounts", {
+  shared/schema.ts:3985:export const capitalPartitions = pgTable(
+  server/services/intelligence/nexora/nexora-types.ts:60:  learning: NexoraEngineLearningSummary;
+  server/services/intelligence/nexora/nexora-types.ts:89:  learningEnabled?: boolean;
+  server/services/intelligence/nexora/nexora-types.ts:120:  learningRate: number;
+  server/services/intelligence/nexora/nexora-types.ts:287:    decisionCountsByAction: Record<string, number>;
+  server/services/intelligence/nexora/nexora-types.ts:288:    decisionCountsByPriority: Record<string, number>;
+  server/services/intelligence/nexora/nexora-support.ts:1:/* filepath: server/services/intelligence/nexora/nexora-support.ts
+  server/services/intelligence/nexora/nexora-support.ts:3: * Nexora Support — DB-backed memory layer (Layer 9 upgrade)
+  server/services/intelligence/nexora/nexora-support.ts:25:} from "./nexora-types";
+  server/services/intelligence/nexora/nexora-support.ts:36:  learningRate: 0.15,
+  server/services/intelligence/nexora/nexora-support.ts:39:const LOCK_KEY = "nexora_main";
+  server/services/intelligence/nexora/nexora-support.ts:247:    const { nexoraThresholds } = await import("../../../../shared/schema");
+  server/services/intelligence/nexora/nexora-support.ts:252:      .from(nexoraThresholds)
+  server/services/intelligence/nexora/nexora-support.ts:253:      .where(eq(nexoraThresholds.isActive, true))
+  server/services/intelligence/nexora/nexora-support.ts:254:      .orderBy(desc(nexoraThresholds.version))
+  server/services/intelligence/nexora/nexora-support.ts:267:      learningRate: row.learningRate ?? DEFAULT_THRESHOLDS.learningRate,
+  server/services/intelligence/nexora/nexora-support.ts:285:    const { nexoraThresholds } = await import("../../../../shared/schema");
+  server/services/intelligence/nexora/nexora-support.ts:290:      .select({ version: nexoraThresholds.version })
+  server/services/intelligence/nexora/nexora-support.ts:291:      .from(nexoraThresholds)
+  server/services/intelligence/nexora/nexora-support.ts:292:      .orderBy(desc(nexoraThresholds.version))
+  server/services/intelligence/nexora/nexora-support.ts:299:      .update(nexoraThresholds)
+  server/services/intelligence/nexora/nexora-support.ts:301:      .where(eq(nexoraThresholds.isActive, true));
+  server/services/intelligence/nexora/nexora-support.ts:304:    await db.insert(nexoraThresholds).values({
+  server/services/intelligence/nexora/nexora-support.ts:326:    const { nexoraKnowledge } = await import("../../../../shared/schema");
+  server/services/intelligence/nexora/nexora-support.ts:328:    const rows = await db.select().from(nexoraKnowledge);
+  server/services/intelligence/nexora/nexora-support.ts:359:    const { nexoraKnowledge } = await import("../../../../shared/schema");
+  server/services/intelligence/nexora/nexora-support.ts:372:        .insert(nexoraKnowledge)
+  server/services/intelligence/nexora/nexora-support.ts:389:          target: nexoraKnowledge.entryKey,
+  server/services/intelligence/nexora/nexora-support.ts:416:    const { nexoraKnowledge } = await import("../../../../shared/schema");
+  server/services/intelligence/nexora/nexora-support.ts:424:      .insert(nexoraKnowledge)
+  server/services/intelligence/nexora/nexora-support.ts:441:        target: nexoraKnowledge.entryKey,
+  server/services/intelligence/nexora/nexora-support.ts:468:    const { auditLogs } = await import("../../../../shared/schema");
+  server/services/intelligence/nexora/nexora-support.ts:470:    await db.insert(auditLogs).values({
+  server/services/intelligence/nexora/nexora-support.ts:474:      entityType: "nexora_run",
+  server/services/intelligence/nexora/nexora-support.ts:500:      threadId: `nexora_review_${runId}_${signalId}`,
+  server/services/intelligence/nexora/nexora-support.ts:509:      campaignKey: `nexora_review_${signalId}`,
+  server/services/intelligence/nexora/nexora-support.ts:524:    const { nexoraDecisions } = await import("../../../../shared/schema");
+  server/services/intelligence/nexora/nexora-support.ts:531:    await db.insert(nexoraDecisions).values({
+  server/services/intelligence/nexora/nexora-support.ts:553:    console.error("[Nexora] Failed to upsert decision record:", err);
+  server/services/intelligence/nexora/nexora-support.ts:560:/* ─── Outcome learning update ────────────────────────────────────────────── */
+  server/services/intelligence/nexora/nexora-support.ts:572:  const lr = currentThresholds.learningRate;
+  server/services/intelligence/nexora/nexora-support.ts:618:    const { nexoraIdempotencyKeys } = await import("../../../../shared/schema");
+  server/services/intelligence/nexora/nexora-support.ts:625:      .delete(nexoraIdempotencyKeys)
+  server/services/intelligence/nexora/nexora-support.ts:629:            deq(nexoraIdempotencyKeys.status, "claimed"),
+  server/services/intelligence/nexora/nexora-support.ts:630:            lt(nexoraIdempotencyKeys.claimedAt, twoHoursAgo),
+  server/services/intelligence/nexora/nexora-support.ts:633:            deq(nexoraIdempotencyKeys.status, "completed"),
+  server/services/intelligence/nexora/nexora-support.ts:634:            lt(nexoraIdempotencyKeys.expiresAt, now),
+  server/services/intelligence/nexora/nexora-support.ts:639:    await db.insert(nexoraIdempotencyKeys).values({
+  server/services/intelligence/nexora/nexora-support.ts:641:      action: (meta.action as string) ?? "nexora",
+  server/services/intelligence/nexora/nexora-support.ts:660:    const { nexoraIdempotencyKeys } = await import("../../../../shared/schema");
+  server/services/intelligence/nexora/nexora-support.ts:664:      .update(nexoraIdempotencyKeys)
+  server/services/intelligence/nexora/nexora-support.ts:666:      .where(eq(nexoraIdempotencyKeys.idemKey, key));
+  server/services/intelligence/nexora/nexora-support.ts:683:    const { nexoraRunLocks } = await import("../../../../shared/schema");
+  server/services/intelligence/nexora/nexora-support.ts:688:      .delete(nexoraRunLocks)
+  server/services/intelligence/nexora/nexora-support.ts:691:          lt(nexoraRunLocks.expiresAt, new Date()),
+  server/services/intelligence/nexora/nexora-support.ts:692:          eq(nexoraRunLocks.status, "released"),
+  server/services/intelligence/nexora/nexora-support.ts:698:      .from(nexoraRunLocks)
+  server/services/intelligence/nexora/nexora-support.ts:699:      .where(eq(nexoraRunLocks.lockKey, lockKey))
+  server/services/intelligence/nexora/nexora-support.ts:705:    await db.insert(nexoraRunLocks).values({
+  server/services/intelligence/nexora/nexora-support.ts:726:    const { nexoraRunLocks } = await import("../../../../shared/schema");
+  server/services/intelligence/nexora/nexora-support.ts:730:      .delete(nexoraRunLocks)
+  server/services/intelligence/nexora/nexora-support.ts:733:          eq(nexoraRunLocks.lockKey, lockKey),
+  server/services/intelligence/nexora/nexora-support.ts:734:          eq(nexoraRunLocks.runId, runId),
+  server/services/intelligence/nexora/nexora-support.ts:977:/* ─── Rule-based decision engine ────────────────────────────────────────── */
+  server/services/intelligence/nexora/nexora-support.ts:1099:        `ai_override(${aiDecision.reason ?? "ai_decision"})`,
+  server/services/intelligence/nexora/nexora-support.ts:1126:  decision: NormalizedAIDecision,
+  server/services/intelligence/nexora/nexora-support.ts:1139:    decision.priority === "critical" &&
+  server/services/intelligence/nexora/nexora-support.ts:1158:    const { nexoraKnowledge } = await import("../../../../shared/schema");
+  server/services/intelligence/nexora/nexora-support.ts:1165:        winRate: nexoraKnowledge.winRate,
+  server/services/intelligence/nexora/nexora-support.ts:1166:        totalCount: nexoraKnowledge.totalCount,
+  server/services/intelligence/nexora/nexora-support.ts:1168:      .from(nexoraKnowledge)
+  server/services/intelligence/nexora/nexora-support.ts:1170:        drizzleSql`lower(trim(${nexoraKnowledge.companyName})) = ${companyKey}`,
+  server/services/intelligence/nexora/nexora-support.ts:1190:    const { nexoraRunLocks, nexoraIdempotencyKeys } = await import("../../../../shared/schema");
+  server/services/intelligence/nexora/nexora-support.ts:1194:      db.delete(nexoraRunLocks).where(lt(nexoraRunLocks.expiresAt, new Date())),
+  server/services/intelligence/nexora/nexora-support.ts:1196:        .delete(nexoraIdempotencyKeys)
+  server/services/intelligence/nexora/nexora-support.ts:1197:        .where(lt(nexoraIdempotencyKeys.expiresAt, new Date())),
+  server/services/intelligence/nexora/nexora-support.ts:1241:function nexoraProblemText(input: unknown): string {
+  server/services/intelligence/nexora/nexora-support.ts:1249:function nexoraHasAny(haystack: string, needles: string[]): boolean {
+  server/services/intelligence/nexora/nexora-support.ts:1263:  const haystack = nexoraProblemText(input);
+  server/services/intelligence/nexora/nexora-support.ts:1265:  if (nexoraHasAny(haystack, ["daily cap", "cooldown", "flood", "too many", "rate limit", "bulk"])) {
+  server/services/intelligence/nexora/nexora-support.ts:1273:  if (nexoraHasAny(haystack, ["locked", "autonomy_outreach_lock", "override", "safety lock", "draft_hold"])) {
+  server/services/intelligence/nexora/nexora-support.ts:1281:  if (nexoraHasAny(haystack, ["missing", "not configured", "env", "api key", "secret", "undefined"])) {
+  server/services/intelligence/nexora/nexora-support.ts:1289:  if (nexoraHasAny(haystack, ["403", "domain is not verified", "unauthorized", "twilio", "resend", "stripe", "provider"])) {
+  server/services/intelligence/nexora/nexora-support.ts:1297:  if (nexoraHasAny(haystack, ["tbc", "missing recipient", "invalid email", "unknown", "confidence_below", "not verified"])) {
+  server/services/intelligence/nexora/nexora-support.ts:1305:  if (nexoraHasAny(haystack, ["duplicate", "idempotency", "already sent", "same quote"])) {
+  server/services/intelligence/nexora/nexora-support.ts:1313:  if (nexoraHasAny(haystack, ["sandbox", "recipient", "not joined", "not ready", "no reply", "unresponsive"])) {
+  server/services/intelligence/nexora/nexora-support.ts:1321:  if (nexoraHasAny(haystack, ["waiting", "queued", "pending", "awaiting"])) {
+  server/services/intelligence/nexora/nexora-support.ts:1329:  if (nexoraHasAny(haystack, ["tsc", "typescript", "build", "vite", "cannot find module", "error ts"])) {
+  server/services/intelligence/nexora/nexora-support.ts:1439:        "rule decision hold",
+  server/services/intelligence/nexora/nexora-support.ts:1463:        "Manufacturers and shipping agents stay draft_hold by default.",
+  server/services/intelligence/communications/whatsappGuards.ts:44:// In-memory counters (safe fallback)
+  server/services/intelligence/communications/whatsappOutbox.ts:25:// In-memory queue fallback (safe + immediate)
+  server/services/intelligence/nexoraAI.ts:2:import type { DealHunterSignalLike, NormalizedAIDecision } from "./nexora/nexora-types";
+  server/services/intelligence/nexoraAI.ts:27:  agent: AIAgentType;
+  server/services/intelligence/nexoraAI.ts:38:export async function nexoraAIAnalysis(input: NexoraAIInput): Promise<NormalizedAIDecision> {
+  server/services/intelligence/nexoraAI.ts:39:  const { agent, fallbackDecision, ...signal } = input;
+  server/services/intelligence/nexoraAI.ts:46:  const systemPrompt = AGENT_PROMPTS[agent] ?? AGENT_PROMPTS["value-forecaster"];
+  server/services/intelligence/dealHunter.ts:4:import type { DealHunterSignalLike } from "./nexora/nexora-types";
+  server/services/intelligence/newsFeedScanner.ts:4:import type { RadarSignalLike } from "./nexora/nexora-types";
+  server/services/intelligence/officeMovRadarService.ts:4:import type { RadarSignalLike } from "./nexora/nexora-types";
+  server/services/intelligence/nexoraOrchestrator.ts:14:import { nexoraAIAnalysis } from "../nexoraAI";
+  server/services/intelligence/nexoraOrchestrator.ts:36:} from "./nexora/nexora-support";
+  server/services/intelligence/nexoraOrchestrator.ts:54:} from "./nexora/nexora-types";
+  server/services/intelligence/nexoraOrchestrator.ts:62: * - fixes undefined results / learning vars
+  server/services/intelligence/nexoraOrchestrator.ts:81:  learningEnabled: true,
+  server/services/intelligence/nexoraOrchestrator.ts:245:      learning: emptyLearning(),
+  server/services/intelligence/nexoraOrchestrator.ts:259:      learning: emptyLearning(),
+  server/services/intelligence/nexoraOrchestrator.ts:267:  const runId = `nexora_${startedAt.getTime()}`;
+  server/services/intelligence/nexoraOrchestrator.ts:280:      key: "nexora-engine",
+  server/services/intelligence/nexoraOrchestrator.ts:293:        learning: emptyLearning(),
+  server/services/intelligence/nexoraOrchestrator.ts:302:      event: "nexora_run_started",
+  server/services/intelligence/nexoraOrchestrator.ts:341:    const learning = config.learningEnabled
+  server/services/intelligence/nexoraOrchestrator.ts:349:    if (config.learningEnabled && learning.sampleSize > 0) {
+  server/services/intelligence/nexoraOrchestrator.ts:350:      const reason = learning.appliedDeltaStrongPipeline !== 0
+  server/services/intelligence/nexoraOrchestrator.ts:351:        ? `winRate=${(learning.avgWinRate * 100).toFixed(0)} → strongPipeline adjusted by ${learning.appliedDeltaStrongPipeline > 0 ? '+' : ''}${learning.appliedDeltaStrongPipeline}`
+  server/services/intelligence/nexoraOrchestrator.ts:352:        : `winRate=${(learning.avgWinRate * 100).toFixed(0)} — no adjustment needed`;
+  server/services/intelligence/nexoraOrchestrator.ts:356:        learning.avgWinRate,
+  server/services/intelligence/nexoraOrchestrator.ts:357:        learning.sampleSize,
+  server/services/intelligence/nexoraOrchestrator.ts:368:      event: "nexora_run_finished",
+  server/services/intelligence/nexoraOrchestrator.ts:372:        learning,
+  server/services/intelligence/nexoraOrchestrator.ts:383:      learning,
+  server/services/intelligence/nexoraOrchestrator.ts:394:      event: "nexora_run_failed",
+  server/services/intelligence/nexoraOrchestrator.ts:408:      learning: emptyLearning(),
+  server/services/intelligence/nexoraOrchestrator.ts:415:        key: "nexora-engine",
+  server/services/intelligence/nexoraOrchestrator.ts:579:  const idempotencyKey = `nexora:${sourceType}:${fingerprint}`;
+  server/services/intelligence/nexoraOrchestrator.ts:670:  const decisionRecord: NexoraDecisionRecordLike = {
+  server/services/intelligence/nexoraOrchestrator.ts:692:  await upsertDecisionRecord(decisionRecord as any);
+  server/services/intelligence/nexoraOrchestrator.ts:738:    finalDecision: decisionRecord,
+  server/services/intelligence/nexoraOrchestrator.ts:764:  // Global outcome-driven learning: query nexora_outcomes directly.
+  server/services/intelligence/nexoraOrchestrator.ts:765:  // This runs regardless of how many new signals were processed in the current run,
+  server/services/intelligence/nexoraOrchestrator.ts:774:    const { nexoraOutcomes } = await import("../../../shared/schema");
+  server/services/intelligence/nexoraOrchestrator.ts:779:      .select({ outcome: nexoraOutcomes.outcome })
+  server/services/intelligence/nexoraOrchestrator.ts:780:      .from(nexoraOutcomes)
+  server/services/intelligence/nexoraOrchestrator.ts:781:      .where(gte(nexoraOutcomes.recordedAt, thirtyDaysAgo));
+  server/services/intelligence/nexoraOrchestrator.ts:805:        `[Nexora] Learning deferred — only ${contributing} outcome(s) in nexora_outcomes (need ≥3). Run had ${runSampleSize} eligible signal(s).`,
+  server/services/intelligence/nexoraOrchestrator.ts:809:    console.warn("[Nexora] Global outcome learning query failed (non-critical):", err?.message);
+  server/services/intelligence/nexoraOrchestrator.ts:815:    event: "nexora_learning_applied",
+  server/services/intelligence/nexoraOrchestrator.ts:856:      .where(and(eq(opportunities.sourceType, "nexora"), eq(opportunities.sourceId, sourceId)))
+  server/services/intelligence/nexoraOrchestrator.ts:866:      sourceType: "nexora",
+  server/services/intelligence/nexoraOrchestrator.ts:1073:        nexoraSignalId: signal.id ?? null,
+  server/services/intelligence/nexoraOrchestrator.ts:1214:    const ai = await nexoraAIAnalysis({
+  server/services/outreach/outreach-job-runner.ts:4: * Prevents concurrent outreach runs via DB-backed exclusive locks.
+  server/services/outreach/contactDiscoveryService.ts:3: * Finds likely decision-makers for high-value opportunities.
+  server/services/outreach/contactDiscoveryService.ts:4: * Writes to company_contacts + contact_discovery_runs.
+  server/services/outreach/contactDiscoveryService.ts:193:For the company "${companyName}" (domain: ${domain}, industry: ${industry ?? "unknown"}, city: ${city ?? "Australia"}), identify the most likely decision-maker for office furniture and fitout procurement.
+  server/services/outreach/contactDiscoveryService.ts:340:          contactSource: "ai_inferred",
+  server/services/outreach/contactDiscoveryService.ts:495:          contactSource: "ai_inferred",
+  server/services/outreach/outreach-gateway.ts:15: * 7. Full audit trail
+  server/services/outreach/outreach-guards.ts:167: * Write an audit event to the database.
+  server/services/outreach/outreach-guards.ts:193:    console.error("[OutreachAudit] Failed to write audit event:", err);
+  server/services/outreach/prospectEmailResolver.ts:59: *   2. Best non-primary decision-maker contact email
+  server/services/stripe/stripeConfigService.ts:40:export function auditableAction(action: string, safeMode: boolean): string {
+  server/services/stripe/invoiceService.ts:2:import { invoicesLog, quotes, auditLogs, revenueEvents } from "../../../shared/schema";
+  server/services/stripe/invoiceService.ts:107:  await db.insert(auditLogs).values({
+  server/services/stripe/invoiceService.ts:150:  await db.insert(auditLogs).values({
+  server/services/stripe/paymentLinkService.ts:2:import { paymentLinks, paymentCustomers, quotes, revenueEvents, auditLogs } from "../../../shared/schema";
+  server/services/stripe/paymentLinkService.ts:123:  await db.insert(auditLogs).values({
+  server/services/stripe/paymentLinkService.ts:151:  await db.insert(auditLogs).values({
+  server/services/stripe/webhookService.ts:10:  auditLogs,
+  server/services/stripe/webhookService.ts:22: * - Marks processed + writes audit log
+  server/services/stripe/webhookService.ts:115:    await db.insert(auditLogs).values({
+  server/services/stripe/webhookService.ts:506:  await db.insert(auditLogs).values({
+  server/services/trading/complianceEngine.ts:27:  decisionId?: string;
+  server/services/trading/complianceEngine.ts:58:  if (!approved && params.decisionId) {
+  server/services/trading/complianceEngine.ts:59:    await logComplianceEvent("trade_blocked", "warning", params.decisionId, params.symbol, `Trade blocked: ${violations.map(v => v.rule).join(", ")}`, violations[0]?.rule);
+  server/services/trading/complianceEngine.ts:66:  eventType: string, severity: string, decisionId: string | null,
+  server/services/trading/complianceEngine.ts:71:      eventType, severity, decisionId, symbol, details,
+  server/services/trading/complianceEngine.ts:75:    console.error("[compliance] Failed to write audit log:", err instanceof Error ? err.message : err);
+  server/services/trading/decisionQuality.ts:2:import { paperTradeOutcomes, paperTradingDecisions, decisionReviews } from "@shared/schema";
+  server/services/trading/decisionQuality.ts:12:  | "stale_data_decision"
+  server/services/trading/decisionQuality.ts:16:  decisionId: string;
+  server/services/trading/decisionQuality.ts:34:function scoreDecision(decision: any, outcome: any): DecisionQualityResult {
+  server/services/trading/decisionQuality.ts:41:  if (decision.confidence >= 70 && decision.dataQualityScore >= 60) {
+  server/services/trading/decisionQuality.ts:44:  } else if (decision.confidence < 50) {
+  server/services/trading/decisionQuality.ts:50:  if (decision.dataQualityScore < 40) {
+  server/services/trading/decisionQuality.ts:53:    notes.push("Poor data quality at decision time");
+  server/services/trading/decisionQuality.ts:56:  if (decision.confidenceThreshold && decision.confidence < decision.confidenceThreshold) {
+  server/services/trading/decisionQuality.ts:62:  const isHighConf = decision.confidence >= 70;
+  server/services/trading/decisionQuality.ts:92:  if (decision.sourceMarketSnapshotId) {
+  server/services/trading/decisionQuality.ts:100:  if (decision.confidence < decision.confidenceThreshold) {
+  server/services/trading/decisionQuality.ts:102:  } else if (decision.dataQualityScore < 30) {
+  server/services/trading/decisionQuality.ts:103:    qualityLabel = "stale_data_decision";
+  server/services/trading/decisionQuality.ts:117:    decisionId: decision.id,
+  server/services/trading/decisionQuality.ts:141:  const existingReviews = await db.select({ outcomeId: decisionReviews.outcomeId }).from(decisionReviews);
+  server/services/trading/decisionQuality.ts:144:  const decisions = await db.select().from(paperTradingDecisions);
+  server/services/trading/decisionQuality.ts:145:  const decisionMap = new Map(decisions.map(d => [d.id, d]));
+  server/services/trading/decisionQuality.ts:151:    const decision = decisionMap.get(outcome.linkedDecisionId);
+  server/services/trading/decisionQuality.ts:152:    if (!decision) continue;
+  server/services/trading/decisionQuality.ts:153:    const review = scoreDecision(decision, outcome);
+  server/services/trading/decisionQuality.ts:160:        await db.insert(decisionReviews).values({
+  server/services/trading/decisionQuality.ts:161:          decisionId: r.decisionId,
+  server/services/trading/decisionQuality.ts:178:  const allReviews = await db.select().from(decisionReviews).orderBy(desc(decisionReviews.createdAt));
+  server/services/trading/decisionQuality.ts:193:      decisionId: r.decisionId,
+  server/services/trading/decisions.ts:83:      decisionSource: "strategy_engine",
+  server/services/trading/decisions.ts:92:      decisionGeneratedAt: new Date(now - 180000).toISOString(),
+  server/services/trading/decisions.ts:122:      decisionSource: "strategy_engine",
+  server/services/trading/decisions.ts:131:      decisionGeneratedAt: new Date(now - 600000).toISOString(),
+  server/services/trading/decisions.ts:161:      decisionSource: "strategy_engine",
+  server/services/trading/decisions.ts:170:      decisionGeneratedAt: new Date(now - 1200000).toISOString(),
+  server/services/trading/decisions.ts:200:      decisionSource: "strategy_engine",
+  server/services/trading/decisions.ts:209:      decisionGeneratedAt: new Date(now - 2400000).toISOString(),
+  server/services/trading/decisions.ts:239:      decisionSource: "strategy_engine",
+  server/services/trading/decisions.ts:248:      decisionGeneratedAt: new Date(now - 3600000).toISOString(),
+  server/services/trading/decisions.ts:276:      decisionSource: "strategy_engine",
+  server/services/trading/decisions.ts:285:      decisionGeneratedAt: new Date(now - 5400000).toISOString(),
+  server/services/trading/decisions.ts:326:      decisionSource: "strategy_engine",
+  server/services/trading/decisions.ts:335:      decisionGeneratedAt: ts,
+  server/services/trading/index.ts:47:  const [state, decisions, positions, outcomes, performance, marketContext, newsResult] = await Promise.all([
+  server/services/trading/index.ts:62:    decisions,
+  server/services/trading/liveExecutionGateway.ts:9:  decisionId: string;
+  server/services/trading/liveExecutionGateway.ts:46:    decisionId: request.decisionId,
+  server/services/trading/liveExecutionGateway.ts:71:      decisionId: request.decisionId,
+  server/services/trading/liveExecutionGateway.ts:119:      decisionId: request.decisionId,
+  server/services/trading/liveExecutionGateway.ts:129:    console.error("[liveGateway] Failed to log execution attempt:", request.decisionId, request.symbol, err instanceof Error ? err.message : err);
+  server/services/trading/liveExecutionGuardrails.ts:14:  decisionId?: string;
+  server/services/trading/portfolioAllocator.ts:9:  decisionId: string;
+  server/services/trading/portfolioAllocator.ts:231:      decisionId: request.decisionId,
+  server/services/trading/ruleUpdateEngine.ts:5:import { getLearningRecommendations, type RecommendationOutput } from "./learningRecommendations";
+  server/services/trading/strategies.ts:161:        "Macro catalyst identified (rate decision, major news, regulatory change)",
+  server/services/trading/timingEngine.ts:6:  decisionId?: string;
+  server/services/trading/timingEngine.ts:17:      decisionId: measurement.decisionId || null,
+  server/services/trading/timingEngine.ts:29:export function createTimer(symbol: string, phase: string, decisionId?: string): () => Promise<TimingMeasurement> {
+  server/services/trading/timingEngine.ts:34:    const measurement: TimingMeasurement = { decisionId, symbol, phase, startedAt, completedAt, durationMs };
+  server/services/trading/ROADMAP.md:12:9. outcome learning updates
+  server/services/trading/capital-allocator-v2.ts:166:      `Prior risk decision blocked or nearly blocked trade: ${priorRiskDecision.reason ?? "unknown_reason"}`,
+  server/services/trading/learningRecommendations.ts:2:import { learningRecommendations } from "@shared/schema";
+  server/services/trading/learningRecommendations.ts:6:import { reviewDecisionQuality } from "./decisionQuality";
+  server/services/trading/learningRecommendations.ts:75:      description: `Average decision quality score is ${quality.avgQualityScore.toFixed(1)}/100 — too many low-quality entries`,
+  server/services/trading/learningRecommendations.ts:102:      await db.insert(learningRecommendations).values({
+  server/services/trading/learningRecommendations.ts:118:  const pendingCount = await db.select().from(learningRecommendations).where(eq(learningRecommendations.status, "pending"));
+  server/services/trading/learningRecommendations.ts:130:    .from(learningRecommendations)
+  server/services/trading/learningRecommendations.ts:131:    .where(eq(learningRecommendations.status, "pending"))
+  server/services/trading/learningRecommendations.ts:132:    .orderBy(desc(learningRecommendations.createdAt))
+  server/services/trading/observabilityEngine.ts:50:  const [decisions, positions, outcomes, stateRows, traces] = await Promise.all([
+  server/services/trading/observabilityEngine.ts:88:      totalDecisions: Number(decisions[0]?.count || 0),
+  server/services/trading/paperEngine.ts:47:  const [decision] = await db.insert(paperTradingDecisions).values({
+  server/services/trading/paperEngine.ts:63:    decisionSource: "strategy_engine",
+  server/services/trading/paperEngine.ts:76:    .set({ totalDecisions: sql`total_decisions + 1`, lastDecisionAt: new Date(), updatedAt: new Date() })
+  server/services/trading/paperEngine.ts:79:  return decision.id;
+  server/services/trading/paperEngine.ts:83:  decisionId: string;
+  server/services/trading/paperEngine.ts:94:    .where(eq(paperPositions.linkedDecisionId, params.decisionId));
+  server/services/trading/paperEngine.ts:101:    linkedDecisionId: params.decisionId,
+  server/services/trading/paperEngine.ts:115:    .where(eq(paperTradingDecisions.id, params.decisionId));
+  server/services/trading/paperEngine.ts:235:      decisionId: pos.linkedDecisionId,
+  server/services/trading/paperEngine.ts:331:    decisionSource: r.decisionSource,
+  server/services/trading/paperEngine.ts:340:    decisionGeneratedAt: r.createdAt?.toISOString() || new Date().toISOString(),
+  server/services/trading/paperEngine.ts:514:  const decisionId = await createDecision({
+  server/services/trading/paperEngine.ts:529:    decisionId,
+  server/services/trading/paperEngine.ts:540:    decisionId,
+  server/services/trading/paperEngine.ts:546:    decisionId,
+  server/services/trading/shadowValidation.ts:28:function wouldPassFilter(decision: any, outcome: any, config: TradingParameters, proposal: ParameterProposal): boolean {
+  server/services/trading/shadowValidation.ts:30:    return decision.confidence >= proposal.proposedValue;
+  server/services/trading/shadowValidation.ts:66:  const decisions = await db.select().from(paperTradingDecisions);
+  server/services/trading/shadowValidation.ts:67:  const decisionMap = new Map(decisions.map(d => [d.id, d]));
+  server/services/trading/shadowValidation.ts:77:      const decision = decisionMap.get(o.linkedDecisionId);
+  server/services/trading/shadowValidation.ts:78:      if (!decision) return true;
+  server/services/trading/shadowValidation.ts:79:      return wouldPassFilter(decision, o, currentConfig, proposal);
+  server/services/trading/tradingLearning.ts:118:  const decisions = await db.select().from(paperTradingDecisions);
+  server/services/trading/tradingLearning.ts:119:  const decisionMap = new Map(decisions.map(d => [d.id, d]));
+  server/services/trading/tradingLearning.ts:123:    confidence: decisionMap.get(o.linkedDecisionId)?.confidence ?? 0,
+  server/services/trading/tradingLearning.ts:124:    regime: decisionMap.get(o.linkedDecisionId)?.regime ?? "unknown",
+  server/services/trading/types.ts:35:  decisionSource: string;
+  server/services/trading/types.ts:44:  decisionGeneratedAt: string;
+  server/services/trading/types.ts:187:  decisions: TradingDecision[];
+  server/services/trading/tradingMonitorSafe.ts:88:  if (Array.isArray(value?.decisions)) return value.decisions;
+  server/services/trading/tradingMonitorSafe.ts:319:    decisions: pickArray((tradingIndex.data as any)?.decisions ?? (tradingIndex.data as any)?.recent_decisions),
+  server/services/trading/tradingMonitorSafe.ts:320:    recent_decisions: pickArray((tradingIndex.data as any)?.recent_decisions ?? (tradingIndex.data as any)?.decisions),

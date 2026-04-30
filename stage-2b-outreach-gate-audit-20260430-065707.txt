@@ -1,0 +1,261 @@
+STAGE 2B — OUTREACH GATE AUDIT
+Generated: Thu Apr 30 06:57:07 AM UTC 2026
+
+== 1) Outreach service files ==
+server/services/aiManufacturerOutreach.ts
+server/services/followUpEmails.ts
+server/services/followUpScheduler.ts
+server/services/intelligence/communications/aiWhatsAppService.ts
+server/services/intelligence/communications/whatsappFlows.ts
+server/services/intelligence/communications/whatsappGuards.ts
+server/services/intelligence/communications/whatsappOutbox.ts
+server/services/intelligence/communications/whatsappScheduler.ts
+server/services/intelligence/communications/whatsappService.ts
+server/services/notifications/clientEmailNotificationService.ts
+server/services/outreach/bookingService.ts
+server/services/outreach/bookingService.ts
+server/services/outreach/contactDiscoveryService.ts
+server/services/outreach/contactDiscoveryService.ts
+server/services/outreach/outreachEngine.ts
+server/services/outreach/outreachEngine.ts
+server/services/outreach/outreach-gateway.ts
+server/services/outreach/outreach-gateway.ts
+server/services/outreach/outreachGenerationService.ts
+server/services/outreach/outreachGenerationService.ts
+server/services/outreach/outreach-guards.ts
+server/services/outreach/outreach-guards.ts
+server/services/outreach/outreach-hashing.ts
+server/services/outreach/outreach-hashing.ts
+server/services/outreach/outreach-job-runner.ts
+server/services/outreach/outreach-job-runner.ts
+server/services/outreach/prospectEmailResolver.ts
+server/services/outreach/prospectEmailResolver.ts
+server/services/outreach/senderProfile.ts
+server/services/outreach/senderProfile.ts
+server/services/outreach/templateEnforcer.ts
+server/services/outreach/templateEnforcer.ts
+server/services/whatsappAI.ts
+server/services/whatsappAssistant.ts
+server/services/whatsapp.ts
+
+== 2) Outreach routes in server/routes.ts ==
+3:import { sendTestEmail } from "./email";
+19:import { sendSupplierQuoteNotification } from "./email";
+20:import { sendPaymentConfirmationNotification } from "./email";
+21:import { sendFinanceLeadCustomerEmail } from "./email";
+22:import { sendFinanceLeadPartnerEmail } from "./email";
+23:import { sendFinanceLeadAdminEmail } from "./email";
+24:import { sendEnquiryCustomerEmail } from "./email";
+25:import { sendStrategyCallCustomerEmail } from "./email";
+26:import { sendQuoteRequestCustomerEmail } from "./email";
+86:async function sendPlanningRequestNotification(_payload: any): Promise<void> {
+90:async function sendPlannerSubmissionCustomerEmail(_payload: any): Promise<void> {
+107:import { sendLeadNotification } from "./email";
+131:async function sendWhatsAppTextMessage(to: string, message: string): Promise<{ success: boolean }> {
+132:  console.log("[WhatsApp] Message queued:", { to, message });
+151:async function runManufacturerOutreach(req: any, res: any) {
+152:  console.log("[AI] Manufacturer outreach triggered");
+153:  res.json({ ok: true, message: "Manufacturer outreach stub executed" });
+205:function filterSafePendingOutreach(mapped: any[]) {
+230:      blocksQualityGuardedMessages: true,
+245:      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+273:        message: req.body?.message || "",
+276:      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+339:      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+357:      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+368:      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+379:      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+392:      return res.send(result.csv);
+394:      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+429:      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+438:      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+447:      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+456:      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+465:      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+474:      return res.status(error?.status || 500).json({ ok: false, error: error?.message || String(error) });
+527:  app.post("/api/admin/property-intelligence/opportunities/:id/generate-outreach", async (req: any, res: any) => {
+530:    const { listPropertyOpportunities, generatePropertyOpportunityOutreach } = await import("./services/propertyIntelligence/propertyIntelligenceService");
+534:    return res.json({ ok: true, outreach: generatePropertyOpportunityOutreach(opportunity), opportunity });
+544:      message: "Opportunity verified. Direct Radar mutation can be wired to storage after field mapping review.",
+558:        results[path] = { ok: false, error: e?.message || String(e) };
+579:      message: "Prediction Markets API is connected locally. External scanner proxy can be reconnected later.",
+615:      message: "Admin Prediction Markets route is connected.",
+688:        error: error?.message || String(error),
+731:                res.send(robotsTxt());
+739:                res.send(llmsTxt());
+746:                res.send(sitemapXml());
+754:                message: { error: "Too many login attempts — try again in 15 minutes" },
+787:        console.error("[AdminAuth] Session save failed, returning stateless success:", sessionError?.message || sessionError);
+797:    console.error("[AdminAuth] Login server error:", error?.message || error);
+800:      detail: error?.message || String(error),
+850:        error: err?.message || "Failed to load Nexora module registry",
+876:        error: err?.message || "Failed to load Nexora module",
+902:        error: err?.message || "Failed to preview Nexora policy",
+913:                error: err?.message || "Failed to get background status",
+930:                error: err?.message || "Failed to load Nexora history",
+947:                error: err?.message || "Failed to run Nexora",
+957:              const { messages = [], route = "/admin/dashboard" } = req.body as {
+958:                messages: { role: "user" | "assistant"; content: string }[];
+1004:                "/admin/follow-up-sequences": "Follow-up Sequences",
+1024:Nexora is a fully autonomous B2B outreach and intelligence OS. It:
+1028:- Queues outbound emails and follow-up sequences in the approval queue (admin reviews before sending)
+1032:- SAFE_MODE gates all live sends — the approval queue exists to give admin visibility before outbound fires
+1064:- The copilot chat does not directly send emails or mutate live records, but Nexora's engine does both
+1066:- To release queued outbound messages: review and approve in the Nexora approval queue
+1084:                messages: [
+1086:                  ...messages.slice(-12), // keep last 12 turns
+1092:              const response = completion.choices[0]?.message?.content || "No response generated.";
+1095:              console.error("[NexoraCopilot] Error:", err.message);
+1096:              res.status(500).json({ error: err.message });
+1224:              console.error("[SystemRun] Error:", err.message);
+1225:              res.status(500).json({ ok: false, error: err.message, steps });
+1290:// ─── Outreach Channel Recommender ────────────────────────────────────────────
+1291:// Determines the best outreach channel based on signal characteristics.
+1294:function resolveOutreachChannel(signal: {
+1313:    return { channel: "whatsapp", reason: "High-confidence SMB — WhatsApp outreach most effective" };
+1318:  return { channel: "email", reason: "Default channel — email for initial contact" };
+1321:// ─── Outreach Risk Classifier ─────────────────────────────────────────────────
+1322:// Determines whether outreach requires human approval or can be auto-approved.
+1325://   • WhatsApp / call channel (direct personal contact, no unsend)
+1326://   • Deal value >= $500,000 (enterprise-scale; wrong message = lost deal)
+1329:// LOW RISK — auto-approved by Nexora:
+1332://   • Signal has company name and outreach draft generated by AI
+1334:// This classification is the explicit, auditable policy for autonomous outreach.
+1336:function classifyOutreachRisk(signal: {
+1349:      justification: `HIGH RISK: ${channel} outreach is a direct personal contact. Human review required to prevent relationship damage.`,
+1361:      justification: "HIGH RISK: No validated company context. Signal requires human review before outreach.",
+1367:    justification: `AUTO-APPROVED: Email outreach to ${signal.companyName}, deal value $${Math.round(value / 1000)}k — within autonomous outreach parameters.`,
+1406:interface ChatMessage {
+1639:  app.post("/api/ai/manufacturer-outreach", runManufacturerOutreach);
+1992:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2001:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2034:      const reviews = await storage.getApprovedReviewsBySku(req.params.sku);
+2050:      res.status(201).json({ message: "Review submitted for moderation", id: review.id });
+2068:      if (!["approved", "rejected", "pending"].includes(status)) {
+2080:      res.json({ message: "Review deleted" });
+2093:        message: data.message,
+2127:            lead.message ? `Notes: ${lead.message?.substring(0, 300)}` : null,
+2137:            messages: [
+2149:          const aiSummary = completion.choices[0]?.message?.content?.trim();
+2162:      sendLeadNotification({
+2172:        message: lead.message,
+2181:      // Start automated follow-up sequence (non-blocking)
+2231:                nextAction: opp.nextAction ?? "Send intro email",
+2245:              notes: `Inbound ${lead.type} lead from website — ${lead.message?.substring(0, 120) ?? "No message"}`,
+2246:            }).catch((e: any) => console.warn("[LeadEngine] Nexora opportunity push failed:", e.message));
+2248:            console.error("[LeadEngine] Pipeline push failed:", e.message);
+2256:        sendQuoteRequestCustomerEmail({
+2263:          message: lead.message,
+2267:        sendStrategyCallCustomerEmail({
+2274:          message: lead.message,
+2278:        sendEnquiryCustomerEmail({
+2282:          message: lead.message,
+2291:        console.error("[POST /api/leads] error:", error?.message);
+2292:        res.status(500).json({ success: false, message: "Internal server error" });
+2297:  // /api/enquiries — lightweight contact/start-page enquiry alias, maps to leads table
+2300:      const { name, email, phone, message, source } = req.body;
+2302:        return res.status(400).json({ success: false, message: "Name and email are required" });
+2308:        message: message ? String(message) : "",
+2314:      res.status(500).json({ success: false, message: "Internal server error" });
+2323:      res.status(500).json({ success: false, message: "Internal server error" });
+2335:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2357:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2360:  // ─── Message Templates ────────────────────────────────────────────────────
+2363:      const { leadMessageTemplates } = await import("@shared/schema");
+2365:      const templates = await ddb.select().from(leadMessageTemplates);
+2367:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2372:      const { leadMessageTemplates } = await import("@shared/schema");
+2377:      const [row] = await ddb.insert(leadMessageTemplates).values({
+2379:      }).onConflictDoUpdate({ target: leadMessageTemplates.type, set: { body, label: label || req.params.type, updatedAt: new Date() } }).returning();
+2381:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2384:  // ─── Lead Outreach Compose & Approval ────────────────────────────────────
+2385:  app.get("/api/admin/leads/:id/outreach", async (req, res) => {
+2387:      const { leadOutreach } = await import("@shared/schema");
+2390:      const rows = await ddb.select().from(leadOutreach).where(eq(leadOutreach.leadId, req.params.id)).orderBy(desc(leadOutreach.createdAt));
+2392:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2395:  app.post("/api/admin/leads/:id/outreach/compose", async (req, res) => {
+2397:      const { leadOutreach, leads: leadsTable, leadMessageTemplates } = await import("@shared/schema");
+2400:      const { templateType, customMessage, notes } = req.body || {};
+2405:      let renderedMessage = customMessage || "";
+2406:      if (!renderedMessage && templateType) {
+2407:        const [tmpl] = await ddb.select().from(leadMessageTemplates).where(eq(leadMessageTemplates.type, templateType)).limit(1);
+2410:        renderedMessage = tmpl.body.replace(/\{\{name\}\}/g, firstName);
+2413:      if (!renderedMessage.trim()) return res.status(400).json({ error: "Message body required" });
+2415:      const [row] = await ddb.insert(leadOutreach).values({
+2418:        renderedMessage,
+2420:        adminApproved: false,
+2425:      res.json({ ok: true, outreach: row });
+2426:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2429:  app.patch("/api/admin/leads/:id/outreach/:outreachId/approve", async (req, res) => {
+2431:      const { leadOutreach } = await import("@shared/schema");
+2434:      const [row] = await ddb.update(leadOutreach).set({
+2435:        adminApproved: true,
+2436:        approvedAt: new Date(),
+2437:      }).where(and(eq(leadOutreach.id, req.params.outreachId), eq(leadOutreach.leadId, req.params.id))).returning();
+2438:      if (!row) return res.status(404).json({ error: "Outreach record not found" });
+2439:      res.json({ ok: true, outreach: row });
+2440:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2468:        topPartners: topPartners.map(p => ({ id: p.id, companyName: p.companyName, contactName: p.contactName, partnerScore: p.partnerScore || 0, partnerTier: p.partnerTier || "tier1", referralCount: p.referralCount || 0, city: p.city })),
+2469:        inactivePartners: inactive.map(p => ({ id: p.id, companyName: p.companyName, contactName: p.contactName, partnerTier: p.partnerTier || "tier1", city: p.city })),
+2473:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2514:          nextAction: d.recommendedAction || "Review and contact",
+2528:          nextAction: "Initiate outreach",
+2551:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2563:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2571:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2591:        }).catch((e: any) => console.warn("[Nexora] Auto-outcome failed:", e?.message));
+2595:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2602:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2625:        clientName: opp.contactName ?? opp.companyName,
+2627:        email: opp.contactEmail ?? "tbc@placeholder.com",
+2628:        phone: opp.contactPhone ?? null,
+2638:        notes: `Auto-generated from Nexora opportunity ${opp.id}. Company: ${opp.companyName}. Signal: ${opp.projectType ?? "N/A"}. Review and update line items before sending.`,
+2645:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2656:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2759:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2820:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2823:  // Outreach pending approval — drafts in outreachMessages awaiting admin sign-off
+2824:  app.get("/api/nexora/outreach/pending", async (req, res) => {
+2827:      const { outreachMessages, outreachThreads } = await import("@shared/schema");
+2832:          id: outreachMessages.id,
+2833:          threadId: outreachMessages.threadId,
+2834:          companyName: outreachMessages.companyName,
+2835:          recipientEmail: outreachMessages.recipientEmail,
+2836:          channel: outreachMessages.channel,
+2837:          subject: outreachMessages.subject,
+2838:          body: outreachMessages.body,
+2839:          campaignKey: outreachMessages.campaignKey,
+2840:          messageType: outreachMessages.messageType,
+2841:          stage: outreachMessages.stage,
+2842:          createdAt: outreachMessages.createdAt,
+2843:          threadOpportunityScore: outreachThreads.opportunityScore,
+2844:          threadResolvedEmail: outreachThreads.resolvedEmail,
+2845:          threadOutreachAngle: outreachThreads.outreachAngle,
+2847:        .from(outreachMessages)
+2848:        .leftJoin(outreachThreads, eq(outreachMessages.threadId, outreachThreads.id))
+2849:        .where(eq(outreachMessages.deliveryStatus, "draft"))
+2850:        .orderBy(dd(outreachMessages.createdAt))
+2862:          messagePreview: p.body ? p.body.slice(0, 200) + (p.body.length > 200 ? "…" : "") : "",
+2864:          signalContext: p.threadOutreachAngle || p.campaignKey || null,
+2866:          messageType: p.messageType,
+2872:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2879:      const { outreachMessages, followUpSequences, opportunities, nexoraOutcomes } = await import("@shared/schema");
+2884:      const draftMsgs = await ddb.select({ id: outreachMessages.id, companyName: outreachMessages.companyName, createdAt: outreachMessages.createdAt })
+2885:        .from(outreachMessages).where(eq(outreachMessages.deliveryStatus, "draft")).limit(50);
+2887:      // 2. Overdue follow-ups
+2893:        nextSendAt: followUpSequences.nextSendAt,
+2897:          lt(followUpSequences.nextSendAt, now),
+2900:      // 3. High-confidence opportunities without a quote (stage "new" or "qualified" — not yet contacted/quoted)
+2934:          title: `${draftMsgs.length} outreach message${draftMsgs.length !== 1 ? "s" : ""} awaiting approval`,
+2946:          title: `Follow-up overdue — ${f.leadCompany}`,
+2947:          subtitle: `Stage ${f.stage} · Scheduled ${f.nextSendAt ? new Date(f.nextSendAt).toLocaleDateString("en-AU") : "N/A"}`,
+2949:          actionLabel: "View Follow-Ups",
+2985:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+2988:  // GET /api/nexora/follow-up-queue — per-lead follow-up queue with status
+2989:  app.get("/api/nexora/follow-up-queue", async (req, res) => {
+3002:        else if (s.nextSendAt && new Date(s.nextSendAt) < now) queueStatus = "overdue";
+3014:          nextSendAt: s.nextSendAt,
+3030:    } catch (err: any) { res.status(500).json({ error: err.message }); }
+3033:  // Approve/reject pending outreach draft
+3034:  app.patch("/api/nexora/outreach/:id/approve", async (req, res) => {
+3037:      const { action } = req.body as { action: "approve" | "reject" };
