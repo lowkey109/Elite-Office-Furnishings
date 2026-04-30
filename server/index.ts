@@ -1649,7 +1649,7 @@ app.post("/api/polyedge/auto-paper/start", async (req, res) => {
 
 app.post("/api/polyedge/auto-paper/start-fast", async (_req, res) => {
   const { startPolyEdgeAutoPaperLoop, polyEdgeAutoPaperTick } = await import("./services/trading/polyEdgeAutoPaper");
-  const started = await startPolyEdgeAutoPaperLoop(5000);
+  const started = await startPolyEdgeAutoPaperLoop(2000);
   await polyEdgeAutoPaperTick().catch(() => undefined);
   res.json(started);
 });
@@ -1729,7 +1729,7 @@ if (process.env.POLYEDGE_AUTO_PAPER_AUTOSTART !== "false") {
   setTimeout(async () => {
     try {
       const { startPolyEdgeAutoPaperLoop, polyEdgeAutoPaperTick } = await import("./services/trading/polyEdgeAutoPaper");
-      await startPolyEdgeAutoPaperLoop(5000);
+      await startPolyEdgeAutoPaperLoop(2000);
       await polyEdgeAutoPaperTick().catch(() => undefined);
       console.log("[polyedge] PAPER-ONLY auto trader started");
     } catch (err) {

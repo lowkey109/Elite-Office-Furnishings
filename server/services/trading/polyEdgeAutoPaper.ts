@@ -179,7 +179,7 @@ async function closeFastPaperPositions() {
     const mark = paperMark(pos.symbol);
     const openedAt = pos.entryTimestamp || pos.createdAt || new Date();
     const ageMs = Date.now() - new Date(openedAt).getTime();
-    const maxAgeMs = Number(process.env.POLYEDGE_FAST_PAPER_MAX_AGE_MS || 45000);
+    const maxAgeMs = Number(process.env.POLYEDGE_FAST_PAPER_MAX_AGE_MS || 20000);
 
     const side = String(pos.side);
     const hitTarget = side === "long"
@@ -212,7 +212,7 @@ async function closeFastPaperPositions() {
 
 async function openFastPaperPosition() {
   const open = await db.select().from(paperPositions).where(eq(paperPositions.status, "open"));
-  const maxOpen = Number(process.env.POLYEDGE_FAST_PAPER_MAX_OPEN || 8);
+  const maxOpen = Number(process.env.POLYEDGE_FAST_PAPER_MAX_OPEN || 20);
 
   if (open.length >= maxOpen) {
     return { opened: false, reason: "Open-position limit reached." };
@@ -394,14 +394,14 @@ export async function getPolyEdgeAutoPaperStatus() {
     fastLearning: {
       enabled: true,
       intervalMs: 5000,
-      maxAgeMs: Number(process.env.POLYEDGE_FAST_PAPER_MAX_AGE_MS || 45000),
-      maxOpenPositions: Number(process.env.POLYEDGE_FAST_PAPER_MAX_OPEN || 8),
+      maxAgeMs: Number(process.env.POLYEDGE_FAST_PAPER_MAX_AGE_MS || 20000),
+      maxOpenPositions: Number(process.env.POLYEDGE_FAST_PAPER_MAX_OPEN || 20),
     },
     updatedAt: nowIso(),
   };
 }
 
-export function startPolyEdgeAutoPaperLoop(intervalMs = 5000) {
+export function startPolyEdgeAutoPaperLoop(intervalMs = 2000) {
   state.enabled = true;
   state.lastAction = "started";
   state.lastReason = `Fast auto paper trader started. Interval ${intervalMs}ms.`;
@@ -414,7 +414,7 @@ export function startPolyEdgeAutoPaperLoop(intervalMs = 5000) {
       state.lastAction = "error";
       state.lastReason = state.lastError || "Unknown loop error.";
     });
-  }, Math.max(5000, intervalMs));
+  }, Math.max(1000, intervalMs));
 
   polyEdgeAutoPaperTick().catch(() => undefined);
 
