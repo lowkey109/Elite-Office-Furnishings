@@ -1,0 +1,309 @@
+/* PHANTOM X PROPER LAYOUT FIX
+   This file is intentionally separate from TSX so raw CSS can never break TypeScript. */
+
+body:has(.pxShell) {
+  overflow: hidden !important;
+  background: #000 !important;
+}
+
+.pxShell {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(circle at 48% -10%, rgba(34, 240, 255, 0.13), transparent 34%),
+    radial-gradient(circle at 90% 10%, rgba(255, 138, 0, 0.08), transparent 26%),
+    linear-gradient(180deg, #02070d, #000 70%) !important;
+}
+
+.pxStage {
+  transform-origin: top left !important;
+}
+
+/* Left terminal rail — tighter, premium, less wasted width */
+.sidebar {
+  width: 145px !important;
+  background:
+    linear-gradient(180deg, rgba(1, 12, 18, 0.96), rgba(0, 0, 0, 0.98)) !important;
+  border-right: 1px solid rgba(34, 240, 255, 0.55) !important;
+  box-shadow: 18px 0 55px rgba(0, 0, 0, 0.75), inset -18px 0 40px rgba(34, 240, 255, 0.035) !important;
+}
+
+.logoBox {
+  top: 18px !important;
+  left: 30px !important;
+  width: 84px !important;
+  height: 74px !important;
+}
+
+.tcdAppToggle {
+  top: 112px !important;
+  left: 16px !important;
+  width: 112px !important;
+  height: 30px !important;
+  font-size: 9px !important;
+  letter-spacing: .18em !important;
+  background: linear-gradient(90deg, rgba(34, 240, 255, .18), rgba(0, 0, 0, .82)) !important;
+  border-color: rgba(34, 240, 255, .82) !important;
+}
+
+.sideMenu {
+  top: 165px !important;
+  gap: 13px !important;
+}
+
+.menuItem {
+  gap: 9px !important;
+  padding-left: 13px !important;
+}
+
+.menuItem svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.menuMain {
+  font-size: 10px !important;
+  letter-spacing: .13em !important;
+}
+
+.menuSub {
+  font-size: 7px !important;
+  letter-spacing: .08em !important;
+  opacity: .62 !important;
+}
+
+.neuralOrb {
+  bottom: 70px !important;
+  left: 17px !important;
+  width: 110px !important;
+}
+
+.orbBig {
+  width: 105px !important;
+  height: 105px !important;
+}
+
+.neuralOrb .bigNum {
+  font-size: 16px !important;
+}
+
+/* Top header — moved right and compressed cleanly */
+.top {
+  left: 158px !important;
+  top: 12px !important;
+  width: 1745px !important;
+  height: 72px !important;
+  display: grid !important;
+  grid-template-columns: 255px 170px 170px 120px 215px 245px 230px 135px !important;
+  gap: 7px !important;
+}
+
+.brand {
+  padding: 10px 16px !important;
+  overflow: hidden !important;
+}
+
+.brandTitle {
+  font-size: 30px !important;
+  line-height: 28px !important;
+  letter-spacing: .13em !important;
+  white-space: nowrap !important;
+}
+
+.brandSub {
+  font-size: 8px !important;
+  letter-spacing: .1em !important;
+  white-space: nowrap !important;
+}
+
+.brandVer {
+  font-size: 7px !important;
+}
+
+.topStat {
+  padding: 9px 12px !important;
+  overflow: hidden !important;
+}
+
+.topLabel {
+  font-size: 8px !important;
+  letter-spacing: .12em !important;
+  white-space: nowrap !important;
+}
+
+.topValue {
+  margin-top: 9px !important;
+  font-size: 15px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Main grid — starts closer to left, ends above ticker, no cut-off */
+.grid {
+  left: 158px !important;
+  top: 96px !important;
+  width: 1745px !important;
+  height: 880px !important;
+  display: grid !important;
+  grid-template-columns: 380px 330px 295px 345px 365px !important;
+  grid-template-rows: 370px 245px 225px !important;
+  gap: 10px !important;
+}
+
+.panel {
+  overflow: hidden !important;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(34, 240, 255, .075), transparent 38%),
+    linear-gradient(145deg, rgba(2, 18, 29, .97), rgba(0, 3, 9, .99)) !important;
+  border-color: rgba(34, 240, 255, .58) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.025),
+    inset 0 0 35px rgba(34,240,255,.045),
+    0 0 26px rgba(34,240,255,.10) !important;
+}
+
+.panelTitle {
+  height: 35px !important;
+  padding: 10px 16px 0 !important;
+  font-size: 14px !important;
+  letter-spacing: .14em !important;
+  white-space: normal !important;
+  line-height: 15px !important;
+}
+
+/* Chart and metrics fit */
+.equity svg {
+  height: 245px !important;
+}
+
+.metricStrip {
+  bottom: 10px !important;
+  height: 48px !important;
+}
+
+.metric small {
+  font-size: 7px !important;
+}
+
+.metric b {
+  font-size: 13px !important;
+}
+
+/* Top row panel fixes */
+.sentiment {
+  padding-bottom: 8px !important;
+}
+
+.signalRow {
+  padding-top: 7px !important;
+  padding-bottom: 7px !important;
+  font-size: 10px !important;
+}
+
+/* Middle row fixes */
+.agentRow {
+  font-size: 10px !important;
+  height: 28px !important;
+}
+
+.agentDots {
+  transform: scale(.82) !important;
+  transform-origin: center !important;
+}
+
+.donut {
+  transform: scale(.86) !important;
+  transform-origin: center !important;
+}
+
+.donut:after {
+  inset: 48px !important;
+  font-size: 12px !important;
+  line-height: 17px !important;
+}
+
+.allocationLegend,
+.legend {
+  font-size: 10px !important;
+}
+
+.multiverse svg,
+.multiverseIcon {
+  transform: scale(.86) !important;
+}
+
+.bar {
+  border-radius: 3px 3px 0 0 !important;
+}
+
+/* Bottom row — force everything to stay above ticker */
+.flow,
+.news,
+.universe,
+.risk,
+.decision {
+  height: 225px !important;
+}
+
+.newsRow,
+.riskRow,
+.decisionRow {
+  font-size: 9px !important;
+  line-height: 15px !important;
+}
+
+/* Alerts panel should sit beside bottom panels, not cover/cut them */
+.alerts {
+  height: 130px !important;
+  min-height: 130px !important;
+}
+
+.alertGrid {
+  padding: 18px 14px !important;
+  gap: 10px !important;
+}
+
+.alertBox {
+  height: 76px !important;
+  padding: 12px 14px !important;
+}
+
+.alertBox b {
+  font-size: 18px !important;
+}
+
+/* Footer ticker */
+.ticker {
+  left: 0 !important;
+  right: 0 !important;
+  height: 38px !important;
+  bottom: 0 !important;
+  z-index: 70 !important;
+  background: rgba(0,0,0,.97) !important;
+}
+
+.ticker span {
+  height: 38px !important;
+  padding: 10px 20px 0 !important;
+  font-size: 12px !important;
+}
+
+/* Make drawer readable above the terminal */
+.tcdAppDrawer {
+  z-index: 9999 !important;
+}
+
+@media (max-width: 1400px) {
+  .grid {
+    top: 92px !important;
+    grid-template-rows: 360px 235px 215px !important;
+  }
+
+  .panelTitle {
+    font-size: 13px !important;
+  }
+}

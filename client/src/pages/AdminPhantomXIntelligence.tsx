@@ -15,6 +15,7 @@ import {
   Settings,
   Shield,
 } from "lucide-react";
+import "./AdminPhantomXIntelligence.fix.css";
 
 type AnyRow = Record<string, any>;
 
@@ -29,7 +30,7 @@ function PhantomXTerminalCanvas() {
     const resize = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      setScale(Math.min(w / 1920, h / 1080));
+      setScale(Math.min((w - 8) / 1920, (h - 8) / 1080));
     };
 
     resize();
@@ -597,8 +598,8 @@ function PhantomXTerminalCanvas() {
         className="pxStage"
         style={{
           transform: `scale(${scale})`,
-          left: `${(window.innerWidth - 1920 * scale) / 2}px`,
-          top: `${(window.innerHeight - 1080 * scale) / 2}px`,
+          left: `${Math.max(0, (window.innerWidth - 1920 * scale) / 2)}px`,
+          top: `${Math.max(0, (window.innerHeight - 1080 * scale) / 2)}px`,
         }}
       >
         
