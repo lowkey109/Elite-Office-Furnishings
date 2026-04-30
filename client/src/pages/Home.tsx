@@ -692,23 +692,58 @@ export default function Home() {
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 items-center">
           <div>
             <p className="text-amber-400 text-xs uppercase tracking-[0.25em] font-semibold">Client Portal</p>
-            <h2 className="text-3xl md:text-5xl font-bold mt-4">Client Portal for Workspace Projects</h2>
-            <p className="text-white/55 mt-5 text-lg">
-              Already working with The Corporate Desk? Log in to view quotes, furniture selections, floor plan reviews, finance options, project updates and procurement requests.
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-amber-300">
+              Built for $30k–$300k+ fitout projects
+            </div>
+            <h2 className="text-3xl md:text-5xl font-bold mt-5">Your Entire Office Fitout, Managed in One Place</h2>
+            <p className="text-white/65 mt-5 text-lg">
+              Track quotes, furniture selections, floor plans, procurement, finance options, project updates and AI-powered workspace tools from one private client portal.
             </p>
             <div className="flex flex-wrap gap-3 mt-7">
-              <a href="/client-login" className="px-5 py-3 rounded-xl bg-amber-500 text-black font-semibold">Client Login</a>
-              <a href="/client-signup" className="px-5 py-3 rounded-xl border border-white/15 text-white">Create Client Account</a>
-              <a href="/subscriptions" className="px-5 py-3 rounded-xl border border-amber-500/30 text-amber-300">View Subscription Plans</a>
+              <a href="/client-login" className="px-5 py-3 rounded-xl bg-amber-500 text-black font-semibold shadow-lg shadow-amber-500/20">Open Client Portal</a>
+              <a href="/client-signup" className="px-5 py-3 rounded-xl border border-white/15 text-white hover:border-amber-400/40">Create Project Account</a>
+              <a href="/subscriptions" className="px-5 py-3 rounded-xl border border-amber-500/30 text-amber-300 hover:bg-amber-500/10">View Subscription Plans</a>
             </div>
-            <p className="text-white/35 text-sm mt-4">Private admin tools remain separate and are not available through client accounts.</p>
-          </div>
-          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
-            <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="mt-7 grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
               {["Quotes", "Floor Plans", "Procurement", "Finance", "LeaseHawk", "PhantomX Paper"].map((item) => (
-                <div key={item} className="rounded-2xl bg-black/20 border border-white/10 p-4">
+                <div key={item} className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
                   <div className="text-amber-300 font-semibold">{item}</div>
-                  <div className="text-white/35 mt-1">Available by plan</div>
+                  <div className="text-white/35 mt-1 text-xs">Available by plan</div>
+                </div>
+              ))}
+            </div>
+            <p className="text-white/35 text-sm mt-5">Private admin tools remain separate and are not available through client accounts.</p>
+          </div>
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/30">
+            <div className="grid sm:grid-cols-2 gap-4 text-sm">
+              {[
+                { title: "Quotes", icon: "Q", text: "Review project quotes, approvals and furniture selections.", lines: ["Quote #TCD-204", "Pending approval", "$42,800 package"] },
+                { title: "Floor Plans", icon: "FP", text: "View layouts, revisions and room-by-room planning notes.", lines: ["Level 8 workspace", "42 desks allocated", "Revision 03 ready"] },
+                { title: "Procurement", icon: "PR", text: "Track furniture orders, supplier status and installation progress.", lines: ["24 items ordered", "Install window locked", "Supplier ETA live"] },
+                { title: "Finance", icon: "$", text: "Compare staged payment and fitout finance options.", lines: ["Monthly option", "Deposit scenario", "Approval checklist"] },
+                { title: "LeaseHawk", icon: "LH", text: "Property and office-move intelligence for growth signals.", lines: ["Listings monitored", "Move signals ranked", "Territory reports"] },
+                { title: "PhantomX Paper", icon: "PX", text: "Paper-only market intelligence and trading simulation.", lines: ["Pretend money only", "Learning dashboard", "Risk gated"] },
+              ].map((app) => (
+                <div key={app.title} className="overflow-hidden rounded-2xl bg-black/25 border border-white/10">
+                  <div className="h-28 border-b border-white/10 bg-gradient-to-br from-white/[0.08] to-amber-500/[0.1] p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="h-8 w-8 rounded-lg bg-amber-500 text-black text-xs font-black grid place-items-center">{app.icon}</div>
+                      <div className="h-2 w-16 rounded-full bg-white/15" />
+                    </div>
+                    <div className="mt-4 space-y-2">
+                      {app.lines.map((line) => (
+                        <div key={line} className="flex items-center gap-2">
+                          <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
+                          <span className="h-2 flex-1 rounded-full bg-white/15" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <div className="text-amber-300 font-semibold">{app.title}</div>
+                    <div className="text-white/50 mt-1">{app.text}</div>
+                    <div className="text-white/30 text-xs mt-3">Available by plan</div>
+                  </div>
                 </div>
               ))}
             </div>
