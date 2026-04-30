@@ -352,13 +352,13 @@ async function openFastPaperPosition() {
   const confidence = Math.max(state.confidenceFloor, Math.min(92, state.confidenceFloor + (seed % 20)));
 
   const baseRiskPct =
-    defensiveMicroLearning ? 0.0015 :
+    defensiveMicroLearning ? 0.0004 :
     state.learningScore >= 70 ? 0.012 :
-    state.learningScore < 45 ? 0.004 :
+    state.learningScore < 45 ? 0.001 :
     0.007;
 
   const riskPct = baseRiskPct * Number(lossGovernor.riskMultiplier || 1);
-  const paperCapitalAllocated = Math.max(10, Math.round(100000 * riskPct * 100) / 100);
+  const paperCapitalAllocated = Math.max(5, Math.round(100000 * riskPct * 100) / 100);
 
   const move = symbol === "BTC/USD" ? 0.0016 : symbol === "ETH/USD" ? 0.002 : symbol === "SOL/USD" ? 0.0028 : 0.0011;
 
