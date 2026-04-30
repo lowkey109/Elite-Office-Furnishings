@@ -283,28 +283,28 @@ function PolyEdgeHeartbeatPanel({
             <div className="grid grid-cols-2 gap-1.5">
               <div className="rounded-xl border border-cyan-300/15 bg-black/40 p-3">
                 <div className="text-[9px] uppercase tracking-[0.16em] text-cyan-100/40">App Heartbeat</div>
-                <div className="mt-1 text-lg font-black text-emerald-300">LIVE {'.'.repeat(pulse + 1)}</div>
+                <div className="mt-1 text-sm font-black text-emerald-300">LIVE {'.'.repeat(pulse + 1)}</div>
               </div>
 
               <div className="rounded-xl border border-cyan-300/15 bg-black/40 p-3">
                 <div className="text-[9px] uppercase tracking-[0.16em] text-cyan-100/40">API Status</div>
-                <div className={`mt-1 text-lg font-black uppercase ${statusColor}`}>{apiStatus}</div>
+                <div className={`mt-1 text-sm font-black uppercase ${statusColor}`}>{apiStatus}</div>
               </div>
 
               <div className="rounded-xl border border-cyan-300/15 bg-black/40 p-3">
                 <div className="text-[9px] uppercase tracking-[0.16em] text-cyan-100/40">Replay Engine</div>
-                <div className={`mt-1 text-lg font-black uppercase ${running ? "text-emerald-300" : "text-cyan-100/45"}`}>
+                <div className={`mt-1 text-sm font-black uppercase ${running ? "text-emerald-300" : "text-cyan-100/45"}`}>
                   {running ? "RUNNING" : "IDLE"}
                 </div>
               </div>
 
               <div className="rounded-xl border border-cyan-300/15 bg-black/40 p-3">
                 <div className="text-[9px] uppercase tracking-[0.16em] text-cyan-100/40">Last Check</div>
-                <div className="mt-1 text-lg font-black text-white">{lastApiCheck || "waiting"}</div>
+                <div className="mt-1 text-sm font-black text-white">{lastApiCheck || "waiting"}</div>
               </div>
             </div>
 
-            <div className="mt-3 rounded-xl border border-orange-300/15 bg-orange-400/5 p-3 text-[11px] leading-relaxed text-orange-100/75">
+            <div className="mt-1.5 rounded-xl border border-orange-300/15 bg-orange-400/5 p-3 text-[11px] leading-relaxed text-orange-100/75">
               {replayMessage || runtime?.lastEvent || "Cockpit is alive. Waiting for replay/API response."}
             </div>
           </div>
@@ -351,13 +351,13 @@ function PolySystemHeartMonitor({
           <div className="mb-4 flex items-center justify-between">
             <div>
               <div className="text-[9px] uppercase tracking-[0.18em] text-cyan-100/40">PolyEdge API Heartbeat</div>
-              <div className={`mt-1 text-lg font-black uppercase tracking-[0.12em] ${alive ? "text-emerald-300" : flatline ? "text-red-300" : "text-cyan-300"}`}>
+              <div className={`mt-1 text-sm font-black uppercase tracking-[0.12em] ${alive ? "text-emerald-300" : flatline ? "text-red-300" : "text-cyan-300"}`}>
                 {alive ? `LIVE${dots}` : flatline ? "FLATLINE" : "CHECKING"}
               </div>
             </div>
-            <div className="rounded-xl border border-cyan-300/20 bg-black/45 px-4 py-3 text-right">
+            <div className="rounded-xl border border-cyan-300/20 bg-black/45 px-2.5 py-1.5 text-right">
               <div className="text-[9px] uppercase tracking-[0.14em] text-cyan-100/40">API Status</div>
-              <div className={`text-lg font-black uppercase ${alive ? "text-emerald-300" : "text-amber-300"}`}>{apiStatus}</div>
+              <div className={`text-sm font-black uppercase ${alive ? "text-emerald-300" : "text-amber-300"}`}>{apiStatus}</div>
             </div>
           </div>
 
@@ -379,7 +379,7 @@ function PolySystemHeartMonitor({
             <div className={`absolute right-4 top-4 h-4 w-4 rounded-full ${alive ? "bg-emerald-300" : "bg-red-400"}`} style={{ animation: alive ? "poly-heart-glow 1s ease-in-out infinite" : undefined }} />
           </div>
 
-          <div className="mt-4 grid grid-cols-3 gap-1.5 text-[11px]">
+          <div className="mt-2 grid grid-cols-3 gap-1.5 text-[11px]">
             <div className="rounded-xl border border-cyan-300/15 bg-cyan-300/5 p-3">
               <div className="text-cyan-100/35">Last Check</div>
               <div className="font-bold text-white">{lastApiCheck || "waiting"}</div>
@@ -450,31 +450,31 @@ function ReplayEngineMonitor({
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-[9px] uppercase tracking-[0.18em] text-cyan-100/40">Replay Processing Heartbeat</div>
-                <div className={`mt-1 text-lg font-black uppercase tracking-[0.12em] ${stalled ? "text-red-300" : running ? "text-emerald-300" : "text-cyan-100/45"}`}>
+                <div className={`mt-1 text-sm font-black uppercase tracking-[0.12em] ${stalled ? "text-red-300" : running ? "text-emerald-300" : "text-cyan-100/45"}`}>
                   {status}
                 </div>
               </div>
               <div className="text-right">
                 <div className="text-[9px] uppercase tracking-[0.14em] text-cyan-100/40">Trade Progress</div>
-                <div className="text-lg font-black text-white">{completed}/{total}</div>
+                <div className="text-sm font-black text-white">{completed}/{total}</div>
               </div>
             </div>
 
-            <div className="mt-4 h-3 overflow-hidden rounded-full bg-black/60 ring-1 ring-fuchsia-300/20">
+            <div className="mt-2 h-3 overflow-hidden rounded-full bg-black/60 ring-1 ring-fuchsia-300/20">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${stalled ? "bg-red-400" : "bg-gradient-to-r from-cyan-300 via-emerald-300 to-fuchsia-300"}`}
                 style={{ width: `${replayProgress}%` }}
               />
             </div>
 
-            <div className="mt-4 grid grid-cols-4 gap-1.5 text-center text-[10px]">
+            <div className="mt-2 grid grid-cols-4 gap-1.5 text-center text-[10px]">
               <div className="rounded-xl border border-emerald-300/15 bg-black/35 p-2"><div className="text-cyan-100/35">WINS</div><div className="font-bold text-emerald-300">{runtime?.profitable || 0}</div></div>
               <div className="rounded-xl border border-red-300/15 bg-black/35 p-2"><div className="text-cyan-100/35">LOSSES</div><div className="font-bold text-red-300">{runtime?.losing || 0}</div></div>
               <div className="rounded-xl border border-amber-300/15 bg-black/35 p-2"><div className="text-cyan-100/35">SKIP</div><div className="font-bold text-amber-300">{runtime?.skipped || 0}</div></div>
               <div className="rounded-xl border border-cyan-300/15 bg-black/35 p-2"><div className="text-cyan-100/35">NO MOVE</div><div className="font-bold text-cyan-300">{secondsSinceProgress}s</div></div>
             </div>
 
-            <div className="mt-3 rounded-xl border border-fuchsia-300/15 bg-fuchsia-300/5 p-3 text-[11px] leading-relaxed text-fuchsia-100/75">
+            <div className="mt-1.5 rounded-xl border border-fuchsia-300/15 bg-fuchsia-300/5 p-3 text-[11px] leading-relaxed text-fuchsia-100/75">
               {runtime?.lastEvent || "Replay engine idle. Press Run 25 or Run 50 to start."}
             </div>
           </div>
@@ -563,7 +563,7 @@ function statusTone(state?: string) {
 
 function QuantumGlass({ children, className = "" }: { children: any; className?: string }) {
   return (
-    <div className={`poly-final-glass relative overflow-hidden rounded-xl border border-cyan-300/25 bg-slate-950/65 p-1.5 backdrop-blur-xl ${className}`}>
+    <div className={`poly-final-glass relative overflow-hidden rounded-lg border border-cyan-300/35 bg-black/70 p-1.5 backdrop-blur-xl ${className}`}>
       <div className="pointer-events-none absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(103,232,249,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(103,232,249,.08) 1px, transparent 1px)", backgroundSize: "30px 30px" }} />
       <div className="poly-final-scan pointer-events-none absolute inset-0" />
       <div className="relative z-10 h-full">{children}</div>
@@ -920,7 +920,7 @@ function AllocationPanel({ metrics }: { metrics: any }) {
           <div className="absolute inset-0 rounded-full border-[14px] border-cyan-300/15" />
           <div className="absolute inset-0 rounded-full border-[14px] border-transparent border-t-cyan-300 border-r-fuchsia-500 border-b-emerald-400" style={{ filter: "drop-shadow(0 0 16px rgba(103,232,249,.8))", animation: "poly-final-spin 7s linear infinite" }} />
           <div className="text-center">
-            <div className="text-lg font-black text-white">{realPct(metrics?.profitablePaperTradeProgressPct)}</div>
+            <div className="text-sm font-black text-white">{realPct(metrics?.profitablePaperTradeProgressPct)}</div>
             <div className="text-[8px] uppercase text-cyan-300">REAL</div>
           </div>
         </div>
@@ -953,7 +953,7 @@ function BottomStatusBar({ monitors, metrics }: { monitors: any[]; metrics: any 
   const replayTone = statusTone(replay?.state);
 
   return (
-    <div className="mt-2 flex flex-wrap items-center justify-between gap-1.5 rounded-xl border border-cyan-400/30 bg-slate-950/65 px-3 py-2 text-[9px] backdrop-blur-xl lg:flex-nowrap">
+    <div className="mt-2 flex flex-wrap items-center justify-between gap-1.5 rounded-xl border border-cyan-400/30 bg-slate-950/65 px-2.5 py-1.5 text-[9px] backdrop-blur-xl lg:flex-nowrap">
       <div className="flex gap-5">
         <div><span className="text-emerald-400">MAX DD:</span> {realPct(metrics?.maxDrawdownPct)}</div>
         <div><span className="text-emerald-400">WIN RATE:</span> {realPct(metrics?.winRate)}</div>
@@ -1396,30 +1396,74 @@ function PolyEdgeActionMonitorGrid({
           }
         }
 
+        .polyedge-reference-fit-final { display: none; }
+
+        .polyedge-hide-old-panels {
+          display: none !important;
+        }
+
+        @media (min-width: 1024px) {
+          html:has(.polyedge-fit-reference),
+          body:has(.polyedge-fit-reference),
+          #root:has(.polyedge-fit-reference) {
+            width: 100% !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            overflow: hidden !important;
+            background: #000 !important;
+          }
+
+          body:has(.polyedge-fit-reference) {
+            position: fixed !important;
+            inset: 0 !important;
+          }
+
+          .polyedge-fit-reference {
+            transform-origin: top left;
+          }
+
+          .polyedge-fit-reference .poly-final-glass {
+            min-height: 0 !important;
+          }
+
+          .polyedge-fit-reference canvas,
+          .polyedge-fit-reference svg {
+            max-height: 100% !important;
+          }
+        }
+
+        @media (max-width: 1023px) {
+          .polyedge-fit-reference {
+            overflow: visible !important;
+            height: auto !important;
+            max-height: none !important;
+          }
+        }
+
         @keyframes poly-final-float {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-6px); }
         }
       `}</style>
 
-      <div className="poly-final-root polyedge-responsive-onepage relative overflow-visible rounded-[20px] p-1.5 text-white lg:fixed lg:inset-2 lg:z-[60] lg:h-[calc(100dvh-16px)] lg:max-h-[calc(100dvh-16px)] lg:overflow-hidden">
-        <div className="relative z-10 mx-auto flex h-auto max-w-screen-2xl flex-col lg:h-full lg:min-h-0 lg:overflow-hidden">
-          <div className="mb-1.5 flex flex-wrap items-center justify-between gap-1.5 rounded-xl border border-cyan-400/30 bg-slate-950/65 px-2.5 py-1.5 backdrop-blur-xl lg:flex-nowrap">
+      <div className="poly-final-root polyedge-fit-reference relative overflow-visible rounded-[18px] p-1.5 text-white lg:fixed lg:inset-[8px] lg:z-[80] lg:h-[calc(100dvh-16px)] lg:max-h-[calc(100dvh-16px)] lg:overflow-hidden">
+        <div className="relative z-10 mx-auto flex h-auto max-w-[1920px] flex-col lg:h-full lg:min-h-0 lg:overflow-hidden">
+          <div className="mb-1.5 flex flex-wrap items-center justify-between gap-1.5 rounded-xl border border-cyan-400/30 bg-slate-950/70 px-2.5 py-1.5 backdrop-blur-xl lg:flex-nowrap">
             <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-purple-600 text-lg font-bold text-white shadow-[0_0_30px_rgba(103,232,249,.4)]">P/E</div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-purple-600 text-sm font-bold text-white shadow-[0_0_30px_rgba(103,232,249,.4)]">P/E</div>
               <div>
-                <h1 className="text-lg font-bold tracking-tighter text-cyan-100 drop-shadow-[0_0_18px_rgba(103,232,249,.8)]">POLY//EDGE</h1>
+                <h1 className="text-sm font-bold tracking-tighter text-cyan-100 drop-shadow-[0_0_18px_rgba(103,232,249,.8)]">POLY//EDGE</h1>
                 <p className="text-[10px] uppercase tracking-[4px] text-cyan-400">REAL DATA ONLY • NO SIMULATED VALUES</p>
               </div>
             </div>
 
             <div className="hidden gap-8 text-sm xl:flex">
               <div className="text-center">
-                <div className="font-mono text-lg text-emerald-400">{apiTone.long}</div>
+                <div className="font-mono text-sm text-emerald-400">{apiTone.long}</div>
                 <div className="text-[10px] text-gray-400">POLY API STATUS</div>
               </div>
               <div className="text-center">
-                <div className="font-mono text-lg font-bold text-white">{realMoney(metrics?.totalPnl)}</div>
+                <div className="font-mono text-sm font-bold text-white">{realMoney(metrics?.totalPnl)}</div>
                 <div className="text-[10px] text-emerald-400">REAL TOTAL PNL</div>
               </div>
               <div className="text-center">
@@ -1428,7 +1472,7 @@ function PolyEdgeActionMonitorGrid({
               </div>
             </div>
 
-            <div className={`flex items-center gap-1.5 rounded-2xl border px-5 py-2 text-xs ${apiTone.border} bg-slate-950/60`}>
+            <div className={`flex items-center gap-1.5 rounded-2xl border px-5 py-1.5 text-xs ${apiTone.border} bg-slate-950/60`}>
               <span className={`h-3 w-3 rounded-full ${apiTone.dot} animate-pulse`} />
               <span>{active} / {monitors.length || 0} MODULES LIVE</span>
             </div>
@@ -1437,10 +1481,10 @@ function PolyEdgeActionMonitorGrid({
           <div className="grid min-h-0 flex-1 grid-cols-1 gap-1.5 overflow-visible lg:grid-cols-12 lg:overflow-hidden">
             <div className="col-span-1 min-h-0 lg:col-span-2 lg:overflow-hidden">
               <QuantumGlass className="h-full">
-                <div className="mb-2 font-mono text-[9px] uppercase tracking-widest text-cyan-400">Navigation</div>
+                <div className="mb-1.5 font-mono text-[9px] uppercase tracking-widest text-cyan-400">Navigation</div>
                 <ul className="space-y-1 text-[11px]">
                   {["Overview", "Markets", "Portfolio", "Agents", "Alpha Grid", "Risk Core"].map((x, i) => (
-                    <li key={x} className={`cursor-pointer rounded-xl px-3 py-2 transition hover:bg-white/10 ${i === 0 ? "bg-white/5" : ""}`}>{x}</li>
+                    <li key={x} className={`cursor-pointer rounded-xl px-2.5 py-1.5 transition hover:bg-white/10 ${i === 0 ? "bg-white/5" : ""}`}>{x}</li>
                   ))}
                 </ul>
 
@@ -1450,7 +1494,7 @@ function PolyEdgeActionMonitorGrid({
               </QuantumGlass>
             </div>
 
-            <div className="col-span-1 grid min-h-0 gap-1.5 lg:col-span-7 lg:grid-rows-[1fr_.48fr_.72fr] lg:overflow-hidden">
+            <div className="col-span-1 grid min-h-0 gap-1.5 lg:col-span-7 lg:grid-rows-[1.1fr_.62fr_.9fr] lg:overflow-hidden">
               <QuantumGlass>
                 <EquityPanel monitors={monitors} metrics={metrics} />
               </QuantumGlass>
@@ -1473,7 +1517,7 @@ function PolyEdgeActionMonitorGrid({
               </QuantumGlass>
             </div>
 
-            <div className="col-span-1 grid min-h-0 gap-1.5 lg:col-span-3 lg:grid-rows-[.52fr_.42fr_.82fr] lg:overflow-hidden">
+            <div className="col-span-1 grid min-h-0 gap-1.5 lg:col-span-3 lg:grid-rows-[.7fr_.72fr_.95fr] lg:overflow-hidden">
               <QuantumGlass>
                 <SentimentPanel monitors={monitors} />
               </QuantumGlass>
@@ -1764,7 +1808,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
       <div className="pointer-events-none fixed left-0 top-0 h-40 w-full animate-pulse bg-gradient-to-b from-cyan-300/10 to-transparent" />
 
       <div className="relative z-10 grid min-h-screen grid-cols-[84px_1fr]">
-        <aside className="border-r border-cyan-400/20 bg-black/60 px-3 py-4">
+        <aside className="border-r border-cyan-400/20 bg-black/60 px-2.5 py-4">
           <div className="mb-8 flex h-14 items-center justify-center rounded-2xl border border-cyan-300/30 bg-cyan-300/5">
             <Hexagon className="h-8 w-8 text-cyan-200 drop-shadow-[0_0_12px_rgba(34,240,255,0.9)]" />
           </div>
@@ -1793,7 +1837,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
         <main className="relative overflow-y-auto p-4">
           <header className="mb-4 grid grid-cols-12 gap-1.5">
             <div className="col-span-12 rounded-2xl border border-cyan-400/30 bg-black/60 p-4 shadow-[0_0_50px_rgba(34,240,255,0.12)] xl:col-span-3">
-              <div className="text-lg font-black tracking-[0.16em] text-cyan-200 drop-shadow-[0_0_16px_rgba(34,240,255,0.9)]">
+              <div className="text-sm font-black tracking-[0.16em] text-cyan-200 drop-shadow-[0_0_16px_rgba(34,240,255,0.9)]">
                 POLY//EDGE
               </div>
               <div className="text-[10px] uppercase tracking-[0.28em] text-cyan-300/70">
@@ -1844,7 +1888,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
-              <div className="mt-3 grid grid-cols-5 gap-1.5 text-center">
+              <div className="mt-1.5 grid grid-cols-5 gap-1.5 text-center">
                 <Metric label="Trades" value={num(proof.totalTrades)} />
                 <Metric label="Profit Factor" value={num(proof.profitFactor)} />
                 <Metric label="Max Drawdown" value={num(proof.maxDrawdownPct, "%")} />
@@ -1863,7 +1907,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
                   <div className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-fuchsia-300 shadow-[0_0_20px_rgba(255,0,170,0.9)]" />
                   <div className="absolute inset-10 animate-pulse rounded-[40%] border-2 border-cyan-300/50 bg-cyan-300/10" />
                 </div>
-                <div className="mt-4 grid grid-cols-2 gap-4 text-center">
+                <div className="mt-2 grid grid-cols-2 gap-4 text-center">
                   <Metric label="Win Rate" value={num(proof.winRate, "%")} />
                   <Metric label="Losses" value={num(proof.losses)} />
                 </div>
@@ -1928,7 +1972,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
                     type="button"
                     disabled={replayRunning}
                     onClick={() => runReplay(25)}
-                    className="rounded-xl border border-cyan-300/30 bg-cyan-400/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-cyan-100 hover:bg-cyan-400/20 disabled:opacity-40"
+                    className="rounded-xl border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-cyan-100 hover:bg-cyan-400/20 disabled:opacity-40"
                   >
                     {replayRunning ? "Running" : "Run 25"}
                   </button>
@@ -1936,19 +1980,19 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
                     type="button"
                     disabled={replayRunning}
                     onClick={() => runReplay(50)}
-                    className="rounded-xl border border-fuchsia-300/30 bg-fuchsia-400/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-fuchsia-100 hover:bg-fuchsia-400/20 disabled:opacity-40"
+                    className="rounded-xl border border-fuchsia-300/30 bg-fuchsia-400/10 px-2.5 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-fuchsia-100 hover:bg-fuchsia-400/20 disabled:opacity-40"
                   >
                     {replayRunning ? "Running" : "Run 50"}
                   </button>
                 </div>
 
                 {replayMessage ? (
-                  <div className="mt-3 rounded-xl border border-orange-300/20 bg-orange-400/5 p-2 text-[11px] text-orange-100/80">
+                  <div className="mt-1.5 rounded-xl border border-orange-300/20 bg-orange-400/5 p-2 text-[11px] text-orange-100/80">
                     {replayMessage}
                   </div>
                 ) : null}
 
-                <div className="mt-3 text-[10px] leading-relaxed text-cyan-100/45">
+                <div className="mt-1.5 text-[10px] leading-relaxed text-cyan-100/45">
                   Paper replay only. Winning trades count toward 500. Losing trades still count against win rate, drawdown, profit factor, learning and promotion gates.
                 </div>
               </HoloPanel>
@@ -2066,7 +2110,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
             </HoloPanel>
           </section>
 
-          <footer className="mt-4 overflow-hidden rounded-2xl border border-cyan-400/20 bg-black/70 p-3 text-xs uppercase tracking-[0.2em] text-cyan-200/70">
+          <footer className="mt-2 overflow-hidden rounded-2xl border border-cyan-400/20 bg-black/70 p-3 text-xs uppercase tracking-[0.2em] text-cyan-200/70">
             <div className="whitespace-nowrap">
               POLY//EDGE AETHERFORGE ∞ • REAL DATA MODE • PAPER TRADES {num(proof.totalTrades)} • WIN RATE {num(proof.winRate, "%")} • PROFIT FACTOR {num(proof.profitFactor)} • MAX DRAWDOWN {num(proof.maxDrawdownPct, "%")} • NEXORA AUTHORITY ACTIVE
             </div>
