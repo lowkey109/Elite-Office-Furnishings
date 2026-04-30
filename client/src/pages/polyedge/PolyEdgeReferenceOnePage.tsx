@@ -1658,15 +1658,15 @@ export default function PolyEdgeReferenceOnePage() {
           <div className="mobile-grid">
             <div className="mobile-metric">
               <div className="mobile-metric-label">Win Rate</div>
-              <div className="mobile-metric-value">{winRate}</div>
+              <div className="mobile-metric-value">{autoPaperState?.learning?.winRate != null ? `${autoPaperState.learning.winRate}%` : winRate}</div>
             </div>
             <div className="mobile-metric">
               <div className="mobile-metric-label">Paper P&L</div>
-              <div className="mobile-metric-value">{pnl}</div>
+              <div className="mobile-metric-value">{autoPaperState?.learning?.totalPnl != null ? realMoney(autoPaperState.learning.totalPnl) : pnl}</div>
             </div>
             <div className="mobile-metric">
               <div className="mobile-metric-label">Trades</div>
-              <div className="mobile-metric-value">{trades}</div>
+              <div className="mobile-metric-value">{autoPaperState?.learning?.sampleSize ?? trades}</div>
             </div>
             <div className="mobile-metric">
               <div className="mobile-metric-label">Open</div>
@@ -1695,6 +1695,70 @@ export default function PolyEdgeReferenceOnePage() {
             <button type="button" onClick={() => callAutoPaper("start-fast")}>Start</button>
             <button type="button" onClick={() => callAutoPaper("tick")}>Tick</button>
             <button type="button" onClick={() => callAutoPaper("stop")}>Stop</button>
+          </div>
+        </section>
+
+        <section className="mobile-section">
+          <div className="mobile-section-title">
+            <span>Heartbeat Monitor</span>
+            <span>{autoPaperState?.enabled ? "LIVE" : "OFF"}</span>
+          </div>
+          <div className="mobile-list">
+            <div className="mobile-row">
+              <span>Last Tick</span>
+              <b>{autoPaperState?.lastTickAt ? new Date(autoPaperState.lastTickAt).toLocaleTimeString() : "WAIT"}</b>
+            </div>
+            <div className="mobile-row">
+              <span>Ticks</span>
+              <b>{autoPaperState?.ticks ?? 0}</b>
+            </div>
+            <div className="mobile-row">
+              <span>Opened / Closed</span>
+              <b>{autoPaperState?.positionsOpened ?? 0} / {autoPaperState?.positionsClosed ?? 0}</b>
+            </div>
+            <div className="mobile-row">
+              <span>Open Positions</span>
+              <b>{autoPaperState?.openPositions ?? 0}</b>
+            </div>
+            <div className="mobile-row">
+              <span>Last Action</span>
+              <b>{autoPaperState?.lastAction || "WAIT"}</b>
+            </div>
+          </div>
+          <div className="mobile-status-text mt-3">
+            {autoPaperState?.lastReason || "Waiting for heartbeat."}
+          </div>
+        </section>
+
+        <section className="mobile-section">
+          <div className="mobile-section-title">
+            <span>Heartbeat Monitor</span>
+            <span>{autoPaperState?.enabled ? "LIVE" : "OFF"}</span>
+          </div>
+          <div className="mobile-list">
+            <div className="mobile-row">
+              <span>Last Tick</span>
+              <b>{autoPaperState?.lastTickAt ? new Date(autoPaperState.lastTickAt).toLocaleTimeString() : "WAIT"}</b>
+            </div>
+            <div className="mobile-row">
+              <span>Ticks</span>
+              <b>{autoPaperState?.ticks ?? 0}</b>
+            </div>
+            <div className="mobile-row">
+              <span>Opened / Closed</span>
+              <b>{autoPaperState?.positionsOpened ?? 0} / {autoPaperState?.positionsClosed ?? 0}</b>
+            </div>
+            <div className="mobile-row">
+              <span>Open Positions</span>
+              <b>{autoPaperState?.openPositions ?? 0}</b>
+            </div>
+            <div className="mobile-row">
+              <span>Last Action</span>
+              <b>{autoPaperState?.lastAction || "WAIT"}</b>
+            </div>
+          </div>
+          <div className="mobile-status-text mt-3">
+            {autoPaperState?.lastReason || "Waiting for heartbeat."}
           </div>
         </section>
 
