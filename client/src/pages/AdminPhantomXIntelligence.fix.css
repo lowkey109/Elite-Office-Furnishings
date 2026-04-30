@@ -962,3 +962,203 @@ body:has(.pxShellClean) {
     font-size: 11px;
   }
 }
+
+/* ===== PHANTOM X FINAL CLEAN POLISH ===== */
+
+/* Give the browser chrome a little breathing room */
+.pxTopClean {
+  top: 16px !important;
+  left: 162px !important;
+  right: 18px !important;
+  height: 68px !important;
+  grid-template-columns:
+    minmax(300px, 1.22fr)
+    minmax(120px, .58fr)
+    minmax(130px, .62fr)
+    minmax(105px, .48fr)
+    minmax(205px, .85fr)
+    minmax(200px, .82fr)
+    minmax(205px, .82fr)
+    minmax(92px, .42fr) !important;
+  gap: 7px !important;
+}
+
+/* Move SCAN / LEARN out of the big grid look.
+   They become small premium controls in the top-right corner. */
+.pxActionsClean {
+  position: fixed !important;
+  top: 92px !important;
+  right: 18px !important;
+  width: 118px !important;
+  height: 34px !important;
+  display: flex !important;
+  gap: 6px !important;
+  z-index: 80 !important;
+}
+
+.pxActionsClean button {
+  height: 30px !important;
+  flex: 1 !important;
+  font-size: 8px !important;
+  letter-spacing: .12em !important;
+  color: #22f0ff !important;
+  background: rgba(0, 9, 16, .92) !important;
+  border: 1px solid rgba(34, 240, 255, .55) !important;
+  box-shadow: 0 0 14px rgba(34, 240, 255, .16) !important;
+}
+
+/* Premium brand balance */
+.brandClean {
+  padding: 8px 15px !important;
+  gap: 13px !important;
+}
+
+.brandClean h1 {
+  font-size: clamp(25px, 1.65vw, 33px) !important;
+  letter-spacing: .135em !important;
+}
+
+.brandClean p {
+  font-size: 7.5px !important;
+  letter-spacing: .115em !important;
+}
+
+/* Header stat boxes cleaner and less cramped */
+.pxTopStat {
+  padding: 8px 10px !important;
+}
+
+.pxTopLabel {
+  font-size: 6.8px !important;
+  letter-spacing: .13em !important;
+}
+
+.pxTopValue {
+  margin-top: 8px !important;
+  font-size: clamp(11px, .78vw, 14px) !important;
+}
+
+/* Main grid drops slightly below header and fills the space evenly */
+.pxGridClean {
+  top: 98px !important;
+  left: 162px !important;
+  right: 18px !important;
+  bottom: 48px !important;
+  grid-template-columns: 1.18fr .95fr .8fr 1.07fr 1.03fr !important;
+  grid-template-rows:
+    minmax(250px, 1.54fr)
+    minmax(172px, 1.03fr)
+    minmax(145px, .86fr)
+    minmax(100px, .62fr) !important;
+  gap: 9px !important;
+}
+
+/* Sharper, more expensive-looking panels */
+.pxPanel {
+  border-color: rgba(34, 240, 255, .62) !important;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(34,240,255,.085), transparent 34%),
+    radial-gradient(circle at 100% 100%, rgba(255,138,0,.035), transparent 28%),
+    linear-gradient(145deg, rgba(2,18,29,.985), rgba(0,3,8,.995)) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.026),
+    inset 0 0 36px rgba(34,240,255,.05),
+    0 0 26px rgba(34,240,255,.10) !important;
+}
+
+.pxPanelTitle {
+  height: 29px !important;
+  padding: 8px 12px 0 !important;
+  font-size: 11.5px !important;
+  letter-spacing: .13em !important;
+}
+
+/* Fix top-right feed feeling too stretched */
+.alphaPanelClean .pxPanelBody {
+  padding: 11px 13px !important;
+}
+
+.alphaRow {
+  min-height: 19px !important;
+  font-size: 8.5px !important;
+}
+
+.alphaHeader {
+  font-size: 6.8px !important;
+}
+
+/* Equity chart closer to reference */
+.equitySvg {
+  height: calc(100% - 42px) !important;
+  margin-top: 12px !important;
+}
+
+.metricStrip {
+  height: 42px !important;
+}
+
+/* Bottom-right area: keep alerts away from floating yellow widget */
+.alertsPanelClean {
+  margin-right: 34px !important;
+}
+
+.alertsWrap {
+  gap: 9px !important;
+}
+
+.alertBoxClean {
+  padding: 8px 11px !important;
+}
+
+.alertBoxClean b {
+  font-size: clamp(14px, 1.1vw, 20px) !important;
+}
+
+/* Risk and decision stay clean above alerts */
+.riskPanelClean,
+.decisionPanelClean {
+  min-height: 0 !important;
+}
+
+.riskRow,
+.decisionRow {
+  min-height: 18px !important;
+}
+
+/* Neural news gets readable safe space */
+.newsPanelClean .pxPanelBody {
+  padding-top: 8px !important;
+}
+
+.newsListClean {
+  gap: 4px !important;
+  font-size: 7.2px !important;
+  line-height: 11.5px !important;
+}
+
+/* Left rail final cleanup */
+.tcdAppsButtonClean {
+  top: 90px !important;
+  height: 28px !important;
+  font-size: 8px !important;
+}
+
+.pxNavClean {
+  top: 140px !important;
+  gap: 9px !important;
+}
+
+/* Ticker slightly quieter */
+.tickerClean {
+  height: 36px !important;
+}
+
+.tickerClean span {
+  font-size: 10px !important;
+  padding: 0 20px !important;
+}
+
+/* Keep the whole page feeling crisp */
+.pxShellClean {
+  text-rendering: geometricPrecision;
+}
