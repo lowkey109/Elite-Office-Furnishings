@@ -14,3 +14,11 @@ tmp
 .env
 .env.*
 .DS_Store
+
+# Heavy local/catalog assets not needed for PolyEdge server deploy
+attached_assets
+catalogs
+catalog-images
+uploads
+zin9tXLq
+.local
