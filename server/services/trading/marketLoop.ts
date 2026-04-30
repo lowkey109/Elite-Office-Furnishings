@@ -56,6 +56,18 @@ export function stopMarketLoop(): void {
   console.log("[MarketLoop] Stopped");
 }
 
+export async function runMarketFastCycleOnce(): Promise<void> {
+  await runFastCycle();
+}
+
+export async function runMarketDetailedCycleOnce(): Promise<void> {
+  await runDetailedCycle();
+}
+
+export async function runMarketPruneOnce(): Promise<void> {
+  await runPrune();
+}
+
 async function runFastCycle(): Promise<void> {
   try {
     const feeds = await fetchLivePrices();

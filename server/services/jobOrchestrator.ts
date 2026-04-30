@@ -51,6 +51,11 @@ export const QUEUES = {
   LEAD_SCRAPE_MAPS: "lead.scrape.maps",
   // ── Nexora Autonomous Loop ────────────────────────────────────────────────
   NEXORA_LOOP: "nexora.loop",
+  WHATSAPP_DISPATCH: "whatsapp.dispatch",
+  PHANTOMX_PAPER_TICK: "phantomx.paper.tick",
+  PHANTOMX_MARKET_FAST: "phantomx.market.fast",
+  PHANTOMX_MARKET_DETAILED: "phantomx.market.detailed",
+  PHANTOMX_MARKET_PRUNE: "phantomx.market.prune",
   // ── Nexora Push Retry (dead-letter / retry) ───────────────────────────────
   NEXORA_PUSH_PIPELINE_RETRY: "nexora.push.pipeline.retry",
   NEXORA_PUSH_RADAR_RETRY: "nexora.push.radar.retry",
@@ -89,7 +94,7 @@ export async function initJobOrchestrator(): Promise<boolean> {
     await getBoss();
     return true;
   } catch (err) {
-    console.error("[JobOrchestrator] Failed to initialize pg-boss — falling back to in-process timers:", err);
+    console.error("[JobOrchestrator] Failed to initialize pg-boss — durable workers unavailable:", err);
     return false;
   }
 }
