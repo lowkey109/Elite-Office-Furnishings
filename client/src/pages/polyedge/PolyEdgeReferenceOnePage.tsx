@@ -50,18 +50,70 @@ function stateScore(monitor: Monitor) {
   return 24;
 }
 
+
+function ecgSeed(text: unknown) {
+  return String(text || "polyedge")
+    .split("")
+    .reduce((sum, ch, i) => sum + ch.charCodeAt(0) * (i + 7), 0);
+}
+
+function ecgAgeMs(monitor?: Monitor) {
+  const raw = monitor?.lastCheckAt;
+  if (!raw) return null;
+  const t = Date.parse(String(raw));
+  if (!Number.isFinite(t)) return null;
+  return Math.max(0, Date.now() - t);
+}
+
+function ecgRhythm(monitor?: Monitor) {
+  const seed = ecgSeed(monitor?.key || monitor?.label);
+  const age = ecgAgeMs(monitor);
+
+  let base = 12.5;
+  if (age !== null) {
+    if (age < 2500) base = 6.8;
+    else if (age < 5000) base = 8.2;
+    else if (age < 10000) base = 10.5;
+    else if (age < 20000) base = 13.5;
+    else base = 17.5;
+  }
+
+  const spread = (seed % 9) * 0.37;
+  const duration = base + spread;
+  const delay = -((seed % 97) / 97) * duration;
+
+  return {
+    duration: `${duration.toFixed(2)}s`,
+    delay: `${delay.toFixed(2)}s`,
+  };
+}
+
 function EcgTrace({ monitor, compact = false }: { monitor?: Monitor; compact?: boolean }) {
   const state = String(monitor?.state || "").toLowerCase();
   const isMarket = monitor?.kind === "market";
   const live = monitor?.moving === true && (state === "online" || state === "running");
   const safe = state === "idle" || state === "blocked" || state === "paper_only";
   const fault = state === "offline" || state === "timeout" || state === "stalled" || state === "fault";
+  const rhythm = ecgRhythm(monitor);
+
+  const rhythmStyle = {
+    "--ecg-duration": rhythm.duration,
+    "--ecg-delay": rhythm.delay,
+  } as React.CSSProperties;
 
   if (isMarket) {
+    const seed = ecgSeed(monitor?.key || monitor?.label);
     return (
       <div className={compact ? "ecg-bars compact" : "ecg-bars"}>
         {Array.from({ length: compact ? 14 : 18 }).map((_, i) => (
-          <span key={i} style={{ height: `${Math.max(14, stateScore(monitor || {}) - ((i * 9) % 38))}%`, animationDelay: `${(i % 7) * 0.13}s` }} />
+          <span
+            key={i}
+            style={{
+              height: `${Math.max(14, stateScore(monitor || {}) - (((i + seed) * 9) % 38))}%`,
+              animationDelay: `${((i + seed) % 7) * 0.13}s`,
+              animationDuration: rhythm.duration,
+            }}
+          />
         ))}
       </div>
     );
@@ -72,12 +124,12 @@ function EcgTrace({ monitor, compact = false }: { monitor?: Monitor; compact?: b
       <svg className="ecg-track" viewBox="0 0 520 34" preserveAspectRatio="none">
         <line x1="0" y1="18" x2="520" y2="18" className={fault ? "flat fault" : safe ? "flat safe" : "flat"} />
         {live ? (
-          <g className="beat-scroll live">
-            <path d="M0 18 H42 L50 9 L58 27 L67 3 L77 31 L88 18 H132 L142 18 L151 10 L160 25 L171 18 H260 H302 L310 9 L318 27 L327 3 L337 31 L348 18 H392 L402 18 L411 10 L420 25 L431 18 H520" />
+          <g className="beat-scroll live" style={rhythmStyle}>
+            <path d="M0 18 H34 L42 9 L50 27 L59 3 L69 31 L80 18 H112 L120 18 L128 10 L136 25 L147 18 H176 L184 8 L192 27 L201 4 L211 30 L222 18 H260 H294 L302 9 L310 27 L319 3 L329 31 L340 18 H372 L380 18 L388 10 L396 25 L407 18 H436 L444 8 L452 27 L461 4 L471 30 L482 18 H520" />
           </g>
         ) : safe ? (
-          <g className="beat-scroll safe">
-            <path d="M0 18 H112 L118 16 L124 20 L130 18 H260 H372 L378 16 L384 20 L390 18 H520" />
+          <g className="beat-scroll safe" style={rhythmStyle}>
+            <path d="M0 18 H86 L92 16 L98 20 L104 18 H172 L178 17 L184 20 L190 18 H260 H346 L352 16 L358 20 L364 18 H432 L438 17 L444 20 L450 18 H520" />
           </g>
         ) : null}
       </svg>
@@ -404,15 +456,22 @@ export default function PolyEdgeReferenceOnePage() {
         }
 
         .beat-scroll {
-          animation: ecgMoveRightToLeft 8.8s linear infinite;
+          animation: ecgMoveCorrectDirection var(--ecg-duration, 12s) linear infinite;
+          animation-delay: var(--ecg-delay, 0s);
+          transform-box: fill-box;
         }
 
         .beat-scroll.safe {
-          animation-duration: 15s;
+          opacity: .9;
         }
 
-        @keyframes ecgMoveRightToLeft {
-          from { transform: translateX(0); }
+        /*
+          Correct monitor direction:
+          the waveform travels right-to-left through the viewport.
+          Each monitor uses a different duration/delay from its connection freshness.
+        */
+        @keyframes ecgMoveCorrectDirection {
+          from { transform: translateX(260px); }
           to { transform: translateX(-260px); }
         }
 
@@ -837,7 +896,7 @@ export default function PolyEdgeReferenceOnePage() {
             <span><b className="text-emerald-300">MAX DD:</b> {maxDd}</span>
             <span><b className="text-emerald-300">WIN RATE:</b> {winRate}</span>
             <span><b className="text-purple-300">PF:</b> {profitFactor}</span>
-            <span><b className="text-cyan-300">HEART:</b> RIGHT-TO-LEFT ECG</span>
+            <span><b className="text-cyan-300">HEART:</b> CONNECTION ECG</span>
             <span><b className="text-amber-300">SAFE:</b> {safe}</span>
           </section>
         </main>
