@@ -141,7 +141,7 @@ async function calculatePaperLossGovernor() {
     .select()
     .from(paperTradeOutcomes)
     .orderBy(desc(paperTradeOutcomes.createdAt))
-    .limit(200);
+    .limit(120);
 
   const totalPnl = outcomes.reduce((sum: number, o: any) => sum + Number(o.realizedPnl || 0), 0);
 
@@ -191,13 +191,20 @@ async function calculatePaperLossGovernor() {
     .map((row: any) => row.strategy);
 
   const worstSymbols = symbolRank
-    .filter((row: any) => row.trades >= 6 && (Number(row.pnl || 0) < -500 || Number(row.avgPnl || 0) < -40))
+    .filter((row: any) => row.trades >= 10 && (Number(row.pnl || 0) < -150 || Number(row.avgPnl || 0) < -4))
     .slice(0, 2)
     .map((row: any) => row.symbol);
 
   const worstPairs = pairRank
-    .filter((row: any) => row.trades >= 3 && (Number(row.pnl || 0) < -150 || Number(row.avgPnl || 0) < -30))
-    .slice(0, 8)
+    .filter((row: any) =>
+      row.trades >= 4 &&
+      (
+        Number(row.pnl || 0) < -25 ||
+        Number(row.avgPnl || 0) < -2.5 ||
+        (row.trades >= 5 && Number(row.winRate || 0) < 30)
+      )
+    )
+    .slice(0, 12)
     .map((row: any) => ({
       symbol: row.symbol,
       strategy: row.strategy,
@@ -221,7 +228,7 @@ async function calculatePaperLossGovernor() {
     strategyRank: strategyRank.slice(0, 5),
     symbolRank: symbolRank.slice(0, 5),
     pairRank: pairRank.slice(0, 8),
-    riskMultiplier: active ? 0.18 : 1,
+    riskMultiplier: active ? 0.10 : 1,
     reason: active
       ? `Adaptive allocator active. Avoiding symbols: ${worstSymbols.join(", ") || "none"}; pairs: ${worstPairs.map((p: any) => `${p.symbol}/${p.strategy}`).join(", ") || "none"}.`
       : "Adaptive allocator normal.",
