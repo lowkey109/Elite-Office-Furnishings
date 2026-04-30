@@ -321,6 +321,37 @@ export async function getPolyEdgeAdditiveRealMonitors() {
 
   const closedPnl = totalPnl;
   const totalPaperPnl = money(closedPnl + openPnl);
+  const lossStrategyMap: Record<string, any> = {};
+  for (const outcome of outcomes as any[]) {
+    const key = outcome.strategy || "unknown";
+    if (!lossStrategyMap[key]) lossStrategyMap[key] = { strategy: key, trades: 0, pnl: 0 };
+    lossStrategyMap[key].trades += 1;
+    lossStrategyMap[key].pnl += Number(outcome.realizedPnl || 0);
+  }
+
+  const losingStrategies = Object.values(lossStrategyMap)
+    .map((row: any) => ({
+      strategy: row.strategy,
+      trades: row.trades,
+      pnl: money(row.pnl),
+    }))
+    .filter((row: any) => Number(row.pnl || 0) < -100)
+    .sort((x: any, y: any) => Number(x.pnl || 0) - Number(y.pnl || 0))
+    .slice(0, 3);
+
+  const paperLossGovernor = {
+    sourceType: "REAL_CALCULATED_FROM_DB",
+    active: outcomes.length >= 10 && (totalPnl < -500 || losingStrategies.length > 0),
+    mode: outcomes.length >= 10 && (totalPnl < -500 || losingStrategies.length > 0)
+      ? "LOSS_GOVERNOR_ACTIVE"
+      : "NORMAL_LEARNING",
+    totalPnl,
+    losingStrategies,
+    action: outcomes.length >= 10 && (totalPnl < -500 || losingStrategies.length > 0)
+      ? "MICRO_SIZE_AND_AVOID_WORST"
+      : "NORMAL_PAPER_LEARNING",
+  };
+
   const paperProfitMonitor = {
     sourceType: "REAL_CALCULATED_FROM_DB",
     closedPnl,
@@ -495,6 +526,24 @@ export async function getPolyEdgeAdditiveRealMonitors() {
         sourceType: autoPaper ? "REAL_DB" : "WAITING_FOR_REAL_FEED",
         value: autoPaper?.enabled ? "FAST LEARNING" : "STOPPED",
         sub: autoPaper?.lastReason || "Waiting for auto paper service",
+      },
+      {
+        title: "Paper Loss Governor",
+        sourceType: paperLossGovernor.sourceType,
+        value: paperLossGovernor.mode,
+        sub: paperLossGovernor.active
+          ? `Action ${paperLossGovernor.action} • P&L ${money(paperLossGovernor.totalPnl)}`
+          : "Normal paper learning",
+      },
+      {
+        title: "Worst Paper Strategies",
+        sourceType: paperLossGovernor.sourceType,
+        value: paperLossGovernor.losingStrategies.length
+          ? paperLossGovernor.losingStrategies.map((row: any) => row.strategy).join(", ")
+          : "NONE_FLAGGED",
+        sub: paperLossGovernor.losingStrategies.length
+          ? paperLossGovernor.losingStrategies.map((row: any) => `${row.strategy} ${money(row.pnl)}`).join(" • ")
+          : "No strategy loss block active",
       },
       {
         title: "Paper Profit Monitor",
@@ -697,6 +746,7 @@ export async function getPolyEdgeAdditiveRealMonitors() {
     strategyLeaderboard,
     marketFeeds,
     paperProfitMonitor,
+    paperLossGovernor,
     walletFlow,
     exchangeFlow,
     realExecutionActivity,

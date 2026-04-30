@@ -69,8 +69,10 @@ function chooseSymbol() {
   return SYMBOLS[Math.abs(Math.floor(Date.now() / 7000)) % SYMBOLS.length];
 }
 
-function chooseStrategy(symbol: string) {
-  return STRATEGIES[hashNumber(symbol + String(Math.floor(Date.now() / 15000))) % STRATEGIES.length];
+function chooseStrategy(symbol: string, blockedStrategies: string[] = []) {
+  const allowed = STRATEGIES.filter((strategy) => !blockedStrategies.includes(strategy));
+  const pool = allowed.length ? allowed : STRATEGIES;
+  return pool[hashNumber(symbol + String(Math.floor(Date.now() / 15000))) % pool.length];
 }
 
 async function calculateLearning() {
@@ -122,6 +124,53 @@ async function calculateLearning() {
   };
 }
 
+async function calculatePaperLossGovernor() {
+  const outcomes = await db
+    .select()
+    .from(paperTradeOutcomes)
+    .orderBy(desc(paperTradeOutcomes.createdAt))
+    .limit(120);
+
+  const totalPnl = outcomes.reduce((sum: number, o: any) => sum + Number(o.realizedPnl || 0), 0);
+
+  const strategyMap: Record<string, any> = {};
+  for (const o of outcomes as any[]) {
+    const key = String(o.strategy || "unknown");
+    if (!strategyMap[key]) strategyMap[key] = { strategy: key, trades: 0, pnl: 0 };
+    strategyMap[key].trades += 1;
+    strategyMap[key].pnl += Number(o.realizedPnl || 0);
+  }
+
+  const ranked = Object.values(strategyMap)
+    .map((row: any) => ({
+      strategy: row.strategy,
+      trades: row.trades,
+      pnl: Math.round(row.pnl * 100) / 100,
+    }))
+    .sort((a: any, b: any) => Number(a.pnl || 0) - Number(b.pnl || 0));
+
+  const worstStrategies = ranked
+    .filter((row: any) => row.trades >= 2 && Number(row.pnl || 0) < -100)
+    .slice(0, 2)
+    .map((row: any) => row.strategy);
+
+  const active =
+    outcomes.length >= 10 &&
+    (totalPnl < -500 || worstStrategies.length > 0 || state.learningScore < 35);
+
+  return {
+    active,
+    mode: active ? "LOSS_GOVERNOR_ACTIVE" : "NORMAL_LEARNING",
+    totalPnl: Math.round(totalPnl * 100) / 100,
+    worstStrategies,
+    strategyRank: ranked.slice(0, 5),
+    riskMultiplier: active ? 0.25 : 1,
+    reason: active
+      ? `Paper loss governor active. Total P&L ${Math.round(totalPnl * 100) / 100}. Avoiding ${worstStrategies.join(", ") || "oversized risk"}.`
+      : "Paper loss governor normal.",
+  };
+}
+
 async function closeFastPaperPositions() {
   const open = await db.select().from(paperPositions).where(eq(paperPositions.status, "open"));
   let closed = 0;
@@ -170,6 +219,7 @@ async function openFastPaperPosition() {
   }
 
   const learning = await calculateLearning();
+  const lossGovernor = await calculatePaperLossGovernor();
 
   const forceContinuousPaperLearning = process.env.POLYEDGE_FAST_PAPER_FORCE_CONTINUOUS !== "false";
   const defensiveMicroLearning = learning.sampleSize >= 10 && state.learningScore < 32;
@@ -179,19 +229,20 @@ async function openFastPaperPosition() {
   }
 
   const symbol = chooseSymbol();
-  const strategy = chooseStrategy(symbol);
+  const strategy = chooseStrategy(symbol, lossGovernor.worstStrategies);
   const entry = paperMark(symbol);
   const seed = hashNumber(symbol + strategy + String(Date.now()));
   const direction = seed % 4 === 0 ? "short" : "long";
   const confidence = Math.max(state.confidenceFloor, Math.min(92, state.confidenceFloor + (seed % 20)));
 
-  const riskPct =
+  const baseRiskPct =
     defensiveMicroLearning ? 0.0015 :
     state.learningScore >= 70 ? 0.012 :
     state.learningScore < 45 ? 0.004 :
     0.007;
 
-  const paperCapitalAllocated = Math.round(100000 * riskPct * 100) / 100;
+  const riskPct = baseRiskPct * Number(lossGovernor.riskMultiplier || 1);
+  const paperCapitalAllocated = Math.max(25, Math.round(100000 * riskPct * 100) / 100);
 
   const move = symbol === "BTC/USD" ? 0.0016 : symbol === "ETH/USD" ? 0.002 : symbol === "SOL/USD" ? 0.0028 : 0.0011;
 
@@ -224,6 +275,7 @@ async function openFastPaperPosition() {
       autonomous: true,
       source: "polyedge_fast_auto_paper",
       learning,
+      lossGovernor,
       generatedAt: nowIso(),
     },
   });
@@ -249,7 +301,7 @@ async function openFastPaperPosition() {
 
   return {
     opened: true,
-    reason: `Opened ${direction} ${symbol} PAPER position at ${entry}.`,
+    reason: `Opened ${direction} ${symbol} PAPER position at ${entry}. ${lossGovernor.active ? "Loss governor active: defensive micro sizing." : "Normal paper sizing."}`,
     decisionId,
     positionId,
     symbol,
