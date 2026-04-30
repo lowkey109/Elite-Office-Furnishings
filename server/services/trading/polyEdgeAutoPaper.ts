@@ -129,45 +129,90 @@ async function calculatePaperLossGovernor() {
     .select()
     .from(paperTradeOutcomes)
     .orderBy(desc(paperTradeOutcomes.createdAt))
-    .limit(120);
+    .limit(200);
 
   const totalPnl = outcomes.reduce((sum: number, o: any) => sum + Number(o.realizedPnl || 0), 0);
 
   const strategyMap: Record<string, any> = {};
+  const symbolMap: Record<string, any> = {};
+  const pairMap: Record<string, any> = {};
+
   for (const o of outcomes as any[]) {
-    const key = String(o.strategy || "unknown");
-    if (!strategyMap[key]) strategyMap[key] = { strategy: key, trades: 0, pnl: 0 };
-    strategyMap[key].trades += 1;
-    strategyMap[key].pnl += Number(o.realizedPnl || 0);
+    const strategy = String(o.strategy || "unknown");
+    const symbol = String(o.symbol || "unknown");
+    const pairKey = `${symbol}|${strategy}`;
+    const pnl = Number(o.realizedPnl || 0);
+    const win = String(o.outcome) === "win" ? 1 : 0;
+
+    if (!strategyMap[strategy]) strategyMap[strategy] = { strategy, trades: 0, wins: 0, pnl: 0 };
+    strategyMap[strategy].trades += 1;
+    strategyMap[strategy].wins += win;
+    strategyMap[strategy].pnl += pnl;
+
+    if (!symbolMap[symbol]) symbolMap[symbol] = { symbol, trades: 0, wins: 0, pnl: 0 };
+    symbolMap[symbol].trades += 1;
+    symbolMap[symbol].wins += win;
+    symbolMap[symbol].pnl += pnl;
+
+    if (!pairMap[pairKey]) pairMap[pairKey] = { symbol, strategy, trades: 0, wins: 0, pnl: 0 };
+    pairMap[pairKey].trades += 1;
+    pairMap[pairKey].wins += win;
+    pairMap[pairKey].pnl += pnl;
   }
 
-  const ranked = Object.values(strategyMap)
+  const rankRows = (rows: any[]) => rows
     .map((row: any) => ({
-      strategy: row.strategy,
-      trades: row.trades,
-      pnl: Math.round(row.pnl * 100) / 100,
+      ...row,
+      pnl: Math.round(Number(row.pnl || 0) * 100) / 100,
+      avgPnl: row.trades ? Math.round((Number(row.pnl || 0) / row.trades) * 100) / 100 : 0,
+      winRate: row.trades ? Math.round((row.wins / row.trades) * 10000) / 100 : null,
     }))
     .sort((a: any, b: any) => Number(a.pnl || 0) - Number(b.pnl || 0));
 
-  const worstStrategies = ranked
-    .filter((row: any) => row.trades >= 2 && Number(row.pnl || 0) < -100)
+  const strategyRank = rankRows(Object.values(strategyMap));
+  const symbolRank = rankRows(Object.values(symbolMap));
+  const pairRank = rankRows(Object.values(pairMap));
+
+  const worstStrategies = strategyRank
+    .filter((row: any) => row.trades >= 6 && (Number(row.pnl || 0) < -250 || Number(row.winRate || 0) < 35))
     .slice(0, 2)
     .map((row: any) => row.strategy);
 
+  const worstSymbols = symbolRank
+    .filter((row: any) => row.trades >= 6 && (Number(row.pnl || 0) < -500 || Number(row.avgPnl || 0) < -40))
+    .slice(0, 2)
+    .map((row: any) => row.symbol);
+
+  const worstPairs = pairRank
+    .filter((row: any) => row.trades >= 3 && (Number(row.pnl || 0) < -150 || Number(row.avgPnl || 0) < -30))
+    .slice(0, 8)
+    .map((row: any) => ({
+      symbol: row.symbol,
+      strategy: row.strategy,
+      pnl: row.pnl,
+      avgPnl: row.avgPnl,
+      winRate: row.winRate,
+      trades: row.trades,
+    }));
+
   const active =
     outcomes.length >= 10 &&
-    (totalPnl < -500 || worstStrategies.length > 0 || state.learningScore < 35);
+    (totalPnl < -500 || worstStrategies.length > 0 || worstSymbols.length > 0 || worstPairs.length > 0 || state.learningScore < 35);
 
   return {
     active,
-    mode: active ? "LOSS_GOVERNOR_ACTIVE" : "NORMAL_LEARNING",
+    mode: active ? "ADAPTIVE_ALLOCATOR_ACTIVE" : "NORMAL_LEARNING",
     totalPnl: Math.round(totalPnl * 100) / 100,
     worstStrategies,
-    strategyRank: ranked.slice(0, 5),
-    riskMultiplier: active ? 0.25 : 1,
+    worstSymbols,
+    worstPairs,
+    strategyRank: strategyRank.slice(0, 5),
+    symbolRank: symbolRank.slice(0, 5),
+    pairRank: pairRank.slice(0, 8),
+    riskMultiplier: active ? 0.18 : 1,
     reason: active
-      ? `Paper loss governor active. Total P&L ${Math.round(totalPnl * 100) / 100}. Avoiding ${worstStrategies.join(", ") || "oversized risk"}.`
-      : "Paper loss governor normal.",
+      ? `Adaptive allocator active. Avoiding symbols: ${worstSymbols.join(", ") || "none"}; pairs: ${worstPairs.map((p: any) => `${p.symbol}/${p.strategy}`).join(", ") || "none"}.`
+      : "Adaptive allocator normal.",
   };
 }
 
@@ -228,8 +273,42 @@ async function openFastPaperPosition() {
     return { opened: false, reason: "Learning score too low; waiting." };
   }
 
-  const symbol = chooseSymbol();
-  const strategy = chooseStrategy(symbol, lossGovernor.worstStrategies);
+  const activePairs = new Set((open as any[]).map((p: any) => `${p.symbol}|${p.strategy}`));
+  const blockedPairs = new Set((lossGovernor.worstPairs || []).map((p: any) => `${p.symbol}|${p.strategy}`));
+  const blockedSymbols = new Set(lossGovernor.worstSymbols || []);
+
+  const candidatePairs: Array<{ symbol: string; strategy: string }> = [];
+
+  for (const candidateSymbol of SYMBOLS) {
+    if (blockedSymbols.has(candidateSymbol)) continue;
+
+    for (const candidateStrategy of STRATEGIES) {
+      const pairKey = `${candidateSymbol}|${candidateStrategy}`;
+
+      if (activePairs.has(pairKey)) continue;
+      if (blockedPairs.has(pairKey)) continue;
+      if ((lossGovernor.worstStrategies || []).includes(candidateStrategy)) continue;
+
+      candidatePairs.push({
+        symbol: candidateSymbol,
+        strategy: candidateStrategy,
+      });
+    }
+  }
+
+  if (!candidatePairs.length) {
+    return {
+      opened: false,
+      reason: "Adaptive allocator blocked all weak/duplicate symbol-strategy pairs; waiting for open paper positions to close.",
+    };
+  }
+
+  const selected = candidatePairs[
+    hashNumber(String(Date.now()) + String(open.length) + String(state.ticks)) % candidatePairs.length
+  ];
+
+  const symbol = selected.symbol;
+  const strategy = selected.strategy;
   const entry = paperMark(symbol);
   const seed = hashNumber(symbol + strategy + String(Date.now()));
   const direction = seed % 4 === 0 ? "short" : "long";
@@ -301,7 +380,7 @@ async function openFastPaperPosition() {
 
   return {
     opened: true,
-    reason: `Opened ${direction} ${symbol} PAPER position at ${entry}. ${lossGovernor.active ? "Loss governor active: defensive micro sizing." : "Normal paper sizing."}`,
+    reason: `Opened ${direction} ${symbol} PAPER position at ${entry}. ${lossGovernor.active ? "Adaptive allocator active: avoiding weak pairs and micro sizing." : "Adaptive allocator normal sizing."}`,
     decisionId,
     positionId,
     symbol,
