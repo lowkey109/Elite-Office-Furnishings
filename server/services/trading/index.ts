@@ -9,7 +9,7 @@ import {
   getRecentOutcomes,
   calculatePerformanceFromDB,
 } from "./paperEngine";
-import { startMarketLoop, getMarketLoopStatus } from "./marketLoop";
+import { getMarketLoopStatus } from "./marketLoop";
 import { getSupportedSymbols, getUnavailableSymbols } from "./marketDataAdapter";
 
 export type { TradingMonitorResponse } from "./types";
@@ -29,14 +29,7 @@ let strategiesCache: ReturnType<typeof buildStrategies> | null = null;
 let strategiesCacheTime = 0;
 const STRATEGIES_TTL = 60000;
 
-let marketLoopStarted = false;
-
 export async function getTradingMonitorData(): Promise<TradingMonitorResponse> {
-  if (!marketLoopStarted) {
-    startMarketLoop();
-    marketLoopStarted = true;
-  }
-
   const now = Date.now();
 
   if (!strategiesCache || (now - strategiesCacheTime) > STRATEGIES_TTL) {

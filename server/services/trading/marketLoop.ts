@@ -29,9 +29,14 @@ export function getMarketLoopStatus() {
 }
 
 export function startMarketLoop(): void {
+  if (process.env.PHANTOM_X_MARKET_LOOP_ENABLED !== "true") {
+    console.log("[MarketLoop] Not started — controlled worker disabled unless PHANTOM_X_MARKET_LOOP_ENABLED=true");
+    return;
+  }
+
   if (isRunning) return;
   isRunning = true;
-  console.log("[MarketLoop] Starting — fast: 15s, detailed: 60s");
+  console.log("[MarketLoop] Starting as controlled worker — fast: 15s, detailed: 60s");
 
   runFastCycle();
 
