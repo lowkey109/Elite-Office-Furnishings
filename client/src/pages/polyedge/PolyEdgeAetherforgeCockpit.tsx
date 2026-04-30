@@ -164,6 +164,20 @@ function money(value: unknown) {
   return `${sign}$${abs.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
 }
 
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 8000) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
 function polyEdgeAuthHeaders(mode: "admin" | "client"): HeadersInit {
   if (mode !== "admin") return {};
   return { "x-tcd-admin-auth": "true" };
@@ -188,6 +202,95 @@ function getPnl(row: any): number {
   if (Number.isFinite(returned) && Number.isFinite(allocated)) return returned - allocated;
 
   return 0;
+}
+
+
+function PolyEdgeHeartbeatPanel({
+  apiStatus,
+  lastApiCheck,
+  heartbeatTick,
+  runtime,
+  replayMessage,
+}: {
+  apiStatus: "checking" | "online" | "offline" | "timeout";
+  lastApiCheck: string | null;
+  heartbeatTick: number;
+  runtime?: any;
+  replayMessage?: string | null;
+}) {
+  const running = runtime?.running === true;
+  const pulse = heartbeatTick % 4;
+  const statusColor =
+    apiStatus === "online" ? "text-emerald-300" :
+    apiStatus === "checking" ? "text-cyan-300" :
+    "text-amber-300";
+
+  return (
+    <HoloPanel title="PolyEdge Live Heartbeat" icon={Activity} className="col-span-12 xl:col-span-6">
+      <style>{`
+        @keyframes polyedge-heartbeat-pulse {
+          0%, 100% { transform: scale(.92); opacity: .55; }
+          50% { transform: scale(1.12); opacity: 1; }
+        }
+        @keyframes polyedge-heartbeat-orbit {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes polyedge-heartbeat-scan {
+          0% { transform: translateX(-120%); opacity: 0; }
+          20% { opacity: 1; }
+          100% { transform: translateX(220%); opacity: 0; }
+        }
+      `}</style>
+
+      <div className="relative min-h-[230px] overflow-hidden rounded-2xl border border-cyan-300/15 bg-black/30 p-4">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_50%,rgba(34,240,255,0.18),transparent_35%),radial-gradient(circle_at_75%_35%,rgba(255,0,170,0.14),transparent_32%)]" />
+        <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-cyan-300/15 to-transparent" style={{ animation: "polyedge-heartbeat-scan 2.6s linear infinite" }} />
+
+        <div className="relative z-10 grid min-h-[200px] grid-cols-1 gap-4 md:grid-cols-[220px_1fr]">
+          <div className="flex items-center justify-center">
+            <div className="relative h-40 w-40">
+              <div className="absolute inset-0 rounded-full border border-cyan-300/30" style={{ animation: "polyedge-heartbeat-orbit 8s linear infinite" }} />
+              <div className="absolute inset-5 rounded-full border border-fuchsia-300/25" style={{ animation: "polyedge-heartbeat-orbit 5s linear infinite reverse" }} />
+              <div className="absolute inset-10 rounded-full border border-emerald-300/25" />
+              <div className="absolute inset-[58px] rounded-full bg-cyan-300/25 shadow-[0_0_40px_rgba(34,240,255,.8)]" style={{ animation: "polyedge-heartbeat-pulse 1.4s ease-in-out infinite" }} />
+              <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-cyan-300/70 to-transparent" style={{ animation: "polyedge-heartbeat-orbit 2.8s linear infinite" }} />
+            </div>
+          </div>
+
+          <div className="flex flex-col justify-center">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl border border-cyan-300/15 bg-black/40 p-3">
+                <div className="text-[9px] uppercase tracking-[0.16em] text-cyan-100/40">App Heartbeat</div>
+                <div className="mt-1 text-xl font-black text-emerald-300">LIVE {'.'.repeat(pulse + 1)}</div>
+              </div>
+
+              <div className="rounded-xl border border-cyan-300/15 bg-black/40 p-3">
+                <div className="text-[9px] uppercase tracking-[0.16em] text-cyan-100/40">API Status</div>
+                <div className={`mt-1 text-xl font-black uppercase ${statusColor}`}>{apiStatus}</div>
+              </div>
+
+              <div className="rounded-xl border border-cyan-300/15 bg-black/40 p-3">
+                <div className="text-[9px] uppercase tracking-[0.16em] text-cyan-100/40">Replay Engine</div>
+                <div className={`mt-1 text-xl font-black uppercase ${running ? "text-emerald-300" : "text-cyan-100/45"}`}>
+                  {running ? "RUNNING" : "IDLE"}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-cyan-300/15 bg-black/40 p-3">
+                <div className="text-[9px] uppercase tracking-[0.16em] text-cyan-100/40">Last Check</div>
+                <div className="mt-1 text-xl font-black text-white">{lastApiCheck || "waiting"}</div>
+              </div>
+            </div>
+
+            <div className="mt-3 rounded-xl border border-orange-300/15 bg-orange-400/5 p-3 text-[11px] leading-relaxed text-orange-100/75">
+              {replayMessage || runtime?.lastEvent || "Cockpit is alive. Waiting for replay/API response."}
+            </div>
+          </div>
+        </div>
+      </div>
+    </HoloPanel>
+  );
 }
 
 function HoloPanel(props: {
@@ -236,20 +339,31 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
   const [replayStatus, setReplayStatus] = useState<PolyEdgeReplayStatus | null>(null);
   const [replayRunning, setReplayRunning] = useState(false);
   const [replayMessage, setReplayMessage] = useState<string | null>(null);
+  const [heartbeatTick, setHeartbeatTick] = useState(0);
+  const [apiStatus, setApiStatus] = useState<"checking" | "online" | "offline" | "timeout">("checking");
+  const [lastApiCheck, setLastApiCheck] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [now, setNow] = useState(new Date());
 
   async function loadReplayStatus() {
     if (mode !== "admin") return;
     try {
-      const res = await fetch("/api/admin/polyedge/replay/status", {
+      const res = await fetchWithTimeout("/api/admin/polyedge/replay/status", {
         credentials: "include",
         headers: polyEdgeAuthHeaders(mode),
       });
       const json = await res.json();
-      if (res.ok && json?.ok !== false) setReplayStatus(json);
+      if (res.ok && json?.ok !== false) {
+        setReplayStatus(json);
+        setApiStatus("online");
+        setLastApiCheck(new Date().toLocaleTimeString());
+      } else {
+        setApiStatus("offline");
+        setLastApiCheck(new Date().toLocaleTimeString());
+      }
     } catch {
-      // replay panel is admin-only and non-critical
+      setApiStatus("timeout");
+      setLastApiCheck(new Date().toLocaleTimeString());
     }
   }
 
@@ -259,7 +373,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
     setReplayMessage(null);
 
     try {
-      const res = await fetch("/api/admin/polyedge/replay/run", {
+      const res = await fetchWithTimeout("/api/admin/polyedge/replay/run", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json", ...polyEdgeAuthHeaders(mode) },
@@ -286,7 +400,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
 
   async function load() {
     try {
-      const res = await fetch(endpoint, {
+      const res = await fetchWithTimeout(endpoint, {
         credentials: "include",
         headers: polyEdgeAuthHeaders(mode),
       });
@@ -294,7 +408,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
       if (!res.ok || json?.ok === false) throw new Error(json?.error || "PolyEdge API failed");
       setData(json);
 
-      const learningRes = await fetch(learningEndpoint, {
+      const learningRes = await fetchWithTimeout(learningEndpoint, {
         credentials: "include",
         headers: polyEdgeAuthHeaders(mode),
       });
@@ -351,6 +465,11 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
 
   const readiness = String(proof.readiness || "learning").replace(/_/g, " ").toUpperCase();
   const proofPassed = proof.proofPassed === true;
+  const runtime = (replayStatus as any)?.runtime;
+  const replayProgress =
+    runtime?.requestedBatchSize && runtime.requestedBatchSize > 0
+      ? Math.min(100, Math.round(((runtime.completed || 0) / runtime.requestedBatchSize) * 100))
+      : 0;
   const liveBlocked = data?.liveTradingAllowed !== true;
 
   return (
@@ -549,6 +668,14 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
                 </div>
               </HoloPanel>
             ) : null}
+
+            <PolyEdgeHeartbeatPanel
+              apiStatus={apiStatus}
+              lastApiCheck={lastApiCheck}
+              heartbeatTick={heartbeatTick}
+              runtime={runtime}
+              replayMessage={replayMessage}
+            />
 
             <HoloPanel title="Neural Learning Core" icon={Brain} className="col-span-12 xl:col-span-3">
               <div className="mb-3 grid grid-cols-2 gap-2">
