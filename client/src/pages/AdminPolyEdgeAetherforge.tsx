@@ -1,5 +1,5 @@
-import PolyEdgeAetherforgeCockpit from "./polyedge/PolyEdgeAetherforgeCockpit";
+import PolyEdgeReferenceOnePage from "./polyedge/PolyEdgeReferenceOnePage";
 
 export default function AdminPolyEdgeAetherforge() {
-  return <PolyEdgeAetherforgeCockpit mode="admin" />;
+  return <PolyEdgeReferenceOnePage />;
 }
