@@ -324,12 +324,40 @@ export function assertNexoraActionApproved(request: NexoraActionRequest): Nexora
   return result;
 }
 
-export function previewNexoraActionPolicy(moduleKey: string, intent: NexoraActionIntent) {
+export function previewNexoraActionPolicy(
+  requestOrModuleKey:
+    | string
+    | {
+        moduleKey?: string;
+        intent?: NexoraActionIntent;
+        requestedBy?: NexoraActionRequest["requestedBy"];
+        reason?: string;
+        evidence?: Record<string, unknown>;
+        dryRun?: boolean;
+      },
+  maybeIntent?: NexoraActionIntent,
+  maybeRequestedBy: NexoraActionRequest["requestedBy"] = "unknown",
+  maybeReason = "Policy preview",
+  maybeEvidence: Record<string, unknown> = {},
+  maybeDryRun = true
+) {
+  if (typeof requestOrModuleKey === "object" && requestOrModuleKey !== null) {
+    return routeNexoraAction({
+      moduleKey: String(requestOrModuleKey.moduleKey || ""),
+      intent: requestOrModuleKey.intent as NexoraActionIntent,
+      requestedBy: requestOrModuleKey.requestedBy || "unknown",
+      reason: requestOrModuleKey.reason || "Policy preview",
+      evidence: requestOrModuleKey.evidence || {},
+      dryRun: requestOrModuleKey.dryRun ?? true,
+    });
+  }
+
   return routeNexoraAction({
-    moduleKey,
-    intent,
-    requestedBy: "unknown",
-    reason: "Policy preview",
-    dryRun: true,
+    moduleKey: requestOrModuleKey,
+    intent: maybeIntent as NexoraActionIntent,
+    requestedBy: maybeRequestedBy,
+    reason: maybeReason,
+    evidence: maybeEvidence,
+    dryRun: maybeDryRun,
   });
 }
