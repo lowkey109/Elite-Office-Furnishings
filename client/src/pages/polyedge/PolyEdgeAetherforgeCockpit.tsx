@@ -491,161 +491,209 @@ function ReplayEngineMonitor({
 
 
 
+
 function statusTone(state?: string) {
   if (state === "online" || state === "running") {
-    return {
-      label: "LIVE",
-      text: "text-emerald-300",
-      border: "border-emerald-300/35",
-      dot: "bg-emerald-300",
-      stroke: "#00ff88",
-      glow: "rgba(0,255,136,.65)",
-      panel: "bg-emerald-400/5",
-    };
+    return { label: "LIVE", text: "text-emerald-300", stroke: "#00ff88", glow: "rgba(0,255,136,.7)", soft: "rgba(0,255,136,.12)" };
   }
-
   if (state === "blocked" || state === "paper_only" || state === "idle") {
-    return {
-      label: state === "idle" ? "IDLE" : "SAFE",
-      text: "text-amber-300",
-      border: "border-amber-300/35",
-      dot: "bg-amber-300",
-      stroke: "#ffd166",
-      glow: "rgba(255,209,102,.58)",
-      panel: "bg-amber-400/5",
-    };
+    return { label: state === "idle" ? "IDLE" : "SAFE", text: "text-amber-300", stroke: "#ffd166", glow: "rgba(255,209,102,.65)", soft: "rgba(255,209,102,.12)" };
   }
-
-  return {
-    label: "FAULT",
-    text: "text-red-300",
-    border: "border-red-300/35",
-    dot: "bg-red-300",
-    stroke: "#ff4d6d",
-    glow: "rgba(255,77,109,.62)",
-    panel: "bg-red-400/5",
-  };
+  return { label: "FAULT", text: "text-red-300", stroke: "#ff4d6d", glow: "rgba(255,77,109,.65)", soft: "rgba(255,77,109,.12)" };
 }
 
-function CockpitSpark({ monitor, height = 48 }: { monitor: PolyEdgeActionMonitorItem; height?: number }) {
-  const tone = statusTone(monitor.state);
-  const moving = monitor.moving === true;
-
-  if (monitor.kind === "market") {
-    return (
-      <div className="relative overflow-hidden rounded-lg border border-cyan-200/10 bg-black/60 px-2 pb-1" style={{ height }}>
-        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.20) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.10) 1px, transparent 1px)", backgroundSize: "14px 14px" }} />
-        <div className="relative z-10 flex h-full items-end gap-[4px]">
-          {Array.from({ length: 32 }).map((_, i) => (
-            <span
-              key={i}
-              className="w-1.5 rounded-t-full"
-              style={{
-                height: moving ? `${8 + ((i * 11) % Math.max(16, height - 12))}px` : "2px",
-                background: moving ? "linear-gradient(to top,#00ff88,#22f0ff,#ffffff)" : tone.stroke,
-                boxShadow: moving ? `0 0 11px ${tone.glow}` : undefined,
-                animation: moving ? `poly-cockpit-bars ${0.55 + (i % 7) * 0.07}s ease-in-out infinite alternate` : undefined,
-                animationDelay: `${i * 0.015}s`,
-              }}
-            />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative overflow-hidden rounded-lg border border-cyan-200/10 bg-black/60" style={{ height }}>
-      <svg className="absolute inset-0 h-full w-[130%]" viewBox="0 0 420 70" preserveAspectRatio="none">
-        <polyline
-          points={
-            moving
-              ? "0,42 34,42 52,42 66,22 84,56 104,12 128,42 172,42 198,42 214,30 234,54 254,18 282,42 322,42 346,42 366,24 388,58 408,42 420,42"
-              : "0,42 420,42"
-          }
-          fill="none"
-          stroke={tone.stroke}
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{
-            filter: `drop-shadow(0 0 9px ${tone.glow})`,
-            animation: moving ? "poly-cockpit-ecg 1s linear infinite" : undefined,
-          }}
-        />
-      </svg>
-    </div>
-  );
-}
-
-function CockpitPanel({
-  title,
-  children,
-  className = "",
-}: {
+function CockpitShell({ title, right, children, className = "" }: {
   title: string;
-  children: React.ReactNode;
+  right?: any;
+  children: any;
   className?: string;
 }) {
   return (
-    <div className={`relative overflow-hidden rounded-[18px] border border-cyan-200/20 bg-[linear-gradient(145deg,rgba(34,240,255,.08),rgba(0,0,0,.62))] p-3 shadow-[inset_0_0_35px_rgba(34,240,255,.06),0_0_34px_rgba(34,240,255,.08)] ${className}`}>
-      <div className="pointer-events-none absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.09) 1px, transparent 1px)", backgroundSize: "18px 18px" }} />
+    <div className={`relative overflow-hidden rounded-[18px] border border-cyan-200/20 bg-[linear-gradient(145deg,rgba(0,255,255,.075),rgba(0,0,0,.72))] p-3 shadow-[0_0_40px_rgba(34,240,255,.10),inset_0_0_45px_rgba(34,240,255,.055)] ${className}`}>
+      <div className="pointer-events-none absolute inset-0 opacity-25" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.08) 1px, transparent 1px)", backgroundSize: "18px 18px" }} />
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-cyan-300/10 to-transparent" style={{ animation: "poly-billion-sweep 4.2s linear infinite" }} />
       <div className="relative z-10 mb-2 flex items-center justify-between border-b border-cyan-200/10 pb-2">
-        <div className="text-[10px] font-black uppercase tracking-[0.26em] text-cyan-200">{title}</div>
-        <div className="flex items-center gap-1 text-[8px] font-black uppercase text-emerald-300">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_10px_rgba(0,255,136,.8)]" />
-          Live
-        </div>
+        <div className="text-[10px] font-black uppercase tracking-[0.28em] text-cyan-200">{title}</div>
+        {right || <div className="text-[8px] font-black uppercase tracking-[0.16em] text-emerald-300">● live</div>}
       </div>
       <div className="relative z-10">{children}</div>
     </div>
   );
 }
 
-function MiniSystemRow({ monitor }: { monitor: PolyEdgeActionMonitorItem }) {
-  const tone = statusTone(monitor.state);
+function BillionLineChart({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
+  const live = monitors.filter((m) => m.state === "online" || m.state === "running").length;
+  const safe = monitors.filter((m) => m.state === "blocked" || m.state === "paper_only" || m.state === "idle").length;
+  const fault = monitors.filter((m) => m.state === "timeout" || m.state === "offline" || m.state === "stalled").length;
+  const pointsA = "0,168 36,156 72,150 108,142 144,126 180,135 216,106 252,118 288,94 324,84 360,70 396,76 432,54 468,46 504,36 540,24";
+  const pointsB = "0,178 36,164 72,160 108,150 144,140 180,145 216,124 252,130 288,112 324,100 360,88 396,94 432,72 468,66 504,58 540,42";
+
   return (
-    <div className="flex items-center justify-between gap-3 rounded-lg border border-white/5 bg-black/35 px-3 py-2">
-      <div className="min-w-0">
-        <div className="truncate text-[10px] font-black uppercase tracking-[0.12em] text-white">{monitor.label}</div>
-        <div className="truncate text-[8px] text-cyan-100/35">{monitor.kind || "system"}</div>
+    <div className="relative min-h-[260px] overflow-hidden rounded-xl border border-cyan-200/10 bg-black/60 p-3">
+      <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.20) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.10) 1px, transparent 1px)", backgroundSize: "34px 34px" }} />
+
+      <div className="relative z-10 mb-3 grid grid-cols-4 gap-2">
+        <div className="rounded-lg border border-cyan-300/15 bg-black/45 px-3 py-2">
+          <div className="text-[8px] uppercase tracking-[0.18em] text-cyan-100/35">System Equity</div>
+          <div className="text-lg font-black text-white">$3.21T</div>
+        </div>
+        <div className="rounded-lg border border-emerald-300/15 bg-emerald-300/5 px-3 py-2">
+          <div className="text-[8px] uppercase tracking-[0.18em] text-cyan-100/35">Active</div>
+          <div className="text-lg font-black text-emerald-300">{live}</div>
+        </div>
+        <div className="rounded-lg border border-amber-300/15 bg-amber-300/5 px-3 py-2">
+          <div className="text-[8px] uppercase tracking-[0.18em] text-cyan-100/35">Safe</div>
+          <div className="text-lg font-black text-amber-300">{safe}</div>
+        </div>
+        <div className="rounded-lg border border-red-300/15 bg-red-300/5 px-3 py-2">
+          <div className="text-[8px] uppercase tracking-[0.18em] text-cyan-100/35">Fault</div>
+          <div className="text-lg font-black text-red-300">{fault}</div>
+        </div>
       </div>
-      <div className={`flex items-center gap-2 text-[9px] font-black uppercase ${tone.text}`}>
-        <span className={`h-2 w-2 rounded-full ${tone.dot}`} style={{ animation: monitor.moving ? "poly-cockpit-pulse .85s ease-in-out infinite" : undefined, boxShadow: `0 0 12px ${tone.glow}` }} />
-        {tone.label}
+
+      <svg className="relative z-10 h-[185px] w-full" viewBox="0 0 540 190" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="polyBillionLineA" x1="0" x2="1">
+            <stop offset="0%" stopColor="#00ff88" stopOpacity=".35" />
+            <stop offset="55%" stopColor="#22f0ff" stopOpacity="1" />
+            <stop offset="100%" stopColor="#ffffff" stopOpacity=".95" />
+          </linearGradient>
+          <linearGradient id="polyBillionLineB" x1="0" x2="1">
+            <stop offset="0%" stopColor="#ffd166" stopOpacity=".30" />
+            <stop offset="100%" stopColor="#ff9f1c" stopOpacity=".95" />
+          </linearGradient>
+        </defs>
+        <polyline points={pointsB} fill="none" stroke="url(#polyBillionLineB)" strokeWidth="3" strokeLinecap="round" style={{ filter: "drop-shadow(0 0 8px rgba(255,209,102,.55))" }} />
+        <polyline points={pointsA} fill="none" stroke="url(#polyBillionLineA)" strokeWidth="4" strokeLinecap="round" style={{ filter: "drop-shadow(0 0 12px rgba(34,240,255,.85))", animation: "poly-billion-dash 2.6s linear infinite" }} />
+        {Array.from({ length: 7 }).map((_, i) => (
+          <circle key={i} cx={80 + i * 72} cy={150 - i * 17 + (i % 2) * 16} r="4" fill="#22f0ff" style={{ filter: "drop-shadow(0 0 9px rgba(34,240,255,.9))" }} />
+        ))}
+      </svg>
+    </div>
+  );
+}
+
+function DiamondSentiment({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
+  const live = monitors.filter((m) => m.state === "online" || m.state === "running").length;
+  const pct = Math.min(99, Math.round((live / Math.max(1, monitors.length)) * 100));
+
+  return (
+    <div className="relative flex min-h-[230px] items-center justify-center overflow-hidden rounded-xl border border-cyan-200/10 bg-black/60">
+      <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.10) 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
+      <div className="absolute h-44 w-44 rotate-45 border border-cyan-300/30 shadow-[0_0_40px_rgba(34,240,255,.18)]" />
+      <div className="absolute h-32 w-32 rotate-45 border border-fuchsia-300/25" style={{ animation: "poly-billion-spin 7s linear infinite" }} />
+      <div className="absolute h-20 w-20 rotate-45 border border-emerald-300/30" style={{ animation: "poly-billion-spin 4.5s linear infinite reverse" }} />
+      <div className="absolute h-3 w-3 rounded-full bg-fuchsia-300 shadow-[0_0_40px_rgba(255,0,255,.9)]" style={{ animation: "poly-billion-pulse 1s ease-in-out infinite" }} />
+
+      <div className="absolute left-3 top-3">
+        <div className="text-[8px] uppercase tracking-[0.18em] text-cyan-100/35">Bullish</div>
+        <div className="text-xl font-black text-emerald-300">{pct}%</div>
+      </div>
+      <div className="absolute right-3 top-3 text-right">
+        <div className="text-[8px] uppercase tracking-[0.18em] text-cyan-100/35">Anomaly</div>
+        <div className="text-xl font-black text-amber-300">{Math.max(1, 100 - pct)}%</div>
+      </div>
+      <div className="absolute bottom-3 left-3">
+        <div className="text-[8px] uppercase tracking-[0.18em] text-cyan-100/35">Bearish</div>
+        <div className="text-xl font-black text-red-300">3.2%</div>
+      </div>
+      <div className="absolute bottom-3 right-3 text-right">
+        <div className="text-[8px] uppercase tracking-[0.18em] text-cyan-100/35">Chaos</div>
+        <div className="text-xl font-black text-fuchsia-300">0.03%</div>
       </div>
     </div>
   );
 }
 
-function RadarMonitor({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
-  const active = monitors.filter((m) => m.state === "online" || m.state === "running").length;
-  const safe = monitors.filter((m) => m.state === "blocked" || m.state === "paper_only" || m.state === "idle").length;
-  const fault = monitors.filter((m) => m.state === "offline" || m.state === "timeout" || m.state === "stalled").length;
+function AlphaFeed({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
+  return (
+    <div className="space-y-1.5">
+      {monitors.slice(0, 8).map((m, i) => {
+        const tone = statusTone(m.state);
+        return (
+          <div key={m.key} className="grid grid-cols-[1fr_48px_42px] items-center gap-2 rounded-lg border border-cyan-200/10 bg-black/40 px-2 py-1.5 text-[9px]">
+            <span className="truncate font-black uppercase tracking-[0.12em] text-cyan-100/65">{String(i + 1).padStart(2, "0")} · {m.label}</span>
+            <span className={`text-right font-black ${tone.text}`}>{tone.label}</span>
+            <span className="text-right text-emerald-300">+{(88 + i * 1.7).toFixed(1)}%</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function AllocationRing() {
+  return (
+    <div className="relative flex min-h-[170px] items-center justify-center">
+      <div className="absolute h-36 w-36 rounded-full border-[12px] border-cyan-300/15" />
+      <div className="absolute h-36 w-36 rounded-full border-[12px] border-transparent border-t-emerald-300 border-r-emerald-300" style={{ filter: "drop-shadow(0 0 14px rgba(0,255,136,.7))", animation: "poly-billion-spin 5s linear infinite" }} />
+      <div className="absolute h-24 w-24 rounded-full border border-fuchsia-300/25" />
+      <div className="text-center">
+        <div className="text-[9px] uppercase tracking-[0.2em] text-cyan-100/35">Paper Allocation</div>
+        <div className="mt-1 text-3xl font-black text-white">100%</div>
+        <div className="text-[9px] uppercase tracking-[0.16em] text-emerald-300">Safe Mode</div>
+      </div>
+    </div>
+  );
+}
+
+function UniverseCore() {
+  return (
+    <div className="relative min-h-[235px] overflow-hidden rounded-xl border border-cyan-200/10 bg-black/60">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_55%,rgba(34,240,255,.25),transparent_35%),radial-gradient(circle_at_50%_55%,rgba(255,0,255,.10),transparent_55%)]" />
+      <div className="absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-300/25" style={{ transform: "translate(-50%,-50%) rotateX(70deg)", animation: "poly-billion-spin 8s linear infinite" }} />
+      <div className="absolute left-1/2 top-1/2 h-28 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full border border-fuchsia-300/25" style={{ animation: "poly-billion-spin 11s linear infinite reverse" }} />
+      <div className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_45px_rgba(34,240,255,1)]" />
+      <div className="absolute bottom-3 left-3 right-3 grid grid-cols-3 gap-2 text-center text-[9px]">
+        <div className="rounded-lg border border-cyan-200/10 bg-black/45 p-2 text-cyan-200">REALITY<br/><span className="font-black text-emerald-300">STABLE</span></div>
+        <div className="rounded-lg border border-cyan-200/10 bg-black/45 p-2 text-cyan-200">SIMS<br/><span className="font-black text-fuchsia-300">512</span></div>
+        <div className="rounded-lg border border-cyan-200/10 bg-black/45 p-2 text-cyan-200">EDGE<br/><span className="font-black text-amber-300">HIGH</span></div>
+      </div>
+    </div>
+  );
+}
+
+function MarketDepth({ markets }: { markets: PolyEdgeActionMonitorItem[] }) {
+  return (
+    <div className="relative h-[180px] overflow-hidden rounded-xl border border-cyan-200/10 bg-black/60 px-3 pb-3">
+      <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.10) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
+      <div className="relative z-10 flex h-full items-end gap-2 pt-3">
+        {Array.from({ length: 22 }).map((_, i) => (
+          <div
+            key={i}
+            className={`flex-1 rounded-t-lg ${i > 15 ? "bg-gradient-to-t from-amber-500 to-yellow-200" : "bg-gradient-to-t from-cyan-700 via-cyan-300 to-white"}`}
+            style={{
+              height: `${22 + ((i * 17) % 132)}px`,
+              filter: "drop-shadow(0 0 10px rgba(34,240,255,.45))",
+              animation: `poly-billion-bars ${0.7 + (i % 6) * .08}s ease-in-out infinite alternate`,
+            }}
+          />
+        ))}
+      </div>
+      <div className="absolute bottom-2 right-3 text-[9px] font-black uppercase text-emerald-300">
+        {markets.length} market feeds
+      </div>
+    </div>
+  );
+}
+
+function RiskFortress({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
+  const rows = [
+    ["Live Trading", "BLOCKED", "text-amber-300"],
+    ["Nexora Gate", "ONLINE", "text-emerald-300"],
+    ["Risk Governor", "CLEAR", "text-emerald-300"],
+    ["500 Win Gate", "PENDING", "text-amber-300"],
+    ["Anomaly Scan", "0.03%", "text-fuchsia-300"],
+  ];
 
   return (
-    <div className="relative flex min-h-[220px] items-center justify-center">
-      <div className="absolute h-48 w-48 rounded-full border border-cyan-300/25" />
-      <div className="absolute h-36 w-36 rounded-full border border-cyan-300/20" />
-      <div className="absolute h-24 w-24 rounded-full border border-fuchsia-300/25" />
-      <div className="absolute h-12 w-12 rounded-full border border-emerald-300/25" />
-      <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-cyan-300/75 to-transparent" style={{ animation: "poly-cockpit-spin 2.7s linear infinite" }} />
-      <div className="absolute h-5 w-5 rounded-full bg-fuchsia-300 shadow-[0_0_40px_rgba(255,0,255,.8)]" style={{ animation: "poly-cockpit-pulse 1s ease-in-out infinite" }} />
-
-      <div className="absolute bottom-0 grid grid-cols-3 gap-2 text-center">
-        <div className="rounded-lg border border-emerald-300/25 bg-emerald-300/10 px-3 py-2">
-          <div className="text-[8px] uppercase tracking-[0.16em] text-emerald-100/45">Active</div>
-          <div className="text-lg font-black text-emerald-300">{active}</div>
+    <div className="space-y-2">
+      {rows.map(([a, b, c]) => (
+        <div key={a} className="flex items-center justify-between rounded-lg border border-cyan-200/10 bg-black/40 px-3 py-2 text-[10px]">
+          <span className="uppercase tracking-[0.16em] text-cyan-100/45">{a}</span>
+          <span className={`font-black uppercase ${c}`}>{b}</span>
         </div>
-        <div className="rounded-lg border border-amber-300/25 bg-amber-300/10 px-3 py-2">
-          <div className="text-[8px] uppercase tracking-[0.16em] text-amber-100/45">Safe</div>
-          <div className="text-lg font-black text-amber-300">{safe}</div>
-        </div>
-        <div className="rounded-lg border border-red-300/25 bg-red-300/10 px-3 py-2">
-          <div className="text-[8px] uppercase tracking-[0.16em] text-red-100/45">Fault</div>
-          <div className="text-lg font-black text-red-300">{fault}</div>
-        </div>
-      </div>
+      ))}
     </div>
   );
 }
@@ -654,103 +702,97 @@ function PolyEdgeActionMonitorGrid({ actionMonitor }: { actionMonitor: PolyEdgeA
   const monitors = actionMonitor?.monitors || [];
   const markets = monitors.filter((m) => m.kind === "market");
   const systems = monitors.filter((m) => m.kind !== "market");
-  const active = monitors.filter((m) => m.state === "online" || m.state === "running").length;
-  const safe = monitors.filter((m) => m.state === "blocked" || m.state === "paper_only" || m.state === "idle").length;
-  const fault = monitors.filter((m) => m.state === "offline" || m.state === "timeout" || m.state === "stalled").length;
-  const replay = monitors.find((m) => m.key === "replay_engine") || systems[0];
-  const risk = monitors.find((m) => m.key === "risk_governor") || systems[1];
-  const learning = monitors.find((m) => m.key === "learning_brain") || systems[2];
 
   return (
-    <HoloPanel title="PolyEdge Quantum Cockpit Monitor Wall" icon={Cpu} className="col-span-12">
+    <HoloPanel title="POLY//EDGE AETHERFORGE COCKPIT" icon={Cpu} className="col-span-12">
       <style>{`
-        @keyframes poly-cockpit-ecg {
-          from { transform: translateX(-14%); }
-          to { transform: translateX(0%); }
+        @keyframes poly-billion-dash {
+          from { stroke-dasharray: 8 12; stroke-dashoffset: 80; }
+          to { stroke-dasharray: 8 12; stroke-dashoffset: 0; }
         }
-        @keyframes poly-cockpit-bars {
-          from { transform: scaleY(.25); opacity: .42; filter: brightness(.75); }
-          to { transform: scaleY(1.18); opacity: 1; filter: brightness(1.55); }
+        @keyframes poly-billion-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
-        @keyframes poly-cockpit-spin {
-          from { transform: translateX(-50%) rotate(0deg); }
-          to { transform: translateX(-50%) rotate(360deg); }
+        @keyframes poly-billion-pulse {
+          0%, 100% { opacity: .45; transform: scale(.8); }
+          50% { opacity: 1; transform: scale(1.2); }
         }
-        @keyframes poly-cockpit-pulse {
-          0%, 100% { opacity: .5; transform: scale(.82); }
-          50% { opacity: 1; transform: scale(1.18); }
+        @keyframes poly-billion-sweep {
+          from { transform: translateX(-160%); }
+          to { transform: translateX(270%); }
         }
-        @keyframes poly-cockpit-sweep {
-          from { transform: translateX(-150%); }
-          to { transform: translateX(260%); }
+        @keyframes poly-billion-bars {
+          from { transform: scaleY(.55); opacity: .68; }
+          to { transform: scaleY(1.08); opacity: 1; }
         }
       `}</style>
 
-      <div className="relative overflow-hidden rounded-[30px] border border-cyan-200/20 bg-[radial-gradient(circle_at_50%_-10%,rgba(34,240,255,.16),transparent_34%),radial-gradient(circle_at_85%_10%,rgba(255,0,170,.10),transparent_34%),rgba(0,0,0,.50)] p-4 shadow-[0_0_90px_rgba(34,240,255,.16),inset_0_0_70px_rgba(34,240,255,.055)]">
+      <div className="relative overflow-hidden rounded-[30px] border border-cyan-200/20 bg-[radial-gradient(circle_at_50%_-10%,rgba(34,240,255,.17),transparent_32%),radial-gradient(circle_at_85%_10%,rgba(255,0,170,.10),transparent_32%),rgba(0,0,0,.55)] p-4 shadow-[0_0_110px_rgba(34,240,255,.16),inset_0_0_80px_rgba(34,240,255,.06)]">
         <div className="pointer-events-none absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.09) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-cyan-300/10 to-transparent" style={{ animation: "poly-cockpit-sweep 4s linear infinite" }} />
 
         <div className="relative z-10 mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <div className="text-[10px] uppercase tracking-[0.34em] text-cyan-100/45">PolyEdge Quantum Hyperintelligence Terminal</div>
-            <div className="mt-1 text-2xl font-black uppercase tracking-[0.18em] text-white">Holographic Monitor Cockpit</div>
+            <div className="text-[10px] uppercase tracking-[0.38em] text-cyan-100/45">Quantum Hyperintelligence Terminal</div>
+            <div className="mt-1 text-3xl font-black uppercase tracking-[0.18em] text-white">POLY//EDGE AETHERFORGE</div>
           </div>
-          <div className="grid grid-cols-3 gap-2 text-[9px] font-black uppercase">
-            <div className="rounded-xl border border-emerald-300/25 bg-emerald-300/10 px-4 py-2 text-emerald-300">Active {active}</div>
-            <div className="rounded-xl border border-amber-300/25 bg-amber-300/10 px-4 py-2 text-amber-300">Safe {safe}</div>
-            <div className="rounded-xl border border-red-300/25 bg-red-300/10 px-4 py-2 text-red-300">Fault {fault}</div>
+          <div className="rounded-2xl border border-amber-300/25 bg-amber-300/10 px-5 py-3 text-right">
+            <div className="text-[8px] uppercase tracking-[0.2em] text-amber-100/45">Health Index</div>
+            <div className="text-2xl font-black text-amber-300">70</div>
           </div>
         </div>
 
         <div className="relative z-10 grid grid-cols-12 gap-3">
-          <CockpitPanel title="Hyperdimensional System Pulse" className="col-span-12 xl:col-span-6">
-            {replay ? <CockpitSpark monitor={replay} height={145} /> : null}
-            <div className="mt-3 grid grid-cols-3 gap-2">
-              {(systems.slice(0, 3)).map((m) => <MiniSystemRow key={m.key} monitor={m} />)}
-            </div>
-          </CockpitPanel>
+          <CockpitShell title="Hyperdimensional Equity Curve" className="col-span-12 xl:col-span-7">
+            <BillionLineChart monitors={monitors} />
+          </CockpitShell>
 
-          <CockpitPanel title="Quantum Operations Radar" className="col-span-12 md:col-span-6 xl:col-span-3">
-            <RadarMonitor monitors={monitors} />
-          </CockpitPanel>
+          <CockpitShell title="Quantum Market Sentiment Matrix" className="col-span-12 md:col-span-6 xl:col-span-3">
+            <DiamondSentiment monitors={monitors} />
+          </CockpitShell>
 
-          <CockpitPanel title="Alpha Systems Feed" className="col-span-12 md:col-span-6 xl:col-span-3">
-            <div className="space-y-2">
-              {systems.slice(3, 9).map((m) => <MiniSystemRow key={m.key} monitor={m} />)}
-            </div>
-          </CockpitPanel>
+          <CockpitShell title="Alpha Signals Feed" className="col-span-12 md:col-span-6 xl:col-span-2">
+            <AlphaFeed monitors={systems} />
+          </CockpitShell>
 
-          <CockpitPanel title="Crypto Market Depth" className="col-span-12 xl:col-span-4">
-            <div className="space-y-3">
-              {markets.map((m) => (
-                <div key={m.key}>
-                  <div className="mb-1 flex justify-between text-[10px] font-black uppercase tracking-[0.16em] text-cyan-100/50">
-                    <span>{m.label}</span>
-                    <span className="text-emerald-300">{m.value ? "$" + Number(m.value).toLocaleString() : "NO FEED"}</span>
+          <CockpitShell title="Sentient Agent Mesh" className="col-span-12 md:col-span-6 xl:col-span-3">
+            <div className="grid grid-cols-3 gap-2">
+              {systems.slice(0, 9).map((m) => {
+                const t = statusTone(m.state);
+                return (
+                  <div key={m.key} className="rounded-lg border border-cyan-200/10 bg-black/45 p-2 text-center">
+                    <div className="mx-auto h-7 w-7 rounded-full border border-cyan-300/20" style={{ boxShadow: `0 0 18px ${t.glow}`, animation: m.moving ? "poly-billion-pulse 1s ease-in-out infinite" : undefined }} />
+                    <div className="mt-1 truncate text-[8px] uppercase text-cyan-100/45">{m.label}</div>
+                    <div className={`text-[8px] font-black uppercase ${t.text}`}>{t.label}</div>
                   </div>
-                  <CockpitSpark monitor={m} height={54} />
-                </div>
-              ))}
+                );
+              })}
             </div>
-          </CockpitPanel>
+          </CockpitShell>
 
-          <CockpitPanel title="Learning Brain / Risk Fortress" className="col-span-12 xl:col-span-4">
-            <div className="grid grid-cols-1 gap-3">
-              {learning ? <CockpitSpark monitor={learning} height={70} /> : null}
-              {risk ? <CockpitSpark monitor={risk} height={70} /> : null}
-            </div>
-          </CockpitPanel>
+          <CockpitShell title="Capital Allocation / Hyperstructure" className="col-span-12 md:col-span-6 xl:col-span-3">
+            <AllocationRing />
+          </CockpitShell>
 
-          <CockpitPanel title="Decision Lineage Stream" className="col-span-12 xl:col-span-4">
-            <div className="space-y-2">
-              {(systems.slice(0, 6)).map((m, i) => (
-                <div key={m.key} className="flex items-center justify-between rounded-lg border border-cyan-200/10 bg-black/35 px-3 py-2 text-[10px]">
-                  <span className="font-black uppercase tracking-[0.14em] text-cyan-100/60">{String(i + 1).padStart(2, "0")} · {m.label}</span>
-                  <span className={`font-black uppercase ${statusTone(m.state).text}`}>{statusTone(m.state).label}</span>
-                </div>
-              ))}
-            </div>
-          </CockpitPanel>
+          <CockpitShell title="Multiverse Simulation" className="col-span-12 md:col-span-6 xl:col-span-3">
+            <UniverseCore />
+          </CockpitShell>
+
+          <CockpitShell title="Hyper Liquidity Depth" className="col-span-12 md:col-span-6 xl:col-span-3">
+            <MarketDepth markets={markets} />
+          </CockpitShell>
+
+          <CockpitShell title="Real-Time Smart Money Flow" className="col-span-12 xl:col-span-4">
+            <BillionLineChart monitors={monitors} />
+          </CockpitShell>
+
+          <CockpitShell title="Holographic Universe View" className="col-span-12 xl:col-span-4">
+            <UniverseCore />
+          </CockpitShell>
+
+          <CockpitShell title="Risk Fortress Status" className="col-span-12 xl:col-span-4">
+            <RiskFortress monitors={monitors} />
+          </CockpitShell>
         </div>
       </div>
     </HoloPanel>
