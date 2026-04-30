@@ -154,6 +154,32 @@ export default function PolyEdgeReferenceOnePage() {
   const timestamp = realValue(actionMonitor?.generatedAt || replayStatus?.generatedAt || replayStatus?.lastRunAt);
   const onlinePct = monitors.length ? Math.round((live / monitors.length) * 100) : 0;
 
+  const adminNavItems = [
+    ["Dashboard", "/admin/dashboard"],
+    ["Nexora OS", "/admin/nexora-os"],
+    ["AI Monitor", "/admin/ai-monitor"],
+    ["Trading Monitor", "/admin/trading-monitor"],
+    ["PhantomX Intelligence", "/admin/phantomx-intelligence"],
+    ["PolyEdge Aetherforge", "/admin/polyedge-aetherforge"],
+    ["PhantomX Compliance", "/admin/phantomx-compliance"],
+    ["AI Chat", "/admin/ai-chat"],
+    ["Deal Pipeline", "/admin/deal-pipeline"],
+    ["Leads", "/admin/leads"],
+    ["Lead Engine", "/admin/lead-engine"],
+    ["Quotes", "/admin/quotes"],
+    ["Move Radar", "/admin/move-radar"],
+    ["Property Intelligence", "/admin/property-intelligence"],
+    ["Property Listings", "/admin/property-listings"],
+    ["Import Listings", "/admin/import-listings"],
+    ["Property Enquiries", "/admin/property-enquiries"],
+    ["Customers", "/admin/customers"],
+    ["Subscriptions", "/admin/subscriptions"],
+    ["Client Projects", "/admin/client-projects"],
+    ["Deal Hunter", "/admin/deal-hunter"],
+    ["Territory Scanner", "/admin/territory-scanner"],
+    ["Prediction Markets", "/admin/prediction-markets"],
+  ];
+
   const statusBars = useMemo(() => {
     const rows = monitors.length ? monitors.slice(0, 22) : [];
     return rows.map((m, i) => Math.max(10, stateScore(m) - ((i * 7) % 24)));
@@ -211,7 +237,7 @@ export default function PolyEdgeReferenceOnePage() {
 
         .left {
           display: grid;
-          grid-template-rows: 50px 102px 1fr 58px;
+          grid-template-rows: 46px 188px 1fr 46px;
           gap: 4px;
           min-height: 0;
         }
@@ -273,19 +299,43 @@ export default function PolyEdgeReferenceOnePage() {
           overflow: hidden;
         }
 
+        .nav-scroll {
+          height: 100%;
+          overflow: auto;
+          padding-right: 2px;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(34,211,238,.4) transparent;
+        }
+
+        .nav-scroll::-webkit-scrollbar {
+          width: 3px;
+        }
+
+        .nav-scroll::-webkit-scrollbar-thumb {
+          background: rgba(34,211,238,.35);
+          border-radius: 999px;
+        }
+
         .nav-item {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          height: 15px;
+          height: 14px;
           padding: 0 5px;
+          text-decoration: none;
           border: 1px solid rgba(34,211,238,.12);
           background: rgba(0,0,0,.34);
           color: rgba(190,255,255,.72);
-          font-size: 6.5px;
+          font-size: 6.2px;
           font-weight: 900;
           letter-spacing: .13em;
           text-transform: uppercase;
+        }
+
+        .nav-item.active {
+          color: #ffd166;
+          border-color: rgba(255,209,102,.45);
+          background: rgba(255,209,102,.10);
         }
 
         .ecg-list {
@@ -297,7 +347,7 @@ export default function PolyEdgeReferenceOnePage() {
         }
 
         .ecg-card {
-          min-height: 28px;
+          min-height: 26px;
           padding: 3px 4px;
           border: 1px solid rgba(34,211,238,.18);
           background: rgba(0,0,0,.60);
@@ -313,7 +363,7 @@ export default function PolyEdgeReferenceOnePage() {
         }
 
         .ecg-window.compact {
-          height: 10px;
+          height: 9px;
         }
 
         .ecg-track {
@@ -518,8 +568,12 @@ export default function PolyEdgeReferenceOnePage() {
             height: 16px;
           }
 
+          .nav-scroll {
+            overflow: visible;
+          }
+
           .nav-item {
-            height: 24px;
+            height: 28px;
             font-size: 9px;
           }
         }
@@ -544,9 +598,17 @@ export default function PolyEdgeReferenceOnePage() {
           <section className="panel">
             <div className="panel-title">Navigation</div>
             <div className="panel-body">
-              {["Overview", "Markets", "Portfolio", "Agents", "Alpha Grid", "Risk Core", "Memory"].map((x) => (
-                <div className="nav-item" key={x}>{x}<span>›</span></div>
+              <div className="nav-scroll">
+              {adminNavItems.map(([label, href]) => (
+                <a
+                  className={`nav-item ${href === "/admin/polyedge-aetherforge" ? "active" : ""}`}
+                  key={href}
+                  href={href}
+                >
+                  <span>{label}</span><span>›</span>
+                </a>
               ))}
+              </div>
             </div>
           </section>
 
