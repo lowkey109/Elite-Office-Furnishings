@@ -1,5 +1,5 @@
-/* PHANTOM X PROPER LAYOUT FIX
-   This file is intentionally separate from TSX so raw CSS can never break TypeScript. */
+/* PHANTOM X CLEAN LAYOUT FIX
+   Separate CSS file only. No raw CSS inside TSX. */
 
 body:has(.pxShell) {
   overflow: hidden !important;
@@ -13,297 +13,434 @@ body:has(.pxShell) {
   height: 100vh !important;
   overflow: hidden !important;
   background:
-    radial-gradient(circle at 48% -10%, rgba(34, 240, 255, 0.13), transparent 34%),
-    radial-gradient(circle at 90% 10%, rgba(255, 138, 0, 0.08), transparent 26%),
+    radial-gradient(circle at 45% -12%, rgba(34, 240, 255, 0.11), transparent 34%),
+    radial-gradient(circle at 90% 10%, rgba(255, 138, 0, 0.06), transparent 28%),
     linear-gradient(180deg, #02070d, #000 70%) !important;
 }
 
 .pxStage {
   transform-origin: top left !important;
+  overflow: hidden !important;
 }
 
-/* Left terminal rail — tighter, premium, less wasted width */
+/* LEFT RAIL */
 .sidebar {
   width: 145px !important;
   background:
-    linear-gradient(180deg, rgba(1, 12, 18, 0.96), rgba(0, 0, 0, 0.98)) !important;
-  border-right: 1px solid rgba(34, 240, 255, 0.55) !important;
-  box-shadow: 18px 0 55px rgba(0, 0, 0, 0.75), inset -18px 0 40px rgba(34, 240, 255, 0.035) !important;
+    radial-gradient(circle at 50% 78%, rgba(34, 240, 255, .12), transparent 24%),
+    linear-gradient(180deg, rgba(1, 12, 18, .96), rgba(0, 0, 0, .985)) !important;
+  border-right: 1px solid rgba(34, 240, 255, .50) !important;
+  box-shadow: 18px 0 55px rgba(0, 0, 0, .76) !important;
 }
 
+/* Logo smaller so it does not fight POLY//EDGE */
 .logoBox {
-  top: 18px !important;
-  left: 30px !important;
-  width: 84px !important;
-  height: 74px !important;
+  top: 14px !important;
+  left: 31px !important;
+  width: 82px !important;
+  height: 70px !important;
 }
 
+/* TCD APPS fixed properly */
 .tcdAppToggle {
-  top: 112px !important;
-  left: 16px !important;
-  width: 112px !important;
-  height: 30px !important;
-  font-size: 9px !important;
-  letter-spacing: .18em !important;
-  background: linear-gradient(90deg, rgba(34, 240, 255, .18), rgba(0, 0, 0, .82)) !important;
-  border-color: rgba(34, 240, 255, .82) !important;
+  top: 103px !important;
+  left: 13px !important;
+  width: 119px !important;
+  height: 29px !important;
+  font-size: 8px !important;
+  letter-spacing: .17em !important;
+  background:
+    linear-gradient(90deg, rgba(34, 240, 255, .14), rgba(0, 0, 0, .88)) !important;
+  border: 1px solid rgba(34, 240, 255, .80) !important;
+  box-shadow: 0 0 16px rgba(34, 240, 255, .22) !important;
 }
 
+/* Menu starts under TCD APPS */
 .sideMenu {
-  top: 165px !important;
-  gap: 13px !important;
+  top: 154px !important;
+  gap: 12px !important;
 }
 
 .menuItem {
   gap: 9px !important;
-  padding-left: 13px !important;
+  padding-left: 14px !important;
 }
 
 .menuItem svg {
-  width: 20px !important;
-  height: 20px !important;
+  width: 19px !important;
+  height: 19px !important;
 }
 
 .menuMain {
-  font-size: 10px !important;
-  letter-spacing: .13em !important;
+  font-size: 9px !important;
+  letter-spacing: .12em !important;
 }
 
 .menuSub {
-  font-size: 7px !important;
-  letter-spacing: .08em !important;
+  font-size: 6.5px !important;
+  letter-spacing: .07em !important;
   opacity: .62 !important;
 }
 
 .neuralOrb {
-  bottom: 70px !important;
+  bottom: 66px !important;
   left: 17px !important;
   width: 110px !important;
 }
 
 .orbBig {
-  width: 105px !important;
-  height: 105px !important;
+  width: 104px !important;
+  height: 104px !important;
 }
 
 .neuralOrb .bigNum {
   font-size: 16px !important;
 }
 
-/* Top header — moved right and compressed cleanly */
+/* TOP HEADER — fixes POLY//EDGE cut-off */
 .top {
-  left: 158px !important;
-  top: 12px !important;
-  width: 1745px !important;
-  height: 72px !important;
+  left: 154px !important;
+  top: 13px !important;
+  width: 1748px !important;
+  height: 68px !important;
   display: grid !important;
-  grid-template-columns: 255px 170px 170px 120px 215px 245px 230px 135px !important;
+  grid-template-columns:
+    270px
+    160px
+    160px
+    110px
+    225px
+    245px
+    215px
+    120px !important;
   gap: 7px !important;
 }
 
 .brand {
-  padding: 10px 16px !important;
+  padding: 8px 13px !important;
   overflow: hidden !important;
+  min-width: 0 !important;
 }
 
 .brandTitle {
-  font-size: 30px !important;
-  line-height: 28px !important;
-  letter-spacing: .13em !important;
+  font-size: 26px !important;
+  line-height: 25px !important;
+  letter-spacing: .105em !important;
   white-space: nowrap !important;
+  overflow: visible !important;
 }
 
 .brandSub {
-  font-size: 8px !important;
-  letter-spacing: .1em !important;
+  font-size: 7px !important;
+  letter-spacing: .08em !important;
   white-space: nowrap !important;
 }
 
 .brandVer {
-  font-size: 7px !important;
+  font-size: 6px !important;
 }
 
 .topStat {
-  padding: 9px 12px !important;
+  padding: 8px 10px !important;
   overflow: hidden !important;
+  min-width: 0 !important;
 }
 
 .topLabel {
-  font-size: 8px !important;
-  letter-spacing: .12em !important;
+  font-size: 7px !important;
+  letter-spacing: .11em !important;
   white-space: nowrap !important;
 }
 
 .topValue {
-  margin-top: 9px !important;
-  font-size: 15px !important;
+  margin-top: 8px !important;
+  font-size: 13px !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
 }
 
-/* Main grid — starts closer to left, ends above ticker, no cut-off */
+/* MAIN GRID — clean 4-row structure so Alerts and News do not overlap/cut off */
 .grid {
-  left: 158px !important;
-  top: 96px !important;
-  width: 1745px !important;
-  height: 880px !important;
+  left: 154px !important;
+  top: 90px !important;
+  width: 1748px !important;
+  height: 888px !important;
   display: grid !important;
-  grid-template-columns: 380px 330px 295px 345px 365px !important;
-  grid-template-rows: 370px 245px 225px !important;
-  gap: 10px !important;
+  grid-template-columns: 360px 330px 285px 360px 385px !important;
+  grid-template-rows: 342px 222px 180px 112px !important;
+  gap: 9px !important;
 }
 
+/* Panel base */
 .panel {
   overflow: hidden !important;
   background:
-    radial-gradient(circle at 50% 0%, rgba(34, 240, 255, .075), transparent 38%),
+    radial-gradient(circle at 50% 0%, rgba(34, 240, 255, .065), transparent 38%),
     linear-gradient(145deg, rgba(2, 18, 29, .97), rgba(0, 3, 9, .99)) !important;
-  border-color: rgba(34, 240, 255, .58) !important;
+  border-color: rgba(34, 240, 255, .55) !important;
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,.025),
-    inset 0 0 35px rgba(34,240,255,.045),
-    0 0 26px rgba(34,240,255,.10) !important;
+    inset 0 0 34px rgba(34,240,255,.04),
+    0 0 24px rgba(34,240,255,.09) !important;
 }
 
 .panelTitle {
-  height: 35px !important;
-  padding: 10px 16px 0 !important;
-  font-size: 14px !important;
-  letter-spacing: .14em !important;
+  height: 31px !important;
+  padding: 8px 13px 0 !important;
+  font-size: 12px !important;
+  line-height: 13px !important;
+  letter-spacing: .13em !important;
   white-space: normal !important;
-  line-height: 15px !important;
 }
 
-/* Chart and metrics fit */
+/* Explicit panel placement.
+   These nth-child placements match the current Phantom X panel order. */
+.grid > .panel:nth-child(1) {
+  grid-column: 1 / 4 !important;
+  grid-row: 1 !important;
+}
+
+.grid > .panel:nth-child(2) {
+  grid-column: 4 !important;
+  grid-row: 1 !important;
+}
+
+.grid > .panel:nth-child(3) {
+  grid-column: 5 !important;
+  grid-row: 1 !important;
+}
+
+.grid > .panel:nth-child(4) {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+}
+
+.grid > .panel:nth-child(5) {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+}
+
+.grid > .panel:nth-child(6) {
+  grid-column: 3 !important;
+  grid-row: 2 !important;
+}
+
+.grid > .panel:nth-child(7) {
+  grid-column: 4 / 6 !important;
+  grid-row: 2 !important;
+}
+
+.grid > .panel:nth-child(8) {
+  grid-column: 1 !important;
+  grid-row: 3 !important;
+}
+
+.grid > .panel:nth-child(9) {
+  grid-column: 1 !important;
+  grid-row: 4 !important;
+}
+
+.grid > .panel:nth-child(10) {
+  grid-column: 2 / 4 !important;
+  grid-row: 3 / 5 !important;
+}
+
+.grid > .panel:nth-child(11) {
+  grid-column: 4 !important;
+  grid-row: 3 !important;
+}
+
+.grid > .panel:nth-child(12) {
+  grid-column: 5 !important;
+  grid-row: 3 !important;
+}
+
+.grid > .panel:nth-child(13) {
+  grid-column: 4 / 6 !important;
+  grid-row: 4 !important;
+}
+
+/* Same rules by class, in case order changes */
+.equity { grid-column: 1 / 4 !important; grid-row: 1 !important; }
+.sentiment { grid-column: 4 !important; grid-row: 1 !important; }
+.flow { grid-column: 1 !important; grid-row: 3 !important; }
+.news { grid-column: 1 !important; grid-row: 4 !important; }
+.universe { grid-column: 2 / 4 !important; grid-row: 3 / 5 !important; }
+.risk { grid-column: 4 !important; grid-row: 3 !important; }
+.decision { grid-column: 5 !important; grid-row: 3 !important; }
+.alerts { grid-column: 4 / 6 !important; grid-row: 4 !important; }
+
+/* Equity chart */
 .equity svg {
-  height: 245px !important;
+  height: 218px !important;
+}
+
+.tinyTabs {
+  top: 10px !important;
+  right: 12px !important;
+}
+
+.tinyTabs span {
+  padding: 4px 8px !important;
+  font-size: 8px !important;
 }
 
 .metricStrip {
-  bottom: 10px !important;
-  height: 48px !important;
+  bottom: 8px !important;
+  height: 43px !important;
 }
 
 .metric small {
-  font-size: 7px !important;
+  font-size: 6px !important;
 }
 
 .metric b {
-  font-size: 13px !important;
+  font-size: 12px !important;
 }
 
-/* Top row panel fixes */
-.sentiment {
-  padding-bottom: 8px !important;
-}
-
+/* Alpha/signal rows */
 .signalRow {
-  padding-top: 7px !important;
-  padding-bottom: 7px !important;
-  font-size: 10px !important;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+  font-size: 9px !important;
 }
 
-/* Middle row fixes */
-.agentRow {
-  font-size: 10px !important;
-  height: 28px !important;
-}
-
+/* Sentient mesh */
 .agentDots {
-  transform: scale(.82) !important;
+  transform: scale(.74) !important;
   transform-origin: center !important;
+  margin-top: -10px !important;
+  margin-bottom: -8px !important;
 }
 
+.agentRow {
+  height: 23px !important;
+  font-size: 8.5px !important;
+}
+
+/* Capital allocation: stop centre text overlap */
 .donut {
-  transform: scale(.86) !important;
-  transform-origin: center !important;
+  transform: scale(.78) !important;
+  transform-origin: center center !important;
 }
 
 .donut:after {
-  inset: 48px !important;
-  font-size: 12px !important;
-  line-height: 17px !important;
+  inset: 53px !important;
+  font-size: 9px !important;
+  line-height: 13px !important;
 }
 
 .allocationLegend,
 .legend {
-  font-size: 10px !important;
+  font-size: 8.5px !important;
 }
 
+/* Multiverse and liquidity */
 .multiverse svg,
 .multiverseIcon {
-  transform: scale(.86) !important;
+  transform: scale(.82) !important;
 }
 
 .bar {
   border-radius: 3px 3px 0 0 !important;
 }
 
-/* Bottom row — force everything to stay above ticker */
+/* Bottom content sizing */
 .flow,
 .news,
 .universe,
 .risk,
-.decision {
-  height: 225px !important;
+.decision,
+.alerts {
+  overflow: hidden !important;
 }
 
 .newsRow,
 .riskRow,
 .decisionRow {
-  font-size: 9px !important;
-  line-height: 15px !important;
+  font-size: 8px !important;
+  line-height: 13px !important;
 }
 
-/* Alerts panel should sit beside bottom panels, not cover/cut them */
+/* Neural News fixed: no more cut-off */
+.news {
+  min-height: 112px !important;
+}
+
+.news .panelTitle {
+  height: 27px !important;
+  font-size: 11px !important;
+}
+
+.newsRow {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+/* Risk and decision keep their own space */
+.risk,
+.decision {
+  min-height: 180px !important;
+}
+
+.riskRow,
+.decisionRow {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+/* SYSTEM ALERTS fixed: own bottom-right row, no overlap */
 .alerts {
-  height: 130px !important;
-  min-height: 130px !important;
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  min-height: 112px !important;
+  height: 112px !important;
+  z-index: 3 !important;
+}
+
+.alerts .panelTitle {
+  height: 27px !important;
+  font-size: 11px !important;
 }
 
 .alertGrid {
-  padding: 18px 14px !important;
-  gap: 10px !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 9px !important;
+  padding: 11px 12px !important;
 }
 
 .alertBox {
-  height: 76px !important;
-  padding: 12px 14px !important;
+  height: 60px !important;
+  padding: 8px 11px !important;
 }
 
 .alertBox b {
-  font-size: 18px !important;
+  font-size: 14px !important;
+  line-height: 16px !important;
 }
 
-/* Footer ticker */
+/* Ticker */
 .ticker {
   left: 0 !important;
   right: 0 !important;
-  height: 38px !important;
   bottom: 0 !important;
+  height: 36px !important;
   z-index: 70 !important;
   background: rgba(0,0,0,.97) !important;
 }
 
 .ticker span {
-  height: 38px !important;
-  padding: 10px 20px 0 !important;
-  font-size: 12px !important;
+  height: 36px !important;
+  padding: 9px 18px 0 !important;
+  font-size: 11px !important;
 }
 
-/* Make drawer readable above the terminal */
+/* Keep drawer above terminal */
 .tcdAppDrawer {
   z-index: 9999 !important;
-}
-
-@media (max-width: 1400px) {
-  .grid {
-    top: 92px !important;
-    grid-template-rows: 360px 235px 215px !important;
-  }
-
-  .panelTitle {
-    font-size: 13px !important;
-  }
 }
