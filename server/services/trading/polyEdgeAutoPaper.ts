@@ -349,13 +349,30 @@ async function openFastPaperPosition() {
     hashNumber(String(Date.now()) + String(open.length) + String(state.ticks)) % candidatePairs.length
   ];
 
-  const symbol = selected.symbol;
-  const strategy = selected.strategy;
+  let symbol = selected.symbol;
+  let strategy = selected.strategy;
+
   if (!QUALITY_MODE_ALLOWED_PAIRS.has(`${symbol}|${strategy}`)) {
-    return {
-      opened: false,
-      reason: `Quality mode blocked weak pair ${symbol}|${strategy}. Waiting for promoted setup.`,
-    };
+    const qualityCandidates = Array.from(QUALITY_MODE_ALLOWED_PAIRS)
+      .map((pair) => {
+        const [candidateSymbol, candidateStrategy] = pair.split("|");
+        return { symbol: candidateSymbol, strategy: candidateStrategy };
+      })
+      .filter((pair) => !activePairs.has(`${pair.symbol}|${pair.strategy}`));
+
+    if (!qualityCandidates.length) {
+      return {
+        opened: false,
+        reason: "Quality mode waiting: all promoted test pairs already have active exposure.",
+      };
+    }
+
+    const promoted = qualityCandidates[
+      hashNumber(String(Date.now()) + String(state.ticks)) % qualityCandidates.length
+    ];
+
+    symbol = promoted.symbol;
+    strategy = promoted.strategy;
   }
 
   const entry = paperMark(symbol);
