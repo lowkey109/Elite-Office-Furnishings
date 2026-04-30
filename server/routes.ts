@@ -829,6 +829,81 @@ app.post("/api/admin/auth/login", async (req, res) => {
           // NEXORA ROUTES
           // ─────────────────────────────────────────────────────────────
 
+
+  // === NEXORA MODULE STATUS API ===
+  app.get("/api/nexora/modules", async (_req: any, res: any) => {
+    try {
+      const {
+        getNexoraModules,
+        buildNexoraModuleSummary,
+      } = await import("./services/intelligence/nexora/nexoraModuleRegistry");
+
+      res.json({
+        ok: true,
+        summary: buildNexoraModuleSummary(),
+        modules: getNexoraModules(),
+      });
+    } catch (err: any) {
+      console.error("[NexoraModules] Failed to load registry:", err);
+      res.status(500).json({
+        ok: false,
+        error: err?.message || "Failed to load Nexora module registry",
+      });
+    }
+  });
+
+  app.get("/api/nexora/modules/:key", async (req: any, res: any) => {
+    try {
+      const { getNexoraModule } = await import("./services/intelligence/nexora/nexoraModuleRegistry");
+      const module = getNexoraModule(String(req.params.key || ""));
+
+      if (!module) {
+        return res.status(404).json({
+          ok: false,
+          error: "Module not found",
+          key: req.params.key,
+        });
+      }
+
+      res.json({
+        ok: true,
+        module,
+      });
+    } catch (err: any) {
+      console.error("[NexoraModules] Failed to load module:", err);
+      res.status(500).json({
+        ok: false,
+        error: err?.message || "Failed to load Nexora module",
+      });
+    }
+  });
+
+  app.post("/api/nexora/modules/policy-preview", async (req: any, res: any) => {
+    try {
+      const { routeNexoraAction } = await import("./services/intelligence/nexora/nexoraActionRouter");
+
+      const result = routeNexoraAction({
+        moduleKey: String(req.body?.moduleKey || ""),
+        intent: req.body?.intent || "display",
+        requestedBy: req.body?.requestedBy || "unknown",
+        reason: req.body?.reason || "Policy preview",
+        evidence: req.body?.evidence || {},
+        dryRun: true,
+      });
+
+      res.json({
+        ok: true,
+        result,
+      });
+    } catch (err: any) {
+      console.error("[NexoraModules] Failed policy preview:", err);
+      res.status(500).json({
+        ok: false,
+        error: err?.message || "Failed to preview Nexora action policy",
+      });
+    }
+  });
+
           app.get("/api/nexora/background-status", (_req, res) => {
             try {
               res.json(getNexoraBackgroundState());
