@@ -1372,13 +1372,37 @@ function PolyEdgeActionMonitorGrid({
           }
         }
 
+        .polyedge-route-no-scroll-final { display: none; }
+
+        @media (min-width: 1024px) {
+          html:has(.polyedge-responsive-onepage),
+          body:has(.polyedge-responsive-onepage),
+          #root:has(.polyedge-responsive-onepage) {
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            overflow: hidden !important;
+          }
+
+          body:has(.polyedge-responsive-onepage) {
+            position: fixed !important;
+            inset: 0 !important;
+            width: 100% !important;
+          }
+
+          .polyedge-responsive-onepage {
+            height: calc(100dvh - 16px) !important;
+            max-height: calc(100dvh - 16px) !important;
+            overflow: hidden !important;
+          }
+        }
+
         @keyframes poly-final-float {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-6px); }
         }
       `}</style>
 
-      <div className="poly-final-root polyedge-responsive-onepage relative overflow-visible rounded-[20px] p-1.5 text-white lg:h-[calc(100dvh-24px)] lg:max-h-[calc(100dvh-24px)] lg:min-h-0 lg:overflow-hidden xl:h-[calc(100dvh-16px)] xl:max-h-[calc(100dvh-16px)]">
+      <div className="poly-final-root polyedge-responsive-onepage relative overflow-visible rounded-[20px] p-1.5 text-white lg:fixed lg:inset-2 lg:z-[60] lg:h-[calc(100dvh-16px)] lg:max-h-[calc(100dvh-16px)] lg:overflow-hidden">
         <div className="relative z-10 mx-auto flex h-auto max-w-screen-2xl flex-col lg:h-full lg:min-h-0 lg:overflow-hidden">
           <div className="mb-1.5 flex flex-wrap items-center justify-between gap-1.5 rounded-xl border border-cyan-400/30 bg-slate-950/65 px-2.5 py-1.5 backdrop-blur-xl lg:flex-nowrap">
             <div className="flex items-center gap-4">
