@@ -14,6 +14,7 @@ import type {
   TradingPerformance,
   TradingMonitorState,
 } from "./types";
+import { getPolyEdgeAdaptivePaperThreshold } from "./polyEdgeAdaptiveThreshold";
 
 export async function getOrCreateState() {
   const rows = await db.select().from(paperTradingState).where(eq(paperTradingState.id, "singleton"));
