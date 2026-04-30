@@ -82,6 +82,7 @@ const AdminNexoraAdvanced = lazy(() => import("@/pages/AdminNexoraAdvanced"));
 const AdminNexoraMonitor = lazy(() => import("@/pages/AdminNexoraMonitor"));
 const AdminTradingMonitor = lazy(() => import("@/pages/AdminTradingMonitor"));
 const AdminPhantomXIntelligence = lazy(() => import("@/pages/AdminPhantomXIntelligence"));
+const AdminPolyEdgeAetherforge = lazy(() => import("@/pages/AdminPolyEdgeAetherforge"));
 const AdminPredictionMarkets = lazy(() => import("@/pages/AdminPredictionMarkets"));
 const AdminPropertyIntelligence = lazy(() => import("@/pages/AdminPropertyIntelligence"));
 const PropertyIntelligence = lazy(() => import("@/pages/PropertyIntelligence"));
@@ -116,6 +117,7 @@ const AdminPropertyEnquiries = lazy(() => import("@/pages/AdminPropertyEnquiries
 const ClientPhantomXPaper = lazy(() => import("@/pages/ClientPhantomXPaper"));
 const ClientPhantomXCompliance = lazy(() => import("@/pages/ClientPhantomXCompliance"));
 const AdminPhantomXCompliance = lazy(() => import("@/pages/AdminPhantomXCompliance"));
+const ClientPolyEdgeAetherforge = lazy(() => import("@/pages/ClientPolyEdgeAetherforge"));
 const PlatformOverview = lazy(() => import("@/pages/PlatformOverview"));
 const WorkspaceControlLanding = lazy(() => import("@/pages/WorkspaceControlLanding"));
 const LeaseHawkLanding = lazy(() => import("@/pages/LeaseHawkLanding"));
@@ -227,6 +229,7 @@ function AdminRoutes() {
         <Route path="/admin/ai-monitor" component={AdminNexoraMonitor} />
         <Route path="/admin/trading-monitor" component={AdminTradingMonitor} />
         <Route path="/admin/phantomx-intelligence" component={AdminPhantomXIntelligence} />
+        <Route path="/admin/polyedge-aetherforge" component={AdminPolyEdgeAetherforge} />
         <Route path="/admin/phantomx-compliance" component={AdminPhantomXCompliance} />
         <Route path="/admin/dev-studio" component={AdminDevStudio} />
         <Route path="/admin/prediction-markets" component={AdminPredictionMarkets} />
@@ -343,6 +346,7 @@ function Router() {
       <Route path="/client/property-intelligence" component={ClientPropertyIntelligence} />
       <Route path="/client/property-listings" component={ClientPropertyListings} />
       <Route path="/client/phantomx-paper" component={ClientPhantomXPaper} />
+      <Route path="/client/polyedge-aetherforge" component={ClientPolyEdgeAetherforge} />
       <Route path="/client/phantomx-compliance" component={ClientPhantomXCompliance} />
       <Route path="/submit-deal" component={SubmitDeal} />
       <Route path="/trade-customers-portal" component={TradeCustomersPortal} />

@@ -62,6 +62,7 @@ const NAV: NavSection[] = [
       { label: "AI Monitor", href: "/admin/ai-monitor", icon: Activity },
       { label: "Trading Monitor", href: "/admin/trading-monitor", icon: TrendingUp },
       { label: "PhantomX Intelligence", href: "/admin/phantomx-intelligence", icon: TrendingUp },
+      { label: "PolyEdge Aetherforge", href: "/admin/polyedge-aetherforge", icon: TrendingUp },
       { label: "PhantomX Compliance", href: "/admin/phantomx-compliance", icon: ShieldAlert },
       { label: "AI Chat",    href: "/admin/ai-chat",   icon: MessageSquare },
     ],
