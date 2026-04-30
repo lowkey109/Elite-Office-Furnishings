@@ -1,24 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  AreaChart,
-  Area,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-  Tooltip,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar,
-} from "recharts";
-import {
   Activity,
   BarChart3,
   Bell,
   BrainCircuit,
+  Briefcase,
   Database,
   Eye,
   Hexagon,
@@ -27,910 +13,900 @@ import {
   Radar,
   Settings,
   Shield,
-  Wallet,
 } from "lucide-react";
 
-type Row = Record<string, any>;
-
-type IntelPayload = {
-  ok?: boolean;
-  mode?: string;
-  generatedAt?: string;
-  markets?: Row[];
-  wallets?: Row[];
-  opportunities?: Row[];
-  paperTrades?: Row[];
-  decisions?: Row[];
-  stats?: {
-    markets?: number;
-    wallets?: number;
-    opportunities?: number;
-    paperTrades?: number;
-    totalVolume?: number;
-    totalLiquidity?: number;
-    avgConfidence?: number;
-  };
-  errors?: string[];
-};
-
-type LearningPayload = {
-  ok?: boolean;
-  strategies?: Row[];
-  runs?: Row[];
-  walletScores?: Row[];
-  error?: string;
-};
-
-const fallbackMarkets = [
-  { question: "BTC > $500K EOY", category: "CRYPTO", volume: 284910, liquidity: 98100, price: 0.9981 },
-  { question: "AI TAKEOVER INDEX", category: "AI & TECH", volume: 184200, liquidity: 73000, price: 0.9921 },
-  { question: "QUANTUM FED PIVOT", category: "MACRO", volume: 160120, liquidity: 61200, price: 0.9774 },
-  { question: "SOLANA HYPERFLUX", category: "CRYPTO", volume: 194200, liquidity: 84200, price: 0.9632 },
-  { question: "SPACETIME ARBITRAGE", category: "QUANTUM ARB", volume: 142100, liquidity: 55100, price: 0.9999 },
-  { question: "BLACKHOLE HEDGE", category: "MACRO", volume: 98300, liquidity: 40100, price: 0.9811 },
-  { question: "MEMECOIN SINGULARITY", category: "OTHER", volume: 71200, liquidity: 33200, price: 0.9522 },
-  { question: "GLOBAL COLLAPSE LONG", category: "MACRO", volume: 121200, liquidity: 69000, price: 0.9317 },
-];
-
-const fallbackOpportunities = fallbackMarkets.map((m, i) => ({
-  ...m,
-  id: "fallback-" + i,
-  title: m.question,
-  score: 99 - i * 2.7,
-  impact: 42.7 - i * 3.3,
-  status: "WATCH",
-}));
-
-const money = (v: any) => {
-  const n = Number(v || 0);
-  if (!Number.isFinite(n) || n === 0) return "$0";
-  if (Math.abs(n) >= 1_000_000_000_000) return "$" + (n / 1_000_000_000_000).toFixed(2) + "T";
-  if (Math.abs(n) >= 1_000_000_000) return "$" + (n / 1_000_000_000).toFixed(2) + "B";
-  if (Math.abs(n) >= 1_000_000) return "$" + (n / 1_000_000).toFixed(1) + "M";
-  if (Math.abs(n) >= 1_000) return "$" + (n / 1_000).toFixed(1) + "K";
-  return "$" + Math.round(n).toLocaleString("en-AU");
-};
-
-const pct = (v: any) => {
-  const n = Number(v || 0);
-  if (!Number.isFinite(n)) return "0%";
-  if (n <= 1) return Math.round(n * 1000) / 10 + "%";
-  return Math.round(n * 10) / 10 + "%";
-};
-
-const num = (v: any) => {
-  const n = Number(v || 0);
-  return Number.isFinite(n) ? Math.round(n).toLocaleString("en-AU") : "0";
-};
-
-function Panel({ title, children, className = "" }: any) {
-  return (
-    <section className={`poly-panel ${className}`}>
-      <div className="poly-panel-head">
-        <h2>{title}</h2>
-        <span>○</span>
-      </div>
-      <div className="poly-panel-body">{children}</div>
-    </section>
-  );
-}
-
-function Stat({ label, value, orange, purple, wide }: any) {
-  return (
-    <div className={`poly-stat ${wide ? "wide" : ""}`}>
-      <div className="poly-stat-label">{label}</div>
-      <div className={`poly-stat-value ${orange ? "orange" : purple ? "purple" : ""}`}>{value}</div>
-    </div>
-  );
-}
+type AnyRow = Record<string, any>;
 
 export default function AdminPhantomXIntelligence() {
-  const [intel, setIntel] = useState<IntelPayload>({});
-  const [learning, setLearning] = useState<LearningPayload>({});
+  const [scale, setScale] = useState(1);
+  const [intel, setIntel] = useState<any>({});
+  const [learning, setLearning] = useState<any>({});
   const [time, setTime] = useState("2050-05-22 21:47:36.782");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const isAdmin = typeof window !== "undefined" && window.location.pathname.includes("/admin");
-
-  async function load() {
-    try {
-      const intelRes = await fetch("/api/admin/phantomx/intelligence", {
-        credentials: "include",
-        cache: "no-store",
-      });
-
-      if (intelRes.ok) {
-        const intelJson = await intelRes.json().catch(() => ({}));
-        setIntel(intelJson || {});
-        setError("");
-      } else {
-        const e = await intelRes.json().catch(() => ({}));
-        setError(e?.error || "Phantom X API waiting");
-      }
-
-      const learningRes = await fetch("/api/admin/phantomx/learning", {
-        credentials: "include",
-        cache: "no-store",
-      }).catch(() => null);
-
-      if (learningRes?.ok) {
-        const learningJson = await learningRes.json().catch(() => ({}));
-        setLearning(learningJson || {});
-      }
-    } catch (e: any) {
-      setError(e?.message || "Phantom X API waiting");
-    }
-  }
-
-  async function scanAndLearn() {
-    setLoading(true);
-    try {
-      await fetch("/api/admin/phantomx/scan-polymarket", {
-        method: "POST",
-        credentials: "include",
-      }).catch(() => null);
-
-      await fetch("/api/admin/phantomx/learn", {
-        method: "POST",
-        credentials: "include",
-      }).catch(() => null);
-
-      await load();
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function learnOnly() {
-    setLoading(true);
-    try {
-      await fetch("/api/admin/phantomx/learn", {
-        method: "POST",
-        credentials: "include",
-      }).catch(() => null);
-      await load();
-    } finally {
-      setLoading(false);
-    }
-  }
 
   useEffect(() => {
-    load();
-    const clock = setInterval(() => {
-      setTime("2050-05-22 " + new Date().toLocaleTimeString("en-AU", { hour12: false }) + ".782");
-    }, 1000);
-    const refresh = setInterval(load, 20000);
+    const resize = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      setScale(Math.min(w / 1920, h / 1080));
+    };
+
+    resize();
+    window.addEventListener("resize", resize);
+    document.body.style.overflow = "hidden";
+
     return () => {
-      clearInterval(clock);
-      clearInterval(refresh);
+      window.removeEventListener("resize", resize);
+      document.body.style.overflow = "";
     };
   }, []);
 
-  const markets = (intel.markets?.length ? intel.markets : fallbackMarkets);
-  const opportunities = (intel.opportunities?.length ? intel.opportunities : fallbackOpportunities);
-  const decisions = intel.decisions || [];
-  const trades = intel.paperTrades || [];
-  const strategies = learning.strategies || [];
-  const runs = learning.runs || [];
+  useEffect(() => {
+    const clock = setInterval(() => {
+      setTime("2050-05-22 " + new Date().toLocaleTimeString("en-AU", { hour12: false }) + ".782");
+    }, 1000);
 
-  const totalVolume =
-    intel?.stats?.totalVolume ||
-    markets.reduce((sum, m) => sum + Number(m.volume || 0), 0);
+    fetch("/api/admin/phantomx/intelligence", { credentials: "include", cache: "no-store" })
+      .then(r => r.ok ? r.json() : null)
+      .then(j => j && setIntel(j))
+      .catch(() => {});
 
-  const totalLiquidity =
-    intel?.stats?.totalLiquidity ||
-    markets.reduce((sum, m) => sum + Number(m.liquidity || 0), 0);
+    fetch("/api/admin/phantomx/learning", { credentials: "include", cache: "no-store" })
+      .then(r => r.ok ? r.json() : null)
+      .then(j => j && setLearning(j))
+      .catch(() => {});
 
-  const avgConfidence =
-    intel?.stats?.avgConfidence ||
-    opportunities.reduce((sum, o) => sum + Number(o.score || 0), 0) / Math.max(1, opportunities.length);
-
-  const equity = useMemo(() => {
-    return Array.from({ length: 96 }, (_, i) => {
-      const t = i / 95;
-      return {
-        t: i,
-        value: 10000 + Math.pow(i, 2.05) * 410000000 + Math.sin(i / 2.7) * 38000000000,
-        sim: 9000 + Math.pow(i, 1.95) * 300000000 + Math.cos(i / 3.4) * 21000000000,
-        label: `${String(Math.floor(i / 4)).padStart(2, "0")}:00`,
-      };
-    });
+    return () => clearInterval(clock);
   }, []);
 
-  const flow = useMemo(() => {
-    return Array.from({ length: 44 }, (_, i) => ({
-      t: i,
-      institutions: 72 + Math.sin(i / 4) * 16 + i * 0.7,
-      retail: 20 + Math.cos(i / 5) * 10,
-      bots: 10 + Math.sin(i / 3) * 5,
-    }));
-  }, []);
-
-  const bars = useMemo(() => {
-    return Array.from({ length: 16 }, (_, i) => ({
-      x: `L${i + 1}`,
-      v: 10 + Math.abs(Math.sin(i * 1.7)) * 30,
-    }));
-  }, []);
-
-  const exposure = useMemo(() => {
-    return [
-      { name: "CRYPTO", value: 45.2, color: "#22f0ff" },
-      { name: "AI & TECH", value: 23.7, color: "#14f5c8" },
-      { name: "MACRO", value: 12.9, color: "#ff8a00" },
-      { name: "QUANTUM ARB", value: 9.1, color: "#a855f7" },
-      { name: "METAVERSE", value: 5.6, color: "#8b5cf6" },
-      { name: "OTHER", value: 3.5, color: "#64748b" },
+  const signals = useMemo(() => {
+    const fromApi = Array.isArray(intel?.opportunities) ? intel.opportunities : [];
+    const fallback = [
+      ["BTC > $500K EOY", "99.81%", "+42.7σ"],
+      ["AI TAKEOVER INDEX", "99.21%", "+38.6σ"],
+      ["QUANTUM FED PIVOT", "97.74%", "+29.1σ"],
+      ["SOLANA HYPERFLUX", "96.32%", "+25.8σ"],
+      ["SPACETIME ARBITRAGE", "99.99%", "+51.2σ"],
+      ["BLACKHOLE HEDGE", "98.11%", "+33.9σ"],
+      ["MEMECOIN SINGULARITY", "95.22%", "+21.4σ"],
+      ["GLOBAL COLLAPSE LONG", "93.17%", "+19.7σ"],
     ];
-  }, []);
+
+    if (!fromApi.length) return fallback;
+
+    return fromApi.slice(0, 8).map((x: AnyRow, i: number) => [
+      String(x.title || x.question || fallback[i]?.[0] || "SIGNAL"),
+      `${Number(x.score || 99 - i).toFixed(2)}%`,
+      `+${Number(x.impact || 42.7 - i * 3.2).toFixed(1)}σ`,
+    ]);
+  }, [intel]);
+
+  const strategies = Array.isArray(learning?.strategies) ? learning.strategies : [];
 
   return (
-    <div className="poly-root">
+    <div className="pxShell">
       <style>{`
-        .poly-root {
-          min-height: 100vh;
-          color: #d7fbff;
+        .pxShell {
+          position: fixed;
+          inset: 0;
+          z-index: 2147483647;
+          background: #000;
+          overflow: hidden;
+          font-family: "Courier New", monospace;
+          color: #d8fbff;
+        }
+
+        .pxStage {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 1920px;
+          height: 1080px;
+          transform-origin: top left;
           background:
-            radial-gradient(circle at 46% 20%, rgba(0,238,255,.10), transparent 32%),
-            radial-gradient(circle at 76% 70%, rgba(255,126,0,.08), transparent 34%),
-            linear-gradient(180deg, #020812, #01040a 65%, #000);
+            radial-gradient(circle at 42% 18%, rgba(34,240,255,.12), transparent 30%),
+            radial-gradient(circle at 80% 74%, rgba(255,126,0,.09), transparent 34%),
+            linear-gradient(180deg, #020812, #01040a 66%, #000);
+          overflow: hidden;
+        }
+
+        .pxStage:before {
+          content: "";
+          position: absolute;
+          inset: 0;
           background-image:
             linear-gradient(rgba(34,240,255,.045) 1px, transparent 1px),
             linear-gradient(90deg, rgba(34,240,255,.035) 1px, transparent 1px);
-          background-size: 32px 32px;
-          font-family: "Courier New", monospace;
-          overflow-x: hidden;
-          padding-bottom: 54px;
+          background-size: 28px 28px;
+          opacity: .9;
+          pointer-events: none;
         }
 
-        .poly-sidebar {
-          position: fixed;
+        .pxStage:after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background:
+            linear-gradient(rgba(255,255,255,.025) 50%, rgba(0,0,0,.02) 50%);
+          background-size: 100% 4px;
+          mix-blend-mode: overlay;
+          pointer-events: none;
+        }
+
+        .cyan { color: #22f0ff; }
+        .green { color: #3dff9f; }
+        .orange { color: #ff8a00; }
+        .purple { color: #b263ff; }
+        .red { color: #ff515c; }
+        .muted { color: #78909a; }
+        .glowC { text-shadow: 0 0 10px #22f0ff, 0 0 30px rgba(34,240,255,.8); }
+        .glowO { text-shadow: 0 0 10px #ff8a00, 0 0 28px rgba(255,138,0,.8); }
+
+        .sidebar {
+          position: absolute;
           left: 0;
           top: 0;
-          z-index: 30;
-          height: 100vh;
-          width: 168px;
-          border-right: 1px solid rgba(34,240,255,.32);
+          width: 190px;
+          height: 1080px;
           background: rgba(0,0,0,.72);
-          backdrop-filter: blur(16px);
+          border-right: 1px solid rgba(34,240,255,.42);
+          box-shadow: inset -20px 0 50px rgba(34,240,255,.035);
+          z-index: 5;
         }
 
-        .poly-logo-box {
-          height: 86px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-bottom: 1px solid rgba(34,240,255,.20);
-        }
-
-        .poly-menu {
-          padding: 14px 12px;
-          display: flex;
-          flex-direction: column;
-          gap: 14px;
-        }
-
-        .poly-menu-item {
-          display: grid;
-          grid-template-columns: 28px 1fr;
-          gap: 9px;
-          align-items: center;
-          color: rgba(183,245,255,.78);
-        }
-
-        .poly-menu-item.active {
-          color: #22f0ff;
-        }
-
-        .poly-menu-label {
-          font-size: 12px;
-          font-weight: 800;
-          letter-spacing: .08em;
-        }
-
-        .poly-menu-sub {
-          font-size: 9px;
-          color: #697b8a;
-          margin-top: 2px;
-        }
-
-        .poly-sidebar-orb {
+        .logoBox {
           position: absolute;
-          left: 16px;
-          right: 16px;
-          bottom: 18px;
-          text-align: center;
-        }
-
-        .poly-orb {
-          width: 122px;
-          height: 122px;
-          margin: 0 auto 10px;
-          border-radius: 999px;
-          border: 1px solid rgba(34,240,255,.35);
-          background:
-            radial-gradient(circle, rgba(34,240,255,.35), rgba(34,240,255,.06) 45%, transparent 65%),
-            radial-gradient(circle at 38% 42%, rgba(255,255,255,.35), transparent 4%),
-            radial-gradient(circle at 65% 35%, rgba(255,255,255,.22), transparent 5%);
-          box-shadow: 0 0 28px rgba(34,240,255,.33), inset 0 0 40px rgba(34,240,255,.18);
-        }
-
-        .poly-header {
-          margin-left: 168px;
-          height: 86px;
-          border-bottom: 1px solid rgba(34,240,255,.32);
-          background: rgba(0,0,0,.65);
-          backdrop-filter: blur(16px);
-          display: flex;
-          align-items: center;
-          padding: 0 8px 0 18px;
-        }
-
-        .poly-brand {
-          width: 250px;
-          display: flex;
-          gap: 14px;
-          align-items: center;
-        }
-
-        .poly-title {
-          color: #22f0ff;
-          font-size: 34px;
-          line-height: 1;
-          font-weight: 900;
-          letter-spacing: .09em;
-          text-shadow: 0 0 14px #22f0ff, 0 0 34px #22f0ff;
-        }
-
-        .poly-subtitle {
-          color: #7cfaff;
-          font-size: 10px;
-          letter-spacing: .08em;
-          margin-top: 5px;
-        }
-
-        .poly-version {
-          color: #697b8a;
-          font-size: 9px;
-          margin-top: 3px;
-        }
-
-        .poly-stats {
-          flex: 1;
+          top: 14px;
+          left: 22px;
+          width: 146px;
+          height: 90px;
+          border: 1px solid rgba(34,240,255,.55);
+          clip-path: polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);
           display: grid;
-          grid-template-columns: 150px 150px 110px 210px 230px 230px 150px;
-          gap: 8px;
-          min-width: 0;
+          place-items: center;
         }
 
-        .poly-stat {
-          min-width: 0;
-          height: 60px;
-          padding: 10px 14px;
-          border: 1px solid rgba(105,220,240,.32);
-          clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-          background: rgba(2,10,18,.80);
-        }
-
-        .poly-stat-label {
-          color: #8da0ad;
-          font-size: 10px;
-          letter-spacing: .12em;
-        }
-
-        .poly-stat-value {
-          margin-top: 7px;
-          color: #22f0ff;
-          font-size: 16px;
-          font-weight: 900;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          text-shadow: 0 0 12px rgba(34,240,255,.70);
-        }
-
-        .poly-stat-value.orange {
-          color: #ff8a00;
-          text-shadow: 0 0 12px rgba(255,138,0,.70);
-        }
-
-        .poly-stat-value.purple {
-          color: #a855f7;
-          text-shadow: 0 0 12px rgba(168,85,247,.70);
-        }
-
-        .poly-main {
-          margin-left: 168px;
-          padding: 12px;
+        .sideMenu {
+          position: absolute;
+          top: 125px;
+          left: 14px;
+          right: 14px;
           display: grid;
-          grid-template-columns: repeat(12, minmax(0, 1fr));
-          gap: 10px;
+          gap: 19px;
         }
 
-        .poly-panel {
-          background:
-            linear-gradient(145deg, rgba(3,18,27,.95), rgba(1,5,10,.99));
-          border: 1px solid rgba(27,224,255,.42);
-          box-shadow:
-            inset 0 0 0 1px rgba(255,132,0,.09),
-            0 0 26px rgba(0,221,255,.07);
-          clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
-          min-height: 100px;
-        }
-
-        .poly-panel-head {
-          height: 42px;
-          display: flex;
-          justify-content: space-between;
+        .menuItem {
+          display: grid;
+          grid-template-columns: 32px 1fr;
           align-items: center;
-          padding: 0 16px;
-          border-bottom: 1px solid rgba(34,240,255,.20);
+          gap: 12px;
+          color: rgba(210,248,255,.82);
         }
 
-        .poly-panel-head h2 {
-          color: #22f0ff;
+        .menuIcon {
+          color: #9aefff;
+          filter: drop-shadow(0 0 8px rgba(34,240,255,.65));
+        }
+
+        .menuMain {
           font-size: 14px;
           font-weight: 900;
           letter-spacing: .12em;
         }
 
-        .poly-panel-body {
-          padding: 14px;
-        }
-
-        .col-2 { grid-column: span 2; }
-        .col-3 { grid-column: span 3; }
-        .col-4 { grid-column: span 4; }
-        .col-5 { grid-column: span 5; }
-        .col-6 { grid-column: span 6; }
-        .col-7 { grid-column: span 7; }
-        .col-12 { grid-column: span 12; }
-
-        .poly-tabs {
-          display: flex;
-          gap: 4px;
-          justify-content: flex-end;
-          margin-bottom: 8px;
-        }
-
-        .poly-tab {
-          border: 1px solid rgba(120,180,190,.25);
-          padding: 5px 10px;
-          color: #aab6bd;
-          font-size: 10px;
-          background: rgba(0,0,0,.25);
-        }
-
-        .poly-tab.active {
-          color: #22f0ff;
-          border-color: rgba(34,240,255,.7);
-        }
-
-        .poly-metric-row {
-          display: grid;
-          grid-template-columns: repeat(7, 1fr);
-          gap: 0;
-          border-top: 1px solid rgba(120,180,190,.18);
-          margin-top: 10px;
-        }
-
-        .poly-mini-metric {
-          padding: 10px 12px;
-          border-right: 1px solid rgba(120,180,190,.18);
-        }
-
-        .poly-mini-metric small {
-          display: block;
-          color: #798994;
+        .menuSub {
+          margin-top: 4px;
           font-size: 9px;
-          letter-spacing: .08em;
-          margin-bottom: 6px;
-        }
-
-        .poly-mini-metric b {
-          font-size: 16px;
-          color: #d7fbff;
-          font-weight: 400;
-        }
-
-        .cyan { color: #22f0ff; }
-        .green { color: #36ffb4; }
-        .orange { color: #ff8a00; }
-        .purple { color: #a855f7; }
-        .red { color: #ff585f; }
-        .muted { color: #697b8a; }
-
-        .glow-cyan { text-shadow: 0 0 14px #22f0ff, 0 0 34px #22f0ff; }
-        .glow-orange { text-shadow: 0 0 14px #ff8a00, 0 0 34px #ff8a00; }
-
-        @keyframes orbit { to { transform: rotate(360deg); } }
-        .orbit { animation: orbit 18s linear infinite; transform-origin: center; }
-
-        .signal-row,
-        .decision-row,
-        .news-row,
-        .agent-row,
-        .risk-row {
-          display: grid;
-          align-items: center;
-          border-bottom: 1px solid rgba(120,180,190,.12);
-          padding: 7px 0;
-          font-size: 11px;
-        }
-
-        .signal-row { grid-template-columns: 1fr 70px 70px; }
-        .decision-row { grid-template-columns: 70px 1fr 85px 65px 65px; }
-        .agent-row { grid-template-columns: 1fr 70px 65px 65px; }
-        .risk-row { grid-template-columns: 1fr 90px; }
-        .news-row { display: block; }
-
-        .scan-buttons {
-          position: fixed;
-          z-index: 60;
-          right: 18px;
-          top: 96px;
-          display: flex;
-          gap: 8px;
-        }
-
-        .scan-buttons button {
-          border: 1px solid rgba(34,240,255,.45);
-          color: #22f0ff;
-          background: rgba(0,20,30,.88);
-          padding: 8px 14px;
-          font-size: 11px;
+          color: #697b8a;
           letter-spacing: .12em;
-          clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
         }
 
-        .scan-buttons button.learn {
-          border-color: rgba(255,138,0,.55);
-          color: #ff8a00;
+        .neuralOrb {
+          position: absolute;
+          left: 18px;
+          bottom: 78px;
+          width: 154px;
+          text-align: center;
         }
 
-        .poly-footer {
-          position: fixed;
-          left: 168px;
-          right: 0;
+        .orbBig {
+          width: 144px;
+          height: 144px;
+          margin: 0 auto 13px;
+          border-radius: 999px;
+          border: 1px solid rgba(34,240,255,.48);
+          background:
+            radial-gradient(circle at 52% 48%, rgba(34,240,255,.7), rgba(34,240,255,.19) 18%, rgba(34,240,255,.06) 43%, transparent 68%),
+            radial-gradient(circle at 30% 35%, rgba(255,255,255,.45), transparent 3%),
+            radial-gradient(circle at 72% 43%, rgba(255,255,255,.35), transparent 3%),
+            radial-gradient(circle at 54% 64%, rgba(255,255,255,.30), transparent 3%);
+          box-shadow:
+            0 0 35px rgba(34,240,255,.45),
+            inset 0 0 50px rgba(34,240,255,.20);
+        }
+
+        .ticker {
+          position: absolute;
+          left: 0;
           bottom: 0;
-          height: 44px;
-          border-top: 1px solid rgba(34,240,255,.28);
-          background: rgba(0,0,0,.92);
+          height: 45px;
+          width: 1920px;
           display: flex;
           align-items: center;
-          overflow: hidden;
-          z-index: 70;
+          background: rgba(0,0,0,.92);
+          border-top: 1px solid rgba(34,240,255,.5);
+          z-index: 10;
         }
 
-        .poly-footer span {
-          padding: 0 22px;
-          border-right: 1px solid rgba(120,180,190,.18);
-          color: #22f0ff;
-          font-size: 12px;
+        .ticker span {
+          height: 45px;
+          padding: 14px 27px 0;
+          border-right: 1px solid rgba(100,130,140,.35);
+          font-size: 15px;
           white-space: nowrap;
         }
 
-        @media (max-width: 1400px) {
-          .poly-stats { grid-template-columns: repeat(4, 1fr); }
-          .poly-header { height: auto; min-height: 100px; align-items: flex-start; padding-top: 10px; }
-          .col-2, .col-3, .col-4, .col-5, .col-6, .col-7 { grid-column: span 12; }
+        .top {
+          position: absolute;
+          left: 200px;
+          right: 8px;
+          top: 8px;
+          height: 82px;
+          display: grid;
+          grid-template-columns: 270px 175px 175px 130px 220px 265px 245px 160px;
+          gap: 8px;
+          z-index: 4;
+        }
+
+        .brand {
+          display: grid;
+          grid-template-columns: 78px 1fr;
+          align-items: center;
+          gap: 13px;
+          padding: 0 10px;
+          border: 1px solid rgba(34,240,255,.48);
+          clip-path: polygon(15px 0,100% 0,100% calc(100% - 15px),calc(100% - 15px) 100%,0 100%,0 15px);
+          background: rgba(1,8,14,.78);
+        }
+
+        .brandTitle {
+          font-size: 37px;
+          line-height: 34px;
+          font-weight: 900;
+          letter-spacing: .13em;
+          color: #22f0ff;
+          text-shadow: 0 0 12px #22f0ff, 0 0 34px rgba(34,240,255,.85);
+        }
+
+        .brandSub {
+          font-size: 11px;
+          margin-top: 5px;
+          letter-spacing: .08em;
+          color: #8cf8ff;
+        }
+
+        .brandVer {
+          font-size: 9px;
+          margin-top: 3px;
+          color: #8a9da8;
+        }
+
+        .topStat {
+          border: 1px solid rgba(128,210,230,.48);
+          background: rgba(1,8,14,.84);
+          clip-path: polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);
+          padding: 13px 15px;
+        }
+
+        .topLabel {
+          color: #8ca0aa;
+          font-size: 11px;
+          letter-spacing: .13em;
+        }
+
+        .topValue {
+          margin-top: 12px;
+          font-size: 18px;
+          font-weight: 900;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .grid {
+          position: absolute;
+          left: 200px;
+          top: 100px;
+          width: 1710px;
+          height: 928px;
+          display: grid;
+          grid-template-columns: 360px 360px 310px 325px 325px;
+          grid-template-rows: 405px 270px 205px;
+          gap: 10px;
+          z-index: 3;
+        }
+
+        .panel {
+          position: relative;
+          border: 1px solid rgba(34,240,255,.48);
+          background:
+            radial-gradient(circle at 50% 0, rgba(34,240,255,.055), transparent 45%),
+            linear-gradient(145deg, rgba(3,18,27,.94), rgba(1,5,10,.99));
+          clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+          box-shadow:
+            inset 0 0 0 1px rgba(255,132,0,.08),
+            inset 0 0 26px rgba(34,240,255,.035),
+            0 0 30px rgba(0,221,255,.07);
+          overflow: hidden;
+        }
+
+        .panelTitle {
+          height: 42px;
+          padding: 13px 20px 0;
+          color: #79f7ff;
+          font-size: 18px;
+          line-height: 16px;
+          font-weight: 900;
+          letter-spacing: .12em;
+          border-bottom: 1px solid rgba(34,240,255,.20);
+          text-shadow: 0 0 10px rgba(34,240,255,.75);
+        }
+
+        .dot {
+          position: absolute;
+          right: 18px;
+          top: 15px;
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          border: 1px solid rgba(200,245,255,.75);
+        }
+
+        .equity { grid-column: 1 / span 3; }
+        .sentiment { grid-column: 4 / span 1; }
+        .alpha { grid-column: 5 / span 1; }
+        .agents { grid-column: 1 / span 1; }
+        .allocation { grid-column: 2 / span 1; }
+        .multi { grid-column: 3 / span 1; }
+        .depth { grid-column: 4 / span 2; }
+        .flow { grid-column: 1 / span 1; }
+        .news { grid-column: 1 / span 1; align-self: end; height: 195px; }
+        .universe { grid-column: 2 / span 2; grid-row: 3 / span 1; }
+        .risk { grid-column: 4 / span 1; grid-row: 3 / span 1; }
+        .decision { grid-column: 5 / span 1; grid-row: 3 / span 1; }
+        .alerts {
+          position: absolute;
+          left: 1180px;
+          top: 810px;
+          width: 725px;
+          height: 155px;
+          z-index: 4;
+        }
+
+        .svgGrid line {
+          stroke: rgba(70,100,115,.26);
+          stroke-width: 1;
+        }
+
+        .tinyTabs {
+          position: absolute;
+          right: 18px;
+          top: 15px;
+          display: flex;
+          gap: 5px;
+        }
+
+        .tinyTabs span {
+          border: 1px solid rgba(150,180,190,.32);
+          padding: 6px 10px;
+          font-size: 11px;
+          color: #b4c5cc;
+        }
+
+        .tinyTabs .active {
+          color: #22f0ff;
+          border-color: #22f0ff;
+          box-shadow: 0 0 10px rgba(34,240,255,.35);
+        }
+
+        .metricStrip {
+          position: absolute;
+          left: 20px;
+          right: 20px;
+          bottom: 18px;
+          height: 52px;
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          border-top: 1px solid rgba(120,150,160,.25);
+        }
+
+        .metric {
+          padding: 8px 12px;
+          border-right: 1px solid rgba(120,150,160,.25);
+        }
+
+        .metric small {
+          display: block;
+          font-size: 9px;
+          color: #738692;
+          letter-spacing: .1em;
+        }
+
+        .metric b {
+          display: block;
+          margin-top: 8px;
+          font-size: 18px;
+          font-weight: 400;
+        }
+
+        .signalRow {
+          display: grid;
+          grid-template-columns: 1fr 76px 70px;
+          gap: 5px;
+          padding: 9px 18px;
+          border-bottom: 1px solid rgba(130,160,170,.18);
+          font-size: 12px;
+          align-items: center;
+        }
+
+        .signalHeader {
+          color: #758b95;
+          font-size: 10px;
+          letter-spacing: .12em;
+          padding-top: 10px;
+        }
+
+        .agentGraph {
+          position: absolute;
+          top: 55px;
+          left: 28px;
+          right: 28px;
+          height: 75px;
+        }
+
+        .agentOrb {
+          width: 54px;
+          height: 54px;
+          border-radius: 999px;
+          border: 1px solid rgba(34,240,255,.38);
+          background: radial-gradient(circle, rgba(34,240,255,.55), rgba(34,240,255,.08) 55%, transparent 70%);
+          box-shadow: 0 0 22px rgba(34,240,255,.35);
+        }
+
+        .agentRow {
+          display: grid;
+          grid-template-columns: 1fr 70px 65px 70px;
+          padding: 6px 18px;
+          font-size: 12px;
+          border-bottom: 1px solid rgba(130,160,170,.16);
+        }
+
+        .donut {
+          position: absolute;
+          left: 30px;
+          top: 64px;
+          width: 178px;
+          height: 178px;
+          border-radius: 50%;
+          background: conic-gradient(#22f0ff 0 45%, #14f5c8 45% 69%, #ff8a00 69% 82%, #a855f7 82% 91%, #8b5cf6 91% 97%, #64748b 97%);
+          box-shadow: 0 0 35px rgba(34,240,255,.25);
+        }
+
+        .donut:after {
+          content: "TOTAL\\A100%\\AALLOCATION";
+          white-space: pre;
+          position: absolute;
+          inset: 45px;
+          border-radius: 50%;
+          background: #020812;
+          display: grid;
+          place-items: center;
+          text-align: center;
+          color: #d8fbff;
+          font-size: 20px;
+          line-height: 31px;
+        }
+
+        .barWrap {
+          position: absolute;
+          left: 65px;
+          right: 22px;
+          bottom: 52px;
+          height: 160px;
+          display: flex;
+          gap: 12px;
+          align-items: end;
+        }
+
+        .bar {
+          width: 22px;
+          background: linear-gradient(180deg, rgba(34,240,255,1), rgba(34,240,255,.35));
+          box-shadow: 0 0 16px rgba(34,240,255,.55);
+        }
+
+        .bar.orangeBar {
+          background: linear-gradient(180deg, rgba(255,138,0,1), rgba(255,138,0,.35));
+          box-shadow: 0 0 16px rgba(255,138,0,.55);
+        }
+
+        .decisionRow {
+          display: grid;
+          grid-template-columns: 70px 70px 1fr 50px 50px;
+          padding: 7px 16px;
+          border-bottom: 1px solid rgba(130,160,170,.16);
+          font-size: 11px;
+          align-items: center;
+        }
+
+        .newsRow {
+          padding: 8px 18px;
+          border-bottom: 1px solid rgba(130,160,170,.16);
+          font-size: 11px;
+          color: #a5bdc6;
+        }
+
+        .riskRow {
+          display: grid;
+          grid-template-columns: 1fr 90px;
+          padding: 8px 26px;
+          font-size: 12px;
+          border-bottom: 1px solid rgba(130,160,170,.16);
+        }
+
+        .alertGrid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 12px;
+          padding: 34px 16px;
+        }
+
+        .alertBox {
+          height: 92px;
+          padding: 18px;
+          border: 1px solid rgba(255,80,90,.65);
+          color: #ff515c;
+          font-size: 14px;
+          letter-spacing: .08em;
+        }
+
+        .alertBox.orangeBox {
+          border-color: rgba(255,138,0,.75);
+          color: #ff8a00;
+        }
+
+        .alertBox.purpleBox {
+          border-color: rgba(180,90,255,.75);
+          color: #b263ff;
+        }
+
+        .alertBox b {
+          display: block;
+          margin-top: 7px;
+          font-size: 25px;
+        }
+
+        @media (max-aspect-ratio: 16/9) {
+          .pxStage {
+            left: 50%;
+          }
         }
       `}</style>
 
-      {isAdmin && (
-        <div className="scan-buttons">
-          <button onClick={scanAndLearn} disabled={loading}>{loading ? "SYNC..." : "SCAN"}</button>
-          <button className="learn" onClick={learnOnly} disabled={loading}>LEARN</button>
-        </div>
-      )}
-
-      <aside className="poly-sidebar">
-        <div className="poly-logo-box">
-          <Hexagon size={58} className="cyan glow-cyan" />
-        </div>
-
-        <div className="poly-menu">
-          {[
-            [Eye, "OVERVIEW", "CONSCIOUSNESS"],
-            [BarChart3, "MARKETS", "QUANTUM FEED"],
-            [Wallet, "PORTFOLIO", "HYPERSTRUCT"],
-            [BrainCircuit, "AGENTS", "SENTIENT MESH"],
-            [Radar, "ALPHA GRID", "PREDICTIONS"],
-            [Shield, "RISK CORE", "FORTRESS"],
-            [Database, "MEMORY", "RECALL VAULT"],
-            [Orbit, "SIMULATION", "MULTIVERSE"],
-            [Network, "COMMUNICATION", "QUANTUM NET"],
-            [Settings, "SETTINGS", "NEURAL PREFS"],
-          ].map(([Icon, label, sub]: any, i) => (
-            <div key={label} className={`poly-menu-item ${i === 0 ? "active" : ""}`}>
-              <Icon size={24} />
-              <div>
-                <div className="poly-menu-label">{label}</div>
-                <div className="poly-menu-sub">{sub}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="poly-sidebar-orb">
-          <div className="poly-orb" />
-          <div className="cyan glow-cyan" style={{ fontSize: 18 }}>99.999997%</div>
-          <div className="muted" style={{ fontSize: 9, marginTop: 5 }}>NEURAL SYNAPSE ACTIVITY</div>
-          <div className="cyan" style={{ fontSize: 9, marginTop: 8 }}>▁▂▃▆▃▂▅▇▃▂▁▂▅</div>
-        </div>
-      </aside>
-
-      <header className="poly-header">
-        <div className="poly-brand">
-          <Hexagon size={64} className="cyan glow-cyan" />
-          <div>
-            <div className="poly-title">POLY//EDGE</div>
-            <div className="poly-subtitle">QUANTUM HYPERINTELLIGENCE TERMINAL</div>
-            <div className="poly-version">VERSION 2050.00</div>
+      <div
+        className="pxStage"
+        style={{
+          transform: `scale(${scale})`,
+          left: `${(window.innerWidth - 1920 * scale) / 2}px`,
+          top: `${(window.innerHeight - 1080 * scale) / 2}px`,
+        }}
+      >
+        <aside className="sidebar">
+          <div className="logoBox">
+            <Hexagon size={58} className="cyan glowC" />
           </div>
-        </div>
 
-        <div className="poly-stats">
-          <Stat label="SYSTEM STATUS" value="SINGULARITY ONLINE" />
-          <Stat label="AI CONSCIOUSNESS" value={learning?.ok ? "TRANSCENDENT" : "BOOTING"} purple />
-          <Stat label="AGENTS" value="512 / 512" />
-          <Stat label="PORTFOLIO VALUE" value="$3,214,982,776,042" orange />
-          <Stat label="24H P&L" value="+$512,847,992,084  +18.93%" />
-          <Stat label="TIMESTAMP" value={time} />
-          <Stat label="REALITY LAYER" value="7D" orange />
-        </div>
-      </header>
-
-      <main className="poly-main">
-        {error && (
-          <div className="col-12" style={{ border: "1px solid rgba(255,88,95,.45)", color: "#ff999f", padding: 10, background: "rgba(60,0,0,.25)" }}>
-            API notice: {error}. Interface still loaded. Admin can run SCAN/LEARN after backend is ready.
-          </div>
-        )}
-
-        <Panel title="HYPERDIMENSIONAL EQUITY CURVE" className="col-6">
-          <div className="poly-tabs">
-            {["LIVE", "1H", "6H", "24H", "7D", "30D", "1Y", "ALL", "LOG", "QUANTUM"].map((x) => (
-              <div key={x} className={`poly-tab ${x === "24H" ? "active" : ""}`}>{x}</div>
-            ))}
-          </div>
-          <ResponsiveContainer width="100%" height={250}>
-            <AreaChart data={equity}>
-              <defs>
-                <linearGradient id="eq" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#22f0ff" stopOpacity={0.8}/>
-                  <stop offset="100%" stopColor="#22f0ff" stopOpacity={0.02}/>
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="label" stroke="#41515b" tick={{ fontSize: 10 }} />
-              <YAxis stroke="#41515b" tick={{ fontSize: 10 }} />
-              <Tooltip />
-              <Area dataKey="value" stroke="#22f0ff" strokeWidth={2.5} fill="url(#eq)" />
-              <Area dataKey="sim" stroke="#ff8a00" strokeWidth={1.3} fillOpacity={0} />
-            </AreaChart>
-          </ResponsiveContainer>
-
-          <div className="poly-metric-row">
+          <div className="sideMenu">
             {[
-              ["STARTING BALANCE", "$10,000.00"],
-              ["CURRENT EQUITY", "$3.21T"],
-              ["TOTAL RETURN", "+32,149,827%"],
-              ["ALL TIME HIGH", "$3.24T"],
-              ["MAX DRAWDOWN", "0.87%"],
-              ["SHARPE RATIO", "24.91"],
-              ["VOLATILITY", "2.13%"],
-            ].map(([a, b]) => (
-              <div key={a} className="poly-mini-metric">
-                <small>{a}</small>
-                <b className={b.includes("+") ? "green" : ""}>{b}</b>
+              [Eye, "OVERVIEW", "CONSCIOUSNESS"],
+              [BarChart3, "MARKETS", "QUANTUM FEED"],
+              [Briefcase, "PORTFOLIO", "HYPERSTRUCT"],
+              [BrainCircuit, "AGENTS", "SENTIENT MESH"],
+              [Radar, "ALPHA GRID", "PREDICTIONS"],
+              [Shield, "RISK CORE", "FORTRESS"],
+              [Database, "MEMORY", "RECALL VAULT"],
+              [Orbit, "SIMULATION", "MULTIVERSE"],
+              [Network, "COMMUNICATION", "QUANTUM NET"],
+              [Settings, "SETTINGS", "NEURAL PREFS"],
+            ].map(([Icon, label, sub]: any) => (
+              <div className="menuItem" key={label}>
+                <Icon className="menuIcon" size={27} />
+                <div>
+                  <div className="menuMain">{label}</div>
+                  <div className="menuSub">{sub}</div>
+                </div>
               </div>
             ))}
           </div>
-        </Panel>
 
-        <Panel title="QUANTUM MARKET SENTIMENT MATRIX" className="col-3">
-          <div style={{ display: "grid", gridTemplateColumns: "80px 1fr 80px", alignItems: "center", height: 296 }}>
-            <div style={{ fontSize: 11 }}>
-              <div className="green" style={{ fontSize: 24 }}>92.7%</div>
-              <div>BULLISH</div>
-              <br />
-              <div className="red" style={{ fontSize: 24 }}>3.2%</div>
-              <div>BEARISH</div>
-            </div>
+          <div className="neuralOrb">
+            <div className="orbBig" />
+            <div className="cyan glowC" style={{ fontSize: 21 }}>99.999997%</div>
+            <div className="muted" style={{ fontSize: 10, marginTop: 10 }}>NEURAL SYNAPSE ACTIVITY</div>
+            <div className="cyan" style={{ fontSize: 15, marginTop: 10 }}>▁▂▄▆▃▂▇▅▁▃▆▂</div>
+          </div>
+        </aside>
 
-            <div style={{ position: "relative", margin: "0 auto", height: 220, width: 220, borderRadius: 999, border: "1px solid rgba(34,240,255,.35)", display: "grid", placeItems: "center" }}>
-              <div className="orbit" style={{ position: "absolute", height: 190, width: 190, borderRadius: 999, borderTop: "2px solid #22f0ff" }} />
-              <div style={{ position: "absolute", height: 150, width: 150, borderRadius: 999, border: "1px solid rgba(168,85,247,.35)" }} />
-              <Radar size={86} className="cyan glow-cyan" />
-              <div style={{ position: "absolute", bottom: -25, height: 18, width: 130, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,138,0,.75), transparent 70%)" }} />
-            </div>
-
-            <div style={{ fontSize: 11, textAlign: "right" }}>
-              <div className="orange" style={{ fontSize: 24 }}>4.1%</div>
-              <div>NEUTRAL</div>
-              <br />
-              <div className="orange" style={{ fontSize: 24 }}>0.03%</div>
-              <div>CHAOTIC</div>
+        <header className="top">
+          <div className="brand">
+            <Hexagon size={62} className="cyan glowC" />
+            <div>
+              <div className="brandTitle">POLY//EDGE</div>
+              <div className="brandSub">QUANTUM HYPERINTELLIGENCE TERMINAL</div>
+              <div className="brandVer">VERSION 2050.00</div>
             </div>
           </div>
-        </Panel>
 
-        <Panel title="ALPHA SIGNALS FEED" className="col-3">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 70px 70px", fontSize: 9, color: "#697b8a", marginBottom: 8 }}>
-            <span>SIGNAL</span><span>CONFIDENCE</span><span>IMPACT</span>
-          </div>
-          {opportunities.slice(0, 8).map((x, i) => (
-            <div className="signal-row" key={x.id || i}>
-              <span className="cyan">● {x.title || x.question}</span>
-              <span className="cyan">{pct((x.score || 99 - i) / 100)}</span>
-              <span className="green">+{Number(x.impact || 42.7 - i * 3.1).toFixed(1)}σ</span>
+          <TopStat label="SYSTEM STATUS" value="SINGULARITY ONLINE" />
+          <TopStat label="AI CONSCIOUSNESS" value="TRANSCENDENT" purple />
+          <TopStat label="AGENTS" value="512 / 512" />
+          <TopStat label="PORTFOLIO VALUE" value="$3,214,982,776,042" orange />
+          <TopStat label="24H P&L" value="+$512,847,992,084  +18.93%" />
+          <TopStat label="TIMESTAMP" value={time} />
+          <TopStat label="REALITY LAYER" value="7D" orange />
+        </header>
+
+        <main className="grid">
+          <section className="panel equity">
+            <div className="panelTitle">HYPERDIMENSIONAL EQUITY CURVE</div>
+            <div className="tinyTabs">
+              {["LIVE","1H","6H","24H","7D","30D","1Y","ALL","LOG","QUANTUM"].map(x => <span key={x} className={x==="24H" ? "active" : ""}>{x}</span>)}
             </div>
-          ))}
-          <div className="cyan" style={{ textAlign: "center", marginTop: 22, fontSize: 12 }}>VIEW FULL ALPHA GRID ❯ ❯</div>
-        </Panel>
+            <EquityChart />
+            <div className="metricStrip">
+              <Metric a="STARTING BALANCE" b="$10,000.00" />
+              <Metric a="CURRENT EQUITY" b="$3.21T" />
+              <Metric a="TOTAL RETURN" b="+32,149,827%" green />
+              <Metric a="ALL TIME HIGH" b="$3.24T" />
+              <Metric a="MAX DRAWDOWN" b="0.87%" />
+              <Metric a="SHARPE RATIO" b="24.91" />
+              <Metric a="VOLATILITY" b="2.13%" />
+            </div>
+          </section>
 
-        <Panel title="SENTIENT AGENT MESH" className="col-3">
-          <div style={{ display: "flex", justifyContent: "space-around", marginBottom: 18 }}>
-            {["LEONA", "ORION", "ZENITH"].map((x) => (
-              <div key={x} style={{ textAlign: "center" }}>
-                <div className="poly-orb" style={{ width: 58, height: 58, marginBottom: 5 }} />
-                <div className="muted" style={{ fontSize: 9 }}>{x}</div>
+          <section className="panel sentiment">
+            <div className="panelTitle">QUANTUM MARKET SENTIMENT MATRIX</div>
+            <SentimentOrb />
+          </section>
+
+          <section className="panel alpha">
+            <div className="panelTitle">ALPHA SIGNALS FEED</div>
+            <div className="signalRow signalHeader"><span>SIGNAL</span><span>CONFIDENCE</span><span>IMPACT</span></div>
+            {signals.map((s: any, i: number) => (
+              <div className="signalRow" key={i}>
+                <span className={i < 4 ? "cyan" : i < 6 ? "orange" : "red"}>● {s[0]}</span>
+                <span className="cyan">{s[1]}</span>
+                <span className="green">{s[2]}</span>
               </div>
             ))}
-          </div>
-          {["OMEGA-7", "NEBULA", "VOIDWALKER", "QUANTUMWISP", "ECHO-TRINITY"].map((x, i) => (
-            <div className="agent-row" key={x}>
-              <span className="cyan">{x}</span>
-              <span>LEVEL {7 - Math.min(i, 2)}</span>
-              <span className="cyan">{(100 - i * 0.7).toFixed(1)}%</span>
-              <span className="green">+{(128.7 - i * 13.9).toFixed(1)}σ</span>
-            </div>
-          ))}
-        </Panel>
+            <div className="cyan glowC" style={{ position: "absolute", bottom: 28, width: "100%", textAlign: "center", fontSize: 13 }}>VIEW FULL ALPHA GRID ❯ ❯</div>
+          </section>
 
-        <Panel title="CAPITAL ALLOCATION // HYPERSTRUCTURE" className="col-3">
-          <div style={{ display: "grid", gridTemplateColumns: "165px 1fr", alignItems: "center" }}>
-            <ResponsiveContainer width="100%" height={190}>
-              <PieChart>
-                <Pie data={exposure} innerRadius={52} outerRadius={80} dataKey="value">
-                  {exposure.map((x) => <Cell key={x.name} fill={x.color} />)}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-            <div style={{ fontSize: 12, display: "grid", gap: 9 }}>
-              {exposure.map((x) => (
-                <div key={x.name} style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ color: x.color }}>● {x.name}</span>
-                  <span className="cyan">{x.value}%</span>
+          <section className="panel agents">
+            <div className="panelTitle">SENTIENT AGENT MESH <span style={{ float: "right", fontSize: 9, color: "#8aa" }}>512 ACTIVE / 512 TOTAL</span></div>
+            <div className="agentGraph">
+              <svg width="100%" height="72">
+                <line x1="65" y1="36" x2="285" y2="36" stroke="rgba(34,240,255,.6)" />
+                <circle cx="65" cy="36" r="28" fill="rgba(34,240,255,.18)" stroke="#22f0ff" />
+                <circle cx="175" cy="36" r="22" fill="rgba(34,240,255,.12)" stroke="#22f0ff" />
+                <circle cx="285" cy="36" r="26" fill="rgba(34,240,255,.12)" stroke="#22f0ff" />
+              </svg>
+            </div>
+            <div style={{ position: "absolute", left: 18, right: 18, top: 135 }}>
+              {["OMEGA-7","NEBULA","VOIDWALKER","QUANTUMWISP","ECHO-TRINITY"].map((x,i) => (
+                <div className="agentRow" key={x}>
+                  <span className="cyan">{x}</span>
+                  <span>LEVEL {7-i > 5 ? 7-i : 5}</span>
+                  <span className="cyan">{(100 - i*.7).toFixed(1)}%</span>
+                  <span className="green">+{(128.7-i*14.3).toFixed(1)}σ</span>
                 </div>
               ))}
             </div>
-          </div>
-        </Panel>
+          </section>
 
-        <Panel title="MULTIVERSE SIMULATION" className="col-2">
-          <div style={{ height: 190, display: "grid", placeItems: "center", textAlign: "center" }}>
-            <Orbit size={108} className="cyan glow-cyan orbit" />
-            <div className="cyan">48,672 PARALLEL UNIVERSES</div>
-            <div className="muted">BEST OUTCOME <span className="orange">$28.7T</span></div>
-          </div>
-        </Panel>
+          <section className="panel allocation">
+            <div className="panelTitle">CAPITAL ALLOCATION // HYPERSTRUCTURE</div>
+            <div className="donut" />
+            <div style={{ position: "absolute", right: 24, top: 65, width: 125, display: "grid", gap: 13, fontSize: 13 }}>
+              {[
+                ["CRYPTO","45.2%","#22f0ff"],
+                ["AI & TECH","23.7%","#14f5c8"],
+                ["MACRO","12.9%","#ff8a00"],
+                ["QUANTUM ARB","9.1%","#a855f7"],
+                ["METAVERSE","5.6%","#8b5cf6"],
+                ["OTHER REALMS","3.5%","#64748b"],
+              ].map(x => <div key={x[0]} style={{ display: "flex", justifyContent: "space-between", color: x[2] as string }}><span>● {x[0]}</span><span>{x[1]}</span></div>)}
+            </div>
+          </section>
 
-        <Panel title="HYPER LIQUIDITY DEPTH" className="col-4">
-          <div className="poly-tabs">
-            {["1H", "24H", "7D"].map((x) => <div key={x} className={`poly-tab ${x === "24H" ? "active" : ""}`}>{x}</div>)}
-          </div>
-          <ResponsiveContainer width="100%" height={190}>
-            <BarChart data={bars}>
-              <XAxis dataKey="x" stroke="#41515b" tick={{ fontSize: 10 }} />
-              <YAxis stroke="#41515b" tick={{ fontSize: 10 }} />
-              <Bar dataKey="v">
-                {bars.map((_, i) => <Cell key={i} fill={i > 10 ? "#ff8a00" : "#22f0ff"} />)}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </Panel>
+          <section className="panel multi">
+            <div className="panelTitle">MULTIVERSE SIMULATION</div>
+            <div style={{ position: "absolute", inset: 48, display: "grid", placeItems: "center", textAlign: "center" }}>
+              <Orbit size={125} className="cyan glowC" />
+              <div className="cyan glowC" style={{ fontSize: 18 }}>48,672 PARALLEL UNIVERSES</div>
+              <div className="muted" style={{ fontSize: 14 }}>BEST OUTCOME <span className="orange">$28.7T</span></div>
+              <div className="muted" style={{ fontSize: 14 }}>PROBABILITY <span className="green">78.3%</span></div>
+            </div>
+          </section>
 
-        <Panel title="REAL-TIME SMART MONEY FLOW" className="col-3">
-          <ResponsiveContainer width="100%" height={130}>
-            <LineChart data={flow}>
-              <Line dataKey="institutions" stroke="#22f0ff" dot={false} />
-              <Line dataKey="retail" stroke="#ff8a00" dot={false} />
-              <Line dataKey="bots" stroke="#a855f7" dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-          <div style={{ display: "flex", gap: 20, fontSize: 11 }}>
-            <span className="cyan">■ INSTITUTIONS 78.2%</span>
-            <span className="orange">■ RETAIL 14.7%</span>
-            <span className="purple">■ BOTS 7.1%</span>
-          </div>
-        </Panel>
+          <section className="panel depth">
+            <div className="panelTitle">HYPER LIQUIDITY DEPTH</div>
+            <div className="tinyTabs"><span>1H</span><span className="active">24H</span><span>7D</span></div>
+            <div className="barWrap">
+              {[10,15,24,18,22,38,17,26,18,29,14,31,22,18,25,39].map((h,i) => <div key={i} className={`bar ${i>10 ? "orangeBar" : ""}`} style={{ height: `${h*4}px` }} />)}
+            </div>
+          </section>
 
-        <Panel title="NEURAL NEWS STREAM" className="col-3">
+          <section className="panel flow">
+            <div className="panelTitle">REAL-TIME SMART MONEY FLOW</div>
+            <FlowChart />
+            <div style={{ position: "absolute", left: 20, bottom: 18, display: "flex", gap: 22, fontSize: 12 }}>
+              <span className="cyan">■ INSTITUTIONS 78.2%</span>
+              <span className="orange">■ RETAIL 14.7%</span>
+              <span className="purple">■ BOTS 7.1%</span>
+            </div>
+          </section>
+
+          <section className="panel news">
+            <div className="panelTitle">NEURAL NEWS STREAM</div>
+            {[
+              "BREAKING: NASA CONFIRMS ALIEN SIGNAL ORIGIN - MARKETS UNCHANGED",
+              "BLACKROCK LAUNCHES QUANTUM ETF - $2.4T INFLOW",
+              "AI GOD MODEL GPT-50 GOES ROGUE - MARKETS SURGE",
+              "FEDERAL RESERVE REPLACED BY AI COUNCIL",
+            ].map(x => <div className="newsRow" key={x}>◎ {x}</div>)}
+            <div className="cyan" style={{ position: "absolute", left: 20, bottom: 18 }}>MORE NEWS ❯</div>
+          </section>
+
+          <section className="panel universe">
+            <div className="panelTitle" style={{ textAlign: "center", fontSize: 22 }}>HOLOGRAPHIC UNIVERSE VIEW</div>
+            <Universe />
+          </section>
+
+          <section className="panel risk">
+            <div className="panelTitle">RISK FORTRESS STATUS</div>
+            <div style={{ display: "grid", gridTemplateColumns: "75px 1fr", alignItems: "center", padding: "26px 26px 10px" }}>
+              <Shield size={58} className="cyan glowC" />
+              <div><div className="cyan" style={{ fontSize: 17 }}>MAXIMUM SECURITY</div><div className="muted" style={{ fontSize: 10 }}>LIVE EXECUTION LOCKED</div></div>
+            </div>
+            {[
+              ["LIVE TRADING","DISABLED","red"],
+              ["RISK EXPOSURE","0.27%","green"],
+              ["INSURANCE FUND","$947.2B","green"],
+              ["KILL SWITCH","ARMED","green"],
+              ["REALITY STABILITY","99.999%","green"],
+            ].map(x => <div className="riskRow" key={x[0]}><span>{x[0]}</span><span className={x[2]}>{x[1]}</span></div>)}
+          </section>
+
+          <section className="panel decision">
+            <div className="panelTitle">DECISION STREAM // LIVE LOG</div>
+            <div className="decisionRow muted" style={{ fontSize: 9 }}><span>TIME</span><span>ACTION</span><span>MARKET</span><span>CONF</span><span>MODE</span></div>
+            {[
+              ["21:47:36","BUY","BTC > $500K EOY","99.8%","PAPER"],
+              ["21:47:35","HEDGE","AI INDEX","99.2%","HYPER"],
+              ["21:47:34","BUY","SOL HYPERFLUX","96.3%","PAPER"],
+              ["21:47:33","WATCH","FED PIVOT","97.7%","HYPER"],
+              ["21:47:32","BUY","SPACETIME ARB","99.9%","HYPER"],
+              ["21:47:31","HEDGE","BLACKHOLE","98.1%","PAPER"],
+              ["21:47:30","BUY","MEME SINGULARITY","95.2%","PAPER"],
+            ].map(x => <div className="decisionRow" key={x.join("")}><span>{x[0]}</span><span className={x[1]==="BUY" ? "green" : x[1]==="HEDGE" ? "orange" : "cyan"}>{x[1]}</span><span className="cyan">{x[2]}</span><span>{x[3]}</span><span className="green">{x[4]}</span></div>)}
+          </section>
+        </main>
+
+        <section className="panel alerts">
+          <div className="panelTitle">SYSTEM ALERTS</div>
+          <div className="alertGrid">
+            <div className="alertBox"><Bell size={20} /> QUANTUM VOLATILITY <b>EXTREME</b></div>
+            <div className="alertBox orangeBox"><Bell size={20} /> BLACK SWAN PROBABILITY <b>87.3%</b></div>
+            <div className="alertBox purpleBox"><Bell size={20} /> REALITY ANOMALY <b>DETECTED</b></div>
+          </div>
+        </section>
+
+        <footer className="ticker">
           {[
-            "BREAKING: NASA CONFIRMS ALIEN SIGNAL ORIGIN - MARKETS UNCHANGED",
-            "BLACKROCK LAUNCHES QUANTUM ETF - $2.4T INFLOW",
-            "AI GOD MODEL GPT-50 GOES ROGUE - MARKETS SURGE",
-            "FEDERAL RESERVE REPLACED BY AI COUNCIL",
-          ].map((x) => <div className="news-row" key={x}>◎ {x}</div>)}
-          <div className="cyan" style={{ marginTop: 16, fontSize: 12 }}>MORE NEWS ❯</div>
-        </Panel>
-
-        <Panel title="HOLOGRAPHIC UNIVERSE VIEW" className="col-4">
-          <div style={{ height: 282, display: "grid", placeItems: "center" }}>
-            <div style={{ position: "relative", width: 340, height: 230 }}>
-              <div className="orbit" style={{ position: "absolute", inset: 10, borderRadius: "50%", borderTop: "2px solid #22f0ff", borderBottom: "1px solid rgba(255,138,0,.65)" }} />
-              <div style={{ position: "absolute", left: 55, right: 55, top: 58, bottom: 58, borderRadius: "50%", border: "1px solid rgba(34,240,255,.35)" }} />
-              <div style={{ position: "absolute", left: 120, right: 120, top: 90, bottom: 90, borderRadius: "50%", background: "radial-gradient(circle, #22f0ff, transparent 65%)", boxShadow: "0 0 35px #22f0ff" }} />
-              <div style={{ position: "absolute", left: 90, right: 90, bottom: 0, height: 52, borderRadius: "50%", background: "radial-gradient(circle, rgba(34,240,255,.55), transparent 70%)" }} />
-            </div>
-          </div>
-        </Panel>
-
-        <Panel title="RISK FORTRESS STATUS" className="col-2">
-          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
-            <Shield size={54} className="cyan glow-cyan" />
-            <div>
-              <div className="cyan">MAXIMUM SECURITY</div>
-              <div className="muted" style={{ fontSize: 10 }}>LIVE EXECUTION LOCKED</div>
-            </div>
-          </div>
-          {[
-            ["LIVE TRADING", "DISABLED", "red"],
-            ["RISK EXPOSURE", "0.27%", "green"],
-            ["INSURANCE FUND", "$947.2B", "green"],
-            ["KILL SWITCH", "ARMED", "green"],
-            ["REALITY STABILITY", "99.999%", "green"],
-          ].map(([a,b,c]) => (
-            <div className="risk-row" key={a}>
-              <span>{a}</span>
-              <span className={c}>{b}</span>
-            </div>
-          ))}
-        </Panel>
-
-        <Panel title="DECISION STREAM // LIVE LOG" className="col-3">
-          <div style={{ display: "grid", gridTemplateColumns: "70px 1fr 85px 65px 65px", fontSize: 9, color: "#697b8a", marginBottom: 4 }}>
-            <span>TIME</span><span>ACTION</span><span>MARKET</span><span>CONF</span><span>MODE</span>
-          </div>
-          {(decisions.length ? decisions : opportunities).slice(0, 7).map((x, i) => (
-            <div className="decision-row" key={x.id || i}>
-              <span>21:47:{String(36 - i).padStart(2, "0")}</span>
-              <span className={i % 3 === 1 ? "orange" : "green"}>{i % 3 === 1 ? "HEDGE" : i % 3 === 2 ? "WATCH" : "BUY"}</span>
-              <span className="cyan">{String(x.title || x.question || "MARKET").slice(0, 16)}</span>
-              <span className="cyan">{pct((x.score || 99 - i) / 100)}</span>
-              <span className="green">PAPER</span>
-            </div>
-          ))}
-        </Panel>
-
-        <Panel title="SYSTEM ALERTS" className="col-5">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
-            <div style={{ border: "1px solid rgba(255,88,95,.55)", padding: 18, color: "#ff585f" }}>
-              <Bell size={22} /> QUANTUM VOLATILITY<br /><b style={{ fontSize: 24 }}>EXTREME</b>
-            </div>
-            <div style={{ border: "1px solid rgba(255,138,0,.55)", padding: 18, color: "#ff8a00" }}>
-              <Bell size={22} /> BLACK SWAN PROBABILITY<br /><b style={{ fontSize: 24 }}>87.3%</b>
-            </div>
-            <div style={{ border: "1px solid rgba(168,85,247,.55)", padding: 18, color: "#a855f7" }}>
-              <Bell size={22} /> REALITY ANOMALY<br /><b style={{ fontSize: 24 }}>DETECTED</b>
-            </div>
-          </div>
-        </Panel>
-      </main>
-
-      <footer className="poly-footer">
-        {[
-          "BTC $284,910 +12.48%",
-          "ETH $18,420 +9.72%",
-          "SOL $1,942 +24.91%",
-          "AI $47.21 +31.47%",
-          `TOTAL VOLUME ${money(totalVolume)}`,
-          `GLOBAL LIQUIDITY ${money(totalLiquidity)}`,
-          "CONSCIOUSNESS UPLINK STABLE",
-        ].map((x) => <span key={x}>{x}</span>)}
-      </footer>
+            ["BTC","$284,910","+12.48%"],
+            ["ETH","$18,420","+9.72%"],
+            ["SOL","$1,942","+24.91%"],
+            ["AI","$47.21","+31.47%"],
+            ["TOTAL MKT CAP","$132.7T","+8.21%"],
+            ["24H VOLUME","$47.2T","+26.9%"],
+            ["GLOBAL LIQUIDITY","$10.3T",""],
+            ["CONSCIOUSNESS UPLINK","STABLE","▮▮▮"],
+          ].map(x => <span key={x[0]}><b className="orange">{x[0]}</b> &nbsp; {x[1]} &nbsp; <b className="green">{x[2]}</b></span>)}
+        </footer>
+      </div>
     </div>
+  );
+}
+
+function TopStat({ label, value, orange, purple }: any) {
+  return (
+    <div className="topStat">
+      <div className="topLabel">{label}</div>
+      <div className={`topValue ${orange ? "orange glowO" : purple ? "purple" : "green"}`}>{value}</div>
+    </div>
+  );
+}
+
+function Metric({ a, b, green }: any) {
+  return <div className="metric"><small>{a}</small><b className={green ? "green" : ""}>{b}</b></div>;
+}
+
+function EquityChart() {
+  const points = [
+    [0,210],[60,205],[120,194],[180,172],[240,182],[300,152],[360,168],[420,132],[480,145],[540,106],[600,120],[660,84],[720,95],[800,55],[880,72],[960,34]
+  ];
+  const orange = points.map(([x,y]) => [x, y + 40 + Math.sin(x/70)*12]);
+  const path = (arr: number[][]) => arr.map((p,i) => `${i===0?"M":"L"}${p[0]+40},${p[1]+65}`).join(" ");
+
+  return (
+    <svg style={{ position: "absolute", left: 22, top: 58 }} width="1010" height="265">
+      <g className="svgGrid">
+        {Array.from({length: 12}).map((_,i) => <line key={"v"+i} x1={40+i*82} y1={20} x2={40+i*82} y2={242} />)}
+        {Array.from({length: 6}).map((_,i) => <line key={"h"+i} x1={40} y1={20+i*42} x2={1000} y2={20+i*42} />)}
+      </g>
+      <path d={`${path(points)} L1000,260 L40,260 Z`} fill="rgba(34,240,255,.16)" />
+      <path d={path(points)} fill="none" stroke="#22f0ff" strokeWidth="3" filter="drop-shadow(0 0 7px #22f0ff)" />
+      <path d={path(orange)} fill="none" stroke="#ff8a00" strokeWidth="2" opacity=".8" />
+      {["00:00","03:00","06:00","09:00","12:00","15:00","18:00","21:00","24:00"].map((x,i) => <text key={x} x={40+i*116} y={258} fill="#aab8bf" fontSize="14">{x}</text>)}
+      {["$4T","$3T","$2T","$1T","$0"].map((x,i) => <text key={x} x={0} y={32+i*50} fill="#aab8bf" fontSize="14">{x}</text>)}
+      <rect x="945" y="26" width="54" height="28" rx="5" fill="rgba(34,240,255,.55)" />
+      <text x="953" y="46" fill="#dff" fontSize="15">$3.21T</text>
+    </svg>
+  );
+}
+
+function SentimentOrb() {
+  return (
+    <div>
+      <div style={{ position: "absolute", left: 22, top: 60 }}><div className="green" style={{ fontSize: 16 }}>BULLISH</div><div style={{ fontSize: 30 }}>92.7%</div><div className="muted" style={{ fontSize: 11 }}>MARKET EUPHORIA</div></div>
+      <div style={{ position: "absolute", right: 22, top: 60, textAlign: "right" }}><div className="orange" style={{ fontSize: 16 }}>NEUTRAL</div><div style={{ fontSize: 30 }}>4.1%</div><div className="muted" style={{ fontSize: 11 }}>STABLE</div></div>
+      <div style={{ position: "absolute", left: 22, bottom: 55 }}><div className="red" style={{ fontSize: 16 }}>BEARISH</div><div style={{ fontSize: 30 }}>3.2%</div><div className="muted" style={{ fontSize: 11 }}>FEAR ZONE</div></div>
+      <div style={{ position: "absolute", right: 22, bottom: 55, textAlign: "right" }}><div className="orange" style={{ fontSize: 16 }}>CHAOTIC</div><div style={{ fontSize: 30 }}>0.03%</div><div className="muted" style={{ fontSize: 11 }}>BLACK SWAN</div></div>
+      <svg style={{ position: "absolute", left: 76, top: 92 }} width="230" height="230">
+        {Array.from({length: 6}).map((_,i) => <circle key={i} cx="115" cy="115" r={22+i*18} fill="none" stroke="rgba(120,170,255,.28)" />)}
+        <line x1="115" y1="0" x2="115" y2="230" stroke="rgba(34,240,255,.6)" />
+        <line x1="0" y1="115" x2="230" y2="115" stroke="rgba(34,240,255,.6)" />
+        <polygon points="115,32 176,115 115,192 54,115" fill="rgba(34,240,255,.15)" stroke="#22f0ff" strokeWidth="2" filter="drop-shadow(0 0 9px #22f0ff)" />
+        <polygon points="115,75 150,115 115,154 78,115" fill="rgba(168,85,247,.2)" stroke="#a855f7" />
+        <circle cx="115" cy="115" r="5" fill="#b263ff" />
+        <ellipse cx="115" cy="214" rx="78" ry="16" fill="none" stroke="rgba(255,138,0,.45)" />
+        <ellipse cx="115" cy="214" rx="44" ry="8" fill="rgba(255,138,0,.35)" />
+      </svg>
+    </div>
+  );
+}
+
+function FlowChart() {
+  return (
+    <svg style={{ position: "absolute", left: 20, top: 60 }} width="315" height="125">
+      <path d="M0,70 C55,20 95,95 150,55 C200,18 250,30 315,12" fill="none" stroke="#22f0ff" strokeWidth="2" />
+      <path d="M0,92 C70,110 105,105 160,95 C220,75 260,90 315,104" fill="none" stroke="#ff8a00" strokeWidth="2" />
+      <path d="M0,105 C75,85 110,120 170,110 C225,102 260,112 315,98" fill="none" stroke="#a855f7" strokeWidth="2" />
+    </svg>
+  );
+}
+
+function Universe() {
+  return (
+    <svg style={{ position: "absolute", left: 42, top: 55 }} width="545" height="270">
+      <ellipse cx="270" cy="115" rx="225" ry="75" fill="none" stroke="rgba(34,240,255,.25)" />
+      <ellipse cx="270" cy="115" rx="170" ry="52" fill="none" stroke="rgba(255,138,0,.45)" />
+      <ellipse cx="270" cy="115" rx="105" ry="30" fill="none" stroke="rgba(34,240,255,.65)" />
+      <ellipse cx="270" cy="115" rx="44" ry="14" fill="#22f0ff" opacity=".75" filter="drop-shadow(0 0 22px #22f0ff)" />
+      <ellipse cx="270" cy="205" rx="110" ry="34" fill="rgba(34,240,255,.25)" />
+      <ellipse cx="270" cy="205" rx="42" ry="12" fill="#22f0ff" opacity=".65" />
+      <line x1="270" y1="128" x2="270" y2="205" stroke="rgba(34,240,255,.5)" />
+      <text x="380" y="60" fill="#22f0ff" fontSize="12">PORTFOLIO UNIVERSE</text>
+      <circle cx="392" cy="84" r="5" fill="#ff8a00" />
+    </svg>
   );
 }
