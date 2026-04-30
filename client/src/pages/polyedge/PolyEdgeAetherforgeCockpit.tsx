@@ -1488,13 +1488,91 @@ function PolyEdgeActionMonitorGrid({
           }
         }
 
+        .polyedge-kiosk-final-fix { display: none; }
+
+        .polyedge-hide-old-panels {
+          display: none !important;
+        }
+
+        @media (min-width: 1024px) {
+          html:has(.polyedge-kiosk-root),
+          body.polyedge-kiosk-mode,
+          body.polyedge-kiosk-mode #root {
+            width: 100vw !important;
+            height: 100dvh !important;
+            max-width: 100vw !important;
+            max-height: 100dvh !important;
+            overflow: hidden !important;
+            background: #000 !important;
+          }
+
+          body.polyedge-kiosk-mode {
+            position: fixed !important;
+            inset: 0 !important;
+          }
+
+          body.polyedge-kiosk-mode #root,
+          body.polyedge-kiosk-mode #root *:has(.polyedge-kiosk-root) {
+            transform: none !important;
+            contain: none !important;
+            perspective: none !important;
+            filter: none !important;
+          }
+
+          body.polyedge-kiosk-mode .polyedge-kiosk-root {
+            position: fixed !important;
+            inset: 0 !important;
+            z-index: 2147483647 !important;
+            width: 100vw !important;
+            height: 100dvh !important;
+            max-width: 100vw !important;
+            max-height: 100dvh !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            overflow: hidden !important;
+            background:
+              radial-gradient(circle at 25% 15%, rgba(34, 211, 238, .18), transparent 32%),
+              radial-gradient(circle at 75% 35%, rgba(192, 38, 211, .16), transparent 35%),
+              #000 !important;
+          }
+
+          body.polyedge-kiosk-mode aside,
+          body.polyedge-kiosk-mode [class*="Sidebar"],
+          body.polyedge-kiosk-mode [class*="sidebar"] {
+            pointer-events: none !important;
+          }
+
+          body.polyedge-kiosk-mode .polyedge-kiosk-root * {
+            pointer-events: auto;
+            box-sizing: border-box;
+          }
+
+          body.polyedge-kiosk-mode .polyedge-kiosk-root .poly-final-glass {
+            min-height: 0 !important;
+          }
+        }
+
+        @media (max-width: 1023px) {
+          body.polyedge-kiosk-mode {
+            position: static !important;
+            overflow: auto !important;
+          }
+
+          .polyedge-kiosk-root {
+            position: relative !important;
+            height: auto !important;
+            min-height: 100dvh !important;
+            overflow: visible !important;
+          }
+        }
+
         @keyframes poly-final-float {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-6px); }
         }
       `}</style>
 
-      <div className="poly-final-root polyedge-true-fullscreen relative overflow-visible rounded-none p-1 text-white lg:fixed lg:inset-0 lg:z-[999] lg:h-[100dvh] lg:w-[100vw] lg:max-h-[100dvh] lg:overflow-hidden">
+      <div className="poly-final-root polyedge-kiosk-root relative overflow-visible rounded-none p-1 text-white lg:fixed lg:inset-0 lg:z-[2147483647] lg:h-[100dvh] lg:w-[100vw] lg:max-h-[100dvh] lg:overflow-hidden">
         <div className="relative z-10 mx-auto flex h-full max-w-none flex-col lg:h-full lg:min-h-0 lg:overflow-hidden">
           <div className="mb-1.5 flex flex-wrap items-center justify-between gap-1.5 rounded-xl border border-cyan-400/30 bg-slate-950/70 px-2.5 py-1.5 backdrop-blur-xl lg:flex-nowrap">
             <div className="flex items-center gap-4">
@@ -1630,6 +1708,11 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
 
   const [data, setData] = useState<PolyEdgeProofResponse | null>(null);
   const [learning, setLearning] = useState<PolyEdgeLearningResponse | null>(null);
+  useEffect(() => {
+    document.body.classList.add("polyedge-kiosk-mode");
+    return () => document.body.classList.remove("polyedge-kiosk-mode");
+  }, []);
+
   const [replayStatus, setReplayStatus] = useState<PolyEdgeReplayStatus | null>(null);
   const runtime = (replayStatus as any)?.runtime;
   const replayProgress =
