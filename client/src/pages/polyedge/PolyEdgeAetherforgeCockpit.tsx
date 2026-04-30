@@ -581,9 +581,14 @@ function QuantumTitle({ title, right }: { title: string; right?: any }) {
 }
 
 
+
 function MiniTrace({ monitor }: { monitor: any }) {
   const t = statusTone(monitor?.state);
   const moving = monitor?.moving === true;
+  const state = String(monitor?.state || "offline");
+  const isFault = state === "offline" || state === "timeout" || state === "stalled";
+  const isIdle = state === "idle" || state === "blocked" || state === "paper_only";
+  const isLive = moving && !isFault && !isIdle;
 
   if (monitor?.kind === "market") {
     return (
@@ -591,11 +596,11 @@ function MiniTrace({ monitor }: { monitor: any }) {
         {Array.from({ length: 22 }).map((_, i) => (
           <span
             key={i}
-            className="w-1 rounded-t bg-gradient-to-t from-fuchsia-700 via-cyan-300 to-white"
+            className={`w-1 rounded-t ${isFault ? "bg-red-400/60" : "bg-gradient-to-t from-fuchsia-700 via-cyan-300 to-white"}`}
             style={{
               height: `${7 + ((i * 13) % 20)}px`,
               filter: `drop-shadow(0 0 7px ${t.glow})`,
-              animation: moving ? `poly-final-bars ${0.55 + (i % 6) * 0.08}s ease-in-out infinite alternate` : undefined,
+              animation: isLive ? `poly-final-bars ${0.55 + (i % 6) * 0.08}s ease-in-out infinite alternate` : undefined,
             }}
           />
         ))}
@@ -603,55 +608,93 @@ function MiniTrace({ monitor }: { monitor: any }) {
     );
   }
 
+  const stroke = isFault ? "#ff4d6d" : isIdle ? "#ffd166" : "#00ff88";
+  const glow = isFault ? "rgba(255,77,109,.85)" : isIdle ? "rgba(255,209,102,.75)" : "rgba(0,255,136,.95)";
+  const animationSpeed = isIdle ? "2.4s" : "1.35s";
+
   return (
-    <div className="poly-real-ecg mt-1 h-7 overflow-hidden rounded-md border border-emerald-300/20 bg-black/70">
-      <div
-        className="poly-real-ecg-grid"
-        style={{
-          opacity: moving ? 1 : 0.45,
-        }}
-      />
+    <div className={`poly-real-ecg mt-1 h-7 overflow-hidden rounded-md border bg-black/75 ${isFault ? "border-red-300/30" : isIdle ? "border-amber-300/25" : "border-emerald-300/25"}`}>
+      <div className="poly-real-ecg-grid" />
 
-      <div
-        className="poly-real-ecg-sweep"
-        style={{
-          display: moving ? "block" : "none",
-        }}
-      />
-
-      <svg
-        className="poly-real-ecg-line"
-        viewBox="0 0 520 44"
-        preserveAspectRatio="none"
-        style={{
-          animation: moving ? "poly-real-ecg-scroll 1.35s linear infinite" : undefined,
-        }}
-      >
-        <polyline
-          points="0,27 28,27 38,27 45,18 53,35 61,7 72,37 82,27 120,27 138,27 146,21 154,31 162,27 205,27 232,27 242,17 250,35 259,6 270,38 280,27 324,27 350,27 358,22 366,31 375,27 420,27 450,27 461,16 470,36 480,8 491,38 502,27 520,27"
-          fill="none"
-          stroke={moving ? "#00ff88" : t.stroke}
-          strokeWidth="3.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+      {!isFault && (
+        <div
+          className="poly-real-ecg-sweep"
           style={{
-            filter: moving
-              ? "drop-shadow(0 0 7px rgba(0,255,136,.95)) drop-shadow(0 0 16px rgba(0,255,136,.55))"
-              : `drop-shadow(0 0 6px ${t.glow})`,
+            animationDuration: animationSpeed,
+            background: `linear-gradient(90deg, transparent, ${glow}, transparent)`,
           }}
         />
-      </svg>
+      )}
+
+      {isFault ? (
+        <svg className="absolute inset-0 h-full w-full" viewBox="0 0 260 44" preserveAspectRatio="none">
+          <polyline
+            points="0,27 260,27"
+            fill="none"
+            stroke="#ff4d6d"
+            strokeWidth="3"
+            strokeLinecap="round"
+            style={{ filter: "drop-shadow(0 0 8px rgba(255,77,109,.85))" }}
+          />
+        </svg>
+      ) : (
+        <svg
+          className="poly-real-ecg-line"
+          viewBox="0 0 720 44"
+          preserveAspectRatio="none"
+          style={{
+            animation: `poly-real-ecg-scroll ${animationSpeed} linear infinite`,
+          }}
+        >
+          <polyline
+            /*
+              Real ECG-inspired shape:
+              baseline -> P wave -> QRS spike/dip -> T wave -> baseline.
+              Repeated twice so the left-moving trace loops cleanly.
+            */
+            points="
+              0,27 28,27 42,27
+              50,24 58,22 66,24 74,27
+              88,27 96,34 103,6 111,38 120,27
+              145,27 160,24 176,22 192,24 208,27
+              240,27
+
+              260,27 288,27 302,27
+              310,24 318,22 326,24 334,27
+              348,27 356,34 363,6 371,38 380,27
+              405,27 420,24 436,22 452,24 468,27
+              500,27
+
+              520,27 548,27 562,27
+              570,24 578,22 586,24 594,27
+              608,27 616,34 623,6 631,38 640,27
+              665,27 680,24 696,22 712,24 720,27
+            "
+            fill="none"
+            stroke={stroke}
+            strokeWidth={isIdle ? "2.4" : "3.2"}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{
+              filter: `drop-shadow(0 0 7px ${glow}) drop-shadow(0 0 15px ${glow})`,
+              opacity: isIdle ? 0.75 : 1,
+            }}
+          />
+        </svg>
+      )}
+
+      {!isFault && (
+        <div
+          className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full"
+          style={{
+            background: stroke,
+            boxShadow: `0 0 12px ${glow}`,
+            animation: `poly-real-ecg-beat ${isIdle ? "1.7s" : ".68s"} ease-in-out infinite`,
+          }}
+        />
+      )}
 
       <div className="absolute bottom-0 left-0 right-0 h-px bg-emerald-300/10" />
-
-      <div
-        className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-emerald-300"
-        style={{
-          display: moving ? "block" : "none",
-          boxShadow: "0 0 12px rgba(0,255,136,.95)",
-          animation: "poly-real-ecg-beat .68s ease-in-out infinite",
-        }}
-      />
     </div>
   );
 }
