@@ -1617,14 +1617,75 @@ function PolyEdgeActionMonitorGrid({
           }
         }
 
+        .polyedge-scale-final-fix { display: none; }
+
+        .polyedge-hide-old-panels {
+          display: none !important;
+        }
+
+        .polyedge-fullscreen-page {
+          background:
+            radial-gradient(circle at 25% 15%, rgba(34, 211, 238, .18), transparent 32%),
+            radial-gradient(circle at 75% 35%, rgba(192, 38, 211, .16), transparent 35%),
+            #000 !important;
+        }
+
+        .polyedge-scale-stage {
+          width: 1600px !important;
+          height: 900px !important;
+          max-width: none !important;
+          max-height: none !important;
+          transform: scale(var(--polyedge-cockpit-scale, 1));
+          transform-origin: top left;
+        }
+
+        html:has(.polyedge-fullscreen-page),
+        body:has(.polyedge-fullscreen-page),
+        #root:has(.polyedge-fullscreen-page) {
+          width: 100vw !important;
+          height: 100dvh !important;
+          max-width: 100vw !important;
+          max-height: 100dvh !important;
+          overflow: hidden !important;
+          background: #000 !important;
+        }
+
+        body:has(.polyedge-fullscreen-page) {
+          position: fixed !important;
+          inset: 0 !important;
+        }
+
+        @media (max-width: 767px) {
+          .polyedge-fullscreen-page {
+            position: relative !important;
+            height: auto !important;
+            min-height: 100dvh !important;
+            overflow: auto !important;
+          }
+
+          .polyedge-scale-stage {
+            width: 100% !important;
+            height: auto !important;
+            min-height: 100dvh !important;
+            transform: none !important;
+          }
+
+          html,
+          body,
+          #root {
+            height: auto !important;
+            overflow: auto !important;
+          }
+        }
+
         @keyframes poly-final-float {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-6px); }
         }
       `}</style>
 
-      <div className="poly-final-root polyedge-fullscreen-page min-h-screen h-screen max-h-screen w-screen overflow-hidden rounded-none p-1 text-white">
-        <div className="relative z-10 mx-auto flex h-full max-w-none flex-col overflow-hidden">
+      <div className="poly-final-root polyedge-fullscreen-page fixed inset-0 z-[2147483647] h-[100dvh] w-[100vw] overflow-hidden rounded-none bg-black p-0 text-white">
+        <div className="polyedge-scale-stage relative z-10 flex h-full max-w-none flex-col overflow-hidden">
           <div className="mb-1.5 flex flex-wrap items-center justify-between gap-1.5 rounded-xl border border-cyan-400/30 bg-slate-950/70 px-2.5 py-1.5 backdrop-blur-xl lg:flex-nowrap">
             <div className="flex items-center gap-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-purple-600 text-sm font-bold text-white shadow-[0_0_30px_rgba(103,232,249,.4)]">P/E</div>
@@ -1760,8 +1821,22 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
   const [data, setData] = useState<PolyEdgeProofResponse | null>(null);
   const [learning, setLearning] = useState<PolyEdgeLearningResponse | null>(null);
   useEffect(() => {
+    function updatePolyEdgeCockpitScale() {
+      const designW = 1600;
+      const designH = 900;
+      const scale = Math.min(window.innerWidth / designW, window.innerHeight / designH, 1);
+      document.documentElement.style.setProperty("--polyedge-cockpit-scale", String(scale));
+    }
+
     document.body.classList.add("polyedge-kiosk-mode");
-    return () => document.body.classList.remove("polyedge-kiosk-mode");
+    updatePolyEdgeCockpitScale();
+
+    window.addEventListener("resize", updatePolyEdgeCockpitScale);
+    return () => {
+      window.removeEventListener("resize", updatePolyEdgeCockpitScale);
+      document.body.classList.remove("polyedge-kiosk-mode");
+      document.documentElement.style.removeProperty("--polyedge-cockpit-scale");
+    };
   }, []);
 
   const [replayStatus, setReplayStatus] = useState<PolyEdgeReplayStatus | null>(null);
