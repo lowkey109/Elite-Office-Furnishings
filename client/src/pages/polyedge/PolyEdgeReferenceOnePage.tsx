@@ -208,6 +208,7 @@ export default function PolyEdgeReferenceOnePage() {
   const [actionMonitor, setActionMonitor] = useState<any>(null);
   const [replayStatus, setReplayStatus] = useState<any>(null);
   const [apiError, setApiError] = useState("");
+  const [traderMonitors, setTraderMonitors] = useState<any>(null);
   const [capitalState, setCapitalState] = useState<any>(null);
   const [capitalType, setCapitalType] = useState<"real" | "paper">("paper");
   const [capitalAmount, setCapitalAmount] = useState("");
@@ -250,6 +251,28 @@ export default function PolyEdgeReferenceOnePage() {
     };
   }, []);
 
+  useEffect(() => {
+    let active = true;
+
+    async function loadTraderMonitors() {
+      try {
+        const res = await fetch("/api/polyedge/trader-monitors");
+        const json = await res.json();
+        if (active) setTraderMonitors(json);
+      } catch {
+        if (active) setTraderMonitors(null);
+      }
+    }
+
+    loadTraderMonitors();
+    const timer = window.setInterval(loadTraderMonitors, 5000);
+
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, []);
+
   const monitors: Monitor[] = Array.isArray(actionMonitor?.monitors) ? actionMonitor.monitors : [];
   const metrics = replayStatus?.promotion?.metrics || replayStatus?.proof || {};
 
@@ -274,6 +297,12 @@ export default function PolyEdgeReferenceOnePage() {
   const required = realValue(metrics?.requiredProfitablePaperTrades || 500);
   const timestamp = realValue(actionMonitor?.generatedAt || replayStatus?.generatedAt || replayStatus?.lastRunAt);
   const onlinePct = monitors.length ? Math.round((live / monitors.length) * 100) : 0;
+
+  const autoExecMonitor = traderMonitors?.autoExecution || {};
+  const openPositionMonitor = Array.isArray(traderMonitors?.openPositions) ? traderMonitors.openPositions : [];
+  const learningMonitor = traderMonitors?.learning || {};
+  const riskMonitor = traderMonitors?.riskGovernor || {};
+  const regimeMonitor = traderMonitors?.marketRegime || {};
 
   const adminNavItems = [
     ["Dashboard", "/admin/dashboard"],
@@ -1051,6 +1080,27 @@ export default function PolyEdgeReferenceOnePage() {
           font-size: 7.5px;
         }
 
+        .trader-monitor-row {
+          display: flex;
+          justify-content: space-between;
+          gap: 5px;
+          border-bottom: 1px solid rgba(34,211,238,.10);
+          padding: 2px 0;
+          font-size: 7.5px;
+        }
+
+        .trader-monitor-row span:first-child {
+          color: rgba(190,255,255,.58);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .trader-monitor-row b {
+          color: rgb(110,231,183);
+          white-space: nowrap;
+        }
+
         .mini-stat-grid {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1466,51 +1516,71 @@ export default function PolyEdgeReferenceOnePage() {
             </div>
           </Panel>
 
-          <Panel title="System Alerts" className="col-span-3">
-            <div className="grid h-full grid-cols-3 gap-1 text-[8px]">
-              <div className="border border-red-400/40 p-2 text-red-300">FAULTS<br /><b>{fault}</b></div>
-              <div className="border border-amber-400/40 p-2 text-amber-300">SAFE<br /><b>{safe}</b></div>
-              <div className="border border-purple-400/40 p-2 text-purple-300">API<br /><b>{apiError ? "ERROR" : "OK"}</b></div>
+          <Panel title="Market Regime Monitor" className="col-span-3">
+            <div className="grid h-full grid-cols-2 gap-1 text-[8px]">
+              <div className="mini-box">
+                <div className="text-cyan-100/45">REGIME</div>
+                <div className="font-black text-emerald-300">{regimeMonitor.regime || "WAITING"}</div>
+              </div>
+              <div className="mini-box">
+                <div className="text-cyan-100/45">SCORE</div>
+                <div className="font-black text-cyan-300">{regimeMonitor.score ?? "WAITING"}</div>
+              </div>
+              <div className="mini-box">
+                <div className="text-cyan-100/45">SIGNAL</div>
+                <div className="font-black text-amber-300">{regimeMonitor.signalQuality ?? "WAITING"}</div>
+              </div>
+              <div className="mini-box">
+                <div className="text-cyan-100/45">LATEST</div>
+                <div className="font-black text-purple-300">{regimeMonitor.latestSymbol || "WAITING"}</div>
+              </div>
             </div>
           </Panel>
 
-          <Panel title="Risk Fortress Status" className="col-span-2">
-            <div className="space-y-1 text-[8px]">
-              <div className="flex justify-between"><span>Max DD</span><b className="text-emerald-300">{maxDd}</b></div>
-              <div className="flex justify-between"><span>Win Rate</span><b className="text-emerald-300">{winRate}</b></div>
-              <div className="flex justify-between"><span>Profit Factor</span><b className="text-emerald-300">{profitFactor}</b></div>
-              <div className="flex justify-between"><span>Live Trading</span><b className="text-red-300">DISABLED</b></div>
+          <Panel title="Risk Governor Monitor" className="col-span-2">
+            <div className="space-y-1">
+              <div className="trader-monitor-row"><span>Mode</span><b>{riskMonitor.mode || "WAITING"}</b></div>
+              <div className="trader-monitor-row"><span>Exposure</span><b>{realMoney(riskMonitor.exposure || 0)}</b></div>
+              <div className="trader-monitor-row"><span>Open P&L</span><b>{realMoney(riskMonitor.openPnl || 0)}</b></div>
+              <div className="trader-monitor-row"><span>Open</span><b>{riskMonitor.openPositions || 0}/{riskMonitor.maxOpenPositions || 8}</b></div>
+              <div className="trader-monitor-row"><span>Blocked</span><b>{riskMonitor.blockedTrades || 0}</b></div>
             </div>
           </Panel>
 
-          <Panel title="Replay Engine Monitor" className="col-span-3">
-            <div className="text-lg font-black text-amber-300">{realValue(replayStatus?.state || "IDLE")}</div>
-            <div className="mt-2 grid grid-cols-2 gap-1 text-[8px]">
-              <div className="mini-box">Wins<br /><b>{qualified}</b></div>
-              <div className="mini-box">Trades<br /><b>{trades}</b></div>
+          <Panel title="Auto Paper Execution Monitor" className="col-span-3">
+            <div className="space-y-1">
+              <div className="trader-monitor-row"><span>Mode</span><b>{autoExecMonitor.enabled ? "FAST RUNNING" : "STOPPED"}</b></div>
+              <div className="trader-monitor-row"><span>Ticks</span><b>{autoExecMonitor.ticks || 0}</b></div>
+              <div className="trader-monitor-row"><span>Decisions</span><b>{autoExecMonitor.decisionsCreated || 0}</b></div>
+              <div className="trader-monitor-row"><span>Opened</span><b>{autoExecMonitor.positionsOpened || 0}</b></div>
+              <div className="trader-monitor-row"><span>Closed</span><b>{autoExecMonitor.positionsClosed || 0}</b></div>
+              <div className="truncate text-[7px] text-amber-300">{autoExecMonitor.lastReason || "Waiting for auto paper loop."}</div>
             </div>
           </Panel>
 
-          <Panel title="Neural Learning Core" className="col-span-3">
-            <div className="mini-stat-grid">
-              <div className="mini-box">Learning<br /><b>{realValue(metrics?.learningScore || 0)}</b></div>
-              <div className="mini-box">Samples<br /><b>{trades}</b></div>
-              <div className="mini-box">Threshold<br /><b>{required}</b></div>
-              <div className="mini-box">Live<br /><b>NO</b></div>
+          <Panel title="Learning Performance Monitor" className="col-span-3">
+            <div className="grid grid-cols-2 gap-1 text-[8px]">
+              <div className="mini-box">Samples<br /><b>{learningMonitor.sampleSize || 0}</b></div>
+              <div className="mini-box">Win Rate<br /><b>{learningMonitor.winRate ?? "WAITING"}%</b></div>
+              <div className="mini-box">Total P&L<br /><b>{realMoney(learningMonitor.totalPnl || 0)}</b></div>
+              <div className="mini-box">Profit Factor<br /><b>{learningMonitor.profitFactor ?? "WAITING"}</b></div>
+              <div className="mini-box">Learning<br /><b>{learningMonitor.learningScore ?? "WAITING"}</b></div>
+              <div className="mini-box">Conf Floor<br /><b>{learningMonitor.confidenceFloor ?? "WAITING"}</b></div>
             </div>
           </Panel>
 
-          <Panel title="Decision Stream // Live Log" className="col-span-6">
-            <div className="space-y-1 text-[8px]">
-              {moduleRows.slice(0, 5).map((m) => {
-                const t = tone(m.state);
-                return (
-                  <div key={m.key || m.label} className="mini-row">
-                    <span className="truncate">{m.label}</span>
-                    <span className={`font-black uppercase ${t.text}`}>{m.state}</span>
-                  </div>
-                );
-              })}
+          <Panel title="Open Positions Monitor" className="col-span-6">
+            <div className="space-y-1">
+              {openPositionMonitor.length ? openPositionMonitor.map((p: any) => (
+                <div key={p.id} className="trader-monitor-row">
+                  <span>{p.symbol} • {p.side} • {p.strategy}</span>
+                  <b>{realMoney(p.pnl || 0)}</b>
+                </div>
+              )) : (
+                <div className="grid h-full place-items-center text-[9px] text-cyan-300/60">
+                  WAITING FOR AUTO PAPER POSITIONS
+                </div>
+              )}
             </div>
           </Panel>
 

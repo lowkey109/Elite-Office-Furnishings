@@ -1701,6 +1701,13 @@ app.post("/api/polyedge/capital/reset-paper", async (req, res) => {
   }
 });
 
+
+// PolyEdge trader cockpit monitors — paper-only execution/risk/learning status.
+app.get("/api/polyedge/trader-monitors", async (_req, res) => {
+  const { getPolyEdgeTraderMonitors } = await import("./services/polyedge/polyEdgeTraderMonitors");
+  res.json(await getPolyEdgeTraderMonitors());
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
