@@ -90,111 +90,108 @@ function ecgRhythm(monitor?: Monitor) {
 
 function EcgTrace({ monitor, compact = false }: { monitor?: Monitor; compact?: boolean }) {
   const state = String(monitor?.state || "").toLowerCase();
-  const isMarket = monitor?.kind === "market";
-  const live = monitor?.moving === true || state === "online" || state === "running";
-  const safe = state === "idle" || state === "blocked" || state === "paper_only";
-  const fault = state === "offline" || state === "timeout" || state === "stalled" || state === "fault";
+  const score = stateScore(monitor || {});
   const rhythm = ecgRhythm(monitor);
-  const seed = ecgSeed(monitor?.key || monitor?.label);
+
+  const disconnected =
+    !state ||
+    state.includes("offline") ||
+    state.includes("timeout") ||
+    state.includes("stalled") ||
+    state.includes("fault") ||
+    state.includes("blocked") ||
+    state.includes("disconnect") ||
+    state.includes("unavailable") ||
+    state.includes("required") ||
+    state.includes("waiting");
+
+  const live =
+    !disconnected &&
+    (monitor?.moving === true || state === "online" || state === "running" || state === "active");
+
+  const safe =
+    !disconnected &&
+    !live &&
+    (state === "idle" || state === "paper_only" || state === "standby" || state === "ready");
+
+  // Real monitor feel:
+  // ECG time draws left-to-right, then resets.
+  // Live connections draw faster; safe/idle draws slower; disconnected is a true flatline.
+  const sweepDuration = disconnected
+    ? "0s"
+    : live
+      ? `${Math.max(4.8, 7.4 - score / 30).toFixed(2)}s`
+      : safe
+        ? `${Math.max(7.2, 10.8 - score / 28).toFixed(2)}s`
+        : rhythm.duration;
 
   const rhythmStyle = {
-    "--ecg-duration": rhythm.duration,
+    "--ecg-duration": sweepDuration,
     "--ecg-delay": rhythm.delay,
   } as React.CSSProperties;
 
-  if (isMarket) {
-    return (
-      <div className={compact ? "ecg-bars compact" : "ecg-bars"}>
-        {Array.from({ length: compact ? 14 : 18 }).map((_, i) => (
-          <span
-            key={i}
-            style={{
-              height: `${Math.max(16, stateScore(monitor || {}) - (((i + seed) * 9) % 38))}%`,
-              animationDelay: `${((i + seed) % 7) * 0.13}s`,
-              animationDuration: rhythm.duration,
-            }}
-          />
-        ))}
-      </div>
-    );
-  }
-
   return (
-    <div className={compact ? "ecg-real-monitor compact" : "ecg-real-monitor"}>
+    <div
+      className={
+        disconnected
+          ? compact
+            ? "ecg-real-monitor compact flatline"
+            : "ecg-real-monitor flatline"
+          : compact
+            ? "ecg-real-monitor compact"
+            : "ecg-real-monitor"
+      }
+    >
       <svg className="ecg-real-svg" viewBox="0 0 260 38" preserveAspectRatio="none">
-        <line x1="0" y1="20" x2="260" y2="20" className={fault ? "ecg-baseline fault" : safe ? "ecg-baseline safe" : "ecg-baseline"} />
+        <line
+          x1="0"
+          y1="20"
+          x2="260"
+          y2="20"
+          className={disconnected ? "ecg-baseline fault" : safe ? "ecg-baseline safe" : "ecg-baseline"}
+        />
 
-        {fault ? (
-          <path className="ecg-tiny-blip fault-blip" d="M0 20 H96 L101 19 L106 21 L111 20 H260" />
-        ) : (
-          <g className={live ? "ecg-wave-run live" : "ecg-wave-run safe"} style={rhythmStyle}>
+        {disconnected ? null : (
+          <g className={live ? "ecg-real-sweep live" : "ecg-real-sweep safe"} style={rhythmStyle}>
+            <rect className="ecg-strip-flash" x="0" y="0" width="260" height="38" rx="4" />
             <path
-              className="ecg-wave"
+              className="ecg-real-wave"
+              pathLength={1000}
               d="
                 M0 20
-                H20
-                C24 20 25 17 28 17
-                C31 17 32 20 36 20
-                H44
-                L49 8
+                H13
+                C17 20 19 17.5 22 17.5
+                C25 17.5 27 20 31 20
+                H40
+                L44 23
+                L49 6
                 L54 31
-                L59 3
-                L65 33
-                L72 20
-                H88
-                C94 20 96 15 101 15
-                C106 15 110 20 116 20
+                L60 20
+                H75
+                C82 20 86 13.5 93 13.5
+                C101 13.5 106 20 114 20
                 H130
 
-                C134 20 135 18 138 18
-                C141 18 142 20 146 20
-                H154
-                L159 9
-                L164 30
-                L169 4
-                L175 32
-                L182 20
-                H198
-                C204 20 206 16 211 16
-                C216 16 220 20 226 20
+                H143
+                C147 20 149 17.5 152 17.5
+                C155 17.5 157 20 161 20
+                H170
+                L174 23
+                L179 6
+                L184 31
+                L190 20
+                H205
+                C212 20 216 13.5 223 13.5
+                C231 13.5 236 20 244 20
                 H260
-
-                H280
-                C284 20 285 17 288 17
-                C291 17 292 20 296 20
-                H304
-                L309 8
-                L314 31
-                L319 3
-                L325 33
-                L332 20
-                H348
-                C354 20 356 15 361 15
-                C366 15 370 20 376 20
-                H390
-
-                C394 20 395 18 398 18
-                C401 18 402 20 406 20
-                H414
-                L419 9
-                L424 30
-                L429 4
-                L435 32
-                L442 20
-                H458
-                C464 20 466 16 471 16
-                C476 16 480 20 486 20
-                H520
               "
             />
-            <circle className="ecg-sweep-dot" cx="255" cy="20" r="2.4" />
           </g>
         )}
       </svg>
     </div>
   );
 }
-
 
 function PolyEdgeAdditiveRealDataMonitors({ data }: { data: any }) {
   const monitors = [
@@ -782,549 +779,192 @@ export default function PolyEdgeReferenceOnePage() {
           stroke: rgba(255,77,109,.55);
         }
 
-        .ecg-wave-run {
-          animation: ecgRealSweep var(--ecg-duration, 9s) linear infinite;
-          animation-delay: var(--ecg-delay, 0s);
-          will-change: transform;
+        .ecg-real-sweep {
+          will-change: contents;
         }
 
-        .ecg-wave {
+        .ecg-real-wave {
           fill: none;
           stroke-linecap: round;
           stroke-linejoin: round;
-          stroke-width: 2.7;
-          animation: ecgRealGlow 1.05s ease-in-out infinite;
+          stroke-width: 2.45;
+          stroke-dasharray: 1000;
+          stroke-dashoffset: 1000;
+          animation: ecgDrawLeftToRight var(--ecg-duration, 6.2s) linear infinite;
+          animation-delay: var(--ecg-delay, 0s);
         }
 
-        .ecg-wave-run.live .ecg-wave {
+        .ecg-real-sweep.live .ecg-real-wave {
           stroke: #21ff82;
           filter:
-            drop-shadow(0 0 5px rgba(33,255,130,.95))
-            drop-shadow(0 0 13px rgba(33,255,130,.65));
+            drop-shadow(0 0 5px rgba(33,255,130,.98))
+            drop-shadow(0 0 14px rgba(33,255,130,.72));
         }
 
-        .ecg-wave-run.safe .ecg-wave {
+        .ecg-real-sweep.safe .ecg-real-wave {
           stroke: #ffd166;
-          stroke-width: 1.8;
-          opacity: .82;
-          animation: ecgSafeGlow 2.2s ease-in-out infinite;
+          stroke-width: 1.9;
+          opacity: .86;
           filter: drop-shadow(0 0 5px rgba(255,209,102,.55));
         }
 
-        .ecg-sweep-dot {
-          fill: #caffdd;
-          filter:
-            drop-shadow(0 0 5px rgba(33,255,130,1))
-            drop-shadow(0 0 13px rgba(33,255,130,.85));
-          animation: ecgDotPulse .8s ease-in-out infinite;
-        }
-
-        .ecg-tiny-blip {
-          fill: none;
-          stroke-width: 1.7;
-          stroke: rgba(255,77,109,.78);
-          filter: drop-shadow(0 0 5px rgba(255,77,109,.6));
-          animation: ecgSafeGlow 2.8s ease-in-out infinite;
-        }
-
-        @keyframes ecgRealSweep {
-          from { transform: translateX(0); }
-          to { transform: translateX(-260px); }
-        }
-
-        @keyframes ecgRealGlow {
-          0%, 100% {
-            opacity: .72;
-            stroke-width: 2.5;
-          }
-          42% {
-            opacity: 1;
-            stroke-width: 4.1;
-          }
-          56% {
-            opacity: .94;
-            stroke-width: 3.3;
-          }
-        }
-
-        @keyframes ecgSafeGlow {
-          0%, 100% {
-            opacity: .35;
-          }
-          48% {
-            opacity: .88;
-          }
-        }
-
-        @keyframes ecgDotPulse {
-          0%, 100% { opacity: .45; transform: scale(.8); }
-          50% { opacity: 1; transform: scale(1.35); }
-        }
-
-        .ecg-bars {
-          display: flex;
-          align-items: end;
-          gap: 2px;
-          height: 13px;
-          margin-top: 1px;
-          overflow: hidden;
-        }
-
-        .ecg-bars.compact {
-          height: 11px;
-        }
-
-        .ecg-bars span {
-          flex: 1;
-          min-width: 2px;
-          background: linear-gradient(to top, #a21caf, #22d3ee, #fff);
-          box-shadow: 0 0 6px rgba(34,211,238,.55);
-          animation: barPulse 1.4s ease-in-out infinite alternate;
-        }
-
-        @keyframes ecgLivePulse {
-          0%, 100% {
-            opacity: .68;
-            stroke-width: 2.6;
-            filter:
-              drop-shadow(0 0 4px rgba(33,255,130,.55))
-              drop-shadow(0 0 9px rgba(33,255,130,.30));
-          }
-          38% {
-            opacity: 1;
-            stroke-width: 4.2;
-            filter:
-              drop-shadow(0 0 8px rgba(33,255,130,1))
-              drop-shadow(0 0 18px rgba(33,255,130,.75));
-          }
-          54% {
-            opacity: .92;
-            stroke-width: 3.4;
-            filter:
-              drop-shadow(0 0 6px rgba(33,255,130,.8))
-              drop-shadow(0 0 14px rgba(33,255,130,.55));
-          }
-        }
-
-        @keyframes ecgSafePulse {
-          0%, 100% {
-            opacity: .38;
-            stroke-width: 1.6;
-          }
-          45% {
-            opacity: .78;
-            stroke-width: 2.4;
-          }
-        }
-
-        .holo-stage {
-          position: relative;
-          width: 100%;
-          height: 100%;
-          display: grid;
-          place-items: center;
-          overflow: hidden;
-        }
-
-        .holo-ring {
-          position: absolute;
-          border: 1px solid rgba(34,211,238,.34);
-          border-radius: 999px;
-          box-shadow: 0 0 18px rgba(34,211,238,.18);
-          transform-style: preserve-3d;
-        }
-
-        .holo-ring.one {
-          width: 82%;
-          height: 42%;
-          transform: rotateX(66deg);
-          animation: holoRingSpin 9s linear infinite;
-        }
-
-        .holo-ring.two {
-          width: 58%;
-          height: 30%;
-          border-color: rgba(217,70,239,.32);
-          transform: rotateX(66deg) rotateZ(34deg);
-          animation: holoRingSpinReverse 6.5s linear infinite;
-        }
-
-        .holo-ring.three {
-          width: 36%;
-          height: 18%;
-          border-color: rgba(16,185,129,.28);
-          transform: rotateX(66deg) rotateZ(-28deg);
-          animation: holoRingSpin 4.8s linear infinite;
-        }
-
-        .holo-core {
-          width: 26%;
-          height: 18%;
-          border-radius: 999px;
-          background: radial-gradient(circle, rgba(255,255,255,.95), rgba(34,211,238,.74) 34%, rgba(192,38,211,.18) 68%, transparent);
-          filter: blur(.4px);
-          box-shadow:
-            0 0 24px rgba(34,211,238,.82),
-            0 0 48px rgba(192,38,211,.42);
-          animation: holoCorePulse 1.8s ease-in-out infinite;
-        }
-
-        .holo-orbit-dot {
-          position: absolute;
-          width: 7px;
-          height: 7px;
-          border-radius: 999px;
-          background: #67e8f9;
-          box-shadow:
-            0 0 12px rgba(103,232,249,1),
-            0 0 26px rgba(103,232,249,.75);
-          animation: holoDotOrbit 4.6s linear infinite;
-        }
-
-        .holo-scan {
-          position: absolute;
-          inset: 12%;
-          border-radius: 999px;
-          background: linear-gradient(90deg, transparent, rgba(34,211,238,.18), transparent);
-          animation: holoScan 3.2s ease-in-out infinite;
+        .ecg-strip-flash {
+          fill: rgba(33,255,130,.14);
+          opacity: 0;
+          filter: blur(5px) drop-shadow(0 0 20px rgba(33,255,130,.85));
+          animation: ecgWholeStripFlash var(--ecg-duration, 6.2s) ease-in-out infinite;
+          animation-delay: var(--ecg-delay, 0s);
           mix-blend-mode: screen;
         }
 
-        .liquidity-stage {
-          position: relative;
-          height: 100%;
-          display: flex;
-          align-items: end;
-          gap: 3px;
-          padding: 8px 10px 5px;
-          overflow: hidden;
+        .ecg-real-sweep.safe .ecg-strip-flash {
+          fill: rgba(255,209,102,.10);
+          filter: blur(5px) drop-shadow(0 0 15px rgba(255,209,102,.55));
         }
 
-        .liquidity-stage::after {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(100deg, transparent 0%, rgba(34,211,238,.16) 45%, transparent 70%);
-          transform: translateX(-120%);
-          animation: liquiditySweep 3.6s linear infinite;
-          pointer-events: none;
-        }
-
-        .liquidity-bar {
-          position: relative;
-          flex: 1;
-          min-width: 3px;
-          border-radius: 999px 999px 0 0;
-          background: linear-gradient(to top, #f97316, #22d3ee, #fff);
-          box-shadow:
-            0 0 7px rgba(34,211,238,.45),
-            0 0 14px rgba(249,115,22,.22);
-          transform-origin: bottom;
-          animation: liquidityPulse 1.7s ease-in-out infinite alternate;
-        }
-
-        .liquidity-bar::before {
-          content: "";
-          position: absolute;
-          left: 0;
-          right: 0;
-          top: 0;
-          height: 30%;
-          border-radius: inherit;
-          background: rgba(255,255,255,.42);
-          filter: blur(1px);
-        }
-
-        @keyframes holoRingSpin {
-          from { transform: rotateX(66deg) rotateZ(0deg); }
-          to { transform: rotateX(66deg) rotateZ(360deg); }
-        }
-
-        @keyframes holoRingSpinReverse {
-          from { transform: rotateX(66deg) rotateZ(360deg); }
-          to { transform: rotateX(66deg) rotateZ(0deg); }
-        }
-
-        @keyframes holoCorePulse {
-          0%, 100% {
-            transform: scale(.86);
-            opacity: .62;
+        @keyframes ecgDrawLeftToRight {
+          0% {
+            stroke-dashoffset: 1000;
+            opacity: .9;
           }
-          45% {
-            transform: scale(1.08);
+          4% {
             opacity: 1;
           }
-        }
-
-        @keyframes holoDotOrbit {
-          0% { transform: rotate(0deg) translateX(42px) rotate(0deg); }
-          100% { transform: rotate(360deg) translateX(42px) rotate(-360deg); }
-        }
-
-        @keyframes holoScan {
-          0%, 100% { opacity: .08; transform: rotate(0deg) scale(.85); }
-          50% { opacity: .36; transform: rotate(180deg) scale(1.08); }
-        }
-
-        @keyframes liquidityPulse {
-          0% {
-            transform: scaleY(.68);
-            opacity: .58;
-            filter: brightness(.85);
+          92% {
+            stroke-dashoffset: 0;
+            opacity: 1;
           }
           100% {
-            transform: scaleY(1.08);
-            opacity: 1;
-            filter: brightness(1.3);
+            stroke-dashoffset: 0;
+            opacity: .42;
           }
         }
 
-        @keyframes liquiditySweep {
-          from { transform: translateX(-120%); }
-          to { transform: translateX(120%); }
+        @keyframes ecgWholeStripFlash {
+          0%, 7%, 23%, 39%, 55%, 72%, 88%, 100% {
+            opacity: 0;
+          }
+          10%, 42%, 75% {
+            opacity: .92;
+          }
+          13%, 45%, 78% {
+            opacity: .22;
+          }
         }
 
-        @keyframes barPulse {
-          from { opacity: .45; transform: scaleY(.72); }
-          to { opacity: 1; transform: scaleY(1); }
-        }
-
-        .status {
-          display: grid;
-          grid-template-columns: repeat(6, minmax(0, 1fr));
-          gap: 3px;
-          padding: 3px;
-        }
-
-        .stat {
-          min-width: 0;
-          border: 1px solid rgba(34,211,238,.16);
-          background: rgba(0,0,0,.38);
-          padding: 3px 5px;
-          overflow: hidden;
-        }
-
-        .stat-k {
-          font-size: 6.5px;
-          font-weight: 900;
-          letter-spacing: .15em;
-          text-transform: uppercase;
-          color: rgba(190,255,255,.48);
-          white-space: nowrap;
-        }
-
-        .stat-v {
-          margin-top: 1px;
-          font-size: 8.5px;
-          font-weight: 900;
-          text-transform: uppercase;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .action-grid {
-          display: grid;
-          grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 3px;
-          height: 100%;
-          overflow: hidden;
-        }
-
-        .mini-monitor {
-          min-height: 37px;
-          border: 1px solid rgba(34,211,238,.18);
-          background: rgba(0,0,0,.58);
-          padding: 3px;
-          overflow: hidden;
-        }
-
-        .mini-row {
-          display: flex;
-          justify-content: space-between;
-          gap: 5px;
-          border-bottom: 1px solid rgba(34,211,238,.10);
-          padding-bottom: 3px;
-          margin-bottom: 3px;
-          font-size: 7.5px;
-        }
-
-        .trader-monitor-row {
-          display: flex;
-          justify-content: space-between;
-          gap: 5px;
-          border-bottom: 1px solid rgba(34,211,238,.10);
-          padding: 2px 0;
-          font-size: 7.5px;
-        }
-
-        .trader-monitor-row span:first-child {
-          color: rgba(190,255,255,.58);
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
-        .trader-monitor-row b {
-          color: rgb(110,231,183);
-          white-space: nowrap;
-        }
-
-        .mini-stat-grid {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 3px;
-          font-size: 7.5px;
-        }
-
-        .mini-box {
-          border: 1px solid rgba(34,211,238,.13);
-          background: rgba(0,0,0,.35);
-          padding: 3px;
-          min-height: 24px;
-        }
-
-        .capital-form {
-          display: grid;
-          grid-template-columns: 72px 1fr 1fr;
-          gap: 3px;
-          margin-top: 4px;
-        }
-
-        .capital-form select,
-        .capital-form input {
-          min-width: 0;
-          height: 22px;
-          border: 1px solid rgba(34,211,238,.22);
-          background: rgba(0,0,0,.62);
-          color: white;
-          padding: 0 6px;
-          font-size: 8px;
-          outline: none;
-        }
-
-        .capital-buttons {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 3px;
-          margin-top: 3px;
-        }
-
-        .capital-buttons button {
-          height: 22px;
-          border: 1px solid rgba(34,211,238,.28);
-          background: rgba(34,211,238,.10);
-          color: rgb(190,255,255);
-          font-size: 7px;
-          font-weight: 900;
-          text-transform: uppercase;
-          letter-spacing: .12em;
-        }
-
-        .capital-buttons button:hover {
-          background: rgba(34,211,238,.18);
-        }
-
-        .capital-quick-buttons {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 3px;
-          margin-top: 3px;
-        }
-
-        .capital-quick-buttons button,
-        .auto-paper-buttons button {
-          min-width: 0;
-          height: 20px;
-          border: 1px solid rgba(34,211,238,.24);
-          background: rgba(0,0,0,.48);
-          color: rgb(190,255,255);
-          font-size: 6.5px;
-          font-weight: 900;
-          text-transform: uppercase;
-          letter-spacing: .08em;
-        }
-
-        .auto-paper-buttons {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 3px;
-          margin-top: 3px;
-        }
-
-        @media (max-width: 900px) {
-          html, body, #root {
-            overflow: auto !important;
-            height: auto !important;
+          /* FINAL LAYOUT REPAIR AFTER ECG PATCH — do not remove ECG styles */
+          .capital-form input,
+          .capital-form select,
+          .capital-form textarea {
+            background: rgba(2, 8, 23, 0.92) !important;
+            color: rgb(224, 242, 254) !important;
+            border: 1px solid rgba(34, 211, 238, 0.28) !important;
+            outline: none !important;
           }
 
-          .poly-ref-root {
-            position: relative;
-            height: auto;
-            min-height: 100dvh;
-            overflow: auto;
-            font-size: 10px;
+          .capital-form input::placeholder,
+          .capital-form textarea::placeholder {
+            color: rgba(165, 243, 252, 0.42) !important;
           }
 
-          .shell {
-            display: flex;
-            flex-direction: column;
-            height: auto;
-            min-height: 100dvh;
+          .polyedge-additive-real-monitors {
+            grid-column: 1 / -1;
+            margin-top: 4px;
+            min-height: 104px;
+            max-height: 132px;
+            overflow: hidden;
+            border: 1px solid rgba(34, 211, 238, 0.28);
+            background: linear-gradient(180deg, rgba(3, 12, 24, 0.92), rgba(2, 6, 18, 0.96));
+            box-shadow:
+              inset 0 0 24px rgba(34, 211, 238, 0.055),
+              0 0 18px rgba(34, 211, 238, 0.08);
             padding: 6px;
           }
 
-          .left,
-          .main {
+          .polyedge-section-heading {
             display: flex;
-            flex-direction: column;
-            height: auto;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+            color: rgb(165, 243, 252);
+            font-size: 7px;
+            font-weight: 900;
+            letter-spacing: 0.16em;
+            line-height: 1;
+            text-transform: uppercase;
           }
 
-          .panel {
-            min-height: 120px;
+          .polyedge-section-heading small {
+            color: rgba(196, 181, 253, 0.72);
+            font-size: 6px;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            white-space: nowrap;
           }
 
-          .status {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+          .polyedge-additive-monitor-grid {
+            display: grid !important;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 5px;
           }
 
-          .ecg-list {
-            max-height: none;
-            overflow: visible;
+          .polyedge-additive-monitor-card {
+            min-height: 40px;
+            overflow: hidden;
+            border: 1px solid rgba(34, 211, 238, 0.16);
+            background: rgba(2, 8, 23, 0.74);
+            padding: 5px;
           }
 
-          .ecg-card {
-            min-height: 42px;
+          .polyedge-additive-monitor-label {
+            color: rgba(224, 242, 254, 0.66);
+            font-size: 6.5px;
+            font-weight: 900;
+            letter-spacing: 0.075em;
+            line-height: 1.05;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
 
-          .ecg-window,
-          .ecg-window.compact {
-            height: 16px;
+          .polyedge-additive-monitor-value {
+            margin-top: 4px;
+            color: rgb(134, 239, 172);
+            font-size: 8px;
+            font-weight: 900;
+            line-height: 1.05;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
 
-          .nav-scroll {
-            overflow: visible;
+          .polyedge-additive-monitor-source {
+            margin-top: 3px;
+            color: rgba(103, 232, 249, 0.54);
+            font-size: 5.5px;
+            font-weight: 800;
+            letter-spacing: 0.035em;
+            line-height: 1.05;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
 
-          .nav-item {
-            height: 28px;
-            font-size: 9px;
+          @media (max-width: 900px) {
+            .polyedge-additive-monitor-grid {
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .polyedge-additive-real-monitors {
+              max-height: none;
+            }
           }
 
-          .capital-form {
-            grid-template-columns: 1fr;
-          }
-
-          .capital-form select,
-          .capital-form input,
-          .capital-buttons button {
-            height: 34px;
-            font-size: 11px;
-          }
-        }
-      `}
+`}
 
 </style>
 
@@ -1576,7 +1216,12 @@ export default function PolyEdgeReferenceOnePage() {
               <div className="holo-ring two" />
               <div className="holo-ring three" />
               <div className="holo-core" />
-              <div className="holo-orbit-dot" />
+              <div className="holo-orbit-dot one" />
+              <div className="holo-orbit-dot two" />
+              <div className="holo-orbit-dot three" />
+              <div className="holo-orbit-dot four" />
+              <div className="holo-orbit-dot five" />
+              <div className="holo-orbit-dot six" />
               <div className="absolute bottom-2 text-[8px] uppercase tracking-[0.18em] text-cyan-300/70">Real Monitors • Active Field</div>
             </div>
           </Panel>
