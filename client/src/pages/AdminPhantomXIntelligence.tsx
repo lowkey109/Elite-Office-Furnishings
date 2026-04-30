@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   Activity,
   BarChart3,
@@ -17,11 +18,12 @@ import {
 
 type AnyRow = Record<string, any>;
 
-export default function AdminPhantomXIntelligence() {
+function PhantomXTerminalCanvas() {
   const [scale, setScale] = useState(1);
   const [intel, setIntel] = useState<any>({});
   const [learning, setLearning] = useState<any>({});
   const [time, setTime] = useState("2050-05-22 21:47:36.782");
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     const resize = () => {
@@ -599,6 +601,145 @@ export default function AdminPhantomXIntelligence() {
           top: `${(window.innerHeight - 1080 * scale) / 2}px`,
         }}
       >
+        
+        <button
+          onClick={() => setDrawerOpen(true)}
+          style={{
+            position: "absolute",
+            left: 18,
+            top: 106,
+            zIndex: 60,
+            width: 154,
+            height: 38,
+            border: "1px solid rgba(34,240,255,.75)",
+            background: "rgba(0,0,0,.88)",
+            color: "#22f0ff",
+            fontSize: 12,
+            fontWeight: 900,
+            letterSpacing: ".16em",
+            cursor: "pointer",
+            boxShadow: "0 0 18px rgba(34,240,255,.25)",
+            fontFamily: "\"Courier New\", monospace",
+          }}
+        >
+          TCD APPS
+        </button>
+
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: drawerOpen ? 0 : -370,
+            width: 370,
+            height: 1080,
+            zIndex: 80,
+            background: "rgba(0,0,0,.97)",
+            borderRight: "1px solid rgba(34,240,255,.72)",
+            boxShadow: "30px 0 80px rgba(0,0,0,.82), 0 0 50px rgba(34,240,255,.18)",
+            transition: "left .22s ease",
+            padding: "28px 22px",
+            boxSizing: "border-box",
+            fontFamily: "\"Courier New\", monospace",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              borderBottom: "1px solid rgba(34,240,255,.28)",
+              paddingBottom: 18,
+              marginBottom: 18,
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  color: "#22f0ff",
+                  fontSize: 22,
+                  fontWeight: 900,
+                  letterSpacing: ".16em",
+                  textShadow: "0 0 14px rgba(34,240,255,.8)",
+                }}
+              >
+                TCD APPS
+              </div>
+              <div style={{ color: "#78909a", fontSize: 10, marginTop: 5 }}>
+                RETURN TO PLATFORM MODULES
+              </div>
+            </div>
+
+            <button
+              onClick={() => setDrawerOpen(false)}
+              style={{
+                border: "1px solid rgba(255,138,0,.7)",
+                background: "rgba(255,138,0,.08)",
+                color: "#ff8a00",
+                height: 34,
+                width: 42,
+                cursor: "pointer",
+                fontSize: 20,
+              }}
+            >
+              ×
+            </button>
+          </div>
+
+          <div style={{ display: "grid", gap: 10 }}>
+            {[
+              ["/admin/dashboard", "DASHBOARD", "main admin overview"],
+              ["/admin/nexora", "NEXORA OS", "core AI command centre"],
+              ["/admin/ai-monitor", "AI MONITOR", "automation and outreach monitor"],
+              ["/admin/trading-monitor", "TRADING MONITOR", "old trading monitor / baseline memory"],
+              ["/admin/phantomx-intelligence", "PHANTOM X", "POLY//EDGE terminal"],
+              ["/admin/dev-studio", "DEV STUDIO", "builder, files, terminal and auto-fix"],
+              ["/admin/leads", "LEADS", "sales pipeline and inbound leads"],
+              ["/admin/deal-pipeline", "DEAL PIPELINE", "opportunities and closing"],
+              ["/admin/office-move-radar", "MOVE RADAR", "office move intelligence"],
+              ["/admin/quotes", "QUOTES", "quote and proposal control"],
+              ["/admin/customers", "CUSTOMERS", "client accounts and subscriptions"],
+              ["/", "PUBLIC SITE", "return to website"],
+            ].map(([href, title, sub]) => (
+              <a
+                key={href}
+                href={href}
+                style={{
+                  display: "block",
+                  textDecoration: "none",
+                  border: "1px solid rgba(34,240,255,.28)",
+                  background: "linear-gradient(90deg, rgba(34,240,255,.08), rgba(0,0,0,.2))",
+                  padding: "13px 14px",
+                  color: "#d8fbff",
+                  clipPath: "polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)",
+                }}
+              >
+                <b style={{ display: "block", color: "#22f0ff", fontSize: 14, letterSpacing: ".1em" }}>
+                  {title}
+                </b>
+                <small style={{ display: "block", marginTop: 5, color: "#78909a", fontSize: 10, letterSpacing: ".08em" }}>
+                  {sub}
+                </small>
+              </a>
+            ))}
+          </div>
+
+          <div
+            style={{
+              position: "absolute",
+              left: 22,
+              right: 22,
+              bottom: 28,
+              color: "#78909a",
+              fontSize: 11,
+              lineHeight: 1.6,
+              borderTop: "1px solid rgba(34,240,255,.18)",
+              paddingTop: 14,
+            }}
+          >
+            Phantom X runs full-screen. Use this drawer to jump back to the rest of the admin apps.
+          </div>
+        </div>
+
         <aside className="sidebar">
           <div className="logoBox">
             <Hexagon size={58} className="cyan glowC" />
@@ -909,4 +1050,28 @@ function Universe() {
       <circle cx="392" cy="84" r="5" fill="#ff8a00" />
     </svg>
   );
+}
+
+
+export default function AdminPhantomXIntelligence() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+
+    const oldOverflow = document.body.style.overflow;
+    const oldBackground = document.body.style.background;
+
+    document.body.style.overflow = "hidden";
+    document.body.style.background = "#000";
+
+    return () => {
+      document.body.style.overflow = oldOverflow;
+      document.body.style.background = oldBackground;
+    };
+  }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(<PhantomXTerminalCanvas />, document.body);
 }
