@@ -563,7 +563,7 @@ function statusTone(state?: string) {
 
 function QuantumGlass({ children, className = "" }: { children: any; className?: string }) {
   return (
-    <div className={`poly-final-glass relative overflow-hidden rounded-[22px] border border-cyan-300/25 bg-slate-950/65 p-3 backdrop-blur-xl ${className}`}>
+    <div className={`poly-final-glass relative overflow-hidden rounded-2xl border border-cyan-300/25 bg-slate-950/65 p-2 backdrop-blur-xl ${className}`}>
       <div className="pointer-events-none absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(103,232,249,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(103,232,249,.08) 1px, transparent 1px)", backgroundSize: "30px 30px" }} />
       <div className="poly-final-scan pointer-events-none absolute inset-0" />
       <div className="relative z-10 h-full">{children}</div>
@@ -586,7 +586,7 @@ function MiniTrace({ monitor }: { monitor: any }) {
 
   if (monitor?.kind === "market") {
     return (
-      <div className="mt-2 flex h-8 items-end gap-[3px] overflow-hidden rounded-lg border border-cyan-300/10 bg-black/45 px-2 pb-1">
+      <div className="mt-1 flex h-6 items-end gap-[2px] overflow-hidden rounded-md border border-cyan-300/10 bg-black/45 px-2 pb-1">
         {Array.from({ length: 22 }).map((_, i) => (
           <span
             key={i}
@@ -603,7 +603,7 @@ function MiniTrace({ monitor }: { monitor: any }) {
   }
 
   return (
-    <div className="mt-2 h-8 overflow-hidden rounded-lg border border-cyan-300/10 bg-black/45">
+    <div className="mt-1 h-6 overflow-hidden rounded-md border border-cyan-300/10 bg-black/45">
       <svg className="h-full w-[135%]" viewBox="0 0 320 40" preserveAspectRatio="none">
         <polyline
           points={moving ? "0,24 24,24 36,10 49,31 61,24 96,24 112,12 127,30 140,24 176,24 190,9 205,33 218,24 254,24 270,12 288,31 320,24" : "0,24 320,24"}
@@ -630,10 +630,10 @@ function MonitorTile({ monitor }: { monitor: any }) {
       : t.label;
 
   return (
-    <div className={`relative overflow-hidden rounded-xl border ${t.border} bg-black/35 p-2`} style={{ boxShadow: `inset 0 0 22px ${t.fill}` }}>
+    <div className={`relative overflow-hidden rounded-lg border ${t.border} bg-black/35 p-1.5`} style={{ boxShadow: `inset 0 0 22px ${t.fill}` }}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <div className="truncate text-[10px] font-black uppercase tracking-[0.12em] text-white">{realValue(monitor?.label, "UNKNOWN")}</div>
+          <div className="truncate text-[9px] font-black uppercase tracking-[0.10em] text-white">{realValue(monitor?.label, "UNKNOWN")}</div>
           <div className="truncate text-[8px] uppercase text-cyan-100/40">{realValue(monitor?.kind, "module")}</div>
         </div>
         <div className={`flex shrink-0 items-center gap-1 text-[8px] font-black uppercase ${t.text}`}>
@@ -840,7 +840,7 @@ function BottomStatusBar({ monitors, metrics }: { monitors: any[]; metrics: any 
   const replayTone = statusTone(replay?.state);
 
   return (
-    <div className="mt-3 flex items-center justify-between rounded-2xl border border-cyan-400/30 bg-slate-950/65 px-4 py-3 text-[10px] backdrop-blur-xl">
+    <div className="mt-2 flex items-center justify-between rounded-xl border border-cyan-400/30 bg-slate-950/65 px-3 py-2 text-[9px] backdrop-blur-xl">
       <div className="flex gap-5">
         <div><span className="text-emerald-400">MAX DD:</span> {realPct(metrics?.maxDrawdownPct)}</div>
         <div><span className="text-emerald-400">WIN RATE:</span> {realPct(metrics?.winRate)}</div>
@@ -949,13 +949,13 @@ function PolyEdgeActionMonitorGrid({
         }
       `}</style>
 
-      <div className="poly-final-root fixed inset-0 z-[9999] overflow-hidden p-4 text-white">
+      <div className="poly-final-root relative h-[calc(100vh-170px)] min-h-[640px] max-h-[calc(100vh-170px)] overflow-hidden rounded-[32px] p-3 text-white">
         <div className="relative z-10 mx-auto flex h-full max-w-screen-2xl flex-col">
-          <div className="mb-3 flex items-center justify-between rounded-3xl border border-cyan-400/30 bg-slate-950/65 px-6 py-3 backdrop-blur-xl">
+          <div className="mb-2 flex items-center justify-between rounded-2xl border border-cyan-400/30 bg-slate-950/65 px-4 py-2 backdrop-blur-xl">
             <div className="flex items-center gap-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-purple-600 text-2xl font-bold text-white shadow-[0_0_30px_rgba(103,232,249,.4)]">P/E</div>
               <div>
-                <h1 className="text-3xl font-bold tracking-tighter text-cyan-100 drop-shadow-[0_0_18px_rgba(103,232,249,.8)]">POLY//EDGE</h1>
+                <h1 className="text-2xl font-bold tracking-tighter text-cyan-100 drop-shadow-[0_0_18px_rgba(103,232,249,.8)]">POLY//EDGE</h1>
                 <p className="text-[10px] uppercase tracking-[4px] text-cyan-400">REAL DATA ONLY • NO SIMULATED VALUES</p>
               </div>
             </div>
@@ -966,7 +966,7 @@ function PolyEdgeActionMonitorGrid({
                 <div className="text-[10px] text-gray-400">POLY API STATUS</div>
               </div>
               <div className="text-center">
-                <div className="font-mono text-3xl font-bold text-white">{realMoney(metrics?.totalPnl)}</div>
+                <div className="font-mono text-xl font-bold text-white">{realMoney(metrics?.totalPnl)}</div>
                 <div className="text-[10px] text-emerald-400">REAL TOTAL PNL</div>
               </div>
               <div className="text-center">
@@ -997,7 +997,7 @@ function PolyEdgeActionMonitorGrid({
               </QuantumGlass>
             </div>
 
-            <div className="col-span-7 grid min-h-0 grid-rows-[1.45fr_.72fr_.72fr] gap-3">
+            <div className="col-span-7 grid min-h-0 grid-rows-[1.32fr_.66fr_.78fr] gap-3">
               <QuantumGlass>
                 <EquityPanel monitors={monitors} metrics={metrics} />
               </QuantumGlass>
@@ -1020,7 +1020,7 @@ function PolyEdgeActionMonitorGrid({
               </QuantumGlass>
             </div>
 
-            <div className="col-span-3 grid min-h-0 grid-rows-[.78fr_.72fr_1.16fr] gap-3">
+            <div className="col-span-3 grid min-h-0 grid-rows-[.72fr_.62fr_1fr] gap-3">
               <QuantumGlass>
                 <SentimentPanel monitors={monitors} />
               </QuantumGlass>
