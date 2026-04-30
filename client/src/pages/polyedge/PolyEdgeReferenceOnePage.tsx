@@ -211,7 +211,7 @@ export default function PolyEdgeReferenceOnePage() {
 
         .left {
           display: grid;
-          grid-template-rows: 56px 126px 1fr 78px;
+          grid-template-rows: 50px 102px 1fr 58px;
           gap: 4px;
           min-height: 0;
         }
@@ -297,7 +297,7 @@ export default function PolyEdgeReferenceOnePage() {
         }
 
         .ecg-card {
-          min-height: 31px;
+          min-height: 28px;
           padding: 3px 4px;
           border: 1px solid rgba(34,211,238,.18);
           background: rgba(0,0,0,.60);
@@ -313,7 +313,7 @@ export default function PolyEdgeReferenceOnePage() {
         }
 
         .ecg-window.compact {
-          height: 11px;
+          height: 10px;
         }
 
         .ecg-track {
@@ -467,7 +467,11 @@ export default function PolyEdgeReferenceOnePage() {
         }
 
         @media (max-width: 900px) {
-          html, body, #root { overflow: auto !important; }
+          html, body, #root {
+            overflow: auto !important;
+            height: auto !important;
+          }
+
           .poly-ref-root {
             position: relative;
             height: auto;
@@ -475,12 +479,49 @@ export default function PolyEdgeReferenceOnePage() {
             overflow: auto;
             font-size: 10px;
           }
-          .shell, .main, .left {
+
+          .shell {
+            display: flex;
+            flex-direction: column;
+            height: auto;
+            min-height: 100dvh;
+            padding: 6px;
+          }
+
+          .left,
+          .main {
             display: flex;
             flex-direction: column;
             height: auto;
           }
-          .panel { min-height: 120px; }
+
+          .panel {
+            min-height: 120px;
+          }
+
+          .status {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
+          .ecg-list {
+            max-height: none;
+            overflow: visible;
+          }
+
+          .ecg-card {
+            min-height: 42px;
+          }
+
+          .ecg-window,
+          .ecg-window.compact {
+            height: 16px;
+          }
+
+          .nav-item {
+            height: 24px;
+            font-size: 9px;
+          }
         }
       `}</style>
 
@@ -532,9 +573,9 @@ export default function PolyEdgeReferenceOnePage() {
           <section className="panel">
             <div className="panel-body grid place-items-center text-center">
               <div>
-                <div className="mx-auto mb-1 h-10 w-10 rounded-full border border-cyan-300/35 bg-cyan-300/10 shadow-[0_0_30px_rgba(34,211,238,.28)]" />
-                <div className="text-sm font-black text-cyan-200">{live}/{monitors.length}</div>
-                <div className="text-[7px] uppercase tracking-[0.2em] text-cyan-300/55">Module Sync</div>
+                <div className="mx-auto mb-1 h-7 w-7 rounded-full border border-cyan-300/35 bg-cyan-300/10 shadow-[0_0_30px_rgba(34,211,238,.28)]" />
+                <div className="text-[10px] font-black text-cyan-200">{live}/{monitors.length}</div>
+                <div className="text-[6px] uppercase tracking-[0.16em] text-cyan-300/55">Module Sync</div>
               </div>
             </div>
           </section>
@@ -699,24 +740,7 @@ export default function PolyEdgeReferenceOnePage() {
             </div>
           </Panel>
 
-          <Panel title="All PolyEdge Action Monitors" className="col-span-5">
-            <div className="action-grid">
-              {actionRows.map((monitor) => {
-                const t = tone(monitor.state);
-                return (
-                  <div key={monitor.key || monitor.label} className="mini-monitor">
-                    <div className="flex items-center justify-between gap-1">
-                      <div className="truncate text-[7.5px] font-black uppercase text-white">{monitor.label || monitor.key}</div>
-                      <div className={`text-[6.5px] font-black uppercase ${t.text}`}>{monitor.state || "unknown"}</div>
-                    </div>
-                    <EcgTrace monitor={monitor} compact />
-                  </div>
-                );
-              })}
-            </div>
-          </Panel>
-
-          <Panel title="Replay Engine Monitor" className="col-span-2">
+          <Panel title="Replay Engine Monitor" className="col-span-3">
             <div className="text-lg font-black text-amber-300">{realValue(replayStatus?.state || "IDLE")}</div>
             <div className="mt-2 grid grid-cols-2 gap-1 text-[8px]">
               <div className="mini-box">Wins<br /><b>{qualified}</b></div>
@@ -724,7 +748,7 @@ export default function PolyEdgeReferenceOnePage() {
             </div>
           </Panel>
 
-          <Panel title="Neural Learning Core" className="col-span-2">
+          <Panel title="Neural Learning Core" className="col-span-3">
             <div className="mini-stat-grid">
               <div className="mini-box">Learning<br /><b>{realValue(metrics?.learningScore || 0)}</b></div>
               <div className="mini-box">Samples<br /><b>{trades}</b></div>
@@ -733,7 +757,7 @@ export default function PolyEdgeReferenceOnePage() {
             </div>
           </Panel>
 
-          <Panel title="Decision Stream // Live Log" className="col-span-3">
+          <Panel title="Decision Stream // Live Log" className="col-span-6">
             <div className="space-y-1 text-[8px]">
               {moduleRows.slice(0, 5).map((m) => {
                 const t = tone(m.state);
