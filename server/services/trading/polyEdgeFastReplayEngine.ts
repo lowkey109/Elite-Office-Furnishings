@@ -2,8 +2,6 @@ import { db } from "../../db";
 import { desc, sql } from "drizzle-orm";
 import { paperTradeOutcomes, paperTradingState } from "@shared/schema";
 import { createDecision, openPaperPosition, closePaperPosition } from "./paperEngine";
-import { getPolyEdgeProof } from "./polyEdgeProofService";
-import { getPolyEdgePromotionReadiness } from "./polyEdgePromotionGate";
 
 type ReplayRunInput = {
   requestedBatchSize?: number;
@@ -12,6 +10,7 @@ type ReplayRunInput = {
 
 const MAX_BATCH_SIZE = 50;
 const DEFAULT_BATCH_SIZE = 25;
+const REQUIRED_PROFITABLE_TRADES = 500;
 
 const MARKETS = [
   { symbol: "BTC", base: 100000, volatility: 0.018 },
@@ -49,16 +48,46 @@ function getRealizedPnl(row: any): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+async function getRecentOutcomeStats() {
+  const recentOutcomes = await db
+    .select()
+    .from(paperTradeOutcomes)
+    .orderBy(desc(paperTradeOutcomes.createdAt))
+    .limit(2000)
+    .catch(() => [] as any[]);
+
+  const totalPaperTrades = recentOutcomes.length;
+  const qualifiedProfitablePaperTrades = recentOutcomes.filter((r) => getRealizedPnl(r) > 0).length;
+  const losses = recentOutcomes.filter((r) => getRealizedPnl(r) < 0).length;
+  const totalPnl = Math.round(recentOutcomes.reduce((s, r) => s + getRealizedPnl(r), 0) * 100) / 100;
+  const grossProfit = recentOutcomes.filter((r) => getRealizedPnl(r) > 0).reduce((s, r) => s + getRealizedPnl(r), 0);
+  const grossLossAbs = Math.abs(recentOutcomes.filter((r) => getRealizedPnl(r) < 0).reduce((s, r) => s + getRealizedPnl(r), 0));
+  const winRate = totalPaperTrades > 0 ? Math.round((qualifiedProfitablePaperTrades / totalPaperTrades) * 10000) / 100 : 0;
+  const profitFactor = grossLossAbs > 0 ? Math.round((grossProfit / grossLossAbs) * 100) / 100 : grossProfit > 0 ? 999 : 0;
+
+  return {
+    sampledOutcomes: totalPaperTrades,
+    totalPaperTrades,
+    qualifiedProfitablePaperTrades,
+    losses,
+    winRate,
+    profitFactor,
+    totalPnl,
+    requiredProfitablePaperTrades: REQUIRED_PROFITABLE_TRADES,
+    profitablePaperTradeProgressPct: Math.min(
+      100,
+      Math.round((qualifiedProfitablePaperTrades / REQUIRED_PROFITABLE_TRADES) * 10000) / 100
+    ),
+  };
+}
+
 export async function getPolyEdgeReplayStatus() {
-  const [stateRows, recentOutcomes, proof, promotion] = await Promise.all([
+  const [stateRows, stats] = await Promise.all([
     db.select().from(paperTradingState).limit(1).catch(() => [] as any[]),
-    db.select().from(paperTradeOutcomes).orderBy(desc(paperTradeOutcomes.createdAt)).limit(250).catch(() => [] as any[]),
-    getPolyEdgeProof("admin").catch(() => null),
-    getPolyEdgePromotionReadiness("admin").catch(() => null),
+    getRecentOutcomeStats(),
   ]);
 
-  const profitable = (recentOutcomes as any[]).filter((r) => getRealizedPnl(r) > 0).length;
-  const losses = (recentOutcomes as any[]).filter((r) => getRealizedPnl(r) < 0).length;
+  const remaining = Math.max(0, REQUIRED_PROFITABLE_TRADES - stats.qualifiedProfitablePaperTrades);
 
   return {
     ok: true,
@@ -70,15 +99,25 @@ export async function getPolyEdgeReplayStatus() {
     lastRunAt: lastRunAt ? new Date(lastRunAt).toISOString() : null,
     state: stateRows[0] || null,
     recentWindow: {
-      sampledOutcomes: (recentOutcomes as any[]).length,
-      profitable,
-      losses,
+      sampledOutcomes: stats.sampledOutcomes,
+      profitable: stats.qualifiedProfitablePaperTrades,
+      losses: stats.losses,
     },
-    proof: (proof as any)?.proof || null,
+    proof: {
+      totalTrades: stats.totalPaperTrades,
+      wins: stats.qualifiedProfitablePaperTrades,
+      losses: stats.losses,
+      winRate: stats.winRate,
+      profitFactor: stats.profitFactor,
+      totalPnl: stats.totalPnl,
+    },
     promotion: {
-      status: (promotion as any)?.status,
-      metrics: (promotion as any)?.metrics,
-      nextRequiredAction: (promotion as any)?.nextRequiredAction,
+      status: remaining > 0 ? "paper_only" : "eligible_for_tiny_live_review",
+      metrics: stats,
+      nextRequiredAction:
+        remaining > 0
+          ? `Complete ${remaining} more profitable paper trades. Losses still count for learning and risk.`
+          : "500 profitable paper trades reached. Full promotion gate still checks drawdown, learning, kill switches and Nexora.",
     },
   };
 }
@@ -97,11 +136,7 @@ export async function runPolyEdgeFastPaperReplay(input: ReplayRunInput = {}) {
 
   lastRunAt = now;
 
-  const batchSize = clamp(
-    Number(input.requestedBatchSize || DEFAULT_BATCH_SIZE),
-    1,
-    MAX_BATCH_SIZE
-  );
+  const batchSize = clamp(Number(input.requestedBatchSize || DEFAULT_BATCH_SIZE), 1, MAX_BATCH_SIZE);
 
   const created: any[] = [];
   let profitable = 0;
@@ -131,14 +166,12 @@ export async function runPolyEdgeFastPaperReplay(input: ReplayRunInput = {}) {
         : isWin ? -movePct : movePct;
 
     const exitPrice = Math.round(entryPrice * (1 + signedMove) * 100) / 100;
-    const stopPrice =
-      direction === "long"
-        ? Math.round(entryPrice * 0.97 * 100) / 100
-        : Math.round(entryPrice * 1.03 * 100) / 100;
-    const targetPrice =
-      direction === "long"
-        ? Math.round(entryPrice * 1.04 * 100) / 100
-        : Math.round(entryPrice * 0.96 * 100) / 100;
+    const stopPrice = direction === "long"
+      ? Math.round(entryPrice * 0.97 * 100) / 100
+      : Math.round(entryPrice * 1.03 * 100) / 100;
+    const targetPrice = direction === "long"
+      ? Math.round(entryPrice * 1.04 * 100) / 100
+      : Math.round(entryPrice * 0.96 * 100) / 100;
 
     try {
       const decisionId = await createDecision({
@@ -189,11 +222,7 @@ export async function runPolyEdgeFastPaperReplay(input: ReplayRunInput = {}) {
         exitSnapshotId: `polyedge-replay-${now}-${i}`,
       });
 
-      const realizedApprox =
-        direction === "long"
-          ? exitPrice - entryPrice
-          : entryPrice - exitPrice;
-
+      const realizedApprox = direction === "long" ? exitPrice - entryPrice : entryPrice - exitPrice;
       if (realizedApprox > 0) profitable++;
       else if (realizedApprox < 0) losing++;
 
@@ -205,8 +234,6 @@ export async function runPolyEdgeFastPaperReplay(input: ReplayRunInput = {}) {
         strategy,
         direction,
         confidence,
-        entryPrice,
-        exitPrice,
         intendedOutcome: isWin ? "win" : "loss",
         realizedApprox: Math.round(realizedApprox * 100) / 100,
       });
@@ -228,7 +255,7 @@ export async function runPolyEdgeFastPaperReplay(input: ReplayRunInput = {}) {
     // non-critical
   }
 
-  const status = await getPolyEdgeReplayStatus();
+  const stats = await getRecentOutcomeStats();
 
   return {
     ok: true,
@@ -241,6 +268,15 @@ export async function runPolyEdgeFastPaperReplay(input: ReplayRunInput = {}) {
     losingApprox: losing,
     skipped,
     created,
-    status,
+    promotion: {
+      status: stats.qualifiedProfitablePaperTrades >= REQUIRED_PROFITABLE_TRADES
+        ? "eligible_for_tiny_live_review"
+        : "paper_only",
+      metrics: stats,
+      nextRequiredAction:
+        stats.qualifiedProfitablePaperTrades >= REQUIRED_PROFITABLE_TRADES
+          ? "500 profitable paper trades reached. Full promotion gate still applies."
+          : `Complete ${Math.max(0, REQUIRED_PROFITABLE_TRADES - stats.qualifiedProfitablePaperTrades)} more profitable paper trades.`,
+    },
   };
 }
