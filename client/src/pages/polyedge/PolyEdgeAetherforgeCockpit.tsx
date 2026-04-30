@@ -164,6 +164,11 @@ function money(value: unknown) {
   return `${sign}$${abs.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
 }
 
+function polyEdgeAuthHeaders(mode: "admin" | "client"): HeadersInit {
+  if (mode !== "admin") return {};
+  return { "x-tcd-admin-auth": "true" };
+}
+
 function num(value: unknown, suffix = "") {
   const n = Number(value || 0);
   return `${n.toLocaleString(undefined, { maximumFractionDigits: 2 })}${suffix}`;
@@ -237,7 +242,10 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
   async function loadReplayStatus() {
     if (mode !== "admin") return;
     try {
-      const res = await fetch("/api/admin/polyedge/replay/status", { credentials: "include" });
+      const res = await fetch("/api/admin/polyedge/replay/status", {
+        credentials: "include",
+        headers: polyEdgeAuthHeaders(mode),
+      });
       const json = await res.json();
       if (res.ok && json?.ok !== false) setReplayStatus(json);
     } catch {
@@ -254,7 +262,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
       const res = await fetch("/api/admin/polyedge/replay/run", {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...polyEdgeAuthHeaders(mode) },
         body: JSON.stringify({ batchSize }),
       });
       const json = await res.json();
@@ -278,12 +286,18 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
 
   async function load() {
     try {
-      const res = await fetch(endpoint, { credentials: "include" });
+      const res = await fetch(endpoint, {
+        credentials: "include",
+        headers: polyEdgeAuthHeaders(mode),
+      });
       const json = await res.json();
       if (!res.ok || json?.ok === false) throw new Error(json?.error || "PolyEdge API failed");
       setData(json);
 
-      const learningRes = await fetch(learningEndpoint, { credentials: "include" });
+      const learningRes = await fetch(learningEndpoint, {
+        credentials: "include",
+        headers: polyEdgeAuthHeaders(mode),
+      });
       const learningJson = await learningRes.json();
       if (learningRes.ok && learningJson?.ok !== false) {
         setLearning(learningJson);
