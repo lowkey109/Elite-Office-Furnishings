@@ -43,6 +43,35 @@ const TCD_ENABLE_BACKGROUND_JOBS =
 
 const app = express();
 
+app.get("/api/polyedge/action-monitor", async (_req, res) => {
+  try {
+    const { getPolyEdgeActionMonitor } = await import("./services/trading/polyEdgeActionMonitorService");
+    return res.json(await getPolyEdgeActionMonitor());
+  } catch (err: any) {
+    return res.status(500).json({
+      ok: false,
+      product: "polyedge",
+      service: "action_monitor",
+      status: "offline",
+      error: err?.message || "PolyEdge action monitor failed",
+      generatedAt: new Date().toISOString(),
+    });
+  }
+});
+
+app.get("/api/polyedge/heartbeat", async (_req, res) => {
+  return res.json({
+    ok: true,
+    product: "polyedge",
+    service: "heartbeat",
+    status: "online",
+    generatedAt: new Date().toISOString(),
+    liveTradingAffected: false,
+  });
+});
+
+
+
 /**
  * TCD_STAGE_23_SPEED_HARDENING
  *

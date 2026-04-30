@@ -67,6 +67,24 @@ type PolyEdgeLearningResponse = {
   risksToReduce?: PolyEdgeLearningGroup[];
 };
 
+type PolyEdgeActionMonitorItem = {
+  key?: string;
+  label?: string;
+  state?: string;
+  moving?: boolean;
+  liveTradingAffected?: boolean;
+  detail?: string;
+  lastCheckAt?: string;
+};
+
+type PolyEdgeActionMonitorResponse = {
+  ok?: boolean;
+  product?: string;
+  service?: string;
+  generatedAt?: string;
+  monitors?: PolyEdgeActionMonitorItem[];
+};
+
 type PolyEdgeReplayStatus = {
   ok?: boolean;
   maxBatchSize?: number;
@@ -349,7 +367,7 @@ function PolySystemHeartMonitor({
                     : "0,70 1000,70"
                 }
                 fill="none"
-                stroke={alive ? "#5fffd2" : "#ff4d4d"}
+                stroke={alive ? "#00ff88" : "#ff4d4d"}
                 strokeWidth="4"
                 strokeLinejoin="round"
                 strokeLinecap="round"
@@ -463,6 +481,70 @@ function ReplayEngineMonitor({
   );
 }
 
+
+function PolyEdgeActionMonitorGrid({ actionMonitor }: { actionMonitor: PolyEdgeActionMonitorResponse | null }) {
+  const monitors = actionMonitor?.monitors || [];
+
+  const stateClass = (state?: string) => {
+    if (state === "online" || state === "running") return "text-emerald-300 border-emerald-300/30 bg-emerald-400/5";
+    if (state === "blocked" || state === "paper_only") return "text-amber-300 border-amber-300/30 bg-amber-400/5";
+    if (state === "timeout" || state === "offline" || state === "stalled") return "text-red-300 border-red-300/30 bg-red-400/5";
+    return "text-cyan-200 border-cyan-300/20 bg-cyan-400/5";
+  };
+
+  return (
+    <HoloPanel title="PolyEdge Action Monitor Grid" icon={Cpu} className="col-span-12">
+      <style>{`
+        @keyframes poly-monitor-beat {
+          0%, 100% { opacity: .45; transform: scale(.9); }
+          50% { opacity: 1; transform: scale(1.2); }
+        }
+        @keyframes poly-monitor-sweep {
+          from { transform: translateX(-120%); }
+          to { transform: translateX(240%); }
+        }
+      `}</style>
+
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {monitors.length === 0 ? (
+          <div className="col-span-full rounded-2xl border border-red-300/25 bg-red-400/5 p-4 text-red-200">
+            PolyEdge action monitor has not responded yet.
+          </div>
+        ) : monitors.map((m) => (
+          <div key={m.key} className={`relative overflow-hidden rounded-2xl border p-4 ${stateClass(m.state)}`}>
+            {m.moving ? (
+              <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-emerald-300/15 to-transparent" style={{ animation: "poly-monitor-sweep 2.4s linear infinite" }} />
+            ) : null}
+
+            <div className="relative z-10 flex items-start justify-between gap-3">
+              <div>
+                <div className="text-[9px] uppercase tracking-[0.16em] opacity-55">{m.key}</div>
+                <div className="mt-1 text-sm font-black uppercase tracking-[0.1em] text-white">{m.label}</div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`h-2.5 w-2.5 rounded-full ${m.moving ? "bg-emerald-300" : m.state === "blocked" || m.state === "paper_only" ? "bg-amber-300" : "bg-red-300"}`}
+                  style={{ animation: m.moving ? "poly-monitor-beat 1s ease-in-out infinite" : undefined }}
+                />
+                <span className="text-xs font-black uppercase">{m.state || "unknown"}</span>
+              </div>
+            </div>
+
+            <div className="relative z-10 mt-3 text-[11px] leading-relaxed text-cyan-50/65">
+              {m.detail || "No detail available."}
+            </div>
+
+            <div className="relative z-10 mt-3 flex justify-between text-[10px] text-cyan-100/35">
+              <span>{m.liveTradingAffected ? "Live gate related" : "Paper/system only"}</span>
+              <span>{m.lastCheckAt ? new Date(m.lastCheckAt).toLocaleTimeString() : "waiting"}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </HoloPanel>
+  );
+}
+
 function HoloPanel(props: {
   title: string;
   icon?: any;
@@ -521,15 +603,43 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
   const [apiFailureCount, setApiFailureCount] = useState(0);
   const [lastReplayCompleted, setLastReplayCompleted] = useState(0);
   const [lastReplayProgressAt, setLastReplayProgressAt] = useState<number | null>(null);
+  const [actionMonitor, setActionMonitor] = useState<PolyEdgeActionMonitorResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [now, setNow] = useState(new Date());
+
+  async function loadActionMonitor() {
+    try {
+      const res = await fetchWithTimeout("/api/polyedge/action-monitor", {
+        credentials: "include",
+      }, 3000);
+
+      const json = await res.json().catch(() => null);
+
+      if (res.ok && json?.ok === true) {
+        const now = new Date().toLocaleTimeString();
+        setActionMonitor(json);
+        setApiStatus("online");
+        setLastApiCheck(now);
+        setLastGoodApiCheck(now);
+        setApiFailureCount(0);
+      } else {
+        setApiStatus("offline");
+        setLastApiCheck(new Date().toLocaleTimeString());
+        setApiFailureCount((x) => x + 1);
+      }
+    } catch {
+      setApiStatus("timeout");
+      setLastApiCheck(new Date().toLocaleTimeString());
+      setApiFailureCount((x) => x + 1);
+    }
+  }
 
   async function loadPolyHeartbeat() {
     if (mode !== "admin") return;
 
     try {
       setApiStatus((prev) => (prev === "online" ? prev : "checking"));
-      const res = await fetchWithTimeout("/api/admin/polyedge/heartbeat", {
+      const res = await fetchWithTimeout("/api/polyedge/heartbeat", {
         credentials: "include",
         headers: polyEdgeAuthHeaders(mode),
       }, 3000);
@@ -652,6 +762,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
 
   useEffect(() => {
     load();
+    loadActionMonitor();
     loadPolyHeartbeat();
     const t = window.setInterval(() => {
       setNow(new Date());
@@ -892,6 +1003,8 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
                 </div>
               </HoloPanel>
             ) : null}
+
+            <PolyEdgeActionMonitorGrid actionMonitor={actionMonitor} />
 
             <PolySystemHeartMonitor
               apiStatus={apiStatus}
