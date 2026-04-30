@@ -964,6 +964,480 @@ export default function PolyEdgeReferenceOnePage() {
             }
           }
 
+
+        /* QUANTUM HOLO ONLY PATCH — ECG untouched */
+        .holo-core {
+          width: 18% !important;
+          height: 18% !important;
+          border-radius: 999px !important;
+          background:
+            radial-gradient(circle, rgba(255,255,255,.96) 0%, rgba(125,211,252,.84) 22%, rgba(34,211,238,.32) 44%, rgba(192,38,211,.10) 68%, transparent 74%) !important;
+          filter: blur(.25px) !important;
+          box-shadow:
+            0 0 18px rgba(34,211,238,.76),
+            0 0 38px rgba(192,38,211,.30) !important;
+          animation: holoCorePulse 2.4s ease-in-out infinite !important;
+        }
+
+        .holo-orbit-dot {
+          position: absolute !important;
+          left: 50% !important;
+          top: 50% !important;
+          width: 2.4px !important;
+          height: 2.4px !important;
+          margin-left: -1.2px !important;
+          margin-top: -1.2px !important;
+          border-radius: 999px !important;
+          background: rgba(220, 252, 231, .94) !important;
+          opacity: .82 !important;
+          box-shadow:
+            0 0 5px rgba(134,239,172,.9),
+            0 0 13px rgba(34,211,238,.5) !important;
+          mix-blend-mode: screen !important;
+        }
+
+        .holo-orbit-dot::after {
+          content: "" !important;
+          position: absolute !important;
+          right: 2px !important;
+          top: 1px !important;
+          width: 15px !important;
+          height: 1px !important;
+          border-radius: 999px !important;
+          background: linear-gradient(90deg, transparent, rgba(103,232,249,.58)) !important;
+          filter: blur(.45px) !important;
+          opacity: .68 !important;
+        }
+
+        .holo-orbit-dot.one {
+          animation: quantumElectronOrbitA 6.2s linear infinite !important;
+        }
+
+        .holo-orbit-dot.two {
+          width: 2px !important;
+          height: 2px !important;
+          margin-left: -1px !important;
+          margin-top: -1px !important;
+          background: rgba(216,180,254,.92) !important;
+          animation: quantumElectronOrbitB 7.6s linear infinite !important;
+          animation-delay: -1.2s !important;
+        }
+
+        .holo-orbit-dot.three {
+          width: 2.25px !important;
+          height: 2.25px !important;
+          margin-left: -1.125px !important;
+          margin-top: -1.125px !important;
+          background: rgba(125,211,252,.94) !important;
+          animation: quantumElectronOrbitC 6.9s linear infinite !important;
+          animation-delay: -2.1s !important;
+        }
+
+        .holo-orbit-dot.four {
+          width: 1.8px !important;
+          height: 1.8px !important;
+          margin-left: -.9px !important;
+          margin-top: -.9px !important;
+          background: rgba(253,224,71,.86) !important;
+          animation: quantumElectronOrbitD 8.8s linear infinite !important;
+          animation-delay: -3.4s !important;
+        }
+
+        .holo-orbit-dot.five {
+          width: 2.1px !important;
+          height: 2.1px !important;
+          margin-left: -1.05px !important;
+          margin-top: -1.05px !important;
+          background: rgba(244,114,182,.88) !important;
+          animation: quantumElectronOrbitE 9.8s linear infinite !important;
+          animation-delay: -4.5s !important;
+        }
+
+        .holo-orbit-dot.six {
+          width: 1.8px !important;
+          height: 1.8px !important;
+          margin-left: -.9px !important;
+          margin-top: -.9px !important;
+          background: rgba(255,255,255,.90) !important;
+          animation: quantumElectronOrbitF 5.9s linear infinite !important;
+          animation-delay: -2.8s !important;
+        }
+
+        .quantum-market-atom {
+          position: relative;
+          display: grid;
+          place-items: center;
+          width: 100%;
+          aspect-ratio: 1;
+          overflow: hidden;
+        }
+
+        .quantum-market-ring {
+          position: absolute;
+          border: 1px solid rgba(103,232,249,.42);
+          border-radius: 999px;
+          box-shadow:
+            0 0 18px rgba(34,211,238,.18),
+            inset 0 0 18px rgba(34,211,238,.08);
+          transform-style: preserve-3d;
+        }
+
+        .quantum-market-ring.q-one {
+          inset: 13%;
+          border-color: rgba(217,70,239,.72);
+          animation: quantumMarketSpinA 7.2s linear infinite;
+        }
+
+        .quantum-market-ring.q-two {
+          inset: 24%;
+          border-color: rgba(34,211,238,.50);
+          animation: quantumMarketSpinB 5.6s linear infinite;
+        }
+
+        .quantum-market-ring.q-three {
+          inset: 34%;
+          border-color: rgba(134,239,172,.38);
+          animation: quantumMarketSpinC 8.8s linear infinite;
+        }
+
+        .quantum-market-core {
+          width: 15px;
+          height: 15px;
+          border-radius: 999px;
+          background: radial-gradient(circle, #fff, rgba(125,211,252,.9) 35%, rgba(217,70,239,.18) 72%, transparent);
+          box-shadow:
+            0 0 18px rgba(255,255,255,.92),
+            0 0 38px rgba(34,211,238,.36);
+          animation: quantumMarketCorePulse 2.3s ease-in-out infinite;
+        }
+
+        @keyframes quantumElectronOrbitA {
+          from { transform: rotateX(64deg) rotateZ(0deg) translateX(42px) rotateZ(0deg); }
+          to { transform: rotateX(64deg) rotateZ(360deg) translateX(42px) rotateZ(-360deg); }
+        }
+
+        @keyframes quantumElectronOrbitB {
+          from { transform: rotateX(64deg) rotateZ(360deg) translateX(34px) rotateZ(-360deg); }
+          to { transform: rotateX(64deg) rotateZ(0deg) translateX(34px) rotateZ(0deg); }
+        }
+
+        @keyframes quantumElectronOrbitC {
+          from { transform: rotateX(74deg) rotateZ(0deg) translateX(52px) rotateZ(0deg); }
+          to { transform: rotateX(74deg) rotateZ(360deg) translateX(52px) rotateZ(-360deg); }
+        }
+
+        @keyframes quantumElectronOrbitD {
+          from { transform: rotateX(54deg) rotateZ(360deg) translateX(47px) rotateZ(-360deg); }
+          to { transform: rotateX(54deg) rotateZ(0deg) translateX(47px) rotateZ(0deg); }
+        }
+
+        @keyframes quantumElectronOrbitE {
+          from { transform: rotateX(78deg) rotateZ(180deg) translateX(39px) rotateZ(-180deg); }
+          to { transform: rotateX(78deg) rotateZ(540deg) translateX(39px) rotateZ(-540deg); }
+        }
+
+        @keyframes quantumElectronOrbitF {
+          from { transform: rotateX(58deg) rotateZ(540deg) translateX(56px) rotateZ(-540deg); }
+          to { transform: rotateX(58deg) rotateZ(180deg) translateX(56px) rotateZ(-180deg); }
+        }
+
+        @keyframes quantumMarketSpinA {
+          from { transform: rotateX(68deg) rotateZ(38deg); }
+          to { transform: rotateX(68deg) rotateZ(398deg); }
+        }
+
+        @keyframes quantumMarketSpinB {
+          from { transform: rotateX(68deg) rotateZ(328deg); }
+          to { transform: rotateX(68deg) rotateZ(-32deg); }
+        }
+
+        @keyframes quantumMarketSpinC {
+          from { transform: rotateX(52deg) rotateZ(82deg); }
+          to { transform: rotateX(52deg) rotateZ(442deg); }
+        }
+
+        @keyframes quantumMarketCorePulse {
+          0%, 100% { transform: scale(.82); opacity: .72; }
+          50% { transform: scale(1.08); opacity: 1; }
+        }
+
+
+        /* CAPITAL + QUANTUM VISUAL PATCH — ECG untouched */
+        .capital-auto-panel .panel-body {
+          padding: 4px !important;
+        }
+
+        .capital-auto-panel .grid.grid-cols-2 {
+          gap: 4px !important;
+        }
+
+        .capital-auto-panel .mini-box {
+          min-height: 34px !important;
+          padding: 5px !important;
+          border: 1px solid rgba(34,211,238,.16) !important;
+          background: rgba(0,0,0,.42) !important;
+        }
+
+        .capital-auto-panel .capital-form {
+          display: grid !important;
+          grid-template-columns: 70px 1fr 1fr !important;
+          gap: 4px !important;
+          margin-top: 4px !important;
+        }
+
+        .capital-auto-panel .capital-form select,
+        .capital-auto-panel .capital-form input {
+          height: 22px !important;
+          min-height: 22px !important;
+          padding: 0 7px !important;
+          font-size: 8px !important;
+          line-height: 1 !important;
+          background: rgba(2, 8, 23, .94) !important;
+          color: rgb(224,242,254) !important;
+          border: 1px solid rgba(34,211,238,.28) !important;
+          border-radius: 0 !important;
+          outline: none !important;
+        }
+
+        .capital-auto-panel .capital-buttons,
+        .capital-auto-panel .capital-quick-buttons,
+        .capital-auto-panel .auto-paper-buttons {
+          display: grid !important;
+          gap: 4px !important;
+          margin-top: 4px !important;
+        }
+
+        .capital-auto-panel .capital-buttons {
+          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+
+        .capital-auto-panel .capital-quick-buttons,
+        .capital-auto-panel .auto-paper-buttons {
+          grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        }
+
+        .capital-auto-panel button {
+          height: 20px !important;
+          min-height: 20px !important;
+          padding: 0 6px !important;
+          font-size: 7px !important;
+          line-height: 1 !important;
+          font-weight: 900 !important;
+          letter-spacing: .12em !important;
+          text-transform: uppercase !important;
+          color: rgb(190,255,255) !important;
+          border: 1px solid rgba(34,211,238,.24) !important;
+          background: rgba(3, 15, 30, .78) !important;
+        }
+
+        .capital-auto-panel button:hover {
+          background: rgba(34,211,238,.14) !important;
+          box-shadow: 0 0 12px rgba(34,211,238,.18) !important;
+        }
+
+        .capital-auto-panel .mt-1 {
+          margin-top: 4px !important;
+          font-size: 7px !important;
+        }
+
+        .quantum-market-panel .panel-body {
+          padding: 5px !important;
+        }
+
+        .quantum-market-atom {
+          position: relative;
+          display: grid;
+          place-items: center;
+          width: 100%;
+          aspect-ratio: 1;
+          overflow: hidden;
+          perspective: 420px;
+        }
+
+        .quantum-market-ring {
+          position: absolute;
+          border-radius: 999px;
+          border: 1px solid rgba(103,232,249,.42);
+          box-shadow:
+            0 0 18px rgba(34,211,238,.18),
+            inset 0 0 18px rgba(34,211,238,.08);
+          transform-style: preserve-3d;
+        }
+
+        .quantum-market-ring.q-one {
+          inset: 11%;
+          border-color: rgba(217,70,239,.78);
+          animation: quantumMarketSpinA 5.8s linear infinite;
+        }
+
+        .quantum-market-ring.q-two {
+          inset: 22%;
+          border-color: rgba(34,211,238,.58);
+          animation: quantumMarketSpinB 4.4s linear infinite;
+        }
+
+        .quantum-market-ring.q-three {
+          inset: 32%;
+          border-color: rgba(134,239,172,.46);
+          animation: quantumMarketSpinC 7.2s linear infinite;
+        }
+
+        .quantum-market-core {
+          width: 14px;
+          height: 14px;
+          border-radius: 999px;
+          background: radial-gradient(circle, #fff, rgba(125,211,252,.92) 35%, rgba(217,70,239,.22) 72%, transparent);
+          box-shadow:
+            0 0 18px rgba(255,255,255,.95),
+            0 0 38px rgba(34,211,238,.38);
+          animation: quantumMarketCorePulse 2.1s ease-in-out infinite;
+        }
+
+        .quantum-market-orbit-dot {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 4px;
+          height: 4px;
+          margin-left: -2px;
+          margin-top: -2px;
+          border-radius: 999px;
+          background: #fff;
+          box-shadow: 0 0 10px rgba(255,255,255,.95), 0 0 18px rgba(34,211,238,.7);
+          mix-blend-mode: screen;
+        }
+
+        .quantum-market-orbit-dot.d-one {
+          animation: quantumMarketDotA 5.8s linear infinite;
+        }
+
+        .quantum-market-orbit-dot.d-two {
+          width: 3px;
+          height: 3px;
+          margin-left: -1.5px;
+          margin-top: -1.5px;
+          background: #c084fc;
+          animation: quantumMarketDotB 4.4s linear infinite;
+        }
+
+        .quantum-market-orbit-dot.d-three {
+          width: 3px;
+          height: 3px;
+          margin-left: -1.5px;
+          margin-top: -1.5px;
+          background: #86efac;
+          animation: quantumMarketDotC 7.2s linear infinite;
+        }
+
+        @keyframes quantumMarketSpinA {
+          from { transform: rotateX(68deg) rotateZ(38deg); }
+          to { transform: rotateX(68deg) rotateZ(398deg); }
+        }
+
+        @keyframes quantumMarketSpinB {
+          from { transform: rotateX(68deg) rotateZ(328deg); }
+          to { transform: rotateX(68deg) rotateZ(-32deg); }
+        }
+
+        @keyframes quantumMarketSpinC {
+          from { transform: rotateX(52deg) rotateZ(82deg); }
+          to { transform: rotateX(52deg) rotateZ(442deg); }
+        }
+
+        @keyframes quantumMarketDotA {
+          from { transform: rotateX(68deg) rotateZ(0deg) translateX(48px) rotateZ(0deg); }
+          to { transform: rotateX(68deg) rotateZ(360deg) translateX(48px) rotateZ(-360deg); }
+        }
+
+        @keyframes quantumMarketDotB {
+          from { transform: rotateX(68deg) rotateZ(360deg) translateX(34px) rotateZ(-360deg); }
+          to { transform: rotateX(68deg) rotateZ(0deg) translateX(34px) rotateZ(0deg); }
+        }
+
+        @keyframes quantumMarketDotC {
+          from { transform: rotateX(52deg) rotateZ(70deg) translateX(26px) rotateZ(-70deg); }
+          to { transform: rotateX(52deg) rotateZ(430deg) translateX(26px) rotateZ(-430deg); }
+        }
+
+        @keyframes quantumMarketCorePulse {
+          0%, 100% { transform: scale(.82); opacity: .72; }
+          50% { transform: scale(1.08); opacity: 1; }
+        }
+
+
+        /* FORCE QUANTUM MARKET MOTION DOTS — ECG untouched */
+        .quantum-market-ring.q-one {
+          animation: quantumMarketSpinA 3.6s linear infinite !important;
+        }
+
+        .quantum-market-ring.q-two {
+          animation: quantumMarketSpinB 2.8s linear infinite reverse !important;
+        }
+
+        .quantum-market-ring.q-three {
+          animation: quantumMarketSpinC 4.6s linear infinite !important;
+        }
+
+        .quantum-market-orbit-dot {
+          position: absolute !important;
+          left: 50% !important;
+          top: 50% !important;
+          width: 5px !important;
+          height: 5px !important;
+          margin-left: -2.5px !important;
+          margin-top: -2.5px !important;
+          border-radius: 999px !important;
+          background: #ffffff !important;
+          box-shadow:
+            0 0 10px rgba(255,255,255,.95),
+            0 0 22px rgba(34,211,238,.85) !important;
+          z-index: 3 !important;
+          mix-blend-mode: screen !important;
+        }
+
+        .quantum-market-orbit-dot.d-one {
+          animation: quantumMarketDotA 3.6s linear infinite !important;
+        }
+
+        .quantum-market-orbit-dot.d-two {
+          width: 4px !important;
+          height: 4px !important;
+          margin-left: -2px !important;
+          margin-top: -2px !important;
+          background: #c084fc !important;
+          box-shadow:
+            0 0 10px rgba(192,132,252,.95),
+            0 0 22px rgba(217,70,239,.70) !important;
+          animation: quantumMarketDotB 2.8s linear infinite reverse !important;
+        }
+
+        .quantum-market-orbit-dot.d-three {
+          width: 4px !important;
+          height: 4px !important;
+          margin-left: -2px !important;
+          margin-top: -2px !important;
+          background: #86efac !important;
+          box-shadow:
+            0 0 10px rgba(134,239,172,.95),
+            0 0 22px rgba(34,197,94,.70) !important;
+          animation: quantumMarketDotC 4.6s linear infinite !important;
+        }
+
+        @keyframes quantumMarketDotA {
+          from { transform: rotateX(68deg) rotateZ(0deg) translateX(48px) rotateZ(0deg); }
+          to { transform: rotateX(68deg) rotateZ(360deg) translateX(48px) rotateZ(-360deg); }
+        }
+
+        @keyframes quantumMarketDotB {
+          from { transform: rotateX(68deg) rotateZ(360deg) translateX(34px) rotateZ(-360deg); }
+          to { transform: rotateX(68deg) rotateZ(0deg) translateX(34px) rotateZ(0deg); }
+        }
+
+        @keyframes quantumMarketDotC {
+          from { transform: rotateX(52deg) rotateZ(70deg) translateX(26px) rotateZ(-70deg); }
+          to { transform: rotateX(52deg) rotateZ(430deg) translateX(26px) rotateZ(-430deg); }
+        }
+
 `}
 
 </style>
@@ -1083,7 +1557,7 @@ export default function PolyEdgeReferenceOnePage() {
             </div>
           </Panel>
 
-          <Panel title="Quantum Market Sentiment Matrix" className="col-span-3">
+          <Panel title="Quantum Market Sentiment Matrix" className="col-span-3 quantum-market-panel">
             <div className="grid h-full grid-cols-2 items-center gap-2">
               <div>
                 <div className="text-3xl font-black text-emerald-300">{onlinePct}%</div>
@@ -1091,10 +1565,14 @@ export default function PolyEdgeReferenceOnePage() {
                 <div className="mt-3 text-xl font-black text-red-300">{fault}</div>
                 <div className="text-[8px] uppercase tracking-[.2em] text-red-300/70">Faults</div>
               </div>
-              <div className="relative grid aspect-square place-items-center">
-                <div className="absolute inset-2 rotate-45 rounded-xl border-2 border-fuchsia-400 shadow-[0_0_28px_rgba(217,70,239,.45)]" />
-                <div className="absolute inset-8 rounded-full border border-cyan-300/35" />
-                <div className="h-4 w-4 rounded-full bg-white shadow-[0_0_28px_rgba(255,255,255,.9)]" />
+              <div className="quantum-market-atom">
+                <div className="quantum-market-ring q-one" />
+                <div className="quantum-market-ring q-two" />
+                <div className="quantum-market-ring q-three" />
+                <div className="quantum-market-orbit-dot d-one" />
+                <div className="quantum-market-orbit-dot d-two" />
+                <div className="quantum-market-orbit-dot d-three" />
+                <div className="quantum-market-core" />
               </div>
             </div>
           </Panel>
@@ -1123,7 +1601,7 @@ export default function PolyEdgeReferenceOnePage() {
             </div>
           </Panel>
 
-          <Panel title="Capital + Auto Paper Control" className="col-span-4">
+          <Panel title="Capital + Auto Paper Control" className="col-span-4 capital-auto-panel">
             <div className="grid grid-cols-2 gap-1 text-[8px]">
               <div className="mini-box">
                 <div className="text-cyan-100/45">REAL MONEY</div>

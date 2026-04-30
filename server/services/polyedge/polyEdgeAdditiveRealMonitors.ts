@@ -122,6 +122,53 @@ function positionPnl(pos: any) {
   return money(side === "short" ? entry - current : current - entry);
 }
 
+function getWalletFlowIntelligence() {
+  const chains = [
+    {
+      chain: "Bitcoin",
+      env: "POLYEDGE_BTC_CHAIN_STREAM_URL",
+      tokenScope: "BTC / UTXO flow",
+    },
+    {
+      chain: "Ethereum / EVM",
+      env: "POLYEDGE_EVM_CHAIN_STREAM_URL",
+      tokenScope: "ETH + ERC20 + EVM tokens",
+    },
+    {
+      chain: "Solana",
+      env: "POLYEDGE_SOL_CHAIN_STREAM_URL",
+      tokenScope: "SOL + SPL tokens",
+    },
+    {
+      chain: "Multi-chain Token Index",
+      env: "POLYEDGE_TOKEN_INDEX_URL",
+      tokenScope: "All indexed tokens",
+    },
+  ];
+
+  const chainStatus = chains.map((row) => ({
+    chain: row.chain,
+    tokenScope: row.tokenScope,
+    sourceType: process.env[row.env] ? "REAL_CHAIN_STREAM_CONFIGURED" : "WAITING_FOR_CHAIN_STREAM",
+    status: process.env[row.env] ? "CONFIGURED" : "WAITING_FOR_CHAIN_STREAM",
+  }));
+
+  const configured = chainStatus.filter((row) => row.status === "CONFIGURED").length;
+
+  return {
+    sourceType: configured > 0 ? "PARTIAL_CHAIN_STREAM_CONFIGURED" : "WAITING_FOR_CHAIN_STREAM",
+    status: configured > 0 ? `${configured}/${chains.length} STREAMS CONFIGURED` : "WAITING_FOR_CHAIN_STREAM",
+    chains: chainStatus,
+    scanRate: configured > 0 ? "READY_FOR_STREAM_RUNTIME" : "WAITING_FOR_CHAIN_STREAM",
+    walletsObservedPerMinute: configured > 0 ? "READY_FOR_STREAM_RUNTIME" : "WAITING_FOR_CHAIN_STREAM",
+    exchangeInflow: "WAITING_FOR_ENTITY_LABELS",
+    exchangeOutflow: "WAITING_FOR_ENTITY_LABELS",
+    whaleAccumulation: configured > 0 ? "READY_FOR_CLASSIFIER" : "WAITING_FOR_CHAIN_STREAM",
+    smartMoneyDirection: configured > 0 ? "READY_FOR_CLASSIFIER" : "WAITING_FOR_CHAIN_STREAM",
+    tradeImpact: configured > 0 ? "PAPER_ONLY_UNTIL_VALIDATED" : "DISABLED_UNTIL_REAL_FLOW",
+  };
+}
+
 export async function getPolyEdgeAdditiveRealMonitors() {
   const [openPositions, outcomes, decisions] = await Promise.all([
     db.select().from(paperPositions).where(eq(paperPositions.status, "open")).catch(() => []),
@@ -281,6 +328,8 @@ export async function getPolyEdgeAdditiveRealMonitors() {
 
   const currentDrawdown = peak > 0 ? ((peak - equity) / peak) * 100 : 0;
 
+  const walletFlow = getWalletFlowIntelligence();
+
   return {
     ok: true,
     additiveOnly: true,
@@ -343,6 +392,48 @@ export async function getPolyEdgeAdditiveRealMonitors() {
         sub: `Peak ${money(peak)} • Max DD ${money(maxDrawdown)}%`,
       },
       {
+        title: "Wallet Flow Scan",
+        sourceType: walletFlow.sourceType,
+        value: walletFlow.status,
+        sub: "BTC + ETH/EVM + SOL + token index",
+      },
+      {
+        title: "Wallets / Minute",
+        sourceType: walletFlow.sourceType,
+        value: walletFlow.walletsObservedPerMinute,
+        sub: "Stream processing required — no wallet polling",
+      },
+      {
+        title: "Exchange Inflow",
+        sourceType: "WAITING_FOR_ENTITY_LABELS",
+        value: walletFlow.exchangeInflow,
+        sub: "Needs labelled exchange wallets/entities",
+      },
+      {
+        title: "Exchange Outflow",
+        sourceType: "WAITING_FOR_ENTITY_LABELS",
+        value: walletFlow.exchangeOutflow,
+        sub: "Needs labelled exchange wallets/entities",
+      },
+      {
+        title: "Whale Accumulation",
+        sourceType: walletFlow.sourceType,
+        value: walletFlow.whaleAccumulation,
+        sub: "Large transfer classifier pending",
+      },
+      {
+        title: "Smart Money Direction",
+        sourceType: walletFlow.sourceType,
+        value: walletFlow.smartMoneyDirection,
+        sub: "Disabled until real chain stream exists",
+      },
+      {
+        title: "Trade Flow Impact",
+        sourceType: walletFlow.sourceType,
+        value: walletFlow.tradeImpact,
+        sub: "Paper-only until validated",
+      },
+      {
         title: "Decision Explainer",
         sourceType: latestDecision ? "REAL_DB" : "WAITING_FOR_REAL_FEED",
         value: latestDecision?.market || "WAITING",
@@ -352,5 +443,6 @@ export async function getPolyEdgeAdditiveRealMonitors() {
 
     strategyLeaderboard,
     marketFeeds,
+    walletFlow,
   };
 }
