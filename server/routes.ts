@@ -12883,6 +12883,26 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
   // TCD_PHANTOMX_POLYMARKET_TERMINAL_API_V1
 
   // ── PolyEdge / Aetherforge — Nexora-backed trading proof API ───────────────
+
+  // ── PolyEdge / Aetherforge — Learning Brain API ────────────────────────────
+  app.get("/api/admin/polyedge/learning", async (_req: any, res: any) => {
+    try {
+      const { getPolyEdgeLearning } = await import("./services/trading/polyEdgeLearningService");
+      return res.json(await getPolyEdgeLearning("admin"));
+    } catch (err: any) {
+      return res.status(500).json({ ok: false, error: err?.message || "PolyEdge learning API failed" });
+    }
+  });
+
+  app.get("/api/client/polyedge/learning", async (_req: any, res: any) => {
+    try {
+      const { getPolyEdgeLearning } = await import("./services/trading/polyEdgeLearningService");
+      return res.json(await getPolyEdgeLearning("client"));
+    } catch (err: any) {
+      return res.status(500).json({ ok: false, error: err?.message || "PolyEdge client learning API failed" });
+    }
+  });
+
   app.get("/api/admin/polyedge/aetherforge", async (_req: any, res: any) => {
     try {
       const { getPolyEdgeProof } = await import("./services/trading/polyEdgeProofService");
