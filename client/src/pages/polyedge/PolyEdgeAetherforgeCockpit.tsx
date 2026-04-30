@@ -584,29 +584,68 @@ function QuantumTitle({ title, right }: { title: string; right?: any }) {
 
 
 
+
+function monitorConnectionAgeMs(monitor: any): number | null {
+  const raw = monitor?.lastCheckAt || monitor?.updatedAt || monitor?.generatedAt;
+  if (!raw) return null;
+  const t = Date.parse(String(raw));
+  if (!Number.isFinite(t)) return null;
+  return Math.max(0, Date.now() - t);
+}
+
+function connectionSpeedSeconds(monitor: any): number {
+  const age = monitorConnectionAgeMs(monitor);
+  if (age === null) return 12;
+  if (age < 2500) return 6.4;
+  if (age < 5000) return 7.8;
+  if (age < 10000) return 10.2;
+  if (age < 20000) return 14;
+  return 19;
+}
+
+function connectionLabel(monitor: any): string {
+  const age = monitorConnectionAgeMs(monitor);
+  if (age === null) return "NO TIME";
+  if (age < 2500) return "FAST";
+  if (age < 5000) return "GOOD";
+  if (age < 10000) return "SLOW";
+  if (age < 20000) return "STALE";
+  return "TIMEOUT";
+}
+
+function monitorRhythm(monitor: any) {
+  const seedText = String(monitor?.key || monitor?.label || "polyedge");
+  const seed = Array.from(seedText).reduce((sum, ch, i) => sum + ch.charCodeAt(0) * (i + 7), 0);
+  const base = connectionSpeedSeconds(monitor);
+
+  const liveDuration = base + (seed % 11) * 0.42;
+  const idleDuration = Math.max(15, base * 2.1) + (seed % 9) * 0.8;
+
+  return {
+    seed,
+    label: connectionLabel(monitor),
+    liveAnim: `${liveDuration.toFixed(2)}s`,
+    idleAnim: `${idleDuration.toFixed(2)}s`,
+    liveDelay: `-${(((seed % 101) / 101) * liveDuration).toFixed(2)}s`,
+    idleDelay: `-${(((seed % 97) / 97) * idleDuration).toFixed(2)}s`,
+  };
+}
+
 function MiniTrace({ monitor }: { monitor: any }) {
   const state = String(monitor?.state || "offline");
   const kind = String(monitor?.kind || "module");
   const moving = monitor?.moving === true;
+  const rhythm = monitorRhythm(monitor);
 
   const isMarket = kind === "market";
-  const isLive = (state === "online" || state === "running") && moving;
-  const isIdle = state === "idle" || state === "blocked" || state === "paper_only";
-  const isFault = state === "offline" || state === "timeout" || state === "stalled" || state === "fault";
-
-  // Each monitor gets its own slower rhythm so they do not beat together.
-  const rhythmSeed = Array.from(String(monitor?.key || monitor?.label || "polyedge")).reduce(
-    (sum, ch) => sum + ch.charCodeAt(0),
-    0
-  );
-  const liveSpeed = `${6.4 + (rhythmSeed % 8) * 0.55}s`;
-  const idleSpeed = `${11.5 + (rhythmSeed % 7) * 0.8}s`;
-  const rhythmDelay = `-${((rhythmSeed % 100) / 100) * 6.5}s`;
-  const ecgVars = {
-    "--ecg-speed": liveSpeed,
-    "--ecg-idle-speed": idleSpeed,
-    "--ecg-delay": rhythmDelay,
-  } as React.CSSProperties;
+  const isFault =
+    state === "offline" ||
+    state === "timeout" ||
+    state === "stalled" ||
+    state === "fault" ||
+    rhythm.label === "TIMEOUT";
+  const isIdle = !isFault && (state === "idle" || state === "blocked" || state === "paper_only");
+  const isLive = !isFault && !isIdle && (state === "online" || state === "running") && moving;
 
   if (isMarket) {
     return (
@@ -616,9 +655,10 @@ function MiniTrace({ monitor }: { monitor: any }) {
             key={i}
             className={`w-1 rounded-t ${isFault ? "bg-red-400/45" : "bg-gradient-to-t from-fuchsia-700 via-cyan-300 to-white"}`}
             style={{
-              height: `${7 + ((i * 13) % 20)}px`,
+              height: `${7 + ((i * 13 + rhythm.seed) % 20)}px`,
               filter: isFault ? "none" : "drop-shadow(0 0 7px rgba(103,232,249,.75))",
-              animation: isLive ? `poly-final-bars ${0.55 + (i % 6) * 0.08}s ease-in-out infinite alternate` : undefined,
+              animation: isLive ? `poly-final-bars ${(1.8 + ((rhythm.seed + i) % 9) * 0.2).toFixed(2)}s ease-in-out infinite alternate` : undefined,
+              animationDelay: isLive ? `-${((rhythm.seed + i * 17) % 90) / 10}s` : undefined,
             }}
           />
         ))}
@@ -640,50 +680,57 @@ function MiniTrace({ monitor }: { monitor: any }) {
 
   if (isIdle) {
     return (
-      <div className="poly-beat-ecg mt-1 h-7 overflow-hidden rounded-md border border-amber-300/25 bg-black/85" style={ecgVars}>
+      <div className="poly-beat-ecg mt-1 h-7 overflow-hidden rounded-md border border-amber-300/25 bg-black/85">
         <div className="poly-beat-grid poly-beat-grid-amber" />
-        <div className="poly-beat-idle-sweep" />
+        <div className="poly-conn-idle-sweep" style={{ animationDuration: rhythm.idleAnim, animationDelay: rhythm.idleDelay }} />
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 320 44" preserveAspectRatio="none">
           <path
-            className="poly-beat-idle-path"
-            d="M0 27 H110 C118 27 122 25 128 27 H320"
+            className="poly-conn-idle-path"
+            d="M0 27 H112 C120 27 124 25 130 27 H320"
             fill="none"
             stroke="#ffd166"
             strokeWidth="2.2"
             strokeLinecap="round"
-            style={{ filter: "drop-shadow(0 0 7px rgba(255,209,102,.7))" }}
+            style={{
+              filter: "drop-shadow(0 0 7px rgba(255,209,102,.7))",
+              animationDuration: rhythm.idleAnim,
+              animationDelay: rhythm.idleDelay,
+            }}
           />
         </svg>
-        <div className="absolute right-2 top-1 text-[7px] font-black uppercase tracking-[0.14em] text-amber-300">STANDBY</div>
+        <div className="absolute right-2 top-1 text-[7px] font-black uppercase tracking-[0.14em] text-amber-300">STANDBY • {rhythm.label}</div>
       </div>
     );
   }
 
   return (
-    <div className="poly-beat-ecg mt-1 h-7 overflow-hidden rounded-md border border-emerald-300/25 bg-black/85" style={ecgVars}>
+    <div className="poly-beat-ecg mt-1 h-7 overflow-hidden rounded-md border border-emerald-300/25 bg-black/85">
       <div className="poly-beat-grid" />
-      <div className="poly-beat-head" />
+      <div className="poly-conn-beat-head" style={{ animationDuration: rhythm.liveAnim, animationDelay: rhythm.liveDelay }} />
       <svg className="absolute inset-0 h-full w-full" viewBox="0 0 520 44" preserveAspectRatio="none">
         <path
-          className="poly-beat-live-path"
-          d="M0 27 H30
-             C38 27 43 24 49 22 C56 20 62 24 68 27
-             H82 L90 34 L98 5 L107 39 L117 27
-             H142 C154 27 164 24 176 22 C190 20 204 24 218 27
-             H246
-             C254 27 259 24 265 22 C272 20 278 24 284 27
-             H298 L306 34 L314 5 L323 39 L333 27
-             H358 C370 27 380 24 392 22 C406 20 420 24 434 27
-             H520"
+          className="poly-conn-beat-path"
+          d="M0 27 H30 C38 27 43 24 49 22 C56 20 62 24 68 27 H82 L90 34 L98 5 L107 39 L117 27 H142 C154 27 164 24 176 22 C190 20 204 24 218 27 H246 C254 27 259 24 265 22 C272 20 278 24 284 27 H298 L306 34 L314 5 L323 39 L333 27 H358 C370 27 380 24 392 22 C406 20 420 24 434 27 H520"
           fill="none"
           stroke="#00ff88"
           strokeWidth="3.2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          style={{ filter: "drop-shadow(0 0 7px rgba(0,255,136,.95)) drop-shadow(0 0 16px rgba(0,255,136,.55))" }}
+          style={{
+            filter: "drop-shadow(0 0 7px rgba(0,255,136,.95)) drop-shadow(0 0 16px rgba(0,255,136,.55))",
+            animationDuration: rhythm.liveAnim,
+            animationDelay: rhythm.liveDelay,
+          }}
         />
       </svg>
-      <div className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(0,255,136,.95)]" style={{ animation: "poly-beat-dot 1.42s ease-in-out infinite" }} />
+      <div
+        className="absolute right-1 bottom-1 h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(0,255,136,.95)]"
+        style={{
+          animation: `poly-conn-dot ${rhythm.liveAnim} ease-in-out infinite`,
+          animationDelay: rhythm.liveDelay,
+        }}
+      />
+      <div className="absolute right-2 top-1 text-[7px] font-black uppercase tracking-[0.14em] text-emerald-300">{rhythm.label}</div>
     </div>
   );
 }
@@ -1201,6 +1248,80 @@ function PolyEdgeActionMonitorGrid({
           width: 16px;
           background: linear-gradient(90deg, transparent, rgba(255,209,102,.18), transparent);
           animation: poly-beat-idle-sweep 4.8s linear infinite;
+        }
+
+        @keyframes poly-conn-beat-draw {
+          0% { stroke-dashoffset: -860; opacity: .08; }
+          10% { opacity: 1; }
+          84% { stroke-dashoffset: 0; opacity: 1; }
+          94% { stroke-dashoffset: 0; opacity: .78; }
+          100% { stroke-dashoffset: 0; opacity: .05; }
+        }
+
+        @keyframes poly-conn-head {
+          0% { left: 100%; opacity: 0; }
+          10% { opacity: 1; }
+          84% { left: -24px; opacity: 1; }
+          100% { left: -24px; opacity: 0; }
+        }
+
+        @keyframes poly-conn-dot {
+          0%, 22%, 48%, 74%, 100% { opacity: .22; transform: scale(.70); }
+          31% { opacity: 1; transform: scale(1.38); }
+          39% { opacity: .62; transform: scale(.90); }
+          66% { opacity: 1; transform: scale(1.38); }
+          74% { opacity: .62; transform: scale(.90); }
+        }
+
+        @keyframes poly-conn-idle {
+          0%, 76%, 100% { stroke-dashoffset: 520; opacity: .18; }
+          82% { opacity: .68; }
+          96% { stroke-dashoffset: 0; opacity: .68; }
+        }
+
+        @keyframes poly-conn-idle-sweep {
+          0%, 76% { left: 100%; opacity: 0; }
+          82% { opacity: .65; }
+          98% { left: -20px; opacity: .5; }
+          100% { opacity: 0; }
+        }
+
+        .poly-conn-beat-path {
+          stroke-dasharray: 860;
+          stroke-dashoffset: -860;
+          animation-name: poly-conn-beat-draw;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+        }
+
+        .poly-conn-beat-head {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: 22px;
+          background: linear-gradient(90deg, transparent, rgba(0,255,136,.34), transparent);
+          animation-name: poly-conn-head;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+        }
+
+        .poly-conn-idle-path {
+          stroke-dasharray: 520;
+          stroke-dashoffset: 520;
+          animation-name: poly-conn-idle;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+        }
+
+        .poly-conn-idle-sweep {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: 16px;
+          background: linear-gradient(90deg, transparent, rgba(255,209,102,.18), transparent);
+          animation-name: poly-conn-idle-sweep;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
         }
 
         @keyframes poly-final-bars {
