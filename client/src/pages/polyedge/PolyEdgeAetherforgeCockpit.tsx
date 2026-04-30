@@ -333,7 +333,7 @@ function PolySystemHeartMonitor({
   const dots = ".".repeat((heartbeatTick % 3) + 1);
 
   return (
-    <HoloPanel title="Poly System Heart Monitor" icon={Activity} className="col-span-12 xl:col-span-6">
+    <HoloPanel title="Poly System Heart Monitor" icon={Activity} className="polyedge-hide-old-panels col-span-12 xl:col-span-6">
       <style>{`
         @keyframes poly-ecg-run {
           from { transform: translateX(-50%); }
@@ -418,7 +418,7 @@ function ReplayEngineMonitor({
   const status = stalled ? "STALLED" : running ? "RUNNING" : "IDLE";
 
   return (
-    <HoloPanel title="Replay Engine Monitor" icon={Radar} className="col-span-12 xl:col-span-6">
+    <HoloPanel title="Replay Engine Monitor" icon={Radar} className="polyedge-hide-old-panels col-span-12 xl:col-span-6">
       <style>{`
         @keyframes replay-orbit-spin {
           from { transform: rotate(0deg); }
@@ -580,19 +580,20 @@ function QuantumTitle({ title, right }: { title: string; right?: any }) {
   );
 }
 
+
 function MiniTrace({ monitor }: { monitor: any }) {
   const t = statusTone(monitor?.state);
   const moving = monitor?.moving === true;
 
   if (monitor?.kind === "market") {
     return (
-      <div className="mt-1 flex h-6 items-end gap-[2px] overflow-hidden rounded-md border border-cyan-300/10 bg-black/45 px-2 pb-1">
+      <div className="mt-1 flex h-5 items-end gap-[2px] overflow-hidden rounded-md border border-cyan-300/10 bg-black/45 px-2 pb-1">
         {Array.from({ length: 22 }).map((_, i) => (
           <span
             key={i}
             className="w-1 rounded-t bg-gradient-to-t from-fuchsia-700 via-cyan-300 to-white"
             style={{
-              height: `${7 + ((i * 13) % 26)}px`,
+              height: `${7 + ((i * 13) % 20)}px`,
               filter: `drop-shadow(0 0 7px ${t.glow})`,
               animation: moving ? `poly-final-bars ${0.55 + (i % 6) * 0.08}s ease-in-out infinite alternate` : undefined,
             }}
@@ -603,21 +604,54 @@ function MiniTrace({ monitor }: { monitor: any }) {
   }
 
   return (
-    <div className="mt-1 h-6 overflow-hidden rounded-md border border-cyan-300/10 bg-black/45">
-      <svg className="h-full w-[135%]" viewBox="0 0 320 40" preserveAspectRatio="none">
+    <div className="poly-real-ecg mt-1 h-7 overflow-hidden rounded-md border border-emerald-300/20 bg-black/70">
+      <div
+        className="poly-real-ecg-grid"
+        style={{
+          opacity: moving ? 1 : 0.45,
+        }}
+      />
+
+      <div
+        className="poly-real-ecg-sweep"
+        style={{
+          display: moving ? "block" : "none",
+        }}
+      />
+
+      <svg
+        className="poly-real-ecg-line"
+        viewBox="0 0 520 44"
+        preserveAspectRatio="none"
+        style={{
+          animation: moving ? "poly-real-ecg-scroll 1.35s linear infinite" : undefined,
+        }}
+      >
         <polyline
-          points={moving ? "0,24 24,24 36,10 49,31 61,24 96,24 112,12 127,30 140,24 176,24 190,9 205,33 218,24 254,24 270,12 288,31 320,24" : "0,24 320,24"}
+          points="0,27 28,27 38,27 45,18 53,35 61,7 72,37 82,27 120,27 138,27 146,21 154,31 162,27 205,27 232,27 242,17 250,35 259,6 270,38 280,27 324,27 350,27 358,22 366,31 375,27 420,27 450,27 461,16 470,36 480,8 491,38 502,27 520,27"
           fill="none"
-          stroke={t.stroke}
-          strokeWidth="3"
+          stroke={moving ? "#00ff88" : t.stroke}
+          strokeWidth="3.2"
           strokeLinecap="round"
           strokeLinejoin="round"
           style={{
-            filter: `drop-shadow(0 0 8px ${t.glow})`,
-            animation: moving ? "poly-final-ecg .95s linear infinite" : undefined,
+            filter: moving
+              ? "drop-shadow(0 0 7px rgba(0,255,136,.95)) drop-shadow(0 0 16px rgba(0,255,136,.55))"
+              : `drop-shadow(0 0 6px ${t.glow})`,
           }}
         />
       </svg>
+
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-emerald-300/10" />
+
+      <div
+        className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-emerald-300"
+        style={{
+          display: moving ? "block" : "none",
+          boxShadow: "0 0 12px rgba(0,255,136,.95)",
+          animation: "poly-real-ecg-beat .68s ease-in-out infinite",
+        }}
+      />
     </div>
   );
 }
@@ -874,7 +908,7 @@ function PolyEdgeActionMonitorGrid({
   const priority = [replay, learning, promotion, risk].filter(Boolean);
 
   return (
-    <HoloPanel title="POLY//EDGE • REAL DATA QUANTUM TERMINAL" icon={Cpu} className="col-span-12">
+    <HoloPanel title="POLY//EDGE • REAL DATA QUANTUM TERMINAL" icon={Cpu} className="col-span-12 !m-0 !p-0">
       <style>{`
         .poly-final-root {
           background: radial-gradient(circle at center, #0a0a1f 0%, #000000 100%);
@@ -923,6 +957,46 @@ function PolyEdgeActionMonitorGrid({
           from { transform: translateX(-18%); }
           to { transform: translateX(0%); }
         }
+        @keyframes poly-real-ecg-scroll {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+        @keyframes poly-real-ecg-beat {
+          0%, 100% { opacity: .45; transform: scale(.75); }
+          42% { opacity: 1; transform: scale(1.45); }
+          58% { opacity: .72; transform: scale(.95); }
+        }
+        .poly-real-ecg {
+          position: relative;
+        }
+        .poly-real-ecg-grid {
+          position: absolute;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(0,255,136,.16) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,255,136,.12) 1px, transparent 1px);
+          background-size: 10px 10px;
+        }
+        .poly-real-ecg-line {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 200%;
+          height: 100%;
+        }
+        .poly-real-ecg-sweep {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: 18px;
+          background: linear-gradient(90deg, transparent, rgba(0,255,136,.28), transparent);
+          animation: poly-real-ecg-sweep 1.35s linear infinite;
+        }
+        @keyframes poly-real-ecg-sweep {
+          from { left: -24px; }
+          to { left: 100%; }
+        }
+
         @keyframes poly-final-bars {
           from { transform: scaleY(.45); opacity: .55; }
           to { transform: scaleY(1.12); opacity: 1; }
@@ -943,13 +1017,23 @@ function PolyEdgeActionMonitorGrid({
           0%, 100% { opacity: .55; transform: scale(.92); }
           50% { opacity: 1; transform: scale(1.12); }
         }
+        
+        .polyedge-whole-app-onepage {
+          height: calc(100vh - 24px);
+          max-height: calc(100vh - 24px);
+          overflow: hidden;
+        }
+        .polyedge-hide-old-panels {
+          display: none !important;
+        }
+
         @keyframes poly-final-float {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-6px); }
         }
       `}</style>
 
-      <div className="poly-final-root relative h-[calc(100vh-170px)] min-h-[640px] max-h-[calc(100vh-170px)] overflow-hidden rounded-[32px] p-3 text-white">
+      <div className="poly-final-root polyedge-whole-app-onepage relative overflow-hidden rounded-[28px] p-3 text-white">
         <div className="relative z-10 mx-auto flex h-full max-w-screen-2xl flex-col">
           <div className="mb-2 flex items-center justify-between rounded-2xl border border-cyan-400/30 bg-slate-950/65 px-4 py-2 backdrop-blur-xl">
             <div className="flex items-center gap-4">
@@ -997,7 +1081,7 @@ function PolyEdgeActionMonitorGrid({
               </QuantumGlass>
             </div>
 
-            <div className="col-span-7 grid min-h-0 grid-rows-[1.32fr_.66fr_.78fr] gap-3">
+            <div className="col-span-7 grid min-h-0 grid-rows-[1.15fr_.58fr_.86fr] gap-3">
               <QuantumGlass>
                 <EquityPanel monitors={monitors} metrics={metrics} />
               </QuantumGlass>
@@ -1020,7 +1104,7 @@ function PolyEdgeActionMonitorGrid({
               </QuantumGlass>
             </div>
 
-            <div className="col-span-3 grid min-h-0 grid-rows-[.72fr_.62fr_1fr] gap-3">
+            <div className="col-span-3 grid min-h-0 grid-rows-[.62fr_.52fr_1fr] gap-3">
               <QuantumGlass>
                 <SentimentPanel monitors={monitors} />
               </QuantumGlass>
@@ -1400,7 +1484,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               </div>
             </HoloPanel>
 
-            <HoloPanel title="Quantum Market Sentiment Matrix" icon={Radar} className="col-span-12 xl:col-span-3">
+            <HoloPanel title="Quantum Market Sentiment Matrix" icon={Radar} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
               <div className="flex h-[320px] flex-col items-center justify-center">
                 <div className="relative h-52 w-52 rounded-full border border-cyan-300/30 bg-cyan-300/5 shadow-[0_0_45px_rgba(34,240,255,0.18)]">
                   <div className="absolute inset-8 rounded-full border border-fuchsia-300/25" />
@@ -1438,7 +1522,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
             </HoloPanel>
 
             {mode === "admin" ? (
-              <HoloPanel title="Fast Paper Replay Factory" icon={Zap} className="col-span-12 xl:col-span-3">
+              <HoloPanel title="Fast Paper Replay Factory" icon={Zap} className="polyedge-hide-old-panels col-span-12 xl:col-span-3">
                 <div className="mb-3 grid grid-cols-2 gap-2">
                   <Metric
                     label="Qualified Winners"
@@ -1604,7 +1688,7 @@ export default function PolyEdgeAetherforgeCockpit({ mode }: { mode: PolyEdgeMod
               </div>
             </HoloPanel>
 
-            <HoloPanel title="Customer Safety / Disclosure" icon={Eye} className="col-span-12">
+            <HoloPanel title="Customer Safety / Disclosure" icon={Eye} className="col-span-12 !m-0 !p-0">
               <div className="grid gap-3 text-sm text-cyan-100/75 xl:grid-cols-3">
                 <div>{data?.customerDisclaimer || "Paper trading intelligence only. Not financial advice."}</div>
                 <div>All execution paths remain subject to Nexora governance and policy gates.</div>
