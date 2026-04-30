@@ -12887,6 +12887,26 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
   // ── PolyEdge / Aetherforge — Learning Brain API ────────────────────────────
 
   // ── PolyEdge / Aetherforge — Decision Lineage API ──────────────────────────
+
+  // ── PolyEdge / Aetherforge — Tiny-Live Promotion Gate API ──────────────────
+  app.get("/api/admin/polyedge/promotion-readiness", async (_req: any, res: any) => {
+    try {
+      const { getPolyEdgePromotionReadiness } = await import("./services/trading/polyEdgePromotionGate");
+      return res.json(await getPolyEdgePromotionReadiness("admin"));
+    } catch (err: any) {
+      return res.status(500).json({ ok: false, error: err?.message || "PolyEdge promotion readiness failed" });
+    }
+  });
+
+  app.get("/api/client/polyedge/promotion-readiness", async (_req: any, res: any) => {
+    try {
+      const { getPolyEdgePromotionReadiness } = await import("./services/trading/polyEdgePromotionGate");
+      return res.json(await getPolyEdgePromotionReadiness("client"));
+    } catch (err: any) {
+      return res.status(500).json({ ok: false, error: err?.message || "PolyEdge client promotion readiness failed" });
+    }
+  });
+
   app.get("/api/admin/polyedge/lineage", async (_req: any, res: any) => {
     try {
       const { getPolyEdgeDecisionLineage } = await import("./services/trading/polyEdgeDecisionLineage");
