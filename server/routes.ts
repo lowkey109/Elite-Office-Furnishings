@@ -880,12 +880,12 @@ app.post("/api/admin/auth/login", async (req, res) => {
 
   app.post("/api/nexora/modules/policy-preview", async (req: any, res: any) => {
     try {
-      const { routeNexoraAction } = await import("./services/intelligence/nexora/nexoraActionRouter");
+      const { previewNexoraActionPolicy } = await import("./services/intelligence/nexora/nexoraActionRouter");
 
-      const result = routeNexoraAction({
-        moduleKey: String(req.body?.moduleKey || ""),
-        intent: req.body?.intent || "display",
-        requestedBy: req.body?.requestedBy || "unknown",
+      const result = previewNexoraActionPolicy({
+        moduleKey: req.body?.moduleKey,
+        intent: req.body?.intent,
+        requestedBy: req.body?.requestedBy || "system",
         reason: req.body?.reason || "Policy preview",
         evidence: req.body?.evidence || {},
         dryRun: true,
@@ -896,10 +896,10 @@ app.post("/api/admin/auth/login", async (req, res) => {
         result,
       });
     } catch (err: any) {
-      console.error("[NexoraModules] Failed policy preview:", err);
+      console.error("[NexoraModules] Policy preview failed:", err);
       res.status(500).json({
         ok: false,
-        error: err?.message || "Failed to preview Nexora action policy",
+        error: err?.message || "Failed to preview Nexora policy",
       });
     }
   });
@@ -3030,35 +3030,120 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
-  // Approve/reject pending outreach draft
+  // Nexora approve/decline pending outreach draft
   app.patch("/api/nexora/outreach/:id/approve", async (req, res) => {
     try {
       const { id } = req.params;
-      const { action } = req.body as { action: "approve" | "reject" };
-      if (!["approve", "reject"].includes(action)) return res.status(400).json({ error: "action must be approve or reject" });
+      const { action, reason, evidence } = req.body as {
+        action: "approve" | "reject" | "decline";
+        reason?: string;
+        evidence?: Record<string, unknown>;
+      };
+
+      const normalizedAction = action === "reject" ? "decline" : action;
+
+      if (!["approve", "decline"].includes(normalizedAction)) {
+        return res.status(400).json({
+          ok: false,
+          error: "action must be approve or decline",
+        });
+      }
 
       const { db: ddb } = await import("./db");
       const { outreachMessages } = await import("@shared/schema");
       const { eq } = await import("drizzle-orm");
+      const { assertNexoraExecutionApproved, evaluateNexoraExecutionGate } = await import("./services/intelligence/nexora/nexoraExecutionGate");
 
-      const newStatus = action === "approve" ? "approved" : "suppressed";
-      const suppressionReason = action === "reject" ? "admin_rejected" : null;
+      const [message] = await ddb
+        .select()
+        .from(outreachMessages)
+        .where(eq(outreachMessages.id, id))
+        .limit(1);
 
-      await ddb.update(outreachMessages)
+      if (!message) {
+        return res.status(404).json({
+          ok: false,
+          error: "Outreach message not found",
+        });
+      }
+
+      const gateEvidence = {
+        ...(evidence || {}),
+        messageId: id,
+        companyName: (message as any).companyName || null,
+        recipientEmail: (message as any).recipientEmail || null,
+        channel: (message as any).channel || null,
+        campaignKey: (message as any).campaignKey || null,
+        messageType: (message as any).messageType || null,
+        stage: (message as any).stage || null,
+        subject: (message as any).subject || null,
+        currentDeliveryStatus: (message as any).deliveryStatus || null,
+      };
+
+      const gateReason =
+        reason ||
+        (normalizedAction === "approve"
+          ? `Nexora approved outreach message ${id} for ${(message as any).companyName || "unknown company"}`
+          : `Nexora declined outreach message ${id} for ${(message as any).companyName || "unknown company"}`);
+
+      let nexoraGate;
+
+      if (normalizedAction === "approve") {
+        nexoraGate = assertNexoraExecutionApproved({
+          moduleKey: "outreach",
+          intent: "send_message",
+          requestedBy: "nexora",
+          reason: gateReason,
+          evidence: gateEvidence,
+        });
+      } else {
+        nexoraGate = evaluateNexoraExecutionGate({
+          moduleKey: "outreach",
+          intent: "send_message",
+          requestedBy: "nexora",
+          reason: gateReason,
+          evidence: {
+            ...gateEvidence,
+            nexoraDecision: "decline",
+          },
+          dryRun: false,
+        });
+      }
+
+      const newStatus = normalizedAction === "approve" ? "approved" : "suppressed";
+      const suppressionReason = normalizedAction === "decline" ? "nexora_declined" : null;
+
+      const [updated] = await ddb
+        .update(outreachMessages)
         .set({
           deliveryStatus: newStatus,
-          ...(action === "approve" ? { approvedAt: new Date() } : {}),
+          ...(normalizedAction === "approve" ? { approvedAt: new Date() } : {}),
           ...(suppressionReason ? { suppressionReason } : {}),
           updatedAt: new Date(),
         })
-        .where(eq(outreachMessages.id, id));
+        .where(eq(outreachMessages.id, id))
+        .returning();
 
-      if (action === "approve" && process.env.SAFE_MODE !== "true") {
-        console.log(`[Nexora Outreach] Approved message ${id} — queued for delivery`);
+      if (normalizedAction === "approve" && process.env.SAFE_MODE !== "true") {
+        console.log(`[Nexora Outreach] Nexora approved message ${id} — queued for delivery`);
       }
 
-      res.json({ ok: true, id, action, status: newStatus });
-    } catch (err: any) { res.status(500).json({ error: err.message }); }
+      return res.json({
+        ok: true,
+        id,
+        action: normalizedAction,
+        status: newStatus,
+        nexoraGate,
+        outreach: updated,
+      });
+    } catch (err: any) {
+      const status = err?.statusCode || 500;
+      return res.status(status).json({
+        ok: false,
+        error: err?.message || String(err),
+        nexoraGate: err?.nexoraGate || null,
+      });
+    }
   });
 
   // ─── Finance Lead ────────────────────────────────────────────────────────────
