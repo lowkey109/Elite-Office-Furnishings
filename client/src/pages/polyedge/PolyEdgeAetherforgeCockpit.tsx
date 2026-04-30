@@ -582,24 +582,27 @@ function QuantumTitle({ title, right }: { title: string; right?: any }) {
 
 
 
-function MiniTrace({ monitor }: { monitor: any }) {
-  const t = statusTone(monitor?.state);
-  const moving = monitor?.moving === true;
-  const state = String(monitor?.state || "offline");
-  const isFault = state === "offline" || state === "timeout" || state === "stalled";
-  const isIdle = state === "idle" || state === "blocked" || state === "paper_only";
-  const isLive = moving && !isFault && !isIdle;
 
-  if (monitor?.kind === "market") {
+function MiniTrace({ monitor }: { monitor: any }) {
+  const state = String(monitor?.state || "offline");
+  const kind = String(monitor?.kind || "module");
+  const moving = monitor?.moving === true;
+
+  const isMarket = kind === "market";
+  const isLive = (state === "online" || state === "running") && moving;
+  const isIdle = state === "idle" || state === "blocked" || state === "paper_only";
+  const isFault = state === "offline" || state === "timeout" || state === "stalled" || state === "fault";
+
+  if (isMarket) {
     return (
       <div className="mt-1 flex h-5 items-end gap-[2px] overflow-hidden rounded-md border border-cyan-300/10 bg-black/45 px-2 pb-1">
         {Array.from({ length: 22 }).map((_, i) => (
           <span
             key={i}
-            className={`w-1 rounded-t ${isFault ? "bg-red-400/60" : "bg-gradient-to-t from-fuchsia-700 via-cyan-300 to-white"}`}
+            className={`w-1 rounded-t ${isFault ? "bg-red-400/45" : "bg-gradient-to-t from-fuchsia-700 via-cyan-300 to-white"}`}
             style={{
               height: `${7 + ((i * 13) % 20)}px`,
-              filter: `drop-shadow(0 0 7px ${t.glow})`,
+              filter: isFault ? "none" : "drop-shadow(0 0 7px rgba(103,232,249,.75))",
               animation: isLive ? `poly-final-bars ${0.55 + (i % 6) * 0.08}s ease-in-out infinite alternate` : undefined,
             }}
           />
@@ -608,93 +611,101 @@ function MiniTrace({ monitor }: { monitor: any }) {
     );
   }
 
-  const stroke = isFault ? "#ff4d6d" : isIdle ? "#ffd166" : "#00ff88";
-  const glow = isFault ? "rgba(255,77,109,.85)" : isIdle ? "rgba(255,209,102,.75)" : "rgba(0,255,136,.95)";
-  const animationSpeed = isIdle ? "2.4s" : "1.35s";
-
-  return (
-    <div className={`poly-real-ecg mt-1 h-7 overflow-hidden rounded-md border bg-black/75 ${isFault ? "border-red-300/30" : isIdle ? "border-amber-300/25" : "border-emerald-300/25"}`}>
-      <div className="poly-real-ecg-grid" />
-
-      {!isFault && (
-        <div
-          className="poly-real-ecg-sweep"
-          style={{
-            animationDuration: animationSpeed,
-            background: `linear-gradient(90deg, transparent, ${glow}, transparent)`,
-          }}
-        />
-      )}
-
-      {isFault ? (
-        <svg className="absolute inset-0 h-full w-full" viewBox="0 0 260 44" preserveAspectRatio="none">
+  if (isFault) {
+    return (
+      <div className="poly-real-ecg mt-1 h-7 overflow-hidden rounded-md border border-red-300/25 bg-black/80">
+        <div className="poly-real-ecg-grid poly-real-ecg-grid-red" />
+        <svg className="absolute inset-0 h-full w-full" viewBox="0 0 320 44" preserveAspectRatio="none">
           <polyline
-            points="0,27 260,27"
+            points="0,27 320,27"
             fill="none"
             stroke="#ff4d6d"
-            strokeWidth="3"
+            strokeWidth="2.8"
             strokeLinecap="round"
             style={{ filter: "drop-shadow(0 0 8px rgba(255,77,109,.85))" }}
           />
         </svg>
-      ) : (
-        <svg
-          className="poly-real-ecg-line"
-          viewBox="0 0 720 44"
-          preserveAspectRatio="none"
-          style={{
-            animation: `poly-real-ecg-scroll ${animationSpeed} linear infinite`,
-          }}
-        >
+        <div className="absolute right-2 top-1 text-[7px] font-black uppercase tracking-[0.14em] text-red-300">FLATLINE</div>
+      </div>
+    );
+  }
+
+  if (isIdle) {
+    return (
+      <div className="poly-real-ecg mt-1 h-7 overflow-hidden rounded-md border border-amber-300/25 bg-black/80">
+        <div className="poly-real-ecg-grid poly-real-ecg-grid-amber" />
+        <div className="poly-real-ecg-idle-sweep" />
+        <svg className="poly-real-ecg-line-idle" viewBox="0 0 640 44" preserveAspectRatio="none">
           <polyline
             /*
-              Real ECG-inspired shape:
-              baseline -> P wave -> QRS spike/dip -> T wave -> baseline.
-              Repeated twice so the left-moving trace loops cleanly.
+              Mostly flat with a tiny occasional pulse:
+              baseline -> tiny blip -> baseline.
+              This is NOT a full heartbeat.
             */
             points="
-              0,27 28,27 42,27
-              50,24 58,22 66,24 74,27
-              88,27 96,34 103,6 111,38 120,27
-              145,27 160,24 176,22 192,24 208,27
-              240,27
-
-              260,27 288,27 302,27
-              310,24 318,22 326,24 334,27
-              348,27 356,34 363,6 371,38 380,27
-              405,27 420,24 436,22 452,24 468,27
-              500,27
-
-              520,27 548,27 562,27
-              570,24 578,22 586,24 594,27
-              608,27 616,34 623,6 631,38 640,27
-              665,27 680,24 696,22 712,24 720,27
+              0,27 90,27 130,27 140,25 150,27 240,27 320,27
+              330,26 340,27 430,27 520,27 530,25 540,27 640,27
             "
             fill="none"
-            stroke={stroke}
-            strokeWidth={isIdle ? "2.4" : "3.2"}
+            stroke="#ffd166"
+            strokeWidth="2.2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            style={{
-              filter: `drop-shadow(0 0 7px ${glow}) drop-shadow(0 0 15px ${glow})`,
-              opacity: isIdle ? 0.75 : 1,
-            }}
+            style={{ filter: "drop-shadow(0 0 7px rgba(255,209,102,.70))" }}
           />
         </svg>
-      )}
+        <div className="absolute right-2 top-1 text-[7px] font-black uppercase tracking-[0.14em] text-amber-300">STANDBY</div>
+      </div>
+    );
+  }
 
-      {!isFault && (
-        <div
-          className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full"
+  return (
+    <div className="poly-real-ecg mt-1 h-7 overflow-hidden rounded-md border border-emerald-300/25 bg-black/80">
+      <div className="poly-real-ecg-grid" />
+      <div className="poly-real-ecg-sweep" />
+      <svg className="poly-real-ecg-line" viewBox="0 0 900 44" preserveAspectRatio="none">
+        <polyline
+          /*
+            Continuous monitor-style rhythm:
+            baseline -> small P wave -> QRS complex -> T wave -> baseline.
+          */
+          points="
+            0,27 36,27 50,27
+            58,24 67,22 76,24 84,27
+            104,27 112,34 120,5 129,39 139,27
+            168,27 184,24 202,22 220,24 238,27
+            290,27
+
+            320,27 356,27 370,27
+            378,24 387,22 396,24 404,27
+            424,27 432,34 440,5 449,39 459,27
+            488,27 504,24 522,22 540,24 558,27
+            610,27
+
+            640,27 676,27 690,27
+            698,24 707,22 716,24 724,27
+            744,27 752,34 760,5 769,39 779,27
+            808,27 824,24 842,22 860,24 878,27
+            900,27
+          "
+          fill="none"
+          stroke="#00ff88"
+          strokeWidth="3.1"
+          strokeLinecap="round"
+          strokeLinejoin="round"
           style={{
-            background: stroke,
-            boxShadow: `0 0 12px ${glow}`,
-            animation: `poly-real-ecg-beat ${isIdle ? "1.7s" : ".68s"} ease-in-out infinite`,
+            filter: "drop-shadow(0 0 7px rgba(0,255,136,.95)) drop-shadow(0 0 15px rgba(0,255,136,.55))",
+            animation: "poly-real-ecg-draw 1.55s linear infinite",
           }}
         />
-      )}
-
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-emerald-300/10" />
+      </svg>
+      <div
+        className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-emerald-300"
+        style={{
+          boxShadow: "0 0 12px rgba(0,255,136,.95)",
+          animation: "poly-real-ecg-beat 1.55s ease-in-out infinite",
+        }}
+      />
     </div>
   );
 }
@@ -1038,6 +1049,90 @@ function PolyEdgeActionMonitorGrid({
         @keyframes poly-real-ecg-sweep {
           from { left: -24px; }
           to { left: 100%; }
+        }
+
+        @keyframes poly-real-ecg-draw {
+          from { transform: translateX(0); }
+          to { transform: translateX(-35.55%); }
+        }
+
+        @keyframes poly-real-ecg-beat {
+          0%, 100% { opacity: .42; transform: scale(.72); }
+          42% { opacity: .85; transform: scale(1.15); }
+          48% { opacity: 1; transform: scale(1.55); }
+          62% { opacity: .68; transform: scale(.92); }
+        }
+
+        @keyframes poly-real-ecg-sweep {
+          from { left: -28px; }
+          to { left: 100%; }
+        }
+
+        @keyframes poly-real-ecg-idle-drift {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+
+        .poly-real-ecg {
+          position: relative;
+        }
+
+        .poly-real-ecg-grid {
+          position: absolute;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(0,255,136,.13) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,255,136,.10) 1px, transparent 1px);
+          background-size: 10px 10px;
+          opacity: .9;
+        }
+
+        .poly-real-ecg-grid-amber {
+          background-image:
+            linear-gradient(rgba(255,209,102,.12) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,209,102,.08) 1px, transparent 1px);
+        }
+
+        .poly-real-ecg-grid-red {
+          background-image:
+            linear-gradient(rgba(255,77,109,.12) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,77,109,.08) 1px, transparent 1px);
+        }
+
+        .poly-real-ecg-line {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 300%;
+          height: 100%;
+          animation: poly-real-ecg-draw 1.55s linear infinite;
+        }
+
+        .poly-real-ecg-line-idle {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 200%;
+          height: 100%;
+          animation: poly-real-ecg-idle-drift 5.6s linear infinite;
+        }
+
+        .poly-real-ecg-sweep {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: 26px;
+          background: linear-gradient(90deg, transparent, rgba(0,255,136,.32), transparent);
+          animation: poly-real-ecg-sweep 1.55s linear infinite;
+        }
+
+        .poly-real-ecg-idle-sweep {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: 18px;
+          background: linear-gradient(90deg, transparent, rgba(255,209,102,.18), transparent);
+          animation: poly-real-ecg-sweep 5.6s linear infinite;
         }
 
         @keyframes poly-final-bars {
