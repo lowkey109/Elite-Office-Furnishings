@@ -1,4 +1,5 @@
 import { db } from "../../db";
+import { assertNexoraExecutionApproved } from "../intelligence/nexora/nexoraExecutionGate";
 import { executionAttemptLogs, liveOrders } from "@shared/schema";
 import { getLiveExecutionConfig, getExecutionMode } from "./liveExecutionConfig";
 import { checkLiveGuardrails } from "./liveExecutionGuardrails";
@@ -26,6 +27,41 @@ export interface ExecutionResult {
 }
 
 export async function submitToGateway(request: ExecutionRequest): Promise<ExecutionResult> {
+  const livePreauth = process.env.PHANTOM_X_LIVE_PREAUTHORISED === "true";
+
+  if (!livePreauth) {
+    await logAttempt(request, "blocked_by_nexora", true, "Live trading blocked until pre-authorised rules are configured.", {
+      source: "phantom_x_live_execution_gateway",
+      decisionId: request.decisionId,
+      symbol: request.symbol,
+      side: request.side,
+      quantity: request.quantity,
+      price: request.price,
+    });
+
+    return {
+      executed: false,
+      mode: "blocked_by_nexora",
+      blockedReasons: ["Live trading blocked until pre-authorised rules are configured."],
+    };
+  }
+
+  assertNexoraExecutionApproved({
+    moduleKey: "phantom_x",
+    intent: "live_trade",
+    requestedBy: "nexora",
+    reason: "Nexora approved pre-authorised Phantom X live trading attempt",
+    evidence: {
+      source: "phantom_x_live_execution_gateway",
+      decisionId: request.decisionId,
+      symbol: request.symbol,
+      side: request.side,
+      quantity: request.quantity,
+      price: request.price,
+      orderType: request.orderType,
+    },
+  });
+
   const mode = getExecutionMode();
   const config = getLiveExecutionConfig();
 

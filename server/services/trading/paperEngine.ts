@@ -1,4 +1,5 @@
 import { db } from "../../db";
+import { approvePhantomXPaperTrade } from "../intelligence/nexora/nexoraExecutionGate";
 import { eq, desc, and, sql } from "drizzle-orm";
 import {
   paperTradingDecisions,
@@ -43,6 +44,16 @@ export async function createDecision(params: {
 }): Promise<string> {
   const confidenceThreshold = 60;
   const meetsThreshold = params.confidence >= confidenceThreshold;
+
+  approvePhantomXPaperTrade("Nexora approved Phantom X paper trading decision creation", {
+    source: "phantom_x_paper_engine_create_decision",
+    market: params.market,
+    strategy: params.strategy,
+    direction: params.direction,
+    confidence: params.confidence,
+    reasonCode: params.reasonCode,
+    meetsThreshold,
+  });
 
   const [decision] = await db.insert(paperTradingDecisions).values({
     market: params.market,
@@ -89,6 +100,18 @@ export async function openPaperPosition(params: {
   paperCapitalAllocated: number;
   strategy: string;
 }): Promise<string | null> {
+  approvePhantomXPaperTrade("Nexora approved Phantom X paper position open", {
+    source: "phantom_x_paper_engine_open_position",
+    decisionId: params.decisionId,
+    symbol: params.symbol,
+    side: params.side,
+    entryPrice: params.entryPrice,
+    stopPrice: params.stopPrice,
+    targetPrice: params.targetPrice,
+    paperCapitalAllocated: params.paperCapitalAllocated,
+    strategy: params.strategy,
+  });
+
   const existing = await db.select({ id: paperPositions.id })
     .from(paperPositions)
     .where(eq(paperPositions.linkedDecisionId, params.decisionId));

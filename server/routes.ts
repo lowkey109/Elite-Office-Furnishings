@@ -13142,6 +13142,11 @@ Return ONLY valid JSON: { "productName": "...", "category": "...", "sku": "...",
 
   app.post("/api/admin/phantomx/scan-polymarket", async (_req: any, res: any) => {
     try {
+      const { approvePhantomXScan } = await import("./services/intelligence/nexora/nexoraExecutionGate");
+      approvePhantomXScan("Nexora approved Phantom X Polymarket scan", {
+        source: "phantom_x_scan_polymarket_route",
+        route: "/api/admin/phantomx/scan-polymarket",
+      });
       const { Client } = await import("pg");
 
       const connectionString =
