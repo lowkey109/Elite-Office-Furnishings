@@ -490,61 +490,62 @@ function ReplayEngineMonitor({
 
 
 
+
 function statusTone(state?: string) {
   if (state === "online" || state === "running") {
     return {
       label: "LIVE",
-      stroke: "#00ff88",
-      glow: "rgba(0,255,136,.75)",
-      weakGlow: "rgba(0,255,136,.18)",
       text: "text-emerald-300",
+      border: "border-emerald-300/35",
       dot: "bg-emerald-300",
-      ring: "border-emerald-300/40",
+      stroke: "#00ff88",
+      glow: "rgba(0,255,136,.65)",
+      panel: "bg-emerald-400/5",
     };
   }
 
   if (state === "blocked" || state === "paper_only" || state === "idle") {
     return {
       label: state === "idle" ? "IDLE" : "SAFE",
-      stroke: "#ffd166",
-      glow: "rgba(255,209,102,.72)",
-      weakGlow: "rgba(255,209,102,.16)",
       text: "text-amber-300",
+      border: "border-amber-300/35",
       dot: "bg-amber-300",
-      ring: "border-amber-300/40",
+      stroke: "#ffd166",
+      glow: "rgba(255,209,102,.58)",
+      panel: "bg-amber-400/5",
     };
   }
 
   return {
     label: "FAULT",
-    stroke: "#ff4d6d",
-    glow: "rgba(255,77,109,.74)",
-    weakGlow: "rgba(255,77,109,.16)",
     text: "text-red-300",
+    border: "border-red-300/35",
     dot: "bg-red-300",
-    ring: "border-red-300/40",
+    stroke: "#ff4d6d",
+    glow: "rgba(255,77,109,.62)",
+    panel: "bg-red-400/5",
   };
 }
 
-function OrbitalTrace({ monitor }: { monitor: PolyEdgeActionMonitorItem }) {
+function CockpitSpark({ monitor, height = 48 }: { monitor: PolyEdgeActionMonitorItem; height?: number }) {
   const tone = statusTone(monitor.state);
   const moving = monitor.moving === true;
 
   if (monitor.kind === "market") {
     return (
-      <div className="relative h-8 overflow-hidden rounded-full bg-black/70 ring-1 ring-cyan-200/10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(34,240,255,.18),transparent_65%)]" />
-        <div className="relative z-10 flex h-full items-end justify-center gap-[2px] px-3 pb-1">
-          {Array.from({ length: 18 }).map((_, i) => (
+      <div className="relative overflow-hidden rounded-lg border border-cyan-200/10 bg-black/60 px-2 pb-1" style={{ height }}>
+        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.20) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.10) 1px, transparent 1px)", backgroundSize: "14px 14px" }} />
+        <div className="relative z-10 flex h-full items-end gap-[4px]">
+          {Array.from({ length: 32 }).map((_, i) => (
             <span
               key={i}
-              className="w-1 rounded-full"
+              className="w-1.5 rounded-t-full"
               style={{
-                height: moving ? `${5 + ((i * 13) % 22)}px` : "2px",
+                height: moving ? `${8 + ((i * 11) % Math.max(16, height - 12))}px` : "2px",
                 background: moving ? "linear-gradient(to top,#00ff88,#22f0ff,#ffffff)" : tone.stroke,
-                boxShadow: moving ? `0 0 10px ${tone.glow}` : undefined,
-                animation: moving ? `poly-orb-bars ${0.45 + (i % 6) * 0.06}s ease-in-out infinite alternate` : undefined,
-                animationDelay: `${i * 0.018}s`,
+                boxShadow: moving ? `0 0 11px ${tone.glow}` : undefined,
+                animation: moving ? `poly-cockpit-bars ${0.55 + (i % 7) * 0.07}s ease-in-out infinite alternate` : undefined,
+                animationDelay: `${i * 0.015}s`,
               }}
             />
           ))}
@@ -554,22 +555,22 @@ function OrbitalTrace({ monitor }: { monitor: PolyEdgeActionMonitorItem }) {
   }
 
   return (
-    <div className="relative h-8 overflow-hidden rounded-full bg-black/70 ring-1 ring-cyan-200/10">
-      <svg className="absolute inset-0 h-full w-[140%]" viewBox="0 0 320 38" preserveAspectRatio="none">
+    <div className="relative overflow-hidden rounded-lg border border-cyan-200/10 bg-black/60" style={{ height }}>
+      <svg className="absolute inset-0 h-full w-[130%]" viewBox="0 0 420 70" preserveAspectRatio="none">
         <polyline
           points={
             moving
-              ? "0,22 28,22 40,22 50,9 62,31 76,4 92,22 124,22 138,22 150,14 164,30 178,8 196,22 230,22 248,22 262,9 278,32 296,22 320,22"
-              : "0,22 320,22"
+              ? "0,42 34,42 52,42 66,22 84,56 104,12 128,42 172,42 198,42 214,30 234,54 254,18 282,42 322,42 346,42 366,24 388,58 408,42 420,42"
+              : "0,42 420,42"
           }
           fill="none"
           stroke={tone.stroke}
-          strokeWidth="3.2"
+          strokeWidth="4"
           strokeLinecap="round"
           strokeLinejoin="round"
           style={{
-            filter: `drop-shadow(0 0 8px ${tone.glow})`,
-            animation: moving ? "poly-orb-ecg .82s linear infinite" : undefined,
+            filter: `drop-shadow(0 0 9px ${tone.glow})`,
+            animation: moving ? "poly-cockpit-ecg 1s linear infinite" : undefined,
           }}
         />
       </svg>
@@ -577,103 +578,72 @@ function OrbitalTrace({ monitor }: { monitor: PolyEdgeActionMonitorItem }) {
   );
 }
 
-function OrbitalMonitorNode({
-  monitor,
-  index,
-  total,
+function CockpitPanel({
+  title,
+  children,
+  className = "",
 }: {
-  monitor: PolyEdgeActionMonitorItem;
-  index: number;
-  total: number;
+  title: string;
+  children: React.ReactNode;
+  className?: string;
 }) {
-  const tone = statusTone(monitor.state);
-  const moving = monitor.moving === true;
-  const angle = -Math.PI / 2 + (index / Math.max(1, total)) * Math.PI * 2;
-  const radiusX = 39;
-  const radiusY = 37;
-  const x = 50 + Math.cos(angle) * radiusX;
-  const y = 52 + Math.sin(angle) * radiusY;
-  const value = monitor.kind === "market" && monitor.value ? "$" + Number(monitor.value).toLocaleString() : tone.label;
-
   return (
-    <div
-      className="group absolute z-20 w-[154px] -translate-x-1/2 -translate-y-1/2 transition-all duration-300 hover:z-40 hover:scale-110"
-      style={{ left: `${x}%`, top: `${y}%` }}
-    >
-      <div
-        className="relative overflow-hidden border bg-black/70 p-3 backdrop-blur-md"
-        style={{
-          clipPath: "polygon(10% 0%, 90% 0%, 100% 22%, 100% 78%, 90% 100%, 10% 100%, 0% 78%, 0% 22%)",
-          borderColor: tone.stroke,
-          boxShadow: `0 0 28px ${tone.glow}, inset 0 0 28px ${tone.weakGlow}`,
-        }}
-      >
-        <div className="pointer-events-none absolute inset-0 opacity-35" style={{ background: `radial-gradient(circle at 50% 0%, ${tone.weakGlow}, transparent 55%)` }} />
-        <div className="pointer-events-none absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.10) 1px, transparent 1px)", backgroundSize: "11px 11px" }} />
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-transparent via-white/12 to-transparent opacity-0 group-hover:opacity-100" style={{ animation: "poly-orb-sweep 1.7s linear infinite" }} />
-
-        <div className="relative z-10 flex items-center justify-between gap-2">
-          <div className="min-w-0">
-            <div className="truncate text-[6px] uppercase tracking-[0.2em] text-cyan-100/35">{String(monitor.key || "").replaceAll("_", " ")}</div>
-            <div className="mt-1 truncate text-[11px] font-black uppercase tracking-[0.08em] text-white">{monitor.label}</div>
-          </div>
-
-          <div className={`flex shrink-0 items-center gap-1 rounded-full border border-current/25 bg-black/55 px-2 py-1 text-[7px] font-black uppercase ${tone.text}`}>
-            <span
-              className={`h-1.5 w-1.5 rounded-full ${tone.dot}`}
-              style={{ animation: moving ? "poly-orb-pulse .7s ease-in-out infinite" : undefined, boxShadow: `0 0 12px ${tone.glow}` }}
-            />
-            {tone.label}
-          </div>
-        </div>
-
-        <div className="relative z-10 mt-2 grid grid-cols-[26px_1fr] items-center gap-2">
-          <div className="relative h-7 w-7">
-            <div className="absolute inset-0 rounded-full border border-cyan-300/35" style={{ animation: moving ? "poly-orb-spin 1.8s linear infinite" : undefined }} />
-            <div className="absolute inset-2 rounded-full border border-fuchsia-300/25" style={{ animation: moving ? "poly-orb-spin 2.9s linear infinite reverse" : undefined }} />
-            <div className={`absolute inset-[10px] rounded-full ${tone.dot}`} style={{ boxShadow: `0 0 16px ${tone.glow}`, animation: moving ? "poly-orb-pulse .7s ease-in-out infinite" : undefined }} />
-          </div>
-
-          <OrbitalTrace monitor={monitor} />
-        </div>
-
-        <div className="relative z-10 mt-2 flex items-center justify-between border-t border-white/5 pt-1.5">
-          <div className="truncate text-[7px] text-cyan-50/42">{monitor.liveTradingAffected ? "LIVE GATE" : "SYSTEM"}</div>
-          <div className={`text-[9px] font-black ${tone.text}`}>{value}</div>
+    <div className={`relative overflow-hidden rounded-[18px] border border-cyan-200/20 bg-[linear-gradient(145deg,rgba(34,240,255,.08),rgba(0,0,0,.62))] p-3 shadow-[inset_0_0_35px_rgba(34,240,255,.06),0_0_34px_rgba(34,240,255,.08)] ${className}`}>
+      <div className="pointer-events-none absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.09) 1px, transparent 1px)", backgroundSize: "18px 18px" }} />
+      <div className="relative z-10 mb-2 flex items-center justify-between border-b border-cyan-200/10 pb-2">
+        <div className="text-[10px] font-black uppercase tracking-[0.26em] text-cyan-200">{title}</div>
+        <div className="flex items-center gap-1 text-[8px] font-black uppercase text-emerald-300">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_10px_rgba(0,255,136,.8)]" />
+          Live
         </div>
       </div>
-
-      <div
-        className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-px w-[240px] origin-left opacity-45"
-        style={{
-          background: `linear-gradient(90deg,${tone.glow},transparent)`,
-          transform: `rotate(${angle + Math.PI}rad)`,
-        }}
-      />
+      <div className="relative z-10">{children}</div>
     </div>
   );
 }
 
-function OrbitalCore({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
+function MiniSystemRow({ monitor }: { monitor: PolyEdgeActionMonitorItem }) {
+  const tone = statusTone(monitor.state);
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-lg border border-white/5 bg-black/35 px-3 py-2">
+      <div className="min-w-0">
+        <div className="truncate text-[10px] font-black uppercase tracking-[0.12em] text-white">{monitor.label}</div>
+        <div className="truncate text-[8px] text-cyan-100/35">{monitor.kind || "system"}</div>
+      </div>
+      <div className={`flex items-center gap-2 text-[9px] font-black uppercase ${tone.text}`}>
+        <span className={`h-2 w-2 rounded-full ${tone.dot}`} style={{ animation: monitor.moving ? "poly-cockpit-pulse .85s ease-in-out infinite" : undefined, boxShadow: `0 0 12px ${tone.glow}` }} />
+        {tone.label}
+      </div>
+    </div>
+  );
+}
+
+function RadarMonitor({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
   const active = monitors.filter((m) => m.state === "online" || m.state === "running").length;
   const safe = monitors.filter((m) => m.state === "blocked" || m.state === "paper_only" || m.state === "idle").length;
-  const fault = monitors.filter((m) => m.state === "timeout" || m.state === "offline" || m.state === "stalled").length;
+  const fault = monitors.filter((m) => m.state === "offline" || m.state === "timeout" || m.state === "stalled").length;
 
   return (
-    <div className="absolute left-1/2 top-1/2 z-10 h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2">
-      <div className="absolute inset-0 rounded-full border border-cyan-300/20" style={{ animation: "poly-orb-spin 13s linear infinite" }} />
-      <div className="absolute inset-6 rounded-full border border-fuchsia-300/20" style={{ animation: "poly-orb-spin 8s linear infinite reverse" }} />
-      <div className="absolute inset-12 rounded-full border border-emerald-300/25" style={{ animation: "poly-orb-spin 5s linear infinite" }} />
-      <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-cyan-300/70 to-transparent" style={{ animation: "poly-orb-spin 2.8s linear infinite" }} />
-      <div className="absolute inset-[92px] rounded-full bg-emerald-300/35 shadow-[0_0_80px_rgba(0,255,136,.9)]" style={{ animation: "poly-orb-pulse .9s ease-in-out infinite" }} />
+    <div className="relative flex min-h-[220px] items-center justify-center">
+      <div className="absolute h-48 w-48 rounded-full border border-cyan-300/25" />
+      <div className="absolute h-36 w-36 rounded-full border border-cyan-300/20" />
+      <div className="absolute h-24 w-24 rounded-full border border-fuchsia-300/25" />
+      <div className="absolute h-12 w-12 rounded-full border border-emerald-300/25" />
+      <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-cyan-300/75 to-transparent" style={{ animation: "poly-cockpit-spin 2.7s linear infinite" }} />
+      <div className="absolute h-5 w-5 rounded-full bg-fuchsia-300 shadow-[0_0_40px_rgba(255,0,255,.8)]" style={{ animation: "poly-cockpit-pulse 1s ease-in-out infinite" }} />
 
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <div className="text-[8px] uppercase tracking-[0.32em] text-cyan-100/45">PolyEdge</div>
-        <div className="mt-1 text-2xl font-black uppercase tracking-[0.16em] text-white">Nexus</div>
-        <div className="mt-3 grid grid-cols-3 gap-2 text-[8px] font-black uppercase">
-          <div className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-2 py-1 text-emerald-300">A {active}</div>
-          <div className="rounded-xl border border-amber-300/20 bg-amber-300/10 px-2 py-1 text-amber-300">S {safe}</div>
-          <div className="rounded-xl border border-red-300/20 bg-red-300/10 px-2 py-1 text-red-300">F {fault}</div>
+      <div className="absolute bottom-0 grid grid-cols-3 gap-2 text-center">
+        <div className="rounded-lg border border-emerald-300/25 bg-emerald-300/10 px-3 py-2">
+          <div className="text-[8px] uppercase tracking-[0.16em] text-emerald-100/45">Active</div>
+          <div className="text-lg font-black text-emerald-300">{active}</div>
+        </div>
+        <div className="rounded-lg border border-amber-300/25 bg-amber-300/10 px-3 py-2">
+          <div className="text-[8px] uppercase tracking-[0.16em] text-amber-100/45">Safe</div>
+          <div className="text-lg font-black text-amber-300">{safe}</div>
+        </div>
+        <div className="rounded-lg border border-red-300/25 bg-red-300/10 px-3 py-2">
+          <div className="text-[8px] uppercase tracking-[0.16em] text-red-100/45">Fault</div>
+          <div className="text-lg font-black text-red-300">{fault}</div>
         </div>
       </div>
     </div>
@@ -682,60 +652,105 @@ function OrbitalCore({ monitors }: { monitors: PolyEdgeActionMonitorItem[] }) {
 
 function PolyEdgeActionMonitorGrid({ actionMonitor }: { actionMonitor: PolyEdgeActionMonitorResponse | null }) {
   const monitors = actionMonitor?.monitors || [];
+  const markets = monitors.filter((m) => m.kind === "market");
+  const systems = monitors.filter((m) => m.kind !== "market");
+  const active = monitors.filter((m) => m.state === "online" || m.state === "running").length;
+  const safe = monitors.filter((m) => m.state === "blocked" || m.state === "paper_only" || m.state === "idle").length;
+  const fault = monitors.filter((m) => m.state === "offline" || m.state === "timeout" || m.state === "stalled").length;
+  const replay = monitors.find((m) => m.key === "replay_engine") || systems[0];
+  const risk = monitors.find((m) => m.key === "risk_governor") || systems[1];
+  const learning = monitors.find((m) => m.key === "learning_brain") || systems[2];
 
   return (
-    <HoloPanel title="PolyEdge Orbital Hologram Wall" icon={Cpu} className="col-span-12">
+    <HoloPanel title="PolyEdge Quantum Cockpit Monitor Wall" icon={Cpu} className="col-span-12">
       <style>{`
-        @keyframes poly-orb-ecg {
-          from { transform: translateX(-16%); }
+        @keyframes poly-cockpit-ecg {
+          from { transform: translateX(-14%); }
           to { transform: translateX(0%); }
         }
-        @keyframes poly-orb-spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+        @keyframes poly-cockpit-bars {
+          from { transform: scaleY(.25); opacity: .42; filter: brightness(.75); }
+          to { transform: scaleY(1.18); opacity: 1; filter: brightness(1.55); }
         }
-        @keyframes poly-orb-pulse {
-          0%, 100% { opacity: .45; transform: scale(.78); }
+        @keyframes poly-cockpit-spin {
+          from { transform: translateX(-50%) rotate(0deg); }
+          to { transform: translateX(-50%) rotate(360deg); }
+        }
+        @keyframes poly-cockpit-pulse {
+          0%, 100% { opacity: .5; transform: scale(.82); }
           50% { opacity: 1; transform: scale(1.18); }
         }
-        @keyframes poly-orb-bars {
-          from { transform: scaleY(.25); opacity: .42; filter: brightness(.7); }
-          to { transform: scaleY(1.2); opacity: 1; filter: brightness(1.6); }
-        }
-        @keyframes poly-orb-sweep {
-          from { transform: translateX(-170%); }
-          to { transform: translateX(280%); }
-        }
-        @keyframes poly-orb-float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
+        @keyframes poly-cockpit-sweep {
+          from { transform: translateX(-150%); }
+          to { transform: translateX(260%); }
         }
       `}</style>
 
-      <div className="relative overflow-hidden rounded-[34px] border border-cyan-200/20 bg-[radial-gradient(circle_at_50%_45%,rgba(34,240,255,.18),transparent_35%),radial-gradient(circle_at_80%_20%,rgba(255,0,170,.12),transparent_32%),rgba(0,0,0,.52)] p-3 shadow-[0_0_95px_rgba(34,240,255,.18),inset_0_0_80px_rgba(34,240,255,.06)]">
-        <div className="pointer-events-none absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.09) 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-cyan-300/10 to-transparent" style={{ animation: "poly-orb-sweep 4s linear infinite" }} />
+      <div className="relative overflow-hidden rounded-[30px] border border-cyan-200/20 bg-[radial-gradient(circle_at_50%_-10%,rgba(34,240,255,.16),transparent_34%),radial-gradient(circle_at_85%_10%,rgba(255,0,170,.10),transparent_34%),rgba(0,0,0,.50)] p-4 shadow-[0_0_90px_rgba(34,240,255,.16),inset_0_0_70px_rgba(34,240,255,.055)]">
+        <div className="pointer-events-none absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(rgba(34,240,255,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(34,240,255,.09) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-cyan-300/10 to-transparent" style={{ animation: "poly-cockpit-sweep 4s linear infinite" }} />
 
-        <div className="relative z-10 mb-2 flex items-center justify-between px-2">
+        <div className="relative z-10 mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <div className="text-[9px] uppercase tracking-[0.32em] text-cyan-100/45">Quantum Holographic Operations Layer</div>
-            <div className="mt-1 text-xl font-black uppercase tracking-[0.18em] text-white">Orbital Monitor Nexus</div>
+            <div className="text-[10px] uppercase tracking-[0.34em] text-cyan-100/45">PolyEdge Quantum Hyperintelligence Terminal</div>
+            <div className="mt-1 text-2xl font-black uppercase tracking-[0.18em] text-white">Holographic Monitor Cockpit</div>
           </div>
-          <div className="rounded-full border border-cyan-300/20 bg-black/45 px-4 py-2 text-[9px] font-black uppercase tracking-[0.16em] text-cyan-200">
-            {monitors.length} live signals
+          <div className="grid grid-cols-3 gap-2 text-[9px] font-black uppercase">
+            <div className="rounded-xl border border-emerald-300/25 bg-emerald-300/10 px-4 py-2 text-emerald-300">Active {active}</div>
+            <div className="rounded-xl border border-amber-300/25 bg-amber-300/10 px-4 py-2 text-amber-300">Safe {safe}</div>
+            <div className="rounded-xl border border-red-300/25 bg-red-300/10 px-4 py-2 text-red-300">Fault {fault}</div>
           </div>
         </div>
 
-        <div className="relative h-[580px] overflow-hidden rounded-[28px] border border-cyan-200/10 bg-black/35">
-          <OrbitalCore monitors={monitors} />
-
-          {monitors.length === 0 ? (
-            <div className="absolute inset-0 flex items-center justify-center text-red-200">
-              PolyEdge monitor wall has not responded yet.
+        <div className="relative z-10 grid grid-cols-12 gap-3">
+          <CockpitPanel title="Hyperdimensional System Pulse" className="col-span-12 xl:col-span-6">
+            {replay ? <CockpitSpark monitor={replay} height={145} /> : null}
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              {(systems.slice(0, 3)).map((m) => <MiniSystemRow key={m.key} monitor={m} />)}
             </div>
-          ) : monitors.map((m, index) => (
-            <OrbitalMonitorNode key={m.key} monitor={m} index={index} total={monitors.length} />
-          ))}
+          </CockpitPanel>
+
+          <CockpitPanel title="Quantum Operations Radar" className="col-span-12 md:col-span-6 xl:col-span-3">
+            <RadarMonitor monitors={monitors} />
+          </CockpitPanel>
+
+          <CockpitPanel title="Alpha Systems Feed" className="col-span-12 md:col-span-6 xl:col-span-3">
+            <div className="space-y-2">
+              {systems.slice(3, 9).map((m) => <MiniSystemRow key={m.key} monitor={m} />)}
+            </div>
+          </CockpitPanel>
+
+          <CockpitPanel title="Crypto Market Depth" className="col-span-12 xl:col-span-4">
+            <div className="space-y-3">
+              {markets.map((m) => (
+                <div key={m.key}>
+                  <div className="mb-1 flex justify-between text-[10px] font-black uppercase tracking-[0.16em] text-cyan-100/50">
+                    <span>{m.label}</span>
+                    <span className="text-emerald-300">{m.value ? "$" + Number(m.value).toLocaleString() : "NO FEED"}</span>
+                  </div>
+                  <CockpitSpark monitor={m} height={54} />
+                </div>
+              ))}
+            </div>
+          </CockpitPanel>
+
+          <CockpitPanel title="Learning Brain / Risk Fortress" className="col-span-12 xl:col-span-4">
+            <div className="grid grid-cols-1 gap-3">
+              {learning ? <CockpitSpark monitor={learning} height={70} /> : null}
+              {risk ? <CockpitSpark monitor={risk} height={70} /> : null}
+            </div>
+          </CockpitPanel>
+
+          <CockpitPanel title="Decision Lineage Stream" className="col-span-12 xl:col-span-4">
+            <div className="space-y-2">
+              {(systems.slice(0, 6)).map((m, i) => (
+                <div key={m.key} className="flex items-center justify-between rounded-lg border border-cyan-200/10 bg-black/35 px-3 py-2 text-[10px]">
+                  <span className="font-black uppercase tracking-[0.14em] text-cyan-100/60">{String(i + 1).padStart(2, "0")} · {m.label}</span>
+                  <span className={`font-black uppercase ${statusTone(m.state).text}`}>{statusTone(m.state).label}</span>
+                </div>
+              ))}
+            </div>
+          </CockpitPanel>
         </div>
       </div>
     </HoloPanel>
