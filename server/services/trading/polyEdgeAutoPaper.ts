@@ -43,6 +43,11 @@ let timer: NodeJS.Timeout | null = null;
 const SYMBOLS = ["BTC/USD", "ETH/USD", "SOL/USD", "XAUUSD"] as const;
 const STRATEGIES = ["trend_follow", "momentum_breakout", "volatility_squeeze", "mean_reversion"] as const;
 
+const QUALITY_MODE_ALLOWED_PAIRS = new Set<string>([
+  "ETH/USD|volatility_squeeze",
+  "XAUUSD|momentum_breakout",
+]);
+
 function emergencyBlockedSymbols() {
   // BTC paper losses are currently overwhelming learning.
   // Set POLYEDGE_ALLOW_BTC_PAPER=true to re-enable later.
@@ -346,6 +351,13 @@ async function openFastPaperPosition() {
 
   const symbol = selected.symbol;
   const strategy = selected.strategy;
+  if (!QUALITY_MODE_ALLOWED_PAIRS.has(`${symbol}|${strategy}`)) {
+    return {
+      opened: false,
+      reason: `Quality mode blocked weak pair ${symbol}|${strategy}. Waiting for promoted setup.`,
+    };
+  }
+
   const entry = paperMark(symbol);
   const seed = hashNumber(symbol + strategy + String(Date.now()));
   const direction = seed % 4 === 0 ? "short" : "long";
