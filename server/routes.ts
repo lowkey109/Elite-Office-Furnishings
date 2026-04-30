@@ -2431,13 +2431,36 @@ Write a 2-3 sentence executive briefing for this inbound lead. Include: why this
       const { leadOutreach } = await import("@shared/schema");
       const { db: ddb } = await import("./db");
       const { eq, and } = await import("drizzle-orm");
+      const { assertNexoraExecutionApproved } = await import("./services/intelligence/nexora/nexoraExecutionGate");
+
+      const gate = assertNexoraExecutionApproved({
+        moduleKey: "outreach",
+        intent: "send_message",
+        requestedBy: "nexora",
+        reason: `Nexora approved legacy lead outreach draft ${req.params.outreachId} for lead ${req.params.id}`,
+        evidence: {
+          leadId: req.params.id,
+          outreachId: req.params.outreachId,
+          route: "/api/admin/leads/:id/outreach/:outreachId/approve",
+          source: "legacy_admin_lead_outreach",
+        },
+      });
+
       const [row] = await ddb.update(leadOutreach).set({
         adminApproved: true,
         approvedAt: new Date(),
       }).where(and(eq(leadOutreach.id, req.params.outreachId), eq(leadOutreach.leadId, req.params.id))).returning();
+
       if (!row) return res.status(404).json({ error: "Outreach record not found" });
-      res.json({ ok: true, outreach: row });
-    } catch (err: any) { res.status(500).json({ error: err.message }); }
+
+      res.json({ ok: true, outreach: row, nexoraGate: gate });
+    } catch (err: any) {
+      res.status(err?.statusCode || 500).json({
+        ok: false,
+        error: err.message,
+        nexoraGate: err?.nexoraGate,
+      });
+    }
   });
 
   // ─── Nexora: Partner Intelligence Query ──────────────────────────────────
