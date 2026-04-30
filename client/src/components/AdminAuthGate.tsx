@@ -10,6 +10,10 @@ interface Props {
 }
 
 export function AdminAuthGate({ children }: Props) {
+  const isPolyEdgeFullscreenRoute =
+    typeof window !== "undefined" &&
+    window.location.pathname === "/admin/polyedge-aetherforge";
+
   const [status, setStatus] = useState<"checking" | "authed" | "login">("checking");
   const [email, setEmail] = useState("admin@thecorporatedesk.com.au");
   const [password, setPassword] = useState("");
@@ -110,6 +114,10 @@ export function AdminAuthGate({ children }: Props) {
         </div>
       </div>
     );
+  }
+
+  if (isPolyEdgeFullscreenRoute) {
+    return <>{children}</>;
   }
 
   return <AdminLayout>{children}</AdminLayout>;

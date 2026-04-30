@@ -1566,14 +1566,65 @@ function PolyEdgeActionMonitorGrid({
           }
         }
 
+        .polyedge-fullscreen-page-final { display: none; }
+
+        .polyedge-hide-old-panels {
+          display: none !important;
+        }
+
+        .polyedge-fullscreen-page {
+          background:
+            radial-gradient(circle at 25% 15%, rgba(34, 211, 238, .18), transparent 32%),
+            radial-gradient(circle at 75% 35%, rgba(192, 38, 211, .16), transparent 35%),
+            #000;
+        }
+
+        @media (min-width: 1024px) {
+          html,
+          body,
+          #root {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+          }
+
+          .polyedge-fullscreen-page {
+            width: 100vw !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            overflow: hidden !important;
+          }
+
+          .polyedge-fullscreen-page .poly-final-glass {
+            min-height: 0 !important;
+          }
+        }
+
+        @media (max-width: 1023px) {
+          html,
+          body,
+          #root {
+            height: auto;
+            overflow: auto;
+          }
+
+          .polyedge-fullscreen-page {
+            width: 100%;
+            min-height: 100vh;
+            height: auto;
+            max-height: none;
+            overflow: visible;
+          }
+        }
+
         @keyframes poly-final-float {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-6px); }
         }
       `}</style>
 
-      <div className="poly-final-root polyedge-kiosk-root relative overflow-visible rounded-none p-1 text-white lg:fixed lg:inset-0 lg:z-[2147483647] lg:h-[100dvh] lg:w-[100vw] lg:max-h-[100dvh] lg:overflow-hidden">
-        <div className="relative z-10 mx-auto flex h-full max-w-none flex-col lg:h-full lg:min-h-0 lg:overflow-hidden">
+      <div className="poly-final-root polyedge-fullscreen-page min-h-screen h-screen max-h-screen w-screen overflow-hidden rounded-none p-1 text-white">
+        <div className="relative z-10 mx-auto flex h-full max-w-none flex-col overflow-hidden">
           <div className="mb-1.5 flex flex-wrap items-center justify-between gap-1.5 rounded-xl border border-cyan-400/30 bg-slate-950/70 px-2.5 py-1.5 backdrop-blur-xl lg:flex-nowrap">
             <div className="flex items-center gap-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-purple-600 text-sm font-bold text-white shadow-[0_0_30px_rgba(103,232,249,.4)]">P/E</div>
