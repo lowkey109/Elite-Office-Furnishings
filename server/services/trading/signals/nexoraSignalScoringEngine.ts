@@ -107,11 +107,13 @@ export function scoreNexoraSignalLibraryCandidate(input: ScoreInput): NexoraSign
         confidence: signalConfidence,
         strength: Math.max(1, Math.min(100, signalConfidence - 4)),
         risk:
-          item.group === "risk" || input.learningScore < 18
+          item.group === "risk"
             ? "high"
-            : input.learningScore < 35
+            : input.learningScore < 18
               ? "medium"
-              : "low",
+              : input.learningScore < 35
+                ? "medium"
+                : "low",
         reason: item.tradeUse,
         features: {
           signalId: item.id,
@@ -137,7 +139,7 @@ export function scoreNexoraSignalLibraryCandidate(input: ScoreInput): NexoraSign
     (signal) =>
       signal.direction === input.direction &&
       signal.confidence >= 55 &&
-      (input.learningScore < 18 ? signal.risk !== "high" : signal.risk !== "high")
+      signal.risk !== "high"
   ).length;
 
   const weightedConfidence = selected.length
