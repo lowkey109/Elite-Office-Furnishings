@@ -145,6 +145,22 @@ async function calculateLearning() {
   };
 }
 
+async function hydratePaperLearningFromDatabase() {
+  try {
+    const learning = await calculateLearning();
+
+    state.lastAction = "hydrated_from_database";
+    state.lastReason = `Loaded paper learning from Railway Postgres. Samples ${learning.sampleSize}, win rate ${learning.winRate ?? "WAIT"}%, P&L ${learning.totalPnl}.`;
+
+    return learning;
+  } catch (err) {
+    state.lastError = err instanceof Error ? err.message : String(err);
+    state.lastAction = "hydrate_failed";
+    state.lastReason = "Could not hydrate paper learning from database on startup.";
+    return null;
+  }
+}
+
 async function calculatePaperLossGovernor() {
   const outcomes = await db
     .select()
@@ -547,7 +563,8 @@ export async function getPolyEdgeAutoPaperStatus() {
   };
 }
 
-export function startPolyEdgeAutoPaperLoop(intervalMs = 2000) {
+export async function startPolyEdgeAutoPaperLoop(intervalMs = 2000) {
+  await hydratePaperLearningFromDatabase();
   state.enabled = true;
   state.lastAction = "started";
   state.lastReason = `Fast auto paper trader started. Interval ${intervalMs}ms.`;
