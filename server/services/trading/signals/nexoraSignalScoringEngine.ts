@@ -4,6 +4,9 @@ import { evaluateNexoraBotTeachings } from "../knowledge/nexoraBotTeachingEngine
 import { evaluateNexoraGeniusCore } from "../knowledge/nexoraGeniusCore";
 import { buildNexoraIndicatorSignals } from "../indicators/nexoraIndicatorSignalAdapter";
 import { getNexoraSetupPromotions } from "../promotion/nexoraSetupPromotionEngine";
+import { approveNexoraPortfolioRisk } from "../portfolio/nexoraPortfolioBrain";
+import { classifyNexoraMarketRegime } from "../regime/nexoraMarketRegimeEngine";
+import { recordNexoraDecisionAudit } from "../audit/nexoraDecisionAudit";
 import type { NexoraTradeDirection, NexoraTradeSignal } from "../nexoraTradeVotingEngine";
 
 type ScoreInput = {
@@ -188,6 +191,66 @@ export async function scoreNexoraSignalLibraryCandidate(input: ScoreInput): Prom
 
   selected.push(...indicatorSignals);
 
+  const regimeSnapshot = await classifyNexoraMarketRegime({
+    symbol: input.symbol,
+    timeframe: "1m",
+  }).catch(() => null);
+
+  if (regimeSnapshot?.ok) {
+    const regime = regimeSnapshot.regime;
+    const directionAgrees =
+      (input.direction === "long" && regime === "trend_up") ||
+      (input.direction === "short" && regime === "trend_down") ||
+      regime === "squeeze";
+
+    selected.push({
+      system: "market_regime_alignment",
+      symbol: input.symbol,
+      direction: directionAgrees ? input.direction : "neutral",
+      confidence: directionAgrees ? Math.min(88, input.confidence + 8) : Math.max(35, input.confidence - 14),
+      strength: directionAgrees ? Math.min(84, input.confidence + 4) : Math.max(30, input.confidence - 18),
+      risk: regime === "risk_off" ? "high" : directionAgrees ? "medium" : "high",
+      reason: directionAgrees
+        ? `Market regime ${regime} supports ${input.direction} setup.`
+        : `Market regime ${regime} does not support ${input.direction} setup.`,
+      features: {
+        regime,
+        regimeConfidence: Number(regimeSnapshot.confidence || 0),
+      },
+    });
+
+    if (regime === "risk_off") {
+      blockedReasons.push("Market Regime Engine blocked setup: risk-off regime.");
+    }
+  }
+
+  const portfolioRisk = await approveNexoraPortfolioRisk({
+    symbol: input.symbol,
+    strategy: input.strategy,
+  }).catch(() => null);
+
+  if (portfolioRisk && !portfolioRisk.ok) {
+    for (const reason of portfolioRisk.blockedReasons || []) {
+      blockedReasons.push(reason);
+    }
+  }
+
+  if (portfolioRisk?.ok) {
+    selected.push({
+      system: "portfolio_brain_risk_approval",
+      symbol: input.symbol,
+      direction: input.direction,
+      confidence: Math.max(55, Math.min(78, input.confidence + 2)),
+      strength: Math.max(50, Math.min(74, input.confidence - 2)),
+      risk: portfolioRisk.portfolio?.riskState === "low" ? "low" : "medium",
+      reason: "Portfolio Brain approved current exposure for this setup.",
+      features: {
+        totalOpen: Number(portfolioRisk.portfolio?.totalOpen || 0),
+        riskState: portfolioRisk.portfolio?.riskState || "unknown",
+      },
+    });
+  }
+
   const promotionSnapshot = await getNexoraSetupPromotions().catch(() => null);
   const promotionRows = promotionSnapshot?.rows || [];
   const promotion = promotionRows.find((row: any) =>
@@ -299,6 +362,18 @@ export async function scoreNexoraSignalLibraryCandidate(input: ScoreInput): Prom
     totalSignals: selected.length,
     agreementRequired: minimumAgreement,
   };
+
+  await recordNexoraDecisionAudit({
+    symbol: input.symbol,
+    strategy: input.strategy,
+    direction: input.direction,
+    decision: blockedReasons.length ? "rejected" : "approved",
+    confidence: weightedConfidence,
+    agreementCount,
+    blockedReasons,
+    intelligence: intelligenceSummary,
+    signals: selected.slice(0, 80),
+  }).catch(() => undefined);
 
   return {
     signals: selected,

@@ -1903,6 +1903,97 @@ app.get("/api/nexora/setup-promotions", async (_req, res) => {
   }
 });
 
+
+// Nexora portfolio brain route.
+app.get("/api/nexora/portfolio/brain", async (_req, res) => {
+  try {
+    const { getNexoraPortfolioBrain } = await import("./services/trading/portfolio/nexoraPortfolioBrain");
+    res.json(await getNexoraPortfolioBrain());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_portfolio_brain",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
+
+// Nexora agent orchestrator route.
+app.get("/api/nexora/agents/run", async (_req, res) => {
+  try {
+    const { runNexoraAgentOrchestrator } = await import("./services/trading/agents/nexoraAgentOrchestrator");
+    res.json(await runNexoraAgentOrchestrator());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_agent_orchestrator",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
+
+// Nexora market regime routes.
+app.get("/api/nexora/regime", async (req, res) => {
+  try {
+    const { classifyNexoraMarketRegime } = await import("./services/trading/regime/nexoraMarketRegimeEngine");
+    res.json(await classifyNexoraMarketRegime({
+      symbol: String(req.query.symbol || "ETH/USD"),
+      timeframe: String(req.query.timeframe || "1m"),
+    }));
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_market_regime_engine",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
+app.get("/api/nexora/regime/snapshot", async (_req, res) => {
+  try {
+    const { getNexoraMarketRegimeSnapshot } = await import("./services/trading/regime/nexoraMarketRegimeEngine");
+    res.json(await getNexoraMarketRegimeSnapshot());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_market_regime_engine",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
+
+// Nexora decision audit route.
+app.get("/api/nexora/audit/decisions", async (req, res) => {
+  try {
+    const { getNexoraDecisionAudit } = await import("./services/trading/audit/nexoraDecisionAudit");
+    res.json(await getNexoraDecisionAudit(req.query.limit ? Number(req.query.limit) : 100));
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_decision_audit",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
+
+// Nexora platform summary route.
+app.get("/api/nexora/platform/summary", async (_req, res) => {
+  try {
+    const { getNexoraPlatformSummary } = await import("./services/trading/platform/nexoraPlatformSummary");
+    res.json(await getNexoraPlatformSummary());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_platform_summary",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
