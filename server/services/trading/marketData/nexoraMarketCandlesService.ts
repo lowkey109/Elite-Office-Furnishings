@@ -31,6 +31,21 @@ const TIMEFRAME_TO_BINANCE: Record<string, string> = {
   "1d": "1d",
 };
 
+const COINBASE_SYMBOLS: Record<string, string> = {
+  "BTC/USD": "BTC-USD",
+  "ETH/USD": "ETH-USD",
+  "SOL/USD": "SOL-USD",
+};
+
+const TIMEFRAME_TO_COINBASE_GRANULARITY: Record<string, number> = {
+  "1m": 60,
+  "5m": 300,
+  "15m": 900,
+  "1h": 3600,
+  "4h": 21600,
+  "1d": 86400,
+};
+
 export async function ensureMarketCandlesTable() {
   await db.execute(sql`
     create table if not exists market_candles (
@@ -60,6 +75,58 @@ export async function ensureMarketCandlesTable() {
   `);
 }
 
+async function fetchCoinbaseCandles(symbol: string, timeframe: string, limit = 300): Promise<NexoraMarketCandle[]> {
+  const productId = COINBASE_SYMBOLS[symbol];
+  const granularity = TIMEFRAME_TO_COINBASE_GRANULARITY[timeframe];
+
+  if (!productId || !granularity) return [];
+
+  // Coinbase public candles cap is smaller than Binance, so keep request conservative.
+  const safeLimit = Math.max(1, Math.min(300, limit));
+  const end = Math.floor(Date.now() / 1000);
+  const start = end - safeLimit * granularity;
+
+  const url = `https://api.exchange.coinbase.com/products/${encodeURIComponent(productId)}/candles?granularity=${granularity}&start=${new Date(start * 1000).toISOString()}&end=${new Date(end * 1000).toISOString()}`;
+
+  const res = await fetch(url, {
+    headers: {
+      "User-Agent": "Nexora-Research-Paper-Trading/1.0",
+      "Accept": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`Coinbase candle fetch failed for ${symbol} ${timeframe}: ${res.status} ${res.statusText}`);
+  }
+
+  const rows = await res.json();
+
+  if (!Array.isArray(rows)) {
+    throw new Error(`Unexpected Coinbase candle response for ${symbol}`);
+  }
+
+  // Coinbase format: [time, low, high, open, close, volume]
+  return rows
+    .map((row: any[]) => {
+      const openTime = new Date(Number(row[0]) * 1000);
+      return {
+        symbol,
+        provider: "coinbase",
+        timeframe,
+        openTime,
+        closeTime: new Date(openTime.getTime() + granularity * 1000 - 1),
+        open: Number(row[3]),
+        high: Number(row[2]),
+        low: Number(row[1]),
+        close: Number(row[4]),
+        volume: Number(row[5]),
+        quoteVolume: null,
+        tradeCount: null,
+      };
+    })
+    .sort((a, b) => a.openTime.getTime() - b.openTime.getTime());
+}
+
 async function fetchBinanceCandles(symbol: string, timeframe: string, limit = 500): Promise<NexoraMarketCandle[]> {
   const binanceSymbol = BINANCE_SYMBOLS[symbol];
   const interval = TIMEFRAME_TO_BINANCE[timeframe];
@@ -81,7 +148,7 @@ async function fetchBinanceCandles(symbol: string, timeframe: string, limit = 50
 
   return rows.map((row: any[]) => ({
     symbol,
-    provider: "binance",
+    provider: "binance_coinbase_fallback",
     timeframe,
     openTime: new Date(Number(row[0])),
     closeTime: new Date(Number(row[6])),
