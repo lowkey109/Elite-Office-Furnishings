@@ -1761,6 +1761,31 @@ app.post("/api/polyedge/learning/score-candidate", async (req, res) => {
   }
 });
 
+
+// Nexora indicator routes.
+// Uses stored candles. Paper/research only.
+app.get("/api/nexora/indicators", async (req, res) => {
+  try {
+    const { calculateNexoraIndicators } = await import("./services/trading/indicators/nexoraIndicatorEngine");
+    res.json(await calculateNexoraIndicators({
+      symbol: String(req.query.symbol || "ETH/USD"),
+      timeframe: String(req.query.timeframe || "1m"),
+      limit: req.query.limit ? Number(req.query.limit) : 250,
+    }));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_indicator_engine", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.get("/api/nexora/indicators/snapshot", async (_req, res) => {
+  try {
+    const { calculateNexoraIndicatorSnapshot } = await import("./services/trading/indicators/nexoraIndicatorEngine");
+    res.json(await calculateNexoraIndicatorSnapshot());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_indicator_engine", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);

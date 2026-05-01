@@ -159,23 +159,52 @@ function chooseStrategy(symbol: string, blockedStrategies: string[] = []) {
   return pool[hashNumber(symbol + String(Math.floor(Date.now() / 15000))) % pool.length];
 }
 
-async function calculateLearning() {
-  const outcomes = await db
-    .select()
-    .from(paperTradeOutcomes)
-    .orderBy(desc(paperTradeOutcomes.createdAt))
-    .limit(80);
+async function ensurePolyEdgeLearningMemoryTable() {
+  const { sql } = await import("drizzle-orm");
 
+  await db.execute(sql`
+    create table if not exists polyedge_learning_memory (
+      id text primary key,
+      sample_size integer not null default 0,
+      recent_win_rate numeric,
+      lifetime_win_rate numeric,
+      recent_pnl numeric,
+      lifetime_pnl numeric,
+      recent_profit_factor numeric,
+      lifetime_profit_factor numeric,
+      current_learning_score integer not null default 50,
+      best_learning_score integer not null default 50,
+      confidence_floor integer not null default 63,
+      payload jsonb,
+      updated_at timestamptz not null default now()
+    );
+  `);
+}
+
+function scoreLearningWindow(stats: {
+  sampleSize: number;
+  winRate: number | null;
+  totalPnl: number;
+  profitFactor: number | null;
+}) {
+  if (!stats.sampleSize || stats.winRate === null) return 50;
+
+  const pnlScore = stats.totalPnl > 0 ? 18 : stats.totalPnl < 0 ? -18 : 0;
+  const wrScore = Math.round((stats.winRate - 0.5) * 60);
+  const pfScore = stats.profitFactor === null
+    ? 0
+    : Math.max(-12, Math.min(18, Math.round((stats.profitFactor - 1) * 8)));
+
+  return Math.max(1, Math.min(99, 50 + pnlScore + wrScore + pfScore));
+}
+
+function summarizeLearningOutcomes(outcomes: any[]) {
   if (!outcomes.length) {
-    state.learningScore = 50;
-    state.confidenceFloor = 62;
     return {
       sampleSize: 0,
       winRate: null,
       totalPnl: 0,
       profitFactor: null,
-      confidenceFloor: state.confidenceFloor,
-      learningScore: state.learningScore,
     };
   }
 
@@ -187,11 +216,134 @@ async function calculateLearning() {
   const winRate = wins.length / outcomes.length;
   const profitFactor = grossLosses > 0 ? grossWins / grossLosses : grossWins > 0 ? 99 : null;
 
-  const pnlScore = totalPnl > 0 ? 18 : totalPnl < 0 ? -18 : 0;
-  const wrScore = Math.round((winRate - 0.5) * 60);
-  const pfScore = profitFactor === null ? 0 : Math.max(-12, Math.min(18, Math.round((profitFactor - 1) * 8)));
+  return {
+    sampleSize: outcomes.length,
+    winRate,
+    totalPnl,
+    profitFactor,
+  };
+}
 
-  state.learningScore = Math.max(1, Math.min(99, 50 + pnlScore + wrScore + pfScore));
+async function savePolyEdgeLearningMemory(input: any) {
+  const { sql } = await import("drizzle-orm");
+  await ensurePolyEdgeLearningMemoryTable();
+
+  await db.execute(sql`
+    insert into polyedge_learning_memory (
+      id,
+      sample_size,
+      recent_win_rate,
+      lifetime_win_rate,
+      recent_pnl,
+      lifetime_pnl,
+      recent_profit_factor,
+      lifetime_profit_factor,
+      current_learning_score,
+      best_learning_score,
+      confidence_floor,
+      payload,
+      updated_at
+    )
+    values (
+      'polyedge_auto_paper',
+      ${input.sampleSize},
+      ${input.recentWinRate},
+      ${input.lifetimeWinRate},
+      ${input.recentPnl},
+      ${input.lifetimePnl},
+      ${input.recentProfitFactor},
+      ${input.lifetimeProfitFactor},
+      ${input.currentLearningScore},
+      greatest(${input.currentLearningScore}, coalesce((select best_learning_score from polyedge_learning_memory where id = 'polyedge_auto_paper'), 50)),
+      ${input.confidenceFloor},
+      ${JSON.stringify(input.payload || {})},
+      now()
+    )
+    on conflict(id)
+    do update set
+      sample_size = excluded.sample_size,
+      recent_win_rate = excluded.recent_win_rate,
+      lifetime_win_rate = excluded.lifetime_win_rate,
+      recent_pnl = excluded.recent_pnl,
+      lifetime_pnl = excluded.lifetime_pnl,
+      recent_profit_factor = excluded.recent_profit_factor,
+      lifetime_profit_factor = excluded.lifetime_profit_factor,
+      current_learning_score = excluded.current_learning_score,
+      best_learning_score = greatest(polyedge_learning_memory.best_learning_score, excluded.current_learning_score),
+      confidence_floor = excluded.confidence_floor,
+      payload = excluded.payload,
+      updated_at = now();
+  `);
+}
+
+async function loadPolyEdgeLearningMemory() {
+  const { sql } = await import("drizzle-orm");
+  await ensurePolyEdgeLearningMemoryTable();
+
+  const result: any = await db.execute(sql`
+    select *
+    from polyedge_learning_memory
+    where id = 'polyedge_auto_paper'
+    limit 1;
+  `);
+
+  const rows = Array.isArray(result) ? result : result.rows || [];
+  return rows[0] || null;
+}
+
+async function calculateLearning() {
+  const outcomes = await db
+    .select()
+    .from(paperTradeOutcomes)
+    .orderBy(desc(paperTradeOutcomes.createdAt))
+    .limit(500);
+
+  if (!outcomes.length) {
+    state.learningScore = 50;
+    state.confidenceFloor = 62;
+    return {
+      sampleSize: 0,
+      winRate: null,
+      totalPnl: 0,
+      profitFactor: null,
+      confidenceFloor: state.confidenceFloor,
+      learningScore: state.learningScore,
+    persistentMemory: await loadPolyEdgeLearningMemory(),
+    };
+  }
+
+  const recentStats = summarizeLearningOutcomes(outcomes.slice(0, 80));
+  const shortStats = summarizeLearningOutcomes(outcomes.slice(0, 200));
+  const mediumStats = summarizeLearningOutcomes(outcomes.slice(0, 500));
+  const lifetimeStats = summarizeLearningOutcomes(outcomes);
+
+  const recentScore = scoreLearningWindow(recentStats);
+  const shortScore = scoreLearningWindow(shortStats);
+  const mediumScore = scoreLearningWindow(mediumStats);
+  const lifetimeScore = scoreLearningWindow(lifetimeStats);
+
+  const memory = await loadPolyEdgeLearningMemory();
+  const previousBestScore = Number(memory?.best_learning_score || 50);
+
+  // Composite score: recent matters, but DB memory prevents deploy/restart from looking like a full reset.
+  state.learningScore = Math.max(
+    1,
+    Math.min(
+      99,
+      Math.round(
+        recentScore * 0.45 +
+        shortScore * 0.25 +
+        mediumScore * 0.2 +
+        Math.max(lifetimeScore, previousBestScore * 0.85) * 0.1
+      )
+    )
+  );
+
+  const wins = outcomes.filter((o: any) => String(o.outcome) === "win");
+  const losses = outcomes.filter((o: any) => String(o.outcome) === "loss");
+  const totalPnl = recentStats.totalPnl;
+  const winRate = recentStats.winRate || 0;
+  const profitFactor = recentStats.profitFactor;
 
   if (state.learningScore >= 72 && outcomes.length >= 20) state.confidenceFloor = 58;
   else if (state.learningScore >= 58 && outcomes.length >= 10) state.confidenceFloor = 61;
