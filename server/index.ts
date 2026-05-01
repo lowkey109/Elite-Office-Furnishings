@@ -1738,6 +1738,27 @@ if (process.env.POLYEDGE_AUTO_PAPER_AUTOSTART !== "false") {
   }, 1200);
 }
 
+
+// PolyEdge learning dataset: joins decisions + positions + outcomes for paper-trade learning.
+app.get("/api/polyedge/learning/dataset", async (req, res) => {
+  try {
+    const { buildPolyEdgeLearningDataset } = await import("./services/polyedge/polyEdgeLearningDataset");
+    const limit = Math.max(50, Math.min(2000, Number(req.query.limit || 1000)));
+    res.json(await buildPolyEdgeLearningDataset(limit));
+  } catch (err) {
+    res.status(500).json({ ok: false, paperOnlyTrading: true, error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/polyedge/learning/score-candidate", async (req, res) => {
+  try {
+    const { scorePolyEdgeCandidate } = await import("./services/polyedge/polyEdgeLearningDataset");
+    res.json(await scorePolyEdgeCandidate(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, paperOnlyTrading: true, error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
