@@ -2083,6 +2083,20 @@ app.get("/api/nexora/portfolio/kill-switch", async (_req, res) => {
   }
 });
 
+
+app.get("/api/nexora/portfolio/heat", async (_req, res) => {
+  try {
+    const { getNexoraPortfolioHeatScore } = await import("./services/trading/portfolio/nexoraPortfolioHeatScore");
+    res.json(await getNexoraPortfolioHeatScore());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_portfolio_heat_score",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
