@@ -255,6 +255,7 @@ function Router() {
   usePageTracking();
   return (
     <Switch>
+      <Route path="/upload-your-quote" component={UploadYourQuote} />
       <Route path="/" component={Home} />
       {/* ── 4 Core Public Pages ─────────────────────────── */}
 
@@ -353,7 +354,18 @@ function Router() {
       <Route component={NotFound} />
     </Switch>
   );
-        <Route path="/upload-your-quote" component={UploadYourQuote} />
+        
+}
+
+function AppRouteLoading() {
+  return (
+    <div className="min-h-screen grid place-items-center bg-black text-cyan-200">
+      <div className="text-center">
+        <div className="text-sm font-black tracking-[0.25em] uppercase">Loading</div>
+        <div className="mt-2 text-xs text-cyan-300/70">The Corporate Desk</div>
+      </div>
+    </div>
+  );
 }
 
 const TcdStage24RouteFallback = () => (
@@ -366,19 +378,23 @@ const TcdStage24RouteFallback = () => (
 function App() {
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <ConciergeProvider>
+      <Suspense fallback={<AppRouteLoading />}>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <ConciergeProvider>
             <Toaster />
             <Suspense fallback={null}><TrackingPixels /></Suspense>
-            <Router />
+            <Suspense fallback={<AppRouteLoading />}>
+              <Router />
+            </Suspense>
             <Suspense fallback={null}><NexoraJourneyBar /></Suspense>
             <Suspense fallback={null}><NexoraCopilot /></Suspense>
             <Suspense fallback={null}><WhatsAppButton /></Suspense>
             <Suspense fallback={null}><GoogleReviewsBadge /></Suspense>
-          </ConciergeProvider>
-        </TooltipProvider>
-      </QueryClientProvider>
+            </ConciergeProvider>
+          </TooltipProvider>
+        </QueryClientProvider>
+      </Suspense>
     </ErrorBoundary>
   );
 }
