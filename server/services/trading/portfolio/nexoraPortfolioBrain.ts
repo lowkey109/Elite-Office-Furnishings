@@ -5,20 +5,26 @@ import { calculateNexoraVolatilityPositionSizing } from "./nexoraVolatilityPosit
 import { evaluateNexoraCorrelationExposure } from "./nexoraCorrelationExposureGuard";
 
 export async function getNexoraPortfolioBrain() {
-  const result: any = await db.execute(sql`
-    select
-      symbol,
-      strategy,
-      count(*)::int as open_positions,
-      sum(coalesce(size, 0))::numeric as total_size,
-      sum(coalesce(unrealized_pnl, 0))::numeric as unrealized_pnl
-    from paper_trading_positions
-    where status = 'open'
-    group by symbol, strategy
-    order by open_positions desc;
-  `);
+  let rows: any[] = [];
 
-  const rows = Array.isArray(result) ? result : result.rows || [];
+  try {
+    const result: any = await db.execute(sql`
+      select
+        symbol,
+        strategy,
+        count(*)::int as open_positions,
+        sum(coalesce(size, 0))::numeric as total_size,
+        sum(coalesce(unrealized_pnl, 0))::numeric as unrealized_pnl
+      from paper_trading_positions
+      where status = 'open'
+      group by symbol, strategy
+      order by open_positions desc;
+    `);
+
+    rows = Array.isArray(result) ? result : result.rows || [];
+  } catch {
+    rows = [];
+  }
 
   const totalOpen = rows.reduce((sum: number, r: any) => sum + Number(r.open_positions || 0), 0);
   const totalUnrealizedPnl = rows.reduce((sum: number, r: any) => sum + Number(r.unrealized_pnl || 0), 0);
