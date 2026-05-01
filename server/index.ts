@@ -2097,6 +2097,34 @@ app.get("/api/nexora/portfolio/heat", async (_req, res) => {
   }
 });
 
+
+// Nexora candidate allowlist routes.
+app.post("/api/nexora/candidates/allowlist/refresh", async (_req, res) => {
+  try {
+    const { refreshNexoraCandidateAllowlist } = await import("./services/trading/candidates/nexoraCandidateAllowlist");
+    res.json(await refreshNexoraCandidateAllowlist());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_candidate_allowlist",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
+app.get("/api/nexora/candidates/allowlist", async (_req, res) => {
+  try {
+    const { getNexoraCandidateAllowlist } = await import("./services/trading/candidates/nexoraCandidateAllowlist");
+    res.json(await getNexoraCandidateAllowlist());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_candidate_allowlist",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
