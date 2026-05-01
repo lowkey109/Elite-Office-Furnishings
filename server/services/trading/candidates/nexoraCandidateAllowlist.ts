@@ -26,7 +26,7 @@ export async function refreshNexoraCandidateAllowlist() {
   await ensureNexoraCandidateAllowlistTable();
 
   const hunt = await runNexoraCandidateHunter();
-  const approved = hunt.approved || [];
+  const approved = [...(hunt.approved || []), ...(hunt.research || [])];
 
   for (const candidate of approved) {
     const id = [
