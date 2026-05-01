@@ -146,7 +146,7 @@ export function scoreNexoraSignalLibraryCandidate(input: ScoreInput): NexoraSign
     ? Math.round(selected.reduce((sum, signal) => sum + signal.confidence, 0) / selected.length)
     : input.confidence;
 
-  const minimumAgreement = input.learningScore < 18 ? 3 : 6;
+  const minimumAgreement = input.learningScore < 18 ? 2 : 6;
 
   if (agreementCount < minimumAgreement) {
     blockedReasons.push(`Only ${agreementCount} Nexora signal systems agree. Minimum is ${minimumAgreement}.`);
