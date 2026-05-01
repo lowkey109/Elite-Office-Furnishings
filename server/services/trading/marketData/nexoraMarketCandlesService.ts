@@ -98,7 +98,8 @@ async function fetchCoinbaseCandles(symbol: string, timeframe: string, limit = 3
   });
 
   if (!res.ok) {
-    throw new Error(`Coinbase candle fetch failed for ${symbol} ${timeframe}: ${res.status} ${res.statusText}`);
+    const body = await res.text().catch(() => "");
+    throw new Error(`Coinbase candle fetch failed for ${symbol} ${timeframe}: ${res.status} ${res.statusText} ${body.slice(0, 240)}`);
   }
 
   const rows = await res.json();
@@ -126,7 +127,8 @@ async function fetchCoinbaseCandles(symbol: string, timeframe: string, limit = 3
         tradeCount: null,
       };
     })
-    .sort((a, b) => a.openTime.getTime() - b.openTime.getTime());
+    .sort((a, b) => a.openTime.getTime() - b.openTime.getTime())
+    .slice(-safeLimit);
 }
 
 async function fetchBinanceCandles(symbol: string, timeframe: string, limit = 500): Promise<NexoraMarketCandle[]> {
