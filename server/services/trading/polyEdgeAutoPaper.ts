@@ -1,3 +1,4 @@
+import { getNexoraCandidateAllowlist } from "./candidates/nexoraCandidateAllowlist";
 import { db } from "../../db";
 import { eq, desc } from "drizzle-orm";
 import { paperPositions, paperTradeOutcomes } from "@shared/schema";
@@ -151,6 +152,25 @@ function buildNexoraPaperSignals(input: {
     makeSignal("bollinger_reversion", 0),
     makeSignal("support_resistance", -2),
   ];
+}
+
+
+async function chooseNexoraPreferredPaperSetup() {
+  const allowlist = await getNexoraCandidateAllowlist().catch(() => null);
+  const rows = Array.isArray(allowlist?.rows) ? allowlist.rows : [];
+
+  const best = rows
+    .filter((row: any) => row.status === "research_probe")
+    .sort((a: any, b: any) => Number(b.score || 0) - Number(a.score || 0))[0];
+
+  if (!best) return null;
+
+  return {
+    symbol: String(best.symbol),
+    strategy: String(best.strategy),
+    direction: String(best.direction) === "short" ? "short" as const : "long" as const,
+    reason: `Nexora allowlist selected ${best.symbol} ${best.strategy} ${best.direction} from research candidate score ${best.score}.`,
+  };
 }
 
 function chooseStrategy(symbol: string, blockedStrategies: string[] = []) {
