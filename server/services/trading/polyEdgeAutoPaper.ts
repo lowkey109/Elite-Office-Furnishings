@@ -460,6 +460,16 @@ async function openFastPaperPosition() {
   const confidence = Math.max(state.confidenceFloor, Math.min(92, state.confidenceFloor + (seed % 20)));
 
   const { voteNexoraTradeCandidate } = await import("./nexoraTradeVotingEngine");
+  const { scoreNexoraSignalLibraryCandidate } = await import("./signals/nexoraSignalScoringEngine");
+
+  const nexoraSignalScore = scoreNexoraSignalLibraryCandidate({
+    symbol,
+    strategy,
+    direction,
+    confidence,
+    learningScore: state.learningScore,
+    regime: state.learningScore < 18 ? "risk_off" : state.learningScore < 40 ? "cautious" : "paper_adaptive",
+  });
 
   const nexoraVote = voteNexoraTradeCandidate({
     symbol,
@@ -471,20 +481,15 @@ async function openFastPaperPosition() {
     learningPairBlocked: blockedPairs?.has?.(`${symbol}|${strategy}`) || false,
     spreadRisk: "low",
     slippageRisk: "medium",
-    signals: buildNexoraPaperSignals({
-      symbol,
-      strategy,
-      direction,
-      confidence,
-      learningScore: state.learningScore,
-    }),
+    signals: nexoraSignalScore.signals,
   });
 
   if (!nexoraVote.approved) {
     return {
       opened: false,
-      reason: nexoraVote.reason,
+      reason: nexoraSignalScore.blockedReasons.length ? nexoraSignalScore.reason : nexoraVote.reason,
       nexoraVote,
+      nexoraSignalScore,
     };
   }
 

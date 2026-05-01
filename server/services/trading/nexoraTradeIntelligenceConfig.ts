@@ -187,8 +187,8 @@ export const NEXORA_TRADE_PROMOTION_RULES = {
 
 export const NEXORA_TRADE_APPROVAL_RULES = {
   paperOnly: true,
-  minAgreementCount: 4,
-  minConfidence: 70,
+  minAgreementCount: 6,
+  minConfidence: 72,
   minRewardRisk: 1.5,
   blockIfRegimeRiskOff: true,
   blockIfLearningPairBlocked: true,
