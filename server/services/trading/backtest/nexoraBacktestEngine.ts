@@ -1,5 +1,6 @@
 
 import { getRecentMarketCandles } from "../marketData/nexoraMarketCandlesService";
+import { runStrategySpecificBacktest } from "./nexoraStrategyBacktestRules";
 
 type BacktestInput = {
   symbol: string;
@@ -30,38 +31,39 @@ export async function runNexoraSimpleBacktest(input: BacktestInput) {
     };
   }
 
+  const strategyTrades = runStrategySpecificBacktest({
+    candles,
+    strategy: input.strategy,
+    direction: input.direction,
+  });
+
   let wins = 0;
   let losses = 0;
   let pnl = 0;
-  const trades: any[] = [];
+  let grossProfit = 0;
+  let grossLoss = 0;
+  let equity = 0;
+  let peakEquity = 0;
+  let maxDrawdown = 0;
 
-  for (let i = 20; i < candles.length - 3; i++) {
-    const entry = n(candles[i].close);
-    const exit = n(candles[i + 3].close);
+  for (const trade of strategyTrades) {
+    if (trade.pnl > 0) {
+      wins += 1;
+      grossProfit += trade.pnl;
+    } else {
+      losses += 1;
+      grossLoss += Math.abs(trade.pnl);
+    }
 
-    if (!entry || !exit) continue;
-
-    const tradePnl =
-      input.direction === "long"
-        ? exit - entry
-        : entry - exit;
-
-    if (tradePnl > 0) wins += 1;
-    else losses += 1;
-
-    pnl += tradePnl;
-
-    trades.push({
-      entryTime: candles[i].open_time,
-      exitTime: candles[i + 3].open_time,
-      entry,
-      exit,
-      pnl: tradePnl,
-    });
+    pnl += trade.pnl;
+    equity += trade.pnl;
+    peakEquity = Math.max(peakEquity, equity);
+    maxDrawdown = Math.max(maxDrawdown, peakEquity - equity);
   }
 
   const total = wins + losses;
   const winRate = total ? (wins / total) * 100 : 0;
+  const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : grossProfit > 0 ? 99 : 0;
 
   return {
     ok: true,
@@ -76,7 +78,11 @@ export async function runNexoraSimpleBacktest(input: BacktestInput) {
     losses,
     winRate: Math.round(winRate * 100) / 100,
     pnl: Math.round(pnl * 100) / 100,
-    sample: trades.slice(-10),
+    grossProfit: Math.round(grossProfit * 100) / 100,
+    grossLoss: Math.round(grossLoss * 100) / 100,
+    profitFactor: Math.round(profitFactor * 100) / 100,
+    maxDrawdown: Math.round(maxDrawdown * 100) / 100,
+    sample: strategyTrades.slice(-10),
     updatedAt: new Date().toISOString(),
   };
 }

@@ -2023,6 +2023,51 @@ app.post("/api/nexora/pipeline/refresh", async (_req, res) => {
   }
 });
 
+
+// Nexora autonomous learning routes.
+app.get("/api/nexora/autonomy/memory", async (_req, res) => {
+  try {
+    const { getNexoraStrategyMemory } = await import("./services/trading/autonomy/nexoraAutonomousLearningEngine");
+    res.json(await getNexoraStrategyMemory());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_strategy_memory",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
+
+// Nexora strategy decay detection route.
+app.post("/api/nexora/autonomy/decay/run", async (_req, res) => {
+  try {
+    const { runNexoraStrategyDecayDetection } = await import("./services/trading/autonomy/nexoraStrategyDecayEngine");
+    res.json(await runNexoraStrategyDecayDetection());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_strategy_decay_engine",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
+
+// Nexora reinforcement scoring route.
+app.post("/api/nexora/autonomy/reinforcement/run", async (_req, res) => {
+  try {
+    const { runNexoraReinforcementScoring } = await import("./services/trading/autonomy/nexoraReinforcementScoring");
+    res.json(await runNexoraReinforcementScoring());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_reinforcement_scoring",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);

@@ -9,6 +9,9 @@ import { classifyNexoraMarketRegime } from "../regime/nexoraMarketRegimeEngine";
 import { recordNexoraDecisionAudit } from "../audit/nexoraDecisionAudit";
 import { runNexoraCandidateHunter } from "../candidates/nexoraCandidateHunter";
 import { findNexoraAllowedCandidate } from "../candidates/nexoraCandidateAllowlist";
+import { evaluateNexoraAutonomy } from "../autonomy/nexoraAutonomousLearningEngine";
+import { evaluateNexoraTimeframeAgreement } from "../timeframes/nexoraTimeframeAgreementEngine";
+import { runNexoraWalkForwardValidation } from "../validation/nexoraWalkForwardValidator";
 import type { NexoraTradeDirection, NexoraTradeSignal } from "../nexoraTradeVotingEngine";
 
 type ScoreInput = {
@@ -192,6 +195,101 @@ export async function scoreNexoraSignalLibraryCandidate(input: ScoreInput): Prom
   });
 
   selected.push(...indicatorSignals);
+
+  const walkForward = await runNexoraWalkForwardValidation({
+    symbol: input.symbol,
+    timeframe: "1m",
+    strategy: input.strategy,
+    direction: input.direction,
+  }).catch(() => null);
+
+  if (walkForward) {
+    if (!walkForward.ok) {
+      blockedReasons.push(`Walk-forward validation warning: ${walkForward.reason}`);
+    } else {
+      selected.push({
+        system: "walk_forward_validation_pass",
+        symbol: input.symbol,
+        direction: input.direction,
+        confidence: Math.min(90, input.confidence + 10),
+        strength: Math.min(86, input.confidence + 6),
+        risk: "low",
+        reason: walkForward.reason,
+        features: {
+          status: walkForward.status,
+          trainWinRate: Number(walkForward.train?.winRate || 0),
+          testWinRate: Number(walkForward.test?.winRate || 0),
+          trainPnl: Number(walkForward.train?.pnl || 0),
+          testPnl: Number(walkForward.test?.pnl || 0),
+        },
+      });
+    }
+  }
+
+  const timeframeAgreement = await evaluateNexoraTimeframeAgreement({
+    symbol: input.symbol,
+    direction: input.direction,
+  }).catch(() => null);
+
+  if (timeframeAgreement) {
+    if (timeframeAgreement.status === "blocked") {
+      blockedReasons.push(`Timeframe Agreement blocked setup: ${timeframeAgreement.reason}`);
+    }
+
+    selected.push({
+      system: "multi_timeframe_agreement",
+      symbol: input.symbol,
+      direction: timeframeAgreement.status === "strong" || timeframeAgreement.status === "partial" ? input.direction : "neutral",
+      confidence: timeframeAgreement.status === "strong"
+        ? Math.min(90, input.confidence + 10)
+        : timeframeAgreement.status === "partial"
+          ? Math.min(80, input.confidence + 3)
+          : Math.max(40, input.confidence - 12),
+      strength: timeframeAgreement.status === "strong"
+        ? Math.min(86, input.confidence + 6)
+        : timeframeAgreement.status === "partial"
+          ? Math.min(76, input.confidence - 1)
+          : Math.max(35, input.confidence - 16),
+      risk: timeframeAgreement.status === "strong" ? "low" : timeframeAgreement.status === "partial" ? "medium" : "high",
+      reason: timeframeAgreement.reason,
+      features: {
+        status: timeframeAgreement.status,
+        agreementRatio: timeframeAgreement.agreementRatio,
+      },
+    });
+  }
+
+  const autonomyDecision = await evaluateNexoraAutonomy({
+    symbol: input.symbol,
+    strategy: input.strategy,
+    direction: input.direction,
+    baseConfidence: input.confidence,
+  }).catch(() => null);
+
+  if (autonomyDecision) {
+    if (!autonomyDecision.ok) {
+      for (const reason of autonomyDecision.reasons || []) {
+        blockedReasons.push(`Autonomy blocked: ${reason}`);
+      }
+    } else {
+      selected.push({
+        system: "autonomous_learning_capital_allocator",
+        symbol: input.symbol,
+        direction: input.direction,
+        confidence: Math.max(45, Math.min(92, input.confidence + autonomyDecision.confidenceAdjustment)),
+        strength: Math.max(40, Math.min(88, input.confidence + autonomyDecision.confidenceAdjustment - 4)),
+        risk: autonomyDecision.mode === "micro_probe" ? "high" : autonomyDecision.mode === "promoted_paper" ? "low" : "medium",
+        reason: `Autonomy mode ${autonomyDecision.mode}; size multiplier ${autonomyDecision.positionSizeMultiplier}.`,
+        features: {
+          mode: autonomyDecision.mode,
+          positionSizeMultiplier: autonomyDecision.positionSizeMultiplier,
+          confidenceAdjustment: autonomyDecision.confidenceAdjustment,
+          reasons: autonomyDecision.reasons.join(" "),
+          paperOnly: true,
+        },
+      });
+    }
+  }
 
   const allowedCandidate = await findNexoraAllowedCandidate({
     symbol: input.symbol,
