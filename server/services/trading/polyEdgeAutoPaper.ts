@@ -471,11 +471,20 @@ async function openFastPaperPosition() {
     regime: state.learningScore < 18 ? "risk_off" : state.learningScore < 40 ? "cautious" : "paper_adaptive",
   });
 
+  if (nexoraSignalScore.blockedReasons.length) {
+    return {
+      opened: false,
+      reason: nexoraSignalScore.reason,
+      nexoraSignalScore,
+      nexoraLearnedIntelligence: nexoraSignalScore.intelligence,
+    };
+  }
+
   const nexoraVote = voteNexoraTradeCandidate({
     symbol,
     strategy,
     direction,
-    confidence,
+    confidence: nexoraSignalScore.confidence,
     rewardRisk: 1.75 / 0.72,
     regime: state.learningScore < 18 ? "risk_off" : state.learningScore < 40 ? "cautious" : "paper_adaptive",
     learningPairBlocked: blockedPairs?.has?.(`${symbol}|${strategy}`) || false,
@@ -487,7 +496,7 @@ async function openFastPaperPosition() {
   if (!nexoraVote.approved) {
     return {
       opened: false,
-      reason: nexoraSignalScore.blockedReasons.length ? nexoraSignalScore.reason : nexoraVote.reason,
+      reason: nexoraSignalScore.reason || nexoraVote.reason,
       nexoraVote,
       nexoraSignalScore,
     };
@@ -562,7 +571,7 @@ async function openFastPaperPosition() {
 
   return {
     opened: true,
-    reason: `Opened ${direction} ${symbol} PAPER position at ${entry}. ${lossGovernor.active ? "Adaptive allocator active: avoiding weak pairs and micro sizing." : "Adaptive allocator normal sizing."}`,
+    reason: `Opened ${direction} ${symbol} PAPER position at ${entry}. Nexora learned-intelligence approved via ${nexoraSignalScore.agreementCount}/${nexoraSignalScore.intelligence?.agreementRequired ?? "?"} systems. Mode ${nexoraSignalScore.intelligence?.decisionMode || "research_probe"}. Genius ${nexoraSignalScore.intelligence?.geniusScore ?? "WAIT"}. Paper-only micro risk.`,
     decisionId,
     positionId,
     symbol,

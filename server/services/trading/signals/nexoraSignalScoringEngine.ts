@@ -1,4 +1,7 @@
 import { NEXORA_SIGNAL_LIBRARY_2000 } from "./nexoraSignalLibrary2000";
+import { buildNexoraCryptoMarketKnowledgeSignals } from "../knowledge/nexoraCryptoMarketKnowledge";
+import { evaluateNexoraBotTeachings } from "../knowledge/nexoraBotTeachingEngine";
+import { evaluateNexoraGeniusCore } from "../knowledge/nexoraGeniusCore";
 import type { NexoraTradeDirection, NexoraTradeSignal } from "../nexoraTradeVotingEngine";
 
 type ScoreInput = {
@@ -24,6 +27,15 @@ export type NexoraSignalScoringResult = {
   confidence: number;
   blockedReasons: string[];
   reason: string;
+  intelligence: {
+    decisionMode: "monitor_only" | "research_probe" | "candidate_trade" | "promoted_trade";
+    geniusScore: number | null;
+    knowledgeSignals: number;
+    teachingSignals: number;
+    professorSignals: number;
+    totalSignals: number;
+    agreementRequired: number;
+  };
 };
 
 function preferredGroupsForStrategy(strategy: string) {
@@ -135,7 +147,65 @@ export function scoreNexoraSignalLibraryCandidate(input: ScoreInput): NexoraSign
     });
   }
 
-  const agreementCount = selected.filter(
+  let agreementCount = selected.filter(
+    (signal) =>
+      signal.direction === input.direction &&
+      signal.confidence >= 55 &&
+      signal.risk !== "high"
+  ).length;
+
+  const knowledgeSignals = buildNexoraCryptoMarketKnowledgeSignals({
+    symbol: input.symbol,
+    strategy: input.strategy,
+    direction: input.direction,
+    confidence: input.confidence,
+    learningScore: input.learningScore,
+    regime: input.regime,
+  });
+
+  const teachingEvaluation = evaluateNexoraBotTeachings({
+    symbol: input.symbol,
+    strategy: input.strategy,
+    direction: input.direction,
+    confidence: input.confidence,
+    learningScore: input.learningScore,
+    regime: input.regime,
+    rewardRisk: 1.5,
+    realCandleDataAvailable: false,
+  });
+
+  selected.push(...knowledgeSignals);
+  selected.push(...teachingEvaluation.teachingSignals);
+
+  const geniusEvaluation = evaluateNexoraGeniusCore({
+    symbol: input.symbol,
+    strategy: input.strategy,
+    direction: input.direction,
+    confidence: input.confidence,
+    learningScore: input.learningScore,
+    regime: input.regime,
+    rewardRisk: 1.5,
+    agreementCount,
+  });
+
+  selected.push(...geniusEvaluation.geniusSignals);
+
+  for (const reason of geniusEvaluation.blockedReasons) {
+    if (geniusEvaluation.decisionMode === "monitor_only") {
+      blockedReasons.push(reason);
+    }
+  }
+
+  for (const reason of teachingEvaluation.blockedReasons) {
+    blockedReasons.push(reason);
+  }
+
+  if (teachingEvaluation.monitorOnly) {
+    blockedReasons.push("Teaching layer requested monitor-only mode.");
+  }
+
+  // Recompute agreement after knowledge and teaching signals are added.
+  agreementCount = selected.filter(
     (signal) =>
       signal.direction === input.direction &&
       signal.confidence >= 55 &&
@@ -162,6 +232,16 @@ export function scoreNexoraSignalLibraryCandidate(input: ScoreInput): NexoraSign
     // allowed as tiny paper research probe
   }
 
+  const intelligenceSummary = {
+    decisionMode: typeof geniusEvaluation !== "undefined" ? geniusEvaluation.decisionMode : "research_probe",
+    geniusScore: typeof geniusEvaluation !== "undefined" ? geniusEvaluation.geniusScore : null,
+    knowledgeSignals: selected.filter((signal) => signal.system.startsWith("knowledge_")).length,
+    teachingSignals: selected.filter((signal) => signal.system.startsWith("teaching_")).length,
+    professorSignals: selected.filter((signal) => signal.system.startsWith("teaching_professor_")).length,
+    totalSignals: selected.length,
+    agreementRequired: minimumAgreement,
+  };
+
   return {
     signals: selected,
     groupScores,
@@ -169,7 +249,8 @@ export function scoreNexoraSignalLibraryCandidate(input: ScoreInput): NexoraSign
     confidence: weightedConfidence,
     blockedReasons,
     reason: blockedReasons.length
-      ? `Nexora 2000-signal scoring rejected setup: ${blockedReasons.join(" ")}`
-      : `Nexora 2000-signal scoring approved setup with ${agreementCount} agreeing systems.`,
+      ? `Nexora learned-intelligence rejected setup: ${blockedReasons.join(" ")}`
+      : `Nexora learned-intelligence approved setup with ${agreementCount}/${minimumAgreement} agreeing systems. Mode ${intelligenceSummary.decisionMode}. Genius score ${intelligenceSummary.geniusScore ?? "WAIT"}.`,
+    intelligence: intelligenceSummary,
   };
 }
