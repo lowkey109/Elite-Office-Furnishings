@@ -1,6 +1,8 @@
 import { sql } from "drizzle-orm";
 import { db } from "../../../db";
 
+const NEXORA_CANDLE_SERVICE_VERSION = "coinbase-first-v2";
+
 export type NexoraMarketCandle = {
   symbol: string;
   provider: string;
@@ -148,7 +150,7 @@ async function fetchBinanceCandles(symbol: string, timeframe: string, limit = 50
 
   return rows.map((row: any[]) => ({
     symbol,
-    provider: "binance_coinbase_fallback",
+    provider: "coinbase_first",
     timeframe,
     openTime: new Date(Number(row[0])),
     closeTime: new Date(Number(row[6])),
@@ -218,7 +220,7 @@ export async function syncNexoraMarketCandles(options?: {
         const candles = await fetchBinanceCandles(symbol, timeframe, limit);
         const count = await upsertMarketCandles(candles);
         total += count;
-        results.push({ ok: true, symbol, timeframe, provider: "binance", candles: count });
+        results.push({ ok: true, symbol, timeframe, provider: "coinbase_first", candles: count });
       } catch (err) {
         results.push({
           ok: false,
@@ -234,11 +236,12 @@ export async function syncNexoraMarketCandles(options?: {
   return {
     ok: true,
     service: "nexora_market_candles",
+    version: NEXORA_CANDLE_SERVICE_VERSION,
     paperOnly: true,
     provider: "binance",
     totalCandlesSynced: total,
     results,
-    note: "BTC/ETH/SOL candles use Binance USDT markets as USD proxy. XAUUSD needs a separate market-data provider later.",
+    note: "NEXORA_CANDLE_SERVICE_VERSION coinbase-first-v2. BTC/ETH/SOL use Coinbase public candles first, Binance only as fallback. XAUUSD needs a separate provider later.",
     updatedAt: new Date().toISOString(),
   };
 }
