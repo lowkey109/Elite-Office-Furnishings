@@ -90,6 +90,69 @@ function chooseSymbol() {
   return SYMBOLS[Math.abs(Math.floor(Date.now() / 7000)) % SYMBOLS.length];
 }
 
+function buildNexoraPaperSignals(input: {
+  symbol: string;
+  strategy: string;
+  direction: "long" | "short";
+  confidence: number;
+  learningScore: number;
+}) {
+  const baseConfidence = Math.max(45, Math.min(92, Number(input.confidence || 60)));
+  const direction = input.direction;
+
+  const makeSignal = (system: string, boost = 0, risk: "low" | "medium" | "high" = "medium") => ({
+    system,
+    symbol: input.symbol,
+    direction,
+    confidence: Math.max(1, Math.min(100, baseConfidence + boost)),
+    strength: Math.max(1, Math.min(100, baseConfidence + boost - 4)),
+    risk,
+    reason: `${system} supports ${direction} ${input.symbol} for ${input.strategy} paper setup.`,
+    features: {
+      paperOnly: true,
+      strategy: input.strategy,
+      learningScore: input.learningScore,
+    },
+  });
+
+  if (input.strategy === "momentum_breakout") {
+    return [
+      makeSignal("ema_trend_filter", 2),
+      makeSignal("macd_momentum", 1),
+      makeSignal("adx_trend_strength", 0),
+      makeSignal("donchian_breakout", 3),
+      makeSignal("volume_confirmation", -2),
+      makeSignal("market_regime", input.learningScore >= 35 ? 0 : -8),
+    ];
+  }
+
+  if (input.strategy === "volatility_squeeze") {
+    return [
+      makeSignal("bollinger_squeeze", 3),
+      makeSignal("volume_confirmation", -1),
+      makeSignal("adx_trend_strength", -2),
+      makeSignal("market_regime", input.learningScore >= 35 ? 0 : -8),
+      makeSignal("liquidity_sweep", -3),
+    ];
+  }
+
+  if (input.strategy === "trend_follow") {
+    return [
+      makeSignal("ema_trend_filter", 3),
+      makeSignal("macd_momentum", 2),
+      makeSignal("adx_trend_strength", 1),
+      makeSignal("market_regime", input.learningScore >= 35 ? 0 : -8),
+    ];
+  }
+
+  return [
+    makeSignal("rsi_filter", 0),
+    makeSignal("vwap_deviation", -1),
+    makeSignal("bollinger_reversion", 0),
+    makeSignal("support_resistance", -2),
+  ];
+}
+
 function chooseStrategy(symbol: string, blockedStrategies: string[] = []) {
   const allowed = STRATEGIES.filter((strategy) => !blockedStrategies.includes(strategy));
   const pool = allowed.length ? allowed : STRATEGIES;
@@ -396,6 +459,36 @@ async function openFastPaperPosition() {
   const direction = seed % 4 === 0 ? "short" : "long";
   const confidence = Math.max(state.confidenceFloor, Math.min(92, state.confidenceFloor + (seed % 20)));
 
+  const { voteNexoraTradeCandidate } = await import("./nexoraTradeVotingEngine");
+
+  const nexoraVote = voteNexoraTradeCandidate({
+    symbol,
+    strategy,
+    direction,
+    confidence,
+    rewardRisk: 1.75 / 0.72,
+    regime: state.learningScore < 18 ? "risk_off" : state.learningScore < 40 ? "cautious" : "paper_adaptive",
+    learningPairBlocked: blockedPairs?.has?.(`${symbol}|${strategy}`) || false,
+    spreadRisk: "low",
+    slippageRisk: "medium",
+    signals: buildNexoraPaperSignals({
+      symbol,
+      strategy,
+      direction,
+      confidence,
+      learningScore: state.learningScore,
+    }),
+  });
+
+  if (!nexoraVote.approved) {
+    return {
+      opened: false,
+      reason: nexoraVote.reason,
+      nexoraVote,
+    };
+  }
+
+
   const baseRiskPct =
     defensiveMicroLearning ? 0.0004 :
     state.learningScore >= 70 ? 0.012 :
@@ -435,6 +528,7 @@ async function openFastPaperPosition() {
       liveTradingAffected: false,
       autonomous: true,
       source: "polyedge_fast_auto_paper",
+      nexoraVote,
       learning,
       lossGovernor,
       emergencyBlockedSymbols: Array.from(emergencyBlockedSymbols()),
