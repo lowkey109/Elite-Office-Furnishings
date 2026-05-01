@@ -137,23 +137,27 @@ export function scoreNexoraSignalLibraryCandidate(input: ScoreInput): NexoraSign
     (signal) =>
       signal.direction === input.direction &&
       signal.confidence >= 55 &&
-      signal.risk !== "high"
+      (input.learningScore < 18 ? signal.risk !== "high" : signal.risk !== "high")
   ).length;
 
   const weightedConfidence = selected.length
     ? Math.round(selected.reduce((sum, signal) => sum + signal.confidence, 0) / selected.length)
     : input.confidence;
 
-  if (agreementCount < 6) {
-    blockedReasons.push(`Only ${agreementCount} Nexora signal systems agree. Minimum is 6.`);
+  const minimumAgreement = input.learningScore < 18 ? 3 : 6;
+
+  if (agreementCount < minimumAgreement) {
+    blockedReasons.push(`Only ${agreementCount} Nexora signal systems agree. Minimum is ${minimumAgreement}.`);
   }
 
   if (weightedConfidence < 72) {
     blockedReasons.push(`Nexora weighted signal confidence ${weightedConfidence} is below 72.`);
   }
 
-  if (input.learningScore < 18) {
-    blockedReasons.push("Learning score is in research/risk-off zone.");
+  // Low learning score no longer hard-blocks paper trades.
+  // It forces research-probe mode: fewer required agreements and tiny risk sizing in PolyEdge.
+  if (input.learningScore < 18 && agreementCount >= 3) {
+    // allowed as tiny paper research probe
   }
 
   return {
