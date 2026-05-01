@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { db } from "../../../db";
 
-const NEXORA_CANDLE_SERVICE_VERSION = "coinbase-first-v2";
+const NEXORA_CANDLE_SERVICE_VERSION = "coinbase-only-v3";
 
 export type NexoraMarketCandle = {
   symbol: string;
@@ -16,21 +16,6 @@ export type NexoraMarketCandle = {
   volume: number;
   quoteVolume?: number | null;
   tradeCount?: number | null;
-};
-
-const BINANCE_SYMBOLS: Record<string, string> = {
-  "BTC/USD": "BTCUSDT",
-  "ETH/USD": "ETHUSDT",
-  "SOL/USD": "SOLUSDT",
-};
-
-const TIMEFRAME_TO_BINANCE: Record<string, string> = {
-  "1m": "1m",
-  "5m": "5m",
-  "15m": "15m",
-  "1h": "1h",
-  "4h": "4h",
-  "1d": "1d",
 };
 
 const COINBASE_SYMBOLS: Record<string, string> = {
@@ -53,7 +38,7 @@ export async function ensureMarketCandlesTable() {
     create table if not exists market_candles (
       id bigserial primary key,
       symbol text not null,
-      provider text not null default 'binance',
+      provider text not null default 'coinbase',
       timeframe text not null,
       open_time timestamptz not null,
       close_time timestamptz not null,
@@ -77,38 +62,43 @@ export async function ensureMarketCandlesTable() {
   `);
 }
 
-async function fetchCoinbaseCandles(symbol: string, timeframe: string, limit = 300): Promise<NexoraMarketCandle[]> {
+async function fetchCoinbaseCandles(symbol: string, timeframe: string, limit = 100): Promise<NexoraMarketCandle[]> {
   const productId = COINBASE_SYMBOLS[symbol];
   const granularity = TIMEFRAME_TO_COINBASE_GRANULARITY[timeframe];
 
-  if (!productId || !granularity) return [];
+  if (!productId || !granularity) {
+    throw new Error(`Unsupported Coinbase candle symbol/timeframe: ${symbol} ${timeframe}`);
+  }
 
-  // Coinbase public candles cap is smaller than Binance, so keep request conservative.
-  const safeLimit = Math.max(1, Math.min(300, limit));
+  const safeLimit = Math.max(1, Math.min(300, Number(limit || 100)));
   const end = Math.floor(Date.now() / 1000);
   const start = end - safeLimit * granularity;
 
-  const url = `https://api.exchange.coinbase.com/products/${encodeURIComponent(productId)}/candles?granularity=${granularity}&start=${new Date(start * 1000).toISOString()}&end=${new Date(end * 1000).toISOString()}`;
+  const url =
+    `https://api.exchange.coinbase.com/products/${encodeURIComponent(productId)}/candles` +
+    `?granularity=${granularity}` +
+    `&start=${encodeURIComponent(new Date(start * 1000).toISOString())}` +
+    `&end=${encodeURIComponent(new Date(end * 1000).toISOString())}`;
 
   const res = await fetch(url, {
     headers: {
-      "User-Agent": "Nexora-Research-Paper-Trading/1.0",
       "Accept": "application/json",
+      "User-Agent": "Nexora-Market-Candles/coinbase-only-v3",
     },
   });
 
+  const body = await res.text();
+
   if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(`Coinbase candle fetch failed for ${symbol} ${timeframe}: ${res.status} ${res.statusText} ${body.slice(0, 240)}`);
+    throw new Error(`Coinbase candle fetch failed for ${symbol} ${timeframe}: ${res.status} ${res.statusText} ${body.slice(0, 300)}`);
   }
 
-  const rows = await res.json();
+  const rows = JSON.parse(body);
 
   if (!Array.isArray(rows)) {
-    throw new Error(`Unexpected Coinbase candle response for ${symbol}`);
+    throw new Error(`Unexpected Coinbase candle response for ${symbol} ${timeframe}: ${body.slice(0, 300)}`);
   }
 
-  // Coinbase format: [time, low, high, open, close, volume]
   return rows
     .map((row: any[]) => {
       const openTime = new Date(Number(row[0]) * 1000);
@@ -127,43 +117,9 @@ async function fetchCoinbaseCandles(symbol: string, timeframe: string, limit = 3
         tradeCount: null,
       };
     })
+    .filter((c) => Number.isFinite(c.open) && Number.isFinite(c.close))
     .sort((a, b) => a.openTime.getTime() - b.openTime.getTime())
     .slice(-safeLimit);
-}
-
-async function fetchBinanceCandles(symbol: string, timeframe: string, limit = 500): Promise<NexoraMarketCandle[]> {
-  const binanceSymbol = BINANCE_SYMBOLS[symbol];
-  const interval = TIMEFRAME_TO_BINANCE[timeframe];
-
-  if (!binanceSymbol || !interval) return [];
-
-  const url = `https://api.binance.com/api/v3/klines?symbol=${encodeURIComponent(binanceSymbol)}&interval=${encodeURIComponent(interval)}&limit=${Math.max(1, Math.min(1000, limit))}`;
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    throw new Error(`Binance candle fetch failed for ${symbol} ${timeframe}: ${res.status} ${res.statusText}`);
-  }
-
-  const rows = await res.json();
-
-  if (!Array.isArray(rows)) {
-    throw new Error(`Unexpected Binance candle response for ${symbol}`);
-  }
-
-  return rows.map((row: any[]) => ({
-    symbol,
-    provider: "coinbase_first",
-    timeframe,
-    openTime: new Date(Number(row[0])),
-    closeTime: new Date(Number(row[6])),
-    open: Number(row[1]),
-    high: Number(row[2]),
-    low: Number(row[3]),
-    close: Number(row[4]),
-    volume: Number(row[5]),
-    quoteVolume: Number(row[7]),
-    tradeCount: Number(row[8]),
-  }));
 }
 
 export async function upsertMarketCandles(candles: NexoraMarketCandle[]) {
@@ -211,7 +167,7 @@ export async function syncNexoraMarketCandles(options?: {
 
   const symbols = options?.symbols?.length ? options.symbols : ["BTC/USD", "ETH/USD", "SOL/USD"];
   const timeframes = options?.timeframes?.length ? options.timeframes : ["1m", "5m", "15m", "1h"];
-  const limit = options?.limit ?? 500;
+  const limit = options?.limit ?? 100;
 
   const results: any[] = [];
   let total = 0;
@@ -219,16 +175,23 @@ export async function syncNexoraMarketCandles(options?: {
   for (const symbol of symbols) {
     for (const timeframe of timeframes) {
       try {
-        const candles = await fetchBinanceCandles(symbol, timeframe, limit);
+        const candles = await fetchCoinbaseCandles(symbol, timeframe, limit);
         const count = await upsertMarketCandles(candles);
         total += count;
-        results.push({ ok: true, symbol, timeframe, provider: "coinbase_first", candles: count });
+
+        results.push({
+          ok: true,
+          symbol,
+          timeframe,
+          provider: "coinbase",
+          candles: count,
+        });
       } catch (err) {
         results.push({
           ok: false,
           symbol,
           timeframe,
-          provider: "binance",
+          provider: "coinbase",
           error: err instanceof Error ? err.message : String(err),
         });
       }
@@ -240,10 +203,10 @@ export async function syncNexoraMarketCandles(options?: {
     service: "nexora_market_candles",
     version: NEXORA_CANDLE_SERVICE_VERSION,
     paperOnly: true,
-    provider: "binance",
+    provider: "coinbase",
     totalCandlesSynced: total,
     results,
-    note: "NEXORA_CANDLE_SERVICE_VERSION coinbase-first-v2. BTC/ETH/SOL use Coinbase public candles first, Binance only as fallback. XAUUSD needs a separate provider later.",
+    note: "Coinbase-only v3. BTC/ETH/SOL use Coinbase public candles. XAUUSD needs a separate provider later.",
     updatedAt: new Date().toISOString(),
   };
 }
@@ -300,6 +263,7 @@ export async function getMarketCandleCoverage() {
   return {
     ok: true,
     service: "nexora_market_candle_coverage",
+    version: NEXORA_CANDLE_SERVICE_VERSION,
     rows,
     updatedAt: new Date().toISOString(),
   };
