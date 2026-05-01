@@ -3,6 +3,7 @@ import { buildNexoraCryptoMarketKnowledgeSignals } from "../knowledge/nexoraCryp
 import { evaluateNexoraBotTeachings } from "../knowledge/nexoraBotTeachingEngine";
 import { evaluateNexoraGeniusCore } from "../knowledge/nexoraGeniusCore";
 import { buildNexoraIndicatorSignals } from "../indicators/nexoraIndicatorSignalAdapter";
+import { getNexoraSetupPromotions } from "../promotion/nexoraSetupPromotionEngine";
 import type { NexoraTradeDirection, NexoraTradeSignal } from "../nexoraTradeVotingEngine";
 
 type ScoreInput = {
@@ -186,6 +187,53 @@ export async function scoreNexoraSignalLibraryCandidate(input: ScoreInput): Prom
   });
 
   selected.push(...indicatorSignals);
+
+  const promotionSnapshot = await getNexoraSetupPromotions().catch(() => null);
+  const promotionRows = promotionSnapshot?.rows || [];
+  const promotion = promotionRows.find((row: any) =>
+    row.symbol === input.symbol &&
+    row.strategy === input.strategy &&
+    (row.direction === input.direction || row.direction === "unknown")
+  );
+
+  if (promotion?.status === "blocked") {
+    blockedReasons.push(`Promotion engine blocked ${input.symbol} ${input.strategy} ${input.direction}: ${promotion.reason || "weak setup"}.`);
+  }
+
+  if (promotion?.status === "testing" && input.learningScore < 18) {
+    selected.push({
+      system: "promotion_testing_micro_probe_only",
+      symbol: input.symbol,
+      direction: input.direction,
+      confidence: Math.max(45, Math.min(70, input.confidence - 6)),
+      strength: Math.max(40, Math.min(66, input.confidence - 10)),
+      risk: "medium",
+      reason: "Promotion engine says setup is still testing. Tiny paper probe only.",
+      features: {
+        promotionStatus: promotion.status,
+        promotionReason: promotion.reason || null,
+      },
+    });
+  }
+
+  if (promotion?.status === "candidate" || promotion?.status === "promoted" || promotion?.status === "elite") {
+    selected.push({
+      system: `promotion_${promotion.status}_support`,
+      symbol: input.symbol,
+      direction: input.direction,
+      confidence: promotion.status === "elite" ? 88 : promotion.status === "promoted" ? 80 : 72,
+      strength: promotion.status === "elite" ? 84 : promotion.status === "promoted" ? 76 : 68,
+      risk: promotion.status === "elite" ? "low" : "medium",
+      reason: `Promotion engine supports setup as ${promotion.status}.`,
+      features: {
+        promotionStatus: promotion.status,
+        trades: Number(promotion.trades || 0),
+        winRate: Number(promotion.win_rate || 0),
+        profitFactor: Number(promotion.profit_factor || 0),
+        pnl: Number(promotion.pnl || 0),
+      },
+    });
+  }
 
   const geniusEvaluation = evaluateNexoraGeniusCore({
     symbol: input.symbol,

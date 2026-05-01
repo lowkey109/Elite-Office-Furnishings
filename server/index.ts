@@ -1837,6 +1837,72 @@ app.get("/api/nexora/market-candles/coverage", async (_req, res) => {
   }
 });
 
+
+// Nexora backtest route.
+// Uses stored market_candles. Paper/research only.
+app.get("/api/nexora/backtest/simple", async (req, res) => {
+  try {
+    const { runNexoraSimpleBacktest } = await import("./services/trading/backtest/nexoraBacktestEngine");
+    res.json(await runNexoraSimpleBacktest({
+      symbol: String(req.query.symbol || "ETH/USD"),
+      timeframe: String(req.query.timeframe || "1m"),
+      strategy: String(req.query.strategy || "volatility_squeeze"),
+      direction: String(req.query.direction || "long") === "short" ? "short" : "long",
+      limit: req.query.limit ? Number(req.query.limit) : 200,
+    }));
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_backtest_engine",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
+
+// Nexora intelligence health route.
+app.get("/api/nexora/intelligence/health", async (_req, res) => {
+  try {
+    const { getNexoraIntelligenceHealth } = await import("./services/trading/health/nexoraIntelligenceHealth");
+    res.json(await getNexoraIntelligenceHealth());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_intelligence_health",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
+
+// Nexora setup promotion routes.
+// Paper/research only.
+app.post("/api/nexora/setup-promotions/refresh", async (_req, res) => {
+  try {
+    const { refreshNexoraSetupPromotions } = await import("./services/trading/promotion/nexoraSetupPromotionEngine");
+    res.json(await refreshNexoraSetupPromotions());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_setup_promotion_engine",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
+app.get("/api/nexora/setup-promotions", async (_req, res) => {
+  try {
+    const { getNexoraSetupPromotions } = await import("./services/trading/promotion/nexoraSetupPromotionEngine");
+    res.json(await getNexoraSetupPromotions());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_setup_promotion_engine",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
