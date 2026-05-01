@@ -252,7 +252,7 @@ async function closeFastPaperPositions() {
     const mark = paperMark(pos.symbol);
     const openedAt = pos.entryTimestamp || pos.createdAt || new Date();
     const ageMs = Date.now() - new Date(openedAt).getTime();
-    const maxAgeMs = Number(process.env.POLYEDGE_FAST_PAPER_MAX_AGE_MS || 20000);
+    const maxAgeMs = Number(process.env.POLYEDGE_FAST_PAPER_MAX_AGE_MS || (state.learningScore < 35 ? 12000 : 20000));
 
     const side = String(pos.side);
     const hitTarget = side === "long"
@@ -340,7 +340,7 @@ async function openFastPaperPosition() {
     } else {
       return {
         opened: false,
-        reason: "Adaptive allocator blocked all pairs and SOL fallback already has active exposure.",
+        reason: "Research wait: allocator blocked weak pairs. Monitoring only until quality improves.",
       };
     }
   }
@@ -363,7 +363,7 @@ async function openFastPaperPosition() {
     if (!qualityCandidates.length) {
       return {
         opened: false,
-        reason: "Quality mode waiting: all promoted test pairs already have active exposure.",
+        reason: "Quality mode research wait: no safe promoted paper setup available. Monitoring only.",
       };
     }
 
@@ -383,7 +383,7 @@ async function openFastPaperPosition() {
   const baseRiskPct =
     defensiveMicroLearning ? 0.0004 :
     state.learningScore >= 70 ? 0.012 :
-    state.learningScore < 45 ? 0.001 :
+    state.learningScore < 45 ? 0.0006 :
     0.007;
 
   const riskPct = baseRiskPct * Number(lossGovernor.riskMultiplier || 1);
@@ -392,12 +392,12 @@ async function openFastPaperPosition() {
   const move = symbol === "BTC/USD" ? 0.0016 : symbol === "ETH/USD" ? 0.002 : symbol === "SOL/USD" ? 0.0028 : 0.0011;
 
   const targetPrice = direction === "long"
-    ? Math.round(entry * (1 + move * 1.35) * 100) / 100
-    : Math.round(entry * (1 - move * 1.35) * 100) / 100;
+    ? Math.round(entry * (1 + move * 1.75) * 100) / 100
+    : Math.round(entry * (1 - move * 1.75) * 100) / 100;
 
   const stopPrice = direction === "long"
-    ? Math.round(entry * (1 - move) * 100) / 100
-    : Math.round(entry * (1 + move) * 100) / 100;
+    ? Math.round(entry * (1 - move * 0.72) * 100) / 100
+    : Math.round(entry * (1 + move * 0.72) * 100) / 100;
 
   const decisionId = await createDecision({
     market: symbol,
