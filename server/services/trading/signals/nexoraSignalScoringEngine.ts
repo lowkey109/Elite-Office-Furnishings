@@ -7,6 +7,8 @@ import { getNexoraSetupPromotions } from "../promotion/nexoraSetupPromotionEngin
 import { approveNexoraPortfolioRisk } from "../portfolio/nexoraPortfolioBrain";
 import { classifyNexoraMarketRegime } from "../regime/nexoraMarketRegimeEngine";
 import { recordNexoraDecisionAudit } from "../audit/nexoraDecisionAudit";
+import { runNexoraCandidateHunter } from "../candidates/nexoraCandidateHunter";
+import { findNexoraAllowedCandidate } from "../candidates/nexoraCandidateAllowlist";
 import type { NexoraTradeDirection, NexoraTradeSignal } from "../nexoraTradeVotingEngine";
 
 type ScoreInput = {
@@ -190,6 +192,66 @@ export async function scoreNexoraSignalLibraryCandidate(input: ScoreInput): Prom
   });
 
   selected.push(...indicatorSignals);
+
+  const allowedCandidate = await findNexoraAllowedCandidate({
+    symbol: input.symbol,
+    strategy: input.strategy,
+    direction: input.direction,
+  }).catch(() => null);
+
+  if (allowedCandidate) {
+    selected.push({
+      system: "candidate_allowlist_research_probe",
+      symbol: input.symbol,
+      direction: input.direction,
+      confidence: Math.max(72, Math.min(86, Number(allowedCandidate.score || input.confidence))),
+      strength: Math.max(68, Math.min(82, Number(allowedCandidate.score || input.confidence) - 4)),
+      risk: "medium",
+      reason: "Candidate allowlist permits a tiny paper-only research probe from recent backtest evidence.",
+      features: {
+        timeframe: allowedCandidate.timeframe,
+        score: Number(allowedCandidate.score || 0),
+        winRate: Number(allowedCandidate.win_rate || 0),
+        pnl: Number(allowedCandidate.pnl || 0),
+        trades: Number(allowedCandidate.trades || 0),
+        paperOnly: true,
+        researchProbeOnly: true,
+      },
+    });
+
+    // So old bad history does not permanently suppress a newly discovered paper-only research candidate.
+    for (let i = blockedReasons.length - 1; i >= 0; i--) {
+      if (String(blockedReasons[i]).startsWith("Promotion engine blocked")) {
+        blockedReasons.splice(i, 1);
+      }
+    }
+  }
+
+  const candidateHunter = await runNexoraCandidateHunter().catch(() => null);
+  const matchingCandidate = candidateHunter?.approved?.find((candidate: any) =>
+    candidate.symbol === input.symbol &&
+    candidate.strategy === input.strategy &&
+    candidate.direction === input.direction
+  );
+
+  if (matchingCandidate) {
+    selected.push({
+      system: "candidate_hunter_backtest_support",
+      symbol: input.symbol,
+      direction: input.direction,
+      confidence: Math.max(72, Math.min(88, Math.round(matchingCandidate.score))),
+      strength: Math.max(68, Math.min(84, Math.round(matchingCandidate.score - 4))),
+      risk: "medium",
+      reason: "Candidate Hunter found this setup has positive recent candle backtest evidence.",
+      features: {
+        timeframe: matchingCandidate.timeframe,
+        trades: matchingCandidate.trades,
+        winRate: matchingCandidate.winRate,
+        pnl: matchingCandidate.pnl,
+        score: matchingCandidate.score,
+      },
+    });
+  }
 
   const regimeSnapshot = await classifyNexoraMarketRegime({
     symbol: input.symbol,

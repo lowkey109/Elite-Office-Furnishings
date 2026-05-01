@@ -1994,6 +1994,35 @@ app.get("/api/nexora/platform/summary", async (_req, res) => {
   }
 });
 
+
+
+app.get("/api/nexora/candidates/hunt", async (_req, res) => {
+  try {
+    const { runNexoraCandidateHunter } = await import("./services/trading/candidates/nexoraCandidateHunter");
+    res.json(await runNexoraCandidateHunter());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
+
+// Nexora full refresh pipeline route.
+app.post("/api/nexora/pipeline/refresh", async (_req, res) => {
+  try {
+    const { runNexoraRefreshPipeline } = await import("./services/trading/pipeline/nexoraRefreshPipeline");
+    res.json(await runNexoraRefreshPipeline());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_refresh_pipeline",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
