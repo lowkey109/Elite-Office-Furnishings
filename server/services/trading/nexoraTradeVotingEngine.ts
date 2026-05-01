@@ -52,7 +52,11 @@ export function voteNexoraTradeCandidate(candidate: NexoraTradeCandidate): Nexor
       .map((system) => system.id)
   );
 
-  const usableSignals = candidate.signals.filter((signal) => enabledSystems.has(signal.system));
+  let usableSignals = candidate.signals.filter((signal) => enabledSystems.has(signal.system));
+
+  if (!usableSignals.length && candidate.signals.length) {
+    usableSignals = candidate.signals;
+  }
 
   const agreeingSignals = usableSignals.filter(
     (signal) =>
@@ -78,11 +82,20 @@ export function voteNexoraTradeCandidate(candidate: NexoraTradeCandidate): Nexor
     blockedReasons.push("BTC/USD paper trading is blocked by default.");
   }
 
-  if (candidate.learningPairBlocked && NEXORA_TRADE_APPROVAL_RULES.blockIfLearningPairBlocked) {
+  if (
+    candidate.learningPairBlocked &&
+    NEXORA_TRADE_APPROVAL_RULES.blockIfLearningPairBlocked &&
+    candidate.regime !== "risk_off" &&
+    candidate.regime !== "cautious"
+  ) {
     blockedReasons.push("Learning history has blocked this symbol/strategy pair.");
   }
 
-  if (candidate.regime === "risk_off" && NEXORA_TRADE_APPROVAL_RULES.blockIfRegimeRiskOff) {
+  if (
+    candidate.regime === "risk_off" &&
+    NEXORA_TRADE_APPROVAL_RULES.blockIfRegimeRiskOff &&
+    candidate.confidence < 70
+  ) {
     blockedReasons.push("Market regime is risk-off.");
   }
 
@@ -93,9 +106,14 @@ export function voteNexoraTradeCandidate(candidate: NexoraTradeCandidate): Nexor
     blockedReasons.push("Spread or slippage risk is too high.");
   }
 
-  if (agreeingSignals.length < NEXORA_TRADE_APPROVAL_RULES.minAgreementCount) {
+  const minimumAgreement =
+    candidate.regime === "risk_off" || candidate.regime === "cautious"
+      ? 2
+      : NEXORA_TRADE_APPROVAL_RULES.minAgreementCount;
+
+  if (agreeingSignals.length < minimumAgreement) {
     blockedReasons.push(
-      `Only ${agreeingSignals.length} signal systems agree. Minimum is ${NEXORA_TRADE_APPROVAL_RULES.minAgreementCount}.`
+      `Only ${agreeingSignals.length} signal systems agree. Minimum is ${minimumAgreement}.`
     );
   }
 
