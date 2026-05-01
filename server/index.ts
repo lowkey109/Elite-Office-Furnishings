@@ -1786,6 +1786,57 @@ app.get("/api/nexora/indicators/snapshot", async (_req, res) => {
   }
 });
 
+
+// Nexora market candle data routes.
+// Paper/research data only. Does not enable live trading.
+app.post("/api/nexora/market-candles/sync", async (req, res) => {
+  try {
+    const { syncNexoraMarketCandles } = await import("./services/trading/marketData/nexoraMarketCandlesService");
+    const body = req.body || {};
+    res.json(await syncNexoraMarketCandles({
+      symbols: Array.isArray(body.symbols) ? body.symbols : undefined,
+      timeframes: Array.isArray(body.timeframes) ? body.timeframes : undefined,
+      limit: body.limit ? Number(body.limit) : undefined,
+    }));
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_market_candles",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
+app.get("/api/nexora/market-candles/recent", async (req, res) => {
+  try {
+    const { getRecentMarketCandles } = await import("./services/trading/marketData/nexoraMarketCandlesService");
+    res.json(await getRecentMarketCandles({
+      symbol: String(req.query.symbol || "ETH/USD"),
+      timeframe: String(req.query.timeframe || "1m"),
+      limit: req.query.limit ? Number(req.query.limit) : 200,
+    }));
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_market_candles",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
+app.get("/api/nexora/market-candles/coverage", async (_req, res) => {
+  try {
+    const { getMarketCandleCoverage } = await import("./services/trading/marketData/nexoraMarketCandlesService");
+    res.json(await getMarketCandleCoverage());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_market_candles",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
