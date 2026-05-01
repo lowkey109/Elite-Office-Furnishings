@@ -48,6 +48,10 @@ export async function runNexoraCandidateHunter() {
               trades >= 40 &&
               winRate >= 52 &&
               pnl > 0,
+            research:
+              trades >= 7 &&
+              winRate >= 60 &&
+              pnl > 0,
           });
         }
       }
@@ -60,7 +64,8 @@ export async function runNexoraCandidateHunter() {
     ok: true,
     service: "nexora_candidate_hunter",
     approved: candidates.filter(c => c.approved).slice(0, 10),
-    rejected: candidates.filter(c => !c.approved).slice(0, 20),
+    research: candidates.filter(c => !c.approved && c.research).slice(0, 10),
+    rejected: candidates.filter(c => !c.approved && !c.research).slice(0, 20),
     updatedAt: new Date().toISOString(),
   };
 }
