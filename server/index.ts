@@ -2068,6 +2068,21 @@ app.post("/api/nexora/autonomy/reinforcement/run", async (_req, res) => {
   }
 });
 
+
+// Nexora kill switch guard route.
+app.get("/api/nexora/portfolio/kill-switch", async (_req, res) => {
+  try {
+    const { getNexoraKillSwitchGuard } = await import("./services/trading/portfolio/nexoraKillSwitchGuard");
+    res.json(await getNexoraKillSwitchGuard());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_kill_switch_guard",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);

@@ -387,6 +387,8 @@ export async function scoreNexoraSignalLibraryCandidate(input: ScoreInput): Prom
   const portfolioRisk = await approveNexoraPortfolioRisk({
     symbol: input.symbol,
     strategy: input.strategy,
+    direction: input.direction,
+    confidence: input.confidence,
   }).catch(() => null);
 
   if (portfolioRisk && !portfolioRisk.ok) {
@@ -407,6 +409,9 @@ export async function scoreNexoraSignalLibraryCandidate(input: ScoreInput): Prom
       features: {
         totalOpen: Number(portfolioRisk.portfolio?.totalOpen || 0),
         riskState: portfolioRisk.portfolio?.riskState || "unknown",
+        positionSizeMultiplier: (portfolioRisk as any).sizing?.positionSizeMultiplier ?? null,
+        finalRisk: (portfolioRisk as any).sizing?.finalRisk ?? null,
+        correlationBucket: (portfolioRisk as any).correlation?.bucket ?? null,
       },
     });
   }

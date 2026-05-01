@@ -1,6 +1,8 @@
 
 import { sql } from "drizzle-orm";
 import { db } from "../../../db";
+import { calculateNexoraVolatilityPositionSizing } from "./nexoraVolatilityPositionSizing";
+import { evaluateNexoraCorrelationExposure } from "./nexoraCorrelationExposureGuard";
 
 export async function getNexoraPortfolioBrain() {
   const result: any = await db.execute(sql`
@@ -52,11 +54,39 @@ export async function getNexoraPortfolioBrain() {
 export async function approveNexoraPortfolioRisk(input: {
   symbol: string;
   strategy: string;
+  direction?: "long" | "short";
+  confidence?: number;
+  atr?: number;
+  price?: number;
 }) {
   const brain = await getNexoraPortfolioBrain();
   const symbolOpen = Number(brain.symbolExposure[input.symbol] || 0);
 
   const blockedReasons: string[] = [];
+
+  const openPositions = (brain.rows || []).flatMap((row: any) =>
+    Array.from({ length: Number(row.open_positions || 0) }).map(() => ({
+      symbol: row.symbol,
+      direction: "unknown",
+    }))
+  );
+
+  const correlation = evaluateNexoraCorrelationExposure({
+    symbol: input.symbol,
+    direction: input.direction || "long",
+    openPositions,
+  });
+
+  if (!correlation.ok) {
+    blockedReasons.push(correlation.reason);
+  }
+
+  const sizing = calculateNexoraVolatilityPositionSizing({
+    confidence: Number(input.confidence || 60),
+    atr: Number(input.atr || 1),
+    price: Number(input.price || 100),
+    portfolioRiskState: brain.riskState === "high" ? "high" : brain.riskState === "medium" ? "medium" : "low",
+  });
 
   if (brain.totalOpen >= brain.rules.maxOpenPositions) {
     blockedReasons.push("Portfolio Brain blocked setup: max open paper positions reached.");
@@ -77,6 +107,8 @@ export async function approveNexoraPortfolioRisk(input: {
     strategy: input.strategy,
     blockedReasons,
     portfolio: brain,
+    correlation,
+    sizing,
     updatedAt: new Date().toISOString(),
   };
 }
