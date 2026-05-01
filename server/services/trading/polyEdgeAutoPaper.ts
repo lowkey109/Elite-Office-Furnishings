@@ -614,7 +614,7 @@ async function openFastPaperPosition() {
   const { voteNexoraTradeCandidate } = await import("./nexoraTradeVotingEngine");
   const { scoreNexoraSignalLibraryCandidate } = await import("./signals/nexoraSignalScoringEngine");
 
-  const nexoraSignalScore = scoreNexoraSignalLibraryCandidate({
+  const nexoraSignalScore = await scoreNexoraSignalLibraryCandidate({
     symbol,
     strategy,
     direction,

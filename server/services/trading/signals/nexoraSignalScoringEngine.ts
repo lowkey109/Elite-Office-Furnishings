@@ -2,6 +2,7 @@ import { NEXORA_SIGNAL_LIBRARY_2000 } from "./nexoraSignalLibrary2000";
 import { buildNexoraCryptoMarketKnowledgeSignals } from "../knowledge/nexoraCryptoMarketKnowledge";
 import { evaluateNexoraBotTeachings } from "../knowledge/nexoraBotTeachingEngine";
 import { evaluateNexoraGeniusCore } from "../knowledge/nexoraGeniusCore";
+import { buildNexoraIndicatorSignals } from "../indicators/nexoraIndicatorSignalAdapter";
 import type { NexoraTradeDirection, NexoraTradeSignal } from "../nexoraTradeVotingEngine";
 
 type ScoreInput = {
@@ -79,7 +80,7 @@ function confidenceForSignal(base: number, group: string, learningScore: number,
   return Math.max(1, Math.min(96, Math.round(base + (groupBoost[group] || 0) + noise)));
 }
 
-export function scoreNexoraSignalLibraryCandidate(input: ScoreInput): NexoraSignalScoringResult {
+export async function scoreNexoraSignalLibraryCandidate(input: ScoreInput): Promise<NexoraSignalScoringResult> {
   const blockedReasons: string[] = [];
   const preferredGroups = preferredGroupsForStrategy(input.strategy);
 
@@ -176,6 +177,15 @@ export function scoreNexoraSignalLibraryCandidate(input: ScoreInput): NexoraSign
 
   selected.push(...knowledgeSignals);
   selected.push(...teachingEvaluation.teachingSignals);
+
+  const indicatorSignals = await buildNexoraIndicatorSignals({
+    symbol: input.symbol,
+    strategy: input.strategy,
+    direction: input.direction,
+    confidence: input.confidence,
+  });
+
+  selected.push(...indicatorSignals);
 
   const geniusEvaluation = evaluateNexoraGeniusCore({
     symbol: input.symbol,
