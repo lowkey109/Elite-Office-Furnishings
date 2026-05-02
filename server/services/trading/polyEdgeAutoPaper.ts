@@ -628,7 +628,7 @@ async function openFastPaperPosition() {
 
   const entry = paperMark(symbol);
   const seed = hashNumber(symbol + strategy + String(Date.now()));
-  const direction = seed % 4 === 0 ? "short" : "long";
+  const direction = preferredSetup?.direction || (seed % 4 === 0 ? "short" : "long");
   const confidence = Math.max(state.confidenceFloor, Math.min(92, state.confidenceFloor + (seed % 20)));
 
   const { voteNexoraTradeCandidate } = await import("./nexoraTradeVotingEngine");
