@@ -649,6 +649,16 @@ async function openFastPaperPosition() {
   }
   const confidence = Math.max(state.confidenceFloor, Math.min(92, state.confidenceFloor + (seed % 20)));
 
+  const researchProbeMetadata = preferredSetup
+    ? {
+        researchProbe: true,
+        source: "nexora_candidate_allowlist",
+        allowlistReason: preferredSetup.reason,
+        maxDuplicateOpen: 1,
+        paperOnly: true,
+      }
+    : null;
+
   const { voteNexoraTradeCandidate } = await import("./nexoraTradeVotingEngine");
   const { scoreNexoraSignalLibraryCandidate } = await import("./signals/nexoraSignalScoringEngine");
 
