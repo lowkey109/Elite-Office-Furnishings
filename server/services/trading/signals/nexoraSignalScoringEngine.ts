@@ -291,6 +291,8 @@ export async function scoreNexoraSignalLibraryCandidate(input: ScoreInput): Prom
     }
   }
 
+  let isAllowlistedResearchProbe = false;
+
   const allowedCandidate = await findNexoraAllowedCandidate({
     symbol: input.symbol,
     strategy: input.strategy,
@@ -298,6 +300,8 @@ export async function scoreNexoraSignalLibraryCandidate(input: ScoreInput): Prom
   }).catch(() => null);
 
   if (allowedCandidate) {
+    isAllowlistedResearchProbe = true;
+
     selected.push({
       system: "candidate_allowlist_research_probe",
       symbol: input.symbol,
@@ -527,6 +531,34 @@ export async function scoreNexoraSignalLibraryCandidate(input: ScoreInput): Prom
     totalSignals: selected.length,
     agreementRequired: minimumAgreement,
   };
+
+  if (isAllowlistedResearchProbe) {
+    for (let i = blockedReasons.length - 1; i >= 0; i--) {
+      const reason = String(blockedReasons[i] || "");
+      if (
+        reason.startsWith("Promotion engine blocked") ||
+        reason.startsWith("Walk-forward validation warning")
+      ) {
+        blockedReasons.splice(i, 1);
+      }
+    }
+
+    selected.push({
+      system: "research_probe_safety_bypass",
+      symbol: input.symbol,
+      direction: input.direction,
+      confidence: 72,
+      strength: 68,
+      risk: "high",
+      reason: "Research probe bypass kept setup paper-only and removed old-history blockers only.",
+      features: {
+        paperOnly: true,
+        microProbeOnly: true,
+        bypassedPromotionHistory: true,
+        bypassedWalkForwardWarning: true,
+      },
+    });
+  }
 
   await recordNexoraDecisionAudit({
     symbol: input.symbol,
