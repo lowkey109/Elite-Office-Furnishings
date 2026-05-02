@@ -7,6 +7,7 @@ import { getNexoraSetupPromotions } from "../promotion/nexoraSetupPromotionEngin
 import { approveNexoraPortfolioRisk } from "../portfolio/nexoraPortfolioBrain";
 import { classifyNexoraMarketRegime } from "../regime/nexoraMarketRegimeEngine";
 import { recordNexoraDecisionAudit } from "../audit/nexoraDecisionAudit";
+import { classifyNexoraLearningPolicy } from "../learning/nexoraAdaptiveLearningPolicy";
 import { runNexoraCandidateHunter } from "../candidates/nexoraCandidateHunter";
 import { findNexoraAllowedCandidate } from "../candidates/nexoraCandidateAllowlist";
 import { evaluateNexoraAutonomy } from "../autonomy/nexoraAutonomousLearningEngine";
@@ -292,6 +293,30 @@ export async function scoreNexoraSignalLibraryCandidate(input: ScoreInput): Prom
   }
 
   let isAllowlistedResearchProbe = false;
+
+  const adaptivePolicy = classifyNexoraLearningPolicy({
+    trades: 0,
+    winRate: 0,
+    profitFactor: 0,
+    pnl: 0,
+    recentWinRate: Number(input.learningScore || 0),
+  });
+
+  selected.push({
+    system: "adaptive_learning_policy",
+    symbol: input.symbol,
+    direction: adaptivePolicy.allowed ? input.direction : "neutral",
+    confidence: adaptivePolicy.allowed ? 68 : 35,
+    strength: adaptivePolicy.allowed ? 62 : 30,
+    risk: adaptivePolicy.mode === "production_candidate" ? "medium" : "high",
+    reason: adaptivePolicy.reason,
+    features: {
+      mode: adaptivePolicy.mode,
+      maxOpen: adaptivePolicy.maxOpen,
+      riskMultiplier: adaptivePolicy.riskMultiplier,
+      paperOnly: true,
+    },
+  });
 
   const allowedCandidate = await findNexoraAllowedCandidate({
     symbol: input.symbol,
