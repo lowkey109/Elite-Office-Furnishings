@@ -2383,6 +2383,39 @@ app.get("/api/nexora/probes/quality", async (req, res) => {
   }
 });
 
+
+app.get("/api/nexora/learning/summary", async (_req, res) => {
+  try {
+    const { getNexoraLearningSummary } = await import("./services/trading/learning/nexoraLearningSummary");
+    res.json(await getNexoraLearningSummary());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_learning_summary", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/learning/fast-cycle", async (_req, res) => {
+  try {
+    const { runNexoraFastLearningCycle } = await import("./services/trading/learning/nexoraFastLearningCycle");
+    res.json(await runNexoraFastLearningCycle());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_fast_learning_cycle", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+
+app.post("/api/nexora/probes/promote-winning", async (_req, res) => {
+  try {
+    const { promoteWinningPaperProbes } = await import("./services/trading/probes/nexoraPaperProbePromoter");
+    res.json(await promoteWinningPaperProbes());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_paper_probe_promoter",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
