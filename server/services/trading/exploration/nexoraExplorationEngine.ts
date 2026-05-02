@@ -109,7 +109,7 @@ export async function refreshNexoraExplorationProbes() {
     insertedOrUpdated: inserted.length,
     probes: inserted,
     skippedCooldowns: typeof skipped !== "undefined" ? skipped : [],
-    note: "Exploration probes are paper-only, capped by PolyEdge guards, and skip active cooldowns.",
+    note: "Exploration probes are paper-only, top-3 rotation enabled, and skip active cooldowns.",
     updatedAt: new Date().toISOString(),
   };
 }

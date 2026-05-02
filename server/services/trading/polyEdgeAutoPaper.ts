@@ -162,7 +162,7 @@ async function chooseNexoraPreferredPaperSetup() {
   const best = rows
     .filter((row: any) => row.status === "recovery_probe" || row.status === "research_probe")
     .sort((a: any, b: any) => {
-      const rank = (x: any) => x.status === "recovery_probe" ? 2 : 1;
+      const rank = (x: any) => x.status === "research_probe" ? 2 : 1;
       return (rank(b) - rank(a)) || (Number(b.score || 0) - Number(a.score || 0));
     })[0];
 
