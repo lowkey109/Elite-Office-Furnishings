@@ -330,7 +330,12 @@ function PolySystemHeartMonitor({
 }) {
   const alive = apiStatus === "online";
   const flatline = apiStatus === "offline" || apiStatus === "timeout";
-  const dots = ".".repeat((heartbeatTick % 3) + 1);
+  const beatRate =
+    apiStatus === "online" && apiFailureCount === 0 ? 10 :
+    apiStatus === "online" && apiFailureCount <= 2 ? 5 :
+    apiStatus === "checking" ? 3 :
+    0;
+  const dots = beatRate === 0 ? "────────" : "♥".repeat(Math.max(1, beatRate));
 
   return (
     <HoloPanel title="Poly System Heart Monitor" icon={Activity} className=" col-span-12 xl:col-span-6">
@@ -362,7 +367,7 @@ function PolySystemHeartMonitor({
           </div>
 
           <div className="relative h-24 overflow-hidden rounded-xl border border-cyan-300/15 bg-black/60">
-            <svg className="absolute inset-0 h-full w-[200%]" style={{ animation: alive ? "poly-ecg-run 1.2s linear infinite" : undefined }} viewBox="0 0 1000 120" preserveAspectRatio="none">
+            <svg className="absolute inset-0 h-full w-[200%]" style={{ animation: alive ? `poly-ecg-run ${beatRate === 10 ? "0.55s" : beatRate === 5 ? "1.1s" : "1.8s"} linear infinite` : undefined }} viewBox="0 0 1000 120" preserveAspectRatio="none">
               <polyline
                 points={
                   alive
@@ -376,7 +381,7 @@ function PolySystemHeartMonitor({
                 strokeLinecap="round"
               />
             </svg>
-            <div className={`absolute right-4 top-2 h-4 w-4 rounded-full ${alive ? "bg-emerald-300" : "bg-red-400"}`} style={{ animation: alive ? "poly-heart-glow 1s ease-in-out infinite" : undefined }} />
+            <div className={`absolute right-4 top-2 h-4 w-4 rounded-full ${alive ? "bg-emerald-300" : "bg-red-400"}`} style={{ animation: alive ? `poly-heart-glow ${beatRate === 10 ? "0.35s" : beatRate === 5 ? "0.75s" : "1.4s"} ease-in-out infinite` : undefined }} />
           </div>
 
           <div className="mt-2 grid grid-cols-3 gap-1.5 text-[11px]">
@@ -594,23 +599,22 @@ function monitorConnectionAgeMs(monitor: any): number | null {
 }
 
 function connectionSpeedSeconds(monitor: any): number {
-  const age = monitorConnectionAgeMs(monitor);
-  if (age === null) return 12;
-  if (age < 2500) return 6.4;
-  if (age < 5000) return 7.8;
-  if (age < 10000) return 10.2;
-  if (age < 20000) return 14;
-  return 19;
+  if (!monitor?.alive && !monitor?.moving && !monitor?.loopRunning) return 0;
+
+  const latency = Number(monitor?.latencyMs ?? monitor?.responseTimeMs ?? monitor?.ageMs ?? 9999);
+
+  if (latency <= 250) return 10; // good connection: 10 fast beats
+  if (latency <= 1000) return 5; // normal connection: 5 beats
+  return 3; // slow connection: 3 slow beats
 }
 
 function connectionLabel(monitor: any): string {
-  const age = monitorConnectionAgeMs(monitor);
-  if (age === null) return "NO TIME";
-  if (age < 2500) return "FAST";
-  if (age < 5000) return "GOOD";
-  if (age < 10000) return "SLOW";
-  if (age < 20000) return "STALE";
-  return "STALE";
+  const beats = connectionSpeedSeconds(monitor);
+
+  if (beats === 10) return "GOOD CONNECTION · 10 BEATS";
+  if (beats === 5) return "NORMAL CONNECTION · 5 BEATS";
+  if (beats === 3) return "SLOW CONNECTION · 3 BEATS";
+  return "NO CONNECTION · FLATLINE";
 }
 
 function monitorRhythm(monitor: any) {
