@@ -608,6 +608,18 @@ function connectionSpeedSeconds(monitor: any): number {
   return 3; // slow connection: 3 slow beats
 }
 
+function nexoraTradingHealth(state: any) {
+  const learning = state?.learning ?? {};
+  const winRate = Number(learning.winRate ?? 0);
+  const profitFactor = Number(learning.profitFactor ?? 0);
+  const pnl = Number(learning.totalPnl ?? 0);
+
+  if (winRate >= 70 && profitFactor >= 2 && pnl > 0) return { beats: 10, color: "emerald", label: "NEXORA DOMINATING MARKET" };
+  if (winRate >= 55 && profitFactor >= 1.2) return { beats: 6, color: "cyan", label: "NEXORA TRADING STABLE" };
+  if (winRate >= 40) return { beats: 3, color: "amber", label: "NEXORA UNDER PRESSURE" };
+  return { beats: 0, color: "red", label: "NEXORA CRITICAL" };
+}
+
 function connectionLabel(monitor: any): string {
   const beats = connectionSpeedSeconds(monitor);
 
