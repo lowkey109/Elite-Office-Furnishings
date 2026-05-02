@@ -693,7 +693,9 @@ async function openFastPaperPosition() {
     signals: nexoraSignalScore.signals,
   });
 
-  if (!nexoraVote.approved) {
+  const isRecoveryProbe = preferredSetup && String((preferredSetup as any).status || "").includes("recovery_probe");
+
+  if (!nexoraVote.approved && !isRecoveryProbe) {
     return {
       opened: false,
       reason: nexoraSignalScore.reason || nexoraVote.reason,
