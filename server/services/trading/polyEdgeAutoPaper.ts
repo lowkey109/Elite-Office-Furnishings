@@ -653,6 +653,11 @@ async function openFastPaperPosition() {
   }
   const confidence = Math.max(state.confidenceFloor, Math.min(92, state.confidenceFloor + (seed % 20)));
 
+  if (isRecoveryProbe && !nexoraSignalScore.approved && Number(nexoraSignalScore.confidence || 0) >= 68) {
+    nexoraSignalScore.approved = true;
+    nexoraSignalScore.reason = "Paper-only recovery probe approved with relaxed recovery threshold.";
+  }
+
   const researchProbeMetadata = preferredSetup
     ? {
         researchProbe: true,
