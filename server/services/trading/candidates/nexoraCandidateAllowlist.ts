@@ -126,3 +126,37 @@ export async function findNexoraAllowedCandidate(input: {
   const rows = Array.isArray(result) ? result : result.rows || [];
   return rows[0] || null;
 }
+
+
+export async function pruneNexoraCandidateAllowlist() {
+  const allowlist = await getNexoraCandidateAllowlist();
+  const rows = Array.isArray((allowlist as any).rows) ? (allowlist as any).rows : [];
+  const removed: any[] = [];
+
+  for (const row of rows) {
+    const quarantined = await isNexoraStrategyQuarantined({
+      symbol: row.symbol,
+      strategy: row.strategy,
+      direction: row.direction,
+    }).catch(() => null);
+
+    if (quarantined) {
+      removed.push({
+        id: row.id,
+        symbol: row.symbol,
+        strategy: row.strategy,
+        direction: row.direction,
+        reason: quarantined.reason,
+      });
+    }
+  }
+
+  return {
+    ok: true,
+    service: "nexora_candidate_allowlist_prune",
+    paperOnly: true,
+    removed,
+    removedCount: removed.length,
+    updatedAt: new Date().toISOString(),
+  };
+}
