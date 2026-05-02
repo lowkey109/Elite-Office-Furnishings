@@ -2369,6 +2369,20 @@ app.post("/api/nexora/exploration/refresh", async (_req, res) => {
   }
 });
 
+
+app.get("/api/nexora/probes/quality", async (req, res) => {
+  try {
+    const { getNexoraProbeQuality } = await import("./services/trading/probes/nexoraProbeQuality");
+    res.json(await getNexoraProbeQuality({
+      symbol: req.query.symbol ? String(req.query.symbol) : undefined,
+      strategy: req.query.strategy ? String(req.query.strategy) : undefined,
+      direction: req.query.direction ? String(req.query.direction) : undefined,
+    }));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_probe_quality", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);

@@ -632,6 +632,33 @@ async function openFastPaperPosition() {
     strategy = promoted.strategy;
   }
 
+  const { getNexoraProbeQuality } = await import("./probes/nexoraProbeQuality");
+  const { isNexoraProbeCoolingDown, setNexoraProbeCooldown } = await import("./probes/nexoraProbeCooldown");
+
+  const cooldown = await isNexoraProbeCoolingDown({ symbol, strategy, direction: preferredSetup?.direction || "long" }).catch(() => null);
+  if (cooldown) {
+    return {
+      opened: false,
+      reason: `Probe cooldown active for ${symbol} ${strategy}: ${cooldown.reason || "cooling down"}`,
+    };
+  }
+
+  const probeQuality = await getNexoraProbeQuality({ symbol, strategy, direction: preferredSetup?.direction }).catch(() => null);
+  if (probeQuality?.shouldCooldown) {
+    await setNexoraProbeCooldown({
+      symbol,
+      strategy,
+      direction: preferredSetup?.direction || "long",
+      seconds: 180,
+      reason: `Loss streak ${probeQuality.currentLossStreak}; pausing paper probe.`,
+    }).catch(() => null);
+
+    return {
+      opened: false,
+      reason: `Probe paused: loss streak ${probeQuality.currentLossStreak} on ${symbol} ${strategy}.`,
+    };
+  }
+
   const entry = paperMark(symbol);
   const seed = hashNumber(symbol + strategy + String(Date.now()));
   const direction = preferredSetup?.direction || (seed % 4 === 0 ? "short" : "long");
