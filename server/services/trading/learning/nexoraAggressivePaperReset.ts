@@ -4,12 +4,7 @@ import { refreshNexoraExplorationProbes } from "../exploration/nexoraExploration
 
 export async function resetNexoraAggressivePaperLearning() {
   await db.execute(sql`delete from nexora_probe_cooldowns;`).catch(() => null);
-
-  await db.execute(sql`
-    delete from nexora_candidate_allowlist
-    where status in ('research_probe', 'recovery_probe');
-  `).catch(() => null);
-
+  await db.execute(sql`delete from nexora_candidate_allowlist where status in ('research_probe', 'recovery_probe');`).catch(() => null);
   const exploration = await refreshNexoraExplorationProbes();
 
   return {

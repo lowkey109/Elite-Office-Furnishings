@@ -51,7 +51,7 @@ export async function refreshNexoraExplorationProbes() {
     }
 
     eligible.push(row);
-    if (eligible.length >= 1) break;
+    if (eligible.length >= 6) break;
   }
 
   const inserted = [];

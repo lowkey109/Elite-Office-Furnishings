@@ -2449,6 +2449,70 @@ app.post("/api/nexora/learning/aggressive-paper-reset", async (_req, res) => {
   }
 });
 
+
+app.post("/api/nexora/learning/aggressive-paper-reset", async (_req, res) => {
+  try {
+    const { resetNexoraAggressivePaperLearning } = await import("./services/trading/learning/nexoraAggressivePaperReset");
+    res.json(await resetNexoraAggressivePaperLearning());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_aggressive_paper_reset", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/learning/seed-aggressive-probes", async (_req, res) => {
+  try {
+    const { seedAggressivePaperProbes } = await import("./services/trading/learning/nexoraAggressiveProbeSeeder");
+    res.json(await seedAggressivePaperProbes());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_aggressive_probe_seeder", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/learning/boost-outcomes", async (_req, res) => {
+  try {
+    const { boostRecentWinningPaperEdges } = await import("./services/trading/learning/nexoraOutcomeBooster");
+    res.json(await boostRecentWinningPaperEdges());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_outcome_booster", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/learning/demote-bad-probes", async (_req, res) => {
+  try {
+    const { demoteBadPaperProbes } = await import("./services/trading/learning/nexoraBadProbeDemoter");
+    res.json(await demoteBadPaperProbes());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_bad_probe_demoter", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.get("/api/nexora/learning/aggressive-rotation", async (_req, res) => {
+  try {
+    const { getAggressivePaperRotationPlan } = await import("./services/trading/rotation/nexoraAggressiveRotationPlan");
+    res.json(await getAggressivePaperRotationPlan());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_aggressive_rotation_plan", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.get("/api/nexora/learning/pressure", async (_req, res) => {
+  try {
+    const { getNexoraLearningPressure } = await import("./services/trading/learning/nexoraLearningPressure");
+    res.json(await getNexoraLearningPressure());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_learning_pressure", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/learning/force-paper-cycle", async (_req, res) => {
+  try {
+    const { runForcePaperLearningCycle } = await import("./services/trading/learning/nexoraForcePaperLearningCycle");
+    res.json(await runForcePaperLearningCycle());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_force_paper_learning_cycle", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
