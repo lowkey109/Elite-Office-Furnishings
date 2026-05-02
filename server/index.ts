@@ -2513,6 +2513,11 @@ app.post("/api/nexora/learning/force-paper-cycle", async (_req, res) => {
   }
 });
 
+
+app.get("/polyedge/aetherforge", (_req, res) => {
+  res.redirect(302, "/admin/polyedge-aetherforge");
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
