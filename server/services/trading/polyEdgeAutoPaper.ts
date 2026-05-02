@@ -653,11 +653,6 @@ async function openFastPaperPosition() {
   }
   const confidence = Math.max(state.confidenceFloor, Math.min(92, state.confidenceFloor + (seed % 20)));
 
-  if (isRecoveryProbe && !nexoraSignalScore.approved && Number(nexoraSignalScore.confidence || 0) >= 68) {
-    nexoraSignalScore.approved = true;
-    nexoraSignalScore.reason = "Paper-only recovery probe approved with relaxed recovery threshold.";
-  }
-
   const researchProbeMetadata = preferredSetup
     ? {
         researchProbe: true,
@@ -679,6 +674,12 @@ async function openFastPaperPosition() {
     learningScore: state.learningScore,
     regime: state.learningScore < 18 ? "risk_off" : state.learningScore < 40 ? "cautious" : "paper_adaptive",
   });
+
+  if (isRecoveryProbe && !nexoraSignalScore.approved && Number(nexoraSignalScore.confidence || 0) >= 68) {
+    nexoraSignalScore.approved = true;
+    nexoraSignalScore.reason = "Paper-only recovery probe approved with relaxed recovery threshold.";
+  }
+
 
   if (nexoraSignalScore.blockedReasons.length) {
     return {
