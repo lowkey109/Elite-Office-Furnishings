@@ -1,4 +1,5 @@
 
+import { isNexoraStrategyQuarantined } from "../quality/nexoraStrategyQuarantine";
 import { sql } from "drizzle-orm";
 import { db } from "../../../db";
 import { runNexoraCandidateHunter } from "./nexoraCandidateHunter";
@@ -26,7 +27,18 @@ export async function refreshNexoraCandidateAllowlist() {
   await ensureNexoraCandidateAllowlistTable();
 
   const hunt = await runNexoraCandidateHunter();
-  const approved = [...(hunt.approved || []), ...(hunt.research || [])];
+  const rawApproved = [...(hunt.approved || []), ...(hunt.research || [])];
+
+  const approved = [];
+  for (const candidate of rawApproved) {
+    const quarantined = await isNexoraStrategyQuarantined({
+      symbol: candidate.symbol,
+      strategy: candidate.strategy,
+      direction: candidate.direction,
+    }).catch(() => null);
+
+    if (!quarantined) approved.push(candidate);
+  }
 
   for (const candidate of approved) {
     const id = [
