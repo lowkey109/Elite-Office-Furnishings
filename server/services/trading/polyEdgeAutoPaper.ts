@@ -164,7 +164,7 @@ async function chooseNexoraPreferredPaperSetup(): Promise<any> {
   const ranked = rows
     .filter((row: any) => row.status === "recovery_probe" || row.status === "research_probe")
     .sort((a: any, b: any) => {
-      const rank = (x: any) => x.status === "research_probe" ? 2 : 1;
+      const rank = (x: any) => x.status === "research_probe" ? 3 : x.status === "recovery_probe" ? 2 : 1;
       return (rank(b) - rank(a)) || (Number(b.score || 0) - Number(a.score || 0));
     });
 
@@ -657,7 +657,9 @@ async function openFastPaperPosition() {
   const { getNexoraProbeQuality } = await import("./probes/nexoraProbeQuality");
   const { isNexoraProbeCoolingDown, setNexoraProbeCooldown } = await import("./probes/nexoraProbeCooldown");
 
-  const cooldown = await isNexoraProbeCoolingDown({ symbol, strategy, direction: preferredSetup?.direction || "long" }).catch(() => null);
+  const cooldown = !preferredSetup
+    ? await isNexoraProbeCoolingDown({ symbol, strategy, direction: preferredSetup?.direction || "long" }).catch(() => null)
+    : null;
   if (cooldown) {
     return {
       opened: false,
@@ -666,7 +668,7 @@ async function openFastPaperPosition() {
   }
 
   const probeQuality = await getNexoraProbeQuality({ symbol, strategy, direction: preferredSetup?.direction }).catch(() => null);
-  if (probeQuality?.shouldCooldown) {
+  if (!preferredSetup && probeQuality?.shouldCooldown) {
     await setNexoraProbeCooldown({
       symbol,
       strategy,
@@ -728,7 +730,7 @@ async function openFastPaperPosition() {
 
 
   const isRecoveryProbe = preferredSetup && String((preferredSetup as any).status || "").includes("recovery_probe");
-  const recoveryProbeSignalPass = isRecoveryProbe && Number(nexoraSignalScore.confidence || 0) >= 68;
+  const recoveryProbeSignalPass = isRecoveryProbe && Number(nexoraSignalScore.confidence || 0) >= 45;
 
   if (nexoraSignalScore.blockedReasons.length && !recoveryProbeSignalPass) {
     return {

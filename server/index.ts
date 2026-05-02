@@ -2435,6 +2435,20 @@ app.get("/api/nexora/learning/health", async (_req, res) => {
   }
 });
 
+
+app.post("/api/nexora/learning/aggressive-paper-reset", async (_req, res) => {
+  try {
+    const { resetNexoraAggressivePaperLearning } = await import("./services/trading/learning/nexoraAggressivePaperReset");
+    res.json(await resetNexoraAggressivePaperLearning());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_aggressive_paper_reset",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);

@@ -57,7 +57,7 @@ export async function refreshNexoraExplorationProbes() {
   const inserted = [];
 
   for (const row of eligible) {
-    const status = row.quarantined ? "recovery_probe" : "research_probe";
+    const status = "research_probe";
     const id = [row.symbol, row.timeframe, row.strategy, row.direction].join("|");
 
     await db.execute(sql`
@@ -76,9 +76,7 @@ export async function refreshNexoraExplorationProbes() {
         0,
         0,
         ${status},
-        ${row.quarantined
-          ? "Paper-only recovery probe from watchlist. Quarantined for live/scaled use."
-          : "Paper-only exploration probe from watchlist."},
+        ${"Aggressive PAPER-ONLY learning probe. Quarantine ignored for paper learning only."},
         now()
       )
       on conflict(id)
