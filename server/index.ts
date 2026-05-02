@@ -2218,6 +2218,47 @@ app.get("/api/nexora/learning/decayed-performance", async (req, res) => {
   }
 });
 
+
+// Nexora quality control routes.
+app.post("/api/nexora/candidates/allowlist/prune", async (_req, res) => {
+  try {
+    const { pruneNexoraCandidateAllowlist } = await import("./services/trading/candidates/nexoraCandidateAllowlist");
+    res.json(await pruneNexoraCandidateAllowlist());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_candidate_allowlist_prune",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
+app.get("/api/nexora/quality/health", async (_req, res) => {
+  try {
+    const { getNexoraQualityHealth } = await import("./services/trading/quality/nexoraQualityHealth");
+    res.json(await getNexoraQualityHealth());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_quality_health",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
+app.get("/api/nexora/recovery/candidates", async (_req, res) => {
+  try {
+    const { scanNexoraRecoveryCandidates } = await import("./services/trading/recovery/nexoraRecoveryCandidateScanner");
+    res.json(await scanNexoraRecoveryCandidates());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_recovery_candidate_scanner",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
