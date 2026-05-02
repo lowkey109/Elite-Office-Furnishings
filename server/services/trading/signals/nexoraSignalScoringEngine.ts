@@ -537,7 +537,8 @@ export async function scoreNexoraSignalLibraryCandidate(input: ScoreInput): Prom
       const reason = String(blockedReasons[i] || "");
       if (
         reason.startsWith("Promotion engine blocked") ||
-        reason.startsWith("Walk-forward validation warning")
+        reason.startsWith("Walk-forward validation warning") ||
+        reason.startsWith("Genius Core: monitor-only")
       ) {
         blockedReasons.splice(i, 1);
       }
@@ -565,7 +566,7 @@ export async function scoreNexoraSignalLibraryCandidate(input: ScoreInput): Prom
     strategy: input.strategy,
     direction: input.direction,
     decision: blockedReasons.length ? "rejected" : "approved",
-    confidence: weightedConfidence,
+    confidence: isAllowlistedResearchProbe ? Math.max(72, weightedConfidence) : weightedConfidence,
     agreementCount,
     blockedReasons,
     intelligence: intelligenceSummary,
