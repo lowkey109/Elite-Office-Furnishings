@@ -600,8 +600,10 @@ async function openFastPaperPosition() {
     hashNumber(String(Date.now()) + String(open.length) + String(state.ticks)) % candidatePairs.length
   ];
 
-  let symbol = selected.symbol;
-  let strategy = selected.strategy;
+  const preferredSetup = await chooseNexoraPreferredPaperSetup();
+
+  let symbol = preferredSetup?.symbol || selected.symbol;
+  let strategy = preferredSetup?.strategy || selected.strategy;
 
   if (!QUALITY_MODE_ALLOWED_PAIRS.has(`${symbol}|${strategy}`)) {
     const qualityCandidates = Array.from(QUALITY_MODE_ALLOWED_PAIRS)
