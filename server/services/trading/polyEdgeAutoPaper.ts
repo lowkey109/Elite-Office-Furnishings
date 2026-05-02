@@ -631,6 +631,22 @@ async function openFastPaperPosition() {
   const entry = paperMark(symbol);
   const seed = hashNumber(symbol + strategy + String(Date.now()));
   const direction = preferredSetup?.direction || (seed % 4 === 0 ? "short" : "long");
+
+  // research probe duplicate guard
+  if (preferredSetup) {
+    const duplicateProbe = open.some((position: any) =>
+      position.symbol === symbol &&
+      position.strategy === strategy &&
+      position.direction === direction
+    );
+
+    if (duplicateProbe) {
+      return {
+        opened: false,
+        reason: `Research probe wait: already have open ${direction} ${symbol} ${strategy} paper position.`,
+      };
+    }
+  }
   const confidence = Math.max(state.confidenceFloor, Math.min(92, state.confidenceFloor + (seed % 20)));
 
   const { voteNexoraTradeCandidate } = await import("./nexoraTradeVotingEngine");
