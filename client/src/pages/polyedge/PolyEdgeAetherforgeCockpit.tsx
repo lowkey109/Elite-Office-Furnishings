@@ -10,6 +10,7 @@ import {
   TrendingUp,
   Zap,
 } from "lucide-react";
+import NexoraMicrofishPanel from "@/components/polyedge/NexoraMicrofishPanel";
 import {
   Area,
   AreaChart,
@@ -247,7 +248,9 @@ function PolyEdgeHeartbeatPanel({
     "text-amber-300";
 
   return (
-    <HoloPanel title="PolyEdge Live Heartbeat" icon={Activity} className="col-span-12 xl:col-span-6">
+    <NexoraMicrofishPanel />
+
+      <HoloPanel title="PolyEdge Live Heartbeat" icon={Activity} className="col-span-12 xl:col-span-6">
       <style>{`
         @keyframes polyedge-heartbeat-pulse {
           0%, 100% { transform: scale(.92); opacity: .55; }
