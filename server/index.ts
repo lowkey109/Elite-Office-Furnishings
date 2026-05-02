@@ -2537,6 +2537,25 @@ app.post("/api/nexora/db/prune-small", async (_req, res) => {
   }
 });
 
+
+app.post("/api/nexora/db/maintenance", async (_req, res) => {
+  try {
+    const { runNexoraDbMaintenance } = await import("./services/trading/safety/nexoraDbMaintenance");
+    res.json(await runNexoraDbMaintenance());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_db_maintenance", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.get("/api/nexora/recovery/health", async (_req, res) => {
+  try {
+    const { getNexoraRecoveryHealth } = await import("./services/trading/safety/nexoraRecoveryHealth");
+    res.json(await getNexoraRecoveryHealth());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_recovery_health", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
