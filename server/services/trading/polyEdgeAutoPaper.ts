@@ -155,16 +155,33 @@ function buildNexoraPaperSignals(input: {
 }
 
 
-async function chooseNexoraPreferredPaperSetup() {
+async function chooseNexoraPreferredPaperSetup(): Promise<any> {
   const allowlist = await getNexoraCandidateAllowlist().catch(() => null);
   const rows = Array.isArray(allowlist?.rows) ? allowlist.rows : [];
 
-  const best = rows
+  const { isNexoraProbeCoolingDown } = await import("./probes/nexoraProbeCooldown");
+
+  const ranked = rows
     .filter((row: any) => row.status === "recovery_probe" || row.status === "research_probe")
     .sort((a: any, b: any) => {
       const rank = (x: any) => x.status === "research_probe" ? 2 : 1;
       return (rank(b) - rank(a)) || (Number(b.score || 0) - Number(a.score || 0));
-    })[0];
+    });
+
+  let best: any = null;
+
+  for (const row of ranked) {
+    const cooldown = await isNexoraProbeCoolingDown({
+      symbol: row.symbol,
+      strategy: row.strategy,
+      direction: row.direction,
+    }).catch(() => null);
+
+    if (!cooldown) {
+      best = row;
+      break;
+    }
+  }
 
   if (!best) return null;
 
