@@ -2125,6 +2125,34 @@ app.get("/api/nexora/candidates/allowlist", async (_req, res) => {
   }
 });
 
+
+// Nexora research probe monitor routes.
+app.get("/api/nexora/research-probes", async (_req, res) => {
+  try {
+    const { getNexoraResearchProbeMonitor } = await import("./services/trading/research/nexoraResearchProbeMonitor");
+    res.json(await getNexoraResearchProbeMonitor());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_research_probe_monitor",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
+app.get("/api/nexora/research-probes/safety", async (_req, res) => {
+  try {
+    const { getNexoraResearchProbeSafety } = await import("./services/trading/research/nexoraResearchProbeSafety");
+    res.json(await getNexoraResearchProbeSafety());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_research_probe_safety",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
