@@ -2518,6 +2518,25 @@ app.get("/polyedge/aetherforge", (_req, res) => {
   res.redirect(302, "/admin/polyedge-aetherforge");
 });
 
+
+app.get("/api/nexora/db/safety", async (_req, res) => {
+  try {
+    const { getNexoraDbSafety } = await import("./services/trading/safety/nexoraDbSafety");
+    res.json(await getNexoraDbSafety());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_db_safety", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/db/prune-small", async (_req, res) => {
+  try {
+    const { pruneNexoraSmallDb } = await import("./services/trading/safety/nexoraDbSafety");
+    res.json(await pruneNexoraSmallDb());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_small_db_pruner", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
