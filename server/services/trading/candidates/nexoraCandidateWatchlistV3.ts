@@ -29,16 +29,16 @@ function watchSetup(candles: any[]) {
   const trendUp = latest > prev10 && latest > prev30;
   const trendDown = latest < prev10 && latest < prev30;
 
-  if (trendUp && positionInRange > 0.65) {
+  if (trendUp && positionInRange > 0.55) {
     return {
       strategy: "momentum_breakout",
       direction: "long" as const,
-      watchScore: 62,
+      watchScore: 58,
       reason: "Bullish pressure building near range high.",
     };
   }
 
-  if (trendDown && positionInRange < 0.35) {
+  if (trendDown && positionInRange < 0.45) {
     return {
       strategy: "momentum_breakout",
       direction: "short" as const,
@@ -47,16 +47,16 @@ function watchSetup(candles: any[]) {
     };
   }
 
-  if (positionInRange < 0.2) {
+  if (positionInRange < 0.3) {
     return {
       strategy: "mean_reversion",
       direction: "long" as const,
-      watchScore: 55,
+      watchScore: 52,
       reason: "Price near lower range; watching for bounce confirmation.",
     };
   }
 
-  if (positionInRange > 0.8) {
+  if (positionInRange > 0.7) {
     return {
       strategy: "mean_reversion",
       direction: "short" as const,
