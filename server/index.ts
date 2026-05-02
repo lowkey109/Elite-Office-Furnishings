@@ -2273,6 +2273,20 @@ app.get("/api/nexora/candidates/discovery-v2", async (_req, res) => {
   }
 });
 
+
+app.get("/api/nexora/candidates/watchlist-v3", async (_req, res) => {
+  try {
+    const { getNexoraCandidateWatchlistV3 } = await import("./services/trading/candidates/nexoraCandidateWatchlistV3");
+    res.json(await getNexoraCandidateWatchlistV3());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_candidate_watchlist_v3",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
