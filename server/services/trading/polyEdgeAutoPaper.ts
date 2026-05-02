@@ -682,6 +682,7 @@ async function openFastPaperPosition() {
 
 
 
+
   if (nexoraSignalScore.blockedReasons.length) {
     return {
       opened: false,
