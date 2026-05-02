@@ -248,9 +248,7 @@ function PolyEdgeHeartbeatPanel({
     "text-amber-300";
 
   return (
-    <NexoraMicrofishPanel />
-
-      <HoloPanel title="PolyEdge Live Heartbeat" icon={Activity} className="col-span-12 xl:col-span-6">
+    <HoloPanel title="PolyEdge Live Heartbeat" icon={Activity} className="col-span-12 xl:col-span-6">
       <style>{`
         @keyframes polyedge-heartbeat-pulse {
           0%, 100% { transform: scale(.92); opacity: .55; }
@@ -1796,6 +1794,7 @@ function PolyEdgeActionMonitorGrid({
           </div>
 
           <div className="grid min-h-0 flex-1 grid-cols-1 gap-1.5 overflow-visible lg:grid-cols-12 lg:overflow-hidden">
+      <NexoraMicrofishPanel />
             <div className="col-span-1 min-h-0 lg:col-span-2 lg:overflow-hidden">
               <QuantumGlass className="h-full">
                 <div className="mb-1.5 font-mono text-[9px] uppercase tracking-widest text-cyan-400">Navigation</div>
