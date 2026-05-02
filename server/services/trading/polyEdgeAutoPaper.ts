@@ -626,6 +626,11 @@ async function openFastPaperPosition() {
   let symbol = preferredSetup?.symbol || selected.symbol;
   let strategy = preferredSetup?.strategy || selected.strategy;
 
+  if (preferredSetup) {
+    selected.symbol = symbol;
+    selected.strategy = strategy;
+  }
+
   if (!preferredSetup && !QUALITY_MODE_ALLOWED_PAIRS.has(`${symbol}|${strategy}`)) {
     const qualityCandidates = Array.from(QUALITY_MODE_ALLOWED_PAIRS)
       .map((pair) => {
@@ -760,11 +765,12 @@ async function openFastPaperPosition() {
   const baseRiskPct =
     defensiveMicroLearning ? 0.0004 :
     state.learningScore >= 70 ? 0.012 :
-    state.learningScore < 45 ? 0.0006 :
+    state.learningScore < 20 ? 0.00008 :
+    state.learningScore < 45 ? 0.00025 :
     0.007;
 
   const riskPct = baseRiskPct * Number(lossGovernor.riskMultiplier || 1);
-  const paperCapitalAllocated = Math.max(5, Math.round(100000 * riskPct * 100) / 100);
+  const paperCapitalAllocated = Math.max(state.learningScore < 20 ? 1 : 5, Math.round(100000 * riskPct * 100) / 100);
 
   const move = symbol === "BTC/USD" ? 0.0016 : symbol === "ETH/USD" ? 0.002 : symbol === "SOL/USD" ? 0.0028 : 0.0011;
 
