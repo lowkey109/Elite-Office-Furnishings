@@ -78,6 +78,15 @@ export async function refreshNexoraCandidateAllowlist() {
     `);
   }
 
+  await db.execute(sql`
+    delete from nexora_candidate_allowlist a
+    using nexora_strategy_quarantine q
+    where a.symbol = q.symbol
+      and a.strategy = q.strategy
+      and a.direction = q.direction
+      and q.status = 'blocked';
+  `);
+
   return {
     ok: true,
     service: "nexora_candidate_allowlist",
