@@ -160,7 +160,7 @@ async function chooseNexoraPreferredPaperSetup() {
   const rows = Array.isArray(allowlist?.rows) ? allowlist.rows : [];
 
   const best = rows
-    .filter((row: any) => row.status === "research_probe")
+    .filter((row: any) => row.status === "research_probe" || row.status === "recovery_probe")
     .sort((a: any, b: any) => Number(b.score || 0) - Number(a.score || 0))[0];
 
   if (!best) return null;
