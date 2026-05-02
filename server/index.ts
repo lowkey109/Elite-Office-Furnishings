@@ -2259,6 +2259,20 @@ app.get("/api/nexora/recovery/candidates", async (_req, res) => {
   }
 });
 
+
+app.get("/api/nexora/candidates/discovery-v2", async (_req, res) => {
+  try {
+    const { discoverNexoraCandidatesV2 } = await import("./services/trading/candidates/nexoraCandidateDiscoveryV2");
+    res.json(await discoverNexoraCandidatesV2());
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      service: "nexora_candidate_discovery_v2",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
