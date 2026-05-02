@@ -160,8 +160,11 @@ async function chooseNexoraPreferredPaperSetup() {
   const rows = Array.isArray(allowlist?.rows) ? allowlist.rows : [];
 
   const best = rows
-    .filter((row: any) => row.status === "research_probe" || row.status === "recovery_probe")
-    .sort((a: any, b: any) => Number(b.score || 0) - Number(a.score || 0))[0];
+    .filter((row: any) => row.status === "recovery_probe" || row.status === "research_probe")
+    .sort((a: any, b: any) => {
+      const rank = (x: any) => x.status === "recovery_probe" ? 2 : 1;
+      return (rank(b) - rank(a)) || (Number(b.score || 0) - Number(a.score || 0));
+    })[0];
 
   if (!best) return null;
 
@@ -169,7 +172,8 @@ async function chooseNexoraPreferredPaperSetup() {
     symbol: String(best.symbol),
     strategy: String(best.strategy),
     direction: String(best.direction) === "short" ? "short" as const : "long" as const,
-    reason: `Nexora allowlist selected ${best.symbol} ${best.strategy} ${best.direction} from research candidate score ${best.score}.`,
+    status: String(best.status || "research_probe"),
+    reason: `Nexora allowlist selected ${best.status} ${best.symbol} ${best.strategy} ${best.direction}.`,
   };
 }
 
