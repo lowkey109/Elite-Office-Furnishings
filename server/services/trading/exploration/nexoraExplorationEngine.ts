@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import { db } from "../../../db";
 import { getNexoraCandidateWatchlistV3 } from "../candidates/nexoraCandidateWatchlistV3";
+import { isNexoraProbeCoolingDown } from "../probes/nexoraProbeCooldown";
 
 export async function refreshNexoraExplorationProbes() {
   const watch = await getNexoraCandidateWatchlistV3();
@@ -23,10 +24,35 @@ export async function refreshNexoraExplorationProbes() {
     );
   `);
 
-  const eligible = rows
+  const ranked = rows
     .filter((r: any) => Number(r.watchScore || 0) >= 52)
-    .sort((a: any, b: any) => Number(b.watchScore || 0) - Number(a.watchScore || 0))
-    .slice(0, 1);
+    .sort((a: any, b: any) => Number(b.watchScore || 0) - Number(a.watchScore || 0));
+
+  const eligible = [];
+  const skipped = [];
+
+  for (const row of ranked) {
+    const cooldown = await isNexoraProbeCoolingDown({
+      symbol: row.symbol,
+      strategy: row.strategy,
+      direction: row.direction,
+    }).catch(() => null);
+
+    if (cooldown) {
+      skipped.push({
+        symbol: row.symbol,
+        timeframe: row.timeframe,
+        strategy: row.strategy,
+        direction: row.direction,
+        reason: cooldown.reason || "Probe cooling down.",
+        blockedUntil: cooldown.blocked_until,
+      });
+      continue;
+    }
+
+    eligible.push(row);
+    if (eligible.length >= 1) break;
+  }
 
   const inserted = [];
 
@@ -82,7 +108,8 @@ export async function refreshNexoraExplorationProbes() {
     paperOnly: true,
     insertedOrUpdated: inserted.length,
     probes: inserted,
-    note: "Exploration probes are paper-only and capped by PolyEdge guards.",
+    skippedCooldowns: typeof skipped !== "undefined" ? skipped : [],
+    note: "Exploration probes are paper-only, capped by PolyEdge guards, and skip active cooldowns.",
     updatedAt: new Date().toISOString(),
   };
 }
