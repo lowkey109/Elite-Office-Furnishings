@@ -2314,6 +2314,47 @@ app.get("/api/nexora/observations/watchlist", async (_req, res) => {
   }
 });
 
+
+app.get("/api/nexora/promotion/proof", async (req, res) => {
+  try {
+    const { getNexoraProofMetrics } = await import("./services/trading/promotion/nexoraProofMetrics");
+    res.json(await getNexoraProofMetrics({
+      symbol: req.query.symbol ? String(req.query.symbol) : undefined,
+      strategy: req.query.strategy ? String(req.query.strategy) : undefined,
+      direction: req.query.direction ? String(req.query.direction) : undefined,
+      limit: req.query.limit ? Number(req.query.limit) : 150,
+    }));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_proof_metrics", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.get("/api/nexora/promotion/gate", async (req, res) => {
+  try {
+    const { getNexoraPromotionGate } = await import("./services/trading/promotion/nexoraPromotionGate");
+    res.json(await getNexoraPromotionGate({
+      symbol: req.query.symbol ? String(req.query.symbol) : undefined,
+      strategy: req.query.strategy ? String(req.query.strategy) : undefined,
+      direction: req.query.direction ? String(req.query.direction) : undefined,
+    }));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_promotion_gate", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.get("/api/nexora/promotion/live-sandbox-gate", async (req, res) => {
+  try {
+    const { getNexoraLiveSandboxGate } = await import("./services/trading/promotion/nexoraLiveSandboxGate");
+    res.json(await getNexoraLiveSandboxGate({
+      symbol: req.query.symbol ? String(req.query.symbol) : undefined,
+      strategy: req.query.strategy ? String(req.query.strategy) : undefined,
+      direction: req.query.direction ? String(req.query.direction) : undefined,
+    }));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_live_sandbox_gate", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
