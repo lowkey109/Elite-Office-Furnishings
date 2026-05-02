@@ -732,7 +732,9 @@ async function openFastPaperPosition() {
   const isRecoveryProbe = preferredSetup && String((preferredSetup as any).status || "").includes("recovery_probe");
   const recoveryProbeSignalPass = isRecoveryProbe && Number(nexoraSignalScore.confidence || 0) >= 45;
 
-  if (nexoraSignalScore.blockedReasons.length && !recoveryProbeSignalPass) {
+  const preferredPaperProbePass = Boolean(preferredSetup) && Number(nexoraSignalScore.confidence || 0) >= 35;
+
+  if (nexoraSignalScore.blockedReasons.length && !recoveryProbeSignalPass && !preferredPaperProbePass) {
     return {
       opened: false,
       reason: nexoraSignalScore.reason,
@@ -754,7 +756,7 @@ async function openFastPaperPosition() {
     signals: nexoraSignalScore.signals,
   });
 
-  if (!nexoraVote.approved && !isRecoveryProbe) {
+  if (!nexoraVote.approved && !isRecoveryProbe && !preferredPaperProbePass) {
     return {
       opened: false,
       reason: nexoraSignalScore.reason || nexoraVote.reason,
