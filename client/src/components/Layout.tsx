@@ -9,6 +9,7 @@ const navLinks = [
   { label: "Home", href: "/" },
   { label: "Catalog", href: "/catalog" },
   { label: "Workplace Solutions", href: "/workplace-solutions" },
+  { label: "AI Quote", href: "/quote-builder" },
   { label: "Partners", href: "/partners" },
 ];
 
@@ -77,6 +78,41 @@ function Header() {
           : "bg-transparent"
       }`}
     >
+        <div
+          data-testid="ai-quote-engine-top-bar"
+          className="border-b border-[rgba(201,168,76,0.22)] bg-[linear-gradient(90deg,#0b0f19,#17120a,#0b0f19)] px-4 py-2.5 text-white"
+        >
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 text-center sm:flex-row sm:text-left">
+            <div className="text-xs sm:text-sm">
+              <span className="font-semibold text-[hsl(43,78%,65%)]">
+                The Corporate Desk AI Quote Engine
+              </span>
+              <span className="mx-2 hidden text-white/35 sm:inline">—</span>
+              <span className="text-white/75">
+                AI-powered office furniture quotes in minutes — plan your workspace, estimate costs, and get a recommended package.
+              </span>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-2">
+              <Link
+                href="/quote-builder"
+                className="rounded-full bg-[hsl(43,78%,58%)] px-4 py-1.5 text-xs font-bold text-black transition hover:bg-[hsl(43,78%,68%)]"
+                data-testid="top-bar-start-ai-quote"
+              >
+                Start AI Quote
+              </Link>
+
+              <Link
+                href="/ai-office-planner"
+                className="hidden rounded-full border border-[rgba(201,168,76,0.35)] px-4 py-1.5 text-xs font-semibold text-[hsl(43,78%,70%)] transition hover:bg-[rgba(201,168,76,0.08)] md:inline-flex"
+                data-testid="top-bar-upload-floor-plan"
+              >
+                Upload Floor Plan
+              </Link>
+            </div>
+          </div>
+        </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           <Link href="/">
@@ -398,7 +434,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1">{children}</main>
-      <Footer />
+<Footer />
       <ChatBot />
     </div>
   );

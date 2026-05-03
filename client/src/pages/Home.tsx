@@ -96,14 +96,71 @@ const testimonials = [
   },
 ];
 
+const clientStoryImages = [
+  {
+    "src": "/images/home-testimonials/tcd-of-004.jpg",
+    "title": "Premium Office Fitout",
+    "kicker": "Office Fitout",
+    "text": "A polished commercial workspace designed to elevate daily performance and client perception."
+  },
+  {
+    "src": "/images/home-testimonials/tcd-ts-047.jpg",
+    "title": "Workspace Seating Detail",
+    "kicker": "Seating",
+    "text": "Ergonomic seating and refined workspace detail for practical, high-comfort office environments."
+  },
+  {
+    "src": "/images/home-testimonials/tcd-rs-059.jpg",
+    "title": "Reception Statement Space",
+    "kicker": "Reception",
+    "text": "Front-of-house design that creates a strong first impression for visitors, clients and staff."
+  },
+  {
+    "src": "/images/home-testimonials/tcd-rs-008.jpg",
+    "title": "Reception & Lounge Solution",
+    "kicker": "Client Arrival",
+    "text": "Warm, premium reception styling that supports hospitality, branding and visitor flow."
+  },
+  {
+    "src": "/images/home-testimonials/tcd-of-062.jpg",
+    "title": "Open-Plan Office Solution",
+    "kicker": "Workplace Design",
+    "text": "Open-plan office design balanced for workflow, collaboration and everyday usability."
+  },
+  {
+    "src": "/images/home-testimonials/reception-desk-premium-corporate-lobby.png",
+    "title": "Premium Reception Desk",
+    "kicker": "Front-of-House",
+    "text": "Corporate lobby and reception solutions tailored for a premium brand presence."
+  },
+  {
+    "src": "/images/home-testimonials/sustainable-office-design-green-certified.png",
+    "title": "Sustainable Workplace Design",
+    "kicker": "Sustainability",
+    "text": "Sustainable office design direction for businesses prioritising environmental performance."
+  },
+  {
+    "src": "/images/home-testimonials/office-fitout-construction-planning.png",
+    "title": "Fitout Planning & Delivery",
+    "kicker": "Project Planning",
+    "text": "End-to-end fitout planning that connects space design, procurement and delivery."
+  },
+  {
+    "src": "/images/home-testimonials/cat-reception-desks.png",
+    "title": "Reception Desk Collection",
+    "kicker": "Product Range",
+    "text": "Reception desk options designed for modern corporate lobbies and client-facing spaces."
+  }
+];
+
 // Role-based hero content for smart CTA switching
 const buyerRoles = [
   {
     key: "facilities",
     label: "Facilities Manager",
     icon: Building2,
-    heading: "Where Ambition\\nMeets Design",
-    subheading: "Complete fitout management, delivery, and installation — handled for you.",
+    heading: "Design. Supply.\\nControl Delivery.",
+    subheading: "AI workspace planning, supplier coordination, cost visibility, delivery and installation — handled through one controlled process.",
     cta1: { label: "Get a Project Quote", href: "/request-a-quote", icon: FileText },
     cta2: { label: "AI Office Planner", href: "/ai-office-planner", icon: Sparkles },
     cta3: { label: "Book a Site Consult", href: "/strategy-call", icon: Calendar },
@@ -113,8 +170,8 @@ const buyerRoles = [
     key: "cfo",
     label: "Finance / CFO",
     icon: TrendingUp,
-    heading: "Premium Quality.\\nControlled Budget.",
-    subheading: "Financing from $30k. Transparent quotes. No surprises on delivery.",
+    heading: "Control Budget.\\nReduce Overruns.",
+    subheading: "Cost tracking, finance visibility and controlled delivery — built to reduce surprises before they become overruns.",
     cta1: { label: "Finance Options", href: "/finance-your-workspace", icon: Calculator },
     cta2: { label: "Get a Fixed Quote", href: "/request-a-quote", icon: FileText },
     cta3: { label: "Book a Pricing Call", href: "/strategy-call", icon: Phone },
@@ -124,8 +181,8 @@ const buyerRoles = [
     key: "hr",
     label: "HR / People",
     icon: Users,
-    heading: "Workplaces People\\nActually Love",
-    subheading: "Ergonomic, wellness-focused spaces that improve retention and performance.",
+    heading: "Workplaces That Perform.\\nNot Just Look Good.",
+    subheading: "Workplace outcomes aligned with performance, retention, cost control and delivery certainty.",
     cta1: { label: "Start with AI Planner", href: "/ai-office-planner", icon: Sparkles },
     cta2: { label: "Workplace Strategy", href: "/strategy-call", icon: Calendar },
     cta3: { label: "View Seating Range", href: "/catalog/office-seating", icon: ArrowRight },
@@ -135,8 +192,8 @@ const buyerRoles = [
     key: "relocation",
     label: "Office Relocation",
     icon: MapPin,
-    heading: "Moving Office?\\nWe Make It Seamless.",
-    subheading: "AI-powered space planning and full fitout from one trusted supplier.",
+    heading: "Move Faster.\\nStay In Control.",
+    subheading: "AI-powered space planning, cost visibility and full fitout delivery from one controlled workflow.",
     cta1: { label: "Upload Your Floorplan", href: "/free-layout-plan", icon: FileText },
     cta2: { label: "Get Move Quote", href: "/request-a-quote", icon: FileText },
     cta3: { label: "Talk to a Specialist", href: "/strategy-call", icon: Phone },
@@ -149,7 +206,7 @@ export default function Home() {
   const [animating, setAnimating] = useState(false);
 
   useSEO({
-    title: "Premium Commercial Office Furniture | The Corporate Desk Australia",
+    title: "AI-Designed Office Fitouts · Execution + Financial Control | The Corporate Desk Australia",
     description: "Australia's leading B2B commercial office furniture supplier. ISO 9001 certified, 6-year warranty. Executive desks, boardroom tables, sit-stand workstations & complete office fitouts. Serving Brisbane, Sydney, Melbourne & nationwide.",
     canonical: "/",
     keywords: "office furniture Australia, commercial office furniture, executive desk, boardroom table, office fitout Brisbane Sydney Melbourne, sit stand desk, B2B office furniture",
@@ -204,7 +261,7 @@ export default function Home() {
             </div>
 
             <Badge className="mb-5 sm:mb-6 bg-[rgba(201,168,76,0.15)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.3)] font-medium tracking-wide">
-              Premium Commercial Office Furniture
+              AI-Designed Office Fitouts · Execution + Financial Control
             </Badge>
 
             <div className={`transition-opacity duration-200 ${animating ? "opacity-0" : "opacity-100"}`}>
@@ -216,7 +273,7 @@ export default function Home() {
                 {role.subheading}
               </p>
               <p className="text-sm sm:text-base text-[hsl(43,78%,65%)] font-medium mb-8 sm:mb-10">
-                Serving Brisbane, Sydney &amp; Melbourne — Nationally Available
+                Serving Brisbane, Sydney &amp; Melbourne — Cost-controlled workspace delivery nationwide
               </p>
               <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
                 <Button
@@ -483,33 +540,147 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Testimonials ── */}
-      <section className="py-20 sm:py-28 bg-background">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <Badge className="mb-4 bg-[rgba(201,168,76,0.1)] text-[hsl(43,78%,65%)] border-[rgba(201,168,76,0.25)]">
+      
+      
+      {/* ── AI Quote Process ── */}
+      <section
+        className="py-20 sm:py-28 bg-[hsl(220,20%,5%)] border-y border-[rgba(201,168,76,0.12)]"
+        data-testid="section-ai-quote-process"
+      >
+        <div className="container mx-auto px-6 lg:px-10">
+          <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-12 items-start">
+            <div>
+              <p className="text-[hsl(43,78%,65%)] text-xs font-semibold tracking-[0.28em] uppercase mb-4">
+                How The AI Quote Engine Works
+              </p>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light text-white leading-tight">
+                From office brief to furniture estimate in minutes.
+              </h2>
+              <p className="mt-5 text-white/65 text-base sm:text-lg leading-relaxed">
+                The Corporate Desk AI Quote Engine helps you move from rough workspace idea to a practical
+                furniture package, budget range and next-step plan before a sales call.
+              </p>
+
+              <div className="mt-7 flex flex-wrap gap-3">
+                <a
+                  href="/quote-builder"
+                  className="inline-flex items-center rounded-full bg-[hsl(43,78%,58%)] px-6 py-3 text-sm font-bold text-black transition hover:bg-[hsl(43,78%,68%)]"
+                  data-testid="button-ai-process-start-quote"
+                >
+                  Start AI Quote
+                </a>
+                <a
+                  href="/ai-office-planner"
+                  className="inline-flex items-center rounded-full border border-[rgba(201,168,76,0.35)] px-6 py-3 text-sm font-semibold text-[hsl(43,78%,70%)] transition hover:bg-[rgba(201,168,76,0.08)]"
+                  data-testid="button-ai-process-upload-plan"
+                >
+                  Upload Floor Plan
+                </a>
+              </div>
+
+              <p className="mt-5 text-xs leading-relaxed text-white/40">
+                AI estimates are preliminary. Final pricing depends on product selections, freight,
+                installation access, stock availability and site requirements. Every quote can be reviewed
+                before procurement.
+              </p>
+            </div>
+
+            <div className="grid gap-4">
+              {[
+                {
+                  step: "01",
+                  title: "Tell us your workspace needs",
+                  text: "Enter your staff count, city, timeline, office type and budget direction."
+                },
+                {
+                  step: "02",
+                  title: "Get an AI package recommendation",
+                  text: "The system suggests furniture categories, workspace zones and a project range."
+                },
+                {
+                  step: "03",
+                  title: "Upload your floor plan",
+                  text: "Add a plan or image so the AI Office Planner can refine layout and zone logic."
+                },
+                {
+                  step: "04",
+                  title: "Move to review, finance or consult",
+                  text: "Use the estimate to explore finance, request review or book a site consult."
+                }
+              ].map((item) => (
+                <div
+                  key={item.step}
+                  className="rounded-2xl border border-[rgba(201,168,76,0.15)] bg-[rgba(255,255,255,0.035)] p-5"
+                >
+                  <div className="flex gap-4">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[rgba(201,168,76,0.12)] text-sm font-bold text-[hsl(43,78%,65%)]">
+                      {item.step}
+                    </div>
+                    <div>
+                      <h3 className="text-white text-lg font-semibold">{item.title}</h3>
+                      <p className="mt-1 text-sm leading-relaxed text-white/55">{item.text}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <div className="rounded-2xl border border-[rgba(201,168,76,0.22)] bg-[linear-gradient(135deg,rgba(201,168,76,0.12),rgba(255,255,255,0.03))] p-5">
+                <p className="text-[hsl(43,78%,65%)] text-xs font-semibold uppercase tracking-[0.22em]">
+                  Example AI Quote Output
+                </p>
+                <div className="mt-4 grid gap-2 text-sm text-white/70 sm:grid-cols-2">
+                  <p><span className="text-white/40">Team size:</span> 24 staff</p>
+                  <p><span className="text-white/40">Package:</span> Growth Workspace</p>
+                  <p><span className="text-white/40">Range:</span> $42k–$68k + GST</p>
+                  <p><span className="text-white/40">Timeline:</span> 4–8 weeks</p>
+                  <p><span className="text-white/40">Finance:</span> Available</p>
+                  <p><span className="text-white/40">Next step:</span> Upload floor plan</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Client Stories Visual ── */}
+      <section className="py-20 sm:py-28 bg-[hsl(220,20%,6%)]" data-testid="section-client-stories-visual">
+        <div className="container mx-auto px-6 lg:px-10">
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <p className="text-[hsl(43,78%,65%)] text-xs font-semibold tracking-[0.28em] uppercase mb-4">
               Client Stories
-            </Badge>
-            <h2 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
-              Trusted by Australia's<br />Leading Businesses
+            </p>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light text-white leading-tight">
+              Spaces That Reflect The Corporate Desk Standard
             </h2>
-            <div className="section-divider mx-auto" />
+            <p className="mt-5 text-white/65 text-base sm:text-lg leading-relaxed">
+              From premium receptions and sustainable workplaces to fitout planning and open-plan offices,
+              these visual highlights show the kind of environments The Corporate Desk helps bring to life.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.map((t, i) => (
-              <div key={i} className="luxury-card p-8 rounded-md flex flex-col" data-testid={`card-testimonial-${i}`}>
-                <div className="flex gap-1 mb-5">
-                  {[...Array(5)].map((_, j) => (
-                    <Star key={j} className="w-4 h-4 text-[hsl(43,78%,52%)] fill-[hsl(43,78%,52%)]" />
-                  ))}
-                </div>
-                <blockquote className="text-white/70 leading-relaxed mb-6 flex-1 italic text-sm">
-                  "{t.quote}"
-                </blockquote>
-                <div className="border-t border-[rgba(201,168,76,0.1)] pt-5">
-                  <div className="font-semibold text-white text-sm">{t.author}</div>
-                  <div className="text-xs text-white/40 mt-1">{t.role}, {t.company}</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {clientStoryImages.map((item, i) => (
+              <div
+                key={i}
+                className="group relative overflow-hidden rounded-2xl border border-[rgba(201,168,76,0.18)] bg-[hsl(220,18%,8%)] shadow-2xl"
+                data-testid={`card-client-story-${i}`}
+              >
+                <img
+                  src={item.src}
+                  alt={item.title}
+                  className="h-72 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-5">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[hsl(43,78%,65%)] font-semibold mb-2">
+                    {item.kicker}
+                  </p>
+                  <h3 className="text-white text-xl font-semibold leading-tight">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-white/70 text-sm leading-relaxed">
+                    {item.text}
+                  </p>
                 </div>
               </div>
             ))}
@@ -517,7 +688,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── AI Office Planner Showcase ── */}
+{/* ── AI Office Planner Showcase ── */}
       <section className="py-20 sm:py-28 bg-[hsl(220,20%,5%)] border-y border-[rgba(201,168,76,0.08)]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
