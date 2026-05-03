@@ -3529,6 +3529,43 @@ app.post("/api/nexora/autonomy/self-critique", async (req, res) => {
   }
 });
 
+
+app.get("/api/nexora/quantum/status", async (_req, res) => {
+  try {
+    const { getNexoraQuantumStatus } = await import("./services/trading/learning/nexoraQuantumLearningCore");
+    res.json(await getNexoraQuantumStatus());
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/quantum/calibration", async (req, res) => {
+  try {
+    const { recordNexoraCalibration } = await import("./services/trading/learning/nexoraQuantumLearningCore");
+    res.json(await recordNexoraCalibration(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/quantum/source-reliability", async (req, res) => {
+  try {
+    const { updateNexoraSourceReliability } = await import("./services/trading/learning/nexoraQuantumLearningCore");
+    res.json(await updateNexoraSourceReliability(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/quantum/regime-detect", async (req, res) => {
+  try {
+    const { detectNexoraMarketRegime } = await import("./services/trading/learning/nexoraQuantumLearningCore");
+    res.json(await detectNexoraMarketRegime(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
