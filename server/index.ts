@@ -3149,6 +3149,25 @@ app.get("/api/nexora/recovery/health", async (_req, res) => {
   }
 });
 
+
+app.get("/api/nexora/prediction-market/strategy", async (_req, res) => {
+  try {
+    const { explainPredictionMarketStrategy } = await import("./services/trading/prediction/nexoraPredictionMarketEdge");
+    res.json(explainPredictionMarketStrategy());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_prediction_market_strategy", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/prediction-market/edge", async (req, res) => {
+  try {
+    const { scorePredictionMarketEdge } = await import("./services/trading/prediction/nexoraPredictionMarketEdge");
+    res.json(scorePredictionMarketEdge(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_prediction_market_edge", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
