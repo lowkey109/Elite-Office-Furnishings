@@ -112,6 +112,7 @@ import { registerNexoraAdvancedAutonomyRoutes } from "./services/intelligence/ne
 import { registerNexoraGovernorBusinessRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes";
 import { registerNexoraOperationalAutopilotRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes";
 import { registerNexoraMissionControlRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes";
+import { registerNexoraSupremeMatrixRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes";
 
 function hasLocalAdminHeader(req: any): boolean {
   return (
@@ -218,6 +219,7 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
 registerNexoraGovernorBusinessRoutes(app);
 registerNexoraOperationalAutopilotRoutes(app);
 registerNexoraMissionControlRoutes(app);
+registerNexoraSupremeMatrixRoutes(app);
 app.get("/api/client/plan-access", async (req: any, res: any) => {
     try {
       const { getClientPlanAccess } = await import("./services/clientPortal/clientPortalService");
