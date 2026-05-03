@@ -120,6 +120,7 @@ import { registerNexoraResilienceRoutes } from "./services/intelligence/nexora/a
 import { registerNexoraFileBusRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes";
 import { registerNexoraLocalBusinessRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes";
 import { registerNexoraExtensionManagerRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraExtensionManagerRoutes";
+import { registerNexoraBuildPlannerRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraBuildPlannerRoutes";
 
 function hasLocalAdminHeader(req: any): boolean {
   return (
@@ -218,6 +219,7 @@ function filterSafePendingOutreach(mapped: any[]) {
 }
 
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
+  registerNexoraBuildPlannerRoutes(app);
   registerNexoraExtensionManagerRoutes(app);
   registerNexoraLocalBusinessRoutes(app);
   registerNexoraFileBusRoutes(app);
