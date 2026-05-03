@@ -1,9 +1,29 @@
 import { runNexoraResilientAlphaOrchestrator } from "../orchestration/nexoraResilientAlphaOrchestrator";
 
-export function normalizePredictionMarkets(input: any = {}) {
+type NormalizedPredictionMarket = {
+  marketId: string;
+  title: string;
+  category: string;
+  marketProbability: number;
+  modelProbability: number;
+  liquidityUsd: number;
+  spreadPct: number;
+  volumeUsd24h: number;
+  resolutionRules: string;
+  resolutionClear: boolean;
+  correlatedEventKey: string;
+  raw: any;
+};
+
+type RankedPredictionMarket = NormalizedPredictionMarket & {
+  edgePct: number;
+  absEdgePct: number;
+};
+
+export function normalizePredictionMarkets(input: any = {}): NormalizedPredictionMarket[] {
   const markets = Array.isArray(input.markets) ? input.markets : [];
 
-  return markets.map((m: any, i: number) => ({
+  return markets.map((m: any, i: number): NormalizedPredictionMarket => ({
     marketId: String(m.marketId || m.id || `market_${i}`),
     title: String(m.title || m.question || "Untitled prediction market"),
     category: String(m.category || "general"),
@@ -22,17 +42,24 @@ export function normalizePredictionMarkets(input: any = {}) {
 export async function runNexoraPredictionMarketScanner(input: any = {}) {
   const normalized = normalizePredictionMarkets(input);
 
-  const liquid = normalized.filter((m) => m.liquidityUsd >= Number(input.minLiquidityUsd || 1000));
-  const tight = liquid.filter((m) => m.spreadPct <= Number(input.maxSpreadPct || 5));
+  const minLiquidityUsd = Number(input.minLiquidityUsd || 1000);
+  const maxSpreadPct = Number(input.maxSpreadPct || 5);
+  const maxMarkets = Number(input.maxMarkets || 25);
 
-  const ranked = tight
-    .map((m) => ({
-      ...m,
-      edgePct: Math.round((m.modelProbability - m.marketProbability) * 10000) / 100,
-      absEdgePct: Math.abs(Math.round((m.modelProbability - m.marketProbability) * 10000) / 100),
-    }))
-    .sort((a, b) => b.absEdgePct - a.absEdgePct)
-    .slice(0, Number(input.maxMarkets || 25));
+  const liquid = normalized.filter((m: NormalizedPredictionMarket) => m.liquidityUsd >= minLiquidityUsd);
+  const tight = liquid.filter((m: NormalizedPredictionMarket) => m.spreadPct <= maxSpreadPct);
+
+  const ranked: RankedPredictionMarket[] = tight
+    .map((m: NormalizedPredictionMarket): RankedPredictionMarket => {
+      const edgePct = Math.round((m.modelProbability - m.marketProbability) * 10000) / 100;
+      return {
+        ...m,
+        edgePct,
+        absEdgePct: Math.abs(edgePct),
+      };
+    })
+    .sort((a: RankedPredictionMarket, b: RankedPredictionMarket) => b.absEdgePct - a.absEdgePct)
+    .slice(0, maxMarkets);
 
   const orchestrator = await runNexoraResilientAlphaOrchestrator({
     ...input,
@@ -66,7 +93,7 @@ export function getNexoraScannerStatus() {
       "edge ranking",
       "resilient alpha orchestration",
       "DB health gate protection",
-      "monitor-only fallback"
+      "monitor-only fallback",
     ],
     updatedAt: new Date().toISOString(),
   };

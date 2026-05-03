@@ -20,14 +20,15 @@ export async function runNexoraResilientAlphaOrchestrator(input: any = {}) {
     };
   }
 
-  const result = await runNexoraAlphaOrchestrator(input);
+  const result: any = await runNexoraAlphaOrchestrator(input);
 
   return {
+    ...result,
     ok: true,
     service: "nexora_resilient_alpha_orchestrator",
     paperOnly: true,
     db,
-    ...result,
+    upstreamService: result?.service || "nexora_alpha_orchestrator",
     updatedAt: new Date().toISOString(),
   };
 }
