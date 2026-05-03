@@ -3594,6 +3594,25 @@ app.post("/api/nexora/simulation/shadow-execution", async (req,res)=>{
   }
 });
 
+
+app.get("/api/nexora/alpha-orchestrator/status", async (_req, res) => {
+  try {
+    const { getNexoraAlphaOrchestratorStatus } = await import("./services/trading/orchestration/nexoraAlphaOrchestrator");
+    res.json(await getNexoraAlphaOrchestratorStatus());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_alpha_orchestrator", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/alpha-orchestrator/run", async (req, res) => {
+  try {
+    const { runNexoraAlphaOrchestrator } = await import("./services/trading/orchestration/nexoraAlphaOrchestrator");
+    res.json(await runNexoraAlphaOrchestrator(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_alpha_orchestrator", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
