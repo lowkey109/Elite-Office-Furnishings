@@ -3651,6 +3651,128 @@ app.post("/api/nexora/scanner/prediction-markets", async (req, res) => {
   }
 });
 
+
+app.get("/api/nexora/feeds/status", async (_req, res) => {
+  try {
+    const { getNexoraFeedConnectorStatus } = await import("./services/trading/feeds/nexoraFeedConnectors");
+    res.json(getNexoraFeedConnectorStatus());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_feed_connectors", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/feeds/normalize", async (req, res) => {
+  try {
+    const { normalizeNexoraExternalMarkets } = await import("./services/trading/feeds/nexoraFeedConnectors");
+    res.json(normalizeNexoraExternalMarkets(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_feed_normalizer", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/feeds/combine-probabilities", async (req, res) => {
+  try {
+    const { combineNexoraFeedProbabilities } = await import("./services/trading/feeds/nexoraFeedConnectors");
+    res.json(combineNexoraFeedProbabilities(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_feed_probability_combiner", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+
+app.get("/api/nexora/memory/events", async (req, res) => {
+  try {
+    const { getNexoraMemoryEvents } = await import("./services/trading/resilience/nexoraMemoryFallbackRuntime");
+    res.json(getNexoraMemoryEvents(Number(req.query.limit || 100)));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_memory_fallback_runtime", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/memory/clear", async (_req, res) => {
+  try {
+    const { clearNexoraMemoryEvents } = await import("./services/trading/resilience/nexoraMemoryFallbackRuntime");
+    res.json(clearNexoraMemoryEvents());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_memory_fallback_runtime", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/scanner/memory-safe", async (req, res) => {
+  try {
+    const { runNexoraMemorySafeScanner } = await import("./services/trading/orchestration/nexoraMemorySafeScanner");
+    res.json(await runNexoraMemorySafeScanner(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_memory_safe_scanner", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+
+app.get("/api/nexora/admin/controls", async (_req, res) => {
+  try {
+    const { getNexoraAdminControls } = await import("./services/trading/admin/nexoraAdminControls");
+    res.json(getNexoraAdminControls());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_admin_controls", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/admin/controls", async (req, res) => {
+  try {
+    const { updateNexoraAdminControls } = await import("./services/trading/admin/nexoraAdminControls");
+    res.json(updateNexoraAdminControls(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_admin_controls", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.get("/api/nexora/alerts", async (req, res) => {
+  try {
+    const { getNexoraAlerts } = await import("./services/trading/admin/nexoraAdminControls");
+    res.json(getNexoraAlerts(Number(req.query.limit || 50)));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_alert_system", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/scanner/controlled-memory", async (req, res) => {
+  try {
+    const { runNexoraControlledMemoryScanner } = await import("./services/trading/admin/nexoraControlledMemoryScanner");
+    res.json(await runNexoraControlledMemoryScanner(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_controlled_memory_scanner", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+
+app.post("/api/nexora/math/genius-core", async (req, res) => {
+  try {
+    const { runNexoraMathGeniusCore } = await import("./services/trading/math/nexoraMathGeniusCore");
+    res.json(runNexoraMathGeniusCore(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_math_genius_core", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+
+app.get("/api/nexora/backtest/memory/status", async (_req, res) => {
+  try {
+    const { getNexoraMemoryBacktesterStatus } = await import("./services/trading/backtesting/nexoraMemoryBacktester");
+    res.json(getNexoraMemoryBacktesterStatus());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_memory_backtester", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/backtest/memory/run", async (req, res) => {
+  try {
+    const { runNexoraMemoryBacktest } = await import("./services/trading/backtesting/nexoraMemoryBacktester");
+    res.json(await runNexoraMemoryBacktest(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_memory_backtester", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
