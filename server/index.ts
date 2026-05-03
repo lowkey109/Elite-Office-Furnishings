@@ -3437,6 +3437,52 @@ app.get("/api/nexora/execution/audit-log", async (req, res) => {
   }
 });
 
+
+app.get("/api/nexora/execution/adapter-status", async (_req, res) => {
+  try {
+    const { getNexoraExchangeAdapterStatus } = await import("./services/trading/execution/nexoraInstitutionalExecutionLayerTwo");
+    res.json(getNexoraExchangeAdapterStatus());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_exchange_adapter_status", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/execution/balance-check", async (req, res) => {
+  try {
+    const { checkNexoraBalance } = await import("./services/trading/execution/nexoraInstitutionalExecutionLayerTwo");
+    res.json(checkNexoraBalance(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_balance_check", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/execution/compliance-geofence", async (req, res) => {
+  try {
+    const { checkNexoraComplianceGeofence } = await import("./services/trading/execution/nexoraInstitutionalExecutionLayerTwo");
+    res.json(checkNexoraComplianceGeofence(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_compliance_geofence", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/execution/queue-paper", async (req, res) => {
+  try {
+    const { queueNexoraPaperExecution } = await import("./services/trading/execution/nexoraInstitutionalExecutionLayerTwo");
+    res.json(await queueNexoraPaperExecution(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_paper_execution_queue", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.get("/api/nexora/execution/queue", async (req, res) => {
+  try {
+    const { getNexoraExecutionQueue } = await import("./services/trading/execution/nexoraInstitutionalExecutionLayerTwo");
+    res.json(await getNexoraExecutionQueue(Number(req.query.limit || 100)));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_execution_queue", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
