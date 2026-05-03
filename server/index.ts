@@ -3336,6 +3336,34 @@ app.post("/api/nexora/superbot/validate-trade", async (req, res) => {
   }
 });
 
+
+app.post("/api/nexora/prediction-market/record-paper-signal", async (req, res) => {
+  try {
+    const { recordNexoraAdvancedPaperSignal } = await import("./services/trading/prediction/nexoraPredictionLearningMemory");
+    res.json(await recordNexoraAdvancedPaperSignal(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_advanced_paper_signal_recorder", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/prediction-market/simulate-outcome", async (req, res) => {
+  try {
+    const { simulateNexoraPredictionOutcome } = await import("./services/trading/prediction/nexoraPredictionLearningMemory");
+    res.json(simulateNexoraPredictionOutcome(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_prediction_outcome_simulator", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.get("/api/nexora/prediction-market/calibration-memory", async (req, res) => {
+  try {
+    const { getNexoraPredictionCalibrationMemory } = await import("./services/trading/prediction/nexoraPredictionLearningMemory");
+    res.json(await getNexoraPredictionCalibrationMemory(Number(req.query.limit || 200)));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_prediction_calibration_memory", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
