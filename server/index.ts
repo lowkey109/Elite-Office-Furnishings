@@ -3188,6 +3188,43 @@ app.post("/api/nexora/prediction-market/fallback-stack", async (req, res) => {
   }
 });
 
+
+app.post("/api/nexora/prediction-market/fair-probability", async (req, res) => {
+  try {
+    const { calculateNexoraFairProbability } = await import("./services/trading/prediction/nexoraFairProbabilityEngine");
+    res.json(calculateNexoraFairProbability(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_fair_probability_engine", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/prediction-market/resolution-risk", async (req, res) => {
+  try {
+    const { checkNexoraResolutionRules } = await import("./services/trading/prediction/nexoraResolutionRulesRisk");
+    res.json(checkNexoraResolutionRules(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_resolution_rules_risk", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/prediction-market/correlation-risk", async (req, res) => {
+  try {
+    const { checkNexoraCorrelationRisk } = await import("./services/trading/prediction/nexoraCorrelationRiskEngine");
+    res.json(checkNexoraCorrelationRisk(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_correlation_risk_engine", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/prediction-market/advanced-core", async (req, res) => {
+  try {
+    const { runNexoraAdvancedPredictionCore } = await import("./services/trading/prediction/nexoraAdvancedPredictionCore");
+    res.json(await runNexoraAdvancedPredictionCore(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_advanced_prediction_core", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
