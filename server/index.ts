@@ -450,6 +450,61 @@ app.get("/api/admin/strategy-bookings", async (_req: any, res: any) => {
   return res.json([]);
 });
 
+
+// TCD_PRE_GUARD_TERRITORY_SCANNER_SAFE_FALLBACKS
+// Keeps Territory Scanner rendering while Railway Postgres/admin DB routes are degraded.
+app.get("/api/admin/territories", async (_req: any, res: any) => {
+  return res.json([]);
+});
+
+app.get("/api/admin/prospected-leads", async (_req: any, res: any) => {
+  return res.json([]);
+});
+
+app.get("/api/admin/company-visitors", async (_req: any, res: any) => {
+  return res.json([]);
+});
+
+app.get("/api/admin/company-visitors/stats", async (_req: any, res: any) => {
+  return res.json({
+    safeFallback: true,
+    total: 0,
+    highIntent: 0,
+    mediumIntent: 0,
+    lowIntent: 0,
+    blockedReason: "Railway Postgres is recovering."
+  });
+});
+
+app.get("/api/admin/market-intelligence", async (_req: any, res: any) => {
+  return res.json({
+    safeFallback: true,
+    topCities: [],
+    topIndustries: [],
+    recentSignals: [],
+    signalTypes: {},
+    blockedReason: "Railway Postgres is recovering."
+  });
+});
+
+app.post("/api/admin/lease-signal-scan", async (_req: any, res: any) => {
+  return res.status(503).json({
+    ok: false,
+    safeFallback: true,
+    message: "Scan blocked while Railway Postgres is recovering.",
+    results: []
+  });
+});
+
+app.post("/api/admin/office-move-radar/scan-jobs", async (_req: any, res: any) => {
+  return res.status(503).json({
+    ok: false,
+    safeFallback: true,
+    message: "Job scan blocked while Railway Postgres is recovering.",
+    results: []
+  });
+});
+
 // TCD_PRE_GUARD_SAFE_MONITOR_ENDPOINTS
 // Express runs middleware/routes in registration order, so these safe paper-only endpoints
 // must be registered before the global /api/admin auth guard.

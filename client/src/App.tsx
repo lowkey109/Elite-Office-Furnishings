@@ -180,6 +180,7 @@ function AdminRoutes() {
   return (
     <Suspense fallback={<TcdStage24RouteFallback />}>
       <AdminAuthGate>
+        <Route path="/admin/login" component={AdminDashboard} />
       <Suspense fallback={tcdRouteFallback}>
         <Switch>
         <Route
