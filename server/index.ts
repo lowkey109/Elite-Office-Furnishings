@@ -384,12 +384,141 @@ app.get("/api/admin/nexora/monitor", async (_req: any, res: any) => {
     outreach: { sent: 0, drafts: 0, threads: 0 },
     stats: { winRate: 0 },
     systems: {
+      overall: "degraded_safe_mode",
+      adminApi: "working",
+      aiMonitor: "working",
+      tradingMonitor: "working",
+      polyedgeDashboard: "working_safe_mode",
       nexoraLoop: "paused",
-      adminApi: "reachable",
       dbSafety: "blocked",
-      paperOnly: true
+      railwayPostgres: "not_working_recovery_mode",
+      autoPaper: "stopped",
+      startFastGuard: "working_blocking_unsafe_start",
+      learningEngine: "paused_until_db_safe",
+      marketCandles: "blocked_by_db_recovery",
+      paperOutcomes: "blocked_by_db_recovery",
+      watchlistObservations: "blocked_by_db_recovery",
+      marketFeed: "safe_fallback",
+      recoveryHealth: "blocked_until_db_safe",
+      liveTrading: "disabled",
+      paperOnly: true,
+      liveTradingEnabled: false
     },
-    note: "Safe monitor fallback active before global admin guard."
+    systemMonitors: [
+      {
+        key: "admin_api",
+        label: "Admin API",
+        status: "working",
+        severity: "ok",
+        detail: "API is reachable and serving safe monitor data.",
+        paperOnly: true,
+        liveTradingEnabled: false
+      },
+      {
+        key: "ai_monitor",
+        label: "AI Monitor",
+        status: "working",
+        severity: "ok",
+        detail: "AI monitor is returning HTTP 200 using safe fallback.",
+        paperOnly: true,
+        liveTradingEnabled: false
+      },
+      {
+        key: "trading_monitor",
+        label: "Trading Monitor",
+        status: "working",
+        severity: "ok",
+        detail: "Trading monitor is returning HTTP 200 using paper-only safe fallback.",
+        paperOnly: true,
+        liveTradingEnabled: false
+      },
+      {
+        key: "railway_postgres",
+        label: "Railway Postgres",
+        status: "not_working",
+        severity: "critical",
+        detail: "Railway Postgres is reporting recovery mode.",
+        nextAction: "Upgrade or repair Railway Postgres storage/recovery."
+      },
+      {
+        key: "db_safety",
+        label: "DB Safety Guard",
+        status: "working_blocking",
+        severity: "warning",
+        detail: "Guard is correctly blocking paper trading while DB is unsafe.",
+        safeForPaperTrading: false
+      },
+      {
+        key: "auto_paper",
+        label: "Auto Paper Trader",
+        status: "stopped",
+        severity: "ok",
+        detail: "Auto-paper is stopped and must stay stopped until DB safety is true.",
+        paperOnly: true,
+        liveTradingEnabled: false
+      },
+      {
+        key: "start_fast_guard",
+        label: "Start Fast Guard",
+        status: "working",
+        severity: "ok",
+        detail: "Start-fast refuses to start while DB safety is blocked.",
+        paperOnly: true,
+        liveTradingEnabled: false
+      },
+      {
+        key: "learning_engine",
+        label: "Learning Engine",
+        status: "paused",
+        severity: "warning",
+        detail: "Learning is paused until Railway Postgres is safe.",
+        paperOnly: true
+      },
+      {
+        key: "market_data",
+        label: "Market Data / Candles",
+        status: "blocked",
+        severity: "critical",
+        detail: "Market candle reads/writes are blocked while DB is recovering."
+      },
+      {
+        key: "watchlist",
+        label: "Watchlist Observations",
+        status: "blocked",
+        severity: "warning",
+        detail: "Observation storage is unavailable until DB safety recovers."
+      },
+      {
+        key: "dashboard",
+        label: "PolyEdge Dashboard",
+        status: "working_safe_mode",
+        severity: "ok",
+        detail: "Dashboard should render against safe fallback monitor data."
+      },
+      {
+        key: "live_trading",
+        label: "Live Trading",
+        status: "disabled",
+        severity: "ok",
+        detail: "Real-money trading is disabled and must remain disabled.",
+        liveTradingEnabled: false
+      }
+    ],
+    monitors: [
+      { key: "admin_api", label: "Admin API", state: "working", kind: "system", moving: true, sourceType: "safe_fallback" },
+      { key: "ai_monitor", label: "AI Monitor", state: "working", kind: "system", moving: true, sourceType: "safe_fallback" },
+      { key: "trading_monitor", label: "Trading Monitor", state: "working", kind: "system", moving: true, sourceType: "safe_fallback" },
+      { key: "railway_postgres", label: "Railway Postgres", state: "not_working", kind: "database", moving: false, sourceType: "recovery_mode" },
+      { key: "db_safety", label: "DB Safety Guard", state: "working_blocking", kind: "safety", moving: true, sourceType: "recovery_guard" },
+      { key: "auto_paper", label: "Auto Paper Trader", state: "stopped", kind: "paper", moving: false, sourceType: "paper_only" },
+      { key: "start_fast_guard", label: "Start Fast Guard", state: "working", kind: "safety", moving: true, sourceType: "paper_only_guard" },
+      { key: "learning_engine", label: "Learning Engine", state: "paused", kind: "learning", moving: false, sourceType: "waiting_for_db_safety" },
+      { key: "market_data", label: "Market Data / Candles", state: "blocked", kind: "market", moving: false, sourceType: "db_recovery" },
+      { key: "watchlist", label: "Watchlist Observations", state: "blocked", kind: "watchlist", moving: false, sourceType: "db_recovery" },
+      { key: "dashboard", label: "PolyEdge Dashboard", state: "working_safe_mode", kind: "frontend", moving: true, sourceType: "safe_fallback" },
+      { key: "live_trading", label: "Live Trading", state: "disabled", kind: "safety", moving: false, sourceType: "hard_guard" }
+    ],
+    note: "Whole-system monitor active. System is degraded because Railway Postgres is recovering, but safe monitor UI and paper-only guards are working."
   });
 });
 
