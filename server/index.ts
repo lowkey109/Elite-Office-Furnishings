@@ -3317,6 +3317,25 @@ app.get("/api/nexora/prediction-market/strategy-leaderboard", async (_req, res) 
   }
 });
 
+
+app.get("/api/nexora/superbot/safety-core", async (_req, res) => {
+  try {
+    const { getNexoraSuperbotSafetyCore } = await import("./services/trading/superbot/nexoraSuperbotSafetyCore");
+    res.json(getNexoraSuperbotSafetyCore());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_superbot_safety_core", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/superbot/validate-trade", async (req, res) => {
+  try {
+    const { validateNexoraSuperbotTrade } = await import("./services/trading/superbot/nexoraSuperbotSafetyCore");
+    res.json(validateNexoraSuperbotTrade(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_superbot_trade_validator", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
