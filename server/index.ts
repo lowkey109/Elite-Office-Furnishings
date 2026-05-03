@@ -3168,6 +3168,16 @@ app.post("/api/nexora/prediction-market/edge", async (req, res) => {
   }
 });
 
+
+app.post("/api/nexora/prediction-market/use-strategy", async (req, res) => {
+  try {
+    const { runNexoraPredictionStrategyPolicy } = await import("./services/trading/prediction/nexoraPredictionStrategyPolicy");
+    res.json(await runNexoraPredictionStrategyPolicy(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_prediction_strategy_policy", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
