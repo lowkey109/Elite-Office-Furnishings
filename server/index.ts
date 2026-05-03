@@ -3298,6 +3298,25 @@ app.post("/api/nexora/prediction-market/auto-paper-loop", async (req, res) => {
   }
 });
 
+
+app.post("/api/nexora/prediction-market/self-critique", async (req, res) => {
+  try {
+    const { critiqueNexoraPredictionTrade } = await import("./services/trading/prediction/nexoraSelfCritique");
+    res.json(critiqueNexoraPredictionTrade(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_self_critique", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.get("/api/nexora/prediction-market/strategy-leaderboard", async (_req, res) => {
+  try {
+    const { getNexoraPredictionStrategyLeaderboard } = await import("./services/trading/prediction/nexoraStrategyLeaderboard");
+    res.json(await getNexoraPredictionStrategyLeaderboard());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_prediction_strategy_leaderboard", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
