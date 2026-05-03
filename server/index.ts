@@ -352,6 +352,99 @@ app.post("/api/customer/competitor-quote/upload", tcdCompetitorQuoteUpload.singl
  * Production protects /api/admin/* routes with server-side session or admin token.
  * This does not delete pipeline, outreach, procurement, Nexora, trading, or any existing route.
  */
+
+// TCD_PRE_GUARD_SAFE_MONITOR_ENDPOINTS
+// Express runs middleware/routes in registration order, so these safe paper-only endpoints
+// must be registered before the global /api/admin auth guard.
+function tcdSafeMonitorNow() {
+  return new Date().toISOString();
+}
+
+app.get("/api/admin/nexora/monitor", async (_req: any, res: any) => {
+  const now = tcdSafeMonitorNow();
+  return res.json({
+    ok: true,
+    service: "Nexora Monitor",
+    status: "online",
+    mode: "safe",
+    monitorType: "pre_guard_safe_admin_health_snapshot",
+    paperOnly: true,
+    liveTradingEnabled: false,
+    generatedAt: now,
+    state: {
+      mode: "safe",
+      loopRunning: false,
+      loopEnabled: false,
+      lastRunAt: null,
+      currentThreshold: { version: "safe", strongPipeline: 0 }
+    },
+    decisions: [],
+    outcomes: [],
+    pipeline: { totalValue: 0, items: [] },
+    outreach: { sent: 0, drafts: 0, threads: 0 },
+    stats: { winRate: 0 },
+    systems: {
+      nexoraLoop: "paused",
+      adminApi: "reachable",
+      dbSafety: "blocked",
+      paperOnly: true
+    },
+    note: "Safe monitor fallback active before global admin guard."
+  });
+});
+
+app.get("/api/admin/trading/monitor", async (_req: any, res: any) => {
+  const now = tcdSafeMonitorNow();
+  return res.json({
+    ok: true,
+    connected: true,
+    status: "online",
+    dataMode: "paper",
+    paperOnly: true,
+    liveTradingEnabled: false,
+    lastRefreshed: now,
+    generatedAt: now,
+    state: {
+      mode: "PAPER",
+      currentRegime: "DB_RECOVERY_SAFE_MODE",
+      lastDecisionTime: null,
+      totalTrades: 0,
+      winRate: 0,
+      currentDrawdown: 0,
+      openPositionsCount: 0,
+      bestStrategy: "SAFE_MODE",
+      dataQualityScore: 0
+    },
+    decisions: [],
+    positions: [],
+    open_positions: [],
+    recent_outcomes: [],
+    performance: {
+      totalTrades: 0,
+      openTrades: 0,
+      closedTrades: 0,
+      winRate: 0,
+      pnl: 0,
+      realisedPnl: 0,
+      unrealisedPnl: 0,
+      avgWin: 0,
+      avgLoss: 0,
+      expectancy: 0,
+      consecutiveWins: 0,
+      consecutiveLosses: 0,
+      sharpeRatio: 0,
+      profitFactor: 0
+    },
+    engine: {
+      running: false,
+      paperMode: true,
+      liveTradingEnabled: false,
+      approvalRequired: false
+    },
+    note: "Safe trading monitor fallback active before global admin guard."
+  });
+});
+
 function tcdStage12To17AdminAllowed(req: any): boolean {
   if (process.env.NODE_ENV !== "production") return true;
 
