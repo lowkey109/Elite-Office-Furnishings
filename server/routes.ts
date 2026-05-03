@@ -115,6 +115,7 @@ import { registerNexoraMissionControlRoutes } from "./services/intelligence/nexo
 import { registerNexoraSupremeMatrixRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes";
 import { registerNexoraMegaBuildRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes";
 import { registerNexoraLiveVerificationRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes";
+import { registerNexoraHardMountRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes";
 
 function hasLocalAdminHeader(req: any): boolean {
   return (
@@ -213,6 +214,14 @@ function filterSafePendingOutreach(mapped: any[]) {
 }
 
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
+  // NEXORA_HARD_MOUNT_BEGIN
+  try {
+    registerNexoraHardMountRoutes(app);
+  } catch (error) {
+    console.error("[NEXORA_HARD_MOUNT_ERROR]", error);
+  }
+  // NEXORA_HARD_MOUNT_END
+
 
   // CLIENT_PORTAL_PRODUCTION_API_ROUTES
 
