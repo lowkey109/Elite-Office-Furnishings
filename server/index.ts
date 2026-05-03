@@ -3364,6 +3364,79 @@ app.get("/api/nexora/prediction-market/calibration-memory", async (req, res) => 
   }
 });
 
+
+app.get("/api/nexora/execution/emergency-stop", async (_req, res) => {
+  try {
+    const { getNexoraEmergencyStop } = await import("./services/trading/execution/nexoraInstitutionalExecutionLayer");
+    res.json(await getNexoraEmergencyStop());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_emergency_stop", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/execution/emergency-stop", async (req, res) => {
+  try {
+    const { setNexoraEmergencyStop } = await import("./services/trading/execution/nexoraInstitutionalExecutionLayer");
+    res.json(await setNexoraEmergencyStop(Boolean(req.body?.enabled), String(req.body?.reason || "")));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_emergency_stop", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/execution/hard-loss-limits", async (req, res) => {
+  try {
+    const { validateNexoraHardLossLimits } = await import("./services/trading/execution/nexoraInstitutionalExecutionLayer");
+    res.json(validateNexoraHardLossLimits(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_hard_loss_limits", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/execution/duplicate-check", async (req, res) => {
+  try {
+    const { checkNexoraDuplicateOrder } = await import("./services/trading/execution/nexoraInstitutionalExecutionLayer");
+    res.json(await checkNexoraDuplicateOrder(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_duplicate_order_protection", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/execution/manual-approval", async (req, res) => {
+  try {
+    const { recordNexoraManualApproval } = await import("./services/trading/execution/nexoraInstitutionalExecutionLayer");
+    res.json(await recordNexoraManualApproval(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_manual_approval", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/execution/promotion-gate", async (req, res) => {
+  try {
+    const { getNexoraPaperToLivePromotionGate } = await import("./services/trading/execution/nexoraInstitutionalExecutionLayer");
+    res.json(await getNexoraPaperToLivePromotionGate(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_paper_to_live_promotion_gate", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/execution/preflight", async (req, res) => {
+  try {
+    const { runNexoraInstitutionalExecutionPreflight } = await import("./services/trading/execution/nexoraInstitutionalExecutionLayer");
+    res.json(await runNexoraInstitutionalExecutionPreflight(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_institutional_execution_preflight", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.get("/api/nexora/execution/audit-log", async (req, res) => {
+  try {
+    const { getNexoraExecutionAudit } = await import("./services/trading/execution/nexoraInstitutionalExecutionLayer");
+    res.json(await getNexoraExecutionAudit(Number(req.query.limit || 100)));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_execution_audit_log", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
