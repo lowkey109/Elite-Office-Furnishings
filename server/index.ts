@@ -3820,6 +3820,88 @@ app.get("/api/nexora/autonomy/hands-free-readiness", async (_req, res) => {
   }
 });
 
+
+app.get("/api/nexora/autonomy-foundation/status", async (_req, res) => {
+  try {
+    const { getNexoraAutonomyFoundationStatus } = await import("./services/intelligence/nexora/autonomy/nexoraAutonomyFoundation");
+    res.json(getNexoraAutonomyFoundationStatus());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_autonomy_foundation", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/autonomy-foundation/task", async (req, res) => {
+  try {
+    const { queueNexoraTask } = await import("./services/intelligence/nexora/autonomy/nexoraAutonomyFoundation");
+    res.json(queueNexoraTask(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_task_queue", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.get("/api/nexora/autonomy-foundation/tasks", async (req, res) => {
+  try {
+    const { getNexoraTasks } = await import("./services/intelligence/nexora/autonomy/nexoraAutonomyFoundation");
+    res.json(getNexoraTasks(Number(req.query.limit || 100)));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_task_queue", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.get("/api/nexora/autonomy-foundation/approvals", async (req, res) => {
+  try {
+    const { getNexoraApprovals } = await import("./services/intelligence/nexora/autonomy/nexoraAutonomyFoundation");
+    res.json(getNexoraApprovals(Number(req.query.limit || 100)));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_approval_queue", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/autonomy-foundation/heartbeat", async (req, res) => {
+  try {
+    const { recordNexoraHeartbeat } = await import("./services/intelligence/nexora/autonomy/nexoraAutonomyFoundation");
+    res.json(recordNexoraHeartbeat(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_worker_heartbeat", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.get("/api/nexora/autonomy-foundation/heartbeats", async (req, res) => {
+  try {
+    const { getNexoraHeartbeats } = await import("./services/intelligence/nexora/autonomy/nexoraAutonomyFoundation");
+    res.json(getNexoraHeartbeats(Number(req.query.limit || 100)));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_worker_heartbeat", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/autonomy-foundation/run-safe-cycle", async (req, res) => {
+  try {
+    const { runNexoraSafeAutonomyCycle } = await import("./services/intelligence/nexora/autonomy/nexoraAutonomyFoundation");
+    res.json(runNexoraSafeAutonomyCycle(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_safe_autonomy_cycle", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/autonomy-foundation/daily-report", async (_req, res) => {
+  try {
+    const { generateNexoraDailyReport } = await import("./services/intelligence/nexora/autonomy/nexoraAutonomyFoundation");
+    res.json(generateNexoraDailyReport());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_daily_report", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.get("/api/nexora/autonomy-foundation/reports", async (req, res) => {
+  try {
+    const { getNexoraReports } = await import("./services/intelligence/nexora/autonomy/nexoraAutonomyFoundation");
+    res.json(getNexoraReports(Number(req.query.limit || 30)));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_daily_report", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
