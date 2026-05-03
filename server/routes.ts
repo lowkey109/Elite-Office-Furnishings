@@ -108,6 +108,7 @@ import { sendLeadNotification } from "./email";
 import { startFollowUpForLead } from "./services/followUpScheduler";
 import { whatsappWebhookHandler } from "./services/intelligence/communications/whatsappService";
 import OpenAI from "openai";
+import { registerNexoraAdvancedAutonomyRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes";
 
 function hasLocalAdminHeader(req: any): boolean {
   return (
@@ -210,7 +211,8 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
   // CLIENT_PORTAL_PRODUCTION_API_ROUTES
 
   // PLAN_ACCESS_API_ROUTES
-  app.get("/api/client/plan-access", async (req: any, res: any) => {
+  registerNexoraAdvancedAutonomyRoutes(app);
+app.get("/api/client/plan-access", async (req: any, res: any) => {
     try {
       const { getClientPlanAccess } = await import("./services/clientPortal/clientPortalService");
       return res.json(await getClientPlanAccess(clientTokenFromReq(req)));
