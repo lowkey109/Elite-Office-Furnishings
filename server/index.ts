@@ -3773,6 +3773,34 @@ app.post("/api/nexora/backtest/memory/run", async (req, res) => {
   }
 });
 
+
+app.get("/api/nexora/office/receptionist/status", async (_req, res) => {
+  try {
+    const { getNexoraOfficeReceptionistStatus } = await import("./services/office/nexoraOfficeReceptionist");
+    res.json(getNexoraOfficeReceptionistStatus());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_office_receptionist", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/office/receptionist/message", async (req, res) => {
+  try {
+    const { handleNexoraOfficeReceptionist } = await import("./services/office/nexoraOfficeReceptionist");
+    res.json(handleNexoraOfficeReceptionist(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_office_receptionist", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.get("/api/nexora/office/receptionist/leads", async (req, res) => {
+  try {
+    const { getNexoraOfficeLeads } = await import("./services/office/nexoraOfficeReceptionist");
+    res.json(getNexoraOfficeLeads(Number(req.query.limit || 100)));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_office_receptionist_leads", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
