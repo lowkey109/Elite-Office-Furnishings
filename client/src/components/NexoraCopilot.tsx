@@ -78,6 +78,9 @@ function getRouteCommands(route: string) {
 
 type Message = { id: string; role: "user" | "assistant"; content: string; isLoading?: boolean };
 
+const DB_RECOVERY_SAFE_REPLY =
+  "Nexora is in safe mode because Railway Postgres is recovering. Working now: AI Monitor, Trading Monitor, system status, and paper-only safety guards. Not working until DB recovery is fixed: live DB-backed leads, planning requests, market candles, learning history, and Copilot database analysis. Auto-paper remains stopped and real-money trading is disabled.";
+
 // ─── Message bubble ─────────────────────────────────────────────────────────
 
 function MsgBubble({ msg }: { msg: Message }) {

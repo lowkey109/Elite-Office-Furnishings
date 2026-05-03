@@ -353,6 +353,36 @@ app.post("/api/customer/competitor-quote/upload", tcdCompetitorQuoteUpload.singl
  * This does not delete pipeline, outreach, procurement, Nexora, trading, or any existing route.
  */
 
+
+// TCD_PRE_GUARD_ADMIN_DB_RECOVERY_FALLBACKS
+// These keep admin pages rendering while Railway Postgres is recovering.
+// They do not start jobs, do not enable auto-paper, and do not enable live trading.
+app.get("/api/admin/lead-engine/stats", async (_req: any, res: any) => {
+  return res.json({
+    ok: true,
+    safeFallback: true,
+    status: "db_recovery_safe_mode",
+    total: 0,
+    newCount: 0,
+    qualified: 0,
+    contacted: 0,
+    converted: 0,
+    blockedReason: "Railway Postgres is recovering."
+  });
+});
+
+app.get("/api/admin/lead-engine/leads", async (_req: any, res: any) => {
+  return res.json([]);
+});
+
+app.get("/api/admin/leads/pipeline", async (_req: any, res: any) => {
+  return res.json([]);
+});
+
+app.get("/api/admin/lead-templates", async (_req: any, res: any) => {
+  return res.json([]);
+});
+
 // TCD_PRE_GUARD_SAFE_MONITOR_ENDPOINTS
 // Express runs middleware/routes in registration order, so these safe paper-only endpoints
 // must be registered before the global /api/admin auth guard.

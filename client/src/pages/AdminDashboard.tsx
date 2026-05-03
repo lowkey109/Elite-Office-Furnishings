@@ -99,7 +99,7 @@ export default function AdminDashboard() {
     }
   }, []);
 
-  const { data: leads = [], isLoading } = useQuery<Lead[]>({
+  const { data: leadsRaw = [], isLoading } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
     enabled: authed,
   });
@@ -111,7 +111,7 @@ export default function AdminDashboard() {
   });
 
   interface PlanningReq { id: string; name: string; company: string; status: string; leadScore?: number; estimatedValue?: string; squareMetres?: string; staffCount?: string; createdAt?: string; packageJson?: string; }
-  const { data: planningRequests = [] } = useQuery<PlanningReq[]>({
+  const { data: planningRequestsRaw = [] } = useQuery<PlanningReq[]>({
     queryKey: ["/api/admin/planning-requests"],
     enabled: authed,
     refetchInterval: 60000,
@@ -146,7 +146,7 @@ export default function AdminDashboard() {
   });
 
   interface ScheduledJob { id: string; jobType: string; status: string; startedAt?: string; completedAt?: string; }
-  const { data: recentJobs = [] } = useQuery<ScheduledJob[]>({
+  const { data: recentJobsRaw = [] } = useQuery<ScheduledJob[]>({
     queryKey: ["/api/admin/intelligence/jobs"],
     enabled: authed,
     refetchInterval: 120000,
@@ -174,7 +174,7 @@ export default function AdminDashboard() {
     refetchInterval: 120000,
   });
   interface RadarRecord { id: string; companyName: string; city: string; priority: string; radarScore: number; estimatedProjectValue: string | null; signalType: string; status: string; }
-  const { data: radarRecords = [] } = useQuery<RadarRecord[]>({
+  const { data: radarRecordsRaw = [] } = useQuery<RadarRecord[]>({
     queryKey: ["/api/admin/office-move-radar"],
     enabled: authed && (radarStats?.total ?? 0) > 0,
     refetchInterval: 60000,
@@ -185,7 +185,7 @@ export default function AdminDashboard() {
     staffCount?: string; officeLocation?: string; budget?: string; moveDate?: string;
     message?: string; bookingDate: string; bookingTime: string; status: string; createdAt?: string;
   }
-  const { data: strategyBookings = [], refetch: refetchBookings } = useQuery<StrategyBooking[]>({
+  const { data: strategyBookingsRaw = [], refetch: refetchBookings } = useQuery<StrategyBooking[]>({
     queryKey: ["/api/admin/strategy-bookings"],
     enabled: authed,
     refetchInterval: 60000,
@@ -200,6 +200,12 @@ export default function AdminDashboard() {
       setPwError(true);
     }
   }
+
+  const leads = Array.isArray(leadsRaw) ? leadsRaw : [];
+  const planningRequests = Array.isArray(planningRequestsRaw) ? planningRequestsRaw : [];
+  const recentJobs = Array.isArray(recentJobsRaw) ? recentJobsRaw : [];
+  const radarRecords = Array.isArray(radarRecordsRaw) ? radarRecordsRaw : [];
+  const strategyBookings = Array.isArray(strategyBookingsRaw) ? strategyBookingsRaw : [];
 
   const totalLeads = leads.length;
   const todayLeads = leads.filter(l => isToday(l.createdAt)).length;
