@@ -3566,6 +3566,34 @@ app.post("/api/nexora/quantum/regime-detect", async (req, res) => {
   }
 });
 
+
+app.get("/api/nexora/simulation/status", async (_req,res)=>{
+  try{
+    const { getNexoraSimulationStatus } = await import("./services/trading/simulation/nexoraOmegaSimulationGrid");
+    res.json(await getNexoraSimulationStatus());
+  }catch(err){
+    res.status(500).json({ ok:false,error:err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/simulation/monte-carlo", async (req,res)=>{
+  try{
+    const { runNexoraMonteCarloSimulation } = await import("./services/trading/simulation/nexoraOmegaSimulationGrid");
+    res.json(await runNexoraMonteCarloSimulation(req.body || {}));
+  }catch(err){
+    res.status(500).json({ ok:false,error:err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/simulation/shadow-execution", async (req,res)=>{
+  try{
+    const { runNexoraShadowExecution } = await import("./services/trading/simulation/nexoraOmegaSimulationGrid");
+    res.json(await runNexoraShadowExecution(req.body || {}));
+  }catch(err){
+    res.status(500).json({ ok:false,error:err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
