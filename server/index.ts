@@ -3225,6 +3225,79 @@ app.post("/api/nexora/prediction-market/advanced-core", async (req, res) => {
   }
 });
 
+
+app.post("/api/nexora/prediction-market/source-reliability", async (req, res) => {
+  try {
+    const { scoreNexoraSourceReliability } = await import("./services/trading/prediction/nexoraSourceReliability");
+    res.json(scoreNexoraSourceReliability(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_source_reliability", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/prediction-market/order-book-sim", async (req, res) => {
+  try {
+    const { simulateNexoraPredictionOrderBook } = await import("./services/trading/prediction/nexoraOrderBookSimulator");
+    res.json(simulateNexoraPredictionOrderBook(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_order_book_simulator", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/prediction-market/bayesian-update", async (req, res) => {
+  try {
+    const { updateNexoraBayesianProbability } = await import("./services/trading/prediction/nexoraBayesianUpdater");
+    res.json(updateNexoraBayesianProbability(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_bayesian_updater", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/prediction-market/catalyst-calendar", async (req, res) => {
+  try {
+    const { getNexoraCatalystCalendar } = await import("./services/trading/prediction/nexoraCatalystCalendar");
+    res.json(getNexoraCatalystCalendar(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_catalyst_calendar", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/prediction-market/calibration", async (req, res) => {
+  try {
+    const { evaluateNexoraCalibration } = await import("./services/trading/prediction/nexoraCalibrationLearner");
+    res.json(evaluateNexoraCalibration(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_calibration_learner", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.get("/api/nexora/prediction-market/paper-journal", async (req, res) => {
+  try {
+    const { getNexoraPredictionPaperJournal } = await import("./services/trading/prediction/nexoraPredictionPaperJournal");
+    res.json(await getNexoraPredictionPaperJournal(Number(req.query.limit || 50)));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_prediction_paper_journal", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/prediction-market/paper-journal", async (req, res) => {
+  try {
+    const { recordNexoraPredictionPaperDecision } = await import("./services/trading/prediction/nexoraPredictionPaperJournal");
+    res.json(await recordNexoraPredictionPaperDecision(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_prediction_paper_journal", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/prediction-market/auto-paper-loop", async (req, res) => {
+  try {
+    const { runNexoraPredictionAutoPaperLoop } = await import("./services/trading/prediction/nexoraPredictionAutoPaperLoop");
+    res.json(await runNexoraPredictionAutoPaperLoop(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_prediction_auto_paper_loop", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
