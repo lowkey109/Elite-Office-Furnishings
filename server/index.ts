@@ -3483,6 +3483,52 @@ app.get("/api/nexora/execution/queue", async (req, res) => {
   }
 });
 
+
+app.get("/api/nexora/autonomy/status", async (_req, res) => {
+  try {
+    const { getNexoraAutonomousStatus } = await import("./services/trading/autonomy/nexoraAutonomousIntelligenceLayer");
+    res.json(await getNexoraAutonomousStatus());
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/autonomy/store-memory", async (req, res) => {
+  try {
+    const { storeNexoraSignalMemory } = await import("./services/trading/autonomy/nexoraAutonomousIntelligenceLayer");
+    res.json(await storeNexoraSignalMemory(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/autonomy/update-ranking", async (req, res) => {
+  try {
+    const { updateNexoraStrategyRanking } = await import("./services/trading/autonomy/nexoraAutonomousIntelligenceLayer");
+    res.json(await updateNexoraStrategyRanking(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.get("/api/nexora/autonomy/leaderboard", async (_req, res) => {
+  try {
+    const { getNexoraStrategyLeaderboard } = await import("./services/trading/autonomy/nexoraAutonomousIntelligenceLayer");
+    res.json(await getNexoraStrategyLeaderboard());
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/autonomy/self-critique", async (req, res) => {
+  try {
+    const { runNexoraSelfCritique } = await import("./services/trading/autonomy/nexoraAutonomousIntelligenceLayer");
+    res.json(await runNexoraSelfCritique(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
