@@ -3,6 +3,7 @@ import { db } from "../../../db";
 import { critiqueNexoraPredictionTrade } from "./nexoraSelfCritique";
 import { recordNexoraPredictionPaperDecision } from "./nexoraPredictionPaperJournal";
 import { evaluateNexoraCalibration } from "./nexoraCalibrationLearner";
+import { nexoraDbFallback } from "../resilience/nexoraDbResilience";
 
 export async function ensureNexoraPredictionLearningMemory() {
   await db.execute(sql`
@@ -57,80 +58,92 @@ export function simulateNexoraPredictionOutcome(input: any = {}) {
 }
 
 export async function recordNexoraAdvancedPaperSignal(input: any = {}) {
-  await ensureNexoraPredictionLearningMemory();
+  try {
+    await ensureNexoraPredictionLearningMemory();
 
-  const id = String(input.id || `${input.marketId || "prediction"}|${Date.now()}`);
-  const critique = critiqueNexoraPredictionTrade(input);
-  const simulation = simulateNexoraPredictionOutcome(input);
+    const id = String(input.id || `${input.marketId || "prediction"}|${Date.now()}`);
+    const critique = critiqueNexoraPredictionTrade(input);
+    const simulation = simulateNexoraPredictionOutcome(input);
 
-  await recordNexoraPredictionPaperDecision({
-    id,
-    marketId: input.marketId,
-    title: input.title,
-    category: input.category,
-    strategy: input.strategy || "advanced_prediction_market_stack",
-    direction: input.direction || input.finalAction || "MONITOR_ONLY",
-    marketProbability: input.marketProbability,
-    modelProbability: input.modelProbability || input.fairProbability,
-    edgePct: simulation.edgePct,
-    positionUsd: input.positionUsd || 10,
-    status: simulation.simulatedOutcome,
-    decision: { input, critique, simulation },
-  });
+    await recordNexoraPredictionPaperDecision({
+      id,
+      marketId: input.marketId,
+      title: input.title,
+      category: input.category,
+      strategy: input.strategy || "advanced_prediction_market_stack",
+      direction: input.direction || input.finalAction || "MONITOR_ONLY",
+      marketProbability: input.marketProbability,
+      modelProbability: input.modelProbability || input.fairProbability,
+      edgePct: simulation.edgePct,
+      positionUsd: input.positionUsd || 10,
+      status: simulation.simulatedOutcome,
+      decision: { input, critique, simulation },
+    });
 
-  await db.execute(sql`
-    insert into nexora_prediction_learning_memory (
-      id, market_id, strategy, predicted_probability, market_probability,
-      edge_pct, simulated_outcome, simulated_pnl, critique, raw_signal
-    ) values (
-      ${id},
-      ${String(input.marketId || "")},
-      ${String(input.strategy || "advanced_prediction_market_stack")},
-      ${String(input.modelProbability || input.fairProbability || 0.5)},
-      ${String(input.marketProbability || input.price || 0.5)},
-      ${String(simulation.edgePct)},
-      ${simulation.simulatedOutcome},
-      ${String(simulation.simulatedPnl)},
-      ${JSON.stringify(critique)}::jsonb,
-      ${JSON.stringify(input)}::jsonb
-    )
-    on conflict (id) do nothing;
-  `);
+    await db.execute(sql`
+      insert into nexora_prediction_learning_memory (
+        id, market_id, strategy, predicted_probability, market_probability,
+        edge_pct, simulated_outcome, simulated_pnl, critique, raw_signal
+      ) values (
+        ${id},
+        ${String(input.marketId || "")},
+        ${String(input.strategy || "advanced_prediction_market_stack")},
+        ${String(input.modelProbability || input.fairProbability || 0.5)},
+        ${String(input.marketProbability || input.price || 0.5)},
+        ${String(simulation.edgePct)},
+        ${simulation.simulatedOutcome},
+        ${String(simulation.simulatedPnl)},
+        ${JSON.stringify(critique)}::jsonb,
+        ${JSON.stringify(input)}::jsonb
+      )
+      on conflict (id) do nothing;
+    `);
 
-  return {
-    ok: true,
-    service: "nexora_advanced_paper_signal_recorder",
-    paperOnly: true,
-    recorded: true,
-    id,
-    critique,
-    simulation,
-    updatedAt: new Date().toISOString(),
-  };
+    return {
+      ok: true,
+      service: "nexora_advanced_paper_signal_recorder",
+      paperOnly: true,
+      recorded: true,
+      id,
+      critique,
+      simulation,
+      updatedAt: new Date().toISOString(),
+    };
+  } catch (err) {
+    return nexoraDbFallback("nexora_advanced_paper_signal_recorder", err, { recorded: false });
+  }
 }
 
 export async function getNexoraPredictionCalibrationMemory(limit = 200) {
-  await ensureNexoraPredictionLearningMemory();
+  try {
+    await ensureNexoraPredictionLearningMemory();
 
-  const rows: any = await db.execute(sql`
-    select *
-    from nexora_prediction_learning_memory
-    order by created_at desc
-    limit ${Number(limit) || 200};
-  `);
+    const rows: any = await db.execute(sql`
+      select *
+      from nexora_prediction_learning_memory
+      order by created_at desc
+      limit ${Number(limit) || 200};
+    `);
 
-  const outcomes = (rows.rows || []).map((r: any) => ({
-    predictedProbability: Number(r.predicted_probability || 0.5),
-    won: r.simulated_outcome === "won",
-  }));
+    const outcomes = (rows.rows || []).map((r: any) => ({
+      predictedProbability: Number(r.predicted_probability || 0.5),
+      won: r.simulated_outcome === "won",
+    }));
 
-  return {
-    ok: true,
-    service: "nexora_prediction_calibration_memory",
-    paperOnly: true,
-    sampleSize: outcomes.length,
-    calibration: evaluateNexoraCalibration({ outcomes }),
-    rows: rows.rows || [],
-    updatedAt: new Date().toISOString(),
-  };
+    return {
+      ok: true,
+      service: "nexora_prediction_calibration_memory",
+      paperOnly: true,
+      sampleSize: outcomes.length,
+      calibration: evaluateNexoraCalibration({ outcomes }),
+      rows: rows.rows || [],
+      updatedAt: new Date().toISOString(),
+    };
+  } catch (err) {
+    return nexoraDbFallback("nexora_prediction_calibration_memory", err, {
+      sampleSize: 0,
+      rows: [],
+      calibration: evaluateNexoraCalibration({ outcomes: [] }),
+    });
+  }
 }
