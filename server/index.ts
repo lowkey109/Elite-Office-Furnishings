@@ -3178,6 +3178,16 @@ app.post("/api/nexora/prediction-market/use-strategy", async (req, res) => {
   }
 });
 
+
+app.post("/api/nexora/prediction-market/fallback-stack", async (req, res) => {
+  try {
+    const { runNexoraPredictionFallbackStack } = await import("./services/trading/prediction/nexoraPredictionFallbackStrategies");
+    res.json(await runNexoraPredictionFallbackStack(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_prediction_fallback_stack", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
