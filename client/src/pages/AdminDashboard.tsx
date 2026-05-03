@@ -104,7 +104,7 @@ export default function AdminDashboard() {
     enabled: authed,
   });
 
-  const { data: health } = useQuery<{ email: boolean; stripe: boolean; status: string }>({
+  const { data: health } = useQuery<{ email: boolean; stripe: boolean; status: string; config?: any; warnings?: string[] }>({
     queryKey: ["/api/health"],
     enabled: authed,
     refetchInterval: 60000,
@@ -360,7 +360,7 @@ export default function AdminDashboard() {
                   <XCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-white font-semibold text-sm">Stripe not configured</p>
-                    <p className="text-white/50 text-xs mt-0.5 leading-relaxed">Stripe checkout is not configured in the current runtime. Add or verify <code className="bg-[rgba(255,255,255,0.08)] px-1 rounded text-orange-300">STRIPE_SECRET_KEY</code> and matching price IDs in Railway variables.</p>
+                    <p className="text-white/50 text-xs mt-0.5 leading-relaxed">Stripe is not production-ready in the current runtime. Verify <code className="bg-[rgba(255,255,255,0.08)] px-1 rounded text-orange-300">STRIPE_MODE</code> matches the Stripe key type and all price IDs are set.</p>
                   </div>
                 </div>
               )}
@@ -369,7 +369,7 @@ export default function AdminDashboard() {
                   <XCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-white font-semibold text-sm">SMTP email not configured</p>
-                    <p className="text-white/50 text-xs mt-0.5 leading-relaxed">Email delivery is not fully configured in the current runtime. Add or verify <code className="bg-[rgba(255,255,255,0.08)] px-1 rounded text-orange-300">SMTP_HOST</code>, <code className="bg-[rgba(255,255,255,0.08)] px-1 rounded text-orange-300">SMTP_USER</code>, and <code className="bg-[rgba(255,255,255,0.08)] px-1 rounded text-orange-300">SMTP_PASS</code> in Railway variables, or wire this panel to Resend status.</p>
+                    <p className="text-white/50 text-xs mt-0.5 leading-relaxed">Email delivery is not fully configured in the current runtime. Configure either <code className="bg-[rgba(255,255,255,0.08)] px-1 rounded text-orange-300">RESEND_API_KEY</code> or complete SMTP credentials in Railway variables.</p>
                   </div>
                 </div>
               )}

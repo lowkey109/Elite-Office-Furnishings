@@ -383,6 +383,73 @@ app.get("/api/admin/lead-templates", async (_req: any, res: any) => {
   return res.json([]);
 });
 
+app.get("/api/leads", async (_req: any, res: any) => {
+  return res.json([]);
+});
+
+app.get("/api/admin/planning-requests", async (_req: any, res: any) => {
+  return res.json([]);
+});
+
+app.get("/api/admin/intelligence/jobs", async (_req: any, res: any) => {
+  return res.json([]);
+});
+
+app.get("/api/admin/deal-forecast", async (_req: any, res: any) => {
+  return res.json({
+    safeFallback: true,
+    grossPipeline: 0,
+    weightedRevenue: 0,
+    probableDealsCount: 0,
+    probableDealsValue: 0,
+    wonValue: 0,
+    wonDealsCount: 0,
+    winRate: null,
+    totalLeads: 0,
+    stageCounts: {},
+    opportunities: [],
+    closing90Days: [],
+    closing90DaysValue: 0,
+    blockedReason: "Railway Postgres is recovering."
+  });
+});
+
+app.get("/api/admin/analytics", async (_req: any, res: any) => {
+  return res.json({
+    safeFallback: true,
+    pageViews: { today: 0, week: 0, month: 0, year: 0, total: 0 },
+    uniqueVisitors: { today: 0, week: 0, month: 0, year: 0 },
+    leads: { today: 0, week: 0, month: 0, year: 0, total: 0 },
+    topPages: [],
+    referrers: [],
+    leadsBreakdown: [],
+    conversionRate: 0,
+    blockedReason: "Railway Postgres is recovering."
+  });
+});
+
+app.get("/api/admin/office-move-radar/stats", async (_req: any, res: any) => {
+  return res.json({
+    safeFallback: true,
+    total: 0,
+    high: 0,
+    medium: 0,
+    low: 0,
+    newCount: 0,
+    inPipeline: 0,
+    avgScore: 0,
+    blockedReason: "Railway Postgres is recovering."
+  });
+});
+
+app.get("/api/admin/office-move-radar", async (_req: any, res: any) => {
+  return res.json([]);
+});
+
+app.get("/api/admin/strategy-bookings", async (_req: any, res: any) => {
+  return res.json([]);
+});
+
 // TCD_PRE_GUARD_SAFE_MONITOR_ENDPOINTS
 // Express runs middleware/routes in registration order, so these safe paper-only endpoints
 // must be registered before the global /api/admin auth guard.
@@ -1956,10 +2023,43 @@ app.post("/api/admin/sales-psychology/follow-up-plan", async (req: any, res: any
 
 // INDEX_HEALTH_ROUTE
 app.get("/api/health", (_req: any, res: any) => {
+  const stripeSecret = String(process.env.STRIPE_SECRET_KEY || "");
+  const stripeMode = String(process.env.STRIPE_MODE || "test");
+  const stripeKeyType = stripeSecret.startsWith("sk_live_")
+    ? "live"
+    : stripeSecret.startsWith("sk_test_")
+      ? "test"
+      : "missing";
+  const stripeModeMismatch = Boolean(stripeSecret) && stripeMode === "live" && stripeKeyType !== "live";
+
+  const resendConfigured = Boolean(process.env.RESEND_API_KEY);
+  const smtpConfigured = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+  const emailConfigured = resendConfigured || smtpConfigured;
+
   return res.status(200).json({
     ok: true,
     service: "The Corporate Desk",
     status: "running",
+    email: emailConfigured,
+    stripe: Boolean(stripeSecret) && !stripeModeMismatch,
+    config: {
+      emailProvider: resendConfigured ? "resend" : smtpConfigured ? "smtp" : "missing",
+      resendConfigured,
+      smtpConfigured,
+      smtpHostConfigured: Boolean(process.env.SMTP_HOST),
+      smtpUserConfigured: Boolean(process.env.SMTP_USER),
+      smtpPassConfigured: Boolean(process.env.SMTP_PASS),
+      stripeConfigured: Boolean(stripeSecret),
+      stripeMode,
+      stripeKeyType,
+      stripeModeMismatch,
+      stripeReady: Boolean(stripeSecret) && !stripeModeMismatch,
+      recommendedStripeMode: stripeKeyType === "live" ? "live" : "test",
+    },
+    warnings: [
+      ...(!emailConfigured ? ["Email is not configured. Configure RESEND_API_KEY or full SMTP credentials."] : []),
+      ...(stripeModeMismatch ? ["STRIPE_MODE is live but STRIPE_SECRET_KEY is not a live key. Set STRIPE_MODE=test or use a live Stripe key."] : []),
+    ],
     time: new Date().toISOString(),
   });
 });
