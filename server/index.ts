@@ -3613,6 +3613,44 @@ app.post("/api/nexora/alpha-orchestrator/run", async (req, res) => {
   }
 });
 
+
+app.get("/api/nexora/db/health-gate", async (_req, res) => {
+  try {
+    const { getNexoraDbHealthGate } = await import("./services/trading/resilience/nexoraDbHealthGate");
+    res.json(await getNexoraDbHealthGate());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_db_health_gate", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/alpha-orchestrator/resilient-run", async (req, res) => {
+  try {
+    const { runNexoraResilientAlphaOrchestrator } = await import("./services/trading/orchestration/nexoraResilientAlphaOrchestrator");
+    res.json(await runNexoraResilientAlphaOrchestrator(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_resilient_alpha_orchestrator", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+
+app.get("/api/nexora/scanner/status", async (_req, res) => {
+  try {
+    const { getNexoraScannerStatus } = await import("./services/trading/scanner/nexoraPredictionMarketScanner");
+    res.json(getNexoraScannerStatus());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_prediction_market_scanner", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/nexora/scanner/prediction-markets", async (req, res) => {
+  try {
+    const { runNexoraPredictionMarketScanner } = await import("./services/trading/scanner/nexoraPredictionMarketScanner");
+    res.json(await runNexoraPredictionMarketScanner(req.body || {}));
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_prediction_market_scanner", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
