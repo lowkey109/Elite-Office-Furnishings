@@ -111,6 +111,7 @@ import OpenAI from "openai";
 import { registerNexoraAdvancedAutonomyRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes";
 import { registerNexoraGovernorBusinessRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes";
 import { registerNexoraOperationalAutopilotRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes";
+import { registerNexoraMissionControlRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes";
 
 function hasLocalAdminHeader(req: any): boolean {
   return (
@@ -216,6 +217,7 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
   registerNexoraAdvancedAutonomyRoutes(app);
 registerNexoraGovernorBusinessRoutes(app);
 registerNexoraOperationalAutopilotRoutes(app);
+registerNexoraMissionControlRoutes(app);
 app.get("/api/client/plan-access", async (req: any, res: any) => {
     try {
       const { getClientPlanAccess } = await import("./services/clientPortal/clientPortalService");
