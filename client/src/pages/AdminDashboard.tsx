@@ -80,6 +80,14 @@ function formatDate(dateStr?: string) {
   return new Date(dateStr).toLocaleDateString("en-AU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
+function safeArray<T>(value: unknown): T[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function safeObject<T extends Record<string, any>>(value: unknown, fallback: T): T {
+  return value && typeof value === "object" && !Array.isArray(value) ? { ...fallback, ...(value as any) } : fallback;
+}
+
 export default function AdminDashboard() {
   const [, navigate] = useLocation();
   const [authed, setAuthed] = useState(() =>
@@ -99,7 +107,7 @@ export default function AdminDashboard() {
     }
   }, []);
 
-  const { data: leadsRaw = [], isLoading } = useQuery<Lead[]>({
+  const { data: leadsRaw = [], isLoading } = useQuery<any>({
     queryKey: ["/api/leads"],
     enabled: authed,
   });
@@ -111,7 +119,7 @@ export default function AdminDashboard() {
   });
 
   interface PlanningReq { id: string; name: string; company: string; status: string; leadScore?: number; estimatedValue?: string; squareMetres?: string; staffCount?: string; createdAt?: string; packageJson?: string; }
-  const { data: planningRequestsRaw = [] } = useQuery<PlanningReq[]>({
+  const { data: planningRequestsRaw = [] } = useQuery<any>({
     queryKey: ["/api/admin/planning-requests"],
     enabled: authed,
     refetchInterval: 60000,
@@ -139,21 +147,21 @@ export default function AdminDashboard() {
     closing90Days: ForecastOpportunity[];
     closing90DaysValue: number;
   }
-  const { data: forecast } = useQuery<DealForecast>({
+  const { data: forecastRaw } = useQuery<any>({
     queryKey: ["/api/admin/deal-forecast"],
     queryFn: () => fetch("/api/admin/deal-forecast").then(r => r.json()),
     enabled: authed,
   });
 
   interface ScheduledJob { id: string; jobType: string; status: string; startedAt?: string; completedAt?: string; }
-  const { data: recentJobsRaw = [] } = useQuery<ScheduledJob[]>({
+  const { data: recentJobsRaw = [] } = useQuery<any>({
     queryKey: ["/api/admin/intelligence/jobs"],
     enabled: authed,
     refetchInterval: 120000,
   });
 
   interface RadarStats { total: number; high: number; medium: number; low: number; newCount: number; inPipeline: number; avgScore: number; }
-  const { data: radarStats } = useQuery<RadarStats>({
+  const { data: radarStatsRaw } = useQuery<any>({
     queryKey: ["/api/admin/office-move-radar/stats"],
     enabled: authed,
     refetchInterval: 60000,
@@ -168,15 +176,15 @@ export default function AdminDashboard() {
     leadsBreakdown: { type: string; count: number }[];
     conversionRate: number;
   }
-  const { data: analytics } = useQuery<AnalyticsData>({
+  const { data: analyticsRaw } = useQuery<any>({
     queryKey: ["/api/admin/analytics"],
     enabled: authed,
     refetchInterval: 120000,
   });
   interface RadarRecord { id: string; companyName: string; city: string; priority: string; radarScore: number; estimatedProjectValue: string | null; signalType: string; status: string; }
-  const { data: radarRecordsRaw = [] } = useQuery<RadarRecord[]>({
+  const { data: radarRecordsRaw = [] } = useQuery<any>({
     queryKey: ["/api/admin/office-move-radar"],
-    enabled: authed && (radarStats?.total ?? 0) > 0,
+    enabled: authed,
     refetchInterval: 60000,
   });
 
@@ -185,7 +193,7 @@ export default function AdminDashboard() {
     staffCount?: string; officeLocation?: string; budget?: string; moveDate?: string;
     message?: string; bookingDate: string; bookingTime: string; status: string; createdAt?: string;
   }
-  const { data: strategyBookingsRaw = [], refetch: refetchBookings } = useQuery<StrategyBooking[]>({
+  const { data: strategyBookingsRaw = [], refetch: refetchBookings } = useQuery<any>({
     queryKey: ["/api/admin/strategy-bookings"],
     enabled: authed,
     refetchInterval: 60000,
@@ -201,11 +209,46 @@ export default function AdminDashboard() {
     }
   }
 
-  const leads = Array.isArray(leadsRaw) ? leadsRaw : [];
-  const planningRequests = Array.isArray(planningRequestsRaw) ? planningRequestsRaw : [];
-  const recentJobs = Array.isArray(recentJobsRaw) ? recentJobsRaw : [];
-  const radarRecords = Array.isArray(radarRecordsRaw) ? radarRecordsRaw : [];
-  const strategyBookings = Array.isArray(strategyBookingsRaw) ? strategyBookingsRaw : [];
+  const leads = safeArray<Lead>(leadsRaw);
+  const planningRequests = safeArray<PlanningReq>(planningRequestsRaw);
+  const recentJobs = safeArray<ScheduledJob>(recentJobsRaw);
+  const radarRecords = safeArray<RadarRecord>(radarRecordsRaw);
+  const strategyBookings = safeArray<StrategyBooking>(strategyBookingsRaw);
+
+  const forecast = safeObject<DealForecast>(forecastRaw, {
+    grossPipeline: 0,
+    weightedRevenue: 0,
+    probableDealsCount: 0,
+    probableDealsValue: 0,
+    wonValue: 0,
+    wonDealsCount: 0,
+    winRate: null,
+    totalLeads: 0,
+    stageCounts: {},
+    opportunities: [],
+    closing90Days: [],
+    closing90DaysValue: 0,
+  });
+
+  const analytics = safeObject<AnalyticsData>(analyticsRaw, {
+    pageViews: { today: 0, week: 0, month: 0, year: 0, total: 0 },
+    uniqueVisitors: { today: 0, week: 0, month: 0, year: 0 },
+    leads: { today: 0, week: 0, month: 0, year: 0, total: 0 },
+    topPages: [],
+    referrers: [],
+    leadsBreakdown: [],
+    conversionRate: 0,
+  });
+
+  const radarStats = safeObject<RadarStats>(radarStatsRaw, {
+    total: 0,
+    high: 0,
+    medium: 0,
+    low: 0,
+    newCount: 0,
+    inPipeline: 0,
+    avgScore: 0,
+  });
 
   const totalLeads = leads.length;
   const todayLeads = leads.filter(l => isToday(l.createdAt)).length;
@@ -414,7 +457,7 @@ export default function AdminDashboard() {
               <div>
                 <p className="text-white/40 text-xs mb-2 font-medium uppercase tracking-wide">Top Pages (This Month)</p>
                 <div className="space-y-1.5" data-testid="list-top-pages">
-                  {(analytics?.topPages ?? []).slice(0, 5).map((p) => (
+                  {safeArray<any>(analytics?.topPages).slice(0, 5).map((p) => (
                     <div key={p.page_path} className="flex items-center justify-between py-1.5 border-b border-[rgba(255,255,255,0.04)] last:border-0">
                       <span className="text-white/60 text-xs truncate max-w-[200px]">{p.page_path || "/"}</span>
                       <span className="text-white/80 text-xs font-medium ml-2">{Number(p.views).toLocaleString()}</span>
@@ -425,7 +468,7 @@ export default function AdminDashboard() {
               <div>
                 <p className="text-white/40 text-xs mb-2 font-medium uppercase tracking-wide">Traffic Sources</p>
                 <div className="space-y-1.5" data-testid="list-referrers">
-                  {(analytics?.referrers ?? []).slice(0, 5).map((r) => (
+                  {safeArray<any>(analytics?.referrers).slice(0, 5).map((r) => (
                     <div key={r.source} className="flex items-center justify-between py-1.5 border-b border-[rgba(255,255,255,0.04)] last:border-0">
                       <span className="text-white/60 text-xs truncate max-w-[200px]">{r.source || "Direct"}</span>
                       <span className="text-white/80 text-xs font-medium ml-2">{Number(r.visits).toLocaleString()}</span>
@@ -467,7 +510,7 @@ export default function AdminDashboard() {
               <div>
                 <p className="text-white/40 text-xs mb-2 font-medium uppercase tracking-wide">By Type (This Month)</p>
                 <div className="space-y-1.5" data-testid="list-leads-breakdown">
-                  {(analytics?.leadsBreakdown ?? []).map((b) => (
+                  {safeArray<any>(analytics?.leadsBreakdown).map((b) => (
                     <div key={b.type} className="flex items-center justify-between py-1.5 border-b border-[rgba(255,255,255,0.04)] last:border-0">
                       <span className="text-white/60 text-xs">{TYPE_LABELS[b.type] ?? b.type}</span>
                       <span className="text-white/80 text-xs font-medium">{Number(b.count)}</span>
@@ -978,7 +1021,7 @@ export default function AdminDashboard() {
                   </div>
 
                   {/* ── Opportunity table ── */}
-                  {(forecast.opportunities ?? []).length > 0 ? (
+                  {safeArray<any>(forecast.opportunities).length > 0 ? (
                     <div>
                       <div className="text-white/30 text-[10px] uppercase tracking-wider mb-2">Opportunities</div>
                       <div className="rounded-xl overflow-hidden border border-[rgba(255,255,255,0.05)]">
@@ -993,7 +1036,7 @@ export default function AdminDashboard() {
                             </tr>
                           </thead>
                           <tbody>
-                            {(forecast.opportunities ?? []).slice(0, 8).map((opp, i) => {
+                            {safeArray<any>(forecast.opportunities).slice(0, 8).map((opp, i) => {
                               const probColor =
                                 opp.probabilityScore >= 75 ? "text-green-400" :
                                 opp.probabilityScore >= 60 ? "text-amber-400" :
@@ -1014,7 +1057,7 @@ export default function AdminDashboard() {
                               );
                             })}
                           </tbody>
-                          {(forecast.opportunities ?? []).length > 0 && (
+                          {safeArray<any>(forecast.opportunities).length > 0 && (
                             <tfoot>
                               <tr className="bg-[rgba(201,168,76,0.05)] border-t border-[rgba(201,168,76,0.15)]">
                                 <td className="px-3 py-2 text-white/50 font-semibold text-xs" colSpan={2}>
@@ -1034,7 +1077,7 @@ export default function AdminDashboard() {
                           )}
                         </table>
                       </div>
-                      {(forecast.opportunities ?? []).length > 8 && (
+                      {safeArray<any>(forecast.opportunities).length > 8 && (
                         <div className="text-center mt-2">
                           <a href="/admin/deal-pipeline" className="text-white/30 hover:text-white/60 text-xs transition-colors">
                             +{forecast.opportunities.length - 8} more →
