@@ -1,0 +1,68 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "extensions": [
+    {
+      "extensionId": "nexoraExtensionRegistry_1777841963832",
+      "name": "nexoraExtensionRegistry",
+      "build": "56",
+      "category": "extension",
+      "file": "server/services/intelligence/nexora/autonomy/extension/nexoraExtensionRegistry.ts",
+      "mode": "extension_only",
+      "overwritesExisting": false,
+      "createdAt": "2026-05-03T20:59:23.832Z"
+    },
+    {
+      "extensionId": "nexoraDependencyGraphInspector_1777841963832",
+      "name": "nexoraDependencyGraphInspector",
+      "build": "57",
+      "category": "extension",
+      "file": "server/services/intelligence/nexora/autonomy/extension/nexoraDependencyGraphInspector.ts",
+      "mode": "extension_only",
+      "overwritesExisting": false,
+      "createdAt": "2026-05-03T20:59:23.832Z"
+    },
+    {
+      "extensionId": "nexoraDuplicateRouteInspector_1777841963832",
+      "name": "nexoraDuplicateRouteInspector",
+      "build": "58",
+      "category": "extension",
+      "file": "server/services/intelligence/nexora/autonomy/extension/nexoraDuplicateRouteInspector.ts",
+      "mode": "extension_only",
+      "overwritesExisting": false,
+      "createdAt": "2026-05-03T20:59:23.832Z"
+    },
+    {
+      "extensionId": "nexoraSafePatchFramework_1777841963832",
+      "name": "nexoraSafePatchFramework",
+      "build": "59",
+      "category": "extension",
+      "file": "server/services/intelligence/nexora/autonomy/extension/nexoraSafePatchFramework.ts",
+      "mode": "extension_only",
+      "overwritesExisting": false,
+      "createdAt": "2026-05-03T20:59:23.832Z"
+    },
+    {
+      "extensionId": "nexoraExtensionManagerRoutes_1777841963832",
+      "name": "nexoraExtensionManagerRoutes",
+      "build": "60",
+      "category": "routes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraExtensionManagerRoutes.ts",
+      "registrar": "registerNexoraExtensionManagerRoutes",
+      "routes": [
+        "/api/nexora/extensions/status",
+        "/api/nexora/extensions/register",
+        "/api/nexora/extensions/list",
+        "/api/nexora/extensions/dependency-graph",
+        "/api/nexora/extensions/missing-imports",
+        "/api/nexora/extensions/duplicate-routes",
+        "/api/nexora/extensions/patch/plan",
+        "/api/nexora/extensions/patch/apply"
+      ],
+      "mode": "extension_only",
+      "overwritesExisting": false,
+      "createdAt": "2026-05-03T20:59:23.832Z"
+    }
+  ],
+  "updatedAt": "2026-05-03T20:59:23.832Z"
+}
