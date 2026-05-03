@@ -3801,6 +3801,25 @@ app.get("/api/nexora/office/receptionist/leads", async (req, res) => {
   }
 });
 
+
+app.get("/api/nexora/workers/registry", async (_req, res) => {
+  try {
+    const { getNexoraWorkerRegistry } = await import("./services/intelligence/nexora/nexoraWorkerRegistry");
+    res.json(getNexoraWorkerRegistry());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_worker_registry", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.get("/api/nexora/autonomy/hands-free-readiness", async (_req, res) => {
+  try {
+    const { getNexoraHandsFreeReadiness } = await import("./services/intelligence/nexora/nexoraWorkerRegistry");
+    res.json(getNexoraHandsFreeReadiness());
+  } catch (err) {
+    res.status(500).json({ ok: false, service: "nexora_hands_free_readiness", error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 registerRoutes(server, app);
 
 const port = Number(process.env.PORT || 5000);
