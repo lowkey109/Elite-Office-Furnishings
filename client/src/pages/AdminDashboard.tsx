@@ -346,7 +346,7 @@ export default function AdminDashboard() {
             <div className="px-5 py-3 border-b border-[rgba(251,146,60,0.12)] flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-orange-400" />
               <span className="text-orange-400 text-sm font-semibold">System Configuration Alerts</span>
-              <span className="ml-auto text-orange-400/50 text-xs">These are causing live conversion failures</span>
+              <span className="ml-auto text-orange-400/50 text-xs">Live configuration status</span>
             </div>
             <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
               {!health.stripe && (
@@ -354,7 +354,7 @@ export default function AdminDashboard() {
                   <XCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-white font-semibold text-sm">Stripe not configured</p>
-                    <p className="text-white/50 text-xs mt-0.5 leading-relaxed">The $399 unlock button is broken. Users who click it see an error. Add <code className="bg-[rgba(255,255,255,0.08)] px-1 rounded text-orange-300">STRIPE_SECRET_KEY</code> in Secrets to fix.</p>
+                    <p className="text-white/50 text-xs mt-0.5 leading-relaxed">Stripe checkout is not configured in the current runtime. Add or verify <code className="bg-[rgba(255,255,255,0.08)] px-1 rounded text-orange-300">STRIPE_SECRET_KEY</code> and matching price IDs in Railway variables.</p>
                   </div>
                 </div>
               )}
@@ -363,13 +363,13 @@ export default function AdminDashboard() {
                   <XCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-white font-semibold text-sm">SMTP email not configured</p>
-                    <p className="text-white/50 text-xs mt-0.5 leading-relaxed">All lead and planner notifications are silently failing. Add <code className="bg-[rgba(255,255,255,0.08)] px-1 rounded text-orange-300">SMTP_HOST</code>, <code className="bg-[rgba(255,255,255,0.08)] px-1 rounded text-orange-300">SMTP_USER</code>, <code className="bg-[rgba(255,255,255,0.08)] px-1 rounded text-orange-300">SMTP_PASS</code> in Secrets.</p>
+                    <p className="text-white/50 text-xs mt-0.5 leading-relaxed">Email delivery is not fully configured in the current runtime. Add or verify <code className="bg-[rgba(255,255,255,0.08)] px-1 rounded text-orange-300">SMTP_HOST</code>, <code className="bg-[rgba(255,255,255,0.08)] px-1 rounded text-orange-300">SMTP_USER</code>, and <code className="bg-[rgba(255,255,255,0.08)] px-1 rounded text-orange-300">SMTP_PASS</code> in Railway variables, or wire this panel to Resend status.</p>
                   </div>
                 </div>
               )}
             </div>
             <div className="px-5 pb-3">
-              <p className="text-orange-400/50 text-xs">Fix these in the Replit Secrets panel (the padlock icon in the sidebar). These are revenue-critical.</p>
+              <p className="text-orange-400/50 text-xs">Fix these in Railway Variables for the deployed service. Do not use Replit Secrets for production.</p>
             </div>
           </div>
         )}
