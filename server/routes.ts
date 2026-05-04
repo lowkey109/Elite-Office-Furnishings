@@ -140,6 +140,12 @@ import { registerNexoraLocalOwnerCockpitUiRoutes } from "./services/intelligence
 import { registerNexoraActiveLocalLoopDaemonRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraActiveLocalLoopDaemonRoutes";
 import { registerNexoraLocalActionExecutorRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraLocalActionExecutorRoutes";
 import { registerNexoraLoopCoverageRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraLoopCoverageRoutes";
+import { registerNexoraUnifiedAgentRuntimeRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraUnifiedAgentRuntimeRoutes";
+import { registerNexoraMarketDataPaperRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraMarketDataPaperRoutes";
+import { registerNexoraWebSocketCollectorRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraWebSocketCollectorRoutes";
+import { registerNexoraBacktestSimulationRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraBacktestSimulationRoutes";
+import { registerNexoraTradingMegaRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraTradingMegaRoutes";
+import { registerNexoraTradingIntelligenceLabV2Routes } from "./services/intelligence/nexora/autonomy/routes/nexoraTradingIntelligenceLabV2Routes";
 
 function hasLocalAdminHeader(req: any): boolean {
   return (
@@ -238,6 +244,12 @@ function filterSafePendingOutreach(mapped: any[]) {
 }
 
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
+  registerNexoraTradingIntelligenceLabV2Routes(app);
+  registerNexoraTradingMegaRoutes(app);
+  registerNexoraBacktestSimulationRoutes(app);
+  registerNexoraWebSocketCollectorRoutes(app);
+  registerNexoraMarketDataPaperRoutes(app);
+  registerNexoraUnifiedAgentRuntimeRoutes(app);
   registerNexoraLoopCoverageRoutes(app);
   registerNexoraLocalActionExecutorRoutes(app);
   registerNexoraActiveLocalLoopDaemonRoutes(app);
