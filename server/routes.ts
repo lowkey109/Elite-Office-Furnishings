@@ -160,6 +160,7 @@ import { registerNexoraCommandOrchestratorRoutes } from "./services/intelligence
 import { registerNexoraProductImportExportRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraProductImportExportRoutes";
 import { registerNexoraPolymarketSuperstackRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolymarketSuperstackRoutes";
 import { registerNexoraPolymarketLocalOperatorUiRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolymarketLocalOperatorUiRoutes";
+import { registerNexoraPolymarketFinalHardeningRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolymarketFinalHardeningRoutes";
 
 function hasLocalAdminHeader(req: any): boolean {
   return (
@@ -258,6 +259,7 @@ function filterSafePendingOutreach(mapped: any[]) {
 }
 
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
+  registerNexoraPolymarketFinalHardeningRoutes(app);
   registerNexoraPolymarketLocalOperatorUiRoutes(app);
   registerNexoraPolymarketSuperstackRoutes(app);
   registerNexoraProductImportExportRoutes(app);
