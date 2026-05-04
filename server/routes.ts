@@ -172,6 +172,7 @@ import { registerNexoraMoonDevPhase1Routes } from "./services/intelligence/nexor
 import { registerNexoraMoonDevSystemsAcceleratorRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraMoonDevSystemsAcceleratorRoutes";
 import { registerNexoraPolyFivePackRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyFivePackRoutes";
 import { registerNexoraPolyNextFivePackRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyNextFivePackRoutes";
+import { registerNexoraPolyFinalFivePackRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyFinalFivePackRoutes";
 
 function hasLocalAdminHeader(req: any): boolean {
   return (
@@ -270,6 +271,7 @@ function filterSafePendingOutreach(mapped: any[]) {
 }
 
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
+  registerNexoraPolyFinalFivePackRoutes(app);
   registerNexoraPolyNextFivePackRoutes(app);
   registerNexoraPolyFivePackRoutes(app);
   registerNexoraMoonDevSystemsAcceleratorRoutes(app);
