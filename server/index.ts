@@ -51,6 +51,10 @@ import { registerNexoraMoonDevStrategyBacktestImporterRoutes } from "./services/
 import { registerNexoraMoonDevPhase1Routes } from "./services/intelligence/nexora/autonomy/routes/nexoraMoonDevPhase1Routes";
 import { registerNexoraMoonDevSystemsAcceleratorRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraMoonDevSystemsAcceleratorRoutes";
 import { registerNexoraPolyAppRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyAppRoutes";
+import { registerNexoraPolyAppPaperFullSuiteRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyAppPaperFullSuiteRoutes";
+import { registerNexoraPolyBuildsBash1Routes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyBuildsBash1Routes";
+import { registerNexoraPolyBuildsBash2Routes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyBuildsBash2Routes";
+import { registerNexoraPolyBuildsFinalRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyBuildsFinalRoutes";
 
 // TCD_CHAT_ENV_ALIAS_FIX
 // Keep old and new OpenAI env names in sync so all chatbots/services work.
@@ -4192,6 +4196,14 @@ const port = Number(process.env.PORT || 5000);
 
   // Nexora Poly-App direct API mount: must stay before Vite/static fallback.
   registerNexoraPolyAppRoutes(app);
+
+  // Nexora Poly-App paper full-suite direct API mount: before frontend fallback.
+  registerNexoraPolyAppPaperFullSuiteRoutes(app);
+
+  // Nexora Polymarket 7-builds Bash 1 direct API mount: before frontend fallback.
+  registerNexoraPolyBuildsBash1Routes(app);
+  registerNexoraPolyBuildsBash2Routes(app);
+  registerNexoraPolyBuildsFinalRoutes(app);
     await setupVite(server, app);
   } else {
   registerNexoraPolymarketBatch1Routes(app);

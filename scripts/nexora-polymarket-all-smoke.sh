@@ -21,6 +21,8 @@ routes=(
   "/api/nexora/poly-next-five/status"
   "/api/nexora/poly-final-five/status"
   "/api/nexora/poly-app/status"
+  "/api/nexora/poly-app/full-suite/status"
+  "/api/nexora/poly-app/operator-summary"
   "/api/nexora/moondev-strategy-import/status"
   "/api/nexora/moondev-phase1/status"
 )
