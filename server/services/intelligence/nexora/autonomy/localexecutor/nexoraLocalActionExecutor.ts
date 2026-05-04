@@ -99,6 +99,20 @@ function normaliseAction(row: any) {
   };
 }
 
+function getInputActionsOnly(input: any = {}) {
+  const actions =
+    Array.isArray(input.actions) ? input.actions :
+    Array.isArray(input.payload?.actions) ? input.payload.actions :
+    Array.isArray(input.body?.actions) ? input.body.actions :
+    [];
+
+  return actions.map((action: any) => ({
+    sourceFile: "input.actions",
+    action: normaliseAction(action),
+    raw: action,
+  }));
+}
+
 function readCandidateActions(limit: number) {
   const logs = [
     nexoraLocalPath("company-run", "work-orders", "work-order-log.jsonl"),
@@ -200,12 +214,10 @@ export function runNexoraLocalActionExecutor(input: any = {}) {
   const limit = Number(input.limit || 25);
   const dryRun = input.dryRun === true;
 
-  const candidates = Array.isArray(input.actions) && input.actions.length
-    ? input.actions.map((action: any) => ({
-        sourceFile: "input",
-        action: normaliseAction(action),
-        raw: action,
-      }))
+  const inputCandidates = getInputActionsOnly(input);
+
+  const candidates = inputCandidates.length > 0
+    ? inputCandidates
     : readCandidateActions(limit);
 
   const results: any[] = [];
@@ -299,6 +311,7 @@ export function runNexoraLocalActionExecutor(input: any = {}) {
     runId,
     createdAt: now(),
     dryRun,
+    candidateSource: inputCandidates.length > 0 ? "input.actions" : "local.queue",
     candidateCount: candidates.length,
     executed: results.filter((row: any) => row.status === "executed_local").length,
     held: results.filter((row: any) => row.status === "held_for_human_boundary").length,
