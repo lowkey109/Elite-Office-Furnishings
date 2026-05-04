@@ -1,0 +1,80 @@
+537faaf7 (HEAD -> main) Add Nexora no-freeze minimum check report
+0a4602b6 Add Nexora Poly Final 5 Pack clob fill pnl tournament kill tests readiness
+bb271cef Add Nexora Poly Next 5 Pack market api orderbook tournament risk stress evidence systems
+1a8e9772 Add Nexora Poly 5 Pack risk discovery clob strategy pnl systems
+62f91a21 Add Nexora Poly 5 Pack risk discovery clob strategy pnl systems
+8f158e4e Fix MoonDev systems accelerator report log and add system planner
+cd4c67ab Add Nexora NB MoonDev phase1 continuation report
+3b318d1f Add MoonDev phase1 adapter plans for Nexora upgrades
+7c22916c Fix MoonDev strategy import metrics typing
+cfffe17b Add MoonDev adapter scorecard and build plan for Nexora upgrades
+d668d520 Add selected MoonDev research subset and quarantine audit
+c3c8c939 Vendor MoonDev research repo from Replit imports
+ea32b8cd Add Nexora Polymarket super smoke and paper operator run scripts
+5f8aae18 Add Nexora Polymarket mega accelerator v2 evidence farm and rankings
+59b545d6 Add Nexora Polymarket mega accelerator health and runbook layer
+66456586 Direct mount paper autopilot and add trading smoke evidence runners
+09908bba Add Nexora NB after paper autopilot fix report
+0f21212d Fix Nexora paper autopilot optional swarm and fill typing
+17b8384c Add Nexora NB current fast report
+fe36bc00 Add Nexora Polymarket live execution design scaffold
+00d06959 Add Nexora live money readiness scaffold with private key protections
+1a133114 Fix Nexora Polymarket final hardening route patcher
+5ad8b679 Add Nexora Polymarket final hardening audit readiness and runbook
+2c39250e Add Nexora Polymarket local operator UI
+06ce7242 Direct mount Nexora MoonDev research bridge routes
+3078be8a Add Nexora Polymarket superstack paper market engine
+5e53034f Add Nexora product import quote export and validation system
+6e534d4c Add Nexora current NBP report
+00504bdb Add Nexora current NBP report
+7c9282fd Add Nexora NBP final check report
+5fb178d1 Add Nexora command orchestrator dry run and runbook engine
+38338ba9 (origin/main, origin/HEAD) Add clean Nexora local smoke test
+619f82c4 Add Nexora next best plan engine
+98554de5 Final direct mount Nexora API routes and add local smoke test
+ca39b6ae Add Nexora final local v1 release pack and readiness checks
+12c50539 Add Nexora trading live readiness gate with paper evidence requirements
+090d8b73 Add Nexora trading execution safety simulator and kill switch
+96d2dbeb Add Nexora Polymarket real collector interface and safe edge scan
+2603d334 Fix product comms docs and add Nexora research bridge
+739db1ac Fix Nexora comms docs draft export and add human approved email outbox
+b66e4fe1 Add Nexora trading intelligence lab v2 strategy mutation portfolio exposure
+8d7b01d1 Fix unified runtime typing and add Nexora trading mega layer
+48154511 Fix Nexora local executor input action priority
+fe0ec931 Direct mount critical Nexora API routes in index
+85a63cf3 Add Nexora full historical loop coverage auditor and safe expansion
+f9497584 Make Nexora active loop optional module imports compile-safe
+d209f5f1 Add Nexora local owner cockpit UI routes
+9dffada3 Add Nexora local only master control layer
+a6e4dfe4 Add Nexora final local AI company audit pack
+feae167b Add Nexora final local AI company audit pack
+af13a302 Add Nexora AI company operating completion routes
+7faa948e Add Nexora reward reinforcement praise confidence and promotion system
+8732d977 Add Nexora teach herself capability gap lesson and playbook system
+f241c867 Add Nexora human boundary doctrine approve sign commit only
+5c563bf3 Add Nexora human in the loop business operations layer
+ab772ddf Add Nexora human contact AI company operating layer
+d1198337 Add Nexora AI company v1 hardening layer
+4eb7f89d Add Nexora full AI company run operating layer
+903fa162 Add Nexora office furniture agents engine and routes
+c95d7ccb Add Nexora office agent adapter routes over existing modules
+beddd6a9 Fix Nexora office agent adapter CRM import
+1f603b8d Fix Nexora almighty typing and route wiring patcher
+342351a7 Add Nexora storage guard compaction simulation rules maintenance trace
+09867832 Add Nexora migration planner and complete extension builds 86 to 125
+2a556852 Add Nexora build planner collision preflight and roadmap engine
+161cab68 Add Nexora validation and readiness dependencies
+26ef6f3d Add Nexora extension manager safe patch and dependency inspectors
+d8dd092a Repair missing Nexora local dependency modules
+59022785 Add Nexora file bus delayed jobs and inbox outbox recovery API
+2bb49945 Add Nexora resilience core fallback journal and replay engine
+c4589c5f Make Nexora runtime test task resilient with DB diagnostic
+52ccb8f0 Fix Nexora hard mount app-only route registration
+c0760ed8 Mount Nexora live verification routes directly
+0acb72d5 Fix Nexora mega build strategy compatibility and finance typing
+bd341423 Add Nexora supreme orchestration matrix and worker dance engine
+f87a684e Add Nexora mission control runbooks and operating cadence
+4324dec4 Add Nexora operational autopilot incident response and KPI ledger
+21a92ed7 Add Nexora autonomy governor and business pipeline engine
+b4e8c631 Add Nexora advanced autonomy durable kernel and empire cycle
+4c09763d Add Nexora safe autonomy runner and operating plan

@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_full_dynamic_build_inventory",
+  "generatedAt": "2026-05-04T07:49:10Z",
+  "reportDir": "reports/nexora-audit/20260504-074902-full-dynamic-build-inventory",
+  "typescript": "passed",
+  "autonomyFolders": 134,
+  "autonomyFiles": 202,
+  "routeFiles": 65
+}

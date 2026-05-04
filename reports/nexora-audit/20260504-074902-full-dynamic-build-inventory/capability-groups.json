@@ -1,0 +1,50 @@
+[
+  {
+    "name": "core loop",
+    "folders": 1,
+    "files": 2,
+    "routes": 14
+  },
+  {
+    "name": "office company",
+    "folders": 10,
+    "files": 19,
+    "routes": 123
+  },
+  {
+    "name": "product quote comms",
+    "folders": 7,
+    "files": 14,
+    "routes": 64
+  },
+  {
+    "name": "polymarket trading",
+    "folders": 15,
+    "files": 34,
+    "routes": 116
+  },
+  {
+    "name": "moondev",
+    "folders": 5,
+    "files": 10,
+    "routes": 24
+  },
+  {
+    "name": "live-money scaffold",
+    "folders": 1,
+    "files": 2,
+    "routes": 15
+  },
+  {
+    "name": "ui dashboards",
+    "folders": 134,
+    "files": 202,
+    "routes": 752
+  },
+  {
+    "name": "resilience storage",
+    "folders": 5,
+    "files": 8,
+    "routes": 24
+  }
+]
