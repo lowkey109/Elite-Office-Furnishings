@@ -62,6 +62,7 @@ import { registerNexoraLearningMemoryRoutes } from "./services/intelligence/nexo
 import { registerNexoraPolyModeSwitchRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyModeSwitchRoutes";
 import { registerNexoraPolyMovingChartsRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyMovingChartsRoutes";
 import { registerNexoraPaperPracticeSupervisorRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPaperPracticeSupervisorRoutes";
+import { registerNexoraMoonDevFullHarvestRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraMoonDevFullHarvestRoutes";
 
 // TCD_CHAT_ENV_ALIAS_FIX
 // Keep old and new OpenAI env names in sync so all chatbots/services work.
@@ -4218,7 +4219,8 @@ const port = Number(process.env.PORT || 5000);
   registerNexoraPolyProductionOperatorRoutes(app);
   registerNexoraPolyRealMoneyPreparationRoutes(app);
   registerNexoraPolyOperatorControlRoutes(app);
-    await setupVite(server, app);
+      registerNexoraMoonDevFullHarvestRoutes(app);
+await setupVite(server, app);
   } else {
   registerNexoraPolymarketBatch1Routes(app);
   registerNexoraPolymarketBatch2Routes(app);
