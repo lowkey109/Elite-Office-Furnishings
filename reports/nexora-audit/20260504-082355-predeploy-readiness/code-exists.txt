@@ -1,0 +1,9 @@
+OK server/services/intelligence/nexora/autonomy/officeagents
+OK server/services/intelligence/nexora/autonomy/polymarketsuperstack
+OK server/services/intelligence/nexora/autonomy/polyfive
+OK server/services/intelligence/nexora/autonomy/polynextfive
+OK server/services/intelligence/nexora/autonomy/polyfinalfive
+OK server/services/intelligence/nexora/autonomy/moondevadapter
+OK server/services/intelligence/nexora/autonomy/moondevstrategyimport
+OK server/services/intelligence/nexora/autonomy/moondevphase1
+OK research/moondev-selected
