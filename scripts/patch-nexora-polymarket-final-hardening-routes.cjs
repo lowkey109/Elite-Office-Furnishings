@@ -10,6 +10,11 @@ if (!fs.existsSync(target)) {
   process.exit(1);
 }
 
+if (!fs.existsSync(`${routeFile}.ts`)) {
+  console.error(`Missing ${routeFile}.ts`);
+  process.exit(1);
+}
+
 let source = fs.readFileSync(target, "utf8");
 
 if (!source.includes(`import { ${symbol} }`)) {
@@ -30,9 +35,9 @@ if (!source.includes(`import { ${symbol} }`)) {
 if (!source.includes(`${symbol}(app);`)) {
   const patterns = [
     /(export\s+async\s+function\s+registerRoutes\s*\([^)]*\)\s*(?::[^{]+)?\s*{)/,
-    /(export\s+function\s+registerRoutes\s*$begin:math:text$\[\^\)\]\*$end:math:text$\s*(?::[^{]+)?\s*{)/,
-    /(async\s+function\s+registerRoutes\s*$begin:math:text$\[\^\)\]\*$end:math:text$\s*(?::[^{]+)?\s*{)/,
-    /(function\s+registerRoutes\s*$begin:math:text$\[\^\)\]\*$end:math:text$\s*(?::[^{]+)?\s*{)/,
+    /(export\s+function\s+registerRoutes\s*\([^)]*\)\s*(?::[^{]+)?\s*{)/,
+    /(async\s+function\s+registerRoutes\s*\([^)]*\)\s*(?::[^{]+)?\s*{)/,
+    /(function\s+registerRoutes\s*\([^)]*\)\s*(?::[^{]+)?\s*{)/,
   ];
 
   let patched = false;
