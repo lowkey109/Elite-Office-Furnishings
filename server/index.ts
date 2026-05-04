@@ -15,6 +15,13 @@ import { registerRoutes } from "./routes";
 import { startNexoraLoop } from "./services/nexoraLoop";
 import { setupVite } from "./vite";
 import { serveStatic } from "./static";
+import { registerNexoraHardMountRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes";
+import { registerNexoraActiveLocalLoopDaemonRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraActiveLocalLoopDaemonRoutes";
+import { registerNexoraLocalActionExecutorRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraLocalActionExecutorRoutes";
+import { registerNexoraLoopCoverageRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraLoopCoverageRoutes";
+import { registerNexoraOfficeFurnitureAgentRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraOfficeFurnitureAgentRoutes";
+import { registerNexoraHumanBoundaryDoctrineRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraHumanBoundaryDoctrineRoutes";
+import { registerNexoraAICompanyOperatingCompletionRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraAICompanyOperatingCompletionRoutes";
 
 // TCD_CHAT_ENV_ALIAS_FIX
 // Keep old and new OpenAI env names in sync so all chatbots/services work.
@@ -42,6 +49,22 @@ const TCD_ENABLE_BACKGROUND_JOBS =
   process.env.ENABLE_BACKGROUND_JOBS === "true";
 
 const app = express();
+
+// NEXORA_DIRECT_API_MOUNT_BEGIN
+try {
+  registerNexoraHardMountRoutes(app);
+  registerNexoraActiveLocalLoopDaemonRoutes(app);
+  registerNexoraLocalActionExecutorRoutes(app);
+  registerNexoraLoopCoverageRoutes(app);
+  registerNexoraOfficeFurnitureAgentRoutes(app);
+  registerNexoraHumanBoundaryDoctrineRoutes(app);
+  registerNexoraAICompanyOperatingCompletionRoutes(app);
+  console.log("[NEXORA_DIRECT_API_MOUNT] Critical Nexora API routes mounted in server/index.ts");
+} catch (error) {
+  console.error("[NEXORA_DIRECT_API_MOUNT_ERROR]", error);
+}
+// NEXORA_DIRECT_API_MOUNT_END
+
 
 app.get("/api/polyedge/action-monitor", async (_req, res) => {
   try {
