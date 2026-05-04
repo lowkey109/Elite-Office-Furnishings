@@ -1,0 +1,26 @@
+{
+  "required": [
+    "/api/nexora/ping",
+    "/api/nexora/active-loop/status",
+    "/api/nexora/loop-coverage/status",
+    "/api/nexora/office-agents/status",
+    "/api/nexora/human-boundary/status",
+    "/api/nexora/final-local-v1/status",
+    "/api/nexora/product-catalogue/status",
+    "/api/nexora/quote-pack/status",
+    "/api/nexora/comms-docs/status",
+    "/api/nexora/email-approval/status",
+    "/api/nexora/polymarket-paper/status",
+    "/api/nexora/market-data/status",
+    "/api/nexora/backtesting/status",
+    "/api/nexora/trading-dashboard/status",
+    "/api/nexora/trading-execution/status",
+    "/api/nexora/trading-readiness/status",
+    "/api/nexora/master-wiring/status"
+  ],
+  "missingRequired": [
+    "/api/nexora/polymarket-paper/status",
+    "/api/nexora/trading-dashboard/status",
+    "/api/nexora/master-wiring/status"
+  ]
+}

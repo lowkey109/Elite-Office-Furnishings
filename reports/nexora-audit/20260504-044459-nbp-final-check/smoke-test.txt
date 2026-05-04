@@ -1,0 +1,43 @@
+============================================================
+NEXORA CLEAN LOCAL SMOKE TEST
+BASE_URL=http://127.0.0.1:5000
+============================================================
+---- GET /api/nexora/ping ----
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_ping"
+}
+---- GET /api/nexora/active-loop/status ----
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_active_local_loop_status"
+}
+---- GET /api/nexora/loop-coverage/status ----
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_loop_coverage_status"
+}
+---- GET /api/nexora/office-agents/status ----
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_office_furniture_agents"
+}
+---- GET /api/nexora/human-boundary/status ----
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_human_boundary_status"
+}
+---- GET /api/nexora/final-local-v1/status ----
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_final_local_v1_status"
+}
+============================================================
+NEXORA CLEAN LOCAL SMOKE TEST PASSED
+============================================================
