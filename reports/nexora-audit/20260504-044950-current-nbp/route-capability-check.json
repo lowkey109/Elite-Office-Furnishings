@@ -1,0 +1,312 @@
+{
+  "ok": false,
+  "generatedAt": "2026-05-04T04:49:57.071Z",
+  "routeCount": 439,
+  "groups": {
+    "/api/nexora/company-completion": 12,
+    "/api/nexora/v1-hardening": 9,
+    "/api/nexora/active-loop": 5,
+    "/api/nexora/advanced": 15,
+    "/api/nexora/advanced-local": 1,
+    "/api/nexora/storage": 1,
+    "/api/nexora/compaction": 2,
+    "/api/nexora/workflow-simulator": 1,
+    "/api/nexora/rules": 3,
+    "/api/nexora/maintenance": 2,
+    "/api/nexora/trace": 2,
+    "/api/nexora/almighty": 2,
+    "/api/nexora/goals": 2,
+    "/api/nexora/playbooks": 3,
+    "/api/nexora/risk-sim": 2,
+    "/api/nexora/brainpack": 1,
+    "/api/nexora/backtesting": 5,
+    "/api/nexora/build-planner": 4,
+    "/api/nexora/command-orchestrator": 9,
+    "/api/nexora/comms-docs": 11,
+    "/api/nexora/company-run": 10,
+    "/api/nexora/extensions": 8,
+    "/api/nexora/filebus": 6,
+    "/api/nexora/final-local-v1": 3,
+    "/api/nexora/governor": 5,
+    "/api/nexora/business": 2,
+    "/api/nexora/ping": 1,
+    "/api/nexora/live": 3,
+    "/api/nexora/mega": 4,
+    "/api/nexora/cockpit": 7,
+    "/api/nexora/supreme": 12,
+    "/api/nexora/runtime": 3,
+    "/api/nexora/email-approval": 5,
+    "/api/nexora/human-boundary": 9,
+    "/api/nexora/human-company": 15,
+    "/api/nexora/human-ops": 12,
+    "/api/nexora/strategy": 1,
+    "/api/nexora/local-executor": 4,
+    "/api/nexora/local-business": 1,
+    "/api/nexora/local-approvals": 3,
+    "/api/nexora/local-crm": 3,
+    "/api/nexora/local-quotes": 3,
+    "/api/nexora/local-suppliers": 2,
+    "/api/nexora/local-projects": 3,
+    "/api/nexora/export": 3,
+    "/api/nexora/snapshot": 3,
+    "/api/nexora/local-command-center": 3,
+    "/api/nexora/local-master": 7,
+    "/nexora/owner": 1,
+    "/nexora/company": 1,
+    "/nexora/approvals": 1,
+    "/nexora/office": 1,
+    "/nexora/teaching": 1,
+    "/nexora/rewards": 1,
+    "/nexora/recovery": 1,
+    "/api/nexora/local-ui": 8,
+    "/api/nexora/loop-coverage": 5,
+    "/api/nexora/market-data": 9,
+    "/api/nexora/finance": 3,
+    "/api/nexora/supplier": 3,
+    "/api/nexora/crm": 3,
+    "/api/nexora/project": 2,
+    "/api/nexora/academy": 2,
+    "/api/nexora/mission": 6,
+    "/api/nexora/nbp": 2,
+    "/api/nexora/office-agents": 15,
+    "/api/nexora/autopilot": 7,
+    "/api/nexora/operator-kit": 1,
+    "/api/nexora/api-catalogue": 2,
+    "/api/nexora/test-harness": 3,
+    "/api/nexora/seed-packs": 2,
+    "/api/nexora/health-score": 1,
+    "/api/nexora/operator-pack": 2,
+    "/api/nexora/package-manifest": 1,
+    "/api/nexora/polymarket-collector": 9,
+    "/api/nexora/product-catalogue": 10,
+    "/api/nexora/quote-pack": 5,
+    "/api/nexora/prod-readiness": 1,
+    "/api/nexora/auth": 3,
+    "/api/nexora/route-governance": 3,
+    "/api/nexora/migration-pack": 2,
+    "/api/nexora/restore": 3,
+    "/api/nexora/local-monitor": 1,
+    "/api/nexora/v1": 2,
+    "/api/nexora/research-bridge": 3,
+    "/api/nexora/resilience": 6,
+    "/api/nexora/rewards": 7,
+    "/api/nexora/teaching": 13,
+    "/api/nexora/trading-execution": 9,
+    "/api/nexora/trading-lab": 10,
+    "/api/nexora/trading-readiness": 4,
+    "/api/nexora/trading-mega": 9,
+    "/api/nexora/agent-runtime-v2": 15,
+    "/api/nexora/collectors": 7
+  },
+  "checks": [
+    {
+      "group": "localCore",
+      "total": 4,
+      "present": 4,
+      "missing": [],
+      "rows": [
+        {
+          "route": "GET /api/nexora/ping",
+          "present": true
+        },
+        {
+          "route": "GET /api/nexora/active-loop/status",
+          "present": true
+        },
+        {
+          "route": "GET /api/nexora/loop-coverage/status",
+          "present": true
+        },
+        {
+          "route": "GET /api/nexora/final-local-v1/status",
+          "present": true
+        }
+      ]
+    },
+    {
+      "group": "companyOps",
+      "total": 4,
+      "present": 3,
+      "missing": [
+        {
+          "route": "GET /api/nexora/operator-dashboard/summary",
+          "present": false
+        }
+      ],
+      "rows": [
+        {
+          "route": "GET /api/nexora/office-agents/status",
+          "present": true
+        },
+        {
+          "route": "GET /api/nexora/human-boundary/status",
+          "present": true
+        },
+        {
+          "route": "GET /api/nexora/company-completion/status",
+          "present": true
+        },
+        {
+          "route": "GET /api/nexora/operator-dashboard/summary",
+          "present": false
+        }
+      ]
+    },
+    {
+      "group": "productsQuotesComms",
+      "total": 4,
+      "present": 4,
+      "missing": [],
+      "rows": [
+        {
+          "route": "GET /api/nexora/product-catalogue/status",
+          "present": true
+        },
+        {
+          "route": "GET /api/nexora/quote-pack/status",
+          "present": true
+        },
+        {
+          "route": "GET /api/nexora/comms-docs/status",
+          "present": true
+        },
+        {
+          "route": "GET /api/nexora/email-approval/status",
+          "present": true
+        }
+      ]
+    },
+    {
+      "group": "tradingPaper",
+      "total": 6,
+      "present": 4,
+      "missing": [
+        {
+          "route": "GET /api/nexora/polymarket-paper/status",
+          "present": false
+        },
+        {
+          "route": "GET /api/nexora/trading-dashboard/status",
+          "present": false
+        }
+      ],
+      "rows": [
+        {
+          "route": "GET /api/nexora/polymarket-paper/status",
+          "present": false
+        },
+        {
+          "route": "GET /api/nexora/market-data/status",
+          "present": true
+        },
+        {
+          "route": "GET /api/nexora/backtesting/status",
+          "present": true
+        },
+        {
+          "route": "GET /api/nexora/trading-dashboard/status",
+          "present": false
+        },
+        {
+          "route": "GET /api/nexora/trading-execution/status",
+          "present": true
+        },
+        {
+          "route": "GET /api/nexora/trading-readiness/status",
+          "present": true
+        }
+      ]
+    },
+    {
+      "group": "ui",
+      "total": 5,
+      "present": 0,
+      "missing": [
+        {
+          "route": "GET /nexora",
+          "present": false
+        },
+        {
+          "route": "GET /nexora/operator",
+          "present": false
+        },
+        {
+          "route": "GET /nexora/operator/products",
+          "present": false
+        },
+        {
+          "route": "GET /nexora/operator/quotes",
+          "present": false
+        },
+        {
+          "route": "GET /nexora/operator/trading",
+          "present": false
+        }
+      ],
+      "rows": [
+        {
+          "route": "GET /nexora",
+          "present": false
+        },
+        {
+          "route": "GET /nexora/operator",
+          "present": false
+        },
+        {
+          "route": "GET /nexora/operator/products",
+          "present": false
+        },
+        {
+          "route": "GET /nexora/operator/quotes",
+          "present": false
+        },
+        {
+          "route": "GET /nexora/operator/trading",
+          "present": false
+        }
+      ]
+    }
+  ],
+  "missing": [
+    {
+      "group": "companyOps",
+      "route": "GET /api/nexora/operator-dashboard/summary",
+      "present": false
+    },
+    {
+      "group": "tradingPaper",
+      "route": "GET /api/nexora/polymarket-paper/status",
+      "present": false
+    },
+    {
+      "group": "tradingPaper",
+      "route": "GET /api/nexora/trading-dashboard/status",
+      "present": false
+    },
+    {
+      "group": "ui",
+      "route": "GET /nexora",
+      "present": false
+    },
+    {
+      "group": "ui",
+      "route": "GET /nexora/operator",
+      "present": false
+    },
+    {
+      "group": "ui",
+      "route": "GET /nexora/operator/products",
+      "present": false
+    },
+    {
+      "group": "ui",
+      "route": "GET /nexora/operator/quotes",
+      "present": false
+    },
+    {
+      "group": "ui",
+      "route": "GET /nexora/operator/trading",
+      "present": false
+    }
+  ]
+}
