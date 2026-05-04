@@ -163,6 +163,8 @@ import { registerNexoraPolymarketLocalOperatorUiRoutes } from "./services/intell
 import { registerNexoraPolymarketFinalHardeningRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolymarketFinalHardeningRoutes";
 import { registerNexoraLiveMoneyReadinessRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraLiveMoneyReadinessRoutes";
 import { registerNexoraPolymarketLiveExecutionDesignRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolymarketLiveExecutionDesignRoutes";
+import { registerNexoraPaperAutopilotEvidenceRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPaperAutopilotEvidenceRoutes";
+import { registerNexoraPolymarketMegaAcceleratorRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolymarketMegaAcceleratorRoutes";
 
 function hasLocalAdminHeader(req: any): boolean {
   return (
@@ -261,6 +263,8 @@ function filterSafePendingOutreach(mapped: any[]) {
 }
 
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
+  registerNexoraPolymarketMegaAcceleratorRoutes(app);
+  registerNexoraPaperAutopilotEvidenceRoutes(app);
   registerNexoraPolymarketLiveExecutionDesignRoutes(app);
   registerNexoraLiveMoneyReadinessRoutes(app);
   registerNexoraPolymarketFinalHardeningRoutes(app);
