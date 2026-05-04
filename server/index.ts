@@ -37,6 +37,19 @@ import { registerNexoraResearchBridgeRoutes } from "./services/intelligence/nexo
 import { registerNexoraPolymarketLocalOperatorUiRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolymarketLocalOperatorUiRoutes";
 import { registerNexoraPaperAutopilotEvidenceRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPaperAutopilotEvidenceRoutes";
 import { registerNexoraPolymarketBatch1Routes } from "./routes/nexoraPolymarketBatch1Routes";
+import { registerNexoraPolymarketBatch2Routes } from "./routes/nexoraPolymarketBatch2Routes";
+import { registerNexoraTradingLiveReadinessGateRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraTradingLiveReadinessGateRoutes";
+import { registerNexoraLiveMoneyReadinessRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraLiveMoneyReadinessRoutes";
+import { registerNexoraPolymarketLiveExecutionDesignRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolymarketLiveExecutionDesignRoutes";
+import { registerNexoraPolymarketFinalHardeningRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolymarketFinalHardeningRoutes";
+import { registerNexoraPolymarketSuperstackRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolymarketSuperstackRoutes";
+import { registerNexoraPolyFivePackRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyFivePackRoutes";
+import { registerNexoraPolyNextFivePackRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyNextFivePackRoutes";
+import { registerNexoraPolyFinalFivePackRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyFinalFivePackRoutes";
+import { registerNexoraMoonDevAdapterRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraMoonDevAdapterRoutes";
+import { registerNexoraMoonDevStrategyBacktestImporterRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraMoonDevStrategyBacktestImporterRoutes";
+import { registerNexoraMoonDevPhase1Routes } from "./services/intelligence/nexora/autonomy/routes/nexoraMoonDevPhase1Routes";
+import { registerNexoraMoonDevSystemsAcceleratorRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraMoonDevSystemsAcceleratorRoutes";
 
 // TCD_CHAT_ENV_ALIAS_FIX
 // Keep old and new OpenAI env names in sync so all chatbots/services work.
@@ -4161,9 +4174,24 @@ const port = Number(process.env.PORT || 5000);
 
 (async () => {
   if (process.env.NODE_ENV === "development") {
+
+  // Nexora Polymarket direct mounts: inserted safely before frontend fallback.
+  await Promise.resolve(registerNexoraTradingLiveReadinessGateRoutes(app));
+  await Promise.resolve(registerNexoraLiveMoneyReadinessRoutes(app));
+  await Promise.resolve(registerNexoraPolymarketLiveExecutionDesignRoutes(app));
+  await Promise.resolve(registerNexoraPolymarketFinalHardeningRoutes(app));
+  await Promise.resolve(registerNexoraPolymarketSuperstackRoutes(app));
+  await Promise.resolve(registerNexoraPolyFivePackRoutes(app));
+  await Promise.resolve(registerNexoraPolyNextFivePackRoutes(app));
+  await Promise.resolve(registerNexoraPolyFinalFivePackRoutes(app));
+  await Promise.resolve(registerNexoraMoonDevAdapterRoutes(app));
+  await Promise.resolve(registerNexoraMoonDevStrategyBacktestImporterRoutes(app));
+  await Promise.resolve(registerNexoraMoonDevPhase1Routes(app));
+  await Promise.resolve(registerNexoraMoonDevSystemsAcceleratorRoutes(app));
     await setupVite(server, app);
   } else {
   registerNexoraPolymarketBatch1Routes(app);
+  registerNexoraPolymarketBatch2Routes(app);
     serveStatic(app);
   }
 
