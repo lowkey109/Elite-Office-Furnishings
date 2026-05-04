@@ -35,6 +35,7 @@ import { registerNexoraHumanApprovedEmailOutboxRoutes } from "./services/intelli
 import { registerNexoraLocalCommandCenterRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraLocalCommandCenterRoutes";
 import { registerNexoraResearchBridgeRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraResearchBridgeRoutes";
 import { registerNexoraPolymarketLocalOperatorUiRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolymarketLocalOperatorUiRoutes";
+import { registerNexoraPaperAutopilotEvidenceRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPaperAutopilotEvidenceRoutes";
 
 // TCD_CHAT_ENV_ALIAS_FIX
 // Keep old and new OpenAI env names in sync so all chatbots/services work.
@@ -94,6 +95,7 @@ try {
   registerNexoraHumanApprovedEmailOutboxRoutes(app);
   registerNexoraLocalCommandCenterRoutes(app);
   registerNexoraPolymarketLocalOperatorUiRoutes(app);
+  registerNexoraPaperAutopilotEvidenceRoutes(app);
   console.log("[NEXORA_FINAL_DIRECT_API_MOUNT] Critical Nexora routes mounted in server/index.ts");
 } catch (error) {
   console.error("[NEXORA_FINAL_DIRECT_API_MOUNT_ERROR]", error);
