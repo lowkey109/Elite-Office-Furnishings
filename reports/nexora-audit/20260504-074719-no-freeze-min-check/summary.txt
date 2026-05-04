@@ -1,0 +1,5 @@
+Nexora no-freeze min check
+Generated: 2026-05-04T07:47:37Z
+TypeScript: PASS
+Folders: PASS
+Routes: PASS

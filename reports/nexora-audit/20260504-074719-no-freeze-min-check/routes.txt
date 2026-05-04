@@ -1,0 +1,12 @@
+OK /api/nexora/ping
+OK /api/nexora/active-loop/status
+OK /api/nexora/loop-coverage/status
+OK /api/nexora/office-agents/status
+OK /api/nexora/human-boundary/status
+OK /api/nexora/final-local-v1/status
+OK /api/nexora/paper-autopilot/status
+OK /api/nexora/trading-execution/status
+OK /api/nexora/trading-readiness/status
+OK /api/nexora/live-money/status
+OK /api/nexora/live-execution-design/status
+OK /nexora

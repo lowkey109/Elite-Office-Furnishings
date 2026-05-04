@@ -1,0 +1,10 @@
+OK server/services/intelligence/nexora/autonomy/officeagents
+OK server/services/intelligence/nexora/autonomy/humanboundary
+OK server/services/intelligence/nexora/autonomy/loopdaemon
+OK server/services/intelligence/nexora/autonomy/paperautopilot
+OK server/services/intelligence/nexora/autonomy/tradingexecution
+OK server/services/intelligence/nexora/autonomy/tradingreadiness
+OK server/services/intelligence/nexora/autonomy/livemoney
+OK server/services/intelligence/nexora/autonomy/liveexecutiondesign
+OK research/moondev-selected
+OK research/moondev-quarantine
