@@ -36,6 +36,7 @@ import { registerNexoraLocalCommandCenterRoutes } from "./services/intelligence/
 import { registerNexoraResearchBridgeRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraResearchBridgeRoutes";
 import { registerNexoraPolymarketLocalOperatorUiRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolymarketLocalOperatorUiRoutes";
 import { registerNexoraPaperAutopilotEvidenceRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPaperAutopilotEvidenceRoutes";
+import { registerNexoraPolymarketBatch1Routes } from "./routes/nexoraPolymarketBatch1Routes";
 
 // TCD_CHAT_ENV_ALIAS_FIX
 // Keep old and new OpenAI env names in sync so all chatbots/services work.
@@ -4162,6 +4163,7 @@ const port = Number(process.env.PORT || 5000);
   if (process.env.NODE_ENV === "development") {
     await setupVite(server, app);
   } else {
+  registerNexoraPolymarketBatch1Routes(app);
     serveStatic(app);
   }
 

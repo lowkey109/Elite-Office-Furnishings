@@ -27,9 +27,9 @@ export function getNexoraV1ReadinessReport() {
   const validation = optionalCall("local_data_validation", () => validateNexoraLocalData({}));
 
   const optionalSystems = [
-    optionalCall("workflow_templates", () => require("../localworkflows/nexoraWorkflowTemplates").getNexoraWorkflowStatus()),
-    optionalCall("local_scoring", () => require("../scoring/nexoraLocalScoring").getNexoraLocalScoringStatus()),
-    optionalCall("security_scaffold", () => require("../security/nexoraLocalSecurityScaffold").getNexoraSecurityScaffoldStatus()),
+    optionalCall("workflow_templates", () => require("../automation/localworkflows/nexoraWorkflowTemplates").getNexoraWorkflowStatus()),
+    optionalCall("local_scoring", () => require("../automation/scoring/nexoraLocalScoring").getNexoraLocalScoringStatus()),
+    optionalCall("security_scaffold", () => require("../automation/security/nexoraLocalSecurityScaffold").getNexoraSecurityScaffoldStatus()),
     optionalCall("route_governance", () => require("../routegovernance/nexoraRouteGovernance").listNexoraRouteGovernanceSnapshots({ limit: 5 })),
   ];
 
