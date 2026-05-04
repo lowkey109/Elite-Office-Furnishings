@@ -1,0 +1,787 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_moondev_selected_research_audit",
+  "generatedAt": "2026-05-04T05:36:44.356Z",
+  "selectedCount": 33,
+  "quarantineCount": 6,
+  "selectedFiles": [
+    {
+      "file": "research/moondev-selected/CLAUDE.md",
+      "relative": "CLAUDE.md",
+      "size": 9025,
+      "lines": 232,
+      "symbols": null,
+      "classification": {
+        "swarm": true,
+        "polymarket": false,
+        "risk": true,
+        "strategy": true,
+        "copy": true,
+        "backtest": true,
+        "execution": true,
+        "danger": true
+      }
+    },
+    {
+      "file": "research/moondev-selected/NEXORA_RESEARCH_ONLY.md",
+      "relative": "NEXORA_RESEARCH_ONLY.md",
+      "size": 454,
+      "lines": 13,
+      "symbols": null,
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": false,
+        "strategy": false,
+        "copy": true,
+        "backtest": false,
+        "execution": true,
+        "danger": true
+      }
+    },
+    {
+      "file": "research/moondev-selected/README.md",
+      "relative": "README.md",
+      "size": 16464,
+      "lines": 340,
+      "symbols": null,
+      "classification": {
+        "swarm": true,
+        "polymarket": true,
+        "risk": true,
+        "strategy": true,
+        "copy": true,
+        "backtest": true,
+        "execution": true,
+        "danger": true
+      }
+    },
+    {
+      "file": "research/moondev-selected/docs/backtest_dashboard.md",
+      "relative": "docs/backtest_dashboard.md",
+      "size": 3130,
+      "lines": 132,
+      "symbols": null,
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": true,
+        "strategy": true,
+        "copy": true,
+        "backtest": true,
+        "execution": true,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/docs/copybot_agent.md",
+      "relative": "docs/copybot_agent.md",
+      "size": 804,
+      "lines": 38,
+      "symbols": null,
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": true,
+        "strategy": false,
+        "copy": true,
+        "backtest": false,
+        "execution": true,
+        "danger": true
+      }
+    },
+    {
+      "file": "research/moondev-selected/docs/polymarket_agent.md",
+      "relative": "docs/polymarket_agent.md",
+      "size": 15242,
+      "lines": 421,
+      "symbols": null,
+      "classification": {
+        "swarm": true,
+        "polymarket": true,
+        "risk": true,
+        "strategy": true,
+        "copy": true,
+        "backtest": true,
+        "execution": true,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/docs/polymarket_agents.md",
+      "relative": "docs/polymarket_agents.md",
+      "size": 9092,
+      "lines": 239,
+      "symbols": null,
+      "classification": {
+        "swarm": true,
+        "polymarket": true,
+        "risk": true,
+        "strategy": true,
+        "copy": true,
+        "backtest": true,
+        "execution": true,
+        "danger": true
+      }
+    },
+    {
+      "file": "research/moondev-selected/docs/risk_agent.md",
+      "relative": "docs/risk_agent.md",
+      "size": 788,
+      "lines": 34,
+      "symbols": null,
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": true,
+        "strategy": false,
+        "copy": false,
+        "backtest": false,
+        "execution": true,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/docs/strategy_agent.md",
+      "relative": "docs/strategy_agent.md",
+      "size": 760,
+      "lines": 32,
+      "symbols": null,
+      "classification": {
+        "swarm": true,
+        "polymarket": false,
+        "risk": false,
+        "strategy": true,
+        "copy": false,
+        "backtest": false,
+        "execution": false,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/docs/swarm_agent.md",
+      "relative": "docs/swarm_agent.md",
+      "size": 7288,
+      "lines": 227,
+      "symbols": null,
+      "classification": {
+        "swarm": true,
+        "polymarket": false,
+        "risk": true,
+        "strategy": true,
+        "copy": false,
+        "backtest": false,
+        "execution": true,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/docs/trading_agent.md",
+      "relative": "docs/trading_agent.md",
+      "size": 731,
+      "lines": 29,
+      "symbols": null,
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": false,
+        "strategy": false,
+        "copy": false,
+        "backtest": false,
+        "execution": true,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/docs/volume_agent.md",
+      "relative": "docs/volume_agent.md",
+      "size": 10240,
+      "lines": 370,
+      "symbols": null,
+      "classification": {
+        "swarm": true,
+        "polymarket": false,
+        "risk": true,
+        "strategy": true,
+        "copy": false,
+        "backtest": true,
+        "execution": true,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/requirements.txt",
+      "relative": "requirements.txt",
+      "size": 15997,
+      "lines": 640,
+      "symbols": null,
+      "classification": {
+        "swarm": false,
+        "polymarket": true,
+        "risk": false,
+        "strategy": true,
+        "copy": false,
+        "backtest": true,
+        "execution": true,
+        "danger": true
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/agents/backtest_runner.py",
+      "relative": "src/agents/backtest_runner.py",
+      "size": 6978,
+      "lines": 214,
+      "symbols": {
+        "classes": [],
+        "functions": [
+          "run_backtest_in_conda",
+          "parse_backtest_output",
+          "save_results",
+          "main"
+        ],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": false,
+        "strategy": true,
+        "copy": false,
+        "backtest": true,
+        "execution": true,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/agents/base_agent.py",
+      "relative": "src/agents/base_agent.py",
+      "size": 2058,
+      "lines": 58,
+      "symbols": {
+        "classes": [
+          "BaseAgent"
+        ],
+        "functions": [],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": true,
+        "strategy": true,
+        "copy": false,
+        "backtest": false,
+        "execution": false,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/agents/copybot_agent.py",
+      "relative": "src/agents/copybot_agent.py",
+      "size": 13442,
+      "lines": 327,
+      "symbols": {
+        "classes": [
+          "CopyBotAgent"
+        ],
+        "functions": [],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": true,
+        "strategy": true,
+        "copy": true,
+        "backtest": false,
+        "execution": true,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/agents/example_unified_agent.py",
+      "relative": "src/agents/example_unified_agent.py",
+      "size": 7696,
+      "lines": 218,
+      "symbols": {
+        "classes": [
+          "UnifiedTradingAgent"
+        ],
+        "functions": [
+          "main"
+        ],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": false,
+        "strategy": false,
+        "copy": false,
+        "backtest": false,
+        "execution": true,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/agents/polymarket_agent.py",
+      "relative": "src/agents/polymarket_agent.py",
+      "size": 66494,
+      "lines": 1486,
+      "symbols": {
+        "classes": [
+          "PolymarketAgent"
+        ],
+        "functions": [
+          "main"
+        ],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": true,
+        "polymarket": true,
+        "risk": true,
+        "strategy": true,
+        "copy": false,
+        "backtest": true,
+        "execution": true,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/agents/polymarket_websearch_agent.py",
+      "relative": "src/agents/polymarket_websearch_agent.py",
+      "size": 61139,
+      "lines": 1441,
+      "symbols": {
+        "classes": [
+          "PolymarketWebSearchAgent"
+        ],
+        "functions": [
+          "main"
+        ],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": true,
+        "polymarket": true,
+        "risk": true,
+        "strategy": false,
+        "copy": true,
+        "backtest": true,
+        "execution": true,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/agents/research_agent.py",
+      "relative": "src/agents/research_agent.py",
+      "size": 21735,
+      "lines": 570,
+      "symbols": {
+        "classes": [],
+        "functions": [
+          "clear_line",
+          "animate_text",
+          "animate_loading",
+          "animate_moon_dev",
+          "setup_files",
+          "load_existing_ideas",
+          "is_duplicate",
+          "generate_idea",
+          "clean_idea",
+          "log_idea",
+          "run_idea_generation_loop",
+          "test_run",
+          "main"
+        ],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": false,
+        "strategy": true,
+        "copy": false,
+        "backtest": true,
+        "execution": true,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/agents/risk_agent.py",
+      "relative": "src/agents/risk_agent.py",
+      "size": 26755,
+      "lines": 632,
+      "symbols": {
+        "classes": [
+          "RiskAgent"
+        ],
+        "functions": [
+          "main"
+        ],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": true,
+        "strategy": true,
+        "copy": true,
+        "backtest": false,
+        "execution": true,
+        "danger": true
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/agents/strategy_agent.py",
+      "relative": "src/agents/strategy_agent.py",
+      "size": 12339,
+      "lines": 306,
+      "symbols": {
+        "classes": [
+          "StrategyAgent"
+        ],
+        "functions": [],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": true,
+        "strategy": true,
+        "copy": true,
+        "backtest": false,
+        "execution": true,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/agents/swarm_agent.py",
+      "relative": "src/agents/swarm_agent.py",
+      "size": 23230,
+      "lines": 572,
+      "symbols": {
+        "classes": [
+          "SwarmAgent"
+        ],
+        "functions": [
+          "main"
+        ],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": true,
+        "polymarket": false,
+        "risk": false,
+        "strategy": false,
+        "copy": false,
+        "backtest": false,
+        "execution": true,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/agents/trading_agent.py",
+      "relative": "src/agents/trading_agent.py",
+      "size": 54853,
+      "lines": 1196,
+      "symbols": {
+        "classes": [
+          "TradingAgent"
+        ],
+        "functions": [
+          "monitor_position_pnl",
+          "get_account_balance",
+          "calculate_position_size",
+          "main"
+        ],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": true,
+        "polymarket": false,
+        "risk": true,
+        "strategy": true,
+        "copy": true,
+        "backtest": true,
+        "execution": true,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/agents/volume_agent.py",
+      "relative": "src/agents/volume_agent.py",
+      "size": 25680,
+      "lines": 735,
+      "symbols": {
+        "classes": [],
+        "functions": [
+          "get_all_tokens_volume",
+          "get_top_altcoins",
+          "load_previous_snapshot",
+          "load_24h_snapshot",
+          "calculate_changes",
+          "initialize_data_dir",
+          "log_volume_snapshot",
+          "log_agent_analysis",
+          "format_volume",
+          "display_changes",
+          "create_analysis_prompt",
+          "run_swarm_analysis",
+          "display_swarm_results",
+          "display_data_table",
+          "run_check",
+          "run_continuous",
+          "main"
+        ],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": true,
+        "polymarket": false,
+        "risk": false,
+        "strategy": true,
+        "copy": false,
+        "backtest": false,
+        "execution": false,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/agents/whale_agent.py",
+      "relative": "src/agents/whale_agent.py",
+      "size": 30470,
+      "lines": 680,
+      "symbols": {
+        "classes": [
+          "WhaleAgent"
+        ],
+        "functions": [],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": false,
+        "strategy": true,
+        "copy": true,
+        "backtest": true,
+        "execution": false,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/models/base_model.py",
+      "relative": "src/models/base_model.py",
+      "size": 2304,
+      "lines": 73,
+      "symbols": {
+        "classes": [
+          "ModelResponse",
+          "BaseModel"
+        ],
+        "functions": [],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": false,
+        "strategy": false,
+        "copy": false,
+        "backtest": false,
+        "execution": false,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/models/claude_model.py",
+      "relative": "src/models/claude_model.py",
+      "size": 2901,
+      "lines": 77,
+      "symbols": {
+        "classes": [
+          "ClaudeModel"
+        ],
+        "functions": [],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": false,
+        "strategy": false,
+        "copy": false,
+        "backtest": false,
+        "execution": false,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/models/model_factory.py",
+      "relative": "src/models/model_factory.py",
+      "size": 6897,
+      "lines": 165,
+      "symbols": {
+        "classes": [
+          "ModelFactory"
+        ],
+        "functions": [],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": false,
+        "strategy": false,
+        "copy": false,
+        "backtest": false,
+        "execution": false,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/models/openai_model.py",
+      "relative": "src/models/openai_model.py",
+      "size": 21280,
+      "lines": 441,
+      "symbols": {
+        "classes": [
+          "OpenAIModel"
+        ],
+        "functions": [],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": true,
+        "strategy": true,
+        "copy": true,
+        "backtest": false,
+        "execution": false,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/models/openrouter_model.py",
+      "relative": "src/models/openrouter_model.py",
+      "size": 7780,
+      "lines": 202,
+      "symbols": {
+        "classes": [
+          "OpenRouterModel"
+        ],
+        "functions": [],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": true,
+        "strategy": false,
+        "copy": true,
+        "backtest": false,
+        "execution": false,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/strategies/base_strategy.py",
+      "relative": "src/strategies/base_strategy.py",
+      "size": 661,
+      "lines": 21,
+      "symbols": {
+        "classes": [
+          "BaseStrategy"
+        ],
+        "functions": [],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": false,
+        "strategy": true,
+        "copy": false,
+        "backtest": false,
+        "execution": false,
+        "danger": false
+      }
+    },
+    {
+      "file": "research/moondev-selected/src/strategies/example_strategy.py",
+      "relative": "src/strategies/example_strategy.py",
+      "size": 2796,
+      "lines": 74,
+      "symbols": {
+        "classes": [
+          "SimpleMAStrategy"
+        ],
+        "functions": [],
+        "asyncFunctions": []
+      },
+      "classification": {
+        "swarm": false,
+        "polymarket": false,
+        "risk": false,
+        "strategy": true,
+        "copy": false,
+        "backtest": false,
+        "execution": false,
+        "danger": false
+      }
+    }
+  ],
+  "quarantineFiles": [
+    {
+      "file": "research/moondev-quarantine/NEXORA_RESEARCH_ONLY.md",
+      "relative": "NEXORA_RESEARCH_ONLY.md",
+      "size": 454
+    },
+    {
+      "file": "research/moondev-quarantine/README.md",
+      "relative": "README.md",
+      "size": 16464
+    },
+    {
+      "file": "research/moondev-quarantine/docs/copybot_agent.md",
+      "relative": "docs/copybot_agent.md",
+      "size": 804
+    },
+    {
+      "file": "research/moondev-quarantine/docs/polymarket_agents.md",
+      "relative": "docs/polymarket_agents.md",
+      "size": 9092
+    },
+    {
+      "file": "research/moondev-quarantine/requirements.txt",
+      "relative": "requirements.txt",
+      "size": 15997
+    },
+    {
+      "file": "research/moondev-quarantine/src/agents/risk_agent.py",
+      "relative": "src/agents/risk_agent.py",
+      "size": 26755
+    }
+  ],
+  "rules": {
+    "originalRepoResearchOnly": true,
+    "selectedFilesForStudy": true,
+    "directExecution": false,
+    "directImport": false,
+    "liveTrading": false,
+    "privateKeys": false
+  },
+  "nextAdapterTargets": [
+    "BaseAgent adapter comparison",
+    "Swarm consensus timeout/failure scoring",
+    "Polymarket parser extraction",
+    "Risk governor improvement",
+    "Strategy mutation extraction",
+    "Backtest result parser",
+    "Whale/copy signal parser"
+  ]
+}
