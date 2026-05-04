@@ -130,6 +130,7 @@ import { registerNexoraOfficeFurnitureAgentRoutes } from "./services/intelligenc
 import { registerNexoraCompanyRunRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraCompanyRunRoutes";
 import { registerNexoraAICompanyV1HardeningRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraAICompanyV1HardeningRoutes";
 import { registerNexoraHumanContactCompanyRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraHumanContactCompanyRoutes";
+import { registerNexoraHumanLoopBusinessOpsRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraHumanLoopBusinessOpsRoutes";
 
 function hasLocalAdminHeader(req: any): boolean {
   return (
@@ -228,6 +229,7 @@ function filterSafePendingOutreach(mapped: any[]) {
 }
 
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
+  registerNexoraHumanLoopBusinessOpsRoutes(app);
   registerNexoraHumanContactCompanyRoutes(app);
   registerNexoraAICompanyV1HardeningRoutes(app);
   registerNexoraCompanyRunRoutes(app);
