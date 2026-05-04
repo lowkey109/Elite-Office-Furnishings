@@ -1,0 +1,1377 @@
+[
+  {
+    "method": "GET",
+    "path": "/api/nexora/company-completion/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyOperatingCompletionRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/company-completion/owner-cockpit",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyOperatingCompletionRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/company-completion/daily-briefing",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyOperatingCompletionRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/company-completion/approval-board",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyOperatingCompletionRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/company-completion/departments",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyOperatingCompletionRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/company-completion/responsibility-map",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyOperatingCompletionRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/company-completion/daily-run",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyOperatingCompletionRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/company-completion/work-queue",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyOperatingCompletionRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/company-completion/revenue-margin-board",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyOperatingCompletionRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/company-completion/customer-supplier-board",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyOperatingCompletionRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/company-completion/project-delivery-board",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyOperatingCompletionRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/company-completion/learning-board",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyOperatingCompletionRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/v1-hardening/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyV1HardeningRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/v1-hardening/auth/scaffold",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyV1HardeningRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/v1-hardening/access-map/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyV1HardeningRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/v1-hardening/office-command-pack",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyV1HardeningRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/v1-hardening/company-scheduler",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyV1HardeningRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/v1-hardening/dashboard-summary",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyV1HardeningRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/v1-hardening/postgres/checklist",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyV1HardeningRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/v1-hardening/replay/dry-run",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyV1HardeningRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/v1-hardening/readiness/final",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAICompanyV1HardeningRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/advanced/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/advanced/workers/upsert",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/advanced/tasks",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/advanced/approvals/:approvalId/approve",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/advanced/tasks/run-safe",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/advanced/messages",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/advanced/graph/edge",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/advanced/delegations",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/advanced/objectives",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/advanced/empire/cycle",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/advanced/command/snapshot",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/advanced-local/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedLocalOpsRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/storage/inspect",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedLocalOpsRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/compaction/plan",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedLocalOpsRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/compaction/dry-run",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedLocalOpsRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/workflow-simulator/run",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedLocalOpsRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/rules/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedLocalOpsRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/rules/evaluate",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedLocalOpsRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/rules/list",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedLocalOpsRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/maintenance/plan",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedLocalOpsRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/trace/record",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedLocalOpsRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/trace/list",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedLocalOpsRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/almighty/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAlmightyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/goals/compile",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAlmightyRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/goals/list",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAlmightyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/playbooks/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAlmightyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/playbooks/dry-run",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAlmightyRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/playbooks/list",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAlmightyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/risk-sim/run",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAlmightyRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/risk-sim/list",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAlmightyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/almighty/command",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAlmightyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/brainpack/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAlmightyRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/build-planner/inventory",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraBuildPlannerRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/build-planner/collision-check",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraBuildPlannerRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/build-planner/preflight",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraBuildPlannerRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/build-planner/roadmap",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraBuildPlannerRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/company-run/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraCompanyRunRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/company-run/divisions",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraCompanyRunRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/company-run/agents/seed",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraCompanyRunRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/company-run/work-order",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraCompanyRunRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/company-run/work-orders",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraCompanyRunRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/company-run/objective",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraCompanyRunRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/company-run/objectives",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraCompanyRunRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/company-run/division-plan",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraCompanyRunRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/company-run/daily-cycle",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraCompanyRunRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/company-run/executive-pack",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraCompanyRunRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/extensions/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraExtensionManagerRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/extensions/register",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraExtensionManagerRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/extensions/list",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraExtensionManagerRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/extensions/dependency-graph",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraExtensionManagerRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/extensions/missing-imports",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraExtensionManagerRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/extensions/duplicate-routes",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraExtensionManagerRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/extensions/patch/plan",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraExtensionManagerRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/extensions/patch/apply",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraExtensionManagerRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/filebus/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/filebus/enqueue",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/filebus/delay",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/filebus/messages",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/filebus/process",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/filebus/purge",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/governor/classify",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/governor/queue",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/governor/cycle",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/governor/sla-watchdog",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/governor/worker-evolution",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/business/pipeline",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/business/pipeline/bulk",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/ping",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/live/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/advanced/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/mega/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/cockpit/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/supreme/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/runtime/diagnostic",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/runtime/db-check",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/runtime/test-task",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/human-boundary/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanBoundaryDoctrineRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-boundary/doctrine/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanBoundaryDoctrineRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/human-boundary/doctrine",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanBoundaryDoctrineRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-boundary/classify",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanBoundaryDoctrineRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-boundary/approve/request",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanBoundaryDoctrineRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-boundary/sign/request",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanBoundaryDoctrineRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-boundary/commit/request",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanBoundaryDoctrineRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/human-boundary/queue",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanBoundaryDoctrineRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-boundary/responsibility-map",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanBoundaryDoctrineRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/human-company/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanContactCompanyRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/human-company/owner-cockpit",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanContactCompanyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-company/contact/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanContactCompanyRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/human-company/contacts",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanContactCompanyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-company/communication/draft",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanContactCompanyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-company/approval/request",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanContactCompanyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-company/approval/decide",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanContactCompanyRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/human-company/approvals",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanContactCompanyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-company/handoff/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanContactCompanyRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/human-company/handoffs",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanContactCompanyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-company/touchpoint/record",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanContactCompanyRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/human-company/touchpoints",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanContactCompanyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-company/inbox/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanContactCompanyRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/human-company/inbox",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanContactCompanyRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-company/briefing/daily",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanContactCompanyRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/human-ops/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanLoopBusinessOpsRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-ops/customer-journey/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanLoopBusinessOpsRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/human-ops/customer-journeys",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanLoopBusinessOpsRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-ops/supplier-desk/request",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanLoopBusinessOpsRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/human-ops/supplier-desk/requests",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanLoopBusinessOpsRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-ops/install/plan",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanLoopBusinessOpsRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/human-ops/install/plans",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanLoopBusinessOpsRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-ops/escalation/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanLoopBusinessOpsRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/human-ops/escalations",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanLoopBusinessOpsRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-ops/owner-decision/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanLoopBusinessOpsRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/human-ops/owner-decision/queue",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanLoopBusinessOpsRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/human-ops/briefing",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHumanLoopBusinessOpsRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/live/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/advanced/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/advanced/tasks/run-safe",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/advanced/tasks",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/mega/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/cockpit/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/cockpit/executive",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/cockpit/burst",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/supreme/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/supreme/matrix/execute",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/strategy/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/live/report",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/local-business/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/local-approvals/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/local-approvals/decide",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/local-approvals/list",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/local-crm/lead/upsert",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/local-crm/lead",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/local-crm/leads",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/local-quotes/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/local-quotes/quote",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/local-quotes/list",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/local-suppliers/upsert",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/local-suppliers/list",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/local-projects/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/local-projects/stage",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/local-projects/list",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/export/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/export/list",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/export/get",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/snapshot/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/snapshot/list",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/snapshot/get",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/mega/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/mega/register-workers",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/finance/quote/analyse",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/finance/quote/queue",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/finance/revenue/forecast",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/supplier/matrix",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/supplier/rfq/draft",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/supplier/sweep",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/crm/lead/score",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/crm/followup/draft",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/crm/pipeline/queue",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/project/plan",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/project/queue",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/academy/module/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/academy/training/queue",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/cockpit/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/cockpit/executive",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/cockpit/burst",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/mission/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/mission/register-workers",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/mission/runbook/generate",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/mission/runbook/queue",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/mission/execute",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/mission/cadence/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/office-agents/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOfficeAgentAdapterRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/office-agents/tick",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOfficeAgentAdapterRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/office-agents/lead/intake",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOfficeAgentAdapterRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/office-agents/quote/draft",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOfficeAgentAdapterRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/office-agents/supplier/request",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOfficeAgentAdapterRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/office-agents/followup/draft",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOfficeAgentAdapterRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/office-agents/project/scope",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOfficeAgentAdapterRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/office-agents/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOfficeFurnitureAgentRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/office-agents/tick",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOfficeFurnitureAgentRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/office-agents/lead/intake",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOfficeFurnitureAgentRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/office-agents/quote/draft",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOfficeFurnitureAgentRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/office-agents/supplier/request",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOfficeFurnitureAgentRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/office-agents/followup/draft",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOfficeFurnitureAgentRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/office-agents/project/scope",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOfficeFurnitureAgentRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/office-agents/project/handover",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOfficeFurnitureAgentRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/autopilot/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/autopilot/register-workers",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/autopilot/cycle",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/autopilot/incidents/detect",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/autopilot/kpi/snapshot",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/autopilot/scenario",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/autopilot/pipeline-foreman",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/operator-kit/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperatorKitRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/api-catalogue/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperatorKitRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/api-catalogue/get",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperatorKitRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/test-harness/plan",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperatorKitRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/test-harness/dry-run",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperatorKitRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/test-harness/runs",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperatorKitRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/seed-packs/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperatorKitRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/seed-packs/list",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperatorKitRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/health-score",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperatorKitRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/operator-pack/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperatorKitRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/operator-pack/get",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperatorKitRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/package-manifest/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperatorKitRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/prod-readiness/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraProductionReadinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/auth/policy/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraProductionReadinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/auth/evaluate",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraProductionReadinessRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/auth/events",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraProductionReadinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/route-governance/snapshot",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraProductionReadinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/route-governance/evaluate",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraProductionReadinessRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/route-governance/snapshots",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraProductionReadinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/migration-pack/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraProductionReadinessRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/migration-pack/checklist",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraProductionReadinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/restore/point/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraProductionReadinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/restore/dry-run",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraProductionReadinessRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/restore/points",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraProductionReadinessRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/local-monitor/check",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraProductionReadinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/v1/release-candidate",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraProductionReadinessRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/v1/release-gate",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraProductionReadinessRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/resilience/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/resilience/capture",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/resilience/task",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/resilience/journal",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/resilience/replay",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/resilience/cycle",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/maintenance/console",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/rewards/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraRewardRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/rewards/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraRewardRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/rewards/praise",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraRewardRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/rewards/success-pattern",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraRewardRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/rewards/confidence/update",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraRewardRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/rewards/promotion/recommend",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraRewardRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/rewards/list",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraRewardRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/supreme/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/supreme/register-workers",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/supreme/decision/record",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/supreme/capability-graph/build",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/supreme/dance/generate",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/supreme/dance/rehearse",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/supreme/dance/queue",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/supreme/red-team/run",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/supreme/matrix/execute",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/teaching/status",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraTeachingRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/teaching/skills/seed",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraTeachingRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/teaching/skill/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraTeachingRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/teaching/skills",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraTeachingRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/teaching/capability/assess",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraTeachingRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/teaching/gap/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraTeachingRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/teaching/lesson/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraTeachingRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/teaching/lessons",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraTeachingRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/teaching/example/capture",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraTeachingRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/teaching/playbook/from-lesson",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraTeachingRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/teaching/training/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraTeachingRoutes.ts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/nexora/teaching/queue/create",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraTeachingRoutes.ts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/nexora/teaching/queue",
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraTeachingRoutes.ts"
+  }
+]

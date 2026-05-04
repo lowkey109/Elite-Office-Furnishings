@@ -1,0 +1,91 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "generatedAt": "2026-05-04T00:30:03.924Z",
+  "service": "nexora_final_local_ai_company_readiness",
+  "score": 95,
+  "modules": 112,
+  "routes": 275,
+  "criticalRoutesMissing": 5,
+  "categories": {
+    "officeAgents": 15,
+    "humanBoundary": 9,
+    "humanCompany": 15,
+    "humanOps": 12,
+    "companyRun": 10,
+    "companyV2": 0,
+    "companyCompletion": 12,
+    "teaching": 13,
+    "rewards": 7,
+    "polymarketPaper": 0,
+    "resilience": 6
+  },
+  "scoring": [
+    {
+      "name": "TypeScript healthy",
+      "ok": true,
+      "weight": 20
+    },
+    {
+      "name": "Critical routes mostly present",
+      "ok": true,
+      "weight": 20
+    },
+    {
+      "name": "Office agents present",
+      "ok": true,
+      "weight": 10
+    },
+    {
+      "name": "Human boundary present",
+      "ok": true,
+      "weight": 10
+    },
+    {
+      "name": "Company run present",
+      "ok": true,
+      "weight": 10
+    },
+    {
+      "name": "Company completion present",
+      "ok": true,
+      "weight": 10
+    },
+    {
+      "name": "Teaching present",
+      "ok": true,
+      "weight": 10
+    },
+    {
+      "name": "Reward system present",
+      "ok": true,
+      "weight": 5
+    },
+    {
+      "name": "Paper trading only present",
+      "ok": false,
+      "weight": 5
+    }
+  ],
+  "doctrine": {
+    "nexoraOnlyBrain": true,
+    "humanOnly": [
+      "approve",
+      "sign",
+      "commit"
+    ],
+    "nexoraDoesEverythingElse": true,
+    "noExceptions": true
+  },
+  "postgres": {
+    "status": "full_or_not_ready",
+    "deployRecommendation": "do not deploy DB-dependent features until storage is upgraded"
+  },
+  "nextRecommendedActions": [
+    "Do not deploy while Postgres is full.",
+    "Review missing critical routes, if any.",
+    "Run route wiring once if routes are missing.",
+    "Create owner cockpit report after deploy when storage is fixed.",
+    "Keep trading intelligence paper/sandbox only."
+  ]
+}

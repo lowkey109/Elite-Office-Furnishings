@@ -1,0 +1,201 @@
+{
+  "ok": false,
+  "requiredCount": 43,
+  "missingCount": 5,
+  "rows": [
+    {
+      "route": "GET /api/nexora/ping",
+      "present": true
+    },
+    {
+      "route": "GET /api/nexora/live/status",
+      "present": true
+    },
+    {
+      "route": "GET /api/nexora/runtime/diagnostic",
+      "present": true
+    },
+    {
+      "route": "GET /api/nexora/office-agents/status",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/office-agents/tick",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/office-agents/lead/intake",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/office-agents/quote/draft",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/office-agents/supplier/request",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/office-agents/followup/draft",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/office-agents/project/scope",
+      "present": true
+    },
+    {
+      "route": "GET /api/nexora/human-boundary/status",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/human-boundary/approve/request",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/human-boundary/sign/request",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/human-boundary/commit/request",
+      "present": true
+    },
+    {
+      "route": "GET /api/nexora/human-company/status",
+      "present": true
+    },
+    {
+      "route": "GET /api/nexora/human-company/owner-cockpit",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/human-company/approval/request",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/human-company/approval/decide",
+      "present": true
+    },
+    {
+      "route": "GET /api/nexora/human-ops/status",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/human-ops/customer-journey/create",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/human-ops/supplier-desk/request",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/human-ops/install/plan",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/human-ops/owner-decision/create",
+      "present": true
+    },
+    {
+      "route": "GET /api/nexora/company-run/status",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/company-run/daily-cycle",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/company-run/executive-pack",
+      "present": true
+    },
+    {
+      "route": "GET /api/nexora/company-v2/status",
+      "present": false
+    },
+    {
+      "route": "POST /api/nexora/company-v2/daily-run",
+      "present": false
+    },
+    {
+      "route": "POST /api/nexora/company-v2/operator-cockpit",
+      "present": false
+    },
+    {
+      "route": "GET /api/nexora/company-completion/status",
+      "present": true
+    },
+    {
+      "route": "GET /api/nexora/company-completion/owner-cockpit",
+      "present": true
+    },
+    {
+      "route": "GET /api/nexora/company-completion/daily-briefing",
+      "present": true
+    },
+    {
+      "route": "GET /api/nexora/company-completion/approval-board",
+      "present": true
+    },
+    {
+      "route": "GET /api/nexora/company-completion/responsibility-map",
+      "present": true
+    },
+    {
+      "route": "GET /api/nexora/teaching/status",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/teaching/capability/assess",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/teaching/gap/create",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/teaching/lesson/create",
+      "present": true
+    },
+    {
+      "route": "GET /api/nexora/rewards/status",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/rewards/create",
+      "present": true
+    },
+    {
+      "route": "POST /api/nexora/rewards/praise",
+      "present": true
+    },
+    {
+      "route": "GET /api/nexora/polymarket-paper/status",
+      "present": false
+    },
+    {
+      "route": "POST /api/nexora/polymarket-paper/cycle",
+      "present": false
+    }
+  ],
+  "missing": [
+    {
+      "route": "GET /api/nexora/company-v2/status",
+      "present": false
+    },
+    {
+      "route": "POST /api/nexora/company-v2/daily-run",
+      "present": false
+    },
+    {
+      "route": "POST /api/nexora/company-v2/operator-cockpit",
+      "present": false
+    },
+    {
+      "route": "GET /api/nexora/polymarket-paper/status",
+      "present": false
+    },
+    {
+      "route": "POST /api/nexora/polymarket-paper/cycle",
+      "present": false
+    }
+  ]
+}
