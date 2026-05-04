@@ -64,6 +64,7 @@ for (const file of allFiles) {
 
   while ((match = exportRe.exec(source))) {
     const name = match[1];
+
     if (!/Nexora/i.test(name)) continue;
 
     registrars.push({
@@ -77,12 +78,14 @@ for (const file of allFiles) {
 const uniqueRegistrars = uniqueBy(registrars, (r) => r.name)
   .sort((a, b) => a.name.localeCompare(b.name));
 
+const before = {
+  registrarCount: uniqueRegistrars.length,
+  registrars: uniqueRegistrars,
+};
+
 fs.writeFileSync(
   path.join(reportDir, "01-discovered-registrars.json"),
-  JSON.stringify({
-    registrarCount: uniqueRegistrars.length,
-    registrars: uniqueRegistrars,
-  }, null, 2),
+  JSON.stringify(before, null, 2),
 );
 
 const importInsertions = [];
@@ -96,9 +99,10 @@ for (const registrar of uniqueRegistrars) {
     importInsertions.push(`import { ${registrar.name} } from "${registrar.importPath}";`);
   }
 
-  const callPattern = new RegExp(`\\b${registrar.name}\\s*\\(\\s*app\\s*\\)`, "g");
+  const callPattern = new RegExp(`\\b${registrar.name}\\s*\\(`);
   const callOccurrences = [...routesSource.matchAll(callPattern)].length;
 
+  // One occurrence may be the import, but import has no function call parens.
   if (callOccurrences === 0) {
     callInsertions.push(`  ${registrar.name}(app);`);
   }
@@ -124,22 +128,10 @@ if (callInsertions.length) {
   const marker = "  // NEXORA_AUTO_WIRE_ALL_BEGIN";
   const endMarker = "  // NEXORA_AUTO_WIRE_ALL_END";
 
-  const existingBlockMatch = routesSource.match(/  \/\/ NEXORA_AUTO_WIRE_ALL_BEGIN[\s\S]*?  \/\/ NEXORA_AUTO_WIRE_ALL_END\n?/);
-
-  const existingCalls = existingBlockMatch
-    ? existingBlockMatch[0]
-        .split("\n")
-        .filter((line) => /register[A-Za-z0-9_]*Routes\(app\);/.test(line.trim()))
-    : [];
-
-  const allCalls = [...new Set([...existingCalls.map((line) => line.trim()), ...callInsertions.map((line) => line.trim())])]
-    .sort()
-    .map((line) => `    ${line}`);
-
   const block = [
     marker,
     "  try {",
-    ...allCalls,
+    ...callInsertions.map((line) => `${line}`),
     "  } catch (error) {",
     '    console.error("[NEXORA_AUTO_WIRE_ALL_ERROR]", error);',
     "  }",

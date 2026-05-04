@@ -80,6 +80,7 @@ export function registerNexoraOfficeAgentAdapterRoutes(app: any) {
         nexoraBrain: true,
         service: "nexora_office_agent_adapter",
         mode: "adapter_over_existing_modules",
+        generatedAt: now(),
         crm: getNexoraLocalCrmStatus(),
         quotes: getNexoraLocalQuoteBookStatus(),
         suppliers: getNexoraLocalSupplierStatus(),
@@ -95,6 +96,8 @@ export function registerNexoraOfficeAgentAdapterRoutes(app: any) {
         safety: {
           noBindingCustomerQuoteWithoutApproval: true,
           noSupplierPurchaseOrderWithoutApproval: true,
+          noAutonomousPayment: true,
+          noAutonomousLegalCommitment: true,
           nexoraOnlyBrain: true,
         },
       });
@@ -103,7 +106,7 @@ export function registerNexoraOfficeAgentAdapterRoutes(app: any) {
     }
   });
 
-  app.post("/api/nexora/office-agents/tick", async (_req: any, res: any) => {
+  app.post("/api/nexora/office-agents/tick", (_req: any, res: any) => {
     try {
       const event = recordNexoraTimelineEvent({
         type: "office_agents_tick",
@@ -200,6 +203,7 @@ export function registerNexoraOfficeAgentAdapterRoutes(app: any) {
         requestDraft: {
           message: "Please confirm unit cost, stock, lead time, delivery cost, warranty, and equivalent alternatives. This is not a purchase order or supplier commitment.",
           nonBinding: true,
+          noPurchaseOrder: true,
         },
       });
     } catch (error) {

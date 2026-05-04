@@ -125,6 +125,7 @@ import { registerNexoraProductionReadinessRoutes } from "./services/intelligence
 import { registerNexoraOperatorKitRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraOperatorKitRoutes";
 import { registerNexoraAdvancedLocalOpsRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraAdvancedLocalOpsRoutes";
 import { registerNexoraAlmightyRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraAlmightyRoutes";
+import { registerNexoraOfficeAgentAdapterRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraOfficeAgentAdapterRoutes";
 
 function hasLocalAdminHeader(req: any): boolean {
   return (
@@ -223,7 +224,32 @@ function filterSafePendingOutreach(mapped: any[]) {
 }
 
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
-  registerNexoraAlmightyRoutes(app);
+  registerNexoraOfficeAgentAdapterRoutes(app);
+  // NEXORA_AUTO_WIRE_ALL_BEGIN
+  try {
+    registerNexoraAdvancedAutonomyRoutes(app);
+    registerNexoraAdvancedLocalOpsRoutes(app);
+    registerNexoraAlmightyRoutes(app);
+    registerNexoraBuildPlannerRoutes(app);
+    registerNexoraExtensionManagerRoutes(app);
+    registerNexoraFileBusRoutes(app);
+    registerNexoraGovernorBusinessRoutes(app);
+    registerNexoraHardMountRoutes(app);
+    registerNexoraLiveVerificationRoutes(app);
+    registerNexoraLocalBusinessRoutes(app);
+    registerNexoraMegaBuildRoutes(app);
+    registerNexoraMissionControlRoutes(app);
+    registerNexoraOperationalAutopilotRoutes(app);
+    registerNexoraOperatorKitRoutes(app);
+    registerNexoraProductionReadinessRoutes(app);
+    registerNexoraResilienceRoutes(app);
+    registerNexoraSupremeMatrixRoutes(app);
+  } catch (error) {
+    console.error("[NEXORA_AUTO_WIRE_ALL_ERROR]", error);
+  }
+  // NEXORA_AUTO_WIRE_ALL_END
+
+registerNexoraAlmightyRoutes(app);
   registerNexoraAdvancedLocalOpsRoutes(app);
   registerNexoraOperatorKitRoutes(app);
   registerNexoraProductionReadinessRoutes(app);
