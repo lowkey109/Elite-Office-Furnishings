@@ -22,6 +22,17 @@ import { registerNexoraLoopCoverageRoutes } from "./services/intelligence/nexora
 import { registerNexoraOfficeFurnitureAgentRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraOfficeFurnitureAgentRoutes";
 import { registerNexoraHumanBoundaryDoctrineRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraHumanBoundaryDoctrineRoutes";
 import { registerNexoraAICompanyOperatingCompletionRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraAICompanyOperatingCompletionRoutes";
+import { registerNexoraTeachingRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraTeachingRoutes";
+import { registerNexoraRewardRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraRewardRoutes";
+import { registerNexoraMarketDataPaperRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraMarketDataPaperRoutes";
+import { registerNexoraBacktestSimulationRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraBacktestSimulationRoutes";
+import { registerNexoraTradingExecutionSafetyRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraTradingExecutionSafetyRoutes";
+import { registerNexoraFinalLocalV1Routes } from "./services/intelligence/nexora/autonomy/routes/nexoraFinalLocalV1Routes";
+import { registerNexoraUnifiedAgentRuntimeRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraUnifiedAgentRuntimeRoutes";
+import { registerNexoraProductCatalogueQuoteRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraProductCatalogueQuoteRoutes";
+import { registerNexoraCommsDocsRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraCommsDocsRoutes";
+import { registerNexoraHumanApprovedEmailOutboxRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraHumanApprovedEmailOutboxRoutes";
+import { registerNexoraLocalCommandCenterRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraLocalCommandCenterRoutes";
 
 // TCD_CHAT_ENV_ALIAS_FIX
 // Keep old and new OpenAI env names in sync so all chatbots/services work.
@@ -49,6 +60,33 @@ const TCD_ENABLE_BACKGROUND_JOBS =
   process.env.ENABLE_BACKGROUND_JOBS === "true";
 
 const app = express();
+
+// NEXORA_FINAL_DIRECT_API_MOUNT_BEGIN
+try {
+  registerNexoraHardMountRoutes(app);
+  registerNexoraActiveLocalLoopDaemonRoutes(app);
+  registerNexoraLocalActionExecutorRoutes(app);
+  registerNexoraLoopCoverageRoutes(app);
+  registerNexoraOfficeFurnitureAgentRoutes(app);
+  registerNexoraHumanBoundaryDoctrineRoutes(app);
+  registerNexoraAICompanyOperatingCompletionRoutes(app);
+  registerNexoraTeachingRoutes(app);
+  registerNexoraRewardRoutes(app);
+  registerNexoraMarketDataPaperRoutes(app);
+  registerNexoraBacktestSimulationRoutes(app);
+  registerNexoraTradingExecutionSafetyRoutes(app);
+  registerNexoraFinalLocalV1Routes(app);
+  registerNexoraUnifiedAgentRuntimeRoutes(app);
+  registerNexoraProductCatalogueQuoteRoutes(app);
+  registerNexoraCommsDocsRoutes(app);
+  registerNexoraHumanApprovedEmailOutboxRoutes(app);
+  registerNexoraLocalCommandCenterRoutes(app);
+  console.log("[NEXORA_FINAL_DIRECT_API_MOUNT] Critical Nexora routes mounted in server/index.ts");
+} catch (error) {
+  console.error("[NEXORA_FINAL_DIRECT_API_MOUNT_ERROR]", error);
+}
+// NEXORA_FINAL_DIRECT_API_MOUNT_END
+
 
 // NEXORA_DIRECT_API_MOUNT_BEGIN
 try {
