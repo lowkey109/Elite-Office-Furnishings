@@ -1,0 +1,16 @@
+{
+  "ts": "2026-05-04T11:46:32.157829Z",
+  "suite": "nexora-polymarket-paper-evidence",
+  "mode": "paper",
+  "liveTrading": false,
+  "externalSigner": false,
+  "fail": false,
+  "report": "reports/nexora-audit/20260504-114608-poly-app-route-repair/evidence/evidence-20260504-114631.log",
+  "safety": {
+    "deploy": false,
+    "postgresMigration": false,
+    "privateKeys": false,
+    "walletSigning": false,
+    "liveOrders": false
+  }
+}

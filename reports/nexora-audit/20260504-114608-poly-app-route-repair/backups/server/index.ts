@@ -50,7 +50,6 @@ import { registerNexoraMoonDevAdapterRoutes } from "./services/intelligence/nexo
 import { registerNexoraMoonDevStrategyBacktestImporterRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraMoonDevStrategyBacktestImporterRoutes";
 import { registerNexoraMoonDevPhase1Routes } from "./services/intelligence/nexora/autonomy/routes/nexoraMoonDevPhase1Routes";
 import { registerNexoraMoonDevSystemsAcceleratorRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraMoonDevSystemsAcceleratorRoutes";
-import { registerNexoraPolyAppRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyAppRoutes";
 
 // TCD_CHAT_ENV_ALIAS_FIX
 // Keep old and new OpenAI env names in sync so all chatbots/services work.
@@ -4189,9 +4188,6 @@ const port = Number(process.env.PORT || 5000);
   await Promise.resolve(registerNexoraMoonDevStrategyBacktestImporterRoutes(app));
   await Promise.resolve(registerNexoraMoonDevPhase1Routes(app));
   await Promise.resolve(registerNexoraMoonDevSystemsAcceleratorRoutes(app));
-
-  // Nexora Poly-App direct API mount: must stay before Vite/static fallback.
-  registerNexoraPolyAppRoutes(app);
     await setupVite(server, app);
   } else {
   registerNexoraPolymarketBatch1Routes(app);
