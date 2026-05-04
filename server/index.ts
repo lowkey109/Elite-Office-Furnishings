@@ -33,6 +33,7 @@ import { registerNexoraProductCatalogueQuoteRoutes } from "./services/intelligen
 import { registerNexoraCommsDocsRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraCommsDocsRoutes";
 import { registerNexoraHumanApprovedEmailOutboxRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraHumanApprovedEmailOutboxRoutes";
 import { registerNexoraLocalCommandCenterRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraLocalCommandCenterRoutes";
+import { registerNexoraResearchBridgeRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraResearchBridgeRoutes";
 
 // TCD_CHAT_ENV_ALIAS_FIX
 // Keep old and new OpenAI env names in sync so all chatbots/services work.
@@ -60,6 +61,16 @@ const TCD_ENABLE_BACKGROUND_JOBS =
   process.env.ENABLE_BACKGROUND_JOBS === "true";
 
 const app = express();
+
+// NEXORA_MOONDEV_DIRECT_MOUNT_BEGIN
+try {
+  registerNexoraResearchBridgeRoutes(app);
+  console.log("[NEXORA_MOONDEV_DIRECT_MOUNT] MoonDev research/adoption routes mounted");
+} catch (error) {
+  console.error("[NEXORA_MOONDEV_DIRECT_MOUNT_ERROR]", error);
+}
+// NEXORA_MOONDEV_DIRECT_MOUNT_END
+
 
 // NEXORA_FINAL_DIRECT_API_MOUNT_BEGIN
 try {
