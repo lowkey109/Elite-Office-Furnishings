@@ -148,12 +148,131 @@ pre{margin:0;white-space:pre-wrap;color:#c6f9ff;max-height:145px;overflow:auto}.
   }
 }
 
+
+/* POLYEDGE CONTROL DECK */
+.controlDeck{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:5px;
+  margin-bottom:5px;
+}
+.controlGroup{
+  background:linear-gradient(180deg,rgba(7,24,36,.97),rgba(2,8,14,.97));
+  border:1px solid var(--line, #0d5064);
+  box-shadow:0 0 14px rgba(93,247,255,.06),inset 0 0 18px rgba(93,247,255,.025);
+  padding:5px;
+  min-width:0;
+}
+.controlGroup h4{
+  margin:0 0 5px;
+  color:var(--cyan,#5df7ff);
+  font-size:8px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.controlGroup button{
+  width:100%;
+  display:block;
+  margin:3px 0;
+  padding:5px 6px;
+  border-radius:5px;
+  border:1px solid rgba(93,247,255,.25);
+  background:#061824;
+  color:#dffaff;
+  font-family:inherit;
+  font-size:8px;
+  font-weight:900;
+  text-align:left;
+  cursor:pointer;
+}
+.controlGroup button.paper{border-color:rgba(103,255,154,.45);color:#67ff9a}
+.controlGroup button.read{border-color:rgba(93,247,255,.45);color:#5df7ff}
+.controlGroup button.review{border-color:rgba(255,211,90,.55);color:#ffd35a}
+.controlGroup button.locked{border-color:rgba(255,78,105,.55);color:#ff4e69;background:#17070b}
+.controlOutput{
+  grid-column:span 7;
+  background:#01060b;
+  border:1px solid rgba(93,247,255,.18);
+  color:#c6f9ff;
+  padding:6px;
+  min-height:46px;
+  max-height:110px;
+  overflow:auto;
+  font-size:9px;
+  white-space:pre-wrap;
+}
+@media(max-width:1100px){
+  .controlDeck{grid-template-columns:1fr}
+  .controlOutput{grid-column:span 1}
+}
+
 </style>
 </head>
 <body>
 <div class="shell">
 <aside class="side"><div class="brand"><div class="tri"></div><div>POLY/EDGE<small>QUANTUM HYPERINTELLIGENCE TERMINAL</small></div></div><div class="nav"><div class="navtitle">Navigation</div><a class="on">Overview</a><a>Markets</a><a>Portfolio</a><a>Agents</a><a>Alpha Grid</a><a>Risk Core</a><a>Memory</a><a>Simulation</a><a>Communication</a><a>Settings</a></div><div class="orb"></div><div class="sync">Neural Sync Activity<b id="sideSync">--%</b></div></aside>
 <main class="main">
+
+<section class="controlDeck">
+  <div class="controlGroup">
+    <h4>Global</h4>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/paper-practice/start')">START PAPER LOOP</button>
+    <button class="locked" onclick="polyAction('POST','/api/nexora/paper-practice/stop')">STOP PAPER LOOP</button>
+    <button class="read" onclick="polyAction('GET','/api/nexora/paper-practice/control/status')">STATUS</button>
+    <button class="read" onclick="refreshPolyTerminal()">REFRESH DATA</button>
+  </div>
+
+  <div class="controlGroup">
+    <h4>Paper Trader</h4>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/poly-builds/final/run',paperPayload())">RUN PAPER CYCLE</button>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/poly-builds/bash2/loop/run',paperPayload())">RUN RISK LOOP</button>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/binance/paper/run-strategy',binancePayload())">BINANCE PAPER STRATEGY</button>
+    <button class="review" onclick="polyAction('POST','/api/nexora/binance/paper/reset',{})">RESET BINANCE PAPER</button>
+  </div>
+
+  <div class="controlGroup">
+    <h4>MoonDev</h4>
+    <button class="read" onclick="polyAction('GET','/api/nexora/moondev-strategy-import/status')">MOONDEV STATUS</button>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/moondev-strategy-import/rank',paperPayload())">RANK STRATEGIES</button>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/moondev-strategy-import/adapter-plan',paperPayload())">ADAPTER PLAN</button>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/poly-builds/bash1/tournament/run',paperPayload())">TOURNAMENT</button>
+  </div>
+
+  <div class="controlGroup">
+    <h4>Risk</h4>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/poly-builds/bash2/risk/run',riskPayload())">RUN RISK CHECK</button>
+    <button class="read" onclick="polyAction('GET','/api/nexora/live-money/status')">LIVE LOCK STATUS</button>
+    <button class="review" onclick="polyAction('POST','/api/nexora/capital-ladder/evaluate',capitalPayload())">CAPITAL LADDER</button>
+    <button class="review" onclick="polyAction('POST','/api/nexora/bank-connect/funding-readiness',{liveTrading:false})">FUNDING READINESS</button>
+  </div>
+
+  <div class="controlGroup">
+    <h4>Binance</h4>
+    <button class="read" onclick="polyAction('GET','/api/nexora/binance/status')">BINANCE STATUS</button>
+    <button class="read" onclick="polyAction('GET','/api/nexora/binance/candles?symbol=BTCUSDT&interval=5m&limit=100')">FETCH CANDLES</button>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/binance/paper/open',binancePayload())">OPEN PAPER TRADE</button>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/binance/paper/close',{symbol:'BTCUSDT'})">CLOSE PAPER TRADE</button>
+  </div>
+
+  <div class="controlGroup">
+    <h4>Live Intent</h4>
+    <button class="review" onclick="polyAction('POST','/api/nexora/poly-builds/final/trade-intent-draft',paperPayload())">CREATE TRADE INTENT</button>
+    <button class="review" onclick="polyAction('POST','/api/nexora/binance/live/intent',liveIntentPayload())">BINANCE LIVE INTENT</button>
+    <button class="read" onclick="polyAction('GET','/api/nexora/binance/live/intents')">VIEW INTENTS</button>
+    <button class="locked" onclick="blockedLiveOrder()">LIVE ORDER DISABLED</button>
+  </div>
+
+  <div class="controlGroup">
+    <h4>Bank</h4>
+    <button class="read" onclick="polyAction('GET','/api/nexora/bank-connect/status')">BANK STATUS</button>
+    <button class="review" onclick="polyAction('POST','/api/nexora/bank-connect/session/create',{provider:'placeholder',mode:'read_only'})">CREATE SESSION</button>
+    <button class="read" onclick="polyAction('GET','/api/nexora/bank-connect/accounts')">ACCOUNTS</button>
+    <button class="read" onclick="polyAction('GET','/api/nexora/bank-connect/balances')">BALANCES</button>
+  </div>
+
+  <pre id="polyControlOutput" class="controlOutput">Control deck ready. Paper/read-only actions enabled. Live execution locked.</pre>
+</section>
+
 <section class="top"><div class="box"><div class="title">POLY/EDGE</div><div class="sub">Quantum Hyperintelligence Terminal · Real Data Only</div></div><div class="box"><div class="lab">System</div><div class="val g">Online</div></div><div class="box"><div class="lab">AI Layer</div><div class="val v">MoonDev</div></div><div class="box"><div class="lab">Events</div><div class="val" id="topEvents">--</div></div><div class="box"><div class="lab">Win Rate</div><div class="val" id="topWin">--</div></div><div class="box"><div class="lab">Confidence</div><div class="val" id="topConf">--</div></div><div class="box"><div class="lab">Target</div><div class="val">95%</div></div><div class="box"><div class="lab">Reality</div><div class="val y">Paper</div></div></section>
 <section class="a"><div class="box"><h3>Hyperdimensional Equity Curve</h3><canvas id="equity"></canvas><div class="status"><div>Counted <b id="sTrades">--</b></div><div>Wins <b id="sWins">--</b></div><div>Loop <b id="sLoop">--</b></div><div>Live <b class="r">Locked</b></div></div></div><div class="box"><h3>Quantum Market Sentiment Matrix</h3><canvas id="sent"></canvas><table><tr><td>Bullish</td><td id="sentBull">--</td></tr><tr><td>Bearish</td><td id="sentBear">--</td></tr><tr><td>Neutral</td><td id="sentNeutral">--</td></tr></table></div><div class="box"><h3>Alpha Signals Feed</h3><table id="alpha"></table></div></section>
 <section class="b"><div class="box"><h3>Sentient Agent Mesh</h3><canvas id="mesh"></canvas></div><div class="box"><h3>Capital Allocation // Hyperstructure</h3><canvas id="alloc"></canvas></div><div class="box"><h3>Multiverse Simulation</h3><canvas id="multi"></canvas></div><div class="box"><h3>Hyper Liquidity Depth</h3><canvas id="liq"></canvas><div class="sub">WAITING FOR REAL ORDER BOOK DATA</div></div></section>
@@ -459,4 +578,96 @@ No live copy trading.</pre></div><div class="box"><h3>Holographic Universe View<
   });
 
   load();
+
+function writeControlOutput(label, data){
+  const out = document.getElementById("polyControlOutput");
+  if(!out) return;
+  out.textContent = label + "\n" + JSON.stringify(data, null, 2).slice(0, 1800);
+}
+function paperPayload(){
+  return {
+    mode:"paper_learning",
+    source:"polyedge_control_deck",
+    product:"Phantom X / Polymarket",
+    liveTrading:false,
+    paperOnly:true,
+    humanApprovalRequired:true,
+    externalSignerRequired:true,
+    privateKeysInsideNexora:false,
+    walletSigningInsideNexora:false
+  };
+}
+function riskPayload(){
+  return {
+    mode:"paper_learning",
+    drawdownPct:0,
+    losingStreak:0,
+    exposurePct:0,
+    liveTrading:false
+  };
+}
+function capitalPayload(){
+  return {
+    equityAud:50,
+    requestedTradeAud:1,
+    confidence:85,
+    liveTrading:false
+  };
+}
+function binancePayload(){
+  return {
+    symbol:"BTCUSDT",
+    side:"BUY",
+    confidence:0.85,
+    reason:"paper control deck action",
+    liveTrading:false
+  };
+}
+function liveIntentPayload(){
+  return {
+    symbol:"BTCUSDT",
+    side:"BUY",
+    requestedTradeAud:1,
+    liveTrading:false,
+    draftOnly:true,
+    humanApprovalRequired:true,
+    externalSignerRequired:true
+  };
+}
+async function polyAction(method,url,body){
+  try{
+    const options = {method, headers:{Accept:"application/json"}};
+    if(method !== "GET"){
+      options.headers["Content-Type"] = "application/json";
+      options.body = JSON.stringify(body || {});
+    }
+    const res = await fetch(url, options);
+    const text = await res.text();
+    let data;
+    try{ data = JSON.parse(text); } catch { data = {ok:false, nonJson:text.slice(0,800)}; }
+    writeControlOutput(method + " " + url, data);
+    if(typeof load === "function") setTimeout(load, 500);
+    return data;
+  }catch(error){
+    writeControlOutput(method + " " + url, {ok:false,error:String(error)});
+  }
+}
+function blockedLiveOrder(){
+  writeControlOutput("LIVE ORDER DISABLED", {
+    ok:false,
+    blocked:true,
+    reason:"Live order execution is disabled. Use draft intents only until explicit supervised real-money approval.",
+    safety:{
+      liveTradingEnabled:false,
+      privateKeysInsideNexora:false,
+      walletSigningInsideNexora:false,
+      bankTransfersEnabled:false
+    }
+  });
+}
+function refreshPolyTerminal(){
+  writeControlOutput("REFRESH DATA", {ok:true, refreshing:true});
+  if(typeof load === "function") load();
+}
+
 </script></body></html>
