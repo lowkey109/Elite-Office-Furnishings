@@ -273,6 +273,42 @@ pre{
   .top,.gridA,.gridB,.gridC,.gridD{grid-template-columns:1fr}
   .ticker{left:0}
 }
+
+.monitorRail{
+  display:grid;
+  gap:6px;
+  align-content:start;
+}
+.monitor{
+  background:linear-gradient(180deg,rgba(7,24,36,.97),rgba(2,8,14,.97));
+  border:1px solid var(--line);
+  box-shadow:0 0 14px rgba(93,247,255,.08),inset 0 0 20px rgba(93,247,255,.035);
+  padding:7px;
+  min-height:90px;
+}
+.monitor h4{
+  margin:0 0 6px;
+  color:var(--cyan);
+  font-size:8px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.monitor b{
+  display:block;
+  font-size:18px;
+}
+.monitor small{
+  display:block;
+  color:var(--muted);
+  margin-top:3px;
+  font-size:8px;
+}
+.mainContent{min-width:0}
+@media(max-width:1100px){
+  .main{display:block}
+  .monitorRail{grid-template-columns:1fr 1fr;margin-top:6px}
+}
+
 </style>
 </head>
 
