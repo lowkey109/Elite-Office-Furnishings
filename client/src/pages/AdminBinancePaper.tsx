@@ -158,6 +158,20 @@ export default function AdminBinancePaper() {
     }
   }
 
+  async function validateIntent(id: string) {
+    setBusy(true);
+    try {
+      const out = await api(`/api/nexora/binance/live/intent/${id}/validate`, {
+        method: "POST",
+        body: JSON.stringify({}),
+      });
+      setLog(JSON.stringify(out, null, 2));
+      await refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function dryRunExecuteIntent(id: string) {
     setBusy(true);
     try {
@@ -201,6 +215,20 @@ export default function AdminBinancePaper() {
           <Card title="Open Trades" value={String(perf.openTrades || 0)} />
           <Card title="Closed Trades" value={String(perf.closedTrades || 0)} />
         </div>
+
+
+        <section style={panel}>
+          <h2>Operator Readiness</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 12 }}>
+            <Card title="Live Trading" value={String(status?.safety?.liveTradingEnabled ?? false)} />
+            <Card title="Paper Trading" value={String(status?.safety?.paperTradingEnabled ?? true)} />
+            <Card title="Live Orders" value={String(status?.safety?.liveOrdersEnabled ?? false)} />
+            <Card title="Withdrawals" value={String(status?.safety?.withdrawalsEnabled ?? false)} />
+          </div>
+          <p style={{ color: "#94a3b8", marginTop: 12 }}>
+            This panel reads the backend safety flags. If live env variables are not set, execution stays dry-run/simulated.
+          </p>
+        </section>
 
         <section style={panel}>
           <h2>Controls</h2>
@@ -247,6 +275,7 @@ export default function AdminBinancePaper() {
                     <td style={td}>${Number(i.estimatedNotional || 0).toFixed(2)}</td>
                     <td style={td}>{i.reason}</td>
                     <td style={td}>
+                      <button disabled={busy} onClick={() => validateIntent(i.id)} style={miniBtn}>Validate</button>{" "}
                       <button disabled={busy} onClick={() => approveIntent(i.id)} style={miniBtn}>Approve</button>{" "}
                       <button disabled={busy} onClick={() => rejectIntent(i.id)} style={miniBtn}>Reject</button>{" "}
                       <button disabled={busy} onClick={() => dryRunExecuteIntent(i.id)} style={miniBtn}>Dry Run</button>
