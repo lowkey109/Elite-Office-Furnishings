@@ -79,6 +79,7 @@ import { registerNexoraPaperPracticeControlRoutes } from "./services/intelligenc
 import { registerNexoraCapitalLadderRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraCapitalLadderRoutes";
 import { registerNexoraPaperTrainRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPaperTrainRoutes";
 import { registerNexoraPolyEdgeFinalCompatRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyEdgeFinalCompatRoutes";
+import { registerNexoraBinanceStrategyPlusRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraBinanceStrategyPlusRoutes";
 
 // TCD_CHAT_ENV_ALIAS_FIX
 // Keep old and new OpenAI env names in sync so all chatbots/services work.
@@ -4233,6 +4234,7 @@ app.post("/api/admin/login", express.json(), (req, res) => {
 });
 
 registerRoutes(server, app);
+  registerNexoraBinanceStrategyPlusRoutes(app);
   registerNexoraBankConnectRoutes(app);
   registerNexoraPolyEdgeFinalCompatRoutes(app);
   registerNexoraPaperTrainRoutes(app);

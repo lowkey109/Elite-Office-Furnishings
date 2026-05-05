@@ -62,3 +62,14 @@ research/moondev/**/*.png
 research/moondev/**/*.jpg
 research/moondev/**/*.jpeg
 research/moondev/**/*.html
+# Nexora local runtime data
+.data/
+NODE_ENV=production
+rest-express@1.0.0
+data/nexora/local/**/payload*.json
+data/nexora/local/**/response*.json
+data/nexora/local/**/get-*.json
+data/nexora/local/**/*.pid
+reports/nexora-audit/
+reports/nexora-inspect-*/
+*.bak.*
