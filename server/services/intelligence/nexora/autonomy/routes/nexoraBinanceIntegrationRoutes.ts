@@ -287,6 +287,48 @@ export function registerNexoraBinanceIntegrationRoutes(app: Express) {
     res.json(out);
   });
 
+
+  app.post("/api/nexora/binance/paper/auto-cycle", async (req, res) => {
+    const body = req.body || {};
+    const sym = symbol(body.symbol || "BTCUSDT");
+    const int = interval(body.interval || "5m");
+    const lim = Math.max(80, limit(body.limit || 120));
+
+    const strategies: BinanceStrategyName[] = [
+      "trend_follow",
+      "breakout",
+      "rsi_reversal",
+      "volatility_guard",
+    ];
+
+    const out = await publicJson(`/api/v3/klines?symbol=${sym}&interval=${int}&limit=${lim}`);
+    const candles = Array.isArray(out.data) ? out.data.map((c: any[]) => ({
+      open: Number(c[1]),
+      high: Number(c[2]),
+      low: Number(c[3]),
+      close: Number(c[4]),
+      volume: Number(c[5]),
+    })) : [];
+
+    const results = strategies.map((strategy) =>
+      runBinancePaperStrategy({ symbol: sym, strategy, candles })
+    );
+
+    res.json({
+      ok: true,
+      service: "nexora_binance_paper_auto_cycle",
+      generatedAt: new Date().toISOString(),
+      symbol: sym,
+      interval: int,
+      sourceOk: out.ok,
+      source: out.base,
+      strategiesRun: strategies,
+      results,
+      summary: getBinancePaperSummary(candles.at(-1)?.close),
+      safety: safety(),
+    });
+  });
+
   app.post("/api/nexora/binance/paper/run-strategy", async (req, res) => {
     const body = req.body || {};
     const sym = symbol(body.symbol || "BTCUSDT");
