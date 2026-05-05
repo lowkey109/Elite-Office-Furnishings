@@ -5,6 +5,7 @@ cd ~/workspace
 
 BASE="${BASE_URL:-http://127.0.0.1:5000}"
 ROOT="data/nexora/local/paper-practice"
+MARKET_CONFIG="data/nexora/local/paper-practice/markets.json"
 mkdir -p "$ROOT"
 
 LOG="$ROOT/paper-practice.log"
@@ -111,8 +112,10 @@ print(json.dumps({
   "result": "paper_success" if $LOOP % 3 != 0 else "paper_neutral",
   "loop": $LOOP,
   "generatedAt": "$TS",
-  "market": "auto_selected_paper_market",
-  "symbol": "BTC / Polymarket",
+  "market": market["market"],
+  "symbol": market["symbol"],
+  "asset": market["asset"],
+  "strategyBias": market["strategyBias"],
   "strategyUsed": "moondev_ranked_strategy_plus_nexora_risk_gate",
   "paperSignal": "PAPER_LONG_YES" if $LOOP % 2 == 0 else "PAPER_HOLD",
   "confidence": 68 if $LOOP % 3 != 0 else 54,

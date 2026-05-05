@@ -1,0 +1,55 @@
+{
+  "ok": true,
+  "service": "nexora_paper_practice_markets",
+  "mode": "paper_only",
+  "markets": [
+    {
+      "symbol": "BTC / Polymarket",
+      "market": "btc_prediction_market",
+      "asset": "BTC",
+      "basePrice": 77500,
+      "strategyBias": "momentum_liquidity"
+    },
+    {
+      "symbol": "ETH / Polymarket",
+      "market": "eth_prediction_market",
+      "asset": "ETH",
+      "basePrice": 3100,
+      "strategyBias": "volatility_mean_reversion"
+    },
+    {
+      "symbol": "SOL / Polymarket",
+      "market": "sol_prediction_market",
+      "asset": "SOL",
+      "basePrice": 145,
+      "strategyBias": "momentum_breakout"
+    },
+    {
+      "symbol": "XRP / Polymarket",
+      "market": "xrp_prediction_market",
+      "asset": "XRP",
+      "basePrice": 0.55,
+      "strategyBias": "sentiment_liquidity"
+    },
+    {
+      "symbol": "DOGE / Polymarket",
+      "market": "doge_prediction_market",
+      "asset": "DOGE",
+      "basePrice": 0.14,
+      "strategyBias": "sentiment_momentum"
+    },
+    {
+      "symbol": "BNB / Polymarket",
+      "market": "bnb_prediction_market",
+      "asset": "BNB",
+      "basePrice": 600,
+      "strategyBias": "liquidity_trend"
+    }
+  ],
+  "safety": {
+    "paperOnly": true,
+    "liveTradingEnabled": false,
+    "privateKeysInsideNexora": false,
+    "walletSigningInsideNexora": false
+  }
+}
