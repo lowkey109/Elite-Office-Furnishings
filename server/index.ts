@@ -4189,6 +4189,32 @@ app.get("/api/nexora/command-centre", async (_req, res) => {
   }
 });
 
+
+// Hard-mounted admin login: must stay before protected admin routes.
+app.post("/api/admin/login", express.json(), (req, res) => {
+  const email = String(req.body?.email || "").trim();
+  const password = String(req.body?.password || "");
+
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@thecorporatedesk.com.au";
+  const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+
+  if (!email || !password) {
+    return res.status(400).json({ ok: false, error: "Email and password are required" });
+  }
+
+  if (email !== adminEmail || password !== adminPassword) {
+    return res.status(401).json({ ok: false, error: "Invalid credentials" });
+  }
+
+  return res.json({
+    ok: true,
+    authenticated: true,
+    email,
+    role: "admin",
+    generatedAt: new Date().toISOString()
+  });
+});
+
 registerRoutes(server, app);
   registerNexoraMoonDevParityRoutes(app);
   registerNexoraPaperSummaryRoutes(app);
