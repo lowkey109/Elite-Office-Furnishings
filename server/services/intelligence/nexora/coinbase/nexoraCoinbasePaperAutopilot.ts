@@ -4,6 +4,12 @@ import {
   listPaperTrades,
 } from "./nexoraCoinbasePaperLedger";
 
+import { getCoinbaseSpotPrice } from "./nexoraCoinbaseMarketPriceFeed";
+
+import {
+  autoCloseCoinbasePaperTrades,
+} from "./nexoraCoinbasePaperCloser";
+
 let running = false;
 let timer: NodeJS.Timeout | null = null;
 
@@ -17,19 +23,21 @@ function randomProduct() {
   return PRODUCTS[Math.floor(Math.random() * PRODUCTS.length)];
 }
 
-function maybeOpenTrade() {
+async function maybeOpenTrade() {
   const side = Math.random() > 0.5 ? "BUY" : "SELL";
+  const productId = randomProduct();
+  const price = await getCoinbaseSpotPrice(productId);
 
   createPaperTrade({
-    productId: randomProduct(),
+    productId,
     side,
     quantity: 0.001,
-    entryPrice: rand(50000, 120000),
+    entryPrice: price.price,
     strategy: "nexora_autopilot_v1",
   });
 }
 
-function maybeCloseTrade() {
+async function maybeCloseTrade() {
   const open = listPaperTrades(100)
     .filter((t) => t.status === "OPEN");
 
@@ -40,9 +48,11 @@ function maybeCloseTrade() {
   const trade =
     open[Math.floor(Math.random() * open.length)];
 
+  const price = await getCoinbaseSpotPrice(trade.productId);
+
   closePaperTrade(
     trade.id,
-    rand(50000, 120000)
+    price.price
   );
 }
 
@@ -59,12 +69,16 @@ export function startCoinbasePaperAutopilot() {
   timer = setInterval(() => {
     try {
       if (Math.random() > 0.45) {
-        maybeOpenTrade();
+        void maybeOpenTrade();
       }
 
       if (Math.random() > 0.55) {
-        maybeCloseTrade();
+        void maybeCloseTrade();
       }
+
+      autoCloseCoinbasePaperTrades();
+
+      autoCloseCoinbasePaperTrades();
     } catch {}
   }, 8000);
 
