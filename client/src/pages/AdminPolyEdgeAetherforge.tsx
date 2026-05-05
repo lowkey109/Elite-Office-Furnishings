@@ -11,7 +11,7 @@ export default function AdminPolyEdgeAetherforge() {
               <div className="text-xs uppercase tracking-[0.22em] text-cyan-300 font-bold">
                 NEXORA POLYEDGE TERMINAL
               </div>
-              <h1 className="text-2xl lg:text-3xl font-black mt-1">
+              <h1 className="text-2xl lg:text-2xl font-black mt-1">
                 Quantum Trading Intelligence Terminal
               </h1>
               <p className="text-xs lg:text-sm text-white/55 mt-1 max-w-4xl">
