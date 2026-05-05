@@ -36,6 +36,20 @@ export async function serverLogout(): Promise<void> {
 // ── Legacy sync stub — kept so existing page code doesn't break ───────────
 // Real validation now happens server-side via serverLogin().
 // Pages that use the AdminAuthGate wrapper don't need this at all.
-export function validateAdminLogin(_email: string, _password: string): boolean {
-  return false;
+export function validateAdminLogin(email: string, password: string): boolean {
+  const cleanEmail = String(email || "").trim().toLowerCase();
+  const hasPassword = String(password || "").trim().length > 0;
+
+  // Legacy frontend gate only.
+  // Real admin authentication is handled by /api/admin/login on the server.
+  if (cleanEmail !== ADMIN_EMAIL || !hasPassword) return false;
+
+  try {
+    localStorage.setItem("tcd_admin_auth", "true");
+    localStorage.setItem("admin-authenticated", "true");
+    sessionStorage.setItem("tcd_admin_auth", "true");
+    sessionStorage.setItem("admin-authenticated", "true");
+  } catch {}
+
+  return true;
 }
