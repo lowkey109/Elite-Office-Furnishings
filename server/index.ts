@@ -67,6 +67,7 @@ import { registerNexoraBankConnectRoutes } from "./services/intelligence/nexora/
 import { registerNexoraBankConnectUiRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraBankConnectUiRoutes";
 import { registerNexoraPolyEdgeOperatorUiRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyEdgeOperatorUiRoutes";
 import { registerNexoraPolyGraphPageRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyGraphPageRoutes";
+import { registerNexoraPolyConfidenceRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyConfidenceRoutes";
 
 // TCD_CHAT_ENV_ALIAS_FIX
 // Keep old and new OpenAI env names in sync so all chatbots/services work.
@@ -4216,6 +4217,7 @@ const port = Number(process.env.PORT || 5000);
   registerNexoraPolyBuildsBash1Routes(app);
   registerNexoraPolyBuildsBash2Routes(app);
   registerNexoraPolyBuildsFinalRoutes(app);
+  registerNexoraPolyConfidenceRoutes(app);
   registerNexoraPolyGraphPageRoutes(app);
   registerNexoraPolyEdgeOperatorUiRoutes(app);
   registerNexoraBankConnectUiRoutes(app);
