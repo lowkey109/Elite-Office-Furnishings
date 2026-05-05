@@ -93,6 +93,24 @@ function saveBinanceLiveIntent(payload: any) {
   return saved;
 }
 
+
+function updateBinanceLiveIntentStatus(id: string, status: string, note: string) {
+  const file = path.join(binanceLiveIntentDir(), `${id}.json`);
+  if (!fs.existsSync(file)) return null;
+
+  const current = JSON.parse(fs.readFileSync(file, "utf8"));
+  const updated = {
+    ...current,
+    status,
+    approvalNote: note,
+    updatedAt: new Date().toISOString(),
+    canExecuteNow: status === "approved_owner_supervised",
+  };
+
+  fs.writeFileSync(file, JSON.stringify(updated, null, 2));
+  return updated;
+}
+
 function listBinanceLiveIntents() {
   const dir = binanceLiveIntentDir();
   return fs.readdirSync(dir)
@@ -505,6 +523,42 @@ export function registerNexoraBinanceIntegrationRoutes(app: Express) {
       service: "binance_live_intents",
       generatedAt: new Date().toISOString(),
       intents: listBinanceLiveIntents(),
+      safety: safety(),
+    });
+  });
+
+
+  app.post("/api/nexora/binance/live/intent/:id/approve", async (req, res) => {
+    const id = String(req.params.id || "");
+    const note = String(req.body?.note || "owner_approved_for_supervised_execution");
+    const intent = updateBinanceLiveIntentStatus(id, "approved_owner_supervised", note);
+
+    if (!intent) {
+      return res.status(404).json({ ok: false, error: "intent_not_found", id });
+    }
+
+    res.json({
+      ok: true,
+      approved: true,
+      intent,
+      nextStep: "separate supervised execute endpoint",
+      safety: safety(),
+    });
+  });
+
+  app.post("/api/nexora/binance/live/intent/:id/reject", async (req, res) => {
+    const id = String(req.params.id || "");
+    const note = String(req.body?.note || "owner_rejected");
+    const intent = updateBinanceLiveIntentStatus(id, "rejected", note);
+
+    if (!intent) {
+      return res.status(404).json({ ok: false, error: "intent_not_found", id });
+    }
+
+    res.json({
+      ok: true,
+      rejected: true,
+      intent,
       safety: safety(),
     });
   });
