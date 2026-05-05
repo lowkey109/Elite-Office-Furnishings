@@ -5,6 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 
 import { usePageTracking } from "@/lib/usePageTracking";
 import { Redirect } from "wouter";
+import { AdminLayout } from "@/components/AdminLayout";
 
 // TCD_STAGE_25_ROUTE_LEVEL_LAZY_LOADING
 // TCD_STAGE_30_LAZY_GLOBAL_SHELL
@@ -178,10 +179,11 @@ const tcdRouteFallback = (
 
 function AdminRoutes() {
   return (
-    <Suspense fallback={<TcdStage24RouteFallback />}>
-              <Route path="/admin/login" component={AdminDashboard} />
-      <Suspense fallback={tcdRouteFallback}>
-        <Switch>
+    <AdminLayout>
+      <Suspense fallback={<TcdStage24RouteFallback />}>
+        <Route path="/admin/login" component={AdminDashboard} />
+        <Suspense fallback={tcdRouteFallback}>
+          <Switch>
         <Route
           path="/admin"
           component={() => {
@@ -243,10 +245,11 @@ function AdminRoutes() {
         <Route path="/admin/ai-chat" component={AdminAIChat} />
         <Route path="/admin/partners" component={AdminPartners} />
         <Route path="/admin/catalog-staging" component={AdminCatalogStaging} />
-        <Route component={NotFound} />
-      </Switch>
-      </Suspense>
+            <Route component={NotFound} />
+          </Switch>
         </Suspense>
+      </Suspense>
+    </AdminLayout>
   );
 }
 
