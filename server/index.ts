@@ -65,6 +65,7 @@ import { registerNexoraPaperPracticeSupervisorRoutes } from "./services/intellig
 import { registerNexoraMoonDevFullHarvestRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraMoonDevFullHarvestRoutes";
 import { registerNexoraBankConnectRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraBankConnectRoutes";
 import { registerNexoraBankConnectUiRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraBankConnectUiRoutes";
+import { registerNexoraPolyEdgeOperatorUiRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyEdgeOperatorUiRoutes";
 
 // TCD_CHAT_ENV_ALIAS_FIX
 // Keep old and new OpenAI env names in sync so all chatbots/services work.
@@ -4214,6 +4215,7 @@ const port = Number(process.env.PORT || 5000);
   registerNexoraPolyBuildsBash1Routes(app);
   registerNexoraPolyBuildsBash2Routes(app);
   registerNexoraPolyBuildsFinalRoutes(app);
+  registerNexoraPolyEdgeOperatorUiRoutes(app);
   registerNexoraBankConnectUiRoutes(app);
   registerNexoraBankConnectRoutes(app);
   registerNexoraPaperPracticeSupervisorRoutes(app);
