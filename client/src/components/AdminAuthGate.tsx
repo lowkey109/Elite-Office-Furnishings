@@ -1,111 +1,124 @@
-import React, { useState } from "react";
-import { ADMIN_EMAIL, serverLogin, serverLogout } from "@/lib/adminAuth";
+import { useState, useEffect } from "react";
+import { Loader2, Lock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { serverLogin, checkAdminAuth } from "@/lib/adminAuth";
+import { AdminLayout } from "./AdminLayout";
 
-type AdminAuthGateProps = {
-  children?: React.ReactNode;
-};
-
-function isAuthed() {
-  try {
-    return (
-      localStorage.getItem("tcd_admin_auth") === "true" ||
-      localStorage.getItem("admin-authenticated") === "true" ||
-      sessionStorage.getItem("tcd_admin_auth") === "true" ||
-      sessionStorage.getItem("admin-authenticated") === "true"
-    );
-  } catch {
-    return false;
-  }
+interface Props {
+  children: React.ReactNode;
 }
 
-function setAuthed() {
-  localStorage.setItem("tcd_admin_auth", "true");
-  localStorage.setItem("admin-authenticated", "true");
-  sessionStorage.setItem("tcd_admin_auth", "true");
-  sessionStorage.setItem("admin-authenticated", "true");
-}
+export function AdminAuthGate({ children }: Props) {
+  const isPolyEdgeFullscreenRoute =
+    typeof window !== "undefined" &&
+    window.location.pathname === "/admin/polyedge-aetherforge";
 
-export function AdminAuthGate({ children }: AdminAuthGateProps) {
-  const [email, setEmail] = useState(ADMIN_EMAIL);
+  const [status, setStatus] = useState<"checking" | "authed" | "login">("checking");
+  const [email, setEmail] = useState("admin@thecorporatedesk.com.au");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  async function handleLogin() {
-    setBusy(true);
+  useEffect(() => {
+    checkAdminAuth().then(authenticated => {
+      if (authenticated) {
+        sessionStorage.setItem("tcd_admin_auth", "true");
+        localStorage.setItem("tcd_admin_auth", "true");
+        setStatus("authed");
+      } else {
+        sessionStorage.removeItem("tcd_admin_auth");
+        localStorage.removeItem("tcd_admin_auth");
+        setStatus("login");
+      }
+    });
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
     setError("");
-
     const ok = await serverLogin(email, password);
-
-    setBusy(false);
-
-    if (!ok) {
-      setError("Incorrect credentials. Please try again.");
-      return;
+    if (ok) {
+      sessionStorage.setItem("tcd_admin_auth", "true");
+      localStorage.setItem("tcd_admin_auth", "true");
+      setStatus("authed");
+    } else {
+      setError("Invalid email or password");
     }
+    setLoading(false);
+  };
 
-    setAuthed();
-    window.location.reload();
-  }
-
-  async function handleLogout() {
-    await serverLogout();
-    window.location.reload();
-  }
-
-  if (isAuthed()) {
-    if (children) return <>{children}</>;
-
+  if (status === "checking") {
     return (
-      <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", background: "#07090d", color: "#fff" }}>
-        <section style={{ textAlign: "center" }}>
-          <h1>Admin authenticated</h1>
-          <p>You are signed in.</p>
-          <a href="/admin" style={{ color: "#e2b72f" }}>Open Admin Dashboard</a>
-          <br />
-          <button onClick={handleLogout} style={{ marginTop: 16 }}>Logout</button>
-        </section>
-      </main>
+      <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center">
+        <Loader2 className="w-5 h-5 animate-spin text-white/20" />
+      </div>
     );
   }
 
-  return (
-    <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", background: "#07090d", color: "#fff", fontFamily: "Inter, system-ui, sans-serif" }}>
-      <section style={{ width: 390, maxWidth: "92vw", border: "1px solid #2a2f3a", borderRadius: 16, padding: 24, background: "#11151d" }}>
-        <h1 style={{ marginTop: 0, textAlign: "center", fontFamily: "serif", letterSpacing: "0.08em" }}>THE CORPORATE<br />DESK</h1>
-        <h2 style={{ textAlign: "center", marginBottom: 4 }}>Admin Dashboard</h2>
-        <p style={{ textAlign: "center", color: "#9da5b4", marginTop: 0 }}>Authorised access only</p>
+  if (status === "login") {
+    return (
+      <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center p-4">
+        <div className="w-full max-w-sm">
+          <div className="flex items-center gap-3 mb-10">
+            <div className="w-8 h-8 bg-[hsl(43,78%,52%)] flex items-center justify-center">
+              <Lock className="w-4 h-4 text-black" />
+            </div>
+            <div>
+              <div className="text-white font-light text-sm tracking-widest uppercase">The Corporate Desk</div>
+              <div className="text-white/30 text-xs">Admin Portal</div>
+            </div>
+          </div>
 
-        <label style={{ display: "block", marginTop: 18, color: "#b6bdc8" }}>Admin Email</label>
-        <input
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          autoComplete="username"
-          style={{ width: "100%", padding: 12, marginTop: 6, borderRadius: 6, border: "1px solid #333a47" }}
-        />
+          <form onSubmit={handleLogin} className="space-y-3">
+            <Input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="Email address"
+              data-testid="input-admin-email"
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-none h-11 focus-visible:ring-0 focus-visible:border-white/30"
+              required
+              autoComplete="email"
+            />
+            <Input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Password"
+              data-testid="input-admin-password"
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-none h-11 focus-visible:ring-0 focus-visible:border-white/30"
+              required
+              autoFocus
+              autoComplete="current-password"
+            />
+            {error && (
+              <p className="text-red-400/80 text-xs py-1" data-testid="text-admin-error">
+                {error}
+              </p>
+            )}
+            <Button
+              type="submit"
+              disabled={loading}
+              data-testid="button-admin-login"
+              className="w-full h-11 bg-[hsl(43,78%,52%)] hover:bg-[hsl(43,78%,45%)] text-black rounded-none font-semibold text-sm tracking-wide mt-2"
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign In"}
+            </Button>
+          </form>
 
-        <label style={{ display: "block", marginTop: 14, color: "#b6bdc8" }}>Password</label>
-        <input
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          type="password"
-          autoComplete="current-password"
-          onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-          style={{ width: "100%", padding: 12, marginTop: 6, borderRadius: 6, border: "1px solid #6b2d36", background: "#151922", color: "#fff" }}
-        />
+          <p className="text-white/15 text-xs text-center mt-8">
+            Restricted access — authorised personnel only
+          </p>
+        </div>
+      </div>
+    );
+  }
 
-        {error && <p style={{ color: "#ff6b7a", fontSize: 13 }}>{error}</p>}
+  if (isPolyEdgeFullscreenRoute) {
+    return <>{children}</>;
+  }
 
-        <button
-          onClick={handleLogin}
-          disabled={busy}
-          style={{ width: "100%", marginTop: 18, padding: 13, borderRadius: 6, border: 0, background: "#e2b72f", color: "#101010", fontWeight: 800 }}
-        >
-          {busy ? "Checking..." : "Access Dashboard"}
-        </button>
-      </section>
-    </main>
-  );
+  return <AdminLayout>{children}</AdminLayout>;
 }
-
-export default AdminAuthGate;

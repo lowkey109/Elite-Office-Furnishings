@@ -18,7 +18,7 @@ const ConciergeProvider = lazy(() =>
   import("@/contexts/ConciergeContext").then((m) => ({ default: m.ConciergeProvider }))
 );
 const AdminAuthGate = lazy(() =>
-  import("@/components/AdminAuthGate").then((m) => ({ default: m.default }))
+  import("@/components/AdminAuthGate").then((m) => ({ default: m.AdminAuthGate }))
 );
 const ErrorBoundary = lazy(() =>
   import("@/components/ErrorBoundary").then((m) => ({ default: m.ErrorBoundary }))
