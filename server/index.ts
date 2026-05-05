@@ -4225,8 +4225,8 @@ app.post("/api/admin/login", express.json(), (req, res) => {
 });
 
 registerRoutes(server, app);
-  registerNexoraBinanceIntegrationRoutes(app);
   registerNexoraPolyEdgeTerminalV2Routes(app);
+  registerNexoraBinanceIntegrationRoutes(app);
   registerNexoraPolyExactTerminalRoutes(app);
   registerNexoraAdminTradingRestoreRoutes(app);
   registerNexoraMoonDevParityRoutes(app);

@@ -24,6 +24,7 @@ export function registerNexoraPolyEdgeTerminalV2Routes(app: Express): void {
       ok: true,
       service: "nexora_polyedge_terminal_v2_status",
       generatedAt: new Date().toISOString(),
+      primaryAdminRoute: "/admin/polyedge-aetherforge",
       routes: [
         "/nexora/polyedge-terminal-v2",
         "/nexora/polyedge-terminal",
@@ -31,7 +32,9 @@ export function registerNexoraPolyEdgeTerminalV2Routes(app: Express): void {
       ],
       dataRoutes: [
         "/api/nexora/poly-paper-summary/latest",
-        "/api/nexora/poly-edge-fixed/state"
+        "/api/nexora/poly-edge-fixed/state",
+        "/api/nexora/live-money/status",
+        "/api/nexora/binance/status"
       ],
       safety: {
         liveTradingEnabled: false,
