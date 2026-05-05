@@ -501,7 +501,7 @@ async function load(){
   tTrades.textContent=counts.countedTrades??"--";
   tWin.textContent=(c.winRate??"--")+"%";
   tScore.textContent=c.avgScore??"--";
-  paperEquity.textContent="$"+fmt(100000 + ((assets.reduce((s,a)=>s+(a.pnl||0),0))*100));
+  paperEquity.textContent="PAPER ONLY";
 
   sigAsset.textContent=latest.asset||"--";
   sigSignal.textContent=latest.signal||"--";
@@ -540,13 +540,13 @@ function drawCandles(terminal, latest){
   const ctx=canvas.getContext("2d"),w=canvas.width,h=canvas.height;
   ctx.clearRect(0,0,w,h);ctx.fillStyle="#fff";ctx.fillRect(0,0,w,h);
   const candles=(terminal.candles||[]);
-  const fallback=[];
+  const fallback=[]; // no synthetic candles: show waiting when real candle data is missing
   for(let i=0;i<44;i++){
     const base=100+Math.sin((i+tick)/4)*7+(latest.pnl||0);
     fallback.push({open:base,close:base+Math.sin(i/2)*3,high:base+6,low:base-6,volume:100+i});
   }
-  const data=candles.length?candles:fallback;
-  const prices=data.flatMap(d=>[d.high,d.low,d.open,d.close]).filter(Number.isFinite);
+  const data=candles.length?candles:[];
+  if(!data.length){ctx.fillStyle="#6e7a72";ctx.font="16px monospace";ctx.fillText("WAITING FOR REAL CANDLE DATA",20,40);return;}\n  const prices=data.flatMap(d=>[d.high,d.low,d.open,d.close]).filter(Number.isFinite);
   const min=Math.min(...prices),max=Math.max(...prices);
   const cw=w/data.length;
   ctx.strokeStyle="#d7dfd2";
@@ -565,7 +565,7 @@ function drawCandles(terminal, latest){
 function drawBook(terminal, latest){
   const rows=(terminal.orderBook||[]).slice(0,10);
   if(!rows.length){
-    book.innerHTML="<tr><th>Px</th><th>Bid</th><th>Ask</th></tr>"+Array.from({length:10}).map((_,i)=>\`<tr><td>\${fmt((latest.pnl||0)+100+i)}</td><td>\${60+i*4}</td><td>\${70+i*3}</td></tr>\`).join("");
+    book.innerHTML="<tr><th>Status</th><th>Reason</th></tr><tr><td>WAITING</td><td>REAL ORDER BOOK DATA REQUIRED</td></tr>";
   } else {
     book.innerHTML="<tr><th>Px</th><th>Bid</th><th>Ask</th></tr>"+rows.map(r=>\`<tr><td>\${fmt(r.price)}</td><td>\${fmt(r.bidSize)}</td><td>\${fmt(r.askSize)}</td></tr>\`).join("");
   }
