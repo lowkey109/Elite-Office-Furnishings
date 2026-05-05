@@ -1,5 +1,15 @@
 import type { Express, Request, Response } from "express";
 import crypto from "crypto";
+import {
+  closeBinancePaperTrade,
+  evaluateOpenBinancePaperTrades,
+  getBinancePaperSummary,
+  loadBinancePaperState,
+  openBinancePaperTrade,
+  runBinancePaperStrategy,
+  saveBinancePaperState,
+  type BinanceStrategyName,
+} from "../../binance/binancePaperLearningEngine";
 
 const BINANCE_REST = process.env.BINANCE_REST_URL || "https://api.binance.com";
 const BINANCE_PUBLIC_REST = process.env.BINANCE_PUBLIC_REST_URL || "https://data-api.binance.vision";
@@ -230,6 +240,80 @@ export function registerNexoraBinanceIntegrationRoutes(app: Express) {
 
   app.get("/api/nexora/binance/paper/trades", (_req, res) => {
     res.json({ ok: true, service: "binance_paper_trades", count: paperTrades.length, trades: paperTrades.slice(0, 100), safety: safety() });
+  });
+
+
+  app.get("/api/nexora/binance/paper/summary", async (req, res) => {
+    const markPrice = Number(req.query.markPrice || 0);
+    res.json(getBinancePaperSummary(markPrice || undefined));
+  });
+
+  app.post("/api/nexora/binance/paper/reset", async (_req, res) => {
+    const state = loadBinancePaperState();
+    state.wallet.usdt = state.wallet.startingUsdt;
+    state.wallet.reservedUsdt = 0;
+    state.wallet.realisedPnl = 0;
+    state.wallet.equity = state.wallet.startingUsdt;
+    state.trades = [];
+    state.strategyStats = {};
+    saveBinancePaperState(state);
+    res.json({ ok: true, reset: true, summary: getBinancePaperSummary() });
+  });
+
+  app.post("/api/nexora/binance/paper/open", async (req, res) => {
+    const body = req.body || {};
+    const out = openBinancePaperTrade({
+      symbol: body.symbol || "BTCUSDT",
+      side: String(body.side || "BUY").toUpperCase() === "SELL" ? "SELL" : "BUY",
+      quantity: body.quantity ? Number(body.quantity) : undefined,
+      notionalUsdt: body.notionalUsdt ? Number(body.notionalUsdt) : undefined,
+      price: Number(body.price),
+      strategy: body.strategy || "manual",
+      confidence: body.confidence === undefined ? 1 : Number(body.confidence),
+      reason: body.reason || "manual_paper_open",
+    });
+    res.status(out.ok ? 200 : 400).json(out);
+  });
+
+  app.post("/api/nexora/binance/paper/close", async (req, res) => {
+    const body = req.body || {};
+    const out = closeBinancePaperTrade(String(body.id || ""), Number(body.exitPrice), body.reason || "manual_close");
+    res.status(out.ok ? 200 : 400).json(out);
+  });
+
+  app.post("/api/nexora/binance/paper/evaluate", async (req, res) => {
+    const body = req.body || {};
+    const out = evaluateOpenBinancePaperTrades(Number(body.markPrice));
+    res.json(out);
+  });
+
+  app.post("/api/nexora/binance/paper/run-strategy", async (req, res) => {
+    const body = req.body || {};
+    const sym = symbol(body.symbol || "BTCUSDT");
+    const strat = String(body.strategy || "trend_follow") as BinanceStrategyName;
+    const int = interval(body.interval || "5m");
+    const lim = Math.max(50, limit(body.limit || 100));
+
+    const out = await publicJson(`/api/v3/klines?symbol=${sym}&interval=${int}&limit=${lim}`);
+    const candles = Array.isArray(out.data) ? out.data.map((c: any[]) => ({
+      open: Number(c[1]),
+      high: Number(c[2]),
+      low: Number(c[3]),
+      close: Number(c[4]),
+      volume: Number(c[5]),
+    })) : [];
+
+    const result = runBinancePaperStrategy({ symbol: sym, strategy: strat, candles });
+    res.json({
+      ok: result.ok,
+      sourceOk: out.ok,
+      source: out.base,
+      symbol: sym,
+      interval: int,
+      strategy: strat,
+      result,
+      safety: safety(),
+    });
   });
 
   app.post("/api/nexora/binance/live/order", (_req, res) => {
