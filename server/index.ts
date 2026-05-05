@@ -69,6 +69,7 @@ import { registerNexoraPolyEdgeOperatorUiRoutes } from "./services/intelligence/
 import { registerNexoraPolyGraphPageRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyGraphPageRoutes";
 import { registerNexoraPolyConfidenceRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyConfidenceRoutes";
 import { registerNexoraPolyEdgeFixedDashboardRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyEdgeFixedDashboardRoutes";
+import { registerNexoraPaperSummaryRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPaperSummaryRoutes";
 
 // TCD_CHAT_ENV_ALIAS_FIX
 // Keep old and new OpenAI env names in sync so all chatbots/services work.
@@ -4188,6 +4189,7 @@ app.get("/api/nexora/command-centre", async (_req, res) => {
 });
 
 registerRoutes(server, app);
+  registerNexoraPaperSummaryRoutes(app);
   // Production-safe PolyEdge routes: must be mounted before Vite/static fallback.
   registerNexoraPolyEdgeFixedDashboardRoutes(app);
   registerNexoraPolyGraphPageRoutes(app);
@@ -4234,6 +4236,7 @@ const port = Number(process.env.PORT || 5000);
   registerNexoraPolyRealMoneyPreparationRoutes(app);
   registerNexoraPolyOperatorControlRoutes(app);
       registerNexoraMoonDevFullHarvestRoutes(app);
+  registerNexoraPolyEdgeFixedDashboardRoutes(app);
 await setupVite(server, app);
   } else {
   registerNexoraPolymarketBatch1Routes(app);

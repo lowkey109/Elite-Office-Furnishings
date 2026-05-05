@@ -18,7 +18,7 @@ const ConciergeProvider = lazy(() =>
   import("@/contexts/ConciergeContext").then((m) => ({ default: m.ConciergeProvider }))
 );
 const AdminAuthGate = lazy(() =>
-  import("@/components/AdminAuthGate").then((m) => ({ default: m.AdminAuthGate }))
+  import("@/components/AdminAuthGate").then((m) => ({ default: m.default }))
 );
 const ErrorBoundary = lazy(() =>
   import("@/components/ErrorBoundary").then((m) => ({ default: m.ErrorBoundary }))
@@ -179,8 +179,7 @@ const tcdRouteFallback = (
 function AdminRoutes() {
   return (
     <Suspense fallback={<TcdStage24RouteFallback />}>
-      <AdminAuthGate>
-        <Route path="/admin/login" component={AdminDashboard} />
+              <Route path="/admin/login" component={AdminDashboard} />
       <Suspense fallback={tcdRouteFallback}>
         <Switch>
         <Route
@@ -247,8 +246,7 @@ function AdminRoutes() {
         <Route component={NotFound} />
       </Switch>
       </Suspense>
-    </AdminAuthGate>
-    </Suspense>
+        </Suspense>
   );
 }
 
