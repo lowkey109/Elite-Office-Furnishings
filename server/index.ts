@@ -4233,6 +4233,7 @@ app.post("/api/admin/login", express.json(), (req, res) => {
 });
 
 registerRoutes(server, app);
+  registerNexoraBankConnectRoutes(app);
   registerNexoraPolyEdgeFinalCompatRoutes(app);
   registerNexoraPaperTrainRoutes(app);
   registerNexoraCapitalLadderRoutes(app);
@@ -4280,7 +4281,6 @@ const port = Number(process.env.PORT || 5000);
   registerNexoraPolyConfidenceRoutes(app);
   registerNexoraPolyEdgeOperatorUiRoutes(app);
   registerNexoraBankConnectUiRoutes(app);
-  registerNexoraBankConnectRoutes(app);
   registerNexoraPaperPracticeSupervisorRoutes(app);
   registerNexoraPolyMovingChartsRoutes(app);
   registerNexoraPolyModeSwitchRoutes(app);

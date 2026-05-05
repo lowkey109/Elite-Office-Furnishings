@@ -2,42 +2,43 @@ import type { Express } from "express";
 import fs from "fs";
 import path from "path";
 
-type R = Record<string, any>;
+type JsonRecord = Record<string, any>;
 
 const ROOT = path.join(process.cwd(), "data", "nexora", "local", "bank-connect");
-const STATE = path.join(ROOT, "state.json");
-const EVENTS = path.join(ROOT, "events.jsonl");
+const STATE_FILE = path.join(ROOT, "state.json");
+const EVENTS_FILE = path.join(ROOT, "events.jsonl");
 
 function now() {
   return new Date().toISOString();
 }
 
-function ensure() {
+function ensureRoot() {
   fs.mkdirSync(ROOT, { recursive: true });
 }
 
 function safety() {
   return {
-    mode: "read_only_bank_connect_scaffold",
+    mode: "read_only_bank_connect",
     rawCardNumbersStored: false,
     cvvStored: false,
     bankPasswordsStored: false,
     rawBankLoginStored: false,
-    rawProviderAccessTokenStored: false,
     automaticTransfersEnabled: false,
     automaticDepositsEnabled: false,
     automaticWithdrawalsEnabled: false,
     liveTradingFundingEnabled: false,
-    providerTokenMetadataOnly: true,
     humanApprovalRequired: true,
-    externalBankProviderRequired: true,
+    externalBankProviderRequired: true
   };
 }
 
-function readState(): R {
-  ensure();
+function readState(): JsonRecord {
+  ensureRoot();
+
   try {
-    if (fs.existsSync(STATE)) return JSON.parse(fs.readFileSync(STATE, "utf8"));
+    if (fs.existsSync(STATE_FILE)) {
+      return JSON.parse(fs.readFileSync(STATE_FILE, "utf8"));
+    }
   } catch {}
 
   return {
@@ -47,33 +48,34 @@ function readState(): R {
     updatedAt: now(),
     sessions: [],
     connections: [],
-    fundingRequests: [],
     latestSession: null,
     latestConnection: null,
     latestFundingReadiness: null,
     status: "ready",
-    safety: safety(),
+    safety: safety()
   };
 }
 
-function save(patch: R): R {
-  ensure();
+function saveState(patch: JsonRecord): JsonRecord {
+  ensureRoot();
+
   const next = {
     ...readState(),
     ...patch,
     updatedAt: now(),
-    safety: safety(),
+    safety: safety()
   };
-  fs.writeFileSync(STATE, JSON.stringify(next, null, 2));
+
+  fs.writeFileSync(STATE_FILE, JSON.stringify(next, null, 2));
   return next;
 }
 
-function event(type: string, payload: R) {
-  ensure();
-  fs.appendFileSync(EVENTS, JSON.stringify({ ts: now(), type, ...payload }) + "\n");
+function logEvent(type: string, payload: JsonRecord) {
+  ensureRoot();
+  fs.appendFileSync(EVENTS_FILE, JSON.stringify({ ts: now(), type, ...payload, safety: safety() }) + "\n");
 }
 
-function createSession(input: R = {}) {
+function createSession(input: JsonRecord = {}) {
   const session = {
     id: `bank-session-${Date.now()}`,
     provider: input.provider || "provider_placeholder",
@@ -82,25 +84,20 @@ function createSession(input: R = {}) {
     status: "created",
     providerLinkRef: `link-ref-${Date.now()}`,
     redirectUrl: null,
-    note: "A real bank/card provider link URL goes here later. Nexora never collects card numbers, CVV, or bank passwords.",
-    createdAt: now(),
+    note: "Provider OAuth/link URL goes here later. Nexora never collects card numbers, CVV, or bank passwords.",
+    createdAt: now()
   };
 
   const state = readState();
   const sessions = Array.isArray(state.sessions) ? state.sessions : [];
 
-  const next = save({
+  const next = saveState({
     sessions: [...sessions, session].slice(-20),
     latestSession: session,
-    status: "session_created",
+    status: "session_created"
   });
 
-  event("bank_session_created", {
-    id: session.id,
-    provider: session.provider,
-    country: session.country,
-    mode: session.mode,
-  });
+  logEvent("bank_session_created", session);
 
   return {
     ok: true,
@@ -109,11 +106,11 @@ function createSession(input: R = {}) {
     generatedAt: now(),
     session,
     state: next,
-    safety: safety(),
+    safety: safety()
   };
 }
 
-function callback(input: R = {}) {
+function callback(input: JsonRecord = {}) {
   const connection = {
     id: input.connectionId || `bank-connection-${Date.now()}`,
     provider: input.provider || "provider_placeholder",
@@ -126,43 +123,19 @@ function callback(input: R = {}) {
     currency: input.currency || "AUD",
     status: "connected_read_only",
     permissions: ["accounts:read", "balances:read"],
-    createdAt: now(),
-    storedFields: [
-      "provider",
-      "providerCustomerRef",
-      "providerConnectionRef",
-      "institutionName",
-      "accountName",
-      "accountMask",
-      "accountType",
-      "currency",
-      "status",
-    ],
-    neverStored: [
-      "raw card number",
-      "CVV",
-      "bank password",
-      "raw bank login",
-      "raw provider access token",
-    ],
+    createdAt: now()
   };
 
   const state = readState();
   const connections = Array.isArray(state.connections) ? state.connections : [];
 
-  const next = save({
+  const next = saveState({
     connections: [...connections, connection].slice(-20),
     latestConnection: connection,
-    status: "connected_read_only",
+    status: "connected_read_only"
   });
 
-  event("bank_connection_callback", {
-    id: connection.id,
-    provider: connection.provider,
-    institutionName: connection.institutionName,
-    accountMask: connection.accountMask,
-    status: connection.status,
-  });
+  logEvent("bank_connection_callback", connection);
 
   return {
     ok: true,
@@ -171,56 +144,56 @@ function callback(input: R = {}) {
     generatedAt: now(),
     connection,
     state: next,
-    safety: safety(),
+    safety: safety()
   };
 }
 
 function accounts() {
   const state = readState();
-  const list = Array.isArray(state.connections) ? state.connections : [];
+  const connections = Array.isArray(state.connections) ? state.connections : [];
 
   return {
     ok: true,
     nexoraBrain: true,
     service: "nexora_bank_connect_accounts",
     generatedAt: now(),
-    accounts: list.map((a: R) => ({
-      id: a.id,
-      provider: a.provider,
-      institutionName: a.institutionName,
-      accountName: a.accountName,
-      accountMask: a.accountMask,
-      accountType: a.accountType,
-      currency: a.currency,
-      status: a.status,
+    accounts: connections.map((account: JsonRecord) => ({
+      id: account.id,
+      provider: account.provider,
+      institutionName: account.institutionName,
+      accountName: account.accountName,
+      accountMask: account.accountMask,
+      accountType: account.accountType,
+      currency: account.currency,
+      status: account.status
     })),
-    safety: safety(),
+    safety: safety()
   };
 }
 
 function balances() {
   const state = readState();
-  const list = Array.isArray(state.connections) ? state.connections : [];
+  const connections = Array.isArray(state.connections) ? state.connections : [];
 
   return {
     ok: true,
     nexoraBrain: true,
     service: "nexora_bank_connect_balances",
     generatedAt: now(),
-    balances: list.map((a: R) => ({
-      connectionId: a.id,
-      institutionName: a.institutionName,
-      accountMask: a.accountMask,
-      currency: a.currency || "AUD",
+    balances: connections.map((account: JsonRecord) => ({
+      connectionId: account.id,
+      institutionName: account.institutionName,
+      accountMask: account.accountMask,
+      currency: account.currency || "AUD",
       availableBalance: null,
       currentBalance: null,
-      note: "Balance must come from real provider later. This scaffold stores no credentials.",
+      note: "Balance must come from a real provider later. This scaffold stores no credentials."
     })),
-    safety: safety(),
+    safety: safety()
   };
 }
 
-function fundingReadiness(input: R = {}) {
+function fundingReadiness(input: JsonRecord = {}) {
   const state = readState();
   const connections = Array.isArray(state.connections) ? state.connections : [];
   const connected = connections.length > 0;
@@ -248,23 +221,21 @@ function fundingReadiness(input: R = {}) {
       { id: "human_approval_required", passed: true },
       { id: "external_provider_required", passed: true },
       { id: "no_autonomous_transfers", passed: true },
-      { id: "no_live_trading_funding", passed: true },
+      { id: "no_live_trading_funding", passed: true }
     ],
     requested: input,
-    safety: safety(),
+    safety: safety()
   };
 
-  const fundingRequests = Array.isArray(state.fundingRequests) ? state.fundingRequests : [];
-  const next = save({
+  const next = saveState({
     latestFundingReadiness: readiness,
-    fundingRequests: [...fundingRequests, readiness].slice(-20),
-    status: "funding_readiness_checked",
+    status: "funding_readiness_checked"
   });
 
-  event("funding_readiness_checked", {
+  logEvent("funding_readiness_checked", {
     connected,
     readyToFund: readiness.readyToFund,
-    canAutoTransfer: readiness.canAutoTransfer,
+    canAutoTransfer: readiness.canAutoTransfer
   });
 
   return { ...readiness, state: next };
@@ -278,16 +249,16 @@ export function registerNexoraBankConnectRoutes(app: Express): void {
       service: "nexora_bank_connect_status",
       generatedAt: now(),
       state: readState(),
-      safety: safety(),
+      safety: safety()
     });
   });
 
   app.post("/api/nexora/bank-connect/session/create", (req, res) => {
-    res.json(createSession((req.body || {}) as R));
+    res.json(createSession(req.body || {}));
   });
 
   app.post("/api/nexora/bank-connect/callback", (req, res) => {
-    res.json(callback((req.body || {}) as R));
+    res.json(callback(req.body || {}));
   });
 
   app.get("/api/nexora/bank-connect/accounts", (_req, res) => {
@@ -299,6 +270,6 @@ export function registerNexoraBankConnectRoutes(app: Express): void {
   });
 
   app.post("/api/nexora/bank-connect/funding-readiness", (req, res) => {
-    res.json(fundingReadiness((req.body || {}) as R));
+    res.json(fundingReadiness(req.body || {}));
   });
 }
