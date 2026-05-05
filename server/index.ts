@@ -70,6 +70,7 @@ import { registerNexoraPolyGraphPageRoutes } from "./services/intelligence/nexor
 import { registerNexoraPolyConfidenceRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyConfidenceRoutes";
 import { registerNexoraPolyEdgeFixedDashboardRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyEdgeFixedDashboardRoutes";
 import { registerNexoraPaperSummaryRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPaperSummaryRoutes";
+import { registerNexoraMoonDevParityRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraMoonDevParityRoutes";
 
 // TCD_CHAT_ENV_ALIAS_FIX
 // Keep old and new OpenAI env names in sync so all chatbots/services work.
@@ -4189,6 +4190,7 @@ app.get("/api/nexora/command-centre", async (_req, res) => {
 });
 
 registerRoutes(server, app);
+  registerNexoraMoonDevParityRoutes(app);
   registerNexoraPaperSummaryRoutes(app);
   // Production-safe PolyEdge routes: must be mounted before Vite/static fallback.
   registerNexoraPolyEdgeFixedDashboardRoutes(app);
