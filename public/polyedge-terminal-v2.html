@@ -35,15 +35,300 @@ No live copy trading.</pre></div><div class="box"><h3>Holographic Universe View<
 <section class="d"><div class="box"><h3>Paper PNL Total</h3><canvas id="pnl"></canvas></div><div class="box"><h3>Live Analytics</h3><pre id="analytics">Loading...</pre></div><div class="box"><h3>System Alerts</h3><div class="alerts"><div class="alert red">Quantum Volatility<br><b>Real Data Only</b></div><div class="alert">95% Target<br><b id="targetStatus">Training</b></div><div class="alert purp">Live Money<br><b>Locked</b></div></div></div></section>
 </main></div><div class="ticker"><span>BTC <b id="tickBTC">--</b></span><span>ETH <b id="tickETH">--</b></span><span>SOL <b id="tickSOL">--</b></span><span>GLOBAL LIQUIDITY WAITING</span><span>CONSCIOUSNESS UPLINK STABLE</span></div>
 <script>
-let summary=null,state=null,t=0;async function j(u){const r=await fetch(u,{headers:{Accept:"application/json"}});const x=await r.text();try{return JSON.parse(x)}catch{return{ok:false,error:x.slice(0,200)}}}
-function rz(c){const r=c.getBoundingClientRect();c.width=r.width*devicePixelRatio;c.height=r.height*devicePixelRatio;return c.getContext("2d")}function clr(x,c){x.fillStyle="#01060b";x.fillRect(0,0,c.width,c.height)}
-function line(x,c,v,col){if(!v.length){x.fillStyle="#ffd35a";x.fillText("WAITING FOR REAL DATA",20,40);return}const mn=Math.min(...v),mx=Math.max(...v);x.strokeStyle=col;x.lineWidth=2*devicePixelRatio;x.beginPath();v.forEach((n,i)=>{const xx=i*(c.width/(v.length-1||1));const y=c.height-((n-mn)/(mx-mn||1))*c.height*.8-c.height*.1;i?x.lineTo(xx,y):x.moveTo(xx,y)});x.stroke()}
-async function equity(){const c=document.getElementById("equity"),x=rz(c);clr(x,c);try{const raw=await fetch("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=100").then(r=>r.json());if(!Array.isArray(raw))throw 0;line(x,c,raw.map(k=>Number(k[4])),"#5df7ff")}catch(e){x.fillStyle="#ffd35a";x.fillText("WAITING FOR REAL CANDLE DATA",20,40)}}
-function net(id){const c=document.getElementById(id),x=rz(c);clr(x,c);const a=(summary?.assets||[]).filter(z=>z.asset&&z.asset!=="unknown");if(!a.length){x.fillStyle="#ffd35a";x.fillText("WAITING FOR PAPER SUMMARY",20,40);return}const cx=c.width/2,cy=c.height/2;const pts=a.map((z,i)=>({z,ang:Math.PI*2*i/a.length+t*.01,r:(60+(z.avgScore||50)*1.5)*devicePixelRatio}));for(let i=0;i<pts.length;i++)for(let k=i+1;k<pts.length;k++){x.strokeStyle="rgba(93,247,255,.13)";x.beginPath();x.moveTo(cx+Math.cos(pts[i].ang)*pts[i].r,cy+Math.sin(pts[i].ang)*pts[i].r);x.lineTo(cx+Math.cos(pts[k].ang)*pts[k].r,cy+Math.sin(pts[k].ang)*pts[k].r);x.stroke()}pts.forEach(p=>{const px=cx+Math.cos(p.ang)*p.r,py=cy+Math.sin(p.ang)*p.r,rr=(9+(p.z.avgScore||50)/8)*devicePixelRatio;x.fillStyle=p.z.winRate>=80?"#71ff9d":p.z.winRate>=60?"#ffd35a":"#ff4e69";x.beginPath();x.arc(px,py,rr,0,Math.PI*2);x.fill();x.fillStyle="#dffaff";x.font=(10*devicePixelRatio)+"px monospace";x.fillText(p.z.asset,px+rr+4,py)})}
-function sentiment(){const c=document.getElementById("sent"),x=rz(c);clr(x,c);const wr=summary?.winRate||0;x.strokeStyle="#244e68";x.beginPath();x.arc(c.width/2,c.height/2,75*devicePixelRatio,0,Math.PI*2);x.stroke();x.fillStyle="rgba(93,247,255,.18)";x.beginPath();x.arc(c.width/2,c.height/2,wr*devicePixelRatio,0,Math.PI*2);x.fill()}
-function allocation(){const c=document.getElementById("alloc"),x=rz(c);clr(x,c);(summary?.assets||[]).filter(z=>z.asset!=="unknown").slice(0,6).forEach((z,i)=>{x.fillStyle=z.winRate>=80?"#71ff9d":"#ffd35a";x.fillRect(20+i*42,c.height-20-z.winRate*1.6,24,z.winRate*1.6);x.fillStyle="#dffaff";x.fillText(z.asset,14+i*42,c.height-5)})}
-function liq(){const c=document.getElementById("liq"),x=rz(c);clr(x,c);x.fillStyle="#ffd35a";x.fillText("WAITING FOR REAL ORDER BOOK DATA",20,40)}function pnl(){const c=document.getElementById("pnl"),x=rz(c);clr(x,c);line(x,c,(summary?.assets||[]).map(a=>a.pnl||0),"#71ff9d")}
-function tables(){const a=summary?.assets||[];alpha.innerHTML="<tr><th>Signal</th><th>Conf</th><th>Impact</th></tr>"+a.filter(x=>x.asset!=="unknown").slice(0,7).map(x=>`<tr><td>${x.asset} edge</td><td>${x.winRate}%</td><td>${x.pnl}</td></tr>`).join("");decisions.innerHTML="<tr><th>Time</th><th>Action</th><th>Mode</th></tr><tr><td>LIVE</td><td>${summary?.latest?.result||"WAITING"}</td><td>PAPER</td></tr>";analytics.textContent=JSON.stringify({events:summary?.polymarketEvents,trades:summary?.countedTrades,wins:summary?.wins,winRate:summary?.winRate,avgScore:summary?.avgScore,latest:summary?.latest},null,2)}
-async function load(){summary=await j("/api/nexora/poly-paper-summary/latest");state=await j("/api/nexora/poly-edge-fixed/state");topEvents.textContent=summary.polymarketEvents||0;topWin.textContent=(summary.winRate||0)+"%";topConf.textContent=(summary.displayedConfidencePercent||0)+"%";sTrades.textContent=summary.countedTrades||0;sWins.textContent=summary.wins||0;sLoop.textContent=state.paperPractice?.loop||0;sideSync.textContent=(summary.displayedConfidencePercent||0)+"%";sentBull.textContent=(summary.winRate||0)+"%";sentBear.textContent=Math.max(0,100-(summary.winRate||0))+"%";sentNeutral.textContent=(summary.skips||0)+" skips";targetStatus.textContent=summary.targetReached?"PASSED":"TRAINING";tickBTC.textContent=((summary.assets||[]).find(a=>a.asset==="BTC")?.winRate||"--")+"%";tickETH.textContent=((summary.assets||[]).find(a=>a.asset==="ETH")?.winRate||"--")+"%";tickSOL.textContent=((summary.assets||[]).find(a=>a.asset==="SOL")?.winRate||"--")+"%";equity();sentiment();net("mesh");allocation();net("multi");liq();net("uni");pnl();tables()}
-setInterval(()=>{t++;if(summary){net("mesh");net("multi");net("uni")}},1000);setInterval(load,5000);load();
+(function () {
+  let summary = null;
+  let state = null;
+  let spin = 0;
+
+  function el(id) {
+    return document.getElementById(id);
+  }
+
+  function setText(id, value) {
+    const node = el(id);
+    if (node) node.textContent = value === undefined || value === null ? "--" : String(value);
+  }
+
+  async function getJson(url) {
+    const res = await fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" });
+    const text = await res.text();
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { ok: false, error: text.slice(0, 300) };
+    }
+  }
+
+  function resize(canvas) {
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = Math.max(200, Math.floor(rect.width * devicePixelRatio));
+    canvas.height = Math.max(100, Math.floor(rect.height * devicePixelRatio));
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#01060b";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    return ctx;
+  }
+
+  function waiting(canvasId, message) {
+    const canvas = el(canvasId);
+    if (!canvas) return;
+    const ctx = resize(canvas);
+    ctx.fillStyle = "#ffd35a";
+    ctx.font = `${14 * devicePixelRatio}px monospace`;
+    ctx.fillText(message, 18 * devicePixelRatio, 34 * devicePixelRatio);
+  }
+
+  function drawLine(canvasId, values, color) {
+    const canvas = el(canvasId);
+    if (!canvas) return;
+
+    const ctx = resize(canvas);
+
+    if (!values || !values.length) {
+      ctx.fillStyle = "#ffd35a";
+      ctx.font = `${14 * devicePixelRatio}px monospace`;
+      ctx.fillText("WAITING FOR REAL DATA", 18 * devicePixelRatio, 34 * devicePixelRatio);
+      return;
+    }
+
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
+
+    ctx.strokeStyle = "rgba(93,247,255,.16)";
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 5; i++) {
+      const y = (canvas.height / 5) * i;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
+    }
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2 * devicePixelRatio;
+    ctx.beginPath();
+
+    values.forEach((value, i) => {
+      const x = i * (canvas.width / Math.max(1, values.length - 1));
+      const y = canvas.height - ((value - min) / range) * canvas.height * 0.78 - canvas.height * 0.11;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+
+    ctx.stroke();
+  }
+
+  async function drawCandles() {
+    try {
+      const raw = await fetch("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=100", { cache: "no-store" }).then(r => r.json());
+      if (!Array.isArray(raw)) throw new Error("No candle data");
+      const closes = raw.map(k => Number(k[4])).filter(Number.isFinite);
+      drawLine("equity", closes, "#5df7ff");
+    } catch (error) {
+      waiting("equity", "WAITING FOR REAL CANDLE DATA");
+    }
+  }
+
+  function drawNetwork(canvasId) {
+    const canvas = el(canvasId);
+    if (!canvas) return;
+
+    const ctx = resize(canvas);
+    const assets = ((summary && summary.assets) || []).filter(a => a.asset && a.asset !== "unknown");
+
+    if (!assets.length) {
+      ctx.fillStyle = "#ffd35a";
+      ctx.font = `${13 * devicePixelRatio}px monospace`;
+      ctx.fillText("WAITING FOR PAPER SUMMARY", 18 * devicePixelRatio, 34 * devicePixelRatio);
+      return;
+    }
+
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+
+    const points = assets.slice(0, 10).map((asset, index) => {
+      const angle = (Math.PI * 2 * index) / Math.max(1, assets.length) + spin * 0.01;
+      const radius = (50 + Number(asset.avgScore || 50) * 1.25) * devicePixelRatio;
+      return { asset, angle, radius };
+    });
+
+    for (let i = 0; i < points.length; i++) {
+      for (let j = i + 1; j < points.length; j++) {
+        ctx.strokeStyle = "rgba(93,247,255,.13)";
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(points[i].angle) * points[i].radius, cy + Math.sin(points[i].angle) * points[i].radius);
+        ctx.lineTo(cx + Math.cos(points[j].angle) * points[j].radius, cy + Math.sin(points[j].angle) * points[j].radius);
+        ctx.stroke();
+      }
+    }
+
+    points.forEach(point => {
+      const x = cx + Math.cos(point.angle) * point.radius;
+      const y = cy + Math.sin(point.angle) * point.radius;
+      const score = Number(point.asset.avgScore || 50);
+      const winRate = Number(point.asset.winRate || 0);
+      const radius = (8 + score / 8) * devicePixelRatio;
+
+      ctx.fillStyle = winRate >= 80 ? "#71ff9d" : winRate >= 60 ? "#ffd35a" : "#ff4e69";
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#dffaff";
+      ctx.font = `${10 * devicePixelRatio}px monospace`;
+      ctx.fillText(point.asset.asset, x + radius + 4, y);
+    });
+  }
+
+  function drawSentiment() {
+    const canvas = el("sent");
+    if (!canvas) return;
+
+    const ctx = resize(canvas);
+    const winRate = Number(summary && summary.winRate ? summary.winRate : 0);
+
+    ctx.strokeStyle = "#244e68";
+    ctx.lineWidth = 2 * devicePixelRatio;
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height / 2, 58 * devicePixelRatio, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(93,247,255,.20)";
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height / 2, Math.max(8, winRate * 0.72) * devicePixelRatio, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#71ff9d";
+    ctx.font = `${22 * devicePixelRatio}px monospace`;
+    ctx.fillText(`${winRate}%`, 18 * devicePixelRatio, 34 * devicePixelRatio);
+  }
+
+  function drawAllocation() {
+    const canvas = el("alloc");
+    if (!canvas) return;
+
+    const ctx = resize(canvas);
+    const assets = ((summary && summary.assets) || []).filter(a => a.asset && a.asset !== "unknown").slice(0, 6);
+
+    if (!assets.length) {
+      waiting("alloc", "WAITING FOR PAPER SUMMARY");
+      return;
+    }
+
+    assets.forEach((asset, index) => {
+      const winRate = Number(asset.winRate || 0);
+      const x = 16 * devicePixelRatio + index * 38 * devicePixelRatio;
+      const h = winRate * 1.15 * devicePixelRatio;
+      const y = canvas.height - 18 * devicePixelRatio - h;
+
+      ctx.fillStyle = winRate >= 80 ? "#71ff9d" : "#ffd35a";
+      ctx.fillRect(x, y, 22 * devicePixelRatio, h);
+
+      ctx.fillStyle = "#dffaff";
+      ctx.font = `${9 * devicePixelRatio}px monospace`;
+      ctx.fillText(asset.asset, x - 2 * devicePixelRatio, canvas.height - 5 * devicePixelRatio);
+    });
+  }
+
+  function drawLiquidity() {
+    waiting("liq", "WAITING FOR REAL ORDER BOOK DATA");
+  }
+
+  function drawPnl() {
+    const values = ((summary && summary.assets) || []).map(a => Number(a.pnl || 0));
+    drawLine("pnl", values, "#71ff9d");
+  }
+
+  function fillTables() {
+    const assets = (summary && summary.assets) || [];
+
+    const alpha = el("alpha");
+    if (alpha) {
+      alpha.innerHTML =
+        "<tr><th>Signal</th><th>Conf</th><th>Impact</th></tr>" +
+        assets
+          .filter(a => a.asset && a.asset !== "unknown")
+          .slice(0, 7)
+          .map(a => `<tr><td>${a.asset} edge</td><td>${a.winRate}%</td><td>${a.pnl}</td></tr>`)
+          .join("");
+    }
+
+    const decisions = el("decisions");
+    if (decisions) {
+      const latest = summary && summary.latest;
+      decisions.innerHTML =
+        "<tr><th>Time</th><th>Action</th><th>Mode</th></tr>" +
+        `<tr><td>LIVE</td><td>${latest ? latest.result : "WAITING"}</td><td>PAPER</td></tr>`;
+    }
+
+    const analytics = el("analytics");
+    if (analytics) {
+      analytics.textContent = JSON.stringify({
+        events: summary ? summary.polymarketEvents : 0,
+        trades: summary ? summary.countedTrades : 0,
+        wins: summary ? summary.wins : 0,
+        winRate: summary ? summary.winRate : 0,
+        avgScore: summary ? summary.avgScore : 0,
+        latest: summary ? summary.latest : null
+      }, null, 2);
+    }
+  }
+
+  function setMetrics() {
+    setText("topEvents", summary ? summary.polymarketEvents : 0);
+    setText("topWin", `${summary ? summary.winRate : 0}%`);
+    setText("topConf", `${summary ? summary.displayedConfidencePercent : 0}%`);
+    setText("sTrades", summary ? summary.countedTrades : 0);
+    setText("sWins", summary ? summary.wins : 0);
+    setText("sLoop", state && state.paperPractice ? state.paperPractice.loop || 0 : 0);
+    setText("sideSync", `${summary ? summary.displayedConfidencePercent : 0}%`);
+    setText("sentBull", `${summary ? summary.winRate : 0}%`);
+    setText("sentBear", `${Math.max(0, 100 - (summary ? summary.winRate : 0))}%`);
+    setText("sentNeutral", `${summary ? summary.skips || 0 : 0} skips`);
+    setText("targetStatus", summary && summary.targetReached ? "PASSED" : "TRAINING");
+
+    const assets = (summary && summary.assets) || [];
+    const btc = assets.find(a => a.asset === "BTC");
+    const eth = assets.find(a => a.asset === "ETH");
+    const sol = assets.find(a => a.asset === "SOL");
+
+    setText("tickBTC", btc ? `${btc.winRate}%` : "--");
+    setText("tickETH", eth ? `${eth.winRate}%` : "--");
+    setText("tickSOL", sol ? `${sol.winRate}%` : "--");
+  }
+
+  async function load() {
+    summary = await j("/api/nexora/poly-paper-summary/latest");
+    state = await j("/api/nexora/poly-edge-fixed/state");
+
+    setMetrics();
+    drawCandles();
+    drawSentiment();
+    drawNetwork("mesh");
+    drawAllocation();
+    drawNetwork("multi");
+    drawLiquidity();
+    drawNetwork("uni");
+    drawPnl();
+    fillTables();
+  }
+
+  setInterval(() => {
+    spin++;
+    if (summary) {
+      drawNetwork("mesh");
+      drawNetwork("multi");
+      drawNetwork("uni");
+    }
+  }, 1000);
+
+  setInterval(load, 5000);
+
+  window.addEventListener("resize", () => {
+    if (summary) load();
+  });
+
+  load();
 </script></body></html>
