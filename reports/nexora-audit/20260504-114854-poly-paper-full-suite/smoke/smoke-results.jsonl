@@ -1,0 +1,16 @@
+{"ts": "2026-05-04T11:49:14.808263Z", "status": "FAIL", "code": "000000", "html": false, "route": "/api/nexora/ping", "first": ""}
+{"ts": "2026-05-04T11:49:14.869881Z", "status": "FAIL", "code": "000000", "html": false, "route": "/api/nexora/market-data/status", "first": ""}
+{"ts": "2026-05-04T11:49:14.932736Z", "status": "FAIL", "code": "000000", "html": false, "route": "/api/nexora/backtesting/status", "first": ""}
+{"ts": "2026-05-04T11:49:14.992047Z", "status": "FAIL", "code": "000000", "html": false, "route": "/api/nexora/trading-execution/status", "first": ""}
+{"ts": "2026-05-04T11:49:15.054859Z", "status": "FAIL", "code": "000000", "html": false, "route": "/api/nexora/trading-readiness/status", "first": ""}
+{"ts": "2026-05-04T11:49:15.118036Z", "status": "FAIL", "code": "000000", "html": false, "route": "/api/nexora/live-money/status", "first": ""}
+{"ts": "2026-05-04T11:49:15.182018Z", "status": "FAIL", "code": "000000", "html": false, "route": "/api/nexora/live-execution-design/status", "first": ""}
+{"ts": "2026-05-04T11:49:15.249808Z", "status": "FAIL", "code": "000000", "html": false, "route": "/api/nexora/polymarket-final/status", "first": ""}
+{"ts": "2026-05-04T11:49:15.321138Z", "status": "FAIL", "code": "000000", "html": false, "route": "/api/nexora/poly-five/status", "first": ""}
+{"ts": "2026-05-04T11:49:15.386485Z", "status": "FAIL", "code": "000000", "html": false, "route": "/api/nexora/poly-next-five/status", "first": ""}
+{"ts": "2026-05-04T11:49:15.458515Z", "status": "FAIL", "code": "000000", "html": false, "route": "/api/nexora/poly-final-five/status", "first": ""}
+{"ts": "2026-05-04T11:49:15.528436Z", "status": "FAIL", "code": "000000", "html": false, "route": "/api/nexora/poly-app/status", "first": ""}
+{"ts": "2026-05-04T11:49:15.592005Z", "status": "FAIL", "code": "000000", "html": false, "route": "/api/nexora/poly-app/full-suite/status", "first": ""}
+{"ts": "2026-05-04T11:49:15.658451Z", "status": "FAIL", "code": "000000", "html": false, "route": "/api/nexora/poly-app/operator-summary", "first": ""}
+{"ts": "2026-05-04T11:49:15.722169Z", "status": "FAIL", "code": "000000", "html": false, "route": "/api/nexora/moondev-strategy-import/status", "first": ""}
+{"ts": "2026-05-04T11:49:15.787408Z", "status": "FAIL", "code": "000000", "html": false, "route": "/api/nexora/moondev-phase1/status", "first": ""}

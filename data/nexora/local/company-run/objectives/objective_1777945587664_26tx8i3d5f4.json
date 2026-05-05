@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "objectiveId": "objective_1777945587664_26tx8i3d5f4",
+  "division": "procurement",
+  "title": "Improve supplier confidence without purchase commitments.",
+  "description": "Nexora company objective",
+  "metric": "supplier_confirmations",
+  "target": "increase",
+  "priority": 85,
+  "status": "active",
+  "createdAt": "2026-05-05T01:46:27.664Z",
+  "payload": {}
+}

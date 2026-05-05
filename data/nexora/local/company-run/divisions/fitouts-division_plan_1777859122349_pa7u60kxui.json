@@ -1,0 +1,27 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "planId": "division_plan_1777859122349_pa7u60kxui",
+  "division": "fitouts",
+  "title": "Fitout Scope and Delivery",
+  "createdAt": "2026-05-04T01:45:22.349Z",
+  "ownerAgent": "fitout_scope_agent",
+  "mandate": "Capture site constraints, access issues, install windows, and project scope.",
+  "workers": [
+    "fitout_scope_agent",
+    "project_handover_agent"
+  ],
+  "dailyChecklist": [
+    "Review new work orders.",
+    "Process safe queued tasks.",
+    "Hold high-risk work for approval.",
+    "Record progress and metrics.",
+    "Capture learning and blockers."
+  ],
+  "safety": [
+    "No install commitment without approved quote and confirmed supplier path."
+  ],
+  "payload": {
+    "cycleId": "loop_daily_1777859122335"
+  }
+}

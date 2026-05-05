@@ -1,0 +1,14 @@
+{
+  "agentId": "risk_simulator_agent",
+  "worker": "risk_simulator_agent",
+  "division": "safety",
+  "title": "Risk Simulator Agent",
+  "status": "active",
+  "nexoraBrain": true,
+  "canCommitExternally": false,
+  "createdAt": "2026-05-05T01:46:27.634Z",
+  "safety": [
+    "Nexora remains the only brain.",
+    "High-risk work must not bypass approval."
+  ]
+}

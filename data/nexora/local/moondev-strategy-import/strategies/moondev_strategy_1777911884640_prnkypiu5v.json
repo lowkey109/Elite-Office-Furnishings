@@ -1,0 +1,38 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_moondev_imported_strategy",
+  "strategyId": "moondev_strategy_1777911884640_prnkypiu5v",
+  "name": "PROMPT - Edit this to change the type of ideas generated",
+  "sourceFile": "research/moondev-selected/src/agents/research_agent.py",
+  "relativePath": "src/agents/research_agent.py",
+  "root": "research/moondev-selected",
+  "importedAt": "2026-05-04T16:24:44.640Z",
+  "lines": 570,
+  "bytes": 21513,
+  "classification": {
+    "volatility": true,
+    "momentum": false,
+    "meanReversion": true,
+    "liquidity": true,
+    "fibonacci": false,
+    "stochastic": true,
+    "vwap": false,
+    "polymarket": false,
+    "backtest": true,
+    "danger": false
+  },
+  "metrics": {
+    "percentValues": [],
+    "moneyValues": [],
+    "bestPercent": null,
+    "worstPercent": null,
+    "sharpe": null,
+    "drawdown": null,
+    "winRate": null
+  },
+  "score": 60,
+  "directUseAllowed": false,
+  "paperOnly": true,
+  "nexoraAction": "adapt_priority"
+}

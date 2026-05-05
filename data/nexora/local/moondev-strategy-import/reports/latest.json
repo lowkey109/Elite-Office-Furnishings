@@ -1,0 +1,911 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_moondev_strategy_import_report",
+  "reportId": "latest",
+  "generatedAt": "2026-05-05T03:11:27.109Z",
+  "counts": {
+    "strategies": 24,
+    "backtests": 0,
+    "rankings": 2,
+    "plans": 1
+  },
+  "latestRanking": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_moondev_strategy_ranking",
+    "rankingId": "moondev_strategy_ranking_1777911884683_id8ciscrq6o",
+    "generatedAt": "2026-05-04T16:24:44.684Z",
+    "count": 24,
+    "top": [
+      {
+        "strategyId": "moondev_strategy_1777911884394_1tuy2l08o7",
+        "name": "Hyperliquid Volume Agent - AI Swarm Edition",
+        "sourceFile": "docs/volume_agent.md",
+        "classification": {
+          "volatility": true,
+          "momentum": true,
+          "meanReversion": true,
+          "liquidity": true,
+          "fibonacci": false,
+          "stochastic": true,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": true,
+          "danger": false
+        },
+        "baseScore": 95,
+        "relatedBacktests": 0,
+        "finalScore": 95,
+        "action": "adapt_first",
+        "nexoraTarget": "backtesting"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884649_yqeg1zdviu",
+        "name": "Add project root to path",
+        "sourceFile": "src/agents/volume_agent.py",
+        "classification": {
+          "volatility": true,
+          "momentum": true,
+          "meanReversion": false,
+          "liquidity": true,
+          "fibonacci": false,
+          "stochastic": false,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": false,
+          "danger": false
+        },
+        "baseScore": 70,
+        "relatedBacktests": 0,
+        "finalScore": 70,
+        "action": "adapt_second",
+        "nexoraTarget": "research"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884279_9qohcqipny4",
+        "name": "Polymarket AI Agents - Roadmap",
+        "sourceFile": "docs/polymarket_agents.md",
+        "classification": {
+          "volatility": true,
+          "momentum": false,
+          "meanReversion": false,
+          "liquidity": true,
+          "fibonacci": false,
+          "stochastic": false,
+          "vwap": false,
+          "polymarket": true,
+          "backtest": true,
+          "danger": true
+        },
+        "baseScore": 65,
+        "relatedBacktests": 0,
+        "finalScore": 65,
+        "action": "quarantine_review",
+        "nexoraTarget": "polymarket-superstack"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884647_82dz3mabjp",
+        "name": "TradingAgent",
+        "sourceFile": "src/agents/trading_agent.py",
+        "classification": {
+          "volatility": true,
+          "momentum": true,
+          "meanReversion": false,
+          "liquidity": true,
+          "fibonacci": false,
+          "stochastic": true,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": false,
+          "danger": false
+        },
+        "baseScore": 65,
+        "relatedBacktests": 0,
+        "finalScore": 65,
+        "action": "adapt_second",
+        "nexoraTarget": "research"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884225_tnny84o6mw",
+        "name": "Polymarket Prediction Agent",
+        "sourceFile": "docs/polymarket_agent.md",
+        "classification": {
+          "volatility": false,
+          "momentum": false,
+          "meanReversion": false,
+          "liquidity": false,
+          "fibonacci": false,
+          "stochastic": true,
+          "vwap": false,
+          "polymarket": true,
+          "backtest": true,
+          "danger": false
+        },
+        "baseScore": 60,
+        "relatedBacktests": 0,
+        "finalScore": 60,
+        "action": "adapt_second",
+        "nexoraTarget": "polymarket-superstack"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884640_prnkypiu5v",
+        "name": "PROMPT - Edit this to change the type of ideas generated",
+        "sourceFile": "src/agents/research_agent.py",
+        "classification": {
+          "volatility": true,
+          "momentum": false,
+          "meanReversion": true,
+          "liquidity": true,
+          "fibonacci": false,
+          "stochastic": true,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": true,
+          "danger": false
+        },
+        "baseScore": 60,
+        "relatedBacktests": 0,
+        "finalScore": 60,
+        "action": "adapt_second",
+        "nexoraTarget": "backtesting"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884628_oqihppir3l",
+        "name": "CopyBotAgent",
+        "sourceFile": "src/agents/copybot_agent.py",
+        "classification": {
+          "volatility": true,
+          "momentum": true,
+          "meanReversion": false,
+          "liquidity": false,
+          "fibonacci": false,
+          "stochastic": false,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": false,
+          "danger": false
+        },
+        "baseScore": 55,
+        "relatedBacktests": 0,
+        "finalScore": 55,
+        "action": "adapt_second",
+        "nexoraTarget": "research"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884633_23brbke3nkg",
+        "name": "PolymarketAgent",
+        "sourceFile": "src/agents/polymarket_agent.py",
+        "classification": {
+          "volatility": true,
+          "momentum": false,
+          "meanReversion": false,
+          "liquidity": false,
+          "fibonacci": false,
+          "stochastic": false,
+          "vwap": false,
+          "polymarket": true,
+          "backtest": false,
+          "danger": false
+        },
+        "baseScore": 45,
+        "relatedBacktests": 0,
+        "finalScore": 45,
+        "action": "reference",
+        "nexoraTarget": "polymarket-superstack"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884638_c2l78d022gf",
+        "name": "PolymarketWebSearchAgent",
+        "sourceFile": "src/agents/polymarket_websearch_agent.py",
+        "classification": {
+          "volatility": true,
+          "momentum": false,
+          "meanReversion": false,
+          "liquidity": false,
+          "fibonacci": false,
+          "stochastic": false,
+          "vwap": false,
+          "polymarket": true,
+          "backtest": false,
+          "danger": false
+        },
+        "baseScore": 45,
+        "relatedBacktests": 0,
+        "finalScore": 45,
+        "action": "reference",
+        "nexoraTarget": "polymarket-superstack"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884176_fyhou1c66xt",
+        "name": "Backtest Dashboard",
+        "sourceFile": "docs/backtest_dashboard.md",
+        "classification": {
+          "volatility": false,
+          "momentum": false,
+          "meanReversion": false,
+          "liquidity": false,
+          "fibonacci": false,
+          "stochastic": false,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": true,
+          "danger": false
+        },
+        "baseScore": 40,
+        "relatedBacktests": 0,
+        "finalScore": 40,
+        "action": "reference",
+        "nexoraTarget": "backtesting"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884641_ovc0ecx98tt",
+        "name": "RiskAgent",
+        "sourceFile": "src/agents/risk_agent.py",
+        "classification": {
+          "volatility": true,
+          "momentum": true,
+          "meanReversion": true,
+          "liquidity": false,
+          "fibonacci": false,
+          "stochastic": false,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": false,
+          "danger": true
+        },
+        "baseScore": 40,
+        "relatedBacktests": 0,
+        "finalScore": 40,
+        "action": "quarantine_review",
+        "nexoraTarget": "research"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884651_if6j927gddk",
+        "name": "WhaleAgent",
+        "sourceFile": "src/agents/whale_agent.py",
+        "classification": {
+          "volatility": false,
+          "momentum": true,
+          "meanReversion": false,
+          "liquidity": false,
+          "fibonacci": false,
+          "stochastic": true,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": false,
+          "danger": false
+        },
+        "baseScore": 30,
+        "relatedBacktests": 0,
+        "finalScore": 30,
+        "action": "reference",
+        "nexoraTarget": "research"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884629_p70ah12075",
+        "name": "UnifiedTradingAgent",
+        "sourceFile": "src/agents/example_unified_agent.py",
+        "classification": {
+          "volatility": false,
+          "momentum": false,
+          "meanReversion": false,
+          "liquidity": false,
+          "fibonacci": false,
+          "stochastic": false,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": false,
+          "danger": false
+        },
+        "baseScore": 20,
+        "relatedBacktests": 0,
+        "finalScore": 20,
+        "action": "ignore",
+        "nexoraTarget": "research"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884279_ancoj1dez7w",
+        "name": "Risk Agent",
+        "sourceFile": "docs/risk_agent.md",
+        "classification": {
+          "volatility": false,
+          "momentum": false,
+          "meanReversion": false,
+          "liquidity": false,
+          "fibonacci": false,
+          "stochastic": false,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": false,
+          "danger": false
+        },
+        "baseScore": 10,
+        "relatedBacktests": 0,
+        "finalScore": 10,
+        "action": "ignore",
+        "nexoraTarget": "research"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884395_stwno6rm01",
+        "name": "CONFIGURATION - Change this to test different files",
+        "sourceFile": "src/agents/backtest_runner.py",
+        "classification": {
+          "volatility": false,
+          "momentum": false,
+          "meanReversion": false,
+          "liquidity": false,
+          "fibonacci": false,
+          "stochastic": true,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": true,
+          "danger": false
+        },
+        "baseScore": 10,
+        "relatedBacktests": 0,
+        "finalScore": 10,
+        "action": "ignore",
+        "nexoraTarget": "backtesting"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884281_e44eca6i75",
+        "name": "Swarm Agent",
+        "sourceFile": "docs/swarm_agent.md",
+        "classification": {
+          "volatility": false,
+          "momentum": true,
+          "meanReversion": false,
+          "liquidity": false,
+          "fibonacci": false,
+          "stochastic": true,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": false,
+          "danger": false
+        },
+        "baseScore": 5,
+        "relatedBacktests": 0,
+        "finalScore": 5,
+        "action": "ignore",
+        "nexoraTarget": "research"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884176_bgogiot9m5u",
+        "name": "CopyBot Agent",
+        "sourceFile": "docs/copybot_agent.md",
+        "classification": {
+          "volatility": false,
+          "momentum": false,
+          "meanReversion": false,
+          "liquidity": false,
+          "fibonacci": false,
+          "stochastic": false,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": false,
+          "danger": true
+        },
+        "baseScore": 0,
+        "relatedBacktests": 0,
+        "finalScore": 0,
+        "action": "quarantine_review",
+        "nexoraTarget": "research"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884279_5xtr6nsknck",
+        "name": "YourStrategy",
+        "sourceFile": "docs/strategy_agent.md",
+        "classification": {
+          "volatility": false,
+          "momentum": false,
+          "meanReversion": false,
+          "liquidity": false,
+          "fibonacci": false,
+          "stochastic": true,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": false,
+          "danger": false
+        },
+        "baseScore": 0,
+        "relatedBacktests": 0,
+        "finalScore": 0,
+        "action": "ignore",
+        "nexoraTarget": "research"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884281_f1aunwuv82r",
+        "name": "Trading Agent",
+        "sourceFile": "docs/trading_agent.md",
+        "classification": {
+          "volatility": false,
+          "momentum": false,
+          "meanReversion": false,
+          "liquidity": false,
+          "fibonacci": false,
+          "stochastic": false,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": false,
+          "danger": false
+        },
+        "baseScore": 0,
+        "relatedBacktests": 0,
+        "finalScore": 0,
+        "action": "ignore",
+        "nexoraTarget": "research"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884627_9enlq3e59ff",
+        "name": "for",
+        "sourceFile": "src/agents/base_agent.py",
+        "classification": {
+          "volatility": false,
+          "momentum": false,
+          "meanReversion": false,
+          "liquidity": false,
+          "fibonacci": false,
+          "stochastic": false,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": false,
+          "danger": false
+        },
+        "baseScore": 0,
+        "relatedBacktests": 0,
+        "finalScore": 0,
+        "action": "ignore",
+        "nexoraTarget": "research"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884642_bvrbj6aq11p",
+        "name": "StrategyAgent",
+        "sourceFile": "src/agents/strategy_agent.py",
+        "classification": {
+          "volatility": false,
+          "momentum": false,
+          "meanReversion": false,
+          "liquidity": false,
+          "fibonacci": false,
+          "stochastic": false,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": false,
+          "danger": false
+        },
+        "baseScore": 0,
+        "relatedBacktests": 0,
+        "finalScore": 0,
+        "action": "ignore",
+        "nexoraTarget": "research"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884644_9tui5kh0ty",
+        "name": "SwarmAgent",
+        "sourceFile": "src/agents/swarm_agent.py",
+        "classification": {
+          "volatility": false,
+          "momentum": false,
+          "meanReversion": false,
+          "liquidity": false,
+          "fibonacci": false,
+          "stochastic": true,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": false,
+          "danger": false
+        },
+        "baseScore": 0,
+        "relatedBacktests": 0,
+        "finalScore": 0,
+        "action": "ignore",
+        "nexoraTarget": "research"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884651_g588ejcoi4",
+        "name": "BaseStrategy",
+        "sourceFile": "src/strategies/base_strategy.py",
+        "classification": {
+          "volatility": false,
+          "momentum": false,
+          "meanReversion": false,
+          "liquidity": false,
+          "fibonacci": false,
+          "stochastic": false,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": false,
+          "danger": false
+        },
+        "baseScore": 0,
+        "relatedBacktests": 0,
+        "finalScore": 0,
+        "action": "ignore",
+        "nexoraTarget": "research"
+      },
+      {
+        "strategyId": "moondev_strategy_1777911884652_a03ahykhyvj",
+        "name": "SimpleMAStrategy",
+        "sourceFile": "src/strategies/example_strategy.py",
+        "classification": {
+          "volatility": false,
+          "momentum": false,
+          "meanReversion": false,
+          "liquidity": false,
+          "fibonacci": false,
+          "stochastic": false,
+          "vwap": false,
+          "polymarket": false,
+          "backtest": false,
+          "danger": false
+        },
+        "baseScore": 0,
+        "relatedBacktests": 0,
+        "finalScore": 0,
+        "action": "ignore",
+        "nexoraTarget": "research"
+      }
+    ],
+    "safety": {
+      "directUseAllowed": false,
+      "paperOnly": true,
+      "noLiveTrading": true
+    }
+  },
+  "latestPlan": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_moondev_strategy_adapter_plan",
+    "planId": "moondev_strategy_adapter_plan_1777911884683_1jjyevzw8m2",
+    "createdAt": "2026-05-04T16:24:44.684Z",
+    "sourceRankingId": "moondev_strategy_ranking_1777911884683_id8ciscrq6o",
+    "phases": [
+      {
+        "phase": 1,
+        "title": "Adapt top non-dangerous Polymarket/research concepts",
+        "targets": [
+          {
+            "strategyId": "moondev_strategy_1777911884394_1tuy2l08o7",
+            "name": "Hyperliquid Volume Agent - AI Swarm Edition",
+            "sourceFile": "docs/volume_agent.md",
+            "classification": {
+              "volatility": true,
+              "momentum": true,
+              "meanReversion": true,
+              "liquidity": true,
+              "fibonacci": false,
+              "stochastic": true,
+              "vwap": false,
+              "polymarket": false,
+              "backtest": true,
+              "danger": false
+            },
+            "baseScore": 95,
+            "relatedBacktests": 0,
+            "finalScore": 95,
+            "action": "adapt_first",
+            "nexoraTarget": "backtesting"
+          }
+        ]
+      },
+      {
+        "phase": 2,
+        "title": "Convert strategy names and parameters into Nexora strategy runtime records",
+        "targets": [
+          {
+            "strategyId": "moondev_strategy_1777911884394_1tuy2l08o7",
+            "name": "Hyperliquid Volume Agent - AI Swarm Edition",
+            "sourceFile": "docs/volume_agent.md",
+            "classification": {
+              "volatility": true,
+              "momentum": true,
+              "meanReversion": true,
+              "liquidity": true,
+              "fibonacci": false,
+              "stochastic": true,
+              "vwap": false,
+              "polymarket": false,
+              "backtest": true,
+              "danger": false
+            },
+            "baseScore": 95,
+            "relatedBacktests": 0,
+            "finalScore": 95,
+            "action": "adapt_first",
+            "nexoraTarget": "backtesting"
+          },
+          {
+            "strategyId": "moondev_strategy_1777911884649_yqeg1zdviu",
+            "name": "Add project root to path",
+            "sourceFile": "src/agents/volume_agent.py",
+            "classification": {
+              "volatility": true,
+              "momentum": true,
+              "meanReversion": false,
+              "liquidity": true,
+              "fibonacci": false,
+              "stochastic": false,
+              "vwap": false,
+              "polymarket": false,
+              "backtest": false,
+              "danger": false
+            },
+            "baseScore": 70,
+            "relatedBacktests": 0,
+            "finalScore": 70,
+            "action": "adapt_second",
+            "nexoraTarget": "research"
+          },
+          {
+            "strategyId": "moondev_strategy_1777911884647_82dz3mabjp",
+            "name": "TradingAgent",
+            "sourceFile": "src/agents/trading_agent.py",
+            "classification": {
+              "volatility": true,
+              "momentum": true,
+              "meanReversion": false,
+              "liquidity": true,
+              "fibonacci": false,
+              "stochastic": true,
+              "vwap": false,
+              "polymarket": false,
+              "backtest": false,
+              "danger": false
+            },
+            "baseScore": 65,
+            "relatedBacktests": 0,
+            "finalScore": 65,
+            "action": "adapt_second",
+            "nexoraTarget": "research"
+          },
+          {
+            "strategyId": "moondev_strategy_1777911884225_tnny84o6mw",
+            "name": "Polymarket Prediction Agent",
+            "sourceFile": "docs/polymarket_agent.md",
+            "classification": {
+              "volatility": false,
+              "momentum": false,
+              "meanReversion": false,
+              "liquidity": false,
+              "fibonacci": false,
+              "stochastic": true,
+              "vwap": false,
+              "polymarket": true,
+              "backtest": true,
+              "danger": false
+            },
+            "baseScore": 60,
+            "relatedBacktests": 0,
+            "finalScore": 60,
+            "action": "adapt_second",
+            "nexoraTarget": "polymarket-superstack"
+          },
+          {
+            "strategyId": "moondev_strategy_1777911884640_prnkypiu5v",
+            "name": "PROMPT - Edit this to change the type of ideas generated",
+            "sourceFile": "src/agents/research_agent.py",
+            "classification": {
+              "volatility": true,
+              "momentum": false,
+              "meanReversion": true,
+              "liquidity": true,
+              "fibonacci": false,
+              "stochastic": true,
+              "vwap": false,
+              "polymarket": false,
+              "backtest": true,
+              "danger": false
+            },
+            "baseScore": 60,
+            "relatedBacktests": 0,
+            "finalScore": 60,
+            "action": "adapt_second",
+            "nexoraTarget": "backtesting"
+          },
+          {
+            "strategyId": "moondev_strategy_1777911884628_oqihppir3l",
+            "name": "CopyBotAgent",
+            "sourceFile": "src/agents/copybot_agent.py",
+            "classification": {
+              "volatility": true,
+              "momentum": true,
+              "meanReversion": false,
+              "liquidity": false,
+              "fibonacci": false,
+              "stochastic": false,
+              "vwap": false,
+              "polymarket": false,
+              "backtest": false,
+              "danger": false
+            },
+            "baseScore": 55,
+            "relatedBacktests": 0,
+            "finalScore": 55,
+            "action": "adapt_second",
+            "nexoraTarget": "research"
+          }
+        ]
+      },
+      {
+        "phase": 3,
+        "title": "Backtest selected ideas using Nexora paper simulator",
+        "targets": [
+          {
+            "strategyId": "moondev_strategy_1777911884394_1tuy2l08o7",
+            "name": "Hyperliquid Volume Agent - AI Swarm Edition",
+            "sourceFile": "docs/volume_agent.md",
+            "classification": {
+              "volatility": true,
+              "momentum": true,
+              "meanReversion": true,
+              "liquidity": true,
+              "fibonacci": false,
+              "stochastic": true,
+              "vwap": false,
+              "polymarket": false,
+              "backtest": true,
+              "danger": false
+            },
+            "baseScore": 95,
+            "relatedBacktests": 0,
+            "finalScore": 95,
+            "action": "adapt_first",
+            "nexoraTarget": "backtesting"
+          },
+          {
+            "strategyId": "moondev_strategy_1777911884640_prnkypiu5v",
+            "name": "PROMPT - Edit this to change the type of ideas generated",
+            "sourceFile": "src/agents/research_agent.py",
+            "classification": {
+              "volatility": true,
+              "momentum": false,
+              "meanReversion": true,
+              "liquidity": true,
+              "fibonacci": false,
+              "stochastic": true,
+              "vwap": false,
+              "polymarket": false,
+              "backtest": true,
+              "danger": false
+            },
+            "baseScore": 60,
+            "relatedBacktests": 0,
+            "finalScore": 60,
+            "action": "adapt_second",
+            "nexoraTarget": "backtesting"
+          },
+          {
+            "strategyId": "moondev_strategy_1777911884176_fyhou1c66xt",
+            "name": "Backtest Dashboard",
+            "sourceFile": "docs/backtest_dashboard.md",
+            "classification": {
+              "volatility": false,
+              "momentum": false,
+              "meanReversion": false,
+              "liquidity": false,
+              "fibonacci": false,
+              "stochastic": false,
+              "vwap": false,
+              "polymarket": false,
+              "backtest": true,
+              "danger": false
+            },
+            "baseScore": 40,
+            "relatedBacktests": 0,
+            "finalScore": 40,
+            "action": "reference",
+            "nexoraTarget": "backtesting"
+          },
+          {
+            "strategyId": "moondev_strategy_1777911884395_stwno6rm01",
+            "name": "CONFIGURATION - Change this to test different files",
+            "sourceFile": "src/agents/backtest_runner.py",
+            "classification": {
+              "volatility": false,
+              "momentum": false,
+              "meanReversion": false,
+              "liquidity": false,
+              "fibonacci": false,
+              "stochastic": true,
+              "vwap": false,
+              "polymarket": false,
+              "backtest": true,
+              "danger": false
+            },
+            "baseScore": 10,
+            "relatedBacktests": 0,
+            "finalScore": 10,
+            "action": "ignore",
+            "nexoraTarget": "backtesting"
+          }
+        ]
+      },
+      {
+        "phase": 4,
+        "title": "Quarantine dangerous execution/key logic",
+        "targets": [
+          {
+            "strategyId": "moondev_strategy_1777911884279_9qohcqipny4",
+            "name": "Polymarket AI Agents - Roadmap",
+            "sourceFile": "docs/polymarket_agents.md",
+            "classification": {
+              "volatility": true,
+              "momentum": false,
+              "meanReversion": false,
+              "liquidity": true,
+              "fibonacci": false,
+              "stochastic": false,
+              "vwap": false,
+              "polymarket": true,
+              "backtest": true,
+              "danger": true
+            },
+            "baseScore": 65,
+            "relatedBacktests": 0,
+            "finalScore": 65,
+            "action": "quarantine_review",
+            "nexoraTarget": "polymarket-superstack"
+          },
+          {
+            "strategyId": "moondev_strategy_1777911884641_ovc0ecx98tt",
+            "name": "RiskAgent",
+            "sourceFile": "src/agents/risk_agent.py",
+            "classification": {
+              "volatility": true,
+              "momentum": true,
+              "meanReversion": true,
+              "liquidity": false,
+              "fibonacci": false,
+              "stochastic": false,
+              "vwap": false,
+              "polymarket": false,
+              "backtest": false,
+              "danger": true
+            },
+            "baseScore": 40,
+            "relatedBacktests": 0,
+            "finalScore": 40,
+            "action": "quarantine_review",
+            "nexoraTarget": "research"
+          },
+          {
+            "strategyId": "moondev_strategy_1777911884176_bgogiot9m5u",
+            "name": "CopyBot Agent",
+            "sourceFile": "docs/copybot_agent.md",
+            "classification": {
+              "volatility": false,
+              "momentum": false,
+              "meanReversion": false,
+              "liquidity": false,
+              "fibonacci": false,
+              "stochastic": false,
+              "vwap": false,
+              "polymarket": false,
+              "backtest": false,
+              "danger": true
+            },
+            "baseScore": 0,
+            "relatedBacktests": 0,
+            "finalScore": 0,
+            "action": "quarantine_review",
+            "nexoraTarget": "research"
+          }
+        ]
+      }
+    ],
+    "hardRules": [
+      "Do not execute MoonDev code directly.",
+      "Do not import Python runtime into Nexora.",
+      "Do not use private keys.",
+      "Do not live trade.",
+      "Translate to Nexora TypeScript only."
+    ]
+  },
+  "safety": {
+    "directExecution": false,
+    "directImport": false,
+    "noLiveTrading": true,
+    "noPrivateKeys": true
+  }
+}

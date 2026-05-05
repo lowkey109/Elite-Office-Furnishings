@@ -1,0 +1,14 @@
+{
+  "agentId": "policy_guard_agent",
+  "worker": "policy_guard_agent",
+  "division": "safety",
+  "title": "Policy Guard Agent",
+  "status": "active",
+  "nexoraBrain": true,
+  "canCommitExternally": false,
+  "createdAt": "2026-05-05T01:46:27.634Z",
+  "safety": [
+    "Nexora remains the only brain.",
+    "High-risk work must not bypass approval."
+  ]
+}

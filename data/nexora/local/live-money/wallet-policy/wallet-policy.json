@@ -1,0 +1,29 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_wallet_policy",
+  "updatedAt": "2026-05-04T11:44:30.366Z",
+  "status": "locked",
+  "privateKeysAllowedInNexora": false,
+  "seedPhrasesAllowedInNexora": false,
+  "rawWalletExportsAllowed": false,
+  "signingInsideNexoraAllowed": false,
+  "futureAllowedPattern": {
+    "externalSigner": true,
+    "hardwareWallet": true,
+    "dedicatedExecutionService": true,
+    "minimumBalanceOnly": true,
+    "withdrawalBlocked": true,
+    "perTradeCaps": true,
+    "dailyLossCaps": true,
+    "ownerCommitRequired": true
+  },
+  "hardRules": [
+    "Never paste private keys into Nexora.",
+    "Never store seed phrases in repo, env, JSON, logs, or chat.",
+    "Live execution must use an external signer or isolated execution service.",
+    "Nexora may prepare order intents but must not hold signing secrets.",
+    "Owner must explicitly commit before live mode is enabled."
+  ],
+  "operatorNote": "Future live-money mode must use external signing and strict caps."
+}

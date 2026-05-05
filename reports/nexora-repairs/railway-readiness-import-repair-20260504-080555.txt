@@ -1,0 +1,18 @@
+{
+  "patched": [
+    "../localworkflows/nexoraWorkflowTemplates -> ../localworkflows/nexoraWorkflowTemplates",
+    "../scoring/nexoraLocalScoring -> ../scoring/nexoraLocalScoring",
+    "../security/nexoraLocalSecurityScaffold -> ../security/nexoraLocalSecurityScaffold"
+  ],
+  "created": [
+    "server/services/intelligence/nexora/autonomy/localworkflows/nexoraWorkflowTemplates.ts",
+    "server/services/intelligence/nexora/autonomy/scoring/nexoraLocalScoring.ts",
+    "server/services/intelligence/nexora/autonomy/security/nexoraLocalSecurityScaffold.ts"
+  ]
+}
+30:    optionalCall("workflow_templates", () => require("../localworkflows/nexoraWorkflowTemplates").getNexoraWorkflowStatus()),
+31:    optionalCall("local_scoring", () => require("../scoring/nexoraLocalScoring").getNexoraLocalScoringStatus()),
+32:    optionalCall("security_scaffold", () => require("../security/nexoraLocalSecurityScaffold").getNexoraSecurityScaffoldStatus()),
+server/services/intelligence/nexora/autonomy/readiness/nexoraV1Readiness.ts:30:    optionalCall("workflow_templates", () => require("../localworkflows/nexoraWorkflowTemplates").getNexoraWorkflowStatus()),
+server/services/intelligence/nexora/autonomy/readiness/nexoraV1Readiness.ts:31:    optionalCall("local_scoring", () => require("../scoring/nexoraLocalScoring").getNexoraLocalScoringStatus()),
+server/services/intelligence/nexora/autonomy/readiness/nexoraV1Readiness.ts:32:    optionalCall("security_scaffold", () => require("../security/nexoraLocalSecurityScaffold").getNexoraSecurityScaffoldStatus()),

@@ -1,0 +1,41 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_moondev_imported_strategy",
+  "strategyId": "moondev_strategy_1777911884641_ovc0ecx98tt",
+  "name": "RiskAgent",
+  "sourceFile": "research/moondev-selected/src/agents/risk_agent.py",
+  "relativePath": "src/agents/risk_agent.py",
+  "root": "research/moondev-selected",
+  "importedAt": "2026-05-04T16:24:44.641Z",
+  "lines": 632,
+  "bytes": 26507,
+  "classification": {
+    "volatility": true,
+    "momentum": true,
+    "meanReversion": true,
+    "liquidity": false,
+    "fibonacci": false,
+    "stochastic": false,
+    "vwap": false,
+    "polymarket": false,
+    "backtest": false,
+    "danger": true
+  },
+  "metrics": {
+    "percentValues": [
+      90,
+      60
+    ],
+    "moneyValues": [],
+    "bestPercent": 90,
+    "worstPercent": 60,
+    "sharpe": null,
+    "drawdown": null,
+    "winRate": null
+  },
+  "score": 40,
+  "directUseAllowed": false,
+  "paperOnly": true,
+  "nexoraAction": "quarantine_review"
+}

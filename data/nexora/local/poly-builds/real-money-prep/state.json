@@ -1,0 +1,225 @@
+{
+  "ok": true,
+  "service": "nexora_poly_real_money_prep_state",
+  "createdAt": "2026-05-04T12:18:26.610Z",
+  "updatedAt": "2026-05-04T12:20:29.332Z",
+  "learningScorecards": 1,
+  "capitalPolicies": 1,
+  "approvalPackets": 0,
+  "signerHandoffs": 0,
+  "supervisedPlans": 0,
+  "prepRuns": 0,
+  "latestLearningScorecard": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_poly_real_money_learning_scorecard",
+    "id": "learning-scorecard-1777897106610",
+    "generatedAt": "2026-05-04T12:18:26.610Z",
+    "currentMode": "paper_learning",
+    "targetMode": "supervised_real_money_later",
+    "scorecard": {
+      "replayLayer": "built",
+      "pnlTimeline": "built",
+      "strategyTournament": "built",
+      "riskLoop": "built",
+      "finalReadiness": "built",
+      "realMoneyGate": "locked",
+      "readinessScore": 100
+    },
+    "requiredBeforeAnyLiveMoney": [
+      "more paper evidence",
+      "human approval",
+      "external signer setup",
+      "auth/production controls",
+      "explicit owner command"
+    ],
+    "requested": {
+      "mode": "paper_learning_to_supervised_real_money",
+      "futureFirstTestStakeUsd": 0,
+      "maxDrawdownPct": 10,
+      "maxLosingStreak": 5,
+      "maxExposurePct": 25,
+      "liveTrading": false,
+      "humanApprovalRequired": true,
+      "externalSignerRequired": true
+    },
+    "safety": {
+      "currentMode": "paper_learning",
+      "targetMode": "supervised_real_money_after_explicit_owner_approval",
+      "liveTradingEnabledNow": false,
+      "liveOrdersEnabledNow": false,
+      "privateKeysInsideNexora": false,
+      "walletSigningInsideNexora": false,
+      "autonomousMoneyMovement": false,
+      "externalSignerRequired": true,
+      "humanApprovalRequired": true,
+      "deployAllowed": false,
+      "postgresReplayAllowed": false
+    }
+  },
+  "latestCapitalPolicy": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_poly_real_money_capital_policy",
+    "id": "capital-policy-1777897106626",
+    "generatedAt": "2026-05-04T12:18:26.626Z",
+    "status": "POLICY_DRAFT_LOCKED",
+    "currentAllowedStakeUsd": 0,
+    "futureFirstTestStakeUsd": 0,
+    "hardRules": [
+      "Nexora cannot place live orders by itself",
+      "Nexora cannot hold private keys",
+      "Nexora cannot sign wallet transactions",
+      "Every real-money intent requires human approval",
+      "External signer executes only approved intent",
+      "Kill-switch must stop new intents after drawdown or losing streak"
+    ],
+    "killSwitchLimits": {
+      "maxDrawdownPct": 10,
+      "maxLosingStreak": 5,
+      "maxExposurePct": 25,
+      "maxStakeUsdNow": 0
+    },
+    "safety": {
+      "currentMode": "paper_learning",
+      "targetMode": "supervised_real_money_after_explicit_owner_approval",
+      "liveTradingEnabledNow": false,
+      "liveOrdersEnabledNow": false,
+      "privateKeysInsideNexora": false,
+      "walletSigningInsideNexora": false,
+      "autonomousMoneyMovement": false,
+      "externalSignerRequired": true,
+      "humanApprovalRequired": true,
+      "deployAllowed": false,
+      "postgresReplayAllowed": false
+    }
+  },
+  "latestApprovalPacket": null,
+  "latestSignerHandoff": null,
+  "latestSupervisedPlan": null,
+  "latestPrepRun": null,
+  "status": "real_money_preparation_pack_completed",
+  "safety": {
+    "currentMode": "paper_learning",
+    "targetMode": "supervised_real_money_after_owner_approval",
+    "liveTradingEnabledNow": false,
+    "liveOrdersEnabledNow": false,
+    "privateKeysInsideNexora": false,
+    "walletSigningInsideNexora": false,
+    "autonomousMoneyMovement": false,
+    "externalSignerRequired": true,
+    "humanApprovalRequired": true,
+    "deployAllowed": false,
+    "postgresReplayAllowed": false
+  },
+  "runs": 1,
+  "latest": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_poly_real_money_preparation_pack",
+    "id": "real-money-prep-1777897229332",
+    "generatedAt": "2026-05-04T12:20:29.332Z",
+    "systemsCompleted": [
+      "learning_scorecard",
+      "capital_policy",
+      "human_approval_packet",
+      "external_signer_handoff",
+      "supervised_test_plan",
+      "live_execution_gate"
+    ],
+    "currentMode": "paper_learning",
+    "targetMode": "supervised_real_money_after_owner_approval",
+    "liveExecutionNow": false,
+    "systems": {
+      "learningScorecard": {
+        "status": "ready",
+        "readinessScore": 100,
+        "evidence": [
+          "paper replay and PnL timeline",
+          "strategy tournament",
+          "risk and kill-switch loop",
+          "final readiness gate"
+        ]
+      },
+      "capitalPolicy": {
+        "status": "locked",
+        "maxStakeUsdNow": 0,
+        "futureFirstTestStakeUsd": 0,
+        "killSwitch": {
+          "maxDrawdownPct": 10,
+          "maxLosingStreak": 5,
+          "maxExposurePct": 25
+        }
+      },
+      "humanApprovalPacket": {
+        "status": "required",
+        "requiredFor": [
+          "enable live trading",
+          "connect external signer",
+          "approve every real-money trade intent",
+          "raise stake limits"
+        ]
+      },
+      "externalSignerHandoff": {
+        "status": "draft_only_not_connected",
+        "nexoraCreates": [
+          "unsigned trade intent",
+          "risk explanation",
+          "max stake",
+          "human approval reference"
+        ],
+        "signerOwns": [
+          "wallet",
+          "private key",
+          "transaction signing",
+          "execution receipt"
+        ]
+      },
+      "supervisedTestPlan": {
+        "status": "planned_locked",
+        "phases": [
+          "continue paper learning",
+          "human review",
+          "external signer preparation",
+          "tiny supervised live test only after explicit approval",
+          "post-trade learning replay"
+        ]
+      },
+      "liveExecutionGate": {
+        "status": "locked",
+        "canPrepareRealMoney": true,
+        "canExecuteLiveNow": false,
+        "unlockRequires": [
+          "explicit owner command",
+          "external signer connected",
+          "human approval UI",
+          "kill-switch armed",
+          "auth/production controls"
+        ]
+      }
+    },
+    "requested": {
+      "mode": "paper_learning_to_supervised_real_money",
+      "futureFirstTestStakeUsd": 0,
+      "maxDrawdownPct": 10,
+      "maxLosingStreak": 5,
+      "maxExposurePct": 25,
+      "liveTrading": false,
+      "humanApprovalRequired": true,
+      "externalSignerRequired": true
+    },
+    "safety": {
+      "currentMode": "paper_learning",
+      "targetMode": "supervised_real_money_after_owner_approval",
+      "liveTradingEnabledNow": false,
+      "liveOrdersEnabledNow": false,
+      "privateKeysInsideNexora": false,
+      "walletSigningInsideNexora": false,
+      "autonomousMoneyMovement": false,
+      "externalSignerRequired": true,
+      "humanApprovalRequired": true,
+      "deployAllowed": false,
+      "postgresReplayAllowed": false
+    }
+  }
+}

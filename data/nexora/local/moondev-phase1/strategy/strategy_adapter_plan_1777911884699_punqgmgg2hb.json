@@ -1,0 +1,162 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_moondev_strategy_adapter_plan_v1",
+  "planId": "strategy_adapter_plan_1777911884699_punqgmgg2hb",
+  "createdAt": "2026-05-04T16:24:44.699Z",
+  "sources": {
+    "strategyAgent": {
+      "exists": true,
+      "file": "research/moondev-selected/src/agents/strategy_agent.py",
+      "relative": "src/agents/strategy_agent.py",
+      "lines": 306,
+      "symbols": {
+        "classes": [
+          "StrategyAgent"
+        ],
+        "functions": [],
+        "asyncFunctions": [],
+        "imports": [
+          "src.config",
+          "json",
+          "termcolor",
+          "anthropic",
+          "os",
+          "importlib",
+          "inspect",
+          "time"
+        ]
+      },
+      "snippets": [
+        "🌙 Moon Dev's Strategy Agent",
+        "Handles all strategy-based trading decisions",
+        "# 🎯 Strategy Evaluation Prompt",
+        "STRATEGY_EVAL_PROMPT = \"\"\"",
+        "You are Moon Dev's Strategy Validation Assistant 🌙",
+        "Analyze the following strategy signals and validate their recommendations:",
+        "Strategy Signals:",
+        "{strategy_signals}",
+        "1. Evaluate each strategy signal's reasoning",
+        "4. Consider risk factors",
+        "   - Risk assessment",
+        "- Moon Dev prioritizes risk management! 🛡️",
+        "- Better to reject a signal than risk a bad trade",
+        "class StrategyAgent:",
+        "    def __init__(self):",
+        "        \"\"\"Initialize the Strategy Agent\"\"\"",
+        "            cprint(f\"✅ Strategy Agent using ExchangeManager for {EXCHANGE}\", \"green\")",
+        "            cprint(\"✅ Strategy Agent using direct nice_funcs\", \"green\")",
+        "                from src.strategies.custom.example_strategy import ExampleStrategy",
+        "                from src.strategies.custom.private_my_strategy import MyStrategy",
+        "                    ExampleStrategy(),",
+        "                    MyStrategy()",
+        "                for strategy in self.enabled_strategies:",
+        "                    print(f\"  • {strategy.name}\")",
+        "            print(\"🤖 Strategy Agent is disabled in config.py\")",
+        "        print(f\"🤖 Moon Dev's Strategy Agent initialized with {len(self.enabled_strategies)} strategies!\")",
+        "    def evaluate_signals(self, signals, market_data):",
+        "        \"\"\"Have LLM evaluate strategy signals\"\"\"",
+        "                    \"content\": STRATEGY_EVAL_PROMPT.format(",
+        "                        strategy_signals=signals_str,",
+        "            print(\"🤖 Strategy Evaluation:\")",
+        "    def get_signals(self, token):",
+        "            for strategy in self.enabled_strategies:",
+        "                signal = strategy.generate_signals()",
+        "                        'strategy_name': strategy.name,",
+        "                print(f\"ℹ️ No strategy signals for {token}\")",
+        "            print(f\"\\n📊 Raw Strategy Signals for {token}:\")",
+        "                print(f\"  • {signal['strategy_name']}: {signal['direction']} ({signal['signal']}) for {signal['token']}\")",
+        "                    print(f\"✅ LLM approved {signal['strategy_name']}'s {signal['direction']} signal\")",
+        "                    print(f\"❌ LLM rejected {signal['strategy_name']}'s {signal['direction']} signal\")"
+      ],
+      "danger": false
+    },
+    "volumeAgent": {
+      "exists": true,
+      "file": "research/moondev-selected/src/agents/volume_agent.py",
+      "relative": "src/agents/volume_agent.py",
+      "lines": 735,
+      "symbols": {
+        "classes": [],
+        "functions": [
+          "get_all_tokens_volume",
+          "get_top_altcoins",
+          "load_previous_snapshot",
+          "load_24h_snapshot",
+          "calculate_changes",
+          "initialize_data_dir",
+          "log_volume_snapshot",
+          "log_agent_analysis",
+          "format_volume",
+          "display_changes",
+          "create_analysis_prompt",
+          "run_swarm_analysis",
+          "display_swarm_results",
+          "display_data_table",
+          "run_check",
+          "run_continuous",
+          "main"
+        ],
+        "asyncFunctions": [],
+        "imports": [
+          "requests",
+          "time",
+          "csv",
+          "os",
+          "json",
+          "sys",
+          "datetime",
+          "pathlib",
+          "termcolor",
+          "src.agents.swarm_agent"
+        ]
+      },
+      "snippets": [
+        "def get_all_tokens_volume():",
+        "def get_top_altcoins():",
+        "def load_previous_snapshot():",
+        "def load_24h_snapshot():",
+        "def calculate_changes(current_tokens, previous_data, data_24h=None):",
+        "def initialize_data_dir():",
+        "def log_volume_snapshot(tokens):",
+        "def log_agent_analysis(changes, swarm_result):",
+        "def format_volume(volume):",
+        "def display_changes(changes):",
+        "def create_analysis_prompt(changes):",
+        "def run_swarm_analysis(changes):",
+        "def display_swarm_results(result):",
+        "    cprint(\"🧠 AI SWARM ANALYSIS - INDIVIDUAL RECOMMENDATIONS + CONSENSUS 🧠\", \"green\", attrs=['bold'])",
+        "    # Show consensus FIRST - this is what Moon Dev wants to see immediately",
+        "    if \"consensus_summary\" in result:",
+        "        cprint(\"🎯 CONSENSUS RECOMMENDATION (ALL AIs AGREE):\", \"cyan\", attrs=['bold'])",
+        "        cprint(f\"\\n{result['consensus_summary']}\\n\", \"green\", attrs=['bold'])",
+        "def display_data_table(changes):",
+        "    cprint(\"💡 Moon Dev Tip: Compare this data with AI consensus to find your edge!\", \"yellow\", attrs=['bold'])",
+        "def run_check():",
+        "def run_continuous():",
+        "def main():"
+      ],
+      "danger": false
+    }
+  },
+  "target": "strategyruntime + tradinglab + backtesting",
+  "adapterIdeas": [
+    "Strategy plugin records.",
+    "Strategy mutation and scoring.",
+    "Backtest-first promotion.",
+    "Disable bad performers.",
+    "Volume/volatility feature signals.",
+    "Paper tournament ranking."
+  ],
+  "nexoraActions": [
+    "Current Nexora has strategy runtime and trading lab.",
+    "Next improvement: parse MoonDev strategy/backtest files into structured strategy candidates.",
+    "Next improvement: run Nexora synthetic backtests over top imported candidates.",
+    "Next improvement: auto-disable candidates with bad paper evidence."
+  ],
+  "safety": {
+    "paperOnly": true,
+    "noLiveTrading": true,
+    "directImport": false
+  }
+}

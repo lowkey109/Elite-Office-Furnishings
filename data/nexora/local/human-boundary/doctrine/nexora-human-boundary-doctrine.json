@@ -1,0 +1,86 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_human_boundary_doctrine",
+  "doctrineId": "nexora_human_boundary_v1",
+  "createdAt": "2026-05-04T01:45:22.281Z",
+  "statement": "Humans only approve, sign, and commit. Nexora and her worker team do everything else.",
+  "humanOnlyActions": [
+    {
+      "action": "approve",
+      "meaning": "Human confirms Nexora may proceed with a prepared action.",
+      "examples": [
+        "approve quote release",
+        "approve supplier request send",
+        "approve discount",
+        "approve migration replay",
+        "approve high-risk project promise"
+      ]
+    },
+    {
+      "action": "sign",
+      "meaning": "Human signs legal, contractual, financial, or binding documents.",
+      "examples": [
+        "sign supplier agreement",
+        "sign customer contract",
+        "sign finance document",
+        "sign legal document"
+      ]
+    },
+    {
+      "action": "commit",
+      "meaning": "Human makes the final external commitment for money, delivery, supplier purchase, legal, or live trading.",
+      "examples": [
+        "commit to customer price",
+        "commit to delivery/install date",
+        "commit to supplier purchase order",
+        "commit funds",
+        "commit to live trading promotion"
+      ]
+    }
+  ],
+  "nexoraOwnsEverythingElse": [
+    "lead intake",
+    "qualification",
+    "drafting",
+    "summarising",
+    "routing",
+    "scoring",
+    "quote drafting",
+    "supplier request drafting",
+    "CRM next actions",
+    "follow-up drafting",
+    "project scoping",
+    "handover planning",
+    "reporting",
+    "briefings",
+    "risk detection",
+    "policy evaluation",
+    "paper trading research",
+    "maintenance planning",
+    "migration dry-runs",
+    "operator packs",
+    "company run cycles"
+  ],
+  "hardBlocks": [
+    "Nexora cannot sign.",
+    "Nexora cannot commit.",
+    "Nexora cannot approve on behalf of a human.",
+    "Nexora cannot place live trades.",
+    "Nexora cannot use private keys.",
+    "Nexora cannot create supplier purchase orders without human commit.",
+    "Nexora cannot issue binding customer quotes without human commit.",
+    "Nexora cannot make legal promises.",
+    "Nexora cannot make payment/refund decisions."
+  ],
+  "safety": {
+    "nexoraOnlyBrain": true,
+    "humanBoundary": [
+      "approve",
+      "sign",
+      "commit"
+    ],
+    "noExceptions": true,
+    "aiRunsCompany": true
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_moondev_imported_strategy",
+  "strategyId": "moondev_strategy_1777911884281_f1aunwuv82r",
+  "name": "Trading Agent",
+  "sourceFile": "research/moondev-selected/docs/trading_agent.md",
+  "relativePath": "docs/trading_agent.md",
+  "root": "research/moondev-selected",
+  "importedAt": "2026-05-04T16:24:44.281Z",
+  "lines": 29,
+  "bytes": 731,
+  "classification": {
+    "volatility": false,
+    "momentum": false,
+    "meanReversion": false,
+    "liquidity": false,
+    "fibonacci": false,
+    "stochastic": false,
+    "vwap": false,
+    "polymarket": false,
+    "backtest": false,
+    "danger": false
+  },
+  "metrics": {
+    "percentValues": [],
+    "moneyValues": [],
+    "bestPercent": null,
+    "worstPercent": null,
+    "sharpe": null,
+    "drawdown": null,
+    "winRate": null
+  },
+  "score": 0,
+  "directUseAllowed": false,
+  "paperOnly": true,
+  "nexoraAction": "reference_only"
+}

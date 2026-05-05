@@ -1,0 +1,14 @@
+{
+  "agentId": "office_receptionist_agent",
+  "worker": "office_receptionist_agent",
+  "division": "office_sales",
+  "title": "Office Receptionist Agent",
+  "status": "active",
+  "nexoraBrain": true,
+  "canCommitExternally": false,
+  "createdAt": "2026-05-05T01:46:27.634Z",
+  "safety": [
+    "No binding customer quote without approval.",
+    "No payment collection."
+  ]
+}

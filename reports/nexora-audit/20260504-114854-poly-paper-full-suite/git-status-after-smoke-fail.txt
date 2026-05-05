@@ -1,0 +1,79 @@
+ M .replit
+ D AI_TRADING_SYSTEM_COMPLETE.txt
+ D ai-brain-audit-20260430-060943.txt
+ D audit-ai-admin.sh
+ D fix-brace.sh
+ D fix-catalog-braces.sh
+ D fix-catalog.sh
+ D fix-index.sh
+ D fix-routes-catalog.sh
+ D fix-routes-hard.sh
+ D fix-whatsapp.sh
+ D fix_all.sh
+ D fix_cleanup_batch1.sh
+ D live-ai-status-check.sh
+ M scripts/nexora-polymarket-all-smoke.sh
+ M server/index.ts
+ D stage-2b-outreach-gate-audit-20260430-065707.txt
+ D tcd-one-nexora-system-files-20260430-061630.txt
+ D tcd-startup-loop-lines-20260430-061630.txt
+ D tcd-whole-system-nexora-audit-20260430-061603.txt
+?? .data/
+?? NODE_ENV=production
+?? build-nexora-multi-agent-empire.sh
+?? build-nexora-persistence-autonomy.sh
+?? data/nexora/local/active-loop/
+?? data/nexora/local/company-completion/
+?? data/nexora/local/company-run/
+?? data/nexora/local/final-v1/
+?? data/nexora/local/human-boundary/
+?? data/nexora/local/human-ops/
+?? data/nexora/local/live-money/
+?? data/nexora/local/local-executor/
+?? data/nexora/local/loop-coverage/
+?? data/nexora/local/master-control/
+?? data/nexora/local/moondev-strategy-import/
+?? data/nexora/local/poly-next-five/
+?? data/nexora/local/timeline/
+?? data/nexora/local/trading-execution/
+?? data/nexora/local/warehouse/
+?? nexora-worker-audit-20260503-191034.txt
+?? reports/nexora-audit/20260503-202522/
+?? reports/nexora-audit/20260503-202901/
+?? reports/nexora-audit/20260503-211604-wire-all/
+?? reports/nexora-audit/20260503-211811-wire-all/
+?? reports/nexora-audit/20260503-212035-wire-all-fixed/
+?? reports/nexora-audit/20260503-212232-fix-wire-next100/
+?? reports/nexora-audit/20260503-235916-office-agent-audit/
+?? reports/nexora-audit/20260504-000643-final-local/
+?? reports/nexora-audit/20260504-002605-operating-completion/
+?? reports/nexora-audit/20260504-044813-nbp-post-ui/
+?? reports/nexora-audit/20260504-051038-paper-autopilot-evidence/
+?? reports/nexora-audit/20260504-051256-real-money-options/
+?? reports/nexora-audit/20260504-051321-real-money-options/
+?? reports/nexora-audit/20260504-051353-nb-after-paper-autopilot/
+?? reports/nexora-audit/20260504-051457-paper-autopilot-direct-ui/
+?? reports/nexora-audit/20260504-051923-paper-autopilot-direct-smoke/
+?? reports/nexora-audit/20260504-052632-vendor-moondev/
+?? reports/nexora-audit/20260504-052824-vendor-moondev/
+?? reports/nexora-audit/20260504-054325-moondev-strategy-import/
+?? reports/nexora-audit/20260504-054612-moondev-phase1/
+?? reports/nexora-audit/20260504-060927-moondev-systems-accelerator/
+?? reports/nexora-audit/20260504-082314-full-all-builds-save-push/SUMMARY.md
+?? reports/nexora-audit/20260504-082314-full-all-builds-save-push/git-status-after.txt
+?? reports/nexora-audit/20260504-114357-polymarket-finalize/git-status-after.txt
+?? reports/nexora-audit/20260504-114357-polymarket-finalize/staged-files.txt
+?? reports/nexora-audit/20260504-114415-backups/
+?? reports/nexora-audit/20260504-114608-poly-app-route-repair/git-status-after.txt
+?? reports/nexora-audit/20260504-114608-poly-app-route-repair/staged-files.txt
+?? reports/nexora-audit/20260504-114854-poly-paper-full-suite/
+?? reports/nexora-repairs/
+?? reports/polymarket/
+?? rest-express@1.0.0
+?? scripts/nexora-polymarket-batch2-smoke.sh
+?? scripts/nexora-polymarket-paper-full-suite.sh
+?? server/routes/nexoraPolymarketBatch2Routes.ts
+?? server/services/intelligence/nexora/autonomy/routes/nexoraPolyAppPaperFullSuiteRoutes.ts
+?? server/services/intelligence/nexora/polymarket/polymarketBatch2Collectors.ts
+?? src/
+?? tsc

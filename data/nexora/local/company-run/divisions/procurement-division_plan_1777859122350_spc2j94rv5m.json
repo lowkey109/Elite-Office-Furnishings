@@ -1,0 +1,28 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "planId": "division_plan_1777859122350_spc2j94rv5m",
+  "division": "procurement",
+  "title": "Supplier and Procurement Intelligence",
+  "createdAt": "2026-05-04T01:45:22.350Z",
+  "ownerAgent": "supplier_scout_agent",
+  "mandate": "Request supplier pricing, stock, lead times, warranty, delivery cost, and alternatives.",
+  "workers": [
+    "supplier_scout_agent",
+    "supplier_risk_agent"
+  ],
+  "dailyChecklist": [
+    "Review new work orders.",
+    "Process safe queued tasks.",
+    "Hold high-risk work for approval.",
+    "Record progress and metrics.",
+    "Capture learning and blockers."
+  ],
+  "safety": [
+    "No supplier purchase order without approval.",
+    "No binding supplier commitment."
+  ],
+  "payload": {
+    "cycleId": "loop_daily_1777859122335"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "agentId": "crm_followup_agent",
+  "worker": "crm_followup_agent",
+  "division": "crm",
+  "title": "Crm Followup Agent",
+  "status": "active",
+  "nexoraBrain": true,
+  "canCommitExternally": false,
+  "createdAt": "2026-05-05T01:46:27.634Z",
+  "safety": [
+    "Draft messages only unless approved for sending by operator workflow."
+  ]
+}

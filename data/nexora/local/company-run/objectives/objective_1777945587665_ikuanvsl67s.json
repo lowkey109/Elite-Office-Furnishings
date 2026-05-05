@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "objectiveId": "objective_1777945587665_ikuanvsl67s",
+  "division": "crm",
+  "title": "Every open lead has a next action.",
+  "description": "Nexora company objective",
+  "metric": "open_leads_with_next_action",
+  "target": "100%",
+  "priority": 85,
+  "status": "active",
+  "createdAt": "2026-05-05T01:46:27.665Z",
+  "payload": {}
+}

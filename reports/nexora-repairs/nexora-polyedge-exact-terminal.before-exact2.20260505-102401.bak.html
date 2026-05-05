@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>POLY/EDGE Quantum Hyperintelligence Terminal</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+:root{
+  --bg:#02070c;
+  --panel:#03111a;
+  --panel2:#071824;
+  --line:#0e5262;
+  --cyan:#5df7ff;
+  --cyan2:#a5fbff;
+  --green:#67ff9a;
+  --red:#ff4e69;
+  --gold:#ffd05c;
+  --orange:#ff9f43;
+  --purple:#c078ff;
+  --muted:#6c9ca8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;min-height:100%;background:#02070c;color:#dffaff;font-family:"IBM Plex Mono",Menlo,Consolas,monospace}
+body:before{content:"";position:fixed;inset:0;background:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px);background-size:100% 4px;pointer-events:none;z-index:10;mix-blend-mode:screen}
+.shell{display:grid;grid-template-columns:154px 1fr;min-height:100vh}
+.side{border-right:1px solid var(--line);background:#020b12;padding:12px 8px}
+.logo{display:flex;gap:8px;align-items:center;color:var(--cyan);font-size:22px;font-weight:900;letter-spacing:.18em;margin-bottom:16px}
+.logo small{display:block;font-size:8px;color:#bffcff;letter-spacing:.12em}
+.tri{width:42px;height:42px;border:1px solid var(--cyan);clip-path:polygon(50% 0,100% 100%,0 100%);box-shadow:0 0 18px rgba(93,247,255,.35)}
+.navTitle{font-size:9px;color:#76aeba;margin:12px 6px 5px;text-transform:uppercase;letter-spacing:.12em}
+.nav a{display:block;color:#c9f8ff;text-decoration:none;font-size:10px;padding:7px 8px;border:1px solid transparent;border-radius:6px;margin:2px 0;text-transform:uppercase}
+.nav a.active,.nav a:hover{border-color:var(--line);background:#071824;color:var(--green)}
+.orb{width:105px;height:105px;border-radius:50%;margin:18px auto;background:radial-gradient(circle,#5df7ff 0%,rgba(93,247,255,.28) 28%,transparent 65%);box-shadow:0 0 40px rgba(93,247,255,.35)}
+.sideMetric{font-size:10px;color:var(--muted);text-align:center}.sideMetric b{display:block;font-size:20px;color:var(--green)}
+.main{padding:8px;min-width:0}
+.top{display:grid;grid-template-columns:1.35fr repeat(7,.7fr);gap:6px;margin-bottom:6px}
+.box{background:linear-gradient(180deg,rgba(7,24,36,.97),rgba(2,8,14,.97));border:1px solid var(--line);box-shadow:0 0 12px rgba(93,247,255,.06), inset 0 0 20px rgba(93,247,255,.025);padding:8px;min-width:0}
+.box h3{margin:0 0 6px;color:var(--cyan2);font-size:10px;text-transform:uppercase;letter-spacing:.12em}
+.bigTitle{font-size:26px;font-weight:900;color:var(--cyan);letter-spacing:.16em;line-height:1}
+.sub{font-size:9px;color:#8bd4df;margin-top:3px}
+.klabel{font-size:8px;color:var(--muted);text-transform:uppercase}.kvalue{font-size:16px;font-weight:900}
+.good{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--gold)}.purple{color:var(--purple)}.orange{color:var(--orange)}
+.gridA{display:grid;grid-template-columns:1.45fr .72fr .82fr;gap:6px;margin-bottom:6px}
+.gridB{display:grid;grid-template-columns:.75fr .78fr .72fr .95fr;gap:6px;margin-bottom:6px}
+.gridC{display:grid;grid-template-columns:.9fr 1.15fr .72fr .9fr;gap:6px;margin-bottom:6px}
+.gridD{display:grid;grid-template-columns:.9fr 1fr .9fr;gap:6px}
+canvas{width:100%;display:block;background:#01060b;border:1px solid rgba(93,247,255,.13)}
+#equity{height:245px}#sentiment{height:245px}#liquidity{height:185px}#mesh{height:155px}#allocation{height:155px}#multiverse{height:155px}#universe{height:250px}#pnl{height:120px}
+table{width:100%;border-collapse:collapse;font-size:9px}td,th{border-bottom:1px solid rgba(93,247,255,.16);padding:4px;text-align:left}th{color:#78aeba;text-transform:uppercase;font-size:8px}
+.statusGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}.statusGrid div{border:1px solid rgba(93,247,255,.15);padding:4px;font-size:9px}
+.alerts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.alert{border:1px solid rgba(255,208,92,.35);padding:8px;background:#120e05;color:var(--gold);font-size:10px}.alert.red{border-color:rgba(255,78,105,.5);background:#16070b;color:var(--red)}.alert.purple{border-color:rgba(192,120,255,.5);background:#12081c;color:var(--purple)}
+pre{margin:0;white-space:pre-wrap;color:#c6f9ff;font-size:9px;max-height:150px;overflow:auto}
+.ticker{position:fixed;left:154px;right:0;bottom:0;height:28px;background:#030c12;border-top:1px solid var(--line);display:flex;gap:24px;align-items:center;padding:0 12px;font-size:11px;z-index:20}
+@media(max-width:1100px){.shell{grid-template-columns:1fr}.side{display:none}.top,.gridA,.gridB,.gridC,.gridD{grid-template-columns:1fr}.ticker{left:0}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="side">
+  <div class="logo"><div class="tri"></div><div>POLY/EDGE<small>QUANTUM HYPERINTELLIGENCE TERMINAL</small></div></div>
+  <div class="nav">
+    <div class="navTitle">Navigation</div>
+    <a class="active">Overview</a><a>Markets</a><a>Portfolio</a><a>Agents</a><a>Alpha Grid</a><a>Risk Core</a><a>Memory</a><a>Simulation</a><a>Communication</a><a>Settings</a>
+  </div>
+  <div class="orb"></div>
+  <div class="sideMetric">Neural Sync Activity<b id="sideSync">--%</b></div>
+</aside>
+
+<main class="main">
+<section class="top">
+  <div class="box"><div class="bigTitle">POLY/EDGE</div><div class="sub">Quantum Hyperintelligence Terminal · Real Data Only</div></div>
+  <div class="box"><div class="klabel">System Status</div><div class="kvalue good">Online</div></div>
+  <div class="box"><div class="klabel">AI Consciousness</div><div class="kvalue purple">MoonDev</div></div>
+  <div class="box"><div class="klabel">Events</div><div class="kvalue" id="topEvents">--</div></div>
+  <div class="box"><div class="klabel">Win Rate</div><div class="kvalue" id="topWin">--</div></div>
+  <div class="box"><div class="klabel">Confidence</div><div class="kvalue" id="topConf">--</div></div>
+  <div class="box"><div class="klabel">Target</div><div class="kvalue">95%</div></div>
+  <div class="box"><div class="klabel">Reality Layer</div><div class="kvalue orange">Paper</div></div>
+</section>
+
+<section class="gridA">
+  <div class="box"><h3>Hyperdimensional Equity Curve</h3><canvas id="equity"></canvas><div class="statusGrid"><div>Counted <b id="sTrades">--</b></div><div>Wins <b id="sWins">--</b></div><div>Loop <b id="sLoop">--</b></div><div>Live <b class="bad">Locked</b></div></div></div>
+  <div class="box"><h3>Quantum Market Sentiment Matrix</h3><canvas id="sentiment"></canvas><table><tr><td>Bullish</td><td id="sentBull">--</td></tr><tr><td>Bearish</td><td id="sentBear">--</td></tr><tr><td>Neutral</td><td id="sentNeutral">--</td></tr></table></div>
+  <div class="box"><h3>Alpha Signals Feed</h3><table id="alphaFeed"></table></div>
+</section>
+
+<section class="gridB">
+  <div class="box"><h3>Sentient Agent Mesh</h3><canvas id="mesh"></canvas></div>
+  <div class="box"><h3>Capital Allocation // Paper Structure</h3><canvas id="allocation"></canvas></div>
+  <div class="box"><h3>Multiverse Simulation</h3><canvas id="multiverse"></canvas></div>
+  <div class="box"><h3>Hyper Liquidity Depth</h3><canvas id="liquidity"></canvas><div class="sub">WAITING FOR REAL ORDER BOOK DATA</div></div>
+</section>
+
+<section class="gridC">
+  <div class="box"><h3>Real-Time Smart Money Flow</h3><pre>WAITING FOR REAL WALLET DATA
+No wallet observations connected.
+No live copy trading.</pre></div>
+  <div class="box"><h3>Holographic Universe View</h3><canvas id="universe"></canvas></div>
+  <div class="box"><h3>Risk Fortress Status</h3><table><tr><td>Live Trading</td><td class="bad">Disabled</td></tr><tr><td>Wallet Signing</td><td class="bad">Disabled</td></tr><tr><td>Private Keys</td><td class="bad">Disabled</td></tr><tr><td>Human Approval</td><td class="good">Required</td></tr></table></div>
+  <div class="box"><h3>Decision Stream / Live Log</h3><table id="decisionLog"></table></div>
+</section>
+
+<section class="gridD">
+  <div class="box"><h3>Paper PNL Total</h3><canvas id="pnl"></canvas></div>
+  <div class="box"><h3>Live Analytics</h3><pre id="analytics">Loading...</pre></div>
+  <div class="box"><h3>System Alerts</h3><div class="alerts"><div class="alert red">Quantum Volatility<br><b>Real Data Only</b></div><div class="alert">95% Target<br><b id="targetStatus">Training</b></div><div class="alert purple">Live Money<br><b>Locked</b></div></div></div>
+</section>
+</main>
+</div>
+
+<div class="ticker"><span>BTC <b id="tickBTC">--</b></span><span>ETH <b id="tickETH">--</b></span><span>SOL <b id="tickSOL">--</b></span><span>GLOBAL LIQUIDITY WAITING</span><span>CONSCIOUSNESS UPLINK STABLE</span></div>
+
+<script>
+let summary=null,state=null,t=0;
+async function j(url){const r=await fetch(url,{headers:{Accept:"application/json"}});const x=await r.text();try{return JSON.parse(x)}catch{return {ok:false,error:x.slice(0,200)}}}
+function resize(c){const r=c.getBoundingClientRect();c.width=r.width*devicePixelRatio;c.height=r.height*devicePixelRatio;return c.getContext("2d")}
+function clear(ctx,c){ctx.fillStyle="#01060b";ctx.fillRect(0,0,c.width,c.height)}
+function line(ctx,c,vals,color){if(!vals.length){ctx.fillStyle="#ffd05c";ctx.fillText("WAITING FOR REAL DATA",20,40);return}const mn=Math.min(...vals),mx=Math.max(...vals);ctx.strokeStyle=color;ctx.lineWidth=2*devicePixelRatio;ctx.beginPath();vals.forEach((v,i)=>{const x=i*(c.width/(vals.length-1||1));const y=c.height-((v-mn)/(mx-mn||1))*c.height*.8-c.height*.1;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke()}
+async function equity(){const c=document.getElementById("equity"),ctx=resize(c);clear(ctx,c);try{const raw=await fetch("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=100").then(r=>r.json());if(!Array.isArray(raw))throw new Error("no candles");line(ctx,c,raw.map(k=>Number(k[4])),"#5df7ff")}catch(e){ctx.fillStyle="#ffd05c";ctx.fillText("WAITING FOR REAL CANDLE DATA",20,40)}}
+function net(id){const c=document.getElementById(id),ctx=resize(c);clear(ctx,c);const a=(summary?.assets||[]).filter(x=>x.asset&&x.asset!=="unknown");if(!a.length){ctx.fillStyle="#ffd05c";ctx.fillText("WAITING FOR PAPER SUMMARY",20,40);return}const cx=c.width/2,cy=c.height/2;const pts=a.map((x,i)=>({x,ang:Math.PI*2*i/a.length+t*.01,r:(60+(x.avgScore||50)*1.5)*devicePixelRatio}));for(let i=0;i<pts.length;i++)for(let k=i+1;k<pts.length;k++){ctx.strokeStyle="rgba(93,247,255,.13)";ctx.beginPath();ctx.moveTo(cx+Math.cos(pts[i].ang)*pts[i].r,cy+Math.sin(pts[i].ang)*pts[i].r);ctx.lineTo(cx+Math.cos(pts[k].ang)*pts[k].r,cy+Math.sin(pts[k].ang)*pts[k].r);ctx.stroke()}pts.forEach(p=>{const px=cx+Math.cos(p.ang)*p.r,py=cy+Math.sin(p.ang)*p.r,rr=(9+(p.x.avgScore||50)/8)*devicePixelRatio;ctx.fillStyle=p.x.winRate>=80?"#71ff9d":p.x.winRate>=60?"#ffd05c":"#ff4e69";ctx.beginPath();ctx.arc(px,py,rr,0,Math.PI*2);ctx.fill();ctx.fillStyle="#dffaff";ctx.font=(10*devicePixelRatio)+"px monospace";ctx.fillText(p.x.asset,px+rr+4,py)})}
+function sentiment(){const c=document.getElementById("sentiment"),ctx=resize(c);clear(ctx,c);const wr=summary?.winRate||0;ctx.strokeStyle="#244e68";ctx.beginPath();ctx.arc(c.width/2,c.height/2,75*devicePixelRatio,0,Math.PI*2);ctx.stroke();ctx.fillStyle="rgba(93,247,255,.18)";ctx.beginPath();ctx.arc(c.width/2,c.height/2,wr*devicePixelRatio,0,Math.PI*2);ctx.fill()}
+function allocation(){const c=document.getElementById("allocation"),ctx=resize(c);clear(ctx,c);const a=(summary?.assets||[]).filter(x=>x.asset!=="unknown").slice(0,6);a.forEach((x,i)=>{ctx.fillStyle=x.winRate>=80?"#71ff9d":"#ffd05c";ctx.fillRect(20+i*42,c.height-20-(x.winRate*1.6),24,x.winRate*1.6);ctx.fillStyle="#dffaff";ctx.fillText(x.asset,14+i*42,c.height-5)})}
+function liquidity(){const c=document.getElementById("liquidity"),ctx=resize(c);clear(ctx,c);ctx.fillStyle="#ffd05c";ctx.fillText("WAITING FOR REAL ORDER BOOK DATA",20,40)}
+function pnl(){const c=document.getElementById("pnl"),ctx=resize(c);clear(ctx,c);line(ctx,c,(summary?.assets||[]).map(a=>a.pnl||0),"#71ff9d")}
+function fillTables(){const a=summary?.assets||[];alphaFeed.innerHTML="<tr><th>Signal</th><th>Conf</th><th>Impact</th></tr>"+a.filter(x=>x.asset!=="unknown").slice(0,7).map(x=>`<tr><td>${x.asset} edge</td><td>${x.winRate}%</td><td>${x.pnl}</td></tr>`).join("");decisionLog.innerHTML="<tr><th>Time</th><th>Action</th><th>Mode</th></tr><tr><td>LIVE</td><td>${summary?.latest?.result||"WAITING"}</td><td>PAPER</td></tr>";analytics.textContent=JSON.stringify({events:summary?.polymarketEvents,trades:summary?.countedTrades,wins:summary?.wins,winRate:summary?.winRate,avgScore:summary?.avgScore,latest:summary?.latest},null,2)}
+async function load(){summary=await j("/api/nexora/poly-paper-summary/latest");state=await j("/api/nexora/poly-edge-fixed/state");topEvents.textContent=summary.polymarketEvents||0;topWin.textContent=(summary.winRate||0)+"%";topConf.textContent=(summary.displayedConfidencePercent||0)+"%";sTrades.textContent=summary.countedTrades||0;sWins.textContent=summary.wins||0;sLoop.textContent=state.paperPractice?.loop||0;sideSync.textContent=(summary.displayedConfidencePercent||0)+"%";sentBull.textContent=(summary.winRate||0)+"%";sentBear.textContent=Math.max(0,100-(summary.winRate||0))+"%";sentNeutral.textContent=(summary.skips||0)+" skips";targetStatus.textContent=summary.targetReached?"PASSED":"TRAINING";tickBTC.textContent=((summary.assets||[]).find(a=>a.asset==="BTC")?.winRate||"--")+"%";tickETH.textContent=((summary.assets||[]).find(a=>a.asset==="ETH")?.winRate||"--")+"%";tickSOL.textContent=((summary.assets||[]).find(a=>a.asset==="SOL")?.winRate||"--")+"%";equity();sentiment();net("mesh");allocation();net("multiverse");liquidity();net("universe");pnl();fillTables()}
+setInterval(()=>{t++; if(summary){net("mesh");net("multiverse");net("universe")}},1000);setInterval(load,5000);load();
+</script>
+</body>
+</html>

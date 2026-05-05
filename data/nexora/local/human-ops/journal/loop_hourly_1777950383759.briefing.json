@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_human_ops_briefing",
+  "briefingId": "loop_hourly_1777950383759",
+  "createdAt": "2026-05-05T03:06:23.759Z",
+  "summary": {
+    "ownerDecisions": 0,
+    "escalations": 0,
+    "journeys": 0,
+    "supplierRequests": 0,
+    "installPlans": 0
+  },
+  "topOwnerActions": [],
+  "script": [
+    "Review owner decision queue.",
+    "Approve/reject only after checking commitment risk.",
+    "Confirm customer-facing messages before sending.",
+    "Confirm supplier requests are non-binding.",
+    "Do not promise install timing until scope and supplier lead time are confirmed."
+  ]
+}

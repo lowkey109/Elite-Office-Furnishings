@@ -1,0 +1,30 @@
+[
+  {
+    "file": "server/services/buildings/buildingIngestionService.ts",
+    "name": "BuildingIngestionService"
+  },
+  {
+    "file": "server/services/partnerNetwork/commissionService.ts",
+    "name": "CommissionService"
+  },
+  {
+    "file": "server/services/dealClosing/approvalService.ts",
+    "name": "DealApprovalService"
+  },
+  {
+    "file": "server/storage.ts",
+    "name": "DrizzleStorage"
+  },
+  {
+    "file": "server/services/trading/venues/dryRunAdapter.ts",
+    "name": "DryRunVenueAdapter"
+  },
+  {
+    "file": "server/services/dealClosing/pricingEngine.ts",
+    "name": "PricingEngine"
+  },
+  {
+    "file": "server/services/dealClosing/proposalService.ts",
+    "name": "ProposalService"
+  }
+]

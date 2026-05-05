@@ -1,0 +1,114 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_poly_builds_bash1_strategy_tournament",
+  "id": "strategy-tournament-1777911885102",
+  "generatedAt": "2026-05-04T16:24:45.103Z",
+  "mode": "paper",
+  "importedIdeasSource": "MoonDev reference patterns translated into Nexora-native paper scoring",
+  "replayId": "paper-replay-1777911885103",
+  "replayFile": "/home/runner/workspace/data/nexora/local/poly-builds/bash1/replay/paper-replay-1777911885103.json",
+  "winner": {
+    "rank": 1,
+    "strategyId": "moondev_momentum_paper",
+    "name": "MoonDev Momentum Paper",
+    "score": 57.45,
+    "paperOnly": true,
+    "liveTrading": false,
+    "risk": 0.55,
+    "metrics": {
+      "baseReplayPnl": 6.98,
+      "aggressiveness": 0.65,
+      "risk": 0.55,
+      "stabilityBonus": 3.6
+    }
+  },
+  "rankings": [
+    {
+      "rank": 1,
+      "strategyId": "moondev_momentum_paper",
+      "name": "MoonDev Momentum Paper",
+      "score": 57.45,
+      "paperOnly": true,
+      "liveTrading": false,
+      "risk": 0.55,
+      "metrics": {
+        "baseReplayPnl": 6.98,
+        "aggressiveness": 0.65,
+        "risk": 0.55,
+        "stabilityBonus": 3.6
+      }
+    },
+    {
+      "rank": 2,
+      "strategyId": "clob_spread_mean_revert",
+      "name": "CLOB Spread Mean Revert",
+      "score": 56.9,
+      "paperOnly": true,
+      "liveTrading": false,
+      "risk": 0.35,
+      "metrics": {
+        "baseReplayPnl": 6.98,
+        "aggressiveness": 0.45,
+        "risk": 0.35,
+        "stabilityBonus": 5.2
+      }
+    },
+    {
+      "rank": 3,
+      "strategyId": "event_probability_drift",
+      "name": "Event Probability Drift",
+      "score": 55.67,
+      "paperOnly": true,
+      "liveTrading": false,
+      "risk": 0.45,
+      "metrics": {
+        "baseReplayPnl": 6.98,
+        "aggressiveness": 0.55,
+        "risk": 0.45,
+        "stabilityBonus": 4.4
+      }
+    },
+    {
+      "rank": 4,
+      "strategyId": "risk_first_scalper",
+      "name": "Risk First Scalper",
+      "score": 55.13,
+      "paperOnly": true,
+      "liveTrading": false,
+      "risk": 0.25,
+      "metrics": {
+        "baseReplayPnl": 6.98,
+        "aggressiveness": 0.35,
+        "risk": 0.25,
+        "stabilityBonus": 6
+      }
+    },
+    {
+      "rank": 5,
+      "strategyId": "copy_whale_reference_only",
+      "name": "Copy/Whale Reference Only",
+      "score": 51.94,
+      "paperOnly": true,
+      "liveTrading": false,
+      "risk": 0.6,
+      "metrics": {
+        "baseReplayPnl": 6.98,
+        "aggressiveness": 0.5,
+        "risk": 0.6,
+        "stabilityBonus": 3.2
+      }
+    }
+  ],
+  "safety": {
+    "mode": "paper",
+    "liveTradingEnabled": false,
+    "liveOrdersEnabled": false,
+    "privateKeysAllowed": false,
+    "walletSigningAllowed": false,
+    "autonomousMoneyMovementAllowed": false,
+    "postgresReplayAllowed": false,
+    "deployAllowed": false,
+    "humanApprovalRequiredForLive": true
+  }
+}

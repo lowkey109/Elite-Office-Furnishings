@@ -1,0 +1,13 @@
+{
+  "agentId": "nexora_command_centre",
+  "worker": "nexora_command_centre",
+  "division": "reporting",
+  "title": "Nexora Command Centre",
+  "status": "active",
+  "nexoraBrain": true,
+  "canCommitExternally": false,
+  "createdAt": "2026-05-05T01:46:27.634Z",
+  "safety": [
+    "Reports are informational and do not authorize commitments."
+  ]
+}

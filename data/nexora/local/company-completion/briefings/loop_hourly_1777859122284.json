@@ -1,0 +1,247 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_daily_briefing_final",
+  "briefingId": "loop_hourly_1777859122284",
+  "createdAt": "2026-05-04T01:45:22.284Z",
+  "ownerCockpit": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_owner_cockpit_final",
+    "generatedAt": "2026-05-04T01:45:22.286Z",
+    "approvalBoard": {
+      "ok": true,
+      "nexoraBrain": true,
+      "service": "nexora_human_approval_board",
+      "generatedAt": "2026-05-04T01:45:22.285Z",
+      "count": 0,
+      "rows": [],
+      "humanOnly": [
+        "approve",
+        "sign",
+        "commit"
+      ]
+    },
+    "workQueue": {
+      "ok": true,
+      "nexoraBrain": true,
+      "service": "nexora_company_work_queue_summary",
+      "generatedAt": "2026-05-04T01:45:22.286Z",
+      "count": 0,
+      "rows": []
+    },
+    "departments": {
+      "ok": true,
+      "nexoraBrain": true,
+      "service": "nexora_department_dashboards",
+      "generatedAt": "2026-05-04T01:45:22.286Z",
+      "count": 10,
+      "departments": [
+        {
+          "key": "sales",
+          "title": "Sales",
+          "primaryRoute": "/api/nexora/office-agents/status",
+          "ownerAgent": "office_receptionist_agent",
+          "humanBoundary": "approve/send only when customer-facing"
+        },
+        {
+          "key": "quotes",
+          "title": "Quotes",
+          "primaryRoute": "/api/nexora/office-agents/quote/draft",
+          "ownerAgent": "quote_builder_agent",
+          "humanBoundary": "commit binding quote only"
+        },
+        {
+          "key": "procurement",
+          "title": "Procurement",
+          "primaryRoute": "/api/nexora/office-agents/supplier/request",
+          "ownerAgent": "supplier_scout_agent",
+          "humanBoundary": "commit purchase order only"
+        },
+        {
+          "key": "crm",
+          "title": "CRM",
+          "primaryRoute": "/api/nexora/office-agents/followup/draft",
+          "ownerAgent": "crm_followup_agent",
+          "humanBoundary": "approve/send final customer contact"
+        },
+        {
+          "key": "fitouts",
+          "title": "Fitouts",
+          "primaryRoute": "/api/nexora/office-agents/project/scope",
+          "ownerAgent": "fitout_scope_agent",
+          "humanBoundary": "commit install/delivery promises only"
+        },
+        {
+          "key": "projects",
+          "title": "Projects",
+          "primaryRoute": "/api/nexora/office-agents/project/handover",
+          "ownerAgent": "project_handover_agent",
+          "humanBoundary": "commit handover and delivery only"
+        },
+        {
+          "key": "finance",
+          "title": "Finance",
+          "primaryRoute": "/api/nexora/finance/quote/analyse",
+          "ownerAgent": "margin_guardian_agent",
+          "humanBoundary": "approve payment/refund/discount only"
+        },
+        {
+          "key": "learning",
+          "title": "Learning",
+          "primaryRoute": "/api/nexora/teaching/status",
+          "ownerAgent": "learning_worker",
+          "humanBoundary": "teach examples when Nexora does not know"
+        },
+        {
+          "key": "safety",
+          "title": "Safety",
+          "primaryRoute": "/api/nexora/human-boundary/status",
+          "ownerAgent": "nexora_execution_gate",
+          "humanBoundary": "approve/sign/commit only"
+        },
+        {
+          "key": "trading_research",
+          "title": "Trading Intelligence",
+          "primaryRoute": "/api/nexora/polymarket-paper/status",
+          "ownerAgent": "phantom_x_paper_agent",
+          "humanBoundary": "commit live trading promotion only; currently blocked"
+        }
+      ]
+    },
+    "responsibilityMap": {
+      "ok": true,
+      "nexoraBrain": true,
+      "service": "nexora_ai_human_responsibility_map_final",
+      "generatedAt": "2026-05-04T01:45:22.286Z",
+      "humanOnly": [
+        {
+          "action": "approve",
+          "meaning": "Human approves Nexora-prepared work to proceed."
+        },
+        {
+          "action": "sign",
+          "meaning": "Human signs legal/financial/binding documents."
+        },
+        {
+          "action": "commit",
+          "meaning": "Human makes binding external commitments."
+        }
+      ],
+      "nexoraDoes": [
+        "lead intake",
+        "lead qualification",
+        "quote drafting",
+        "margin calculation",
+        "supplier request drafting",
+        "CRM follow-up drafting",
+        "project scope capture",
+        "handover planning",
+        "daily agenda",
+        "work queue",
+        "reports",
+        "risk board",
+        "learning",
+        "paper trading research",
+        "fallback storage",
+        "migration dry-runs",
+        "owner briefing"
+      ],
+      "noExceptions": true
+    },
+    "nextHumanActions": [
+      "approve",
+      "sign",
+      "commit"
+    ],
+    "nexoraHandlesEverythingElse": true
+  },
+  "approvalBoard": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_human_approval_board",
+    "generatedAt": "2026-05-04T01:45:22.286Z",
+    "count": 0,
+    "rows": [],
+    "humanOnly": [
+      "approve",
+      "sign",
+      "commit"
+    ]
+  },
+  "workQueue": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_company_work_queue_summary",
+    "generatedAt": "2026-05-04T01:45:22.287Z",
+    "count": 0,
+    "rows": []
+  },
+  "revenueMargin": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_revenue_margin_board",
+    "generatedAt": "2026-05-04T01:45:22.287Z",
+    "quoteRows": [],
+    "metrics": {
+      "ok": true,
+      "nexoraBrain": true,
+      "name": "",
+      "count": 1,
+      "total": 1,
+      "rows": [
+        {
+          "ok": true,
+          "nexoraBrain": true,
+          "name": "nexora_active_local_loop_heartbeat",
+          "value": 1,
+          "unit": "tick",
+          "dimensions": {
+            "mode": "local_only"
+          },
+          "recordedAt": "2026-05-04T01:45:22.166Z"
+        }
+      ]
+    },
+    "note": "Local/offline margin board. Full durable revenue reporting should replay to Postgres later."
+  },
+  "customerSupplier": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_customer_supplier_board",
+    "generatedAt": "2026-05-04T01:45:22.288Z",
+    "customers": [],
+    "suppliers": [],
+    "safety": {
+      "customerContactHumanControlled": true,
+      "supplierCommitHumanControlled": true
+    }
+  },
+  "projectDelivery": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_project_delivery_board",
+    "generatedAt": "2026-05-04T01:45:22.288Z",
+    "count": 0,
+    "rows": [],
+    "safety": {
+      "noInstallPromiseWithoutHumanCommit": true,
+      "noDeliveryPromiseWithoutHumanCommit": true
+    }
+  },
+  "learning": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_learning_capture_board",
+    "generatedAt": "2026-05-04T01:45:22.288Z",
+    "count": 0,
+    "rows": [],
+    "doctrine": "If Nexora does not know, she creates a gap, lesson, example request, playbook, and training record."
+  },
+  "ownerScript": [
+    "Review approval/sign/commit queue first.",
+    "Approve or reject customer-facing quote releases.",
+    "Commit only when ready: supplier POs, delivery promises, payments, legal/signing.",
+    "Let Nexora handle all drafting, routing, scoring, reporting, and follow-up preparation."
+  ]
+}

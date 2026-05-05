@@ -216,15 +216,15 @@ pre{margin:0;white-space:pre-wrap;color:#c6f9ff;max-height:145px;overflow:auto}.
 <section class="controlDeck">
   <div class="controlGroup">
     <h4>Global</h4>
-    <button class="paper" onclick="polyAction('POST','/api/nexora/paper-practice/start')">START PAPER LOOP</button>
-    <button class="locked" onclick="polyAction('POST','/api/nexora/paper-practice/stop')">STOP PAPER LOOP</button>
-    <button class="read" onclick="polyAction('GET','/api/nexora/paper-practice/control/status')">STATUS</button>
+    <button class="paper" onclick="startPaperClientLoop()">START PAPER LOOP</button>
+    <button class="locked" onclick="stopPaperClientLoop()">STOP PAPER LOOP</button>
+    <button class="read" onclick="polyAction('GET','/api/nexora/paper-train/status')">STATUS</button>
     <button class="read" onclick="refreshPolyTerminal()">REFRESH DATA</button>
   </div>
 
   <div class="controlGroup">
     <h4>Paper Trader</h4>
-    <button class="paper" onclick="polyAction('POST','/api/nexora/poly-builds/final/run',paperPayload())">RUN PAPER CYCLE</button>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/paper-train/tick',paperPayload())">RUN PAPER CYCLE</button>
     <button class="paper" onclick="polyAction('POST','/api/nexora/poly-builds/bash2/loop/run',paperPayload())">RUN RISK LOOP</button>
     <button class="paper" onclick="polyAction('POST','/api/nexora/binance/paper/run-strategy',binancePayload())">BINANCE PAPER STRATEGY</button>
     <button class="review" onclick="polyAction('POST','/api/nexora/binance/paper/reset',{})">RESET BINANCE PAPER</button>

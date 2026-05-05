@@ -1,0 +1,43 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_live_execution_policy",
+  "updatedAt": "2026-05-04T11:44:30.367Z",
+  "status": "blocked_until_ready",
+  "liveTradingEnabled": false,
+  "liveOrdersAllowed": false,
+  "liveOrderPlacementAllowed": false,
+  "clobSigningAllowed": false,
+  "maxInitialBankrollUsd": 100,
+  "maxSingleTradeUsd": 5,
+  "maxDailyLossUsd": 10,
+  "maxOpenExposureUsd": 20,
+  "requiredBeforeLive": [
+    "Postgres storage upgraded and durableKernel.ok true",
+    "At least 30 backtest runs",
+    "At least 100 paper settlements",
+    "Positive paper PnL",
+    "Risk governor events present",
+    "Swarm consensus records present",
+    "Kill switch tested",
+    "External signer designed",
+    "Owner commits explicitly",
+    "Separate live execution build reviewed"
+  ],
+  "mandatoryKillSwitches": [
+    "daily loss stop",
+    "max exposure stop",
+    "max single trade stop",
+    "latency spike stop",
+    "CLOB/API error stop",
+    "reconciliation mismatch stop",
+    "manual owner stop"
+  ],
+  "hardBlocksNow": [
+    "No live orders",
+    "No private keys",
+    "No wallet signing",
+    "No withdrawals",
+    "No autonomous commitment"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_moondev_imported_strategy",
+  "strategyId": "moondev_strategy_1777911884651_g588ejcoi4",
+  "name": "BaseStrategy",
+  "sourceFile": "research/moondev-selected/src/strategies/base_strategy.py",
+  "relativePath": "src/strategies/base_strategy.py",
+  "root": "research/moondev-selected",
+  "importedAt": "2026-05-04T16:24:44.651Z",
+  "lines": 21,
+  "bytes": 659,
+  "classification": {
+    "volatility": false,
+    "momentum": false,
+    "meanReversion": false,
+    "liquidity": false,
+    "fibonacci": false,
+    "stochastic": false,
+    "vwap": false,
+    "polymarket": false,
+    "backtest": false,
+    "danger": false
+  },
+  "metrics": {
+    "percentValues": [],
+    "moneyValues": [],
+    "bestPercent": null,
+    "worstPercent": null,
+    "sharpe": null,
+    "drawdown": null,
+    "winRate": null
+  },
+  "score": 0,
+  "directUseAllowed": false,
+  "paperOnly": true,
+  "nexoraAction": "reference_only"
+}

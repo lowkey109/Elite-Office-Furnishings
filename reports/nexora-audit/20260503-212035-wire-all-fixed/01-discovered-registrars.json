@@ -1,0 +1,90 @@
+{
+  "registrarCount": 17,
+  "registrars": [
+    {
+      "name": "registerNexoraAdvancedAutonomyRoutes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+      "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes"
+    },
+    {
+      "name": "registerNexoraAdvancedLocalOpsRoutes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedLocalOpsRoutes.ts",
+      "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraAdvancedLocalOpsRoutes"
+    },
+    {
+      "name": "registerNexoraAlmightyRoutes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAlmightyRoutes.ts",
+      "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraAlmightyRoutes"
+    },
+    {
+      "name": "registerNexoraBuildPlannerRoutes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraBuildPlannerRoutes.ts",
+      "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraBuildPlannerRoutes"
+    },
+    {
+      "name": "registerNexoraExtensionManagerRoutes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraExtensionManagerRoutes.ts",
+      "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraExtensionManagerRoutes"
+    },
+    {
+      "name": "registerNexoraFileBusRoutes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes.ts",
+      "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes"
+    },
+    {
+      "name": "registerNexoraGovernorBusinessRoutes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts",
+      "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes"
+    },
+    {
+      "name": "registerNexoraHardMountRoutes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts",
+      "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes"
+    },
+    {
+      "name": "registerNexoraLiveVerificationRoutes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+      "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes"
+    },
+    {
+      "name": "registerNexoraLocalBusinessRoutes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+      "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes"
+    },
+    {
+      "name": "registerNexoraMegaBuildRoutes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+      "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes"
+    },
+    {
+      "name": "registerNexoraMissionControlRoutes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes.ts",
+      "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes"
+    },
+    {
+      "name": "registerNexoraOperationalAutopilotRoutes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts",
+      "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes"
+    },
+    {
+      "name": "registerNexoraOperatorKitRoutes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperatorKitRoutes.ts",
+      "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraOperatorKitRoutes"
+    },
+    {
+      "name": "registerNexoraProductionReadinessRoutes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraProductionReadinessRoutes.ts",
+      "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraProductionReadinessRoutes"
+    },
+    {
+      "name": "registerNexoraResilienceRoutes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts",
+      "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes"
+    },
+    {
+      "name": "registerNexoraSupremeMatrixRoutes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts",
+      "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes"
+    }
+  ]
+}

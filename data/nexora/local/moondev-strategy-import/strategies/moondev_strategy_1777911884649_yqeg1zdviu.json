@@ -1,0 +1,45 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_moondev_imported_strategy",
+  "strategyId": "moondev_strategy_1777911884649_yqeg1zdviu",
+  "name": "Add project root to path",
+  "sourceFile": "research/moondev-selected/src/agents/volume_agent.py",
+  "relativePath": "src/agents/volume_agent.py",
+  "root": "research/moondev-selected",
+  "importedAt": "2026-05-04T16:24:44.649Z",
+  "lines": 735,
+  "bytes": 25536,
+  "classification": {
+    "volatility": true,
+    "momentum": true,
+    "meanReversion": false,
+    "liquidity": true,
+    "fibonacci": false,
+    "stochastic": false,
+    "vwap": false,
+    "polymarket": false,
+    "backtest": false,
+    "danger": false
+  },
+  "metrics": {
+    "percentValues": [
+      50,
+      20,
+      30,
+      15,
+      20,
+      50
+    ],
+    "moneyValues": [],
+    "bestPercent": 50,
+    "worstPercent": 15,
+    "sharpe": null,
+    "drawdown": null,
+    "winRate": null
+  },
+  "score": 70,
+  "directUseAllowed": false,
+  "paperOnly": true,
+  "nexoraAction": "adapt_priority"
+}

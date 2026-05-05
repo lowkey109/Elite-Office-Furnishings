@@ -1,0 +1,27 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "planId": "division_plan_1777945587677_nmuz8n4frcb",
+  "division": "crm",
+  "title": "CRM and Follow-up",
+  "createdAt": "2026-05-05T01:46:27.677Z",
+  "ownerAgent": "crm_followup_agent",
+  "mandate": "Track leads, next actions, stale opportunities, follow-ups, and customer communication drafts.",
+  "workers": [
+    "crm_followup_agent",
+    "stale_lead_rescue_agent"
+  ],
+  "dailyChecklist": [
+    "Review new work orders.",
+    "Process safe queued tasks.",
+    "Hold high-risk work for approval.",
+    "Record progress and metrics.",
+    "Capture learning and blockers."
+  ],
+  "safety": [
+    "Draft messages only unless approved for sending by operator workflow."
+  ],
+  "payload": {
+    "cycleId": "loop_daily_1777945587616"
+  }
+}

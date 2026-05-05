@@ -1,0 +1,29 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "planId": "division_plan_1777859122352_q9cu3r6q69s",
+  "division": "safety",
+  "title": "Execution Gate and Safety",
+  "createdAt": "2026-05-04T01:45:22.352Z",
+  "ownerAgent": "nexora_execution_gate",
+  "mandate": "Hold high-risk work, approvals, policy checks, trading limits, supplier commitments, and quote releases.",
+  "workers": [
+    "nexora_execution_gate",
+    "policy_guard_agent",
+    "risk_simulator_agent"
+  ],
+  "dailyChecklist": [
+    "Review new work orders.",
+    "Process safe queued tasks.",
+    "Hold high-risk work for approval.",
+    "Record progress and metrics.",
+    "Capture learning and blockers."
+  ],
+  "safety": [
+    "Nexora remains the only brain.",
+    "High-risk work must not bypass approval."
+  ],
+  "payload": {
+    "cycleId": "loop_daily_1777859122335"
+  }
+}

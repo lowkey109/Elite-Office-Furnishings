@@ -1,0 +1,14 @@
+{
+  "agentId": "nexora_execution_gate",
+  "worker": "nexora_execution_gate",
+  "division": "safety",
+  "title": "Nexora Execution Gate",
+  "status": "active",
+  "nexoraBrain": true,
+  "canCommitExternally": false,
+  "createdAt": "2026-05-05T01:46:27.634Z",
+  "safety": [
+    "Nexora remains the only brain.",
+    "High-risk work must not bypass approval."
+  ]
+}

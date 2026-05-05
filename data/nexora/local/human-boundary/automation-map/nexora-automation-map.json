@@ -1,0 +1,75 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_automation_responsibility_map",
+  "mapId": "nexora_responsibility_map_v1",
+  "createdAt": "2026-05-04T01:45:22.282Z",
+  "humanOnly": [
+    "approve",
+    "sign",
+    "commit"
+  ],
+  "nexoraAndWorkersDo": [
+    "answer routine inbound messages after approved templates",
+    "draft customer messages",
+    "draft supplier messages",
+    "intake leads",
+    "qualify leads",
+    "score opportunities",
+    "create quote drafts",
+    "calculate GST and margin",
+    "create supplier requests",
+    "track CRM next actions",
+    "prepare project scopes",
+    "create project handover plans",
+    "create owner briefings",
+    "monitor risks",
+    "prepare reports",
+    "run daily company cycles",
+    "create fallback records",
+    "run paper trading research",
+    "prepare migration dry-runs",
+    "prepare deployment checklists"
+  ],
+  "approvalBoundaries": [
+    {
+      "boundary": "customer quote release",
+      "humanAction": "approve",
+      "nexoraWork": "draft quote, margin check, assumptions, customer-ready text"
+    },
+    {
+      "boundary": "legal/contract document",
+      "humanAction": "sign",
+      "nexoraWork": "prepare summary, risk flags, draft context"
+    },
+    {
+      "boundary": "supplier purchase order",
+      "humanAction": "commit",
+      "nexoraWork": "supplier comparison, stock/lead time request, non-binding RFQ"
+    },
+    {
+      "boundary": "payment/refund",
+      "humanAction": "commit",
+      "nexoraWork": "prepare calculation, evidence, risk note"
+    },
+    {
+      "boundary": "delivery/install promise",
+      "humanAction": "commit",
+      "nexoraWork": "scope checklist, supplier lead time, install risk flags"
+    },
+    {
+      "boundary": "live trading promotion",
+      "humanAction": "commit",
+      "nexoraWork": "paper signal research, risk simulation, PnL evidence"
+    }
+  ],
+  "safety": {
+    "noExceptions": true,
+    "nexoraOnlyBrain": true,
+    "humanBoundary": [
+      "approve",
+      "sign",
+      "commit"
+    ]
+  }
+}

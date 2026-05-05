@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_poly_market_api_config",
+  "updatedAt": "2026-05-04T11:44:30.623Z",
+  "gammaBaseUrl": "https://gamma-api.polymarket.com",
+  "clobBaseUrl": "https://clob.polymarket.com",
+  "networkEnabled": false,
+  "defaultTags": [
+    "crypto",
+    "bitcoin",
+    "ethereum"
+  ],
+  "defaultLimit": 100,
+  "safety": {
+    "readOnly": true,
+    "noOrders": true,
+    "noPrivateKeys": true
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "planId": "division_plan_1777945587681_d4a67mcivw",
+  "division": "reporting",
+  "title": "Executive Reporting",
+  "createdAt": "2026-05-05T01:46:27.681Z",
+  "ownerAgent": "nexora_command_centre",
+  "mandate": "Create daily operating packs, KPI rollups, exception reports, and executive summaries.",
+  "workers": [
+    "nexora_command_centre",
+    "executive_report_agent"
+  ],
+  "dailyChecklist": [
+    "Review new work orders.",
+    "Process safe queued tasks.",
+    "Hold high-risk work for approval.",
+    "Record progress and metrics.",
+    "Capture learning and blockers."
+  ],
+  "safety": [
+    "Reports are informational and do not authorize commitments."
+  ],
+  "payload": {
+    "cycleId": "loop_daily_1777945587616"
+  }
+}

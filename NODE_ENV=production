@@ -1,0 +1,7 @@
+[polyedge] PAPER-ONLY auto trader startup skipped.
+registerRoutes arg check {
+  httpServerType: 'object',
+  hasListen: 'function',
+  appType: 'function',
+  hasPost: 'function'
+}

@@ -1,0 +1,217 @@
+{
+  "patched": [],
+  "created": []
+}
+30:    optionalCall("workflow_templates", () => require("../automation/localworkflows/nexoraWorkflowTemplates").getNexoraWorkflowStatus()),
+31:    optionalCall("local_scoring", () => require("../automation/scoring/nexoraLocalScoring").getNexoraLocalScoringStatus()),
+32:    optionalCall("security_scaffold", () => require("../automation/security/nexoraLocalSecurityScaffold").getNexoraSecurityScaffoldStatus()),
+No old broken require paths found.
+
+> rest-express@1.0.0 check
+> tsc
+
+
+> rest-express@1.0.0 build
+> tsx script/build.ts
+
+building client...
+vite v7.3.2 building client environment for production...
+transforming...
+
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+✓ 2557 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/public/index.html                                         12.14 kB │ gzip:   3.16 kB
+../dist/public/assets/MarketMap-Dgihpmma.css                      15.04 kB │ gzip:   6.38 kB
+../dist/public/assets/PhantomXLanding-BD2UOy3A.css                16.30 kB │ gzip:   4.20 kB
+../dist/public/assets/index-8XmuTWI-.css                         225.22 kB │ gzip:  33.42 kB
+../dist/public/assets/GoogleReviewsBadge-DvwB4l1N.js               0.12 kB │ gzip:   0.13 kB
+../dist/public/assets/WhatsAppButton-C546Vgpz.js                   0.17 kB │ gzip:   0.15 kB
+../dist/public/assets/TrackingPixels-DZQmTzf1.js                   0.30 kB │ gzip:   0.23 kB
+../dist/public/assets/clsx-B-dksMZM.js                             0.37 kB │ gzip:   0.24 kB
+../dist/public/assets/Capability-DmOo4vuS.js                       0.49 kB │ gzip:   0.31 kB
+../dist/public/assets/textarea-_qjkTek_.js                         0.54 kB │ gzip:   0.35 kB
+../dist/public/assets/input-CfPa24Fm.js                            0.62 kB │ gzip:   0.38 kB
+../dist/public/assets/index-B8k91cqS.js                            0.70 kB │ gzip:   0.42 kB
+../dist/public/assets/useNexoraSignal-B696_9AD.js                  0.76 kB │ gzip:   0.43 kB
+../dist/public/assets/badge-C_chi--p.js                            0.81 kB │ gzip:   0.44 kB
+../dist/public/assets/tooltip-sVKLvA4W.js                          0.86 kB │ gzip:   0.47 kB
+../dist/public/assets/StickyCTA-CS8yg_NA.js                        0.93 kB │ gzip:   0.51 kB
+../dist/public/assets/PaymentCancelled-DPFw_hAc.js                 1.03 kB │ gzip:   0.53 kB
+../dist/public/assets/card-Qm7s7pGe.js                             1.06 kB │ gzip:   0.40 kB
+../dist/public/assets/PaymentSuccess-DAJEl99A.js                   1.14 kB │ gzip:   0.58 kB
+../dist/public/assets/use-toast-38r5jGSB.js                        1.22 kB │ gzip:   0.65 kB
+../dist/public/assets/button-DQ8fx3hG.js                           1.27 kB │ gzip:   0.64 kB
+../dist/public/assets/AdminClientProjects-cdXPuJgP.js              1.33 kB │ gzip:   0.68 kB
+../dist/public/assets/TrustCentre-Cj_1kQ6e.js                      1.54 kB │ gzip:   0.81 kB
+../dist/public/assets/not-found-D8Br9da5.js                        1.57 kB │ gzip:   0.76 kB
+../dist/public/assets/useSEO-BBjvWDak.js                           1.70 kB │ gzip:   0.82 kB
+../dist/public/assets/seriesDisplayNames-CVpIkC7Z.js               1.94 kB │ gzip:   0.81 kB
+../dist/public/assets/ErrorBoundary-CUrXgfex.js                    2.09 kB │ gzip:   0.99 kB
+../dist/public/assets/WorkspaceControlLanding-DQ6QjQoz.js          2.10 kB │ gzip:   0.92 kB
+../dist/public/assets/LeadCapturePopup-CJtKRczU.js                 2.12 kB │ gzip:   1.07 kB
+../dist/public/assets/PhantomXRiskDisclaimer-CF0v6X0w.js           2.12 kB │ gzip:   1.02 kB
+../dist/public/assets/LeaseHawkLanding-Dv3Och8u.js                 2.13 kB │ gzip:   0.93 kB
+../dist/public/assets/SubscriptionTerms-Dd6DtcJs.js                2.20 kB │ gzip:   1.01 kB
+../dist/public/assets/ClientDashboard-s87ifFbA.js                  2.38 kB │ gzip:   1.01 kB
+../dist/public/assets/ClientLogin-CRf3-MUw.js                      2.40 kB │ gzip:   0.99 kB
+../dist/public/assets/PrivacyNotice-RBtvWqZ6.js                    2.48 kB │ gzip:   1.11 kB
+../dist/public/assets/ClientPropertyIntelligence-gGYK-S-J.js       2.52 kB │ gzip:   1.03 kB
+../dist/public/assets/blogImages-BkofQYWq.js                       2.58 kB │ gzip:   0.95 kB
+../dist/public/assets/AdminPropertyListingsImport-BrGdyo4d.js      2.67 kB │ gzip:   1.25 kB
+../dist/public/assets/AdminManufacturerMessaging-DirNmc_5.js       2.96 kB │ gzip:   1.14 kB
+../dist/public/assets/select-CQRgUCYO.js                           3.15 kB │ gzip:   1.14 kB
+../dist/public/assets/ClientOnboarding-BmHhz_SQ.js                 3.18 kB │ gzip:   1.47 kB
+../dist/public/assets/AdminPropertyEnquiries-DeSw9e1G.js           3.22 kB │ gzip:   1.26 kB
+../dist/public/assets/Terms-fAxOxWch.js                            3.23 kB │ gzip:   1.46 kB
+../dist/public/assets/toaster-BOs6es2K.js                          3.24 kB │ gzip:   1.21 kB
+../dist/public/assets/ConciergeContext-BNymwTA6.js                 3.42 kB │ gzip:   1.38 kB
+../dist/public/assets/NexoraJourneyBar-UDDzGR7I.js                 3.43 kB │ gzip:   1.57 kB
+../dist/public/assets/AdminPhantomXCompliance-BzTGV1hS.js          3.67 kB │ gzip:   1.42 kB
+../dist/public/assets/PropertyIntelligence-BRF7UtgQ.js             3.68 kB │ gzip:   1.39 kB
+../dist/public/assets/Checkout-CeXbHCpz.js                         3.78 kB │ gzip:   1.44 kB
+../dist/public/assets/AdminSubscriptions-Cu6kB0Nl.js               3.86 kB │ gzip:   1.28 kB
+../dist/public/assets/AdminEmailNotifications-BV_F2uqW.js          3.95 kB │ gzip:   1.40 kB
+../dist/public/assets/Subscriptions-DuGnHomr.js                    3.98 kB │ gzip:   1.43 kB
+../dist/public/assets/AdminDataLayer-DbXBre9q.js                   4.29 kB │ gzip:   1.57 kB
+../dist/public/assets/ClientPropertyListings-Cl0RNuAT.js           4.53 kB │ gzip:   1.60 kB
+../dist/public/assets/ClientSignup-DjyRbbjO.js                     4.85 kB │ gzip:   1.85 kB
+../dist/public/assets/subscriptionPlans-XGqR4Naa.js                4.86 kB │ gzip:   1.91 kB
+../dist/public/assets/AdminCompetitorQuotes-DwRBqcuY.js            4.95 kB │ gzip:   1.80 kB
+../dist/public/assets/AdminDevStudio-Cv2NdwyF.js                   4.95 kB │ gzip:   1.67 kB
+../dist/public/assets/vendor-router-4EQ9XH7o.js                    5.02 kB │ gzip:   2.45 kB
+../dist/public/assets/FinancePanel-Ib_i8t2a.js                     5.15 kB │ gzip:   1.57 kB
+../dist/public/assets/AdminAutonomyReadiness-DzsoBgh8.js           5.30 kB │ gzip:   1.77 kB
+../dist/public/assets/AdminPropertyIntelligence-C7yFNZyt.js        5.46 kB │ gzip:   1.88 kB
+../dist/public/assets/SendQuote-C10HI7CM.js                        5.50 kB │ gzip:   2.13 kB
+../dist/public/assets/PlatformOverview-Bz9N8jxL.js                 5.81 kB │ gzip:   1.89 kB
+../dist/public/assets/UploadYourQuote-kSRQ2JBX.js                  5.87 kB │ gzip:   1.90 kB
+../dist/public/assets/AdminCustomers-CKo5lNb0.js                   5.88 kB │ gzip:   1.88 kB
+../dist/public/assets/AdminPropertyListings-B04jHRpb.js            5.94 kB │ gzip:   2.00 kB
+../dist/public/assets/Contact-UQWvVtJv.js                          6.02 kB │ gzip:   2.26 kB
+../dist/public/assets/LeadForm-DBADqRPB.js                         6.08 kB │ gzip:   2.55 kB
+../dist/public/assets/ThankYou-COUiLKr9.js                         6.58 kB │ gzip:   2.16 kB
+../dist/public/assets/AdminNexoraAdvanced-nCnjS2tO.js              7.92 kB │ gzip:   2.23 kB
+../dist/public/assets/AdminAIChat-DzbPweWy.js                      7.93 kB │ gzip:   3.11 kB
+../dist/public/assets/PartnerAgreement-CncB177M.js                 8.12 kB │ gzip:   2.80 kB
+../dist/public/assets/AdminProductReviews-DFQ3Iat2.js              9.11 kB │ gzip:   2.96 kB
+../dist/public/assets/Blog-C50dIg8Y.js                             9.25 kB │ gzip:   3.05 kB
+../dist/public/assets/TradeProcurement-DQd7QcY1.js                 9.38 kB │ gzip:   3.05 kB
+../dist/public/assets/About-CFfHJwPp.js                            9.54 kB │ gzip:   3.25 kB
+../dist/public/assets/AdminWorkspaceLearning-CuzD3xuV.js           9.70 kB │ gzip:   2.49 kB
+../dist/public/assets/AdminFollowUpSequences-DHMEaK-Q.js          10.43 kB │ gzip:   3.46 kB
+../dist/public/assets/WorkplaceSolutions-D12X6dyy.js              10.49 kB │ gzip:   3.52 kB
+../dist/public/assets/AdminNexoraMonitor-QP3ka2xE.js              11.24 kB │ gzip:   3.05 kB
+../dist/public/assets/NexoraCopilot-CsZ_XBeR.js                   11.31 kB │ gzip:   4.15 kB
+../dist/public/assets/Catalog-CGAulDaA.js                         11.57 kB │ gzip:   3.79 kB
+../dist/public/assets/AdminPredictionMarkets-DiGQAYig.js          12.07 kB │ gzip:   3.33 kB
+../dist/public/assets/SubmitDeal-Dqf-tm-I.js                      12.15 kB │ gzip:   3.20 kB
+../dist/public/assets/AdminProcurementEngine-B4XOFR_D.js          12.21 kB │ gzip:   3.89 kB
+../dist/public/assets/AdminTerritoryScanner-CYOpBv3G.js           12.31 kB │ gzip:   4.02 kB
+../dist/public/assets/TradeCustomersPortal-BFrn7Yzi.js            12.39 kB │ gzip:   3.79 kB
+../dist/public/assets/Start-D41ulXbf.js                           12.64 kB │ gzip:   4.25 kB
+../dist/public/assets/CaseStudies-CT6rou-R.js                     13.91 kB │ gzip:   4.81 kB
+../dist/public/assets/BlogPost-Bo8woVcY.js                        13.93 kB │ gzip:   4.14 kB
+../dist/public/assets/AdminAuthGate-DIvuUbOl.js                   14.13 kB │ gzip:   4.34 kB
+../dist/public/assets/Products-Ce_tooaJ.js                        15.03 kB │ gzip:   4.58 kB
+../dist/public/assets/QuotePrint-B7BXp8h5.js                      15.16 kB │ gzip:   3.61 kB
+../dist/public/assets/WorkspaceLayout2D-DM5SC_Bm.js               15.68 kB │ gzip:   5.10 kB
+../dist/public/assets/PhantomXLanding-Ca278ZkU.js                 15.75 kB │ gzip:   5.31 kB
+../dist/public/assets/Partners-DpVmlts6.js                        16.53 kB │ gzip:   4.34 kB
+../dist/public/assets/ProposalEngine-BaAtQJwS.js                  16.60 kB │ gzip:   4.17 kB
+../dist/public/assets/WorkplaceStrategy-Biwah1wR.js               16.78 kB │ gzip:   5.09 kB
+../dist/public/assets/ProductDetail-CC-HeiaJ.js                   17.00 kB │ gzip:   5.11 kB
+../dist/public/assets/AdminLeadEngine-Cxq15jmo.js                 17.17 kB │ gzip:   4.46 kB
+../dist/public/assets/BuildingDatabase-B8nDEPUt.js                17.27 kB │ gzip:   4.17 kB
+../dist/public/assets/Testimonials-4OOt6Ma7.js                    17.42 kB │ gzip:   5.91 kB
+../dist/public/assets/CatalogProductDetail-DnC9sLCo.js            17.75 kB │ gzip:   4.93 kB
+../dist/public/assets/PartnerOnboarding-C-sBgtAU.js               17.77 kB │ gzip:   4.09 kB
+../dist/public/assets/AdminDealPipeline-D76dQG0w.js               18.46 kB │ gzip:   4.97 kB
+../dist/public/assets/AdminCatalogStaging-BP5MuMHY.js             18.47 kB │ gzip:   5.03 kB
+../dist/public/assets/PartnerApply-BZvjqdC6.js                    18.53 kB │ gzip:   4.75 kB
+../dist/public/assets/PartnerDashboard-WjXbrj0J.js                19.07 kB │ gzip:   4.77 kB
+../dist/public/assets/utils-Chych8NJ.js                           19.96 kB │ gzip:   6.72 kB
+../dist/public/assets/SpacePlanningEngine-CYT13TX_.js             21.08 kB │ gzip:   6.48 kB
+../dist/public/assets/CityLandingPage-DgeXzooU.js                 21.68 kB │ gzip:   6.58 kB
+../dist/public/assets/AdminWorkspaceStrategy-AYA14NaA.js          21.70 kB │ gzip:   5.04 kB
+../dist/public/assets/FinanceWorkspace-xxHWAtUT.js                22.62 kB │ gzip:   6.71 kB
+../dist/public/assets/FreeLayoutPlan-gxzOqpLT.js                  23.66 kB │ gzip:   6.55 kB
+../dist/public/assets/AdminPartners-DEY9fboQ.js                   24.58 kB │ gzip:   6.32 kB
+../dist/public/assets/AdminSupplierQuotes-10PN767H.js             25.33 kB │ gzip:   5.49 kB
+../dist/public/assets/AdminPartnerNetwork-Cq3wM719.js             25.64 kB │ gzip:   5.49 kB
+../dist/public/assets/AdminQuotes-5WrIcnzD.js                     27.13 kB │ gzip:   6.81 kB
+../dist/public/assets/AdminDealHunter-K3Qb7V1u.js                 27.71 kB │ gzip:   6.81 kB
+../dist/public/assets/index-BalkR9im.js                           30.29 kB │ gzip:   7.55 kB
+../dist/public/assets/AdminSupplierIntelligence-D_dCqnOV.js       32.50 kB │ gzip:   7.56 kB
+../dist/public/assets/AdminProductCommandCentre-CD5scYTU.js       32.55 kB │ gzip:   7.33 kB
+../dist/public/assets/Marketing-Dq6-tJ8t.js                       33.32 kB │ gzip:  10.38 kB
+../dist/public/assets/WorkspaceDesignEngine-DF5tpitW.js           34.54 kB │ gzip:   8.34 kB
+../dist/public/assets/vendor-query-DQQWUzCi.js                    35.72 kB │ gzip:  10.58 kB
+../dist/public/assets/AdminLeads-kXPD0puP.js                      36.29 kB │ gzip:   8.92 kB
+../dist/public/assets/AdminOfficeMovRadar-Bm-F3tYQ.js             37.73 kB │ gzip:   7.90 kB
+../dist/public/assets/vendor-icons-CAou7qXC.js                    38.23 kB │ gzip:  11.96 kB
+../dist/public/assets/Home-VeaUxIC5.js                            38.95 kB │ gzip:  10.04 kB
+../dist/public/assets/QuoteBuilder-Cu4K4eJy.js                    44.32 kB │ gzip:  11.41 kB
+../dist/public/assets/Layout-_cxiHiuc.js                          45.50 kB │ gzip:  14.11 kB
+../dist/public/assets/AdminDashboard-BJR5uZJ9.js                  51.48 kB │ gzip:  10.45 kB
+../dist/public/assets/UploadFloorPlan-DP6zamoC.js                 54.39 kB │ gzip:  12.58 kB
+../dist/public/assets/AdminNexoraCommandCentre-THqujkbc.js        60.94 kB │ gzip:  12.02 kB
+../dist/public/assets/AdminPolyEdgeAetherforge-BMzA52B4.js        71.90 kB │ gzip:  13.32 kB
+../dist/public/assets/AdminPlanningRequests-C63XvKf3.js           71.99 kB │ gzip:  16.13 kB
+../dist/public/assets/vendor-forms-CEBNwvgh.js                    79.78 kB │ gzip:  21.81 kB
+../dist/public/assets/vendor-radix-BiZpgzi5.js                    86.01 kB │ gzip:  26.65 kB
+../dist/public/assets/AdminTradingMonitor-D6OSyt1B.js            108.77 kB │ gzip:  15.72 kB
+../dist/public/assets/vendor-react-CHBbsTLI.js                   165.53 kB │ gzip:  54.65 kB
+../dist/public/assets/MarketMap-vx4veyb2.js                      183.35 kB │ gzip:  50.15 kB
+../dist/public/assets/ClientPolyEdgeAetherforge-TGwfi4W7.js      462.06 kB │ gzip: 122.48 kB
+../dist/public/assets/OfficeWalkthrough-Ce6l3Cot.js              559.00 kB │ gzip: 141.03 kB
+../dist/public/assets/index-DB5qIw3D.js                        1,037.24 kB │ gzip: 302.34 kB
+
+(!) Some chunks are larger than 900 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 11.04s
+building server...
+✘ [ERROR] Could not resolve "../automation/localworkflows/nexoraWorkflowTemplates"
+
+    server/services/intelligence/nexora/autonomy/readiness/nexoraV1Readiness.ts:30:53:
+      30 │ ...> require("../automation/localworkflows/nexoraWorkflowTemplates...
+         ╵              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "../automation/scoring/nexoraLocalScoring"
+
+    server/services/intelligence/nexora/autonomy/readiness/nexoraV1Readiness.ts:31:48:
+      31 │ ...=> require("../automation/scoring/nexoraLocalScoring").getNexor...
+         ╵               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "../automation/security/nexoraLocalSecurityScaffold"
+
+    server/services/intelligence/nexora/autonomy/readiness/nexoraV1Readiness.ts:32:52:
+      32 │ ...> require("../automation/security/nexoraLocalSecurityScaffold")...
+         ╵              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+/home/runner/workspace/node_modules/esbuild/lib/main.js:1467
+  let error = new Error(text);
+              ^
+
+Error: Build failed with 3 errors:
+server/services/intelligence/nexora/autonomy/readiness/nexoraV1Readiness.ts:30:53: ERROR: Could not resolve "../automation/localworkflows/nexoraWorkflowTemplates"
+server/services/intelligence/nexora/autonomy/readiness/nexoraV1Readiness.ts:31:48: ERROR: Could not resolve "../automation/scoring/nexoraLocalScoring"
+server/services/intelligence/nexora/autonomy/readiness/nexoraV1Readiness.ts:32:52: ERROR: Could not resolve "../automation/security/nexoraLocalSecurityScaffold"
+    at failureErrorWithLog (/home/runner/workspace/node_modules/esbuild/lib/main.js:1467:15)
+    at /home/runner/workspace/node_modules/esbuild/lib/main.js:926:25
+    at /home/runner/workspace/node_modules/esbuild/lib/main.js:878:52
+    at buildResponseToResult (/home/runner/workspace/node_modules/esbuild/lib/main.js:924:7)
+    at /home/runner/workspace/node_modules/esbuild/lib/main.js:951:16
+    at responseCallbacks.<computed> (/home/runner/workspace/node_modules/esbuild/lib/main.js:603:9)
+    at handleIncomingPacket (/home/runner/workspace/node_modules/esbuild/lib/main.js:658:12)
+    at Socket.readFromStdout (/home/runner/workspace/node_modules/esbuild/lib/main.js:581:7)
+    at Socket.emit (node:events:524:28)
+    at addChunk (node:internal/streams/readable:561:12) {
+  errors: [Getter/Setter],
+  warnings: [Getter/Setter]
+}
+
+Node.js v20.20.0

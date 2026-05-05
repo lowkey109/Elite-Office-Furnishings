@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_trading_kill_switch",
+  "enabled": false,
+  "reason": "Default paper-only kill switch state.",
+  "updatedAt": "2026-05-04T05:18:38.012Z",
+  "updatedBy": "operator",
+  "safety": {
+    "liveTradingBlocked": true,
+    "privateKeysBlocked": true,
+    "paperOnly": true
+  }
+}

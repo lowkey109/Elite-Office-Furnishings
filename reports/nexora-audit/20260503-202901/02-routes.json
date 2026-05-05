@@ -1,0 +1,4792 @@
+[
+  {
+    "file": "server/routes/dealHunter.ts",
+    "method": "POST",
+    "path": "/:id/dismiss"
+  },
+  {
+    "file": "server/routes/dealHunter.ts",
+    "method": "POST",
+    "path": "/:id/duplicate"
+  },
+  {
+    "file": "server/routes/dealHunter.ts",
+    "method": "POST",
+    "path": "/:id/push-to-pipeline"
+  },
+  {
+    "file": "server/routes/dealHunter.ts",
+    "method": "POST",
+    "path": "/:id/push-to-radar"
+  },
+  {
+    "file": "server/routes/dealHunter.ts",
+    "method": "POST",
+    "path": "/:id/review"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/alerts"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/analytics"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/analytics"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/auth/check"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/auth/login"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/auth/logout"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/autonomy-readiness"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/autonomy-safety/status"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/autonomy/actions/auto-pipeline-qualified-lead"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/autonomy/actions/certify"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/autonomy/actions/outreach-log"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/autonomy/actions/pipeline-store"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/autonomy/actions/prepare-qualified-outreach"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/autonomy/actions/send-qualified-outreach"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/autonomy/actions/simulate-lead-decision"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/autonomy/actions/status"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/autonomy/internal-lead-loop-certify"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/autonomy/internal-lead-loop-certify/latest"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/bookings/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/building-signals"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/building-signals"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/buildings"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/buildings"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/buildings/:id/tenants"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/buildings/seed"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/buildings/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/catalog-staging/batch/:batchId/approve-all"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/catalog-staging/batch/:batchId/detect-duplicates"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/catalog-staging/batches"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/catalog-staging/batches"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/catalog-staging/items"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/catalog-staging/items/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/catalog-staging/items/:id/ai-suggest"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/catalog-staging/items/:id/status"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/catalog-staging/items/bulk"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/catalog-staging/seed-batch"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/catalog/config"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/clients"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/clusters"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/clusters/compute"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/clusters/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/commissions/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/company-intelligence"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/company-intelligence/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/admin/company-intelligence/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/company-intelligence/:id/extract-contacts"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/company-intelligence/sync"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/company-visitors"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/company-visitors"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/company-visitors/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/company-visitors/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/config/mode"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/config/mode"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/contact-discovery/run"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/contact-discovery/stats"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/customer-competitor-quotes"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/customer-competitor-quotes/:id/file"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/data-layer/migrate-local-json"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/data-layer/status"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/data-layer/stores"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/deal-closing/stats"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/deal-forecast"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/deal-forecast"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/deal-hunter/run"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/deal-hunter/signals"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/deal-hunter/signals/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/admin/deal-hunter/signals/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/deal-hunter/signals/:id/channel-recommendation"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/deal-hunter/signals/:id/dismiss"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/deal-hunter/signals/:id/mark-duplicate"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/deal-hunter/signals/:id/push-to-pipeline"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/deal-hunter/signals/:id/push-to-radar"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/deal-hunter/signals/:id/queue-outreach"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/deal-hunter/signals/:id/review"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/deal-hunter/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/deal-hunter/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/deal-intelligence"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/deal-intelligence/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/admin/deal-intelligence/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/deal-intelligence/:id/outcome"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/deal-intelligence/analyse-all"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/deal-intelligence/by-related/:relatedId"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/deal-intelligence/summary"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/follow-up-sequences"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/follow-up-sequences"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/follow-up-sequences/:id/mark-replied"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/follow-up-sequences/:id/pause"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/follow-up-sequences/:id/resume"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/follow-up-sequences/:id/stop"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/heatmap-data"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/import-leads"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/intelligence/blog-articles"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/intelligence/blog-articles/:id/status"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/intelligence/dashboard"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/intelligence/graph-stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/intelligence/health"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/intelligence/issues"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/intelligence/issues/:id/status"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/intelligence/job-queue"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/intelligence/jobs"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/intelligence/jobs"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/intelligence/jobs/trigger"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/intelligence/lease-expiry-opps"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/intelligence/reports"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/intelligence/reports/:id/status"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/intelligence/source-health"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/intelligence/source/:id/toggle"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/intelligence/trends"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/intelligence/trigger-scan"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/lead-engine/leads"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/lead-engine/leads"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/lead-engine/scrape/linkedin"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/lead-engine/scrape/maps"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/lead-engine/seed"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/lead-engine/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/lead-engine/stats"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/lead-templates"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/lead-templates"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PUT",
+    "path": "/api/admin/lead-templates/:type"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/leads/:id/outreach"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/leads/:id/outreach/:outreachId/approve"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/leads/:id/outreach/compose"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/leads/:id/pipeline"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/leads/pipeline"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/leads/pipeline"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/lease-signal-scan"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/lease-signal-scan"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/leasehawk/overview"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/leases"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/leases"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/market-intelligence"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/market-intelligence"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/nexora/monitor"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/nexora/monitor"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/nexora/monitor"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/nexora/partner-intelligence"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/nexora/recovery-analyze"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/nexora/recovery-policy"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/notifications/email-log"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/notifications/email-log"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/notifications/ping"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/notifications/trial-ending-reminders"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/notifications/trial-ending-reminders"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/office-move-radar"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/office-move-radar"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/office-move-radar"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/office-move-radar"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/office-move-radar/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/office-move-radar/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/admin/office-move-radar/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/office-move-radar/:id/generate-outreach"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/office-move-radar/:id/push-to-pipeline"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/office-move-radar/linkedin-intake"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/office-move-radar/scan"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/office-move-radar/scan-all"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/office-move-radar/scan-jobs"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/office-move-radar/scan-jobs"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/office-move-radar/scan-predictive"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/office-move-radar/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/office-move-radar/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/opportunity-intelligence"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/opportunity-intelligence/rescore-all"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/outreach/audit"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/outreach/backfill-templates"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/outreach/certify-internal-only"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/outreach/create-for-top-opportunities"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/outreach/debug"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/outreach/flush-send"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/outreach/job-locks"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/outreach/needs-contact"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/outreach/process-followups"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/outreach/retry/:threadId"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/outreach/run-contact-discovery"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/outreach/safety-stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/outreach/safety-stats"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/outreach/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/outreach/stats"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/outreach/suppressions"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/outreach/suppressions"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/outreach/suppressions"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/admin/outreach/suppressions/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/outreach/trigger-for-opportunity"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/partner-network/deals"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/partner-opportunities"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/partner-opportunities/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/partner-opportunities/:id/link-deal"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/partner-opportunities/:id/notify"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/partners"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/partners/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/partners/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/admin/partners/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/partners/:id/agreement/override"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/partners/:id/agreement/send"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/partners/:id/approve"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/partners/:id/score"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/partners/:id/suspend"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/partners/commissions"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/partners/leaderboard"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/partners/nudge-targets"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/partners/referrals"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/partners/referrals/:id/events"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/partners/route-opportunity"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/partners/route-radar/:radarId"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/partners/score-all"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/partners/settings"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/partners/settings"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/partners/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/partners/summary"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/phantomx/applications"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/phantomx/applications/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/phantomx/feedback"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/phantomx/intelligence"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/phantomx/learn"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/phantomx/learn"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/phantomx/learning"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/phantomx/report-card"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/phantomx/scan-polymarket"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/phantomx/superbrain"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/pipeline-stats"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/planning-requests"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/planning-requests"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/planning-requests/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/planning-requests/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/admin/planning-requests/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/planning-requests/:id/revise"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/planning-requests/:id/status"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/planning-requests/backfill-scores"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/polyedge/aetherforge"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/polyedge/heartbeat"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/polyedge/learning"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/polyedge/lineage"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/polyedge/promotion-readiness"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/polyedge/replay/run"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/polyedge/replay/status"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/prediction-markets"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/procurement/calculate"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/procurement/email-outbox"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/procurement/email-outbox/send"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/procurement/installers"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/procurement/manufacturers"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/procurement/quote-requests"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/procurement/quote-requests"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/procurement/quote-requests/:id"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/procurement/quote-requests/:id/approved-manufacturer-rfqs"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/procurement/quote-requests/:id/customer-quote"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/procurement/quote-requests/:id/customer-quote/html"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/procurement/quote-requests/:id/customer-quote/pdf"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/procurement/quote-requests/:id/installer-response"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/procurement/quote-requests/:id/installer-rfq"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/procurement/quote-requests/:id/manufacturer-rfq"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/procurement/quote-requests/:id/send-customer-quote"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/procurement/quote-requests/:id/shipping-agent-rfq"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/procurement/quote-requests/:id/supplier-response"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/procurement/send-audit"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/procurement/whatsapp-inbound"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/procurement/whatsapp-inbound/parse"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/procurement/whatsapp-outbox"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/procurement/whatsapp-outbox/release-one"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/procurement/whatsapp-outbox/send"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/product-categories"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/product-categories"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/product-categories/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/admin/product-categories/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/product-categories/:id/generate-seo"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/product-reviews"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/product-reviews/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/admin/product-reviews/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/products"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/products/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/products/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/products/:id/approve"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/products/:id/publish"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/products/:id/regenerate"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/products/:id/reject"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/products/:id/unpublish"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/products/bulk-publish"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/products/create-manual"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/products/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/profit/compare"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/profit/cost-stack"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/profit/layout-patterns"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/profit/records"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/profit/records"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/profit/records/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/profit/supplier-mix"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/property-enquiries"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/property-enquiries/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/property-intelligence"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/property-intelligence/opportunities"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/property-intelligence/opportunities"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/property-intelligence/opportunities/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/property-intelligence/opportunities/:id/generate-outreach"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/property-intelligence/opportunities/:id/push-to-radar"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/property-intelligence/scan-all"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/property-intelligence/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/property-listings"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/property-listings/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/property-listings/import-csv"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/property-listings/manual"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/property-listings/seed-samples"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/prospect"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/prospected-leads"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/prospects"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/admin/prospects/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/prospects/:id/status"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/prospects/adapters"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/prospects/batch-scan"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/quotes"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/quotes"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/quotes"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/quotes/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/quotes/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/admin/quotes/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/quotes/:id/send"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/referrals"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/referrals"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/admin/referrals/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/referrals/:id/status"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/relocation-signals"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/relocation-signals/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/admin/relocation-signals/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/relocation-signals/:id/push-to-pipeline"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/relocation-signals/:id/route-to-partners"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/relocation-signals/generate"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/relocation-signals/market-intelligence"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/revenue-loop/simulate"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/revenue-loop/today"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/revenue-loop/trigger-dead-loop"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/revenue-loop/trigger-engine"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/revenue-shares"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/revenue/invoices"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/revenue/payments"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/revenue/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/revenue/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/revenue/webhooks"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/rfq"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/rfq"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/rfq/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/rfq/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/admin/rfq/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/rfq/:id/generate-emails"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/rfq/:id/responses"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/rfq/auto-generate-furniture"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/rfq/responses/:responseId"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/admin/rfq/responses/:responseId"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/sales-psychology/analyze"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/sales-psychology/follow-up-plan"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/sales-psychology/parse-supplier-reply"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/sales-psychology/playbook"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/admin/sales-psychology/quote-readiness"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/seed-real-leads"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/strategy-bookings"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/strategy-bookings"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/strategy-bookings/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/supplier-pricing"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/supplier-pricing/record"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/supplier-profiles"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/supplier-profiles"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/supplier-profiles/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/admin/supplier-profiles/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/supplier-quotes"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/supplier-quotes"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/supplier-quotes/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/admin/supplier-quotes/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/supplier-quotes/:id/status"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/support/messages"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/support/messages/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/tenants"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/tenants"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/territories"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/territories"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/territories"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/territories/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/admin/territories/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/test-email"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/adaptation"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/autonomous"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/capital-scaling"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/compliance"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/cost-model"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/execution"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/institutional"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/learning"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/live-bridge"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/meta-strategy"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/monitor"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/monitor"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/monitor"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/monitor"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/multi-factor"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/observability"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/trading/paper/reset"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/trading/paper/start"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/paper/state"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/trading/paper/stop"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/trading/paper/tick"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/portfolio"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/regime"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/stress"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/trading/timing"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/uploads"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/uploads/register"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/workspace-learning"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/workspace-learning/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/workspace-learning/:id/conversion"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/workspace-learning/stats/summary"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/workspace-strategy"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/workspace-strategy/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/admin/workspace-strategy/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/admin/workspace-strategy/generate"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/admin/workspace-strategy/learning-insights"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/ai/draft-manufacturer-message"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/ai/manufacturer-outreach"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/approvals"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/approvals/:id/approve"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/approvals/:id/reject"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/approvals/check"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/approvals/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/bookings/create-event"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/bookings/create-link"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/bookings/status"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/bookings/webhook"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/catalog/categories"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/catalog/config"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/catalog/metadata"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/catalog/products"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/catalog/products/:sku"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/catalog/series"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/chat"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/chat/intelligence-context"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/chat/vision"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/client/auth/login"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/client/auth/signup"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/client/dashboard"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/client/leasehawk/actions"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/client/leasehawk/export.csv"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/client/leasehawk/opportunities"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/client/leasehawk/report"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/client/leasehawk/territories"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/client/me"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/client/onboarding/checklist"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/client/onboarding/complete"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/client/phantomx/applications"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/client/phantomx/applications"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/client/phantomx/compliance-rules"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/client/phantomx/paper"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/client/plan-access"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/client/polyedge/aetherforge"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/client/polyedge/learning"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/client/polyedge/lineage"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/client/polyedge/promotion-readiness"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/client/projects"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/client/property-enquiries"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/client/property-listings"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/client/property-listings/:id/enquiry"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/client/saved-listings"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/client/saved-listings"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/client/saved-listings/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/client/subscription/checkout"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/client/subscription/checkout-status/:plan"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/client/subscription/checkout-status/:plan"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/client/support/messages"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/client/support/messages"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/client/uploads/metadata"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/commissions"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/commissions"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/commissions/:id/approve"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/commissions/:id/mark-paid"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/commissions/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/contacts/:id/mark-primary"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/contacts/discovery/:companyId"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/contacts/discovery/run"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/customer/competitor-quote/upload"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/dev-studio/auto-fix"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/dev-studio/files/list"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/dev-studio/files/read"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/dev-studio/files/write"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/dev-studio/logs"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/dev-studio/terminal"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/enquiries"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/estimate"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/estimate/contact-update"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/finance-lead"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/graph/building/:buildingId/companies"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/graph/company/:companyId/network"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/graph/neighbors/:entityType/:entityId"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/health"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/intelligence/ingest-lead"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/leads"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/leads"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/leads"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/leads/import-csv"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/leads/preview-csv"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/manufacturer-messages"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/manufacturers"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/building-risk"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/buildings"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/buildings-structured"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/clusters"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/contact-coverage"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/demand"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/demand-zones"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/deposits-paid"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/follow-up-due"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/graph-connections"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/hierarchy-clusters"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/industry-density"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/lease-expiries"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/leases-expiry"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/meetings-booked"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/movements"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/opportunities"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/outreach-ready"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/payments-pending"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/revenue-zones"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/signals"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/tenant-movement"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/tenants"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/map/layers/zones"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/market-map"
+  },
+  {
+    "file": "server/marketing.ts",
+    "method": "POST",
+    "path": "/api/marketing/facebook"
+  },
+  {
+    "file": "server/marketing.ts",
+    "method": "POST",
+    "path": "/api/marketing/generate"
+  },
+  {
+    "file": "server/marketing.ts",
+    "method": "POST",
+    "path": "/api/marketing/instagram"
+  },
+  {
+    "file": "server/marketing.ts",
+    "method": "POST",
+    "path": "/api/marketing/send-email"
+  },
+  {
+    "file": "server/marketing.ts",
+    "method": "GET",
+    "path": "/api/marketing/status"
+  },
+  {
+    "file": "server/marketing.ts",
+    "method": "POST",
+    "path": "/api/marketing/telegram"
+  },
+  {
+    "file": "server/marketing.ts",
+    "method": "POST",
+    "path": "/api/marketing/twitter"
+  },
+  {
+    "file": "server/marketing.ts",
+    "method": "POST",
+    "path": "/api/marketing/whatsapp"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/academy/module/create"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/academy/training/queue"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/admin/controls"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/admin/controls"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/advanced/approvals/:approvalId/approve"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/advanced/command/snapshot"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/advanced/delegations"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/advanced/empire/cycle"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/advanced/graph/edge"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/advanced/messages"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/advanced/objectives"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/advanced/status"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/advanced/status"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/advanced/status"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/advanced/tasks"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/advanced/tasks"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/advanced/tasks/run-safe"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/advanced/tasks/run-safe"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/advanced/workers/upsert"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/agents/run"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/alerts"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/alpha-orchestrator/resilient-run"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/alpha-orchestrator/run"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/alpha-orchestrator/status"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/audit/decisions"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy-executor/bulk-safe-execution"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy-executor/execute-safe-task"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/autonomy-executor/log"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/autonomy-foundation/approvals"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy-foundation/daily-report"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy-foundation/heartbeat"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/autonomy-foundation/heartbeats"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/autonomy-foundation/reports"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy-foundation/run-safe-cycle"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/autonomy-foundation/status"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy-foundation/task"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/autonomy-foundation/tasks"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy-runner/config"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/autonomy-runner/status"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy-runner/tick"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy-supervisor/run"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/autonomy-supervisor/runs"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/autonomy-supervisor/status"
+  },
+  {
+    "file": "src/nexora/autonomy/routes/nexoraDurableAutonomyRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy/approvals/:approvalId/approve"
+  },
+  {
+    "file": "src/nexora/autonomy/routes/nexoraDurableAutonomyRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy/approvals/:approvalId/reject"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy/decay/run"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/autonomy/hands-free-readiness"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/autonomy/leaderboard"
+  },
+  {
+    "file": "src/nexora/autonomy/routes/nexoraDurableAutonomyRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy/loop/run"
+  },
+  {
+    "file": "src/nexora/autonomy/routes/nexoraDurableAutonomyRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy/loop/start"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/autonomy/memory"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/autonomy/operating-plan"
+  },
+  {
+    "file": "src/nexora/autonomy/routes/nexoraDurableAutonomyRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy/persistence/seed"
+  },
+  {
+    "file": "src/nexora/autonomy/routes/nexoraDurableAutonomyRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/autonomy/persistence/snapshot"
+  },
+  {
+    "file": "src/nexora/autonomy/routes/nexoraDurableAutonomyRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/autonomy/persistence/status"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy/reinforcement/run"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy/self-critique"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/autonomy/status"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy/store-memory"
+  },
+  {
+    "file": "src/nexora/autonomy/routes/nexoraDurableAutonomyRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy/tasks"
+  },
+  {
+    "file": "src/nexora/autonomy/routes/nexoraDurableAutonomyRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy/tasks/enqueue"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/autonomy/update-ranking"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/autopilot/cycle"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/autopilot/incidents/detect"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/autopilot/kpi/snapshot"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/autopilot/pipeline-foreman"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/autopilot/register-workers"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/autopilot/scenario"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/autopilot/status"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/background-status"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/backtest/memory/run"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/backtest/memory/status"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/backtest/simple"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/business/pipeline"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/business/pipeline/bulk"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/candidates/allowlist"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/candidates/allowlist/prune"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/candidates/allowlist/refresh"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/candidates/discovery-v2"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/candidates/hunt"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/candidates/watchlist-v3"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/cockpit/burst"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/cockpit/burst"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/cockpit/executive"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/cockpit/executive"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/cockpit/status"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/cockpit/status"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/cockpit/status"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/command-centre"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/nexora/copilot"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/crm/followup/draft"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/crm/lead/score"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/crm/pipeline/queue"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/db/env"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/db/health-gate"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/db/maintenance"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/db/prune-small"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/db/safety"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/decisions"
+  },
+  {
+    "file": "src/nexora/empire/routes/nexoraEmpireRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/empire/cycle/run"
+  },
+  {
+    "file": "src/nexora/empire/routes/nexoraEmpireRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/empire/delegations"
+  },
+  {
+    "file": "src/nexora/empire/routes/nexoraEmpireRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/empire/memory-graph/edges"
+  },
+  {
+    "file": "src/nexora/empire/routes/nexoraEmpireRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/empire/messages"
+  },
+  {
+    "file": "src/nexora/empire/routes/nexoraEmpireRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/empire/messages/:messageId/action"
+  },
+  {
+    "file": "src/nexora/empire/routes/nexoraEmpireRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/empire/objectives"
+  },
+  {
+    "file": "src/nexora/empire/routes/nexoraEmpireRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/empire/seed"
+  },
+  {
+    "file": "src/nexora/empire/routes/nexoraEmpireRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/empire/status"
+  },
+  {
+    "file": "src/nexora/empire/routes/nexoraEmpireRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/empire/strategy/cycles"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/execution/adapter-status"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/execution/audit-log"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/execution/balance-check"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/execution/compliance-geofence"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/execution/duplicate-check"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/execution/emergency-stop"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/execution/emergency-stop"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/execution/hard-loss-limits"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/execution/manual-approval"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/execution/preflight"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/execution/promotion-gate"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/execution/queue"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/execution/queue-paper"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/exploration/refresh"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/export/create"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/export/get"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/export/list"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/feeds/combine-probabilities"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/feeds/normalize"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/feeds/status"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/filebus/delay"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/filebus/enqueue"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/filebus/messages"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/filebus/process"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/filebus/purge"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/filebus/status"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/finance/quote/analyse"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/finance/quote/queue"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/finance/revenue/forecast"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/financial-summary"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/follow-up-queue"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/governor/classify"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/governor/cycle"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/governor/queue"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/governor/sla-watchdog"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/governor/worker-evolution"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/health"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/history"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/indicators"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/indicators/snapshot"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/intelligence/health"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/knowledge"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/learning/aggressive-paper-reset"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/learning/aggressive-paper-reset"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/learning/aggressive-rotation"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/learning/boost-outcomes"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/learning/decayed-performance"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/learning/demote-bad-probes"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/learning/fast-cycle"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/learning/force-paper-cycle"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/learning/health"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/learning/policy"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/learning/pressure"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/learning/seed-aggressive-probes"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/learning/summary"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/live/report"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/live/status"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/live/status"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/local-approvals/create"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/local-approvals/decide"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/local-approvals/list"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/local-business/status"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/local-crm/lead"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/local-crm/lead/upsert"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/local-crm/leads"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/local-projects/create"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/local-projects/list"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/local-projects/stage"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/local-quotes/create"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/local-quotes/list"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/local-quotes/quote"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/local-suppliers/list"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/local-suppliers/upsert"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/nexora/loop/config"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/nexora/loop/start"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/loop/status"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/nexora/loop/stop"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/maintenance/console"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/market-candles/coverage"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/market-candles/recent"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/market-candles/sync"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/math/genius-core"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/mega/register-workers"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/mega/status"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/mega/status"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/mega/status"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/memory/clear"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/memory/events"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/mission/cadence/create"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/mission/execute"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/mission/register-workers"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/mission/runbook/generate"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/mission/runbook/queue"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/mission/status"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/modules"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/modules/:key"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/nexora/modules/policy-preview"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/observations/watchlist"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/observations/watchlist/record"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/office/receptionist/leads"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/office/receptionist/message"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/office/receptionist/status"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/operating-snapshot"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/opportunities/top"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/outcomes"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/nexora/outcomes"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/outcomes/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/nexora/outreach/:id/approve"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/nexora/outreach/approve-batch"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/outreach/pending"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/ping"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/pipeline"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/pipeline/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/nexora/pipeline/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "DELETE",
+    "path": "/api/nexora/pipeline/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/nexora/pipeline/:id/auto-quote"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/pipeline/refresh"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/platform/summary"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/portfolio/brain"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/portfolio/heat"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/portfolio/kill-switch"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/prediction-market/advanced-core"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/prediction-market/auto-paper-loop"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/prediction-market/bayesian-update"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/prediction-market/calibration"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/prediction-market/calibration-memory"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/prediction-market/catalyst-calendar"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/prediction-market/correlation-risk"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/prediction-market/edge"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/prediction-market/fair-probability"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/prediction-market/fallback-stack"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/prediction-market/order-book-sim"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/prediction-market/paper-journal"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/prediction-market/paper-journal"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/prediction-market/record-paper-signal"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/prediction-market/resolution-risk"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/prediction-market/self-critique"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/prediction-market/simulate-outcome"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/prediction-market/source-reliability"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/prediction-market/strategy"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/prediction-market/strategy-leaderboard"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/prediction-market/use-strategy"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/priority-actions"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/probes/clean-allowlist"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/probes/promote-winning"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/probes/quality"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/project/plan"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/project/queue"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/promotion/gate"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/promotion/live-sandbox-gate"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/promotion/proof"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/quality/health"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/quality/quarantine"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/quality/quarantine/refresh"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/quantum/calibration"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/quantum/regime-detect"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/quantum/source-reliability"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/quantum/status"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/recovery/candidates"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/recovery/health"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/regime"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/regime/snapshot"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/research-probes"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/research-probes/safety"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/resilience/capture"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/resilience/cycle"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/resilience/journal"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/resilience/replay"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/resilience/status"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/resilience/task"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/nexora/run"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/runtime-state"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/runtime/db-check"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/runtime/diagnostic"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/runtime/test-task"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/scanner/controlled-memory"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/scanner/memory-safe"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/scanner/prediction-markets"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/scanner/status"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/scheduler/schedules"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/scheduler/schedules"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "PATCH",
+    "path": "/api/nexora/scheduler/schedules"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/scheduler/tick"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/setup-promotions"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/setup-promotions/refresh"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/signals/summary"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/simulation/monte-carlo"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/simulation/shadow-execution"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/simulation/status"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/snapshot/create"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/snapshot/get"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/snapshot/list"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/strategy/status"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/superbot/safety-core"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/superbot/validate-trade"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/supplier/matrix"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/supplier/rfq/draft"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/supplier/sweep"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/supreme/capability-graph/build"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/supreme/dance/generate"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/supreme/dance/queue"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/supreme/dance/rehearse"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/supreme/decision/record"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/supreme/matrix/execute"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/supreme/matrix/execute"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/supreme/red-team/run"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts",
+    "method": "POST",
+    "path": "/api/nexora/supreme/register-workers"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/supreme/status"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/supreme/status"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts",
+    "method": "GET",
+    "path": "/api/nexora/supreme/status"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/nexora/thresholds/current"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/nexora/worker-factory/build"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/worker-factory/workers"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/nexora/workers/registry"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/outreach/approve"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/outreach/follow-ups-due"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/outreach/generate"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/outreach/pause"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/outreach/ready"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/outreach/resume"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/outreach/send"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/outreach/stop"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/outreach/threads"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/outreach/threads/:id"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/partner-dashboard/:email"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/partner-opportunities/:id/respond"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/partner/agreement/:token"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/partner/agreement/:token/sign"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/partners"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/partners/:id/commissions"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/partners/:id/referrals"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/partners/apply"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/partners/apply/:id/sign"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/partners/referrals"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/payments/create-deposit-link"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/payments/create-invoice"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/payments/create-link"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/payments/quote/:quoteId"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/payments/reconcile"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/payments/resend-invoice"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/payments/resend-link"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/payments/simulate-webhook"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/payments/status"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/payments/stripe/webhook"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/planning-requests"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/planning-requests/:id/checkout"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/planning-requests/:id/layout"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/planning-requests/:id/verify-payment"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/polyedge/action-monitor"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/polyedge/additive-real-monitors"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/polyedge/auto-paper/start"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/polyedge/auto-paper/start-fast"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/polyedge/auto-paper/status"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/polyedge/auto-paper/stop"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/polyedge/auto-paper/tick"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/polyedge/capital/add"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/polyedge/capital/reset-paper"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/polyedge/capital/status"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/polyedge/heartbeat"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/polyedge/learning/dataset"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/polyedge/learning/score-candidate"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/api/polyedge/trader-monitors"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/prediction-markets/opportunities"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/pricing/calculate"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/products"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/products/:sku/reviews"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/products/:sku/reviews"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/products/:sku/size-variants"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/products/by-supplier/:supplierId"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/products/categories"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/products/curated"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/products/curated/:sku"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/products/grouped"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/products/search"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/products/series/:series"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/products/sku/:sku"
+  },
+  {
+    "file": "server/routes/walkinshaw.ts",
+    "method": "POST",
+    "path": "/api/promo/walkinshaw/admin/deal"
+  },
+  {
+    "file": "server/routes/walkinshaw.ts",
+    "method": "GET",
+    "path": "/api/promo/walkinshaw/config"
+  },
+  {
+    "file": "server/routes/walkinshaw.ts",
+    "method": "GET",
+    "path": "/api/promo/walkinshaw/dashboard"
+  },
+  {
+    "file": "server/routes/walkinshaw.ts",
+    "method": "POST",
+    "path": "/api/promo/walkinshaw/enter"
+  },
+  {
+    "file": "server/routes/walkinshaw.ts",
+    "method": "GET",
+    "path": "/api/promo/walkinshaw/terms"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/proposals"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/proposals/:id/html"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/proposals/:id/status"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/proposals/generate"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/proposals/pipeline-stages"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/proposals/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/quotes/:id/pipeline-stage"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "PATCH",
+    "path": "/api/quotes/:id/pricing"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/referrals/:id/assign"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/referrals/:id/commission/calc"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/referrals/:id/commission/pay"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/referrals/:id/mark-lost"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/referrals/:id/mark-paid"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/referrals/:id/mark-won"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/referrals/:id/score"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/referrals/:id/status"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/strategy-bookings"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/strategy-bookings/available"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/suppliers"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/system/run"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/track/pageview"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/track/visitor-session"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/unsubscribe"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "POST",
+    "path": "/api/webhooks/procurement/whatsapp"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/webhooks/stripe"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/api/webhooks/whatsapp"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/webhooks/whatsapp"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/api/whatsapp/send"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/llms.txt"
+  },
+  {
+    "file": "server/index.ts",
+    "method": "GET",
+    "path": "/polyedge/aetherforge"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/robots.txt"
+  },
+  {
+    "file": "server/routes/dealHunter.ts",
+    "method": "POST",
+    "path": "/scan"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "GET",
+    "path": "/sitemap.xml"
+  },
+  {
+    "file": "server/routes/dealHunter.ts",
+    "method": "GET",
+    "path": "/stats"
+  },
+  {
+    "file": "server/routes.ts",
+    "method": "POST",
+    "path": "/webhook/whatsapp"
+  },
+  {
+    "file": "server/services/intelligence/communications/whatsappService.ts",
+    "method": "POST",
+    "path": "/webhook/whatsapp"
+  }
+]

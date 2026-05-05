@@ -1,0 +1,5 @@
+
+> rest-express@1.0.0 check
+> tsc
+
+server/services/intelligence/nexora/autonomy/moondevstrategyimport/nexoraMoonDevStrategyBacktestImporter.ts(267,27): error TS2339: Property 'bestExplicit' does not exist on type '{ percentValues: number[]; moneyValues: number[]; bestPercent: number | null; worstPercent: number | null; sharpe: number | null; drawdown: number | null; winRate: number | null; }'.

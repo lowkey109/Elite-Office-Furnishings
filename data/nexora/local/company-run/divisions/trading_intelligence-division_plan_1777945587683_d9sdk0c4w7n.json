@@ -1,0 +1,29 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "planId": "division_plan_1777945587683_d9sdk0c4w7n",
+  "division": "trading_intelligence",
+  "title": "Trading Intelligence",
+  "createdAt": "2026-05-05T01:46:27.683Z",
+  "ownerAgent": "phantom_x_paper_agent",
+  "mandate": "Paper/sandbox trading intelligence, signal research, and risk observation only.",
+  "workers": [
+    "phantom_x_paper_agent",
+    "polymarket_paper_agent"
+  ],
+  "dailyChecklist": [
+    "Review new work orders.",
+    "Process safe queued tasks.",
+    "Hold high-risk work for approval.",
+    "Record progress and metrics.",
+    "Capture learning and blockers."
+  ],
+  "safety": [
+    "No live trading.",
+    "No private keys.",
+    "No real orders."
+  ],
+  "payload": {
+    "cycleId": "loop_daily_1777945587616"
+  }
+}

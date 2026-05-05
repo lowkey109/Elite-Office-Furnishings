@@ -1,0 +1,29 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "planId": "division_plan_1777859122352_3jm2xmvxjij",
+  "division": "operations",
+  "title": "Operations and Resilience",
+  "createdAt": "2026-05-04T01:45:22.352Z",
+  "ownerAgent": "nexora_operations_agent",
+  "mandate": "Maintain local/offline operation, storage guard, fallback journal, route wiring, recovery packs, and scheduler.",
+  "workers": [
+    "nexora_operations_agent",
+    "storage_guard_agent",
+    "maintenance_planner_agent"
+  ],
+  "dailyChecklist": [
+    "Review new work orders.",
+    "Process safe queued tasks.",
+    "Hold high-risk work for approval.",
+    "Record progress and metrics.",
+    "Capture learning and blockers."
+  ],
+  "safety": [
+    "No deploy while Postgres is full.",
+    "Dry-run first for recovery and migration."
+  ],
+  "payload": {
+    "cycleId": "loop_daily_1777859122335"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "objectiveId": "objective_1777859122345_dyc4f1srhzp",
+  "division": "operations",
+  "title": "Run DB-independent while Postgres is full.",
+  "description": "Nexora company objective",
+  "metric": "fallback_safe_operations",
+  "target": "healthy",
+  "priority": 95,
+  "status": "active",
+  "createdAt": "2026-05-04T01:45:22.345Z",
+  "payload": {}
+}

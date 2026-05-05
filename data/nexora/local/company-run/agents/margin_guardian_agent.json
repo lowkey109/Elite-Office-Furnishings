@@ -1,0 +1,13 @@
+{
+  "agentId": "margin_guardian_agent",
+  "worker": "margin_guardian_agent",
+  "division": "finance",
+  "title": "Margin Guardian Agent",
+  "status": "active",
+  "nexoraBrain": true,
+  "canCommitExternally": false,
+  "createdAt": "2026-05-05T01:46:27.634Z",
+  "safety": [
+    "High-value or low-margin quotes require approval."
+  ]
+}

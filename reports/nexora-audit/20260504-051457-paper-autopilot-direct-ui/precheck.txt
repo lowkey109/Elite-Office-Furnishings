@@ -1,0 +1,13 @@
+
+> rest-express@1.0.0 check
+> tsc
+
+server/services/intelligence/nexora/autonomy/paperautopilot/nexoraPaperAutopilotEvidenceEngine.ts(46,32): error TS2307: Cannot find module '../swarmruntime/nexoraSwarmConsensusRuntime' or its corresponding type declarations.
+server/services/intelligence/nexora/autonomy/paperautopilot/nexoraPaperAutopilotEvidenceEngine.ts(129,22): error TS2339: Property 'fill' does not exist on type '{ ok: boolean; nexoraBrain: boolean; service: string; blocked: boolean; reason: string; intent: any; } | { ok: boolean; nexoraBrain: boolean; fill: { ok: boolean; nexoraBrain: boolean; service: string; ... 11 more ...; safety: { ...; }; }; }'.
+  Property 'fill' does not exist on type '{ ok: boolean; nexoraBrain: boolean; service: string; blocked: boolean; reason: string; intent: any; }'.
+server/services/intelligence/nexora/autonomy/paperautopilot/nexoraPaperAutopilotEvidenceEngine.ts(169,24): error TS2339: Property 'fill' does not exist on type '{ ok: boolean; nexoraBrain: boolean; service: string; blocked: boolean; reason: string; intent: any; } | { ok: boolean; nexoraBrain: boolean; fill: { ok: boolean; nexoraBrain: boolean; service: string; ... 11 more ...; safety: { ...; }; }; }'.
+  Property 'fill' does not exist on type '{ ok: boolean; nexoraBrain: boolean; service: string; blocked: boolean; reason: string; intent: any; }'.
+server/services/intelligence/nexora/autonomy/paperautopilot/nexoraPaperAutopilotEvidenceEngine.ts(169,45): error TS2339: Property 'status' does not exist on type '{ ok: boolean; nexoraBrain: boolean; service: string; blocked: boolean; reason: string; intent: any; } | { ok: boolean; nexoraBrain: boolean; fill: { ok: boolean; nexoraBrain: boolean; service: string; ... 11 more ...; safety: { ...; }; }; }'.
+  Property 'status' does not exist on type '{ ok: boolean; nexoraBrain: boolean; service: string; blocked: boolean; reason: string; intent: any; }'.
+server/services/intelligence/nexora/autonomy/paperautopilot/nexoraPaperAutopilotEvidenceEngine.ts(170,27): error TS2339: Property 'settlement' does not exist on type '{ ok: boolean; nexoraBrain: boolean; error: string; fillId: string; intentId: any; settlement?: undefined; } | { ok: boolean; nexoraBrain: boolean; settlement: { ok: boolean; nexoraBrain: boolean; ... 12 more ...; settledAt: string; }; error?: undefined; fillId?: undefined; intentId?: undefined; } | { ...; }'.
+  Property 'settlement' does not exist on type '{ ok: boolean; nexoraBrain: boolean; skipped: boolean; reason: string; fill: { ok: boolean; nexoraBrain: boolean; service: string; blocked: boolean; reason: string; intent: any; } | { ok: boolean; nexoraBrain: boolean; fill: { ...; }; }; }'.

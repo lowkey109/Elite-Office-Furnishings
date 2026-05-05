@@ -1,0 +1,51 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_moondev_imported_strategy",
+  "strategyId": "moondev_strategy_1777911884644_9tui5kh0ty",
+  "name": "SwarmAgent",
+  "sourceFile": "research/moondev-selected/src/agents/swarm_agent.py",
+  "relativePath": "src/agents/swarm_agent.py",
+  "root": "research/moondev-selected",
+  "importedAt": "2026-05-04T16:24:44.644Z",
+  "lines": 572,
+  "bytes": 23116,
+  "classification": {
+    "volatility": false,
+    "momentum": false,
+    "meanReversion": false,
+    "liquidity": false,
+    "fibonacci": false,
+    "stochastic": true,
+    "vwap": false,
+    "polymarket": false,
+    "backtest": false,
+    "danger": false
+  },
+  "metrics": {
+    "percentValues": [],
+    "moneyValues": [
+      0.2,
+      0.5,
+      1,
+      1,
+      1,
+      1,
+      0.1,
+      0.4,
+      0.5,
+      0.5,
+      0.55,
+      2.19
+    ],
+    "bestPercent": null,
+    "worstPercent": null,
+    "sharpe": null,
+    "drawdown": null,
+    "winRate": null
+  },
+  "score": 0,
+  "directUseAllowed": false,
+  "paperOnly": true,
+  "nexoraAction": "reference_only"
+}

@@ -1,0 +1,46 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_moondev_imported_strategy",
+  "strategyId": "moondev_strategy_1777911884633_23brbke3nkg",
+  "name": "PolymarketAgent",
+  "sourceFile": "research/moondev-selected/src/agents/polymarket_agent.py",
+  "relativePath": "src/agents/polymarket_agent.py",
+  "root": "research/moondev-selected",
+  "importedAt": "2026-05-04T16:24:44.633Z",
+  "lines": 1486,
+  "bytes": 66124,
+  "classification": {
+    "volatility": true,
+    "momentum": false,
+    "meanReversion": false,
+    "liquidity": false,
+    "fibonacci": false,
+    "stochastic": false,
+    "vwap": false,
+    "polymarket": true,
+    "backtest": false,
+    "danger": false
+  },
+  "metrics": {
+    "percentValues": [],
+    "moneyValues": [
+      0,
+      1,
+      0,
+      1,
+      100,
+      0,
+      1
+    ],
+    "bestPercent": null,
+    "worstPercent": null,
+    "sharpe": null,
+    "drawdown": null,
+    "winRate": null
+  },
+  "score": 45,
+  "directUseAllowed": false,
+  "paperOnly": true,
+  "nexoraAction": "adapt_later"
+}

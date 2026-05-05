@@ -1,0 +1,56 @@
+{
+  "realMoneyBalance": 0,
+  "paperMoneyBalance": 114000,
+  "ledger": [
+    {
+      "id": "poly-cap-1777882506859-c44be0170a6f8",
+      "type": "paper",
+      "amount": 10000,
+      "note": "quick paper boost",
+      "createdAt": "2026-05-04T08:15:06.859Z"
+    },
+    {
+      "id": "poly-cap-1777882500809-1fb17627af80f",
+      "type": "paper",
+      "amount": 1000,
+      "note": "quick paper boost",
+      "createdAt": "2026-05-04T08:15:00.809Z"
+    },
+    {
+      "id": "poly-cap-1777882499730-d07fc61265585",
+      "type": "paper",
+      "amount": 1000,
+      "note": "quick paper boost",
+      "createdAt": "2026-05-04T08:14:59.730Z"
+    },
+    {
+      "id": "poly-cap-1777882495066-dc19764ba5866",
+      "type": "paper",
+      "amount": 1000,
+      "note": "quick paper boost",
+      "createdAt": "2026-05-04T08:14:55.066Z"
+    },
+    {
+      "id": "poly-cap-1777882492436-055470e4b11cf",
+      "type": "paper",
+      "amount": 1000,
+      "note": "quick paper boost",
+      "createdAt": "2026-05-04T08:14:52.436Z"
+    },
+    {
+      "id": "poly-cap-1777882490897-fc9fb97d3eb82",
+      "type": "paper",
+      "amount": 100000,
+      "note": "Paper capital reset",
+      "createdAt": "2026-05-04T08:14:50.897Z"
+    },
+    {
+      "id": "poly-cap-1777882488455-8b937c5a3285a",
+      "type": "paper",
+      "amount": 100000,
+      "note": "Paper capital reset",
+      "createdAt": "2026-05-04T08:14:48.455Z"
+    }
+  ],
+  "updatedAt": "2026-05-04T08:15:06.859Z"
+}

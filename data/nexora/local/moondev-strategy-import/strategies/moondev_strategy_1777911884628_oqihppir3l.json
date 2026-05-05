@@ -1,0 +1,40 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_moondev_imported_strategy",
+  "strategyId": "moondev_strategy_1777911884628_oqihppir3l",
+  "name": "CopyBotAgent",
+  "sourceFile": "research/moondev-selected/src/agents/copybot_agent.py",
+  "relativePath": "src/agents/copybot_agent.py",
+  "root": "research/moondev-selected",
+  "importedAt": "2026-05-04T16:24:44.628Z",
+  "lines": 327,
+  "bytes": 13334,
+  "classification": {
+    "volatility": true,
+    "momentum": true,
+    "meanReversion": false,
+    "liquidity": false,
+    "fibonacci": false,
+    "stochastic": false,
+    "vwap": false,
+    "polymarket": false,
+    "backtest": false,
+    "danger": false
+  },
+  "metrics": {
+    "percentValues": [
+      75
+    ],
+    "moneyValues": [],
+    "bestPercent": 75,
+    "worstPercent": 75,
+    "sharpe": null,
+    "drawdown": null,
+    "winRate": null
+  },
+  "score": 55,
+  "directUseAllowed": false,
+  "paperOnly": true,
+  "nexoraAction": "adapt_later"
+}

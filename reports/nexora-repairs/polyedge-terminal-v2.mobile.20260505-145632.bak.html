@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>POLY/EDGE 2150 Terminal</title>
+<style>
+:root{--bg:#010812;--p:#031523;--p2:#061f31;--l:#0b6f86;--c:#59f8ff;--g:#69ff9e;--r:#ff4d68;--y:#ffd45a;--m:#7aaebc;--v:#c37cff}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#010812;color:#dffbff;font-family:"IBM Plex Mono",Menlo,Consolas,monospace;font-size:8px}
+body:before{content:"";position:fixed;inset:0;background:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px);background-size:100% 4px;pointer-events:none;z-index:50}
+body:after{content:"";position:fixed;inset:0;background:radial-gradient(circle at 18% 20%,rgba(89,248,255,.13),transparent 20%),radial-gradient(circle at 80% 80%,rgba(195,124,255,.12),transparent 25%);pointer-events:none}
+.shell{display:grid;grid-template-columns:126px 1fr;height:100vh;overflow:hidden}
+.side{background:#020c15;border-right:1px solid var(--l);padding:5px 6px;z-index:2;overflow:hidden}
+.brand{display:grid;grid-template-columns:36px 1fr;gap:8px;align-items:center;color:var(--c);font-size:13px;font-weight:900;letter-spacing:.15em;margin-bottom:8px}.brand small{display:block;font-size:7px;color:#baffff}.tri{width:26px;height:26px;clip-path:polygon(50% 0,100% 100%,0 100%);border:1px solid var(--c);box-shadow:0 0 20px #1df}
+.navtitle{color:#74aebb;font-size:8px;margin:8px 4px 4px;text-transform:uppercase;letter-spacing:.13em}.nav a{display:block;color:#bdefff;text-decoration:none;text-transform:uppercase;font-size:8px;padding:5px;border:1px solid transparent;border-radius:6px;margin:2px 0}.nav a.on,.nav a:hover{border-color:var(--l);background:#061b2b;color:var(--g)}
+.orb{width:68px;height:68px;border-radius:50%;margin:10px auto 6px;background:radial-gradient(circle,var(--c),rgba(89,248,255,.24) 30%,transparent 68%);box-shadow:0 0 45px rgba(89,248,255,.4)}.sync{text-align:center;color:var(--m)}.sync b{display:block;color:var(--g);font-size:13px}
+.main{padding:5px 5px 24px;position:relative;z-index:2;height:100vh;overflow:hidden}.top{display:grid;grid-template-columns:1.45fr repeat(7,.72fr);gap:4px;margin-bottom:4px}.box{background:linear-gradient(180deg,rgba(4,22,35,.96),rgba(1,7,12,.96));border:1px solid var(--l);box-shadow:0 0 16px rgba(89,248,255,.07),inset 0 0 22px rgba(89,248,255,.035);padding:5px;min-width:0}.box h3{margin:0 0 6px;color:#a7fbff;text-transform:uppercase;letter-spacing:.13em;font-size:8px}.title{font-size:18px;font-weight:900;color:var(--c);letter-spacing:.16em}.sub{color:#82cad7;font-size:8px}.lab{color:var(--m);font-size:7px;text-transform:uppercase}.val{font-size:13px;font-weight:900}.g{color:var(--g)}.r{color:var(--r)}.y{color:var(--y)}.v{color:var(--v)}
+.a{display:grid;grid-template-columns:1.55fr .72fr .82fr;gap:4px;margin-bottom:4px}.b{display:grid;grid-template-columns:.75fr .78fr .72fr .95fr;gap:4px;margin-bottom:4px}.c{display:grid;grid-template-columns:.95fr 1.1fr .72fr .9fr;gap:4px;margin-bottom:4px}.d{display:grid;grid-template-columns:.9fr 1fr .9fr;gap:4px}
+canvas{width:100%;display:block;background:#01060b;border:1px solid rgba(89,248,255,.15)}#equity{height:165px}#sent{height:165px}#liq{height:112px}#mesh,#alloc,#multi{height:96px}#uni{height:160px}#pnl{height:82px}
+table{width:100%;border-collapse:collapse;font-size:8px}td,th{border-bottom:1px solid rgba(89,248,255,.16);padding:4px;text-align:left}th{color:#77aebd;text-transform:uppercase}.status{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}.status div{border:1px solid rgba(89,248,255,.16);padding:4px}.alerts{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.alert{border:1px solid rgba(255,212,90,.38);background:#130f05;color:var(--y);padding:5px}.alert.red{border-color:rgba(255,77,104,.5);background:#17070b;color:var(--r)}.alert.purp{border-color:rgba(195,124,255,.5);background:#12091d;color:var(--v)}
+pre{margin:0;white-space:pre-wrap;color:#c6f9ff;max-height:145px;overflow:auto}.ticker{position:fixed;left:126px;right:0;bottom:0;height:22px;background:#020b12;border-top:1px solid var(--l);display:flex;align-items:center;gap:24px;padding:0 12px;font-size:8px;z-index:30}
+@media(max-width:1100px){.shell{grid-template-columns:1fr}.side{display:none}.top,.a,.b,.c,.d{grid-template-columns:1fr}.ticker{left:0}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="side"><div class="brand"><div class="tri"></div><div>POLY/EDGE<small>QUANTUM HYPERINTELLIGENCE TERMINAL</small></div></div><div class="nav"><div class="navtitle">Navigation</div><a class="on">Overview</a><a>Markets</a><a>Portfolio</a><a>Agents</a><a>Alpha Grid</a><a>Risk Core</a><a>Memory</a><a>Simulation</a><a>Communication</a><a>Settings</a></div><div class="orb"></div><div class="sync">Neural Sync Activity<b id="sideSync">--%</b></div></aside>
+<main class="main">
+<section class="top"><div class="box"><div class="title">POLY/EDGE</div><div class="sub">Quantum Hyperintelligence Terminal · Real Data Only</div></div><div class="box"><div class="lab">System</div><div class="val g">Online</div></div><div class="box"><div class="lab">AI Layer</div><div class="val v">MoonDev</div></div><div class="box"><div class="lab">Events</div><div class="val" id="topEvents">--</div></div><div class="box"><div class="lab">Win Rate</div><div class="val" id="topWin">--</div></div><div class="box"><div class="lab">Confidence</div><div class="val" id="topConf">--</div></div><div class="box"><div class="lab">Target</div><div class="val">95%</div></div><div class="box"><div class="lab">Reality</div><div class="val y">Paper</div></div></section>
+<section class="a"><div class="box"><h3>Hyperdimensional Equity Curve</h3><canvas id="equity"></canvas><div class="status"><div>Counted <b id="sTrades">--</b></div><div>Wins <b id="sWins">--</b></div><div>Loop <b id="sLoop">--</b></div><div>Live <b class="r">Locked</b></div></div></div><div class="box"><h3>Quantum Market Sentiment Matrix</h3><canvas id="sent"></canvas><table><tr><td>Bullish</td><td id="sentBull">--</td></tr><tr><td>Bearish</td><td id="sentBear">--</td></tr><tr><td>Neutral</td><td id="sentNeutral">--</td></tr></table></div><div class="box"><h3>Alpha Signals Feed</h3><table id="alpha"></table></div></section>
+<section class="b"><div class="box"><h3>Sentient Agent Mesh</h3><canvas id="mesh"></canvas></div><div class="box"><h3>Capital Allocation // Hyperstructure</h3><canvas id="alloc"></canvas></div><div class="box"><h3>Multiverse Simulation</h3><canvas id="multi"></canvas></div><div class="box"><h3>Hyper Liquidity Depth</h3><canvas id="liq"></canvas><div class="sub">WAITING FOR REAL ORDER BOOK DATA</div></div></section>
+<section class="c"><div class="box"><h3>Real-Time Smart Money Flow</h3><pre>WAITING FOR REAL WALLET DATA
+No wallet observations connected.
+No live copy trading.</pre></div><div class="box"><h3>Holographic Universe View</h3><canvas id="uni"></canvas></div><div class="box"><h3>Risk Fortress Status</h3><table><tr><td>Live Trading</td><td class="r">Disabled</td></tr><tr><td>Wallet Signing</td><td class="r">Disabled</td></tr><tr><td>Private Keys</td><td class="r">Disabled</td></tr><tr><td>Human Approval</td><td class="g">Required</td></tr></table></div><div class="box"><h3>Decision Stream / Live Log</h3><table id="decisions"></table></div></section>
+<section class="d"><div class="box"><h3>Paper PNL Total</h3><canvas id="pnl"></canvas></div><div class="box"><h3>Live Analytics</h3><pre id="analytics">Loading...</pre></div><div class="box"><h3>System Alerts</h3><div class="alerts"><div class="alert red">Quantum Volatility<br><b>Real Data Only</b></div><div class="alert">95% Target<br><b id="targetStatus">Training</b></div><div class="alert purp">Live Money<br><b>Locked</b></div></div></div></section>
+</main></div><div class="ticker"><span>BTC <b id="tickBTC">--</b></span><span>ETH <b id="tickETH">--</b></span><span>SOL <b id="tickSOL">--</b></span><span>GLOBAL LIQUIDITY WAITING</span><span>CONSCIOUSNESS UPLINK STABLE</span></div>
+<script>
+(function () {
+  let summary = null;
+  let state = null;
+  let spin = 0;
+
+  function el(id) {
+    return document.getElementById(id);
+  }
+
+  function setText(id, value) {
+    const node = el(id);
+    if (node) node.textContent = value === undefined || value === null ? "--" : String(value);
+  }
+
+  async function getJson(url) {
+    const res = await fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" });
+    const text = await res.text();
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { ok: false, error: text.slice(0, 300) };
+    }
+  }
+
+  function resize(canvas) {
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = Math.max(200, Math.floor(rect.width * devicePixelRatio));
+    canvas.height = Math.max(100, Math.floor(rect.height * devicePixelRatio));
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#01060b";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    return ctx;
+  }
+
+  function waiting(canvasId, message) {
+    const canvas = el(canvasId);
+    if (!canvas) return;
+    const ctx = resize(canvas);
+    ctx.fillStyle = "#ffd35a";
+    ctx.font = `${14 * devicePixelRatio}px monospace`;
+    ctx.fillText(message, 18 * devicePixelRatio, 34 * devicePixelRatio);
+  }
+
+  function drawLine(canvasId, values, color) {
+    const canvas = el(canvasId);
+    if (!canvas) return;
+
+    const ctx = resize(canvas);
+
+    if (!values || !values.length) {
+      ctx.fillStyle = "#ffd35a";
+      ctx.font = `${14 * devicePixelRatio}px monospace`;
+      ctx.fillText("WAITING FOR REAL DATA", 18 * devicePixelRatio, 34 * devicePixelRatio);
+      return;
+    }
+
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
+
+    ctx.strokeStyle = "rgba(93,247,255,.16)";
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 5; i++) {
+      const y = (canvas.height / 5) * i;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
+    }
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2 * devicePixelRatio;
+    ctx.beginPath();
+
+    values.forEach((value, i) => {
+      const x = i * (canvas.width / Math.max(1, values.length - 1));
+      const y = canvas.height - ((value - min) / range) * canvas.height * 0.78 - canvas.height * 0.11;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+
+    ctx.stroke();
+  }
+
+  async function drawCandles() {
+    try {
+      const raw = await fetch("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=100", { cache: "no-store" }).then(r => r.json());
+      if (!Array.isArray(raw)) throw new Error("No candle data");
+      const closes = raw.map(k => Number(k[4])).filter(Number.isFinite);
+      drawLine("equity", closes, "#5df7ff");
+    } catch (error) {
+      waiting("equity", "WAITING FOR REAL CANDLE DATA");
+    }
+  }
+
+  function drawNetwork(canvasId) {
+    const canvas = el(canvasId);
+    if (!canvas) return;
+
+    const ctx = resize(canvas);
+    const assets = ((summary && summary.assets) || []).filter(a => a.asset && a.asset !== "unknown");
+
+    if (!assets.length) {
+      ctx.fillStyle = "#ffd35a";
+      ctx.font = `${13 * devicePixelRatio}px monospace`;
+      ctx.fillText("WAITING FOR PAPER SUMMARY", 18 * devicePixelRatio, 34 * devicePixelRatio);
+      return;
+    }
+
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+
+    const points = assets.slice(0, 10).map((asset, index) => {
+      const angle = (Math.PI * 2 * index) / Math.max(1, assets.length) + spin * 0.01;
+      const radius = (50 + Number(asset.avgScore || 50) * 1.25) * devicePixelRatio;
+      return { asset, angle, radius };
+    });
+
+    for (let i = 0; i < points.length; i++) {
+      for (let j = i + 1; j < points.length; j++) {
+        ctx.strokeStyle = "rgba(93,247,255,.13)";
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(points[i].angle) * points[i].radius, cy + Math.sin(points[i].angle) * points[i].radius);
+        ctx.lineTo(cx + Math.cos(points[j].angle) * points[j].radius, cy + Math.sin(points[j].angle) * points[j].radius);
+        ctx.stroke();
+      }
+    }
+
+    points.forEach(point => {
+      const x = cx + Math.cos(point.angle) * point.radius;
+      const y = cy + Math.sin(point.angle) * point.radius;
+      const score = Number(point.asset.avgScore || 50);
+      const winRate = Number(point.asset.winRate || 0);
+      const radius = (8 + score / 8) * devicePixelRatio;
+
+      ctx.fillStyle = winRate >= 80 ? "#71ff9d" : winRate >= 60 ? "#ffd35a" : "#ff4e69";
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#dffaff";
+      ctx.font = `${10 * devicePixelRatio}px monospace`;
+      ctx.fillText(point.asset.asset, x + radius + 4, y);
+    });
+  }
+
+  function drawSentiment() {
+    const canvas = el("sent");
+    if (!canvas) return;
+
+    const ctx = resize(canvas);
+    const winRate = Number(summary && summary.winRate ? summary.winRate : 0);
+
+    ctx.strokeStyle = "#244e68";
+    ctx.lineWidth = 2 * devicePixelRatio;
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height / 2, 58 * devicePixelRatio, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(93,247,255,.20)";
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height / 2, Math.max(8, winRate * 0.72) * devicePixelRatio, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#71ff9d";
+    ctx.font = `${22 * devicePixelRatio}px monospace`;
+    ctx.fillText(`${winRate}%`, 18 * devicePixelRatio, 34 * devicePixelRatio);
+  }
+
+  function drawAllocation() {
+    const canvas = el("alloc");
+    if (!canvas) return;
+
+    const ctx = resize(canvas);
+    const assets = ((summary && summary.assets) || []).filter(a => a.asset && a.asset !== "unknown").slice(0, 6);
+
+    if (!assets.length) {
+      waiting("alloc", "WAITING FOR PAPER SUMMARY");
+      return;
+    }
+
+    assets.forEach((asset, index) => {
+      const winRate = Number(asset.winRate || 0);
+      const x = 16 * devicePixelRatio + index * 38 * devicePixelRatio;
+      const h = winRate * 1.15 * devicePixelRatio;
+      const y = canvas.height - 18 * devicePixelRatio - h;
+
+      ctx.fillStyle = winRate >= 80 ? "#71ff9d" : "#ffd35a";
+      ctx.fillRect(x, y, 22 * devicePixelRatio, h);
+
+      ctx.fillStyle = "#dffaff";
+      ctx.font = `${9 * devicePixelRatio}px monospace`;
+      ctx.fillText(asset.asset, x - 2 * devicePixelRatio, canvas.height - 5 * devicePixelRatio);
+    });
+  }
+
+  function drawLiquidity() {
+    waiting("liq", "WAITING FOR REAL ORDER BOOK DATA");
+  }
+
+  function drawPnl() {
+    const values = ((summary && summary.assets) || []).map(a => Number(a.pnl || 0));
+    drawLine("pnl", values, "#71ff9d");
+  }
+
+  function fillTables() {
+    const assets = (summary && summary.assets) || [];
+
+    const alpha = el("alpha");
+    if (alpha) {
+      alpha.innerHTML =
+        "<tr><th>Signal</th><th>Conf</th><th>Impact</th></tr>" +
+        assets
+          .filter(a => a.asset && a.asset !== "unknown")
+          .slice(0, 7)
+          .map(a => `<tr><td>${a.asset} edge</td><td>${a.winRate}%</td><td>${a.pnl}</td></tr>`)
+          .join("");
+    }
+
+    const decisions = el("decisions");
+    if (decisions) {
+      const latest = summary && summary.latest;
+      decisions.innerHTML =
+        "<tr><th>Time</th><th>Action</th><th>Mode</th></tr>" +
+        `<tr><td>LIVE</td><td>${latest ? latest.result : "WAITING"}</td><td>PAPER</td></tr>`;
+    }
+
+    const analytics = el("analytics");
+    if (analytics) {
+      analytics.textContent = JSON.stringify({
+        events: summary ? summary.polymarketEvents : 0,
+        trades: summary ? summary.countedTrades : 0,
+        wins: summary ? summary.wins : 0,
+        winRate: summary ? summary.winRate : 0,
+        avgScore: summary ? summary.avgScore : 0,
+        latest: summary ? summary.latest : null
+      }, null, 2);
+    }
+  }
+
+  function setMetrics() {
+    setText("topEvents", summary ? summary.polymarketEvents : 0);
+    setText("topWin", `${summary ? summary.winRate : 0}%`);
+    setText("topConf", `${summary ? summary.displayedConfidencePercent : 0}%`);
+    setText("sTrades", summary ? summary.countedTrades : 0);
+    setText("sWins", summary ? summary.wins : 0);
+    setText("sLoop", state && state.paperPractice ? state.paperPractice.loop || 0 : 0);
+    setText("sideSync", `${summary ? summary.displayedConfidencePercent : 0}%`);
+    setText("sentBull", `${summary ? summary.winRate : 0}%`);
+    setText("sentBear", `${Math.max(0, 100 - (summary ? summary.winRate : 0))}%`);
+    setText("sentNeutral", `${summary ? summary.skips || 0 : 0} skips`);
+    setText("targetStatus", summary && summary.targetReached ? "PASSED" : "TRAINING");
+
+    const assets = (summary && summary.assets) || [];
+    const btc = assets.find(a => a.asset === "BTC");
+    const eth = assets.find(a => a.asset === "ETH");
+    const sol = assets.find(a => a.asset === "SOL");
+
+    setText("tickBTC", btc ? `${btc.winRate}%` : "--");
+    setText("tickETH", eth ? `${eth.winRate}%` : "--");
+    setText("tickSOL", sol ? `${sol.winRate}%` : "--");
+  }
+
+  async function load() {
+    summary = await j("/api/nexora/poly-paper-summary/latest");
+    state = await j("/api/nexora/poly-edge-fixed/state");
+
+    setMetrics();
+    drawCandles();
+    drawSentiment();
+    drawNetwork("mesh");
+    drawAllocation();
+    drawNetwork("multi");
+    drawLiquidity();
+    drawNetwork("uni");
+    drawPnl();
+    fillTables();
+  }
+
+  setInterval(() => {
+    spin++;
+    if (summary) {
+      drawNetwork("mesh");
+      drawNetwork("multi");
+      drawNetwork("uni");
+    }
+  }, 1000);
+
+  setInterval(load, 5000);
+
+  window.addEventListener("resize", () => {
+    if (summary) load();
+  });
+
+  load();
+</script></body></html>

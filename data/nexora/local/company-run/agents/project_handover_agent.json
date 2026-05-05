@@ -1,0 +1,13 @@
+{
+  "agentId": "project_handover_agent",
+  "worker": "project_handover_agent",
+  "division": "fitouts",
+  "title": "Project Handover Agent",
+  "status": "active",
+  "nexoraBrain": true,
+  "canCommitExternally": false,
+  "createdAt": "2026-05-05T01:46:27.634Z",
+  "safety": [
+    "No install commitment without approved quote and confirmed supplier path."
+  ]
+}

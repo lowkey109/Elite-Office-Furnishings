@@ -1,0 +1,15 @@
+{
+  "agentId": "polymarket_paper_agent",
+  "worker": "polymarket_paper_agent",
+  "division": "trading_intelligence",
+  "title": "Polymarket Paper Agent",
+  "status": "active",
+  "nexoraBrain": true,
+  "canCommitExternally": false,
+  "createdAt": "2026-05-05T01:46:27.634Z",
+  "safety": [
+    "No live trading.",
+    "No private keys.",
+    "No real orders."
+  ]
+}

@@ -1,0 +1,680 @@
+{
+  "ok": true,
+  "service": "nexora_learning_memory_playbook",
+  "createdAt": "2026-05-04T15:27:45.043Z",
+  "updatedAt": "2026-05-05T02:42:12.423Z",
+  "domains": {
+    "polymarket": {
+      "goodPatterns": [
+        {
+          "lessonId": "lesson-1777944389004",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 82,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T01:26:29.004Z"
+        },
+        {
+          "lessonId": "lesson-1777946502084",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 81,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:01:42.084Z"
+        },
+        {
+          "lessonId": "lesson-1777946502435",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 81,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:01:42.435Z"
+        },
+        {
+          "lessonId": "lesson-1777946502801",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 81,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:01:42.801Z"
+        },
+        {
+          "lessonId": "lesson-1777946553495",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 81,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:02:33.495Z"
+        },
+        {
+          "lessonId": "lesson-1777946613869",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 84,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:03:33.869Z"
+        },
+        {
+          "lessonId": "lesson-1777946674237",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 85,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:04:34.237Z"
+        },
+        {
+          "lessonId": "lesson-1777946734619",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 86,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:05:34.619Z"
+        },
+        {
+          "lessonId": "lesson-1777946795081",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 85,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:06:35.081Z"
+        },
+        {
+          "lessonId": "lesson-1777946855467",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 84,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:07:35.467Z"
+        },
+        {
+          "lessonId": "lesson-1777946915854",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 83,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:08:35.854Z"
+        },
+        {
+          "lessonId": "lesson-1777947724446",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 81,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:22:04.446Z"
+        },
+        {
+          "lessonId": "lesson-1777947724804",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 81,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:22:04.804Z"
+        },
+        {
+          "lessonId": "lesson-1777947785167",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 81,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:23:05.167Z"
+        },
+        {
+          "lessonId": "lesson-1777947845572",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 81,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:24:05.572Z"
+        },
+        {
+          "lessonId": "lesson-1777947905971",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 81,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:25:05.971Z"
+        },
+        {
+          "lessonId": "lesson-1777948690692",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 81,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:38:10.692Z"
+        },
+        {
+          "lessonId": "lesson-1777948751084",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 81,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:39:11.084Z"
+        },
+        {
+          "lessonId": "lesson-1777948811599",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 81,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:40:11.599Z"
+        },
+        {
+          "lessonId": "lesson-1777948872064",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 81,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:41:12.064Z"
+        }
+      ],
+      "avoidPatterns": [
+        {
+          "lessonId": "lesson-1777947097003",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 38,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:11:37.003Z"
+        },
+        {
+          "lessonId": "lesson-1777947157357",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 37,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:12:37.357Z"
+        },
+        {
+          "lessonId": "lesson-1777947338439",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 37,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:15:38.439Z"
+        },
+        {
+          "lessonId": "lesson-1777947398888",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 38,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:16:38.888Z"
+        },
+        {
+          "lessonId": "lesson-1777947097003",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 38,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:11:37.003Z"
+        },
+        {
+          "lessonId": "lesson-1777947157357",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 37,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:12:37.357Z"
+        },
+        {
+          "lessonId": "lesson-1777947338439",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 37,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:15:38.439Z"
+        },
+        {
+          "lessonId": "lesson-1777947398888",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 38,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:16:38.888Z"
+        },
+        {
+          "lessonId": "lesson-1777947097003",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 38,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:11:37.003Z"
+        },
+        {
+          "lessonId": "lesson-1777947157357",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 37,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:12:37.357Z"
+        },
+        {
+          "lessonId": "lesson-1777947338439",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 37,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:15:38.439Z"
+        },
+        {
+          "lessonId": "lesson-1777947398888",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 38,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:16:38.888Z"
+        },
+        {
+          "lessonId": "lesson-1777947097003",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 38,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:11:37.003Z"
+        },
+        {
+          "lessonId": "lesson-1777947157357",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 37,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:12:37.357Z"
+        },
+        {
+          "lessonId": "lesson-1777947338439",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 37,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:15:38.439Z"
+        },
+        {
+          "lessonId": "lesson-1777947398888",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 38,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:16:38.888Z"
+        },
+        {
+          "lessonId": "lesson-1777947097003",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 38,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:11:37.003Z"
+        },
+        {
+          "lessonId": "lesson-1777947157357",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 37,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:12:37.357Z"
+        },
+        {
+          "lessonId": "lesson-1777947338439",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 37,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:15:38.439Z"
+        },
+        {
+          "lessonId": "lesson-1777947398888",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 38,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:16:38.888Z"
+        }
+      ],
+      "watchPatterns": [
+        {
+          "lessonId": "lesson-1777947036647",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_neutral",
+          "score": 59,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T02:10:36.647Z"
+        },
+        {
+          "lessonId": "lesson-1777947217710",
+          "action": "paper_trade_intent_practice",
+          "result": "risk_triggered_watch",
+          "score": 45,
+          "recommendation": "require_human_review",
+          "generatedAt": "2026-05-05T02:13:37.710Z"
+        },
+        {
+          "lessonId": "lesson-1777947278074",
+          "action": "paper_trade_intent_practice",
+          "result": "risk_triggered_watch",
+          "score": 46,
+          "recommendation": "require_human_review",
+          "generatedAt": "2026-05-05T02:14:38.074Z"
+        },
+        {
+          "lessonId": "lesson-1777947459282",
+          "action": "paper_trade_intent_practice",
+          "result": "risk_triggered_watch",
+          "score": 50,
+          "recommendation": "require_human_review",
+          "generatedAt": "2026-05-05T02:17:39.282Z"
+        },
+        {
+          "lessonId": "lesson-1777947519677",
+          "action": "paper_trade_intent_practice",
+          "result": "risk_triggered_watch",
+          "score": 52,
+          "recommendation": "require_human_review",
+          "generatedAt": "2026-05-05T02:18:39.677Z"
+        },
+        {
+          "lessonId": "lesson-1777947580123",
+          "action": "paper_trade_intent_practice",
+          "result": "risk_triggered_watch",
+          "score": 53,
+          "recommendation": "require_human_review",
+          "generatedAt": "2026-05-05T02:19:40.123Z"
+        },
+        {
+          "lessonId": "lesson-1777947640491",
+          "action": "paper_trade_intent_practice",
+          "result": "risk_triggered_watch",
+          "score": 54,
+          "recommendation": "require_human_review",
+          "generatedAt": "2026-05-05T02:20:40.491Z"
+        },
+        {
+          "lessonId": "lesson-1777947700848",
+          "action": "paper_trade_intent_practice",
+          "result": "risk_triggered_watch",
+          "score": 54,
+          "recommendation": "require_human_review",
+          "generatedAt": "2026-05-05T02:21:40.848Z"
+        },
+        {
+          "lessonId": "lesson-1777947966341",
+          "action": "paper_observe_no_trade",
+          "result": "paper_skip_low_edge",
+          "score": 60,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T02:26:06.341Z"
+        },
+        {
+          "lessonId": "lesson-1777948026736",
+          "action": "paper_observe_no_trade",
+          "result": "paper_skip_low_edge",
+          "score": 60,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T02:27:06.736Z"
+        },
+        {
+          "lessonId": "lesson-1777948087110",
+          "action": "paper_observe_no_trade",
+          "result": "paper_skip_low_edge",
+          "score": 60,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T02:28:07.110Z"
+        },
+        {
+          "lessonId": "lesson-1777948147489",
+          "action": "paper_observe_no_trade",
+          "result": "paper_skip_low_edge",
+          "score": 60,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T02:29:07.489Z"
+        },
+        {
+          "lessonId": "lesson-1777948207860",
+          "action": "paper_observe_no_trade",
+          "result": "paper_skip_low_edge",
+          "score": 60,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T02:30:07.860Z"
+        },
+        {
+          "lessonId": "lesson-1777948268251",
+          "action": "paper_observe_no_trade",
+          "result": "paper_skip_low_edge",
+          "score": 60,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T02:31:08.251Z"
+        },
+        {
+          "lessonId": "lesson-1777948328595",
+          "action": "paper_observe_no_trade",
+          "result": "paper_skip_low_edge",
+          "score": 60,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T02:32:08.595Z"
+        },
+        {
+          "lessonId": "lesson-1777948388934",
+          "action": "paper_observe_no_trade",
+          "result": "paper_skip_low_edge",
+          "score": 60,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T02:33:08.934Z"
+        },
+        {
+          "lessonId": "lesson-1777948449272",
+          "action": "paper_observe_no_trade",
+          "result": "paper_skip_low_edge",
+          "score": 60,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T02:34:09.272Z"
+        },
+        {
+          "lessonId": "lesson-1777948509614",
+          "action": "paper_observe_no_trade",
+          "result": "paper_skip_low_edge",
+          "score": 60,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T02:35:09.614Z"
+        },
+        {
+          "lessonId": "lesson-1777948630328",
+          "action": "paper_observe_no_trade",
+          "result": "paper_skip_low_edge",
+          "score": 60,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T02:37:10.328Z"
+        },
+        {
+          "lessonId": "lesson-1777948932421",
+          "action": "paper_observe_no_trade",
+          "result": "paper_skip_low_edge",
+          "score": 60,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T02:42:12.421Z"
+        }
+      ],
+      "lastUpdated": "2026-05-05T02:42:12.423Z"
+    },
+    "general": {
+      "goodPatterns": [],
+      "avoidPatterns": [],
+      "watchPatterns": [
+        {
+          "lessonId": "lesson-1777914698523",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-04T17:11:38.523Z"
+        },
+        {
+          "lessonId": "lesson-1777914759199",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-04T17:12:39.199Z"
+        },
+        {
+          "lessonId": "lesson-1777914819839",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-04T17:13:39.839Z"
+        },
+        {
+          "lessonId": "lesson-1777914880489",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-04T17:14:40.489Z"
+        },
+        {
+          "lessonId": "lesson-1777914941124",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-04T17:15:41.124Z"
+        },
+        {
+          "lessonId": "lesson-1777915001785",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-04T17:16:41.785Z"
+        },
+        {
+          "lessonId": "lesson-1777915062451",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-04T17:17:42.451Z"
+        },
+        {
+          "lessonId": "lesson-1777915123098",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-04T17:18:43.098Z"
+        },
+        {
+          "lessonId": "lesson-1777915183802",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-04T17:19:43.802Z"
+        },
+        {
+          "lessonId": "lesson-1777915244450",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-04T17:20:44.450Z"
+        },
+        {
+          "lessonId": "lesson-1777915305110",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-04T17:21:45.110Z"
+        },
+        {
+          "lessonId": "lesson-1777915365810",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-04T17:22:45.810Z"
+        },
+        {
+          "lessonId": "lesson-1777943424101",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T01:10:24.101Z"
+        },
+        {
+          "lessonId": "lesson-1777943484788",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T01:11:24.788Z"
+        },
+        {
+          "lessonId": "lesson-1777943545441",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T01:12:25.441Z"
+        },
+        {
+          "lessonId": "lesson-1777943606169",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T01:13:26.169Z"
+        },
+        {
+          "lessonId": "lesson-1777945859347",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T01:50:59.347Z"
+        },
+        {
+          "lessonId": "lesson-1777946317386",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T01:58:37.386Z"
+        },
+        {
+          "lessonId": "lesson-1777946318230",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T01:58:38.230Z"
+        },
+        {
+          "lessonId": "lesson-1777946319055",
+          "action": "unknown_action",
+          "result": "unknown_result",
+          "score": 50,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T01:58:39.055Z"
+        }
+      ],
+      "lastUpdated": "2026-05-05T02:42:12.423Z"
+    }
+  },
+  "safety": {
+    "learnsFrom": [
+      "paper_trading",
+      "risk_outcomes",
+      "quote_outcomes",
+      "human_feedback"
+    ],
+    "liveTradingEnabledNow": false,
+    "autonomousMoneyMovement": false,
+    "autonomousBindingQuotes": false,
+    "autonomousEmailSending": false,
+    "humanApprovalRequired": true
+  },
+  "requested": {
+    "source": "cycle"
+  }
+}

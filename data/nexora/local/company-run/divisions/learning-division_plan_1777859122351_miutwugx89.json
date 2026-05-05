@@ -1,0 +1,27 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "planId": "division_plan_1777859122351_miutwugx89",
+  "division": "learning",
+  "title": "Learning and Improvement",
+  "createdAt": "2026-05-04T01:45:22.351Z",
+  "ownerAgent": "learning_worker",
+  "mandate": "Capture patterns, failures, successful workflows, and improve future playbooks.",
+  "workers": [
+    "learning_worker",
+    "pattern_librarian_agent"
+  ],
+  "dailyChecklist": [
+    "Review new work orders.",
+    "Process safe queued tasks.",
+    "Hold high-risk work for approval.",
+    "Record progress and metrics.",
+    "Capture learning and blockers."
+  ],
+  "safety": [
+    "Worker retirement and spawning remain approval-gated."
+  ],
+  "payload": {
+    "cycleId": "loop_daily_1777859122335"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_no_deploy_guard",
+  "createdAt": "2026-05-05T01:46:27.770Z",
+  "mode": "local_only",
+  "deployAllowed": false,
+  "postgresAllowed": false,
+  "railwayAllowed": false,
+  "reason": "Local master run keeps operating while deploy/Postgres are intentionally paused.",
+  "hardRules": [
+    "Do not deploy to Railway until operator explicitly allows it.",
+    "Do not run Postgres replay until storage is upgraded.",
+    "Do not enable durable loops.",
+    "Do not place live trading orders.",
+    "Do not use private keys.",
+    "Humans only approve, sign, and commit.",
+    "Nexora does everything else locally."
+  ],
+  "overrideLaterRequires": [
+    "Postgres storage purchased/upgraded",
+    "runtime db-check healthy",
+    "operator confirms deploy",
+    "migration dry-run complete"
+  ]
+}

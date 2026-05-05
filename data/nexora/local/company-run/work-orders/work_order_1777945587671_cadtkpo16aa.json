@@ -1,0 +1,56 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "workOrderId": "work_order_1777945587671_cadtkpo16aa",
+  "division": "finance",
+  "assignedAgent": "margin_guardian_agent",
+  "action": "review_quote_margin_thresholds",
+  "title": "Review quote margins and approval thresholds",
+  "status": "queued",
+  "risk": "medium",
+  "approvalRequired": false,
+  "policy": {
+    "ok": true,
+    "nexoraBrain": true,
+    "generatedAt": "2026-05-05T01:46:27.671Z",
+    "allowed": true,
+    "approvalRequired": false,
+    "violations": [],
+    "policies": [
+      {
+        "id": "POLICY_NEXORA_ONLY_BRAIN",
+        "severity": "critical",
+        "rule": "Nexora is the only decision authority. Workers execute delegated work only."
+      },
+      {
+        "id": "POLICY_TRADING_SANDBOX",
+        "severity": "critical",
+        "rule": "Trading and Phantom X remain paper/sandbox unless explicitly promoted through approval."
+      },
+      {
+        "id": "POLICY_SUPPLIER_COMMITMENT_GATE",
+        "severity": "high",
+        "rule": "Purchase orders and supplier commitments require approval."
+      },
+      {
+        "id": "POLICY_CUSTOMER_BINDING_GATE",
+        "severity": "high",
+        "rule": "Customer-facing binding quotes require approval."
+      },
+      {
+        "id": "POLICY_DB_OUTAGE_FALLBACK",
+        "severity": "medium",
+        "rule": "If Postgres is unavailable or full, capture work in local fallback systems."
+      }
+    ]
+  },
+  "priority": 80,
+  "payload": {},
+  "createdAt": "2026-05-05T01:46:27.671Z",
+  "updatedAt": "2026-05-05T01:46:27.671Z",
+  "safety": {
+    "noExternalCommitment": true,
+    "highRiskApprovalGated": true,
+    "nexoraOnlyBrain": true
+  }
+}

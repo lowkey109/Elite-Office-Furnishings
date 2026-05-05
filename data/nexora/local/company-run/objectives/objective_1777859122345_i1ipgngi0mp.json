@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "objectiveId": "objective_1777859122345_i1ipgngi0mp",
+  "division": "safety",
+  "title": "High-risk commitments remain approval-gated.",
+  "description": "Nexora company objective",
+  "metric": "unsafe_commitments",
+  "target": "0",
+  "priority": 100,
+  "status": "active",
+  "createdAt": "2026-05-04T01:45:22.345Z",
+  "payload": {}
+}

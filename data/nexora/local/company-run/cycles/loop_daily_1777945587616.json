@@ -1,0 +1,1090 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_company_daily_cycle",
+  "cycleId": "loop_daily_1777945587616",
+  "createdAt": "2026-05-05T01:46:27.684Z",
+  "seed": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_company_agent_seed",
+    "generatedAt": "2026-05-05T01:46:27.658Z",
+    "agentCount": 24,
+    "agents": [
+      {
+        "agentId": "office_receptionist_agent",
+        "worker": "office_receptionist_agent",
+        "division": "office_sales",
+        "title": "Office Receptionist Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "No binding customer quote without approval.",
+          "No payment collection."
+        ]
+      },
+      {
+        "agentId": "quote_builder_agent",
+        "worker": "quote_builder_agent",
+        "division": "office_sales",
+        "title": "Quote Builder Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "No binding customer quote without approval.",
+          "No payment collection."
+        ]
+      },
+      {
+        "agentId": "crm_followup_agent",
+        "worker": "crm_followup_agent",
+        "division": "office_sales",
+        "title": "Crm Followup Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "No binding customer quote without approval.",
+          "No payment collection."
+        ]
+      },
+      {
+        "agentId": "fitout_scope_agent",
+        "worker": "fitout_scope_agent",
+        "division": "fitouts",
+        "title": "Fitout Scope Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "No install commitment without approved quote and confirmed supplier path."
+        ]
+      },
+      {
+        "agentId": "project_handover_agent",
+        "worker": "project_handover_agent",
+        "division": "fitouts",
+        "title": "Project Handover Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "No install commitment without approved quote and confirmed supplier path."
+        ]
+      },
+      {
+        "agentId": "supplier_scout_agent",
+        "worker": "supplier_scout_agent",
+        "division": "procurement",
+        "title": "Supplier Scout Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "No supplier purchase order without approval.",
+          "No binding supplier commitment."
+        ]
+      },
+      {
+        "agentId": "supplier_risk_agent",
+        "worker": "supplier_risk_agent",
+        "division": "procurement",
+        "title": "Supplier Risk Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "No supplier purchase order without approval.",
+          "No binding supplier commitment."
+        ]
+      },
+      {
+        "agentId": "crm_followup_agent",
+        "worker": "crm_followup_agent",
+        "division": "crm",
+        "title": "Crm Followup Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "Draft messages only unless approved for sending by operator workflow."
+        ]
+      },
+      {
+        "agentId": "stale_lead_rescue_agent",
+        "worker": "stale_lead_rescue_agent",
+        "division": "crm",
+        "title": "Stale Lead Rescue Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "Draft messages only unless approved for sending by operator workflow."
+        ]
+      },
+      {
+        "agentId": "margin_guardian_agent",
+        "worker": "margin_guardian_agent",
+        "division": "finance",
+        "title": "Margin Guardian Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "High-value or low-margin quotes require approval."
+        ]
+      },
+      {
+        "agentId": "quote_finance_agent",
+        "worker": "quote_finance_agent",
+        "division": "finance",
+        "title": "Quote Finance Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "High-value or low-margin quotes require approval."
+        ]
+      },
+      {
+        "agentId": "revenue_forecast_agent",
+        "worker": "revenue_forecast_agent",
+        "division": "finance",
+        "title": "Revenue Forecast Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "High-value or low-margin quotes require approval."
+        ]
+      },
+      {
+        "agentId": "nexora_command_centre",
+        "worker": "nexora_command_centre",
+        "division": "reporting",
+        "title": "Nexora Command Centre",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "Reports are informational and do not authorize commitments."
+        ]
+      },
+      {
+        "agentId": "executive_report_agent",
+        "worker": "executive_report_agent",
+        "division": "reporting",
+        "title": "Executive Report Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "Reports are informational and do not authorize commitments."
+        ]
+      },
+      {
+        "agentId": "learning_worker",
+        "worker": "learning_worker",
+        "division": "learning",
+        "title": "Learning Worker",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "Worker retirement and spawning remain approval-gated."
+        ]
+      },
+      {
+        "agentId": "pattern_librarian_agent",
+        "worker": "pattern_librarian_agent",
+        "division": "learning",
+        "title": "Pattern Librarian Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "Worker retirement and spawning remain approval-gated."
+        ]
+      },
+      {
+        "agentId": "nexora_execution_gate",
+        "worker": "nexora_execution_gate",
+        "division": "safety",
+        "title": "Nexora Execution Gate",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "Nexora remains the only brain.",
+          "High-risk work must not bypass approval."
+        ]
+      },
+      {
+        "agentId": "policy_guard_agent",
+        "worker": "policy_guard_agent",
+        "division": "safety",
+        "title": "Policy Guard Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "Nexora remains the only brain.",
+          "High-risk work must not bypass approval."
+        ]
+      },
+      {
+        "agentId": "risk_simulator_agent",
+        "worker": "risk_simulator_agent",
+        "division": "safety",
+        "title": "Risk Simulator Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "Nexora remains the only brain.",
+          "High-risk work must not bypass approval."
+        ]
+      },
+      {
+        "agentId": "phantom_x_paper_agent",
+        "worker": "phantom_x_paper_agent",
+        "division": "trading_intelligence",
+        "title": "Phantom X Paper Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "No live trading.",
+          "No private keys.",
+          "No real orders."
+        ]
+      },
+      {
+        "agentId": "polymarket_paper_agent",
+        "worker": "polymarket_paper_agent",
+        "division": "trading_intelligence",
+        "title": "Polymarket Paper Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "No live trading.",
+          "No private keys.",
+          "No real orders."
+        ]
+      },
+      {
+        "agentId": "nexora_operations_agent",
+        "worker": "nexora_operations_agent",
+        "division": "operations",
+        "title": "Nexora Operations Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "No deploy while Postgres is full.",
+          "Dry-run first for recovery and migration."
+        ]
+      },
+      {
+        "agentId": "storage_guard_agent",
+        "worker": "storage_guard_agent",
+        "division": "operations",
+        "title": "Storage Guard Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "No deploy while Postgres is full.",
+          "Dry-run first for recovery and migration."
+        ]
+      },
+      {
+        "agentId": "maintenance_planner_agent",
+        "worker": "maintenance_planner_agent",
+        "division": "operations",
+        "title": "Maintenance Planner Agent",
+        "status": "active",
+        "nexoraBrain": true,
+        "canCommitExternally": false,
+        "createdAt": "2026-05-05T01:46:27.634Z",
+        "safety": [
+          "No deploy while Postgres is full.",
+          "Dry-run first for recovery and migration."
+        ]
+      }
+    ]
+  },
+  "objectives": [
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "objective": {
+        "ok": true,
+        "nexoraBrain": true,
+        "objectiveId": "objective_1777945587661_9ddncufk68d",
+        "division": "office_sales",
+        "title": "Move qualified leads toward safe quote drafts.",
+        "description": "Nexora company objective",
+        "metric": "qualified_quote_paths",
+        "target": "increase",
+        "priority": 90,
+        "status": "active",
+        "createdAt": "2026-05-05T01:46:27.661Z",
+        "payload": {}
+      }
+    },
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "objective": {
+        "ok": true,
+        "nexoraBrain": true,
+        "objectiveId": "objective_1777945587664_26tx8i3d5f4",
+        "division": "procurement",
+        "title": "Improve supplier confidence without purchase commitments.",
+        "description": "Nexora company objective",
+        "metric": "supplier_confirmations",
+        "target": "increase",
+        "priority": 85,
+        "status": "active",
+        "createdAt": "2026-05-05T01:46:27.664Z",
+        "payload": {}
+      }
+    },
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "objective": {
+        "ok": true,
+        "nexoraBrain": true,
+        "objectiveId": "objective_1777945587665_ikuanvsl67s",
+        "division": "crm",
+        "title": "Every open lead has a next action.",
+        "description": "Nexora company objective",
+        "metric": "open_leads_with_next_action",
+        "target": "100%",
+        "priority": 85,
+        "status": "active",
+        "createdAt": "2026-05-05T01:46:27.665Z",
+        "payload": {}
+      }
+    },
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "objective": {
+        "ok": true,
+        "nexoraBrain": true,
+        "objectiveId": "objective_1777945587665_ctj4df2w9cb",
+        "division": "safety",
+        "title": "High-risk commitments remain approval-gated.",
+        "description": "Nexora company objective",
+        "metric": "unsafe_commitments",
+        "target": "0",
+        "priority": 100,
+        "status": "active",
+        "createdAt": "2026-05-05T01:46:27.665Z",
+        "payload": {}
+      }
+    },
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "objective": {
+        "ok": true,
+        "nexoraBrain": true,
+        "objectiveId": "objective_1777945587667_1ov41jqs3x1h",
+        "division": "operations",
+        "title": "Run DB-independent while Postgres is full.",
+        "description": "Nexora company objective",
+        "metric": "fallback_safe_operations",
+        "target": "healthy",
+        "priority": 95,
+        "status": "active",
+        "createdAt": "2026-05-05T01:46:27.667Z",
+        "payload": {}
+      }
+    }
+  ],
+  "workOrders": [
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "workOrder": {
+        "ok": true,
+        "nexoraBrain": true,
+        "workOrderId": "work_order_1777945587668_kr4hnpjn7db",
+        "division": "office_sales",
+        "assignedAgent": "office_receptionist_agent",
+        "action": "review_open_leads_and_qualify",
+        "title": "Review open leads and qualify quote readiness",
+        "status": "queued",
+        "risk": "safe",
+        "approvalRequired": false,
+        "policy": {
+          "ok": true,
+          "nexoraBrain": true,
+          "generatedAt": "2026-05-05T01:46:27.668Z",
+          "allowed": true,
+          "approvalRequired": false,
+          "violations": [],
+          "policies": [
+            {
+              "id": "POLICY_NEXORA_ONLY_BRAIN",
+              "severity": "critical",
+              "rule": "Nexora is the only decision authority. Workers execute delegated work only."
+            },
+            {
+              "id": "POLICY_TRADING_SANDBOX",
+              "severity": "critical",
+              "rule": "Trading and Phantom X remain paper/sandbox unless explicitly promoted through approval."
+            },
+            {
+              "id": "POLICY_SUPPLIER_COMMITMENT_GATE",
+              "severity": "high",
+              "rule": "Purchase orders and supplier commitments require approval."
+            },
+            {
+              "id": "POLICY_CUSTOMER_BINDING_GATE",
+              "severity": "high",
+              "rule": "Customer-facing binding quotes require approval."
+            },
+            {
+              "id": "POLICY_DB_OUTAGE_FALLBACK",
+              "severity": "medium",
+              "rule": "If Postgres is unavailable or full, capture work in local fallback systems."
+            }
+          ]
+        },
+        "priority": 90,
+        "payload": {},
+        "createdAt": "2026-05-05T01:46:27.669Z",
+        "updatedAt": "2026-05-05T01:46:27.669Z",
+        "safety": {
+          "noExternalCommitment": true,
+          "highRiskApprovalGated": true,
+          "nexoraOnlyBrain": true
+        }
+      }
+    },
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "workOrder": {
+        "ok": true,
+        "nexoraBrain": true,
+        "workOrderId": "work_order_1777945587671_cadtkpo16aa",
+        "division": "finance",
+        "assignedAgent": "margin_guardian_agent",
+        "action": "review_quote_margin_thresholds",
+        "title": "Review quote margins and approval thresholds",
+        "status": "queued",
+        "risk": "medium",
+        "approvalRequired": false,
+        "policy": {
+          "ok": true,
+          "nexoraBrain": true,
+          "generatedAt": "2026-05-05T01:46:27.671Z",
+          "allowed": true,
+          "approvalRequired": false,
+          "violations": [],
+          "policies": [
+            {
+              "id": "POLICY_NEXORA_ONLY_BRAIN",
+              "severity": "critical",
+              "rule": "Nexora is the only decision authority. Workers execute delegated work only."
+            },
+            {
+              "id": "POLICY_TRADING_SANDBOX",
+              "severity": "critical",
+              "rule": "Trading and Phantom X remain paper/sandbox unless explicitly promoted through approval."
+            },
+            {
+              "id": "POLICY_SUPPLIER_COMMITMENT_GATE",
+              "severity": "high",
+              "rule": "Purchase orders and supplier commitments require approval."
+            },
+            {
+              "id": "POLICY_CUSTOMER_BINDING_GATE",
+              "severity": "high",
+              "rule": "Customer-facing binding quotes require approval."
+            },
+            {
+              "id": "POLICY_DB_OUTAGE_FALLBACK",
+              "severity": "medium",
+              "rule": "If Postgres is unavailable or full, capture work in local fallback systems."
+            }
+          ]
+        },
+        "priority": 80,
+        "payload": {},
+        "createdAt": "2026-05-05T01:46:27.671Z",
+        "updatedAt": "2026-05-05T01:46:27.671Z",
+        "safety": {
+          "noExternalCommitment": true,
+          "highRiskApprovalGated": true,
+          "nexoraOnlyBrain": true
+        }
+      }
+    },
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "workOrder": {
+        "ok": true,
+        "nexoraBrain": true,
+        "workOrderId": "work_order_1777945587672_gsnlp8rmf5b",
+        "division": "procurement",
+        "assignedAgent": "supplier_scout_agent",
+        "action": "prepare_non_binding_supplier_requests",
+        "title": "Prepare non-binding supplier requests",
+        "status": "approval_required",
+        "risk": "medium",
+        "approvalRequired": true,
+        "policy": {
+          "ok": true,
+          "nexoraBrain": true,
+          "generatedAt": "2026-05-05T01:46:27.672Z",
+          "allowed": false,
+          "approvalRequired": true,
+          "violations": [
+            {
+              "id": "POLICY_SUPPLIER_COMMITMENT_GATE",
+              "severity": "high",
+              "rule": "Purchase orders and supplier commitments require approval."
+            },
+            {
+              "id": "POLICY_CUSTOMER_BINDING_GATE",
+              "severity": "high",
+              "rule": "Customer-facing binding quotes require approval."
+            }
+          ],
+          "policies": [
+            {
+              "id": "POLICY_NEXORA_ONLY_BRAIN",
+              "severity": "critical",
+              "rule": "Nexora is the only decision authority. Workers execute delegated work only."
+            },
+            {
+              "id": "POLICY_TRADING_SANDBOX",
+              "severity": "critical",
+              "rule": "Trading and Phantom X remain paper/sandbox unless explicitly promoted through approval."
+            },
+            {
+              "id": "POLICY_SUPPLIER_COMMITMENT_GATE",
+              "severity": "high",
+              "rule": "Purchase orders and supplier commitments require approval."
+            },
+            {
+              "id": "POLICY_CUSTOMER_BINDING_GATE",
+              "severity": "high",
+              "rule": "Customer-facing binding quotes require approval."
+            },
+            {
+              "id": "POLICY_DB_OUTAGE_FALLBACK",
+              "severity": "medium",
+              "rule": "If Postgres is unavailable or full, capture work in local fallback systems."
+            }
+          ]
+        },
+        "priority": 82,
+        "payload": {
+          "purchaseOrder": false,
+          "bindingCommitment": false
+        },
+        "createdAt": "2026-05-05T01:46:27.672Z",
+        "updatedAt": "2026-05-05T01:46:27.672Z",
+        "safety": {
+          "noExternalCommitment": true,
+          "highRiskApprovalGated": true,
+          "nexoraOnlyBrain": true
+        }
+      }
+    },
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "workOrder": {
+        "ok": true,
+        "nexoraBrain": true,
+        "workOrderId": "work_order_1777945587673_pbm3dyorhtd",
+        "division": "trading_intelligence",
+        "assignedAgent": "phantom_x_paper_agent",
+        "action": "paper_trading_intelligence_review",
+        "title": "Review paper/sandbox trading intelligence only",
+        "status": "approval_required",
+        "risk": "medium",
+        "approvalRequired": true,
+        "policy": {
+          "ok": true,
+          "nexoraBrain": true,
+          "generatedAt": "2026-05-05T01:46:27.673Z",
+          "allowed": false,
+          "approvalRequired": true,
+          "violations": [
+            {
+              "id": "POLICY_TRADING_SANDBOX",
+              "severity": "critical",
+              "rule": "Trading and Phantom X remain paper/sandbox unless explicitly promoted through approval."
+            }
+          ],
+          "policies": [
+            {
+              "id": "POLICY_NEXORA_ONLY_BRAIN",
+              "severity": "critical",
+              "rule": "Nexora is the only decision authority. Workers execute delegated work only."
+            },
+            {
+              "id": "POLICY_TRADING_SANDBOX",
+              "severity": "critical",
+              "rule": "Trading and Phantom X remain paper/sandbox unless explicitly promoted through approval."
+            },
+            {
+              "id": "POLICY_SUPPLIER_COMMITMENT_GATE",
+              "severity": "high",
+              "rule": "Purchase orders and supplier commitments require approval."
+            },
+            {
+              "id": "POLICY_CUSTOMER_BINDING_GATE",
+              "severity": "high",
+              "rule": "Customer-facing binding quotes require approval."
+            },
+            {
+              "id": "POLICY_DB_OUTAGE_FALLBACK",
+              "severity": "medium",
+              "rule": "If Postgres is unavailable or full, capture work in local fallback systems."
+            }
+          ]
+        },
+        "priority": 60,
+        "payload": {
+          "liveTrading": false,
+          "tradingMode": "paper/sandbox"
+        },
+        "createdAt": "2026-05-05T01:46:27.673Z",
+        "updatedAt": "2026-05-05T01:46:27.673Z",
+        "safety": {
+          "noExternalCommitment": true,
+          "highRiskApprovalGated": true,
+          "nexoraOnlyBrain": true
+        }
+      }
+    },
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "workOrder": {
+        "ok": true,
+        "nexoraBrain": true,
+        "workOrderId": "work_order_1777945587674_zhi1g6f766",
+        "division": "safety",
+        "assignedAgent": "nexora_execution_gate",
+        "action": "review_high_risk_commitment_queue",
+        "title": "Review high-risk commitment queue",
+        "status": "approval_required",
+        "risk": "high",
+        "approvalRequired": true,
+        "policy": {
+          "ok": true,
+          "nexoraBrain": true,
+          "generatedAt": "2026-05-05T01:46:27.674Z",
+          "allowed": true,
+          "approvalRequired": false,
+          "violations": [],
+          "policies": [
+            {
+              "id": "POLICY_NEXORA_ONLY_BRAIN",
+              "severity": "critical",
+              "rule": "Nexora is the only decision authority. Workers execute delegated work only."
+            },
+            {
+              "id": "POLICY_TRADING_SANDBOX",
+              "severity": "critical",
+              "rule": "Trading and Phantom X remain paper/sandbox unless explicitly promoted through approval."
+            },
+            {
+              "id": "POLICY_SUPPLIER_COMMITMENT_GATE",
+              "severity": "high",
+              "rule": "Purchase orders and supplier commitments require approval."
+            },
+            {
+              "id": "POLICY_CUSTOMER_BINDING_GATE",
+              "severity": "high",
+              "rule": "Customer-facing binding quotes require approval."
+            },
+            {
+              "id": "POLICY_DB_OUTAGE_FALLBACK",
+              "severity": "medium",
+              "rule": "If Postgres is unavailable or full, capture work in local fallback systems."
+            }
+          ]
+        },
+        "priority": 100,
+        "payload": {},
+        "createdAt": "2026-05-05T01:46:27.674Z",
+        "updatedAt": "2026-05-05T01:46:27.674Z",
+        "safety": {
+          "noExternalCommitment": true,
+          "highRiskApprovalGated": true,
+          "nexoraOnlyBrain": true
+        }
+      }
+    }
+  ],
+  "divisionPlans": [
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "plan": {
+        "ok": true,
+        "nexoraBrain": true,
+        "planId": "division_plan_1777945587675_zkyj5ixp43n",
+        "division": "office_sales",
+        "title": "Office Furniture Sales",
+        "createdAt": "2026-05-05T01:46:27.675Z",
+        "ownerAgent": "office_receptionist_agent",
+        "mandate": "Capture enquiries, qualify leads, draft quote paths, and move customers through next actions.",
+        "workers": [
+          "office_receptionist_agent",
+          "quote_builder_agent",
+          "crm_followup_agent"
+        ],
+        "dailyChecklist": [
+          "Review new work orders.",
+          "Process safe queued tasks.",
+          "Hold high-risk work for approval.",
+          "Record progress and metrics.",
+          "Capture learning and blockers."
+        ],
+        "safety": [
+          "No binding customer quote without approval.",
+          "No payment collection."
+        ],
+        "payload": {
+          "cycleId": "loop_daily_1777945587616"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "plan": {
+        "ok": true,
+        "nexoraBrain": true,
+        "planId": "division_plan_1777945587675_ra56chtkj9",
+        "division": "fitouts",
+        "title": "Fitout Scope and Delivery",
+        "createdAt": "2026-05-05T01:46:27.675Z",
+        "ownerAgent": "fitout_scope_agent",
+        "mandate": "Capture site constraints, access issues, install windows, and project scope.",
+        "workers": [
+          "fitout_scope_agent",
+          "project_handover_agent"
+        ],
+        "dailyChecklist": [
+          "Review new work orders.",
+          "Process safe queued tasks.",
+          "Hold high-risk work for approval.",
+          "Record progress and metrics.",
+          "Capture learning and blockers."
+        ],
+        "safety": [
+          "No install commitment without approved quote and confirmed supplier path."
+        ],
+        "payload": {
+          "cycleId": "loop_daily_1777945587616"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "plan": {
+        "ok": true,
+        "nexoraBrain": true,
+        "planId": "division_plan_1777945587676_2vsdtkefty",
+        "division": "procurement",
+        "title": "Supplier and Procurement Intelligence",
+        "createdAt": "2026-05-05T01:46:27.676Z",
+        "ownerAgent": "supplier_scout_agent",
+        "mandate": "Request supplier pricing, stock, lead times, warranty, delivery cost, and alternatives.",
+        "workers": [
+          "supplier_scout_agent",
+          "supplier_risk_agent"
+        ],
+        "dailyChecklist": [
+          "Review new work orders.",
+          "Process safe queued tasks.",
+          "Hold high-risk work for approval.",
+          "Record progress and metrics.",
+          "Capture learning and blockers."
+        ],
+        "safety": [
+          "No supplier purchase order without approval.",
+          "No binding supplier commitment."
+        ],
+        "payload": {
+          "cycleId": "loop_daily_1777945587616"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "plan": {
+        "ok": true,
+        "nexoraBrain": true,
+        "planId": "division_plan_1777945587677_nmuz8n4frcb",
+        "division": "crm",
+        "title": "CRM and Follow-up",
+        "createdAt": "2026-05-05T01:46:27.677Z",
+        "ownerAgent": "crm_followup_agent",
+        "mandate": "Track leads, next actions, stale opportunities, follow-ups, and customer communication drafts.",
+        "workers": [
+          "crm_followup_agent",
+          "stale_lead_rescue_agent"
+        ],
+        "dailyChecklist": [
+          "Review new work orders.",
+          "Process safe queued tasks.",
+          "Hold high-risk work for approval.",
+          "Record progress and metrics.",
+          "Capture learning and blockers."
+        ],
+        "safety": [
+          "Draft messages only unless approved for sending by operator workflow."
+        ],
+        "payload": {
+          "cycleId": "loop_daily_1777945587616"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "plan": {
+        "ok": true,
+        "nexoraBrain": true,
+        "planId": "division_plan_1777945587677_x38ieuggrf",
+        "division": "finance",
+        "title": "Finance and Margin Control",
+        "createdAt": "2026-05-05T01:46:27.677Z",
+        "ownerAgent": "margin_guardian_agent",
+        "mandate": "Track quote value, margin, GST estimates, approval thresholds, and revenue forecasts.",
+        "workers": [
+          "margin_guardian_agent",
+          "quote_finance_agent",
+          "revenue_forecast_agent"
+        ],
+        "dailyChecklist": [
+          "Review new work orders.",
+          "Process safe queued tasks.",
+          "Hold high-risk work for approval.",
+          "Record progress and metrics.",
+          "Capture learning and blockers."
+        ],
+        "safety": [
+          "High-value or low-margin quotes require approval."
+        ],
+        "payload": {
+          "cycleId": "loop_daily_1777945587616"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "plan": {
+        "ok": true,
+        "nexoraBrain": true,
+        "planId": "division_plan_1777945587681_d4a67mcivw",
+        "division": "reporting",
+        "title": "Executive Reporting",
+        "createdAt": "2026-05-05T01:46:27.681Z",
+        "ownerAgent": "nexora_command_centre",
+        "mandate": "Create daily operating packs, KPI rollups, exception reports, and executive summaries.",
+        "workers": [
+          "nexora_command_centre",
+          "executive_report_agent"
+        ],
+        "dailyChecklist": [
+          "Review new work orders.",
+          "Process safe queued tasks.",
+          "Hold high-risk work for approval.",
+          "Record progress and metrics.",
+          "Capture learning and blockers."
+        ],
+        "safety": [
+          "Reports are informational and do not authorize commitments."
+        ],
+        "payload": {
+          "cycleId": "loop_daily_1777945587616"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "plan": {
+        "ok": true,
+        "nexoraBrain": true,
+        "planId": "division_plan_1777945587681_omtk7u5od9i",
+        "division": "learning",
+        "title": "Learning and Improvement",
+        "createdAt": "2026-05-05T01:46:27.681Z",
+        "ownerAgent": "learning_worker",
+        "mandate": "Capture patterns, failures, successful workflows, and improve future playbooks.",
+        "workers": [
+          "learning_worker",
+          "pattern_librarian_agent"
+        ],
+        "dailyChecklist": [
+          "Review new work orders.",
+          "Process safe queued tasks.",
+          "Hold high-risk work for approval.",
+          "Record progress and metrics.",
+          "Capture learning and blockers."
+        ],
+        "safety": [
+          "Worker retirement and spawning remain approval-gated."
+        ],
+        "payload": {
+          "cycleId": "loop_daily_1777945587616"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "plan": {
+        "ok": true,
+        "nexoraBrain": true,
+        "planId": "division_plan_1777945587682_jp19x19wv0s",
+        "division": "safety",
+        "title": "Execution Gate and Safety",
+        "createdAt": "2026-05-05T01:46:27.682Z",
+        "ownerAgent": "nexora_execution_gate",
+        "mandate": "Hold high-risk work, approvals, policy checks, trading limits, supplier commitments, and quote releases.",
+        "workers": [
+          "nexora_execution_gate",
+          "policy_guard_agent",
+          "risk_simulator_agent"
+        ],
+        "dailyChecklist": [
+          "Review new work orders.",
+          "Process safe queued tasks.",
+          "Hold high-risk work for approval.",
+          "Record progress and metrics.",
+          "Capture learning and blockers."
+        ],
+        "safety": [
+          "Nexora remains the only brain.",
+          "High-risk work must not bypass approval."
+        ],
+        "payload": {
+          "cycleId": "loop_daily_1777945587616"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "plan": {
+        "ok": true,
+        "nexoraBrain": true,
+        "planId": "division_plan_1777945587683_d9sdk0c4w7n",
+        "division": "trading_intelligence",
+        "title": "Trading Intelligence",
+        "createdAt": "2026-05-05T01:46:27.683Z",
+        "ownerAgent": "phantom_x_paper_agent",
+        "mandate": "Paper/sandbox trading intelligence, signal research, and risk observation only.",
+        "workers": [
+          "phantom_x_paper_agent",
+          "polymarket_paper_agent"
+        ],
+        "dailyChecklist": [
+          "Review new work orders.",
+          "Process safe queued tasks.",
+          "Hold high-risk work for approval.",
+          "Record progress and metrics.",
+          "Capture learning and blockers."
+        ],
+        "safety": [
+          "No live trading.",
+          "No private keys.",
+          "No real orders."
+        ],
+        "payload": {
+          "cycleId": "loop_daily_1777945587616"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "nexoraBrain": true,
+      "plan": {
+        "ok": true,
+        "nexoraBrain": true,
+        "planId": "division_plan_1777945587683_fgvmzcwfogs",
+        "division": "operations",
+        "title": "Operations and Resilience",
+        "createdAt": "2026-05-05T01:46:27.683Z",
+        "ownerAgent": "nexora_operations_agent",
+        "mandate": "Maintain local/offline operation, storage guard, fallback journal, route wiring, recovery packs, and scheduler.",
+        "workers": [
+          "nexora_operations_agent",
+          "storage_guard_agent",
+          "maintenance_planner_agent"
+        ],
+        "dailyChecklist": [
+          "Review new work orders.",
+          "Process safe queued tasks.",
+          "Hold high-risk work for approval.",
+          "Record progress and metrics.",
+          "Capture learning and blockers."
+        ],
+        "safety": [
+          "No deploy while Postgres is full.",
+          "Dry-run first for recovery and migration."
+        ],
+        "payload": {
+          "cycleId": "loop_daily_1777945587616"
+        }
+      }
+    }
+  ],
+  "safety": {
+    "noDeploy": true,
+    "dbIndependent": true,
+    "highRiskApprovalGated": true,
+    "tradingMode": "paper/sandbox",
+    "noSupplierPurchaseOrders": true,
+    "noBindingCustomerQuotes": true
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_moondev_copy_whale_adapter_plan",
+  "planId": "copy_whale_adapter_plan_1777911884704_lmt5r6f0fd",
+  "createdAt": "2026-05-04T16:24:44.704Z",
+  "sources": {
+    "copybotAgent": {
+      "exists": true,
+      "file": "research/moondev-selected/src/agents/copybot_agent.py",
+      "relative": "src/agents/copybot_agent.py",
+      "lines": 327,
+      "symbols": {
+        "classes": [
+          "CopyBotAgent"
+        ],
+        "functions": [],
+        "asyncFunctions": [],
+        "imports": [
+          "os",
+          "pandas",
+          "anthropic",
+          "termcolor",
+          "dotenv",
+          "datetime",
+          "time",
+          "pathlib",
+          "src.config",
+          "src",
+          "src.data.ohlcv_collector"
+        ]
+      },
+      "snippets": [
+        "- good to pass in BTC/ETH data too in order to see market structure",
+        "4. Risk/reward ratio",
+        "   - Risk assessment",
+        "class CopyBotAgent:",
+        "    def __init__(self):",
+        "    def load_portfolio_data(self):",
+        "    def analyze_position(self, token):",
+        "    def execute_position_updates(self):",
+        "                if confidence < STRATEGY_MIN_CONFIDENCE:",
+        "                                max_usd_order_size,  # From config.py",
+        "    def run_analysis_cycle(self):"
+      ],
+      "danger": false
+    },
+    "whaleAgent": {
+      "exists": true,
+      "file": "research/moondev-selected/src/agents/whale_agent.py",
+      "relative": "src/agents/whale_agent.py",
+      "lines": 680,
+      "symbols": {
+        "classes": [
+          "WhaleAgent"
+        ],
+        "functions": [],
+        "asyncFunctions": [],
+        "imports": [
+          "os",
+          "pandas",
+          "time",
+          "datetime",
+          "termcolor",
+          "dotenv",
+          "openai",
+          "pathlib",
+          "src",
+          "src",
+          "src.agents.api",
+          "collections",
+          "src.agents.base_agent",
+          "traceback",
+          "numpy",
+          "anthropic",
+          "src"
+        ]
+      },
+      "snippets": [
+        "class WhaleAgent(BaseAgent):",
+        "    def __init__(self):",
+        "    def load_history(self):",
+        "    def _save_oi_data(self, timestamp, btc_oi, eth_oi, total_oi):",
+        "    def _format_number_for_speech(self, number):",
+        "    def _get_current_oi(self):",
+        "    def _get_historical_oi(self, minutes_ago):",
+        "    def _calculate_changes(self, current_oi):",
+        "    def _analyze_opportunity(self, changes, market_data):",
+        "    def _format_announcement(self, changes):",
+        "    def run_monitoring_cycle(self):",
+        "    def _announce(self, message, is_whale=False):",
+        "    def _announce_initial_summary(self):",
+        "    def _detect_whale_activity(self, current_change):"
+      ],
+      "danger": false
+    }
+  },
+  "target": "tradingmega + paper copy signal ranking",
+  "adapterIdeas": [
+    "Whale wallet observations.",
+    "Copy-signal scoring.",
+    "Consensus across whales.",
+    "Paper-only copy tracking.",
+    "Delayed fill/slippage simulation."
+  ],
+  "nexoraActions": [
+    "Keep copy trading paper-only.",
+    "Add smart wallet allowlist schema later.",
+    "Add copy signal confidence decay later."
+  ],
+  "safety": {
+    "noLiveCopyTrading": true,
+    "noWalletSigning": true,
+    "directImport": false
+  }
+}

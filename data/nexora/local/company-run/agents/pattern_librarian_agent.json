@@ -1,0 +1,13 @@
+{
+  "agentId": "pattern_librarian_agent",
+  "worker": "pattern_librarian_agent",
+  "division": "learning",
+  "title": "Pattern Librarian Agent",
+  "status": "active",
+  "nexoraBrain": true,
+  "canCommitExternally": false,
+  "createdAt": "2026-05-05T01:46:27.634Z",
+  "safety": [
+    "Worker retirement and spawning remain approval-gated."
+  ]
+}

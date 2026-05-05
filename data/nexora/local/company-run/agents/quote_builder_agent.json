@@ -1,0 +1,14 @@
+{
+  "agentId": "quote_builder_agent",
+  "worker": "quote_builder_agent",
+  "division": "office_sales",
+  "title": "Quote Builder Agent",
+  "status": "active",
+  "nexoraBrain": true,
+  "canCommitExternally": false,
+  "createdAt": "2026-05-05T01:46:27.634Z",
+  "safety": [
+    "No binding customer quote without approval.",
+    "No payment collection."
+  ]
+}

@@ -1,0 +1,7 @@
+# Key folders
+FOUND server/services/intelligence/nexora/autonomy
+FOUND server/services/intelligence/nexora/autonomy/routes
+FOUND server/services/intelligence/nexora/polymarket
+FOUND data/nexora/local
+FOUND scripts
+FOUND research/moondev-selected

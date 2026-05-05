@@ -1,0 +1,13 @@
+{
+  "agentId": "learning_worker",
+  "worker": "learning_worker",
+  "division": "learning",
+  "title": "Learning Worker",
+  "status": "active",
+  "nexoraBrain": true,
+  "canCommitExternally": false,
+  "createdAt": "2026-05-05T01:46:27.634Z",
+  "safety": [
+    "Worker retirement and spawning remain approval-gated."
+  ]
+}

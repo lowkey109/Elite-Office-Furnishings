@@ -1,0 +1,58 @@
+[
+  {
+    "file": "server/marketing.ts",
+    "name": "registerMarketingRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+    "name": "registerNexoraAdvancedAutonomyRoutes"
+  },
+  {
+    "file": "src/nexora/autonomy/routes/nexoraDurableAutonomyRoutes.ts",
+    "name": "registerNexoraDurableAutonomyRoutes"
+  },
+  {
+    "file": "src/nexora/empire/routes/nexoraEmpireRoutes.ts",
+    "name": "registerNexoraEmpireRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes.ts",
+    "name": "registerNexoraFileBusRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts",
+    "name": "registerNexoraGovernorBusinessRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts",
+    "name": "registerNexoraHardMountRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "name": "registerNexoraLiveVerificationRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "name": "registerNexoraLocalBusinessRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "name": "registerNexoraMegaBuildRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes.ts",
+    "name": "registerNexoraMissionControlRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts",
+    "name": "registerNexoraOperationalAutopilotRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts",
+    "name": "registerNexoraResilienceRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts",
+    "name": "registerNexoraSupremeMatrixRoutes"
+  }
+]

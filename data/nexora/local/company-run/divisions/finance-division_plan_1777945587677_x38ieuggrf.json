@@ -1,0 +1,28 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "planId": "division_plan_1777945587677_x38ieuggrf",
+  "division": "finance",
+  "title": "Finance and Margin Control",
+  "createdAt": "2026-05-05T01:46:27.677Z",
+  "ownerAgent": "margin_guardian_agent",
+  "mandate": "Track quote value, margin, GST estimates, approval thresholds, and revenue forecasts.",
+  "workers": [
+    "margin_guardian_agent",
+    "quote_finance_agent",
+    "revenue_forecast_agent"
+  ],
+  "dailyChecklist": [
+    "Review new work orders.",
+    "Process safe queued tasks.",
+    "Hold high-risk work for approval.",
+    "Record progress and metrics.",
+    "Capture learning and blockers."
+  ],
+  "safety": [
+    "High-value or low-margin quotes require approval."
+  ],
+  "payload": {
+    "cycleId": "loop_daily_1777945587616"
+  }
+}

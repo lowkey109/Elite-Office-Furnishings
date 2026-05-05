@@ -1,0 +1,49 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_moondev_imported_strategy",
+  "strategyId": "moondev_strategy_1777911884279_9qohcqipny4",
+  "name": "Polymarket AI Agents - Roadmap",
+  "sourceFile": "research/moondev-selected/docs/polymarket_agents.md",
+  "relativePath": "docs/polymarket_agents.md",
+  "root": "research/moondev-selected",
+  "importedAt": "2026-05-04T16:24:44.279Z",
+  "lines": 239,
+  "bytes": 9048,
+  "classification": {
+    "volatility": true,
+    "momentum": false,
+    "meanReversion": false,
+    "liquidity": true,
+    "fibonacci": false,
+    "stochastic": false,
+    "vwap": false,
+    "polymarket": true,
+    "backtest": true,
+    "danger": true
+  },
+  "metrics": {
+    "percentValues": [
+      70,
+      55,
+      15
+    ],
+    "moneyValues": [
+      10,
+      50,
+      5,
+      90,
+      2.3,
+      12.3
+    ],
+    "bestPercent": 70,
+    "worstPercent": 15,
+    "sharpe": null,
+    "drawdown": null,
+    "winRate": null
+  },
+  "score": 65,
+  "directUseAllowed": false,
+  "paperOnly": true,
+  "nexoraAction": "quarantine_review"
+}

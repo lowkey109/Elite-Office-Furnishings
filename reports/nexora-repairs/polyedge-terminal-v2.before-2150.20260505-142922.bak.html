@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PolyEdge Terminal</title>
+<style>
+:root{--bg:#02070c;--panel:#06131d;--line:#0d5064;--cyan:#5df7ff;--green:#67ff9a;--red:#ff4e69;--gold:#ffd35a;--muted:#6c9fab}
+*{box-sizing:border-box}
+body{margin:0;background:#02070c;color:#dffaff;font-family:"IBM Plex Mono",Menlo,monospace;font-size:11px}
+body:before{content:"";position:fixed;inset:0;background:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px);background-size:100% 4px;pointer-events:none}
+.wrap{padding:10px}
+.top{display:grid;grid-template-columns:1.4fr repeat(5,1fr);gap:8px;margin-bottom:8px}
+.box{background:linear-gradient(180deg,#06131d,#02080e);border:1px solid var(--line);padding:10px;border-radius:8px;min-width:0}
+.title{font-size:22px;font-weight:900;color:var(--cyan);letter-spacing:.12em}
+.sub{color:var(--muted);font-size:10px;margin-top:4px}
+.k span{display:block;color:var(--muted);font-size:9px;text-transform:uppercase}.k b{font-size:20px}
+.good{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--gold)}
+.grid{display:grid;grid-template-columns:1.4fr 1fr;gap:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px}
+h3{margin:0 0 8px;color:#a9fbff;font-size:11px;text-transform:uppercase;letter-spacing:.12em}
+#graph,#candles,#pnl{width:100%;height:340px;background:#01060b;border:1px solid rgba(93,247,255,.14);display:block}
+#pnl{height:150px}
+table{width:100%;border-collapse:collapse;font-size:10px}td,th{border-bottom:1px solid rgba(93,247,255,.17);padding:5px;text-align:left}th{color:#7aaeba;text-transform:uppercase;font-size:9px}
+pre{margin:0;white-space:pre-wrap;color:#c6f9ff;font-size:10px;max-height:180px;overflow:auto}
+@media(max-width:900px){.top,.grid,.grid2{grid-template-columns:1fr}#graph,#candles{height:300px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="top">
+    <div class="box"><div class="title">POLY/EDGE</div><div class="sub">MoonDev strategy · paper trader · real data only</div></div>
+    <div class="box k"><span>Win Rate</span><b id="winRate">--</b></div>
+    <div class="box k"><span>Confidence</span><b id="confidence">--</b></div>
+    <div class="box k"><span>Trades</span><b id="trades">--</b></div>
+    <div class="box k"><span>Wins</span><b id="wins">--</b></div>
+    <div class="box k"><span>Live Money</span><b class="bad">LOCKED</b></div>
+  </section>
+
+  <section class="grid">
+    <div class="box">
+      <h3>Moving Signal Graph</h3>
+      <canvas id="graph"></canvas>
+    </div>
+    <div class="box">
+      <h3>Latest Signal</h3>
+      <table>
+        <tr><th>Asset</th><td id="latestAsset">--</td></tr>
+        <tr><th>Signal</th><td id="latestSignal">--</td></tr>
+        <tr><th>Result</th><td id="latestResult">--</td></tr>
+        <tr><th>Score</th><td id="latestScore">--</td></tr>
+        <tr><th>PNL</th><td id="latestPnl">--</td></tr>
+      </table>
+      <h3 style="margin-top:12px">Asset Leaderboard</h3>
+      <table id="leaderboard"></table>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="box">
+      <h3>Real BTC Candles</h3>
+      <canvas id="candles"></canvas>
+      <div class="sub">Uses Binance public candles. If unavailable, shows waiting.</div>
+    </div>
+    <div class="box">
+      <h3>Paper PNL</h3>
+      <canvas id="pnl"></canvas>
+    </div>
+    <div class="box">
+      <h3>System State</h3>
+      <pre id="state">Loading...</pre>
+    </div>
+  </section>
+</div>
+
+<script>
+let summary=null,state=null,t=0;
+
+async function j(url){
+  const r=await fetch(url,{headers:{Accept:"application/json"}});
+  const txt=await r.text();
+  try{return JSON.parse(txt)}catch{return {ok:false,error:txt.slice(0,200)}}
+}
+function resize(c){const r=c.getBoundingClientRect();c.width=r.width*devicePixelRatio;c.height=r.height*devicePixelRatio;return c.getContext("2d")}
+function clear(ctx,c){ctx.fillStyle="#01060b";ctx.fillRect(0,0,c.width,c.height)}
+function line(ctx,c,vals,color){
+  if(!vals.length){ctx.fillStyle="#ffd35a";ctx.font="14px monospace";ctx.fillText("WAITING FOR REAL DATA",20,40);return}
+  const mn=Math.min(...vals),mx=Math.max(...vals);ctx.strokeStyle=color;ctx.lineWidth=2*devicePixelRatio;ctx.beginPath();
+  vals.forEach((v,i)=>{const x=i*(c.width/(vals.length-1||1));const y=c.height-((v-mn)/(mx-mn||1))*c.height*.8-c.height*.1;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});
+  ctx.stroke();
+}
+function drawGraph(){
+  const c=document.getElementById("graph"),ctx=resize(c);clear(ctx,c);
+  const assets=(summary?.assets||[]).filter(a=>a.asset&&a.asset!=="unknown");
+  if(!assets.length){ctx.fillStyle="#ffd35a";ctx.font="14px monospace";ctx.fillText("WAITING FOR PAPER SUMMARY DATA",20,40);return}
+  const cx=c.width/2,cy=c.height/2;
+  const pts=assets.map((a,i)=>({a,ang:Math.PI*2*i/assets.length+t*.015,r:(90+(a.avgScore||50)*1.8)*devicePixelRatio}));
+  for(let i=0;i<pts.length;i++)for(let k=i+1;k<pts.length;k++){ctx.strokeStyle="rgba(93,247,255,.16)";ctx.beginPath();ctx.moveTo(cx+Math.cos(pts[i].ang)*pts[i].r,cy+Math.sin(pts[i].ang)*pts[i].r);ctx.lineTo(cx+Math.cos(pts[k].ang)*pts[k].r,cy+Math.sin(pts[k].ang)*pts[k].r);ctx.stroke()}
+  pts.forEach(p=>{const x=cx+Math.cos(p.ang)*p.r,y=cy+Math.sin(p.ang)*p.r,rr=(10+(p.a.avgScore||50)/7)*devicePixelRatio;ctx.fillStyle=p.a.winRate>=80?"#67ff9a":p.a.winRate>=60?"#ffd35a":"#ff4e69";ctx.beginPath();ctx.arc(x,y,rr,0,Math.PI*2);ctx.fill();ctx.fillStyle="#dffaff";ctx.font=(11*devicePixelRatio)+"px monospace";ctx.fillText(p.a.asset,x+rr+5,y)})
+}
+async function drawCandles(){
+  const c=document.getElementById("candles"),ctx=resize(c);clear(ctx,c);
+  try{const raw=await fetch("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=80").then(r=>r.json());if(!Array.isArray(raw))throw new Error("No candles");line(ctx,c,raw.map(k=>Number(k[4])),"#5df7ff")}catch(e){ctx.fillStyle="#ffd35a";ctx.font="14px monospace";ctx.fillText("WAITING FOR REAL CANDLE DATA",20,40)}
+}
+function drawPnl(){const c=document.getElementById("pnl"),ctx=resize(c);clear(ctx,c);line(ctx,c,(summary?.assets||[]).map(a=>a.pnl||0),"#67ff9a")}
+function render(){
+  winRate.textContent=(summary?.winRate||0)+"%";
+  confidence.textContent=(summary?.displayedConfidencePercent||0)+"%";
+  trades.textContent=summary?.countedTrades||0;
+  wins.textContent=summary?.wins||0;
+  latestAsset.textContent=summary?.latest?.raw?.asset||"--";
+  latestSignal.textContent=summary?.latest?.raw?.paperSignal||"--";
+  latestResult.textContent=summary?.latest?.result||"--";
+  latestScore.textContent=summary?.latest?.scored?.score||"--";
+  latestPnl.textContent=summary?.latest?.raw?.pnl||"--";
+  leaderboard.innerHTML="<tr><th>Asset</th><th>Win</th><th>Score</th><th>Trades</th></tr>"+(summary?.assets||[]).filter(a=>a.asset!=="unknown").map(a=>`<tr><td>${a.asset}</td><td>${a.winRate}%</td><td>${a.avgScore}</td><td>${a.countedTrades}</td></tr>`).join("");
+  state.textContent=JSON.stringify({paperPractice:state?.paperPractice,counts:state?.counts,confidence:state?.confidence,safety:state?.safety},null,2);
+  drawGraph();drawCandles();drawPnl();
+}
+async function load(){summary=await j("/api/nexora/poly-paper-summary/latest");state=await j("/api/nexora/poly-edge-fixed/state");render()}
+setInterval(()=>{t++; if(summary)drawGraph()},1000);
+setInterval(load,5000);
+load();
+</script>
+</body>
+</html>

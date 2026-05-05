@@ -1,0 +1,1597 @@
+[
+  {
+    "file": "server/index.ts",
+    "importPath": "./services/nexoraLoop",
+    "statement": "import { startNexoraLoop } from \"./services/nexoraLoop\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/intelligence/dealHunter",
+    "statement": "import { pushDealHunterToRadar } from \"./services/intelligence/dealHunter\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/intelligence/dealHunter",
+    "statement": "import { pushDealHunterToPipeline } from \"./services/intelligence/dealHunter\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/relocationIntelligence",
+    "statement": "import { pushRelocationToPipeline } from \"./services/relocationIntelligence\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/relocationIntelligence",
+    "statement": "import { getMarketIntelligence } from \"./services/relocationIntelligence\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/relocationIntelligence",
+    "statement": "import { generateRelocationSignals } from \"./services/relocationIntelligence\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/intelligence/partnerNetwork",
+    "statement": "import { routeOpportunityToPartners } from \"./services/intelligence/partnerNetwork\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/intelligence/partnerNetwork",
+    "statement": "import { getNetworkSummary } from \"./services/intelligence/partnerNetwork\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/dealIntelligence",
+    "statement": "import { analyseAllDeals } from \"./services/dealIntelligence\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/intelligence/nexoraOrchestrator",
+    "statement": "import { getNexoraBackgroundState } from \"./services/intelligence/nexoraOrchestrator\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "../shared/schema",
+    "statement": "import { nexoraRuns, siteVisits, insertLeadSchema, insertProductReviewSchema } from \"../shared/schema\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/intelligence/nexoraOrchestrator",
+    "statement": "import { runNexoraCycle } from \"./services/intelligence/nexoraOrchestrator\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/leadIntelligence",
+    "statement": "import { analyseSignals, type SignalInput } from \"./services/leadIntelligence\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/intelligence/communications/whatsappService",
+    "statement": "import { whatsappWebhookHandler } from \"./services/intelligence/communications/whatsappService\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes",
+    "statement": "import { registerNexoraAdvancedAutonomyRoutes } from \"./services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes",
+    "statement": "import { registerNexoraGovernorBusinessRoutes } from \"./services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes",
+    "statement": "import { registerNexoraOperationalAutopilotRoutes } from \"./services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes",
+    "statement": "import { registerNexoraMissionControlRoutes } from \"./services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes",
+    "statement": "import { registerNexoraSupremeMatrixRoutes } from \"./services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes",
+    "statement": "import { registerNexoraMegaBuildRoutes } from \"./services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes",
+    "statement": "import { registerNexoraLiveVerificationRoutes } from \"./services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes",
+    "statement": "import { registerNexoraHardMountRoutes } from \"./services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes",
+    "statement": "import { registerNexoraResilienceRoutes } from \"./services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes",
+    "statement": "import { registerNexoraFileBusRoutes } from \"./services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes\""
+  },
+  {
+    "file": "server/routes.ts",
+    "importPath": "./services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes",
+    "statement": "import { registerNexoraLocalBusinessRoutes } from \"./services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes\""
+  },
+  {
+    "file": "server/services/dealIntelligence.ts",
+    "importPath": "@shared/schema",
+    "statement": "import type { InsertDealIntelligence } from \"@shared/schema\""
+  },
+  {
+    "file": "server/services/followUpScheduler.ts",
+    "importPath": "./intelligence/nexora/nexoraExecutionGate",
+    "statement": "import { assertNexoraExecutionApproved } from \"./intelligence/nexora/nexoraExecutionGate\""
+  },
+  {
+    "file": "server/services/intelligence/clusterEngine.ts",
+    "importPath": "@shared/schema",
+    "statement": "import {\n  intelligenceSignals,\n  officeMovRadar,\n  companyBuildingEdges,\n  suburbDemandSnapshots,\n  buildingRiskSnapshots,\n  clusters,\n  intelligenceGraphEdges,\n} from \"@shared/schema\""
+  },
+  {
+    "file": "server/services/intelligence/communications/whatsappService.ts",
+    "importPath": "../nexora/nexoraExecutionGate",
+    "statement": "import { assertNexoraExecutionApproved } from \"../nexora/nexoraExecutionGate\""
+  },
+  {
+    "file": "server/services/intelligence/companyIntelligenceAggregationService.ts",
+    "importPath": "@shared/schema",
+    "statement": "import {\n  companyIntelligence,\n  intelligenceSignals,\n  officeMovRadar,\n  dealHunterSignals,\n  companyBuildingEdges,\n  InsertCompanyBuildingEdge,\n} from \"@shared/schema\""
+  },
+  {
+    "file": "server/services/intelligence/dealHunter.ts",
+    "importPath": "./nexora/nexora-types",
+    "statement": "import type { DealHunterSignalLike } from \"./nexora/nexora-types\""
+  },
+  {
+    "file": "server/services/intelligence/demandForecastEngine.ts",
+    "importPath": "@shared/schema",
+    "statement": "import {\n  officeMovRadar,\n  dealHunterSignals,\n  intelligenceSignals,\n  suburbDemandSnapshots,\n  InsertSuburbDemandSnapshot,\n} from \"@shared/schema\""
+  },
+  {
+    "file": "server/services/intelligence/intelligenceGraphService.ts",
+    "importPath": "@shared/schema",
+    "statement": "import {\n  intelligenceGraphEdges,\n  companyHierarchyNodes,\n  companyRelationships,\n  suburbDemandSnapshots,\n  companyZoneScores,\n} from \"@shared/schema\""
+  },
+  {
+    "file": "server/services/intelligence/newsFeedScanner.ts",
+    "importPath": "./nexora/nexora-types",
+    "statement": "import type { RadarSignalLike } from \"./nexora/nexora-types\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/academy/nexoraAcademyEngine.ts",
+    "importPath": "../persistence/nexoraDurableKernel",
+    "statement": "import {\n  createNexoraDivisionObjective,\n  createNexoraDurableTask,\n  createNexoraMemoryGraphEdge,\n  ensureNexoraDurableKernel,\n  getNexoraDurableCommandSnapshot,\n  upsertNexoraWorker,\n  writeNexoraOperatingReport,\n} from \"../persistence/nexoraDurableKernel\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/academy/nexoraAcademyEngine.ts",
+    "importPath": "../strategy/nexoraStrategyCompiler",
+    "statement": "import { queryNexoraNeuralMemory } from \"../strategy/nexoraStrategyCompiler\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/autopilot/nexoraOperationalAutopilot.ts",
+    "importPath": "../persistence/nexoraDurableKernel",
+    "statement": "import {\n  claimAndRunNexoraSafeTasks,\n  createNexoraDelegation,\n  createNexoraDivisionObjective,\n  createNexoraDurableTask,\n  createNexoraMemoryGraphEdge,\n  ensureNexoraDurableKernel,\n  getNexoraDurableCommandSnapshot,\n  sendNexoraWorkerMessage,\n  upsertNexoraWorker,\n  writeNexoraOperatingReport,\n} from \"../persistence/nexoraDurableKernel\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/autopilot/nexoraOperationalAutopilot.ts",
+    "importPath": "../governor/nexoraAutonomyGovernor",
+    "statement": "import {\n  classifyNexoraRisk,\n  governAndQueueNexoraAction,\n  runNexoraGovernorCycle,\n  runNexoraSlaWatchdog,\n  runNexoraWorkerEvolutionCycle,\n} from \"../governor/nexoraAutonomyGovernor\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/autopilot/nexoraOperationalAutopilot.ts",
+    "importPath": "../business/nexoraBusinessPipelineEngine",
+    "statement": "import {\n  createNexoraBusinessPipeline,\n  runNexoraBulkBusinessPipeline,\n} from \"../business/nexoraBusinessPipelineEngine\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/business/nexoraBusinessPipelineEngine.ts",
+    "importPath": "../persistence/nexoraDurableKernel",
+    "statement": "import {\n  createNexoraDelegation,\n  createNexoraDivisionObjective,\n  createNexoraDurableTask,\n  createNexoraMemoryGraphEdge,\n  ensureNexoraDurableKernel,\n  sendNexoraWorkerMessage,\n  upsertNexoraWorker,\n  writeNexoraOperatingReport,\n} from \"../persistence/nexoraDurableKernel\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/business/nexoraBusinessPipelineEngine.ts",
+    "importPath": "../governor/nexoraAutonomyGovernor",
+    "statement": "import { governAndQueueNexoraAction } from \"../governor/nexoraAutonomyGovernor\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/cockpit/nexoraExecutiveCockpit.ts",
+    "importPath": "../persistence/nexoraDurableKernel",
+    "statement": "import {\n  claimAndRunNexoraSafeTasks,\n  createNexoraDivisionObjective,\n  createNexoraDurableTask,\n  ensureNexoraDurableKernel,\n  getNexoraDurableCommandSnapshot,\n  upsertNexoraWorker,\n  writeNexoraOperatingReport,\n} from \"../persistence/nexoraDurableKernel\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/cockpit/nexoraExecutiveCockpit.ts",
+    "importPath": "../finance/nexoraFinanceQuoteIntelligence",
+    "statement": "import { forecastNexoraRevenue } from \"../finance/nexoraFinanceQuoteIntelligence\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/cockpit/nexoraExecutiveCockpit.ts",
+    "importPath": "../supplier/nexoraSupplierCommand",
+    "statement": "import { queueNexoraSupplierSweep } from \"../supplier/nexoraSupplierCommand\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/cockpit/nexoraExecutiveCockpit.ts",
+    "importPath": "../crm/nexoraCrmPipelineEngine",
+    "statement": "import { queueNexoraCrmPipeline } from \"../crm/nexoraCrmPipelineEngine\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/cockpit/nexoraExecutiveCockpit.ts",
+    "importPath": "../project/nexoraProjectOpsEngine",
+    "statement": "import { queueNexoraProjectOps } from \"../project/nexoraProjectOpsEngine\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/cockpit/nexoraExecutiveCockpit.ts",
+    "importPath": "../academy/nexoraAcademyEngine",
+    "statement": "import { queueNexoraTraining } from \"../academy/nexoraAcademyEngine\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/cockpit/nexoraExecutiveCockpit.ts",
+    "importPath": "../strategy/nexoraStrategyCompiler",
+    "statement": "import { executeCompiledNexoraStrategy, queryNexoraNeuralMemory } from \"../strategy/nexoraStrategyCompiler\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/cockpit/nexoraExecutiveCockpit.ts",
+    "importPath": "../supreme/nexoraSupremeOrchestrationMatrix",
+    "statement": "import { executeNexoraSupremeMatrix } from \"../supreme/nexoraSupremeOrchestrationMatrix\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/crm/nexoraCrmPipelineEngine.ts",
+    "importPath": "../persistence/nexoraDurableKernel",
+    "statement": "import {\n  createNexoraDivisionObjective,\n  createNexoraDurableTask,\n  createNexoraMemoryGraphEdge,\n  ensureNexoraDurableKernel,\n  getNexoraDurableCommandSnapshot,\n  sendNexoraWorkerMessage,\n  upsertNexoraWorker,\n  writeNexoraOperatingReport,\n} from \"../persistence/nexoraDurableKernel\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/crm/nexoraCrmPipelineEngine.ts",
+    "importPath": "../governor/nexoraAutonomyGovernor",
+    "statement": "import { governAndQueueNexoraAction } from \"../governor/nexoraAutonomyGovernor\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/exporter/nexoraExportPack.ts",
+    "importPath": "../localcore/nexoraLocalCore",
+    "statement": "import {\n  nexoraLocalId,\n  nexoraLocalPath,\n  readNexoraJson,\n  writeNexoraJson,\n} from \"../localcore/nexoraLocalCore\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/exporter/nexoraExportPack.ts",
+    "importPath": "../localcrm/nexoraLocalCrm",
+    "statement": "import { listNexoraLocalLeads } from \"../localcrm/nexoraLocalCrm\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/exporter/nexoraExportPack.ts",
+    "importPath": "../localquotes/nexoraLocalQuoteBook",
+    "statement": "import { listNexoraLocalQuotes } from \"../localquotes/nexoraLocalQuoteBook\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/exporter/nexoraExportPack.ts",
+    "importPath": "../localsuppliers/nexoraLocalSupplierCatalogue",
+    "statement": "import { listNexoraLocalSuppliers } from \"../localsuppliers/nexoraLocalSupplierCatalogue\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/exporter/nexoraExportPack.ts",
+    "importPath": "../localprojects/nexoraLocalProjectBoard",
+    "statement": "import { listNexoraLocalProjects } from \"../localprojects/nexoraLocalProjectBoard\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/exporter/nexoraExportPack.ts",
+    "importPath": "../localapprovals/nexoraLocalApprovalGate",
+    "statement": "import { listNexoraLocalApprovals } from \"../localapprovals/nexoraLocalApprovalGate\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/exporter/nexoraExportPack.ts",
+    "importPath": "../timeline/nexoraTimeline",
+    "statement": "import { getNexoraTimeline } from \"../timeline/nexoraTimeline\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/exporter/nexoraExportPack.ts",
+    "importPath": "../warehouse/nexoraLocalWarehouse",
+    "statement": "import { getNexoraMetrics } from \"../warehouse/nexoraLocalWarehouse\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/exporter/nexoraLocalSnapshotEngine.ts",
+    "importPath": "../localcore/nexoraLocalCore",
+    "statement": "import {\n  nexoraLocalId,\n  nexoraLocalPath,\n  readNexoraJson,\n  writeNexoraJson,\n} from \"../localcore/nexoraLocalCore\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/exporter/nexoraLocalSnapshotEngine.ts",
+    "importPath": "../opsconsole/nexoraOfflineOpsConsole",
+    "statement": "import { getNexoraOfflineOpsConsole } from \"../opsconsole/nexoraOfflineOpsConsole\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/filebus/nexoraFileBus.ts",
+    "importPath": "../resilience/nexoraResilienceCore",
+    "statement": "import {\n  captureNexoraFallbackEvent,\n  safeCreateNexoraTaskOrFallback,\n} from \"../resilience/nexoraResilienceCore\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/finance/nexoraFinanceQuoteIntelligence.ts",
+    "importPath": "../persistence/nexoraDurableKernel",
+    "statement": "import {\n  claimAndRunNexoraSafeTasks,\n  createNexoraDivisionObjective,\n  createNexoraDurableTask,\n  createNexoraMemoryGraphEdge,\n  ensureNexoraDurableKernel,\n  getNexoraDurableCommandSnapshot,\n  upsertNexoraWorker,\n  writeNexoraOperatingReport,\n} from \"../persistence/nexoraDurableKernel\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/finance/nexoraFinanceQuoteIntelligence.ts",
+    "importPath": "../governor/nexoraAutonomyGovernor",
+    "statement": "import { classifyNexoraRisk, governAndQueueNexoraAction } from \"../governor/nexoraAutonomyGovernor\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/finance/nexoraFinanceQuoteIntelligence.ts",
+    "importPath": "../strategy/nexoraStrategyCompiler",
+    "statement": "import { createNexoraAuditVaultEntry } from \"../strategy/nexoraStrategyCompiler\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/governor/nexoraAutonomyGovernor.ts",
+    "importPath": "../persistence/nexoraDurableKernel",
+    "statement": "import {\n  claimAndRunNexoraSafeTasks,\n  createNexoraDelegation,\n  createNexoraDivisionObjective,\n  createNexoraDurableTask,\n  createNexoraMemoryGraphEdge,\n  ensureNexoraDurableKernel,\n  getNexoraDurableCommandSnapshot,\n  runNexoraEmpireCycle,\n  sendNexoraWorkerMessage,\n  upsertNexoraWorker,\n  writeNexoraOperatingReport,\n} from \"../persistence/nexoraDurableKernel\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localapprovals/nexoraLocalApprovalGate.ts",
+    "importPath": "../localcore/nexoraLocalCore",
+    "statement": "import {\n  appendNexoraJsonl,\n  nexoraLocalId,\n  nexoraLocalPath,\n  readNexoraJson,\n  readNexoraJsonl,\n  writeNexoraJson,\n} from \"../localcore/nexoraLocalCore\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localapprovals/nexoraLocalApprovalGate.ts",
+    "importPath": "../policy/nexoraPolicyPack",
+    "statement": "import { evaluateNexoraPolicy } from \"../policy/nexoraPolicyPack\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localcrm/nexoraLocalCrm.ts",
+    "importPath": "../localcore/nexoraLocalCore",
+    "statement": "import {\n  appendNexoraJsonl,\n  nexoraLocalId,\n  nexoraLocalPath,\n  readNexoraJson,\n  readNexoraJsonl,\n  writeNexoraJson,\n} from \"../localcore/nexoraLocalCore\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localcrm/nexoraLocalCrm.ts",
+    "importPath": "../timeline/nexoraTimeline",
+    "statement": "import { recordNexoraTimelineEvent } from \"../timeline/nexoraTimeline\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localprojects/nexoraLocalProjectBoard.ts",
+    "importPath": "../localcore/nexoraLocalCore",
+    "statement": "import {\n  appendNexoraJsonl,\n  nexoraLocalId,\n  nexoraLocalPath,\n  readNexoraJson,\n  readNexoraJsonl,\n  writeNexoraJson,\n} from \"../localcore/nexoraLocalCore\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localquotes/nexoraLocalQuoteBook.ts",
+    "importPath": "../localcore/nexoraLocalCore",
+    "statement": "import {\n  appendNexoraJsonl,\n  nexoraLocalId,\n  nexoraLocalPath,\n  readNexoraJson,\n  readNexoraJsonl,\n  writeNexoraJson,\n} from \"../localcore/nexoraLocalCore\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localquotes/nexoraLocalQuoteBook.ts",
+    "importPath": "../localapprovals/nexoraLocalApprovalGate",
+    "statement": "import { createNexoraLocalApproval } from \"../localapprovals/nexoraLocalApprovalGate\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localquotes/nexoraLocalQuoteBook.ts",
+    "importPath": "../warehouse/nexoraLocalWarehouse",
+    "statement": "import { recordNexoraMetric } from \"../warehouse/nexoraLocalWarehouse\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localsuppliers/nexoraLocalSupplierCatalogue.ts",
+    "importPath": "../localcore/nexoraLocalCore",
+    "statement": "import {\n  appendNexoraJsonl,\n  nexoraLocalId,\n  nexoraLocalPath,\n  readNexoraJson,\n  readNexoraJsonl,\n  writeNexoraJson,\n} from \"../localcore/nexoraLocalCore\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/mission/nexoraMissionControl.ts",
+    "importPath": "../persistence/nexoraDurableKernel",
+    "statement": "import {\n  claimAndRunNexoraSafeTasks,\n  createNexoraDelegation,\n  createNexoraDivisionObjective,\n  createNexoraDurableTask,\n  createNexoraMemoryGraphEdge,\n  ensureNexoraDurableKernel,\n  getNexoraDurableCommandSnapshot,\n  sendNexoraWorkerMessage,\n  upsertNexoraWorker,\n  writeNexoraOperatingReport,\n} from \"../persistence/nexoraDurableKernel\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/mission/nexoraMissionControl.ts",
+    "importPath": "../governor/nexoraAutonomyGovernor",
+    "statement": "import {\n  classifyNexoraRisk,\n  governAndQueueNexoraAction,\n  runNexoraGovernorCycle,\n  runNexoraSlaWatchdog,\n  runNexoraWorkerEvolutionCycle,\n} from \"../governor/nexoraAutonomyGovernor\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/mission/nexoraMissionControl.ts",
+    "importPath": "../business/nexoraBusinessPipelineEngine",
+    "statement": "import {\n  createNexoraBusinessPipeline,\n  runNexoraBulkBusinessPipeline,\n} from \"../business/nexoraBusinessPipelineEngine\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/mission/nexoraMissionControl.ts",
+    "importPath": "../autopilot/nexoraOperationalAutopilot",
+    "statement": "import {\n  createNexoraKpiLedgerSnapshot,\n  detectNexoraOperationalIncidents,\n  runNexoraAutopilotCycle,\n  runNexoraPipelineForemanCycle,\n} from \"../autopilot/nexoraOperationalAutopilot\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyRunner.ts",
+    "importPath": "./nexoraAutonomyFoundation",
+    "statement": "import {\n  queueNexoraTask,\n  recordNexoraHeartbeat,\n  generateNexoraDailyReport,\n  getNexoraAutonomyFoundationStatus,\n} from \"./nexoraAutonomyFoundation\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomySupervisor.ts",
+    "importPath": "./nexoraAutonomyRunner",
+    "statement": "import { runNexoraAutonomyRunnerTick } from \"./nexoraAutonomyRunner\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomySupervisor.ts",
+    "importPath": "./nexoraAutonomyExecutor",
+    "statement": "import { runNexoraBulkSafeExecution, getNexoraOperatingSnapshot } from \"./nexoraAutonomyExecutor\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomySupervisor.ts",
+    "importPath": "./nexoraAutonomyFoundation",
+    "statement": "import { generateNexoraDailyReport, recordNexoraHeartbeat } from \"./nexoraAutonomyFoundation\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraCommandCentre.ts",
+    "importPath": "./nexoraAutonomyFoundation",
+    "statement": "import { getNexoraAutonomyFoundationStatus, getNexoraTasks, getNexoraApprovals, getNexoraReports, getNexoraHeartbeats } from \"./nexoraAutonomyFoundation\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraCommandCentre.ts",
+    "importPath": "./nexoraAutonomySupervisor",
+    "statement": "import { getNexoraSupervisorStatus } from \"./nexoraAutonomySupervisor\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraCommandCentre.ts",
+    "importPath": "./nexoraAutonomyRunner",
+    "statement": "import { getNexoraAutonomyRunnerStatus } from \"./nexoraAutonomyRunner\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraCommandCentre.ts",
+    "importPath": "./nexoraSchedulerControl",
+    "statement": "import { getNexoraSchedules } from \"./nexoraSchedulerControl\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraCommandCentre.ts",
+    "importPath": "./nexoraAutonomyExecutor",
+    "statement": "import { getNexoraOperatingSnapshot } from \"./nexoraAutonomyExecutor\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraSchedulerControl.ts",
+    "importPath": "./nexoraAutonomyFoundation",
+    "statement": "import { queueNexoraTask, recordNexoraHeartbeat } from \"./nexoraAutonomyFoundation\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraSchedulerControl.ts",
+    "importPath": "./nexoraAutonomySupervisor",
+    "statement": "import { runNexoraSupervisorCycle } from \"./nexoraAutonomySupervisor\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraWorkerFactory.ts",
+    "importPath": "./nexoraAutonomyFoundation",
+    "statement": "import { queueNexoraTask } from \"./nexoraAutonomyFoundation\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/project/nexoraProjectOpsEngine.ts",
+    "importPath": "../persistence/nexoraDurableKernel",
+    "statement": "import {\n  createNexoraDelegation,\n  createNexoraDivisionObjective,\n  createNexoraDurableTask,\n  createNexoraMemoryGraphEdge,\n  ensureNexoraDurableKernel,\n  getNexoraDurableCommandSnapshot,\n  sendNexoraWorkerMessage,\n  upsertNexoraWorker,\n  writeNexoraOperatingReport,\n} from \"../persistence/nexoraDurableKernel\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/project/nexoraProjectOpsEngine.ts",
+    "importPath": "../governor/nexoraAutonomyGovernor",
+    "statement": "import { governAndQueueNexoraAction } from \"../governor/nexoraAutonomyGovernor\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/resilience/nexoraResilienceCore.ts",
+    "importPath": "../persistence/nexoraDurableKernel",
+    "statement": "import {\n  claimAndRunNexoraSafeTasks,\n  createNexoraDurableTask,\n  ensureNexoraDurableKernel,\n  getNexoraDurableCommandSnapshot,\n  writeNexoraOperatingReport,\n} from \"../persistence/nexoraDurableKernel\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+    "importPath": "../persistence/nexoraDurableKernel",
+    "statement": "import {\n  approveNexoraDurableTask,\n  claimAndRunNexoraSafeTasks,\n  createNexoraDelegation,\n  createNexoraDivisionObjective,\n  createNexoraDurableTask,\n  createNexoraMemoryGraphEdge,\n  ensureNexoraDurableKernel,\n  getNexoraDurableCommandSnapshot,\n  runNexoraEmpireCycle,\n  sendNexoraWorkerMessage,\n  upsertNexoraWorker,\n} from \"../persistence/nexoraDurableKernel\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes.ts",
+    "importPath": "../filebus/nexoraFileBus",
+    "statement": "import {\n  enqueueNexoraFileBusMessage,\n  getNexoraFileBusMessages,\n  getNexoraFileBusStatus,\n  processNexoraFileBus,\n  purgeNexoraFileBusChannel,\n  scheduleNexoraDelayedJob,\n} from \"../filebus/nexoraFileBus\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts",
+    "importPath": "../governor/nexoraAutonomyGovernor",
+    "statement": "import {\n  classifyNexoraRisk,\n  governAndQueueNexoraAction,\n  runNexoraGovernorCycle,\n  runNexoraSlaWatchdog,\n  runNexoraWorkerEvolutionCycle,\n} from \"../governor/nexoraAutonomyGovernor\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts",
+    "importPath": "../business/nexoraBusinessPipelineEngine",
+    "statement": "import {\n  createNexoraBusinessPipeline,\n  runNexoraBulkBusinessPipeline,\n} from \"../business/nexoraBusinessPipelineEngine\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "importPath": "../persistence/nexoraDurableKernel",
+    "statement": "import {\n  claimAndRunNexoraSafeTasks,\n  createNexoraDurableTask,\n  ensureNexoraDurableKernel,\n  getNexoraDurableCommandSnapshot,\n  writeNexoraOperatingReport,\n} from \"../persistence/nexoraDurableKernel\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "importPath": "../cockpit/nexoraExecutiveCockpit",
+    "statement": "import { getNexoraCockpitStatus, getNexoraExecutiveCockpit, runNexoraExecutiveOperatingBurst } from \"../cockpit/nexoraExecutiveCockpit\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "importPath": "../supreme/nexoraSupremeOrchestrationMatrix",
+    "statement": "import { getNexoraSupremeMatrixStatus, executeNexoraSupremeMatrix } from \"../supreme/nexoraSupremeOrchestrationMatrix\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "importPath": "../finance/nexoraFinanceQuoteIntelligence",
+    "statement": "import { getNexoraFinanceStatus } from \"../finance/nexoraFinanceQuoteIntelligence\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "importPath": "../supplier/nexoraSupplierCommand",
+    "statement": "import { getNexoraSupplierStatus } from \"../supplier/nexoraSupplierCommand\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "importPath": "../crm/nexoraCrmPipelineEngine",
+    "statement": "import { getNexoraCrmStatus } from \"../crm/nexoraCrmPipelineEngine\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "importPath": "../project/nexoraProjectOpsEngine",
+    "statement": "import { getNexoraProjectStatus } from \"../project/nexoraProjectOpsEngine\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "importPath": "../academy/nexoraAcademyEngine",
+    "statement": "import { getNexoraAcademyStatus } from \"../academy/nexoraAcademyEngine\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "importPath": "../strategy/nexoraStrategyCompiler",
+    "statement": "import { getNexoraStrategyCompilerStatus } from \"../strategy/nexoraStrategyCompiler\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "importPath": "../localapprovals/nexoraLocalApprovalGate",
+    "statement": "import {\n  createNexoraLocalApproval,\n  decideNexoraLocalApproval,\n  getNexoraLocalApprovalStatus,\n  listNexoraLocalApprovals,\n} from \"../localapprovals/nexoraLocalApprovalGate\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "importPath": "../localcrm/nexoraLocalCrm",
+    "statement": "import {\n  getNexoraLocalCrmStatus,\n  getNexoraLocalLead,\n  listNexoraLocalLeads,\n  upsertNexoraLocalLead,\n} from \"../localcrm/nexoraLocalCrm\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "importPath": "../localquotes/nexoraLocalQuoteBook",
+    "statement": "import {\n  createNexoraLocalQuote,\n  getNexoraLocalQuote,\n  getNexoraLocalQuoteBookStatus,\n  listNexoraLocalQuotes,\n} from \"../localquotes/nexoraLocalQuoteBook\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "importPath": "../localsuppliers/nexoraLocalSupplierCatalogue",
+    "statement": "import {\n  getNexoraLocalSupplierStatus,\n  listNexoraLocalSuppliers,\n  upsertNexoraLocalSupplier,\n} from \"../localsuppliers/nexoraLocalSupplierCatalogue\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "importPath": "../localprojects/nexoraLocalProjectBoard",
+    "statement": "import {\n  createNexoraLocalProject,\n  getNexoraLocalProjectStatus,\n  listNexoraLocalProjects,\n  updateNexoraLocalProjectStage,\n} from \"../localprojects/nexoraLocalProjectBoard\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "importPath": "../exporter/nexoraExportPack",
+    "statement": "import {\n  createNexoraExportPack,\n  getNexoraExportPack,\n  listNexoraExportPacks,\n} from \"../exporter/nexoraExportPack\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "importPath": "../exporter/nexoraLocalSnapshotEngine",
+    "statement": "import {\n  createNexoraLocalSnapshot,\n  getNexoraLocalSnapshot,\n  listNexoraLocalSnapshots,\n} from \"../exporter/nexoraLocalSnapshotEngine\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "importPath": "../finance/nexoraFinanceQuoteIntelligence",
+    "statement": "import {\n  analyseNexoraQuote,\n  forecastNexoraRevenue,\n  getNexoraFinanceStatus,\n  queueNexoraQuoteAnalysis,\n  registerNexoraFinanceWorkers,\n} from \"../finance/nexoraFinanceQuoteIntelligence\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "importPath": "../supplier/nexoraSupplierCommand",
+    "statement": "import {\n  buildNexoraSupplierMatrix,\n  draftNexoraSupplierRfq,\n  getNexoraSupplierStatus,\n  queueNexoraSupplierSweep,\n  registerNexoraSupplierWorkers,\n} from \"../supplier/nexoraSupplierCommand\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "importPath": "../crm/nexoraCrmPipelineEngine",
+    "statement": "import {\n  draftNexoraFollowup,\n  getNexoraCrmStatus,\n  queueNexoraCrmPipeline,\n  registerNexoraCrmWorkers,\n  scoreNexoraLead,\n} from \"../crm/nexoraCrmPipelineEngine\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "importPath": "../project/nexoraProjectOpsEngine",
+    "statement": "import {\n  createNexoraProjectPlan,\n  getNexoraProjectStatus,\n  queueNexoraProjectOps,\n  registerNexoraProjectWorkers,\n} from \"../project/nexoraProjectOpsEngine\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "importPath": "../academy/nexoraAcademyEngine",
+    "statement": "import {\n  createNexoraTrainingModule,\n  getNexoraAcademyStatus,\n  queueNexoraTraining,\n  registerNexoraAcademyWorkers,\n} from \"../academy/nexoraAcademyEngine\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "importPath": "../cockpit/nexoraExecutiveCockpit",
+    "statement": "import {\n  getNexoraCockpitStatus,\n  getNexoraExecutiveCockpit,\n  registerNexoraCockpitWorkers,\n  runNexoraExecutiveOperatingBurst,\n} from \"../cockpit/nexoraExecutiveCockpit\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes.ts",
+    "importPath": "../mission/nexoraMissionControl",
+    "statement": "import {\n  createNexoraOperatingCadence,\n  executeNexoraMission,\n  generateNexoraRunbook,\n  getNexoraMissionControlStatus,\n  queueNexoraRunbook,\n  registerNexoraMissionControlWorkers,\n} from \"../mission/nexoraMissionControl\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts",
+    "importPath": "../autopilot/nexoraOperationalAutopilot",
+    "statement": "import {\n  createNexoraAutopilotScenario,\n  createNexoraKpiLedgerSnapshot,\n  detectNexoraOperationalIncidents,\n  getNexoraAutopilotCommandView,\n  registerNexoraAutopilotWorkers,\n  runNexoraAutopilotCycle,\n  runNexoraPipelineForemanCycle,\n} from \"../autopilot/nexoraOperationalAutopilot\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts",
+    "importPath": "../resilience/nexoraResilienceCore",
+    "statement": "import {\n  captureNexoraFallbackEvent,\n  detectNexoraResilienceMode,\n  getNexoraFallbackJournal,\n  getNexoraMaintenanceConsole,\n  replayNexoraFallbackJournal,\n  runNexoraResilienceCycle,\n  safeCreateNexoraTaskOrFallback,\n} from \"../resilience/nexoraResilienceCore\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts",
+    "importPath": "../supreme/nexoraSupremeOrchestrationMatrix",
+    "statement": "import {\n  buildNexoraCapabilityGraph,\n  executeNexoraSupremeMatrix,\n  generateNexoraWorkerDance,\n  getNexoraSupremeMatrixStatus,\n  queueNexoraWorkerDance,\n  recordNexoraDecision,\n  registerNexoraSupremeWorkers,\n  rehearseNexoraWorkerDance,\n  runNexoraRedTeamSafetyDrill,\n} from \"../supreme/nexoraSupremeOrchestrationMatrix\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/strategy/nexoraStrategyCompiler.ts",
+    "importPath": "../persistence/nexoraDurableKernel",
+    "statement": "import {\n  claimAndRunNexoraSafeTasks,\n  createNexoraDivisionObjective,\n  createNexoraDurableTask,\n  createNexoraMemoryGraphEdge,\n  ensureNexoraDurableKernel,\n  getNexoraDurableCommandSnapshot,\n  upsertNexoraWorker,\n  writeNexoraOperatingReport,\n} from \"../persistence/nexoraDurableKernel\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/strategy/nexoraStrategyCompiler.ts",
+    "importPath": "../governor/nexoraAutonomyGovernor",
+    "statement": "import { governAndQueueNexoraAction } from \"../governor/nexoraAutonomyGovernor\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supplier/nexoraSupplierCommand.ts",
+    "importPath": "../persistence/nexoraDurableKernel",
+    "statement": "import {\n  createNexoraDelegation,\n  createNexoraDivisionObjective,\n  createNexoraDurableTask,\n  createNexoraMemoryGraphEdge,\n  ensureNexoraDurableKernel,\n  getNexoraDurableCommandSnapshot,\n  sendNexoraWorkerMessage,\n  upsertNexoraWorker,\n  writeNexoraOperatingReport,\n} from \"../persistence/nexoraDurableKernel\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supplier/nexoraSupplierCommand.ts",
+    "importPath": "../governor/nexoraAutonomyGovernor",
+    "statement": "import { governAndQueueNexoraAction } from \"../governor/nexoraAutonomyGovernor\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supplier/nexoraSupplierCommand.ts",
+    "importPath": "../strategy/nexoraStrategyCompiler",
+    "statement": "import { createNexoraAuditVaultEntry } from \"../strategy/nexoraStrategyCompiler\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supreme/nexoraSupremeOrchestrationMatrix.ts",
+    "importPath": "../persistence/nexoraDurableKernel",
+    "statement": "import {\n  claimAndRunNexoraSafeTasks,\n  createNexoraDelegation,\n  createNexoraDivisionObjective,\n  createNexoraDurableTask,\n  createNexoraMemoryGraphEdge,\n  ensureNexoraDurableKernel,\n  getNexoraDurableCommandSnapshot,\n  sendNexoraWorkerMessage,\n  upsertNexoraWorker,\n  writeNexoraOperatingReport,\n} from \"../persistence/nexoraDurableKernel\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supreme/nexoraSupremeOrchestrationMatrix.ts",
+    "importPath": "../governor/nexoraAutonomyGovernor",
+    "statement": "import {\n  classifyNexoraRisk,\n  governAndQueueNexoraAction,\n  runNexoraGovernorCycle,\n} from \"../governor/nexoraAutonomyGovernor\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supreme/nexoraSupremeOrchestrationMatrix.ts",
+    "importPath": "../business/nexoraBusinessPipelineEngine",
+    "statement": "import {\n  createNexoraBusinessPipeline,\n  runNexoraBulkBusinessPipeline,\n} from \"../business/nexoraBusinessPipelineEngine\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supreme/nexoraSupremeOrchestrationMatrix.ts",
+    "importPath": "../autopilot/nexoraOperationalAutopilot",
+    "statement": "import {\n  createNexoraKpiLedgerSnapshot,\n  detectNexoraOperationalIncidents,\n  runNexoraAutopilotCycle,\n  runNexoraPipelineForemanCycle,\n} from \"../autopilot/nexoraOperationalAutopilot\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supreme/nexoraSupremeOrchestrationMatrix.ts",
+    "importPath": "../mission/nexoraMissionControl",
+    "statement": "import {\n  executeNexoraMission,\n  generateNexoraRunbook,\n  queueNexoraRunbook,\n} from \"../mission/nexoraMissionControl\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "importPath": "./nexora-types",
+    "statement": "import type {\n  AdaptiveThresholds,\n  ApprovalDecision,\n  DealHunterSignalLike,\n  HealthCheckResult,\n  KnowledgeEntry,\n  NexoraConfig,\n  NexoraDecisionAction,\n  NexoraDecisionRecordLike,\n  NexoraPriority,\n  NormalizedAIDecision,\n  RadarSignalLike,\n  RetryCounter,\n  ValidationResult,\n  VectorUpsertResult,\n} from \"./nexora-types\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraActionRouter.ts",
+    "importPath": "./nexoraModuleRegistry",
+    "statement": "import {\n  getNexoraModule,\n  type NexoraModuleCapability,\n  type NexoraModuleDefinition,\n  type NexoraModuleRiskLevel,\n} from \"./nexoraModuleRegistry\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraActionRouter.ts",
+    "importPath": "./nexoraBusinessMandate",
+    "statement": "import { scoreNexoraBusinessAction } from \"./nexoraBusinessMandate\""
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraExecutionGate.ts",
+    "importPath": "./nexoraActionRouter",
+    "statement": "import {\n  routeNexoraAction,\n  type NexoraActionIntent,\n  type NexoraActionRequest,\n  type NexoraActionRouteResult,\n} from \"./nexoraActionRouter\""
+  },
+  {
+    "file": "server/services/intelligence/nexoraAI.ts",
+    "importPath": "./nexora/nexora-types",
+    "statement": "import type { DealHunterSignalLike, NormalizedAIDecision } from \"./nexora/nexora-types\""
+  },
+  {
+    "file": "server/services/intelligence/nexoraOrchestrator.ts",
+    "importPath": "../nexoraAI",
+    "statement": "import { nexoraAIAnalysis } from \"../nexoraAI\""
+  },
+  {
+    "file": "server/services/intelligence/nexoraOrchestrator.ts",
+    "importPath": "./nexora/nexora-support",
+    "statement": "import {\n  acquireRunLock,\n  buildRuleDecision,\n  checkDuplicateAgainstKnowledge,\n  claimIdempotencyKey,\n  completeIdempotencyKey,\n  computeSignalFingerprint,\n  createAuditLog,\n  detectAnomaly,\n  ensureNexoraReady,\n  finalizeDecision,\n  fireWebhook,\n  loadAdaptiveThresholds,\n  loadKnowledgeMap,\n  releaseRunLock,\n  saveAdaptiveThresholds,\n  saveKnowledgeMap,\n  syncVectorKnowledge,\n  upsertDecisionRecord,\n  upsertKnowledgeEntry,\n  validateSignal,\n} from \"./nexora/nexora-support\""
+  },
+  {
+    "file": "server/services/intelligence/nexoraOrchestrator.ts",
+    "importPath": "./nexora/nexora-types",
+    "statement": "import type {\n  AdaptiveThresholds,\n  DealHunterSignalLike,\n  KnowledgeEntry,\n  NexoraConfig,\n  NexoraDecisionAction,\n  NexoraDecisionRecordLike,\n  NexoraEngineLearningSummary,\n  NexoraEngineResult,\n  NexoraPriority,\n  NexoraResult,\n  NexoraRunContext,\n  NexoraSignalLike,\n  NormalizedAIDecision,\n  RadarSignalLike,\n  RetryCounter,\n  ValidationResult,\n} from \"./nexora/nexora-types\""
+  },
+  {
+    "file": "server/services/intelligence/officeMovRadarService.ts",
+    "importPath": "./nexora/nexora-types",
+    "statement": "import type { RadarSignalLike } from \"./nexora/nexora-types\""
+  },
+  {
+    "file": "server/services/intelligence/opportunityEngine.ts",
+    "importPath": "@shared/schema",
+    "statement": "import { intelligenceSignals, officeMovRadar, dealHunterSignals, clusters } from \"@shared/schema\""
+  },
+  {
+    "file": "server/services/intelligence/partnerNetwork.ts",
+    "importPath": "../../../shared/schema",
+    "statement": "import {\n  partnerOpportunities,\n  intelligenceSignals,\n  officeMovRadar,\n  // relocationSignals, // if you have this table, uncomment and use below\n} from \"../../../shared/schema\""
+  },
+  {
+    "file": "server/services/intelligence/signalIngestionService.ts",
+    "importPath": "@shared/schema",
+    "statement": "import {\n  rawSignals,\n  intelligenceSignals,\n  intelligenceSources,\n  signalEvidence,\n  InsertRawSignal,\n  InsertIntelligenceSignal,\n  InsertSignalEvidence,\n  InsertIntelligenceSource,\n} from \"@shared/schema\""
+  },
+  {
+    "file": "server/services/intelligence/workspaceIntelligenceEngine.ts",
+    "importPath": "./companyIntelligenceAggregationService",
+    "statement": "import { getRelocationReadyCompanies } from \"./companyIntelligenceAggregationService\""
+  },
+  {
+    "file": "server/services/intelligence/zoneScoringEngine.ts",
+    "importPath": "@shared/schema",
+    "statement": "import {\n  companyZoneScores,\n  suburbDemandSnapshots,\n  officeMovRadar,\n  intelligenceSignals,\n  InsertCompanyZoneScore,\n} from \"@shared/schema\""
+  },
+  {
+    "file": "server/services/intelligenceScheduler.ts",
+    "importPath": "./intelligenceEngine",
+    "statement": "import {\n  analyzeSpendingTrends,\n  generateSEOBlogArticle,\n  detectWebsiteIssues,\n  runSystemHealthCheck,\n  generateWeeklyBusinessReport,\n} from \"./intelligenceEngine\""
+  },
+  {
+    "file": "server/services/leadEngine.ts",
+    "importPath": "../../shared/schema",
+    "statement": "import { ingestedLeads, intelligenceSignals, dealExecution } from \"../../shared/schema\""
+  },
+  {
+    "file": "server/services/leadIntelligence.ts",
+    "importPath": "../systemPrompt",
+    "statement": "import { buildLeadIntelligenceContext } from \"../systemPrompt\""
+  },
+  {
+    "file": "server/services/nexoraLoop.ts",
+    "importPath": "./intelligence/nexoraOrchestrator",
+    "statement": "import {\n  runNexoraCycle,\n  isNexoraCycleRunning,\n} from \"./intelligence/nexoraOrchestrator\""
+  },
+  {
+    "file": "server/services/nexoraLoop.ts",
+    "importPath": "./intelligence/communications/whatsappScheduler",
+    "statement": "import { runWhatsAppDispatchCycle } from \"./intelligence/communications/whatsappScheduler\""
+  },
+  {
+    "file": "server/services/outreach/contactDiscoveryService.ts",
+    "importPath": "@shared/schema",
+    "statement": "import {\n  companyContacts,\n  companyIntelligence,\n  contactDiscoveryRuns,\n  contactVerificationLogs,\n  opportunities,\n} from \"@shared/schema\""
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "importPath": "../intelligence/communications/whatsappService",
+    "statement": "import { sendWhatsAppMessage } from \"../intelligence/communications/whatsappService\""
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "importPath": "../intelligence/nexora/nexoraExecutionGate",
+    "statement": "import { assertNexoraExecutionApproved } from \"../intelligence/nexora/nexoraExecutionGate\""
+  },
+  {
+    "file": "server/services/propertyIntelligence/leasehawkEngine.ts",
+    "importPath": "./propertyIntelligenceService",
+    "statement": "import { listPropertyOpportunities } from \"./propertyIntelligenceService\""
+  },
+  {
+    "file": "server/services/trading/admin/nexoraControlledMemoryScanner.ts",
+    "importPath": "../orchestration/nexoraMemorySafeScanner",
+    "statement": "import { runNexoraMemorySafeScanner } from \"../orchestration/nexoraMemorySafeScanner\""
+  },
+  {
+    "file": "server/services/trading/admin/nexoraControlledMemoryScanner.ts",
+    "importPath": "./nexoraAdminControls",
+    "statement": "import { getNexoraAdminControls, createNexoraAlert } from \"./nexoraAdminControls\""
+  },
+  {
+    "file": "server/services/trading/agents/nexoraAgentOrchestrator.ts",
+    "importPath": "../marketData/nexoraMarketCandlesService",
+    "statement": "import { getMarketCandleCoverage } from \"../marketData/nexoraMarketCandlesService\""
+  },
+  {
+    "file": "server/services/trading/agents/nexoraAgentOrchestrator.ts",
+    "importPath": "../indicators/nexoraIndicatorEngine",
+    "statement": "import { calculateNexoraIndicatorSnapshot } from \"../indicators/nexoraIndicatorEngine\""
+  },
+  {
+    "file": "server/services/trading/agents/nexoraAgentOrchestrator.ts",
+    "importPath": "../promotion/nexoraSetupPromotionEngine",
+    "statement": "import { getNexoraSetupPromotions } from \"../promotion/nexoraSetupPromotionEngine\""
+  },
+  {
+    "file": "server/services/trading/agents/nexoraAgentOrchestrator.ts",
+    "importPath": "../portfolio/nexoraPortfolioBrain",
+    "statement": "import { getNexoraPortfolioBrain } from \"../portfolio/nexoraPortfolioBrain\""
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraAutonomousLearningEngine.ts",
+    "importPath": "../promotion/nexoraSetupPromotionEngine",
+    "statement": "import { getNexoraSetupPromotions } from \"../promotion/nexoraSetupPromotionEngine\""
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraAutonomousLearningEngine.ts",
+    "importPath": "../portfolio/nexoraPortfolioBrain",
+    "statement": "import { getNexoraPortfolioBrain } from \"../portfolio/nexoraPortfolioBrain\""
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraAutonomousLearningEngine.ts",
+    "importPath": "../regime/nexoraMarketRegimeEngine",
+    "statement": "import { getNexoraMarketRegimeSnapshot } from \"../regime/nexoraMarketRegimeEngine\""
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraReinforcementScoring.ts",
+    "importPath": "./nexoraAutonomousLearningEngine",
+    "statement": "import { ensureNexoraAutonomyTables } from \"./nexoraAutonomousLearningEngine\""
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraStrategyDecayEngine.ts",
+    "importPath": "./nexoraAutonomousLearningEngine",
+    "statement": "import { ensureNexoraAutonomyTables } from \"./nexoraAutonomousLearningEngine\""
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraStrategyEvolution.ts",
+    "importPath": "./nexoraAutonomousLearningEngine",
+    "statement": "import { ensureNexoraAutonomyTables } from \"./nexoraAutonomousLearningEngine\""
+  },
+  {
+    "file": "server/services/trading/backtest/nexoraBacktestEngine.ts",
+    "importPath": "../marketData/nexoraMarketCandlesService",
+    "statement": "import { getRecentMarketCandles } from \"../marketData/nexoraMarketCandlesService\""
+  },
+  {
+    "file": "server/services/trading/backtest/nexoraBacktestEngine.ts",
+    "importPath": "./nexoraStrategyBacktestRules",
+    "statement": "import { runStrategySpecificBacktest } from \"./nexoraStrategyBacktestRules\""
+  },
+  {
+    "file": "server/services/trading/backtesting/nexoraMemoryBacktester.ts",
+    "importPath": "../math/nexoraMathGeniusCore",
+    "statement": "import { runNexoraMathGeniusCore } from \"../math/nexoraMathGeniusCore\""
+  },
+  {
+    "file": "server/services/trading/backtesting/nexoraMemoryBacktester.ts",
+    "importPath": "../orchestration/nexoraMemorySafeScanner",
+    "statement": "import { runNexoraMemorySafeScanner } from \"../orchestration/nexoraMemorySafeScanner\""
+  },
+  {
+    "file": "server/services/trading/backtesting/nexoraMemoryBacktester.ts",
+    "importPath": "../resilience/nexoraMemoryFallbackRuntime",
+    "statement": "import { recordNexoraMemoryEvent } from \"../resilience/nexoraMemoryFallbackRuntime\""
+  },
+  {
+    "file": "server/services/trading/candidates/nexoraCandidateAllowlist.ts",
+    "importPath": "../quality/nexoraStrategyQuarantine",
+    "statement": "import { isNexoraStrategyQuarantined } from \"../quality/nexoraStrategyQuarantine\""
+  },
+  {
+    "file": "server/services/trading/candidates/nexoraCandidateAllowlist.ts",
+    "importPath": "./nexoraCandidateHunter",
+    "statement": "import { runNexoraCandidateHunter } from \"./nexoraCandidateHunter\""
+  },
+  {
+    "file": "server/services/trading/candidates/nexoraCandidateDiscoveryV2.ts",
+    "importPath": "../marketData/nexoraMarketCandlesService",
+    "statement": "import { getRecentMarketCandles } from \"../marketData/nexoraMarketCandlesService\""
+  },
+  {
+    "file": "server/services/trading/candidates/nexoraCandidateDiscoveryV2.ts",
+    "importPath": "../quality/nexoraStrategyQuarantine",
+    "statement": "import { isNexoraStrategyQuarantined } from \"../quality/nexoraStrategyQuarantine\""
+  },
+  {
+    "file": "server/services/trading/candidates/nexoraCandidateHunter.ts",
+    "importPath": "../backtest/nexoraBacktestEngine",
+    "statement": "import { runNexoraSimpleBacktest } from \"../backtest/nexoraBacktestEngine\""
+  },
+  {
+    "file": "server/services/trading/candidates/nexoraCandidateWatchlistV3.ts",
+    "importPath": "../marketData/nexoraMarketCandlesService",
+    "statement": "import { getRecentMarketCandles } from \"../marketData/nexoraMarketCandlesService\""
+  },
+  {
+    "file": "server/services/trading/candidates/nexoraCandidateWatchlistV3.ts",
+    "importPath": "../quality/nexoraStrategyQuarantine",
+    "statement": "import { isNexoraStrategyQuarantined } from \"../quality/nexoraStrategyQuarantine\""
+  },
+  {
+    "file": "server/services/trading/execution/nexoraInstitutionalExecutionLayerTwo.ts",
+    "importPath": "./nexoraInstitutionalExecutionLayer",
+    "statement": "import { runNexoraInstitutionalExecutionPreflight, writeNexoraExecutionAudit } from \"./nexoraInstitutionalExecutionLayer\""
+  },
+  {
+    "file": "server/services/trading/exploration/nexoraExplorationEngine.ts",
+    "importPath": "../candidates/nexoraCandidateWatchlistV3",
+    "statement": "import { getNexoraCandidateWatchlistV3 } from \"../candidates/nexoraCandidateWatchlistV3\""
+  },
+  {
+    "file": "server/services/trading/exploration/nexoraExplorationEngine.ts",
+    "importPath": "../probes/nexoraProbeCooldown",
+    "statement": "import { isNexoraProbeCoolingDown } from \"../probes/nexoraProbeCooldown\""
+  },
+  {
+    "file": "server/services/trading/health/nexoraIntelligenceHealth.ts",
+    "importPath": "../marketData/nexoraMarketCandlesService",
+    "statement": "import { getMarketCandleCoverage } from \"../marketData/nexoraMarketCandlesService\""
+  },
+  {
+    "file": "server/services/trading/health/nexoraIntelligenceHealth.ts",
+    "importPath": "../indicators/nexoraIndicatorEngine",
+    "statement": "import { calculateNexoraIndicatorSnapshot } from \"../indicators/nexoraIndicatorEngine\""
+  },
+  {
+    "file": "server/services/trading/health/nexoraIntelligenceHealth.ts",
+    "importPath": "../promotion/nexoraSetupPromotionEngine",
+    "statement": "import { getNexoraSetupPromotions } from \"../promotion/nexoraSetupPromotionEngine\""
+  },
+  {
+    "file": "server/services/trading/indicators/nexoraIndicatorEngine.ts",
+    "importPath": "../marketData/nexoraMarketCandlesService",
+    "statement": "import { getRecentMarketCandles } from \"../marketData/nexoraMarketCandlesService\""
+  },
+  {
+    "file": "server/services/trading/indicators/nexoraIndicatorSignalAdapter.ts",
+    "importPath": "../nexoraTradeVotingEngine",
+    "statement": "import type { NexoraTradeDirection, NexoraTradeSignal } from \"../nexoraTradeVotingEngine\""
+  },
+  {
+    "file": "server/services/trading/indicators/nexoraIndicatorSignalAdapter.ts",
+    "importPath": "./nexoraIndicatorEngine",
+    "statement": "import { calculateNexoraIndicators } from \"./nexoraIndicatorEngine\""
+  },
+  {
+    "file": "server/services/trading/knowledge/nexoraAdvancedProfessorTeachingRegistry.ts",
+    "importPath": "./nexoraBotTeachingRegistry",
+    "statement": "import type { NexoraBotTeaching } from \"./nexoraBotTeachingRegistry\""
+  },
+  {
+    "file": "server/services/trading/knowledge/nexoraBotTeachingEngine.ts",
+    "importPath": "../nexoraTradeVotingEngine",
+    "statement": "import type { NexoraTradeSignal } from \"../nexoraTradeVotingEngine\""
+  },
+  {
+    "file": "server/services/trading/knowledge/nexoraBotTeachingEngine.ts",
+    "importPath": "./nexoraBotTeachingRegistry",
+    "statement": "import { getTeachingsForSetup } from \"./nexoraBotTeachingRegistry\""
+  },
+  {
+    "file": "server/services/trading/knowledge/nexoraBotTeachingRegistry.ts",
+    "importPath": "./nexoraAdvancedProfessorTeachingRegistry",
+    "statement": "import { NEXORA_ADVANCED_PROFESSOR_TEACHINGS } from \"./nexoraAdvancedProfessorTeachingRegistry\""
+  },
+  {
+    "file": "server/services/trading/knowledge/nexoraCryptoMarketKnowledge.ts",
+    "importPath": "../nexoraTradeVotingEngine",
+    "statement": "import type { NexoraTradeDirection, NexoraTradeSignal } from \"../nexoraTradeVotingEngine\""
+  },
+  {
+    "file": "server/services/trading/knowledge/nexoraGeniusCore.ts",
+    "importPath": "../nexoraTradeVotingEngine",
+    "statement": "import type { NexoraTradeSignal } from \"../nexoraTradeVotingEngine\""
+  },
+  {
+    "file": "server/services/trading/learning/nexoraAggressivePaperReset.ts",
+    "importPath": "../exploration/nexoraExplorationEngine",
+    "statement": "import { refreshNexoraExplorationProbes } from \"../exploration/nexoraExplorationEngine\""
+  },
+  {
+    "file": "server/services/trading/learning/nexoraAggressiveProbeSeeder.ts",
+    "importPath": "../candidates/nexoraCandidateWatchlistV3",
+    "statement": "import { getNexoraCandidateWatchlistV3 } from \"../candidates/nexoraCandidateWatchlistV3\""
+  },
+  {
+    "file": "server/services/trading/learning/nexoraFastLearningCycle.ts",
+    "importPath": "../exploration/nexoraExplorationEngine",
+    "statement": "import { refreshNexoraExplorationProbes } from \"../exploration/nexoraExplorationEngine\""
+  },
+  {
+    "file": "server/services/trading/learning/nexoraFastLearningCycle.ts",
+    "importPath": "../probes/nexoraPaperProbePromoter",
+    "statement": "import { promoteWinningPaperProbes } from \"../probes/nexoraPaperProbePromoter\""
+  },
+  {
+    "file": "server/services/trading/learning/nexoraFastLearningCycle.ts",
+    "importPath": "../observations/nexoraWatchlistObservations",
+    "statement": "import { recordNexoraWatchlistObservations } from \"../observations/nexoraWatchlistObservations\""
+  },
+  {
+    "file": "server/services/trading/learning/nexoraFastLearningCycle.ts",
+    "importPath": "../probes/nexoraProbeAllowlistCleaner",
+    "statement": "import { cleanNexoraProbeAllowlist } from \"../probes/nexoraProbeAllowlistCleaner\""
+  },
+  {
+    "file": "server/services/trading/learning/nexoraForcePaperLearningCycle.ts",
+    "importPath": "./nexoraAggressiveProbeSeeder",
+    "statement": "import { seedAggressivePaperProbes } from \"./nexoraAggressiveProbeSeeder\""
+  },
+  {
+    "file": "server/services/trading/learning/nexoraForcePaperLearningCycle.ts",
+    "importPath": "./nexoraOutcomeBooster",
+    "statement": "import { boostRecentWinningPaperEdges } from \"./nexoraOutcomeBooster\""
+  },
+  {
+    "file": "server/services/trading/learning/nexoraForcePaperLearningCycle.ts",
+    "importPath": "./nexoraBadProbeDemoter",
+    "statement": "import { demoteBadPaperProbes } from \"./nexoraBadProbeDemoter\""
+  },
+  {
+    "file": "server/services/trading/learning/nexoraForcePaperLearningCycle.ts",
+    "importPath": "../exploration/nexoraExplorationEngine",
+    "statement": "import { refreshNexoraExplorationProbes } from \"../exploration/nexoraExplorationEngine\""
+  },
+  {
+    "file": "server/services/trading/learning/nexoraLearningHealth.ts",
+    "importPath": "../probes/nexoraProbeQuality",
+    "statement": "import { getNexoraProbeQuality } from \"../probes/nexoraProbeQuality\""
+  },
+  {
+    "file": "server/services/trading/learning/nexoraLearningHealth.ts",
+    "importPath": "../candidates/nexoraCandidateWatchlistV3",
+    "statement": "import { getNexoraCandidateWatchlistV3 } from \"../candidates/nexoraCandidateWatchlistV3\""
+  },
+  {
+    "file": "server/services/trading/learning/nexoraLearningHealth.ts",
+    "importPath": "../probes/nexoraProbeAllowlistCleaner",
+    "statement": "import { cleanNexoraProbeAllowlist } from \"../probes/nexoraProbeAllowlistCleaner\""
+  },
+  {
+    "file": "server/services/trading/learning/nexoraLearningPolicyService.ts",
+    "importPath": "./nexoraDecayedPerformance",
+    "statement": "import { getNexoraDecayedPerformance } from \"./nexoraDecayedPerformance\""
+  },
+  {
+    "file": "server/services/trading/learning/nexoraLearningPolicyService.ts",
+    "importPath": "./nexoraAdaptiveLearningPolicy",
+    "statement": "import { classifyNexoraLearningPolicy } from \"./nexoraAdaptiveLearningPolicy\""
+  },
+  {
+    "file": "server/services/trading/learning/nexoraLearningSummary.ts",
+    "importPath": "../probes/nexoraProbeQuality",
+    "statement": "import { getNexoraProbeQuality } from \"../probes/nexoraProbeQuality\""
+  },
+  {
+    "file": "server/services/trading/learning/nexoraLearningSummary.ts",
+    "importPath": "../candidates/nexoraCandidateWatchlistV3",
+    "statement": "import { getNexoraCandidateWatchlistV3 } from \"../candidates/nexoraCandidateWatchlistV3\""
+  },
+  {
+    "file": "server/services/trading/learning/nexoraLearningSummary.ts",
+    "importPath": "../promotion/nexoraPromotionGate",
+    "statement": "import { getNexoraPromotionGate } from \"../promotion/nexoraPromotionGate\""
+  },
+  {
+    "file": "server/services/trading/liveExecutionGateway.ts",
+    "importPath": "../intelligence/nexora/nexoraExecutionGate",
+    "statement": "import { assertNexoraExecutionApproved } from \"../intelligence/nexora/nexoraExecutionGate\""
+  },
+  {
+    "file": "server/services/trading/nexoraTradeVotingEngine.ts",
+    "importPath": "./nexoraTradeIntelligenceConfig",
+    "statement": "import {\n  NEXORA_TRADE_APPROVAL_RULES,\n  NEXORA_TRADE_SIGNAL_SYSTEMS,\n} from \"./nexoraTradeIntelligenceConfig\""
+  },
+  {
+    "file": "server/services/trading/observations/nexoraWatchlistObservations.ts",
+    "importPath": "../candidates/nexoraCandidateWatchlistV3",
+    "statement": "import { getNexoraCandidateWatchlistV3 } from \"../candidates/nexoraCandidateWatchlistV3\""
+  },
+  {
+    "file": "server/services/trading/orchestration/nexoraAlphaOrchestrator.ts",
+    "importPath": "../prediction/nexoraAdvancedPredictionCore",
+    "statement": "import { runNexoraAdvancedPredictionCore } from \"../prediction/nexoraAdvancedPredictionCore\""
+  },
+  {
+    "file": "server/services/trading/orchestration/nexoraAlphaOrchestrator.ts",
+    "importPath": "../prediction/nexoraOrderBookSimulator",
+    "statement": "import { simulateNexoraPredictionOrderBook } from \"../prediction/nexoraOrderBookSimulator\""
+  },
+  {
+    "file": "server/services/trading/orchestration/nexoraAlphaOrchestrator.ts",
+    "importPath": "../simulation/nexoraOmegaSimulationGrid",
+    "statement": "import { runNexoraMonteCarloSimulation } from \"../simulation/nexoraOmegaSimulationGrid\""
+  },
+  {
+    "file": "server/services/trading/orchestration/nexoraAlphaOrchestrator.ts",
+    "importPath": "../execution/nexoraInstitutionalExecutionLayer",
+    "statement": "import { runNexoraInstitutionalExecutionPreflight } from \"../execution/nexoraInstitutionalExecutionLayer\""
+  },
+  {
+    "file": "server/services/trading/orchestration/nexoraAlphaOrchestrator.ts",
+    "importPath": "../execution/nexoraInstitutionalExecutionLayerTwo",
+    "statement": "import { queueNexoraPaperExecution } from \"../execution/nexoraInstitutionalExecutionLayerTwo\""
+  },
+  {
+    "file": "server/services/trading/orchestration/nexoraMemorySafeScanner.ts",
+    "importPath": "../scanner/nexoraPredictionMarketScanner",
+    "statement": "import { normalizePredictionMarkets } from \"../scanner/nexoraPredictionMarketScanner\""
+  },
+  {
+    "file": "server/services/trading/orchestration/nexoraMemorySafeScanner.ts",
+    "importPath": "../resilience/nexoraDbHealthGate",
+    "statement": "import { getNexoraDbHealthGate } from \"../resilience/nexoraDbHealthGate\""
+  },
+  {
+    "file": "server/services/trading/orchestration/nexoraMemorySafeScanner.ts",
+    "importPath": "../resilience/nexoraMemoryFallbackRuntime",
+    "statement": "import { recordNexoraMemoryEvent } from \"../resilience/nexoraMemoryFallbackRuntime\""
+  },
+  {
+    "file": "server/services/trading/orchestration/nexoraMemorySafeScanner.ts",
+    "importPath": "../prediction/nexoraAdvancedPredictionCore",
+    "statement": "import { runNexoraAdvancedPredictionCore } from \"../prediction/nexoraAdvancedPredictionCore\""
+  },
+  {
+    "file": "server/services/trading/orchestration/nexoraMemorySafeScanner.ts",
+    "importPath": "../prediction/nexoraOrderBookSimulator",
+    "statement": "import { simulateNexoraPredictionOrderBook } from \"../prediction/nexoraOrderBookSimulator\""
+  },
+  {
+    "file": "server/services/trading/orchestration/nexoraMemorySafeScanner.ts",
+    "importPath": "../math/nexoraMathGeniusCore",
+    "statement": "import { runNexoraMathGeniusCore } from \"../math/nexoraMathGeniusCore\""
+  },
+  {
+    "file": "server/services/trading/orchestration/nexoraResilientAlphaOrchestrator.ts",
+    "importPath": "../resilience/nexoraDbHealthGate",
+    "statement": "import { getNexoraDbHealthGate } from \"../resilience/nexoraDbHealthGate\""
+  },
+  {
+    "file": "server/services/trading/orchestration/nexoraResilientAlphaOrchestrator.ts",
+    "importPath": "./nexoraAlphaOrchestrator",
+    "statement": "import { runNexoraAlphaOrchestrator } from \"./nexoraAlphaOrchestrator\""
+  },
+  {
+    "file": "server/services/trading/paperEngine.ts",
+    "importPath": "../intelligence/nexora/nexoraExecutionGate",
+    "statement": "import { approvePhantomXPaperTrade } from \"../intelligence/nexora/nexoraExecutionGate\""
+  },
+  {
+    "file": "server/services/trading/phantomXLearningEngine.ts",
+    "importPath": "../intelligence/nexora/nexoraExecutionGate",
+    "statement": "import { assertNexoraExecutionApproved } from \"../intelligence/nexora/nexoraExecutionGate\""
+  },
+  {
+    "file": "server/services/trading/pipeline/nexoraRefreshPipeline.ts",
+    "importPath": "../marketData/nexoraMarketCandlesService",
+    "statement": "import { syncNexoraMarketCandles } from \"../marketData/nexoraMarketCandlesService\""
+  },
+  {
+    "file": "server/services/trading/pipeline/nexoraRefreshPipeline.ts",
+    "importPath": "../promotion/nexoraSetupPromotionEngine",
+    "statement": "import { refreshNexoraSetupPromotions } from \"../promotion/nexoraSetupPromotionEngine\""
+  },
+  {
+    "file": "server/services/trading/pipeline/nexoraRefreshPipeline.ts",
+    "importPath": "../candidates/nexoraCandidateAllowlist",
+    "statement": "import { refreshNexoraCandidateAllowlist } from \"../candidates/nexoraCandidateAllowlist\""
+  },
+  {
+    "file": "server/services/trading/pipeline/nexoraRefreshPipeline.ts",
+    "importPath": "../platform/nexoraPlatformSummary",
+    "statement": "import { getNexoraPlatformSummary } from \"../platform/nexoraPlatformSummary\""
+  },
+  {
+    "file": "server/services/trading/pipeline/nexoraRefreshPipeline.ts",
+    "importPath": "../autonomy/nexoraReinforcementScoring",
+    "statement": "import { runNexoraReinforcementScoring } from \"../autonomy/nexoraReinforcementScoring\""
+  },
+  {
+    "file": "server/services/trading/pipeline/nexoraRefreshPipeline.ts",
+    "importPath": "../autonomy/nexoraStrategyDecayEngine",
+    "statement": "import { runNexoraStrategyDecayDetection } from \"../autonomy/nexoraStrategyDecayEngine\""
+  },
+  {
+    "file": "server/services/trading/pipeline/nexoraRefreshPipeline.ts",
+    "importPath": "../autonomy/nexoraStrategyEvolution",
+    "statement": "import { runNexoraStrategyEvolution } from \"../autonomy/nexoraStrategyEvolution\""
+  },
+  {
+    "file": "server/services/trading/platform/nexoraPlatformSummary.ts",
+    "importPath": "../health/nexoraIntelligenceHealth",
+    "statement": "import { getNexoraIntelligenceHealth } from \"../health/nexoraIntelligenceHealth\""
+  },
+  {
+    "file": "server/services/trading/platform/nexoraPlatformSummary.ts",
+    "importPath": "../agents/nexoraAgentOrchestrator",
+    "statement": "import { runNexoraAgentOrchestrator } from \"../agents/nexoraAgentOrchestrator\""
+  },
+  {
+    "file": "server/services/trading/platform/nexoraPlatformSummary.ts",
+    "importPath": "../portfolio/nexoraPortfolioBrain",
+    "statement": "import { getNexoraPortfolioBrain } from \"../portfolio/nexoraPortfolioBrain\""
+  },
+  {
+    "file": "server/services/trading/platform/nexoraPlatformSummary.ts",
+    "importPath": "../regime/nexoraMarketRegimeEngine",
+    "statement": "import { getNexoraMarketRegimeSnapshot } from \"../regime/nexoraMarketRegimeEngine\""
+  },
+  {
+    "file": "server/services/trading/platform/nexoraPlatformSummary.ts",
+    "importPath": "../audit/nexoraDecisionAudit",
+    "statement": "import { getNexoraDecisionAudit } from \"../audit/nexoraDecisionAudit\""
+  },
+  {
+    "file": "server/services/trading/platform/nexoraPlatformSummary.ts",
+    "importPath": "../research/nexoraResearchProbeSafety",
+    "statement": "import { getNexoraResearchProbeSafety } from \"../research/nexoraResearchProbeSafety\""
+  },
+  {
+    "file": "server/services/trading/platform/nexoraPlatformSummary.ts",
+    "importPath": "../quality/nexoraQualityHealth",
+    "statement": "import { getNexoraQualityHealth } from \"../quality/nexoraQualityHealth\""
+  },
+  {
+    "file": "server/services/trading/polyEdgeActionMonitorService.ts",
+    "importPath": "../ops/autonomyRunbook",
+    "statement": "import { getAutonomyRuntimeStatus } from \"../ops/autonomyRunbook\""
+  },
+  {
+    "file": "server/services/trading/polyEdgeAutoPaper.ts",
+    "importPath": "./candidates/nexoraCandidateAllowlist",
+    "statement": "import { getNexoraCandidateAllowlist } from \"./candidates/nexoraCandidateAllowlist\""
+  },
+  {
+    "file": "server/services/trading/polyEdgePromotionGate.ts",
+    "importPath": "../ops/autonomyRunbook",
+    "statement": "import { getAutonomyRuntimeStatus } from \"../ops/autonomyRunbook\""
+  },
+  {
+    "file": "server/services/trading/polyEdgeProofService.ts",
+    "importPath": "../nexoraLoop",
+    "statement": "import { getNexoraLoopState } from \"../nexoraLoop\""
+  },
+  {
+    "file": "server/services/trading/polyEdgeProofService.ts",
+    "importPath": "../ops/autonomyRunbook",
+    "statement": "import { getAutonomyRuntimeStatus } from \"../ops/autonomyRunbook\""
+  },
+  {
+    "file": "server/services/trading/portfolio/nexoraPortfolioBrain.ts",
+    "importPath": "./nexoraVolatilityPositionSizing",
+    "statement": "import { calculateNexoraVolatilityPositionSizing } from \"./nexoraVolatilityPositionSizing\""
+  },
+  {
+    "file": "server/services/trading/portfolio/nexoraPortfolioBrain.ts",
+    "importPath": "./nexoraCorrelationExposureGuard",
+    "statement": "import { evaluateNexoraCorrelationExposure } from \"./nexoraCorrelationExposureGuard\""
+  },
+  {
+    "file": "server/services/trading/portfolio/nexoraPortfolioHeatScore.ts",
+    "importPath": "./nexoraPortfolioBrain",
+    "statement": "import { getNexoraPortfolioBrain } from \"./nexoraPortfolioBrain\""
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraAdvancedPredictionCore.ts",
+    "importPath": "./nexoraFairProbabilityEngine",
+    "statement": "import { calculateNexoraFairProbability } from \"./nexoraFairProbabilityEngine\""
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraAdvancedPredictionCore.ts",
+    "importPath": "./nexoraResolutionRulesRisk",
+    "statement": "import { checkNexoraResolutionRules } from \"./nexoraResolutionRulesRisk\""
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraAdvancedPredictionCore.ts",
+    "importPath": "./nexoraCorrelationRiskEngine",
+    "statement": "import { checkNexoraCorrelationRisk } from \"./nexoraCorrelationRiskEngine\""
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraAdvancedPredictionCore.ts",
+    "importPath": "./nexoraPredictionFallbackStrategies",
+    "statement": "import { runNexoraPredictionFallbackStack } from \"./nexoraPredictionFallbackStrategies\""
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionAutoPaperLoop.ts",
+    "importPath": "./nexoraAdvancedPredictionCore",
+    "statement": "import { runNexoraAdvancedPredictionCore } from \"./nexoraAdvancedPredictionCore\""
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionAutoPaperLoop.ts",
+    "importPath": "./nexoraOrderBookSimulator",
+    "statement": "import { simulateNexoraPredictionOrderBook } from \"./nexoraOrderBookSimulator\""
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionAutoPaperLoop.ts",
+    "importPath": "./nexoraPredictionPaperJournal",
+    "statement": "import { recordNexoraPredictionPaperDecision } from \"./nexoraPredictionPaperJournal\""
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionFallbackStrategies.ts",
+    "importPath": "./nexoraPredictionMarketEdge",
+    "statement": "import { scorePredictionMarketEdge } from \"./nexoraPredictionMarketEdge\""
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionLearningMemory.ts",
+    "importPath": "./nexoraSelfCritique",
+    "statement": "import { critiqueNexoraPredictionTrade } from \"./nexoraSelfCritique\""
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionLearningMemory.ts",
+    "importPath": "./nexoraPredictionPaperJournal",
+    "statement": "import { recordNexoraPredictionPaperDecision } from \"./nexoraPredictionPaperJournal\""
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionLearningMemory.ts",
+    "importPath": "./nexoraCalibrationLearner",
+    "statement": "import { evaluateNexoraCalibration } from \"./nexoraCalibrationLearner\""
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionLearningMemory.ts",
+    "importPath": "../resilience/nexoraDbResilience",
+    "statement": "import { nexoraDbFallback } from \"../resilience/nexoraDbResilience\""
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionPaperJournal.ts",
+    "importPath": "../resilience/nexoraDbResilience",
+    "statement": "import { nexoraDbFallback } from \"../resilience/nexoraDbResilience\""
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionStrategyPolicy.ts",
+    "importPath": "./nexoraPredictionMarketEdge",
+    "statement": "import { scorePredictionMarketEdge } from \"./nexoraPredictionMarketEdge\""
+  },
+  {
+    "file": "server/services/trading/promotion/nexoraLiveSandboxGate.ts",
+    "importPath": "./nexoraPromotionGate",
+    "statement": "import { getNexoraPromotionGate } from \"./nexoraPromotionGate\""
+  },
+  {
+    "file": "server/services/trading/promotion/nexoraPromotionGate.ts",
+    "importPath": "./nexoraProofMetrics",
+    "statement": "import { getNexoraProofMetrics } from \"./nexoraProofMetrics\""
+  },
+  {
+    "file": "server/services/trading/quality/nexoraQualityHealth.ts",
+    "importPath": "./nexoraStrategyQuarantine",
+    "statement": "import { getNexoraStrategyQuarantine } from \"./nexoraStrategyQuarantine\""
+  },
+  {
+    "file": "server/services/trading/quality/nexoraQualityHealth.ts",
+    "importPath": "../candidates/nexoraCandidateAllowlist",
+    "statement": "import { getNexoraCandidateAllowlist } from \"../candidates/nexoraCandidateAllowlist\""
+  },
+  {
+    "file": "server/services/trading/recovery/nexoraRecoveryCandidateScanner.ts",
+    "importPath": "../quality/nexoraStrategyQuarantine",
+    "statement": "import { getNexoraStrategyQuarantine } from \"../quality/nexoraStrategyQuarantine\""
+  },
+  {
+    "file": "server/services/trading/recovery/nexoraRecoveryCandidateScanner.ts",
+    "importPath": "../learning/nexoraDecayedPerformance",
+    "statement": "import { getNexoraDecayedPerformance } from \"../learning/nexoraDecayedPerformance\""
+  },
+  {
+    "file": "server/services/trading/regime/nexoraMarketRegimeEngine.ts",
+    "importPath": "../indicators/nexoraIndicatorEngine",
+    "statement": "import { calculateNexoraIndicators } from \"../indicators/nexoraIndicatorEngine\""
+  },
+  {
+    "file": "server/services/trading/research/nexoraResearchProbeSafety.ts",
+    "importPath": "./nexoraResearchProbeMonitor",
+    "statement": "import { getNexoraResearchProbeMonitor } from \"./nexoraResearchProbeMonitor\""
+  },
+  {
+    "file": "server/services/trading/research/nexoraResearchProbeSafety.ts",
+    "importPath": "../portfolio/nexoraPortfolioHeatScore",
+    "statement": "import { getNexoraPortfolioHeatScore } from \"../portfolio/nexoraPortfolioHeatScore\""
+  },
+  {
+    "file": "server/services/trading/research/nexoraResearchProbeSafety.ts",
+    "importPath": "../portfolio/nexoraKillSwitchGuard",
+    "statement": "import { getNexoraKillSwitchGuard } from \"../portfolio/nexoraKillSwitchGuard\""
+  },
+  {
+    "file": "server/services/trading/safety/nexoraDbMaintenance.ts",
+    "importPath": "./nexoraDbSafety",
+    "statement": "import { getNexoraDbSafety, pruneNexoraSmallDb } from \"./nexoraDbSafety\""
+  },
+  {
+    "file": "server/services/trading/safety/nexoraRecoveryHealth.ts",
+    "importPath": "./nexoraDbSafety",
+    "statement": "import { getNexoraDbSafety } from \"./nexoraDbSafety\""
+  },
+  {
+    "file": "server/services/trading/scanner/nexoraPredictionMarketScanner.ts",
+    "importPath": "../orchestration/nexoraResilientAlphaOrchestrator",
+    "statement": "import { runNexoraResilientAlphaOrchestrator } from \"../orchestration/nexoraResilientAlphaOrchestrator\""
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalScoringEngine.ts",
+    "importPath": "./nexoraSignalLibrary2000",
+    "statement": "import { NEXORA_SIGNAL_LIBRARY_2000 } from \"./nexoraSignalLibrary2000\""
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalScoringEngine.ts",
+    "importPath": "../knowledge/nexoraCryptoMarketKnowledge",
+    "statement": "import { buildNexoraCryptoMarketKnowledgeSignals } from \"../knowledge/nexoraCryptoMarketKnowledge\""
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalScoringEngine.ts",
+    "importPath": "../knowledge/nexoraBotTeachingEngine",
+    "statement": "import { evaluateNexoraBotTeachings } from \"../knowledge/nexoraBotTeachingEngine\""
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalScoringEngine.ts",
+    "importPath": "../knowledge/nexoraGeniusCore",
+    "statement": "import { evaluateNexoraGeniusCore } from \"../knowledge/nexoraGeniusCore\""
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalScoringEngine.ts",
+    "importPath": "../indicators/nexoraIndicatorSignalAdapter",
+    "statement": "import { buildNexoraIndicatorSignals } from \"../indicators/nexoraIndicatorSignalAdapter\""
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalScoringEngine.ts",
+    "importPath": "../promotion/nexoraSetupPromotionEngine",
+    "statement": "import { getNexoraSetupPromotions } from \"../promotion/nexoraSetupPromotionEngine\""
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalScoringEngine.ts",
+    "importPath": "../portfolio/nexoraPortfolioBrain",
+    "statement": "import { approveNexoraPortfolioRisk } from \"../portfolio/nexoraPortfolioBrain\""
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalScoringEngine.ts",
+    "importPath": "../regime/nexoraMarketRegimeEngine",
+    "statement": "import { classifyNexoraMarketRegime } from \"../regime/nexoraMarketRegimeEngine\""
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalScoringEngine.ts",
+    "importPath": "../audit/nexoraDecisionAudit",
+    "statement": "import { recordNexoraDecisionAudit } from \"../audit/nexoraDecisionAudit\""
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalScoringEngine.ts",
+    "importPath": "../learning/nexoraAdaptiveLearningPolicy",
+    "statement": "import { classifyNexoraLearningPolicy } from \"../learning/nexoraAdaptiveLearningPolicy\""
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalScoringEngine.ts",
+    "importPath": "../candidates/nexoraCandidateHunter",
+    "statement": "import { runNexoraCandidateHunter } from \"../candidates/nexoraCandidateHunter\""
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalScoringEngine.ts",
+    "importPath": "../candidates/nexoraCandidateAllowlist",
+    "statement": "import { findNexoraAllowedCandidate } from \"../candidates/nexoraCandidateAllowlist\""
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalScoringEngine.ts",
+    "importPath": "../autonomy/nexoraAutonomousLearningEngine",
+    "statement": "import { evaluateNexoraAutonomy } from \"../autonomy/nexoraAutonomousLearningEngine\""
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalScoringEngine.ts",
+    "importPath": "../timeframes/nexoraTimeframeAgreementEngine",
+    "statement": "import { evaluateNexoraTimeframeAgreement } from \"../timeframes/nexoraTimeframeAgreementEngine\""
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalScoringEngine.ts",
+    "importPath": "../validation/nexoraWalkForwardValidator",
+    "statement": "import { runNexoraWalkForwardValidation } from \"../validation/nexoraWalkForwardValidator\""
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalScoringEngine.ts",
+    "importPath": "../nexoraTradeVotingEngine",
+    "statement": "import type { NexoraTradeDirection, NexoraTradeSignal } from \"../nexoraTradeVotingEngine\""
+  },
+  {
+    "file": "server/services/trading/timeframes/nexoraTimeframeAgreementEngine.ts",
+    "importPath": "../regime/nexoraMarketRegimeEngine",
+    "statement": "import { classifyNexoraMarketRegime } from \"../regime/nexoraMarketRegimeEngine\""
+  },
+  {
+    "file": "server/services/trading/validation/nexoraWalkForwardValidator.ts",
+    "importPath": "../backtest/nexoraBacktestEngine",
+    "statement": "import { runNexoraSimpleBacktest } from \"../backtest/nexoraBacktestEngine\""
+  },
+  {
+    "file": "server/services/workers/workerRegistry.ts",
+    "importPath": "../nexoraLoop",
+    "statement": "import { startNexoraLoop, getNexoraLoopState } from \"../nexoraLoop\""
+  },
+  {
+    "file": "server/storage.ts",
+    "importPath": "@shared/schema",
+    "statement": "import {\n  users, leads, prospectedLeads, supplierQuotes, referrals, planningRequests, productReviews,\n  manufacturerMessages, followUpSequences, territories, workspaceLearningRecords,\n  scheduledJobs, intelligenceReports, spendingTrends, websiteIssues, profitRecords,\n  generatedBlogArticles, quotes, officeMovRadar, buildingSignals, dealIntelligenceRecords,\n  partners, partnerOpportunities, partnerReferrals, revenueShareRecords,\n  relocationSignals, workspaceStrategyRecommendations, dealHunterSignals,\n  supplierProfiles, rfqProjects, rfqResponses, visitorSessions,\n  companyIntelligence, companyContacts,\n  nexoraOutcomes, opportunities,\n  type NexoraOutcome, type InsertNexoraOutcome,\n  type Opportunity, type InsertOpportunity,\n  type User, type InsertUser, type Lead, type InsertLead, type PlanningRequest,\n  type ProductReview, type InsertProductReview,\n  type ManufacturerMessage, type InsertManufacturerMessage,\n  type FollowUpSequence, type InsertFollowUpSequence,\n  type Territory, type InsertTerritory,\n  type WorkspaceLearning, type InsertWorkspaceLearning,\n  type ScheduledJob, type IntelligenceReport, type SpendingTrend,\n  type WebsiteIssue, type ProfitRecord, type InsertProfitRecord,\n  type GeneratedBlogArticle, type Quote, type InsertQuote,\n  type OfficeMovRadar, type InsertOfficeMovRadar,\n  type BuildingSignal, type InsertBuildingSignal,\n  type DealIntelligenceRecord, type InsertDealIntelligence,\n  type Partner, type InsertPartner,\n  type PartnerOpportunity, type InsertPartnerOpportunity,\n  type PartnerReferral, type InsertPartnerReferral,\n  type RevenueShareRecord, type InsertRevenueShare,\n  type RelocationSignal, type InsertRelocationSignal,\n  type WorkspaceStrategyRecommendation, type InsertWorkspaceStrategy,\n  type DealHunterSignal, type InsertDealHunterSignal,\n  type SupplierProfile, type InsertSupplierProfile,\n  type RfqProject, type InsertRfqProject,\n  type RfqResponse, type InsertRfqResponse,\n  type VisitorSession, type InsertVisitorSession,\n  type CompanyIntelligence, type InsertCompanyIntelligence,\n  type CompanyContact, type InsertCompanyContact,\n} from \"@shared/schema\""
+  },
+  {
+    "file": "server/systemPrompt.ts",
+    "importPath": "./ai/supplierIntelligence",
+    "statement": "import { getSupplierRoutingRules } from \"./ai/supplierIntelligence\""
+  },
+  {
+    "file": "server/systemPrompt.ts",
+    "importPath": "./ai/productIntelligence",
+    "statement": "import { getProductIntelligence } from \"./ai/productIntelligence\""
+  },
+  {
+    "file": "src/nexora/autonomy/loops/nexoraAutonomousLoopController.ts",
+    "importPath": "../persistence/nexoraAutonomyDb",
+    "statement": "import { nexoraId, nexoraQuery } from '../persistence/nexoraAutonomyDb'"
+  },
+  {
+    "file": "src/nexora/autonomy/loops/nexoraAutonomousLoopController.ts",
+    "importPath": "../persistence/nexoraDurableAutonomyStore",
+    "statement": "import {\n  claimNextNexoraTask,\n  completeNexoraTask,\n  failNexoraTask,\n  getNexoraDurableSnapshot,\n  heartbeatNexoraWorker,\n  initializeNexoraDurableAutonomy,\n  recoverTimedOutNexoraTasks,\n  seedNexoraDurableWorkers,\n  writeNexoraReport,\n} from '../persistence/nexoraDurableAutonomyStore'"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraDurableAutonomyStore.ts",
+    "importPath": "./nexoraAutonomyDb",
+    "statement": "import { ensureNexoraAutonomySchema, nexoraHasDatabase, nexoraId, nexoraQuery } from './nexoraAutonomyDb'"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraDurableAutonomyStore.ts",
+    "importPath": "./nexoraAutonomyTypes",
+    "statement": "import {\n  NexoraAutonomyRisk,\n  NexoraDurableTask,\n  NexoraDurableTaskInput,\n  NexoraWorkerHeartbeatInput,\n  NexoraWorkerScoreInput,\n} from './nexoraAutonomyTypes'"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraPgBossBridge.ts",
+    "importPath": "./nexoraAutonomyDb",
+    "statement": "import { nexoraHasDatabase } from './nexoraAutonomyDb'"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraPgBossBridge.ts",
+    "importPath": "./nexoraDurableAutonomyStore",
+    "statement": "import { createNexoraDurableTask } from './nexoraDurableAutonomyStore'"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraPgBossBridge.ts",
+    "importPath": "./nexoraAutonomyTypes",
+    "statement": "import { NexoraDurableTaskInput } from './nexoraAutonomyTypes'"
+  },
+  {
+    "file": "src/nexora/autonomy/routes/nexoraDurableAutonomyRoutes.ts",
+    "importPath": "../persistence/nexoraDurableAutonomyStore",
+    "statement": "import {\n  approveNexoraTask,\n  createNexoraDurableTask,\n  getNexoraDurableSnapshot,\n  initializeNexoraDurableAutonomy,\n  rejectNexoraTask,\n  seedNexoraDurableWorkers,\n} from '../persistence/nexoraDurableAutonomyStore'"
+  },
+  {
+    "file": "src/nexora/autonomy/routes/nexoraDurableAutonomyRoutes.ts",
+    "importPath": "../persistence/nexoraPgBossBridge",
+    "statement": "import { enqueueNexoraPgBossTask, getNexoraPgBoss } from '../persistence/nexoraPgBossBridge'"
+  },
+  {
+    "file": "src/nexora/autonomy/routes/nexoraDurableAutonomyRoutes.ts",
+    "importPath": "../loops/nexoraAutonomousLoopController",
+    "statement": "import {\n  runNexoraDurableAutonomyCycle,\n  startNexoraAutonomousLoopTimer,\n} from '../loops/nexoraAutonomousLoopController'"
+  },
+  {
+    "file": "src/nexora/empire/nexoraEmpireEngine.ts",
+    "importPath": "../autonomy/persistence/nexoraAutonomyDb",
+    "statement": "import { nexoraId, nexoraQuery } from '../autonomy/persistence/nexoraAutonomyDb'"
+  },
+  {
+    "file": "src/nexora/empire/nexoraEmpireEngine.ts",
+    "importPath": "../autonomy/persistence/nexoraDurableAutonomyStore",
+    "statement": "import {\n  createNexoraDurableTask,\n  heartbeatNexoraWorker,\n  writeNexoraMemory,\n  writeNexoraReport,\n} from '../autonomy/persistence/nexoraDurableAutonomyStore'"
+  },
+  {
+    "file": "src/nexora/empire/nexoraEmpireEngine.ts",
+    "importPath": "./nexoraEmpireSchema",
+    "statement": "import { ensureNexoraEmpireSchema } from './nexoraEmpireSchema'"
+  },
+  {
+    "file": "src/nexora/empire/nexoraEmpireEngine.ts",
+    "importPath": "./nexoraEmpireTypes",
+    "statement": "import {\n  NexoraDelegationInput,\n  NexoraDivisionObjectiveInput,\n  NexoraMemoryGraphEdgeInput,\n  NexoraWorkerMessageInput,\n} from './nexoraEmpireTypes'"
+  },
+  {
+    "file": "src/nexora/empire/nexoraEmpireSchema.ts",
+    "importPath": "../autonomy/persistence/nexoraAutonomyDb",
+    "statement": "import { ensureNexoraAutonomySchema, nexoraQuery } from '../autonomy/persistence/nexoraAutonomyDb'"
+  },
+  {
+    "file": "src/nexora/empire/routes/nexoraEmpireRoutes.ts",
+    "importPath": "../nexoraEmpireEngine",
+    "statement": "import {\n  actionNexoraWorkerMessage,\n  createDivisionObjective,\n  createMemoryGraphEdge,\n  createNexoraDelegation,\n  createNexoraWorkerMessage,\n  createStrategicPlanningCycle,\n  getNexoraEmpireSnapshot,\n  runNexoraEmpireOperatingCycle,\n  seedNexoraEmpireDivisions,\n} from '../nexoraEmpireEngine'"
+  }
+]

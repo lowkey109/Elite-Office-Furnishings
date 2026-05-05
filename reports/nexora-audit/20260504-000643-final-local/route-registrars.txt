@@ -1,0 +1,77 @@
+server/routes.ts:111:import { registerNexoraAdvancedAutonomyRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes";
+server/routes.ts:112:import { registerNexoraGovernorBusinessRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes";
+server/routes.ts:113:import { registerNexoraOperationalAutopilotRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes";
+server/routes.ts:114:import { registerNexoraMissionControlRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes";
+server/routes.ts:115:import { registerNexoraSupremeMatrixRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes";
+server/routes.ts:116:import { registerNexoraMegaBuildRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes";
+server/routes.ts:117:import { registerNexoraLiveVerificationRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes";
+server/routes.ts:118:import { registerNexoraHardMountRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes";
+server/routes.ts:119:import { registerNexoraResilienceRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes";
+server/routes.ts:120:import { registerNexoraFileBusRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes";
+server/routes.ts:121:import { registerNexoraLocalBusinessRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes";
+server/routes.ts:122:import { registerNexoraExtensionManagerRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraExtensionManagerRoutes";
+server/routes.ts:123:import { registerNexoraBuildPlannerRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraBuildPlannerRoutes";
+server/routes.ts:124:import { registerNexoraProductionReadinessRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraProductionReadinessRoutes";
+server/routes.ts:125:import { registerNexoraOperatorKitRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraOperatorKitRoutes";
+server/routes.ts:126:import { registerNexoraAdvancedLocalOpsRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraAdvancedLocalOpsRoutes";
+server/routes.ts:127:import { registerNexoraAlmightyRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraAlmightyRoutes";
+server/routes.ts:128:import { registerNexoraOfficeAgentAdapterRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraOfficeAgentAdapterRoutes";
+server/routes.ts:129:import { registerNexoraOfficeFurnitureAgentRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraOfficeFurnitureAgentRoutes";
+server/routes.ts:130:import { registerNexoraCompanyRunRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraCompanyRunRoutes";
+server/routes.ts:229:  registerNexoraCompanyRunRoutes(app);
+server/routes.ts:230:  registerNexoraOfficeFurnitureAgentRoutes(app);
+server/routes.ts:231:  registerNexoraOfficeAgentAdapterRoutes(app);
+server/routes.ts:234:    registerNexoraAdvancedAutonomyRoutes(app);
+server/routes.ts:235:    registerNexoraAdvancedLocalOpsRoutes(app);
+server/routes.ts:236:    registerNexoraAlmightyRoutes(app);
+server/routes.ts:237:    registerNexoraBuildPlannerRoutes(app);
+server/routes.ts:238:    registerNexoraExtensionManagerRoutes(app);
+server/routes.ts:239:    registerNexoraFileBusRoutes(app);
+server/routes.ts:240:    registerNexoraGovernorBusinessRoutes(app);
+server/routes.ts:241:    registerNexoraHardMountRoutes(app);
+server/routes.ts:242:    registerNexoraLiveVerificationRoutes(app);
+server/routes.ts:243:    registerNexoraLocalBusinessRoutes(app);
+server/routes.ts:244:    registerNexoraMegaBuildRoutes(app);
+server/routes.ts:245:    registerNexoraMissionControlRoutes(app);
+server/routes.ts:246:    registerNexoraOperationalAutopilotRoutes(app);
+server/routes.ts:247:    registerNexoraOperatorKitRoutes(app);
+server/routes.ts:248:    registerNexoraProductionReadinessRoutes(app);
+server/routes.ts:249:    registerNexoraResilienceRoutes(app);
+server/routes.ts:250:    registerNexoraSupremeMatrixRoutes(app);
+server/routes.ts:256:registerNexoraAlmightyRoutes(app);
+server/routes.ts:257:  registerNexoraAdvancedLocalOpsRoutes(app);
+server/routes.ts:258:  registerNexoraOperatorKitRoutes(app);
+server/routes.ts:259:  registerNexoraProductionReadinessRoutes(app);
+server/routes.ts:260:  registerNexoraBuildPlannerRoutes(app);
+server/routes.ts:261:  registerNexoraExtensionManagerRoutes(app);
+server/routes.ts:262:  registerNexoraLocalBusinessRoutes(app);
+server/routes.ts:263:  registerNexoraFileBusRoutes(app);
+server/routes.ts:264:  registerNexoraResilienceRoutes(app);
+server/routes.ts:267:    registerNexoraHardMountRoutes(app);
+server/routes.ts:277:  registerNexoraAdvancedAutonomyRoutes(app);
+server/routes.ts:278:registerNexoraGovernorBusinessRoutes(app);
+server/routes.ts:279:registerNexoraOperationalAutopilotRoutes(app);
+server/routes.ts:280:registerNexoraMissionControlRoutes(app);
+server/routes.ts:281:registerNexoraSupremeMatrixRoutes(app);
+server/routes.ts:282:registerNexoraMegaBuildRoutes(app);
+server/routes.ts:283:registerNexoraLiveVerificationRoutes(app);
+server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts:15:export function registerNexoraAdvancedAutonomyRoutes(server: any, app?: any) {
+server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts:13:export function registerNexoraGovernorBusinessRoutes(server: any, app?: any) {
+server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts:11:export function registerNexoraOperationalAutopilotRoutes(server: any, app?: any) {
+server/services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes.ts:10:export function registerNexoraMissionControlRoutes(server: any, app?: any) {
+server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts:13:export function registerNexoraSupremeMatrixRoutes(server: any, app?: any) {
+server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts:41:export function registerNexoraMegaBuildRoutes(server: any, app?: any) {
+server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts:25:export function registerNexoraLiveVerificationRoutes(app: any) {
+server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts:34:export function registerNexoraHardMountRoutes(app: any) {
+server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts:19:export function registerNexoraResilienceRoutes(app: any) {
+server/services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes.ts:18:export function registerNexoraFileBusRoutes(app: any) {
+server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts:49:export function registerNexoraLocalBusinessRoutes(app: any) {
+server/services/intelligence/nexora/autonomy/routes/nexoraExtensionManagerRoutes.ts:24:export function registerNexoraExtensionManagerRoutes(app: any) {
+server/services/intelligence/nexora/autonomy/routes/nexoraBuildPlannerRoutes.ts:14:export function registerNexoraBuildPlannerRoutes(app: any) {
+server/services/intelligence/nexora/autonomy/routes/nexoraProductionReadinessRoutes.ts:35:export function registerNexoraProductionReadinessRoutes(app: any) {
+server/services/intelligence/nexora/autonomy/routes/nexoraOperatorKitRoutes.ts:31:export function registerNexoraOperatorKitRoutes(app: any) {
+server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedLocalOpsRoutes.ts:36:export function registerNexoraAdvancedLocalOpsRoutes(app: any) {
+server/services/intelligence/nexora/autonomy/routes/nexoraAlmightyRoutes.ts:31:export function registerNexoraAlmightyRoutes(app: any) {
+server/services/intelligence/nexora/autonomy/routes/nexoraOfficeAgentAdapterRoutes.ts:75:export function registerNexoraOfficeAgentAdapterRoutes(app: any) {
+server/services/intelligence/nexora/autonomy/routes/nexoraOfficeFurnitureAgentRoutes.ts:20:export function registerNexoraOfficeFurnitureAgentRoutes(app: any) {
+server/services/intelligence/nexora/autonomy/routes/nexoraCompanyRunRoutes.ts:22:export function registerNexoraCompanyRunRoutes(app: any) {

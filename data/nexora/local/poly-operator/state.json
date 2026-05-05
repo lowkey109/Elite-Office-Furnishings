@@ -1,0 +1,114 @@
+{
+  "ok": true,
+  "service": "nexora_poly_production_operator_state",
+  "createdAt": "2026-05-04T12:35:53.760Z",
+  "updatedAt": "2026-05-04T12:39:31.939Z",
+  "runs": 3,
+  "tradeIntentReviews": 0,
+  "signerReviews": 0,
+  "latest": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_poly_production_operator_command_center",
+    "id": "operator-command-1777898371939",
+    "generatedAt": "2026-05-04T12:39:31.939Z",
+    "title": "Phantom X / Polymarket Operator Command Center",
+    "currentMode": "paper_learning",
+    "targetMode": "supervised_real_money_after_owner_approval",
+    "systems": [
+      {
+        "id": "learning_suite",
+        "label": "Learning Suite",
+        "status": "built",
+        "routes": [
+          "/api/nexora/poly-builds/bash1/status",
+          "/api/nexora/poly-builds/bash1/replay/latest",
+          "/api/nexora/poly-builds/bash1/tournament/latest"
+        ]
+      },
+      {
+        "id": "risk_loop",
+        "label": "Risk / Kill Switch Loop",
+        "status": "built",
+        "routes": [
+          "/api/nexora/poly-builds/bash2/status",
+          "/api/nexora/poly-builds/bash2/risk/latest",
+          "/api/nexora/poly-builds/bash2/loop/latest"
+        ]
+      },
+      {
+        "id": "final_readiness",
+        "label": "Final Readiness",
+        "status": "built",
+        "routes": [
+          "/api/nexora/poly-builds/final/status",
+          "/api/nexora/poly-builds/final/latest"
+        ]
+      },
+      {
+        "id": "real_money_gate",
+        "label": "Real-Money Gate",
+        "status": "locked_until_owner_approval",
+        "routes": [
+          "/api/nexora/live-money/status",
+          "/api/nexora/live-execution-design/status"
+        ]
+      },
+      {
+        "id": "operator_review",
+        "label": "Operator Review",
+        "status": "built",
+        "routes": [
+          "/api/nexora/poly-operator/production/status",
+          "/api/nexora/poly-operator/production/run",
+          "/api/nexora/poly-operator/production/trade-intent-review",
+          "/api/nexora/poly-operator/production/signer-review"
+        ]
+      }
+    ],
+    "decision": {
+      "readyForMorePaperLearning": true,
+      "readyForRealMoneyPreparation": true,
+      "readyForLiveExecutionNow": false,
+      "reason": "Live execution is locked until explicit owner approval and external signer connection."
+    },
+    "requested": {
+      "mode": "paper_learning_to_supervised_real_money",
+      "market": "example_polymarket_market",
+      "side": "YES",
+      "maxStakeUsd": 0,
+      "liveTrading": false,
+      "humanApprovalRequired": true,
+      "externalSignerRequired": true
+    },
+    "safety": {
+      "currentMode": "paper_learning",
+      "targetMode": "supervised_real_money_after_owner_approval",
+      "liveTradingEnabledNow": false,
+      "liveOrdersEnabledNow": false,
+      "privateKeysInsideNexora": false,
+      "walletSigningInsideNexora": false,
+      "autonomousMoneyMovement": false,
+      "humanApprovalRequired": true,
+      "externalSignerRequired": true,
+      "deployAllowed": false,
+      "postgresReplayAllowed": false
+    }
+  },
+  "latestTradeIntentReview": null,
+  "latestSignerReview": null,
+  "status": "operator_command_center_generated",
+  "safety": {
+    "currentMode": "paper_learning",
+    "targetMode": "supervised_real_money_after_owner_approval",
+    "liveTradingEnabledNow": false,
+    "liveOrdersEnabledNow": false,
+    "privateKeysInsideNexora": false,
+    "walletSigningInsideNexora": false,
+    "autonomousMoneyMovement": false,
+    "humanApprovalRequired": true,
+    "externalSignerRequired": true,
+    "deployAllowed": false,
+    "postgresReplayAllowed": false
+  }
+}

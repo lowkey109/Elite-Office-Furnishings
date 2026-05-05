@@ -1,0 +1,287 @@
+{
+  "ok": true,
+  "service": "nexora_learning_memory_state",
+  "createdAt": "2026-05-04T15:27:45.042Z",
+  "updatedAt": "2026-05-05T02:42:12.424Z",
+  "events": 70,
+  "lessons": 70,
+  "playbookUpdates": 71,
+  "recommendations": 70,
+  "latestEvent": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_learning_memory_event",
+    "id": "event-1777948932421",
+    "generatedAt": "2026-05-05T02:42:12.421Z",
+    "domain": "polymarket",
+    "product": "Phantom X / Polymarket",
+    "action": "paper_observe_no_trade",
+    "result": "paper_skip_low_edge",
+    "metrics": {
+      "paperPnl": 0,
+      "confidence": 70.33,
+      "referencePrice": 145.1429,
+      "loop": 21,
+      "asset": "SOL",
+      "countAsTrade": false
+    },
+    "scored": {
+      "domain": "polymarket",
+      "score": 60,
+      "grade": "neutral",
+      "shouldRepeat": false,
+      "shouldAvoid": false,
+      "needsHumanReview": false
+    },
+    "raw": {
+      "mode": "paper_learning",
+      "source": "nexora_paper_practice_loop",
+      "domain": "polymarket",
+      "product": "Phantom X / Polymarket",
+      "action": "paper_observe_no_trade",
+      "result": "paper_skip_low_edge",
+      "loop": 21,
+      "generatedAt": "2026-05-05T02:42:12.186036Z",
+      "market": "sol_prediction_market",
+      "symbol": "SOL / Polymarket",
+      "asset": "SOL",
+      "strategyBias": "momentum_breakout",
+      "strategyUsed": "moondev_ranked_strategy_plus_nexora_risk_gate",
+      "paperSignal": "PAPER_SKIP_LOW_EDGE",
+      "side": "YES",
+      "confidence": 70.33,
+      "pnl": 0,
+      "riskTriggered": false,
+      "countAsTrade": false,
+      "moondevSignal": {
+        "momentum": 65.22,
+        "liquidity": 76.11,
+        "riskQuality": 60.49,
+        "rankBonus": 10
+      },
+      "metrics": {
+        "paperPnl": 0,
+        "confidence": 70.33,
+        "referencePrice": 145.1429,
+        "loop": 21,
+        "asset": "SOL",
+        "countAsTrade": false
+      },
+      "maxStakeUsd": 0,
+      "liveTrading": false,
+      "paperOnly": true,
+      "humanApproved": true,
+      "humanApprovalRequired": true,
+      "externalSignerRequired": true,
+      "privateKeysInsideNexora": false,
+      "walletSigningInsideNexora": false
+    },
+    "safety": {
+      "learnsFrom": [
+        "paper_trading",
+        "risk_outcomes",
+        "quote_outcomes",
+        "human_feedback"
+      ],
+      "liveTradingEnabledNow": false,
+      "autonomousMoneyMovement": false,
+      "autonomousBindingQuotes": false,
+      "autonomousEmailSending": false,
+      "humanApprovalRequired": true
+    }
+  },
+  "latestLesson": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_learning_memory_lesson",
+    "id": "lesson-1777948932421",
+    "generatedAt": "2026-05-05T02:42:12.421Z",
+    "domain": "polymarket",
+    "product": "Phantom X / Polymarket",
+    "lessonType": "watch_pattern",
+    "summary": "This action was neutral. Keep monitoring before promoting.",
+    "action": "paper_observe_no_trade",
+    "result": "paper_skip_low_edge",
+    "score": 60,
+    "recommendation": "keep_testing",
+    "safety": {
+      "learnsFrom": [
+        "paper_trading",
+        "risk_outcomes",
+        "quote_outcomes",
+        "human_feedback"
+      ],
+      "liveTradingEnabledNow": false,
+      "autonomousMoneyMovement": false,
+      "autonomousBindingQuotes": false,
+      "autonomousEmailSending": false,
+      "humanApprovalRequired": true
+    }
+  },
+  "latestRecommendation": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_learning_memory_recommend_next",
+    "id": "recommendation-1777948932424",
+    "generatedAt": "2026-05-05T02:42:12.424Z",
+    "domain": "polymarket",
+    "product": "Phantom X / Polymarket",
+    "recommendation": "Prefer actions similar to the strongest good patterns, but keep human approval gates.",
+    "use": {
+      "prefer": [
+        {
+          "lessonId": "lesson-1777947905971",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 81,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:25:05.971Z"
+        },
+        {
+          "lessonId": "lesson-1777948690692",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 81,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:38:10.692Z"
+        },
+        {
+          "lessonId": "lesson-1777948751084",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 81,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:39:11.084Z"
+        },
+        {
+          "lessonId": "lesson-1777948811599",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 81,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:40:11.599Z"
+        },
+        {
+          "lessonId": "lesson-1777948872064",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_success",
+          "score": 81,
+          "recommendation": "increase_priority",
+          "generatedAt": "2026-05-05T02:41:12.064Z"
+        }
+      ],
+      "avoid": [
+        {
+          "lessonId": "lesson-1777947398888",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 38,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:16:38.888Z"
+        },
+        {
+          "lessonId": "lesson-1777947097003",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 38,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:11:37.003Z"
+        },
+        {
+          "lessonId": "lesson-1777947157357",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 37,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:12:37.357Z"
+        },
+        {
+          "lessonId": "lesson-1777947338439",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 37,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:15:38.439Z"
+        },
+        {
+          "lessonId": "lesson-1777947398888",
+          "action": "paper_trade_intent_practice",
+          "result": "paper_loss",
+          "score": 38,
+          "recommendation": "decrease_priority",
+          "generatedAt": "2026-05-05T02:16:38.888Z"
+        }
+      ],
+      "watch": [
+        {
+          "lessonId": "lesson-1777948388934",
+          "action": "paper_observe_no_trade",
+          "result": "paper_skip_low_edge",
+          "score": 60,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T02:33:08.934Z"
+        },
+        {
+          "lessonId": "lesson-1777948449272",
+          "action": "paper_observe_no_trade",
+          "result": "paper_skip_low_edge",
+          "score": 60,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T02:34:09.272Z"
+        },
+        {
+          "lessonId": "lesson-1777948509614",
+          "action": "paper_observe_no_trade",
+          "result": "paper_skip_low_edge",
+          "score": 60,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T02:35:09.614Z"
+        },
+        {
+          "lessonId": "lesson-1777948630328",
+          "action": "paper_observe_no_trade",
+          "result": "paper_skip_low_edge",
+          "score": 60,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T02:37:10.328Z"
+        },
+        {
+          "lessonId": "lesson-1777948932421",
+          "action": "paper_observe_no_trade",
+          "result": "paper_skip_low_edge",
+          "score": 60,
+          "recommendation": "keep_testing",
+          "generatedAt": "2026-05-05T02:42:12.421Z"
+        }
+      ]
+    },
+    "nextAction": "draft_trade_intent_or_run_more_replay_with_human_approval",
+    "safety": {
+      "learnsFrom": [
+        "paper_trading",
+        "risk_outcomes",
+        "quote_outcomes",
+        "human_feedback"
+      ],
+      "liveTradingEnabledNow": false,
+      "autonomousMoneyMovement": false,
+      "autonomousBindingQuotes": false,
+      "autonomousEmailSending": false,
+      "humanApprovalRequired": true
+    }
+  },
+  "status": "recommendation_generated",
+  "safety": {
+    "learnsFrom": [
+      "paper_trading",
+      "risk_outcomes",
+      "quote_outcomes",
+      "human_feedback"
+    ],
+    "liveTradingEnabledNow": false,
+    "autonomousMoneyMovement": false,
+    "autonomousBindingQuotes": false,
+    "autonomousEmailSending": false,
+    "humanApprovalRequired": true
+  }
+}

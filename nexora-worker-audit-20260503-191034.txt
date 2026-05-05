@@ -1,0 +1,712 @@
+=== NEXORA WORKER AUDIT ===
+Sun May  3 07:10:34 PM UTC 2026
+
+=== Files with Nexora in name ===
+client/src/components/NexoraCopilot.tsx
+client/src/components/NexoraJourneyBar.tsx
+client/src/components/polyedge/NexoraMicrofishPanel.tsx
+client/src/components/polyedge/NexoraVisualSystemsB.tsx
+client/src/components/polyedge/NexoraVisualSystems.tsx
+client/src/hooks/useNexoraSignal.ts
+client/src/lib/nexoraEngine.ts
+client/src/pages/AdminNexoraAdvanced.tsx
+client/src/pages/AdminNexoraCommandCentre.tsx
+client/src/pages/AdminNexoraMonitor.tsx
+server/services/intelligence/nexora
+server/services/intelligence/nexoraAI.ts
+server/services/intelligence/nexora/nexoraActionRouter.ts
+server/services/intelligence/nexora/nexoraBusinessMandate.ts
+server/services/intelligence/nexora/nexoraExecutionGate.ts
+server/services/intelligence/nexora/nexoraModuleRegistry.ts
+server/services/intelligence/nexora/nexora-support.ts
+server/services/intelligence/nexora/nexora-types.ts
+server/services/intelligence/nexoraOrchestrator.ts
+server/services/memory/nexoraDecisionLineage.ts
+server/services/nexoraAI.ts
+server/services/nexoraLoop.ts
+server/services/office/nexoraOfficeReceptionist.ts
+server/services/trading/admin/nexoraAdminControls.ts
+server/services/trading/admin/nexoraControlledMemoryScanner.ts
+server/services/trading/agents/nexoraAgentOrchestrator.ts
+server/services/trading/audit/nexoraDecisionAudit.ts
+server/services/trading/autonomy/nexoraAutonomousIntelligenceLayer.ts
+server/services/trading/autonomy/nexoraAutonomousLearningEngine.ts
+server/services/trading/autonomy/nexoraReinforcementScoring.ts
+server/services/trading/autonomy/nexoraStrategyDecayEngine.ts
+server/services/trading/autonomy/nexoraStrategyEvolution.ts
+server/services/trading/backtesting/nexoraMemoryBacktester.ts
+server/services/trading/backtest/nexoraBacktestEngine.ts
+server/services/trading/backtest/nexoraStrategyBacktestRules.ts
+server/services/trading/candidates/nexoraCandidateAllowlist.ts
+server/services/trading/candidates/nexoraCandidateDiscoveryV2.ts
+server/services/trading/candidates/nexoraCandidateHunter.ts
+server/services/trading/candidates/nexoraCandidateWatchlistV3.ts
+server/services/trading/execution/nexoraInstitutionalExecutionLayer.ts
+server/services/trading/execution/nexoraInstitutionalExecutionLayerTwo.ts
+server/services/trading/exploration/nexoraExplorationEngine.ts
+server/services/trading/feeds/nexoraFeedConnectors.ts
+server/services/trading/health/nexoraIntelligenceHealth.ts
+server/services/trading/indicators/nexoraIndicatorEngine.ts
+server/services/trading/indicators/nexoraIndicatorSignalAdapter.ts
+server/services/trading/knowledge/nexoraAdvancedProfessorTeachingRegistry.ts
+server/services/trading/knowledge/nexoraBotTeachingEngine.ts
+server/services/trading/knowledge/nexoraBotTeachingRegistry.ts
+server/services/trading/knowledge/nexoraCryptoMarketKnowledge.ts
+server/services/trading/knowledge/nexoraGeniusCore.ts
+server/services/trading/learning/nexoraAdaptiveLearningPolicy.ts
+server/services/trading/learning/nexoraAggressivePaperReset.ts
+server/services/trading/learning/nexoraAggressiveProbeSeeder.ts
+server/services/trading/learning/nexoraBadProbeDemoter.ts
+server/services/trading/learning/nexoraDecayedPerformance.ts
+server/services/trading/learning/nexoraFastLearningCycle.ts
+server/services/trading/learning/nexoraForcePaperLearningCycle.ts
+server/services/trading/learning/nexoraLearningHealth.ts
+server/services/trading/learning/nexoraLearningPolicyService.ts
+server/services/trading/learning/nexoraLearningPressure.ts
+server/services/trading/learning/nexoraLearningSummary.ts
+server/services/trading/learning/nexoraOutcomeBooster.ts
+server/services/trading/learning/nexoraQuantumLearningCore.ts
+server/services/trading/marketData/nexoraMarketCandlesService.ts
+server/services/trading/math/nexoraMathGeniusCore.ts
+server/services/trading/nexoraTradeIntelligenceConfig.ts
+server/services/trading/nexoraTradeVotingEngine.ts
+server/services/trading/observations/nexoraWatchlistObservations.ts
+server/services/trading/orchestration/nexoraAlphaOrchestrator.ts
+server/services/trading/orchestration/nexoraMemorySafeScanner.ts
+server/services/trading/orchestration/nexoraResilientAlphaOrchestrator.ts
+server/services/trading/pipeline/nexoraRefreshPipeline.ts
+server/services/trading/platform/nexoraPlatformSummary.ts
+server/services/trading/portfolio/nexoraCorrelationExposureGuard.ts
+server/services/trading/portfolio/nexoraKillSwitchGuard.ts
+server/services/trading/portfolio/nexoraPortfolioBrain.ts
+server/services/trading/portfolio/nexoraPortfolioHeatScore.ts
+server/services/trading/portfolio/nexoraVolatilityPositionSizing.ts
+server/services/trading/prediction/nexoraAdvancedPredictionCore.ts
+server/services/trading/prediction/nexoraBayesianUpdater.ts
+server/services/trading/prediction/nexoraCalibrationLearner.ts
+server/services/trading/prediction/nexoraCatalystCalendar.ts
+server/services/trading/prediction/nexoraCorrelationRiskEngine.ts
+server/services/trading/prediction/nexoraFairProbabilityEngine.ts
+server/services/trading/prediction/nexoraOrderBookSimulator.ts
+server/services/trading/prediction/nexoraPredictionAutoPaperLoop.ts
+server/services/trading/prediction/nexoraPredictionFallbackStrategies.ts
+server/services/trading/prediction/nexoraPredictionLearningMemory.ts
+server/services/trading/prediction/nexoraPredictionMarketEdge.ts
+server/services/trading/prediction/nexoraPredictionPaperJournal.ts
+server/services/trading/prediction/nexoraPredictionStrategyPolicy.ts
+server/services/trading/prediction/nexoraResolutionRulesRisk.ts
+server/services/trading/prediction/nexoraSelfCritique.ts
+server/services/trading/prediction/nexoraSourceReliability.ts
+server/services/trading/prediction/nexoraStrategyLeaderboard.ts
+server/services/trading/probes/nexoraPaperProbePromoter.ts
+server/services/trading/probes/nexoraProbeAllowlistCleaner.ts
+server/services/trading/probes/nexoraProbeCooldown.ts
+server/services/trading/probes/nexoraProbeQuality.ts
+server/services/trading/promotion/nexoraLiveSandboxGate.ts
+server/services/trading/promotion/nexoraPromotionGate.ts
+server/services/trading/promotion/nexoraProofMetrics.ts
+server/services/trading/promotion/nexoraSetupPromotionEngine.ts
+server/services/trading/quality/nexoraQualityHealth.ts
+server/services/trading/quality/nexoraStrategyQuarantine.ts
+server/services/trading/recovery/nexoraRecoveryCandidateScanner.ts
+server/services/trading/regime/nexoraMarketRegimeEngine.ts
+server/services/trading/research/nexoraResearchProbeMonitor.ts
+server/services/trading/research/nexoraResearchProbeSafety.ts
+server/services/trading/resilience/nexoraDbHealthGate.ts
+server/services/trading/resilience/nexoraDbResilience.ts
+server/services/trading/resilience/nexoraMemoryFallbackRuntime.ts
+server/services/trading/rotation/nexoraAggressiveRotationPlan.ts
+server/services/trading/safety/nexoraDbMaintenance.ts
+server/services/trading/safety/nexoraDbSafety.ts
+server/services/trading/safety/nexoraRecoveryHealth.ts
+server/services/trading/scanner/nexoraPredictionMarketScanner.ts
+server/services/trading/signals/nexoraSignalLibrary2000.ts
+server/services/trading/signals/nexoraSignalScoringEngine.ts
+server/services/trading/simulation/nexoraOmegaSimulationGrid.ts
+server/services/trading/superbot/nexoraSuperbotSafetyCore.ts
+server/services/trading/timeframes/nexoraTimeframeAgreementEngine.ts
+server/services/trading/validation/nexoraWalkForwardValidator.ts
+server/services/workers/nexoraWorker.ts
+
+=== Server Nexora routes ===
+server/index.ts:1345:  "/api/nexora/outreach",
+server/index.ts:1346:  "/api/nexora/pipeline",
+server/index.ts:1386:    path.includes("/api/nexora/pipeline");
+server/index.ts:2333:app.get("/api/nexora/indicators", async (req, res) => {
+server/index.ts:2346:app.get("/api/nexora/indicators/snapshot", async (_req, res) => {
+server/index.ts:2358:app.post("/api/nexora/market-candles/sync", async (req, res) => {
+server/index.ts:2376:app.get("/api/nexora/market-candles/recent", async (req, res) => {
+server/index.ts:2393:app.get("/api/nexora/market-candles/coverage", async (_req, res) => {
+server/index.ts:2409:app.get("/api/nexora/backtest/simple", async (req, res) => {
+server/index.ts:2430:app.get("/api/nexora/intelligence/health", async (_req, res) => {
+server/index.ts:2446:app.post("/api/nexora/setup-promotions/refresh", async (_req, res) => {
+server/index.ts:2459:app.get("/api/nexora/setup-promotions", async (_req, res) => {
+server/index.ts:2474:app.get("/api/nexora/portfolio/brain", async (_req, res) => {
+server/index.ts:2489:app.get("/api/nexora/agents/run", async (_req, res) => {
+server/index.ts:2504:app.get("/api/nexora/regime", async (req, res) => {
+server/index.ts:2520:app.get("/api/nexora/regime/snapshot", async (_req, res) => {
+server/index.ts:2535:app.get("/api/nexora/audit/decisions", async (req, res) => {
+server/index.ts:2550:app.get("/api/nexora/platform/summary", async (_req, res) => {
+server/index.ts:2565:app.get("/api/nexora/candidates/hunt", async (_req, res) => {
+server/index.ts:2579:app.post("/api/nexora/pipeline/refresh", async (_req, res) => {
+server/index.ts:2594:app.get("/api/nexora/autonomy/memory", async (_req, res) => {
+server/index.ts:2609:app.post("/api/nexora/autonomy/decay/run", async (_req, res) => {
+server/index.ts:2624:app.post("/api/nexora/autonomy/reinforcement/run", async (_req, res) => {
+server/index.ts:2639:app.get("/api/nexora/portfolio/kill-switch", async (_req, res) => {
+server/index.ts:2653:app.get("/api/nexora/portfolio/heat", async (_req, res) => {
+server/index.ts:2668:app.post("/api/nexora/candidates/allowlist/refresh", async (_req, res) => {
+server/index.ts:2681:app.get("/api/nexora/candidates/allowlist", async (_req, res) => {
+server/index.ts:2696:app.get("/api/nexora/research-probes", async (_req, res) => {
+server/index.ts:2709:app.get("/api/nexora/research-probes/safety", async (_req, res) => {
+server/index.ts:2724:app.post("/api/nexora/quality/quarantine/refresh", async (_req, res) => {
+server/index.ts:2737:app.get("/api/nexora/quality/quarantine", async (_req, res) => {
+server/index.ts:2752:app.get("/api/nexora/learning/policy", async (req, res) => {
+server/index.ts:2769:app.get("/api/nexora/learning/decayed-performance", async (req, res) => {
+server/index.ts:2789:app.post("/api/nexora/candidates/allowlist/prune", async (_req, res) => {
+server/index.ts:2802:app.get("/api/nexora/quality/health", async (_req, res) => {
+server/index.ts:2815:app.get("/api/nexora/recovery/candidates", async (_req, res) => {
+server/index.ts:2829:app.get("/api/nexora/candidates/discovery-v2", async (_req, res) => {
+server/index.ts:2843:app.get("/api/nexora/candidates/watchlist-v3", async (_req, res) => {
+server/index.ts:2857:app.post("/api/nexora/observations/watchlist/record", async (_req, res) => {
+server/index.ts:2870:app.get("/api/nexora/observations/watchlist", async (_req, res) => {
+server/index.ts:2884:app.get("/api/nexora/promotion/proof", async (req, res) => {
+server/index.ts:2898:app.get("/api/nexora/promotion/gate", async (req, res) => {
+server/index.ts:2911:app.get("/api/nexora/promotion/live-sandbox-gate", async (req, res) => {
+server/index.ts:2925:app.post("/api/nexora/exploration/refresh", async (_req, res) => {
+server/index.ts:2939:app.get("/api/nexora/probes/quality", async (req, res) => {
+server/index.ts:2953:app.get("/api/nexora/learning/summary", async (_req, res) => {
+server/index.ts:2962:app.post("/api/nexora/learning/fast-cycle", async (_req, res) => {
+server/index.ts:2972:app.post("/api/nexora/probes/promote-winning", async (_req, res) => {
+server/index.ts:2986:app.post("/api/nexora/probes/clean-allowlist", async (_req, res) => {
+server/index.ts:2995:app.get("/api/nexora/learning/health", async (_req, res) => {
+server/index.ts:3005:app.post("/api/nexora/learning/aggressive-paper-reset", async (_req, res) => {
+server/index.ts:3019:app.post("/api/nexora/learning/aggressive-paper-reset", async (_req, res) => {
+server/index.ts:3028:app.post("/api/nexora/learning/seed-aggressive-probes", async (_req, res) => {
+server/index.ts:3037:app.post("/api/nexora/learning/boost-outcomes", async (_req, res) => {
+server/index.ts:3046:app.post("/api/nexora/learning/demote-bad-probes", async (_req, res) => {
+server/index.ts:3055:app.get("/api/nexora/learning/aggressive-rotation", async (_req, res) => {
+server/index.ts:3064:app.get("/api/nexora/learning/pressure", async (_req, res) => {
+server/index.ts:3073:app.post("/api/nexora/learning/force-paper-cycle", async (_req, res) => {
+server/index.ts:3088:app.get("/api/nexora/db/env", async (_req, res) => {
+server/index.ts:3115:app.get("/api/nexora/db/safety", async (_req, res) => {
+server/index.ts:3124:app.post("/api/nexora/db/prune-small", async (_req, res) => {
+server/index.ts:3134:app.post("/api/nexora/db/maintenance", async (_req, res) => {
+server/index.ts:3143:app.get("/api/nexora/recovery/health", async (_req, res) => {
+server/index.ts:3153:app.get("/api/nexora/prediction-market/strategy", async (_req, res) => {
+server/index.ts:3162:app.post("/api/nexora/prediction-market/edge", async (req, res) => {
+server/index.ts:3172:app.post("/api/nexora/prediction-market/use-strategy", async (req, res) => {
+server/index.ts:3182:app.post("/api/nexora/prediction-market/fallback-stack", async (req, res) => {
+server/index.ts:3192:app.post("/api/nexora/prediction-market/fair-probability", async (req, res) => {
+server/index.ts:3201:app.post("/api/nexora/prediction-market/resolution-risk", async (req, res) => {
+server/index.ts:3210:app.post("/api/nexora/prediction-market/correlation-risk", async (req, res) => {
+server/index.ts:3219:app.post("/api/nexora/prediction-market/advanced-core", async (req, res) => {
+server/index.ts:3229:app.post("/api/nexora/prediction-market/source-reliability", async (req, res) => {
+server/index.ts:3238:app.post("/api/nexora/prediction-market/order-book-sim", async (req, res) => {
+server/index.ts:3247:app.post("/api/nexora/prediction-market/bayesian-update", async (req, res) => {
+server/index.ts:3256:app.post("/api/nexora/prediction-market/catalyst-calendar", async (req, res) => {
+server/index.ts:3265:app.post("/api/nexora/prediction-market/calibration", async (req, res) => {
+server/index.ts:3274:app.get("/api/nexora/prediction-market/paper-journal", async (req, res) => {
+server/index.ts:3283:app.post("/api/nexora/prediction-market/paper-journal", async (req, res) => {
+server/index.ts:3292:app.post("/api/nexora/prediction-market/auto-paper-loop", async (req, res) => {
+server/index.ts:3302:app.post("/api/nexora/prediction-market/self-critique", async (req, res) => {
+server/index.ts:3311:app.get("/api/nexora/prediction-market/strategy-leaderboard", async (_req, res) => {
+server/index.ts:3321:app.get("/api/nexora/superbot/safety-core", async (_req, res) => {
+server/index.ts:3330:app.post("/api/nexora/superbot/validate-trade", async (req, res) => {
+server/index.ts:3340:app.post("/api/nexora/prediction-market/record-paper-signal", async (req, res) => {
+server/index.ts:3349:app.post("/api/nexora/prediction-market/simulate-outcome", async (req, res) => {
+server/index.ts:3358:app.get("/api/nexora/prediction-market/calibration-memory", async (req, res) => {
+server/index.ts:3368:app.get("/api/nexora/execution/emergency-stop", async (_req, res) => {
+server/index.ts:3377:app.post("/api/nexora/execution/emergency-stop", async (req, res) => {
+server/index.ts:3386:app.post("/api/nexora/execution/hard-loss-limits", async (req, res) => {
+server/index.ts:3395:app.post("/api/nexora/execution/duplicate-check", async (req, res) => {
+server/index.ts:3404:app.post("/api/nexora/execution/manual-approval", async (req, res) => {
+server/index.ts:3413:app.post("/api/nexora/execution/promotion-gate", async (req, res) => {
+server/index.ts:3422:app.post("/api/nexora/execution/preflight", async (req, res) => {
+server/index.ts:3431:app.get("/api/nexora/execution/audit-log", async (req, res) => {
+server/index.ts:3441:app.get("/api/nexora/execution/adapter-status", async (_req, res) => {
+server/index.ts:3450:app.post("/api/nexora/execution/balance-check", async (req, res) => {
+server/index.ts:3459:app.post("/api/nexora/execution/compliance-geofence", async (req, res) => {
+server/index.ts:3468:app.post("/api/nexora/execution/queue-paper", async (req, res) => {
+server/index.ts:3477:app.get("/api/nexora/execution/queue", async (req, res) => {
+server/index.ts:3487:app.get("/api/nexora/autonomy/status", async (_req, res) => {
+server/index.ts:3496:app.post("/api/nexora/autonomy/store-memory", async (req, res) => {
+server/index.ts:3505:app.post("/api/nexora/autonomy/update-ranking", async (req, res) => {
+server/index.ts:3514:app.get("/api/nexora/autonomy/leaderboard", async (_req, res) => {
+server/index.ts:3523:app.post("/api/nexora/autonomy/self-critique", async (req, res) => {
+server/index.ts:3533:app.get("/api/nexora/quantum/status", async (_req, res) => {
+server/index.ts:3542:app.post("/api/nexora/quantum/calibration", async (req, res) => {
+server/index.ts:3551:app.post("/api/nexora/quantum/source-reliability", async (req, res) => {
+server/index.ts:3560:app.post("/api/nexora/quantum/regime-detect", async (req, res) => {
+server/index.ts:3570:app.get("/api/nexora/simulation/status", async (_req,res)=>{
+server/index.ts:3579:app.post("/api/nexora/simulation/monte-carlo", async (req,res)=>{
+server/index.ts:3588:app.post("/api/nexora/simulation/shadow-execution", async (req,res)=>{
+server/index.ts:3598:app.get("/api/nexora/alpha-orchestrator/status", async (_req, res) => {
+server/index.ts:3607:app.post("/api/nexora/alpha-orchestrator/run", async (req, res) => {
+server/index.ts:3617:app.get("/api/nexora/db/health-gate", async (_req, res) => {
+server/index.ts:3626:app.post("/api/nexora/alpha-orchestrator/resilient-run", async (req, res) => {
+server/index.ts:3636:app.get("/api/nexora/scanner/status", async (_req, res) => {
+server/index.ts:3645:app.post("/api/nexora/scanner/prediction-markets", async (req, res) => {
+server/index.ts:3655:app.get("/api/nexora/feeds/status", async (_req, res) => {
+server/index.ts:3664:app.post("/api/nexora/feeds/normalize", async (req, res) => {
+server/index.ts:3673:app.post("/api/nexora/feeds/combine-probabilities", async (req, res) => {
+server/index.ts:3683:app.get("/api/nexora/memory/events", async (req, res) => {
+server/index.ts:3692:app.post("/api/nexora/memory/clear", async (_req, res) => {
+server/index.ts:3701:app.post("/api/nexora/scanner/memory-safe", async (req, res) => {
+server/index.ts:3711:app.get("/api/nexora/admin/controls", async (_req, res) => {
+server/index.ts:3720:app.post("/api/nexora/admin/controls", async (req, res) => {
+server/index.ts:3729:app.get("/api/nexora/alerts", async (req, res) => {
+server/index.ts:3738:app.post("/api/nexora/scanner/controlled-memory", async (req, res) => {
+server/index.ts:3748:app.post("/api/nexora/math/genius-core", async (req, res) => {
+server/index.ts:3758:app.get("/api/nexora/backtest/memory/status", async (_req, res) => {
+server/index.ts:3767:app.post("/api/nexora/backtest/memory/run", async (req, res) => {
+server/index.ts:3777:app.get("/api/nexora/office/receptionist/status", async (_req, res) => {
+server/index.ts:3786:app.post("/api/nexora/office/receptionist/message", async (req, res) => {
+server/index.ts:3795:app.get("/api/nexora/office/receptionist/leads", async (req, res) => {
+server/routes.ts:11642:   * GET  /api/nexora/decisions         — recent brain decisions from DB
+server/routes.ts:11643:   * GET  /api/nexora/thresholds/current — live adaptive thresholds
+server/routes.ts:11644:   * GET  /api/nexora/outcomes/stats    — outcome win/loss analytics
+server/routes.ts:11645:   * POST /api/nexora/outcomes          — record a sales outcome (feedback loop)
+server/routes.ts:11648:  // GET /api/nexora/decisions — last 200 decisions from DB
+server/routes.ts:11649:  app.get("/api/nexora/decisions", async (req, res) => {
+server/routes.ts:11664:  // GET /api/nexora/thresholds/current — active threshold set
+server/routes.ts:11665:  app.get("/api/nexora/thresholds/current", async (req, res) => {
+server/routes.ts:11685:  // GET /api/nexora/outcomes/stats — win/loss breakdown
+server/routes.ts:11686:  app.get("/api/nexora/outcomes/stats", async (req, res) => {
+server/routes.ts:11720:  // POST /api/nexora/outcomes — record a sales outcome (closes the feedback loop)
+server/routes.ts:11721:  app.post("/api/nexora/outcomes", async (req, res) => {
+server/routes.ts:11794:  // GET /api/nexora/knowledge — top knowledge entries for admin
+server/routes.ts:11795:  app.get("/api/nexora/knowledge", async (req, res) => {
+server/routes.ts:11809:  // GET /api/nexora/health — system health check with pass/fail indicators
+server/routes.ts:11810:  app.get("/api/nexora/health", async (_req, res) => {
+server/routes.ts:1204:          app.get("/api/nexora/loop/status", async (_req, res) => {
+server/routes.ts:1209:          app.post("/api/nexora/loop/start", async (req, res) => {
+server/routes.ts:1216:          app.post("/api/nexora/loop/stop", async (_req, res) => {
+server/routes.ts:1222:          app.patch("/api/nexora/loop/config", async (req, res) => {
+server/routes.ts:12299:  // POST /api/nexora/outreach/approve-batch — approve all low-risk draft messages
+server/routes.ts:12300:  app.post("/api/nexora/outreach/approve-batch", async (req, res) => {
+server/routes.ts:12331:  // GET /api/nexora/runtime-state — live control state: lock, mode, failed jobs, approval queue, latest actions
+server/routes.ts:12332:  app.get("/api/nexora/runtime-state", async (_req, res) => {
+server/routes.ts:2475:  app.get("/api/nexora/opportunities/top", async (req, res) => {
+server/routes.ts:2552:  app.get("/api/nexora/pipeline", async (req, res) => {
+server/routes.ts:2562:  app.get("/api/nexora/pipeline/:id", async (req, res) => {
+server/routes.ts:2570:  app.patch("/api/nexora/pipeline/:id", async (req, res) => {
+server/routes.ts:2594:  app.delete("/api/nexora/pipeline/:id", async (req, res) => {
+server/routes.ts:2602:  app.post("/api/nexora/pipeline/:id/auto-quote", async (req, res) => {
+server/routes.ts:2646:  app.get("/api/nexora/outcomes", async (req, res) => {
+server/routes.ts:2657:  app.get("/api/nexora/financial-summary", async (_req, res) => {
+server/routes.ts:2759:  app.get("/api/nexora/signals/summary", async (req, res) => {
+server/routes.ts:2820:  app.get("/api/nexora/outreach/pending", async (req, res) => {
+server/routes.ts:2871:  // GET /api/nexora/priority-actions — Nexora-generated daily action list
+server/routes.ts:2872:  app.get("/api/nexora/priority-actions", async (req, res) => {
+server/routes.ts:2984:  // GET /api/nexora/follow-up-queue — per-lead follow-up queue with status
+server/routes.ts:2985:  app.get("/api/nexora/follow-up-queue", async (req, res) => {
+server/routes.ts:3030:  app.patch("/api/nexora/outreach/:id/approve", async (req, res) => {
+server/routes.ts:807:  app.get("/api/nexora/modules", async (_req: any, res: any) => {
+server/routes.ts:828:  app.get("/api/nexora/modules/:key", async (req: any, res: any) => {
+server/routes.ts:854:  app.post("/api/nexora/modules/policy-preview", async (req: any, res: any) => {
+server/routes.ts:880:          app.get("/api/nexora/background-status", (_req, res) => {
+server/routes.ts:891:          app.get("/api/nexora/history", async (_req, res) => {
+server/routes.ts:908:          app.post("/api/nexora/run", async (_req, res) => {
+server/routes.ts:928:          app.post("/api/nexora/copilot", async (req, res) => {
+
+=== Server Nexora service imports ===
+server/services/intelligence/nexora/nexora-types.ts:1:export type NexoraEnvironment = "local" | "staging" | "production";
+server/services/intelligence/nexora/nexora-types.ts:2:export type NexoraPriority = "critical" | "high" | "medium" | "low";
+server/services/intelligence/nexora/nexora-types.ts:4:export type NexoraDecisionAction =
+server/services/intelligence/nexora/nexora-types.ts:12:export interface NexoraDecisionRecordLike {
+server/services/intelligence/nexora/nexora-types.ts:22:  priority: NexoraPriority;
+server/services/intelligence/nexora/nexora-types.ts:23:  action: NexoraDecisionAction;
+server/services/intelligence/nexora/nexora-types.ts:35:export type NexoraSignalLike = (DealHunterSignalLike | RadarSignalLike) & {
+server/services/intelligence/nexora/nexora-types.ts:40:export interface NexoraRunContext {
+server/services/intelligence/nexora/nexora-types.ts:46:export interface NexoraEngineLearningSummary {
+server/services/intelligence/nexora/nexora-types.ts:53:export interface NexoraEngineResult {
+server/services/intelligence/nexora/nexora-types.ts:60:  learning: NexoraEngineLearningSummary;
+server/services/intelligence/nexora/nexora-types.ts:65:export type NexoraReviewQueueType =
+server/services/intelligence/nexora/nexora-types.ts:75:export interface NexoraConfig {
+server/services/intelligence/nexora/nexora-types.ts:79:  aiEnsembleMinPriority?: NexoraPriority;
+server/services/intelligence/nexora/nexora-types.ts:90:  env?: NexoraEnvironment;
+server/services/intelligence/nexora/nexora-types.ts:125:  priority: NexoraPriority;
+server/services/intelligence/nexora/nexora-types.ts:250:export interface NexoraResult {
+server/services/intelligence/nexora/nexora-support.ts:1:/* filepath: server/services/intelligence/nexora/nexora-support.ts
+server/services/intelligence/nexora/nexora-support.ts:3: * Nexora Support — DB-backed memory layer (Layer 9 upgrade)
+server/services/intelligence/nexora/nexora-support.ts:16:  NexoraConfig,
+server/services/intelligence/nexora/nexora-support.ts:17:  NexoraDecisionAction,
+server/services/intelligence/nexora/nexora-support.ts:18:  NexoraDecisionRecordLike,
+server/services/intelligence/nexora/nexora-support.ts:19:  NexoraPriority,
+server/services/intelligence/nexora/nexora-support.ts:194:export function getNexoraConfig(dryRun = false): NexoraConfig {
+server/services/intelligence/nexora/nexora-support.ts:200:        : "local") as NexoraConfig["env"],
+server/services/intelligence/nexora/nexora-support.ts:230:/* ─── ensureNexoraReady ──────────────────────────────────────────────────── */
+server/services/intelligence/nexora/nexora-support.ts:232:export async function ensureNexoraReady(): Promise<void> {
+server/services/intelligence/nexora/nexora-support.ts:237:    console.error("[Nexora] DB connectivity check failed:", err);
+server/services/intelligence/nexora/nexora-support.ts:247:    const { nexoraThresholds } = await import("../../../../shared/schema");
+server/services/intelligence/nexora/nexora-support.ts:252:      .from(nexoraThresholds)
+server/services/intelligence/nexora/nexora-support.ts:253:      .where(eq(nexoraThresholds.isActive, true))
+server/services/intelligence/nexora/nexora-support.ts:254:      .orderBy(desc(nexoraThresholds.version))
+server/services/intelligence/nexora/nexora-support.ts:285:    const { nexoraThresholds } = await import("../../../../shared/schema");
+server/services/intelligence/nexora/nexora-support.ts:290:      .select({ version: nexoraThresholds.version })
+server/services/intelligence/nexora/nexora-support.ts:291:      .from(nexoraThresholds)
+server/services/intelligence/nexora/nexora-support.ts:292:      .orderBy(desc(nexoraThresholds.version))
+server/services/intelligence/nexora/nexora-support.ts:299:      .update(nexoraThresholds)
+server/services/intelligence/nexora/nexora-support.ts:301:      .where(eq(nexoraThresholds.isActive, true));
+server/services/intelligence/nexora/nexora-support.ts:304:    await db.insert(nexoraThresholds).values({
+server/services/intelligence/nexora/nexora-support.ts:313:    console.error("[Nexora] Failed to save adaptive thresholds:", err);
+server/services/intelligence/nexora/nexora-support.ts:326:    const { nexoraKnowledge } = await import("../../../../shared/schema");
+server/services/intelligence/nexora/nexora-support.ts:328:    const rows = await db.select().from(nexoraKnowledge);
+server/services/intelligence/nexora/nexora-support.ts:359:    const { nexoraKnowledge } = await import("../../../../shared/schema");
+server/services/intelligence/nexora/nexora-support.ts:372:        .insert(nexoraKnowledge)
+server/services/intelligence/nexora/nexora-support.ts:389:          target: nexoraKnowledge.entryKey,
+server/services/intelligence/nexora/nexora-support.ts:407:    console.error("[Nexora] Failed to save knowledge map:", err);
+server/services/intelligence/nexora/nexora-support.ts:416:    const { nexoraKnowledge } = await import("../../../../shared/schema");
+server/services/intelligence/nexora/nexora-support.ts:424:      .insert(nexoraKnowledge)
+server/services/intelligence/nexora/nexora-support.ts:441:        target: nexoraKnowledge.entryKey,
+server/services/intelligence/nexora/nexora-support.ts:456:    console.error("[Nexora] Failed to upsert knowledge entry:", err);
+server/services/intelligence/nexora/nexora-support.ts:479:    console.log(`[NexoraAudit] ${event}`, { runId, message, ...meta });
+server/services/intelligence/nexora/nexora-support.ts:520:  record: NexoraDecisionRecordLike & Record<string, unknown>,
+server/services/intelligence/nexora/nexora-support.ts:524:    const { nexoraDecisions } = await import("../../../../shared/schema");
+server/services/intelligence/nexora/nexora-support.ts:531:    await db.insert(nexoraDecisions).values({
+server/services/intelligence/nexora/nexora-support.ts:553:    console.error("[Nexora] Failed to upsert decision record:", err);
+server/services/intelligence/nexora/nexora-support.ts:618:    const { nexoraIdempotencyKeys } = await import("../../../../shared/schema");
+server/services/intelligence/nexora/nexora-support.ts:625:      .delete(nexoraIdempotencyKeys)
+server/services/intelligence/nexora/nexora-support.ts:629:            deq(nexoraIdempotencyKeys.status, "claimed"),
+server/services/intelligence/nexora/nexora-support.ts:630:            lt(nexoraIdempotencyKeys.claimedAt, twoHoursAgo),
+server/services/intelligence/nexora/nexora-support.ts:633:            deq(nexoraIdempotencyKeys.status, "completed"),
+server/services/intelligence/nexora/nexora-support.ts:634:            lt(nexoraIdempotencyKeys.expiresAt, now),
+server/services/intelligence/nexora/nexora-support.ts:639:    await db.insert(nexoraIdempotencyKeys).values({
+server/services/intelligence/nexora/nexora-support.ts:660:    const { nexoraIdempotencyKeys } = await import("../../../../shared/schema");
+server/services/intelligence/nexora/nexora-support.ts:664:      .update(nexoraIdempotencyKeys)
+server/services/intelligence/nexora/nexora-support.ts:666:      .where(eq(nexoraIdempotencyKeys.idemKey, key));
+server/services/intelligence/nexora/nexora-support.ts:683:    const { nexoraRunLocks } = await import("../../../../shared/schema");
+server/services/intelligence/nexora/nexora-support.ts:688:      .delete(nexoraRunLocks)
+server/services/intelligence/nexora/nexora-support.ts:691:          lt(nexoraRunLocks.expiresAt, new Date()),
+server/services/intelligence/nexora/nexora-support.ts:692:          eq(nexoraRunLocks.status, "released"),
+server/services/intelligence/nexora/nexora-support.ts:698:      .from(nexoraRunLocks)
+server/services/intelligence/nexora/nexora-support.ts:699:      .where(eq(nexoraRunLocks.lockKey, lockKey))
+server/services/intelligence/nexora/nexora-support.ts:705:    await db.insert(nexoraRunLocks).values({
+server/services/intelligence/nexora/nexora-support.ts:726:    const { nexoraRunLocks } = await import("../../../../shared/schema");
+server/services/intelligence/nexora/nexora-support.ts:730:      .delete(nexoraRunLocks)
+server/services/intelligence/nexora/nexora-support.ts:733:          eq(nexoraRunLocks.lockKey, lockKey),
+server/services/intelligence/nexora/nexora-support.ts:734:          eq(nexoraRunLocks.runId, runId),
+server/services/intelligence/nexora/nexora-support.ts:756:      headers: { "Content-Type": "application/json", "X-Nexora-Agent": "1" },
+server/services/intelligence/nexora/nexora-support.ts:790:  _config?: NexoraConfig,
+server/services/intelligence/nexora/nexora-support.ts:805:  _config: NexoraConfig,
+server/services/intelligence/nexora/nexora-support.ts:988:): NexoraDecisionRecordLike {
+server/services/intelligence/nexora/nexora-support.ts:1001:  let action: NexoraDecisionAction = "hold";
+server/services/intelligence/nexora/nexora-support.ts:1002:  let priority: NexoraPriority = "low";
+server/services/intelligence/nexora/nexora-support.ts:1066:    ruleDecision: NexoraDecisionRecordLike;
+server/services/intelligence/nexora/nexora-support.ts:1074:): NexoraDecisionRecordLike {
+server/services/intelligence/nexora/nexora-support.ts:1081:    const aiActionMap: Record<string, NexoraDecisionAction> = {
+server/services/intelligence/nexora/nexora-support.ts:1127:  config: NexoraConfig,
+server/services/intelligence/nexora/nexora-support.ts:1158:    const { nexoraKnowledge } = await import("../../../../shared/schema");
+server/services/intelligence/nexora/nexora-support.ts:1165:        winRate: nexoraKnowledge.winRate,
+server/services/intelligence/nexora/nexora-support.ts:1166:        totalCount: nexoraKnowledge.totalCount,
+server/services/intelligence/nexora/nexora-support.ts:1168:      .from(nexoraKnowledge)
+server/services/intelligence/nexora/nexora-support.ts:1170:        drizzleSql`lower(trim(${nexoraKnowledge.companyName})) = ${companyKey}`,
+server/services/intelligence/nexora/nexora-support.ts:1190:    const { nexoraRunLocks, nexoraIdempotencyKeys } = await import("../../../../shared/schema");
+server/services/intelligence/nexora/nexora-support.ts:1194:      db.delete(nexoraRunLocks).where(lt(nexoraRunLocks.expiresAt, new Date())),
+server/services/intelligence/nexora/nexora-support.ts:1196:        .delete(nexoraIdempotencyKeys)
+server/services/intelligence/nexora/nexora-support.ts:1197:        .where(lt(nexoraIdempotencyKeys.expiresAt, new Date())),
+server/services/intelligence/nexora/nexora-support.ts:1207:export async function initNexoraDataSource(): Promise<void> {
+server/services/intelligence/nexora/nexora-support.ts:1214:export type NexoraOperationalProblemCategory =
+server/services/intelligence/nexora/nexora-support.ts:1226:export type NexoraRecoveryAction = {
+server/services/intelligence/nexora/nexora-support.ts:1241:function nexoraProblemText(input: unknown): string {
+server/services/intelligence/nexora/nexora-support.ts:1249:function nexoraHasAny(haystack: string, needles: string[]): boolean {
+server/services/intelligence/nexora/nexora-support.ts:1253:export function classifyNexoraOperationalProblem(input: {
+server/services/intelligence/nexora/nexora-support.ts:1259:  category: NexoraOperationalProblemCategory;
+server/services/intelligence/nexora/nexora-support.ts:1263:  const haystack = nexoraProblemText(input);
+server/services/intelligence/nexora/nexora-support.ts:1265:  if (nexoraHasAny(haystack, ["daily cap", "cooldown", "flood", "too many", "rate limit", "bulk"])) {
+server/services/intelligence/nexora/nexora-support.ts:1273:  if (nexoraHasAny(haystack, ["locked", "autonomy_outreach_lock", "override", "safety lock", "draft_hold"])) {
+server/services/intelligence/nexora/nexora-support.ts:1281:  if (nexoraHasAny(haystack, ["missing", "not configured", "env", "api key", "secret", "undefined"])) {
+server/services/intelligence/nexora/nexora-support.ts:1289:  if (nexoraHasAny(haystack, ["403", "domain is not verified", "unauthorized", "twilio", "resend", "stripe", "provider"])) {
+server/services/intelligence/nexora/nexora-support.ts:1297:  if (nexoraHasAny(haystack, ["tbc", "missing recipient", "invalid email", "unknown", "confidence_below", "not verified"])) {
+server/services/intelligence/nexora/nexora-support.ts:1305:  if (nexoraHasAny(haystack, ["duplicate", "idempotency", "already sent", "same quote"])) {
+server/services/intelligence/nexora/nexora-support.ts:1313:  if (nexoraHasAny(haystack, ["sandbox", "recipient", "not joined", "not ready", "no reply", "unresponsive"])) {
+server/services/intelligence/nexora/nexora-support.ts:1321:  if (nexoraHasAny(haystack, ["waiting", "queued", "pending", "awaiting"])) {
+server/services/intelligence/nexora/nexora-support.ts:1329:  if (nexoraHasAny(haystack, ["tsc", "typescript", "build", "vite", "cannot find module", "error ts"])) {
+server/services/intelligence/nexora/nexora-support.ts:1344:export function proposeNexoraRecoveryActions(category: NexoraOperationalProblemCategory): NexoraRecoveryAction[] {
+server/services/intelligence/nexora/nexora-support.ts:1406:export function analyzeNexoraOperationalProblem(input: {
+server/services/intelligence/nexora/nexora-support.ts:1412:  const classification = classifyNexoraOperationalProblem(input);
+server/services/intelligence/nexora/nexora-support.ts:1413:  const recoveryActions = proposeNexoraRecoveryActions(classification.category);
+server/services/intelligence/nexora/nexora-support.ts:1424:    rule: "Nexora can auto-run safe recovery actions only. Risky actions stay held or require review."
+server/services/intelligence/nexora/nexora-support.ts:1428:export function getNexoraRecoveryPolicy() {
+server/services/intelligence/nexora/nexora-support.ts:1432:      globalRule: "Detect, classify, recover safely, log/observe through existing Nexora systems, and never repeat risky actions blindly.",
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:2: * Nexora Module Registry
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:5: * Nexora is the only final decision brain.
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:19: * This file is the central map Nexora will use to control the whole system.
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:22:export type NexoraModuleType =
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:33:export type NexoraModuleRiskLevel = "low" | "medium" | "high" | "critical";
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:35:export type NexoraModuleStatus =
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:42:export type NexoraModuleCapability =
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:58:export type NexoraModuleDefinition = {
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:61:  type: NexoraModuleType;
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:62:  status: NexoraModuleStatus;
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:63:  riskLevel: NexoraModuleRiskLevel;
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:67:  capabilities: NexoraModuleCapability[];
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:68:  requiresNexoraDecision: boolean;
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:74:export const NEXORA_MAIN_BRAIN: NexoraModuleDefinition = {
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:76:  name: "Nexora Core Brain",
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:83:    "server/services/intelligence/nexoraOrchestrator.ts",
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:84:    "server/services/intelligence/nexora/nexora-support.ts",
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:85:    "server/services/intelligence/nexora/nexora-types.ts",
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:86:    "server/services/intelligence/nexoraAI.ts"
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:89:  requiresNexoraDecision: false,
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:94:    "All other modules must feed evidence to Nexora or execute approved actions."
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:98:export const NEXORA_MODULE_REGISTRY: NexoraModuleDefinition[] = [
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:103:    name: "Nexora Loop Wrapper",
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:108:    description: "Startup/runtime wrapper that should call the main Nexora orchestrator only.",
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:109:    files: ["server/services/nexoraLoop.ts", "server/index.ts"],
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:111:    requiresNexoraDecision: false,
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:131:    requiresNexoraDecision: true,
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:150:    requiresNexoraDecision: true,
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:169:    requiresNexoraDecision: true,
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:188:    requiresNexoraDecision: true,
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:207:    requiresNexoraDecision: true,
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:219:    description: "Generates and sends outreach only after Nexora policy approval.",
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:227:    requiresNexoraDecision: true,
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:230:    notes: ["External messaging must be Nexora-policy controlled."]
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:240:    description: "Schedules and sends follow-up communication after Nexora approval.",
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:246:    requiresNexoraDecision: true,
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:268:    requiresNexoraDecision: true,
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:288:    requiresNexoraDecision: true,
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:307:    requiresNexoraDecision: false,
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:330:    requiresNexoraDecision: true,
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:335:      "Paper trading actions must be routed through Nexora.",
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:336:      "Trading learning is evidence for Nexora, not a second brain."
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:356:    requiresNexoraDecision: true,
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:376:    requiresNexoraDecision: false,
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:382:export function getNexoraModules(): NexoraModuleDefinition[] {
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:386:export function getNexoraModule(key: string): NexoraModuleDefinition | undefined {
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:390:export function getNexoraModulesByType(type: NexoraModuleType): NexoraModuleDefinition[] {
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:394:export function getModulesRequiringNexoraDecision(): NexoraModuleDefinition[] {
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:395:  return NEXORA_MODULE_REGISTRY.filter((module) => module.requiresNexoraDecision);
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:398:export function getAutoRunnableModules(): NexoraModuleDefinition[] {
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:402:export function buildNexoraModuleSummary() {
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:403:  const modules = getNexoraModules();
+server/services/intelligence/nexora/nexoraModuleRegistry.ts:416:    requiringNexoraDecision: modules.filter((module) => module.requiresNexoraDecision).length,
+server/services/intelligence/nexora/nexoraActionRouter.ts:2: * Nexora Action Router
+server/services/intelligence/nexora/nexoraActionRouter.ts:4: * Nexora is the only final decision brain.
+server/services/intelligence/nexora/nexoraActionRouter.ts:12: * - Modules need Nexora approval.
+server/services/intelligence/nexora/nexoraActionRouter.ts:13: * - Nexora approves or declines.
+server/services/intelligence/nexora/nexoraActionRouter.ts:23:  getNexoraModule,
+server/services/intelligence/nexora/nexoraActionRouter.ts:24:  type NexoraModuleCapability,
+server/services/intelligence/nexora/nexoraActionRouter.ts:25:  type NexoraModuleDefinition,
+server/services/intelligence/nexora/nexoraActionRouter.ts:26:  type NexoraModuleRiskLevel,
+server/services/intelligence/nexora/nexoraActionRouter.ts:27:} from "./nexoraModuleRegistry";
+server/services/intelligence/nexora/nexoraActionRouter.ts:28:import { scoreNexoraBusinessAction } from "./nexoraBusinessMandate";
+server/services/intelligence/nexora/nexoraActionRouter.ts:30:export type NexoraActionIntent =
+server/services/intelligence/nexora/nexoraActionRouter.ts:48:export type NexoraActionDecision =
+server/services/intelligence/nexora/nexoraActionRouter.ts:56:export type NexoraActionRequest = {
+server/services/intelligence/nexora/nexoraActionRouter.ts:58:  intent: NexoraActionIntent;
+server/services/intelligence/nexora/nexoraActionRouter.ts:63:  riskOverride?: NexoraModuleRiskLevel;
+server/services/intelligence/nexora/nexoraActionRouter.ts:67:export type NexoraActionRouteResult = {
+server/services/intelligence/nexora/nexoraActionRouter.ts:69:  decision: NexoraActionDecision;
+server/services/intelligence/nexora/nexoraActionRouter.ts:72:  intent: NexoraActionIntent;
+server/services/intelligence/nexora/nexoraActionRouter.ts:73:  riskLevel?: NexoraModuleRiskLevel;
+server/services/intelligence/nexora/nexoraActionRouter.ts:74:  requiresNexoraDecision?: boolean;
+server/services/intelligence/nexora/nexoraActionRouter.ts:79:  module?: NexoraModuleDefinition;
+server/services/intelligence/nexora/nexoraActionRouter.ts:80:  empireScore?: ReturnType<typeof scoreNexoraBusinessAction>;
+server/services/intelligence/nexora/nexoraActionRouter.ts:83:const INTENT_TO_CAPABILITY: Record<NexoraActionIntent, NexoraModuleCapability | "deploy" | "destructive_change" | "move_money"> = {
+server/services/intelligence/nexora/nexoraActionRouter.ts:102:const ACTION_INTENTS_REQUIRING_NEXORA = new Set<NexoraActionIntent>([
+server/services/intelligence/nexora/nexoraActionRouter.ts:112:const HARD_BLOCK_INTENTS = new Set<NexoraActionIntent>([
+server/services/intelligence/nexora/nexoraActionRouter.ts:117:export function routeNexoraAction(request: NexoraActionRequest): NexoraActionRouteResult {
+server/services/intelligence/nexora/nexoraActionRouter.ts:118:  const module = getNexoraModule(request.moduleKey);
+server/services/intelligence/nexora/nexoraActionRouter.ts:119:  const empireScore = scoreNexoraBusinessAction({
+server/services/intelligence/nexora/nexoraActionRouter.ts:135:      requiresNexoraDecision: true,
+server/services/intelligence/nexora/nexoraActionRouter.ts:137:      reason: `Unknown Nexora module: ${request.moduleKey}`,
+server/services/intelligence/nexora/nexoraActionRouter.ts:138:      policyNotes: ["Register the module in nexoraModuleRegistry.ts before routing actions."],
+server/services/intelligence/nexora/nexoraActionRouter.ts:152:      requiresNexoraDecision: true,
+server/services/intelligence/nexora/nexoraActionRouter.ts:157:        "Nexora can prepare, test, and stage a build.",
+server/services/intelligence/nexora/nexoraActionRouter.ts:172:      requiresNexoraDecision: true,
+server/services/intelligence/nexora/nexoraActionRouter.ts:193:        requiresNexoraDecision: true,
+server/services/intelligence/nexora/nexoraActionRouter.ts:214:      requiresNexoraDecision: true,
+server/services/intelligence/nexora/nexoraActionRouter.ts:237:      requiresNexoraDecision: module.requiresNexoraDecision,
+server/services/intelligence/nexora/nexoraActionRouter.ts:243:        "Update nexoraModuleRegistry.ts only if this capability is intentionally allowed.",
+server/services/intelligence/nexora/nexoraActionRouter.ts:250:    module.requiresNexoraDecision &&
+server/services/intelligence/nexora/nexoraActionRouter.ts:261:      requiresNexoraDecision: true,
+server/services/intelligence/nexora/nexoraActionRouter.ts:264:      reason: `${module.name} action "${request.intent}" must be approved or declined by Nexora first.`,
+server/services/intelligence/nexora/nexoraActionRouter.ts:267:        "Route the request into Nexora, then call again with requestedBy='nexora' after Nexora decides.",
+server/services/intelligence/nexora/nexoraActionRouter.ts:281:      requiresNexoraDecision: true,
+server/services/intelligence/nexora/nexoraActionRouter.ts:286:        "Scheduler must trigger Nexora, not the module directly.",
+server/services/intelligence/nexora/nexoraActionRouter.ts:287:        "Nexora can then call the module if policy allows.",
+server/services/intelligence/nexora/nexoraActionRouter.ts:300:    requiresNexoraDecision: module.requiresNexoraDecision,
+server/services/intelligence/nexora/nexoraActionRouter.ts:304:      ? `Dry run approved by Nexora policy for ${module.name}: ${request.reason} — Empire Score ${empireScore.empireScore}/100`
+server/services/intelligence/nexora/nexoraActionRouter.ts:305:      : `Approved by Nexora policy for ${module.name}: ${request.reason} — Empire Score ${empireScore.empireScore}/100`,
+server/services/intelligence/nexora/nexoraActionRouter.ts:308:      "Nexora policy gate passed.",
+server/services/intelligence/nexora/nexoraActionRouter.ts:317:export function assertNexoraActionApproved(request: NexoraActionRequest): NexoraActionRouteResult {
+server/services/intelligence/nexora/nexoraActionRouter.ts:318:  const result = routeNexoraAction(request);
+server/services/intelligence/nexora/nexoraActionRouter.ts:321:    throw new Error(`[NexoraActionRouter] ${result.decision}: ${result.reason}`);
+server/services/intelligence/nexora/nexoraActionRouter.ts:327:export function previewNexoraActionPolicy(
+server/services/intelligence/nexora/nexoraActionRouter.ts:332:        intent?: NexoraActionIntent;
+server/services/intelligence/nexora/nexoraActionRouter.ts:333:        requestedBy?: NexoraActionRequest["requestedBy"];
+server/services/intelligence/nexora/nexoraActionRouter.ts:338:  maybeIntent?: NexoraActionIntent,
+server/services/intelligence/nexora/nexoraActionRouter.ts:339:  maybeRequestedBy: NexoraActionRequest["requestedBy"] = "unknown",
+server/services/intelligence/nexora/nexoraActionRouter.ts:345:    return routeNexoraAction({
+server/services/intelligence/nexora/nexoraActionRouter.ts:347:      intent: requestOrModuleKey.intent as NexoraActionIntent,
+server/services/intelligence/nexora/nexoraActionRouter.ts:355:  return routeNexoraAction({
+server/services/intelligence/nexora/nexoraActionRouter.ts:357:    intent: maybeIntent as NexoraActionIntent,
+server/services/intelligence/nexora/nexoraBusinessMandate.ts:2: * Nexora Business Mandate
+server/services/intelligence/nexora/nexoraBusinessMandate.ts:4: * Nexora is the operating brain of The Corporate Desk.
+server/services/intelligence/nexora/nexoraBusinessMandate.ts:17: * Nexora approves or declines.
+server/services/intelligence/nexora/nexoraBusinessMandate.ts:25:export type NexoraBusinessObjective =
+server/services/intelligence/nexora/nexoraBusinessMandate.ts:39:export type NexoraEmpireScoreInput = {
+server/services/intelligence/nexora/nexoraBusinessMandate.ts:49:export type NexoraEmpireScore = {
+server/services/intelligence/nexora/nexoraBusinessMandate.ts:60:  objectives: NexoraBusinessObjective[];
+server/services/intelligence/nexora/nexoraBusinessMandate.ts:131:export function scoreNexoraBusinessAction(input: NexoraEmpireScoreInput): NexoraEmpireScore {
+server/services/intelligence/nexora/nexoraBusinessMandate.ts:136:  const objectives = new Set<NexoraBusinessObjective>();
+server/services/intelligence/nexora/nexoraBusinessMandate.ts:180:    reasoning.push("Phantom X is treated as trading evidence and capital growth support under Nexora control.");
+server/services/intelligence/nexora/nexoraBusinessMandate.ts:209:  let businessDecision: NexoraEmpireScore["businessDecision"] = "approve";
+server/services/intelligence/nexora/nexoraBusinessMandate.ts:235:  name: "Nexora Business Operating Mandate",
+server/services/intelligence/nexora/nexoraBusinessMandate.ts:238:  rule: "Nexora is the only final decision brain. Modules provide evidence or execute approved actions.",
+server/services/intelligence/nexora/nexoraExecutionGate.ts:2: * Nexora Execution Gate
+server/services/intelligence/nexora/nexoraExecutionGate.ts:8: * - Nexora is the approval/decline authority.
+server/services/intelligence/nexora/nexoraExecutionGate.ts:10: * - Actions outside policy are declined/blocked by Nexora.
+server/services/intelligence/nexora/nexoraExecutionGate.ts:19:  routeNexoraAction,
+server/services/intelligence/nexora/nexoraExecutionGate.ts:20:  type NexoraActionIntent,
+server/services/intelligence/nexora/nexoraExecutionGate.ts:21:  type NexoraActionRequest,
+server/services/intelligence/nexora/nexoraExecutionGate.ts:22:  type NexoraActionRouteResult,
+server/services/intelligence/nexora/nexoraExecutionGate.ts:23:} from "./nexoraActionRouter";
+server/services/intelligence/nexora/nexoraExecutionGate.ts:27:export type NexoraExecutionGateInput = {
+server/services/intelligence/nexora/nexoraExecutionGate.ts:29:  intent: NexoraActionIntent;
+server/services/intelligence/nexora/nexoraExecutionGate.ts:30:  requestedBy?: NexoraActionRequest["requestedBy"];
+server/services/intelligence/nexora/nexoraExecutionGate.ts:36:export type NexoraExecutionGateResult = NexoraActionRouteResult & {
+server/services/intelligence/nexora/nexoraExecutionGate.ts:41:export function evaluateNexoraExecutionGate(input: NexoraExecutionGateInput): NexoraExecutionGateResult {
+server/services/intelligence/nexora/nexoraExecutionGate.ts:42:  const result = routeNexoraAction({
+server/services/intelligence/nexora/nexoraExecutionGate.ts:60:export function assertNexoraExecutionApproved(input: NexoraExecutionGateInput): NexoraExecutionGateResult {
+server/services/intelligence/nexora/nexoraExecutionGate.ts:61:  const result = evaluateNexoraExecutionGate(input);
+server/services/intelligence/nexora/nexoraExecutionGate.ts:110:    const err = new Error(result.reason || "Nexora declined action") as Error & {
+server/services/intelligence/nexora/nexoraExecutionGate.ts:111:      nexoraGate?: NexoraExecutionGateResult;
+server/services/intelligence/nexora/nexoraExecutionGate.ts:115:    err.nexoraGate = result;
+server/services/intelligence/nexora/nexoraExecutionGate.ts:128:export function isNexoraApproved(result: NexoraActionRouteResult): boolean {
+server/services/intelligence/nexora/nexoraExecutionGate.ts:138:  return assertNexoraExecutionApproved({
+server/services/intelligence/nexora/nexoraExecutionGate.ts:148:  return assertNexoraExecutionApproved({
+server/services/intelligence/nexora/nexoraExecutionGate.ts:158:  return assertNexoraExecutionApproved({
+server/services/intelligence/nexora/nexoraExecutionGate.ts:168:  return assertNexoraExecutionApproved({
+server/services/intelligence/nexora/nexoraExecutionGate.ts:178:  return assertNexoraExecutionApproved({
+server/services/intelligence/nexora/nexoraExecutionGate.ts:188:  return assertNexoraExecutionApproved({
+server/services/intelligence/communications/whatsappService.ts:4:import { assertNexoraExecutionApproved } from "../nexora/nexoraExecutionGate";
+server/services/intelligence/communications/whatsappService.ts:82:  const nexoraGate = assertNexoraExecutionApproved({
+server/services/intelligence/communications/whatsappService.ts:86:    reason: `Nexora approved WhatsApp send to ${toE164}`,
+server/services/intelligence/communications/whatsappService.ts:94:  console.log("[Nexora WhatsApp] Send approved through execution gate", {
+server/services/intelligence/communications/whatsappService.ts:96:    decision: nexoraGate.decision,
+server/services/intelligence/communications/whatsappService.ts:97:    empireScore: nexoraGate.empireScore?.empireScore,
+server/services/intelligence/nexoraAI.ts:12:    "[NexoraAI] No OpenAI API key found — AI analysis will be skipped. " +
+server/services/intelligence/nexoraAI.ts:26:interface NexoraAIInput extends DealHunterSignalLike {
+server/services/intelligence/nexoraAI.ts:38:export async function nexoraAIAnalysis(input: NexoraAIInput): Promise<NormalizedAIDecision> {
+server/services/intelligence/nexoraAI.ts:42:    console.warn("[NexoraAI] Skipping AI analysis — no API key configured.");
+server/services/intelligence/partnerNetwork.ts:6:// Nexora integration:
+server/services/intelligence/partnerNetwork.ts:7:// - runNexoraPartnerRoutingStep(): one function you can call inside your Nexora cycle
+server/services/intelligence/partnerNetwork.ts:395:// Nexora hook: call this from your Nexora orchestrator
+server/services/intelligence/partnerNetwork.ts:398:export async function runNexoraPartnerRoutingStep(): Promise<{
+server/services/intelligence/nexoraOrchestrator.ts:14:import { nexoraAIAnalysis } from "../nexoraAI";
+server/services/intelligence/nexoraOrchestrator.ts:24:  ensureNexoraReady,
+server/services/intelligence/nexoraOrchestrator.ts:41:  NexoraConfig,
+server/services/intelligence/nexoraOrchestrator.ts:42:  NexoraDecisionAction,
+server/services/intelligence/nexoraOrchestrator.ts:43:  NexoraDecisionRecordLike,
+server/services/intelligence/nexoraOrchestrator.ts:44:  NexoraEngineLearningSummary,
+server/services/intelligence/nexoraOrchestrator.ts:45:  NexoraEngineResult,
+server/services/intelligence/nexoraOrchestrator.ts:46:  NexoraPriority,
+server/services/intelligence/nexoraOrchestrator.ts:47:  NexoraResult,
+server/services/intelligence/nexoraOrchestrator.ts:48:  NexoraRunContext,
+server/services/intelligence/nexoraOrchestrator.ts:49:  NexoraSignalLike,
+server/services/intelligence/nexoraOrchestrator.ts:57: * Nexora Orchestrator
+server/services/intelligence/nexoraOrchestrator.ts:67:const DEFAULT_CONFIG: NexoraConfig = {
+server/services/intelligence/nexoraOrchestrator.ts:108:  finalDecision: NexoraDecisionRecordLike;
+server/services/intelligence/nexoraOrchestrator.ts:155:export function isNexoraCycleRunning(): boolean {
+server/services/intelligence/nexoraOrchestrator.ts:159:export function getNexoraBackgroundState(): BackgroundState {
+server/services/intelligence/nexoraOrchestrator.ts:167:export function startNexoraBackground(
+server/services/intelligence/nexoraOrchestrator.ts:168:  _config: Partial<NexoraConfig> = {},
+server/services/intelligence/nexoraOrchestrator.ts:171:  backgroundState.lastError = "Legacy in-process Nexora background runner disabled — use durable pg-boss Nexora loop";
+server/services/intelligence/nexoraOrchestrator.ts:179:export function stopNexoraBackground(): { stopped: boolean } {
+server/services/intelligence/nexoraOrchestrator.ts:194:export async function runNexoraCycle(
+server/services/intelligence/nexoraOrchestrator.ts:195:  trigger: NexoraRunContext["trigger"] = "manual",
+server/services/intelligence/nexoraOrchestrator.ts:196:  config: Partial<NexoraConfig> = {},
+server/services/intelligence/nexoraOrchestrator.ts:197:): Promise<NexoraEngineResult> {
+server/services/intelligence/nexoraOrchestrator.ts:198:  return runNexoraEngine({
+server/services/intelligence/nexoraOrchestrator.ts:208:export async function runNexoraEngine(input?: {
+server/services/intelligence/nexoraOrchestrator.ts:209:  trigger?: NexoraRunContext["trigger"];
+server/services/intelligence/nexoraOrchestrator.ts:210:  config?: Partial<NexoraConfig>;
+server/services/intelligence/nexoraOrchestrator.ts:211:}): Promise<NexoraEngineResult> {
+server/services/intelligence/nexoraOrchestrator.ts:212:  const config: NexoraConfig = {
+server/services/intelligence/nexoraOrchestrator.ts:227:      errors: ["Nexora is disabled"],
+server/services/intelligence/nexoraOrchestrator.ts:241:      errors: ["Nexora run already in progress"],
+server/services/intelligence/nexoraOrchestrator.ts:257:    await ensureNexoraReady();
+server/services/intelligence/nexoraOrchestrator.ts:275:        errors: ["Could not acquire Nexora run lock"],
+server/services/intelligence/nexoraOrchestrator.ts:283:      message: `Nexora run started via ${trigger}`,
+server/services/intelligence/nexoraOrchestrator.ts:349:      message: "Nexora run completed",
+server/services/intelligence/nexoraOrchestrator.ts:368:    const message = error instanceof Error ? error.message : "Unknown Nexora error";
+server/services/intelligence/nexoraOrchestrator.ts:410:  config: NexoraConfig,
+server/services/intelligence/nexoraOrchestrator.ts:419:    console.log("[Nexora] Scanners disabled (ENABLE_SCANNERS != true) — skipping RSS/GPT scans, querying DB only");
+server/services/intelligence/nexoraOrchestrator.ts:431:          console.warn(`[Nexora] runOfficeMovRadarScan failed: ${(err as Error)?.message}`);
+server/services/intelligence/nexoraOrchestrator.ts:437:          console.warn(`[Nexora] runNewsFeedScan failed: ${(err as Error)?.message}`);
+server/services/intelligence/nexoraOrchestrator.ts:442:          console.warn(`[Nexora] runJobSignalScan failed: ${(err as Error)?.message}`);
+server/services/intelligence/nexoraOrchestrator.ts:447:          console.warn(`[Nexora] runPredictiveScan failed: ${(err as Error)?.message}`);
+server/services/intelligence/nexoraOrchestrator.ts:452:          console.warn(`[Nexora] runDealHunterScan failed: ${(err as Error)?.message}`);
+server/services/intelligence/nexoraOrchestrator.ts:479:    console.warn(`[Nexora] DB deal signal query failed: ${(err as Error)?.message}`);
+server/services/intelligence/nexoraOrchestrator.ts:501:    console.warn(`[Nexora] DB radar signal query failed: ${(err as Error)?.message}`);
+server/services/intelligence/nexoraOrchestrator.ts:506:  console.log(`[Nexora] collectSignals complete: ${radarSignals.length} radar + ${dealSignals.length} deal signals`);
+server/services/intelligence/nexoraOrchestrator.ts:514:function normalizeSignals(batch: ScanBatch): NexoraSignalLike[] {
+server/services/intelligence/nexoraOrchestrator.ts:515:  const radar: NexoraSignalLike[] = batch.radarSignals.map((signal) => ({
+server/services/intelligence/nexoraOrchestrator.ts:520:  const deals: NexoraSignalLike[] = batch.dealSignals.map((signal) => ({
+server/services/intelligence/nexoraOrchestrator.ts:538:  signal: NexoraSignalLike;
+server/services/intelligence/nexoraOrchestrator.ts:541:  config: NexoraConfig;
+server/services/intelligence/nexoraOrchestrator.ts:650:  const decisionRecord: NexoraDecisionRecordLike = {
+server/services/intelligence/nexoraOrchestrator.ts:732:}): Promise<NexoraEngineLearningSummary> {
+server/services/intelligence/nexoraOrchestrator.ts:754:    const { nexoraOutcomes } = await import("../../../shared/schema");
+server/services/intelligence/nexoraOrchestrator.ts:759:      .select({ outcome: nexoraOutcomes.outcome })
+server/services/intelligence/nexoraOrchestrator.ts:760:      .from(nexoraOutcomes)
+server/services/intelligence/nexoraOrchestrator.ts:761:      .where(gte(nexoraOutcomes.recordedAt, thirtyDaysAgo));
+server/services/intelligence/nexoraOrchestrator.ts:781:        `[Nexora] Learning applied — ${contributing} outcomes | winRate=${(avgWinRate * 100).toFixed(0)} | delta=${appliedDelta} | strongPipeline=${thresholds.strongPipeline}`,
+server/services/intelligence/nexoraOrchestrator.ts:785:        `[Nexora] Learning deferred — only ${contributing} outcome(s) in nexora_outcomes (need ≥3). Run had ${runSampleSize} eligible signal(s).`,
+server/services/intelligence/nexoraOrchestrator.ts:789:    console.warn("[Nexora] Global outcome learning query failed (non-critical):", err?.message);
+server/services/intelligence/nexoraOrchestrator.ts:819:  signal: NexoraSignalLike,
+server/services/intelligence/nexoraOrchestrator.ts:860:      reasoningSummary: sig.summaryReasoning ?? sig.aiSummary ?? `Nexora ${sourceType} push — ${sig.signalType ?? "signal"}`,
+server/services/intelligence/nexoraOrchestrator.ts:864:    console.log(`[Nexora] Auto-created opportunity for ${companyName} (signal ${sourceId})`);
+server/services/intelligence/nexoraOrchestrator.ts:867:    console.warn(`[Nexora] autoCreateOpportunity failed (non-critical):`, err?.message);
+server/services/intelligence/nexoraOrchestrator.ts:873: * Public wrapper — creates a Nexora opportunity from an inbound lead or visitor session.
+server/services/intelligence/nexoraOrchestrator.ts:919:    console.log(`[Nexora] Opportunity created from ${sourceType} for ${opts.companyName}`);
+server/services/intelligence/nexoraOrchestrator.ts:922:    console.warn(`[Nexora] createOpportunityFromLead failed (non-critical):`, err?.message);
+server/services/intelligence/nexoraOrchestrator.ts:952:      projectSummary: opp.reasoningSummary ?? `Auto-drafted from Nexora opportunity — ${opp.projectType ?? opp.industry ?? "fitout"}`,
+server/services/intelligence/nexoraOrchestrator.ts:959:      preparedBy: "The Corporate Desk (Nexora Auto-Draft)",
+server/services/intelligence/nexoraOrchestrator.ts:1018:  signal: NexoraSignalLike,
+server/services/intelligence/nexoraOrchestrator.ts:1053:        nexoraSignalId: signal.id ?? null,
+server/services/intelligence/nexoraOrchestrator.ts:1066:    console.error(`[Nexora] pushToPipeline failed for signal ${signal.id}:`, err);
+server/services/intelligence/nexoraOrchestrator.ts:1078:  signal: NexoraSignalLike,
+server/services/intelligence/nexoraOrchestrator.ts:1115:    console.error(`[Nexora] pushToRadar failed for signal ${signal.id}:`, err);
+server/services/intelligence/nexoraOrchestrator.ts:1128:  signal: NexoraSignalLike;
+server/services/intelligence/nexoraOrchestrator.ts:1129:  finalDecision: { action: NexoraDecisionAction; priority: NexoraPriority };
+server/services/intelligence/nexoraOrchestrator.ts:1148:  signal: NexoraSignalLike;
+server/services/intelligence/nexoraOrchestrator.ts:1149:  finalDecision: { action: NexoraDecisionAction; priority: NexoraPriority };
+server/services/intelligence/nexoraOrchestrator.ts:1152:    if (typeof (globalThis as any).sendWhatsAppFromNexora !== "function") {
+server/services/intelligence/nexoraOrchestrator.ts:1156:    await (globalThis as any).sendWhatsAppFromNexora({
+server/services/intelligence/nexoraOrchestrator.ts:1168:  signal: NexoraSignalLike;
+server/services/intelligence/nexoraOrchestrator.ts:1169:  finalDecision: { action: NexoraDecisionAction; priority: NexoraPriority };
+server/services/intelligence/nexoraOrchestrator.ts:1188:  signal: NexoraSignalLike;
+server/services/intelligence/nexoraOrchestrator.ts:1194:    const ai = await nexoraAIAnalysis({
+server/services/intelligence/nexoraOrchestrator.ts:1210:function shouldUseAI(signal: NexoraSignalLike, config: NexoraConfig): boolean {
+server/services/intelligence/nexoraOrchestrator.ts:1225:  signal: NexoraSignalLike,
+server/services/intelligence/nexoraOrchestrator.ts:1226:  ruleDecision: { action: NexoraDecisionAction; confidence: number },
+server/services/intelligence/nexoraOrchestrator.ts:1239:function shouldPushPipeline(finalDecision: NexoraDecisionRecordLike): boolean {
+server/services/intelligence/nexoraOrchestrator.ts:1246:function shouldPushRadar(finalDecision: NexoraDecisionRecordLike): boolean {
+server/services/intelligence/nexoraOrchestrator.ts:1253:function shouldFireWebhook(finalDecision: NexoraDecisionRecordLike): boolean {
+server/services/intelligence/nexoraOrchestrator.ts:1260:function shouldSendWhatsapp(finalDecision: NexoraDecisionRecordLike): boolean {
+server/services/intelligence/nexoraOrchestrator.ts:1264:function shouldSyncVector(finalDecision: NexoraDecisionRecordLike): boolean {
+server/services/intelligence/nexoraOrchestrator.ts:1273:  signal: NexoraSignalLike;
+server/services/intelligence/nexoraOrchestrator.ts:1275:  finalDecision: NexoraDecisionRecordLike;
+server/services/intelligence/nexoraOrchestrator.ts:1307:function toPublicResult(result: ProcessedSignalResult): NexoraResult {
+server/services/intelligence/nexoraOrchestrator.ts:1309:  } as unknown as NexoraResult;
+server/services/intelligence/nexoraOrchestrator.ts:1372:function emptyLearning(): NexoraEngineLearningSummary {
+server/services/intelligence/nexoraOrchestrator.ts:1381:function inferPriority(signal: NexoraSignalLike): NexoraPriority {
+server/services/intelligence/nexoraOrchestrator.ts:1391:function priorityRank(priority: NexoraPriority): number {
+server/services/intelligence/nexoraOrchestrator.ts:1404:function getSignalId(signal: NexoraSignalLike): string {
+server/services/intelligence/nexoraOrchestrator.ts:1413:function getCompanyName(signal: NexoraSignalLike): string {
+server/services/intelligence/nexoraOrchestrator.ts:1422:function getSignalType(signal: NexoraSignalLike): string {
+server/services/intelligence/nexoraOrchestrator.ts:1431:function getSourceUrl(signal: NexoraSignalLike): string {
+server/services/intelligence/nexoraOrchestrator.ts:1440:function getEvidence(signal: NexoraSignalLike): string {
+server/services/intelligence/nexoraOrchestrator.ts:1449:function estimateSignalValue(signal: NexoraSignalLike): number {
+server/services/trading/liveExecutionGateway.ts:2:import { assertNexoraExecutionApproved } from "../intelligence/nexora/nexoraExecutionGate";
+server/services/trading/liveExecutionGateway.ts:49:  assertNexoraExecutionApproved({
+server/services/trading/liveExecutionGateway.ts:53:    reason: "Nexora approved pre-authorised Phantom X live trading attempt",
+server/services/trading/marketLoop.ts:29:  console.log("[MarketLoop] Legacy in-process market loop disabled — use durable Nexora pg-boss Phantom X market workers");
+server/services/trading/wallet-monitor.ts:42:  console.log("[WalletMonitor] Legacy in-process wallet monitor loop disabled — use durable Nexora worker");
+server/services/trading/wallet-monitor.ts:47:    message: "Legacy in-process wallet monitor loop disabled — use durable Nexora worker",
+server/services/trading/paperEngine.ts:2:import { approvePhantomXPaperTrade } from "../intelligence/nexora/nexoraExecutionGate";
+server/services/trading/paperEngine.ts:49:  approvePhantomXPaperTrade("Nexora approved Phantom X paper trading decision creation", {

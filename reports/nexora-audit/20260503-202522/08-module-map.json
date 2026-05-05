@@ -1,0 +1,865 @@
+[
+  {
+    "file": "server/services/intelligence/nexora/autonomy/academy/nexoraAcademyEngine.ts",
+    "categories": [
+      "autonomy",
+      "learning"
+    ],
+    "exportedFunctions": [
+      "registerNexoraAcademyWorkers",
+      "createNexoraTrainingModule",
+      "queueNexoraTraining",
+      "getNexoraAcademyStatus"
+    ],
+    "routeCount": 0,
+    "lines": 188
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/autopilot/nexoraOperationalAutopilot.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "registerNexoraAutopilotWorkers",
+      "createNexoraKpiLedgerSnapshot",
+      "detectNexoraOperationalIncidents",
+      "createNexoraAutopilotScenario",
+      "runNexoraPipelineForemanCycle",
+      "runNexoraAutopilotCycle",
+      "getNexoraAutopilotCommandView"
+    ],
+    "routeCount": 0,
+    "lines": 743
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/business/nexoraBusinessPipelineEngine.ts",
+    "categories": [
+      "autonomy",
+      "business"
+    ],
+    "exportedFunctions": [
+      "createNexoraBusinessPipeline",
+      "runNexoraBulkBusinessPipeline"
+    ],
+    "routeCount": 0,
+    "lines": 321
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/cockpit/nexoraExecutiveCockpit.ts",
+    "categories": [
+      "autonomy",
+      "reporting"
+    ],
+    "exportedFunctions": [
+      "registerNexoraCockpitWorkers",
+      "getNexoraExecutiveCockpit",
+      "runNexoraExecutiveOperatingBurst",
+      "getNexoraCockpitStatus"
+    ],
+    "routeCount": 0,
+    "lines": 230
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/crm/nexoraCrmPipelineEngine.ts",
+    "categories": [
+      "autonomy",
+      "business"
+    ],
+    "exportedFunctions": [
+      "registerNexoraCrmWorkers",
+      "scoreNexoraLead",
+      "draftNexoraFollowup",
+      "queueNexoraCrmPipeline",
+      "getNexoraCrmStatus"
+    ],
+    "routeCount": 0,
+    "lines": 224
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/exporter/nexoraExportPack.ts",
+    "categories": [
+      "autonomy",
+      "local"
+    ],
+    "exportedFunctions": [
+      "createNexoraExportPack",
+      "listNexoraExportPacks",
+      "getNexoraExportPack"
+    ],
+    "routeCount": 0,
+    "lines": 92
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/exporter/nexoraLocalSnapshotEngine.ts",
+    "categories": [
+      "autonomy",
+      "reporting",
+      "local"
+    ],
+    "exportedFunctions": [
+      "createNexoraLocalSnapshot",
+      "getNexoraLocalSnapshot",
+      "listNexoraLocalSnapshots"
+    ],
+    "routeCount": 0,
+    "lines": 102
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/filebus/nexoraFileBus.ts",
+    "categories": [
+      "autonomy",
+      "local"
+    ],
+    "exportedFunctions": [
+      "getNexoraFileBusStatus",
+      "enqueueNexoraFileBusMessage",
+      "scheduleNexoraDelayedJob",
+      "getNexoraFileBusMessages",
+      "processNexoraFileBus",
+      "purgeNexoraFileBusChannel"
+    ],
+    "routeCount": 0,
+    "lines": 347
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/finance/nexoraFinanceQuoteIntelligence.ts",
+    "categories": [
+      "autonomy",
+      "business"
+    ],
+    "exportedFunctions": [
+      "registerNexoraFinanceWorkers",
+      "analyseNexoraQuote",
+      "queueNexoraQuoteAnalysis",
+      "forecastNexoraRevenue",
+      "getNexoraFinanceStatus"
+    ],
+    "routeCount": 0,
+    "lines": 240
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/governor/nexoraAutonomyGovernor.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "classifyNexoraRisk",
+      "governAndQueueNexoraAction",
+      "runNexoraSlaWatchdog",
+      "runNexoraWorkerEvolutionCycle",
+      "runNexoraGovernorCycle"
+    ],
+    "routeCount": 0,
+    "lines": 485
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localapprovals/nexoraLocalApprovalGate.ts",
+    "categories": [
+      "autonomy",
+      "safety",
+      "local"
+    ],
+    "exportedFunctions": [
+      "createNexoraLocalApproval",
+      "decideNexoraLocalApproval",
+      "listNexoraLocalApprovals",
+      "getNexoraLocalApprovalStatus"
+    ],
+    "routeCount": 0,
+    "lines": 127
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localcrm/nexoraLocalCrm.ts",
+    "categories": [
+      "autonomy",
+      "business",
+      "local"
+    ],
+    "exportedFunctions": [
+      "upsertNexoraLocalLead",
+      "getNexoraLocalLead",
+      "listNexoraLocalLeads",
+      "getNexoraLocalCrmStatus"
+    ],
+    "routeCount": 0,
+    "lines": 104
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localprojects/nexoraLocalProjectBoard.ts",
+    "categories": [
+      "autonomy",
+      "business",
+      "local"
+    ],
+    "exportedFunctions": [
+      "createNexoraLocalProject",
+      "updateNexoraLocalProjectStage",
+      "listNexoraLocalProjects",
+      "getNexoraLocalProjectStatus"
+    ],
+    "routeCount": 0,
+    "lines": 123
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localquotes/nexoraLocalQuoteBook.ts",
+    "categories": [
+      "autonomy",
+      "business",
+      "local"
+    ],
+    "exportedFunctions": [
+      "createNexoraLocalQuote",
+      "getNexoraLocalQuote",
+      "listNexoraLocalQuotes",
+      "getNexoraLocalQuoteBookStatus"
+    ],
+    "routeCount": 0,
+    "lines": 135
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localsuppliers/nexoraLocalSupplierCatalogue.ts",
+    "categories": [
+      "autonomy",
+      "business",
+      "local"
+    ],
+    "exportedFunctions": [
+      "upsertNexoraLocalSupplier",
+      "listNexoraLocalSuppliers",
+      "getNexoraLocalSupplierStatus"
+    ],
+    "routeCount": 0,
+    "lines": 81
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/mission/nexoraMissionControl.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "registerNexoraMissionControlWorkers",
+      "generateNexoraRunbook",
+      "queueNexoraRunbook",
+      "executeNexoraMission",
+      "createNexoraOperatingCadence",
+      "getNexoraMissionControlStatus"
+    ],
+    "routeCount": 0,
+    "lines": 706
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyExecutor.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "executeNexoraSafeTask",
+      "runNexoraBulkSafeExecution",
+      "getNexoraExecutionLog",
+      "getNexoraOperatingSnapshot"
+    ],
+    "routeCount": 0,
+    "lines": 122
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyFoundation.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "queueNexoraTask",
+      "getNexoraTasks",
+      "getNexoraApprovals",
+      "recordNexoraHeartbeat",
+      "getNexoraHeartbeats",
+      "runNexoraSafeAutonomyCycle",
+      "generateNexoraDailyReport",
+      "getNexoraReports",
+      "getNexoraAutonomyFoundationStatus"
+    ],
+    "routeCount": 0,
+    "lines": 251
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyOperatingPlan.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "getNexoraAutonomyOperatingPlan"
+    ],
+    "routeCount": 0,
+    "lines": 45
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyRunner.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "getNexoraAutonomyRunnerStatus",
+      "updateNexoraAutonomyRunner",
+      "runNexoraAutonomyRunnerTick"
+    ],
+    "routeCount": 0,
+    "lines": 119
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomySupervisor.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "runNexoraSupervisorCycle",
+      "getNexoraSupervisorStatus",
+      "getNexoraSupervisorRuns"
+    ],
+    "routeCount": 0,
+    "lines": 83
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraCommandCentre.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "getNexoraCommandCentre"
+    ],
+    "routeCount": 0,
+    "lines": 61
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraSchedulerControl.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "getNexoraSchedules",
+      "updateNexoraSchedule",
+      "runNexoraScheduledTick",
+      "createNexoraSchedule"
+    ],
+    "routeCount": 0,
+    "lines": 198
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraWorkerFactory.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "buildNexoraWorkerArmy",
+      "getNexoraWorkerArmy"
+    ],
+    "routeCount": 0,
+    "lines": 117
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/persistence/nexoraDurableKernel.ts",
+    "categories": [
+      "autonomy",
+      "persistence"
+    ],
+    "exportedFunctions": [
+      "ensureNexoraDurableKernel",
+      "upsertNexoraWorker",
+      "createNexoraDurableTask",
+      "approveNexoraDurableTask",
+      "claimAndRunNexoraSafeTasks",
+      "writeNexoraOperatingReport",
+      "sendNexoraWorkerMessage",
+      "createNexoraMemoryGraphEdge",
+      "createNexoraDelegation",
+      "createNexoraDivisionObjective",
+      "runNexoraEmpireCycle",
+      "getNexoraDurableCommandSnapshot"
+    ],
+    "routeCount": 0,
+    "lines": 997
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/project/nexoraProjectOpsEngine.ts",
+    "categories": [
+      "autonomy",
+      "business"
+    ],
+    "exportedFunctions": [
+      "registerNexoraProjectWorkers",
+      "createNexoraProjectPlan",
+      "queueNexoraProjectOps",
+      "getNexoraProjectStatus"
+    ],
+    "routeCount": 0,
+    "lines": 202
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/resilience/nexoraResilienceCore.ts",
+    "categories": [
+      "autonomy",
+      "local"
+    ],
+    "exportedFunctions": [
+      "detectNexoraResilienceMode",
+      "captureNexoraFallbackEvent",
+      "safeCreateNexoraTaskOrFallback",
+      "replayNexoraFallbackJournal",
+      "getNexoraFallbackJournal",
+      "runNexoraResilienceCycle",
+      "getNexoraMaintenanceConsole"
+    ],
+    "routeCount": 0,
+    "lines": 441
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "registerNexoraAdvancedAutonomyRoutes"
+    ],
+    "routeCount": 11,
+    "lines": 140
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes.ts",
+    "categories": [
+      "autonomy",
+      "local"
+    ],
+    "exportedFunctions": [
+      "registerNexoraFileBusRoutes"
+    ],
+    "routeCount": 6,
+    "lines": 70
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts",
+    "categories": [
+      "autonomy",
+      "business"
+    ],
+    "exportedFunctions": [
+      "registerNexoraGovernorBusinessRoutes"
+    ],
+    "routeCount": 7,
+    "lines": 79
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "registerNexoraHardMountRoutes"
+    ],
+    "routeCount": 9,
+    "lines": 224
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "registerNexoraLiveVerificationRoutes"
+    ],
+    "routeCount": 12,
+    "lines": 223
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "categories": [
+      "autonomy",
+      "business",
+      "local"
+    ],
+    "exportedFunctions": [
+      "registerNexoraLocalBusinessRoutes"
+    ],
+    "routeCount": 21,
+    "lines": 146
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "registerNexoraMegaBuildRoutes"
+    ],
+    "routeCount": 18,
+    "lines": 165
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "registerNexoraMissionControlRoutes"
+    ],
+    "routeCount": 6,
+    "lines": 67
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "registerNexoraOperationalAutopilotRoutes"
+    ],
+    "routeCount": 7,
+    "lines": 77
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts",
+    "categories": [
+      "autonomy",
+      "local"
+    ],
+    "exportedFunctions": [
+      "registerNexoraResilienceRoutes"
+    ],
+    "routeCount": 7,
+    "lines": 78
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "registerNexoraSupremeMatrixRoutes"
+    ],
+    "routeCount": 9,
+    "lines": 97
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/strategy/nexoraStrategyCompiler.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "registerNexoraStrategyCompilerWorkers",
+      "compileNexoraStrategy",
+      "simulateCompiledNexoraStrategy",
+      "queueCompiledNexoraStrategy",
+      "createNexoraAuditVaultEntry",
+      "queryNexoraNeuralMemory",
+      "executeCompiledNexoraStrategy",
+      "getNexoraStrategyCompilerStatus"
+    ],
+    "routeCount": 0,
+    "lines": 480
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supplier/nexoraSupplierCommand.ts",
+    "categories": [
+      "autonomy",
+      "business"
+    ],
+    "exportedFunctions": [
+      "registerNexoraSupplierWorkers",
+      "buildNexoraSupplierMatrix",
+      "draftNexoraSupplierRfq",
+      "queueNexoraSupplierSweep",
+      "getNexoraSupplierStatus"
+    ],
+    "routeCount": 0,
+    "lines": 244
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supreme/nexoraSupremeOrchestrationMatrix.ts",
+    "categories": [
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "registerNexoraSupremeWorkers",
+      "createNexoraDecisionLedgerEntry",
+      "recordNexoraDecision",
+      "buildNexoraCapabilityGraph",
+      "generateNexoraWorkerDance",
+      "rehearseNexoraWorkerDance",
+      "queueNexoraWorkerDance",
+      "runNexoraRedTeamSafetyDrill",
+      "executeNexoraSupremeMatrix",
+      "getNexoraSupremeMatrixStatus"
+    ],
+    "routeCount": 0,
+    "lines": 932
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "categories": [
+      "uncategorised"
+    ],
+    "exportedFunctions": [
+      "safeNumber",
+      "cleanText",
+      "canonicalizeUrl",
+      "normalizeCompany",
+      "cosineSimilarity",
+      "getSemanticEmbedding",
+      "getNexoraConfig",
+      "ensureNexoraReady",
+      "loadAdaptiveThresholds",
+      "saveAdaptiveThresholds",
+      "loadKnowledgeMap",
+      "saveKnowledgeMap",
+      "upsertKnowledgeEntry",
+      "createAuditLog",
+      "pushReviewQueue",
+      "upsertDecisionRecord",
+      "computeOutcomeLearningUpdate",
+      "computeSignalFingerprint",
+      "claimIdempotencyKey",
+      "completeIdempotencyKey",
+      "acquireRunLock",
+      "releaseRunLock",
+      "fireWebhook",
+      "syncVectorKnowledge",
+      "upsertToVectorDB",
+      "runHealthChecks",
+      "resetRetryStats",
+      "getRetryStatsSnapshot",
+      "validateSignal",
+      "checkDuplicateAgainstKnowledge",
+      "buildRuleDecision",
+      "normalizeAIDecision",
+      "finalizeDecision",
+      "detectAnomaly",
+      "requireApproval",
+      "getOutcomeSuccessRate",
+      "cleanupExpiredLocks",
+      "initNexoraDataSource",
+      "classifyNexoraOperationalProblem",
+      "proposeNexoraRecoveryActions",
+      "analyzeNexoraOperationalProblem",
+      "getNexoraRecoveryPolicy"
+    ],
+    "routeCount": 0,
+    "lines": 1472
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-types.ts",
+    "categories": [
+      "uncategorised"
+    ],
+    "exportedFunctions": [],
+    "routeCount": 0,
+    "lines": 308
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraActionRouter.ts",
+    "categories": [
+      "core"
+    ],
+    "exportedFunctions": [
+      "routeNexoraAction",
+      "assertNexoraActionApproved",
+      "previewNexoraActionPolicy"
+    ],
+    "routeCount": 0,
+    "lines": 364
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraBusinessMandate.ts",
+    "categories": [
+      "core",
+      "business"
+    ],
+    "exportedFunctions": [
+      "scoreNexoraBusinessAction"
+    ],
+    "routeCount": 0,
+    "lines": 258
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraExecutionGate.ts",
+    "categories": [
+      "core",
+      "safety"
+    ],
+    "exportedFunctions": [
+      "evaluateNexoraExecutionGate",
+      "assertNexoraExecutionApproved",
+      "isNexoraApproved",
+      "approveOutreachAction",
+      "approveFollowUpAction",
+      "approveProcurementAction",
+      "approvePhantomXPaperTrade",
+      "approvePhantomXScan",
+      "approveSignalScan"
+    ],
+    "routeCount": 0,
+    "lines": 196
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraModuleRegistry.ts",
+    "categories": [
+      "core"
+    ],
+    "exportedFunctions": [
+      "getNexoraModules",
+      "getNexoraModule",
+      "getNexoraModulesByType",
+      "getModulesRequiringNexoraDecision",
+      "getAutoRunnableModules",
+      "buildNexoraModuleSummary"
+    ],
+    "routeCount": 0,
+    "lines": 424
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraWorkerRegistry.ts",
+    "categories": [
+      "core"
+    ],
+    "exportedFunctions": [
+      "getNexoraWorkerRegistry",
+      "getNexoraHandsFreeReadiness"
+    ],
+    "routeCount": 0,
+    "lines": 83
+  },
+  {
+    "file": "src/nexora/autonomy/loops/nexoraAutonomousLoopController.ts",
+    "categories": [
+      "core",
+      "autonomy"
+    ],
+    "exportedFunctions": [
+      "runNexoraDurableAutonomyCycle",
+      "startNexoraAutonomousLoopTimer"
+    ],
+    "routeCount": 0,
+    "lines": 160
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraAutonomyDb.ts",
+    "categories": [
+      "autonomy",
+      "persistence"
+    ],
+    "exportedFunctions": [
+      "nexoraHasDatabase",
+      "getNexoraPool",
+      "ensureNexoraAutonomySchema",
+      "nexoraId"
+    ],
+    "routeCount": 0,
+    "lines": 220
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraAutonomyTypes.ts",
+    "categories": [
+      "autonomy",
+      "persistence"
+    ],
+    "exportedFunctions": [],
+    "routeCount": 0,
+    "lines": 68
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraDurableAutonomyStore.ts",
+    "categories": [
+      "autonomy",
+      "persistence"
+    ],
+    "exportedFunctions": [
+      "initializeNexoraDurableAutonomy",
+      "createNexoraDurableTask",
+      "approveNexoraTask",
+      "rejectNexoraTask",
+      "heartbeatNexoraWorker",
+      "claimNextNexoraTask",
+      "completeNexoraTask",
+      "failNexoraTask",
+      "recoverTimedOutNexoraTasks",
+      "scoreNexoraWorker",
+      "writeNexoraReport",
+      "writeNexoraMemory",
+      "getNexoraDurableSnapshot",
+      "seedNexoraDurableWorkers"
+    ],
+    "routeCount": 0,
+    "lines": 580
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraPgBossBridge.ts",
+    "categories": [
+      "autonomy",
+      "persistence"
+    ],
+    "exportedFunctions": [
+      "getNexoraPgBoss",
+      "enqueueNexoraPgBossTask"
+    ],
+    "routeCount": 0,
+    "lines": 70
+  },
+  {
+    "file": "src/nexora/autonomy/routes/nexoraDurableAutonomyRoutes.ts",
+    "categories": [
+      "autonomy",
+      "persistence"
+    ],
+    "exportedFunctions": [
+      "registerNexoraDurableAutonomyRoutes"
+    ],
+    "routeCount": 9,
+    "lines": 197
+  },
+  {
+    "file": "src/nexora/empire/nexoraEmpireEngine.ts",
+    "categories": [
+      "uncategorised"
+    ],
+    "exportedFunctions": [
+      "seedNexoraEmpireDivisions",
+      "createNexoraWorkerMessage",
+      "actionNexoraWorkerMessage",
+      "createNexoraDelegation",
+      "createDivisionObjective",
+      "createMemoryGraphEdge",
+      "createStrategicPlanningCycle",
+      "runNexoraEmpireOperatingCycle",
+      "getNexoraEmpireSnapshot"
+    ],
+    "routeCount": 0,
+    "lines": 734
+  },
+  {
+    "file": "src/nexora/empire/nexoraEmpireSchema.ts",
+    "categories": [
+      "uncategorised"
+    ],
+    "exportedFunctions": [
+      "ensureNexoraEmpireSchema"
+    ],
+    "routeCount": 0,
+    "lines": 139
+  },
+  {
+    "file": "src/nexora/empire/nexoraEmpireTypes.ts",
+    "categories": [
+      "uncategorised"
+    ],
+    "exportedFunctions": [],
+    "routeCount": 0,
+    "lines": 67
+  },
+  {
+    "file": "src/nexora/empire/routes/nexoraEmpireRoutes.ts",
+    "categories": [
+      "uncategorised"
+    ],
+    "exportedFunctions": [
+      "registerNexoraEmpireRoutes"
+    ],
+    "routeCount": 9,
+    "lines": 163
+  }
+]

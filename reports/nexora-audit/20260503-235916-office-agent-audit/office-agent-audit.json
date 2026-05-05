@@ -1,0 +1,1337 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "generatedAt": "2026-05-03T23:59:17.657Z",
+  "moduleCount": 45,
+  "expectedOfficeAgentRoutes": [
+    "GET /api/nexora/office-agents/status",
+    "POST /api/nexora/office-agents/tick",
+    "POST /api/nexora/office-agents/lead/intake",
+    "POST /api/nexora/office-agents/quote/draft",
+    "POST /api/nexora/office-agents/supplier/request",
+    "POST /api/nexora/office-agents/followup/draft",
+    "POST /api/nexora/office-agents/project/scope"
+  ],
+  "existingOfficeAgentRoutes": [],
+  "missingOfficeAgentRoutes": [
+    "GET /api/nexora/office-agents/status",
+    "POST /api/nexora/office-agents/tick",
+    "POST /api/nexora/office-agents/lead/intake",
+    "POST /api/nexora/office-agents/quote/draft",
+    "POST /api/nexora/office-agents/supplier/request",
+    "POST /api/nexora/office-agents/followup/draft",
+    "POST /api/nexora/office-agents/project/scope"
+  ],
+  "usefulExports": [
+    {
+      "name": "createNexoraBusinessPipeline",
+      "file": "server/services/intelligence/nexora/autonomy/business/nexoraBusinessPipelineEngine.ts"
+    },
+    {
+      "name": "runNexoraBulkBusinessPipeline",
+      "file": "server/services/intelligence/nexora/autonomy/business/nexoraBusinessPipelineEngine.ts"
+    },
+    {
+      "name": "registerNexoraCrmWorkers",
+      "file": "server/services/intelligence/nexora/autonomy/crm/nexoraCrmPipelineEngine.ts"
+    },
+    {
+      "name": "scoreNexoraLead",
+      "file": "server/services/intelligence/nexora/autonomy/crm/nexoraCrmPipelineEngine.ts"
+    },
+    {
+      "name": "draftNexoraFollowup",
+      "file": "server/services/intelligence/nexora/autonomy/crm/nexoraCrmPipelineEngine.ts"
+    },
+    {
+      "name": "queueNexoraCrmPipeline",
+      "file": "server/services/intelligence/nexora/autonomy/crm/nexoraCrmPipelineEngine.ts"
+    },
+    {
+      "name": "getNexoraCrmStatus",
+      "file": "server/services/intelligence/nexora/autonomy/crm/nexoraCrmPipelineEngine.ts"
+    },
+    {
+      "name": "analyseNexoraQuote",
+      "file": "server/services/intelligence/nexora/autonomy/finance/nexoraFinanceQuoteIntelligence.ts"
+    },
+    {
+      "name": "queueNexoraQuoteAnalysis",
+      "file": "server/services/intelligence/nexora/autonomy/finance/nexoraFinanceQuoteIntelligence.ts"
+    },
+    {
+      "name": "upsertNexoraLocalLead",
+      "file": "server/services/intelligence/nexora/autonomy/localcrm/nexoraLocalCrm.ts"
+    },
+    {
+      "name": "getNexoraLocalLead",
+      "file": "server/services/intelligence/nexora/autonomy/localcrm/nexoraLocalCrm.ts"
+    },
+    {
+      "name": "listNexoraLocalLeads",
+      "file": "server/services/intelligence/nexora/autonomy/localcrm/nexoraLocalCrm.ts"
+    },
+    {
+      "name": "getNexoraLocalCrmStatus",
+      "file": "server/services/intelligence/nexora/autonomy/localcrm/nexoraLocalCrm.ts"
+    },
+    {
+      "name": "createNexoraLocalProject",
+      "file": "server/services/intelligence/nexora/autonomy/localprojects/nexoraLocalProjectBoard.ts"
+    },
+    {
+      "name": "updateNexoraLocalProjectStage",
+      "file": "server/services/intelligence/nexora/autonomy/localprojects/nexoraLocalProjectBoard.ts"
+    },
+    {
+      "name": "listNexoraLocalProjects",
+      "file": "server/services/intelligence/nexora/autonomy/localprojects/nexoraLocalProjectBoard.ts"
+    },
+    {
+      "name": "getNexoraLocalProjectStatus",
+      "file": "server/services/intelligence/nexora/autonomy/localprojects/nexoraLocalProjectBoard.ts"
+    },
+    {
+      "name": "createNexoraLocalQuote",
+      "file": "server/services/intelligence/nexora/autonomy/localquotes/nexoraLocalQuoteBook.ts"
+    },
+    {
+      "name": "getNexoraLocalQuote",
+      "file": "server/services/intelligence/nexora/autonomy/localquotes/nexoraLocalQuoteBook.ts"
+    },
+    {
+      "name": "listNexoraLocalQuotes",
+      "file": "server/services/intelligence/nexora/autonomy/localquotes/nexoraLocalQuoteBook.ts"
+    },
+    {
+      "name": "getNexoraLocalQuoteBookStatus",
+      "file": "server/services/intelligence/nexora/autonomy/localquotes/nexoraLocalQuoteBook.ts"
+    },
+    {
+      "name": "upsertNexoraLocalSupplier",
+      "file": "server/services/intelligence/nexora/autonomy/localsuppliers/nexoraLocalSupplierCatalogue.ts"
+    },
+    {
+      "name": "listNexoraLocalSuppliers",
+      "file": "server/services/intelligence/nexora/autonomy/localsuppliers/nexoraLocalSupplierCatalogue.ts"
+    },
+    {
+      "name": "getNexoraLocalSupplierStatus",
+      "file": "server/services/intelligence/nexora/autonomy/localsuppliers/nexoraLocalSupplierCatalogue.ts"
+    },
+    {
+      "name": "registerNexoraProjectWorkers",
+      "file": "server/services/intelligence/nexora/autonomy/project/nexoraProjectOpsEngine.ts"
+    },
+    {
+      "name": "createNexoraProjectPlan",
+      "file": "server/services/intelligence/nexora/autonomy/project/nexoraProjectOpsEngine.ts"
+    },
+    {
+      "name": "queueNexoraProjectOps",
+      "file": "server/services/intelligence/nexora/autonomy/project/nexoraProjectOpsEngine.ts"
+    },
+    {
+      "name": "getNexoraProjectStatus",
+      "file": "server/services/intelligence/nexora/autonomy/project/nexoraProjectOpsEngine.ts"
+    },
+    {
+      "name": "registerNexoraGovernorBusinessRoutes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts"
+    },
+    {
+      "name": "registerNexoraLocalBusinessRoutes",
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts"
+    },
+    {
+      "name": "registerNexoraSupplierWorkers",
+      "file": "server/services/intelligence/nexora/autonomy/supplier/nexoraSupplierCommand.ts"
+    },
+    {
+      "name": "buildNexoraSupplierMatrix",
+      "file": "server/services/intelligence/nexora/autonomy/supplier/nexoraSupplierCommand.ts"
+    },
+    {
+      "name": "draftNexoraSupplierRfq",
+      "file": "server/services/intelligence/nexora/autonomy/supplier/nexoraSupplierCommand.ts"
+    },
+    {
+      "name": "queueNexoraSupplierSweep",
+      "file": "server/services/intelligence/nexora/autonomy/supplier/nexoraSupplierCommand.ts"
+    },
+    {
+      "name": "getNexoraSupplierStatus",
+      "file": "server/services/intelligence/nexora/autonomy/supplier/nexoraSupplierCommand.ts"
+    },
+    {
+      "name": "scoreNexoraBusinessAction",
+      "file": "server/services/intelligence/nexora/nexoraBusinessMandate.ts"
+    },
+    {
+      "name": "approveFollowUpAction",
+      "file": "server/services/intelligence/nexora/nexoraExecutionGate.ts"
+    },
+    {
+      "name": "approveProcurementAction",
+      "file": "server/services/intelligence/nexora/nexoraExecutionGate.ts"
+    }
+  ],
+  "modules": [
+    {
+      "file": "server/services/intelligence/nexora/autonomy/academy/nexoraAcademyEngine.ts",
+      "exports": [
+        "registerNexoraAcademyWorkers",
+        "createNexoraTrainingModule",
+        "queueNexoraTraining",
+        "getNexoraAcademyStatus"
+      ],
+      "routes": [],
+      "lines": 188,
+      "matchedKeywords": [
+        "office",
+        "quote",
+        "supplier",
+        "crm",
+        "project",
+        "business",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/autopilot/nexoraOperationalAutopilot.ts",
+      "exports": [
+        "registerNexoraAutopilotWorkers",
+        "createNexoraKpiLedgerSnapshot",
+        "detectNexoraOperationalIncidents",
+        "createNexoraAutopilotScenario",
+        "runNexoraPipelineForemanCycle",
+        "runNexoraAutopilotCycle",
+        "getNexoraAutopilotCommandView"
+      ],
+      "routes": [],
+      "lines": 743,
+      "matchedKeywords": [
+        "office",
+        "quote",
+        "supplier",
+        "procurement",
+        "crm",
+        "followup",
+        "fitout",
+        "business",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/buildplanner/nexoraFutureBuildRoadmap.ts",
+      "exports": [
+        "getNexoraFutureBuildRoadmap"
+      ],
+      "routes": [],
+      "lines": 61,
+      "matchedKeywords": [
+        "quote",
+        "supplier",
+        "crm",
+        "project",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/business/nexoraBusinessPipelineEngine.ts",
+      "exports": [
+        "createNexoraBusinessPipeline",
+        "runNexoraBulkBusinessPipeline"
+      ],
+      "routes": [],
+      "lines": 321,
+      "matchedKeywords": [
+        "office",
+        "quote",
+        "supplier",
+        "procurement",
+        "crm",
+        "project",
+        "fitout",
+        "business",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/cockpit/nexoraExecutiveCockpit.ts",
+      "exports": [
+        "registerNexoraCockpitWorkers",
+        "getNexoraExecutiveCockpit",
+        "runNexoraExecutiveOperatingBurst",
+        "getNexoraCockpitStatus"
+      ],
+      "routes": [],
+      "lines": 230,
+      "matchedKeywords": [
+        "office",
+        "quote",
+        "supplier",
+        "procurement",
+        "crm",
+        "project",
+        "fitout",
+        "business",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/crm/nexoraCrmPipelineEngine.ts",
+      "exports": [
+        "registerNexoraCrmWorkers",
+        "scoreNexoraLead",
+        "draftNexoraFollowup",
+        "queueNexoraCrmPipeline",
+        "getNexoraCrmStatus"
+      ],
+      "routes": [],
+      "lines": 224,
+      "matchedKeywords": [
+        "office",
+        "quote",
+        "supplier",
+        "crm",
+        "followup",
+        "fitout",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/exporter/nexoraExportPack.ts",
+      "exports": [
+        "createNexoraExportPack",
+        "listNexoraExportPacks",
+        "getNexoraExportPack"
+      ],
+      "routes": [],
+      "lines": 92,
+      "matchedKeywords": [
+        "quote",
+        "supplier",
+        "crm",
+        "project",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/finance/nexoraFinanceQuoteIntelligence.ts",
+      "exports": [
+        "registerNexoraFinanceWorkers",
+        "analyseNexoraQuote",
+        "queueNexoraQuoteAnalysis",
+        "forecastNexoraRevenue",
+        "getNexoraFinanceStatus"
+      ],
+      "routes": [],
+      "lines": 240,
+      "matchedKeywords": [
+        "quote",
+        "supplier",
+        "fitout",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/goalcompiler/nexoraGoalCompiler.ts",
+      "exports": [
+        "compileNexoraGoal",
+        "listNexoraCompiledGoals",
+        "getNexoraGoalCompilerStatus"
+      ],
+      "routes": [],
+      "lines": 207,
+      "matchedKeywords": [
+        "office",
+        "quote",
+        "supplier",
+        "procurement",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/governor/nexoraAutonomyGovernor.ts",
+      "exports": [
+        "classifyNexoraRisk",
+        "governAndQueueNexoraAction",
+        "runNexoraSlaWatchdog",
+        "runNexoraWorkerEvolutionCycle",
+        "runNexoraGovernorCycle"
+      ],
+      "routes": [],
+      "lines": 485,
+      "matchedKeywords": [
+        "office",
+        "quote",
+        "supplier",
+        "procurement",
+        "crm",
+        "followup",
+        "project",
+        "fitout",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/localcore/nexoraLocalCore.ts",
+      "exports": [
+        "nexoraLocalId",
+        "ensureNexoraLocalDirs",
+        "nexoraLocalPath",
+        "writeNexoraJson",
+        "readNexoraJson",
+        "appendNexoraJsonl",
+        "readNexoraJsonl",
+        "getNexoraLocalCoreStatus"
+      ],
+      "routes": [],
+      "lines": 118,
+      "matchedKeywords": [
+        "quote",
+        "supplier",
+        "crm",
+        "project"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/localcrm/nexoraLocalCrm.ts",
+      "exports": [
+        "upsertNexoraLocalLead",
+        "getNexoraLocalLead",
+        "listNexoraLocalLeads",
+        "getNexoraLocalCrmStatus"
+      ],
+      "routes": [],
+      "lines": 104,
+      "matchedKeywords": [
+        "crm",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/localprojects/nexoraLocalProjectBoard.ts",
+      "exports": [
+        "createNexoraLocalProject",
+        "updateNexoraLocalProjectStage",
+        "listNexoraLocalProjects",
+        "getNexoraLocalProjectStatus"
+      ],
+      "routes": [],
+      "lines": 123,
+      "matchedKeywords": [
+        "office",
+        "quote",
+        "supplier",
+        "project",
+        "fitout",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/localquotes/nexoraLocalQuoteBook.ts",
+      "exports": [
+        "createNexoraLocalQuote",
+        "getNexoraLocalQuote",
+        "listNexoraLocalQuotes",
+        "getNexoraLocalQuoteBookStatus"
+      ],
+      "routes": [],
+      "lines": 135,
+      "matchedKeywords": [
+        "quote",
+        "supplier",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/localsuppliers/nexoraLocalSupplierCatalogue.ts",
+      "exports": [
+        "upsertNexoraLocalSupplier",
+        "listNexoraLocalSuppliers",
+        "getNexoraLocalSupplierStatus"
+      ],
+      "routes": [],
+      "lines": 81,
+      "matchedKeywords": [
+        "office",
+        "supplier",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/mission/nexoraMissionControl.ts",
+      "exports": [
+        "registerNexoraMissionControlWorkers",
+        "generateNexoraRunbook",
+        "queueNexoraRunbook",
+        "executeNexoraMission",
+        "createNexoraOperatingCadence",
+        "getNexoraMissionControlStatus"
+      ],
+      "routes": [],
+      "lines": 706,
+      "matchedKeywords": [
+        "office",
+        "quote",
+        "supplier",
+        "procurement",
+        "crm",
+        "followup",
+        "fitout",
+        "business",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyExecutor.ts",
+      "exports": [
+        "executeNexoraSafeTask",
+        "runNexoraBulkSafeExecution",
+        "getNexoraExecutionLog",
+        "getNexoraOperatingSnapshot"
+      ],
+      "routes": [],
+      "lines": 122,
+      "matchedKeywords": [
+        "office",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyFoundation.ts",
+      "exports": [
+        "queueNexoraTask",
+        "getNexoraTasks",
+        "getNexoraApprovals",
+        "recordNexoraHeartbeat",
+        "getNexoraHeartbeats",
+        "runNexoraSafeAutonomyCycle",
+        "generateNexoraDailyReport",
+        "getNexoraReports",
+        "getNexoraAutonomyFoundationStatus"
+      ],
+      "routes": [],
+      "lines": 251,
+      "matchedKeywords": [
+        "office",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyOperatingPlan.ts",
+      "exports": [
+        "getNexoraAutonomyOperatingPlan"
+      ],
+      "routes": [],
+      "lines": 45,
+      "matchedKeywords": [
+        "office",
+        "crm",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyRunner.ts",
+      "exports": [
+        "getNexoraAutonomyRunnerStatus",
+        "updateNexoraAutonomyRunner",
+        "runNexoraAutonomyRunnerTick"
+      ],
+      "routes": [],
+      "lines": 119,
+      "matchedKeywords": [
+        "office",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/nexoraSchedulerControl.ts",
+      "exports": [
+        "getNexoraSchedules",
+        "updateNexoraSchedule",
+        "runNexoraScheduledTick",
+        "createNexoraSchedule"
+      ],
+      "routes": [],
+      "lines": 198,
+      "matchedKeywords": [
+        "office",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/nexoraWorkerFactory.ts",
+      "exports": [
+        "buildNexoraWorkerArmy",
+        "getNexoraWorkerArmy"
+      ],
+      "routes": [],
+      "lines": 117,
+      "matchedKeywords": [
+        "office",
+        "quote",
+        "supplier",
+        "procurement",
+        "followup",
+        "fitout",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/persistence/nexoraDurableKernel.ts",
+      "exports": [
+        "ensureNexoraDurableKernel",
+        "upsertNexoraWorker",
+        "createNexoraDurableTask",
+        "approveNexoraDurableTask",
+        "claimAndRunNexoraSafeTasks",
+        "writeNexoraOperatingReport",
+        "sendNexoraWorkerMessage",
+        "createNexoraMemoryGraphEdge",
+        "createNexoraDelegation",
+        "createNexoraDivisionObjective",
+        "runNexoraEmpireCycle",
+        "getNexoraDurableCommandSnapshot"
+      ],
+      "routes": [],
+      "lines": 997,
+      "matchedKeywords": [
+        "office",
+        "quote",
+        "supplier",
+        "procurement",
+        "crm",
+        "followup",
+        "fitout",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/policy/nexoraPolicyPack.ts",
+      "exports": [
+        "evaluateNexoraPolicy",
+        "getNexoraPolicyPack"
+      ],
+      "routes": [],
+      "lines": 69,
+      "matchedKeywords": [
+        "quote",
+        "supplier"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/project/nexoraProjectOpsEngine.ts",
+      "exports": [
+        "registerNexoraProjectWorkers",
+        "createNexoraProjectPlan",
+        "queueNexoraProjectOps",
+        "getNexoraProjectStatus"
+      ],
+      "routes": [],
+      "lines": 202,
+      "matchedKeywords": [
+        "office",
+        "quote",
+        "supplier",
+        "procurement",
+        "project",
+        "fitout",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/resilience/nexoraResilienceCore.ts",
+      "exports": [
+        "detectNexoraResilienceMode",
+        "captureNexoraFallbackEvent",
+        "safeCreateNexoraTaskOrFallback",
+        "replayNexoraFallbackJournal",
+        "getNexoraFallbackJournal",
+        "runNexoraResilienceCycle",
+        "getNexoraMaintenanceConsole"
+      ],
+      "routes": [],
+      "lines": 441,
+      "matchedKeywords": [
+        "supplier"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/risksim/nexoraRiskSimulator.ts",
+      "exports": [
+        "runNexoraRiskSimulation",
+        "listNexoraRiskSimulations",
+        "getNexoraRiskSimulatorStatus"
+      ],
+      "routes": [],
+      "lines": 96,
+      "matchedKeywords": [
+        "office",
+        "quote",
+        "supplier",
+        "procurement",
+        "crm",
+        "followup"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+      "exports": [
+        "registerNexoraAdvancedAutonomyRoutes"
+      ],
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/api/nexora/advanced/status"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/advanced/workers/upsert"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/advanced/tasks"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/advanced/approvals/:approvalId/approve"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/advanced/tasks/run-safe"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/advanced/messages"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/advanced/graph/edge"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/advanced/delegations"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/advanced/objectives"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/advanced/empire/cycle"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/advanced/command/snapshot"
+        }
+      ],
+      "lines": 140,
+      "matchedKeywords": [
+        "office"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts",
+      "exports": [
+        "registerNexoraGovernorBusinessRoutes"
+      ],
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/api/nexora/governor/classify"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/governor/queue"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/governor/cycle"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/governor/sla-watchdog"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/governor/worker-evolution"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/business/pipeline"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/business/pipeline/bulk"
+        }
+      ],
+      "lines": 79,
+      "matchedKeywords": [
+        "business"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts",
+      "exports": [
+        "registerNexoraHardMountRoutes"
+      ],
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/api/nexora/ping"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/live/status"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/advanced/status"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/mega/status"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/cockpit/status"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/supreme/status"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/runtime/diagnostic"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/runtime/db-check"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/runtime/test-task"
+        }
+      ],
+      "lines": 224,
+      "matchedKeywords": [
+        "quote",
+        "supplier",
+        "project"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+      "exports": [
+        "registerNexoraLiveVerificationRoutes"
+      ],
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/api/nexora/live/status"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/advanced/status"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/advanced/tasks/run-safe"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/advanced/tasks"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/mega/status"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/cockpit/status"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/cockpit/executive"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/cockpit/burst"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/supreme/status"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/supreme/matrix/execute"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/strategy/status"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/live/report"
+        }
+      ],
+      "lines": 223,
+      "matchedKeywords": [
+        "quote",
+        "supplier",
+        "crm",
+        "project"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+      "exports": [
+        "registerNexoraLocalBusinessRoutes"
+      ],
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/api/nexora/local-business/status"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/local-approvals/create"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/local-approvals/decide"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/local-approvals/list"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/local-crm/lead/upsert"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/local-crm/lead"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/local-crm/leads"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/local-quotes/create"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/local-quotes/quote"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/local-quotes/list"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/local-suppliers/upsert"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/local-suppliers/list"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/local-projects/create"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/local-projects/stage"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/local-projects/list"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/export/create"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/export/list"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/export/get"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/snapshot/create"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/snapshot/list"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/snapshot/get"
+        }
+      ],
+      "lines": 146,
+      "matchedKeywords": [
+        "quote",
+        "supplier",
+        "crm",
+        "project",
+        "business",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+      "exports": [
+        "registerNexoraMegaBuildRoutes"
+      ],
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/api/nexora/mega/status"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/mega/register-workers"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/finance/quote/analyse"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/finance/quote/queue"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/finance/revenue/forecast"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/supplier/matrix"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/supplier/rfq/draft"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/supplier/sweep"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/crm/lead/score"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/crm/followup/draft"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/crm/pipeline/queue"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/project/plan"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/project/queue"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/academy/module/create"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/academy/training/queue"
+        },
+        {
+          "method": "GET",
+          "path": "/api/nexora/cockpit/status"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/cockpit/executive"
+        },
+        {
+          "method": "POST",
+          "path": "/api/nexora/cockpit/burst"
+        }
+      ],
+      "lines": 165,
+      "matchedKeywords": [
+        "quote",
+        "supplier",
+        "crm",
+        "followup",
+        "project",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/seedpacks/nexoraSeedPacks.ts",
+      "exports": [
+        "createNexoraSeedPack",
+        "listNexoraSeedPacks",
+        "getNexoraSeedPackStatus"
+      ],
+      "routes": [],
+      "lines": 105,
+      "matchedKeywords": [
+        "office",
+        "quote",
+        "supplier",
+        "business",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/simulation/nexoraWorkflowSimulator.ts",
+      "exports": [
+        "simulateNexoraWorkflow",
+        "getNexoraWorkflowSimulatorStatus"
+      ],
+      "routes": [],
+      "lines": 71,
+      "matchedKeywords": [
+        "office",
+        "quote",
+        "supplier",
+        "procurement",
+        "crm",
+        "followup",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/strategy/nexoraStrategyCompiler.ts",
+      "exports": [
+        "registerNexoraStrategyCompilerWorkers",
+        "compileNexoraStrategy",
+        "simulateCompiledNexoraStrategy",
+        "queueCompiledNexoraStrategy",
+        "createNexoraAuditVaultEntry",
+        "queryNexoraNeuralMemory",
+        "executeCompiledNexoraStrategy",
+        "getNexoraStrategyCompilerStatus"
+      ],
+      "routes": [],
+      "lines": 480,
+      "matchedKeywords": [
+        "office",
+        "quote",
+        "supplier",
+        "procurement",
+        "business"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/supplier/nexoraSupplierCommand.ts",
+      "exports": [
+        "registerNexoraSupplierWorkers",
+        "buildNexoraSupplierMatrix",
+        "draftNexoraSupplierRfq",
+        "queueNexoraSupplierSweep",
+        "getNexoraSupplierStatus"
+      ],
+      "routes": [],
+      "lines": 244,
+      "matchedKeywords": [
+        "office",
+        "quote",
+        "supplier",
+        "procurement",
+        "project",
+        "fitout",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/autonomy/supreme/nexoraSupremeOrchestrationMatrix.ts",
+      "exports": [
+        "registerNexoraSupremeWorkers",
+        "createNexoraDecisionLedgerEntry",
+        "recordNexoraDecision",
+        "buildNexoraCapabilityGraph",
+        "generateNexoraWorkerDance",
+        "rehearseNexoraWorkerDance",
+        "queueNexoraWorkerDance",
+        "runNexoraRedTeamSafetyDrill",
+        "executeNexoraSupremeMatrix",
+        "getNexoraSupremeMatrixStatus"
+      ],
+      "routes": [],
+      "lines": 932,
+      "matchedKeywords": [
+        "office",
+        "quote",
+        "supplier",
+        "procurement",
+        "crm",
+        "followup",
+        "fitout",
+        "business",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/nexora-support.ts",
+      "exports": [
+        "safeNumber",
+        "cleanText",
+        "canonicalizeUrl",
+        "normalizeCompany",
+        "cosineSimilarity",
+        "getSemanticEmbedding",
+        "getNexoraConfig",
+        "ensureNexoraReady",
+        "loadAdaptiveThresholds",
+        "saveAdaptiveThresholds",
+        "loadKnowledgeMap",
+        "saveKnowledgeMap",
+        "upsertKnowledgeEntry",
+        "createAuditLog",
+        "pushReviewQueue",
+        "upsertDecisionRecord",
+        "computeOutcomeLearningUpdate",
+        "computeSignalFingerprint",
+        "claimIdempotencyKey",
+        "completeIdempotencyKey",
+        "acquireRunLock",
+        "releaseRunLock",
+        "fireWebhook",
+        "syncVectorKnowledge",
+        "upsertToVectorDB",
+        "runHealthChecks",
+        "resetRetryStats",
+        "getRetryStatsSnapshot",
+        "validateSignal",
+        "checkDuplicateAgainstKnowledge",
+        "buildRuleDecision",
+        "normalizeAIDecision",
+        "finalizeDecision",
+        "detectAnomaly",
+        "requireApproval",
+        "getOutcomeSuccessRate",
+        "cleanupExpiredLocks",
+        "initNexoraDataSource",
+        "classifyNexoraOperationalProblem",
+        "proposeNexoraRecoveryActions",
+        "analyzeNexoraOperationalProblem",
+        "getNexoraRecoveryPolicy"
+      ],
+      "routes": [],
+      "lines": 1472,
+      "matchedKeywords": [
+        "quote",
+        "supplier",
+        "procurement",
+        "project",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/nexora-types.ts",
+      "exports": [],
+      "routes": [],
+      "lines": 308,
+      "matchedKeywords": [
+        "project"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/nexoraActionRouter.ts",
+      "exports": [
+        "routeNexoraAction",
+        "assertNexoraActionApproved",
+        "previewNexoraActionPolicy"
+      ],
+      "routes": [],
+      "lines": 364,
+      "matchedKeywords": [
+        "business"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/nexoraBusinessMandate.ts",
+      "exports": [
+        "scoreNexoraBusinessAction"
+      ],
+      "routes": [],
+      "lines": 258,
+      "matchedKeywords": [
+        "office",
+        "supplier",
+        "procurement",
+        "business",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/nexoraExecutionGate.ts",
+      "exports": [
+        "evaluateNexoraExecutionGate",
+        "assertNexoraExecutionApproved",
+        "isNexoraApproved",
+        "approveOutreachAction",
+        "approveFollowUpAction",
+        "approveProcurementAction",
+        "approvePhantomXPaperTrade",
+        "approvePhantomXScan",
+        "approveSignalScan"
+      ],
+      "routes": [],
+      "lines": 196,
+      "matchedKeywords": [
+        "procurement",
+        "followup",
+        "business"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/nexoraModuleRegistry.ts",
+      "exports": [
+        "getNexoraModules",
+        "getNexoraModule",
+        "getNexoraModulesByType",
+        "getModulesRequiringNexoraDecision",
+        "getAutoRunnableModules",
+        "buildNexoraModuleSummary"
+      ],
+      "routes": [],
+      "lines": 424,
+      "matchedKeywords": [
+        "office",
+        "quote",
+        "supplier",
+        "procurement",
+        "followup",
+        "fitout",
+        "business",
+        "lead"
+      ]
+    },
+    {
+      "file": "server/services/intelligence/nexora/nexoraWorkerRegistry.ts",
+      "exports": [
+        "getNexoraWorkerRegistry",
+        "getNexoraHandsFreeReadiness"
+      ],
+      "routes": [],
+      "lines": 83,
+      "matchedKeywords": [
+        "office",
+        "lead"
+      ]
+    }
+  ],
+  "recommendation": "Office/business capabilities exist, but office-agent facade routes are missing or incomplete. Build adapter only."
+}

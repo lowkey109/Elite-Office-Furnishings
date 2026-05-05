@@ -1,0 +1,15 @@
+{
+  "agentId": "phantom_x_paper_agent",
+  "worker": "phantom_x_paper_agent",
+  "division": "trading_intelligence",
+  "title": "Phantom X Paper Agent",
+  "status": "active",
+  "nexoraBrain": true,
+  "canCommitExternally": false,
+  "createdAt": "2026-05-05T01:46:27.634Z",
+  "safety": [
+    "No live trading.",
+    "No private keys.",
+    "No real orders."
+  ]
+}

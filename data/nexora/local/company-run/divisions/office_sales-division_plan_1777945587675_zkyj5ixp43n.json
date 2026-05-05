@@ -1,0 +1,29 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "planId": "division_plan_1777945587675_zkyj5ixp43n",
+  "division": "office_sales",
+  "title": "Office Furniture Sales",
+  "createdAt": "2026-05-05T01:46:27.675Z",
+  "ownerAgent": "office_receptionist_agent",
+  "mandate": "Capture enquiries, qualify leads, draft quote paths, and move customers through next actions.",
+  "workers": [
+    "office_receptionist_agent",
+    "quote_builder_agent",
+    "crm_followup_agent"
+  ],
+  "dailyChecklist": [
+    "Review new work orders.",
+    "Process safe queued tasks.",
+    "Hold high-risk work for approval.",
+    "Record progress and metrics.",
+    "Capture learning and blockers."
+  ],
+  "safety": [
+    "No binding customer quote without approval.",
+    "No payment collection."
+  ],
+  "payload": {
+    "cycleId": "loop_daily_1777945587616"
+  }
+}

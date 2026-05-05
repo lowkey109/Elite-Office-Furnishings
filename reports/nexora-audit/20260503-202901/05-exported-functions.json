@@ -1,0 +1,4442 @@
+[
+  {
+    "file": "server/services/outreach/outreach-job-runner.ts",
+    "name": "acquireJobLock"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "acquireRunLock"
+  },
+  {
+    "file": "src/nexora/empire/nexoraEmpireEngine.ts",
+    "name": "actionNexoraWorkerMessage"
+  },
+  {
+    "file": "server/services/trading/tradingConfig.ts",
+    "name": "activateConfigVersion"
+  },
+  {
+    "file": "server/services/trading/wallet-registry.ts",
+    "name": "activateTrackedWallet"
+  },
+  {
+    "file": "server/services/clientPortal/clientPortalService.ts",
+    "name": "addClientUploadMetadata"
+  },
+  {
+    "file": "server/services/polyedge/polyEdgeCapitalStore.ts",
+    "name": "addPolyEdgeCapital"
+  },
+  {
+    "file": "server/services/trading/wallet-registry.ts",
+    "name": "addTrackedWallet"
+  },
+  {
+    "file": "server/services/intelligence/companyIntelligenceAggregationService.ts",
+    "name": "aggregateCompanyProfile"
+  },
+  {
+    "file": "server/services/intelligence/demandForecastEngine.ts",
+    "name": "aggregateSuburbDemand"
+  },
+  {
+    "file": "server/services/trading/capital-allocator-v2.ts",
+    "name": "allocateCapitalV2"
+  },
+  {
+    "file": "server/services/dealIntelligence.ts",
+    "name": "analyseAllDeals"
+  },
+  {
+    "file": "server/services/dealIntelligence.ts",
+    "name": "analyseDeal"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/finance/nexoraFinanceQuoteIntelligence.ts",
+    "name": "analyseNexoraQuote"
+  },
+  {
+    "file": "server/services/leadIntelligence.ts",
+    "name": "analyseSignals"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "analyzeNexoraOperationalProblem"
+  },
+  {
+    "file": "server/services/trading/tradingLearning.ts",
+    "name": "analyzeOutcomes"
+  },
+  {
+    "file": "server/services/intelligenceEngine.ts",
+    "name": "analyzeSpendingTrends"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localcore/nexoraLocalCore.ts",
+    "name": "appendNexoraJsonl"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraExecutionGate.ts",
+    "name": "approveFollowUpAction"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/persistence/nexoraDurableKernel.ts",
+    "name": "approveNexoraDurableTask"
+  },
+  {
+    "file": "server/services/trading/portfolio/nexoraPortfolioBrain.ts",
+    "name": "approveNexoraPortfolioRisk"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraDurableAutonomyStore.ts",
+    "name": "approveNexoraTask"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraExecutionGate.ts",
+    "name": "approveOutreachAction"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraExecutionGate.ts",
+    "name": "approvePhantomXPaperTrade"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraExecutionGate.ts",
+    "name": "approvePhantomXScan"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraExecutionGate.ts",
+    "name": "approveProcurementAction"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraExecutionGate.ts",
+    "name": "approveSignalScan"
+  },
+  {
+    "file": "server/services/trading/correlationModel.ts",
+    "name": "areCorrelated"
+  },
+  {
+    "file": "server/services/ops/autonomyRunbook.ts",
+    "name": "assertAutonomyRuntimeAllowed"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraActionRouter.ts",
+    "name": "assertNexoraActionApproved"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraExecutionGate.ts",
+    "name": "assertNexoraExecutionApproved"
+  },
+  {
+    "file": "server/services/sender/senderInfrastructure.ts",
+    "name": "assertSenderReady"
+  },
+  {
+    "file": "server/services/trading/copyability-engine.ts",
+    "name": "assessCopyability"
+  },
+  {
+    "file": "server/services/clientPortal/stripeSubscriptionService.ts",
+    "name": "attachStripeCustomerToClient"
+  },
+  {
+    "file": "server/services/stripe/stripeConfigService.ts",
+    "name": "auditableAction"
+  },
+  {
+    "file": "server/services/supplierProcurement.ts",
+    "name": "autoGenerateFurnitureList"
+  },
+  {
+    "file": "server/services/platform/autonomousSafeActionService.ts",
+    "name": "autoPipelineQualifiedLead"
+  },
+  {
+    "file": "server/services/intelligence/partnerNetwork.ts",
+    "name": "autoRouteHighScoreSignals"
+  },
+  {
+    "file": "server/services/intelligence/partnerNetwork.ts",
+    "name": "autoRouteRadarSignals"
+  },
+  {
+    "file": "server/services/trading/learning/nexoraOutcomeBooster.ts",
+    "name": "boostRecentWinningPaperEdges"
+  },
+  {
+    "file": "server/systemPrompt.ts",
+    "name": "buildAdvisorSystemPrompt"
+  },
+  {
+    "file": "server/services/leadIntelligence.ts",
+    "name": "buildAnalysisPrompt"
+  },
+  {
+    "file": "server/services/sales/salesPsychologyEngine.ts",
+    "name": "buildChatbotSystemInstruction"
+  },
+  {
+    "file": "server/systemPrompt.ts",
+    "name": "buildChatSystemPrompt"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "buildCustomerQuote"
+  },
+  {
+    "file": "server/services/memory/decisionMemoryService.ts",
+    "name": "buildDecisionMemoryEvent"
+  },
+  {
+    "file": "server/services/trading/decisions.ts",
+    "name": "buildDecisions"
+  },
+  {
+    "file": "server/services/outreach/outreach-hashing.ts",
+    "name": "buildFollowUpIdentityHash"
+  },
+  {
+    "file": "server/services/sales/salesPsychologyEngine.ts",
+    "name": "buildFollowUpPlan"
+  },
+  {
+    "file": "server/services/intelligence/intelligenceGraphService.ts",
+    "name": "buildGraphEdges"
+  },
+  {
+    "file": "server/services/intelligence/companyHierarchyService.ts",
+    "name": "buildHierarchyFromExistingData"
+  },
+  {
+    "file": "server/services/outreach/outreach-hashing.ts",
+    "name": "buildIdentityHash"
+  },
+  {
+    "file": "server/systemPrompt.ts",
+    "name": "buildLeadIntelligenceContext"
+  },
+  {
+    "file": "server/services/workspaceLearning.ts",
+    "name": "buildLearningContext"
+  },
+  {
+    "file": "server/services/trading/marketContext.ts",
+    "name": "buildMarketContext"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supreme/nexoraSupremeOrchestrationMatrix.ts",
+    "name": "buildNexoraCapabilityGraph"
+  },
+  {
+    "file": "server/services/trading/knowledge/nexoraCryptoMarketKnowledge.ts",
+    "name": "buildNexoraCryptoMarketKnowledgeSignals"
+  },
+  {
+    "file": "server/services/trading/indicators/nexoraIndicatorSignalAdapter.ts",
+    "name": "buildNexoraIndicatorSignals"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraModuleRegistry.ts",
+    "name": "buildNexoraModuleSummary"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supplier/nexoraSupplierCommand.ts",
+    "name": "buildNexoraSupplierMatrix"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraWorkerFactory.ts",
+    "name": "buildNexoraWorkerArmy"
+  },
+  {
+    "file": "server/services/trading/outcomes.ts",
+    "name": "buildOutcomes"
+  },
+  {
+    "file": "server/services/trading/performance.ts",
+    "name": "buildPerformance"
+  },
+  {
+    "file": "server/services/polyedge/polyEdgeLearningDataset.ts",
+    "name": "buildPolyEdgeLearningDataset"
+  },
+  {
+    "file": "server/services/trading/positions.ts",
+    "name": "buildPositions"
+  },
+  {
+    "file": "server/services/sales/salesPsychologyEngine.ts",
+    "name": "buildPsychologyGuidance"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "buildRuleDecision"
+  },
+  {
+    "file": "server/services/catalogNormaliser.ts",
+    "name": "buildSearchableText"
+  },
+  {
+    "file": "server/services/intelligence/signalClassificationService.ts",
+    "name": "buildSignalTags"
+  },
+  {
+    "file": "server/services/outreach/senderProfile.ts",
+    "name": "buildSignatureHtml"
+  },
+  {
+    "file": "server/services/outreach/senderProfile.ts",
+    "name": "buildSignatureText"
+  },
+  {
+    "file": "server/services/trading/strategies.ts",
+    "name": "buildStrategies"
+  },
+  {
+    "file": "server/services/trading/wallet-identity.ts",
+    "name": "buildWalletIdentityProfiles"
+  },
+  {
+    "file": "server/services/leadEngine.ts",
+    "name": "bulkImportLeads"
+  },
+  {
+    "file": "server/services/profitOptimisation.ts",
+    "name": "calculateCostStack"
+  },
+  {
+    "file": "server/services/trading/executionAnalytics.ts",
+    "name": "calculateExecutionAnalytics"
+  },
+  {
+    "file": "server/services/trading/multiFactorEngine.ts",
+    "name": "calculateMultiFactorSignal"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraFairProbabilityEngine.ts",
+    "name": "calculateNexoraFairProbability"
+  },
+  {
+    "file": "server/services/trading/indicators/nexoraIndicatorEngine.ts",
+    "name": "calculateNexoraIndicators"
+  },
+  {
+    "file": "server/services/trading/indicators/nexoraIndicatorEngine.ts",
+    "name": "calculateNexoraIndicatorSnapshot"
+  },
+  {
+    "file": "server/services/trading/portfolio/nexoraVolatilityPositionSizing.ts",
+    "name": "calculateNexoraVolatilityPositionSizing"
+  },
+  {
+    "file": "server/services/partnerScoring.ts",
+    "name": "calculatePartnerScore"
+  },
+  {
+    "file": "server/services/trading/paperEngine.ts",
+    "name": "calculatePerformanceFromDB"
+  },
+  {
+    "file": "server/services/trading/portfolioState.ts",
+    "name": "calculatePortfolioState"
+  },
+  {
+    "file": "server/services/trading/portfolioResilience.ts",
+    "name": "calculateResilience"
+  },
+  {
+    "file": "server/services/trading/capitalScalingEngine.ts",
+    "name": "calculateScaling"
+  },
+  {
+    "file": "server/services/trading/portfolioStressCalculator.ts",
+    "name": "calculateScenarioImpact"
+  },
+  {
+    "file": "server/services/trading/strategyHealth.ts",
+    "name": "calculateStrategyHealth"
+  },
+  {
+    "file": "server/services/trading/strategyStressProfile.ts",
+    "name": "calculateStrategyStressSensitivity"
+  },
+  {
+    "file": "server/services/trading/costModelEngine.ts",
+    "name": "calculateTradeCost"
+  },
+  {
+    "file": "server/services/intelligence/communications/whatsappOutbox.ts",
+    "name": "cancelOutboxByThreadKey"
+  },
+  {
+    "file": "server/services/catalogNormaliser.ts",
+    "name": "canonicaliseName"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "canonicalizeUrl"
+  },
+  {
+    "file": "server/services/sales/salesPsychologyEngine.ts",
+    "name": "canSendCustomerQuote"
+  },
+  {
+    "file": "server/services/intelligence/communications/whatsappGuards.ts",
+    "name": "canSendWhatsApp"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/resilience/nexoraResilienceCore.ts",
+    "name": "captureNexoraFallbackEvent"
+  },
+  {
+    "file": "server/services/intelligence/signalIngestionService.ts",
+    "name": "captureRawSignal"
+  },
+  {
+    "file": "server/services/workspaceLearning.ts",
+    "name": "captureWorkspaceLearning"
+  },
+  {
+    "file": "server/services/platform/autonomousSafeActionService.ts",
+    "name": "certifyAutonomousSafeActionLayer"
+  },
+  {
+    "file": "server/services/outreach/outreach-guards.ts",
+    "name": "checkAlreadySent"
+  },
+  {
+    "file": "server/services/trading/autonomousEngine.ts",
+    "name": "checkCircuitBreakers"
+  },
+  {
+    "file": "server/services/outreach/outreach-guards.ts",
+    "name": "checkCooldown"
+  },
+  {
+    "file": "server/services/intelligence/signalIngestionService.ts",
+    "name": "checkDuplicate"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "checkDuplicateAgainstKnowledge"
+  },
+  {
+    "file": "server/services/trading/liveExecutionGuardrails.ts",
+    "name": "checkLiveGuardrails"
+  },
+  {
+    "file": "server/services/trading/liveReadiness.ts",
+    "name": "checkLiveReadiness"
+  },
+  {
+    "file": "server/services/profitOptimisation.ts",
+    "name": "checkMarginHealth"
+  },
+  {
+    "file": "server/services/trading/execution/nexoraInstitutionalExecutionLayerTwo.ts",
+    "name": "checkNexoraBalance"
+  },
+  {
+    "file": "server/services/trading/execution/nexoraInstitutionalExecutionLayerTwo.ts",
+    "name": "checkNexoraComplianceGeofence"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraCorrelationRiskEngine.ts",
+    "name": "checkNexoraCorrelationRisk"
+  },
+  {
+    "file": "server/services/trading/execution/nexoraInstitutionalExecutionLayer.ts",
+    "name": "checkNexoraDuplicateOrder"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraResolutionRulesRisk.ts",
+    "name": "checkNexoraResolutionRules"
+  },
+  {
+    "file": "server/services/outreach/outreach-guards.ts",
+    "name": "checkRateLimits"
+  },
+  {
+    "file": "server/services/outreach/outreach-guards.ts",
+    "name": "checkSuppression"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/persistence/nexoraDurableKernel.ts",
+    "name": "claimAndRunNexoraSafeTasks"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "claimIdempotencyKey"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraDurableAutonomyStore.ts",
+    "name": "claimNextNexoraTask"
+  },
+  {
+    "file": "server/services/intelligence/signalClassificationService.ts",
+    "name": "classify"
+  },
+  {
+    "file": "server/services/catalogNormaliser.ts",
+    "name": "classifyCategory"
+  },
+  {
+    "file": "server/services/trading/learning/nexoraAdaptiveLearningPolicy.ts",
+    "name": "classifyNexoraLearningPolicy"
+  },
+  {
+    "file": "server/services/trading/regime/nexoraMarketRegimeEngine.ts",
+    "name": "classifyNexoraMarketRegime"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "classifyNexoraOperationalProblem"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/governor/nexoraAutonomyGovernor.ts",
+    "name": "classifyNexoraRisk"
+  },
+  {
+    "file": "server/services/trading/tradingGuardrails.ts",
+    "name": "classifyRisk"
+  },
+  {
+    "file": "server/services/trading/promotion/nexoraSetupPromotionEngine.ts",
+    "name": "classifySetup"
+  },
+  {
+    "file": "server/services/intelligence/signalIngestionService.ts",
+    "name": "classifySignal"
+  },
+  {
+    "file": "server/services/intelligence/signalClassificationService.ts",
+    "name": "classifySignalType"
+  },
+  {
+    "file": "server/services/trading/probes/nexoraProbeAllowlistCleaner.ts",
+    "name": "cleanNexoraProbeAllowlist"
+  },
+  {
+    "file": "server/services/catalogNormaliser.ts",
+    "name": "cleanText"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "cleanText"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "cleanupExpiredLocks"
+  },
+  {
+    "file": "server/services/trading/resilience/nexoraMemoryFallbackRuntime.ts",
+    "name": "clearNexoraMemoryEvents"
+  },
+  {
+    "file": "server/services/whatsappAI.ts",
+    "name": "clearWhatsAppSession"
+  },
+  {
+    "file": "server/services/trading/paperEngine.ts",
+    "name": "closePaperPosition"
+  },
+  {
+    "file": "server/services/trading/feeds/nexoraFeedConnectors.ts",
+    "name": "combineNexoraFeedProbabilities"
+  },
+  {
+    "file": "server/services/profitOptimisation.ts",
+    "name": "comparePackageOptions"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/strategy/nexoraStrategyCompiler.ts",
+    "name": "compileNexoraStrategy"
+  },
+  {
+    "file": "server/services/clientPortal/clientPortalService.ts",
+    "name": "completeClientOnboarding"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "completeIdempotencyKey"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraDurableAutonomyStore.ts",
+    "name": "completeNexoraTask"
+  },
+  {
+    "file": "server/services/intelligence/buildingRiskEngine.ts",
+    "name": "computeBuildingRisk"
+  },
+  {
+    "file": "server/services/intelligence/clusterEngine.ts",
+    "name": "computeClusters"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "computeOutcomeLearningUpdate"
+  },
+  {
+    "file": "server/services/leaseSignalScanner.ts",
+    "name": "computeProcurementRecommendations"
+  },
+  {
+    "file": "server/services/relocationIntelligence.ts",
+    "name": "computeRelocationProbability"
+  },
+  {
+    "file": "server/services/intelligence/confidenceScoringService.ts",
+    "name": "computeScore"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "computeSignalFingerprint"
+  },
+  {
+    "file": "server/services/companyIntelligenceService.ts",
+    "name": "computeStackedConfidence"
+  },
+  {
+    "file": "server/services/supplierProcurement.ts",
+    "name": "computeSupplierScore"
+  },
+  {
+    "file": "server/services/dealIntelligence.ts",
+    "name": "computeWinProbability"
+  },
+  {
+    "file": "server/services/intelligence/zoneScoringEngine.ts",
+    "name": "computeZoneScores"
+  },
+  {
+    "file": "server/services/outreach/bookingService.ts",
+    "name": "confirmMeeting"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "cosineSimilarity"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "createAuditLog"
+  },
+  {
+    "file": "server/services/outreach/bookingService.ts",
+    "name": "createBookingLink"
+  },
+  {
+    "file": "server/services/clientPortal/clientPortalService.ts",
+    "name": "createClientBillingPortal"
+  },
+  {
+    "file": "server/services/clientPortal/clientPortalService.ts",
+    "name": "createClientProject"
+  },
+  {
+    "file": "server/services/clientPortal/clientEngagementService.ts",
+    "name": "createClientSupportMessage"
+  },
+  {
+    "file": "server/services/trading/tradingConfig.ts",
+    "name": "createConfigVersion"
+  },
+  {
+    "file": "server/services/trading/paperEngine.ts",
+    "name": "createDecision"
+  },
+  {
+    "file": "src/nexora/empire/nexoraEmpireEngine.ts",
+    "name": "createDivisionObjective"
+  },
+  {
+    "file": "server/services/stripe/invoiceService.ts",
+    "name": "createInvoice"
+  },
+  {
+    "file": "server/services/propertyIntelligence/leasehawkEngine.ts",
+    "name": "createLeaseHawkTerritory"
+  },
+  {
+    "file": "server/services/propertyIntelligence/propertyListingsService.ts",
+    "name": "createManualPropertyListing"
+  },
+  {
+    "file": "src/nexora/empire/nexoraEmpireEngine.ts",
+    "name": "createMemoryGraphEdge"
+  },
+  {
+    "file": "server/services/trading/admin/nexoraAdminControls.ts",
+    "name": "createNexoraAlert"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/strategy/nexoraStrategyCompiler.ts",
+    "name": "createNexoraAuditVaultEntry"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/autopilot/nexoraOperationalAutopilot.ts",
+    "name": "createNexoraAutopilotScenario"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/business/nexoraBusinessPipelineEngine.ts",
+    "name": "createNexoraBusinessPipeline"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supreme/nexoraSupremeOrchestrationMatrix.ts",
+    "name": "createNexoraDecisionLedgerEntry"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/persistence/nexoraDurableKernel.ts",
+    "name": "createNexoraDelegation"
+  },
+  {
+    "file": "src/nexora/empire/nexoraEmpireEngine.ts",
+    "name": "createNexoraDelegation"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/persistence/nexoraDurableKernel.ts",
+    "name": "createNexoraDivisionObjective"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/persistence/nexoraDurableKernel.ts",
+    "name": "createNexoraDurableTask"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraDurableAutonomyStore.ts",
+    "name": "createNexoraDurableTask"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/exporter/nexoraExportPack.ts",
+    "name": "createNexoraExportPack"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/autopilot/nexoraOperationalAutopilot.ts",
+    "name": "createNexoraKpiLedgerSnapshot"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localapprovals/nexoraLocalApprovalGate.ts",
+    "name": "createNexoraLocalApproval"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localprojects/nexoraLocalProjectBoard.ts",
+    "name": "createNexoraLocalProject"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localquotes/nexoraLocalQuoteBook.ts",
+    "name": "createNexoraLocalQuote"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/exporter/nexoraLocalSnapshotEngine.ts",
+    "name": "createNexoraLocalSnapshot"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/persistence/nexoraDurableKernel.ts",
+    "name": "createNexoraMemoryGraphEdge"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/mission/nexoraMissionControl.ts",
+    "name": "createNexoraOperatingCadence"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/project/nexoraProjectOpsEngine.ts",
+    "name": "createNexoraProjectPlan"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraSchedulerControl.ts",
+    "name": "createNexoraSchedule"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/academy/nexoraAcademyEngine.ts",
+    "name": "createNexoraTrainingModule"
+  },
+  {
+    "file": "src/nexora/empire/nexoraEmpireEngine.ts",
+    "name": "createNexoraWorkerMessage"
+  },
+  {
+    "file": "server/services/intelligence/nexoraOrchestrator.ts",
+    "name": "createOpportunityFromLead"
+  },
+  {
+    "file": "server/services/outreach/outreachEngine.ts",
+    "name": "createOutreachForHighValueOpportunities"
+  },
+  {
+    "file": "server/services/outreach/outreachEngine.ts",
+    "name": "createOutreachThread"
+  },
+  {
+    "file": "server/services/stripe/paymentLinkService.ts",
+    "name": "createPaymentLink"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "createProcurementQuoteRequest"
+  },
+  {
+    "file": "server/services/propertyIntelligence/propertyEnquiriesService.ts",
+    "name": "createPropertyEnquiry"
+  },
+  {
+    "file": "server/services/propertyIntelligence/propertyIntelligenceService.ts",
+    "name": "createPropertyOpportunity"
+  },
+  {
+    "file": "server/services/intelligence/partnerNetwork.ts",
+    "name": "createReferralRecord"
+  },
+  {
+    "file": "src/nexora/empire/nexoraEmpireEngine.ts",
+    "name": "createStrategicPlanningCycle"
+  },
+  {
+    "file": "server/services/clientPortal/clientPortalService.ts",
+    "name": "createStripeCheckout"
+  },
+  {
+    "file": "server/services/trading/timingEngine.ts",
+    "name": "createTimer"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraSelfCritique.ts",
+    "name": "critiqueNexoraPredictionTrade"
+  },
+  {
+    "file": "server/services/trading/wallet-registry.ts",
+    "name": "deactivateTrackedWallet"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localapprovals/nexoraLocalApprovalGate.ts",
+    "name": "decideNexoraLocalApproval"
+  },
+  {
+    "file": "server/services/trading/learning/nexoraBadProbeDemoter.ts",
+    "name": "demoteBadPaperProbes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "detectAnomaly"
+  },
+  {
+    "file": "server/services/sales/salesPsychologyEngine.ts",
+    "name": "detectCustomerIntent"
+  },
+  {
+    "file": "server/services/trading/learning/nexoraQuantumLearningCore.ts",
+    "name": "detectNexoraMarketRegime"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/autopilot/nexoraOperationalAutopilot.ts",
+    "name": "detectNexoraOperationalIncidents"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/resilience/nexoraResilienceCore.ts",
+    "name": "detectNexoraResilienceMode"
+  },
+  {
+    "file": "server/services/partnerScoring.ts",
+    "name": "detectNudgeTargets"
+  },
+  {
+    "file": "server/services/trading/regimeDetectionEngine.ts",
+    "name": "detectRegime"
+  },
+  {
+    "file": "server/services/intelligenceEngine.ts",
+    "name": "detectWebsiteIssues"
+  },
+  {
+    "file": "server/services/realLeadSeeder.ts",
+    "name": "disabledRealLeadSeeder"
+  },
+  {
+    "file": "server/services/outreach/contactDiscoveryService.ts",
+    "name": "discoverContactForOpportunity"
+  },
+  {
+    "file": "server/services/trading/candidates/nexoraCandidateDiscoveryV2.ts",
+    "name": "discoverNexoraCandidatesV2"
+  },
+  {
+    "file": "server/services/dealHunter.ts",
+    "name": "dismissDealHunterSignal"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/crm/nexoraCrmPipelineEngine.ts",
+    "name": "draftNexoraFollowup"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supplier/nexoraSupplierCommand.ts",
+    "name": "draftNexoraSupplierRfq"
+  },
+  {
+    "file": "server/services/outreach/templateEnforcer.ts",
+    "name": "enforceTemplate"
+  },
+  {
+    "file": "server/services/propertyIntelligence/leasehawkEngine.ts",
+    "name": "enhanceLeaseHawkOpportunity"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/filebus/nexoraFileBus.ts",
+    "name": "enqueueNexoraFileBusMessage"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraPgBossBridge.ts",
+    "name": "enqueueNexoraPgBossTask"
+  },
+  {
+    "file": "server/services/intelligence/communications/whatsappOutbox.ts",
+    "name": "enqueueWhatsApp"
+  },
+  {
+    "file": "server/services/trading/tradingConfig.ts",
+    "name": "ensureBaselineConfig"
+  },
+  {
+    "file": "server/services/productAI.ts",
+    "name": "ensureDefaultCategories"
+  },
+  {
+    "file": "server/services/trading/marketData/nexoraMarketCandlesService.ts",
+    "name": "ensureMarketCandlesTable"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraAutonomyDb.ts",
+    "name": "ensureNexoraAutonomySchema"
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraAutonomousIntelligenceLayer.ts",
+    "name": "ensureNexoraAutonomyTables"
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraAutonomousLearningEngine.ts",
+    "name": "ensureNexoraAutonomyTables"
+  },
+  {
+    "file": "server/services/trading/candidates/nexoraCandidateAllowlist.ts",
+    "name": "ensureNexoraCandidateAllowlistTable"
+  },
+  {
+    "file": "server/services/trading/audit/nexoraDecisionAudit.ts",
+    "name": "ensureNexoraDecisionAuditTable"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/persistence/nexoraDurableKernel.ts",
+    "name": "ensureNexoraDurableKernel"
+  },
+  {
+    "file": "src/nexora/empire/nexoraEmpireSchema.ts",
+    "name": "ensureNexoraEmpireSchema"
+  },
+  {
+    "file": "server/services/trading/execution/nexoraInstitutionalExecutionLayerTwo.ts",
+    "name": "ensureNexoraExecutionQueue"
+  },
+  {
+    "file": "server/services/trading/execution/nexoraInstitutionalExecutionLayer.ts",
+    "name": "ensureNexoraExecutionTables"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localcore/nexoraLocalCore.ts",
+    "name": "ensureNexoraLocalDirs"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionLearningMemory.ts",
+    "name": "ensureNexoraPredictionLearningMemory"
+  },
+  {
+    "file": "server/services/trading/probes/nexoraProbeCooldown.ts",
+    "name": "ensureNexoraProbeCooldownTable"
+  },
+  {
+    "file": "server/services/trading/learning/nexoraQuantumLearningCore.ts",
+    "name": "ensureNexoraQuantumTables"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "ensureNexoraReady"
+  },
+  {
+    "file": "server/services/trading/promotion/nexoraSetupPromotionEngine.ts",
+    "name": "ensureNexoraSetupPromotionTable"
+  },
+  {
+    "file": "server/services/trading/simulation/nexoraOmegaSimulationGrid.ts",
+    "name": "ensureNexoraSimulationTables"
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraStrategyEvolution.ts",
+    "name": "ensureNexoraStrategyEvolutionTable"
+  },
+  {
+    "file": "server/services/trading/quality/nexoraStrategyQuarantine.ts",
+    "name": "ensureNexoraStrategyQuarantineTable"
+  },
+  {
+    "file": "server/services/trading/observations/nexoraWatchlistObservations.ts",
+    "name": "ensureNexoraWatchlistObservationsTable"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionPaperJournal.ts",
+    "name": "ensurePredictionPaperJournal"
+  },
+  {
+    "file": "server/services/platform/productionDataStore.ts",
+    "name": "ensureProductionDataStore"
+  },
+  {
+    "file": "server/services/governance/actionPolicyEngine.ts",
+    "name": "evaluateActionPolicy"
+  },
+  {
+    "file": "server/services/trading/portfolioAllocator.ts",
+    "name": "evaluateAllocation"
+  },
+  {
+    "file": "server/services/trading/exitEvaluator.ts",
+    "name": "evaluateExits"
+  },
+  {
+    "file": "server/services/trading/tradingGuardrails.ts",
+    "name": "evaluateGuardrails"
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraAutonomousLearningEngine.ts",
+    "name": "evaluateNexoraAutonomy"
+  },
+  {
+    "file": "server/services/trading/knowledge/nexoraBotTeachingEngine.ts",
+    "name": "evaluateNexoraBotTeachings"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraCalibrationLearner.ts",
+    "name": "evaluateNexoraCalibration"
+  },
+  {
+    "file": "server/services/trading/portfolio/nexoraCorrelationExposureGuard.ts",
+    "name": "evaluateNexoraCorrelationExposure"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraExecutionGate.ts",
+    "name": "evaluateNexoraExecutionGate"
+  },
+  {
+    "file": "server/services/trading/knowledge/nexoraGeniusCore.ts",
+    "name": "evaluateNexoraGeniusCore"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/policy/nexoraPolicyPack.ts",
+    "name": "evaluateNexoraPolicy"
+  },
+  {
+    "file": "server/services/trading/timeframes/nexoraTimeframeAgreementEngine.ts",
+    "name": "evaluateNexoraTimeframeAgreement"
+  },
+  {
+    "file": "server/services/trading/paperEngine.ts",
+    "name": "evaluateOpenPositions"
+  },
+  {
+    "file": "server/services/intelligence/signalIngestionService.ts",
+    "name": "evaluateOpportunity"
+  },
+  {
+    "file": "server/services/intelligence/realEvidencePolicy.ts",
+    "name": "evaluateRealEvidencePolicy"
+  },
+  {
+    "file": "server/services/trading/risk-governor.ts",
+    "name": "evaluateRisk"
+  },
+  {
+    "file": "server/services/trading/portfolioRiskThrottle.ts",
+    "name": "evaluateRiskThrottle"
+  },
+  {
+    "file": "server/services/trading/metaStrategyEngine.ts",
+    "name": "evaluateStrategies"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/strategy/nexoraStrategyCompiler.ts",
+    "name": "executeCompiledNexoraStrategy"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/mission/nexoraMissionControl.ts",
+    "name": "executeNexoraMission"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyExecutor.ts",
+    "name": "executeNexoraSafeTask"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supreme/nexoraSupremeOrchestrationMatrix.ts",
+    "name": "executeNexoraSupremeMatrix"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionMarketEdge.ts",
+    "name": "explainPredictionMarketStrategy"
+  },
+  {
+    "file": "server/services/propertyIntelligence/leasehawkEngine.ts",
+    "name": "exportLeaseHawkCsv"
+  },
+  {
+    "file": "server/services/leadIntelligence.ts",
+    "name": "extractDomain"
+  },
+  {
+    "file": "server/services/companyIntelligenceService.ts",
+    "name": "extractOrgChartContacts"
+  },
+  {
+    "file": "server/services/catalogNormaliser.ts",
+    "name": "extractSeries"
+  },
+  {
+    "file": "server/systemPrompt.ts",
+    "name": "extractSessionContext"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraDurableAutonomyStore.ts",
+    "name": "failNexoraTask"
+  },
+  {
+    "file": "server/services/trading/marketDataAdapter.ts",
+    "name": "fetchDetailedMarketData"
+  },
+  {
+    "file": "server/services/intelligence/signalIngestionService.ts",
+    "name": "fetchFromSource"
+  },
+  {
+    "file": "server/services/trading/marketDataAdapter.ts",
+    "name": "fetchLivePrices"
+  },
+  {
+    "file": "server/services/trading/newsAdapter.ts",
+    "name": "fetchRealNews"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "finalizeDecision"
+  },
+  {
+    "file": "server/services/trading/candidates/nexoraCandidateAllowlist.ts",
+    "name": "findNexoraAllowedCandidate"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "fireWebhook"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/finance/nexoraFinanceQuoteIntelligence.ts",
+    "name": "forecastNexoraRevenue"
+  },
+  {
+    "file": "server/services/partnerAgreement.ts",
+    "name": "generateAgreementText"
+  },
+  {
+    "file": "server/services/intelligence/communications/aiWhatsAppService.ts",
+    "name": "generateAIWhatsAppDraft"
+  },
+  {
+    "file": "server/services/intelligence/communications/aiWhatsAppService.ts",
+    "name": "generateAIWhatsAppMessage"
+  },
+  {
+    "file": "server/services/trading/tradingEdgeAnalysis.ts",
+    "name": "generateEdgeInsights"
+  },
+  {
+    "file": "server/services/outreach/outreachGenerationService.ts",
+    "name": "generateFullSequence"
+  },
+  {
+    "file": "server/services/propertyIntelligence/leasehawkEngine.ts",
+    "name": "generateLeaseHawkReport"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyFoundation.ts",
+    "name": "generateNexoraDailyReport"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/mission/nexoraMissionControl.ts",
+    "name": "generateNexoraRunbook"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supreme/nexoraSupremeOrchestrationMatrix.ts",
+    "name": "generateNexoraWorkerDance"
+  },
+  {
+    "file": "server/services/officeMovRadarService.ts",
+    "name": "generateOutreachDraft"
+  },
+  {
+    "file": "server/services/outreach/outreachGenerationService.ts",
+    "name": "generateOutreachMessage"
+  },
+  {
+    "file": "server/ai/packageGenerator.ts",
+    "name": "generatePackageAndQuote"
+  },
+  {
+    "file": "server/services/trading/ruleUpdateEngine.ts",
+    "name": "generateParameterProposals"
+  },
+  {
+    "file": "server/services/productAI.ts",
+    "name": "generateProductWithAI"
+  },
+  {
+    "file": "server/services/propertyIntelligence/propertyIntelligenceService.ts",
+    "name": "generatePropertyOpportunityOutreach"
+  },
+  {
+    "file": "server/services/trading/learningRecommendations.ts",
+    "name": "generateRecommendations"
+  },
+  {
+    "file": "server/services/relocationIntelligence.ts",
+    "name": "generateRelocationSignals"
+  },
+  {
+    "file": "server/services/supplierProcurement.ts",
+    "name": "generateRfqEmail"
+  },
+  {
+    "file": "server/services/intelligenceEngine.ts",
+    "name": "generateSEOBlogArticle"
+  },
+  {
+    "file": "server/services/devStudio/devAIPatch.ts",
+    "name": "generateSimpleFix"
+  },
+  {
+    "file": "server/services/devStudio/devAIPatch.ts",
+    "name": "generateSimpleFix"
+  },
+  {
+    "file": "server/services/devStudio/devAIPatch.ts",
+    "name": "generateSimpleFix"
+  },
+  {
+    "file": "server/services/workspaceStrategy.ts",
+    "name": "generateStrategyRecommendation"
+  },
+  {
+    "file": "server/services/trading/stressAlertEngine.ts",
+    "name": "generateStressAlerts"
+  },
+  {
+    "file": "server/services/leaseSignalScanner.ts",
+    "name": "generateTerritoryLead"
+  },
+  {
+    "file": "server/services/intelligenceEngine.ts",
+    "name": "generateWeeklyBusinessReport"
+  },
+  {
+    "file": "server/services/trading/tradingConfig.ts",
+    "name": "getActiveConfig"
+  },
+  {
+    "file": "server/services/outreach/outreachEngine.ts",
+    "name": "getActiveThreads"
+  },
+  {
+    "file": "server/services/trading/adaptationReport.ts",
+    "name": "getAdaptationReport"
+  },
+  {
+    "file": "server/adapters/manualAdapter.ts",
+    "name": "getAdapter"
+  },
+  {
+    "file": "server/adapters/manualAdapter.ts",
+    "name": "getAdaptersMeta"
+  },
+  {
+    "file": "server/services/clientPortal/adminClientManagementService.ts",
+    "name": "getAdminCustomer"
+  },
+  {
+    "file": "server/services/propertyIntelligence/leasehawkEngine.ts",
+    "name": "getAdminLeaseHawkOverview"
+  },
+  {
+    "file": "server/services/clientPortal/adminClientManagementService.ts",
+    "name": "getAdminSubscriptionOverview"
+  },
+  {
+    "file": "server/services/trading/rotation/nexoraAggressiveRotationPlan.ts",
+    "name": "getAggressivePaperRotationPlan"
+  },
+  {
+    "file": "server/services/partnerAgreement.ts",
+    "name": "getAgreementTemplateVersion"
+  },
+  {
+    "file": "server/services/trading/correlationModel.ts",
+    "name": "getAllClusters"
+  },
+  {
+    "file": "server/services/trading/regimeDetectionEngine.ts",
+    "name": "getAllRegimes"
+  },
+  {
+    "file": "server/services/sender/senderInfrastructure.ts",
+    "name": "getAllSenderReadiness"
+  },
+  {
+    "file": "server/services/trading/correlationModel.ts",
+    "name": "getAssetRiskProfiles"
+  },
+  {
+    "file": "server/services/platform/autonomousSafeActionService.ts",
+    "name": "getAutonomousActionStatus"
+  },
+  {
+    "file": "server/services/trading/autonomousEngine.ts",
+    "name": "getAutonomousStatus"
+  },
+  {
+    "file": "server/services/platform/autonomyReadinessService.ts",
+    "name": "getAutonomyReadiness"
+  },
+  {
+    "file": "server/services/ops/autonomyRunbook.ts",
+    "name": "getAutonomyRuntimeStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraModuleRegistry.ts",
+    "name": "getAutoRunnableModules"
+  },
+  {
+    "file": "server/services/trading/portfolioAllocator.ts",
+    "name": "getBlockedAllocations"
+  },
+  {
+    "file": "server/services/outreach/bookingService.ts",
+    "name": "getBookingStats"
+  },
+  {
+    "file": "server/ai/knowledgeLoader.ts",
+    "name": "getBusinessMemory"
+  },
+  {
+    "file": "server/services/trading/capitalScalingEngine.ts",
+    "name": "getCapitalScalingStatus"
+  },
+  {
+    "file": "server/services/clientPortal/clientPortalService.ts",
+    "name": "getClientByToken"
+  },
+  {
+    "file": "server/services/clientPortal/clientPortalService.ts",
+    "name": "getClientCheckoutStatus"
+  },
+  {
+    "file": "server/services/clientPortal/clientPortalService.ts",
+    "name": "getClientDashboard"
+  },
+  {
+    "file": "server/services/clientPortal/clientEngagementService.ts",
+    "name": "getClientOnboardingChecklist"
+  },
+  {
+    "file": "server/services/clientPortal/clientPortalService.ts",
+    "name": "getClientPlanAccess"
+  },
+  {
+    "file": "server/services/trading/correlationModel.ts",
+    "name": "getClusterForSymbol"
+  },
+  {
+    "file": "server/services/intelligence/clusterEngine.ts",
+    "name": "getClustersForMap"
+  },
+  {
+    "file": "server/services/intelligence/clusterEngine.ts",
+    "name": "getClusterStats"
+  },
+  {
+    "file": "server/services/trading/correlationModel.ts",
+    "name": "getClusterSymbols"
+  },
+  {
+    "file": "server/services/intelligence/intelligenceGraphService.ts",
+    "name": "getCompaniesInSameBuilding"
+  },
+  {
+    "file": "server/services/intelligence/intelligenceGraphService.ts",
+    "name": "getCompaniesInSameIndustry"
+  },
+  {
+    "file": "server/services/intelligence/intelligenceGraphService.ts",
+    "name": "getCompaniesInSameSuburb"
+  },
+  {
+    "file": "server/services/intelligence/intelligenceGraphService.ts",
+    "name": "getCompanyGraph"
+  },
+  {
+    "file": "server/services/intelligence/companyHierarchyService.ts",
+    "name": "getCompanyHierarchy"
+  },
+  {
+    "file": "server/services/intelligence/intelligenceGraphService.ts",
+    "name": "getCompanyNetwork"
+  },
+  {
+    "file": "server/ai/knowledgeLoader.ts",
+    "name": "getCompiledKnowledge"
+  },
+  {
+    "file": "server/services/trading/complianceEngine.ts",
+    "name": "getComplianceStatus"
+  },
+  {
+    "file": "server/services/trading/tradingConfig.ts",
+    "name": "getConfigChanges"
+  },
+  {
+    "file": "server/services/trading/tradingConfig.ts",
+    "name": "getConfigHistory"
+  },
+  {
+    "file": "server/services/intelligence/intelligenceGraphService.ts",
+    "name": "getConnectedOpportunities"
+  },
+  {
+    "file": "server/services/outreach/contactDiscoveryService.ts",
+    "name": "getContactDiscoveryStats"
+  },
+  {
+    "file": "server/services/outreach/prospectEmailResolver.ts",
+    "name": "getContactReadiness"
+  },
+  {
+    "file": "server/services/outreach/contactDiscoveryService.ts",
+    "name": "getContactsForCompany"
+  },
+  {
+    "file": "server/services/workers/workerRegistry.ts",
+    "name": "getControlledWorkerState"
+  },
+  {
+    "file": "server/services/trading/correlationModel.ts",
+    "name": "getCorrelationAdjustedExposure"
+  },
+  {
+    "file": "server/services/trading/correlationModel.ts",
+    "name": "getCorrelationWeight"
+  },
+  {
+    "file": "server/services/trading/costModelEngine.ts",
+    "name": "getCostModelAnalytics"
+  },
+  {
+    "file": "server/services/clientPortal/clientPortalService.ts",
+    "name": "getCustomerSafeLeaseHawk"
+  },
+  {
+    "file": "server/services/clientPortal/clientPortalService.ts",
+    "name": "getCustomerSafePhantomX"
+  },
+  {
+    "file": "server/services/dealHunter.ts",
+    "name": "getDealHunterStats"
+  },
+  {
+    "file": "server/services/stripe/revenueService.ts",
+    "name": "getDepositPaidDeals"
+  },
+  {
+    "file": "server/services/trading/knowledge/nexoraBotTeachingRegistry.ts",
+    "name": "getEnabledNexoraTeachings"
+  },
+  {
+    "file": "server/services/intelligence/evidence/evidenceSourceRegistry.ts",
+    "name": "getEvidencePolicy"
+  },
+  {
+    "file": "server/services/trading/liveExecutionConfig.ts",
+    "name": "getExecutionMode"
+  },
+  {
+    "file": "server/services/trading/executionModel.ts",
+    "name": "getExecutionProfiles"
+  },
+  {
+    "file": "server/services/stripe/revenueService.ts",
+    "name": "getExpiredPaymentLinks"
+  },
+  {
+    "file": "server/ai/knowledgeLoader.ts",
+    "name": "getFinanceKnowledge"
+  },
+  {
+    "file": "server/services/outreach/outreachEngine.ts",
+    "name": "getFollowUpsDue"
+  },
+  {
+    "file": "server/services/intelligence/intelligenceGraphService.ts",
+    "name": "getGraphPaths"
+  },
+  {
+    "file": "server/services/intelligence/intelligenceGraphService.ts",
+    "name": "getGraphStats"
+  },
+  {
+    "file": "server/ai/knowledgeLoader.ts",
+    "name": "getGrowthKnowledge"
+  },
+  {
+    "file": "server/services/trading/tradingGuardrails.ts",
+    "name": "getGuardrailState"
+  },
+  {
+    "file": "server/services/intelligence/buildingRiskEngine.ts",
+    "name": "getHighRiskBuildings"
+  },
+  {
+    "file": "server/services/trading/institutionalEngine.ts",
+    "name": "getInstitutionalStatus"
+  },
+  {
+    "file": "server/services/intelligence/workspaceIntelligenceEngine.ts",
+    "name": "getIntelligenceDashboard"
+  },
+  {
+    "file": "server/services/stripe/invoiceService.ts",
+    "name": "getInvoicesForQuote"
+  },
+  {
+    "file": "server/services/devStudio/devAIPatch.ts",
+    "name": "getIssueContext"
+  },
+  {
+    "file": "server/services/devStudio/devAIPatch.ts",
+    "name": "getIssueContext"
+  },
+  {
+    "file": "server/services/devStudio/devAIPatch.ts",
+    "name": "getIssueContext"
+  },
+  {
+    "file": "server/services/jobOrchestrator.ts",
+    "name": "getJobStats"
+  },
+  {
+    "file": "server/ai/knowledgeLoader.ts",
+    "name": "getKnowledgeStats"
+  },
+  {
+    "file": "server/services/trading/newsAdapter.ts",
+    "name": "getLatestNews"
+  },
+  {
+    "file": "server/services/trading/marketSnapshots.ts",
+    "name": "getLatestSnapshot"
+  },
+  {
+    "file": "server/services/trading/marketSnapshots.ts",
+    "name": "getLatestSnapshots"
+  },
+  {
+    "file": "server/services/profitOptimisation.ts",
+    "name": "getLayoutProfitPatterns"
+  },
+  {
+    "file": "server/services/leadEngine.ts",
+    "name": "getLeadEngineStats"
+  },
+  {
+    "file": "server/ai/knowledgeLoader.ts",
+    "name": "getLeadQualificationRules"
+  },
+  {
+    "file": "server/services/workspaceStrategy.ts",
+    "name": "getLearningInsights"
+  },
+  {
+    "file": "server/services/trading/learningRecommendations.ts",
+    "name": "getLearningRecommendations"
+  },
+  {
+    "file": "server/services/intelligence/leaseExpiryService.ts",
+    "name": "getLeaseExpiryOpportunities"
+  },
+  {
+    "file": "server/services/propertyIntelligence/leasehawkEngine.ts",
+    "name": "getLeaseHawkFeedForTenant"
+  },
+  {
+    "file": "server/services/propertyIntelligence/leasehawkEngine.ts",
+    "name": "getLeaseHawkPlanLimits"
+  },
+  {
+    "file": "server/services/trading/liveExecutionConfig.ts",
+    "name": "getLiveExecutionConfig"
+  },
+  {
+    "file": "server/services/trading/liveExecutionGateway.ts",
+    "name": "getLivePositionsSummary"
+  },
+  {
+    "file": "server/services/trading/marketData/nexoraMarketCandlesService.ts",
+    "name": "getMarketCandleCoverage"
+  },
+  {
+    "file": "server/services/trading/mexcMarketData.ts",
+    "name": "getMarketDataState"
+  },
+  {
+    "file": "server/ai/knowledgeLoader.ts",
+    "name": "getMarketIntelligence"
+  },
+  {
+    "file": "server/services/relocationIntelligence.ts",
+    "name": "getMarketIntelligence"
+  },
+  {
+    "file": "server/services/trading/marketLoop.ts",
+    "name": "getMarketLoopStatus"
+  },
+  {
+    "file": "server/services/outreach/outreachEngine.ts",
+    "name": "getMeetingsBooked"
+  },
+  {
+    "file": "server/services/trading/metaStrategyEngine.ts",
+    "name": "getMetaStrategyStatus"
+  },
+  {
+    "file": "server/services/trading/mexcMarketData.ts",
+    "name": "getMexcMarketSnapshot"
+  },
+  {
+    "file": "server/services/trading/wallet-ledger.ts",
+    "name": "getMirrorTrades"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraModuleRegistry.ts",
+    "name": "getModulesRequiringNexoraDecision"
+  },
+  {
+    "file": "server/services/trading/paperEngine.ts",
+    "name": "getMonitorState"
+  },
+  {
+    "file": "server/services/trading/multiFactorEngine.ts",
+    "name": "getMultiFactorAnalytics"
+  },
+  {
+    "file": "server/services/intelligence/intelligenceGraphService.ts",
+    "name": "getNeighbors"
+  },
+  {
+    "file": "server/services/intelligence/intelligenceGraphService.ts",
+    "name": "getNetworkStrength"
+  },
+  {
+    "file": "server/services/intelligence/partnerNetwork.ts",
+    "name": "getNetworkSummary"
+  },
+  {
+    "file": "server/services/trading/newsAdapter.ts",
+    "name": "getNewsAdapterStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/academy/nexoraAcademyEngine.ts",
+    "name": "getNexoraAcademyStatus"
+  },
+  {
+    "file": "server/services/trading/admin/nexoraAdminControls.ts",
+    "name": "getNexoraAdminControls"
+  },
+  {
+    "file": "server/services/trading/admin/nexoraAdminControls.ts",
+    "name": "getNexoraAlerts"
+  },
+  {
+    "file": "server/services/trading/orchestration/nexoraAlphaOrchestrator.ts",
+    "name": "getNexoraAlphaOrchestratorStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyFoundation.ts",
+    "name": "getNexoraApprovals"
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraAutonomousIntelligenceLayer.ts",
+    "name": "getNexoraAutonomousStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyFoundation.ts",
+    "name": "getNexoraAutonomyFoundationStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyOperatingPlan.ts",
+    "name": "getNexoraAutonomyOperatingPlan"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyRunner.ts",
+    "name": "getNexoraAutonomyRunnerStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/autopilot/nexoraOperationalAutopilot.ts",
+    "name": "getNexoraAutopilotCommandView"
+  },
+  {
+    "file": "server/services/intelligence/nexoraOrchestrator.ts",
+    "name": "getNexoraBackgroundState"
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalLibrary2000.ts",
+    "name": "getNexoraBlockingSignals"
+  },
+  {
+    "file": "server/services/trading/candidates/nexoraCandidateAllowlist.ts",
+    "name": "getNexoraCandidateAllowlist"
+  },
+  {
+    "file": "server/services/trading/candidates/nexoraCandidateWatchlistV3.ts",
+    "name": "getNexoraCandidateWatchlistV3"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraCatalystCalendar.ts",
+    "name": "getNexoraCatalystCalendar"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/cockpit/nexoraExecutiveCockpit.ts",
+    "name": "getNexoraCockpitStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraCommandCentre.ts",
+    "name": "getNexoraCommandCentre"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "getNexoraConfig"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/crm/nexoraCrmPipelineEngine.ts",
+    "name": "getNexoraCrmStatus"
+  },
+  {
+    "file": "server/services/trading/resilience/nexoraDbHealthGate.ts",
+    "name": "getNexoraDbHealthGate"
+  },
+  {
+    "file": "server/services/trading/safety/nexoraDbSafety.ts",
+    "name": "getNexoraDbSafety"
+  },
+  {
+    "file": "server/services/trading/learning/nexoraDecayedPerformance.ts",
+    "name": "getNexoraDecayedPerformance"
+  },
+  {
+    "file": "server/services/trading/audit/nexoraDecisionAudit.ts",
+    "name": "getNexoraDecisionAudit"
+  },
+  {
+    "file": "server/services/memory/nexoraDecisionLineage.ts",
+    "name": "getNexoraDecisionLineageSnapshot"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/persistence/nexoraDurableKernel.ts",
+    "name": "getNexoraDurableCommandSnapshot"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraDurableAutonomyStore.ts",
+    "name": "getNexoraDurableSnapshot"
+  },
+  {
+    "file": "server/services/trading/execution/nexoraInstitutionalExecutionLayer.ts",
+    "name": "getNexoraEmergencyStop"
+  },
+  {
+    "file": "src/nexora/empire/nexoraEmpireEngine.ts",
+    "name": "getNexoraEmpireSnapshot"
+  },
+  {
+    "file": "server/services/trading/execution/nexoraInstitutionalExecutionLayerTwo.ts",
+    "name": "getNexoraExchangeAdapterStatus"
+  },
+  {
+    "file": "server/services/trading/execution/nexoraInstitutionalExecutionLayer.ts",
+    "name": "getNexoraExecutionAudit"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyExecutor.ts",
+    "name": "getNexoraExecutionLog"
+  },
+  {
+    "file": "server/services/trading/execution/nexoraInstitutionalExecutionLayerTwo.ts",
+    "name": "getNexoraExecutionQueue"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/cockpit/nexoraExecutiveCockpit.ts",
+    "name": "getNexoraExecutiveCockpit"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/exporter/nexoraExportPack.ts",
+    "name": "getNexoraExportPack"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/resilience/nexoraResilienceCore.ts",
+    "name": "getNexoraFallbackJournal"
+  },
+  {
+    "file": "server/services/trading/feeds/nexoraFeedConnectors.ts",
+    "name": "getNexoraFeedConnectorStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/filebus/nexoraFileBus.ts",
+    "name": "getNexoraFileBusMessages"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/filebus/nexoraFileBus.ts",
+    "name": "getNexoraFileBusStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/finance/nexoraFinanceQuoteIntelligence.ts",
+    "name": "getNexoraFinanceStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraWorkerRegistry.ts",
+    "name": "getNexoraHandsFreeReadiness"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyFoundation.ts",
+    "name": "getNexoraHeartbeats"
+  },
+  {
+    "file": "server/services/trading/health/nexoraIntelligenceHealth.ts",
+    "name": "getNexoraIntelligenceHealth"
+  },
+  {
+    "file": "server/services/trading/portfolio/nexoraKillSwitchGuard.ts",
+    "name": "getNexoraKillSwitchGuard"
+  },
+  {
+    "file": "server/services/trading/learning/nexoraLearningHealth.ts",
+    "name": "getNexoraLearningHealth"
+  },
+  {
+    "file": "server/services/trading/learning/nexoraLearningPolicyService.ts",
+    "name": "getNexoraLearningPolicySnapshot"
+  },
+  {
+    "file": "server/services/trading/learning/nexoraLearningPressure.ts",
+    "name": "getNexoraLearningPressure"
+  },
+  {
+    "file": "server/services/trading/learning/nexoraLearningSummary.ts",
+    "name": "getNexoraLearningSummary"
+  },
+  {
+    "file": "server/services/trading/promotion/nexoraLiveSandboxGate.ts",
+    "name": "getNexoraLiveSandboxGate"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localapprovals/nexoraLocalApprovalGate.ts",
+    "name": "getNexoraLocalApprovalStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localcore/nexoraLocalCore.ts",
+    "name": "getNexoraLocalCoreStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localcrm/nexoraLocalCrm.ts",
+    "name": "getNexoraLocalCrmStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localcrm/nexoraLocalCrm.ts",
+    "name": "getNexoraLocalLead"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localprojects/nexoraLocalProjectBoard.ts",
+    "name": "getNexoraLocalProjectStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localquotes/nexoraLocalQuoteBook.ts",
+    "name": "getNexoraLocalQuote"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localquotes/nexoraLocalQuoteBook.ts",
+    "name": "getNexoraLocalQuoteBookStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/exporter/nexoraLocalSnapshotEngine.ts",
+    "name": "getNexoraLocalSnapshot"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localsuppliers/nexoraLocalSupplierCatalogue.ts",
+    "name": "getNexoraLocalSupplierStatus"
+  },
+  {
+    "file": "server/services/nexoraLoop.ts",
+    "name": "getNexoraLoopState"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/resilience/nexoraResilienceCore.ts",
+    "name": "getNexoraMaintenanceConsole"
+  },
+  {
+    "file": "server/services/trading/regime/nexoraMarketRegimeEngine.ts",
+    "name": "getNexoraMarketRegimeSnapshot"
+  },
+  {
+    "file": "server/services/trading/backtesting/nexoraMemoryBacktester.ts",
+    "name": "getNexoraMemoryBacktesterStatus"
+  },
+  {
+    "file": "server/services/trading/resilience/nexoraMemoryFallbackRuntime.ts",
+    "name": "getNexoraMemoryEvents"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/warehouse/nexoraLocalWarehouse.ts",
+    "name": "getNexoraMetrics"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/mission/nexoraMissionControl.ts",
+    "name": "getNexoraMissionControlStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraModuleRegistry.ts",
+    "name": "getNexoraModule"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraModuleRegistry.ts",
+    "name": "getNexoraModules"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraModuleRegistry.ts",
+    "name": "getNexoraModulesByType"
+  },
+  {
+    "file": "server/services/office/nexoraOfficeReceptionist.ts",
+    "name": "getNexoraOfficeLeads"
+  },
+  {
+    "file": "server/services/office/nexoraOfficeReceptionist.ts",
+    "name": "getNexoraOfficeReceptionistStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/opsconsole/nexoraOfflineOpsConsole.ts",
+    "name": "getNexoraOfflineOpsConsole"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyExecutor.ts",
+    "name": "getNexoraOperatingSnapshot"
+  },
+  {
+    "file": "server/services/trading/execution/nexoraInstitutionalExecutionLayer.ts",
+    "name": "getNexoraPaperToLivePromotionGate"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraPgBossBridge.ts",
+    "name": "getNexoraPgBoss"
+  },
+  {
+    "file": "server/services/trading/platform/nexoraPlatformSummary.ts",
+    "name": "getNexoraPlatformSummary"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/policy/nexoraPolicyPack.ts",
+    "name": "getNexoraPolicyPack"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraAutonomyDb.ts",
+    "name": "getNexoraPool"
+  },
+  {
+    "file": "server/services/trading/portfolio/nexoraPortfolioBrain.ts",
+    "name": "getNexoraPortfolioBrain"
+  },
+  {
+    "file": "server/services/trading/portfolio/nexoraPortfolioHeatScore.ts",
+    "name": "getNexoraPortfolioHeatScore"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionLearningMemory.ts",
+    "name": "getNexoraPredictionCalibrationMemory"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionPaperJournal.ts",
+    "name": "getNexoraPredictionPaperJournal"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraStrategyLeaderboard.ts",
+    "name": "getNexoraPredictionStrategyLeaderboard"
+  },
+  {
+    "file": "server/services/trading/probes/nexoraProbeQuality.ts",
+    "name": "getNexoraProbeQuality"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/project/nexoraProjectOpsEngine.ts",
+    "name": "getNexoraProjectStatus"
+  },
+  {
+    "file": "server/services/trading/promotion/nexoraPromotionGate.ts",
+    "name": "getNexoraPromotionGate"
+  },
+  {
+    "file": "server/services/trading/promotion/nexoraProofMetrics.ts",
+    "name": "getNexoraProofMetrics"
+  },
+  {
+    "file": "server/services/trading/quality/nexoraQualityHealth.ts",
+    "name": "getNexoraQualityHealth"
+  },
+  {
+    "file": "server/services/trading/learning/nexoraQuantumLearningCore.ts",
+    "name": "getNexoraQuantumStatus"
+  },
+  {
+    "file": "server/services/trading/safety/nexoraRecoveryHealth.ts",
+    "name": "getNexoraRecoveryHealth"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "getNexoraRecoveryPolicy"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyFoundation.ts",
+    "name": "getNexoraReports"
+  },
+  {
+    "file": "server/services/trading/research/nexoraResearchProbeMonitor.ts",
+    "name": "getNexoraResearchProbeMonitor"
+  },
+  {
+    "file": "server/services/trading/research/nexoraResearchProbeSafety.ts",
+    "name": "getNexoraResearchProbeSafety"
+  },
+  {
+    "file": "server/services/trading/scanner/nexoraPredictionMarketScanner.ts",
+    "name": "getNexoraScannerStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraSchedulerControl.ts",
+    "name": "getNexoraSchedules"
+  },
+  {
+    "file": "server/services/trading/promotion/nexoraSetupPromotionEngine.ts",
+    "name": "getNexoraSetupPromotions"
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalLibrary2000.ts",
+    "name": "getNexoraSignalsByGroup"
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalLibrary2000.ts",
+    "name": "getNexoraSignalsForSymbol"
+  },
+  {
+    "file": "server/services/trading/simulation/nexoraOmegaSimulationGrid.ts",
+    "name": "getNexoraSimulationStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/strategy/nexoraStrategyCompiler.ts",
+    "name": "getNexoraStrategyCompilerStatus"
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraStrategyEvolution.ts",
+    "name": "getNexoraStrategyEvolution"
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraAutonomousIntelligenceLayer.ts",
+    "name": "getNexoraStrategyLeaderboard"
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraAutonomousLearningEngine.ts",
+    "name": "getNexoraStrategyMemory"
+  },
+  {
+    "file": "server/services/trading/quality/nexoraStrategyQuarantine.ts",
+    "name": "getNexoraStrategyQuarantine"
+  },
+  {
+    "file": "server/services/trading/superbot/nexoraSuperbotSafetyCore.ts",
+    "name": "getNexoraSuperbotSafetyCore"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomySupervisor.ts",
+    "name": "getNexoraSupervisorRuns"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomySupervisor.ts",
+    "name": "getNexoraSupervisorStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supplier/nexoraSupplierCommand.ts",
+    "name": "getNexoraSupplierStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supreme/nexoraSupremeOrchestrationMatrix.ts",
+    "name": "getNexoraSupremeMatrixStatus"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyFoundation.ts",
+    "name": "getNexoraTasks"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/timeline/nexoraTimeline.ts",
+    "name": "getNexoraTimeline"
+  },
+  {
+    "file": "server/services/trading/observations/nexoraWatchlistObservations.ts",
+    "name": "getNexoraWatchlistObservations"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraWorkerFactory.ts",
+    "name": "getNexoraWorkerArmy"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraWorkerRegistry.ts",
+    "name": "getNexoraWorkerRegistry"
+  },
+  {
+    "file": "server/services/followUpEmails.ts",
+    "name": "getNextSendAt"
+  },
+  {
+    "file": "server/services/trading/paperEngine.ts",
+    "name": "getOpenPositions"
+  },
+  {
+    "file": "server/services/intelligence/opportunityEngine.ts",
+    "name": "getOpportunityStats"
+  },
+  {
+    "file": "server/services/trading/paperEngine.ts",
+    "name": "getOrCreateState"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "getOutcomeSuccessRate"
+  },
+  {
+    "file": "server/services/outreach/outreachEngine.ts",
+    "name": "getOutreachReadyCompanies"
+  },
+  {
+    "file": "server/services/outreach/outreachGenerationService.ts",
+    "name": "getOutreachStats"
+  },
+  {
+    "file": "server/services/stripe/revenueService.ts",
+    "name": "getOutstandingInvoices"
+  },
+  {
+    "file": "server/services/partnerScoring.ts",
+    "name": "getPartnerLeaderboard"
+  },
+  {
+    "file": "server/services/stripe/paymentLinkService.ts",
+    "name": "getPaymentLinksForQuote"
+  },
+  {
+    "file": "server/services/stripe/revenueService.ts",
+    "name": "getPaymentStatusForOpportunity"
+  },
+  {
+    "file": "server/services/trading/ruleUpdateEngine.ts",
+    "name": "getPendingProposals"
+  },
+  {
+    "file": "server/services/trading/phantomXComplianceService.ts",
+    "name": "getPhantomXComplianceRules"
+  },
+  {
+    "file": "server/services/trading/phantomXLearningEngine.ts",
+    "name": "getPhantomXLearningSnapshot"
+  },
+  {
+    "file": "server/services/trading/phantomXPaperLearner.ts",
+    "name": "getPhantomXPaperState"
+  },
+  {
+    "file": "server/services/clientPortal/planAccess.ts",
+    "name": "getPlanAccess"
+  },
+  {
+    "file": "server/services/trading/polyEdgeActionMonitorService.ts",
+    "name": "getPolyEdgeActionMonitor"
+  },
+  {
+    "file": "server/services/trading/polyEdgeAdaptiveThreshold.ts",
+    "name": "getPolyEdgeAdaptivePaperThreshold"
+  },
+  {
+    "file": "server/services/polyedge/polyEdgeAdditiveRealMonitors.ts",
+    "name": "getPolyEdgeAdditiveRealMonitors"
+  },
+  {
+    "file": "server/services/trading/polyEdgeAutoPaper.ts",
+    "name": "getPolyEdgeAutoPaperStatus"
+  },
+  {
+    "file": "server/services/polyedge/polyEdgeCapitalStore.ts",
+    "name": "getPolyEdgeCapitalState"
+  },
+  {
+    "file": "server/services/trading/polyEdgeDecisionLineage.ts",
+    "name": "getPolyEdgeDecisionLineage"
+  },
+  {
+    "file": "server/services/trading/polyEdgeLearningService.ts",
+    "name": "getPolyEdgeLearning"
+  },
+  {
+    "file": "server/services/trading/polyEdgePromotionGate.ts",
+    "name": "getPolyEdgePromotionReadiness"
+  },
+  {
+    "file": "server/services/trading/polyEdgeProofService.ts",
+    "name": "getPolyEdgeProof"
+  },
+  {
+    "file": "server/services/trading/polyEdgeFastReplayEngine.ts",
+    "name": "getPolyEdgeReplayStatus"
+  },
+  {
+    "file": "server/services/polyedge/polyEdgeTraderMonitors.ts",
+    "name": "getPolyEdgeTraderMonitors"
+  },
+  {
+    "file": "server/services/trading/portfolioAllocator.ts",
+    "name": "getPortfolioLimits"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "getProcurementQuoteRequest"
+  },
+  {
+    "file": "server/ai/productIntelligence.ts",
+    "name": "getProductIntelligence"
+  },
+  {
+    "file": "server/services/platform/productionDataStore.ts",
+    "name": "getProductionDataStatus"
+  },
+  {
+    "file": "server/services/productAI.ts",
+    "name": "getProductStats"
+  },
+  {
+    "file": "server/services/propertyIntelligence/propertyIntelligenceService.ts",
+    "name": "getPropertyIntelligenceDashboard"
+  },
+  {
+    "file": "server/services/propertyIntelligence/propertyIntelligenceService.ts",
+    "name": "getPropertyIntelligenceStats"
+  },
+  {
+    "file": "server/services/stripe/revenueService.ts",
+    "name": "getQuotesAwaitingPayment"
+  },
+  {
+    "file": "server/services/trading/stressAlertEngine.ts",
+    "name": "getRecentAlerts"
+  },
+  {
+    "file": "server/services/trading/portfolioAllocator.ts",
+    "name": "getRecentAllocationLogs"
+  },
+  {
+    "file": "server/services/trading/liveExecutionGateway.ts",
+    "name": "getRecentAttemptLogs"
+  },
+  {
+    "file": "server/services/trading/paperEngine.ts",
+    "name": "getRecentDecisions"
+  },
+  {
+    "file": "server/services/trading/liveExecutionGateway.ts",
+    "name": "getRecentLiveOrders"
+  },
+  {
+    "file": "server/services/trading/marketData/nexoraMarketCandlesService.ts",
+    "name": "getRecentMarketCandles"
+  },
+  {
+    "file": "server/services/trading/paperEngine.ts",
+    "name": "getRecentOutcomes"
+  },
+  {
+    "file": "server/services/trading/portfolioState.ts",
+    "name": "getRecentSnapshots"
+  },
+  {
+    "file": "server/services/trading/regimeDetectionEngine.ts",
+    "name": "getRegimeHistory"
+  },
+  {
+    "file": "server/services/intelligence/companyIntelligenceAggregationService.ts",
+    "name": "getRelocationReadyCompanies"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "getRetryStatsSnapshot"
+  },
+  {
+    "file": "server/services/stripe/revenueService.ts",
+    "name": "getRevenueStats"
+  },
+  {
+    "file": "server/services/stripe/revenueService.ts",
+    "name": "getRevenueThisWeek"
+  },
+  {
+    "file": "server/services/trading/risk-governor.ts",
+    "name": "getRiskGovernorState"
+  },
+  {
+    "file": "server/services/trading/configRollback.ts",
+    "name": "getRollbackHistory"
+  },
+  {
+    "file": "server/services/platform/productionDataStore.ts",
+    "name": "getRuntimeStore"
+  },
+  {
+    "file": "server/services/trading/tradingMonitorSafe.ts",
+    "name": "getSafeTradingMonitorData"
+  },
+  {
+    "file": "server/ai/knowledgeLoader.ts",
+    "name": "getSalesFramework"
+  },
+  {
+    "file": "server/services/trading/stressScenarios.ts",
+    "name": "getScenario"
+  },
+  {
+    "file": "server/services/trading/stressScenarios.ts",
+    "name": "getScenariosByGroup"
+  },
+  {
+    "file": "server/services/intelligence/intelligenceGraphService.ts",
+    "name": "getSecondDegreeConnections"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "getSemanticEmbedding"
+  },
+  {
+    "file": "server/services/sender/senderInfrastructure.ts",
+    "name": "getSenderReadiness"
+  },
+  {
+    "file": "server/services/trading/regimeDetectionEngine.ts",
+    "name": "getStrategyAdaptation"
+  },
+  {
+    "file": "server/services/clientPortal/stripeSubscriptionService.ts",
+    "name": "getStripeBillingOverview"
+  },
+  {
+    "file": "server/services/stripe/stripeConfigService.ts",
+    "name": "getStripeClient"
+  },
+  {
+    "file": "server/services/stripe/stripeConfigService.ts",
+    "name": "getStripeConfig"
+  },
+  {
+    "file": "server/services/intelligence/companyHierarchyService.ts",
+    "name": "getSubsidiaryMap"
+  },
+  {
+    "file": "server/services/intelligence/intelligenceGraphService.ts",
+    "name": "getSuburbGraph"
+  },
+  {
+    "file": "server/ai/knowledgeLoader.ts",
+    "name": "getSupplierKnowledge"
+  },
+  {
+    "file": "server/ai/supplierIntelligence.ts",
+    "name": "getSupplierRoutingRules"
+  },
+  {
+    "file": "server/services/trading/marketDataAdapter.ts",
+    "name": "getSupportedSymbols"
+  },
+  {
+    "file": "server/services/trading/observabilityEngine.ts",
+    "name": "getSystemObservability"
+  },
+  {
+    "file": "server/services/trading/knowledge/nexoraBotTeachingRegistry.ts",
+    "name": "getTeachingsForSetup"
+  },
+  {
+    "file": "server/services/trading/timingEngine.ts",
+    "name": "getTimingAnalytics"
+  },
+  {
+    "file": "server/services/intelligence/demandForecastEngine.ts",
+    "name": "getTopDemandSuburbs"
+  },
+  {
+    "file": "server/services/intelligence/companyHierarchyService.ts",
+    "name": "getTopHierarchyClusters"
+  },
+  {
+    "file": "server/services/intelligence/opportunityEngine.ts",
+    "name": "getTopOpportunities"
+  },
+  {
+    "file": "server/services/trading/wallet-identity.ts",
+    "name": "getTopWalletIdentityProfiles"
+  },
+  {
+    "file": "server/services/intelligence/zoneScoringEngine.ts",
+    "name": "getTopZones"
+  },
+  {
+    "file": "server/services/trading/wallet-registry.ts",
+    "name": "getTrackedWalletByAddress"
+  },
+  {
+    "file": "server/services/trading/wallet-registry.ts",
+    "name": "getTrackedWalletById"
+  },
+  {
+    "file": "server/services/trading/index.ts",
+    "name": "getTradingMonitorData"
+  },
+  {
+    "file": "server/services/trading/marketDataAdapter.ts",
+    "name": "getUnavailableSymbols"
+  },
+  {
+    "file": "server/services/trading/wallet-ledger.ts",
+    "name": "getWalletActions"
+  },
+  {
+    "file": "server/services/trading/wallet-monitor.ts",
+    "name": "getWalletMonitorState"
+  },
+  {
+    "file": "server/services/trading/wallet-ledger.ts",
+    "name": "getWalletPerformance"
+  },
+  {
+    "file": "server/services/trading/wallet-score-engine.ts",
+    "name": "getWalletScoreState"
+  },
+  {
+    "file": "server/services/intelligence/communications/whatsappFlows.ts",
+    "name": "getWhatsAppFlow"
+  },
+  {
+    "file": "server/ai/knowledgeLoader.ts",
+    "name": "getWorkplaceDesignKnowledge"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/governor/nexoraAutonomyGovernor.ts",
+    "name": "governAndQueueNexoraAction"
+  },
+  {
+    "file": "server/services/office/nexoraOfficeReceptionist.ts",
+    "name": "handleNexoraOfficeReceptionist"
+  },
+  {
+    "file": "server/services/clientPortal/stripeSubscriptionService.ts",
+    "name": "handleStripeWebhookEvent"
+  },
+  {
+    "file": "server/services/whatsappAssistant.ts",
+    "name": "handleWhatsAppIncoming"
+  },
+  {
+    "file": "server/services/outreach/outreach-hashing.ts",
+    "name": "hashBody"
+  },
+  {
+    "file": "server/services/outreach/templateEnforcer.ts",
+    "name": "hasUnresolvedPlaceholders"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraDurableAutonomyStore.ts",
+    "name": "heartbeatNexoraWorker"
+  },
+  {
+    "file": "server/services/leadCsvImportService.ts",
+    "name": "importCSV"
+  },
+  {
+    "file": "server/services/propertyIntelligence/propertyListingsService.ts",
+    "name": "importPropertyListingsCsv"
+  },
+  {
+    "file": "server/services/intelligence/signalClassificationService.ts",
+    "name": "inferCommercialTier"
+  },
+  {
+    "file": "server/services/leadEngine.ts",
+    "name": "ingestLead"
+  },
+  {
+    "file": "server/services/intelligence/signalIngestionService.ts",
+    "name": "ingestSignal"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraDurableAutonomyStore.ts",
+    "name": "initializeNexoraDurableAutonomy"
+  },
+  {
+    "file": "server/services/jobOrchestrator.ts",
+    "name": "initJobOrchestrator"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "initNexoraDataSource"
+  },
+  {
+    "file": "server/services/intelligence/signalIngestionService.ts",
+    "name": "injectManualSignal"
+  },
+  {
+    "file": "server/security/adminGuard.ts",
+    "name": "isAdminRequest"
+  },
+  {
+    "file": "server/services/intelligence/communications/whatsappGuards.ts",
+    "name": "isAutosendEnabled"
+  },
+  {
+    "file": "server/services/devStudio/devTerminal.ts",
+    "name": "isCommandAllowed"
+  },
+  {
+    "file": "server/services/platform/productionDataStore.ts",
+    "name": "isDatabaseConfigured"
+  },
+  {
+    "file": "server/services/trading/resilience/nexoraDbResilience.ts",
+    "name": "isDbRecoveryError"
+  },
+  {
+    "file": "server/walkinshawConfig.ts",
+    "name": "isEligibleState"
+  },
+  {
+    "file": "server/email.ts",
+    "name": "isEmailConfigured"
+  },
+  {
+    "file": "server/services/catalogNormaliser.ts",
+    "name": "isInvalidImage"
+  },
+  {
+    "file": "server/services/trading/liveExecutionConfig.ts",
+    "name": "isLiveEnabled"
+  },
+  {
+    "file": "server/services/stripe/stripeConfigService.ts",
+    "name": "isLiveMode"
+  },
+  {
+    "file": "server/services/trading/marketLoop.ts",
+    "name": "isMarketLoopRunning"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraExecutionGate.ts",
+    "name": "isNexoraApproved"
+  },
+  {
+    "file": "server/services/intelligence/nexoraOrchestrator.ts",
+    "name": "isNexoraCycleRunning"
+  },
+  {
+    "file": "server/services/trading/probes/nexoraProbeCooldown.ts",
+    "name": "isNexoraProbeCoolingDown"
+  },
+  {
+    "file": "server/services/trading/quality/nexoraStrategyQuarantine.ts",
+    "name": "isNexoraStrategyQuarantined"
+  },
+  {
+    "file": "server/services/trading/marketSnapshots.ts",
+    "name": "isSnapshotStale"
+  },
+  {
+    "file": "server/services/stripe/stripeConfigService.ts",
+    "name": "isStripeEnabled"
+  },
+  {
+    "file": "server/services/whatsapp.ts",
+    "name": "isWhatsAppConfigured"
+  },
+  {
+    "file": "server/services/intelligence/communications/whatsappGuards.ts",
+    "name": "isWhatsAppEnabled"
+  },
+  {
+    "file": "server/services/clientPortal/clientPortalService.ts",
+    "name": "listAdminClients"
+  },
+  {
+    "file": "server/services/clientPortal/adminClientManagementService.ts",
+    "name": "listAdminCustomers"
+  },
+  {
+    "file": "server/services/trading/phantomXComplianceService.ts",
+    "name": "listAdminPhantomXApplications"
+  },
+  {
+    "file": "server/services/propertyIntelligence/propertyEnquiriesService.ts",
+    "name": "listAdminPropertyEnquiries"
+  },
+  {
+    "file": "server/services/propertyIntelligence/propertyListingsService.ts",
+    "name": "listAdminPropertyListings"
+  },
+  {
+    "file": "server/services/clientPortal/clientEngagementService.ts",
+    "name": "listAdminSupportMessages"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "listApprovedProcurementManufacturers"
+  },
+  {
+    "file": "server/services/platform/autonomousSafeActionService.ts",
+    "name": "listAutonomousOutreachLog"
+  },
+  {
+    "file": "server/services/platform/autonomousSafeActionService.ts",
+    "name": "listAutonomousPipelineStore"
+  },
+  {
+    "file": "server/services/trading/phantomXComplianceService.ts",
+    "name": "listClientPhantomXApplications"
+  },
+  {
+    "file": "server/services/clientPortal/clientEngagementService.ts",
+    "name": "listClientPropertyEnquiryHistory"
+  },
+  {
+    "file": "server/services/propertyIntelligence/propertyListingsService.ts",
+    "name": "listClientPropertyListings"
+  },
+  {
+    "file": "server/services/clientPortal/clientEngagementService.ts",
+    "name": "listClientSavedListings"
+  },
+  {
+    "file": "server/services/clientPortal/clientEngagementService.ts",
+    "name": "listClientSupportMessages"
+  },
+  {
+    "file": "server/services/devStudio/devFiles.ts",
+    "name": "listDevFiles"
+  },
+  {
+    "file": "server/services/notifications/clientEmailNotificationService.ts",
+    "name": "listEmailNotificationLog"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "listInboundProcurementWhatsAppReplies"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/exporter/nexoraExportPack.ts",
+    "name": "listNexoraExportPacks"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localapprovals/nexoraLocalApprovalGate.ts",
+    "name": "listNexoraLocalApprovals"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localcrm/nexoraLocalCrm.ts",
+    "name": "listNexoraLocalLeads"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localprojects/nexoraLocalProjectBoard.ts",
+    "name": "listNexoraLocalProjects"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localquotes/nexoraLocalQuoteBook.ts",
+    "name": "listNexoraLocalQuotes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/exporter/nexoraLocalSnapshotEngine.ts",
+    "name": "listNexoraLocalSnapshots"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localsuppliers/nexoraLocalSupplierCatalogue.ts",
+    "name": "listNexoraLocalSuppliers"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "listProcurementEmailOutbox"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "listProcurementInstallers"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "listProcurementQuoteRequests"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "listProcurementSendAudit"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "listProcurementWhatsAppOutbox"
+  },
+  {
+    "file": "server/services/propertyIntelligence/propertyIntelligenceService.ts",
+    "name": "listPropertyOpportunities"
+  },
+  {
+    "file": "server/services/platform/productionDataStore.ts",
+    "name": "listRuntimeStores"
+  },
+  {
+    "file": "server/services/trading/wallet-registry.ts",
+    "name": "listTrackedWallets"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "loadAdaptiveThresholds"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "loadKnowledgeMap"
+  },
+  {
+    "file": "server/services/trading/complianceEngine.ts",
+    "name": "logComplianceEvent"
+  },
+  {
+    "file": "server/services/clientPortal/clientPortalService.ts",
+    "name": "loginClient"
+  },
+  {
+    "file": "server/services/dealHunter.ts",
+    "name": "markDealHunterSignalDuplicate"
+  },
+  {
+    "file": "server/services/stripe/paymentLinkService.ts",
+    "name": "markLinkStale"
+  },
+  {
+    "file": "server/services/trading/positionMarker.ts",
+    "name": "markOpenPaperPositions"
+  },
+  {
+    "file": "server/services/outreach/outreachEngine.ts",
+    "name": "markThreadBooked"
+  },
+  {
+    "file": "server/services/outreach/outreachEngine.ts",
+    "name": "markThreadReplied"
+  },
+  {
+    "file": "server/services/platform/productionDataStore.ts",
+    "name": "migrateLocalRuntimeDataToPostgres"
+  },
+  {
+    "file": "server/services/intelligence/nexoraAI.ts",
+    "name": "nexoraAIAnalysis"
+  },
+  {
+    "file": "server/services/nexoraAI.ts",
+    "name": "nexoraAIAnalysis"
+  },
+  {
+    "file": "server/services/trading/resilience/nexoraDbResilience.ts",
+    "name": "nexoraDbFallback"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraAutonomyDb.ts",
+    "name": "nexoraHasDatabase"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraAutonomyDb.ts",
+    "name": "nexoraId"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localcore/nexoraLocalCore.ts",
+    "name": "nexoraLocalId"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localcore/nexoraLocalCore.ts",
+    "name": "nexoraLocalPath"
+  },
+  {
+    "file": "server/services/intelligence/communications/whatsappGuards.ts",
+    "name": "nextAllowedSendTimeBrisbane"
+  },
+  {
+    "file": "server/services/catalogNormaliser.ts",
+    "name": "normaliseCatalogProducts"
+  },
+  {
+    "file": "server/services/leadIntelligence.ts",
+    "name": "normaliseCompanyName"
+  },
+  {
+    "file": "server/services/outreach/outreach-hashing.ts",
+    "name": "normaliseCompanyName"
+  },
+  {
+    "file": "server/services/outreach/outreach-hashing.ts",
+    "name": "normaliseEmail"
+  },
+  {
+    "file": "server/walkinshawConfig.ts",
+    "name": "normaliseState"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "normalizeAIDecision"
+  },
+  {
+    "file": "server/services/intelligence/signalIngestionService.ts",
+    "name": "normalizeCity"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "normalizeCompany"
+  },
+  {
+    "file": "server/services/intelligence/signalIngestionService.ts",
+    "name": "normalizeCompanyName"
+  },
+  {
+    "file": "server/services/intelligence/evidence/evidenceSourceRegistry.ts",
+    "name": "normalizeEvidenceConfidence"
+  },
+  {
+    "file": "server/services/trading/feeds/nexoraFeedConnectors.ts",
+    "name": "normalizeNexoraExternalMarkets"
+  },
+  {
+    "file": "server/services/trading/scanner/nexoraPredictionMarketScanner.ts",
+    "name": "normalizePredictionMarkets"
+  },
+  {
+    "file": "server/services/trading/state-normalizer.ts",
+    "name": "normalizeTradingState"
+  },
+  {
+    "file": "server/services/intelligence/communications/whatsappService.ts",
+    "name": "notifyOpsWhatsApp"
+  },
+  {
+    "file": "server/services/intelligence/intelligenceGraphService.ts",
+    "name": "onOpportunityCreated"
+  },
+  {
+    "file": "server/services/intelligence/intelligenceGraphService.ts",
+    "name": "onPartnerLinked"
+  },
+  {
+    "file": "server/services/intelligence/intelligenceGraphService.ts",
+    "name": "onSignalCreated"
+  },
+  {
+    "file": "server/services/intelligence/intelligenceGraphService.ts",
+    "name": "onTenantCreated"
+  },
+  {
+    "file": "server/services/trading/paperEngine.ts",
+    "name": "openPaperPosition"
+  },
+  {
+    "file": "server/services/profitOptimisation.ts",
+    "name": "optimiseSupplierMix"
+  },
+  {
+    "file": "server/services/floorPlanParser.ts",
+    "name": "parseFloorPlan"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "parseInboundProcurementWhatsAppReply"
+  },
+  {
+    "file": "server/services/sales/salesPsychologyEngine.ts",
+    "name": "parseSupplierReply"
+  },
+  {
+    "file": "server/services/outreach/outreachEngine.ts",
+    "name": "pauseThread"
+  },
+  {
+    "file": "server/services/trading/tradingEdgeAnalysis.ts",
+    "name": "persistEdgeInsights"
+  },
+  {
+    "file": "server/services/trading/portfolioState.ts",
+    "name": "persistPortfolioSnapshot"
+  },
+  {
+    "file": "server/services/trading/ruleUpdateEngine.ts",
+    "name": "persistProposals"
+  },
+  {
+    "file": "server/services/intelligence/signalIngestionService.ts",
+    "name": "persistSignal"
+  },
+  {
+    "file": "server/services/trading/strategyHealth.ts",
+    "name": "persistStrategySnapshots"
+  },
+  {
+    "file": "server/services/trading/stressAlertEngine.ts",
+    "name": "persistStressAlerts"
+  },
+  {
+    "file": "server/services/clientPortal/clientPortalService.ts",
+    "name": "planAllows"
+  },
+  {
+    "file": "server/services/trading/polyEdgeAutoPaper.ts",
+    "name": "polyEdgeAutoPaperTick"
+  },
+  {
+    "file": "server/services/intelligence/leaseExpiryService.ts",
+    "name": "predictLeaseExpiry"
+  },
+  {
+    "file": "server/services/platform/autonomousSafeActionService.ts",
+    "name": "prepareQualifiedAutonomousOutreach"
+  },
+  {
+    "file": "server/services/leadCsvImportService.ts",
+    "name": "previewCSV"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraActionRouter.ts",
+    "name": "previewNexoraActionPolicy"
+  },
+  {
+    "file": "server/services/propertyIntelligence/propertyListingsService.ts",
+    "name": "previewPropertyListingsCsv"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/filebus/nexoraFileBus.ts",
+    "name": "processNexoraFileBus"
+  },
+  {
+    "file": "server/services/outreach/outreachEngine.ts",
+    "name": "processScheduledFollowUps"
+  },
+  {
+    "file": "server/services/stripe/webhookService.ts",
+    "name": "processStripeWebhook"
+  },
+  {
+    "file": "server/services/productAI.ts",
+    "name": "processUploadQueueItem"
+  },
+  {
+    "file": "server/services/trading/wallet-to-paper-bridge.ts",
+    "name": "processWalletActions"
+  },
+  {
+    "file": "server/services/whatsappAI.ts",
+    "name": "processWhatsAppMessage"
+  },
+  {
+    "file": "server/services/intelligence/communications/whatsappOutbox.ts",
+    "name": "processWhatsAppOutbox"
+  },
+  {
+    "file": "server/services/trading/probes/nexoraPaperProbePromoter.ts",
+    "name": "promoteWinningPaperProbes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "proposeNexoraRecoveryActions"
+  },
+  {
+    "file": "server/services/dealIntelligence.ts",
+    "name": "prospectsToSignals"
+  },
+  {
+    "file": "server/services/trading/candidates/nexoraCandidateAllowlist.ts",
+    "name": "pruneNexoraCandidateAllowlist"
+  },
+  {
+    "file": "server/services/trading/safety/nexoraDbSafety.ts",
+    "name": "pruneNexoraSmallDb"
+  },
+  {
+    "file": "server/services/trading/marketSnapshots.ts",
+    "name": "pruneOldSnapshots"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/filebus/nexoraFileBus.ts",
+    "name": "purgeNexoraFileBusChannel"
+  },
+  {
+    "file": "server/services/dealHunter.ts",
+    "name": "pushDealHunterToPipeline"
+  },
+  {
+    "file": "server/services/intelligence/dealHunter.ts",
+    "name": "pushDealHunterToPipeline"
+  },
+  {
+    "file": "server/services/dealHunter.ts",
+    "name": "pushDealHunterToRadar"
+  },
+  {
+    "file": "server/services/intelligence/dealHunter.ts",
+    "name": "pushDealHunterToRadar"
+  },
+  {
+    "file": "server/services/relocationIntelligence.ts",
+    "name": "pushRelocationToPipeline"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "pushReviewQueue"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/strategy/nexoraStrategyCompiler.ts",
+    "name": "queryNexoraNeuralMemory"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "queueApprovedManufacturerRfqs"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/strategy/nexoraStrategyCompiler.ts",
+    "name": "queueCompiledNexoraStrategy"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "queueInstallerRfq"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "queueManufacturerRfq"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/crm/nexoraCrmPipelineEngine.ts",
+    "name": "queueNexoraCrmPipeline"
+  },
+  {
+    "file": "server/services/trading/execution/nexoraInstitutionalExecutionLayerTwo.ts",
+    "name": "queueNexoraPaperExecution"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/project/nexoraProjectOpsEngine.ts",
+    "name": "queueNexoraProjectOps"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/finance/nexoraFinanceQuoteIntelligence.ts",
+    "name": "queueNexoraQuoteAnalysis"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/mission/nexoraMissionControl.ts",
+    "name": "queueNexoraRunbook"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supplier/nexoraSupplierCommand.ts",
+    "name": "queueNexoraSupplierSweep"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyFoundation.ts",
+    "name": "queueNexoraTask"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/academy/nexoraAcademyEngine.ts",
+    "name": "queueNexoraTraining"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supreme/nexoraSupremeOrchestrationMatrix.ts",
+    "name": "queueNexoraWorkerDance"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "queueShippingAgentRfq"
+  },
+  {
+    "file": "server/services/devStudio/devFiles.ts",
+    "name": "readDevFile"
+  },
+  {
+    "file": "server/services/devStudio/devLogs.ts",
+    "name": "readDevLogs"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localcore/nexoraLocalCore.ts",
+    "name": "readNexoraJson"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localcore/nexoraLocalCore.ts",
+    "name": "readNexoraJsonl"
+  },
+  {
+    "file": "server/services/platform/productionDataStore.ts",
+    "name": "readRuntimeStoreWithLocalFallback"
+  },
+  {
+    "file": "server/services/trading/liveReconciliation.ts",
+    "name": "reconcileLiveState"
+  },
+  {
+    "file": "server/services/outreach/bookingService.ts",
+    "name": "recordBookingClick"
+  },
+  {
+    "file": "server/services/trading/tradingConfig.ts",
+    "name": "recordConfigChange"
+  },
+  {
+    "file": "server/services/trading/costModelEngine.ts",
+    "name": "recordCostEntry"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "recordInstallerResponse"
+  },
+  {
+    "file": "server/services/propertyIntelligence/leasehawkEngine.ts",
+    "name": "recordLeaseHawkAction"
+  },
+  {
+    "file": "server/services/trading/wallet-ledger.ts",
+    "name": "recordMirrorTrade"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionLearningMemory.ts",
+    "name": "recordNexoraAdvancedPaperSignal"
+  },
+  {
+    "file": "server/services/trading/learning/nexoraQuantumLearningCore.ts",
+    "name": "recordNexoraCalibration"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supreme/nexoraSupremeOrchestrationMatrix.ts",
+    "name": "recordNexoraDecision"
+  },
+  {
+    "file": "server/services/trading/audit/nexoraDecisionAudit.ts",
+    "name": "recordNexoraDecisionAudit"
+  },
+  {
+    "file": "server/services/memory/nexoraDecisionLineage.ts",
+    "name": "recordNexoraDecisionLineage"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyFoundation.ts",
+    "name": "recordNexoraHeartbeat"
+  },
+  {
+    "file": "server/services/trading/execution/nexoraInstitutionalExecutionLayer.ts",
+    "name": "recordNexoraManualApproval"
+  },
+  {
+    "file": "server/services/trading/resilience/nexoraMemoryFallbackRuntime.ts",
+    "name": "recordNexoraMemoryEvent"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/warehouse/nexoraLocalWarehouse.ts",
+    "name": "recordNexoraMetric"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionPaperJournal.ts",
+    "name": "recordNexoraPredictionPaperDecision"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/timeline/nexoraTimeline.ts",
+    "name": "recordNexoraTimelineEvent"
+  },
+  {
+    "file": "server/services/trading/observations/nexoraWatchlistObservations.ts",
+    "name": "recordNexoraWatchlistObservations"
+  },
+  {
+    "file": "server/services/stripe/revenueService.ts",
+    "name": "recordRevenueEvent"
+  },
+  {
+    "file": "server/services/clientPortal/stripeSubscriptionService.ts",
+    "name": "recordStripeEvent"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "recordSupplierResponse"
+  },
+  {
+    "file": "server/services/trading/timingEngine.ts",
+    "name": "recordTiming"
+  },
+  {
+    "file": "server/services/trading/observabilityEngine.ts",
+    "name": "recordTrace"
+  },
+  {
+    "file": "server/services/trading/wallet-ledger.ts",
+    "name": "recordWalletAction"
+  },
+  {
+    "file": "server/services/intelligence/communications/whatsappGuards.ts",
+    "name": "recordWhatsAppSend"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraDurableAutonomyStore.ts",
+    "name": "recoverTimedOutNexoraTasks"
+  },
+  {
+    "file": "server/services/intelligence/buildingRiskEngine.ts",
+    "name": "refreshBuildingRiskSnapshots"
+  },
+  {
+    "file": "server/services/trading/candidates/nexoraCandidateAllowlist.ts",
+    "name": "refreshNexoraCandidateAllowlist"
+  },
+  {
+    "file": "server/services/trading/exploration/nexoraExplorationEngine.ts",
+    "name": "refreshNexoraExplorationProbes"
+  },
+  {
+    "file": "server/services/trading/promotion/nexoraSetupPromotionEngine.ts",
+    "name": "refreshNexoraSetupPromotions"
+  },
+  {
+    "file": "server/services/trading/quality/nexoraStrategyQuarantine.ts",
+    "name": "refreshNexoraStrategyQuarantine"
+  },
+  {
+    "file": "server/services/productAI.ts",
+    "name": "regenerateProductContent"
+  },
+  {
+    "file": "server/services/workers/workerRegistry.ts",
+    "name": "registerControlledWorkers"
+  },
+  {
+    "file": "server/marketing.ts",
+    "name": "registerMarketingRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/academy/nexoraAcademyEngine.ts",
+    "name": "registerNexoraAcademyWorkers"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+    "name": "registerNexoraAdvancedAutonomyRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/autopilot/nexoraOperationalAutopilot.ts",
+    "name": "registerNexoraAutopilotWorkers"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/cockpit/nexoraExecutiveCockpit.ts",
+    "name": "registerNexoraCockpitWorkers"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/crm/nexoraCrmPipelineEngine.ts",
+    "name": "registerNexoraCrmWorkers"
+  },
+  {
+    "file": "src/nexora/autonomy/routes/nexoraDurableAutonomyRoutes.ts",
+    "name": "registerNexoraDurableAutonomyRoutes"
+  },
+  {
+    "file": "src/nexora/empire/routes/nexoraEmpireRoutes.ts",
+    "name": "registerNexoraEmpireRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraFileBusRoutes.ts",
+    "name": "registerNexoraFileBusRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/finance/nexoraFinanceQuoteIntelligence.ts",
+    "name": "registerNexoraFinanceWorkers"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraGovernorBusinessRoutes.ts",
+    "name": "registerNexoraGovernorBusinessRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts",
+    "name": "registerNexoraHardMountRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+    "name": "registerNexoraLiveVerificationRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraLocalBusinessRoutes.ts",
+    "name": "registerNexoraLocalBusinessRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts",
+    "name": "registerNexoraMegaBuildRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraMissionControlRoutes.ts",
+    "name": "registerNexoraMissionControlRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/mission/nexoraMissionControl.ts",
+    "name": "registerNexoraMissionControlWorkers"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraOperationalAutopilotRoutes.ts",
+    "name": "registerNexoraOperationalAutopilotRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/project/nexoraProjectOpsEngine.ts",
+    "name": "registerNexoraProjectWorkers"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraResilienceRoutes.ts",
+    "name": "registerNexoraResilienceRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/strategy/nexoraStrategyCompiler.ts",
+    "name": "registerNexoraStrategyCompilerWorkers"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supplier/nexoraSupplierCommand.ts",
+    "name": "registerNexoraSupplierWorkers"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts",
+    "name": "registerNexoraSupremeMatrixRoutes"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supreme/nexoraSupremeOrchestrationMatrix.ts",
+    "name": "registerNexoraSupremeWorkers"
+  },
+  {
+    "file": "server/routes.ts",
+    "name": "registerRoutes"
+  },
+  {
+    "file": "server/services/jobOrchestrator.ts",
+    "name": "registerWorker"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supreme/nexoraSupremeOrchestrationMatrix.ts",
+    "name": "rehearseNexoraWorkerDance"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraDurableAutonomyStore.ts",
+    "name": "rejectNexoraTask"
+  },
+  {
+    "file": "server/services/outreach/outreach-job-runner.ts",
+    "name": "releaseJobLock"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "releaseOneProcurementWhatsAppDraft"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "releaseRunLock"
+  },
+  {
+    "file": "server/services/clientPortal/clientEngagementService.ts",
+    "name": "removeClientSavedListing"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "renderCustomerQuoteHtml"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "renderCustomerQuotePdfBuffer"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/resilience/nexoraResilienceCore.ts",
+    "name": "replayNexoraFallbackJournal"
+  },
+  {
+    "file": "server/security/adminGuard.ts",
+    "name": "requireAdmin"
+  },
+  {
+    "file": "server/security/adminGuard.ts",
+    "name": "requireAdminJson"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "requireApproval"
+  },
+  {
+    "file": "server/services/clientPortal/clientPortalService.ts",
+    "name": "requireClient"
+  },
+  {
+    "file": "server/services/clientPortal/planAccess.ts",
+    "name": "requireFeature"
+  },
+  {
+    "file": "server/services/stripe/invoiceService.ts",
+    "name": "resendInvoice"
+  },
+  {
+    "file": "server/services/trading/learning/nexoraAggressivePaperReset.ts",
+    "name": "resetNexoraAggressivePaperLearning"
+  },
+  {
+    "file": "server/services/trading/phantomXPaperLearner.ts",
+    "name": "resetPhantomXPaperLearner"
+  },
+  {
+    "file": "server/services/polyedge/polyEdgeCapitalStore.ts",
+    "name": "resetPolyEdgePaperCapital"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "resetRetryStats"
+  },
+  {
+    "file": "server/services/newsFeedScanner.ts",
+    "name": "resolveCity"
+  },
+  {
+    "file": "server/services/outreach/prospectEmailResolver.ts",
+    "name": "resolveProspectEmail"
+  },
+  {
+    "file": "server/services/dealHunter.ts",
+    "name": "reviewDealHunterSignal"
+  },
+  {
+    "file": "server/services/trading/decisionQuality.ts",
+    "name": "reviewDecisionQuality"
+  },
+  {
+    "file": "server/services/trading/configRollback.ts",
+    "name": "rollbackConfig"
+  },
+  {
+    "file": "server/services/intelligence/companyHierarchyService.ts",
+    "name": "rollUpSignals"
+  },
+  {
+    "file": "server/services/supplierProcurement.ts",
+    "name": "routeFurnitureToSuppliers"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraActionRouter.ts",
+    "name": "routeNexoraAction"
+  },
+  {
+    "file": "server/services/intelligence/partnerNetwork.ts",
+    "name": "routeOpportunityToPartners"
+  },
+  {
+    "file": "server/services/partnerNetwork.ts",
+    "name": "routeRelocationSignalToPartners"
+  },
+  {
+    "file": "server/services/trading/adaptationReport.ts",
+    "name": "runAdaptationCycle"
+  },
+  {
+    "file": "server/services/runAllRealScans.ts",
+    "name": "runAllRealScans"
+  },
+  {
+    "file": "server/services/devStudio/devAutoFix.ts",
+    "name": "runAutoFix"
+  },
+  {
+    "file": "server/services/outreach/contactDiscoveryService.ts",
+    "name": "runContactDiscovery"
+  },
+  {
+    "file": "server/services/dealHunter.ts",
+    "name": "runDealHunterScan"
+  },
+  {
+    "file": "server/services/intelligence/dealHunter.ts",
+    "name": "runDealHunterScan"
+  },
+  {
+    "file": "server/services/intelligence/demandForecastEngine.ts",
+    "name": "runDemandAggregation"
+  },
+  {
+    "file": "server/services/devStudio/devTerminal.ts",
+    "name": "runDevCommand"
+  },
+  {
+    "file": "server/services/outreach/contactDiscoveryService.ts",
+    "name": "runDiscoveryForHighValueOpportunities"
+  },
+  {
+    "file": "server/services/followUpScheduler.ts",
+    "name": "runFollowUpScheduler"
+  },
+  {
+    "file": "server/services/trading/learning/nexoraForcePaperLearningCycle.ts",
+    "name": "runForcePaperLearningCycle"
+  },
+  {
+    "file": "server/services/intelligence/workspaceIntelligenceEngine.ts",
+    "name": "runFullIntelligenceCycle"
+  },
+  {
+    "file": "server/services/newsFeedScanner.ts",
+    "name": "runFullRadarScan"
+  },
+  {
+    "file": "server/services/companyIntelligenceService.ts",
+    "name": "runGlobalRadarScan"
+  },
+  {
+    "file": "server/services/intelligence/intelligenceGraphService.ts",
+    "name": "runGraphRefresh"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "runHealthChecks"
+  },
+  {
+    "file": "server/services/workers/healthWorker.ts",
+    "name": "runHealthWorker"
+  },
+  {
+    "file": "server/services/intelligence/signalIngestionService.ts",
+    "name": "runIngestionCycle"
+  },
+  {
+    "file": "server/services/intelligenceScheduler.ts",
+    "name": "runIntelligenceSubTasks"
+  },
+  {
+    "file": "server/services/intelligence/newsFeedScanner.ts",
+    "name": "runJobSignalScan"
+  },
+  {
+    "file": "server/services/newsFeedScanner.ts",
+    "name": "runJobSignalScan"
+  },
+  {
+    "file": "server/services/intelligence/leaseExpiryService.ts",
+    "name": "runLeaseExpiryEngine"
+  },
+  {
+    "file": "server/services/leaseSignalScanner.ts",
+    "name": "runLeaseSignalScan"
+  },
+  {
+    "file": "server/services/leadEngine.ts",
+    "name": "runLinkedInScraper"
+  },
+  {
+    "file": "server/services/outreach/outreach-job-runner.ts",
+    "name": "runLockedJob"
+  },
+  {
+    "file": "server/services/aiManufacturerOutreach.ts",
+    "name": "runManufacturerOutreach"
+  },
+  {
+    "file": "server/services/leadEngine.ts",
+    "name": "runMapsScraper"
+  },
+  {
+    "file": "server/services/trading/marketLoop.ts",
+    "name": "runMarketDetailedCycleOnce"
+  },
+  {
+    "file": "server/services/trading/marketLoop.ts",
+    "name": "runMarketFastCycleOnce"
+  },
+  {
+    "file": "server/services/trading/marketLoop.ts",
+    "name": "runMarketPruneOnce"
+  },
+  {
+    "file": "server/services/intelligence/newsFeedScanner.ts",
+    "name": "runNewsFeedScan"
+  },
+  {
+    "file": "server/services/newsFeedScanner.ts",
+    "name": "runNewsFeedScan"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraAdvancedPredictionCore.ts",
+    "name": "runNexoraAdvancedPredictionCore"
+  },
+  {
+    "file": "server/services/trading/agents/nexoraAgentOrchestrator.ts",
+    "name": "runNexoraAgentOrchestrator"
+  },
+  {
+    "file": "server/services/trading/orchestration/nexoraAlphaOrchestrator.ts",
+    "name": "runNexoraAlphaOrchestrator"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyRunner.ts",
+    "name": "runNexoraAutonomyRunnerTick"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/autopilot/nexoraOperationalAutopilot.ts",
+    "name": "runNexoraAutopilotCycle"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/business/nexoraBusinessPipelineEngine.ts",
+    "name": "runNexoraBulkBusinessPipeline"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyExecutor.ts",
+    "name": "runNexoraBulkSafeExecution"
+  },
+  {
+    "file": "server/services/trading/candidates/nexoraCandidateHunter.ts",
+    "name": "runNexoraCandidateHunter"
+  },
+  {
+    "file": "server/services/trading/admin/nexoraControlledMemoryScanner.ts",
+    "name": "runNexoraControlledMemoryScanner"
+  },
+  {
+    "file": "server/services/intelligence/nexoraOrchestrator.ts",
+    "name": "runNexoraCycle"
+  },
+  {
+    "file": "server/services/trading/safety/nexoraDbMaintenance.ts",
+    "name": "runNexoraDbMaintenance"
+  },
+  {
+    "file": "src/nexora/autonomy/loops/nexoraAutonomousLoopController.ts",
+    "name": "runNexoraDurableAutonomyCycle"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/persistence/nexoraDurableKernel.ts",
+    "name": "runNexoraEmpireCycle"
+  },
+  {
+    "file": "src/nexora/empire/nexoraEmpireEngine.ts",
+    "name": "runNexoraEmpireOperatingCycle"
+  },
+  {
+    "file": "server/services/intelligence/nexoraOrchestrator.ts",
+    "name": "runNexoraEngine"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/cockpit/nexoraExecutiveCockpit.ts",
+    "name": "runNexoraExecutiveOperatingBurst"
+  },
+  {
+    "file": "server/services/trading/learning/nexoraFastLearningCycle.ts",
+    "name": "runNexoraFastLearningCycle"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/governor/nexoraAutonomyGovernor.ts",
+    "name": "runNexoraGovernorCycle"
+  },
+  {
+    "file": "server/services/trading/execution/nexoraInstitutionalExecutionLayer.ts",
+    "name": "runNexoraInstitutionalExecutionPreflight"
+  },
+  {
+    "file": "server/services/trading/math/nexoraMathGeniusCore.ts",
+    "name": "runNexoraMathGeniusCore"
+  },
+  {
+    "file": "server/services/trading/backtesting/nexoraMemoryBacktester.ts",
+    "name": "runNexoraMemoryBacktest"
+  },
+  {
+    "file": "server/services/trading/orchestration/nexoraMemorySafeScanner.ts",
+    "name": "runNexoraMemorySafeScanner"
+  },
+  {
+    "file": "server/services/trading/simulation/nexoraOmegaSimulationGrid.ts",
+    "name": "runNexoraMonteCarloSimulation"
+  },
+  {
+    "file": "server/services/intelligence/partnerNetwork.ts",
+    "name": "runNexoraPartnerRoutingStep"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/autopilot/nexoraOperationalAutopilot.ts",
+    "name": "runNexoraPipelineForemanCycle"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionAutoPaperLoop.ts",
+    "name": "runNexoraPredictionAutoPaperLoop"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionFallbackStrategies.ts",
+    "name": "runNexoraPredictionFallbackStack"
+  },
+  {
+    "file": "server/services/trading/scanner/nexoraPredictionMarketScanner.ts",
+    "name": "runNexoraPredictionMarketScanner"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionStrategyPolicy.ts",
+    "name": "runNexoraPredictionStrategyPolicy"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/supreme/nexoraSupremeOrchestrationMatrix.ts",
+    "name": "runNexoraRedTeamSafetyDrill"
+  },
+  {
+    "file": "server/services/trading/pipeline/nexoraRefreshPipeline.ts",
+    "name": "runNexoraRefreshPipeline"
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraReinforcementScoring.ts",
+    "name": "runNexoraReinforcementScoring"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/resilience/nexoraResilienceCore.ts",
+    "name": "runNexoraResilienceCycle"
+  },
+  {
+    "file": "server/services/trading/orchestration/nexoraResilientAlphaOrchestrator.ts",
+    "name": "runNexoraResilientAlphaOrchestrator"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyFoundation.ts",
+    "name": "runNexoraSafeAutonomyCycle"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraSchedulerControl.ts",
+    "name": "runNexoraScheduledTick"
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraAutonomousIntelligenceLayer.ts",
+    "name": "runNexoraSelfCritique"
+  },
+  {
+    "file": "server/services/trading/simulation/nexoraOmegaSimulationGrid.ts",
+    "name": "runNexoraShadowExecution"
+  },
+  {
+    "file": "server/services/trading/backtest/nexoraBacktestEngine.ts",
+    "name": "runNexoraSimpleBacktest"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/governor/nexoraAutonomyGovernor.ts",
+    "name": "runNexoraSlaWatchdog"
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraStrategyDecayEngine.ts",
+    "name": "runNexoraStrategyDecayDetection"
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraStrategyEvolution.ts",
+    "name": "runNexoraStrategyEvolution"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomySupervisor.ts",
+    "name": "runNexoraSupervisorCycle"
+  },
+  {
+    "file": "server/services/trading/validation/nexoraWalkForwardValidator.ts",
+    "name": "runNexoraWalkForwardValidation"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/governor/nexoraAutonomyGovernor.ts",
+    "name": "runNexoraWorkerEvolutionCycle"
+  },
+  {
+    "file": "server/services/intelligence/officeMovRadarService.ts",
+    "name": "runOfficeMovRadarScan"
+  },
+  {
+    "file": "server/services/officeMovRadarService.ts",
+    "name": "runOfficeMovRadarScan"
+  },
+  {
+    "file": "server/services/trading/paperEngine.ts",
+    "name": "runPaperTrade"
+  },
+  {
+    "file": "server/services/trading/phantomXLearningEngine.ts",
+    "name": "runPhantomXLearningCycle"
+  },
+  {
+    "file": "server/services/trading/phantomXPaperLearner.ts",
+    "name": "runPhantomXPaperLoopOnceIfEnabled"
+  },
+  {
+    "file": "server/services/trading/phantomXPaperLearner.ts",
+    "name": "runPhantomXPaperTick"
+  },
+  {
+    "file": "server/services/trading/polyEdgeFastReplayEngine.ts",
+    "name": "runPolyEdgeFastPaperReplay"
+  },
+  {
+    "file": "server/services/intelligence/newsFeedScanner.ts",
+    "name": "runPredictiveScan"
+  },
+  {
+    "file": "server/services/newsFeedScanner.ts",
+    "name": "runPredictiveScan"
+  },
+  {
+    "file": "server/services/trading/shadowValidation.ts",
+    "name": "runShadowValidation"
+  },
+  {
+    "file": "server/services/trading/backtest/nexoraStrategyBacktestRules.ts",
+    "name": "runStrategySpecificBacktest"
+  },
+  {
+    "file": "server/services/trading/stressScenarioEngine.ts",
+    "name": "runStressTest"
+  },
+  {
+    "file": "server/services/intelligenceEngine.ts",
+    "name": "runSystemHealthCheck"
+  },
+  {
+    "file": "server/services/trading/wallet-monitor.ts",
+    "name": "runWalletMonitorCycle"
+  },
+  {
+    "file": "server/services/trading/wallet-score-engine.ts",
+    "name": "runWalletScoring"
+  },
+  {
+    "file": "server/services/intelligence/communications/whatsappScheduler.ts",
+    "name": "runWhatsAppDispatchCycle"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/resilience/nexoraResilienceCore.ts",
+    "name": "safeCreateNexoraTaskOrFallback"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "safeNumber"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "saveAdaptiveThresholds"
+  },
+  {
+    "file": "server/services/clientPortal/clientEngagementService.ts",
+    "name": "saveClientListing"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "saveKnowledgeMap"
+  },
+  {
+    "file": "server/services/intelligence/leaseExpiryService.ts",
+    "name": "scanLeaseExpirySignals"
+  },
+  {
+    "file": "server/services/trading/recovery/nexoraRecoveryCandidateScanner.ts",
+    "name": "scanNexoraRecoveryCandidates"
+  },
+  {
+    "file": "server/services/jobOrchestrator.ts",
+    "name": "scheduleJob"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/filebus/nexoraFileBus.ts",
+    "name": "scheduleNexoraDelayedJob"
+  },
+  {
+    "file": "server/services/intelligence/confidenceScoringService.ts",
+    "name": "scoreBatch"
+  },
+  {
+    "file": "server/services/trading/executionQualityScoring.ts",
+    "name": "scoreExecutionQuality"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexoraBusinessMandate.ts",
+    "name": "scoreNexoraBusinessAction"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/crm/nexoraCrmPipelineEngine.ts",
+    "name": "scoreNexoraLead"
+  },
+  {
+    "file": "server/services/trading/signals/nexoraSignalScoringEngine.ts",
+    "name": "scoreNexoraSignalLibraryCandidate"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraSourceReliability.ts",
+    "name": "scoreNexoraSourceReliability"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraDurableAutonomyStore.ts",
+    "name": "scoreNexoraWorker"
+  },
+  {
+    "file": "server/services/opportunityScoring.ts",
+    "name": "scoreOpportunity"
+  },
+  {
+    "file": "server/services/intelligence/partnerNetwork.ts",
+    "name": "scorePartnerFit"
+  },
+  {
+    "file": "server/services/partnerReferralAI.ts",
+    "name": "scorePartnerReferral"
+  },
+  {
+    "file": "server/services/polyedge/polyEdgeLearningDataset.ts",
+    "name": "scorePolyEdgeCandidate"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionMarketEdge.ts",
+    "name": "scorePredictionMarketEdge"
+  },
+  {
+    "file": "server/services/propertyIntelligence/propertyScoring.ts",
+    "name": "scorePropertyOpportunity"
+  },
+  {
+    "file": "server/services/officeMovRadarService.ts",
+    "name": "scoreRadarSignal"
+  },
+  {
+    "file": "server/services/trading/learning/nexoraAggressiveProbeSeeder.ts",
+    "name": "seedAggressivePaperProbes"
+  },
+  {
+    "file": "server/services/leadEngine.ts",
+    "name": "seedInitialLeads"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraDurableAutonomyStore.ts",
+    "name": "seedNexoraDurableWorkers"
+  },
+  {
+    "file": "src/nexora/empire/nexoraEmpireEngine.ts",
+    "name": "seedNexoraEmpireDivisions"
+  },
+  {
+    "file": "server/services/propertyIntelligence/propertyListingsService.ts",
+    "name": "seedSamplePropertyListings"
+  },
+  {
+    "file": "server/services/trading/wallet-registry.ts",
+    "name": "seedTrackedWallets"
+  },
+  {
+    "file": "server/services/intelligence/communications/aiWhatsAppService.ts",
+    "name": "sendAIWhatsAppMessage"
+  },
+  {
+    "file": "server/services/intelligence/communications/aiWhatsAppService.ts",
+    "name": "sendAIWhatsAppMessageLegacy"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "sendCustomerQuoteEmail"
+  },
+  {
+    "file": "server/email.ts",
+    "name": "sendEnquiryCustomerEmail"
+  },
+  {
+    "file": "server/email.ts",
+    "name": "sendFinanceLeadAdminEmail"
+  },
+  {
+    "file": "server/email.ts",
+    "name": "sendFinanceLeadCustomerEmail"
+  },
+  {
+    "file": "server/email.ts",
+    "name": "sendFinanceLeadPartnerEmail"
+  },
+  {
+    "file": "server/services/followUpEmails.ts",
+    "name": "sendFollowUpEmail"
+  },
+  {
+    "file": "server/email.ts",
+    "name": "sendFormalQuoteEmail"
+  },
+  {
+    "file": "server/email.ts",
+    "name": "sendLeadNotification"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/persistence/nexoraDurableKernel.ts",
+    "name": "sendNexoraWorkerMessage"
+  },
+  {
+    "file": "server/services/notifications/clientEmailNotificationService.ts",
+    "name": "sendNotificationEmail"
+  },
+  {
+    "file": "server/email.ts",
+    "name": "sendOutreachEmail"
+  },
+  {
+    "file": "server/services/outreach/outreach-gateway.ts",
+    "name": "sendOutreachSafely"
+  },
+  {
+    "file": "server/email.ts",
+    "name": "sendPartnerAgreementEmail"
+  },
+  {
+    "file": "server/email.ts",
+    "name": "sendPartnerWelcomeEmail"
+  },
+  {
+    "file": "server/email.ts",
+    "name": "sendPaymentConfirmationNotification"
+  },
+  {
+    "file": "server/services/notifications/clientEmailNotificationService.ts",
+    "name": "sendPhantomXApplicationSubmittedEmail"
+  },
+  {
+    "file": "server/email.ts",
+    "name": "sendPlannerSubmissionCustomerEmail"
+  },
+  {
+    "file": "server/email.ts",
+    "name": "sendPlanningRequestNotification"
+  },
+  {
+    "file": "server/services/notifications/clientEmailNotificationService.ts",
+    "name": "sendPropertyEnquiryReceivedEmail"
+  },
+  {
+    "file": "server/services/platform/autonomousSafeActionService.ts",
+    "name": "sendQualifiedAutonomousOutreach"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "sendQueuedProcurementEmails"
+  },
+  {
+    "file": "server/services/procurement/procurementQuoteOrchestrator.ts",
+    "name": "sendQueuedProcurementWhatsAppMessages"
+  },
+  {
+    "file": "server/email.ts",
+    "name": "sendQuoteRequestCustomerEmail"
+  },
+  {
+    "file": "server/email.ts",
+    "name": "sendStrategyCallCustomerEmail"
+  },
+  {
+    "file": "server/email.ts",
+    "name": "sendSupplierQuoteNotification"
+  },
+  {
+    "file": "server/services/notifications/clientEmailNotificationService.ts",
+    "name": "sendSupportMessageReceivedEmail"
+  },
+  {
+    "file": "server/email.ts",
+    "name": "sendTestEmail"
+  },
+  {
+    "file": "server/services/notifications/clientEmailNotificationService.ts",
+    "name": "sendTrialEndingReminders"
+  },
+  {
+    "file": "server/services/notifications/clientEmailNotificationService.ts",
+    "name": "sendWelcomeEmail"
+  },
+  {
+    "file": "server/services/intelligence/communications/whatsappService.ts",
+    "name": "sendWhatsAppMessage"
+  },
+  {
+    "file": "server/services/whatsapp.ts",
+    "name": "sendWhatsAppTextMessage"
+  },
+  {
+    "file": "server/static.ts",
+    "name": "serveStatic"
+  },
+  {
+    "file": "server/services/trading/execution/nexoraInstitutionalExecutionLayer.ts",
+    "name": "setNexoraEmergencyStop"
+  },
+  {
+    "file": "server/services/nexoraLoop.ts",
+    "name": "setNexoraLoopInterval"
+  },
+  {
+    "file": "server/services/trading/probes/nexoraProbeCooldown.ts",
+    "name": "setNexoraProbeCooldown"
+  },
+  {
+    "file": "server/vite.ts",
+    "name": "setupVite"
+  },
+  {
+    "file": "server/services/intelligence/signalIngestionService.ts",
+    "name": "signalWindowBucket"
+  },
+  {
+    "file": "server/services/clientPortal/clientPortalService.ts",
+    "name": "signupClient"
+  },
+  {
+    "file": "server/services/platform/autonomousSafeActionService.ts",
+    "name": "simulateAutonomousLeadDecision"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/strategy/nexoraStrategyCompiler.ts",
+    "name": "simulateCompiledNexoraStrategy"
+  },
+  {
+    "file": "server/services/trading/executionModel.ts",
+    "name": "simulateEntryExecution"
+  },
+  {
+    "file": "server/services/trading/executionModel.ts",
+    "name": "simulateExitExecution"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraOrderBookSimulator.ts",
+    "name": "simulateNexoraPredictionOrderBook"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraPredictionLearningMemory.ts",
+    "name": "simulateNexoraPredictionOutcome"
+  },
+  {
+    "file": "server/services/stripe/webhookService.ts",
+    "name": "simulateWebhookEvent"
+  },
+  {
+    "file": "server/services/catalogNormaliser.ts",
+    "name": "slugify"
+  },
+  {
+    "file": "server/services/intelligence/buildingRiskEngine.ts",
+    "name": "snapshotBuildingRisk"
+  },
+  {
+    "file": "server/services/intelligence/demandForecastEngine.ts",
+    "name": "snapshotSuburbDemand"
+  },
+  {
+    "file": "server/services/followUpScheduler.ts",
+    "name": "startFollowUpForLead"
+  },
+  {
+    "file": "server/services/followUpScheduler.ts",
+    "name": "startFollowUpScheduler"
+  },
+  {
+    "file": "server/services/intelligenceScheduler.ts",
+    "name": "startIntelligenceScheduler"
+  },
+  {
+    "file": "server/services/trading/marketLoop.ts",
+    "name": "startMarketLoop"
+  },
+  {
+    "file": "src/nexora/autonomy/loops/nexoraAutonomousLoopController.ts",
+    "name": "startNexoraAutonomousLoopTimer"
+  },
+  {
+    "file": "server/services/intelligence/nexoraOrchestrator.ts",
+    "name": "startNexoraBackground"
+  },
+  {
+    "file": "server/services/nexoraLoop.ts",
+    "name": "startNexoraLoop"
+  },
+  {
+    "file": "server/services/trading/phantomXPaperLearner.ts",
+    "name": "startPhantomXPaperLearner"
+  },
+  {
+    "file": "server/services/trading/polyEdgeAutoPaper.ts",
+    "name": "startPolyEdgeAutoPaperLoop"
+  },
+  {
+    "file": "server/services/intelligenceScheduler.ts",
+    "name": "startSchedulerWithPgBoss"
+  },
+  {
+    "file": "server/services/trading/wallet-monitor.ts",
+    "name": "startWalletMonitor"
+  },
+  {
+    "file": "server/services/jobOrchestrator.ts",
+    "name": "stopJobOrchestrator"
+  },
+  {
+    "file": "server/services/trading/marketLoop.ts",
+    "name": "stopMarketLoop"
+  },
+  {
+    "file": "server/services/intelligence/nexoraOrchestrator.ts",
+    "name": "stopNexoraBackground"
+  },
+  {
+    "file": "server/services/nexoraLoop.ts",
+    "name": "stopNexoraLoop"
+  },
+  {
+    "file": "server/services/trading/phantomXPaperLearner.ts",
+    "name": "stopPhantomXPaperLearner"
+  },
+  {
+    "file": "server/services/trading/polyEdgeAutoPaper.ts",
+    "name": "stopPolyEdgeAutoPaperLoop"
+  },
+  {
+    "file": "server/services/outreach/outreachEngine.ts",
+    "name": "stopThread"
+  },
+  {
+    "file": "server/services/trading/wallet-monitor.ts",
+    "name": "stopWalletMonitor"
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraAutonomousIntelligenceLayer.ts",
+    "name": "storeNexoraSignalMemory"
+  },
+  {
+    "file": "server/services/catalogNormaliser.ts",
+    "name": "stripSeriesFromName"
+  },
+  {
+    "file": "server/services/trading/phantomXComplianceService.ts",
+    "name": "submitPhantomXApplication"
+  },
+  {
+    "file": "server/services/trading/liveExecutionGateway.ts",
+    "name": "submitToGateway"
+  },
+  {
+    "file": "server/services/memory/decisionMemoryService.ts",
+    "name": "summarizeDecisionMemory"
+  },
+  {
+    "file": "server/services/outreach/outreach-guards.ts",
+    "name": "suppressCompany"
+  },
+  {
+    "file": "server/services/outreach/outreach-guards.ts",
+    "name": "suppressRecipient"
+  },
+  {
+    "file": "server/services/companyIntelligenceService.ts",
+    "name": "syncCompanyIntelligence"
+  },
+  {
+    "file": "server/services/trading/marketData/nexoraMarketCandlesService.ts",
+    "name": "syncNexoraMarketCandles"
+  },
+  {
+    "file": "server/services/partnerScoring.ts",
+    "name": "syncPartnerScore"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "syncVectorKnowledge"
+  },
+  {
+    "file": "server/services/whatsappAssistant.ts",
+    "name": "toTwimlMessage"
+  },
+  {
+    "file": "server/services/jobOrchestrator.ts",
+    "name": "triggerJob"
+  },
+  {
+    "file": "server/services/intelligenceScheduler.ts",
+    "name": "triggerJobManually"
+  },
+  {
+    "file": "server/services/nexoraLoop.ts",
+    "name": "triggerNexoraLoopRunNow"
+  },
+  {
+    "file": "server/services/clientPortal/adminClientManagementService.ts",
+    "name": "updateAdminCustomerSubscription"
+  },
+  {
+    "file": "server/services/trading/phantomXComplianceService.ts",
+    "name": "updateAdminPhantomXApplication"
+  },
+  {
+    "file": "server/services/clientPortal/clientEngagementService.ts",
+    "name": "updateAdminSupportMessage"
+  },
+  {
+    "file": "server/services/trading/wallet-ledger.ts",
+    "name": "updateMirrorTrade"
+  },
+  {
+    "file": "server/services/trading/admin/nexoraAdminControls.ts",
+    "name": "updateNexoraAdminControls"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraAutonomyRunner.ts",
+    "name": "updateNexoraAutonomyRunner"
+  },
+  {
+    "file": "server/services/trading/prediction/nexoraBayesianUpdater.ts",
+    "name": "updateNexoraBayesianProbability"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localprojects/nexoraLocalProjectBoard.ts",
+    "name": "updateNexoraLocalProjectStage"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/nexoraSchedulerControl.ts",
+    "name": "updateNexoraSchedule"
+  },
+  {
+    "file": "server/services/trading/learning/nexoraQuantumLearningCore.ts",
+    "name": "updateNexoraSourceReliability"
+  },
+  {
+    "file": "server/services/trading/autonomy/nexoraAutonomousIntelligenceLayer.ts",
+    "name": "updateNexoraStrategyRanking"
+  },
+  {
+    "file": "server/services/trading/paperEngine.ts",
+    "name": "updatePositionPrice"
+  },
+  {
+    "file": "server/services/propertyIntelligence/propertyEnquiriesService.ts",
+    "name": "updatePropertyEnquiry"
+  },
+  {
+    "file": "server/services/propertyIntelligence/propertyListingsService.ts",
+    "name": "updatePropertyListing"
+  },
+  {
+    "file": "server/services/propertyIntelligence/propertyIntelligenceService.ts",
+    "name": "updatePropertyOpportunity"
+  },
+  {
+    "file": "server/services/trading/wallet-registry.ts",
+    "name": "updateTrackedWalletScores"
+  },
+  {
+    "file": "server/services/intelligence/zoneScoringEngine.ts",
+    "name": "upsertCompanyZoneScore"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "upsertDecisionRecord"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "upsertKnowledgeEntry"
+  },
+  {
+    "file": "server/services/trading/marketData/nexoraMarketCandlesService.ts",
+    "name": "upsertMarketCandles"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localcrm/nexoraLocalCrm.ts",
+    "name": "upsertNexoraLocalLead"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localsuppliers/nexoraLocalSupplierCatalogue.ts",
+    "name": "upsertNexoraLocalSupplier"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/persistence/nexoraDurableKernel.ts",
+    "name": "upsertNexoraWorker"
+  },
+  {
+    "file": "server/services/platform/productionDataStore.ts",
+    "name": "upsertRuntimeStore"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "upsertToVectorDB"
+  },
+  {
+    "file": "server/types/uuid.d.ts",
+    "name": "v4"
+  },
+  {
+    "file": "server/services/platform/autonomousSafeActionService.ts",
+    "name": "validateLeadForAutonomy"
+  },
+  {
+    "file": "server/services/trading/execution/nexoraInstitutionalExecutionLayer.ts",
+    "name": "validateNexoraHardLossLimits"
+  },
+  {
+    "file": "server/services/trading/superbot/nexoraSuperbotSafetyCore.ts",
+    "name": "validateNexoraSuperbotTrade"
+  },
+  {
+    "file": "server/services/intelligence/nexora/nexora-support.ts",
+    "name": "validateSignal"
+  },
+  {
+    "file": "server/services/trading/complianceEngine.ts",
+    "name": "validateTradeCompliance"
+  },
+  {
+    "file": "server/services/trading/nexoraTradeVotingEngine.ts",
+    "name": "voteNexoraTradeCandidate"
+  },
+  {
+    "file": "server/services/intelligence/communications/whatsappService.ts",
+    "name": "whatsappWebhookHandler"
+  },
+  {
+    "file": "server/services/outreach/outreach-guards.ts",
+    "name": "writeAuditEvent"
+  },
+  {
+    "file": "server/services/devStudio/devFileWrite.ts",
+    "name": "writeDevFile"
+  },
+  {
+    "file": "server/services/trading/execution/nexoraInstitutionalExecutionLayer.ts",
+    "name": "writeNexoraExecutionAudit"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/localcore/nexoraLocalCore.ts",
+    "name": "writeNexoraJson"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraDurableAutonomyStore.ts",
+    "name": "writeNexoraMemory"
+  },
+  {
+    "file": "server/services/intelligence/nexora/autonomy/persistence/nexoraDurableKernel.ts",
+    "name": "writeNexoraOperatingReport"
+  },
+  {
+    "file": "src/nexora/autonomy/persistence/nexoraDurableAutonomyStore.ts",
+    "name": "writeNexoraReport"
+  },
+  {
+    "file": "server/services/platform/productionDataStore.ts",
+    "name": "writeRuntimeStoreWithLocalMirror"
+  },
+  {
+    "file": "server/services/trading/marketSnapshots.ts",
+    "name": "writeSnapshot"
+  },
+  {
+    "file": "server/services/trading/marketSnapshots.ts",
+    "name": "writeSnapshots"
+  }
+]

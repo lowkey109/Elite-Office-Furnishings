@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "service": "nexora_paper_practice_loop",
+  "state": "sleeping",
+  "loop": 21,
+  "note": "last loop complete",
+  "updatedAt": "2026-05-05T02:42:12.493956Z",
+  "safety": {
+    "paperOnly": true,
+    "liveTradingEnabled": false,
+    "privateKeysInsideNexora": false,
+    "walletSigningInsideNexora": false
+  }
+}

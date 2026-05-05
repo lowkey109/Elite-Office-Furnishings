@@ -1,0 +1,14 @@
+{
+  "agentId": "maintenance_planner_agent",
+  "worker": "maintenance_planner_agent",
+  "division": "operations",
+  "title": "Maintenance Planner Agent",
+  "status": "active",
+  "nexoraBrain": true,
+  "canCommitExternally": false,
+  "createdAt": "2026-05-05T01:46:27.634Z",
+  "safety": [
+    "No deploy while Postgres is full.",
+    "Dry-run first for recovery and migration."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "agentId": "stale_lead_rescue_agent",
+  "worker": "stale_lead_rescue_agent",
+  "division": "crm",
+  "title": "Stale Lead Rescue Agent",
+  "status": "active",
+  "nexoraBrain": true,
+  "canCommitExternally": false,
+  "createdAt": "2026-05-05T01:46:27.634Z",
+  "safety": [
+    "Draft messages only unless approved for sending by operator workflow."
+  ]
+}

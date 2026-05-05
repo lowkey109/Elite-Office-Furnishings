@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "objectiveId": "objective_1777945587661_9ddncufk68d",
+  "division": "office_sales",
+  "title": "Move qualified leads toward safe quote drafts.",
+  "description": "Nexora company objective",
+  "metric": "qualified_quote_paths",
+  "target": "increase",
+  "priority": 90,
+  "status": "active",
+  "createdAt": "2026-05-05T01:46:27.661Z",
+  "payload": {}
+}

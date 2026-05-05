@@ -1,0 +1,13 @@
+{
+  "agentId": "quote_finance_agent",
+  "worker": "quote_finance_agent",
+  "division": "finance",
+  "title": "Quote Finance Agent",
+  "status": "active",
+  "nexoraBrain": true,
+  "canCommitExternally": false,
+  "createdAt": "2026-05-05T01:46:27.634Z",
+  "safety": [
+    "High-value or low-margin quotes require approval."
+  ]
+}

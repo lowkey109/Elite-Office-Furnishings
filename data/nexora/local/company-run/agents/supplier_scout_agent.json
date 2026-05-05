@@ -1,0 +1,14 @@
+{
+  "agentId": "supplier_scout_agent",
+  "worker": "supplier_scout_agent",
+  "division": "procurement",
+  "title": "Supplier Scout Agent",
+  "status": "active",
+  "nexoraBrain": true,
+  "canCommitExternally": false,
+  "createdAt": "2026-05-05T01:46:27.634Z",
+  "safety": [
+    "No supplier purchase order without approval.",
+    "No binding supplier commitment."
+  ]
+}

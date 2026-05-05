@@ -1,0 +1,8 @@
+server/routes.ts: missing relative import ./services/supplierProcurement.js
+server/routes.ts: missing relative import ./services/supplierProcurement.js
+server/routes.ts: missing relative import ./services/supplierProcurement.js
+server/routes.ts: missing relative import ./services/supplierProcurement.js
+server/routes.ts: missing relative import ./services/supplierProcurement.js
+server/services/intelligence/nexora/autonomy/loopdaemon/nexoraActiveLocalLoopDaemon.ts: missing relative import ../companyv2/nexoraAICompanyV2Engine
+server/services/intelligence/nexora/autonomy/paperautopilot/nexoraPaperAutopilotEvidenceEngine.ts: missing relative import ../swarmruntime/nexoraSwarmConsensusRuntime
+missing_relative_import_count=7

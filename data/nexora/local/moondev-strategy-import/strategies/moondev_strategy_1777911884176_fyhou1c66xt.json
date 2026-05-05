@@ -1,0 +1,40 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_moondev_imported_strategy",
+  "strategyId": "moondev_strategy_1777911884176_fyhou1c66xt",
+  "name": "Backtest Dashboard",
+  "sourceFile": "research/moondev-selected/docs/backtest_dashboard.md",
+  "relativePath": "docs/backtest_dashboard.md",
+  "root": "research/moondev-selected",
+  "importedAt": "2026-05-04T16:24:44.176Z",
+  "lines": 132,
+  "bytes": 3088,
+  "classification": {
+    "volatility": false,
+    "momentum": false,
+    "meanReversion": false,
+    "liquidity": false,
+    "fibonacci": false,
+    "stochastic": false,
+    "vwap": false,
+    "polymarket": false,
+    "backtest": true,
+    "danger": false
+  },
+  "metrics": {
+    "percentValues": [
+      1000
+    ],
+    "moneyValues": [],
+    "bestPercent": 1000,
+    "worstPercent": 1000,
+    "sharpe": null,
+    "drawdown": null,
+    "winRate": null
+  },
+  "score": 40,
+  "directUseAllowed": false,
+  "paperOnly": true,
+  "nexoraAction": "adapt_later"
+}

@@ -1,0 +1,35 @@
+# Nexora Inspection Summary
+timestamp=20260504-120430
+npm_check_exit=1
+route_count=710
+polymarket_file_count=7729
+report_folder=reports/nexora-inspect-20260504-120430
+
+## Route smoke
+/api/nexora/ping code=200 html=0 first={"ok":true,"nexoraBrain":true,"service":"nexora_ping","hardMounted":true,"generatedAt":"2026-05-04T12:04:39.064Z"}
+/api/nexora/poly-app/status code=200 html=0 first={"ok":true,"nexoraBrain":true,"service":"nexora_poly_app_status","generatedAt":"2026-05-04T12:04:39.112Z","product":"Phantom X / Polymarket","mode":"paper","sta
+/api/nexora/poly-app/readiness code=200 html=0 first={"ok":true,"nexoraBrain":true,"service":"nexora_poly_app_readiness","generatedAt":"2026-05-04T12:04:39.146Z","paperModeReady":true,"productionLiveMoneyReady":fa
+/api/nexora/poly-builds/bash1/status code=200 html=0 first={"ok":true,"nexoraBrain":true,"service":"nexora_poly_7builds_bash1_status","generatedAt":"2026-05-04T12:04:39.171Z","state":{"ok":true,"nexoraBrain":true,"servi
+/api/nexora/poly-builds/bash2/status code=200 html=1 first=<!DOCTYPE html> <html lang="en-AU"> <head> <script type="module">import { injectIntoGlobalHook } from "/@react-refresh"; injectIntoGlobalHook(window); win
+/api/nexora/market-data/status code=200 html=0 first={"ok":true,"nexoraBrain":true,"service":"nexora_market_data_paper_status","generatedAt":"2026-05-04T12:04:39.446Z","counts":{"binanceTicks":0,"polymarketSnapsho
+/api/nexora/backtesting/status code=200 html=0 first={"ok":true,"nexoraBrain":true,"service":"nexora_backtest_status","generatedAt":"2026-05-04T12:04:39.474Z","datasets":0,"runs":0,"pnlRecords":0,"safety":{"noLive
+/api/nexora/trading-execution/status code=200 html=0 first={"ok":true,"nexoraBrain":true,"service":"nexora_trading_execution_safety","generatedAt":"2026-05-04T12:04:39.629Z","summary":{"intents":0,"fills":0,"settlements
+/api/nexora/trading-readiness/status code=200 html=0 first={"ok":true,"nexoraBrain":true,"service":"nexora_trading_live_readiness_gate","generatedAt":"2026-05-04T12:04:40.026Z","counts":{"evidencePacks":0,"promotionGate
+/api/nexora/live-money/status code=200 html=0 first={"ok":true,"nexoraBrain":true,"service":"nexora_live_money_status","generatedAt":"2026-05-04T12:04:41.050Z","liveTradingEnabled":false,"privateKeysAllowed":fals
+/api/nexora/live-execution-design/status code=200 html=0 first={"ok":true,"nexoraBrain":true,"service":"nexora_live_execution_design_status","generatedAt":"2026-05-04T12:04:41.963Z","reports":0,"intents":0,"signerSpecs":0,"
+/api/nexora/polymarket-final/status code=200 html=0 first={"ok":true,"nexoraBrain":true,"service":"nexora_polymarket_final_status","generatedAt":"2026-05-04T12:04:41.987Z","latestAudit":null,"latestReadiness":null,"saf
+/api/nexora/poly-five/status code=200 html=0 first={"ok":true,"nexoraBrain":true,"service":"nexora_poly_five_pack","risk":{"ok":true,"nexoraBrain":true,"service":"nexora_poly_risk_rule_extractor_status","extract
+/api/nexora/poly-next-five/status code=200 html=0 first={"ok":true,"nexoraBrain":true,"service":"nexora_poly_next_five_pack","marketApi":{"ok":true,"nexoraBrain":true,"service":"nexora_poly_market_api_discovery_statu
+/api/nexora/poly-final-five/status code=200 html=0 first={"ok":true,"nexoraBrain":true,"service":"nexora_poly_final_five_pack","clobFill":{"ok":true,"nexoraBrain":true,"service":"nexora_clob_snapshot_fill_status","fil
+/api/nexora/moondev-strategy-import/status code=200 html=0 first={"ok":true,"nexoraBrain":true,"service":"nexora_moondev_strategy_import_status","generatedAt":"2026-05-04T12:04:42.079Z","report":{"ok":true,"nexoraBrain":true,
+/api/nexora/moondev-phase1/status code=200 html=0 first={"ok":true,"nexoraBrain":true,"service":"nexora_moondev_phase1_adapter_status","generatedAt":"2026-05-04T12:04:42.102Z","counts":{"adapters":0,"masterPlans":0},
+
+## Missing imports
+server/routes.ts: missing relative import ./services/supplierProcurement.js
+server/routes.ts: missing relative import ./services/supplierProcurement.js
+server/routes.ts: missing relative import ./services/supplierProcurement.js
+server/routes.ts: missing relative import ./services/supplierProcurement.js
+server/routes.ts: missing relative import ./services/supplierProcurement.js
+server/services/intelligence/nexora/autonomy/loopdaemon/nexoraActiveLocalLoopDaemon.ts: missing relative import ../companyv2/nexoraAICompanyV2Engine
+server/services/intelligence/nexora/autonomy/paperautopilot/nexoraPaperAutopilotEvidenceEngine.ts: missing relative import ../swarmruntime/nexoraSwarmConsensusRuntime
+missing_relative_import_count=7

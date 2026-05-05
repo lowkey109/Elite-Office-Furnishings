@@ -1,0 +1,311 @@
+[
+  {
+    "route": "GET /api/admin/analytics",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/company-visitors",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/company-visitors/stats",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/deal-forecast",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/deal-hunter/stats",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/follow-up-sequences",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/intelligence/jobs",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/lead-engine/leads",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/lead-engine/stats",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/lead-templates",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/leads/pipeline",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "POST /api/admin/lease-signal-scan",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/market-intelligence",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/nexora/monitor",
+    "files": [
+      "server/index.ts",
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/notifications/email-log",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "POST /api/admin/notifications/trial-ending-reminders",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/office-move-radar",
+    "files": [
+      "server/index.ts",
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "POST /api/admin/office-move-radar/scan-jobs",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/office-move-radar/stats",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/outreach/safety-stats",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/outreach/stats",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/outreach/suppressions",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "POST /api/admin/phantomx/learn",
+    "files": [
+      "server/routes.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/planning-requests",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/quotes",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/revenue/stats",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/strategy-bookings",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/territories",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/admin/trading/monitor",
+    "files": [
+      "server/index.ts",
+      "server/index.ts",
+      "server/routes.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/client/subscription/checkout-status/:plan",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/leads",
+    "files": [
+      "server/index.ts",
+      "server/routes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/nexora/advanced/status",
+    "files": [
+      "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+      "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts",
+      "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts"
+    ]
+  },
+  {
+    "route": "POST /api/nexora/advanced/tasks",
+    "files": [
+      "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+      "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts"
+    ]
+  },
+  {
+    "route": "POST /api/nexora/advanced/tasks/run-safe",
+    "files": [
+      "server/services/intelligence/nexora/autonomy/routes/nexoraAdvancedAutonomyRoutes.ts",
+      "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts"
+    ]
+  },
+  {
+    "route": "POST /api/nexora/cockpit/burst",
+    "files": [
+      "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+      "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+    ]
+  },
+  {
+    "route": "POST /api/nexora/cockpit/executive",
+    "files": [
+      "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+      "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/nexora/cockpit/status",
+    "files": [
+      "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts",
+      "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+      "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+    ]
+  },
+  {
+    "route": "POST /api/nexora/learning/aggressive-paper-reset",
+    "files": [
+      "server/index.ts",
+      "server/index.ts"
+    ]
+  },
+  {
+    "route": "GET /api/nexora/live/status",
+    "files": [
+      "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts",
+      "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/nexora/mega/status",
+    "files": [
+      "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts",
+      "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+      "server/services/intelligence/nexora/autonomy/routes/nexoraMegaBuildRoutes.ts"
+    ]
+  },
+  {
+    "route": "POST /api/nexora/supreme/matrix/execute",
+    "files": [
+      "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+      "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts"
+    ]
+  },
+  {
+    "route": "GET /api/nexora/supreme/status",
+    "files": [
+      "server/services/intelligence/nexora/autonomy/routes/nexoraHardMountRoutes.ts",
+      "server/services/intelligence/nexora/autonomy/routes/nexoraLiveVerificationRoutes.ts",
+      "server/services/intelligence/nexora/autonomy/routes/nexoraSupremeMatrixRoutes.ts"
+    ]
+  },
+  {
+    "route": "POST /webhook/whatsapp",
+    "files": [
+      "server/routes.ts",
+      "server/services/intelligence/communications/whatsappService.ts"
+    ]
+  }
+]

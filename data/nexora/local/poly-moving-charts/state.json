@@ -1,0 +1,1377 @@
+{
+  "ok": true,
+  "service": "nexora_poly_moving_charts_state",
+  "createdAt": "2026-05-05T01:10:24.166Z",
+  "updatedAt": "2026-05-05T02:08:43.717Z",
+  "ticks": 14,
+  "latestTerminal": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_poly_terminal_chart",
+    "generatedAt": "2026-05-05T02:08:43.717Z",
+    "tick": 14,
+    "title": "PolyMarket Terminal",
+    "symbol": "BTC / Polymarket",
+    "price": 77493.86,
+    "yesProbability": 49.74,
+    "confidence": 48.6,
+    "signal": "PAPER_HOLD",
+    "candles": [
+      {
+        "index": 0,
+        "open": 77409.55,
+        "high": 77427.55,
+        "low": 77369.04,
+        "close": 77387.04,
+        "volume": 1330
+      },
+      {
+        "index": 1,
+        "open": 77429.27,
+        "high": 77450.27,
+        "low": 77396.5,
+        "close": 77417.5,
+        "volume": 1250
+      },
+      {
+        "index": 2,
+        "open": 77449.99,
+        "high": 77475.85,
+        "low": 77425.99,
+        "close": 77451.85,
+        "volume": 974
+      },
+      {
+        "index": 3,
+        "open": 77470.56,
+        "high": 77512.58,
+        "low": 77452.56,
+        "close": 77485.58,
+        "volume": 1329
+      },
+      {
+        "index": 4,
+        "open": 77489.82,
+        "high": 77532.33,
+        "low": 77468.82,
+        "close": 77514.33,
+        "volume": 1309
+      },
+      {
+        "index": 5,
+        "open": 77506.72,
+        "high": 77555.72,
+        "low": 77482.72,
+        "close": 77534.72,
+        "volume": 939
+      },
+      {
+        "index": 6,
+        "open": 77520.32,
+        "high": 77568.95,
+        "low": 77502.32,
+        "close": 77544.95,
+        "volume": 1318
+      },
+      {
+        "index": 7,
+        "open": 77529.92,
+        "high": 77572.15,
+        "low": 77508.92,
+        "close": 77545.15,
+        "volume": 1360
+      },
+      {
+        "index": 8,
+        "open": 77535.05,
+        "high": 77555.15,
+        "low": 77511.05,
+        "close": 77537.15,
+        "volume": 1023
+      },
+      {
+        "index": 9,
+        "open": 77535.51,
+        "high": 77556.51,
+        "low": 77505.98,
+        "close": 77523.98,
+        "volume": 1301
+      },
+      {
+        "index": 10,
+        "open": 77531.42,
+        "high": 77555.42,
+        "low": 77488.07,
+        "close": 77509.07,
+        "volume": 1403
+      },
+      {
+        "index": 11,
+        "open": 77523.16,
+        "high": 77550.16,
+        "low": 77471.46,
+        "close": 77495.46,
+        "volume": 1107
+      },
+      {
+        "index": 12,
+        "open": 77511.37,
+        "high": 77529.37,
+        "low": 77467.1,
+        "close": 77485.1,
+        "volume": 1277
+      },
+      {
+        "index": 13,
+        "open": 77496.91,
+        "high": 77517.91,
+        "low": 77457.51,
+        "close": 77478.51,
+        "volume": 1437
+      },
+      {
+        "index": 14,
+        "open": 77480.81,
+        "high": 77504.81,
+        "low": 77450.79,
+        "close": 77474.79,
+        "volume": 1187
+      },
+      {
+        "index": 15,
+        "open": 77464.22,
+        "high": 77499.04,
+        "low": 77446.22,
+        "close": 77472.04,
+        "volume": 1246
+      },
+      {
+        "index": 16,
+        "open": 77448.28,
+        "high": 77486.03,
+        "low": 77427.28,
+        "close": 77468.03,
+        "volume": 1462
+      },
+      {
+        "index": 17,
+        "open": 77434.11,
+        "high": 77481.96,
+        "low": 77410.11,
+        "close": 77460.96,
+        "volume": 1264
+      },
+      {
+        "index": 18,
+        "open": 77422.74,
+        "high": 77474.12,
+        "low": 77404.74,
+        "close": 77450.12,
+        "volume": 1211
+      },
+      {
+        "index": 19,
+        "open": 77415,
+        "high": 77463.19,
+        "low": 77394,
+        "close": 77436.19,
+        "volume": 1478
+      },
+      {
+        "index": 20,
+        "open": 77411.5,
+        "high": 77439.32,
+        "low": 77387.5,
+        "close": 77421.32,
+        "volume": 1336
+      },
+      {
+        "index": 21,
+        "open": 77412.59,
+        "high": 77433.59,
+        "low": 77390.64,
+        "close": 77408.64,
+        "volume": 1173
+      },
+      {
+        "index": 22,
+        "open": 77418.33,
+        "high": 77442.33,
+        "low": 77380.57,
+        "close": 77401.57,
+        "volume": 1486
+      },
+      {
+        "index": 23,
+        "open": 77428.49,
+        "high": 77455.49,
+        "low": 77379.03,
+        "close": 77403.03,
+        "volume": 1402
+      },
+      {
+        "index": 24,
+        "open": 77442.58,
+        "high": 77460.58,
+        "low": 77396.65,
+        "close": 77414.65,
+        "volume": 1132
+      },
+      {
+        "index": 25,
+        "open": 77459.84,
+        "high": 77480.84,
+        "low": 77415.28,
+        "close": 77436.28,
+        "volume": 1484
+      },
+      {
+        "index": 26,
+        "open": 77479.34,
+        "high": 77503.34,
+        "low": 77441.92,
+        "close": 77465.92,
+        "volume": 1461
+      },
+      {
+        "index": 27,
+        "open": 77500,
+        "high": 77527,
+        "low": 77482,
+        "close": 77500,
+        "volume": 1089
+      },
+      {
+        "index": 28,
+        "open": 77520.66,
+        "high": 77552.08,
+        "low": 77499.66,
+        "close": 77534.08,
+        "volume": 1475
+      },
+      {
+        "index": 29,
+        "open": 77540.16,
+        "high": 77584.72,
+        "low": 77516.16,
+        "close": 77563.72,
+        "volume": 1512
+      },
+      {
+        "index": 30,
+        "open": 77557.42,
+        "high": 77609.35,
+        "low": 77539.42,
+        "close": 77585.35,
+        "volume": 1174
+      },
+      {
+        "index": 31,
+        "open": 77571.51,
+        "high": 77623.97,
+        "low": 77550.51,
+        "close": 77596.97,
+        "volume": 1458
+      },
+      {
+        "index": 32,
+        "open": 77581.67,
+        "high": 77616.43,
+        "low": 77557.67,
+        "close": 77598.43,
+        "volume": 1556
+      },
+      {
+        "index": 33,
+        "open": 77587.41,
+        "high": 77612.36,
+        "low": 77569.41,
+        "close": 77591.36,
+        "volume": 1257
+      },
+      {
+        "index": 34,
+        "open": 77588.5,
+        "high": 77612.5,
+        "low": 77557.68,
+        "close": 77578.68,
+        "volume": 1434
+      },
+      {
+        "index": 35,
+        "open": 77585,
+        "high": 77612,
+        "low": 77539.81,
+        "close": 77563.81,
+        "volume": 1590
+      },
+      {
+        "index": 36,
+        "open": 77577.26,
+        "high": 77595.26,
+        "low": 77531.88,
+        "close": 77549.88,
+        "volume": 1337
+      },
+      {
+        "index": 37,
+        "open": 77565.89,
+        "high": 77586.89,
+        "low": 77518.04,
+        "close": 77539.04,
+        "volume": 1404
+      },
+      {
+        "index": 38,
+        "open": 77551.72,
+        "high": 77575.72,
+        "low": 77507.97,
+        "close": 77531.97,
+        "volume": 1616
+      },
+      {
+        "index": 39,
+        "open": 77535.78,
+        "high": 77562.78,
+        "low": 77509.96,
+        "close": 77527.96,
+        "volume": 1414
+      },
+      {
+        "index": 40,
+        "open": 77519.19,
+        "high": 77543.21,
+        "low": 77498.19,
+        "close": 77525.21,
+        "volume": 1369
+      },
+      {
+        "index": 41,
+        "open": 77503.09,
+        "high": 77542.49,
+        "low": 77479.09,
+        "close": 77521.49,
+        "volume": 1633
+      }
+    ],
+    "orderBook": [
+      {
+        "level": 1,
+        "price": 77478.86,
+        "bidSize": 178.87,
+        "askSize": 72.78
+      },
+      {
+        "level": 2,
+        "price": 77481.36,
+        "bidSize": 138.03,
+        "askSize": 153.76
+      },
+      {
+        "level": 3,
+        "price": 77483.86,
+        "bidSize": 94.55,
+        "askSize": 179.5
+      },
+      {
+        "level": 4,
+        "price": 77486.36,
+        "bidSize": 175.37,
+        "askSize": 90.77
+      },
+      {
+        "level": 5,
+        "price": 77488.86,
+        "bidSize": 150.12,
+        "askSize": 140.84
+      },
+      {
+        "level": 6,
+        "price": 77491.36,
+        "bidSize": 77.99,
+        "askSize": 183.53
+      },
+      {
+        "level": 7,
+        "price": 77493.86,
+        "bidSize": 169.55,
+        "askSize": 108.05
+      },
+      {
+        "level": 8,
+        "price": 77496.36,
+        "bidSize": 160.4,
+        "askSize": 126.2
+      },
+      {
+        "level": 9,
+        "price": 77498.86,
+        "bidSize": 61.06,
+        "askSize": 184.99
+      },
+      {
+        "level": 10,
+        "price": 77501.36,
+        "bidSize": 161.55,
+        "askSize": 124.27
+      },
+      {
+        "level": 11,
+        "price": 77503.86,
+        "bidSize": 168.67,
+        "askSize": 110.14
+      },
+      {
+        "level": 12,
+        "price": 77506.36,
+        "bidSize": 75.88,
+        "askSize": 183.86
+      }
+    ],
+    "trades": [
+      {
+        "id": "paper-trade-14-0",
+        "side": "SELL",
+        "price": 77493.86,
+        "size": 32.31,
+        "paperOnly": true
+      },
+      {
+        "id": "paper-trade-14-1",
+        "side": "BUY",
+        "price": 77501.43,
+        "size": 88.37,
+        "paperOnly": true
+      },
+      {
+        "id": "paper-trade-14-2",
+        "side": "SELL",
+        "price": 77502.04,
+        "size": 106.19,
+        "paperOnly": true
+      },
+      {
+        "id": "paper-trade-14-3",
+        "side": "SELL",
+        "price": 77495.13,
+        "size": 44.76,
+        "paperOnly": true
+      },
+      {
+        "id": "paper-trade-14-4",
+        "side": "BUY",
+        "price": 77487.05,
+        "size": 79.43,
+        "paperOnly": true
+      },
+      {
+        "id": "paper-trade-14-5",
+        "side": "SELL",
+        "price": 77485.23,
+        "size": 108.98,
+        "paperOnly": true
+      },
+      {
+        "id": "paper-trade-14-6",
+        "side": "SELL",
+        "price": 77491.35,
+        "size": 56.73,
+        "paperOnly": true
+      },
+      {
+        "id": "paper-trade-14-7",
+        "side": "BUY",
+        "price": 77499.77,
+        "size": 69.3,
+        "paperOnly": true
+      },
+      {
+        "id": "paper-trade-14-8",
+        "side": "SELL",
+        "price": 77502.76,
+        "size": 110,
+        "paperOnly": true
+      },
+      {
+        "id": "paper-trade-14-9",
+        "side": "SELL",
+        "price": 77497.57,
+        "size": 67.95,
+        "paperOnly": true
+      }
+    ],
+    "safety": {
+      "mode": "paper_visualization",
+      "liveTradingEnabled": false,
+      "liveOrdersEnabled": false,
+      "privateKeysInsideNexora": false,
+      "walletSigningInsideNexora": false,
+      "autonomousMoneyMovement": false,
+      "humanApprovalRequiredForReal": true,
+      "externalSignerRequiredForReal": true
+    }
+  },
+  "latestForceGraph": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_poly_force_graph",
+    "generatedAt": "2026-05-05T02:08:43.717Z",
+    "tick": 14,
+    "title": "Poly Signal Force Graph",
+    "nodes": [
+      {
+        "id": "node-0",
+        "label": "momentum-0",
+        "group": "momentum",
+        "size": 12.03,
+        "score": 56.75,
+        "x": 33.5,
+        "y": -48.35
+      },
+      {
+        "id": "node-1",
+        "label": "liquidity-1",
+        "group": "liquidity",
+        "size": 9.54,
+        "score": 47.06,
+        "x": -97.75,
+        "y": -61.71
+      },
+      {
+        "id": "node-2",
+        "label": "risk-2",
+        "group": "risk",
+        "size": 9.05,
+        "score": 34.92,
+        "x": -8.31,
+        "y": 15.34
+      },
+      {
+        "id": "node-3",
+        "label": "sentiment-3",
+        "group": "sentiment",
+        "size": 13.6,
+        "score": 52.78,
+        "x": 99.89,
+        "y": 69.91
+      },
+      {
+        "id": "node-4",
+        "label": "moondev-4",
+        "group": "moondev",
+        "size": 17.97,
+        "score": 62.13,
+        "x": -17.43,
+        "y": 22.06
+      },
+      {
+        "id": "node-5",
+        "label": "execution-5",
+        "group": "execution",
+        "size": 22.01,
+        "score": 70.59,
+        "x": -95.4,
+        "y": -58.11
+      },
+      {
+        "id": "node-6",
+        "label": "momentum-6",
+        "group": "momentum",
+        "size": 25.62,
+        "score": 77.84,
+        "x": 42.02,
+        "y": -53.15
+      },
+      {
+        "id": "node-7",
+        "label": "liquidity-7",
+        "group": "liquidity",
+        "size": 21.69,
+        "score": 83.58,
+        "x": 84.57,
+        "y": 29.67
+      },
+      {
+        "id": "node-8",
+        "label": "risk-8",
+        "group": "risk",
+        "size": 24.13,
+        "score": 79.58,
+        "x": -63.81,
+        "y": 69.03
+      },
+      {
+        "id": "node-9",
+        "label": "sentiment-9",
+        "group": "sentiment",
+        "size": 25.89,
+        "score": 89.68,
+        "x": -68.13,
+        "y": 7.26
+      },
+      {
+        "id": "node-10",
+        "label": "moondev-10",
+        "group": "moondev",
+        "size": 26.93,
+        "score": 89.81,
+        "x": 81.37,
+        "y": -65.15
+      },
+      {
+        "id": "node-11",
+        "label": "execution-11",
+        "group": "execution",
+        "size": 27.26,
+        "score": 87.95,
+        "x": 47.16,
+        "y": -42.11
+      },
+      {
+        "id": "node-12",
+        "label": "momentum-12",
+        "group": "momentum",
+        "size": 26.9,
+        "score": 84.17,
+        "x": -93.52,
+        "y": 42.62
+      },
+      {
+        "id": "node-13",
+        "label": "liquidity-13",
+        "group": "liquidity",
+        "size": 25.91,
+        "score": 78.64,
+        "x": -23.06,
+        "y": 64.91
+      },
+      {
+        "id": "node-14",
+        "label": "risk-14",
+        "group": "risk",
+        "size": 17.36,
+        "score": 63.56,
+        "x": 99.46,
+        "y": -7.89
+      },
+      {
+        "id": "node-15",
+        "label": "sentiment-15",
+        "group": "sentiment",
+        "size": 15.36,
+        "score": 63.23,
+        "x": -2.57,
+        "y": -69.13
+      },
+      {
+        "id": "node-16",
+        "label": "moondev-16",
+        "group": "moondev",
+        "size": 13.03,
+        "score": 53.97,
+        "x": -98.8,
+        "y": -29.09
+      },
+      {
+        "id": "node-17",
+        "label": "execution-17",
+        "group": "execution",
+        "size": 10.5,
+        "score": 44.15,
+        "x": 28.03,
+        "y": 53.57
+      },
+      {
+        "id": "node-18",
+        "label": "momentum-18",
+        "group": "momentum",
+        "size": 12.1,
+        "score": 45.83,
+        "x": 91.58,
+        "y": 57.75
+      },
+      {
+        "id": "node-19",
+        "label": "liquidity-19",
+        "group": "liquidity",
+        "size": 16.61,
+        "score": 55.58,
+        "x": -51.63,
+        "y": -22.67
+      },
+      {
+        "id": "node-20",
+        "label": "risk-20",
+        "group": "risk",
+        "size": 20.89,
+        "score": 56.71,
+        "x": -78.28,
+        "y": -69.88
+      },
+      {
+        "id": "node-21",
+        "label": "sentiment-21",
+        "group": "sentiment",
+        "size": 17.83,
+        "score": 72.85,
+        "x": 71.8,
+        "y": -14.72
+      },
+      {
+        "id": "node-22",
+        "label": "moondev-22",
+        "group": "moondev",
+        "size": 21.29,
+        "score": 79.68,
+        "x": 59.78,
+        "y": 62.01
+      },
+      {
+        "id": "node-23",
+        "label": "execution-23",
+        "group": "execution",
+        "size": 24.18,
+        "score": 84.94,
+        "x": -87.2,
+        "y": 47.89
+      },
+      {
+        "id": "node-24",
+        "label": "momentum-24",
+        "group": "momentum",
+        "size": 26.42,
+        "score": 88.4,
+        "x": -37.31,
+        "y": -36.39
+      },
+      {
+        "id": "node-25",
+        "label": "liquidity-25",
+        "group": "liquidity",
+        "size": 27.97,
+        "score": 89.93,
+        "x": 96.81,
+        "y": -67.35
+      },
+      {
+        "id": "node-26",
+        "label": "risk-26",
+        "group": "risk",
+        "size": 28.81,
+        "score": 81.47,
+        "x": 12.36,
+        "y": 0.35
+      },
+      {
+        "id": "node-27",
+        "label": "sentiment-27",
+        "group": "sentiment",
+        "size": 28.93,
+        "score": 87.04,
+        "x": -100,
+        "y": 67.54
+      },
+      {
+        "id": "node-28",
+        "label": "moondev-28",
+        "group": "moondev",
+        "size": 21.38,
+        "score": 82.73,
+        "x": 13.41,
+        "y": 35.78
+      },
+      {
+        "id": "node-29",
+        "label": "execution-29",
+        "group": "execution",
+        "size": 20.22,
+        "score": 76.72,
+        "x": 96.54,
+        "y": -48.4
+      },
+      {
+        "id": "node-30",
+        "label": "momentum-30",
+        "group": "momentum",
+        "size": 18.53,
+        "score": 69.25,
+        "x": -38.29,
+        "y": -61.68
+      },
+      {
+        "id": "node-31",
+        "label": "liquidity-31",
+        "group": "liquidity",
+        "size": 16.42,
+        "score": 60.61,
+        "x": -86.68,
+        "y": 15.4
+      },
+      {
+        "id": "node-32",
+        "label": "risk-32",
+        "group": "risk",
+        "size": 14.01,
+        "score": 43.14,
+        "x": 60.62,
+        "y": 69.92
+      },
+      {
+        "id": "node-33",
+        "label": "sentiment-33",
+        "group": "sentiment",
+        "size": 11.45,
+        "score": 41.24,
+        "x": 71.05,
+        "y": 22
+      },
+      {
+        "id": "node-34",
+        "label": "moondev-34",
+        "group": "moondev",
+        "size": 15.14,
+        "score": 48.72,
+        "x": -78.93,
+        "y": -58.14
+      },
+      {
+        "id": "node-35",
+        "label": "execution-35",
+        "group": "execution",
+        "size": 12.6,
+        "score": 58.32,
+        "x": -50.71,
+        "y": -53.11
+      },
+      {
+        "id": "node-36",
+        "label": "momentum-36",
+        "group": "momentum",
+        "size": 16.79,
+        "score": 67.2,
+        "x": 92,
+        "y": 29.73
+      },
+      {
+        "id": "node-37",
+        "label": "liquidity-37",
+        "group": "liquidity",
+        "size": 20.6,
+        "score": 74.99,
+        "x": 27.01,
+        "y": 69.02
+      },
+      {
+        "id": "node-38",
+        "label": "risk-38",
+        "group": "risk",
+        "size": 23.9,
+        "score": 73.39,
+        "x": -98.96,
+        "y": 7.19
+      },
+      {
+        "id": "node-39",
+        "label": "sentiment-39",
+        "group": "sentiment",
+        "size": 26.61,
+        "score": 86.14,
+        "x": -1.5,
+        "y": -65.17
+      },
+      {
+        "id": "node-40",
+        "label": "moondev-40",
+        "group": "moondev",
+        "size": 28.66,
+        "score": 89.05,
+        "x": 99.35,
+        "y": -42.06
+      },
+      {
+        "id": "node-41",
+        "label": "execution-41",
+        "group": "execution",
+        "size": 30,
+        "score": 90,
+        "x": -24.1,
+        "y": 42.67
+      }
+    ],
+    "links": [
+      {
+        "source": "node-0",
+        "target": "node-14",
+        "strength": 0.35,
+        "type": "momentum"
+      },
+      {
+        "source": "node-1",
+        "target": "node-21",
+        "strength": 0.57,
+        "type": "liquidity"
+      },
+      {
+        "source": "node-2",
+        "target": "node-28",
+        "strength": 0.76,
+        "type": "risk"
+      },
+      {
+        "source": "node-3",
+        "target": "node-35",
+        "strength": 0.89,
+        "type": "sentiment"
+      },
+      {
+        "source": "node-4",
+        "target": "node-0",
+        "strength": 0.98,
+        "type": "moondev"
+      },
+      {
+        "source": "node-5",
+        "target": "node-7",
+        "strength": 1,
+        "type": "execution"
+      },
+      {
+        "source": "node-6",
+        "target": "node-14",
+        "strength": 0.96,
+        "type": "momentum"
+      },
+      {
+        "source": "node-7",
+        "target": "node-21",
+        "strength": 0.86,
+        "type": "liquidity"
+      },
+      {
+        "source": "node-8",
+        "target": "node-28",
+        "strength": 0.71,
+        "type": "risk"
+      },
+      {
+        "source": "node-9",
+        "target": "node-35",
+        "strength": 0.51,
+        "type": "sentiment"
+      },
+      {
+        "source": "node-10",
+        "target": "node-0",
+        "strength": 0.28,
+        "type": "moondev"
+      },
+      {
+        "source": "node-11",
+        "target": "node-7",
+        "strength": 0.05,
+        "type": "execution"
+      },
+      {
+        "source": "node-12",
+        "target": "node-14",
+        "strength": 0.22,
+        "type": "momentum"
+      },
+      {
+        "source": "node-13",
+        "target": "node-21",
+        "strength": 0.45,
+        "type": "liquidity"
+      },
+      {
+        "source": "node-14",
+        "target": "node-28",
+        "strength": 0.66,
+        "type": "risk"
+      },
+      {
+        "source": "node-15",
+        "target": "node-35",
+        "strength": 0.82,
+        "type": "sentiment"
+      },
+      {
+        "source": "node-16",
+        "target": "node-0",
+        "strength": 0.94,
+        "type": "moondev"
+      },
+      {
+        "source": "node-17",
+        "target": "node-7",
+        "strength": 0.99,
+        "type": "execution"
+      },
+      {
+        "source": "node-18",
+        "target": "node-14",
+        "strength": 0.99,
+        "type": "momentum"
+      },
+      {
+        "source": "node-19",
+        "target": "node-21",
+        "strength": 0.92,
+        "type": "liquidity"
+      },
+      {
+        "source": "node-20",
+        "target": "node-28",
+        "strength": 0.8,
+        "type": "risk"
+      },
+      {
+        "source": "node-21",
+        "target": "node-35",
+        "strength": 0.62,
+        "type": "sentiment"
+      },
+      {
+        "source": "node-22",
+        "target": "node-0",
+        "strength": 0.41,
+        "type": "moondev"
+      },
+      {
+        "source": "node-23",
+        "target": "node-7",
+        "strength": 0.17,
+        "type": "execution"
+      },
+      {
+        "source": "node-24",
+        "target": "node-14",
+        "strength": 0.08,
+        "type": "momentum"
+      },
+      {
+        "source": "node-25",
+        "target": "node-21",
+        "strength": 0.32,
+        "type": "liquidity"
+      },
+      {
+        "source": "node-26",
+        "target": "node-28",
+        "strength": 0.54,
+        "type": "risk"
+      },
+      {
+        "source": "node-27",
+        "target": "node-35",
+        "strength": 0.73,
+        "type": "sentiment"
+      },
+      {
+        "source": "node-28",
+        "target": "node-0",
+        "strength": 0.88,
+        "type": "moondev"
+      },
+      {
+        "source": "node-29",
+        "target": "node-7",
+        "strength": 0.97,
+        "type": "execution"
+      },
+      {
+        "source": "node-30",
+        "target": "node-14",
+        "strength": 1,
+        "type": "momentum"
+      },
+      {
+        "source": "node-31",
+        "target": "node-21",
+        "strength": 0.97,
+        "type": "liquidity"
+      },
+      {
+        "source": "node-32",
+        "target": "node-28",
+        "strength": 0.88,
+        "type": "risk"
+      },
+      {
+        "source": "node-33",
+        "target": "node-35",
+        "strength": 0.73,
+        "type": "sentiment"
+      },
+      {
+        "source": "node-34",
+        "target": "node-0",
+        "strength": 0.54,
+        "type": "moondev"
+      },
+      {
+        "source": "node-35",
+        "target": "node-7",
+        "strength": 0.31,
+        "type": "execution"
+      },
+      {
+        "source": "node-36",
+        "target": "node-14",
+        "strength": 0.07,
+        "type": "momentum"
+      },
+      {
+        "source": "node-37",
+        "target": "node-21",
+        "strength": 0.18,
+        "type": "liquidity"
+      },
+      {
+        "source": "node-38",
+        "target": "node-28",
+        "strength": 0.42,
+        "type": "risk"
+      },
+      {
+        "source": "node-39",
+        "target": "node-35",
+        "strength": 0.63,
+        "type": "sentiment"
+      },
+      {
+        "source": "node-40",
+        "target": "node-0",
+        "strength": 0.8,
+        "type": "moondev"
+      },
+      {
+        "source": "node-41",
+        "target": "node-7",
+        "strength": 0.93,
+        "type": "execution"
+      },
+      {
+        "source": "node-0",
+        "target": "node-14",
+        "strength": 0.99,
+        "type": "momentum"
+      },
+      {
+        "source": "node-1",
+        "target": "node-21",
+        "strength": 0.99,
+        "type": "liquidity"
+      },
+      {
+        "source": "node-2",
+        "target": "node-28",
+        "strength": 0.93,
+        "type": "risk"
+      },
+      {
+        "source": "node-3",
+        "target": "node-35",
+        "strength": 0.82,
+        "type": "sentiment"
+      },
+      {
+        "source": "node-4",
+        "target": "node-0",
+        "strength": 0.65,
+        "type": "moondev"
+      },
+      {
+        "source": "node-5",
+        "target": "node-7",
+        "strength": 0.44,
+        "type": "execution"
+      },
+      {
+        "source": "node-6",
+        "target": "node-14",
+        "strength": 0.21,
+        "type": "momentum"
+      },
+      {
+        "source": "node-7",
+        "target": "node-21",
+        "strength": 0.05,
+        "type": "liquidity"
+      },
+      {
+        "source": "node-8",
+        "target": "node-28",
+        "strength": 0.29,
+        "type": "risk"
+      },
+      {
+        "source": "node-9",
+        "target": "node-35",
+        "strength": 0.52,
+        "type": "sentiment"
+      },
+      {
+        "source": "node-10",
+        "target": "node-0",
+        "strength": 0.71,
+        "type": "moondev"
+      },
+      {
+        "source": "node-11",
+        "target": "node-7",
+        "strength": 0.86,
+        "type": "execution"
+      },
+      {
+        "source": "node-12",
+        "target": "node-14",
+        "strength": 0.96,
+        "type": "momentum"
+      },
+      {
+        "source": "node-13",
+        "target": "node-21",
+        "strength": 1,
+        "type": "liquidity"
+      },
+      {
+        "source": "node-14",
+        "target": "node-28",
+        "strength": 0.98,
+        "type": "risk"
+      },
+      {
+        "source": "node-15",
+        "target": "node-35",
+        "strength": 0.89,
+        "type": "sentiment"
+      }
+    ],
+    "clusters": [
+      {
+        "group": "momentum",
+        "nodes": 7,
+        "averageScore": 69.92,
+        "status": "neutral"
+      },
+      {
+        "group": "liquidity",
+        "nodes": 7,
+        "averageScore": 70.06,
+        "status": "strong"
+      },
+      {
+        "group": "risk",
+        "nodes": 7,
+        "averageScore": 61.82,
+        "status": "neutral"
+      },
+      {
+        "group": "sentiment",
+        "nodes": 7,
+        "averageScore": 70.42,
+        "status": "strong"
+      },
+      {
+        "group": "moondev",
+        "nodes": 7,
+        "averageScore": 72.3,
+        "status": "strong"
+      },
+      {
+        "group": "execution",
+        "nodes": 7,
+        "averageScore": 73.24,
+        "status": "strong"
+      }
+    ],
+    "highlightedPath": [
+      "moondev",
+      "momentum",
+      "liquidity",
+      "risk",
+      "execution"
+    ],
+    "safety": {
+      "mode": "paper_visualization",
+      "liveTradingEnabled": false,
+      "liveOrdersEnabled": false,
+      "privateKeysInsideNexora": false,
+      "walletSigningInsideNexora": false,
+      "autonomousMoneyMovement": false,
+      "humanApprovalRequiredForReal": true,
+      "externalSignerRequiredForReal": true
+    }
+  },
+  "latestLoop": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_poly_moving_charts_tick",
+    "generatedAt": "2026-05-05T02:08:43.717Z",
+    "tick": 14,
+    "chartsUpdated": [
+      "terminal_chart",
+      "force_graph"
+    ],
+    "paperSignal": "PAPER_HOLD",
+    "graphStatus": [
+      {
+        "group": "momentum",
+        "nodes": 7,
+        "averageScore": 69.92,
+        "status": "neutral"
+      },
+      {
+        "group": "liquidity",
+        "nodes": 7,
+        "averageScore": 70.06,
+        "status": "strong"
+      },
+      {
+        "group": "risk",
+        "nodes": 7,
+        "averageScore": 61.82,
+        "status": "neutral"
+      },
+      {
+        "group": "sentiment",
+        "nodes": 7,
+        "averageScore": 70.42,
+        "status": "strong"
+      },
+      {
+        "group": "moondev",
+        "nodes": 7,
+        "averageScore": 72.3,
+        "status": "strong"
+      },
+      {
+        "group": "execution",
+        "nodes": 7,
+        "averageScore": 73.24,
+        "status": "strong"
+      }
+    ],
+    "safety": {
+      "mode": "paper_visualization",
+      "liveTradingEnabled": false,
+      "liveOrdersEnabled": false,
+      "privateKeysInsideNexora": false,
+      "walletSigningInsideNexora": false,
+      "autonomousMoneyMovement": false,
+      "humanApprovalRequiredForReal": true,
+      "externalSignerRequiredForReal": true
+    }
+  },
+  "safety": {
+    "mode": "paper_visualization",
+    "liveTradingEnabled": false,
+    "liveOrdersEnabled": false,
+    "privateKeysInsideNexora": false,
+    "walletSigningInsideNexora": false,
+    "autonomousMoneyMovement": false,
+    "humanApprovalRequiredForReal": true,
+    "externalSignerRequiredForReal": true
+  }
+}

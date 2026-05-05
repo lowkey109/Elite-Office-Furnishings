@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_trading_execution_limits",
+  "updatedAt": "2026-05-04T05:18:38.013Z",
+  "bankrollUsd": 1000,
+  "maxOrderUsd": 25,
+  "maxExposureUsd": 100,
+  "maxDailyLossUsd": 50,
+  "maxOpenOrders": 10,
+  "maxSlippageBps": 100,
+  "requireSwarmConsensus": true,
+  "requireRiskGovernor": true,
+  "liveTradingBlocked": true,
+  "privateKeysBlocked": true
+}

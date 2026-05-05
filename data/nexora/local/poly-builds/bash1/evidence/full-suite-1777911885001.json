@@ -1,0 +1,99 @@
+{
+  "ok": true,
+  "nexoraBrain": true,
+  "service": "nexora_poly_builds_bash1_full_suite",
+  "id": "full-suite-1777911885001",
+  "generatedAt": "2026-05-04T16:24:45.001Z",
+  "mode": "paper",
+  "requested": {
+    "mode": "paper",
+    "source": "bash1",
+    "liveTrading": false,
+    "deploy": false,
+    "postgresReplay": false
+  },
+  "summary": {
+    "result": "paper evidence suite generated",
+    "buildsCovered": 3,
+    "liveTrading": false,
+    "deploy": false,
+    "postgresReplay": false,
+    "privateKeys": false,
+    "walletSigning": false
+  },
+  "routeCoverage": [
+    "/api/nexora/poly-app/status",
+    "/api/nexora/poly-app/readiness",
+    "/api/nexora/poly-builds/bash1/status",
+    "/api/nexora/poly-builds/bash1/full-suite",
+    "/api/nexora/poly-builds/bash1/replay/run",
+    "/api/nexora/poly-builds/bash1/tournament/run"
+  ],
+  "readiness": {
+    "score": 100,
+    "status": "paper_ready_live_blocked",
+    "checks": [
+      {
+        "id": "api_routes_direct_mounted",
+        "passed": true,
+        "required": true
+      },
+      {
+        "id": "poly_app_core_smoke_passed_before_this_build",
+        "passed": true,
+        "required": true
+      },
+      {
+        "id": "paper_mode_only",
+        "passed": true,
+        "required": true
+      },
+      {
+        "id": "live_trading_blocked",
+        "passed": true,
+        "required": true
+      },
+      {
+        "id": "private_keys_blocked",
+        "passed": true,
+        "required": true
+      },
+      {
+        "id": "wallet_signing_blocked",
+        "passed": true,
+        "required": true
+      },
+      {
+        "id": "postgres_not_required",
+        "passed": true,
+        "required": true
+      },
+      {
+        "id": "deploy_not_required",
+        "passed": true,
+        "required": true
+      },
+      {
+        "id": "strategy_tournament_local_only",
+        "passed": true,
+        "required": true
+      },
+      {
+        "id": "paper_replay_local_only",
+        "passed": true,
+        "required": true
+      }
+    ]
+  },
+  "safety": {
+    "mode": "paper",
+    "liveTradingEnabled": false,
+    "liveOrdersEnabled": false,
+    "privateKeysAllowed": false,
+    "walletSigningAllowed": false,
+    "autonomousMoneyMovementAllowed": false,
+    "postgresReplayAllowed": false,
+    "deployAllowed": false,
+    "humanApprovalRequiredForLive": true
+  }
+}

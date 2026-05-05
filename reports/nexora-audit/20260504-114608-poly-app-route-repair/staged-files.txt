@@ -1,0 +1,9 @@
+reports/nexora-audit/20260504-114608-poly-app-route-repair/backups/scripts/nexora-run-polymarket-app-evidence.sh
+reports/nexora-audit/20260504-114608-poly-app-route-repair/backups/server/index.ts
+reports/nexora-audit/20260504-114608-poly-app-route-repair/dev-server.pid
+reports/nexora-audit/20260504-114608-poly-app-route-repair/evidence/evidence-summary-20260504-114631.json
+reports/nexora-audit/20260504-114608-poly-app-route-repair/git-status-before.txt
+reports/nexora-audit/20260504-114608-poly-app-route-repair/smoke/smoke-results.jsonl
+scripts/nexora-run-polymarket-app-evidence.sh
+server/index.ts
+server/services/intelligence/nexora/autonomy/routes/nexoraPolyAppRoutes.ts

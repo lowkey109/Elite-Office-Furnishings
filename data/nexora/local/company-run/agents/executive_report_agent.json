@@ -1,0 +1,13 @@
+{
+  "agentId": "executive_report_agent",
+  "worker": "executive_report_agent",
+  "division": "reporting",
+  "title": "Executive Report Agent",
+  "status": "active",
+  "nexoraBrain": true,
+  "canCommitExternally": false,
+  "createdAt": "2026-05-05T01:46:27.634Z",
+  "safety": [
+    "Reports are informational and do not authorize commitments."
+  ]
+}

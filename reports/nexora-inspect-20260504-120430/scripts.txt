@@ -1,0 +1,54 @@
+# Scripts
+FOUND scripts/nexora-polymarket-all-smoke.sh executable=yes
+12:  "/api/nexora/ping"
+13:  "/api/nexora/market-data/status"
+14:  "/api/nexora/backtesting/status"
+15:  "/api/nexora/trading-execution/status"
+16:  "/api/nexora/trading-readiness/status"
+17:  "/api/nexora/live-money/status"
+18:  "/api/nexora/live-execution-design/status"
+19:  "/api/nexora/polymarket-final/status"
+20:  "/api/nexora/poly-five/status"
+21:  "/api/nexora/poly-next-five/status"
+22:  "/api/nexora/poly-final-five/status"
+23:  "/api/nexora/poly-app/status"
+24:  "/api/nexora/poly-app/full-suite/status"
+25:  "/api/nexora/poly-app/operator-summary"
+26:  "/api/nexora/moondev-strategy-import/status"
+27:  "/api/nexora/moondev-phase1/status"
+39:  code="$(curl -sS -L --max-time 12 -o "$tmp" -w "%{http_code}" "$url" || echo "000")"
+
+FOUND scripts/nexora-run-polymarket-app-evidence.sh executable=yes
+24:  code="$(curl -sS -L --max-time 30 \
+27:    --data-binary @"$body_file" \
+46:  code="$(curl -sS -L --max-time 20 \
+62:get_route "/api/nexora/poly-app/status" || fail=1
+63:post_json "/api/nexora/poly-app/cycle" '{"mode":"paper","liveTrading":false,"externalSigner":false}' || fail=1
+64:post_json "/api/nexora/poly-app/batch" '{"mode":"paper","liveTrading":false,"externalSigner":false,"batch":"evidence"}' || fail=1
+65:get_route "/api/nexora/poly-app/readiness" || fail=1
+66:get_route "/api/nexora/trading-readiness/status" || fail=1
+67:get_route "/api/nexora/trading-execution/status" || fail=1
+68:get_route "/api/nexora/poly-final-five/status" || fail=1
+
+FOUND scripts/nexora-poly-7builds-bash1.sh executable=yes
+16:  code="$(curl -sS -L --max-time 20 -o "$tmp" -w "%{http_code}" "${BASE_URL}${route}" || echo "000")"
+31:  code="$(curl -sS -L --max-time 45 \
+34:    --data-binary @"$body_file" \
+51:get_route "/api/nexora/poly-app/status" || fail=1
+52:get_route "/api/nexora/poly-builds/bash1/status" || fail=1
+53:post_json "/api/nexora/poly-builds/bash1/full-suite" '{"mode":"paper","source":"bash1","liveTrading":false,"deploy":false,"postgresReplay":false}' || fail=1
+54:post_json "/api/nexora/poly-builds/bash1/replay/run" '{"mode":"paper","source":"bash1","seedPrice":65000,"liveTrading":false}' || fail=1
+55:get_route "/api/nexora/poly-builds/bash1/replay/latest" || fail=1
+56:post_json "/api/nexora/poly-builds/bash1/tournament/run" '{"mode":"paper","source":"bash1","seedPrice":65000,"liveTrading":false}' || fail=1
+57:get_route "/api/nexora/poly-builds/bash1/tournament/latest" || fail=1
+58:post_json "/api/nexora/poly-builds/bash1/run" '{"mode":"paper","source":"bash1-final-run","seedPrice":65000,"liveTrading":false,"deploy":false,"postgresReplay":false}' || fail=1
+59:get_route "/api/nexora/poly-builds/bash1/status" || fail=1
+
+MISSING scripts/nexora-poly-7builds-bash2-loop.sh
+FOUND scripts/nexora-polymarket-batch2-smoke.sh executable=yes
+6:  /api/nexora/polymarket/batch2/status \
+7:  /api/nexora/polymarket/batch2/moondev/strategy-records \
+8:  /api/nexora/polymarket/batch2/binance/ws/status \
+9:  /api/nexora/polymarket/batch2/gamma/markets?limit=3
+11:  body="$(curl -sS -L --max-time 12 "$BASE$r" || true)"
+
