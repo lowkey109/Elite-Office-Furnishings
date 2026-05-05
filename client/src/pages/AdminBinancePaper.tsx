@@ -25,14 +25,17 @@ export default function AdminBinancePaper() {
   const [status, setStatus] = useState<any>(null);
   const [busy, setBusy] = useState(false);
   const [log, setLog] = useState("");
+  const [intents, setIntents] = useState<any[]>([]);
 
   async function refresh() {
-    const [s, st] = await Promise.all([
+    const [s, st, live] = await Promise.all([
       api("/api/nexora/binance/paper/summary"),
       api("/api/nexora/binance/status"),
+      api("/api/nexora/binance/live/intents"),
     ]);
     setSummary(s);
     setStatus(st);
+    setIntents(live?.intents || []);
   }
 
   async function runStrategy(strategy: string) {
@@ -108,6 +111,67 @@ export default function AdminBinancePaper() {
     }
   }
 
+  async function createLiveIntent() {
+    setBusy(true);
+    try {
+      const out = await api("/api/nexora/binance/live/intent", {
+        method: "POST",
+        body: JSON.stringify({
+          symbol: "BTCUSDT",
+          side: "BUY",
+          notionalUsdt: 25,
+          reason: "admin supervised live intent test",
+        }),
+      });
+      setLog(JSON.stringify(out, null, 2));
+      await refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function approveIntent(id: string) {
+    setBusy(true);
+    try {
+      const out = await api(`/api/nexora/binance/live/intent/${id}/approve`, {
+        method: "POST",
+        body: JSON.stringify({ note: "approved from admin UI" }),
+      });
+      setLog(JSON.stringify(out, null, 2));
+      await refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function rejectIntent(id: string) {
+    setBusy(true);
+    try {
+      const out = await api(`/api/nexora/binance/live/intent/${id}/reject`, {
+        method: "POST",
+        body: JSON.stringify({ note: "rejected from admin UI" }),
+      });
+      setLog(JSON.stringify(out, null, 2));
+      await refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function dryRunExecuteIntent(id: string) {
+    setBusy(true);
+    try {
+      const out = await api(`/api/nexora/binance/live/intent/${id}/execute`, {
+        method: "POST",
+        body: JSON.stringify({ ownerConfirm: "EXECUTE_APPROVED_BINANCE_INTENT" }),
+      });
+      setLog(JSON.stringify(out, null, 2));
+      await refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
   useEffect(() => {
     refresh();
   }, []);
@@ -148,6 +212,7 @@ export default function AdminBinancePaper() {
             <button disabled={busy} onClick={openPaperTrade} style={btn}>Open Test Paper Trade</button>
             <button disabled={busy} onClick={evaluate} style={btn}>Evaluate Stops/Targets</button>
             <button disabled={busy} onClick={autoCycle} style={primaryBtn}>Run Nexora Auto-Cycle</button>
+            <button disabled={busy} onClick={createLiveIntent} style={dangerBtn}>Create Live Intent</button>
             <button disabled={busy} onClick={refresh} style={btn}>Refresh</button>
           </div>
         </section>
@@ -155,6 +220,42 @@ export default function AdminBinancePaper() {
         <section style={panel}>
           <h2>Risk Rules</h2>
           <pre style={pre}>{JSON.stringify(risk, null, 2)}</pre>
+        </section>
+
+
+        <section style={panel}>
+          <h2>Supervised Live Intents</h2>
+          <p style={{ color: "#94a3b8" }}>
+            This is the live execution readiness lane. Intents can be created, approved, rejected, and dry-run executed. Real execution still depends on env flags.
+          </p>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr>
+                  {["Created", "Status", "Symbol", "Side", "Est. Notional", "Reason", "Actions"].map(h => (
+                    <th key={h} style={th}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {intents.map((i: any) => (
+                  <tr key={i.id}>
+                    <td style={td}>{i.createdAt?.slice(0, 19)}</td>
+                    <td style={td}>{i.status}</td>
+                    <td style={td}>{i.symbol}</td>
+                    <td style={td}>{i.side}</td>
+                    <td style={td}>${Number(i.estimatedNotional || 0).toFixed(2)}</td>
+                    <td style={td}>{i.reason}</td>
+                    <td style={td}>
+                      <button disabled={busy} onClick={() => approveIntent(i.id)} style={miniBtn}>Approve</button>{" "}
+                      <button disabled={busy} onClick={() => rejectIntent(i.id)} style={miniBtn}>Reject</button>{" "}
+                      <button disabled={busy} onClick={() => dryRunExecuteIntent(i.id)} style={miniBtn}>Dry Run</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <section style={panel}>
@@ -229,6 +330,19 @@ const primaryBtn: React.CSSProperties = {
   border: "1px solid rgba(34,197,94,.65)",
   background: "linear-gradient(135deg, rgba(34,197,94,.28), rgba(14,165,233,.18))",
   color: "#dcfce7",
+};
+
+const dangerBtn: React.CSSProperties = {
+  ...btn,
+  border: "1px solid rgba(251,113,133,.65)",
+  background: "rgba(127,29,29,.35)",
+  color: "#ffe4e6",
+};
+
+const miniBtn: React.CSSProperties = {
+  ...btn,
+  padding: "6px 9px",
+  fontSize: 12,
 };
 
 const pre: React.CSSProperties = {
