@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Nexora Poly Edge Graph</title>
+  <style>
+    body{margin:0;background:#05080d;color:#dff7ff;font-family:Inter,Arial,sans-serif}
+    .wrap{padding:18px;max-width:1500px;margin:0 auto}
+    .top{display:flex;justify-content:space-between;gap:14px;align-items:center}
+    h1{font-size:22px;margin:0;color:#dff7ff;letter-spacing:.08em;text-transform:uppercase}
+    .pill{border:1px solid #176b6d;background:#06282d;color:#7fffea;padding:7px 10px;border-radius:999px;font-size:12px}
+    .grid{display:grid;grid-template-columns:1.1fr 1.9fr;gap:14px;margin-top:14px}
+    .card{background:#07111a;border:1px solid #123044;border-radius:14px;padding:12px;box-shadow:0 0 30px rgba(0,255,255,.08)}
+    .card h2{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#8ff8ff;margin:0 0 8px}
+    #graph{width:100%;height:620px;background:radial-gradient(circle at center,#09202b,#030609);border-radius:10px}
+    pre{white-space:pre-wrap;overflow:auto;max-height:230px;background:#02060a;border:1px solid #102a3a;border-radius:10px;padding:10px;color:#b8f6ff;font-size:11px}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .stat{background:#02060a;border:1px solid #102a3a;border-radius:10px;padding:10px}
+    .stat b{display:block;font-size:20px;color:#fff}
+    .stat span{font-size:11px;color:#7aa9b7}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}#graph{height:420px}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>Poly Edge Signal Graph</h1>
+    <div class="pill">PAPER LOOP · MOONDEV SIGNALS · LIVE MONEY LOCKED</div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Terminal / Paper Signal</h2>
+      <div class="stats">
+        <div class="stat"><span>Asset</span><b id="asset">--</b></div>
+        <div class="stat"><span>Signal</span><b id="signal">--</b></div>
+        <div class="stat"><span>Confidence</span><b id="confidence">--</b></div>
+      </div>
+      <h2 style="margin-top:14px">Latest Learning</h2>
+      <pre id="learning">Loading...</pre>
+      <h2>Safety</h2>
+      <pre id="safety">Loading...</pre>
+    </div>
+
+    <div class="card">
+      <h2>Moving Force Graph</h2>
+      <canvas id="graph"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas=document.getElementById("graph");
+const ctx=canvas.getContext("2d");
+let nodes=[],links=[],terminal={},learning={},tick=0;
+
+function resize(){
+  const r=canvas.getBoundingClientRect();
+  canvas.width=Math.floor(r.width*devicePixelRatio);
+  canvas.height=Math.floor(r.height*devicePixelRatio);
+}
+addEventListener("resize",resize); resize();
+
+async function j(url){
+  const r=await fetch(url,{headers:{Accept:"application/json"}});
+  const t=await r.text();
+  try{return JSON.parse(t)}catch{return {ok:false,html:t.slice(0,200)}}
+}
+
+async function load(){
+  const latest=await j("/api/nexora/poly-charts/latest");
+  const learn=await j("/api/nexora/learning-memory/status");
+  const live=await j("/api/nexora/live-money/status");
+
+  terminal=latest.terminal||{};
+  const fg=latest.forceGraph||{};
+  nodes=(fg.nodes||[]).map((n,i)=>({...n,vx:0,vy:0,px:(n.x||0),py:(n.y||0)}));
+  links=fg.links||[];
+  learning=learn.state?.latestEvent||{};
+
+  document.getElementById("asset").textContent=learning.raw?.asset||terminal.symbol||"--";
+  document.getElementById("signal").textContent=learning.raw?.paperSignal||terminal.signal||"--";
+  document.getElementById("confidence").textContent=(learning.raw?.confidence||terminal.confidence||"--");
+  document.getElementById("learning").textContent=JSON.stringify({
+    action:learning.action,
+    result:learning.result,
+    score:learning.scored?.score,
+    strategy:learning.raw?.strategyUsed,
+    asset:learning.raw?.asset,
+    pnl:learning.raw?.pnl
+  },null,2);
+  document.getElementById("safety").textContent=JSON.stringify({
+    liveTradingEnabled:live.liveTradingEnabled,
+    privateKeysAllowed:live.privateKeysAllowed,
+    walletSigningAllowed:live.walletSigningAllowed
+  },null,2);
+}
+
+function color(g){
+  return {momentum:"#69f0ff",liquidity:"#68ff9b",risk:"#ff5f7a",sentiment:"#ffd166",moondev:"#9b7bff",execution:"#ffffff"}[g]||"#8aa";
+}
+
+function draw(){
+  tick+=0.01;
+  const w=canvas.width,h=canvas.height,cx=w/2,cy=h/2;
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle="#02060a"; ctx.fillRect(0,0,w,h);
+
+  const map=new Map(nodes.map(n=>[n.id,n]));
+  for(const l of links){
+    const a=map.get(l.source),b=map.get(l.target); if(!a||!b) continue;
+    const ax=cx+a.px*devicePixelRatio*2.3, ay=cy+a.py*devicePixelRatio*2.3;
+    const bx=cx+b.px*devicePixelRatio*2.3, by=cy+b.py*devicePixelRatio*2.3;
+    ctx.strokeStyle=color(l.type); ctx.globalAlpha=0.18+(l.strength||.2)*0.35;
+    ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by); ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+  for(const n of nodes){
+    n.px+=(Math.sin(tick+n.size)*0.08);
+    n.py+=(Math.cos(tick+n.score)*0.06);
+    const x=cx+n.px*devicePixelRatio*2.3, y=cy+n.py*devicePixelRatio*2.3;
+    const r=(3+(n.size||8)/2)*devicePixelRatio;
+    ctx.fillStyle=color(n.group); ctx.globalAlpha=.85;
+    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+    ctx.globalAlpha=.18; ctx.beginPath(); ctx.arc(x,y,r*2.8,0,Math.PI*2); ctx.fill();
+  }
+  ctx.globalAlpha=1;
+  requestAnimationFrame(draw);
+}
+setInterval(load,5000);
+load(); draw();
+</script>
+</body>
+</html>
