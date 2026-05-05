@@ -20,7 +20,7 @@ function page(): string {
     button.lock{background:#2a1d22;color:#ffbdc6;border:1px solid #66313c}
     .wide{grid-column:span 3}
     .pill{display:inline-block;background:#0e2a1c;color:#8fffc2;border:1px solid #1f7048;border-radius:999px;padding:6px 10px;font-size:12px;margin-top:8px}
-    .warn{background:#241a08;border:1px solid #6b4a10;color:#ffd88c;border-radius:12px;padding:12px;margin-top:12px}
+    .warn{background:#241a08;border:1px solid #6b4a10;color:#ffd88c;border-radius:12px;padding:12px;margin-top:12px}\n    .graphFrame{width:100%;height:720px;border:1px solid #123044;border-radius:14px;background:#02060a}
     @media(max-width:900px){.grid{grid-template-columns:1fr}.wide{grid-column:span 1}}
   </style>
 </head>
