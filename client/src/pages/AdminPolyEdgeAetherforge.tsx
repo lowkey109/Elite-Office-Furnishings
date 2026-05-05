@@ -70,7 +70,7 @@ export default function AdminPolyEdgeAetherforge() {
             title="Nexora PolyEdge Quantum Terminal"
             src="/nexora/polyedge-terminal-v2"
             className="w-full border-0"
-            style={{ height: "calc(100vh - 300px)", minHeight: 900 }}
+            style={{ height: "calc(100vh - 230px)", minHeight: 760 }}
           />
         </div>
       </div>
