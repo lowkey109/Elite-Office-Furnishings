@@ -4212,19 +4212,29 @@ app.get("/api/nexora/command-centre", async (_req, res) => {
 
 
 // Hard-mounted admin login: must stay before protected admin routes.
-app.post("/api/admin/login", express.json(), (req, res) => {
+app.post("/api/admin/login", express.json(), (req: any, res: any) => {
   const email = String(req.body?.email || "").trim();
   const password = String(req.body?.password || "");
 
   const adminEmail = process.env.ADMIN_EMAIL || "admin@thecorporatedesk.com.au";
-  const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+  const adminPassword = process.env.ADMIN_PASSWORD || "";
 
   if (!email || !password) {
     return res.status(400).json({ ok: false, error: "Email and password are required" });
   }
 
+  if (!adminPassword) {
+    return res.status(503).json({ ok: false, error: "Admin authentication not configured" });
+  }
+
   if (email !== adminEmail || password !== adminPassword) {
     return res.status(401).json({ ok: false, error: "Invalid credentials" });
+  }
+
+  if (req.session) {
+    req.session.adminAuthenticated = true;
+    req.session.isAdmin = true;
+    req.session.adminEmail = email;
   }
 
   return res.json({
@@ -4235,6 +4245,7 @@ app.post("/api/admin/login", express.json(), (req, res) => {
     generatedAt: new Date().toISOString()
   });
 });
+
 
 registerRoutes(server, app);
   registerNexoraBankProviderPlanRoutes(app);

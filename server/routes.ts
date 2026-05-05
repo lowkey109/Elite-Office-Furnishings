@@ -897,21 +897,33 @@ app.post("/api/admin/auth/login", async (req, res) => {
     const { email, password } = req.body || {};
 
     const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@thecorporatedesk.com.au";
-    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "password123";
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";
+
+
 
     if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
+      return res.status(400).json({ ok: false, error: "Email and password are required" });
+    }
+
+    if (!ADMIN_PASSWORD) {
+      return res.status(503).json({ ok: false, error: "Admin authentication not configured" });
     }
 
     if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      return res.status(401).json({ ok: false, error: "Invalid credentials" });
     }
+
+
+
+
+
 
     const sessionReq = req as any;
 
     if (sessionReq.session) {
       try {
         sessionReq.session.adminAuthenticated = true;
+        sessionReq.session.isAdmin = true;
         sessionReq.session.adminEmail = email;
         sessionReq.session.adminLoginAt = new Date().toISOString();
 
@@ -924,21 +936,25 @@ app.post("/api/admin/auth/login", async (req, res) => {
     }
 
     return res.json({
-      success: true,
+      ok: true,
       authenticated: true,
       email,
     });
   } catch (error: any) {
     console.error("[AdminAuth] Login server error:", error?.message || error);
     return res.status(500).json({
+      ok: false,
       error: "Server error",
       detail: error?.message || String(error),
     });
   }
 });
               app.get("/api/admin/auth/check", (req: any, res: any) => {
-                res.json({ authenticated: !!req.session?.isAdmin });
+                const authenticated =
+                  !!req.session?.isAdmin || !!req.session?.adminAuthenticated;
+                res.json({ authenticated });
               });
+
 
               app.post("/api/admin/auth/logout", (req: any, res: any) => {
                 req.session.destroy((err: any) => {
