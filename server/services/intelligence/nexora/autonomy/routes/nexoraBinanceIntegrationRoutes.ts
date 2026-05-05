@@ -3,6 +3,15 @@ import type { Express } from "express";
 type JsonRecord = Record<string, any>;
 
 const BINANCE_REST = "https://api.binance.com";
+const BINANCE_PUBLIC_MARKET_DATA_REST = "https://data-api.binance.vision";
+const BINANCE_REST_FALLBACKS = [
+  BINANCE_PUBLIC_MARKET_DATA_REST,
+  BINANCE_REST,
+  "https://api1.binance.com",
+  "https://api2.binance.com",
+  "https://api3.binance.com",
+  "https://api4.binance.com",
+];
 
 function now() {
   return new Date().toISOString();
@@ -23,6 +32,54 @@ function safeLimit(input: any): number {
   const n = Number(input || 100);
   if (!Number.isFinite(n)) return 100;
   return Math.max(10, Math.min(500, Math.floor(n)));
+}
+
+
+async function binancePublicJson(path: string): Promise<{ ok: boolean; sourceBase: string; data: any; error?: any }> {
+  let lastError: any = null;
+
+  for (const base of BINANCE_REST_FALLBACKS) {
+    try {
+      const response = await fetch(`${base}${path}`, {
+        method: "GET",
+        headers: {
+          accept: "application/json",
+          "user-agent": "Nexora-TCD-Binance-Public-Data/1.0",
+        },
+      });
+
+      const text = await response.text();
+      let data: any = null;
+
+      try {
+        data = text ? JSON.parse(text) : null;
+      } catch {
+        data = { raw: text };
+      }
+
+      if (response.ok && !(data && typeof data === "object" && data.code === 0 && String(data.msg || "").toLowerCase().includes("restricted location"))) {
+        return { ok: true, sourceBase: base, data };
+      }
+
+      lastError = {
+        base,
+        status: response.status,
+        data,
+      };
+    } catch (error: any) {
+      lastError = {
+        base,
+        message: error?.message || String(error),
+      };
+    }
+  }
+
+  return {
+    ok: false,
+    sourceBase: "none",
+    data: null,
+    error: lastError,
+  };
 }
 
 function safety() {
