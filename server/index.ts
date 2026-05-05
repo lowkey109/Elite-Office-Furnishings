@@ -4240,6 +4240,7 @@ registerRoutes(server, app);
   registerNexoraBankProviderPlanRoutes(app);
   registerNexoraProductionAuthHardeningRoutes(app);
 
+
   registerNexoraWalletObservationRoutes(app);
   registerNexoraBinanceStrategyPlusRoutes(app);
   registerNexoraBankConnectRoutes(app);
