@@ -6,19 +6,20 @@ class AutonomousEngine {
     public async start() {
         if (this.isRunning) return;
         this.isRunning = true;
-        console.log("!!! LIVE 24/7 TRADING ENGINE ACTIVATED !!!");
+        console.log("!!! NEXORA LIVE AUTO-PILOT ENGAGED !!!");
         this.loop();
     }
 
     private async loop() {
         while (this.isRunning) {
             try {
-                // Call your live trade logic here
+                // This triggers the actual trade logic
                 await runTradeLogic(); 
-            } catch (e) {
-                console.error("Live Loop Error:", e);
+            } catch (error) {
+                console.error("Critical Engine Error:", error);
             }
-            await new Promise(r => setTimeout(r, 60000)); // 1 min pulse
+            // 60-second pulse for 24/7 monitoring
+            await new Promise(resolve => setTimeout(resolve, 60000));
         }
     }
 }

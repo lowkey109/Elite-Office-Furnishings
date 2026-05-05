@@ -1,3 +1,5 @@
+import { NexoraBot } from "./services/AutonomousEngine";
+import capitalLadderRouter from "./routes/nexora/capital-ladder";
 import path from "path";
 import compression from "compression";
 import multer from "multer";
@@ -105,6 +107,12 @@ const TCD_ENABLE_BACKGROUND_JOBS =
   process.env.ENABLE_BACKGROUND_JOBS === "true";
 
 const app = express();
+
+// NEXORA 24/7 AUTONOMOUS INITIALIZATION
+app.use("/api/nexora/capital-ladder", capitalLadderRouter);
+
+// START THE BOT
+NexoraBot.start();
 
 // NEXORA_MOONDEV_DIRECT_MOUNT_BEGIN
 try {
