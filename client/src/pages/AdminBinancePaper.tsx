@@ -90,6 +90,24 @@ export default function AdminBinancePaper() {
     }
   }
 
+  async function autoCycle() {
+    setBusy(true);
+    try {
+      const out = await api("/api/nexora/binance/paper/auto-cycle", {
+        method: "POST",
+        body: JSON.stringify({
+          symbol: "BTCUSDT",
+          interval: "5m",
+          limit: 120,
+        }),
+      });
+      setLog(JSON.stringify(out, null, 2));
+      await refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
   useEffect(() => {
     refresh();
   }, []);
@@ -129,6 +147,7 @@ export default function AdminBinancePaper() {
             <button disabled={busy} onClick={() => runStrategy("volatility_guard")} style={btn}>Run Volatility</button>
             <button disabled={busy} onClick={openPaperTrade} style={btn}>Open Test Paper Trade</button>
             <button disabled={busy} onClick={evaluate} style={btn}>Evaluate Stops/Targets</button>
+            <button disabled={busy} onClick={autoCycle} style={primaryBtn}>Run Nexora Auto-Cycle</button>
             <button disabled={busy} onClick={refresh} style={btn}>Refresh</button>
           </div>
         </section>
@@ -203,6 +222,13 @@ const btn: React.CSSProperties = {
   padding: "10px 14px",
   cursor: "pointer",
   fontWeight: 700,
+};
+
+const primaryBtn: React.CSSProperties = {
+  ...btn,
+  border: "1px solid rgba(34,197,94,.65)",
+  background: "linear-gradient(135deg, rgba(34,197,94,.28), rgba(14,165,233,.18))",
+  color: "#dcfce7",
 };
 
 const pre: React.CSSProperties = {
