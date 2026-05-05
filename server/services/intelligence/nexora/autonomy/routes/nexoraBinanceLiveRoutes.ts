@@ -155,7 +155,7 @@ export function registerNexoraBinanceLiveRoutes(
   );
 
   app.post(
-    "/api/nexora/binance/live/intent",
+    "/api/nexora/binance/live/intents-v2/create",
     (
       req: Request,
       res: Response
@@ -343,7 +343,7 @@ export function registerNexoraBinanceLiveRoutes(
   );
 
   app.post(
-    "/api/nexora/binance/live/order",
+    "/api/nexora/binance/live/order-v2",
     async (
       req: Request,
       res: Response

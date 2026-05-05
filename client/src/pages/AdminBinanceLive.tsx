@@ -181,7 +181,7 @@ export default function AdminBinanceLive() {
   async function createIntent() {
     setIntentMsg("");
     try {
-      const r = await fetch(API("/api/nexora/binance/live/intent"), {
+      const r = await fetch(API("/api/nexora/binance/live/intents-v2/create"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -232,7 +232,7 @@ export default function AdminBinanceLive() {
     setOrderMsg("");
     setOrderResult(null);
     try {
-      const r = await fetch(API("/api/nexora/binance/live/order"), {
+      const r = await fetch(API("/api/nexora/binance/live/order-v2"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
