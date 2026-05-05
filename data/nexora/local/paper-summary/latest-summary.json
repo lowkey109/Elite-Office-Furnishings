@@ -1,0 +1,194 @@
+{
+  "ok": true,
+  "service": "nexora_paper_learning_summary",
+  "generatedAt": "2026-05-05T04:11:39.212731Z",
+  "source": "local_replit_learning_memory_synced_to_production",
+  "polymarketEvents": 46,
+  "recentEvents": 46,
+  "countedTrades": 34,
+  "wins": 27,
+  "losses": 7,
+  "skips": 12,
+  "winRate": 79.41,
+  "avgScore": 66.72,
+  "displayedConfidencePercent": 73.7,
+  "targetConfidencePercent": 95,
+  "targetReached": false,
+  "results": {
+    "success": 1,
+    "paper_success": 20,
+    "paper_neutral": 2,
+    "paper_loss": 4,
+    "risk_triggered_watch": 7,
+    "paper_skip_low_edge": 12
+  },
+  "assets": [
+    {
+      "asset": "unknown",
+      "events": 2,
+      "countedTrades": 2,
+      "wins": 2,
+      "losses": 0,
+      "skips": 0,
+      "winRate": 100.0,
+      "avgScore": 82.5,
+      "pnl": 5.4
+    },
+    {
+      "asset": "BTC",
+      "events": 12,
+      "countedTrades": 10,
+      "wins": 9,
+      "losses": 1,
+      "skips": 2,
+      "winRate": 90.0,
+      "avgScore": 72.5,
+      "pnl": 10.93
+    },
+    {
+      "asset": "ETH",
+      "events": 8,
+      "countedTrades": 6,
+      "wins": 5,
+      "losses": 1,
+      "skips": 2,
+      "winRate": 83.33,
+      "avgScore": 64.75,
+      "pnl": 8.1
+    },
+    {
+      "asset": "BNB",
+      "events": 6,
+      "countedTrades": 4,
+      "wins": 3,
+      "losses": 1,
+      "skips": 2,
+      "winRate": 75.0,
+      "avgScore": 63.83,
+      "pnl": 3.75
+    },
+    {
+      "asset": "XRP",
+      "events": 6,
+      "countedTrades": 4,
+      "wins": 3,
+      "losses": 1,
+      "skips": 2,
+      "winRate": 75.0,
+      "avgScore": 62.5,
+      "pnl": 4.17
+    },
+    {
+      "asset": "DOGE",
+      "events": 6,
+      "countedTrades": 4,
+      "wins": 3,
+      "losses": 1,
+      "skips": 2,
+      "winRate": 75.0,
+      "avgScore": 62.5,
+      "pnl": 4.98
+    },
+    {
+      "asset": "SOL",
+      "events": 6,
+      "countedTrades": 4,
+      "wins": 2,
+      "losses": 2,
+      "skips": 2,
+      "winRate": 50.0,
+      "avgScore": 63.83,
+      "pnl": 3.97
+    }
+  ],
+  "latest": {
+    "ok": true,
+    "nexoraBrain": true,
+    "service": "nexora_learning_memory_event",
+    "id": "event-1777948932421",
+    "generatedAt": "2026-05-05T02:42:12.421Z",
+    "domain": "polymarket",
+    "product": "Phantom X / Polymarket",
+    "action": "paper_observe_no_trade",
+    "result": "paper_skip_low_edge",
+    "metrics": {
+      "paperPnl": 0,
+      "confidence": 70.33,
+      "referencePrice": 145.1429,
+      "loop": 21,
+      "asset": "SOL",
+      "countAsTrade": false
+    },
+    "scored": {
+      "domain": "polymarket",
+      "score": 60,
+      "grade": "neutral",
+      "shouldRepeat": false,
+      "shouldAvoid": false,
+      "needsHumanReview": false
+    },
+    "raw": {
+      "mode": "paper_learning",
+      "source": "nexora_paper_practice_loop",
+      "domain": "polymarket",
+      "product": "Phantom X / Polymarket",
+      "action": "paper_observe_no_trade",
+      "result": "paper_skip_low_edge",
+      "loop": 21,
+      "generatedAt": "2026-05-05T02:42:12.186036Z",
+      "market": "sol_prediction_market",
+      "symbol": "SOL / Polymarket",
+      "asset": "SOL",
+      "strategyBias": "momentum_breakout",
+      "strategyUsed": "moondev_ranked_strategy_plus_nexora_risk_gate",
+      "paperSignal": "PAPER_SKIP_LOW_EDGE",
+      "side": "YES",
+      "confidence": 70.33,
+      "pnl": 0,
+      "riskTriggered": false,
+      "countAsTrade": false,
+      "moondevSignal": {
+        "momentum": 65.22,
+        "liquidity": 76.11,
+        "riskQuality": 60.49,
+        "rankBonus": 10
+      },
+      "metrics": {
+        "paperPnl": 0,
+        "confidence": 70.33,
+        "referencePrice": 145.1429,
+        "loop": 21,
+        "asset": "SOL",
+        "countAsTrade": false
+      },
+      "maxStakeUsd": 0,
+      "liveTrading": false,
+      "paperOnly": true,
+      "humanApproved": true,
+      "humanApprovalRequired": true,
+      "externalSignerRequired": true,
+      "privateKeysInsideNexora": false,
+      "walletSigningInsideNexora": false
+    },
+    "safety": {
+      "learnsFrom": [
+        "paper_trading",
+        "risk_outcomes",
+        "quote_outcomes",
+        "human_feedback"
+      ],
+      "liveTradingEnabledNow": false,
+      "autonomousMoneyMovement": false,
+      "autonomousBindingQuotes": false,
+      "autonomousEmailSending": false,
+      "humanApprovalRequired": true
+    }
+  },
+  "safety": {
+    "liveTradingEnabled": false,
+    "privateKeysInsideNexora": false,
+    "walletSigningInsideNexora": false,
+    "postgresReplay": false,
+    "bankTransfers": false
+  }
+}
