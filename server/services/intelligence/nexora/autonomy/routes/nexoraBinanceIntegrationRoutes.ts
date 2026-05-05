@@ -73,6 +73,42 @@ function listBinanceAutoCycleLogs() {
     });
 }
 
+
+function binanceLiveIntentDir() {
+  const dir = path.join(process.cwd(), "data/nexora/binance-live-intents");
+  fs.mkdirSync(dir, { recursive: true });
+  return dir;
+}
+
+function saveBinanceLiveIntent(payload: any) {
+  const id = crypto.randomUUID();
+  const file = path.join(binanceLiveIntentDir(), `${id}.json`);
+  const saved = {
+    id,
+    createdAt: new Date().toISOString(),
+    status: "pending_owner_approval",
+    ...payload,
+  };
+  fs.writeFileSync(file, JSON.stringify(saved, null, 2));
+  return saved;
+}
+
+function listBinanceLiveIntents() {
+  const dir = binanceLiveIntentDir();
+  return fs.readdirSync(dir)
+    .filter((f) => f.endsWith(".json"))
+    .sort()
+    .reverse()
+    .slice(0, 100)
+    .map((f) => {
+      try {
+        return JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+      } catch {
+        return { file: f, error: "read_failed" };
+      }
+    });
+}
+
 function now() {
   return new Date().toISOString();
 }
@@ -409,6 +445,66 @@ export function registerNexoraBinanceIntegrationRoutes(app: Express) {
       interval: int,
       strategy: strat,
       result,
+      safety: safety(),
+    });
+  });
+
+
+  app.post("/api/nexora/binance/live/intent", async (req, res) => {
+    const body = req.body || {};
+    const sym = symbol(body.symbol || "BTCUSDT");
+    const side = String(body.side || "BUY").toUpperCase() === "SELL" ? "SELL" : "BUY";
+    const quantity = Number(body.quantity || 0);
+    const notionalUsdt = Number(body.notionalUsdt || 0);
+    const reason = String(body.reason || "owner_requested_live_intent");
+
+    if (!quantity && !notionalUsdt) {
+      return res.status(400).json({
+        ok: false,
+        error: "quantity_or_notional_required",
+        safety: safety(),
+      });
+    }
+
+    const price = await latestPrice(sym);
+    const estimatedNotional = notionalUsdt || quantity * price;
+
+    const maxPosition = Number(process.env.BINANCE_MAX_POSITION_USDT || 250);
+    if (estimatedNotional > maxPosition) {
+      return res.status(400).json({
+        ok: false,
+        blocked: true,
+        error: "position_above_configured_limit",
+        estimatedNotional,
+        maxPosition,
+        safety: safety(),
+      });
+    }
+
+    const intent = saveBinanceLiveIntent({
+      service: "binance_supervised_live_intent",
+      symbol: sym,
+      side,
+      quantity,
+      notionalUsdt,
+      estimatedPrice: price,
+      estimatedNotional,
+      reason,
+      requiresOwnerApproval: true,
+      canExecuteNow: false,
+      nextStep: "approve_intent_then_execute_with_separate_owner_action",
+      safety: safety(),
+    });
+
+    res.json({ ok: true, intent });
+  });
+
+  app.get("/api/nexora/binance/live/intents", async (_req, res) => {
+    res.json({
+      ok: true,
+      service: "binance_live_intents",
+      generatedAt: new Date().toISOString(),
+      intents: listBinanceLiveIntents(),
       safety: safety(),
     });
   });
