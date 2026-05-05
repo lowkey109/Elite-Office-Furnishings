@@ -30,6 +30,8 @@ import {
   coinbasePaperAutopilotState,
 } from "../../coinbase/nexoraCoinbasePaperAutopilot";
 
+import { coinbaseLearningSnapshot } from "../../coinbase/nexoraCoinbaseLearningEngine";
+
 function err500(res: Response, error: unknown) {
   res.status(500).json({
     ok: false,
@@ -267,4 +269,14 @@ export function registerNexoraCoinbaseLiveRoutes(app: Express) {
       safety: coinbaseSafetyEnvelope(),
     });
   });
+
+  app.get("/api/nexora/coinbase/paper/learning", (_req: Request, res: Response) => {
+    res.json({
+      ok: true,
+      learning: coinbaseLearningSnapshot(),
+      safety: coinbaseSafetyEnvelope(),
+    });
+  });
+
+
 }

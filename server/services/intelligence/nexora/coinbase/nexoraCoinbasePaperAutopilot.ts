@@ -23,7 +23,7 @@ function maybeOpenTrade() {
   createPaperTrade({
     productId: randomProduct(),
     side,
-    quantity: 0.0001,
+    quantity: 0.001,
     entryPrice: rand(50000, 120000),
     strategy: "nexora_autopilot_v1",
   });
@@ -66,7 +66,7 @@ export function startCoinbasePaperAutopilot() {
         maybeCloseTrade();
       }
     } catch {}
-  }, 15000);
+  }, 8000);
 
   return {
     ok: true,
