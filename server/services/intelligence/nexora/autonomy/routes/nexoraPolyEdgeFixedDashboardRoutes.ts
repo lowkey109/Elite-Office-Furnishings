@@ -618,13 +618,7 @@ load();
 }
 export function registerNexoraPolyEdgeFixedDashboardRoutes(app: Express): void {
   app.get("/api/nexora/poly-edge-fixed/state", (_req, res) => res.json(buildState()));
-
-  app.get("/admin/polyedge-aetherforge", (_req, res) => {
-    res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.send(page());
-  });
-
-  app.get("/nexora/operator/poly-edge", (_req, res) => {
+app.get("/nexora/operator/poly-edge", (_req, res) => {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.send(page());
   });

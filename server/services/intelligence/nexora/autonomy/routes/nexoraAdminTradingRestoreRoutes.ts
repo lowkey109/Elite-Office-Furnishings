@@ -69,8 +69,7 @@ export function registerNexoraAdminTradingRestoreRoutes(app: Express): void {
   };
 
   app.get("/admin/trading-app", sendTradingApp);
-  app.get("/admin/polyedge-aetherforge", sendTradingApp);
-  app.get("/admin/trading-monitor", sendTradingApp);
+app.get("/admin/trading-monitor", sendTradingApp);
   app.get("/admin/polyedge", sendTradingApp);
 
   app.get("/api/admin/trading-app/status", (_req, res) => {
