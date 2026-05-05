@@ -32,6 +32,17 @@ function readJson(file: string, fallback: R = {}) {
   }
 }
 
+
+function readSyncedPaperSummary(): any | null {
+  const file = path.join(process.cwd(), "data", "nexora", "local", "paper-summary", "latest-summary.json");
+  try {
+    if (fs.existsSync(file)) {
+      return JSON.parse(fs.readFileSync(file, "utf8"));
+    }
+  } catch {}
+  return null;
+}
+
 function buildState() {
   const eventsFile = path.join(process.cwd(), "data/nexora/local/learning-memory/events.jsonl");
   const statusFile = path.join(process.cwd(), "data/nexora/local/paper-practice/status.json");
@@ -105,6 +116,59 @@ function buildState() {
   const confidence = trades.length >= 20 && winRate >= 80 && avgScore >= 80
     ? 95
     : Math.round(Math.min(94, Math.max(50, (winRate * 0.55) + (avgScore * 0.45))));
+
+  
+  const syncedSummary = readSyncedPaperSummary();
+
+  if (recent.length === 0 && syncedSummary) {
+    return {
+      ok: true,
+      nexoraBrain: true,
+      service: "nexora_poly_edge_fixed_dashboard_state",
+      generatedAt: now(),
+      paperPractice: {
+        state: "synced_summary",
+        loop: syncedSummary.latest?.raw?.loop || 0,
+        source: "paper-summary"
+      },
+      counts: {
+        polymarketEvents: syncedSummary.polymarketEvents || 0,
+        recentEvents: syncedSummary.recentEvents || 0,
+        countedTrades: syncedSummary.countedTrades || 0,
+        wins: syncedSummary.wins || 0
+      },
+      confidence: {
+        displayedPercent: syncedSummary.displayedConfidencePercent || 50,
+        targetPercent: syncedSummary.targetConfidencePercent || 95,
+        winRate: syncedSummary.winRate || 0,
+        avgScore: syncedSummary.avgScore || 0,
+        enoughSamplesFor95: (syncedSummary.countedTrades || 0) >= 20,
+        targetReached: syncedSummary.targetReached || false,
+        rule: "Using synced local paper-learning summary. 95% only shows after 20+ counted trades, 80%+ win rate, and 80+ average score."
+      },
+      latest: syncedSummary.latest ? {
+        asset: syncedSummary.latest.raw?.asset || "unknown",
+        symbol: syncedSummary.latest.raw?.symbol,
+        market: syncedSummary.latest.raw?.market,
+        action: syncedSummary.latest.action,
+        result: syncedSummary.latest.result,
+        score: syncedSummary.latest.scored?.score,
+        pnl: syncedSummary.latest.raw?.pnl,
+        confidence: syncedSummary.latest.raw?.confidence,
+        strategy: syncedSummary.latest.raw?.strategyUsed,
+        signal: syncedSummary.latest.raw?.paperSignal,
+        countAsTrade: syncedSummary.latest.raw?.countAsTrade !== false
+      } : null,
+      assets: syncedSummary.assets || [],
+      safety: {
+        liveTradingEnabled: false,
+        privateKeysInsideNexora: false,
+        walletSigningInsideNexora: false,
+        bankTransfersEnabled: false
+      }
+    };
+  }
+
 
   return {
     ok: true,
@@ -341,6 +405,11 @@ load();draw();
 }
 export function registerNexoraPolyEdgeFixedDashboardRoutes(app: Express): void {
   app.get("/api/nexora/poly-edge-fixed/state", (_req, res) => res.json(buildState()));
+
+  app.get("/admin/polyedge-aetherforge", (_req, res) => {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(page());
+  });
 
   app.get("/nexora/operator/poly-edge", (_req, res) => {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
