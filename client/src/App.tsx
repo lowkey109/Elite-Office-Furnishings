@@ -7,6 +7,7 @@ import { usePageTracking } from "@/lib/usePageTracking";
 import { Redirect } from "wouter";
 import { AdminLayout } from "@/components/AdminLayout";
 import AdminBinancePaper from "./pages/AdminBinancePaper";
+import AdminBinanceLive from "@/pages/AdminBinanceLive";
 
 // TCD_STAGE_25_ROUTE_LEVEL_LAZY_LOADING
 // TCD_STAGE_30_LAZY_GLOBAL_SHELL
@@ -229,6 +230,7 @@ function AdminRoutes() {
         <Route path="/admin/lead-engine" component={AdminLeadEngine} />
         <Route path="/admin/nexora/advanced" component={AdminNexoraAdvanced} />
         <Route path="/admin/binance-paper" component={AdminBinancePaper} />
+          <Route path="/admin/binance-live"><AdminBinanceLive /></Route>
           <Route path="/admin/nexora" component={AdminNexoraCommandCentre} />
         <Route path="/admin/ai-monitor" component={AdminNexoraMonitor} />
         <Route path="/admin/trading-monitor" component={AdminTradingMonitor} />
