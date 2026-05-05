@@ -20,6 +20,134 @@ canvas{width:100%;display:block;background:#01060b;border:1px solid rgba(89,248,
 table{width:100%;border-collapse:collapse;font-size:8px}td,th{border-bottom:1px solid rgba(89,248,255,.16);padding:4px;text-align:left}th{color:#77aebd;text-transform:uppercase}.status{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}.status div{border:1px solid rgba(89,248,255,.16);padding:4px}.alerts{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.alert{border:1px solid rgba(255,212,90,.38);background:#130f05;color:var(--y);padding:5px}.alert.red{border-color:rgba(255,77,104,.5);background:#17070b;color:var(--r)}.alert.purp{border-color:rgba(195,124,255,.5);background:#12091d;color:var(--v)}
 pre{margin:0;white-space:pre-wrap;color:#c6f9ff;max-height:145px;overflow:auto}.ticker{position:fixed;left:126px;right:0;bottom:0;height:22px;background:#020b12;border-top:1px solid var(--l);display:flex;align-items:center;gap:24px;padding:0 12px;font-size:8px;z-index:30}
 @media(max-width:1100px){.shell{grid-template-columns:1fr}.side{display:none}.top,.a,.b,.c,.d{grid-template-columns:1fr}.ticker{left:0}}
+
+/* MOBILE POLYEDGE LAYOUT */
+@media(max-width:760px){
+  html,body{
+    overflow:auto !important;
+    font-size:10px !important;
+  }
+
+  .shell{
+    display:block !important;
+    height:auto !important;
+    overflow:visible !important;
+  }
+
+  .side{
+    display:block !important;
+    position:sticky !important;
+    top:0 !important;
+    z-index:100 !important;
+    width:100% !important;
+    height:auto !important;
+    border-right:0 !important;
+    border-bottom:1px solid var(--l) !important;
+    padding:8px !important;
+  }
+
+  .brand,.logo{
+    font-size:16px !important;
+    margin-bottom:6px !important;
+  }
+
+  .tri{
+    width:24px !important;
+    height:24px !important;
+  }
+
+  .nav{
+    display:flex !important;
+    overflow-x:auto !important;
+    gap:6px !important;
+    padding-bottom:4px !important;
+  }
+
+  .navTitle,.orb,.sideMetric{
+    display:none !important;
+  }
+
+  .nav a{
+    white-space:nowrap !important;
+    font-size:9px !important;
+    padding:6px 8px !important;
+    min-width:max-content !important;
+  }
+
+  .main{
+    height:auto !important;
+    overflow:visible !important;
+    padding:6px !important;
+    display:block !important;
+  }
+
+  .top{
+    display:grid !important;
+    grid-template-columns:1fr 1fr !important;
+    gap:5px !important;
+  }
+
+  .top .box:first-child{
+    grid-column:span 2 !important;
+  }
+
+  .title,.bigTitle{
+    font-size:18px !important;
+  }
+
+  .a,.b,.c,.d,.gridA,.gridB,.gridC,.gridD{
+    display:block !important;
+  }
+
+  .box{
+    margin-bottom:6px !important;
+    padding:7px !important;
+  }
+
+  canvas{
+    height:240px !important;
+  }
+
+  #equity,#sent,#sentiment,#universe,#uni{
+    height:260px !important;
+  }
+
+  #mesh,#alloc,#allocation,#multi,#multiverse,#liq,#liquidity,#pnl{
+    height:220px !important;
+  }
+
+  .statusGrid{
+    grid-template-columns:1fr 1fr !important;
+  }
+
+  .alerts{
+    grid-template-columns:1fr !important;
+  }
+
+  .ticker{
+    position:sticky !important;
+    left:0 !important;
+    bottom:0 !important;
+    width:100% !important;
+    overflow-x:auto !important;
+    white-space:nowrap !important;
+    font-size:9px !important;
+    height:26px !important;
+  }
+
+  table{
+    font-size:10px !important;
+  }
+
+  pre{
+    max-height:220px !important;
+  }
+
+  iframe{
+    min-height:760px !important;
+  }
+}
+
 </style>
 </head>
 <body>
