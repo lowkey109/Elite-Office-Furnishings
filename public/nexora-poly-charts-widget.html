@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+  body{margin:0;background:#02060b;color:#dffaff;font-family:Inter,Arial,sans-serif;overflow:hidden}
+  .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:10px;height:430px;padding:8px}
+  .card{background:#07131d;border:1px solid #12364a;border-radius:12px;padding:8px;min-width:0}
+  h3{margin:0 0 6px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#80f7ff}
+  #candles,#network{height:380px}
+  .msg{color:#ffd166;font-size:12px;padding:14px;white-space:pre-wrap}
+  @media(max-width:900px){.grid{grid-template-columns:1fr;height:790px}#candles,#network{height:350px}}
+</style>
+</head>
+<body>
+<div class="grid">
+  <div class="card">
+    <h3>Real BTC / USDT Candles — Binance 5m</h3>
+    <div id="candles"></div>
+  </div>
+  <div class="card">
+    <h3>Nexora Paper Signal Network</h3>
+    <div id="network"></div>
+  </div>
+</div>
+
+<script>
+const layoutBase = {
+  paper_bgcolor:"#07131d",
+  plot_bgcolor:"#02060b",
+  font:{color:"#dffaff", size:10},
+  margin:{l:42,r:15,t:20,b:30},
+};
+
+async function loadCandles(){
+  try{
+    const r = await fetch("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=80");
+    const raw = await r.json();
+    if(!Array.isArray(raw)) throw new Error("No candle array returned");
+
+    const trace = {
+      type:"candlestick",
+      x: raw.map(k => new Date(k[0])),
+      open: raw.map(k => Number(k[1])),
+      high: raw.map(k => Number(k[2])),
+      low: raw.map(k => Number(k[3])),
+      close: raw.map(k => Number(k[4])),
+      increasing:{line:{color:"lime"}},
+      decreasing:{line:{color:"red"}},
+      name:"BTCUSDT"
+    };
+
+    Plotly.react("candles",[trace],{
+      ...layoutBase,
+      xaxis:{rangeslider:{visible:false}, gridcolor:"#16283a"},
+      yaxis:{gridcolor:"#16283a"}
+    },{displayModeBar:false,responsive:true});
+  }catch(e){
+    document.getElementById("candles").innerHTML =
+      '<div class="msg">WAITING FOR REAL CANDLE DATA\\n' + String(e).slice(0,220) + '</div>';
+  }
+}
+
+async function loadNetwork(){
+  try{
+    const s = await fetch("/api/nexora/poly-paper-summary/latest", {headers:{Accept:"application/json"}}).then(r=>r.json());
+    const assets = Array.isArray(s.assets) ? s.assets.filter(a=>a.asset && a.asset !== "unknown") : [];
+    if(!assets.length) throw new Error("No real paper-summary asset data yet");
+
+    const cx = 0, cy = 0;
+    const xs=[cx], ys=[cy], labels=["NEXORA"], colors=["#80f7ff"], sizes=[30], hover=["Nexora core"];
+    const edgeX=[], edgeY=[];
+
+    assets.slice(0,12).forEach((a,i)=>{
+      const ang = (Math.PI * 2 * i) / assets.length;
+      const radius = 1 + (Number(a.avgScore || 0) / 100);
+      const x = Math.cos(ang) * radius;
+      const y = Math.sin(ang) * radius;
+
+      xs.push(x); ys.push(y); labels.push(a.asset);
+      colors.push(Number(a.winRate||0) >= 80 ? "#77ffae" : Number(a.winRate||0) >= 60 ? "#ffd166" : "#ff667d");
+      sizes.push(14 + Math.min(26, Number(a.countedTrades||0) * 2));
+      hover.push(`${a.asset}<br>Win: ${a.winRate}%<br>Score: ${a.avgScore}<br>Trades: ${a.countedTrades}<br>PNL: ${a.pnl}`);
+
+      edgeX.push(cx,x,null); edgeY.push(cy,y,null);
+    });
+
+    Plotly.react("network",[
+      {x:edgeX,y:edgeY,mode:"lines",type:"scatter",line:{width:1,color:"#7aa9b7"},hoverinfo:"none"},
+      {x:xs,y:ys,mode:"markers+text",type:"scatter",text:labels,textposition:"top center",
+       marker:{size:sizes,color:colors,line:{width:1,color:"#ffffff"}},hovertext:hover,hoverinfo:"text"}
+    ],{
+      ...layoutBase,
+      xaxis:{showgrid:false,zeroline:false,showticklabels:false},
+      yaxis:{showgrid:false,zeroline:false,showticklabels:false},
+      showlegend:false
+    },{displayModeBar:false,responsive:true});
+  }catch(e){
+    document.getElementById("network").innerHTML =
+      '<div class="msg">WAITING FOR REAL PAPER SUMMARY DATA\\n' + String(e).slice(0,220) + '</div>';
+  }
+}
+
+async function refresh(){
+  await Promise.all([loadCandles(), loadNetwork()]);
+}
+refresh();
+setInterval(refresh, 5000);
+</script>
+</body>
+</html>
