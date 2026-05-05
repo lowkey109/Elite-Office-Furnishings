@@ -1,59 +1,107 @@
-export default function AdminPolyEdgeAetherforge() {
-  return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background: "#02060b",
-        color: "#dffaff",
-        fontFamily: "Inter, system-ui, sans-serif",
-      }}
-    >
-      <div
-        style={{
-          padding: "10px 14px",
-          borderBottom: "1px solid #12364a",
-          background: "#07131d",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 12,
-        }}
-      >
-        <div>
-          <div style={{ fontSize: 13, letterSpacing: "0.12em", color: "#80f7ff", fontWeight: 800 }}>
-            NEXORA POLYEDGE LIVE
-          </div>
-          <div style={{ fontSize: 12, color: "#7aa9b7" }}>
-            MoonDev strategy brain · paper trader · learning memory · real-money locked
-          </div>
-        </div>
-        <a
-          href="/nexora/operator/poly-edge"
-          style={{
-            color: "#02060b",
-            background: "#77ffae",
-            borderRadius: 999,
-            padding: "8px 12px",
-            fontSize: 12,
-            fontWeight: 800,
-            textDecoration: "none",
-          }}
-        >
-          Open Fixed Dashboard
-        </a>
-      </div>
+import React, { useState } from "react";
+import { ADMIN_EMAIL, serverLogin, serverLogout } from "@/lib/adminAuth";
 
-      <iframe
-        title="Nexora PolyEdge Fixed Dashboard"
-        src="/nexora/operator/poly-edge"
-        style={{
-          width: "100%",
-          height: "calc(100vh - 56px)",
-          border: 0,
-          display: "block",
-          background: "#02060b",
-        }}
-      />
+type Props = {
+  children?: React.ReactNode;
+};
+
+export function AdminAuthGate({ children }: Props) {
+  const [email, setEmail] = useState(ADMIN_EMAIL);
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const authed =
+    localStorage.getItem("tcd_admin_auth") === "true" ||
+    localStorage.getItem("admin-authenticated") === "true" ||
+    sessionStorage.getItem("tcd_admin_auth") === "true" ||
+    sessionStorage.getItem("admin-authenticated") === "true";
+
+  async function login() {
+    setBusy(true);
+    setError("");
+
+    const ok = await serverLogin(email, password);
+
+    setBusy(false);
+
+    if (!ok) {
+      setError("Incorrect credentials. Please try again.");
+      return;
+    }
+
+    localStorage.setItem("tcd_admin_auth", "true");
+    localStorage.setItem("admin-authenticated", "true");
+    sessionStorage.setItem("tcd_admin_auth", "true");
+    sessionStorage.setItem("admin-authenticated", "true");
+
+    window.location.reload();
+  }
+
+  async function logout() {
+    await serverLogout();
+    window.location.reload();
+  }
+
+  if (authed && children) {
+    return (
+      <>
+        {children}
+      </>
+    );
+  }
+
+  if (authed && !children) {
+    return (
+      <main style={{ minHeight: "100vh", background: "#07090d", color: "#fff", display: "grid", placeItems: "center" }}>
+        <div style={{ textAlign: "center" }}>
+          <h1>Admin authenticated</h1>
+          <p>You are signed in.</p>
+          <a href="/admin" style={{ color: "#f2c230" }}>Open Admin Dashboard</a>
+          <br />
+          <button onClick={logout} style={{ marginTop: 16 }}>Logout</button>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main style={{ minHeight: "100vh", background: "#07090d", color: "#fff", display: "grid", placeItems: "center", fontFamily: "Inter, system-ui, sans-serif" }}>
+      <section style={{ width: 380, maxWidth: "92vw", border: "1px solid #2a2f3a", borderRadius: 16, padding: 24, background: "#11151d" }}>
+        <h1 style={{ marginTop: 0, fontFamily: "serif", textAlign: "center" }}>THE CORPORATE<br />DESK</h1>
+        <h2 style={{ textAlign: "center", marginBottom: 4 }}>Admin Dashboard</h2>
+        <p style={{ textAlign: "center", color: "#9da5b4", marginTop: 0 }}>Authorised access only</p>
+
+        <label style={{ display: "block", marginTop: 18, color: "#b6bdc8" }}>Admin Email</label>
+        <input
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          autoComplete="username"
+          style={{ width: "100%", padding: 12, marginTop: 6, borderRadius: 6, border: "1px solid #333a47" }}
+        />
+
+        <label style={{ display: "block", marginTop: 14, color: "#b6bdc8" }}>Password</label>
+        <input
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          type="password"
+          autoComplete="current-password"
+          onKeyDown={(e) => e.key === "Enter" && login()}
+          style={{ width: "100%", padding: 12, marginTop: 6, borderRadius: 6, border: "1px solid #6b2d36", background: "#151922", color: "#fff" }}
+        />
+
+        {error && <p style={{ color: "#ff6b7a", fontSize: 13 }}>{error}</p>}
+
+        <button
+          onClick={login}
+          disabled={busy}
+          style={{ width: "100%", marginTop: 18, padding: 13, borderRadius: 6, border: 0, background: "#e2b72f", color: "#101010", fontWeight: 800 }}
+        >
+          {busy ? "Checking..." : "Access Dashboard"}
+        </button>
+      </section>
     </main>
   );
 }
+
+export default AdminAuthGate;
