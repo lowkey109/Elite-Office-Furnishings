@@ -8,6 +8,7 @@ export default function AdminCoinbaseLive() {
   const [audit, setAudit] = useState<any[]>([]);
   const [paperStats, setPaperStats] = useState<any>(null);
   const [paperTrades, setPaperTrades] = useState<any[]>([]);
+  const [autopilotState, setAutopilotState] = useState<any>(null);
   const [msg, setMsg] = useState("");
 
   const [productId, setProductId] = useState("BTC-USD");
@@ -35,6 +36,12 @@ export default function AdminCoinbaseLive() {
 
     setPaperStats(ps?.stats || null);
     setPaperTrades(pt?.trades || []);
+
+    const ap = await fetch(API("/api/nexora/coinbase/paper/autopilot"))
+      .then(r => r.json())
+      .catch(() => null);
+
+    setAutopilotState(ap?.state || null);
   }
 
   useEffect(() => {
@@ -124,6 +131,40 @@ export default function AdminCoinbaseLive() {
       </div>
 
       {msg && <div style={card}><pre>{msg}</pre></div>}
+
+
+
+      <div style={card}>
+        <h3>Autopilot</h3>
+
+        <pre>{JSON.stringify(autopilotState || {}, null, 2)}</pre>
+
+        <div style={{ display: "flex", gap: 10 }}>
+          <button
+            style={btn}
+            onClick={async () => {
+              await fetch(API("/api/nexora/coinbase/paper/autopilot/start"), {
+                method: "POST",
+              });
+              await load();
+            }}
+          >
+            Start Autopilot
+          </button>
+
+          <button
+            style={{ ...btn, background: "#dc2626" }}
+            onClick={async () => {
+              await fetch(API("/api/nexora/coinbase/paper/autopilot/stop"), {
+                method: "POST",
+              });
+              await load();
+            }}
+          >
+            Stop Autopilot
+          </button>
+        </div>
+      </div>
 
 
       <div style={card}>
