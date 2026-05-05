@@ -299,6 +299,8 @@ export function registerNexoraCoinbaseLiveRoutes(app: Express) {
     });
   });
 
+
+
   app.get("/api/nexora/coinbase/paper/performance", (_req: Request, res: Response) => {
     res.json({
       ok: true,
@@ -306,6 +308,5 @@ export function registerNexoraCoinbaseLiveRoutes(app: Express) {
       safety: coinbaseSafetyEnvelope(),
     });
   });
-
 
 }
