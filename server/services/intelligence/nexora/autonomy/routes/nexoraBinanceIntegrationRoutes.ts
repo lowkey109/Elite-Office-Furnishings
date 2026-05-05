@@ -1,5 +1,7 @@
 import type { Express, Request, Response } from "express";
 import crypto from "crypto";
+import fs from "fs";
+import path from "path";
 import {
   closeBinancePaperTrade,
   evaluateOpenBinancePaperTrades,
@@ -31,6 +33,45 @@ type PaperTrade = {
 };
 
 const paperTrades: PaperTrade[] = [];
+
+
+function binanceRunLogDir() {
+  const dir = path.join(process.cwd(), "data/nexora/binance-auto-cycles");
+  fs.mkdirSync(dir, { recursive: true });
+  return dir;
+}
+
+function saveBinanceAutoCycleLog(payload: any) {
+  const id = new Date().toISOString().replace(/[:.]/g, "-");
+  const file = path.join(binanceRunLogDir(), `${id}.json`);
+  fs.writeFileSync(file, JSON.stringify(payload, null, 2));
+  return { id, file };
+}
+
+function listBinanceAutoCycleLogs() {
+  const dir = binanceRunLogDir();
+  return fs.readdirSync(dir)
+    .filter((f) => f.endsWith(".json"))
+    .sort()
+    .reverse()
+    .slice(0, 50)
+    .map((file) => {
+      const full = path.join(dir, file);
+      try {
+        const parsed = JSON.parse(fs.readFileSync(full, "utf8"));
+        return {
+          file,
+          generatedAt: parsed.generatedAt,
+          symbol: parsed.symbol,
+          interval: parsed.interval,
+          strategiesRun: parsed.strategiesRun,
+          summary: parsed.summary?.performance || null,
+        };
+      } catch {
+        return { file, error: "read_failed" };
+      }
+    });
+}
 
 function now() {
   return new Date().toISOString();
@@ -288,6 +329,17 @@ export function registerNexoraBinanceIntegrationRoutes(app: Express) {
   });
 
 
+
+  app.get("/api/nexora/binance/paper/auto-cycle/history", async (_req, res) => {
+    res.json({
+      ok: true,
+      service: "nexora_binance_auto_cycle_history",
+      generatedAt: new Date().toISOString(),
+      runs: listBinanceAutoCycleLogs(),
+      safety: safety(),
+    });
+  });
+
   app.post("/api/nexora/binance/paper/auto-cycle", async (req, res) => {
     const body = req.body || {};
     const sym = symbol(body.symbol || "BTCUSDT");
@@ -314,7 +366,7 @@ export function registerNexoraBinanceIntegrationRoutes(app: Express) {
       runBinancePaperStrategy({ symbol: sym, strategy, candles })
     );
 
-    res.json({
+    const responsePayload = {
       ok: true,
       service: "nexora_binance_paper_auto_cycle",
       generatedAt: new Date().toISOString(),
@@ -326,7 +378,10 @@ export function registerNexoraBinanceIntegrationRoutes(app: Express) {
       results,
       summary: getBinancePaperSummary(candles.at(-1)?.close),
       safety: safety(),
-    });
+    };
+
+    const savedLog = saveBinanceAutoCycleLog(responsePayload);
+    res.json({ ...responsePayload, savedLog });
   });
 
   app.post("/api/nexora/binance/paper/run-strategy", async (req, res) => {
