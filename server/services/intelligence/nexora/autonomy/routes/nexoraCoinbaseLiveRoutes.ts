@@ -1,12 +1,7 @@
 import type { Express, Request, Response } from "express";
 
-import {
-  coinbaseSafetyEnvelope,
-} from "../../coinbase/nexoraCoinbaseLiveConfig";
-
-import {
-  checkCoinbaseLiveReadiness,
-} from "../../coinbase/nexoraCoinbaseLiveReadinessService";
+import { coinbaseSafetyEnvelope } from "../../coinbase/nexoraCoinbaseLiveConfig";
+import { checkCoinbaseLiveReadiness } from "../../coinbase/nexoraCoinbaseLiveReadinessService";
 
 import {
   createCoinbaseIntent,
@@ -15,14 +10,25 @@ import {
   listCoinbaseIntents,
 } from "../../coinbase/nexoraCoinbaseLiveIntentStore";
 
-import {
-  placeCoinbaseLiveOrder,
-} from "../../coinbase/nexoraCoinbaseLiveOrderEngine";
+import { placeCoinbaseLiveOrder } from "../../coinbase/nexoraCoinbaseLiveOrderEngine";
 
 import {
   readRecentCoinbaseAuditEvents,
   writeCoinbaseAuditEvent,
 } from "../../coinbase/nexoraCoinbaseLiveAuditLog";
+
+import {
+  createPaperTrade,
+  closePaperTrade,
+  listPaperTrades,
+  paperStats,
+} from "../../coinbase/nexoraCoinbasePaperLedger";
+
+import {
+  startCoinbasePaperAutopilot,
+  stopCoinbasePaperAutopilot,
+  coinbasePaperAutopilotState,
+} from "../../coinbase/nexoraCoinbasePaperAutopilot";
 
 function err500(res: Response, error: unknown) {
   res.status(500).json({
@@ -180,6 +186,84 @@ export function registerNexoraCoinbaseLiveRoutes(app: Express) {
       generatedAt: new Date().toISOString(),
       count: limit,
       events: readRecentCoinbaseAuditEvents(limit),
+      safety: coinbaseSafetyEnvelope(),
+    });
+  });
+
+  app.get("/api/nexora/coinbase/paper/stats", (_req: Request, res: Response) => {
+    res.json({
+      ok: true,
+      stats: paperStats(),
+      safety: coinbaseSafetyEnvelope(),
+    });
+  });
+
+  app.get("/api/nexora/coinbase/paper/trades", (req: Request, res: Response) => {
+    const limit = Math.min(500, Number(req.query.limit || 100));
+
+    res.json({
+      ok: true,
+      trades: listPaperTrades(limit),
+      safety: coinbaseSafetyEnvelope(),
+    });
+  });
+
+  app.post("/api/nexora/coinbase/paper/trades/create", (req: Request, res: Response) => {
+    const body = req.body || {};
+
+    const trade = createPaperTrade({
+      productId: String(body.productId || "BTC-USD"),
+      side: String(body.side || "BUY").toUpperCase() === "SELL" ? "SELL" : "BUY",
+      quantity: Number(body.quantity || 0.0001),
+      entryPrice: Number(body.entryPrice || 100000),
+      strategy: String(body.strategy || "manual_test"),
+    });
+
+    res.json({
+      ok: true,
+      trade,
+      safety: coinbaseSafetyEnvelope(),
+    });
+  });
+
+  app.post("/api/nexora/coinbase/paper/trades/:id/close", (req: Request, res: Response) => {
+    const trade = closePaperTrade(
+      String(req.params.id),
+      Number(req.body?.exitPrice || 0)
+    );
+
+    if (!trade) {
+      return res.status(404).json({
+        ok: false,
+        error: "trade_not_found",
+      });
+    }
+
+    res.json({
+      ok: true,
+      trade,
+      safety: coinbaseSafetyEnvelope(),
+    });
+  });
+
+  app.get("/api/nexora/coinbase/paper/autopilot", (_req: Request, res: Response) => {
+    res.json({
+      ok: true,
+      state: coinbasePaperAutopilotState(),
+      safety: coinbaseSafetyEnvelope(),
+    });
+  });
+
+  app.post("/api/nexora/coinbase/paper/autopilot/start", (_req: Request, res: Response) => {
+    res.json({
+      ...startCoinbasePaperAutopilot(),
+      safety: coinbaseSafetyEnvelope(),
+    });
+  });
+
+  app.post("/api/nexora/coinbase/paper/autopilot/stop", (_req: Request, res: Response) => {
+    res.json({
+      ...stopCoinbasePaperAutopilot(),
       safety: coinbaseSafetyEnvelope(),
     });
   });

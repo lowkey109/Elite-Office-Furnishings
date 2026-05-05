@@ -6,6 +6,8 @@ export default function AdminCoinbaseLive() {
   const [status, setStatus] = useState<any>(null);
   const [intents, setIntents] = useState<any[]>([]);
   const [audit, setAudit] = useState<any[]>([]);
+  const [paperStats, setPaperStats] = useState<any>(null);
+  const [paperTrades, setPaperTrades] = useState<any[]>([]);
   const [msg, setMsg] = useState("");
 
   const [productId, setProductId] = useState("BTC-USD");
@@ -22,6 +24,17 @@ export default function AdminCoinbaseLive() {
     setStatus(s);
     setIntents(i?.intents || []);
     setAudit(a?.events || []);
+
+    const ps = await fetch(API("/api/nexora/coinbase/paper/stats"))
+      .then(r => r.json())
+      .catch(() => null);
+
+    const pt = await fetch(API("/api/nexora/coinbase/paper/trades"))
+      .then(r => r.json())
+      .catch(() => null);
+
+    setPaperStats(ps?.stats || null);
+    setPaperTrades(pt?.trades || []);
   }
 
   useEffect(() => {
@@ -111,6 +124,17 @@ export default function AdminCoinbaseLive() {
       </div>
 
       {msg && <div style={card}><pre>{msg}</pre></div>}
+
+
+      <div style={card}>
+        <h3>Paper Trading Stats</h3>
+
+        <pre>{JSON.stringify(paperStats || {}, null, 2)}</pre>
+
+        <h3 style={{ marginTop: 20 }}>Paper Trades</h3>
+
+        <pre>{JSON.stringify(paperTrades.slice(0, 20), null, 2)}</pre>
+      </div>
 
       <div style={card}>
         <h3>Audit</h3>
