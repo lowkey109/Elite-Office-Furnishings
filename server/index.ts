@@ -234,6 +234,10 @@ app.use((req: any, res: any, next: any) => {
 });
 
 app.use("/api/admin", (req: any, res: any, next: any) => {
+  if (req.path === "/login" || req.originalUrl === "/api/admin/login") {
+    return next();
+  }
+
   const path = String(req.originalUrl || req.url || "");
 
   const fastSummaryRoutes = [
@@ -872,6 +876,7 @@ app.use("/api/admin", (req: any, res: any, next: any) => {
   const path = String(req.originalUrl || req.url || "").split("?")[0];
 
   if (
+    path === "/api/admin/login" ||
     path === "/api/admin/nexora/monitor" ||
     path === "/api/admin/trading/monitor"
   ) {
