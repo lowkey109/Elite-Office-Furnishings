@@ -220,185 +220,398 @@ function page() {
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Nexora PolyEdge Live</title>
+<title>Nexora PolyEdge Terminal</title>
 <style>
 :root{
-  --bg:#02060b;--panel:#07131d;--panel2:#0a1824;--line:#12364a;
-  --cyan:#80f7ff;--green:#77ffae;--yellow:#ffd166;--red:#ff667d;--muted:#7aa9b7;
+  --bg:#f7f9f2;
+  --ink:#1d2a22;
+  --muted:#6e7a72;
+  --line:#cfd8ca;
+  --panel:#fbfcf7;
+  --green:#0c9b5f;
+  --red:#b63f50;
+  --blue:#326ad8;
+  --gold:#b9841f;
 }
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(circle at top,#071827,#02060b 55%);color:#dffaff;font-family:Inter,Arial,sans-serif}
-.wrap{padding:18px;max-width:1600px;margin:0 auto}
-.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px}
-h1{margin:0;font-size:26px;letter-spacing:.12em;text-transform:uppercase}
-.sub{color:var(--muted);font-size:13px;margin-top:5px}
-.badge{padding:8px 12px;border-radius:999px;background:#092d1c;border:1px solid #1d7049;color:var(--green);font-size:12px;font-weight:800}
-.metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:12px}
-.metric{background:linear-gradient(180deg,var(--panel),#040b11);border:1px solid var(--line);border-radius:14px;padding:12px;min-height:86px}
-.metric span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.1em}
-.metric b{display:block;font-size:28px;margin-top:7px}
-.green{color:var(--green)}.yellow{color:var(--yellow)}.red{color:var(--red)}.cyan{color:var(--cyan)}
-.grid{display:grid;grid-template-columns:1.9fr 1fr;gap:12px}
-.card{background:linear-gradient(180deg,var(--panel),#040b11);border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:0 0 28px rgba(0,255,255,.08)}
-.card h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);margin:0 0 10px}
-canvas{width:100%;height:620px;background:radial-gradient(circle,#09202b,#02060a);border-radius:12px;border:1px solid #0f2b3c}
-table{width:100%;border-collapse:collapse;font-size:12px}
-td,th{border-bottom:1px solid var(--line);padding:8px;text-align:left}
-th{color:var(--muted);font-weight:700;text-transform:uppercase;font-size:10px;letter-spacing:.08em}
-pre{white-space:pre-wrap;overflow:auto;max-height:230px;background:#02060a;border:1px solid #0f2b3c;border-radius:10px;padding:10px;font-size:11px;color:#c9f7ff}
-.details{display:none;margin-top:8px}
-button{background:#12364a;color:#dffaff;border:1px solid #1d5d7a;border-radius:10px;padding:8px 10px;font-weight:800;cursor:pointer}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
-.signalBox{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.signalBox div{background:#02060a;border:1px solid #0f2b3c;border-radius:10px;padding:10px}
-.signalBox small{display:block;color:var(--muted);text-transform:uppercase;font-size:10px}
-.signalBox strong{font-size:18px}
-@media(max-width:1100px){.metrics{grid-template-columns:repeat(2,1fr)}.grid,.row{grid-template-columns:1fr}canvas{height:440px}}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  font-size:12px;
+}
+.wrap{
+  padding:10px;
+  max-width:1800px;
+  margin:0 auto;
+}
+.header{
+  display:grid;
+  grid-template-columns:260px 1fr 260px;
+  gap:8px;
+  align-items:stretch;
+  margin-bottom:8px;
+}
+.panel{
+  background:var(--panel);
+  border:1px solid var(--line);
+  box-shadow:0 1px 0 rgba(0,0,0,.04);
+  padding:8px;
+}
+.title{
+  font-weight:900;
+  letter-spacing:.14em;
+  font-size:20px;
+  text-transform:uppercase;
+}
+.sub{
+  color:var(--muted);
+  font-size:11px;
+}
+.kpiRow{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:6px;
+}
+.kpi span{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  text-transform:uppercase;
+}
+.kpi b{
+  display:block;
+  font-size:18px;
+}
+.green{color:var(--green)}
+.red{color:var(--red)}
+.gold{color:var(--gold)}
+.blue{color:var(--blue)}
+
+.topGrid{
+  display:grid;
+  grid-template-columns:220px 1fr 220px 270px;
+  gap:8px;
+  margin-bottom:8px;
+}
+.midGrid{
+  display:grid;
+  grid-template-columns:1fr 330px;
+  gap:8px;
+  margin-bottom:8px;
+}
+.bottomGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+}
+h3{
+  margin:0 0 6px;
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:#31566b;
+}
+.bigMoney{
+  font-size:44px;
+  font-weight:900;
+  letter-spacing:.03em;
+}
+canvas{
+  width:100%;
+  display:block;
+}
+#candles{height:260px}
+#force{height:430px}
+#pnl{height:160px}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:11px;
+}
+td,th{
+  border-bottom:1px solid #e1e7dc;
+  padding:4px;
+  text-align:left;
+}
+th{
+  color:var(--muted);
+  font-size:10px;
+  text-transform:uppercase;
+}
+.signalCard{
+  border:2px solid #b7a36c;
+  padding:10px;
+  background:#fffaf0;
+  min-height:250px;
+}
+.signalCard .score{
+  font-size:42px;
+  font-weight:900;
+}
+pre{
+  margin:0;
+  white-space:pre-wrap;
+  max-height:160px;
+  overflow:auto;
+}
+.small{
+  font-size:10px;
+  color:var(--muted);
+}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.box{
+  border:1px solid #d7dfd2;
+  background:white;
+  padding:6px;
+}
+@media(max-width:1100px){
+  .header,.topGrid,.midGrid,.bottomGrid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top">
-    <div>
-      <h1>Nexora PolyEdge Live</h1>
-      <div class="sub">MoonDev strategy brain · Multi-asset paper trader · Learning memory · Risk locked · Real money gated</div>
+
+  <div class="header">
+    <div class="panel">
+      <div class="title">PolyEdge</div>
+      <div class="sub">Aetherforge · Paper terminal · MoonDev strategy layer</div>
     </div>
-    <div class="badge">PAPER LEARNING ACTIVE · LIVE MONEY LOCKED</div>
+    <div class="panel kpiRow">
+      <div class="kpi"><span>Evidence</span><b id="kConfidence">--%</b></div>
+      <div class="kpi"><span>Win Rate</span><b id="kWin">--%</b></div>
+      <div class="kpi"><span>Trades</span><b id="kTrades">--</b></div>
+      <div class="kpi"><span>Wins</span><b id="kWins">--</b></div>
+      <div class="kpi"><span>Loop</span><b id="kLoop">--</b></div>
+      <div class="kpi"><span>Live</span><b class="red">LOCKED</b></div>
+    </div>
+    <div class="panel">
+      <div class="small">UTC</div>
+      <b id="clock">--:--:--</b>
+      <div class="small">No wallet signing · No private keys · No live execution</div>
+    </div>
   </div>
 
-  <div class="metrics">
-    <div class="metric"><span>Evidence confidence</span><b id="mConfidence" class="yellow">--%</b></div>
-    <div class="metric"><span>Win rate</span><b id="mWin" class="cyan">--%</b></div>
-    <div class="metric"><span>Counted trades</span><b id="mTrades">--</b></div>
-    <div class="metric"><span>Wins</span><b id="mWins" class="green">--</b></div>
-    <div class="metric"><span>Paper loop</span><b id="mLoop">--</b></div>
-    <div class="metric"><span>Live money</span><b class="red">LOCKED</b></div>
-  </div>
-
-  <div class="grid">
-    <div class="card">
-      <h2>Moving Signal Graph</h2>
-      <canvas id="graph"></canvas>
+  <div class="topGrid">
+    <div class="panel">
+      <h3>Account / Paper Wallet</h3>
+      <div id="accountName"><b>Marketing101</b></div>
+      <div class="small">paper wallet · local learning</div>
+      <div class="bigMoney" id="paperEquity">$--</div>
+      <table>
+        <tr><th>Trades</th><td id="tTrades">--</td></tr>
+        <tr><th>Win%</th><td id="tWin">--</td></tr>
+        <tr><th>Avg Score</th><td id="tScore">--</td></tr>
+      </table>
     </div>
 
-    <div class="card">
-      <h2>Latest Signal</h2>
-      <div class="signalBox">
-        <div><small>Asset</small><strong id="sAsset">--</strong></div>
-        <div><small>Signal</small><strong id="sSignal">--</strong></div>
-        <div><small>Result</small><strong id="sResult">--</strong></div>
-        <div><small>Score</small><strong id="sScore">--</strong></div>
-        <div><small>PNL</small><strong id="sPnl">--</strong></div>
-        <div><small>Strategy</small><strong id="sStrategy">MoonDev + Nexora</strong></div>
+    <div class="panel">
+      <h3 id="chartTitle">Candlestick / Paper Price</h3>
+      <canvas id="candles"></canvas>
+    </div>
+
+    <div class="panel">
+      <h3>Order Book / Liquidity</h3>
+      <table id="book"></table>
+    </div>
+
+    <div class="signalCard">
+      <h3>Best Trade / Signal</h3>
+      <div class="small">MoonDev + Nexora</div>
+      <div class="score" id="signalScore">--</div>
+      <div id="signalText"><b>Waiting</b></div>
+      <hr/>
+      <div class="grid2">
+        <div class="box"><span class="small">Asset</span><br/><b id="sigAsset">--</b></div>
+        <div class="box"><span class="small">Signal</span><br/><b id="sigSignal">--</b></div>
+        <div class="box"><span class="small">PNL</span><br/><b id="sigPnl">--</b></div>
+        <div class="box"><span class="small">Confidence</span><br/><b id="sigConf">--</b></div>
       </div>
-
-      <h2 style="margin-top:14px">Asset Leaderboard</h2>
-      <table id="assets"></table>
-
-      <h2 style="margin-top:14px">Safety Lock</h2>
-      <pre id="safety">Loading...</pre>
     </div>
   </div>
 
-  <div class="row">
-    <div class="card">
-      <h2>System State</h2>
-      <pre id="state">Loading...</pre>
+  <div class="midGrid">
+    <div class="panel">
+      <h3>Moving Force Graph · Market Signal Network</h3>
+      <canvas id="force"></canvas>
     </div>
-    <div class="card">
-      <h2>Debug Details</h2>
-      <button onclick="toggleDetails()">Show / Hide Raw JSON</button>
-      <pre id="details" class="details">Loading...</pre>
+
+    <div class="panel">
+      <h3>Asset Leaderboard</h3>
+      <table id="leaderboard"></table>
+      <h3 style="margin-top:10px">Risk Governor</h3>
+      <pre id="risk">Loading...</pre>
     </div>
   </div>
+
+  <div class="bottomGrid">
+    <div class="panel">
+      <h3>Paper PNL Curve</h3>
+      <canvas id="pnl"></canvas>
+    </div>
+    <div class="panel">
+      <h3>Recent Trades / Events</h3>
+      <table id="recent"></table>
+    </div>
+    <div class="panel">
+      <h3>Live Analytics / Debug</h3>
+      <pre id="debug">Loading...</pre>
+    </div>
+  </div>
+
 </div>
 
 <script>
-const canvas=document.getElementById("graph"),ctx=canvas.getContext("2d");
-let state=null,t=0;
+let state=null;
+let tick=0;
 
-function resize(){
+function fmt(n){
+  if(n===undefined||n===null)return "--";
+  if(typeof n==="number")return Math.round(n*100)/100;
+  return n;
+}
+function cls(v){return v>=80?"green":v>=60?"gold":"red"}
+
+async function getJson(url){
+  const r=await fetch(url,{headers:{Accept:"application/json"}});
+  const t=await r.text();
+  try{return JSON.parse(t)}catch{return {ok:false,html:t.slice(0,200)}}
+}
+
+async function load(){
+  state=await getJson("/api/nexora/poly-edge-fixed/state");
+  const chart=await getJson("/api/nexora/poly-charts/latest");
+  const live=await getJson("/api/nexora/live-money/status");
+
+  const c=state.confidence||{};
+  const counts=state.counts||{};
+  const latest=state.latest||{};
+  const assets=state.assets||[];
+
+  kConfidence.textContent=(c.displayedPercent??"--")+"%";
+  kConfidence.className=cls(c.displayedPercent||0);
+  kWin.textContent=(c.winRate??"--")+"%";
+  kWin.className=cls(c.winRate||0);
+  kTrades.textContent=counts.countedTrades??"--";
+  kWins.textContent=counts.wins??"--";
+  kLoop.textContent=state.paperPractice?.loop??"--";
+
+  tTrades.textContent=counts.countedTrades??"--";
+  tWin.textContent=(c.winRate??"--")+"%";
+  tScore.textContent=c.avgScore??"--";
+  paperEquity.textContent="$"+fmt(100000 + ((assets.reduce((s,a)=>s+(a.pnl||0),0))*100));
+
+  sigAsset.textContent=latest.asset||"--";
+  sigSignal.textContent=latest.signal||"--";
+  sigPnl.textContent=fmt(latest.pnl);
+  sigConf.textContent=fmt(latest.confidence);
+  signalScore.textContent=fmt(latest.score ?? c.displayedPercent ?? "--");
+  signalText.innerHTML="<b>"+(latest.result||"Waiting")+"</b><br/><span class='small'>"+(latest.strategy||"MoonDev Ranked + Risk Gate")+"</span>";
+
+  leaderboard.innerHTML="<tr><th>Asset</th><th>Win</th><th>Score</th><th>Trades</th><th>PNL</th></tr>"+
+    assets.map(a=>\`<tr><td>\${a.asset}</td><td class="\${cls(a.winRate)}">\${a.winRate}%</td><td>\${a.avgScore}</td><td>\${a.countedTrades}</td><td>\${fmt(a.pnl)}</td></tr>\`).join("");
+
+  risk.textContent=JSON.stringify({
+    liveTradingEnabled:live.liveTradingEnabled,
+    privateKeysAllowed:live.privateKeysAllowed,
+    walletSigningAllowed:live.walletSigningAllowed,
+    bankTransfersEnabled:state.safety?.bankTransfersEnabled
+  },null,2);
+
+  debug.textContent=JSON.stringify({paperPractice:state.paperPractice,counts:state.counts,confidence:state.confidence,latest:state.latest},null,2);
+
+  drawCandles(chart.terminal||{}, latest);
+  drawForce(assets, latest);
+  drawPnl(assets);
+  drawBook(chart.terminal||{}, latest);
+  drawRecent(assets);
+}
+
+function resizeCanvas(canvas){
   const r=canvas.getBoundingClientRect();
   canvas.width=r.width*devicePixelRatio;
   canvas.height=r.height*devicePixelRatio;
 }
-resize();addEventListener("resize",resize);
 
-function clsByPercent(v){return v>=80?"green":v>=60?"yellow":"red"}
-
-async function load(){
-  const res=await fetch("/api/nexora/poly-edge-fixed/state",{headers:{Accept:"application/json"}});
-  state=await res.json();
-
-  const c=state.confidence||{};
-  const latest=state.latest||{};
-  const counts=state.counts||{};
-  const loop=state.paperPractice?.loop ?? "--";
-
-  mConfidence.textContent=(c.displayedPercent ?? "--")+"%";
-  mConfidence.className=clsByPercent(c.displayedPercent||0);
-  mWin.textContent=(c.winRate ?? "--")+"%";
-  mWin.className=clsByPercent(c.winRate||0);
-  mTrades.textContent=counts.countedTrades ?? "--";
-  mWins.textContent=counts.wins ?? "--";
-  mLoop.textContent=loop;
-
-  sAsset.textContent=latest.asset||"--";
-  sSignal.textContent=latest.signal||"--";
-  sResult.textContent=latest.result||"--";
-  sScore.textContent=latest.score ?? "--";
-  sPnl.textContent=latest.pnl ?? "--";
-  sStrategy.textContent=(latest.strategy||"MoonDev + Nexora").replace("moondev_ranked_strategy_plus_nexora_risk_gate","MoonDev Ranked + Risk Gate");
-
-  assets.innerHTML="<tr><th>Asset</th><th>Win</th><th>Score</th><th>Trades</th><th>PNL</th></tr>"+
-    (state.assets||[]).map(a=>\`<tr><td>\${a.asset}</td><td class="\${clsByPercent(a.winRate)}">\${a.winRate}%</td><td>\${a.avgScore}</td><td>\${a.trades}</td><td>\${a.pnl}</td></tr>\`).join("");
-
-  safety.textContent=JSON.stringify(state.safety,null,2);
-  document.getElementById("state").textContent=JSON.stringify({
-    paperPractice:state.paperPractice,
-    counts:state.counts,
-    confidence:state.confidence
-  },null,2);
-  details.textContent=JSON.stringify(state,null,2);
-}
-
-function toggleDetails(){
-  details.style.display=details.style.display==="block"?"none":"block";
-}
-
-function draw(){
-  t+=0.02;
-  const w=canvas.width,h=canvas.height,cx=w/2,cy=h/2;
-  ctx.clearRect(0,0,w,h);
-  ctx.fillStyle="#02060a";ctx.fillRect(0,0,w,h);
-
-  const arr=(state&&state.assets&&state.assets.length)?state.assets:[{asset:"WAIT",avgScore:50,winRate:0,trades:0,pnl:0}];
-  const pts=arr.map((a,i)=>({a,ang:(Math.PI*2*i/arr.length)+t,r:(130+(a.avgScore||50)*2)*devicePixelRatio}));
-
-  for(let i=0;i<pts.length;i++){
-    for(let j=i+1;j<pts.length;j++){
-      ctx.strokeStyle="rgba(90,230,255,.18)";
-      ctx.beginPath();
-      ctx.moveTo(cx+Math.cos(pts[i].ang)*pts[i].r,cy+Math.sin(pts[i].ang)*pts[i].r);
-      ctx.lineTo(cx+Math.cos(pts[j].ang)*pts[j].r,cy+Math.sin(pts[j].ang)*pts[j].r);
-      ctx.stroke();
-    }
+function drawCandles(terminal, latest){
+  const canvas=document.getElementById("candles");resizeCanvas(canvas);
+  const ctx=canvas.getContext("2d"),w=canvas.width,h=canvas.height;
+  ctx.clearRect(0,0,w,h);ctx.fillStyle="#fff";ctx.fillRect(0,0,w,h);
+  const candles=(terminal.candles||[]);
+  const fallback=[];
+  for(let i=0;i<44;i++){
+    const base=100+Math.sin((i+tick)/4)*7+(latest.pnl||0);
+    fallback.push({open:base,close:base+Math.sin(i/2)*3,high:base+6,low:base-6,volume:100+i});
   }
+  const data=candles.length?candles:fallback;
+  const prices=data.flatMap(d=>[d.high,d.low,d.open,d.close]).filter(Number.isFinite);
+  const min=Math.min(...prices),max=Math.max(...prices);
+  const cw=w/data.length;
+  ctx.strokeStyle="#d7dfd2";
+  for(let i=0;i<5;i++){const y=h*(i/5);ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  data.forEach((d,i)=>{
+    const x=i*cw+cw/2;
+    const y=v=>h-((v-min)/(max-min||1))*h*.85-h*.075;
+    const up=d.close>=d.open;
+    ctx.strokeStyle=up?"#0c9b5f":"#b63f50";
+    ctx.fillStyle=ctx.strokeStyle;
+    ctx.beginPath();ctx.moveTo(x,y(d.high));ctx.lineTo(x,y(d.low));ctx.stroke();
+    ctx.fillRect(x-cw*.28,Math.min(y(d.open),y(d.close)),cw*.56,Math.max(2,Math.abs(y(d.open)-y(d.close))));
+  });
+}
 
-  for(const p of pts){
+function drawBook(terminal, latest){
+  const rows=(terminal.orderBook||[]).slice(0,10);
+  if(!rows.length){
+    book.innerHTML="<tr><th>Px</th><th>Bid</th><th>Ask</th></tr>"+Array.from({length:10}).map((_,i)=>\`<tr><td>\${fmt((latest.pnl||0)+100+i)}</td><td>\${60+i*4}</td><td>\${70+i*3}</td></tr>\`).join("");
+  } else {
+    book.innerHTML="<tr><th>Px</th><th>Bid</th><th>Ask</th></tr>"+rows.map(r=>\`<tr><td>\${fmt(r.price)}</td><td>\${fmt(r.bidSize)}</td><td>\${fmt(r.askSize)}</td></tr>\`).join("");
+  }
+}
+
+function drawForce(assets, latest){
+  const canvas=document.getElementById("force");resizeCanvas(canvas);
+  const ctx=canvas.getContext("2d"),w=canvas.width,h=canvas.height,cx=w/2,cy=h/2;
+  ctx.clearRect(0,0,w,h);ctx.fillStyle="#fbfcf7";ctx.fillRect(0,0,w,h);
+  const arr=assets.length?assets:[{asset:"WAIT",avgScore:50,winRate:0,countedTrades:0}];
+  const pts=arr.map((a,i)=>({a,ang:Math.PI*2*i/arr.length+tick*.01,r:(120+(a.avgScore||50))*devicePixelRatio}));
+  for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+    ctx.strokeStyle="rgba(40,80,110,.18)";
+    ctx.beginPath();ctx.moveTo(cx+Math.cos(pts[i].ang)*pts[i].r,cy+Math.sin(pts[i].ang)*pts[i].r);
+    ctx.lineTo(cx+Math.cos(pts[j].ang)*pts[j].r,cy+Math.sin(pts[j].ang)*pts[j].r);ctx.stroke();
+  }
+  pts.forEach(p=>{
     const x=cx+Math.cos(p.ang)*p.r,y=cy+Math.sin(p.ang)*p.r;
-    const rr=(10+(p.a.avgScore||50)/8)*devicePixelRatio;
-    ctx.fillStyle=(p.a.winRate||0)>=80?"#74ffb0":(p.a.winRate||0)>=60?"#ffd166":"#ff667d";
+    const rr=(12+(p.a.avgScore||50)/7)*devicePixelRatio;
+    ctx.fillStyle=p.a.winRate>=80?"#66ee99":p.a.winRate>=60?"#ffd15a":"#ff5d75";
     ctx.beginPath();ctx.arc(x,y,rr,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle="#dffaff";ctx.font=(12*devicePixelRatio)+"px monospace";
-    ctx.fillText(p.a.asset,x+rr+4,y);
-  }
-
-  requestAnimationFrame(draw);
+    ctx.fillStyle="#1d2a22";ctx.font=(12*devicePixelRatio)+"px monospace";ctx.fillText(p.a.asset,x+rr+5,y);
+  });
 }
 
+function drawPnl(assets){
+  const canvas=document.getElementById("pnl");resizeCanvas(canvas);
+  const ctx=canvas.getContext("2d"),w=canvas.width,h=canvas.height;
+  ctx.clearRect(0,0,w,h);ctx.fillStyle="#fbfcf7";ctx.fillRect(0,0,w,h);
+  const vals=assets.map(a=>a.pnl||0);
+  if(!vals.length)return;
+  const min=Math.min(...vals,0),max=Math.max(...vals,1);
+  ctx.strokeStyle="#0c9b5f";ctx.lineWidth=2*devicePixelRatio;ctx.beginPath();
+  vals.forEach((v,i)=>{const x=i*(w/(vals.length-1||1));const y=h-((v-min)/(max-min||1))*h*.8-h*.1;if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);});
+  ctx.stroke();
+}
+
+function drawRecent(assets){
+  recent.innerHTML="<tr><th>Asset</th><th>Signal</th><th>Score</th></tr>"+assets.slice(0,8).map(a=>\`<tr><td>\${a.asset}</td><td>\${a.winRate>=80?"PROMOTE":"WATCH"}</td><td>\${a.avgScore}</td></tr>\`).join("");
+}
+
+function clock(){document.getElementById("clock").textContent=new Date().toISOString().slice(11,19)+" UTC";}
+setInterval(clock,1000);clock();
+setInterval(()=>{tick++; if(state) {drawForce(state.assets||[],state.latest||{});}},1000);
 setInterval(load,5000);
-load();draw();
+load();
 </script>
 </body>
 </html>`;
