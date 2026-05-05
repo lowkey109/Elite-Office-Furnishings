@@ -4189,6 +4189,10 @@ app.get("/api/nexora/command-centre", async (_req, res) => {
 });
 
 registerRoutes(server, app);
+  // Production-safe PolyEdge routes: must be mounted before Vite/static fallback.
+  registerNexoraPolyEdgeFixedDashboardRoutes(app);
+  registerNexoraPolyGraphPageRoutes(app);
+
 
 const port = Number(process.env.PORT || 5000);
 
@@ -4220,7 +4224,6 @@ const port = Number(process.env.PORT || 5000);
   registerNexoraPolyBuildsBash2Routes(app);
   registerNexoraPolyBuildsFinalRoutes(app);
   registerNexoraPolyConfidenceRoutes(app);
-  registerNexoraPolyGraphPageRoutes(app);
   registerNexoraPolyEdgeOperatorUiRoutes(app);
   registerNexoraBankConnectUiRoutes(app);
   registerNexoraBankConnectRoutes(app);
@@ -4232,7 +4235,6 @@ const port = Number(process.env.PORT || 5000);
   registerNexoraPolyRealMoneyPreparationRoutes(app);
   registerNexoraPolyOperatorControlRoutes(app);
       registerNexoraMoonDevFullHarvestRoutes(app);
-  registerNexoraPolyEdgeFixedDashboardRoutes(app);
   registerNexoraPolyDirectLiveDashboardRoutes(app);
 await setupVite(server, app);
   } else {
