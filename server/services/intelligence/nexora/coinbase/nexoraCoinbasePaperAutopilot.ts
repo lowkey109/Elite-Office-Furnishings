@@ -69,11 +69,11 @@ export function startCoinbasePaperAutopilot() {
   timer = setInterval(() => {
     try {
       if (Math.random() > 0.45) {
-        void maybeOpenTrade();
+        void void maybeOpenTrade();
       }
 
       if (Math.random() > 0.55) {
-        void maybeCloseTrade();
+        void void maybeCloseTrade();
       }
 
       autoCloseCoinbasePaperTrades();
