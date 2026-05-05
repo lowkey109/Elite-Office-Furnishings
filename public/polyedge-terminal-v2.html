@@ -3,786 +3,123 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>POLY/EDGE Quantum Hyperintelligence Terminal</title>
+<title>PolyEdge Terminal</title>
 <style>
-:root{
-  --bg:#02070c;
-  --panel:#06131d;
-  --panel2:#071a25;
-  --line:#0d5064;
-  --cyan:#5df7ff;
-  --green:#67ff9a;
-  --red:#ff4e69;
-  --gold:#ffd35a;
-  --orange:#ff9d42;
-  --purple:#c783ff;
-  --muted:#6c9fab;
-}
+:root{--bg:#02070c;--panel:#06131d;--line:#0d5064;--cyan:#5df7ff;--green:#67ff9a;--red:#ff4e69;--gold:#ffd35a;--muted:#6c9fab}
 *{box-sizing:border-box}
-html,body{
-  margin:0;
-  width:100%;
-  min-height:100%;
-  background:#02070c;
-  color:#dffaff;
-  font-family:"IBM Plex Mono",Menlo,Consolas,monospace;
-  font-size:8px;
-}
-body:before{
-  content:"";
-  position:fixed;
-  inset:0;
-  background:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px);
-  background-size:100% 4px;
-  pointer-events:none;
-  z-index:99;
-}
-.shell{
-  display:grid;
-  grid-template-columns:132px 1fr;
-  min-height:100vh;
-}
-.side{
-  background:#020b12;
-  border-right:1px solid var(--line);
-  padding:12px 8px;
-}
-.logo{
-  display:flex;
-  gap:8px;
-  align-items:center;
-  margin-bottom:18px;
-  color:var(--cyan);
-  font-size:18px;
-  font-weight:900;
-  letter-spacing:.16em;
-}
-.logo small{
-  display:block;
-  font-size:8px;
-  color:#aafcff;
-  letter-spacing:.16em;
-}
-.tri{
-  width:42px;
-  height:42px;
-  border:1px solid var(--cyan);
-  clip-path:polygon(50% 0,100% 100%,0 100%);
-  box-shadow:0 0 25px rgba(93,247,255,.35);
-}
-.navTitle{
-  font-size:8px;
-  color:#79aeba;
-  margin:14px 8px 5px;
-  text-transform:uppercase;
-  letter-spacing:.12em;
-}
-.nav a{
-  display:block;
-  color:#c8f7ff;
-  text-decoration:none;
-  padding:7px 9px;
-  margin:2px 0;
-  border-radius:7px;
-  border:1px solid transparent;
-  text-transform:uppercase;
-  font-size:8px;
-}
-.nav a.active,.nav a:hover{
-  background:#071824;
-  border-color:var(--line);
-  color:var(--green);
-}
-.orb{
-  width:110px;
-  height:110px;
-  margin:20px auto 10px;
-  border-radius:50%;
-  background:radial-gradient(circle,#56fbff 0%,rgba(86,251,255,.28) 28%,transparent 68%);
-  box-shadow:0 0 42px rgba(93,247,255,.35);
-}
-.sideMetric{
-  text-align:center;
-  color:var(--muted);
-  font-size:8px;
-}
-.sideMetric b{
-  display:block;
-  color:var(--green);
-  font-size:20px;
-}
-.main{
-  padding:6px 6px 30px;
-  min-width:0;
-}
-.top{
-  display:grid;
-  grid-template-columns:1.6fr repeat(7,.7fr);
-  gap:5px;
-  margin-bottom:7px;
-}
-.box{
-  background:linear-gradient(180deg,rgba(7,24,36,.97),rgba(2,8,14,.97));
-  border:1px solid var(--line);
-  box-shadow:0 0 14px rgba(93,247,255,.08),inset 0 0 20px rgba(93,247,255,.035);
-  padding:8px;
-  min-width:0;
-}
-.box h3{
-  margin:0 0 6px;
-  color:#a9fbff;
-  font-size:8px;
-  letter-spacing:.14em;
-  text-transform:uppercase;
-}
-.bigTitle{
-  font-size:20px;
-  font-weight:900;
-  color:var(--cyan);
-  letter-spacing:.15em;
-  line-height:1;
-}
-.sub{
-  font-size:8px;
-  color:#86cbd8;
-}
-.klabel{
-  font-size:8px;
-  color:var(--muted);
-  text-transform:uppercase;
-}
-.kvalue{
-  font-size:16px;
-  font-weight:900;
-}
-.good{color:var(--green)}
-.bad{color:var(--red)}
-.warn{color:var(--gold)}
-.purple{color:var(--purple)}
-.orange{color:var(--orange)}
-.gridA{
-  display:grid;
-  grid-template-columns:1.55fr .72fr .82fr;
-  gap:5px;
-  margin-bottom:7px;
-}
-.gridB{
-  display:grid;
-  grid-template-columns:.75fr .78fr .72fr .95fr;
-  gap:5px;
-  margin-bottom:7px;
-}
-.gridC{
-  display:grid;
-  grid-template-columns:.95fr 1.1fr .72fr .9fr;
-  gap:5px;
-  margin-bottom:7px;
-}
-.gridD{
-  display:grid;
-  grid-template-columns:.9fr 1fr .9fr;
-  gap:5px;
-}
-canvas{
-  width:100%;
-  display:block;
-  background:#01060b;
-  border:1px solid rgba(93,247,255,.15);
-}
-#equity{height:190px}
-#sentiment{height:190px}
-#liquidity{height:140px}
-#mesh{height:120px}
-#allocation{height:120px}
-#multiverse{height:120px}
-#universe{height:185px}
-#pnl{height:95px}
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:8px;
-}
-td,th{
-  border-bottom:1px solid rgba(93,247,255,.17);
-  padding:4px;
-  text-align:left;
-}
-th{
-  font-size:8px;
-  color:#7aaeba;
-  text-transform:uppercase;
-}
-.statusGrid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:4px;
-}
-.statusGrid div{
-  border:1px solid rgba(93,247,255,.17);
-  padding:4px;
-  font-size:8px;
-}
-.alerts{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:5px;
-}
-.alert{
-  border:1px solid rgba(255,211,90,.4);
-  padding:8px;
-  background:#130f05;
-  color:var(--gold);
-  font-size:8px;
-}
-.alert.red{
-  border-color:rgba(255,78,105,.5);
-  background:#17070c;
-  color:var(--red);
-}
-.alert.purple{
-  border-color:rgba(199,131,255,.5);
-  background:#12081c;
-  color:var(--purple);
-}
-pre{
-  white-space:pre-wrap;
-  margin:0;
-  color:#c6f9ff;
-  font-size:8px;
-  max-height:150px;
-  overflow:auto;
-}
-.ticker{
-  position:fixed;
-  left:132px;
-  right:0;
-  bottom:0;
-  height:24px;
-  background:#030c12;
-  border-top:1px solid var(--line);
-  display:flex;
-  gap:24px;
-  align-items:center;
-  padding:0 12px;
-  font-size:8px;
-  z-index:20;
-}
-@media(max-width:1100px){
-  .shell{grid-template-columns:1fr}
-  .side{display:none}
-  .top,.gridA,.gridB,.gridC,.gridD{grid-template-columns:1fr}
-  .ticker{left:0}
-}
-
-.monitorRail{
-  display:grid;
-  gap:6px;
-  align-content:start;
-}
-.monitor{
-  background:linear-gradient(180deg,rgba(7,24,36,.97),rgba(2,8,14,.97));
-  border:1px solid var(--line);
-  box-shadow:0 0 14px rgba(93,247,255,.08),inset 0 0 20px rgba(93,247,255,.035);
-  padding:7px;
-  min-height:90px;
-}
-.monitor h4{
-  margin:0 0 6px;
-  color:var(--cyan);
-  font-size:8px;
-  letter-spacing:.14em;
-  text-transform:uppercase;
-}
-.monitor b{
-  display:block;
-  font-size:18px;
-}
-.monitor small{
-  display:block;
-  color:var(--muted);
-  margin-top:3px;
-  font-size:8px;
-}
-.mainContent{min-width:0}
-@media(max-width:1100px){
-  .main{display:block}
-  .monitorRail{grid-template-columns:1fr 1fr;margin-top:6px}
-}
-
+body{margin:0;background:#02070c;color:#dffaff;font-family:"IBM Plex Mono",Menlo,monospace;font-size:11px}
+body:before{content:"";position:fixed;inset:0;background:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px);background-size:100% 4px;pointer-events:none}
+.wrap{padding:10px}
+.top{display:grid;grid-template-columns:1.4fr repeat(5,1fr);gap:8px;margin-bottom:8px}
+.box{background:linear-gradient(180deg,#06131d,#02080e);border:1px solid var(--line);padding:10px;border-radius:8px;min-width:0}
+.title{font-size:22px;font-weight:900;color:var(--cyan);letter-spacing:.12em}
+.sub{color:var(--muted);font-size:10px;margin-top:4px}
+.k span{display:block;color:var(--muted);font-size:9px;text-transform:uppercase}.k b{font-size:20px}
+.good{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--gold)}
+.grid{display:grid;grid-template-columns:1.4fr 1fr;gap:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px}
+h3{margin:0 0 8px;color:#a9fbff;font-size:11px;text-transform:uppercase;letter-spacing:.12em}
+#graph,#candles,#pnl{width:100%;height:340px;background:#01060b;border:1px solid rgba(93,247,255,.14);display:block}
+#pnl{height:150px}
+table{width:100%;border-collapse:collapse;font-size:10px}td,th{border-bottom:1px solid rgba(93,247,255,.17);padding:5px;text-align:left}th{color:#7aaeba;text-transform:uppercase;font-size:9px}
+pre{margin:0;white-space:pre-wrap;color:#c6f9ff;font-size:10px;max-height:180px;overflow:auto}
+@media(max-width:900px){.top,.grid,.grid2{grid-template-columns:1fr}#graph,#candles{height:300px}}
 </style>
 </head>
+<body>
+<div class="wrap">
+  <section class="top">
+    <div class="box"><div class="title">POLY/EDGE</div><div class="sub">MoonDev strategy · paper trader · real data only</div></div>
+    <div class="box k"><span>Win Rate</span><b id="winRate">--</b></div>
+    <div class="box k"><span>Confidence</span><b id="confidence">--</b></div>
+    <div class="box k"><span>Trades</span><b id="trades">--</b></div>
+    <div class="box k"><span>Wins</span><b id="wins">--</b></div>
+    <div class="box k"><span>Live Money</span><b class="bad">LOCKED</b></div>
+  </section>
+
+  <section class="grid">
+    <div class="box">
+      <h3>Moving Signal Graph</h3>
+      <canvas id="graph"></canvas>
+    </div>
+    <div class="box">
+      <h3>Latest Signal</h3>
+      <table>
+        <tr><th>Asset</th><td id="latestAsset">--</td></tr>
+        <tr><th>Signal</th><td id="latestSignal">--</td></tr>
+        <tr><th>Result</th><td id="latestResult">--</td></tr>
+        <tr><th>Score</th><td id="latestScore">--</td></tr>
+        <tr><th>PNL</th><td id="latestPnl">--</td></tr>
+      </table>
+      <h3 style="margin-top:12px">Asset Leaderboard</h3>
+      <table id="leaderboard"></table>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="box">
+      <h3>Real BTC Candles</h3>
+      <canvas id="candles"></canvas>
+      <div class="sub">Uses Binance public candles. If unavailable, shows waiting.</div>
+    </div>
+    <div class="box">
+      <h3>Paper PNL</h3>
+      <canvas id="pnl"></canvas>
+    </div>
+    <div class="box">
+      <h3>System State</h3>
+      <pre id="state">Loading...</pre>
+    </div>
+  </section>
+</div>
 
 <script>
-let summary = null;
-let state = null;
-let t = 0;
+let summary=null,state=null,t=0;
 
-async function j(url) {
-  const r = await fetch(url, { headers: { Accept: "application/json" } });
-  const x = await r.text();
-  try {
-    return JSON.parse(x);
-  } catch {
-    return { ok: false, error: x.slice(0, 200) };
-  }
+async function j(url){
+  const r=await fetch(url,{headers:{Accept:"application/json"}});
+  const txt=await r.text();
+  try{return JSON.parse(txt)}catch{return {ok:false,error:txt.slice(0,200)}}
 }
-
-function resize(c) {
-  const r = c.getBoundingClientRect();
-  c.width = r.width * devicePixelRatio;
-  c.height = r.height * devicePixelRatio;
-  return c.getContext("2d");
-}
-
-function clear(ctx, c) {
-  ctx.fillStyle = "#01060b";
-  ctx.fillRect(0, 0, c.width, c.height);
-}
-
-function line(ctx, c, vals, color) {
-  if (!vals.length) {
-    ctx.fillStyle = "#ffd05c";
-    ctx.font = "14px monospace";
-    ctx.fillText("WAITING FOR REAL DATA", 20, 40);
-    return;
-  }
-
-  const mn = Math.min(...vals);
-  const mx = Math.max(...vals);
-
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 2 * devicePixelRatio;
-  ctx.beginPath();
-
-  vals.forEach((v, i) => {
-    const x = i * (c.width / (vals.length - 1 || 1));
-    const y = c.height - ((v - mn) / (mx - mn || 1)) * c.height * 0.8 - c.height * 0.1;
-    if (i) ctx.lineTo(x, y);
-    else ctx.moveTo(x, y);
-  });
-
+function resize(c){const r=c.getBoundingClientRect();c.width=r.width*devicePixelRatio;c.height=r.height*devicePixelRatio;return c.getContext("2d")}
+function clear(ctx,c){ctx.fillStyle="#01060b";ctx.fillRect(0,0,c.width,c.height)}
+function line(ctx,c,vals,color){
+  if(!vals.length){ctx.fillStyle="#ffd35a";ctx.font="14px monospace";ctx.fillText("WAITING FOR REAL DATA",20,40);return}
+  const mn=Math.min(...vals),mx=Math.max(...vals);ctx.strokeStyle=color;ctx.lineWidth=2*devicePixelRatio;ctx.beginPath();
+  vals.forEach((v,i)=>{const x=i*(c.width/(vals.length-1||1));const y=c.height-((v-mn)/(mx-mn||1))*c.height*.8-c.height*.1;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});
   ctx.stroke();
 }
-
-async function equity() {
-  const c = document.getElementById("equity");
-  const ctx = resize(c);
-  clear(ctx, c);
-
-  try {
-    const raw = await fetch("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=100").then(r => r.json());
-    if (!Array.isArray(raw)) throw new Error("no candles");
-    line(ctx, c, raw.map(k => Number(k[4])), "#5df7ff");
-  } catch (e) {
-    ctx.fillStyle = "#ffd05c";
-    ctx.font = "14px monospace";
-    ctx.fillText("WAITING FOR REAL CANDLE DATA", 20, 40);
-  }
+function drawGraph(){
+  const c=document.getElementById("graph"),ctx=resize(c);clear(ctx,c);
+  const assets=(summary?.assets||[]).filter(a=>a.asset&&a.asset!=="unknown");
+  if(!assets.length){ctx.fillStyle="#ffd35a";ctx.font="14px monospace";ctx.fillText("WAITING FOR PAPER SUMMARY DATA",20,40);return}
+  const cx=c.width/2,cy=c.height/2;
+  const pts=assets.map((a,i)=>({a,ang:Math.PI*2*i/assets.length+t*.015,r:(90+(a.avgScore||50)*1.8)*devicePixelRatio}));
+  for(let i=0;i<pts.length;i++)for(let k=i+1;k<pts.length;k++){ctx.strokeStyle="rgba(93,247,255,.16)";ctx.beginPath();ctx.moveTo(cx+Math.cos(pts[i].ang)*pts[i].r,cy+Math.sin(pts[i].ang)*pts[i].r);ctx.lineTo(cx+Math.cos(pts[k].ang)*pts[k].r,cy+Math.sin(pts[k].ang)*pts[k].r);ctx.stroke()}
+  pts.forEach(p=>{const x=cx+Math.cos(p.ang)*p.r,y=cy+Math.sin(p.ang)*p.r,rr=(10+(p.a.avgScore||50)/7)*devicePixelRatio;ctx.fillStyle=p.a.winRate>=80?"#67ff9a":p.a.winRate>=60?"#ffd35a":"#ff4e69";ctx.beginPath();ctx.arc(x,y,rr,0,Math.PI*2);ctx.fill();ctx.fillStyle="#dffaff";ctx.font=(11*devicePixelRatio)+"px monospace";ctx.fillText(p.a.asset,x+rr+5,y)})
 }
-
-function net(id) {
-  const c = document.getElementById(id);
-  const ctx = resize(c);
-  clear(ctx, c);
-
-  const a = (summary && summary.assets ? summary.assets : []).filter(x => x.asset && x.asset !== "unknown");
-
-  if (!a.length) {
-    ctx.fillStyle = "#ffd05c";
-    ctx.font = "14px monospace";
-    ctx.fillText("WAITING FOR PAPER SUMMARY", 20, 40);
-    return;
-  }
-
-  const cx = c.width / 2;
-  const cy = c.height / 2;
-
-  const pts = a.map((x, i) => ({
-    x,
-    ang: Math.PI * 2 * i / a.length + t * 0.01,
-    r: (60 + (x.avgScore || 50) * 1.5) * devicePixelRatio
-  }));
-
-  for (let i = 0; i < pts.length; i++) {
-    for (let k = i + 1; k < pts.length; k++) {
-      ctx.strokeStyle = "rgba(93,247,255,.13)";
-      ctx.beginPath();
-      ctx.moveTo(cx + Math.cos(pts[i].ang) * pts[i].r, cy + Math.sin(pts[i].ang) * pts[i].r);
-      ctx.lineTo(cx + Math.cos(pts[k].ang) * pts[k].r, cy + Math.sin(pts[k].ang) * pts[k].r);
-      ctx.stroke();
-    }
-  }
-
-  pts.forEach(p => {
-    const px = cx + Math.cos(p.ang) * p.r;
-    const py = cy + Math.sin(p.ang) * p.r;
-    const rr = (9 + (p.x.avgScore || 50) / 8) * devicePixelRatio;
-
-    ctx.fillStyle = p.x.winRate >= 80 ? "#71ff9d" : p.x.winRate >= 60 ? "#ffd05c" : "#ff4e69";
-    ctx.beginPath();
-    ctx.arc(px, py, rr, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#dffaff";
-    ctx.font = (10 * devicePixelRatio) + "px monospace";
-    ctx.fillText(p.x.asset, px + rr + 4, py);
-  });
+async function drawCandles(){
+  const c=document.getElementById("candles"),ctx=resize(c);clear(ctx,c);
+  try{const raw=await fetch("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=80").then(r=>r.json());if(!Array.isArray(raw))throw new Error("No candles");line(ctx,c,raw.map(k=>Number(k[4])),"#5df7ff")}catch(e){ctx.fillStyle="#ffd35a";ctx.font="14px monospace";ctx.fillText("WAITING FOR REAL CANDLE DATA",20,40)}
 }
-
-function sentiment() {
-  const c = document.getElementById("sentiment");
-  const ctx = resize(c);
-  clear(ctx, c);
-
-  const wr = summary ? summary.winRate || 0 : 0;
-
-  ctx.strokeStyle = "#244e68";
-  ctx.beginPath();
-  ctx.arc(c.width / 2, c.height / 2, 75 * devicePixelRatio, 0, Math.PI * 2);
-  ctx.stroke();
-
-  ctx.fillStyle = "rgba(93,247,255,.18)";
-  ctx.beginPath();
-  ctx.arc(c.width / 2, c.height / 2, wr * devicePixelRatio, 0, Math.PI * 2);
-  ctx.fill();
+function drawPnl(){const c=document.getElementById("pnl"),ctx=resize(c);clear(ctx,c);line(ctx,c,(summary?.assets||[]).map(a=>a.pnl||0),"#67ff9a")}
+function render(){
+  winRate.textContent=(summary?.winRate||0)+"%";
+  confidence.textContent=(summary?.displayedConfidencePercent||0)+"%";
+  trades.textContent=summary?.countedTrades||0;
+  wins.textContent=summary?.wins||0;
+  latestAsset.textContent=summary?.latest?.raw?.asset||"--";
+  latestSignal.textContent=summary?.latest?.raw?.paperSignal||"--";
+  latestResult.textContent=summary?.latest?.result||"--";
+  latestScore.textContent=summary?.latest?.scored?.score||"--";
+  latestPnl.textContent=summary?.latest?.raw?.pnl||"--";
+  leaderboard.innerHTML="<tr><th>Asset</th><th>Win</th><th>Score</th><th>Trades</th></tr>"+(summary?.assets||[]).filter(a=>a.asset!=="unknown").map(a=>`<tr><td>${a.asset}</td><td>${a.winRate}%</td><td>${a.avgScore}</td><td>${a.countedTrades}</td></tr>`).join("");
+  state.textContent=JSON.stringify({paperPractice:state?.paperPractice,counts:state?.counts,confidence:state?.confidence,safety:state?.safety},null,2);
+  drawGraph();drawCandles();drawPnl();
 }
-
-function allocation() {
-  const c = document.getElementById("allocation");
-  const ctx = resize(c);
-  clear(ctx, c);
-
-  const a = (summary && summary.assets ? summary.assets : []).filter(x => x.asset !== "unknown").slice(0, 6);
-
-  a.forEach((x, i) => {
-    ctx.fillStyle = x.winRate >= 80 ? "#71ff9d" : "#ffd05c";
-    ctx.fillRect(20 + i * 42, c.height - 20 - (x.winRate * 1.6), 24, x.winRate * 1.6);
-    ctx.fillStyle = "#dffaff";
-    ctx.fillText(x.asset, 14 + i * 42, c.height - 5);
-  });
-}
-
-function liquidity() {
-  const c = document.getElementById("liquidity");
-  const ctx = resize(c);
-  clear(ctx, c);
-  ctx.fillStyle = "#ffd05c";
-  ctx.font = "14px monospace";
-  ctx.fillText("WAITING FOR REAL ORDER BOOK DATA", 20, 40);
-}
-
-function pnl() {
-  const c = document.getElementById("pnl");
-  const ctx = resize(c);
-  clear(ctx, c);
-
-  const vals = summary && summary.assets ? summary.assets.map(a => a.pnl || 0) : [];
-  line(ctx, c, vals, "#71ff9d");
-}
-
-function fillTables() {
-  const assets = summary && summary.assets ? summary.assets : [];
-
-  document.getElementById("alphaFeed").innerHTML =
-    "<tr><th>Signal</th><th>Conf</th><th>Impact</th></tr>" +
-    assets
-      .filter(x => x.asset !== "unknown")
-      .slice(0, 7)
-      .map(x => `<tr><td>${x.asset} edge</td><td>${x.winRate}%</td><td>${x.pnl}</td></tr>`)
-      .join("");
-
-  document.getElementById("decisionLog").innerHTML =
-    "<tr><th>Time</th><th>Action</th><th>Mode</th></tr>" +
-    `<tr><td>LIVE</td><td>${summary && summary.latest ? summary.latest.result : "WAITING"}</td><td>PAPER</td></tr>`;
-
-  document.getElementById("analytics").textContent = JSON.stringify({
-    events: summary ? summary.polymarketEvents : 0,
-    trades: summary ? summary.countedTrades : 0,
-    wins: summary ? summary.wins : 0,
-    winRate: summary ? summary.winRate : 0,
-    avgScore: summary ? summary.avgScore : 0,
-    latest: summary ? summary.latest : null
-  }, null, 2);
-}
-
-async function load() {
-  summary = await j("/api/nexora/poly-paper-summary/latest");
-  state = await j("/api/nexora/poly-edge-fixed/state");
-
-  document.getElementById("topEvents").textContent = summary.polymarketEvents || 0;
-  document.getElementById("topWin").textContent = (summary.winRate || 0) + "%";
-  document.getElementById("topConf").textContent = (summary.displayedConfidencePercent || 0) + "%";
-  document.getElementById("sTrades").textContent = summary.countedTrades || 0;
-  document.getElementById("sWins").textContent = summary.wins || 0;
-  document.getElementById("sLoop").textContent = state && state.paperPractice ? state.paperPractice.loop || 0 : 0;
-  document.getElementById("sideSync").textContent = (summary.displayedConfidencePercent || 0) + "%";
-  document.getElementById("sentBull").textContent = (summary.winRate || 0) + "%";
-  document.getElementById("sentBear").textContent = Math.max(0, 100 - (summary.winRate || 0)) + "%";
-  document.getElementById("sentNeutral").textContent = (summary.skips || 0) + " skips";
-  document.getElementById("targetStatus").textContent = summary.targetReached ? "PASSED" : "TRAINING";
-  document.getElementById("tickBTC").textContent = ((summary.assets || []).find(a => a.asset === "BTC") || {}).winRate || "--";
-  document.getElementById("tickETH").textContent = ((summary.assets || []).find(a => a.asset === "ETH") || {}).winRate || "--";
-  document.getElementById("tickSOL").textContent = ((summary.assets || []).find(a => a.asset === "SOL") || {}).winRate || "--";
-
-  equity();
-  sentiment();
-  net("mesh");
-  allocation();
-  net("multiverse");
-  liquidity();
-  net("universe");
-  pnl();
-  fillTables();
-}
-
-setInterval(() => {
-  t++;
-  if (summary) {
-    net("mesh");
-    net("multiverse");
-    net("universe");
-  }
-}, 1000);
-
-setInterval(load, 5000);
-load();
-</script>
-</body>
-</html>
-
-<script>
-let summary = null;
-let state = null;
-let t = 0;
-
-async function j(url) {
-  const r = await fetch(url, { headers: { Accept: "application/json" } });
-  const x = await r.text();
-  try {
-    return JSON.parse(x);
-  } catch {
-    return { ok: false, error: x.slice(0, 200) };
-  }
-}
-
-function resize(c) {
-  const r = c.getBoundingClientRect();
-  c.width = r.width * devicePixelRatio;
-  c.height = r.height * devicePixelRatio;
-  return c.getContext("2d");
-}
-
-function clear(ctx, c) {
-  ctx.fillStyle = "#01060b";
-  ctx.fillRect(0, 0, c.width, c.height);
-}
-
-function line(ctx, c, vals, color) {
-  if (!vals.length) {
-    ctx.fillStyle = "#ffd05c";
-    ctx.font = "14px monospace";
-    ctx.fillText("WAITING FOR REAL DATA", 20, 40);
-    return;
-  }
-
-  const mn = Math.min(...vals);
-  const mx = Math.max(...vals);
-
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 2 * devicePixelRatio;
-  ctx.beginPath();
-
-  vals.forEach((v, i) => {
-    const x = i * (c.width / (vals.length - 1 || 1));
-    const y = c.height - ((v - mn) / (mx - mn || 1)) * c.height * 0.8 - c.height * 0.1;
-    if (i) ctx.lineTo(x, y);
-    else ctx.moveTo(x, y);
-  });
-
-  ctx.stroke();
-}
-
-async function equity() {
-  const c = document.getElementById("equity");
-  const ctx = resize(c);
-  clear(ctx, c);
-
-  try {
-    const raw = await fetch("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=100").then(r => r.json());
-    if (!Array.isArray(raw)) throw new Error("no candles");
-    line(ctx, c, raw.map(k => Number(k[4])), "#5df7ff");
-  } catch (e) {
-    ctx.fillStyle = "#ffd05c";
-    ctx.font = "14px monospace";
-    ctx.fillText("WAITING FOR REAL CANDLE DATA", 20, 40);
-  }
-}
-
-function net(id) {
-  const c = document.getElementById(id);
-  const ctx = resize(c);
-  clear(ctx, c);
-
-  const a = (summary && summary.assets ? summary.assets : []).filter(x => x.asset && x.asset !== "unknown");
-
-  if (!a.length) {
-    ctx.fillStyle = "#ffd05c";
-    ctx.font = "14px monospace";
-    ctx.fillText("WAITING FOR PAPER SUMMARY", 20, 40);
-    return;
-  }
-
-  const cx = c.width / 2;
-  const cy = c.height / 2;
-
-  const pts = a.map((x, i) => ({
-    x,
-    ang: Math.PI * 2 * i / a.length + t * 0.01,
-    r: (60 + (x.avgScore || 50) * 1.5) * devicePixelRatio
-  }));
-
-  for (let i = 0; i < pts.length; i++) {
-    for (let k = i + 1; k < pts.length; k++) {
-      ctx.strokeStyle = "rgba(93,247,255,.13)";
-      ctx.beginPath();
-      ctx.moveTo(cx + Math.cos(pts[i].ang) * pts[i].r, cy + Math.sin(pts[i].ang) * pts[i].r);
-      ctx.lineTo(cx + Math.cos(pts[k].ang) * pts[k].r, cy + Math.sin(pts[k].ang) * pts[k].r);
-      ctx.stroke();
-    }
-  }
-
-  pts.forEach(p => {
-    const px = cx + Math.cos(p.ang) * p.r;
-    const py = cy + Math.sin(p.ang) * p.r;
-    const rr = (9 + (p.x.avgScore || 50) / 8) * devicePixelRatio;
-
-    ctx.fillStyle = p.x.winRate >= 80 ? "#71ff9d" : p.x.winRate >= 60 ? "#ffd05c" : "#ff4e69";
-    ctx.beginPath();
-    ctx.arc(px, py, rr, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#dffaff";
-    ctx.font = (10 * devicePixelRatio) + "px monospace";
-    ctx.fillText(p.x.asset, px + rr + 4, py);
-  });
-}
-
-function sentiment() {
-  const c = document.getElementById("sentiment");
-  const ctx = resize(c);
-  clear(ctx, c);
-
-  const wr = summary ? summary.winRate || 0 : 0;
-
-  ctx.strokeStyle = "#244e68";
-  ctx.beginPath();
-  ctx.arc(c.width / 2, c.height / 2, 75 * devicePixelRatio, 0, Math.PI * 2);
-  ctx.stroke();
-
-  ctx.fillStyle = "rgba(93,247,255,.18)";
-  ctx.beginPath();
-  ctx.arc(c.width / 2, c.height / 2, wr * devicePixelRatio, 0, Math.PI * 2);
-  ctx.fill();
-}
-
-function allocation() {
-  const c = document.getElementById("allocation");
-  const ctx = resize(c);
-  clear(ctx, c);
-
-  const a = (summary && summary.assets ? summary.assets : []).filter(x => x.asset !== "unknown").slice(0, 6);
-
-  a.forEach((x, i) => {
-    ctx.fillStyle = x.winRate >= 80 ? "#71ff9d" : "#ffd05c";
-    ctx.fillRect(20 + i * 42, c.height - 20 - (x.winRate * 1.6), 24, x.winRate * 1.6);
-    ctx.fillStyle = "#dffaff";
-    ctx.fillText(x.asset, 14 + i * 42, c.height - 5);
-  });
-}
-
-function liquidity() {
-  const c = document.getElementById("liquidity");
-  const ctx = resize(c);
-  clear(ctx, c);
-  ctx.fillStyle = "#ffd05c";
-  ctx.font = "14px monospace";
-  ctx.fillText("WAITING FOR REAL ORDER BOOK DATA", 20, 40);
-}
-
-function pnl() {
-  const c = document.getElementById("pnl");
-  const ctx = resize(c);
-  clear(ctx, c);
-
-  const vals = summary && summary.assets ? summary.assets.map(a => a.pnl || 0) : [];
-  line(ctx, c, vals, "#71ff9d");
-}
-
-function fillTables() {
-  const assets = summary && summary.assets ? summary.assets : [];
-
-  document.getElementById("alphaFeed").innerHTML =
-    "<tr><th>Signal</th><th>Conf</th><th>Impact</th></tr>" +
-    assets
-      .filter(x => x.asset !== "unknown")
-      .slice(0, 7)
-      .map(x => `<tr><td>${x.asset} edge</td><td>${x.winRate}%</td><td>${x.pnl}</td></tr>`)
-      .join("");
-
-  document.getElementById("decisionLog").innerHTML =
-    "<tr><th>Time</th><th>Action</th><th>Mode</th></tr>" +
-    `<tr><td>LIVE</td><td>${summary && summary.latest ? summary.latest.result : "WAITING"}</td><td>PAPER</td></tr>`;
-
-  document.getElementById("analytics").textContent = JSON.stringify({
-    events: summary ? summary.polymarketEvents : 0,
-    trades: summary ? summary.countedTrades : 0,
-    wins: summary ? summary.wins : 0,
-    winRate: summary ? summary.winRate : 0,
-    avgScore: summary ? summary.avgScore : 0,
-    latest: summary ? summary.latest : null
-  }, null, 2);
-}
-
-async function load() {
-  summary = await j("/api/nexora/poly-paper-summary/latest");
-  state = await j("/api/nexora/poly-edge-fixed/state");
-
-  document.getElementById("topEvents").textContent = summary.polymarketEvents || 0;
-  document.getElementById("topWin").textContent = (summary.winRate || 0) + "%";
-  document.getElementById("topConf").textContent = (summary.displayedConfidencePercent || 0) + "%";
-  document.getElementById("sTrades").textContent = summary.countedTrades || 0;
-  document.getElementById("sWins").textContent = summary.wins || 0;
-  document.getElementById("sLoop").textContent = state && state.paperPractice ? state.paperPractice.loop || 0 : 0;
-  document.getElementById("sideSync").textContent = (summary.displayedConfidencePercent || 0) + "%";
-  document.getElementById("sentBull").textContent = (summary.winRate || 0) + "%";
-  document.getElementById("sentBear").textContent = Math.max(0, 100 - (summary.winRate || 0)) + "%";
-  document.getElementById("sentNeutral").textContent = (summary.skips || 0) + " skips";
-  document.getElementById("targetStatus").textContent = summary.targetReached ? "PASSED" : "TRAINING";
-  document.getElementById("tickBTC").textContent = ((summary.assets || []).find(a => a.asset === "BTC") || {}).winRate || "--";
-  document.getElementById("tickETH").textContent = ((summary.assets || []).find(a => a.asset === "ETH") || {}).winRate || "--";
-  document.getElementById("tickSOL").textContent = ((summary.assets || []).find(a => a.asset === "SOL") || {}).winRate || "--";
-
-  equity();
-  sentiment();
-  net("mesh");
-  allocation();
-  net("multiverse");
-  liquidity();
-  net("universe");
-  pnl();
-  fillTables();
-}
-
-setInterval(() => {
-  t++;
-  if (summary) {
-    net("mesh");
-    net("multiverse");
-    net("universe");
-  }
-}, 1000);
-
-setInterval(load, 5000);
+async function load(){summary=await j("/api/nexora/poly-paper-summary/latest");state=await j("/api/nexora/poly-edge-fixed/state");render()}
+setInterval(()=>{t++; if(summary)drawGraph()},1000);
+setInterval(load,5000);
 load();
 </script>
 </body>
