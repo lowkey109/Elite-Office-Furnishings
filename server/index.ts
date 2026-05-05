@@ -73,6 +73,7 @@ import { registerNexoraPaperSummaryRoutes } from "./services/intelligence/nexora
 import { registerNexoraMoonDevParityRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraMoonDevParityRoutes";
 import { registerNexoraAdminTradingRestoreRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraAdminTradingRestoreRoutes";
 import { registerNexoraPolyExactTerminalRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyExactTerminalRoutes";
+import { registerNexoraPolyEdgeTerminalV2Routes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyEdgeTerminalV2Routes";
 
 // TCD_CHAT_ENV_ALIAS_FIX
 // Keep old and new OpenAI env names in sync so all chatbots/services work.
@@ -4223,6 +4224,7 @@ app.post("/api/admin/login", express.json(), (req, res) => {
 });
 
 registerRoutes(server, app);
+  registerNexoraPolyEdgeTerminalV2Routes(app);
   registerNexoraPolyExactTerminalRoutes(app);
   registerNexoraAdminTradingRestoreRoutes(app);
   registerNexoraMoonDevParityRoutes(app);

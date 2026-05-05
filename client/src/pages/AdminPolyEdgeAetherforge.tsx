@@ -23,7 +23,7 @@ export default function AdminPolyEdgeAetherforge() {
 
             <div className="flex flex-wrap gap-2">
               <a
-                href="/nexora/polyedge-terminal"
+                href="/nexora/polyedge-terminal-v2"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-xl bg-cyan-400 text-black px-4 py-2 text-sm font-bold"
@@ -33,7 +33,7 @@ export default function AdminPolyEdgeAetherforge() {
               </a>
 
               <a
-                href="/nexora-poly-graph.html"
+                href="/nexora/polyedge-terminal-v2"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-xl border border-cyan-400/30 px-4 py-2 text-sm font-bold text-cyan-200"
@@ -68,7 +68,7 @@ export default function AdminPolyEdgeAetherforge() {
         <div className="rounded-2xl overflow-hidden border border-cyan-500/20 bg-black">
           <iframe
             title="Nexora PolyEdge Quantum Terminal"
-            src="/nexora/polyedge-terminal"
+            src="/nexora/polyedge-terminal-v2"
             className="w-full border-0"
             style={{ height: "calc(100vh - 300px)", minHeight: 900 }}
           />
