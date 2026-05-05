@@ -1,5 +1,3 @@
-import { NexoraBot } from "./services/AutonomousEngine";
-import capitalLadderRouter from "./routes/nexora/capital-ladder";
 import path from "path";
 import compression from "compression";
 import multer from "multer";
@@ -80,6 +78,7 @@ import { registerNexoraBinanceIntegrationRoutes } from "./services/intelligence/
 import { registerNexoraPaperPracticeControlRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPaperPracticeControlRoutes";
 import { registerNexoraCapitalLadderRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraCapitalLadderRoutes";
 import { registerNexoraPaperTrainRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPaperTrainRoutes";
+import { registerNexoraPolyEdgeFinalCompatRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPolyEdgeFinalCompatRoutes";
 
 // TCD_CHAT_ENV_ALIAS_FIX
 // Keep old and new OpenAI env names in sync so all chatbots/services work.
@@ -109,10 +108,8 @@ const TCD_ENABLE_BACKGROUND_JOBS =
 const app = express();
 
 // NEXORA 24/7 AUTONOMOUS INITIALIZATION
-app.use("/api/nexora/capital-ladder", capitalLadderRouter);
 
 // START THE BOT
-NexoraBot.start();
 
 // NEXORA_MOONDEV_DIRECT_MOUNT_BEGIN
 try {
@@ -4236,6 +4233,7 @@ app.post("/api/admin/login", express.json(), (req, res) => {
 });
 
 registerRoutes(server, app);
+  registerNexoraPolyEdgeFinalCompatRoutes(app);
   registerNexoraPaperTrainRoutes(app);
   registerNexoraCapitalLadderRoutes(app);
   registerNexoraPaperPracticeControlRoutes(app);

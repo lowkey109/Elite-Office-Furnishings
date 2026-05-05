@@ -218,53 +218,53 @@ pre{margin:0;white-space:pre-wrap;color:#c6f9ff;max-height:145px;overflow:auto}.
     <h4>Global</h4>
     <button class="paper" onclick="startPaperClientLoop()">START PAPER LOOP</button>
     <button class="locked" onclick="stopPaperClientLoop()">STOP PAPER LOOP</button>
-    <button class="read" onclick="polyAction('GET','/api/nexora/paper-train/status')">STATUS</button>
+    <button class="read" onclick="polyAction('GET','/api/nexora/polyedge-control/status')">STATUS</button>
     <button class="read" onclick="refreshPolyTerminal()">REFRESH DATA</button>
   </div>
 
   <div class="controlGroup">
     <h4>Paper Trader</h4>
-    <button class="paper" onclick="polyAction('POST','/api/nexora/paper-train/tick',paperPayload())">RUN PAPER CYCLE</button>
-    <button class="paper" onclick="polyAction('POST','/api/nexora/poly-builds/bash2/loop/run',paperPayload())">RUN RISK LOOP</button>
-    <button class="paper" onclick="polyAction('POST','/api/nexora/binance/paper/run-strategy',binancePayload())">BINANCE PAPER STRATEGY</button>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/polyedge-control/paper/tick',paperPayload())">RUN PAPER CYCLE</button>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/polyedge-control/risk/check',paperPayload())">RUN RISK LOOP</button>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/polyedge-control/binance/paper-strategy',binancePayload())">BINANCE PAPER STRATEGY</button>
     <button class="review" onclick="polyAction('POST','/api/nexora/binance/paper/reset',{})">RESET BINANCE PAPER</button>
   </div>
 
   <div class="controlGroup">
     <h4>MoonDev</h4>
-    <button class="read" onclick="polyAction('GET','/api/nexora/moondev-strategy-import/status')">MOONDEV STATUS</button>
-    <button class="paper" onclick="polyAction('POST','/api/nexora/moondev-strategy-import/rank',paperPayload())">RANK STRATEGIES</button>
-    <button class="paper" onclick="polyAction('POST','/api/nexora/moondev-strategy-import/adapter-plan',paperPayload())">ADAPTER PLAN</button>
-    <button class="paper" onclick="polyAction('POST','/api/nexora/poly-builds/bash1/tournament/run',paperPayload())">TOURNAMENT</button>
+    <button class="read" onclick="polyAction('GET','/api/nexora/polyedge-control/moondev/status')">MOONDEV STATUS</button>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/polyedge-control/moondev/rank',paperPayload())">RANK STRATEGIES</button>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/polyedge-control/moondev/adapter-plan',paperPayload())">ADAPTER PLAN</button>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/polyedge-control/strategy/tournament',paperPayload())">TOURNAMENT</button>
   </div>
 
   <div class="controlGroup">
     <h4>Risk</h4>
-    <button class="paper" onclick="polyAction('POST','/api/nexora/poly-builds/bash2/risk/run',riskPayload())">RUN RISK CHECK</button>
-    <button class="read" onclick="polyAction('GET','/api/nexora/live-money/status')">LIVE LOCK STATUS</button>
-    <button class="review" onclick="polyAction('POST','/api/nexora/capital-ladder/evaluate',capitalPayload())">CAPITAL LADDER</button>
-    <button class="review" onclick="polyAction('POST','/api/nexora/bank-connect/funding-readiness',{liveTrading:false})">FUNDING READINESS</button>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/polyedge-control/risk/check',riskPayload())">RUN RISK CHECK</button>
+    <button class="read" onclick="polyAction('GET','/api/nexora/polyedge-control/live-money/status')">LIVE LOCK STATUS</button>
+    <button class="review" onclick="polyAction('POST','/api/nexora/polyedge-control/capital/evaluate',capitalPayload())">CAPITAL LADDER</button>
+    <button class="review" onclick="polyAction('POST','/api/nexora/polyedge-control/bank/funding-readiness',{liveTrading:false})">FUNDING READINESS</button>
   </div>
 
   <div class="controlGroup">
     <h4>Binance</h4>
-    <button class="read" onclick="polyAction('GET','/api/nexora/binance/status')">BINANCE STATUS</button>
-    <button class="read" onclick="polyAction('GET','/api/nexora/binance/candles?symbol=BTCUSDT&interval=5m&limit=100')">FETCH CANDLES</button>
-    <button class="paper" onclick="polyAction('POST','/api/nexora/binance/paper/open',binancePayload())">OPEN PAPER TRADE</button>
-    <button class="paper" onclick="polyAction('POST','/api/nexora/binance/paper/close',{symbol:'BTCUSDT'})">CLOSE PAPER TRADE</button>
+    <button class="read" onclick="polyAction('GET','/api/nexora/polyedge-control/binance/status')">BINANCE STATUS</button>
+    <button class="read" onclick="polyAction('GET','/api/nexora/polyedge-control/binance/candles?symbol=BTCUSDT&interval=5m&limit=100')">FETCH CANDLES</button>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/polyedge-control/binance/paper-open',binancePayload())">OPEN PAPER TRADE</button>
+    <button class="paper" onclick="polyAction('POST','/api/nexora/polyedge-control/binance/paper-close',{symbol:'BTCUSDT'})">CLOSE PAPER TRADE</button>
   </div>
 
   <div class="controlGroup">
     <h4>Live Intent</h4>
     <button class="review" onclick="polyAction('POST','/api/nexora/poly-builds/final/trade-intent-draft',paperPayload())">CREATE TRADE INTENT</button>
-    <button class="review" onclick="polyAction('POST','/api/nexora/binance/live/intent',liveIntentPayload())">BINANCE LIVE INTENT</button>
-    <button class="read" onclick="polyAction('GET','/api/nexora/binance/live/intents')">VIEW INTENTS</button>
+    <button class="review" onclick="polyAction('POST','/api/nexora/polyedge-control/binance/live-intent',liveIntentPayload())">BINANCE LIVE INTENT</button>
+    <button class="read" onclick="polyAction('GET','/api/nexora/polyedge-control/binance/live-intents')">VIEW INTENTS</button>
     <button class="locked" onclick="blockedLiveOrder()">LIVE ORDER DISABLED</button>
   </div>
 
   <div class="controlGroup">
     <h4>Bank</h4>
-    <button class="read" onclick="polyAction('GET','/api/nexora/bank-connect/status')">BANK STATUS</button>
+    <button class="read" onclick="polyAction('GET','/api/nexora/polyedge-control/bank/status')">BANK STATUS</button>
     <button class="review" onclick="polyAction('POST','/api/nexora/bank-connect/session/create',{provider:'placeholder',mode:'read_only'})">CREATE SESSION</button>
     <button class="read" onclick="polyAction('GET','/api/nexora/bank-connect/accounts')">ACCOUNTS</button>
     <button class="read" onclick="polyAction('GET','/api/nexora/bank-connect/balances')">BALANCES</button>
