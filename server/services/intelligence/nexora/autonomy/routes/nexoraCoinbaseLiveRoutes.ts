@@ -34,6 +34,7 @@ import { coinbaseLearningSnapshot } from "../../coinbase/nexoraCoinbaseLearningE
 import { chooseCoinbasePaperStrategy } from "../../coinbase/nexoraCoinbaseStrategyEngine";
 import { coinbaseMarketBias } from "../../coinbase/nexoraCoinbaseMarketBiasEngine";
 import { coinbasePerformanceReport } from "../../coinbase/nexoraCoinbasePerformanceEngine";
+import { coinbaseRiskAssessment } from "../../coinbase/nexoraCoinbaseRiskEngine";
 
 function err500(res: Response, error: unknown) {
   res.status(500).json({
@@ -305,6 +306,15 @@ export function registerNexoraCoinbaseLiveRoutes(app: Express) {
     res.json({
       ok: true,
       performance: coinbasePerformanceReport(),
+      safety: coinbaseSafetyEnvelope(),
+    });
+  });
+
+
+  app.get("/api/nexora/coinbase/paper/risk", (_req: Request, res: Response) => {
+    res.json({
+      ok: true,
+      risk: coinbaseRiskAssessment(),
       safety: coinbaseSafetyEnvelope(),
     });
   });
