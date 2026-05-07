@@ -1,3 +1,4 @@
+import { getPaperLearningGovernor, updatePaperLearningGovernor } from "../autonomous/nexoraPaperLearningGovernor";
 import fs from "fs";
 import path from "path";
 
@@ -44,11 +45,34 @@ export function runAutonomousPaperTrade() {
     winner: pnl > 0,
   };
 
-  fs.appendFileSync(FILE, JSON.stringify(trade) + "\n");
+
+  const governorBefore = getPaperLearningGovernor();
+
+  const governorAfter = updatePaperLearningGovernor({
+    totalRuns: Number(governorBefore.totalRuns || 0) + 1,
+    wins: Number(governorBefore.wins || 0) + (trade.winner ? 1 : 0),
+    losses: Number(governorBefore.losses || 0) + (trade.winner ? 0 : 1),
+    confidence: Math.min(
+      95,
+      Math.max(
+        35,
+        Math.round(
+          ((Number(governorBefore.wins || 0) + (trade.winner ? 1 : 0)) /
+            Math.max(1, Number(governorBefore.totalRuns || 0) + 1)) *
+            100
+        )
+      )
+    ),
+    bestStrategy: trade.strategy,
+    liveTradingEnabled: false,
+  });
+
+  fs.appendFileSync(FILE, JSON.stringify({ ...trade, governorAfter }) + "\n");
 
   return {
     ok: true,
-    trade,
+    trade: { ...trade, governorAfter },
+    governor: governorAfter,
   };
 }
 
