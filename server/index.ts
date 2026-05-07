@@ -78,6 +78,7 @@ import { registerNexoraBinanceIntegrationRoutes } from "./services/intelligence/
 import { registerNexoraBinanceLiveRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraBinanceLiveRoutes";
 import { registerNexoraCoinbaseLiveRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraCoinbaseLiveRoutes";
 import { registerNexoraCoinbaseMoonDevBridgeRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraCoinbaseMoonDevBridgeRoutes";
+import { registerNexoraLiveExecutionGuardRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraLiveExecutionGuardRoutes";
 import { registerNexoraLiveCapitalGovernorRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraLiveCapitalGovernorRoutes";
 import { registerNexoraMoonDevPolicyAdapterRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraMoonDevPolicyAdapterRoutes";
 import { registerNexoraPaperPracticeControlRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraPaperPracticeControlRoutes";
@@ -4260,6 +4261,7 @@ registerRoutes(server, app);
   registerNexoraCoinbaseMoonDevBridgeRoutes(app);
   registerNexoraMoonDevPolicyAdapterRoutes(app);
 registerNexoraLiveCapitalGovernorRoutes(app);
+registerNexoraLiveExecutionGuardRoutes(app);
   registerNexoraPolyExactTerminalRoutes(app);
   registerNexoraAdminTradingRestoreRoutes(app);
   registerNexoraMoonDevParityRoutes(app);
