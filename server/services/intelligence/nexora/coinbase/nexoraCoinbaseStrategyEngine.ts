@@ -1,4 +1,5 @@
 import { coinbaseLearningSnapshot } from "./nexoraCoinbaseLearningEngine";
+import { buildMoonDevCoinbasePaperPolicy } from "../autonomy/moondevpolicy/nexoraMoonDevPolicyAdapter";
 
 export function chooseCoinbasePaperStrategy() {
   const learning = coinbaseLearningSnapshot();
@@ -15,11 +16,18 @@ export function chooseCoinbasePaperStrategy() {
 
   const best = strategies[0];
 
+  const moonDevPolicy = buildMoonDevCoinbasePaperPolicy({
+    venue: "coinbase",
+    mode: "paper",
+    products: ["BTC-USD", "ETH-USD", "SOL-USD"],
+  });
+
   if (!best || best.trades < 10) {
     return {
-      strategy: "nexora_autopilot_v1",
+      strategy: "moondev_policy_guided_paper_learning",
       confidence: 35,
-      reason: "not_enough_trade_history",
+      reason: "not_enough_trade_history_use_moondev_policy",
+      moonDevPolicy,
       learning,
     };
   }
@@ -27,8 +35,9 @@ export function chooseCoinbasePaperStrategy() {
   return {
     strategy: best.name,
     confidence: Math.min(95, Math.max(40, best.score)),
-    reason: "best_historical_paper_strategy",
+    reason: "best_historical_paper_strategy_with_moondev_policy",
     best,
+    moonDevPolicy,
     learning,
   };
 }
