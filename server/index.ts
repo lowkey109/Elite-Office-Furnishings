@@ -1,3 +1,6 @@
+import { registerNexoraAutonomousPaperTraderRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraAutonomousPaperTraderRoutes";
+import { registerNexoraLiveOrderReconciliationRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraLiveOrderReconciliationRoutes";
+import { registerNexoraLiveTradingReadinessAuditRoutes } from "./services/intelligence/nexora/autonomy/routes/nexoraLiveTradingReadinessAuditRoutes";
 import path from "path";
 import compression from "compression";
 import multer from "multer";
