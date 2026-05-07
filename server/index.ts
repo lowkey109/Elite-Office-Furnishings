@@ -4315,7 +4315,10 @@ const port = Number(process.env.PORT || 5000);
   registerNexoraPolyOperatorControlRoutes(app);
       registerNexoraMoonDevFullHarvestRoutes(app);
   registerNexoraPolyEdgeFixedDashboardRoutes(app);
-await setupVite(server, app);
+await 
+registerNexoraAutonomousPaperTraderRoutes(app);
+
+setupVite(server, app);
   } else {
   registerNexoraPolymarketBatch1Routes(app);
   registerNexoraPolymarketBatch2Routes(app);
